@@ -74,12 +74,16 @@ async function run() {
     let submittedFlipY = false;
     let submittedModel = null;
     let overlayRequests = 0;
+    const candidateRequests = new Map();
+    const promptRequests = new Map();
     await page.route('**/*', async (route) => {
       const url = new URL(route.request().url());
       const isCandidateRequest =
         url.pathname === `/api/sessions/${sessionId}/sprite-candidates` ||
         url.pathname === `/api/sessions/${secondSessionId}/sprite-candidates`;
       if (isCandidateRequest) {
+        const candidateSessionId = url.pathname.split('/')[3];
+        candidateRequests.set(candidateSessionId, (candidateRequests.get(candidateSessionId) ?? 0) + 1);
         await route.fulfill({
           json: {
             candidates: [
@@ -177,6 +181,8 @@ async function run() {
         return;
       }
       if (url.pathname.endsWith('/cutout-extraction-prompt')) {
+        const promptSessionId = url.pathname.split('/')[3];
+        promptRequests.set(promptSessionId, (promptRequests.get(promptSessionId) ?? 0) + 1);
         await route.fulfill({ json: {
           entity: 'bird',
           prompt: 'CUTOUT-ONLY TASK. Extract and faithfully duplicate exactly ONE selected cartoon bird.',
@@ -280,6 +286,7 @@ async function run() {
     }
     const draggableBounds = await draggableOverlay.boundingBox();
     if (!draggableBounds) throw new Error('Missing draggable overlay bounds');
+    const candidateRequestsBeforePlacement = candidateRequests.get(sessionId) ?? 0;
     await page.mouse.move(draggableBounds.x + draggableBounds.width / 2, draggableBounds.y + draggableBounds.height / 2);
     await page.mouse.down();
     await page.mouse.move(draggableBounds.x + draggableBounds.width / 2 + 20, draggableBounds.y + draggableBounds.height / 2);
@@ -287,16 +294,29 @@ async function run() {
     await firstCard.getByRole('tab', { name: 'Padding' }).click();
     await page.waitForTimeout(100);
     const paddingLeft = firstCard.getByLabel('dog #0 · sprite 000 padding left');
+    const paddingTop = firstCard.getByLabel('dog #0 · sprite 000 padding top');
+    const paddingRight = firstCard.getByLabel('dog #0 · sprite 000 padding right');
+    const paddingBottom = firstCard.getByLabel('dog #0 · sprite 000 padding bottom');
     const paddingLeftBefore = Number(await paddingLeft.inputValue());
+    const paddingTopBefore = Number(await paddingTop.inputValue());
+    const paddingRightBefore = Number(await paddingRight.inputValue());
+    const paddingBottomBefore = Number(await paddingBottom.inputValue());
     const overlayRequestsBeforePaddingDrag = overlayRequests;
     const paddingDragBounds = await draggableOverlay.boundingBox();
     if (!paddingDragBounds) throw new Error('Missing padding drag bounds');
     await page.mouse.move(paddingDragBounds.x + paddingDragBounds.width / 2, paddingDragBounds.y + paddingDragBounds.height / 2);
     await page.mouse.down();
-    await page.mouse.move(paddingDragBounds.x + paddingDragBounds.width / 2 + 20, paddingDragBounds.y + paddingDragBounds.height / 2);
+    await page.mouse.move(paddingDragBounds.x + paddingDragBounds.width / 2 + 100, paddingDragBounds.y + paddingDragBounds.height / 2);
     await page.mouse.up();
     if (Number(await paddingLeft.inputValue()) <= paddingLeftBefore) {
       throw new Error('Dragging in Padding mode did not move the padding box');
+    }
+    const paddingWidthBefore = paddingRightBefore - paddingLeftBefore;
+    const paddingHeightBefore = paddingBottomBefore - paddingTopBefore;
+    const paddingWidthAfter = Number(await paddingRight.inputValue()) - Number(await paddingLeft.inputValue());
+    const paddingHeightAfter = Number(await paddingBottom.inputValue()) - Number(await paddingTop.inputValue());
+    if (paddingWidthAfter !== paddingWidthBefore || paddingHeightAfter !== paddingHeightBefore) {
+      throw new Error(`Dragging the padding box resized it: ${JSON.stringify({ paddingWidthBefore, paddingWidthAfter, paddingHeightBefore, paddingHeightAfter })}`);
     }
     if (overlayRequests !== overlayRequestsBeforePaddingDrag) {
       throw new Error('Padding drag should update client-side without requesting a new overlay');
@@ -313,6 +333,9 @@ async function run() {
     }
     if (await controls.getByRole('button', { name: 'Flip X', exact: true }).getAttribute('aria-pressed') !== 'true') {
       throw new Error('Flip X did not remain selected after delayed autosave');
+    }
+    if ((candidateRequests.get(sessionId) ?? 0) !== candidateRequestsBeforePlacement) {
+      throw new Error(`Placement autosave refreshed every cutout: ${JSON.stringify(Object.fromEntries(candidateRequests))}`);
     }
     const summary = await page.locator('.cutout-review-summary').innerText();
     if (!summary.includes('2 selected')) {
@@ -372,6 +395,10 @@ async function run() {
     await page.screenshot({ path: '/tmp/pcdNQRrf-cutout-review-panel.png', fullPage: true });
     await page.locator('#switch-session').click();
     await page.waitForSelector('.cutout-review-summary');
+    await page.waitForTimeout(100);
+    if ((candidateRequests.get(secondSessionId) ?? 0) !== 1 || (promptRequests.get(secondSessionId) ?? 0) !== 1) {
+      throw new Error(`Session switch duplicated cutout metadata requests: ${JSON.stringify({ candidates: Object.fromEntries(candidateRequests), prompts: Object.fromEntries(promptRequests) })}`);
+    }
   } finally {
     if (browser) await browser.close();
     if (process.platform === 'win32') {

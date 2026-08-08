@@ -13,7 +13,11 @@ import {
 } from '../api/editorApi';
 import type { ConfigResponse } from '../types';
 import { blockingVisibilitySummaries, summarizeVisibilityIssues } from '../lib/visibilityWarnings';
-import GalleryReviewModal from './GalleryReviewModal';
+import GalleryReviewModal, {
+  compareCards,
+  type ReviewCard,
+  type ReviewCardState,
+} from './GalleryReviewModal';
 
 interface Props {
   config: ConfigResponse;
@@ -21,7 +25,7 @@ interface Props {
 }
 
 type ModelFilter = 'all' | string;
-type CardState = 'background' | 'inpainted' | 'exported';
+type CardState = ReviewCardState;
 type GallerySortMode = 'newest' | 'name' | 'dogs' | 'regeneration';
 
 const VARIANT_LABELS: Record<string, string> = {
@@ -64,22 +68,11 @@ function variantCardState(session: SessionListItem, variant: string): CardState 
  *    2. this variant being in the session's `archivedVariants` list.
  *  Every user action (archive, export, review) targets one VariantCard
  *  and only that card \u2014 siblings for the same session are untouched. */
-interface VariantCard {
-  id: string;          // stable per card: `${session.id}::${variant}`
-  session: SessionListItem;
-  variant: string;
-  state: CardState;
-  archived: boolean;
-}
+type VariantCard = ReviewCard;
 
 function isVariantArchived(session: SessionListItem, variant: string): boolean {
   if (session.archived) return true;
   return (session.archivedVariants ?? []).includes(variant);
-}
-
-function sessionCreatedAtMs(session: SessionListItem): number {
-  const parsed = Date.parse(session.createdAt ?? '');
-  return Number.isNaN(parsed) ? 0 : parsed;
 }
 
 function sortCards(cards: VariantCard[], sortMode: GallerySortMode): VariantCard[] {
@@ -95,10 +88,7 @@ function sortCards(cards: VariantCard[], sortMode: GallerySortMode): VariantCard
       if (redoDelta !== 0) return redoDelta;
     }
 
-    const createdDelta = sessionCreatedAtMs(b.session) - sessionCreatedAtMs(a.session);
-    if (createdDelta !== 0) return createdDelta;
-    if (a.session.id !== b.session.id) return a.session.id.localeCompare(b.session.id);
-    return a.variant.localeCompare(b.variant);
+    return compareCards(a, b);
   });
 }
 

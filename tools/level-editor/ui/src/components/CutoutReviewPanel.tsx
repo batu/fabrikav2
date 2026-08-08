@@ -4,6 +4,7 @@ import {
   dogVariantUrl,
   getCutoutExtractionPrompt,
   getRetryFailedDogsJob,
+  isAbortError,
   listSpriteCandidates,
   saveSpriteCandidateHumanConfirmation,
   saveSpriteCandidatePlacement,
@@ -37,6 +38,7 @@ function CandidateImage({ src, alt, fallback, flipX = false, flipY = false }: {
   flipY?: boolean;
 }) {
   const [failed, setFailed] = useState(false);
+  useEffect(() => setFailed(false), [src]);
   if (src === null || failed) return <span>{fallback}</span>;
   return <img src={src} alt={alt} draggable={false} style={{ transform: `scale(${flipX ? -1 : 1}, ${flipY ? -1 : 1})` }} onDragStart={(event) => event.preventDefault()} onError={() => setFailed(true)} />;
 }
@@ -116,6 +118,28 @@ function clampCropBox(candidate: SpriteCandidate, hitbox: Hitbox, box: CropBox):
     Math.max(0, Math.min(minY, Math.round(box[1]))),
     Math.min(sceneWidth, Math.max(maxX, Math.round(box[2]))),
     Math.min(sceneHeight, Math.max(maxY, Math.round(box[3]))),
+  ];
+}
+
+function translateCropBox(candidate: SpriteCandidate, hitbox: Hitbox, box: CropBox, dx: number, dy: number): CropBox {
+  const target = candidateTarget(candidate, hitbox);
+  const sceneWidth = candidate.sceneWidth ?? Number.MAX_SAFE_INTEGER;
+  const sceneHeight = candidate.sceneHeight ?? Number.MAX_SAFE_INTEGER;
+  const minX = Math.max(0, Math.round(target.x - target.r));
+  const maxX = Math.min(sceneWidth, Math.round(target.x + target.r));
+  const minY = Math.max(0, Math.round(target.y - target.r));
+  const maxY = Math.min(sceneHeight, Math.round(target.y + target.r));
+  const minDx = Math.max(-box[0], maxX - box[2]);
+  const maxDx = Math.min(sceneWidth - box[2], minX - box[0]);
+  const minDy = Math.max(-box[1], maxY - box[3]);
+  const maxDy = Math.min(sceneHeight - box[3], minY - box[1]);
+  const translatedX = Math.max(minDx, Math.min(maxDx, Math.round(dx)));
+  const translatedY = Math.max(minDy, Math.min(maxDy, Math.round(dy)));
+  return [
+    box[0] + translatedX,
+    box[1] + translatedY,
+    box[2] + translatedX,
+    box[3] + translatedY,
   ];
 }
 
@@ -243,20 +267,37 @@ function isTerminalRetryStatus(status: RetryFailedDogsJobResponse['status']): bo
     status === 'failed_terminal' || status === 'orphaned_unknown' || status === 'cancelled';
 }
 
-async function waitForRetryJob(sessionId: string, job: RetryFailedDogsJobResponse): Promise<RetryFailedDogsJobResponse> {
+function abortableDelay(ms: number, signal: AbortSignal): Promise<void> {
+  return new Promise((resolve, reject) => {
+    if (signal.aborted) {
+      reject(new DOMException('Aborted', 'AbortError'));
+      return;
+    }
+    const onAbort = () => {
+      window.clearTimeout(timer);
+      reject(new DOMException('Aborted', 'AbortError'));
+    };
+    const timer = window.setTimeout(() => {
+      signal.removeEventListener('abort', onAbort);
+      resolve();
+    }, ms);
+    signal.addEventListener('abort', onAbort, { once: true });
+  });
+}
+
+async function waitForRetryJob(
+  sessionId: string,
+  job: RetryFailedDogsJobResponse,
+  signal: AbortSignal,
+): Promise<RetryFailedDogsJobResponse> {
   if (isTerminalRetryStatus(job.status)) return job;
   for (let attempt = 0; attempt < 600; attempt += 1) {
-    const current = await getRetryFailedDogsJob(sessionId, job.jobId);
+    const current = await getRetryFailedDogsJob(sessionId, job.jobId, { signal });
     if (isTerminalRetryStatus(current.status)) return current;
-    await new Promise((resolve) => window.setTimeout(resolve, 1000));
+    await abortableDelay(1000, signal);
   }
   throw new Error('Timed out waiting for bird extraction job');
 }
-
-export const cutoutReviewTestExports = {
-  activeCandidates,
-  parseStoredReview,
-};
 
 export default function CutoutReviewPanel({
   sessionId,
@@ -290,21 +331,32 @@ export default function CutoutReviewPanel({
   const [savingPlacement, setSavingPlacement] = useState<string | null>(null);
   const [savingConfirmation, setSavingConfirmation] = useState<string | null>(null);
   const refreshRunId = useRef(0);
+  const dogsRef = useRef(dogs);
+  const currentSessionRef = useRef(sessionId);
+  const refreshAbortRef = useRef<AbortController | null>(null);
+  const operationAbortRef = useRef<AbortController | null>(null);
+  const placementSaveRunIds = useRef(new Map<string, number>());
   const dragRef = useRef<{ candidateId: string; mode: ControlMode; startX: number; startY: number; box: CropBox } | null>(null);
   const draggedCandidateRef = useRef<string | null>(null);
   const placementSaveTimers = useRef(new Map<string, number>());
 
+  dogsRef.current = dogs;
+  currentSessionRef.current = sessionId;
+
   const reviewStorageKey = `ftd-cutout-review:${sessionId}`;
 
-  const refresh = useCallback(async (dogSnapshot: DogState[] = dogs) => {
+  const refresh = useCallback(async (dogSnapshot?: DogState[]) => {
+    refreshAbortRef.current?.abort();
+    const controller = new AbortController();
+    refreshAbortRef.current = controller;
     const runId = refreshRunId.current + 1;
     refreshRunId.current = runId;
     setLoading(true);
     setError(null);
     try {
-      const response = await listSpriteCandidates(sessionId);
+      const response = await listSpriteCandidates(sessionId, { signal: controller.signal, suppressToast: true });
       if (refreshRunId.current !== runId) return;
-      const nextCandidates = activeCandidates(response.candidates, dogSnapshot);
+      const nextCandidates = activeCandidates(response.candidates, dogSnapshot ?? dogsRef.current);
       setCandidates(nextCandidates);
       setAssetRevision(Date.now());
       setReview((prev) => {
@@ -317,36 +369,44 @@ export default function CutoutReviewPanel({
         return next;
       });
     } catch (err) {
+      if (isAbortError(err)) return;
       if (refreshRunId.current !== runId) return;
       setError(err instanceof Error ? err.message : String(err));
     } finally {
       if (refreshRunId.current === runId) {
         setLoading(false);
       }
+      if (refreshAbortRef.current === controller) refreshAbortRef.current = null;
     }
-  }, [dogs, sessionId]);
+  }, [sessionId]);
 
   useEffect(() => {
     setReview(parseStoredReview(window.localStorage.getItem(reviewStorageKey)));
     setLoadedReviewKey(reviewStorageKey);
+    setCandidates([]);
+    setCropBoxes({});
+    setPlacementBoxes({});
+    setControlModes({});
+    setExtractionPrompt('');
+    setLastResult(null);
+    setError(null);
     void refresh();
-    void getCutoutExtractionPrompt(sessionId).then((result) => setExtractionPrompt(result.prompt)).catch(() => setExtractionPrompt(''));
-  }, [refresh, reviewStorageKey]);
+    const promptController = new AbortController();
+    void getCutoutExtractionPrompt(sessionId, { signal: promptController.signal, suppressToast: true })
+      .then((result) => setExtractionPrompt(result.prompt))
+      .catch((err) => { if (!isAbortError(err)) setExtractionPrompt(''); });
+    return () => {
+      promptController.abort();
+      refreshAbortRef.current?.abort();
+    };
+  }, [refresh, reviewStorageKey, sessionId]);
 
   useEffect(() => {
     if (loadedReviewKey !== reviewStorageKey) return;
     window.localStorage.setItem(reviewStorageKey, JSON.stringify(review));
   }, [loadedReviewKey, review, reviewStorageKey]);
 
-  const counts = useMemo(() => {
-    const values = candidates.map((candidate) => review[candidate.id] ?? initialStatus(candidate));
-    return {
-      approved: values.filter((status) => status === 'approved').length,
-      cleanup: values.filter((status) => status === 'cleanup').length,
-      rejected: values.filter((status) => status === 'rejected').length,
-      total: values.length,
-    };
-  }, [candidates, review]);
+  const selectedCount = useMemo(() => reviewTargets(candidates, review).length, [candidates, review]);
 
   const visibleCandidates = useMemo(() => (
     showOnlySelected ? reviewTargets(candidates, review) : candidates
@@ -390,26 +450,31 @@ export default function CutoutReviewPanel({
     flipX = candidate.flipX ?? false,
     flipY = candidate.flipY ?? false,
   ) => {
+    const saveSessionId = sessionId;
+    const saveRunId = (placementSaveRunIds.current.get(candidate.id) ?? 0) + 1;
+    placementSaveRunIds.current.set(candidate.id, saveRunId);
     const pending = placementSaveTimers.current.get(candidate.id);
     if (pending !== undefined) window.clearTimeout(pending);
     placementSaveTimers.current.delete(candidate.id);
     setSavingPlacement(candidate.id);
     setError(null);
     try {
-      await saveSpriteCandidatePlacement(sessionId, candidate.id, box, flipX, flipY);
+      const saved = await saveSpriteCandidatePlacement(saveSessionId, candidate.id, box, flipX, flipY);
+      if (currentSessionRef.current !== saveSessionId || placementSaveRunIds.current.get(candidate.id) !== saveRunId) return;
+      setCandidates((current) => current.map((item) => (
+        item.id === candidate.id ? { ...item, flipX, flipY } : item
+      )));
+      setPlacementBoxes((current) => ({ ...current, [candidate.id]: saved.spriteBox }));
       setLastResult(`${candidateLabel(candidate)} placement saved`);
-      await refresh();
-      setPlacementBoxes((prev) => {
-        const next = { ...prev };
-        delete next[candidate.id];
-        return next;
-      });
     } catch (err) {
+      if (currentSessionRef.current !== saveSessionId || placementSaveRunIds.current.get(candidate.id) !== saveRunId) return;
       setError(err instanceof Error ? err.message : String(err));
     } finally {
-      setSavingPlacement(null);
+      if (currentSessionRef.current === saveSessionId && placementSaveRunIds.current.get(candidate.id) === saveRunId) {
+        setSavingPlacement(null);
+      }
     }
-  }, [refresh, sessionId]);
+  }, [sessionId]);
 
   const setPlacementBox = useCallback((candidate: SpriteCandidate, hitbox: Hitbox, box: CropBox) => {
     const target = candidateTarget(candidate, hitbox);
@@ -443,7 +508,9 @@ export default function CutoutReviewPanel({
   useEffect(() => () => {
     for (const timer of placementSaveTimers.current.values()) window.clearTimeout(timer);
     placementSaveTimers.current.clear();
-  }, []);
+    placementSaveRunIds.current.clear();
+    operationAbortRef.current?.abort();
+  }, [sessionId]);
 
   const runSelected = useCallback(async (operation: Operation) => {
     const targets = reviewTargets(candidates, review);
@@ -451,6 +518,9 @@ export default function CutoutReviewPanel({
     setRunningOperation(operation);
     setError(null);
     setLastResult(null);
+    operationAbortRef.current?.abort();
+    const controller = new AbortController();
+    operationAbortRef.current = controller;
     const completedVariants = new Map<number, number>();
     try {
       const started = await startRetryFailedDogsJob(
@@ -465,8 +535,9 @@ export default function CutoutReviewPanel({
           return [[candidate.dogIndex, cropBoxes[candidate.id] ?? defaultCropBox(candidate, hitbox)]];
         })),
         operation === 'extract',
+        { signal: controller.signal, suppressToast: true },
       );
-      const completed = await waitForRetryJob(sessionId, started);
+      const completed = await waitForRetryJob(sessionId, started, controller.signal);
       for (const unit of completed.units) {
         if (unit.status !== 'succeeded' || unit.file === null || unit.variantIndex === null) continue;
         // Extraction replaces the sprite derivative for the current painted
@@ -487,8 +558,13 @@ export default function CutoutReviewPanel({
         setError(completed.error || `${failures} ${noun}${failures === 1 ? '' : 's'} failed`);
       }
       setLastResult(`${targets.length - failures}/${targets.length} ${noun}${targets.length === 1 ? '' : 's'} finished`);
+    } catch (err) {
+      if (!isAbortError(err)) setError(err instanceof Error ? err.message : String(err));
     } finally {
-      setRunningOperation(null);
+      if (operationAbortRef.current === controller) {
+        operationAbortRef.current = null;
+        setRunningOperation(null);
+      }
     }
   }, [candidates, cropBoxes, cutoutModel, dogs, hitboxes, onDogComplete, refresh, review, runningOperation, sessionId, sharedPrompt]);
 
@@ -500,7 +576,7 @@ export default function CutoutReviewPanel({
         <div>
           <h3>Cutout review</h3>
           <div className="cutout-review-summary">
-            {counts.cleanup + counts.rejected} selected
+            {selectedCount} selected
           </div>
         </div>
         <div className="cutout-review-actions">
@@ -525,17 +601,17 @@ export default function CutoutReviewPanel({
             type="button"
             className="btn btn-primary"
             onClick={() => void runSelected('extract')}
-            disabled={busy || counts.cleanup + counts.rejected === 0}
+            disabled={busy || selectedCount === 0}
           >
-            {runningOperation === 'extract' ? 'Extracting...' : `Extract selected (${counts.cleanup + counts.rejected})`}
+            {runningOperation === 'extract' ? 'Extracting...' : `Extract selected (${selectedCount})`}
           </button>
           <button
             type="button"
             className="btn"
             onClick={() => void runSelected('regenerate')}
-            disabled={busy || counts.cleanup + counts.rejected === 0}
+            disabled={busy || selectedCount === 0}
           >
-            {runningOperation === 'regenerate' ? 'Regenerating...' : `Regenerate selected (${counts.cleanup + counts.rejected})`}
+            {runningOperation === 'regenerate' ? 'Regenerating...' : `Regenerate selected (${selectedCount})`}
           </button>
         </div>
       </div>
@@ -639,9 +715,12 @@ export default function CutoutReviewPanel({
                   const renderedHeight = sceneAspect >= rect.width / rect.height ? rect.width / sceneAspect : rect.height;
                   const dx = Math.round(dxPixels * sceneWidth / renderedWidth);
                   const dy = Math.round(dyPixels * sceneHeight / renderedHeight);
-                  const moved: CropBox = [drag.box[0] + dx, drag.box[1] + dy, drag.box[2] + dx, drag.box[3] + dy];
-                  if (drag.mode === 'sprite') setPlacementBox(candidate, hitbox, moved);
-                  else setCropBox(candidate, hitbox, moved);
+                  if (drag.mode === 'sprite') {
+                    const moved: CropBox = [drag.box[0] + dx, drag.box[1] + dy, drag.box[2] + dx, drag.box[3] + dy];
+                    setPlacementBox(candidate, hitbox, moved);
+                  } else {
+                    setCropBox(candidate, hitbox, translateCropBox(candidate, hitbox, drag.box, dx, dy));
+                  }
                 }}
                 onPointerUp={(event) => {
                   if (dragRef.current?.candidateId === candidate.id) {

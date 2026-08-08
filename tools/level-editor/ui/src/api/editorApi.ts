@@ -364,12 +364,18 @@ export function getSession(sessionId: string): Promise<SessionResponse> {
   return request<SessionResponse>(`/api/sessions/${sessionId}`);
 }
 
-export function listSpriteCandidates(sessionId: string): Promise<{ candidates: SpriteCandidate[] }> {
-  return request<{ candidates: SpriteCandidate[] }>(`/api/sessions/${sessionId}/sprite-candidates`);
+export function listSpriteCandidates(
+  sessionId: string,
+  options?: Pick<RequestOptions, 'signal' | 'suppressToast'>,
+): Promise<{ candidates: SpriteCandidate[] }> {
+  return request<{ candidates: SpriteCandidate[] }>(`/api/sessions/${sessionId}/sprite-candidates`, options);
 }
 
-export function getCutoutExtractionPrompt(sessionId: string): Promise<{ prompt: string; entity: string }> {
-  return request(`/api/sessions/${sessionId}/cutout-extraction-prompt`);
+export function getCutoutExtractionPrompt(
+  sessionId: string,
+  options?: Pick<RequestOptions, 'signal' | 'suppressToast'>,
+): Promise<{ prompt: string; entity: string }> {
+  return request(`/api/sessions/${sessionId}/cutout-extraction-prompt`, options);
 }
 
 export interface CreateAnimationJobRequest {
@@ -808,6 +814,7 @@ export function startRetryFailedDogsJob(
   inpaintModel?: string,
   cropBoxes: Record<number, [number, number, number, number]> = {},
   cutoutOnly: boolean = false,
+  options?: Pick<RequestOptions, 'signal' | 'suppressToast'>,
 ): Promise<RetryFailedDogsJobResponse> {
   return request(`/api/sessions/${sessionId}/dogs/retry-inpaint/jobs`, {
     method: 'POST',
@@ -820,14 +827,16 @@ export function startRetryFailedDogsJob(
       cutoutOnly,
       ...(inpaintModel ? { inpaintModel } : {}),
     }),
+    ...options,
   });
 }
 
 export function getRetryFailedDogsJob(
   sessionId: string,
   jobId: string,
+  options?: Pick<RequestOptions, 'signal' | 'suppressToast'>,
 ): Promise<RetryFailedDogsJobResponse> {
-  return request(`/api/sessions/${sessionId}/dogs/retry-inpaint/jobs/${jobId}`, { suppressToast: true });
+  return request(`/api/sessions/${sessionId}/dogs/retry-inpaint/jobs/${jobId}`, { suppressToast: true, ...options });
 }
 
 export function recompositeSession(sessionId: string): Promise<{ ok: boolean }> {
