@@ -3,10 +3,9 @@ import { whenIconsDecoded } from './iconPreload';
 
 const COVER_ID = 'scene-transition-cover';
 const COVER_ASSETS_READY_CAP_MS = 1500;
-const MIN_VISIBLE_MS = 650;
-const PLAY_ENTRY_REVEAL_MS = 900;
-const PLAY_ENTRY_CLEANUP_MS = 220;
-const PLAY_ENTRY_BLACK_FADE_IN_MS = 260;
+const MIN_VISIBLE_MS = 500;
+const PLAY_ENTRY_REVEAL_MS = 620;
+const PLAY_ENTRY_CLEANUP_MS = 140;
 const PLAY_ENTRY_HUD_ENTER_MS = 680;
 let shownAt = performance.now();
 let transitionGeneration = 0;
@@ -196,10 +195,7 @@ function hidePlayEntryTransitionCover(
   if (!isCurrentTransition(cover, generation, 'play-entry')) return;
   const reduceMotion = prefersReducedMotion();
   if (cover.dataset.transitionState === 'arming') {
-    window.setTimeout(
-      () => hidePlayEntryTransitionCover(cover, generation),
-      reduceMotion ? 1 : PLAY_ENTRY_BLACK_FADE_IN_MS,
-    );
+    requestAnimationFrame(() => hidePlayEntryTransitionCover(cover, generation));
     return;
   }
   if (cover.dataset.transitionState === 'revealing' || cover.dataset.transitionState === 'clearing') return;

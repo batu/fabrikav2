@@ -713,7 +713,7 @@
     radial-gradient(145% 118% at 50% 116%, var(--sch-vig) 0%, transparent 56%),
     linear-gradient(180deg, var(--sch-bg-top) 0%, var(--sch-bg-mid) 48%, var(--sch-bg-bot) 100%);
   opacity: 1;
-  transition: opacity 900ms cubic-bezier(0.33, 0, 0.67, 1);
+  transition: opacity 620ms cubic-bezier(0.33, 0, 0.67, 1);
 }
 
 #scene-transition-cover.scene-transition-cover--play-entry .play-entry-home-backdrop::before {
@@ -741,7 +741,7 @@
      420ms, which meant pressing Play showed the backdrop's cream-to-amber
      gradient underneath (--sch-bg-top #fff2cf -> --sch-bg-bot #f1a957) —
      the "yellow flash" (Batu, 2026-08-07). The reveal/clearing rules below
-     still fade it OUT over 900ms, so the exit is unchanged. */
+     still fades out with the home exit, so the dark cover never flashes. */
   opacity: 1;
   transition: opacity 420ms cubic-bezier(0.33, 0, 0.67, 1);
 }
@@ -753,7 +753,7 @@
 #scene-transition-cover.scene-transition-cover--play-entry[data-transition-state="revealing"] .play-entry-transition-veil,
 #scene-transition-cover.scene-transition-cover--play-entry[data-transition-state="clearing"] .play-entry-transition-veil {
   opacity: 0;
-  transition-duration: 900ms;
+  transition-duration: 620ms;
   transition-timing-function: cubic-bezier(0.33, 0, 0.67, 1);
 }
 
@@ -796,7 +796,7 @@
 .play-entry-home-shell .home-nav-bar {
   will-change: transform, opacity;
   transition:
-    transform 900ms cubic-bezier(0.33, 0, 0.67, 1),
+    transform 620ms cubic-bezier(0.33, 0, 0.67, 1),
     opacity 180ms ease;
 }
 

@@ -143,10 +143,38 @@ experiments:
       cached_cycle_median_ms: 2678.2
       frame_gap_max_ms: 250
     learnings: Component medians shifted slightly but the composite stayed inside noise. Forcing an idle deadline earlier adds contention risk without a defensible win, so the 800 ms fallback remains.
+  - iteration: 5
+    batch: 5
+    hypothesis: Preserve the play-entry choreography but remove excess hold and run its reveal at a responsive 620 ms instead of 900 ms.
+    category: transition
+    outcome: kept_pending_visual_gate
+    changes:
+      - file: games/find_the_bird/src/ui/SceneTransitionCover.ts
+        summary: Reduced play-entry hold, reveal, and cleanup timers; replaced the obsolete arming timeout with frame synchronization.
+      - file: games/find_the_bird/src/ui/styles.css
+        summary: Kept veil, backdrop, and home-exit CSS durations synchronized at 620 ms.
+    gates:
+      home_ready_success: 1
+      first_level_ready_success: 1
+      gameplay_state_consistent: 1
+      local_request_failures: 0
+      page_error_count: 0
+      texture_growth_count: 0
+      cached_cycle_worst_ms: 2466.6
+    gates_passed: true
+    primary:
+      runtime_ready_sum_ms: 4663.57
+    primary_delta_ms: -978.86
+    diagnostics:
+      home_ready_ms: 434.17
+      first_level_ready_ms: 1938.4
+      cached_cycle_median_ms: 2298.2
+      frame_gap_max_ms: 316.7
+    learnings: The board was already ready long before the prior 2.01 s cover choreography ended. Removing dead dwell while preserving every visual phase produced the largest measured win; final retention still requires motion evidence.
 best:
-  iteration: 2
+  iteration: 5
   metrics:
-    runtime_ready_sum_ms: 5642.43
+    runtime_ready_sum_ms: 4663.57
 hypothesis_backlog:
   - description: Parallelize independent required level asset fetches after level metadata validation.
     category: asset-loading
