@@ -279,7 +279,9 @@ export class GameScene extends Phaser.Scene {
   private tutorialAnchorWorld: { x: number; y: number } | null = null;
   private tutorialAnchorRadiusCss = 0;
   /** Camera pose last seen by the frame-rate governor (motion detector). */
-  private lastGovernorView: { x: number; y: number; zoom: number } | null = null;
+  private lastGovernorScrollX = Number.NaN;
+  private lastGovernorScrollY = Number.NaN;
+  private lastGovernorZoom = Number.NaN;
   /** Last worldView the tutorial overlay was positioned for (dirty gate). */
   private lastTutorialView: { l: number; t: number; w: number } | null = null;
   /** Bird the tutorial's real hint pointed at; picking it up starts the
@@ -348,6 +350,9 @@ export class GameScene extends Phaser.Scene {
     this.wrongTapsCount = 0;
     this.hintsUsedThisLevel = 0;
     this.lastViewportEffect = null;
+    this.lastGovernorScrollX = Number.NaN;
+    this.lastGovernorScrollY = Number.NaN;
+    this.lastGovernorZoom = Number.NaN;
     this.analyticsLevelAttribution = null;
     this.sectionController = null;
     this.pinchZoom = null;
@@ -600,11 +605,12 @@ export class GameScene extends Phaser.Scene {
     // on its own ~220ms after the last motion. Cheap checks only — this runs
     // every frame.
     const govCam = this.cameras.main;
-    const cameraMoved = this.lastGovernorView === null
-      || this.lastGovernorView.x !== govCam.scrollX
-      || this.lastGovernorView.y !== govCam.scrollY
-      || this.lastGovernorView.zoom !== govCam.zoom;
-    this.lastGovernorView = { x: govCam.scrollX, y: govCam.scrollY, zoom: govCam.zoom };
+    const cameraMoved = this.lastGovernorScrollX !== govCam.scrollX
+      || this.lastGovernorScrollY !== govCam.scrollY
+      || this.lastGovernorZoom !== govCam.zoom;
+    this.lastGovernorScrollX = govCam.scrollX;
+    this.lastGovernorScrollY = govCam.scrollY;
+    this.lastGovernorZoom = govCam.zoom;
     const animating = cameraMoved
       || this.pointerDownAt !== null
       || this.pickupAnimationsActive > 0
@@ -1288,7 +1294,7 @@ export class GameScene extends Phaser.Scene {
       }
 
       gameState.currentLevelIndex = nextIndex;
-      gameState.save();
+      gameState.persistCurrentLevelIndex();
 
       const levelData = withDirectSelectServingAttempt(await loadLevel(levelId), nextIndex, index.map((entry) => entry.id));
       if (this.isShuttingDown) return;

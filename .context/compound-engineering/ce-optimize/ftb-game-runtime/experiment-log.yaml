@@ -280,6 +280,64 @@ experiments:
       cached_cycle_median_ms: 1789.4
       long_task_total_ms: 4403
     learnings: Foreground timing remains inside noise. The prior helper could permanently lose cache warm, audio, and noncritical preload work in a real visibility race; retained as tested lifecycle correctness, not a metric win.
+  - iteration: 10
+    batch: 10
+    hypothesis: Stop allocating a camera-pose object on every frame-rate-governor update by retaining three scalar values.
+    category: frame-loop
+    outcome: retained_non_metric
+    changes:
+      - file: games/find_the_bird/src/scenes/GameScene.ts
+        summary: Replaced per-frame camera snapshot objects with resettable scalar fields.
+    gates:
+      home_ready_success: 1
+      first_level_ready_success: 1
+      gameplay_state_consistent: 1
+      local_request_failures: 0
+      page_error_count: 0
+      texture_growth_count: 0
+      cached_cycle_worst_ms: 1815.5
+    gates_passed: true
+    primary:
+      runtime_ready_sum_ms: 3984.81
+    primary_delta_ms: 102.41
+    diagnostics:
+      frame_gap_p95_ms: 66.7
+      frame_gap_max_ms: 283.3
+      heap_growth_bytes: 26759771
+    learnings: End-to-end latency stayed inside noise and frame gates did not regress materially. Retained as a behavior-preserving removal of an indefinite 30-per-second idle allocation, not a benchmark win.
+  - iteration: 11
+    batch: 11
+    hypothesis: Persist only the current level index when entering or directly selecting a level instead of serializing the complete save record.
+    category: persistence
+    outcome: retained_non_metric
+    changes:
+      - file: games/find_the_bird/src/core/GameState.ts
+        summary: Added a narrow fail-soft current-level persistence operation.
+      - file: games/find_the_bird/src/scenes/HomeScene.ts
+        summary: Used narrow level persistence before starting a map-selected level.
+      - file: games/find_the_bird/src/scenes/GameScene.ts
+        summary: Used narrow level persistence for direct level selection.
+      - file: games/find_the_bird/tests/unit/level-index-persistence.test.ts
+        summary: Covered the isolated write and unavailable-storage behavior.
+    gates:
+      home_ready_success: 1
+      first_level_ready_success: 1
+      gameplay_state_consistent: 1
+      local_request_failures: 0
+      page_error_count: 0
+      texture_growth_count: 0
+      cached_cycle_worst_ms: 1894.6
+    gates_passed: true
+    primary:
+      runtime_ready_sum_ms: 4060.35
+    primary_delta_ms: 177.95
+    diagnostics:
+      home_ready_ms: 439.76
+      first_level_ready_ms: 1766.56
+      cached_cycle_median_ms: 1794.3
+      request_count: 142
+      transfer_bytes: 42202552
+    learnings: The synchronous write reduction is too small for this end-to-end metric and the result did not beat the retained best. Retained because the narrower operation removes unrelated persistence work and partial-write surface while preserving fail-soft behavior under a dedicated regression test.
 best:
   iteration: 8
   metrics:

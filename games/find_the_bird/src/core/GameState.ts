@@ -1231,6 +1231,18 @@ export class GameState {
     }
   }
 
+  /** Persist only the active progression index. Starting or directly selecting
+   *  a level changes no wallet, settings, completion, or achievement state, so
+   *  serializing the entire save record here adds synchronous main-thread work
+   *  and widens the partial-write surface for no benefit. */
+  persistCurrentLevelIndex(): void {
+    try {
+      localStorage.setItem(STORAGE_KEYS.LEVEL, String(this.currentLevelIndex));
+    } catch {
+      // localStorage unavailable — keep the in-memory index.
+    }
+  }
+
   /** Reset for a new level attempt — lives reset, hints preserved. */
   reset(): void {
     this.lives = GAMEPLAY.LIVES_PER_LEVEL;

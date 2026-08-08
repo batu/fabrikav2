@@ -287,7 +287,7 @@ export class HomeScene extends Phaser.Scene {
         }
       }
       gameState.currentLevelIndex = logicalIndex;
-      gameState.save();
+      gameState.persistCurrentLevelIndex();
       this.startGameScene(levelData);
     } catch (error) {
       console.warn('Failed to load level from home map', error);
