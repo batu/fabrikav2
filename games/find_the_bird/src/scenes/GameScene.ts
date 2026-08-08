@@ -1153,7 +1153,7 @@ export class GameScene extends Phaser.Scene {
       // bundled levels (no-op when nothing is held). Must run before
       // the texture cache clears because the texture's underlying
       // image element still references the URL.
-      if (this.level !== null && !this.preserveLevelUrlsOnShutdown) disposeLevelUrls(this.level.id);
+      if (this.level !== null && !this.preserveLevelUrlsOnShutdown) disposeLevelUrls(this.level.id, true);
 
       this.input.off('pointerdown', pointerDownHandler);
       this.input.off('pointerup', tapHandler);

@@ -1222,7 +1222,9 @@ export async function loadLevelForProgression(progressionIndex: number): Promise
 /**
  * Revoke the Object URL held for a level, freeing its Blob. Safe to
  * call when no URL exists. Used by `GameScene.shutdown` to avoid
- * leaking blobs across level transitions.
+ * leaking blobs across level transitions. A scene shutdown may retain a
+ * bundled level's parsed data because it contains only stable same-origin
+ * paths; data backed by revoked Object URLs is always invalidated.
  *
  * Revocation is deferred via queueMicrotask so Phaser's synchronous
  * texture-teardown in its own shutdown path completes first. Revoking
@@ -1231,7 +1233,8 @@ export async function loadLevelForProgression(progressionIndex: number): Promise
  * one microtask preserves the "revoke eventually to free memory"
  * guarantee without racing Phaser.
  */
-export function disposeLevelUrls(id: string): void {
+export function disposeLevelUrls(id: string, preserveBundledCache = false): void {
+  const hadObjectUrls = colorUrlByLevel.has(id) || bgUrlsByLevel.has(id) || spriteUrlsByLevel.has(id);
   const url = colorUrlByLevel.get(id);
   if (url !== undefined) {
     colorUrlByLevel.delete(id);
@@ -1253,7 +1256,7 @@ export function disposeLevelUrls(id: string): void {
       for (const u of spriteUrls) URL.revokeObjectURL(u);
     });
   }
-  levelCache.delete(id);
+  if (!preserveBundledCache || hadObjectUrls) levelCache.delete(id);
   loadTokenByLevel.delete(id);
 }
 

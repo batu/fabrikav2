@@ -197,10 +197,39 @@ experiments:
       cached_cycle_median_ms: 2046.9
       frame_gap_max_ms: 283.4
     learnings: A 300 ms hold remains legible while revealing a board that is already rendered. The improvement clears noise; final retention still depends on motion review.
+  - iteration: 7
+    batch: 7
+    hypothesis: Retain parsed bundled level data across scene shutdown because it contains stable paths, while continuing to invalidate every entry backed by revocable Object URLs.
+    category: caching
+    outcome: kept
+    changes:
+      - file: games/find_the_bird/src/data/levels.ts
+        summary: Added safe bundled-cache retention to level URL disposal.
+      - file: games/find_the_bird/src/scenes/GameScene.ts
+        summary: Scene shutdown opts into retention only when URL disposal proves the entry path-backed.
+    gates:
+      home_ready_success: 1
+      first_level_ready_success: 1
+      gameplay_state_consistent: 1
+      local_request_failures: 0
+      page_error_count: 0
+      texture_growth_count: 0
+      cached_cycle_worst_ms: 1841.8
+    gates_passed: true
+    primary:
+      runtime_ready_sum_ms: 4015.6
+    primary_delta_ms: -309.13
+    diagnostics:
+      home_ready_ms: 453.91
+      first_level_ready_ms: 1732.03
+      cached_cycle_median_ms: 1773.4
+      request_count: 142
+      frame_gap_max_ms: 266.7
+    learnings: Bundled path-backed data is immutable for the app session and cheap to retain. Blob-backed entries still invalidate on shutdown, so revoked URLs cannot be reused.
 best:
-  iteration: 6
+  iteration: 7
   metrics:
-    runtime_ready_sum_ms: 4324.73
+    runtime_ready_sum_ms: 4015.6
 hypothesis_backlog:
   - description: Parallelize independent required level asset fetches after level metadata validation.
     category: asset-loading
