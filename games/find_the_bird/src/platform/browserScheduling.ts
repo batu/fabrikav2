@@ -54,7 +54,15 @@ export function runWhenVisibleAndIdle(callback: () => void, options: ScheduledId
   };
 
   const run = (): void => {
-    if (!canRun() || document.visibilityState !== 'visible') return;
+    idleId = null;
+    if (!canRun()) return;
+    // Visibility can change after requestIdleCallback was queued. Do not lose
+    // the one-shot task in that race; resume it through the same visible-idle
+    // path callers asked for.
+    if (document.visibilityState !== 'visible') {
+      document.addEventListener('visibilitychange', waitForVisible, { once: true });
+      return;
+    }
     callback();
   };
 

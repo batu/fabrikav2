@@ -252,6 +252,34 @@ experiments:
       cached_cycle_median_ms: 1757.3
       frame_gap_max_ms: 266.7
     learnings: Home render and a fast Play tap can request the same uncached index concurrently. Sharing only the in-flight computation removes duplicate catalog/sequence work; refreshing ManifestClient first preserves the tested fallback-to-live retry contract.
+  - iteration: 9
+    batch: 9
+    hypothesis: Requeue one-shot visible-idle work when the page hides after requestIdleCallback is queued instead of silently dropping it.
+    category: lifecycle-robustness
+    outcome: retained_non_metric
+    changes:
+      - file: games/find_the_bird/src/platform/browserScheduling.ts
+        summary: Re-enter the visibility-to-idle path when visibility changes during the idle queue race.
+      - file: games/find_the_bird/tests/unit/browser-scheduling.test.ts
+        summary: Added deterministic coverage for hide-after-queue and resume.
+    gates:
+      home_ready_success: 1
+      first_level_ready_success: 1
+      gameplay_state_consistent: 1
+      local_request_failures: 0
+      page_error_count: 0
+      texture_growth_count: 0
+      cached_cycle_worst_ms: 1817.6
+    gates_passed: true
+    primary:
+      runtime_ready_sum_ms: 3973.29
+    primary_delta_ms: 90.89
+    diagnostics:
+      home_ready_ms: 466.03
+      first_level_ready_ms: 1771.55
+      cached_cycle_median_ms: 1789.4
+      long_task_total_ms: 4403
+    learnings: Foreground timing remains inside noise. The prior helper could permanently lose cache warm, audio, and noncritical preload work in a real visibility race; retained as tested lifecycle correctness, not a metric win.
 best:
   iteration: 8
   metrics:
