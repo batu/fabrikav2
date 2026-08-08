@@ -65,10 +65,36 @@ experiments:
       transfer_bytes: 44375590
       image_transfer_bytes: 40936872
     learnings: Latency stayed within the 120 ms noise band, while startup-scene traffic fell by 17 requests and 3.94 MB. Retained as a lifecycle correctness and contention reduction, not counted as a primary-metric win.
+  - iteration: 2
+    batch: 2
+    hypothesis: Queue current-level prewarm in Home's first idle window instead of waiting an additional 300 ms.
+    category: asset-loading
+    outcome: kept
+    changes:
+      - file: games/find_the_bird/src/scenes/HomeScene.ts
+        summary: Removed the redundant pre-idle timer from current-level prewarm.
+    gates:
+      home_ready_success: 1
+      first_level_ready_success: 1
+      gameplay_state_consistent: 1
+      local_request_failures: 0
+      page_error_count: 0
+      texture_growth_count: 0
+      cached_cycle_worst_ms: 2891.5
+    gates_passed: true
+    primary:
+      runtime_ready_sum_ms: 5642.43
+    primary_delta_ms: -254.99
+    diagnostics:
+      home_ready_ms: 426.93
+      first_level_ready_ms: 2544.5
+      cached_cycle_median_ms: 2697.7
+      frame_gap_max_ms: 249.9
+    learnings: requestIdleCallback already protects home paint; the added timer only withheld useful decode head-start from normal fast Play taps.
 best:
-  iteration: 0
+  iteration: 2
   metrics:
-    runtime_ready_sum_ms: 5897.42
+    runtime_ready_sum_ms: 5642.43
 hypothesis_backlog:
   - description: Parallelize independent required level asset fetches after level metadata validation.
     category: asset-loading
