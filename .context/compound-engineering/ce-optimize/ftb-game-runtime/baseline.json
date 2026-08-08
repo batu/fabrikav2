@@ -1,7 +1,8 @@
 {
   "timestamp": "2026-08-09T01:46:00+03:00",
   "sourceCommit": "d7edcfec5882868352a150cb9551c46c7a407c27",
-  "fixtureSha256": "45d55a9f6228d5bc4cec22818660b56c4e14de57c06390af528392509de8a67b",
+  "fixtureSha256": "89cc40611e2e209c743fc49b1c1e02a9f61c06ce5bf88c164d41699a2b3a3ab0",
+  "fixtureDefinition": "bundled manifest + catalog manifest + GameConfig; corrected after the run because the original definition incorrectly included mutable GameState implementation",
   "aggregation": "median",
   "repeatCount": 5,
   "noiseThresholdMs": 120,

@@ -3,7 +3,7 @@
 ## Result
 
 - Baseline median `runtime_ready_sum_ms`: 5897.42 ms.
-- Best retained median: 3882.40 ms at iteration 8, a 2015.02 ms (34.2%) reduction.
+- Best experiment median: 3882.40 ms at iteration 8. The final retained branch measured 3865.57 ms, a 2031.85 ms (34.45%) reduction from baseline; the 16.83 ms difference between those candidates is below the 120 ms noise threshold.
 - All best-candidate gates passed: home and first-level readiness, consistent gameplay state, zero local request failures, zero page errors, zero texture growth, and cached worst case below 3.5 seconds.
 - The run stopped after iterations 9-11 produced three consecutive non-wins within or beyond the 120 ms noise threshold.
 

@@ -3,7 +3,8 @@ run_id: 2026-08-09T01:30:00+03:00
 started_at: 2026-08-09T01:30:00+03:00
 baseline:
   timestamp: 2026-08-09T01:46:00+03:00
-  fixture_sha256: 45d55a9f6228d5bc4cec22818660b56c4e14de57c06390af528392509de8a67b
+  fixture_sha256: 89cc40611e2e209c743fc49b1c1e02a9f61c06ce5bf88c164d41699a2b3a3ab0
+  fixture_definition: bundled manifest + catalog manifest + GameConfig; corrected after the run because the original definition incorrectly included mutable GameState implementation
   repeat_count: 5
   aggregation: median
   gates:
@@ -342,6 +343,42 @@ best:
   iteration: 8
   metrics:
     runtime_ready_sum_ms: 3882.4
+final:
+  timestamp: 2026-08-09T02:30:56+03:00
+  repeat_count: 5
+  aggregation: median
+  fixture_sha256: 89cc40611e2e209c743fc49b1c1e02a9f61c06ce5bf88c164d41699a2b3a3ab0
+  stopping_reason: three consecutive non-wins after iteration 8
+  gates:
+    home_ready_success: 1
+    first_level_ready_success: 1
+    gameplay_state_consistent: 1
+    local_request_failures: 0
+    page_error_count: 0
+    texture_growth_count: 0
+    cached_cycle_worst_ms: 1839.7
+  gates_passed: true
+  primary:
+    runtime_ready_sum_ms: 3865.57
+    baseline_delta_ms: -2031.85
+    baseline_delta_percent: -34.45
+  diagnostics:
+    home_ready_ms: 398.81
+    first_level_ready_ms: 1689.28
+    cached_cycle_median_ms: 1728.9
+    frame_gap_p95_ms: 66.7
+    frame_gap_max_ms: 233.3
+    pickup_frame_gap_p95_ms: 66.7
+    pickup_frame_gap_max_ms: 150
+    long_task_total_ms: 5718
+    request_count: 139
+    transfer_bytes: 42202753
+    heap_growth_bytes: 26740530
+  bundle:
+    js_bytes: 2239895
+    css_bytes: 161008
+    largest_js_bytes: 1993570
+    js_chunks: 16
 hypothesis_backlog:
   - description: Parallelize independent required level asset fetches after level metadata validation.
     category: asset-loading

@@ -56,8 +56,8 @@ function filesBelow(root) {
 function fixtureHash() {
   const paths = [
     join(gameRoot, 'public/levels/bundled-manifest.json'),
+    join(gameRoot, 'public/levels/catalog-manifest.json'),
     join(gameRoot, 'src/core/GameConfig.ts'),
-    join(gameRoot, 'src/core/GameState.ts'),
   ];
   const hash = createHash('sha256');
   for (const path of paths) {
