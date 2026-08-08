@@ -33,4 +33,10 @@ describe('pickup style routing', () => {
   it('keeps harness-selected styles aligned with Settings across scene restarts', () => {
     expect(testHarness).toContain('setPickupStylePreference(style);');
   });
+
+  it('preserves sprite flip metadata through both cutout pickup paths', () => {
+    expect(gameScene.match(/image\.setFlip\(sprite\.flipX \?\? false, sprite\.flipY \?\? false\);/g)).toHaveLength(2);
+    expect(gameScene).toContain('sprite.flipX ? 1 - (sprite.anchorX ?? 0.5)');
+    expect(gameScene).toContain('sprite.flipY ? 1 - (sprite.anchorY ?? 0.5)');
+  });
 });

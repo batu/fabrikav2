@@ -65,6 +65,7 @@ floor (`LEVEL_EDITOR_DISK_FLOOR_GIB`, default 5).
 | `visibility-check <id>` | contrast/visibility report |
 | `inpaint <id> [--wait] [--hard-percent] [--retry-failed]` | paint all birds (durable job) |
 | `regenerate <id> --dog <stable-id>` | repaint one bird (note: stable dog id, not `dog_NN`) |
+| `cutouts <id> --dog <stable-id> [--dog ...] [--operation extract\|regenerate] [--crop-box ID=x0,y0,x1,y1] [--model M] [--wait]` | run the focused cutout flow for selected birds; both operations cut and Best-safe-place the resulting pickup sprite |
 | `dogs <id> [--set-active ID --variant N \| --delete ID]` | list/manage variants (`--set-active` requires `--variant`) |
 | `review <id> --out DIR` | download bg/color/eval + per-dog variants for visual inspection |
 | `watch <id>` | stream job status + session-revision changes (co-presence) |

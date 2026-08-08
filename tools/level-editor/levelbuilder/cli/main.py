@@ -41,6 +41,8 @@ WIZARD_OPERATIONS: dict[str, str] = {
     "inpaint-job": "inpaint",
     "retry-failed-dogs-job": "inpaint",
     "single-dog-regenerate": "regenerate",
+    "selected-cutout-extraction": "cutouts",
+    "selected-cutout-regeneration": "cutouts",
     "dog-set-active-variant": "dogs",
     "dog-delete": "dogs",
     "list-jobs": "jobs",
@@ -255,6 +257,108 @@ def cmd_eval_compare(args: argparse.Namespace) -> None:
         raise CliError("eval_compare_failed", str(err), stage="eval-compare") from err
     _emit(args, {"outHtml": str(out_html), "rendered": rendered,
                  "runs": runs, "forced": bool(args.force or levels)})
+
+
+def cmd_golden_cutouts_validate(args: argparse.Namespace) -> None:
+    """Validate the frozen full-level cutout review corpus and its hashes."""
+    from levelbuilder.golden_cutouts import GoldenDatasetError, validate_manifest
+    from levelbuilder.settings import resolve_game
+
+    manifest = Path(args.manifest) if args.manifest else (
+        Path(__file__).resolve().parents[2]
+        / "eval"
+        / "golden-cutout-placement-v1"
+        / "manifest.json"
+    )
+    levels_root = (
+        Path(args.levels_root)
+        if args.levels_root
+        else resolve_game(args.game).game_root / "public" / "levels"
+    )
+    try:
+        summary = validate_manifest(manifest, levels_root)
+    except GoldenDatasetError as error:
+        raise CliError("golden_cutouts_invalid", str(error), stage="golden-cutouts-validate") from error
+    _emit(args, {"ok": True, "manifest": str(manifest), "levelsRoot": str(levels_root), **summary})
+
+
+def cmd_golden_cutouts_evaluate(args: argparse.Namespace) -> None:
+    """Run leakage-safe redo classification over the frozen review corpus."""
+    from levelbuilder.golden_cutouts import GoldenDatasetError, evaluate_redo_classifier
+    from levelbuilder.settings import resolve_game
+
+    manifest = Path(args.manifest) if args.manifest else (
+        Path(__file__).resolve().parents[2]
+        / "eval"
+        / "golden-cutout-placement-v1"
+        / "manifest.json"
+    )
+    levels_root = (
+        Path(args.levels_root)
+        if args.levels_root
+        else resolve_game(args.game).game_root / "public" / "levels"
+    )
+    try:
+        report = evaluate_redo_classifier(manifest, levels_root)
+    except GoldenDatasetError as error:
+        raise CliError("golden_cutouts_invalid", str(error), stage="golden-cutouts-evaluate") from error
+    if args.out:
+        output = Path(args.out)
+        output.parent.mkdir(parents=True, exist_ok=True)
+        output.write_text(json.dumps(report, indent=2) + "\n")
+        winner = report["models"][report["winner"]]
+        _emit(args, {
+            "ok": True,
+            "out": str(output),
+            "samples": report["samples"],
+            "positive": report["positive"],
+            "negative": report["negative"],
+            "winner": report["winner"],
+            "recommendedProduction": report["recommendedProduction"],
+            "predictionMode": report["predictionMode"],
+            **{key: winner[key] for key in ("balancedAccuracy", "precision", "recall", "f1", "rocAuc", "averagePrecision")},
+        })
+    else:
+        _emit(args, report)
+
+
+def cmd_golden_cutouts_placement(args: argparse.Namespace) -> None:
+    """Evaluate placement matchers and held-out conservative selectors."""
+    from levelbuilder.golden_cutouts import GoldenDatasetError, evaluate_placement_trials
+    from levelbuilder.settings import resolve_game
+
+    manifest = Path(args.manifest) if args.manifest else (
+        Path(__file__).resolve().parents[2]
+        / "eval"
+        / "golden-cutout-placement-v1"
+        / "manifest.json"
+    )
+    levels_root = (
+        Path(args.levels_root)
+        if args.levels_root
+        else resolve_game(args.game).game_root / "public" / "levels"
+    )
+    try:
+        report = evaluate_placement_trials(manifest, levels_root, workers=args.workers)
+    except GoldenDatasetError as error:
+        raise CliError("golden_cutouts_invalid", str(error), stage="golden-cutouts-placement") from error
+    if args.out:
+        output = Path(args.out)
+        output.parent.mkdir(parents=True, exist_ok=True)
+        output.write_text(json.dumps(report, indent=2) + "\n")
+        learned = min(report["learnedSelectors"], key=lambda name: report["learnedSelectors"][name]["balancedLoss"])
+        _emit(args, {
+            "ok": True,
+            "out": str(output),
+            "samples": report["samples"],
+            "corrections": report["corrections"],
+            "keeps": report["keeps"],
+            "baselineBalancedLoss": report["baseline"]["balancedLoss"],
+            "winner": learned,
+            "winnerBalancedLoss": report["learnedSelectors"][learned]["balancedLoss"],
+        })
+    else:
+        _emit(args, report)
 
 
 def cmd_doctor(args: argparse.Namespace) -> None:
@@ -524,6 +628,94 @@ def cmd_regenerate(client: Client, args: argparse.Namespace) -> None:
         f"/api/sessions/{args.session_id}/dogs/by-id/{args.dog}/regen",
         json={"prompt": prompts["dogPrompt"]},
     ))
+
+
+def _parse_named_crop_boxes(values: list[str] | None) -> dict[str, list[int]]:
+    boxes: dict[str, list[int]] = {}
+    for value in values or []:
+        dog_id, separator, raw_box = value.partition("=")
+        try:
+            box = [int(part.strip()) for part in raw_box.split(",")]
+        except ValueError as error:
+            raise CliError("invalid_crop_box", f"invalid --crop-box {value!r}; use DOG_ID=x0,y0,x1,y1") from error
+        if not separator or not dog_id or len(box) != 4 or box[2] <= box[0] or box[3] <= box[1]:
+            raise CliError("invalid_crop_box", f"invalid --crop-box {value!r}; use DOG_ID=x0,y0,x1,y1")
+        if dog_id in boxes:
+            raise CliError("duplicate_crop_box", f"multiple crop boxes supplied for {dog_id}")
+        boxes[dog_id] = box
+    return boxes
+
+
+def cmd_cutouts(client: Client, args: argparse.Namespace) -> None:
+    """Extract or regenerate selected pickup cutouts through the durable job lane."""
+    session = client.get(f"/api/sessions/{args.session_id}")
+    dogs = session.get("dogs") or []
+    hitboxes = session.get("hitboxes") or []
+    dogs_by_id = {
+        str(dog["id"]): dog for dog in dogs
+        if isinstance(dog, dict) and dog.get("id") is not None and isinstance(dog.get("index"), int)
+    }
+    selected_ids = list(dict.fromkeys(args.dog))
+    missing = [dog_id for dog_id in selected_ids if dog_id not in dogs_by_id]
+    if missing:
+        raise CliError("dog_not_found", f"no dog with stable id {missing[0]!r}")
+    custom_boxes = _parse_named_crop_boxes(args.crop_box)
+    unselected_boxes = sorted(set(custom_boxes) - set(selected_ids))
+    if unselected_boxes:
+        raise CliError("crop_box_unselected", f"crop box supplied for unselected dog {unselected_boxes[0]!r}")
+
+    hitboxes_by_id = {
+        str(hitbox["id"]): hitbox for hitbox in hitboxes
+        if isinstance(hitbox, dict) and hitbox.get("id") is not None
+    }
+    scene_width = int(session.get("bgWidth") or session.get("width") or 0)
+    scene_height = int(session.get("bgHeight") or session.get("height") or 0)
+    crop_boxes: dict[int, list[int]] = {}
+    dog_indices: list[int] = []
+    for dog_id in selected_ids:
+        dog = dogs_by_id[dog_id]
+        dog_index = int(dog["index"])
+        dog_indices.append(dog_index)
+        hitbox = hitboxes_by_id.get(dog_id)
+        if hitbox is None and 0 <= dog_index < len(hitboxes):
+            hitbox = hitboxes[dog_index]
+        if not isinstance(hitbox, dict):
+            raise CliError("hitbox_not_found", f"dog {dog_id!r} has no matching hitbox")
+        if dog_id in custom_boxes:
+            crop_boxes[dog_index] = custom_boxes[dog_id]
+            continue
+        radius = float(hitbox.get("r", hitbox.get("radius", 30)))
+        half_side = round(radius * args.padding)
+        x, y = round(float(hitbox["x"])), round(float(hitbox["y"]))
+        crop_boxes[dog_index] = [
+            max(0, x - half_side),
+            max(0, y - half_side),
+            min(scene_width, x + half_side) if scene_width > 0 else x + half_side,
+            min(scene_height, y + half_side) if scene_height > 0 else y + half_side,
+        ]
+
+    if args.operation == "extract":
+        prompt = client.get(f"/api/sessions/{args.session_id}/cutout-extraction-prompt")["prompt"]
+    else:
+        prompts = client.post("/api/actions/assemble-recipe-prompts", json=_session_recipe(session))
+        prompt = prompts["dogPrompt"]
+    body = {
+        "dogIndices": dog_indices,
+        "prompt": prompt,
+        "inpaintModel": args.model,
+        "padding": args.padding,
+        "cropBoxes": crop_boxes,
+        "cutoutOnly": args.operation == "extract",
+    }
+    job = client.post(f"/api/sessions/{args.session_id}/dogs/retry-inpaint/jobs", json=body)
+    if args.wait:
+        _require_success(
+            _wait_for_job(client, job.get("jobId") or job.get("id"), timeout_s=args.timeout, quiet=args.json)
+        )
+        job = client.get(
+            f"/api/sessions/{args.session_id}/dogs/retry-inpaint/jobs/{job.get('jobId') or job.get('id')}"
+        )
+    _emit(args, job)
 
 
 def cmd_dogs(client: Client, args: argparse.Namespace) -> None:
@@ -1293,6 +1485,24 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--force", action="store_true", help="re-render every level")
     p.add_argument("--out-dir", default=None)
 
+    p = verb("golden-cutouts-validate", cmd_golden_cutouts_validate, needs_client=False)
+    p.add_argument("--game", default="find_the_bird")
+    p.add_argument("--manifest")
+    p.add_argument("--levels-root")
+
+    p = verb("golden-cutouts-evaluate", cmd_golden_cutouts_evaluate, needs_client=False)
+    p.add_argument("--game", default="find_the_bird")
+    p.add_argument("--manifest")
+    p.add_argument("--levels-root")
+    p.add_argument("--out")
+
+    p = verb("golden-cutouts-placement", cmd_golden_cutouts_placement, needs_client=False)
+    p.add_argument("--game", default="find_the_bird")
+    p.add_argument("--manifest")
+    p.add_argument("--levels-root")
+    p.add_argument("--workers", type=int, default=4)
+    p.add_argument("--out")
+
     verb("status", cmd_status)
     verb("config", cmd_config)
     verb("sessions", cmd_sessions)
@@ -1355,6 +1565,16 @@ def build_parser() -> argparse.ArgumentParser:
     p = verb("regenerate", cmd_regenerate)
     p.add_argument("session_id")
     p.add_argument("--dog", required=True)
+
+    p = verb("cutouts", cmd_cutouts)
+    p.add_argument("session_id")
+    p.add_argument("--operation", choices=("extract", "regenerate"), default="extract")
+    p.add_argument("--dog", action="append", required=True, help="stable bird id; repeat to select multiple")
+    p.add_argument("--crop-box", action="append", help="DOG_ID=x0,y0,x1,y1; repeat per custom padding box")
+    p.add_argument("--model", help="override the extraction/regeneration model")
+    p.add_argument("--padding", type=float, default=2.75)
+    p.add_argument("--wait", action="store_true")
+    p.add_argument("--timeout", type=float, default=3600.0)
 
     p = verb("dogs", cmd_dogs)
     p.add_argument("session_id")

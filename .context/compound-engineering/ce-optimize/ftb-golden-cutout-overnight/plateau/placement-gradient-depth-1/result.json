@@ -1,0 +1,84 @@
+{
+  "changed_placement_count": 38,
+  "code_revision": "6fd51877e99751f4c106e28e26fa44b3b0afb2df",
+  "config_name": "placement-gradient-depth-1",
+  "config_sha256": "c717317cea3de74912d8bc2948f58312b4c5f42c00c5af59bf94b327a20d2e74",
+  "correction_center_px": 18.392128061623243,
+  "correction_iou": 0.7339063831802589,
+  "duplicate_target_claims": 0,
+  "fold_policies": [
+    {
+      "applied": 9,
+      "heldOutLevel": "ad_campaigns_ad_cozy_library_bird_e654",
+      "movementCap": 0.45,
+      "threshold": 0.5
+    },
+    {
+      "applied": 3,
+      "heldOutLevel": "american_southwest_sw_adobe_courtyard_bird_419b",
+      "movementCap": 0.45,
+      "threshold": 0.5
+    },
+    {
+      "applied": 8,
+      "heldOutLevel": "american_southwest_sw_canyon_river_camp_bird_6221",
+      "movementCap": 0.45,
+      "threshold": 0.5
+    },
+    {
+      "applied": 6,
+      "heldOutLevel": "american_southwest_sw_desert_trading_post_bird_7396",
+      "movementCap": 0.45,
+      "threshold": 0.6
+    },
+    {
+      "applied": 1,
+      "heldOutLevel": "cozy_interiors_cozy_attic_workshop_bird_6acc",
+      "movementCap": 0.35,
+      "threshold": 0.7
+    },
+    {
+      "applied": 1,
+      "heldOutLevel": "cozy_interiors_cozy_potting_shed_garden_bird_bd9a",
+      "movementCap": 0.35,
+      "threshold": 0.7
+    },
+    {
+      "applied": 1,
+      "heldOutLevel": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+      "movementCap": 0.35,
+      "threshold": 0.7
+    },
+    {
+      "applied": 1,
+      "heldOutLevel": "greece_agora_ruins_garden_bird_8978",
+      "movementCap": 0.35,
+      "threshold": 0.7
+    },
+    {
+      "applied": 8,
+      "heldOutLevel": "greece_harbor_taverna_morning_bird_3d5d",
+      "movementCap": 0.35,
+      "threshold": 0.5
+    }
+  ],
+  "harness_sha256": "0acf97c3158582c81814f0d2c5a5cdc48f39b28f8bade2a05a043d83fe71e2d4",
+  "keep_iou": 0.974930670838661,
+  "manifest_sha256": "04eecb76c8257c1275c964a1ee05df148bd611d74129be33b8fc620afedc3079",
+  "manifest_valid": 1,
+  "max_bird_loss": 0.6277586893355284,
+  "objective_loss": 0.1182352594082825,
+  "placement_apply_count": 38,
+  "placement_balanced_loss": 0.10143447591639768,
+  "placement_feature_count": 22,
+  "redo_average_precision": 0.6639843301623036,
+  "redo_f1": 0.6578947368421053,
+  "redo_feature_count": 15,
+  "redo_precision": 0.5102040816326531,
+  "redo_recall": 0.9259259259259259,
+  "redo_roc_auc": 0.9270482603815937,
+  "runtime_seconds": 6.304251749999821,
+  "target_identity_errors": 0,
+  "worst_level_loss": 0.12979626298461733,
+  "wrong_neighbor_jumps": 0
+}

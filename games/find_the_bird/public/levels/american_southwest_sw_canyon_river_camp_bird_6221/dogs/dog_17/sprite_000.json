@@ -10,10 +10,10 @@
     2588
   ],
   "spriteBox": [
-    399,
-    2311,
-    566,
-    2442
+    362,
+    2290,
+    579,
+    2471
   ],
   "cleanupBox": [
     316,
@@ -21,10 +21,10 @@
     626,
     2510
   ],
-  "width": 167,
-  "height": 131,
-  "anchorX": 0.4371,
-  "anchorY": 0.4962,
+  "width": 217,
+  "height": 181,
+  "anchorX": 0.5069,
+  "anchorY": 0.4751,
   "technique": "flatkey-recreate-v1",
   "quality": {
     "visibleCoverage": 0.0385,
@@ -35,5 +35,7 @@
     "pickupUsable": true,
     "backgroundFallback": false,
     "templateFallback": false
-  }
+  },
+  "flipX": false,
+  "flipY": false
 }

@@ -1285,7 +1285,27 @@ export function spriteCandidateOverlayUrl(
   sessionId: string,
   candidateId: string,
   cropBox?: [number, number, number, number],
+  spriteBox?: [number, number, number, number],
+  sceneOnly: boolean = false,
 ): string {
-  const suffix = cropBox ? `?cropBox=${cropBox.join(',')}` : '';
+  const params = new URLSearchParams();
+  if (cropBox) params.set('cropBox', cropBox.join(','));
+  if (spriteBox) params.set('spriteBox', spriteBox.join(','));
+  if (sceneOnly) params.set('sceneOnly', 'true');
+  const suffix = params.size > 0 ? `?${params.toString()}` : '';
   return `/api/sessions/${encodeURIComponent(sessionId)}/sprite-candidates/${encodeURIComponent(candidateId)}/overlay${suffix}`;
+}
+
+export function saveSpriteCandidatePlacement(
+  sessionId: string,
+  candidateId: string,
+  spriteBox: [number, number, number, number],
+  flipX?: boolean,
+  flipY?: boolean,
+): Promise<{ ok: boolean; spriteBox: [number, number, number, number] }> {
+  return request(`/api/sessions/${encodeURIComponent(sessionId)}/sprite-candidates/${encodeURIComponent(candidateId)}/placement`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ spriteBox, flipX, flipY }),
+  });
 }

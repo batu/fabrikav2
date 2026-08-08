@@ -1,0 +1,30 @@
+[
+  {
+    "name": "placement-hist-gradient-depth-3",
+    "patch": {"placement": {"model": "hist_gradient_boosting", "estimators": 100, "learningRate": 0.08, "maxDepth": 3, "minLeaf": 8, "l2": 0.1, "classWeight": "balanced"}}
+  },
+  {
+    "name": "placement-svc-rbf-c-1",
+    "patch": {"placement": {"model": "svc", "C": 1.0, "kernel": "rbf", "gamma": "scale", "classWeight": "balanced"}}
+  },
+  {
+    "name": "placement-logistic-compact-poly-2",
+    "patch": {"placement": {"model": "logistic", "featureSet": "compact", "polynomialDegree": 2, "C": 0.5, "classWeight": "balanced"}}
+  },
+  {
+    "name": "redo-extra-trees-drop-shape",
+    "patch": {"redo": {"model": "extra_trees", "featureSet": "all", "featureDrop": ["componentCount", "logComponentCount", "boxAspect"], "estimators": 500, "maxDepth": 4, "minLeaf": 3, "maxFeatures": "sqrt", "classWeight": "balanced"}}
+  },
+  {
+    "name": "placement-gradient-depth-1",
+    "patch": {"placement": {"model": "gradient_boosting", "estimators": 100, "learningRate": 0.05, "maxDepth": 1, "minLeaf": 3, "classWeight": "balanced"}}
+  },
+  {
+    "name": "placement-gradient-depth-3",
+    "patch": {"placement": {"model": "gradient_boosting", "estimators": 100, "learningRate": 0.05, "maxDepth": 3, "minLeaf": 3, "classWeight": "balanced"}}
+  },
+  {
+    "name": "placement-gradient-slower-150",
+    "patch": {"placement": {"model": "gradient_boosting", "estimators": 150, "learningRate": 0.03, "maxDepth": 2, "minLeaf": 3, "classWeight": "balanced"}}
+  }
+]

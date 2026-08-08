@@ -1,0 +1,43 @@
+{
+  "name": "redo-extra-trees-drop-shape",
+  "placement": {
+    "classWeight": "balanced",
+    "collisionGuard": true,
+    "collisionIou": 0.35,
+    "estimators": 100,
+    "featureDrop": [],
+    "featureSet": "all",
+    "label": "correction",
+    "learningRate": 0.05,
+    "maxDepth": 2,
+    "minLeaf": 3,
+    "model": "gradient_boosting",
+    "movementCaps": [
+      0.25,
+      0.35,
+      0.45
+    ],
+    "thresholds": [
+      0.5,
+      0.6,
+      0.7,
+      0.8
+    ]
+  },
+  "redo": {
+    "classWeight": "balanced",
+    "estimators": 500,
+    "featureDrop": [
+      "componentCount",
+      "logComponentCount",
+      "boxAspect"
+    ],
+    "featureSet": "all",
+    "maxDepth": 4,
+    "maxFeatures": "sqrt",
+    "minLeaf": 3,
+    "model": "extra_trees",
+    "threshold": 0.5
+  },
+  "redoWeight": 0.05
+}

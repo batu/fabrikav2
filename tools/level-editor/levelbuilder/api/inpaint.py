@@ -3943,7 +3943,7 @@ def _run_single_dog_regen(
             params={"dogIndex": dog_index},
         )
         _save_variant_box(variant_path, box)
-        _save_sprite_assets(
+        sprite_metadata = _save_sprite_assets(
             dog_dir=dog_dir,
             variant_idx=variant_idx,
             painted=painted,
@@ -3953,6 +3953,8 @@ def _run_single_dog_regen(
             clean_crop=crop_before,
             model=model,
         )
+        if sprite_metadata is None:
+            raise RuntimeError(f"regenerated dog {dog_index} did not yield a usable pickup sprite")
         with S._session_lock:
             # Flip this dog's activeVariant to the just-saved index so
             # the global recompose below picks up the new paint.
@@ -3970,6 +3972,12 @@ def _run_single_dog_regen(
                     dog_entry["status"] = "done"
                     dog_entry["activeVariant"] = variant_idx
                 S.save_session(session_id, raw_current)
+
+        placement = _auto_place_cutout_best_safe(
+            session_id, dog_index, variant_idx,
+            painted_crop=painted,
+            painted_box=box,
+        )
 
         # Full recomposite, but with the exact same raw diff-mask paste
         # used by the initial inpaint stream. Radial/feather made regen
@@ -3997,6 +4005,7 @@ def _run_single_dog_regen(
         "variantIndex": variant_idx,
         "file": f"dogs/dog_{dog_index:02d}/variant_{variant_idx:03d}.png",
         "composited": not defer_composite,
+        "placement": placement,
     }
 
 
@@ -4064,10 +4073,21 @@ def _retry_failed_dogs_idempotency_key(
 
 def _load_retry_hitboxes(session_id: str) -> list[dict[str, Any]]:
     hb_path = S.session_dir(session_id) / "hitboxes.json"
-    if not hb_path.exists():
-        raise HTTPException(400, detail={"error": "No hitboxes saved"})
-    with open(hb_path) as f:
-        hitboxes = json.load(f)
+    if hb_path.exists():
+        with open(hb_path) as f:
+            hitboxes = json.load(f)
+    else:
+        raw = S.ensure_session_json(session_id)
+        hitboxes = (raw or {}).get("hitboxes") or []
+        if not hitboxes:
+            level_path = S.GAME_PUBLIC_LEVELS / session_id / "level.json"
+            if level_path.is_file():
+                level = json.loads(level_path.read_text())
+                hitboxes = [
+                    {"id": dog.get("id"), "x": dog["x"], "y": dog["y"], "r": dog.get("r", 30)}
+                    for dog in level.get("dogs", [])
+                    if isinstance(dog, dict) and "x" in dog and "y" in dog
+                ]
     if not isinstance(hitboxes, list) or not hitboxes:
         raise HTTPException(400, detail={"error": "No hitboxes saved"})
     return [dict(item) for item in hitboxes]
@@ -4089,9 +4109,33 @@ def _normalized_retry_dog_indices(session_id: str, dog_indices: list[int]) -> li
     return normalized
 
 
+def _retry_crop_target(session_id: str, dog_index: int, hitbox: dict) -> tuple[int, int]:
+    """Resolve the crop target in scene-global coordinates.
+
+    Panoramic exports can retain section-local hitbox coordinates while sprite
+    sidecars are global. The sprite anchor is the portable target whenever an
+    extracted candidate exists; raw hitboxes remain the legacy fallback.
+    """
+    candidate = next(
+        (item for item in S.sprite_animation_candidates(session_id) if item.get("dogIndex") == dog_index),
+        None,
+    )
+    if candidate is not None:
+        box = candidate.get("spriteBox")
+        anchor_x = candidate.get("anchorX")
+        anchor_y = candidate.get("anchorY")
+        if (isinstance(box, list) and len(box) == 4
+                and isinstance(anchor_x, (int, float)) and isinstance(anchor_y, (int, float))):
+            return (
+                round(float(box[0]) + float(anchor_x) * (float(box[2]) - float(box[0]))),
+                round(float(box[1]) + float(anchor_y) * (float(box[3]) - float(box[1]))),
+            )
+    return int(hitbox["x"]), int(hitbox["y"])
+
+
 def _start_retry_failed_dogs_job_record(session_id: str, req: RetryFailedDogsJobRequest) -> JobRecord:
     _validate_session_id(session_id)
-    raw = S.load_session_raw(session_id)
+    raw = S.ensure_session_json(session_id)
     if raw is None:
         raise HTTPException(404, detail={"error": "Session not found"})
     dog_indices = _normalized_retry_dog_indices(session_id, req.dogIndices)
@@ -4106,12 +4150,15 @@ def _start_retry_failed_dogs_job_record(session_id: str, req: RetryFailedDogsJob
             raise HTTPException(404, detail={"error": f"Dog index out of range: {dog_index}"})
         x0, y0, x1, y1 = box
         radius = int(hb.get("r", hb.get("radius", 30)))
+        target_x, target_y = _retry_crop_target(session_id, dog_index, hb)
         if x0 < 0 or y0 < 0 or x1 <= x0 or y1 <= y0:
             raise HTTPException(400, detail={"error": f"Invalid crop box for dog {dog_index}"})
-        if not (x0 <= int(hb["x"]) - radius and x1 >= int(hb["x"]) + radius and
-                y0 <= int(hb["y"]) - radius and y1 >= int(hb["y"]) + radius):
+        if not (x0 <= target_x - radius and x1 >= target_x + radius and
+                y0 <= target_y - radius and y1 >= target_y + radius):
             raise HTTPException(400, detail={"error": f"Crop box must contain dog {dog_index}'s hitbox"})
     model = req.inpaintModel or raw.get("inpaint_model") or raw["model"]
+    if req.cutoutOnly and (model not in INPAINT_MODEL_IDS or model.startswith("fal-ai/")):
+        raise HTTPException(400, detail={"error": f"Invalid cutout extraction model: {model}"})
     key = _retry_failed_dogs_idempotency_key(
         session_id,
         dog_indices=dog_indices,
@@ -4202,14 +4249,158 @@ def _prepare_retry_failed_dog_unit_jobs(
     return child_jobs
 
 
+def _auto_place_cutout_best_safe(
+    session_id: str,
+    dog_index: int,
+    variant_index: int,
+    *,
+    painted_crop: Image.Image | None = None,
+    painted_box: tuple[int, int, int, int] | None = None,
+) -> dict[str, Any]:
+    """Fit one freshly cut sprite to its painted subject and persist safe geometry.
+
+    Best-safe deliberately preserves the generated geometry when no matcher
+    proposal passes its subject/pickup-point guards. Both editor clients call
+    this through the server-owned extraction/regeneration job path.
+    """
+    from levelbuilder.api.sprite_eval import BirdInputs, match_cutout
+
+    sdir = S.session_dir(session_id)
+    dog_dir = S.dogs_dir(session_id) / f"dog_{dog_index:02d}"
+    metadata_path = dog_dir / f"sprite_{variant_index:03d}.json"
+    sprite_path = dog_dir / f"sprite_{variant_index:03d}.png"
+    color_path = sdir / "color.png"
+    raw = S.ensure_session_json(session_id)
+    if raw is None or not metadata_path.is_file() or not sprite_path.is_file():
+        return {"method": "best", "accepted": False, "reason": "missing alignment assets"}
+    if painted_crop is None and not color_path.is_file():
+        return {"method": "best", "accepted": False, "reason": "missing painted scene"}
+    selected_bg = raw.get("selected_bg")
+    bg_path = sdir / f"bg_{int(selected_bg) if isinstance(selected_bg, int) else 0:02d}.png"
+    if not bg_path.is_file():
+        return {"method": "best", "accepted": False, "reason": "missing clean background"}
+
+    metadata = json.loads(metadata_path.read_text())
+    sprite_box = metadata.get("spriteBox")
+    if not (isinstance(sprite_box, list) and len(sprite_box) == 4):
+        return {"method": "best", "accepted": False, "reason": "missing sprite box"}
+    hitboxes = _load_retry_hitboxes(session_id)
+    dogs = raw.get("dogs") or []
+    hitbox = _resolve_regen_hitbox(dogs, hitboxes, dog_index)
+    if hitbox is None:
+        return {"method": "best", "accepted": False, "reason": "missing hitbox"}
+
+    with Image.open(bg_path) as clean_source:
+        clean = clean_source.convert("RGB")
+    if painted_crop is not None and painted_box is not None:
+        scene = clean.copy()
+        scene.paste(painted_crop.convert("RGB"), (painted_box[0], painted_box[1]))
+    else:
+        with Image.open(color_path) as scene_source:
+            scene = scene_source.convert("RGB")
+    try:
+        if scene.size != clean.size:
+            return {"method": "best", "accepted": False, "reason": "clean and painted sizes differ"}
+        width, height = scene.size
+        sx0, sy0, sx1, sy1 = [int(value) for value in sprite_box]
+        source_box = metadata.get("sourceBox")
+        if not (isinstance(source_box, list) and len(source_box) == 4):
+            source_box = [sx0, sy0, sx1, sy1]
+        search_pad = max(sx1 - sx0, sy1 - sy0) + 96
+        target_x, target_y = int(hitbox["x"]), int(hitbox["y"])
+        crop_box = (
+            max(0, min(int(source_box[0]), sx0 - 96, target_x - search_pad)),
+            max(0, min(int(source_box[1]), sy0 - 96, target_y - search_pad)),
+            min(width, max(int(source_box[2]), sx1 + 96, target_x + search_pad)),
+            min(height, max(int(source_box[3]), sy1 + 96, target_y + search_pad)),
+        )
+        neighbor_boxes = []
+        for neighbor_path in S.dogs_dir(session_id).glob("dog_*/sprite_*.json"):
+            if neighbor_path == metadata_path:
+                continue
+            try:
+                neighbor_box = json.loads(neighbor_path.read_text()).get("spriteBox")
+            except (OSError, json.JSONDecodeError):
+                continue
+            if isinstance(neighbor_box, list) and len(neighbor_box) == 4:
+                neighbor_boxes.append(tuple(int(value) for value in neighbor_box))
+        with Image.open(sprite_path) as sprite_source:
+            sprite = sprite_source.convert("RGBA")
+        clean_array = np.asarray(clean, dtype=np.uint8)
+        scene_array = np.asarray(scene, dtype=np.uint8)
+        x0, y0, x1, y1 = crop_box
+        inputs = BirdInputs(
+            dog_id=str(next((dog.get("id") for dog in dogs if dog.get("index") == dog_index), dog_index)),
+            sprite=sprite,
+            sprite_box=(sx0, sy0, sx1, sy1),
+            crop_box=crop_box,
+            clean_crop=clean_array[y0:y1, x0:x1],
+            scene_crop=scene_array[y0:y1, x0:x1],
+            neighbor_boxes=tuple(neighbor_boxes),
+            target_point=(target_x, target_y),
+        )
+        try:
+            result = match_cutout(inputs, ("best",))["best"]
+        finally:
+            sprite.close()
+    finally:
+        scene.close()
+        clean.close()
+
+    fitted = result.get("fittedBox")
+    if result.get("accepted") is not True or not (isinstance(fitted, list) and len(fitted) == 4):
+        return {**result, "method": result.get("method", "best"), "accepted": False}
+    x0, y0, x1, y1 = [int(round(float(value))) for value in fitted]
+    if x1 <= x0 or y1 <= y0 or not (x0 <= target_x <= x1 and y0 <= target_y <= y1):
+        return {**result, "accepted": False, "reason": "unsafe fitted box"}
+
+    box = [x0, y0, x1, y1]
+    sprite_width, sprite_height = x1 - x0, y1 - y0
+    anchor_x = round((target_x - x0) / sprite_width, 4)
+    anchor_y = round((target_y - y0) / sprite_height, 4)
+    metadata.update({
+        "spriteBox": box, "width": sprite_width, "height": sprite_height,
+        "anchorX": anchor_x, "anchorY": anchor_y,
+        "autoPlacement": {
+            "method": result.get("method", "best"), "score": result.get("score"),
+            "originalBox": [sx0, sy0, sx1, sy1], "fittedBox": box,
+        },
+    })
+    _atomic_write_json(metadata, metadata_path)
+
+    level_path = S.GAME_PUBLIC_LEVELS / session_id / "level.json"
+    if level_path.is_file():
+        level = json.loads(level_path.read_text())
+        dog_id = next((dog.get("id") for dog in dogs if dog.get("index") == dog_index), None)
+        level_dog = next((dog for dog in level.get("dogs", []) if dog_id is not None and dog.get("id") == dog_id), None)
+        if level_dog is None and 0 <= dog_index < len(level.get("dogs", [])):
+            level_dog = level["dogs"][dog_index]
+        if isinstance(level_dog, dict):
+            cleanup = metadata.get("cleanupBox") or box
+            level_dog["sprite"] = {
+                **(level_dog.get("sprite") or {}),
+                "image": f"levels/{session_id}/dogs/dog_{dog_index:02d}/{sprite_path.name}",
+                "x": x0, "y": y0, "width": sprite_width, "height": sprite_height,
+                "anchorX": anchor_x, "anchorY": anchor_y,
+                "cleanup": {
+                    "x": int(cleanup[0]), "y": int(cleanup[1]),
+                    "width": int(cleanup[2]) - int(cleanup[0]),
+                    "height": int(cleanup[3]) - int(cleanup[1]),
+                },
+            }
+            _atomic_write_json(level, level_path)
+    return {**result, "accepted": True, "fittedBox": box}
+
+
 def _run_single_cutout_extraction(
     session_id: str,
     dog_index: int,
     *,
     crop_box: tuple[int, int, int, int],
+    inpaint_model: str | None = None,
 ) -> dict[str, Any]:
     """Extract and duplicate only the pickup sprite; scene and hitboxes stay immutable."""
-    raw = S.load_session_raw(session_id)
+    raw = S.ensure_session_json(session_id)
     if raw is None:
         raise HTTPException(404, detail={"error": "Session not found"})
     dog = next(
@@ -4243,7 +4434,7 @@ def _run_single_cutout_extraction(
 
     from levelbuilder.api.flatkey import flatkey_recreate_sprite
 
-    model = os.environ.get("FTD_FLATKEY_MODEL", "google/gemini-3.1-flash-lite-image")
+    model = inpaint_model or os.environ.get("FTD_FLATKEY_MODEL", "google/gemini-3.1-flash-image-preview")
     entity = str(raw.get("entity") or "bird")
     try:
         recreated = flatkey_recreate_sprite(painted_crop, model=model, entity=entity)
@@ -4273,8 +4464,7 @@ def _run_single_cutout_extraction(
     fitted.close()
     alpha.close()
 
-    hitbox_path = sdir / "hitboxes.json"
-    hitboxes = json.loads(hitbox_path.read_text())
+    hitboxes = _load_retry_hitboxes(session_id)
     hb_data = _resolve_regen_hitbox(raw.get("dogs") or [], hitboxes, dog_index)
     anchor_x = 0.5
     anchor_y = 0.5
@@ -4287,7 +4477,9 @@ def _run_single_cutout_extraction(
         "mask": f"dogs/dog_{dog_index:02d}/{mask_path.name}",
         "sourceBox": list(crop_box),
         "spriteBox": placed_box,
-        "cleanupBox": placed_box,
+        # Cleanup is the human-controlled padding region. Best-safe controls
+        # sprite placement independently and must not overwrite this artifact.
+        "cleanupBox": list(crop_box),
         "width": placed_box[2] - placed_box[0],
         "height": placed_box[3] - placed_box[1],
         "anchorX": round(anchor_x, 4),
@@ -4296,10 +4488,15 @@ def _run_single_cutout_extraction(
         "quality": {**(metadata.get("quality") or {}), "pickupUsable": True},
     }
     _atomic_write_json(next_metadata, metadata_path)
+    placement = _auto_place_cutout_best_safe(session_id, dog_index, variant_index)
     return {
         "dogIndex": dog_index,
         "variantIndex": variant_index,
-        "file": str(metadata.get("sourceVariant") or f"dogs/dog_{dog_index:02d}/variant_{variant_index:03d}.png"),
+        # Cutout-only extraction updates the sprite derivative for the active
+        # painted variant. Do not report its source painting as the output:
+        # clients would then append a nonexistent/unchanged variant to the rail.
+        "file": f"dogs/dog_{dog_index:02d}/{sprite_path.name}",
+        "placement": placement,
     }
 
 
@@ -4349,7 +4546,7 @@ def _run_retry_failed_dogs_job(job: JobRecord, store: JobStore) -> dict[str, Any
                 if crop_box is None:
                     raise HTTPException(400, detail={"error": f"Cutout-only redo requires a crop box for dog {dog_index}"})
                 result = _run_single_cutout_extraction(
-                    session_id, dog_index, crop_box=crop_box,
+                    session_id, dog_index, crop_box=crop_box, inpaint_model=model,
                 )
             else:
                 result = _run_single_dog_regen(
@@ -4399,6 +4596,8 @@ def _run_retry_failed_dogs_job(job: JobRecord, store: JobStore) -> dict[str, Any
 
     if succeeded > 0 and not cutout_only:
         recomposite_color(session_id)
+    if succeeded > 0 and (S.GAME_PUBLIC_LEVELS / session_id / "level.json").is_file():
+        S.refresh_catalog_packages([session_id])
     result_data = {"succeeded": succeeded, "failed": failed, "dogIndices": dog_indices}
     store.update_result(job.id, result_data)
     store.append_event(job.id, "retry_failed_dogs_complete", data=result_data)

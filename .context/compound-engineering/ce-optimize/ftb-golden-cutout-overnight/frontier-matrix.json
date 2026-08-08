@@ -1,0 +1,34 @@
+[
+  {
+    "name": "redo-forest-depth-3",
+    "patch": {"redo": {"model": "forest", "estimators": 500, "maxDepth": 3, "minLeaf": 3, "maxFeatures": "sqrt", "classWeight": "balanced"}}
+  },
+  {
+    "name": "redo-gradient-depth-2",
+    "patch": {"redo": {"model": "gradient_boosting", "estimators": 100, "learningRate": 0.05, "maxDepth": 2, "minLeaf": 3, "classWeight": "balanced"}}
+  },
+  {
+    "name": "redo-svc-rbf-c-1",
+    "patch": {"redo": {"model": "svc", "C": 1.0, "kernel": "rbf", "gamma": "scale", "classWeight": "balanced"}}
+  },
+  {
+    "name": "redo-extra-trees-compact",
+    "patch": {"redo": {"model": "extra_trees", "featureSet": "compact", "estimators": 500, "maxDepth": 4, "minLeaf": 3, "maxFeatures": "sqrt", "classWeight": "balanced"}}
+  },
+  {
+    "name": "placement-forest-depth-3",
+    "patch": {"placement": {"model": "forest", "estimators": 500, "maxDepth": 3, "minLeaf": 3, "maxFeatures": "sqrt", "classWeight": "balanced"}}
+  },
+  {
+    "name": "placement-extra-trees-depth-4",
+    "patch": {"placement": {"model": "extra_trees", "estimators": 500, "maxDepth": 4, "minLeaf": 3, "maxFeatures": "sqrt", "classWeight": "balanced"}}
+  },
+  {
+    "name": "placement-gradient-depth-2",
+    "patch": {"placement": {"model": "gradient_boosting", "estimators": 100, "learningRate": 0.05, "maxDepth": 2, "minLeaf": 3, "classWeight": "balanced"}}
+  },
+  {
+    "name": "placement-collision-iou-0.25",
+    "patch": {"placement": {"collisionGuard": true, "collisionIou": 0.25}}
+  }
+]
