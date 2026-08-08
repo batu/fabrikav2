@@ -22,7 +22,7 @@ interface Props {
 
 type ModelFilter = 'all' | string;
 type CardState = 'background' | 'inpainted' | 'exported';
-type GallerySortMode = 'newest' | 'name' | 'dogs';
+type GallerySortMode = 'newest' | 'name' | 'dogs' | 'regeneration';
 
 const VARIANT_LABELS: Record<string, string> = {
   gemini: 'Gemini',
@@ -90,6 +90,9 @@ function sortCards(cards: VariantCard[], sortMode: GallerySortMode): VariantCard
     } else if (sortMode === 'dogs') {
       const dogsDelta = b.session.nDogs - a.session.nDogs;
       if (dogsDelta !== 0) return dogsDelta;
+    } else if (sortMode === 'regeneration') {
+      const redoDelta = (b.session.regenerationCandidateCount ?? 0) - (a.session.regenerationCandidateCount ?? 0);
+      if (redoDelta !== 0) return redoDelta;
     }
 
     const createdDelta = sessionCreatedAtMs(b.session) - sessionCreatedAtMs(a.session);
@@ -292,6 +295,12 @@ export default function GalleryPage({ config, onOpen }: Props) {
     }));
   }, []);
 
+  const handleGoldenReviewChanged = useCallback((id: string, approved: boolean) => {
+    setSessions((prev) => prev.map((session) => (
+      session.id === id ? { ...session, goldenDatasetApproved: approved } : session
+    )));
+  }, []);
+
   const handleModalClose = useCallback(() => {
     setReviewStartCardId(null);
     refresh();
@@ -374,6 +383,7 @@ export default function GalleryPage({ config, onOpen }: Props) {
               <option value="newest">Newest first</option>
               <option value="name">Name A-Z</option>
               <option value="dogs">Entities high-low</option>
+              <option value="regeneration">Redo candidates high-low</option>
             </select>
             <label style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: '0.85rem', color: '#ccc' }}>
               <input
@@ -486,6 +496,7 @@ export default function GalleryPage({ config, onOpen }: Props) {
           config={config}
           onClose={handleModalClose}
           onArchivedChanged={handleArchivedChanged}
+          onGoldenReviewChanged={handleGoldenReviewChanged}
         />
       )}
     </div>
@@ -603,7 +614,7 @@ function GalleryCard({
           <div
             style={{
               width: '100%',
-              aspectRatio: '9/16',
+              aspectRatio: '1/1',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -625,7 +636,7 @@ function GalleryCard({
             onDragStart={(e) => e.preventDefault()}
             style={{
               width: '100%',
-              aspectRatio: '9/16',
+              aspectRatio: '1/1',
               objectFit: 'cover',
               display: 'block',
               background: '#111',
@@ -637,7 +648,7 @@ function GalleryCard({
           />
         )}
       </button>
-      <div style={{ position: 'absolute', top: 8, left: 8, right: 8, display: 'flex', gap: 4, flexWrap: 'wrap', alignItems: 'center' }}>
+      <div style={{ position: 'absolute', top: 8, left: 8, right: 52, display: 'flex', gap: 4, flexWrap: 'wrap', alignItems: 'center' }}>
         <span style={{
           background: 'rgba(0,0,0,0.78)',
           color: '#d8d8d8',
@@ -703,12 +714,31 @@ function GalleryCard({
           </span>
         )}
       </div>
+      {session.goldenDatasetApproved && (
+        <span
+          aria-label="Blessed level"
+          title="Human-reviewed: hitboxes, cutouts, and placements are solid"
+          style={{
+            position: 'absolute', top: 5, right: 8, zIndex: 2,
+            color: '#ffd84d', fontSize: '2rem', lineHeight: 1,
+            fontWeight: 900, textShadow: '0 2px 5px rgba(0,0,0,0.85)',
+            pointerEvents: 'none',
+          }}
+        >★</span>
+      )}
       <div style={{ padding: 10, display: 'flex', flexDirection: 'column', gap: 4 }}>
         <div style={{ fontWeight: 600, fontSize: '0.9rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
           {session.name}
         </div>
         <div style={{ fontSize: '0.7rem', color: '#888' }}>
           {session.nDogs} dogs
+        </div>
+        <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap', fontSize: '0.68rem' }}>
+          {(session.regenerationCandidateCount ?? 0) > 0 && (
+            <span style={{ color: '#ffb06b', fontWeight: 750 }}>
+              Redo candidates {session.regenerationCandidateCount}
+            </span>
+          )}
         </div>
         {disabledReason && (
           <div style={{ fontSize: '0.72rem', color: '#d6b75c' }}>

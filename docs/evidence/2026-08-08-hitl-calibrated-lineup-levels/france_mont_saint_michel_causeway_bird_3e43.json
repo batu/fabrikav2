@@ -1,0 +1,4135 @@
+{
+ "schemaVersion": 1,
+ "root": "/Users/base/dev/appletolye/fabrikav2/.worktrees/ftb-toggleable-pickup/games/find_the_bird/public/levels",
+ "levels": [
+  {
+   "schemaVersion": 1,
+   "levelId": "france_mont_saint_michel_causeway_bird_3e43",
+   "summary": {
+    "birds": 20,
+    "reducedInput": false,
+    "noiseFloor": 0.0,
+    "alignmentOutlierThreshold": 0.365,
+    "fail": 20,
+    "warn": 0,
+    "alignmentOutliers": 2
+   },
+   "birds": [
+    {
+     "dogId": "dog_00",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.6639,
+       "verdict": "warn",
+       "leakFraction": 0.3361
+      },
+      "coherence": {
+       "score": 0.0,
+       "verdict": "fail",
+       "popArea": 24866,
+       "popRatio": 1.2222
+      }
+     },
+     "spriteArea": 20345,
+     "alignment": {
+      "score": 0.4232,
+      "verdict": "pass",
+      "outlier": false,
+      "scale": 0.8,
+      "dx": 10,
+      "dy": 24,
+      "originalBox": [
+       988,
+       518,
+       1250,
+       707
+      ],
+      "fittedBox": [
+       998,
+       542,
+       1208,
+       693
+      ]
+     },
+     "cutoutMatches": {
+      "best": {
+       "score": 0.4679,
+       "verdict": "pass",
+       "scale": 1.0,
+       "dx": 0,
+       "dy": 0,
+       "originalBox": [
+        988,
+        518,
+        1250,
+        707
+       ],
+       "fittedBox": [
+        988,
+        518,
+        1250,
+        707
+       ],
+       "hitboxSafe": true,
+       "components": {
+        "color": 0.6177,
+        "silhouette": 0.3514,
+        "edge": 0.1129,
+        "scalePrior": 1.0
+       },
+       "weights": {
+        "color": 0.45,
+        "silhouette": 0.35,
+        "edge": 0.15,
+        "scalePrior": 0.05
+       },
+       "accepted": true,
+       "method": "hybrid"
+      },
+      "calibrated": {
+       "score": 0.4679,
+       "verdict": "pass",
+       "scale": 1.0,
+       "dx": 0,
+       "dy": 0,
+       "originalBox": [
+        988,
+        518,
+        1250,
+        707
+       ],
+       "fittedBox": [
+        988,
+        518,
+        1250,
+        707
+       ],
+       "hitboxSafe": true,
+       "components": {
+        "color": 0.6177,
+        "silhouette": 0.3514,
+        "edge": 0.1129,
+        "scalePrior": 1.0
+       },
+       "weights": {
+        "color": 0.45,
+        "silhouette": 0.35,
+        "edge": 0.15,
+        "scalePrior": 0.05
+       },
+       "accepted": true,
+       "probability": 0.885025,
+       "method": "logistic-hybrid-safe"
+      }
+     },
+     "colorAlignment": {
+      "score": 0.8335,
+      "verdict": "pass",
+      "scale": 0.75,
+      "dx": 22,
+      "dy": 28,
+      "originalBox": [
+       988,
+       518,
+       1250,
+       707
+      ],
+      "fittedBox": [
+       1010,
+       546,
+       1206,
+       688
+      ]
+     },
+     "hybridAlignment": {
+      "score": 0.4679,
+      "verdict": "pass",
+      "scale": 1.0,
+      "dx": 0,
+      "dy": 0,
+      "originalBox": [
+       988,
+       518,
+       1250,
+       707
+      ],
+      "fittedBox": [
+       988,
+       518,
+       1250,
+       707
+      ],
+      "hitboxSafe": true,
+      "components": {
+       "color": 0.6177,
+       "silhouette": 0.3514,
+       "edge": 0.1129,
+       "scalePrior": 1.0
+      },
+      "weights": {
+       "color": 0.45,
+       "silhouette": 0.35,
+       "edge": 0.15,
+       "scalePrior": 0.05
+      }
+     },
+     "qualityFeatures": {
+      "alphaCoverage": 0.4108606971202391,
+      "changedPrecision": 0.6334234455640206,
+      "changedRecall": 0.6350778631973192,
+      "changedIou": 0.4643963963963964,
+      "colorSimilarity": 0.7349819534596832,
+      "cleanDifference": 0.320971156054787,
+      "componentCount": 1.0,
+      "speckFraction": 0.0,
+      "edgeTouchFraction": 0.0,
+      "boxAspect": 1.3862433862433863,
+      "boxAreaFraction": 0.006853376116071429,
+      "precisionRecallGap": 0.0016544176332985439,
+      "qualityProduct": 0.3413229706030608,
+      "logAreaFraction": -4.983013884465341,
+      "logComponentCount": 0.6931471805599453
+     },
+     "selectionFeatures": {
+      "alphaCoverage": 0.4108606971202391,
+      "changedPrecision": 0.6334234455640206,
+      "changedRecall": 0.6350778631973192,
+      "changedIou": 0.4643963963963964,
+      "colorSimilarity": 0.7349819534596832,
+      "cleanDifference": 0.320971156054787,
+      "componentCount": 1.0,
+      "speckFraction": 0.0,
+      "edgeTouchFraction": 0.0,
+      "boxAspect": 1.3862433862433863,
+      "boxAreaFraction": 0.006853376116071429,
+      "precisionRecallGap": 0.0016544176332985439,
+      "qualityProduct": 0.3413229706030608,
+      "logAreaFraction": -4.983013884465341,
+      "logComponentCount": 0.6931471805599453,
+      "hybridScore": 0.4679,
+      "hybridColor": 0.6177,
+      "hybridSilhouette": 0.3514,
+      "hybridEdge": 0.1129,
+      "hybridScale": 1.0,
+      "hybridMovementNorm": 0.0,
+      "colorScore": 0.8335
+     }
+    },
+    {
+     "dogId": "dog_01",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.4174,
+       "verdict": "fail",
+       "leakFraction": 0.5826
+      },
+      "coherence": {
+       "score": 0.2083,
+       "verdict": "fail",
+       "popArea": 16066,
+       "popRatio": 0.7917
+      }
+     },
+     "spriteArea": 20293,
+     "alignment": {
+      "score": 0.2888,
+      "verdict": "fail",
+      "outlier": true,
+      "scale": 0.85,
+      "dx": 21,
+      "dy": 32,
+      "originalBox": [
+       1499,
+       501,
+       1760,
+       725
+      ],
+      "fittedBox": [
+       1520,
+       533,
+       1742,
+       723
+      ]
+     },
+     "cutoutMatches": {
+      "best": {
+       "score": 0.3797,
+       "verdict": "pass",
+       "scale": 1.0,
+       "dx": 0,
+       "dy": 0,
+       "originalBox": [
+        1499,
+        501,
+        1760,
+        725
+       ],
+       "fittedBox": [
+        1499,
+        501,
+        1760,
+        725
+       ],
+       "hitboxSafe": true,
+       "components": {
+        "color": 0.5144,
+        "silhouette": 0.2351,
+        "edge": 0.1064,
+        "scalePrior": 1.0
+       },
+       "weights": {
+        "color": 0.45,
+        "silhouette": 0.35,
+        "edge": 0.15,
+        "scalePrior": 0.05
+       },
+       "accepted": true,
+       "method": "hybrid"
+      },
+      "calibrated": {
+       "score": 0.3797,
+       "verdict": "pass",
+       "scale": 1.0,
+       "dx": 0,
+       "dy": 0,
+       "originalBox": [
+        1499,
+        501,
+        1760,
+        725
+       ],
+       "fittedBox": [
+        1499,
+        501,
+        1760,
+        725
+       ],
+       "hitboxSafe": true,
+       "components": {
+        "color": 0.5144,
+        "silhouette": 0.2351,
+        "edge": 0.1064,
+        "scalePrior": 1.0
+       },
+       "weights": {
+        "color": 0.45,
+        "silhouette": 0.35,
+        "edge": 0.15,
+        "scalePrior": 0.05
+       },
+       "accepted": true,
+       "probability": 0.998962,
+       "method": "logistic-hybrid-safe"
+      }
+     },
+     "colorAlignment": {
+      "score": 0.5773,
+      "verdict": "pass",
+      "scale": 0.85,
+      "dx": 11,
+      "dy": 9,
+      "originalBox": [
+       1499,
+       501,
+       1760,
+       725
+      ],
+      "fittedBox": [
+       1510,
+       510,
+       1732,
+       700
+      ]
+     },
+     "hybridAlignment": {
+      "score": 0.3797,
+      "verdict": "pass",
+      "scale": 1.0,
+      "dx": 0,
+      "dy": 0,
+      "originalBox": [
+       1499,
+       501,
+       1760,
+       725
+      ],
+      "fittedBox": [
+       1499,
+       501,
+       1760,
+       725
+      ],
+      "hitboxSafe": true,
+      "components": {
+       "color": 0.5144,
+       "silhouette": 0.2351,
+       "edge": 0.1064,
+       "scalePrior": 1.0
+      },
+      "weights": {
+       "color": 0.45,
+       "silhouette": 0.35,
+       "edge": 0.15,
+       "scalePrior": 0.05
+      }
+     },
+     "qualityFeatures": {
+      "alphaCoverage": 0.3471024904214559,
+      "changedPrecision": 0.4091065884787858,
+      "changedRecall": 0.5079229122055674,
+      "changedIou": 0.29298418972332013,
+      "colorSimilarity": 0.7020425279459834,
+      "cleanDifference": 0.3407459154755383,
+      "componentCount": 1.0,
+      "speckFraction": 0.0,
+      "edgeTouchFraction": 0.0,
+      "boxAspect": 1.1651785714285714,
+      "boxAreaFraction": 0.008091517857142858,
+      "precisionRecallGap": 0.09881632372678162,
+      "qualityProduct": 0.20568736120156528,
+      "logAreaFraction": -4.8169389441083466,
+      "logComponentCount": 0.6931471805599453
+     },
+     "selectionFeatures": {
+      "alphaCoverage": 0.3471024904214559,
+      "changedPrecision": 0.4091065884787858,
+      "changedRecall": 0.5079229122055674,
+      "changedIou": 0.29298418972332013,
+      "colorSimilarity": 0.7020425279459834,
+      "cleanDifference": 0.3407459154755383,
+      "componentCount": 1.0,
+      "speckFraction": 0.0,
+      "edgeTouchFraction": 0.0,
+      "boxAspect": 1.1651785714285714,
+      "boxAreaFraction": 0.008091517857142858,
+      "precisionRecallGap": 0.09881632372678162,
+      "qualityProduct": 0.20568736120156528,
+      "logAreaFraction": -4.8169389441083466,
+      "logComponentCount": 0.6931471805599453,
+      "hybridScore": 0.3797,
+      "hybridColor": 0.5144,
+      "hybridSilhouette": 0.2351,
+      "hybridEdge": 0.1064,
+      "hybridScale": 1.0,
+      "hybridMovementNorm": 0.0,
+      "colorScore": 0.5773
+     }
+    },
+    {
+     "dogId": "dog_02",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.7443,
+       "verdict": "warn",
+       "leakFraction": 0.2557
+      },
+      "coherence": {
+       "score": 0.0,
+       "verdict": "fail",
+       "popArea": 30170,
+       "popRatio": 1.8041
+      }
+     },
+     "spriteArea": 16723,
+     "alignment": {
+      "score": 0.4992,
+      "verdict": "pass",
+      "outlier": false,
+      "scale": 1.2,
+      "dx": -27,
+      "dy": 10,
+      "originalBox": [
+       1116,
+       757,
+       1345,
+       933
+      ],
+      "fittedBox": [
+       1089,
+       767,
+       1364,
+       978
+      ]
+     },
+     "cutoutMatches": {
+      "best": {
+       "score": 0.4418,
+       "verdict": "pass",
+       "scale": 1.0,
+       "dx": 0,
+       "dy": 0,
+       "originalBox": [
+        1116,
+        757,
+        1345,
+        933
+       ],
+       "fittedBox": [
+        1116,
+        757,
+        1345,
+        933
+       ],
+       "hitboxSafe": true,
+       "components": {
+        "color": 0.5337,
+        "silhouette": 0.3865,
+        "edge": 0.1093,
+        "scalePrior": 1.0
+       },
+       "weights": {
+        "color": 0.45,
+        "silhouette": 0.35,
+        "edge": 0.15,
+        "scalePrior": 0.05
+       },
+       "accepted": true,
+       "method": "hybrid"
+      },
+      "calibrated": {
+       "score": 0.4418,
+       "verdict": "pass",
+       "scale": 1.0,
+       "dx": 0,
+       "dy": 0,
+       "originalBox": [
+        1116,
+        757,
+        1345,
+        933
+       ],
+       "fittedBox": [
+        1116,
+        757,
+        1345,
+        933
+       ],
+       "hitboxSafe": true,
+       "components": {
+        "color": 0.5337,
+        "silhouette": 0.3865,
+        "edge": 0.1093,
+        "scalePrior": 1.0
+       },
+       "weights": {
+        "color": 0.45,
+        "silhouette": 0.35,
+        "edge": 0.15,
+        "scalePrior": 0.05
+       },
+       "accepted": true,
+       "probability": 0.861997,
+       "method": "logistic-hybrid-safe"
+      }
+     },
+     "colorAlignment": {
+      "score": 0.788,
+      "verdict": "pass",
+      "scale": 0.8,
+      "dx": 14,
+      "dy": 22,
+      "originalBox": [
+       1116,
+       757,
+       1345,
+       933
+      ],
+      "fittedBox": [
+       1130,
+       779,
+       1313,
+       920
+      ]
+     },
+     "hybridAlignment": {
+      "score": 0.4418,
+      "verdict": "pass",
+      "scale": 1.0,
+      "dx": 0,
+      "dy": 0,
+      "originalBox": [
+       1116,
+       757,
+       1345,
+       933
+      ],
+      "fittedBox": [
+       1116,
+       757,
+       1345,
+       933
+      ],
+      "hitboxSafe": true,
+      "components": {
+       "color": 0.5337,
+       "silhouette": 0.3865,
+       "edge": 0.1093,
+       "scalePrior": 1.0
+      },
+      "weights": {
+       "color": 0.45,
+       "silhouette": 0.35,
+       "edge": 0.15,
+       "scalePrior": 0.05
+      }
+     },
+     "qualityFeatures": {
+      "alphaCoverage": 0.41492159587137756,
+      "changedPrecision": 0.7260060993840818,
+      "changedRecall": 0.6553492389074814,
+      "changedIou": 0.5254024580231954,
+      "colorSimilarity": 0.7308773990969347,
+      "cleanDifference": 0.42153231880166603,
+      "componentCount": 1.0,
+      "speckFraction": 0.0,
+      "edgeTouchFraction": 0.0,
+      "boxAspect": 1.3011363636363635,
+      "boxAreaFraction": 0.005578142715419501,
+      "precisionRecallGap": 0.07065686047660036,
+      "qualityProduct": 0.38400478199912946,
+      "logAreaFraction": -5.188899404693689,
+      "logComponentCount": 0.6931471805599453
+     },
+     "selectionFeatures": {
+      "alphaCoverage": 0.41492159587137756,
+      "changedPrecision": 0.7260060993840818,
+      "changedRecall": 0.6553492389074814,
+      "changedIou": 0.5254024580231954,
+      "colorSimilarity": 0.7308773990969347,
+      "cleanDifference": 0.42153231880166603,
+      "componentCount": 1.0,
+      "speckFraction": 0.0,
+      "edgeTouchFraction": 0.0,
+      "boxAspect": 1.3011363636363635,
+      "boxAreaFraction": 0.005578142715419501,
+      "precisionRecallGap": 0.07065686047660036,
+      "qualityProduct": 0.38400478199912946,
+      "logAreaFraction": -5.188899404693689,
+      "logComponentCount": 0.6931471805599453,
+      "hybridScore": 0.4418,
+      "hybridColor": 0.5337,
+      "hybridSilhouette": 0.3865,
+      "hybridEdge": 0.1093,
+      "hybridScale": 1.0,
+      "hybridMovementNorm": 0.0,
+      "colorScore": 0.788
+     }
+    },
+    {
+     "dogId": "dog_03",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.7241,
+       "verdict": "warn",
+       "leakFraction": 0.2759
+      },
+      "coherence": {
+       "score": 0.0,
+       "verdict": "fail",
+       "popArea": 29853,
+       "popRatio": 1.3301
+      }
+     },
+     "spriteArea": 22444,
+     "alignment": {
+      "score": 0.4309,
+      "verdict": "pass",
+      "outlier": false,
+      "scale": 1.25,
+      "dx": -31,
+      "dy": -10,
+      "originalBox": [
+       443,
+       702,
+       703,
+       915
+      ],
+      "fittedBox": [
+       412,
+       692,
+       737,
+       958
+      ]
+     },
+     "cutoutMatches": {
+      "best": {
+       "score": 0.388,
+       "verdict": "pass",
+       "scale": 1.0,
+       "dx": 0,
+       "dy": 0,
+       "originalBox": [
+        443,
+        702,
+        703,
+        915
+       ],
+       "fittedBox": [
+        443,
+        702,
+        703,
+        915
+       ],
+       "hitboxSafe": true,
+       "components": {
+        "color": 0.4551,
+        "silhouette": 0.3294,
+        "edge": 0.1194,
+        "scalePrior": 1.0
+       },
+       "weights": {
+        "color": 0.45,
+        "silhouette": 0.35,
+        "edge": 0.15,
+        "scalePrior": 0.05
+       },
+       "accepted": true,
+       "method": "hybrid"
+      },
+      "calibrated": {
+       "score": 0.388,
+       "verdict": "pass",
+       "scale": 1.0,
+       "dx": 0,
+       "dy": 0,
+       "originalBox": [
+        443,
+        702,
+        703,
+        915
+       ],
+       "fittedBox": [
+        443,
+        702,
+        703,
+        915
+       ],
+       "hitboxSafe": true,
+       "components": {
+        "color": 0.4551,
+        "silhouette": 0.3294,
+        "edge": 0.1194,
+        "scalePrior": 1.0
+       },
+       "weights": {
+        "color": 0.45,
+        "silhouette": 0.35,
+        "edge": 0.15,
+        "scalePrior": 0.05
+       },
+       "accepted": true,
+       "probability": 0.994173,
+       "method": "logistic-hybrid-safe"
+      }
+     },
+     "colorAlignment": {
+      "score": 0.5454,
+      "verdict": "pass",
+      "scale": 0.8,
+      "dx": 32,
+      "dy": -21,
+      "originalBox": [
+       443,
+       702,
+       703,
+       915
+      ],
+      "fittedBox": [
+       475,
+       681,
+       683,
+       851
+      ]
+     },
+     "hybridAlignment": {
+      "score": 0.388,
+      "verdict": "pass",
+      "scale": 1.0,
+      "dx": 0,
+      "dy": 0,
+      "originalBox": [
+       443,
+       702,
+       703,
+       915
+      ],
+      "fittedBox": [
+       443,
+       702,
+       703,
+       915
+      ],
+      "hitboxSafe": true,
+      "components": {
+       "color": 0.4551,
+       "silhouette": 0.3294,
+       "edge": 0.1194,
+       "scalePrior": 1.0
+      },
+      "weights": {
+       "color": 0.45,
+       "silhouette": 0.35,
+       "edge": 0.15,
+       "scalePrior": 0.05
+      }
+     },
+     "qualityFeatures": {
+      "alphaCoverage": 0.40527266161068976,
+      "changedPrecision": 0.6880680805560506,
+      "changedRecall": 0.623329969727548,
+      "changedIou": 0.48599572004028196,
+      "colorSimilarity": 0.6892356633736486,
+      "cleanDifference": 0.4017813981173768,
+      "componentCount": 1.0,
+      "speckFraction": 0.0,
+      "edgeTouchFraction": 0.0,
+      "boxAspect": 1.2206572769953052,
+      "boxAreaFraction": 0.007664686968537415,
+      "precisionRecallGap": 0.06473811082850267,
+      "qualityProduct": 0.3349655824987178,
+      "logAreaFraction": -4.871131606561128,
+      "logComponentCount": 0.6931471805599453
+     },
+     "selectionFeatures": {
+      "alphaCoverage": 0.40527266161068976,
+      "changedPrecision": 0.6880680805560506,
+      "changedRecall": 0.623329969727548,
+      "changedIou": 0.48599572004028196,
+      "colorSimilarity": 0.6892356633736486,
+      "cleanDifference": 0.4017813981173768,
+      "componentCount": 1.0,
+      "speckFraction": 0.0,
+      "edgeTouchFraction": 0.0,
+      "boxAspect": 1.2206572769953052,
+      "boxAreaFraction": 0.007664686968537415,
+      "precisionRecallGap": 0.06473811082850267,
+      "qualityProduct": 0.3349655824987178,
+      "logAreaFraction": -4.871131606561128,
+      "logComponentCount": 0.6931471805599453,
+      "hybridScore": 0.388,
+      "hybridColor": 0.4551,
+      "hybridSilhouette": 0.3294,
+      "hybridEdge": 0.1194,
+      "hybridScale": 1.0,
+      "hybridMovementNorm": 0.0,
+      "colorScore": 0.5454
+     }
+    },
+    {
+     "dogId": "dog_04",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.6995,
+       "verdict": "warn",
+       "leakFraction": 0.3005
+      },
+      "coherence": {
+       "score": 0.0933,
+       "verdict": "fail",
+       "popArea": 24745,
+       "popRatio": 0.9067
+      }
+     },
+     "spriteArea": 27290,
+     "alignment": {
+      "score": 0.4689,
+      "verdict": "pass",
+      "outlier": false,
+      "scale": 1.1,
+      "dx": -26,
+      "dy": -25,
+      "originalBox": [
+       414,
+       991,
+       668,
+       1185
+      ],
+      "fittedBox": [
+       388,
+       966,
+       667,
+       1179
+      ]
+     },
+     "cutoutMatches": {
+      "best": {
+       "score": 0.3697,
+       "verdict": "pass",
+       "scale": 1.0,
+       "dx": 0,
+       "dy": 0,
+       "originalBox": [
+        414,
+        991,
+        668,
+        1185
+       ],
+       "fittedBox": [
+        414,
+        991,
+        668,
+        1185
+       ],
+       "hitboxSafe": true,
+       "components": {
+        "color": 0.3867,
+        "silhouette": 0.3833,
+        "edge": 0.0771,
+        "scalePrior": 1.0
+       },
+       "weights": {
+        "color": 0.45,
+        "silhouette": 0.35,
+        "edge": 0.15,
+        "scalePrior": 0.05
+       },
+       "accepted": true,
+       "method": "hybrid"
+      },
+      "calibrated": {
+       "score": 0.3697,
+       "verdict": "pass",
+       "scale": 1.0,
+       "dx": 0,
+       "dy": 0,
+       "originalBox": [
+        414,
+        991,
+        668,
+        1185
+       ],
+       "fittedBox": [
+        414,
+        991,
+        668,
+        1185
+       ],
+       "hitboxSafe": true,
+       "components": {
+        "color": 0.3867,
+        "silhouette": 0.3833,
+        "edge": 0.0771,
+        "scalePrior": 1.0
+       },
+       "weights": {
+        "color": 0.45,
+        "silhouette": 0.35,
+        "edge": 0.15,
+        "scalePrior": 0.05
+       },
+       "accepted": true,
+       "probability": 0.984979,
+       "method": "logistic-hybrid-safe"
+      }
+     },
+     "colorAlignment": {
+      "score": 0.4597,
+      "verdict": "pass",
+      "scale": 1.2,
+      "dx": -25,
+      "dy": -10,
+      "originalBox": [
+       414,
+       991,
+       668,
+       1185
+      ],
+      "fittedBox": [
+       389,
+       981,
+       694,
+       1214
+      ]
+     },
+     "hybridAlignment": {
+      "score": 0.3697,
+      "verdict": "pass",
+      "scale": 1.0,
+      "dx": 0,
+      "dy": 0,
+      "originalBox": [
+       414,
+       991,
+       668,
+       1185
+      ],
+      "fittedBox": [
+       414,
+       991,
+       668,
+       1185
+      ],
+      "hitboxSafe": true,
+      "components": {
+       "color": 0.3867,
+       "silhouette": 0.3833,
+       "edge": 0.0771,
+       "scalePrior": 1.0
+      },
+      "weights": {
+       "color": 0.45,
+       "silhouette": 0.35,
+       "edge": 0.15,
+       "scalePrior": 0.05
+      }
+     },
+     "qualityFeatures": {
+      "alphaCoverage": 0.5538193035148957,
+      "changedPrecision": 0.6474532795895933,
+      "changedRecall": 0.7590102667640363,
+      "changedIou": 0.5370516717325228,
+      "colorSimilarity": 0.6933530202113825,
+      "cleanDifference": 0.3284784342465458,
+      "componentCount": 1.0,
+      "speckFraction": 0.0,
+      "edgeTouchFraction": 0.0,
+      "boxAspect": 1.309278350515464,
+      "boxAreaFraction": 0.006819882901077098,
+      "precisionRecallGap": 0.11155698717444296,
+      "qualityProduct": 0.3723663986053166,
+      "logAreaFraction": -4.987912977204216,
+      "logComponentCount": 0.6931471805599453
+     },
+     "selectionFeatures": {
+      "alphaCoverage": 0.5538193035148957,
+      "changedPrecision": 0.6474532795895933,
+      "changedRecall": 0.7590102667640363,
+      "changedIou": 0.5370516717325228,
+      "colorSimilarity": 0.6933530202113825,
+      "cleanDifference": 0.3284784342465458,
+      "componentCount": 1.0,
+      "speckFraction": 0.0,
+      "edgeTouchFraction": 0.0,
+      "boxAspect": 1.309278350515464,
+      "boxAreaFraction": 0.006819882901077098,
+      "precisionRecallGap": 0.11155698717444296,
+      "qualityProduct": 0.3723663986053166,
+      "logAreaFraction": -4.987912977204216,
+      "logComponentCount": 0.6931471805599453,
+      "hybridScore": 0.3697,
+      "hybridColor": 0.3867,
+      "hybridSilhouette": 0.3833,
+      "hybridEdge": 0.0771,
+      "hybridScale": 1.0,
+      "hybridMovementNorm": 0.0,
+      "colorScore": 0.4597
+     }
+    },
+    {
+     "dogId": "dog_05",
+     "axes": {
+      "specks": {
+       "count": 1,
+       "areaFraction": 0.0003,
+       "verdict": "warn"
+      },
+      "exclusion": {
+       "score": 0.7529,
+       "verdict": "warn",
+       "leakFraction": 0.2471
+      },
+      "coherence": {
+       "score": 0.0,
+       "verdict": "fail",
+       "popArea": 69230,
+       "popRatio": 1.8602
+      }
+     },
+     "spriteArea": 37217,
+     "alignment": {
+      "score": 0.4167,
+      "verdict": "pass",
+      "outlier": false,
+      "scale": 1.0,
+      "dx": -1,
+      "dy": 0,
+      "originalBox": [
+       608,
+       1066,
+       937,
+       1371
+      ],
+      "fittedBox": [
+       607,
+       1066,
+       936,
+       1371
+      ]
+     },
+     "cutoutMatches": {
+      "best": {
+       "score": 0.6873,
+       "verdict": "pass",
+       "accepted": true,
+       "matches": 33,
+       "inliers": 24,
+       "inlierRatio": 0.7273,
+       "coverage": 0.1448,
+       "medianReprojectionError": 0.854,
+       "scale": 1.2947,
+       "rotation": -0.07,
+       "dx": 0,
+       "dy": 0,
+       "originalBox": [
+        608,
+        1066,
+        937,
+        1371
+       ],
+       "fittedBox": [
+        608,
+        1066,
+        937,
+        1372
+       ],
+       "evidence": null,
+       "method": "features"
+      },
+      "calibrated": {
+       "score": 0.3478,
+       "verdict": "pass",
+       "scale": 1.0,
+       "dx": 91,
+       "dy": -27,
+       "originalBox": [
+        608,
+        1066,
+        937,
+        1371
+       ],
+       "fittedBox": [
+        699,
+        1039,
+        953,
+        1275
+       ],
+       "hitboxSafe": true,
+       "components": {
+        "color": 0.4585,
+        "silhouette": 0.2244,
+        "edge": 0.0865,
+        "scalePrior": 1.0
+       },
+       "weights": {
+        "color": 0.45,
+        "silhouette": 0.35,
+        "edge": 0.15,
+        "scalePrior": 0.05
+       },
+       "accepted": false,
+       "probability": 0.262744,
+       "method": "logistic-hybrid-safe"
+      }
+     },
+     "colorAlignment": {
+      "score": 0.8092,
+      "verdict": "pass",
+      "scale": 1.0,
+      "dx": 0,
+      "dy": 0,
+      "originalBox": [
+       608,
+       1066,
+       937,
+       1371
+      ],
+      "fittedBox": [
+       608,
+       1066,
+       937,
+       1371
+      ]
+     },
+     "hybridAlignment": {
+      "score": 0.3478,
+      "verdict": "pass",
+      "scale": 1.0,
+      "dx": 91,
+      "dy": -27,
+      "originalBox": [
+       608,
+       1066,
+       937,
+       1371
+      ],
+      "fittedBox": [
+       699,
+       1039,
+       953,
+       1275
+      ],
+      "hitboxSafe": true,
+      "components": {
+       "color": 0.4585,
+       "silhouette": 0.2244,
+       "edge": 0.0865,
+       "scalePrior": 1.0
+      },
+      "weights": {
+       "color": 0.45,
+       "silhouette": 0.35,
+       "edge": 0.15,
+       "scalePrior": 0.05
+      }
+     },
+     "qualityFeatures": {
+      "alphaCoverage": 0.37089042802331956,
+      "changedPrecision": 0.6362415025391622,
+      "changedRecall": 0.6875834833614031,
+      "changedIou": 0.49355927963981994,
+      "colorSimilarity": 0.8756159116968298,
+      "cleanDifference": 0.2160891053898519,
+      "componentCount": 2.0,
+      "speckFraction": 0.00029556385522744983,
+      "edgeTouchFraction": 0.0,
+      "boxAspect": 1.0786885245901638,
+      "boxAreaFraction": 0.01388792007688492,
+      "precisionRecallGap": 0.05134198082224084,
+      "qualityProduct": 0.43216835861825154,
+      "logAreaFraction": -4.276735875913297,
+      "logComponentCount": 1.0986122886681098
+     },
+     "selectionFeatures": {
+      "alphaCoverage": 0.37089042802331956,
+      "changedPrecision": 0.6362415025391622,
+      "changedRecall": 0.6875834833614031,
+      "changedIou": 0.49355927963981994,
+      "colorSimilarity": 0.8756159116968298,
+      "cleanDifference": 0.2160891053898519,
+      "componentCount": 2.0,
+      "speckFraction": 0.00029556385522744983,
+      "edgeTouchFraction": 0.0,
+      "boxAspect": 1.0786885245901638,
+      "boxAreaFraction": 0.01388792007688492,
+      "precisionRecallGap": 0.05134198082224084,
+      "qualityProduct": 0.43216835861825154,
+      "logAreaFraction": -4.276735875913297,
+      "logComponentCount": 1.0986122886681098,
+      "hybridScore": 0.3478,
+      "hybridColor": 0.4585,
+      "hybridSilhouette": 0.2244,
+      "hybridEdge": 0.0865,
+      "hybridScale": 1.0,
+      "hybridMovementNorm": 0.18169624209269564,
+      "colorScore": 0.8092
+     }
+    },
+    {
+     "dogId": "dog_06",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9453,
+       "verdict": "pass",
+       "leakFraction": 0.0547
+      },
+      "coherence": {
+       "score": 0.0,
+       "verdict": "fail",
+       "popArea": 40315,
+       "popRatio": 2.3619
+      }
+     },
+     "spriteArea": 17069,
+     "alignment": {
+      "score": 0.5001,
+      "verdict": "pass",
+      "outlier": false,
+      "scale": 1.25,
+      "dx": -22,
+      "dy": -29,
+      "originalBox": [
+       982,
+       1026,
+       1205,
+       1172
+      ],
+      "fittedBox": [
+       960,
+       997,
+       1239,
+       1179
+      ]
+     },
+     "cutoutMatches": {
+      "best": {
+       "score": 0.5381,
+       "verdict": "pass",
+       "accepted": true,
+       "matches": 35,
+       "inliers": 20,
+       "inlierRatio": 0.5714,
+       "coverage": 0.0932,
+       "medianReprojectionError": 0.991,
+       "scale": 0.8536,
+       "rotation": 0.145,
+       "dx": 0,
+       "dy": 0,
+       "originalBox": [
+        982,
+        1026,
+        1205,
+        1172
+       ],
+       "fittedBox": [
+        982,
+        1026,
+        1206,
+        1172
+       ],
+       "evidence": null,
+       "method": "orb"
+      },
+      "calibrated": {
+       "score": 0.496,
+       "verdict": "pass",
+       "scale": 1.0,
+       "dx": -3,
+       "dy": -18,
+       "originalBox": [
+        982,
+        1026,
+        1205,
+        1172
+       ],
+       "fittedBox": [
+        979,
+        1008,
+        1241,
+        1179
+       ],
+       "hitboxSafe": true,
+       "components": {
+        "color": 0.6573,
+        "silhouette": 0.372,
+        "edge": 0.1338,
+        "scalePrior": 1.0
+       },
+       "weights": {
+        "color": 0.45,
+        "silhouette": 0.35,
+        "edge": 0.15,
+        "scalePrior": 0.05
+       },
+       "accepted": false,
+       "probability": 0.087791,
+       "method": "logistic-hybrid-safe"
+      }
+     },
+     "colorAlignment": {
+      "score": 0.8803,
+      "verdict": "pass",
+      "scale": 1.0,
+      "dx": 1,
+      "dy": 0,
+      "originalBox": [
+       982,
+       1026,
+       1205,
+       1172
+      ],
+      "fittedBox": [
+       983,
+       1026,
+       1206,
+       1172
+      ]
+     },
+     "hybridAlignment": {
+      "score": 0.496,
+      "verdict": "pass",
+      "scale": 1.0,
+      "dx": -3,
+      "dy": -18,
+      "originalBox": [
+       982,
+       1026,
+       1205,
+       1172
+      ],
+      "fittedBox": [
+       979,
+       1008,
+       1241,
+       1179
+      ],
+      "hitboxSafe": true,
+      "components": {
+       "color": 0.6573,
+       "silhouette": 0.372,
+       "edge": 0.1338,
+       "scalePrior": 1.0
+      },
+      "weights": {
+       "color": 0.45,
+       "silhouette": 0.35,
+       "edge": 0.15,
+       "scalePrior": 0.05
+      }
+     },
+     "qualityFeatures": {
+      "alphaCoverage": 0.5242643897045273,
+      "changedPrecision": 0.9176284492354561,
+      "changedRecall": 0.6944666134610269,
+      "changedIou": 0.6537145242070117,
+      "colorSimilarity": 0.8761044082131847,
+      "cleanDifference": 0.28455744982782305,
+      "componentCount": 1.0,
+      "speckFraction": 0.0,
+      "edgeTouchFraction": 0.0,
+      "boxAspect": 1.5273972602739727,
+      "boxAreaFraction": 0.004506083032171202,
+      "precisionRecallGap": 0.22316183577442916,
+      "qualityProduct": 0.5727221763707476,
+      "logAreaFraction": -5.4023270101176255,
+      "logComponentCount": 0.6931471805599453
+     },
+     "selectionFeatures": {
+      "alphaCoverage": 0.5242643897045273,
+      "changedPrecision": 0.9176284492354561,
+      "changedRecall": 0.6944666134610269,
+      "changedIou": 0.6537145242070117,
+      "colorSimilarity": 0.8761044082131847,
+      "cleanDifference": 0.28455744982782305,
+      "componentCount": 1.0,
+      "speckFraction": 0.0,
+      "edgeTouchFraction": 0.0,
+      "boxAspect": 1.5273972602739727,
+      "boxAreaFraction": 0.004506083032171202,
+      "precisionRecallGap": 0.22316183577442916,
+      "qualityProduct": 0.5727221763707476,
+      "logAreaFraction": -5.4023270101176255,
+      "logComponentCount": 0.6931471805599453,
+      "hybridScore": 0.496,
+      "hybridColor": 0.6573,
+      "hybridSilhouette": 0.372,
+      "hybridEdge": 0.1338,
+      "hybridScale": 1.0,
+      "hybridMovementNorm": 0.06525231592533355,
+      "colorScore": 0.8803
+     }
+    },
+    {
+     "dogId": "dog_07",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9827,
+       "verdict": "pass",
+       "leakFraction": 0.0173
+      },
+      "coherence": {
+       "score": 0.0,
+       "verdict": "fail",
+       "popArea": 39001,
+       "popRatio": 2.9745
+      }
+     },
+     "spriteArea": 13112,
+     "alignment": {
+      "score": 0.4074,
+      "verdict": "pass",
+      "outlier": false,
+      "scale": 1.25,
+      "dx": -23,
+      "dy": -14,
+      "originalBox": [
+       1304,
+       1127,
+       1515,
+       1311
+      ],
+      "fittedBox": [
+       1281,
+       1113,
+       1545,
+       1343
+      ]
+     },
+     "cutoutMatches": {
+      "best": {
+       "score": 0.5039,
+       "verdict": "pass",
+       "scale": 1.0,
+       "dx": 0,
+       "dy": 0,
+       "originalBox": [
+        1304,
+        1127,
+        1515,
+        1311
+       ],
+       "fittedBox": [
+        1304,
+        1127,
+        1515,
+        1311
+       ],
+       "hitboxSafe": true,
+       "components": {
+        "color": 0.7141,
+        "silhouette": 0.3246,
+        "edge": 0.1266,
+        "scalePrior": 1.0
+       },
+       "weights": {
+        "color": 0.45,
+        "silhouette": 0.35,
+        "edge": 0.15,
+        "scalePrior": 0.05
+       },
+       "accepted": true,
+       "method": "hybrid"
+      },
+      "calibrated": {
+       "score": 0.5039,
+       "verdict": "pass",
+       "scale": 1.0,
+       "dx": 0,
+       "dy": 0,
+       "originalBox": [
+        1304,
+        1127,
+        1515,
+        1311
+       ],
+       "fittedBox": [
+        1304,
+        1127,
+        1515,
+        1311
+       ],
+       "hitboxSafe": true,
+       "components": {
+        "color": 0.7141,
+        "silhouette": 0.3246,
+        "edge": 0.1266,
+        "scalePrior": 1.0
+       },
+       "weights": {
+        "color": 0.45,
+        "silhouette": 0.35,
+        "edge": 0.15,
+        "scalePrior": 0.05
+       },
+       "accepted": true,
+       "probability": 0.78864,
+       "method": "logistic-hybrid-safe"
+      }
+     },
+     "colorAlignment": {
+      "score": 0.7141,
+      "verdict": "pass",
+      "scale": 1.0,
+      "dx": 0,
+      "dy": 0,
+      "originalBox": [
+       1304,
+       1127,
+       1515,
+       1311
+      ],
+      "fittedBox": [
+       1304,
+       1127,
+       1515,
+       1311
+      ]
+     },
+     "hybridAlignment": {
+      "score": 0.5039,
+      "verdict": "pass",
+      "scale": 1.0,
+      "dx": 0,
+      "dy": 0,
+      "originalBox": [
+       1304,
+       1127,
+       1515,
+       1311
+      ],
+      "fittedBox": [
+       1304,
+       1127,
+       1515,
+       1311
+      ],
+      "hitboxSafe": true,
+      "components": {
+       "color": 0.7141,
+       "silhouette": 0.3246,
+       "edge": 0.1266,
+       "scalePrior": 1.0
+      },
+      "weights": {
+       "color": 0.45,
+       "silhouette": 0.35,
+       "edge": 0.15,
+       "scalePrior": 0.05
+      }
+     },
+     "qualityFeatures": {
+      "alphaCoverage": 0.33772923964558005,
+      "changedPrecision": 0.976738865161684,
+      "changedRecall": 0.5483622350674374,
+      "changedIou": 0.5412933220625529,
+      "colorSimilarity": 0.8756911794614124,
+      "cleanDifference": 0.35985147567263637,
+      "componentCount": 1.0,
+      "speckFraction": 0.0,
+      "edgeTouchFraction": 0.0,
+      "boxAspect": 1.1467391304347827,
+      "boxAreaFraction": 0.005373308177437642,
+      "precisionRecallGap": 0.42837663009424654,
+      "qualityProduct": 0.4740057876315431,
+      "logAreaFraction": -5.226311512201028,
+      "logComponentCount": 0.6931471805599453
+     },
+     "selectionFeatures": {
+      "alphaCoverage": 0.33772923964558005,
+      "changedPrecision": 0.976738865161684,
+      "changedRecall": 0.5483622350674374,
+      "changedIou": 0.5412933220625529,
+      "colorSimilarity": 0.8756911794614124,
+      "cleanDifference": 0.35985147567263637,
+      "componentCount": 1.0,
+      "speckFraction": 0.0,
+      "edgeTouchFraction": 0.0,
+      "boxAspect": 1.1467391304347827,
+      "boxAreaFraction": 0.005373308177437642,
+      "precisionRecallGap": 0.42837663009424654,
+      "qualityProduct": 0.4740057876315431,
+      "logAreaFraction": -5.226311512201028,
+      "logComponentCount": 0.6931471805599453,
+      "hybridScore": 0.5039,
+      "hybridColor": 0.7141,
+      "hybridSilhouette": 0.3246,
+      "hybridEdge": 0.1266,
+      "hybridScale": 1.0,
+      "hybridMovementNorm": 0.0,
+      "colorScore": 0.7141
+     }
+    },
+    {
+     "dogId": "dog_08",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.8279,
+       "verdict": "warn",
+       "leakFraction": 0.1721
+      },
+      "coherence": {
+       "score": 0.0,
+       "verdict": "fail",
+       "popArea": 47797,
+       "popRatio": 2.3292
+      }
+     },
+     "spriteArea": 20521,
+     "alignment": {
+      "score": 0.489,
+      "verdict": "pass",
+      "outlier": false,
+      "scale": 1.25,
+      "dx": -30,
+      "dy": -15,
+      "originalBox": [
+       1070,
+       1317,
+       1325,
+       1472
+      ],
+      "fittedBox": [
+       1040,
+       1302,
+       1359,
+       1496
+      ]
+     },
+     "cutoutMatches": {
+      "best": {
+       "score": 0.4325,
+       "verdict": "pass",
+       "scale": 1.0,
+       "dx": 0,
+       "dy": 0,
+       "originalBox": [
+        1070,
+        1317,
+        1325,
+        1472
+       ],
+       "fittedBox": [
+        1070,
+        1317,
+        1325,
+        1472
+       ],
+       "hitboxSafe": true,
+       "components": {
+        "color": 0.5563,
+        "silhouette": 0.3436,
+        "edge": 0.0794,
+        "scalePrior": 1.0
+       },
+       "weights": {
+        "color": 0.45,
+        "silhouette": 0.35,
+        "edge": 0.15,
+        "scalePrior": 0.05
+       },
+       "accepted": true,
+       "method": "hybrid"
+      },
+      "calibrated": {
+       "score": 0.4325,
+       "verdict": "pass",
+       "scale": 1.0,
+       "dx": 0,
+       "dy": 0,
+       "originalBox": [
+        1070,
+        1317,
+        1325,
+        1472
+       ],
+       "fittedBox": [
+        1070,
+        1317,
+        1325,
+        1472
+       ],
+       "hitboxSafe": true,
+       "components": {
+        "color": 0.5563,
+        "silhouette": 0.3436,
+        "edge": 0.0794,
+        "scalePrior": 1.0
+       },
+       "weights": {
+        "color": 0.45,
+        "silhouette": 0.35,
+        "edge": 0.15,
+        "scalePrior": 0.05
+       },
+       "accepted": true,
+       "probability": 0.851589,
+       "method": "logistic-hybrid-safe"
+      }
+     },
+     "colorAlignment": {
+      "score": 0.5777,
+      "verdict": "pass",
+      "scale": 1.15,
+      "dx": -15,
+      "dy": -5,
+      "originalBox": [
+       1070,
+       1317,
+       1325,
+       1472
+      ],
+      "fittedBox": [
+       1055,
+       1312,
+       1348,
+       1490
+      ]
+     },
+     "hybridAlignment": {
+      "score": 0.4325,
+      "verdict": "pass",
+      "scale": 1.0,
+      "dx": 0,
+      "dy": 0,
+      "originalBox": [
+       1070,
+       1317,
+       1325,
+       1472
+      ],
+      "fittedBox": [
+       1070,
+       1317,
+       1325,
+       1472
+      ],
+      "hitboxSafe": true,
+      "components": {
+       "color": 0.5563,
+       "silhouette": 0.3436,
+       "edge": 0.0794,
+       "scalePrior": 1.0
+      },
+      "weights": {
+       "color": 0.45,
+       "silhouette": 0.35,
+       "edge": 0.15,
+       "scalePrior": 0.05
+      }
+     },
+     "qualityFeatures": {
+      "alphaCoverage": 0.519190385831752,
+      "changedPrecision": 0.8012280103308805,
+      "changedRecall": 0.703190488409888,
+      "changedIou": 0.5987400313171407,
+      "colorSimilarity": 0.7587422799472435,
+      "cleanDifference": 0.30468606525500896,
+      "componentCount": 1.0,
+      "speckFraction": 0.0,
+      "edgeTouchFraction": 0.0,
+      "boxAspect": 1.6451612903225807,
+      "boxAreaFraction": 0.00547032777954932,
+      "precisionRecallGap": 0.09803752192099258,
+      "qualityProduct": 0.4542893764572513,
+      "logAreaFraction": -5.208416741208407,
+      "logComponentCount": 0.6931471805599453
+     },
+     "selectionFeatures": {
+      "alphaCoverage": 0.519190385831752,
+      "changedPrecision": 0.8012280103308805,
+      "changedRecall": 0.703190488409888,
+      "changedIou": 0.5987400313171407,
+      "colorSimilarity": 0.7587422799472435,
+      "cleanDifference": 0.30468606525500896,
+      "componentCount": 1.0,
+      "speckFraction": 0.0,
+      "edgeTouchFraction": 0.0,
+      "boxAspect": 1.6451612903225807,
+      "boxAreaFraction": 0.00547032777954932,
+      "precisionRecallGap": 0.09803752192099258,
+      "qualityProduct": 0.4542893764572513,
+      "logAreaFraction": -5.208416741208407,
+      "logComponentCount": 0.6931471805599453,
+      "hybridScore": 0.4325,
+      "hybridColor": 0.5563,
+      "hybridSilhouette": 0.3436,
+      "hybridEdge": 0.0794,
+      "hybridScale": 1.0,
+      "hybridMovementNorm": 0.0,
+      "colorScore": 0.5777
+     }
+    },
+    {
+     "dogId": "dog_09",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9206,
+       "verdict": "pass",
+       "leakFraction": 0.0794
+      },
+      "coherence": {
+       "score": 0.0,
+       "verdict": "fail",
+       "popArea": 26478,
+       "popRatio": 2.9744
+      }
+     },
+     "spriteArea": 8902,
+     "alignment": {
+      "score": 0.4607,
+      "verdict": "pass",
+      "outlier": false,
+      "scale": 1.25,
+      "dx": -20,
+      "dy": -26,
+      "originalBox": [
+       579,
+       1405,
+       752,
+       1534
+      ],
+      "fittedBox": [
+       559,
+       1379,
+       775,
+       1540
+      ]
+     },
+     "cutoutMatches": {
+      "best": {
+       "score": 0.4249,
+       "verdict": "pass",
+       "scale": 1.0,
+       "dx": 0,
+       "dy": 0,
+       "originalBox": [
+        579,
+        1405,
+        752,
+        1534
+       ],
+       "fittedBox": [
+        579,
+        1405,
+        752,
+        1534
+       ],
+       "hitboxSafe": true,
+       "components": {
+        "color": 0.6201,
+        "silhouette": 0.241,
+        "edge": 0.0766,
+        "scalePrior": 1.0
+       },
+       "weights": {
+        "color": 0.45,
+        "silhouette": 0.35,
+        "edge": 0.15,
+        "scalePrior": 0.05
+       },
+       "accepted": true,
+       "method": "hybrid"
+      },
+      "calibrated": {
+       "score": 0.4249,
+       "verdict": "pass",
+       "scale": 1.0,
+       "dx": 0,
+       "dy": 0,
+       "originalBox": [
+        579,
+        1405,
+        752,
+        1534
+       ],
+       "fittedBox": [
+        579,
+        1405,
+        752,
+        1534
+       ],
+       "hitboxSafe": true,
+       "components": {
+        "color": 0.6201,
+        "silhouette": 0.241,
+        "edge": 0.0766,
+        "scalePrior": 1.0
+       },
+       "weights": {
+        "color": 0.45,
+        "silhouette": 0.35,
+        "edge": 0.15,
+        "scalePrior": 0.05
+       },
+       "accepted": true,
+       "probability": 0.96322,
+       "method": "logistic-hybrid-safe"
+      }
+     },
+     "colorAlignment": {
+      "score": 0.7183,
+      "verdict": "pass",
+      "scale": 1.25,
+      "dx": -17,
+      "dy": -25,
+      "originalBox": [
+       579,
+       1405,
+       752,
+       1534
+      ],
+      "fittedBox": [
+       562,
+       1380,
+       778,
+       1541
+      ]
+     },
+     "hybridAlignment": {
+      "score": 0.4249,
+      "verdict": "pass",
+      "scale": 1.0,
+      "dx": 0,
+      "dy": 0,
+      "originalBox": [
+       579,
+       1405,
+       752,
+       1534
+      ],
+      "fittedBox": [
+       579,
+       1405,
+       752,
+       1534
+      ],
+      "hitboxSafe": true,
+      "components": {
+       "color": 0.6201,
+       "silhouette": 0.241,
+       "edge": 0.0766,
+       "scalePrior": 1.0
+      },
+      "weights": {
+       "color": 0.45,
+       "silhouette": 0.35,
+       "edge": 0.15,
+       "scalePrior": 0.05
+      }
+     },
+     "qualityFeatures": {
+      "alphaCoverage": 0.39888873952592196,
+      "changedPrecision": 0.9049651763648618,
+      "changedRecall": 0.5167083573856712,
+      "changedIou": 0.49011376771917015,
+      "colorSimilarity": 0.7333954475971471,
+      "cleanDifference": 0.3373720820613125,
+      "componentCount": 1.0,
+      "speckFraction": 0.0,
+      "edgeTouchFraction": 0.0,
+      "boxAspect": 1.3410852713178294,
+      "boxAreaFraction": 0.003088711070365646,
+      "precisionRecallGap": 0.3882568189791906,
+      "qualityProduct": 0.35944720604992497,
+      "logAreaFraction": -5.7800014044266295,
+      "logComponentCount": 0.6931471805599453
+     },
+     "selectionFeatures": {
+      "alphaCoverage": 0.39888873952592196,
+      "changedPrecision": 0.9049651763648618,
+      "changedRecall": 0.5167083573856712,
+      "changedIou": 0.49011376771917015,
+      "colorSimilarity": 0.7333954475971471,
+      "cleanDifference": 0.3373720820613125,
+      "componentCount": 1.0,
+      "speckFraction": 0.0,
+      "edgeTouchFraction": 0.0,
+      "boxAspect": 1.3410852713178294,
+      "boxAreaFraction": 0.003088711070365646,
+      "precisionRecallGap": 0.3882568189791906,
+      "qualityProduct": 0.35944720604992497,
+      "logAreaFraction": -5.7800014044266295,
+      "logComponentCount": 0.6931471805599453,
+      "hybridScore": 0.4249,
+      "hybridColor": 0.6201,
+      "hybridSilhouette": 0.241,
+      "hybridEdge": 0.0766,
+      "hybridScale": 1.0,
+      "hybridMovementNorm": 0.0,
+      "colorScore": 0.7183
+     }
+    },
+    {
+     "dogId": "dog_10",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9549,
+       "verdict": "pass",
+       "leakFraction": 0.0451
+      },
+      "coherence": {
+       "score": 0.0,
+       "verdict": "fail",
+       "popArea": 56968,
+       "popRatio": 4.3374
+      }
+     },
+     "spriteArea": 13134,
+     "alignment": {
+      "score": 0.4242,
+      "verdict": "pass",
+      "outlier": false,
+      "scale": 1.25,
+      "dx": -27,
+      "dy": -19,
+      "originalBox": [
+       1131,
+       1582,
+       1350,
+       1765
+      ],
+      "fittedBox": [
+       1104,
+       1563,
+       1378,
+       1792
+      ]
+     },
+     "cutoutMatches": {
+      "best": {
+       "score": 0.3843,
+       "verdict": "pass",
+       "scale": 1.05,
+       "dx": 0,
+       "dy": 0,
+       "originalBox": [
+        1131,
+        1582,
+        1350,
+        1765
+       ],
+       "fittedBox": [
+        1131,
+        1582,
+        1350,
+        1765
+       ],
+       "hitboxSafe": true,
+       "components": {
+        "color": 0.5983,
+        "silhouette": 0.2321,
+        "edge": 0.0593,
+        "scalePrior": 0.5
+       },
+       "weights": {
+        "color": 0.45,
+        "silhouette": 0.35,
+        "edge": 0.15,
+        "scalePrior": 0.05
+       },
+       "accepted": true,
+       "method": "hybrid"
+      },
+      "calibrated": {
+       "score": 0.3843,
+       "verdict": "pass",
+       "scale": 1.05,
+       "dx": 0,
+       "dy": 0,
+       "originalBox": [
+        1131,
+        1582,
+        1350,
+        1765
+       ],
+       "fittedBox": [
+        1131,
+        1582,
+        1350,
+        1765
+       ],
+       "hitboxSafe": true,
+       "components": {
+        "color": 0.5983,
+        "silhouette": 0.2321,
+        "edge": 0.0593,
+        "scalePrior": 0.5
+       },
+       "weights": {
+        "color": 0.45,
+        "silhouette": 0.35,
+        "edge": 0.15,
+        "scalePrior": 0.05
+       },
+       "accepted": true,
+       "probability": 0.981508,
+       "method": "logistic-hybrid-safe"
+      }
+     },
+     "colorAlignment": {
+      "score": 0.7273,
+      "verdict": "pass",
+      "scale": 1.25,
+      "dx": -29,
+      "dy": -15,
+      "originalBox": [
+       1131,
+       1582,
+       1350,
+       1765
+      ],
+      "fittedBox": [
+       1102,
+       1567,
+       1376,
+       1796
+      ]
+     },
+     "hybridAlignment": {
+      "score": 0.3843,
+      "verdict": "pass",
+      "scale": 1.05,
+      "dx": 0,
+      "dy": 0,
+      "originalBox": [
+       1131,
+       1582,
+       1350,
+       1765
+      ],
+      "fittedBox": [
+       1131,
+       1582,
+       1350,
+       1765
+      ],
+      "hitboxSafe": true,
+      "components": {
+       "color": 0.5983,
+       "silhouette": 0.2321,
+       "edge": 0.0593,
+       "scalePrior": 0.5
+      },
+      "weights": {
+       "color": 0.45,
+       "silhouette": 0.35,
+       "edge": 0.15,
+       "scalePrior": 0.05
+      }
+     },
+     "qualityFeatures": {
+      "alphaCoverage": 0.32771914065424057,
+      "changedPrecision": 0.9495203289173139,
+      "changedRecall": 0.4451543815812957,
+      "changedIou": 0.43486296115489226,
+      "colorSimilarity": 0.7428841573683429,
+      "cleanDifference": 0.33698508386655,
+      "componentCount": 1.0,
+      "speckFraction": 0.0,
+      "edgeTouchFraction": 0.0,
+      "boxAspect": 1.1967213114754098,
+      "boxAreaFraction": 0.005546725526147959,
+      "precisionRecallGap": 0.5043659473360181,
+      "qualityProduct": 0.3230528044682546,
+      "logAreaFraction": -5.194547520628158,
+      "logComponentCount": 0.6931471805599453
+     },
+     "selectionFeatures": {
+      "alphaCoverage": 0.32771914065424057,
+      "changedPrecision": 0.9495203289173139,
+      "changedRecall": 0.4451543815812957,
+      "changedIou": 0.43486296115489226,
+      "colorSimilarity": 0.7428841573683429,
+      "cleanDifference": 0.33698508386655,
+      "componentCount": 1.0,
+      "speckFraction": 0.0,
+      "edgeTouchFraction": 0.0,
+      "boxAspect": 1.1967213114754098,
+      "boxAreaFraction": 0.005546725526147959,
+      "precisionRecallGap": 0.5043659473360181,
+      "qualityProduct": 0.3230528044682546,
+      "logAreaFraction": -5.194547520628158,
+      "logComponentCount": 0.6931471805599453,
+      "hybridScore": 0.3843,
+      "hybridColor": 0.5983,
+      "hybridSilhouette": 0.2321,
+      "hybridEdge": 0.0593,
+      "hybridScale": 1.05,
+      "hybridMovementNorm": 0.0,
+      "colorScore": 0.7273
+     }
+    },
+    {
+     "dogId": "dog_11",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9754,
+       "verdict": "pass",
+       "leakFraction": 0.0246
+      },
+      "coherence": {
+       "score": 0.0,
+       "verdict": "fail",
+       "popArea": 56714,
+       "popRatio": 4.6976
+      }
+     },
+     "spriteArea": 12073,
+     "alignment": {
+      "score": 0.4845,
+      "verdict": "pass",
+      "outlier": false,
+      "scale": 1.25,
+      "dx": -28,
+      "dy": -32,
+      "originalBox": [
+       497,
+       1861,
+       703,
+       2018
+      ],
+      "fittedBox": [
+       469,
+       1829,
+       727,
+       2025
+      ]
+     },
+     "cutoutMatches": {
+      "best": {
+       "score": 0.4468,
+       "verdict": "pass",
+       "scale": 1.0,
+       "dx": 0,
+       "dy": 0,
+       "originalBox": [
+        497,
+        1861,
+        703,
+        2018
+       ],
+       "fittedBox": [
+        497,
+        1861,
+        703,
+        2018
+       ],
+       "hitboxSafe": true,
+       "components": {
+        "color": 0.6908,
+        "silhouette": 0.2295,
+        "edge": 0.0377,
+        "scalePrior": 1.0
+       },
+       "weights": {
+        "color": 0.45,
+        "silhouette": 0.35,
+        "edge": 0.15,
+        "scalePrior": 0.05
+       },
+       "accepted": true,
+       "method": "hybrid"
+      },
+      "calibrated": {
+       "score": 0.4468,
+       "verdict": "pass",
+       "scale": 1.0,
+       "dx": 0,
+       "dy": 0,
+       "originalBox": [
+        497,
+        1861,
+        703,
+        2018
+       ],
+       "fittedBox": [
+        497,
+        1861,
+        703,
+        2018
+       ],
+       "hitboxSafe": true,
+       "components": {
+        "color": 0.6908,
+        "silhouette": 0.2295,
+        "edge": 0.0377,
+        "scalePrior": 1.0
+       },
+       "weights": {
+        "color": 0.45,
+        "silhouette": 0.35,
+        "edge": 0.15,
+        "scalePrior": 0.05
+       },
+       "accepted": true,
+       "probability": 0.902535,
+       "method": "logistic-hybrid-safe"
+      }
+     },
+     "colorAlignment": {
+      "score": 0.7317,
+      "verdict": "pass",
+      "scale": 1.25,
+      "dx": -18,
+      "dy": -31,
+      "originalBox": [
+       497,
+       1861,
+       703,
+       2018
+      ],
+      "fittedBox": [
+       479,
+       1830,
+       737,
+       2026
+      ]
+     },
+     "hybridAlignment": {
+      "score": 0.4468,
+      "verdict": "pass",
+      "scale": 1.0,
+      "dx": 0,
+      "dy": 0,
+      "originalBox": [
+       497,
+       1861,
+       703,
+       2018
+      ],
+      "fittedBox": [
+       497,
+       1861,
+       703,
+       2018
+      ],
+      "hitboxSafe": true,
+      "components": {
+       "color": 0.6908,
+       "silhouette": 0.2295,
+       "edge": 0.0377,
+       "scalePrior": 1.0
+      },
+      "weights": {
+       "color": 0.45,
+       "silhouette": 0.35,
+       "edge": 0.15,
+       "scalePrior": 0.05
+      }
+     },
+     "qualityFeatures": {
+      "alphaCoverage": 0.37329169500958503,
+      "changedPrecision": 0.9715894972252133,
+      "changedRecall": 0.49859729660800817,
+      "changedIou": 0.49143240186015336,
+      "colorSimilarity": 0.7838909163157243,
+      "cleanDifference": 0.2977808744083514,
+      "componentCount": 1.0,
+      "speckFraction": 0.0,
+      "edgeTouchFraction": 0.0,
+      "boxAspect": 1.3121019108280254,
+      "boxAreaFraction": 0.004476188261763038,
+      "precisionRecallGap": 0.4729922006172051,
+      "qualityProduct": 0.38522939580139287,
+      "logAreaFraction": -5.408983429148191,
+      "logComponentCount": 0.6931471805599453
+     },
+     "selectionFeatures": {
+      "alphaCoverage": 0.37329169500958503,
+      "changedPrecision": 0.9715894972252133,
+      "changedRecall": 0.49859729660800817,
+      "changedIou": 0.49143240186015336,
+      "colorSimilarity": 0.7838909163157243,
+      "cleanDifference": 0.2977808744083514,
+      "componentCount": 1.0,
+      "speckFraction": 0.0,
+      "edgeTouchFraction": 0.0,
+      "boxAspect": 1.3121019108280254,
+      "boxAreaFraction": 0.004476188261763038,
+      "precisionRecallGap": 0.4729922006172051,
+      "qualityProduct": 0.38522939580139287,
+      "logAreaFraction": -5.408983429148191,
+      "logComponentCount": 0.6931471805599453,
+      "hybridScore": 0.4468,
+      "hybridColor": 0.6908,
+      "hybridSilhouette": 0.2295,
+      "hybridEdge": 0.0377,
+      "hybridScale": 1.0,
+      "hybridMovementNorm": 0.0,
+      "colorScore": 0.7317
+     }
+    },
+    {
+     "dogId": "dog_12",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9691,
+       "verdict": "pass",
+       "leakFraction": 0.0309
+      },
+      "coherence": {
+       "score": 0.0,
+       "verdict": "fail",
+       "popArea": 91246,
+       "popRatio": 6.1305
+      }
+     },
+     "spriteArea": 14884,
+     "alignment": {
+      "score": 0.3287,
+      "verdict": "fail",
+      "outlier": true,
+      "scale": 1.25,
+      "dx": -32,
+      "dy": -32,
+      "originalBox": [
+       857,
+       1879,
+       1079,
+       2110
+      ],
+      "fittedBox": [
+       825,
+       1847,
+       1103,
+       2136
+      ]
+     },
+     "cutoutMatches": {
+      "best": {
+       "score": 0.3865,
+       "verdict": "pass",
+       "scale": 1.0,
+       "dx": 0,
+       "dy": 0,
+       "originalBox": [
+        857,
+        1879,
+        1079,
+        2110
+       ],
+       "fittedBox": [
+        857,
+        1879,
+        1079,
+        2110
+       ],
+       "hitboxSafe": true,
+       "components": {
+        "color": 0.5906,
+        "silhouette": 0.1778,
+        "edge": 0.0566,
+        "scalePrior": 1.0
+       },
+       "weights": {
+        "color": 0.45,
+        "silhouette": 0.35,
+        "edge": 0.15,
+        "scalePrior": 0.05
+       },
+       "accepted": true,
+       "method": "hybrid"
+      },
+      "calibrated": {
+       "score": 0.3865,
+       "verdict": "pass",
+       "scale": 1.0,
+       "dx": 0,
+       "dy": 0,
+       "originalBox": [
+        857,
+        1879,
+        1079,
+        2110
+       ],
+       "fittedBox": [
+        857,
+        1879,
+        1079,
+        2110
+       ],
+       "hitboxSafe": true,
+       "components": {
+        "color": 0.5906,
+        "silhouette": 0.1778,
+        "edge": 0.0566,
+        "scalePrior": 1.0
+       },
+       "weights": {
+        "color": 0.45,
+        "silhouette": 0.35,
+        "edge": 0.15,
+        "scalePrior": 0.05
+       },
+       "accepted": true,
+       "probability": 0.997525,
+       "method": "logistic-hybrid-safe"
+      }
+     },
+     "colorAlignment": {
+      "score": 0.6775,
+      "verdict": "pass",
+      "scale": 1.2,
+      "dx": -20,
+      "dy": -32,
+      "originalBox": [
+       857,
+       1879,
+       1079,
+       2110
+      ],
+      "fittedBox": [
+       837,
+       1847,
+       1103,
+       2124
+      ]
+     },
+     "hybridAlignment": {
+      "score": 0.3865,
+      "verdict": "pass",
+      "scale": 1.0,
+      "dx": 0,
+      "dy": 0,
+      "originalBox": [
+       857,
+       1879,
+       1079,
+       2110
+      ],
+      "fittedBox": [
+       857,
+       1879,
+       1079,
+       2110
+      ],
+      "hitboxSafe": true,
+      "components": {
+       "color": 0.5906,
+       "silhouette": 0.1778,
+       "edge": 0.0566,
+       "scalePrior": 1.0
+      },
+      "weights": {
+       "color": 0.45,
+       "silhouette": 0.35,
+       "edge": 0.15,
+       "scalePrior": 0.05
+      }
+     },
+     "qualityFeatures": {
+      "alphaCoverage": 0.29023829023829023,
+      "changedPrecision": 0.9636522440204246,
+      "changedRecall": 0.34601466756730676,
+      "changedIou": 0.34155692615435906,
+      "colorSimilarity": 0.7507224496893624,
+      "cleanDifference": 0.31352358017470183,
+      "componentCount": 1.0,
+      "speckFraction": 0.0,
+      "edgeTouchFraction": 0.0,
+      "boxAspect": 0.961038961038961,
+      "boxAreaFraction": 0.007097516741071429,
+      "precisionRecallGap": 0.6176375764531179,
+      "qualityProduct": 0.2564144523109691,
+      "logAreaFraction": -4.948010310892007,
+      "logComponentCount": 0.6931471805599453
+     },
+     "selectionFeatures": {
+      "alphaCoverage": 0.29023829023829023,
+      "changedPrecision": 0.9636522440204246,
+      "changedRecall": 0.34601466756730676,
+      "changedIou": 0.34155692615435906,
+      "colorSimilarity": 0.7507224496893624,
+      "cleanDifference": 0.31352358017470183,
+      "componentCount": 1.0,
+      "speckFraction": 0.0,
+      "edgeTouchFraction": 0.0,
+      "boxAspect": 0.961038961038961,
+      "boxAreaFraction": 0.007097516741071429,
+      "precisionRecallGap": 0.6176375764531179,
+      "qualityProduct": 0.2564144523109691,
+      "logAreaFraction": -4.948010310892007,
+      "logComponentCount": 0.6931471805599453,
+      "hybridScore": 0.3865,
+      "hybridColor": 0.5906,
+      "hybridSilhouette": 0.1778,
+      "hybridEdge": 0.0566,
+      "hybridScale": 1.0,
+      "hybridMovementNorm": 0.0,
+      "colorScore": 0.6775
+     }
+    },
+    {
+     "dogId": "dog_13",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9584,
+       "verdict": "pass",
+       "leakFraction": 0.0416
+      },
+      "coherence": {
+       "score": 0.0,
+       "verdict": "fail",
+       "popArea": 69005,
+       "popRatio": 3.4427
+      }
+     },
+     "spriteArea": 20044,
+     "alignment": {
+      "score": 0.4578,
+      "verdict": "pass",
+      "outlier": false,
+      "scale": 1.25,
+      "dx": -32,
+      "dy": -32,
+      "originalBox": [
+       505,
+       2148,
+       756,
+       2343
+      ],
+      "fittedBox": [
+       473,
+       2116,
+       787,
+       2360
+      ]
+     },
+     "cutoutMatches": {
+      "best": {
+       "score": 0.4322,
+       "verdict": "pass",
+       "scale": 1.0,
+       "dx": 0,
+       "dy": 0,
+       "originalBox": [
+        505,
+        2148,
+        756,
+        2343
+       ],
+       "fittedBox": [
+        505,
+        2148,
+        756,
+        2343
+       ],
+       "hitboxSafe": true,
+       "components": {
+        "color": 0.6318,
+        "silhouette": 0.258,
+        "edge": 0.0508,
+        "scalePrior": 1.0
+       },
+       "weights": {
+        "color": 0.45,
+        "silhouette": 0.35,
+        "edge": 0.15,
+        "scalePrior": 0.05
+       },
+       "accepted": true,
+       "method": "hybrid"
+      },
+      "calibrated": {
+       "score": 0.4322,
+       "verdict": "pass",
+       "scale": 1.0,
+       "dx": 0,
+       "dy": 0,
+       "originalBox": [
+        505,
+        2148,
+        756,
+        2343
+       ],
+       "fittedBox": [
+        505,
+        2148,
+        756,
+        2343
+       ],
+       "hitboxSafe": true,
+       "components": {
+        "color": 0.6318,
+        "silhouette": 0.258,
+        "edge": 0.0508,
+        "scalePrior": 1.0
+       },
+       "weights": {
+        "color": 0.45,
+        "silhouette": 0.35,
+        "edge": 0.15,
+        "scalePrior": 0.05
+       },
+       "accepted": true,
+       "probability": 0.965641,
+       "method": "logistic-hybrid-safe"
+      }
+     },
+     "colorAlignment": {
+      "score": 0.6689,
+      "verdict": "pass",
+      "scale": 1.2,
+      "dx": -28,
+      "dy": -32,
+      "originalBox": [
+       505,
+       2148,
+       756,
+       2343
+      ],
+      "fittedBox": [
+       477,
+       2116,
+       778,
+       2350
+      ]
+     },
+     "hybridAlignment": {
+      "score": 0.4322,
+      "verdict": "pass",
+      "scale": 1.0,
+      "dx": 0,
+      "dy": 0,
+      "originalBox": [
+       505,
+       2148,
+       756,
+       2343
+      ],
+      "fittedBox": [
+       505,
+       2148,
+       756,
+       2343
+      ],
+      "hitboxSafe": true,
+      "components": {
+       "color": 0.6318,
+       "silhouette": 0.258,
+       "edge": 0.0508,
+       "scalePrior": 1.0
+      },
+      "weights": {
+       "color": 0.45,
+       "silhouette": 0.35,
+       "edge": 0.15,
+       "scalePrior": 0.05
+      }
+     },
+     "qualityFeatures": {
+      "alphaCoverage": 0.4095208907957912,
+      "changedPrecision": 0.9507084414288565,
+      "changedRecall": 0.49421650500544634,
+      "changedIou": 0.4818692155970262,
+      "colorSimilarity": 0.7665822771601822,
+      "cleanDifference": 0.28753650465707464,
+      "componentCount": 1.0,
+      "speckFraction": 0.0,
+      "edgeTouchFraction": 0.0,
+      "boxAspect": 1.2871794871794873,
+      "boxAreaFraction": 0.0067740719334608845,
+      "precisionRecallGap": 0.4564919364234101,
+      "qualityProduct": 0.3693924005857592,
+      "logAreaFraction": -4.9946529055905495,
+      "logComponentCount": 0.6931471805599453
+     },
+     "selectionFeatures": {
+      "alphaCoverage": 0.4095208907957912,
+      "changedPrecision": 0.9507084414288565,
+      "changedRecall": 0.49421650500544634,
+      "changedIou": 0.4818692155970262,
+      "colorSimilarity": 0.7665822771601822,
+      "cleanDifference": 0.28753650465707464,
+      "componentCount": 1.0,
+      "speckFraction": 0.0,
+      "edgeTouchFraction": 0.0,
+      "boxAspect": 1.2871794871794873,
+      "boxAreaFraction": 0.0067740719334608845,
+      "precisionRecallGap": 0.4564919364234101,
+      "qualityProduct": 0.3693924005857592,
+      "logAreaFraction": -4.9946529055905495,
+      "logComponentCount": 0.6931471805599453,
+      "hybridScore": 0.4322,
+      "hybridColor": 0.6318,
+      "hybridSilhouette": 0.258,
+      "hybridEdge": 0.0508,
+      "hybridScale": 1.0,
+      "hybridMovementNorm": 0.0,
+      "colorScore": 0.6689
+     }
+    },
+    {
+     "dogId": "dog_14",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9892,
+       "verdict": "pass",
+       "leakFraction": 0.0108
+      },
+      "coherence": {
+       "score": 0.0,
+       "verdict": "fail",
+       "popArea": 31728,
+       "popRatio": 3.9045
+      }
+     },
+     "spriteArea": 8126,
+     "alignment": {
+      "score": 0.4309,
+      "verdict": "pass",
+      "outlier": false,
+      "scale": 1.25,
+      "dx": -5,
+      "dy": -7,
+      "originalBox": [
+       1481,
+       1781,
+       1657,
+       1919
+      ],
+      "fittedBox": [
+       1476,
+       1774,
+       1696,
+       1946
+      ]
+     },
+     "cutoutMatches": {
+      "best": {
+       "score": 0.4263,
+       "verdict": "pass",
+       "scale": 1.0,
+       "dx": 0,
+       "dy": 0,
+       "originalBox": [
+        1481,
+        1781,
+        1657,
+        1919
+       ],
+       "fittedBox": [
+        1481,
+        1781,
+        1657,
+        1919
+       ],
+       "hitboxSafe": true,
+       "components": {
+        "color": 0.6509,
+        "silhouette": 0.2257,
+        "edge": 0.0292,
+        "scalePrior": 1.0
+       },
+       "weights": {
+        "color": 0.45,
+        "silhouette": 0.35,
+        "edge": 0.15,
+        "scalePrior": 0.05
+       },
+       "accepted": true,
+       "method": "hybrid"
+      },
+      "calibrated": {
+       "score": 0.4263,
+       "verdict": "pass",
+       "scale": 1.0,
+       "dx": 0,
+       "dy": 0,
+       "originalBox": [
+        1481,
+        1781,
+        1657,
+        1919
+       ],
+       "fittedBox": [
+        1481,
+        1781,
+        1657,
+        1919
+       ],
+       "hitboxSafe": true,
+       "components": {
+        "color": 0.6509,
+        "silhouette": 0.2257,
+        "edge": 0.0292,
+        "scalePrior": 1.0
+       },
+       "weights": {
+        "color": 0.45,
+        "silhouette": 0.35,
+        "edge": 0.15,
+        "scalePrior": 0.05
+       },
+       "accepted": true,
+       "probability": 0.937829,
+       "method": "logistic-hybrid-safe"
+      }
+     },
+     "colorAlignment": {
+      "score": 0.761,
+      "verdict": "pass",
+      "scale": 1.25,
+      "dx": -8,
+      "dy": -11,
+      "originalBox": [
+       1481,
+       1781,
+       1657,
+       1919
+      ],
+      "fittedBox": [
+       1473,
+       1770,
+       1693,
+       1942
+      ]
+     },
+     "hybridAlignment": {
+      "score": 0.4263,
+      "verdict": "pass",
+      "scale": 1.0,
+      "dx": 0,
+      "dy": 0,
+      "originalBox": [
+       1481,
+       1781,
+       1657,
+       1919
+      ],
+      "fittedBox": [
+       1481,
+       1781,
+       1657,
+       1919
+      ],
+      "hitboxSafe": true,
+      "components": {
+       "color": 0.6509,
+       "silhouette": 0.2257,
+       "edge": 0.0292,
+       "scalePrior": 1.0
+      },
+      "weights": {
+       "color": 0.45,
+       "silhouette": 0.35,
+       "edge": 0.15,
+       "scalePrior": 0.05
+      }
+     },
+     "qualityFeatures": {
+      "alphaCoverage": 0.334568511198946,
+      "changedPrecision": 0.9841250307654442,
+      "changedRecall": 0.4883067716920071,
+      "changedIou": 0.4844904883072822,
+      "colorSimilarity": 0.739865902879324,
+      "cleanDifference": 0.30066887695270084,
+      "componentCount": 1.0,
+      "speckFraction": 0.0,
+      "edgeTouchFraction": 0.0,
+      "boxAspect": 1.2753623188405796,
+      "boxAreaFraction": 0.003361500850340136,
+      "precisionRecallGap": 0.49581825907343713,
+      "qualityProduct": 0.3584579925679119,
+      "logAreaFraction": -5.695367723090724,
+      "logComponentCount": 0.6931471805599453
+     },
+     "selectionFeatures": {
+      "alphaCoverage": 0.334568511198946,
+      "changedPrecision": 0.9841250307654442,
+      "changedRecall": 0.4883067716920071,
+      "changedIou": 0.4844904883072822,
+      "colorSimilarity": 0.739865902879324,
+      "cleanDifference": 0.30066887695270084,
+      "componentCount": 1.0,
+      "speckFraction": 0.0,
+      "edgeTouchFraction": 0.0,
+      "boxAspect": 1.2753623188405796,
+      "boxAreaFraction": 0.003361500850340136,
+      "precisionRecallGap": 0.49581825907343713,
+      "qualityProduct": 0.3584579925679119,
+      "logAreaFraction": -5.695367723090724,
+      "logComponentCount": 0.6931471805599453,
+      "hybridScore": 0.4263,
+      "hybridColor": 0.6509,
+      "hybridSilhouette": 0.2257,
+      "hybridEdge": 0.0292,
+      "hybridScale": 1.0,
+      "hybridMovementNorm": 0.0,
+      "colorScore": 0.761
+     }
+    },
+    {
+     "dogId": "dog_15",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9309,
+       "verdict": "pass",
+       "leakFraction": 0.0691
+      },
+      "coherence": {
+       "score": 0.0,
+       "verdict": "fail",
+       "popArea": 31176,
+       "popRatio": 2.7456
+      }
+     },
+     "spriteArea": 11355,
+     "alignment": {
+      "score": 0.5621,
+      "verdict": "pass",
+      "outlier": false,
+      "scale": 1.25,
+      "dx": -17,
+      "dy": -32,
+      "originalBox": [
+       1923,
+       1205,
+       2077,
+       1439
+      ],
+      "fittedBox": [
+       1906,
+       1173,
+       2098,
+       1465
+      ]
+     },
+     "cutoutMatches": {
+      "best": {
+       "score": 0.446,
+       "verdict": "pass",
+       "scale": 1.05,
+       "dx": 0,
+       "dy": 0,
+       "originalBox": [
+        1923,
+        1205,
+        2077,
+        1439
+       ],
+       "fittedBox": [
+        1923,
+        1205,
+        2077,
+        1439
+       ],
+       "hitboxSafe": true,
+       "components": {
+        "color": 0.6778,
+        "silhouette": 0.2935,
+        "edge": 0.088,
+        "scalePrior": 0.5
+       },
+       "weights": {
+        "color": 0.45,
+        "silhouette": 0.35,
+        "edge": 0.15,
+        "scalePrior": 0.05
+       },
+       "accepted": true,
+       "method": "hybrid"
+      },
+      "calibrated": {
+       "score": 0.446,
+       "verdict": "pass",
+       "scale": 1.05,
+       "dx": 0,
+       "dy": 0,
+       "originalBox": [
+        1923,
+        1205,
+        2077,
+        1439
+       ],
+       "fittedBox": [
+        1923,
+        1205,
+        2077,
+        1439
+       ],
+       "hitboxSafe": true,
+       "components": {
+        "color": 0.6778,
+        "silhouette": 0.2935,
+        "edge": 0.088,
+        "scalePrior": 0.5
+       },
+       "weights": {
+        "color": 0.45,
+        "silhouette": 0.35,
+        "edge": 0.15,
+        "scalePrior": 0.05
+       },
+       "accepted": true,
+       "probability": 0.943221,
+       "method": "logistic-hybrid-safe"
+      }
+     },
+     "colorAlignment": {
+      "score": 0.7374,
+      "verdict": "pass",
+      "scale": 1.25,
+      "dx": -17,
+      "dy": -29,
+      "originalBox": [
+       1923,
+       1205,
+       2077,
+       1439
+      ],
+      "fittedBox": [
+       1906,
+       1176,
+       2098,
+       1468
+      ]
+     },
+     "hybridAlignment": {
+      "score": 0.446,
+      "verdict": "pass",
+      "scale": 1.05,
+      "dx": 0,
+      "dy": 0,
+      "originalBox": [
+       1923,
+       1205,
+       2077,
+       1439
+      ],
+      "fittedBox": [
+       1923,
+       1205,
+       2077,
+       1439
+      ],
+      "hitboxSafe": true,
+      "components": {
+       "color": 0.6778,
+       "silhouette": 0.2935,
+       "edge": 0.088,
+       "scalePrior": 0.5
+      },
+      "weights": {
+       "color": 0.45,
+       "silhouette": 0.35,
+       "edge": 0.15,
+       "scalePrior": 0.05
+      }
+     },
+     "qualityFeatures": {
+      "alphaCoverage": 0.3151015651015651,
+      "changedPrecision": 0.9078819903126376,
+      "changedRecall": 0.5477974387587013,
+      "changedIou": 0.5189529322929776,
+      "colorSimilarity": 0.7719099875382416,
+      "cleanDifference": 0.35985529394496674,
+      "componentCount": 1.0,
+      "speckFraction": 0.0,
+      "edgeTouchFraction": 0.0,
+      "boxAspect": 0.6581196581196581,
+      "boxAreaFraction": 0.004987444196428571,
+      "precisionRecallGap": 0.36008455155393626,
+      "qualityProduct": 0.40058495149920625,
+      "logAreaFraction": -5.3008316855147495,
+      "logComponentCount": 0.6931471805599453
+     },
+     "selectionFeatures": {
+      "alphaCoverage": 0.3151015651015651,
+      "changedPrecision": 0.9078819903126376,
+      "changedRecall": 0.5477974387587013,
+      "changedIou": 0.5189529322929776,
+      "colorSimilarity": 0.7719099875382416,
+      "cleanDifference": 0.35985529394496674,
+      "componentCount": 1.0,
+      "speckFraction": 0.0,
+      "edgeTouchFraction": 0.0,
+      "boxAspect": 0.6581196581196581,
+      "boxAreaFraction": 0.004987444196428571,
+      "precisionRecallGap": 0.36008455155393626,
+      "qualityProduct": 0.40058495149920625,
+      "logAreaFraction": -5.3008316855147495,
+      "logComponentCount": 0.6931471805599453,
+      "hybridScore": 0.446,
+      "hybridColor": 0.6778,
+      "hybridSilhouette": 0.2935,
+      "hybridEdge": 0.088,
+      "hybridScale": 1.05,
+      "hybridMovementNorm": 0.0,
+      "colorScore": 0.7374
+     }
+    },
+    {
+     "dogId": "dog_16",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9925,
+       "verdict": "pass",
+       "leakFraction": 0.0075
+      },
+      "coherence": {
+       "score": 0.0,
+       "verdict": "fail",
+       "popArea": 37779,
+       "popRatio": 4.9735
+      }
+     },
+     "spriteArea": 7596,
+     "alignment": {
+      "score": 0.4529,
+      "verdict": "pass",
+      "outlier": false,
+      "scale": 1.25,
+      "dx": -25,
+      "dy": -21,
+      "originalBox": [
+       1960,
+       1577,
+       2120,
+       1688
+      ],
+      "fittedBox": [
+       1935,
+       1556,
+       2135,
+       1695
+      ]
+     },
+     "cutoutMatches": {
+      "best": {
+       "score": 0.4086,
+       "verdict": "pass",
+       "scale": 1.0,
+       "dx": 0,
+       "dy": 0,
+       "originalBox": [
+        1960,
+        1577,
+        2120,
+        1688
+       ],
+       "fittedBox": [
+        1960,
+        1577,
+        2120,
+        1688
+       ],
+       "hitboxSafe": true,
+       "components": {
+        "color": 0.6208,
+        "silhouette": 0.221,
+        "edge": 0.0127,
+        "scalePrior": 1.0
+       },
+       "weights": {
+        "color": 0.45,
+        "silhouette": 0.35,
+        "edge": 0.15,
+        "scalePrior": 0.05
+       },
+       "accepted": true,
+       "method": "hybrid"
+      },
+      "calibrated": {
+       "score": 0.4086,
+       "verdict": "pass",
+       "scale": 1.0,
+       "dx": 0,
+       "dy": 0,
+       "originalBox": [
+        1960,
+        1577,
+        2120,
+        1688
+       ],
+       "fittedBox": [
+        1960,
+        1577,
+        2120,
+        1688
+       ],
+       "hitboxSafe": true,
+       "components": {
+        "color": 0.6208,
+        "silhouette": 0.221,
+        "edge": 0.0127,
+        "scalePrior": 1.0
+       },
+       "weights": {
+        "color": 0.45,
+        "silhouette": 0.35,
+        "edge": 0.15,
+        "scalePrior": 0.05
+       },
+       "accepted": true,
+       "probability": 0.915579,
+       "method": "logistic-hybrid-safe"
+      }
+     },
+     "colorAlignment": {
+      "score": 0.7277,
+      "verdict": "pass",
+      "scale": 1.25,
+      "dx": -26,
+      "dy": -23,
+      "originalBox": [
+       1960,
+       1577,
+       2120,
+       1688
+      ],
+      "fittedBox": [
+       1934,
+       1554,
+       2134,
+       1693
+      ]
+     },
+     "hybridAlignment": {
+      "score": 0.4086,
+      "verdict": "pass",
+      "scale": 1.0,
+      "dx": 0,
+      "dy": 0,
+      "originalBox": [
+       1960,
+       1577,
+       2120,
+       1688
+      ],
+      "fittedBox": [
+       1960,
+       1577,
+       2120,
+       1688
+      ],
+      "hitboxSafe": true,
+      "components": {
+       "color": 0.6208,
+       "silhouette": 0.221,
+       "edge": 0.0127,
+       "scalePrior": 1.0
+      },
+      "weights": {
+       "color": 0.45,
+       "silhouette": 0.35,
+       "edge": 0.15,
+       "scalePrior": 0.05
+      }
+     },
+     "qualityFeatures": {
+      "alphaCoverage": 0.4277027027027027,
+      "changedPrecision": 0.9921011058451816,
+      "changedRecall": 0.5103962072468676,
+      "changedIou": 0.5083305227655986,
+      "colorSimilarity": 0.7269810047944051,
+      "cleanDifference": 0.38044292317594053,
+      "componentCount": 1.0,
+      "speckFraction": 0.0,
+      "edgeTouchFraction": 0.0,
+      "boxAspect": 1.4414414414414414,
+      "boxAreaFraction": 0.002458014455782313,
+      "precisionRecallGap": 0.481704898598314,
+      "qualityProduct": 0.3695466342078001,
+      "logAreaFraction": -6.008401386739919,
+      "logComponentCount": 0.6931471805599453
+     },
+     "selectionFeatures": {
+      "alphaCoverage": 0.4277027027027027,
+      "changedPrecision": 0.9921011058451816,
+      "changedRecall": 0.5103962072468676,
+      "changedIou": 0.5083305227655986,
+      "colorSimilarity": 0.7269810047944051,
+      "cleanDifference": 0.38044292317594053,
+      "componentCount": 1.0,
+      "speckFraction": 0.0,
+      "edgeTouchFraction": 0.0,
+      "boxAspect": 1.4414414414414414,
+      "boxAreaFraction": 0.002458014455782313,
+      "precisionRecallGap": 0.481704898598314,
+      "qualityProduct": 0.3695466342078001,
+      "logAreaFraction": -6.008401386739919,
+      "logComponentCount": 0.6931471805599453,
+      "hybridScore": 0.4086,
+      "hybridColor": 0.6208,
+      "hybridSilhouette": 0.221,
+      "hybridEdge": 0.0127,
+      "hybridScale": 1.0,
+      "hybridMovementNorm": 0.0,
+      "colorScore": 0.7277
+     }
+    },
+    {
+     "dogId": "dog_17",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.7309,
+       "verdict": "warn",
+       "leakFraction": 0.2691
+      },
+      "coherence": {
+       "score": 0.0,
+       "verdict": "fail",
+       "popArea": 50105,
+       "popRatio": 2.455
+      }
+     },
+     "spriteArea": 20409,
+     "alignment": {
+      "score": 0.385,
+      "verdict": "pass",
+      "outlier": false,
+      "scale": 1.2,
+      "dx": -32,
+      "dy": -30,
+      "originalBox": [
+       2093,
+       1748,
+       2350,
+       1933
+      ],
+      "fittedBox": [
+       2061,
+       1718,
+       2369,
+       1940
+      ]
+     },
+     "cutoutMatches": {
+      "best": {
+       "score": 0.3563,
+       "verdict": "pass",
+       "scale": 1.0,
+       "dx": 0,
+       "dy": 0,
+       "originalBox": [
+        2093,
+        1748,
+        2350,
+        1933
+       ],
+       "fittedBox": [
+        2093,
+        1748,
+        2350,
+        1933
+       ],
+       "hitboxSafe": true,
+       "components": {
+        "color": 0.447,
+        "silhouette": 0.2432,
+        "edge": 0.1338,
+        "scalePrior": 1.0
+       },
+       "weights": {
+        "color": 0.45,
+        "silhouette": 0.35,
+        "edge": 0.15,
+        "scalePrior": 0.05
+       },
+       "accepted": true,
+       "method": "hybrid"
+      },
+      "calibrated": {
+       "score": 0.3563,
+       "verdict": "pass",
+       "scale": 1.0,
+       "dx": 0,
+       "dy": 0,
+       "originalBox": [
+        2093,
+        1748,
+        2350,
+        1933
+       ],
+       "fittedBox": [
+        2093,
+        1748,
+        2350,
+        1933
+       ],
+       "hitboxSafe": true,
+       "components": {
+        "color": 0.447,
+        "silhouette": 0.2432,
+        "edge": 0.1338,
+        "scalePrior": 1.0
+       },
+       "weights": {
+        "color": 0.45,
+        "silhouette": 0.35,
+        "edge": 0.15,
+        "scalePrior": 0.05
+       },
+       "accepted": true,
+       "probability": 0.996424,
+       "method": "logistic-hybrid-safe"
+      }
+     },
+     "colorAlignment": {
+      "score": 0.4962,
+      "verdict": "pass",
+      "scale": 1.1,
+      "dx": -14,
+      "dy": -28,
+      "originalBox": [
+       2093,
+       1748,
+       2350,
+       1933
+      ],
+      "fittedBox": [
+       2079,
+       1720,
+       2362,
+       1924
+      ]
+     },
+     "hybridAlignment": {
+      "score": 0.3563,
+      "verdict": "pass",
+      "scale": 1.0,
+      "dx": 0,
+      "dy": 0,
+      "originalBox": [
+       2093,
+       1748,
+       2350,
+       1933
+      ],
+      "fittedBox": [
+       2093,
+       1748,
+       2350,
+       1933
+      ],
+      "hitboxSafe": true,
+      "components": {
+       "color": 0.447,
+       "silhouette": 0.2432,
+       "edge": 0.1338,
+       "scalePrior": 1.0
+      },
+      "weights": {
+       "color": 0.45,
+       "silhouette": 0.35,
+       "edge": 0.15,
+       "scalePrior": 0.05
+      }
+     },
+     "qualityFeatures": {
+      "alphaCoverage": 0.4292564938479335,
+      "changedPrecision": 0.6761722769366456,
+      "changedRecall": 0.4893964110929853,
+      "changedIou": 0.3964719740282127,
+      "colorSimilarity": 0.7993938980527941,
+      "cleanDifference": 0.3732164170811481,
+      "componentCount": 1.0,
+      "speckFraction": 0.0,
+      "edgeTouchFraction": 0.0,
+      "boxAspect": 1.3891891891891892,
+      "boxAreaFraction": 0.006580309532667234,
+      "precisionRecallGap": 0.1867758658436603,
+      "qualityProduct": 0.3169372767870991,
+      "logAreaFraction": -5.023673493312535,
+      "logComponentCount": 0.6931471805599453
+     },
+     "selectionFeatures": {
+      "alphaCoverage": 0.4292564938479335,
+      "changedPrecision": 0.6761722769366456,
+      "changedRecall": 0.4893964110929853,
+      "changedIou": 0.3964719740282127,
+      "colorSimilarity": 0.7993938980527941,
+      "cleanDifference": 0.3732164170811481,
+      "componentCount": 1.0,
+      "speckFraction": 0.0,
+      "edgeTouchFraction": 0.0,
+      "boxAspect": 1.3891891891891892,
+      "boxAreaFraction": 0.006580309532667234,
+      "precisionRecallGap": 0.1867758658436603,
+      "qualityProduct": 0.3169372767870991,
+      "logAreaFraction": -5.023673493312535,
+      "logComponentCount": 0.6931471805599453,
+      "hybridScore": 0.3563,
+      "hybridColor": 0.447,
+      "hybridSilhouette": 0.2432,
+      "hybridEdge": 0.1338,
+      "hybridScale": 1.0,
+      "hybridMovementNorm": 0.0,
+      "colorScore": 0.4962
+     }
+    },
+    {
+     "dogId": "dog_18",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.949,
+       "verdict": "pass",
+       "leakFraction": 0.051
+      },
+      "coherence": {
+       "score": 0.0,
+       "verdict": "fail",
+       "popArea": 40068,
+       "popRatio": 2.6893
+      }
+     },
+     "spriteArea": 14899,
+     "alignment": {
+      "score": 0.5021,
+      "verdict": "pass",
+      "outlier": false,
+      "scale": 1.25,
+      "dx": -22,
+      "dy": -32,
+      "originalBox": [
+       1224,
+       2225,
+       1455,
+       2422
+      ],
+      "fittedBox": [
+       1202,
+       2193,
+       1491,
+       2439
+      ]
+     },
+     "cutoutMatches": {
+      "best": {
+       "score": 0.3491,
+       "verdict": "pass",
+       "scale": 1.05,
+       "dx": 0,
+       "dy": 0,
+       "originalBox": [
+        1224,
+        2225,
+        1455,
+        2422
+       ],
+       "fittedBox": [
+        1224,
+        2225,
+        1455,
+        2422
+       ],
+       "hitboxSafe": true,
+       "components": {
+        "color": 0.4608,
+        "silhouette": 0.2999,
+        "edge": 0.0786,
+        "scalePrior": 0.5
+       },
+       "weights": {
+        "color": 0.45,
+        "silhouette": 0.35,
+        "edge": 0.15,
+        "scalePrior": 0.05
+       },
+       "accepted": true,
+       "method": "hybrid"
+      },
+      "calibrated": {
+       "score": 0.3491,
+       "verdict": "pass",
+       "scale": 1.05,
+       "dx": 0,
+       "dy": 0,
+       "originalBox": [
+        1224,
+        2225,
+        1455,
+        2422
+       ],
+       "fittedBox": [
+        1224,
+        2225,
+        1455,
+        2422
+       ],
+       "hitboxSafe": true,
+       "components": {
+        "color": 0.4608,
+        "silhouette": 0.2999,
+        "edge": 0.0786,
+        "scalePrior": 0.5
+       },
+       "weights": {
+        "color": 0.45,
+        "silhouette": 0.35,
+        "edge": 0.15,
+        "scalePrior": 0.05
+       },
+       "accepted": true,
+       "probability": 0.984528,
+       "method": "logistic-hybrid-safe"
+      }
+     },
+     "colorAlignment": {
+      "score": 0.4939,
+      "verdict": "pass",
+      "scale": 1.25,
+      "dx": -27,
+      "dy": -32,
+      "originalBox": [
+       1224,
+       2225,
+       1455,
+       2422
+      ],
+      "fittedBox": [
+       1197,
+       2193,
+       1486,
+       2439
+      ]
+     },
+     "hybridAlignment": {
+      "score": 0.3491,
+      "verdict": "pass",
+      "scale": 1.05,
+      "dx": 0,
+      "dy": 0,
+      "originalBox": [
+       1224,
+       2225,
+       1455,
+       2422
+      ],
+      "fittedBox": [
+       1224,
+       2225,
+       1455,
+       2422
+      ],
+      "hitboxSafe": true,
+      "components": {
+       "color": 0.4608,
+       "silhouette": 0.2999,
+       "edge": 0.0786,
+       "scalePrior": 0.5
+      },
+      "weights": {
+       "color": 0.45,
+       "silhouette": 0.35,
+       "edge": 0.15,
+       "scalePrior": 0.05
+      }
+     },
+     "qualityFeatures": {
+      "alphaCoverage": 0.32740018019205835,
+      "changedPrecision": 0.938250889321431,
+      "changedRecall": 0.5160778233100749,
+      "changedIou": 0.49912521869532617,
+      "colorSimilarity": 0.8136174424129005,
+      "cleanDifference": 0.37646734197627857,
+      "componentCount": 1.0,
+      "speckFraction": 0.0,
+      "edgeTouchFraction": 0.0,
+      "boxAspect": 1.1725888324873097,
+      "boxAreaFraction": 0.006298246837797619,
+      "precisionRecallGap": 0.42217306601135607,
+      "qualityProduct": 0.4060969838786709,
+      "logAreaFraction": -5.067483964026298,
+      "logComponentCount": 0.6931471805599453
+     },
+     "selectionFeatures": {
+      "alphaCoverage": 0.32740018019205835,
+      "changedPrecision": 0.938250889321431,
+      "changedRecall": 0.5160778233100749,
+      "changedIou": 0.49912521869532617,
+      "colorSimilarity": 0.8136174424129005,
+      "cleanDifference": 0.37646734197627857,
+      "componentCount": 1.0,
+      "speckFraction": 0.0,
+      "edgeTouchFraction": 0.0,
+      "boxAspect": 1.1725888324873097,
+      "boxAreaFraction": 0.006298246837797619,
+      "precisionRecallGap": 0.42217306601135607,
+      "qualityProduct": 0.4060969838786709,
+      "logAreaFraction": -5.067483964026298,
+      "logComponentCount": 0.6931471805599453,
+      "hybridScore": 0.3491,
+      "hybridColor": 0.4608,
+      "hybridSilhouette": 0.2999,
+      "hybridEdge": 0.0786,
+      "hybridScale": 1.05,
+      "hybridMovementNorm": 0.0,
+      "colorScore": 0.4939
+     }
+    },
+    {
+     "dogId": "dog_19",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.8502,
+       "verdict": "pass",
+       "leakFraction": 0.1498
+      },
+      "coherence": {
+       "score": 0.0,
+       "verdict": "fail",
+       "popArea": 27041,
+       "popRatio": 2.0556
+      }
+     },
+     "spriteArea": 13155,
+     "alignment": {
+      "score": 0.5177,
+      "verdict": "pass",
+      "outlier": false,
+      "scale": 1.25,
+      "dx": -17,
+      "dy": -18,
+      "originalBox": [
+       1809,
+       2241,
+       2035,
+       2388
+      ],
+      "fittedBox": [
+       1792,
+       2223,
+       2074,
+       2407
+      ]
+     },
+     "cutoutMatches": {
+      "best": {
+       "score": 0.4503,
+       "verdict": "pass",
+       "scale": 1.0,
+       "dx": 0,
+       "dy": 0,
+       "originalBox": [
+        1809,
+        2241,
+        2035,
+        2388
+       ],
+       "fittedBox": [
+        1809,
+        2241,
+        2035,
+        2388
+       ],
+       "hitboxSafe": true,
+       "components": {
+        "color": 0.6161,
+        "silhouette": 0.292,
+        "edge": 0.139,
+        "scalePrior": 1.0
+       },
+       "weights": {
+        "color": 0.45,
+        "silhouette": 0.35,
+        "edge": 0.15,
+        "scalePrior": 0.05
+       },
+       "accepted": true,
+       "method": "hybrid"
+      },
+      "calibrated": {
+       "score": 0.4503,
+       "verdict": "pass",
+       "scale": 1.0,
+       "dx": 0,
+       "dy": 0,
+       "originalBox": [
+        1809,
+        2241,
+        2035,
+        2388
+       ],
+       "fittedBox": [
+        1809,
+        2241,
+        2035,
+        2388
+       ],
+       "hitboxSafe": true,
+       "components": {
+        "color": 0.6161,
+        "silhouette": 0.292,
+        "edge": 0.139,
+        "scalePrior": 1.0
+       },
+       "weights": {
+        "color": 0.45,
+        "silhouette": 0.35,
+        "edge": 0.15,
+        "scalePrior": 0.05
+       },
+       "accepted": true,
+       "probability": 0.991242,
+       "method": "logistic-hybrid-safe"
+      }
+     },
+     "colorAlignment": {
+      "score": 0.6746,
+      "verdict": "pass",
+      "scale": 1.25,
+      "dx": -19,
+      "dy": -18,
+      "originalBox": [
+       1809,
+       2241,
+       2035,
+       2388
+      ],
+      "fittedBox": [
+       1790,
+       2223,
+       2072,
+       2407
+      ]
+     },
+     "hybridAlignment": {
+      "score": 0.4503,
+      "verdict": "pass",
+      "scale": 1.0,
+      "dx": 0,
+      "dy": 0,
+      "originalBox": [
+       1809,
+       2241,
+       2035,
+       2388
+      ],
+      "fittedBox": [
+       1809,
+       2241,
+       2035,
+       2388
+      ],
+      "hitboxSafe": true,
+      "components": {
+       "color": 0.6161,
+       "silhouette": 0.292,
+       "edge": 0.139,
+       "scalePrior": 1.0
+      },
+      "weights": {
+       "color": 0.45,
+       "silhouette": 0.35,
+       "edge": 0.15,
+       "scalePrior": 0.05
+      }
+     },
+     "qualityFeatures": {
+      "alphaCoverage": 0.3959725483113599,
+      "changedPrecision": 0.8322310908399848,
+      "changedRecall": 0.5035415325177076,
+      "changedIou": 0.45713808509749887,
+      "colorSimilarity": 0.7156664505406876,
+      "cleanDifference": 0.2970675927789081,
+      "componentCount": 1.0,
+      "speckFraction": 0.0,
+      "edgeTouchFraction": 0.0,
+      "boxAspect": 1.5374149659863945,
+      "boxAreaFraction": 0.004597981770833333,
+      "precisionRecallGap": 0.3286895583222772,
+      "qualityProduct": 0.3271583907686938,
+      "logAreaFraction": -5.3821378172350585,
+      "logComponentCount": 0.6931471805599453
+     },
+     "selectionFeatures": {
+      "alphaCoverage": 0.3959725483113599,
+      "changedPrecision": 0.8322310908399848,
+      "changedRecall": 0.5035415325177076,
+      "changedIou": 0.45713808509749887,
+      "colorSimilarity": 0.7156664505406876,
+      "cleanDifference": 0.2970675927789081,
+      "componentCount": 1.0,
+      "speckFraction": 0.0,
+      "edgeTouchFraction": 0.0,
+      "boxAspect": 1.5374149659863945,
+      "boxAreaFraction": 0.004597981770833333,
+      "precisionRecallGap": 0.3286895583222772,
+      "qualityProduct": 0.3271583907686938,
+      "logAreaFraction": -5.3821378172350585,
+      "logComponentCount": 0.6931471805599453,
+      "hybridScore": 0.4503,
+      "hybridColor": 0.6161,
+      "hybridSilhouette": 0.292,
+      "hybridEdge": 0.139,
+      "hybridScale": 1.0,
+      "hybridMovementNorm": 0.0,
+      "colorScore": 0.6746
+     }
+    }
+   ]
+  }
+ ],
+ "summary": {
+  "levels": 1,
+  "birds": 20,
+  "fail": 20,
+  "warn": 0,
+  "alignmentOutliers": 2
+ },
+ "matchMethods": [
+  "calibrated"
+ ],
+ "excludedLevels": [
+  "ad_campaigns_ad_autumn_forest_bird_389c_gpro"
+ ],
+ "application": {
+  "method": "calibrated",
+  "levels": 1,
+  "birds": 20,
+  "applied": 0,
+  "unchanged": 18,
+  "rejected": 2,
+  "unsafe": 0,
+  "sourceSidecarsUpdated": 0,
+  "sourceSidecarsMissing": 0,
+  "dryRun": false,
+  "changes": []
+ }
+}

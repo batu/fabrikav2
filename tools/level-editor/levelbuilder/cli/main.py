@@ -17,6 +17,7 @@ import os
 import sys
 import time
 import uuid
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -31,6 +32,8 @@ WIZARD_OPERATIONS: dict[str, str] = {
     "assemble-recipe-prompts": "create",
     "create-session": "create",
     "list-sessions": "sessions",
+    "human-confirm-sprite": "confirm-sprite",
+    "golden-review-level": "bless-level",
     "get-session": "session",
     "background-generation-job": "generate-bg",
     "select-background": "select-bg",
@@ -1332,7 +1335,8 @@ def cmd_evaluate_sprites(args: argparse.Namespace) -> None:
 
     if not args.game:
         raise CliError("game_required", "pass --game <name>")
-    root = resolve_game(args.game).game_root / "public" / "levels"
+    game_profile = resolve_game(args.game)
+    root = game_profile.game_root / "public" / "levels"
     if not root.is_dir():
         raise CliError("corpus_missing", f"no public/levels corpus at {root}")
     methods = tuple(args.match_method or ("color", "hybrid", "features", "orb", "chamfer", "best"))
@@ -1374,6 +1378,7 @@ def cmd_evaluate_sprites(args: argparse.Namespace) -> None:
 def cmd_align_sprites(args: argparse.Namespace) -> None:
     """Evaluate and atomically apply the conservative Best-safe selector."""
     from levelbuilder.api.sprite_eval import apply_match_report, evaluate_corpus
+    from levelbuilder.golden_cutouts import predict_portable_logistic, predict_portable_tree_ensemble, should_apply_portable_placement
     from levelbuilder.settings import resolve_game
 
     if not args.game:
@@ -1395,14 +1400,88 @@ def cmd_align_sprites(args: argparse.Namespace) -> None:
             workers=args.workers,
             exclude_level_ids=excluded,
         )
+    placement_artifact = json.loads(Path(args.placement_model).read_text()) if args.placement_model else None
+    redo_artifact = json.loads(Path(args.redo_model).read_text()) if args.redo_model else None
+    confirmed_levels: set[str] = set()
+    if args.backfill_human_manifest:
+        manifest = json.loads(Path(args.backfill_human_manifest).read_text())
+        confirmed_levels = {
+            str(item["levelId"] if isinstance(item, dict) else item)
+            for item in manifest.get("reviewedLevels", [])
+            if (isinstance(item, str) or (isinstance(item, dict) and isinstance(item.get("levelId"), str)))
+        } or {
+            str(item["levelId"])
+            for item in manifest.get("approved", [])
+            if isinstance(item, dict) and isinstance(item.get("levelId"), str)
+        }
+    for level_report in report.get("levels", []):
+        level_id = level_report.get("levelId")
+        level_path = root / str(level_id) / "level.json"
+        if not level_path.is_file():
+            continue
+        level_data = json.loads(level_path.read_text())
+        dogs = {dog.get("id"): dog for dog in level_data.get("dogs", []) if isinstance(dog, dict)}
+        for bird in level_report.get("birds", []):
+            dog = dogs.get(bird.get("dogId")) or {}
+            sprite = dog.get("sprite") or {}
+            image = sprite.get("image")
+            relative = image.split(f"levels/{level_id}/", 1)[-1] if isinstance(image, str) else ""
+            sidecar_path = root / str(level_id) / Path(relative).with_suffix(".json") if relative else None
+            sidecar = json.loads(sidecar_path.read_text()) if sidecar_path and sidecar_path.is_file() else {}
+            if level_id in confirmed_levels:
+                sidecar["humanReview"] = {
+                    "confirmed": True,
+                    "confirmedAt": datetime.now(timezone.utc).isoformat(),
+                    "source": "golden-backfill",
+                }
+            human_confirmed = bool((sidecar.get("humanReview") or {}).get("confirmed"))
+            hybrid = bird.get("hybridAlignment") or {}
+            if placement_artifact and bird.get("selectionFeatures"):
+                probability = predict_portable_logistic(placement_artifact["productionModel"], bird["selectionFeatures"])
+                accepted = should_apply_portable_placement(placement_artifact["productionModel"], bird["selectionFeatures"])
+                if args.skip_human_confirmed and human_confirmed:
+                    accepted = False
+                bird.setdefault("cutoutMatches", {})["calibrated"] = {
+                    **hybrid,
+                    "accepted": accepted,
+                    "probability": round(probability, 6),
+                    "method": placement_artifact.get("recommendedProduction", "calibrated"),
+                }
+            if redo_artifact and bird.get("qualityFeatures"):
+                probability = predict_portable_tree_ensemble(redo_artifact["productionModel"], bird["qualityFeatures"])
+                sidecar["regenerationReview"] = {
+                    "candidate": probability >= float(redo_artifact["productionModel"].get("threshold", 0.5)),
+                    "probability": round(probability, 6),
+                    "model": redo_artifact.get("recommendedProduction"),
+                    "mode": "review-ranking-only",
+                }
+            if sidecar_path and sidecar_path.is_file() and not args.dry_run:
+                sidecar_path.write_text(json.dumps(sidecar, indent=2) + "\n")
+                if args.workspace:
+                    source_sidecar = Path(args.workspace) / "levels" / str(level_id) / sidecar_path.relative_to(root / str(level_id))
+                    if source_sidecar.is_file():
+                        source_data = json.loads(source_sidecar.read_text())
+                        for key in ("humanReview", "regenerationReview"):
+                            if key in sidecar:
+                                source_data[key] = sidecar[key]
+                        source_sidecar.write_text(json.dumps(source_data, indent=2) + "\n")
+        if level_id in confirmed_levels and args.workspace and not args.dry_run:
+            for public_sidecar in (root / str(level_id) / "dogs").glob("dog_*/sprite_*.json"):
+                relative_sidecar = public_sidecar.relative_to(root / str(level_id))
+                source_sidecar = Path(args.workspace) / "levels" / str(level_id) / relative_sidecar
+                if source_sidecar.is_file():
+                    source_sidecar.write_text(public_sidecar.read_text())
+    apply_method = "calibrated" if placement_artifact else "best"
     application = apply_match_report(
         root,
         report,
-        method="best",
+        method=apply_method,
         workspace_root=Path(args.workspace) if args.workspace else None,
         dry_run=args.dry_run,
     )
-    if not args.dry_run:
+    if not args.dry_run and not args.skip_catalog_refresh:
+        os.environ["LEVELBUILDER_GAME_ROOT"] = str(game_profile.game_root)
+        os.environ["LEVELBUILDER_WORKSPACE"] = str(game_profile.workspace)
         from levelbuilder.api.session import refresh_catalog_packages
 
         changed_level_ids = sorted({
@@ -1415,7 +1494,7 @@ def cmd_align_sprites(args: argparse.Namespace) -> None:
             if changed_level_ids
             else {"catalogRevision": None, "refreshedLevels": []}
         )
-    report["matchMethods"] = ["best"]
+    report["matchMethods"] = [apply_method]
     report["excludedLevels"] = sorted(excluded)
     report["application"] = application
     if args.out:
@@ -1428,6 +1507,22 @@ def cmd_align_sprites(args: argparse.Namespace) -> None:
 def cmd_jobs(client: Client, args: argparse.Namespace) -> None:
     params = {"sessionId": args.session} if args.session else {}
     _emit(args, client.get("/api/jobs", params=params))
+
+
+def cmd_confirm_sprite(client: Client, args: argparse.Namespace) -> None:
+    _emit(args, client.request(
+        "PUT",
+        f"/api/sessions/{args.session_id}/sprite-candidates/{args.candidate_id}/human-confirmation",
+        json={"confirmed": not args.undo},
+    ))
+
+
+def cmd_bless_level(client: Client, args: argparse.Namespace) -> None:
+    _emit(args, client.request(
+        "PUT",
+        f"/api/sessions/{args.session_id}/golden-review",
+        json={"approved": not args.undo},
+    ))
 
 
 def cmd_job(client: Client, args: argparse.Namespace) -> None:
@@ -1722,9 +1817,23 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--from-report", help="apply an existing fresh dry-run report without recomputing matches")
     p.add_argument("--out", help="write evaluation and application report JSON")
     p.add_argument("--workers", type=int, default=1, choices=range(1, 17), metavar="1..16")
+    p.add_argument("--placement-model", help="portable golden placement evaluation JSON")
+    p.add_argument("--redo-model", help="portable regeneration ranking evaluation JSON")
+    p.add_argument("--skip-human-confirmed", action="store_true", help="never reposition a human-confirmed sprite")
+    p.add_argument("--backfill-human-manifest", help="mark every current sprite in reviewed manifest levels as human confirmed")
+    p.add_argument("--skip-catalog-refresh", action="store_true", help="defer catalog refresh for an externally coordinated batch")
 
     p = verb("jobs", cmd_jobs)
     p.add_argument("--session")
+
+    p = verb("confirm-sprite", cmd_confirm_sprite)
+    p.add_argument("session_id")
+    p.add_argument("candidate_id")
+    p.add_argument("--undo", action="store_true", help="remove human confirmation")
+
+    p = verb("bless-level", cmd_bless_level)
+    p.add_argument("session_id")
+    p.add_argument("--undo", action="store_true", help="remove golden-dataset approval")
 
     p = verb("job", cmd_job)
     p.add_argument("job_id")

@@ -5,6 +5,7 @@ import {
   getCutoutExtractionPrompt,
   getRetryFailedDogsJob,
   listSpriteCandidates,
+  saveSpriteCandidateHumanConfirmation,
   saveSpriteCandidatePlacement,
   spriteCandidateOverlayUrl,
   startRetryFailedDogsJob,
@@ -287,6 +288,7 @@ export default function CutoutReviewPanel({
   const [placementBoxes, setPlacementBoxes] = useState<Record<string, CropBox>>({});
   const [controlModes, setControlModes] = useState<Record<string, ControlMode>>({});
   const [savingPlacement, setSavingPlacement] = useState<string | null>(null);
+  const [savingConfirmation, setSavingConfirmation] = useState<string | null>(null);
   const refreshRunId = useRef(0);
   const dragRef = useRef<{ candidateId: string; mode: ControlMode; startX: number; startY: number; box: CropBox } | null>(null);
   const draggedCandidateRef = useRef<string | null>(null);
@@ -353,6 +355,22 @@ export default function CutoutReviewPanel({
   const setCandidateStatus = useCallback((candidate: SpriteCandidate, status: ReviewStatus) => {
     setReview((prev) => ({ ...prev, [candidate.id]: status }));
   }, []);
+
+  const toggleHumanConfirmation = useCallback(async (candidate: SpriteCandidate) => {
+    const confirmed = !candidate.humanConfirmed;
+    setSavingConfirmation(candidate.id);
+    setError(null);
+    try {
+      await saveSpriteCandidateHumanConfirmation(sessionId, candidate.id, confirmed);
+      setCandidates((current) => current.map((item) => (
+        item.id === candidate.id ? { ...item, humanConfirmed: confirmed } : item
+      )));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
+    } finally {
+      setSavingConfirmation(null);
+    }
+  }, [sessionId]);
 
   const toggleCandidate = useCallback((candidate: SpriteCandidate) => {
     setReview((prev) => {
@@ -568,6 +586,15 @@ export default function CutoutReviewPanel({
             <article key={candidate.id} className={`cutout-review-card ${status}`}>
               <div className="cutout-review-card-top">
                 <strong>{candidateLabel(candidate)}</strong>
+                <button
+                  type="button"
+                  className={`hitl-confirmation ${candidate.humanConfirmed ? 'confirmed' : ''}`}
+                  aria-pressed={candidate.humanConfirmed ?? false}
+                  disabled={savingConfirmation === candidate.id}
+                  onClick={() => void toggleHumanConfirmation(candidate)}
+                >
+                  {savingConfirmation === candidate.id ? 'Saving…' : candidate.humanConfirmed ? 'Human confirmed' : 'Confirm'}
+                </button>
               </div>
               <button
                 type="button"

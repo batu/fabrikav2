@@ -1,0 +1,262 @@
+{
+  "schemaVersion": 1,
+  "approved": true,
+  "blessed": true,
+  "blessingMeaning": "human-reviewed hitboxes, cutouts, and sprite placements are solid",
+  "trainingEligible": true,
+  "affectsLineup": false,
+  "reviewedAt": "2026-08-08T08:37:17.133817+00:00",
+  "source": "golden-manifest-backfill",
+  "levelSha256": "66c359af997915b1fdbb3972b47215eac2f4a80c5fb47f0fac10859f8555f2e0",
+  "scene": "color.png",
+  "sceneSha256": "2dcb55caa3888339d6d16fb4af14b90663a186f9267da9de9a55fe6849f67d19",
+  "birds": [
+    {
+      "dogId": "dog_00",
+      "sprite": "dogs/dog_00/sprite_000.png",
+      "spriteSha256": "d5cc005ff0421f831598b186d7797b4e704d3aea52c01b9ee57e372d86ba27bf",
+      "spriteBox": [
+        578,
+        524,
+        799,
+        739
+      ],
+      "flipX": false,
+      "flipY": false
+    },
+    {
+      "dogId": "dog_01",
+      "sprite": "dogs/dog_01/sprite_000.png",
+      "spriteSha256": "47621fa00feb86ca2bbc9004865ea937f83d0c6cdeecab18d1df6a4717cd95da",
+      "spriteBox": [
+        935,
+        749,
+        1093,
+        896
+      ],
+      "flipX": false,
+      "flipY": false
+    },
+    {
+      "dogId": "dog_02",
+      "sprite": "dogs/dog_02/sprite_000.png",
+      "spriteSha256": "a6ed9cd41b9c964514f2b6c918fc57c41cac215a728392e20187337b9a01be3f",
+      "spriteBox": [
+        1075,
+        791,
+        1202,
+        919
+      ],
+      "flipX": false,
+      "flipY": false
+    },
+    {
+      "dogId": "dog_03",
+      "sprite": "dogs/dog_03/sprite_000.png",
+      "spriteSha256": "fceecf42bd86f94957f8230f212cee91bb0d05353cf11a6322114325cbff6c3d",
+      "spriteBox": [
+        616,
+        884,
+        818,
+        1068
+      ],
+      "flipX": false,
+      "flipY": false
+    },
+    {
+      "dogId": "dog_04",
+      "sprite": "dogs/dog_04/sprite_000.png",
+      "spriteSha256": "06e9f41f265c06d25f8b5eda8b8944f44c020bfb343a20ae0439caa82f524d05",
+      "spriteBox": [
+        1440,
+        817,
+        1647,
+        1020
+      ],
+      "flipX": false,
+      "flipY": false
+    },
+    {
+      "dogId": "dog_05",
+      "sprite": "dogs/dog_05/sprite_000.png",
+      "spriteSha256": "dd48a03f91e6766cf8d1d0ae723c50c4a7b7cd6146daa2c0c7365098e3ccc9d7",
+      "spriteBox": [
+        943,
+        1175,
+        1120,
+        1327
+      ],
+      "flipX": false,
+      "flipY": false
+    },
+    {
+      "dogId": "dog_06",
+      "sprite": "dogs/dog_06/sprite_000.png",
+      "spriteSha256": "f581e0a593c009203f1bb29659deaf2a2b3b1fd97679efac83227dcb8ee7994e",
+      "spriteBox": [
+        641,
+        1266,
+        874,
+        1474
+      ],
+      "flipX": false,
+      "flipY": false
+    },
+    {
+      "dogId": "dog_07",
+      "sprite": "dogs/dog_07/sprite_000.png",
+      "spriteSha256": "0a8addc2c1c92507027273597a32789f24fe66b36c5dd200e4399a50e835595b",
+      "spriteBox": [
+        909,
+        1411,
+        1106,
+        1577
+      ],
+      "flipX": false,
+      "flipY": false
+    },
+    {
+      "dogId": "dog_08",
+      "sprite": "dogs/dog_08/sprite_000.png",
+      "spriteSha256": "0b101efb4319fafef2cda0b48ade1b916923719262aab7ab2c5e0bc0cf2f570d",
+      "spriteBox": [
+        1171,
+        1523,
+        1411,
+        1655
+      ],
+      "flipX": false,
+      "flipY": false
+    },
+    {
+      "dogId": "dog_09",
+      "sprite": "dogs/dog_09/sprite_000.png",
+      "spriteSha256": "6e87327b9375154a3570e830a2d6f0df6fc40937ad87598c53e2b0d2227dc5ce",
+      "spriteBox": [
+        456,
+        1470,
+        676,
+        1633
+      ],
+      "flipX": false,
+      "flipY": false
+    },
+    {
+      "dogId": "dog_10",
+      "sprite": "dogs/dog_10/sprite_000.png",
+      "spriteSha256": "3a037a6c74d5cad7b9884db102949bc4768a0fc084c098cf751e3a58968c5baa",
+      "spriteBox": [
+        668,
+        1742,
+        841,
+        1888
+      ],
+      "flipX": false,
+      "flipY": false
+    },
+    {
+      "dogId": "dog_11",
+      "sprite": "dogs/dog_11/sprite_000.png",
+      "spriteSha256": "e377dc5b31e294fcb926809e90c3ac2cb75c4dd26570260f1e154341b7dc4fda",
+      "spriteBox": [
+        1097,
+        1689,
+        1299,
+        1868
+      ],
+      "flipX": false,
+      "flipY": false
+    },
+    {
+      "dogId": "dog_12",
+      "sprite": "dogs/dog_12/sprite_000.png",
+      "spriteSha256": "c15818feff5ef3e30e095b2dee8c6e7e1a8d49e489a833e47554782ed9ca2f83",
+      "spriteBox": [
+        1280,
+        1664,
+        1484,
+        1801
+      ],
+      "flipX": false,
+      "flipY": false
+    },
+    {
+      "dogId": "dog_13",
+      "sprite": "dogs/dog_13/sprite_000.png",
+      "spriteSha256": "e04b97858daae7a85156c9e085a17a415f501526de41a5e832a3fb553c5268f1",
+      "spriteBox": [
+        415,
+        2263,
+        667,
+        2425
+      ],
+      "flipX": false,
+      "flipY": false
+    },
+    {
+      "dogId": "dog_14",
+      "sprite": "dogs/dog_14/sprite_000.png",
+      "spriteSha256": "5dd6f7f7b2fd4182c57209af724cd42b43d98f48ff4f74e0b29a7a9d21a0da2a",
+      "spriteBox": [
+        1243,
+        2142,
+        1410,
+        2386
+      ],
+      "flipX": false,
+      "flipY": false
+    },
+    {
+      "dogId": "dog_15",
+      "sprite": "dogs/dog_15/sprite_000.png",
+      "spriteSha256": "4deb7c3962092b9e7b49772fa0828834528dac9947cd4aa6f258b7f38ab127d4",
+      "spriteBox": [
+        1425,
+        1243,
+        1573,
+        1354
+      ],
+      "flipX": false,
+      "flipY": false
+    },
+    {
+      "dogId": "dog_16",
+      "sprite": "dogs/dog_16/sprite_000.png",
+      "spriteSha256": "74931225baaf8f2401ffe91dd168522f3f476bf6f0c8224cb4fb5266158dcdec",
+      "spriteBox": [
+        1569,
+        1313,
+        1737,
+        1464
+      ],
+      "flipX": false,
+      "flipY": false
+    },
+    {
+      "dogId": "dog_17",
+      "sprite": "dogs/dog_17/sprite_000.png",
+      "spriteSha256": "8cbd1e97a04f1c4719cf58518723634ebdd6be42dd17b39ac1864d733e350a9f",
+      "spriteBox": [
+        1955,
+        957,
+        2096,
+        1110
+      ],
+      "flipX": false,
+      "flipY": false
+    },
+    {
+      "dogId": "dog_18",
+      "sprite": "dogs/dog_18/sprite_000.png",
+      "spriteSha256": "49b976d85323a655abc1faa06bf06dc991019387e39a896f9197f329f03487bb",
+      "spriteBox": [
+        1991,
+        1215,
+        2160,
+        1344
+      ],
+      "flipX": false,
+      "flipY": false
+    }
+  ]
+}

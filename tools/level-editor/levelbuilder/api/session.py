@@ -17,6 +17,7 @@ Field authority split:
 """
 
 import json
+import hashlib
 import os
 import re
 import shutil
@@ -671,6 +672,9 @@ def sprite_animation_candidates(session_id: str) -> list[dict[str, Any]]:
                     "cleanupBox": data.get("cleanupBox") if isinstance(data.get("cleanupBox"), list) and len(data.get("cleanupBox")) == 4 else None,
                     "technique": data.get("technique") if isinstance(data.get("technique"), str) else None,
                     "quality": data.get("quality") if isinstance(data.get("quality"), dict) else None,
+                    "humanConfirmed": bool((data.get("humanReview") or {}).get("confirmed")) if isinstance(data.get("humanReview"), dict) else False,
+                    "regenerationCandidate": bool((data.get("regenerationReview") or {}).get("candidate")) if isinstance(data.get("regenerationReview"), dict) else False,
+                    "regenerationProbability": (data.get("regenerationReview") or {}).get("probability") if isinstance(data.get("regenerationReview"), dict) else None,
                 })
                 if candidate["width"] is None and isinstance(data.get("width"), int):
                     candidate["width"] = data["width"]
@@ -693,6 +697,110 @@ def sprite_animation_candidate_by_id(session_id: str, candidate_id: str) -> dict
         if candidate.get("id") == candidate_id:
             return candidate
     return None
+
+
+def set_sprite_human_confirmation(session_id: str, candidate_id: str, confirmed: bool, *, source: str = "editor") -> dict[str, Any]:
+    """Persist explicit human approval beside the active sprite in both stores."""
+    candidate = sprite_animation_candidate_by_id(session_id, candidate_id)
+    if candidate is None or not isinstance(candidate.get("metadataPath"), str):
+        raise ValueError("sprite candidate metadata was not found")
+    review = {
+        "confirmed": confirmed,
+        "confirmedAt": datetime.now(timezone.utc).isoformat() if confirmed else None,
+        "source": source,
+    }
+    updated = 0
+    relative = Path(candidate["metadataPath"])
+    for base in (session_dir(session_id), GAME_PUBLIC_LEVELS / session_id):
+        path = base / relative
+        if not path.is_file():
+            continue
+        data = json.loads(path.read_text())
+        data["humanReview"] = review
+        temporary = path.with_suffix(path.suffix + ".tmp")
+        temporary.write_text(json.dumps(data, indent=2) + "\n")
+        temporary.replace(path)
+        updated += 1
+    if updated == 0:
+        raise ValueError("sprite candidate metadata was not found")
+    return review
+
+
+def set_level_golden_review(session_id: str, approved: bool, *, source: str = "editor") -> dict[str, Any]:
+    """Snapshot a human-reviewed level for later golden-dataset ingestion.
+
+    This metadata is deliberately independent of catalog, Lineup, and runtime
+    eligibility. Blessing also confirms every current sprite because the level
+    assertion would otherwise contradict its per-bird review state.
+    """
+    base = session_dir(session_id)
+    level_path = base / "level.json"
+    if not level_path.is_file():
+        raise ValueError("level.json was not found")
+    now = datetime.now(timezone.utc).isoformat()
+    review: dict[str, Any] = {
+        "schemaVersion": 1,
+        "approved": approved,
+        "blessed": approved,
+        "blessingMeaning": "human-reviewed hitboxes, cutouts, and sprite placements are solid",
+        "trainingEligible": approved,
+        "affectsLineup": False,
+        "reviewedAt": now,
+        "source": source,
+    }
+    if approved:
+        level = json.loads(level_path.read_text())
+        birds = []
+        for dog in level.get("dogs", []):
+            sprite = dog.get("sprite") if isinstance(dog, dict) else None
+            image = sprite.get("image") if isinstance(sprite, dict) else None
+            if not isinstance(image, str):
+                continue
+            marker = f"levels/{session_id}/"
+            relative = Path(image.split(marker, 1)[-1] if marker in image else image)
+            sprite_path = base / relative
+            sidecar_path = sprite_path.with_suffix(".json")
+            if not sprite_path.is_file() or not sidecar_path.is_file():
+                raise ValueError(f"active sprite is incomplete: {dog.get('id')}")
+            sidecar = json.loads(sidecar_path.read_text())
+            sidecar["humanReview"] = {"confirmed": True, "confirmedAt": now, "source": "level-bless"}
+            temporary = sidecar_path.with_suffix(sidecar_path.suffix + ".tmp")
+            temporary.write_text(json.dumps(sidecar, indent=2) + "\n")
+            temporary.replace(sidecar_path)
+            birds.append({
+                "dogId": dog.get("id"),
+                "sprite": relative.as_posix(),
+                "spriteSha256": hashlib.sha256(sprite_path.read_bytes()).hexdigest(),
+                "spriteBox": sidecar.get("spriteBox"),
+                "flipX": sidecar.get("flipX") is True,
+                "flipY": sidecar.get("flipY") is True,
+            })
+        scene_path = base / "color.png"
+        review.update({
+            "levelSha256": hashlib.sha256(level_path.read_bytes()).hexdigest(),
+            "scene": "color.png" if scene_path.is_file() else None,
+            "sceneSha256": hashlib.sha256(scene_path.read_bytes()).hexdigest() if scene_path.is_file() else None,
+            "birds": birds,
+        })
+    for target_base in {base, GAME_PUBLIC_LEVELS / session_id}:
+        if not target_base.exists():
+            continue
+        path = target_base / "golden-review.json"
+        temporary = path.with_suffix(path.suffix + ".tmp")
+        temporary.write_text(json.dumps(review, indent=2) + "\n")
+        temporary.replace(path)
+    return review
+
+
+def get_level_golden_review(session_id: str) -> dict[str, Any] | None:
+    path = session_dir(session_id) / "golden-review.json"
+    if not path.is_file():
+        return None
+    try:
+        value = json.loads(path.read_text())
+    except (OSError, json.JSONDecodeError):
+        return None
+    return value if isinstance(value, dict) else None
 
 
 def require_ready_sprite_animation_candidate(session_id: str, candidate_id: str) -> dict[str, Any]:
@@ -1412,6 +1520,32 @@ def list_sessions(*, include_public: bool = False) -> list[dict]:
             if orientation not in ("portrait", "landscape"):
                 orientation = "landscape" if width > height else "portrait"
 
+            golden_review = None
+            golden_review_path = d / "golden-review.json"
+            if golden_review_path.is_file():
+                try:
+                    golden_review = json.loads(golden_review_path.read_text())
+                except (OSError, json.JSONDecodeError):
+                    golden_review = None
+
+            review_sidecars = []
+            for sidecar_path in d.glob("dogs/dog_*/sprite_*.json"):
+                try:
+                    review_sidecars.append(json.loads(sidecar_path.read_text()))
+                except (OSError, json.JSONDecodeError):
+                    continue
+            human_confirmed_birds = sum(
+                bool((item.get("humanReview") or {}).get("confirmed"))
+                for item in review_sidecars
+                if isinstance(item, dict)
+            )
+            regeneration_candidate_count = sum(
+                bool((item.get("regenerationReview") or {}).get("candidate"))
+                and not bool((item.get("humanReview") or {}).get("confirmed"))
+                for item in review_sidecars
+                if isinstance(item, dict)
+            )
+
             results.append({
                 "id": d.name,
                 "name": name,
@@ -1439,6 +1573,11 @@ def list_sessions(*, include_public: bool = False) -> list[dict]:
                 "createdAt": created_at,
                 "orientation": orientation,
                 "assetBase": asset_base,
+                "humanConfirmedBirds": human_confirmed_birds,
+                "reviewableBirds": len(review_sidecars),
+                "regenerationCandidateCount": regeneration_candidate_count,
+                "goldenDatasetApproved": bool(golden_review and (golden_review.get("blessed") is True or golden_review.get("approved") is True)),
+                "goldenDatasetReviewedAt": golden_review.get("reviewedAt") if isinstance(golden_review, dict) else None,
             })
     return results
 
@@ -1483,11 +1622,30 @@ def ensure_session_json(session_id: str) -> dict | None:
         is_landscape = bool(level_sections) and bg_width > bg_height
         inferred_mode = "landscape" if is_landscape else "portrait"
         inferred_aspect, inferred_size = _defaults_for_mode(inferred_mode)
+        from levelbuilder.prompts import ENTITIES as _ENTITIES
+        from levelbuilder.prompts import STYLES as _STYLES
         from levelbuilder.prompts import get_entity_prompt as _get_entity_prompt
+
+        entity = level_json.get("entity")
+        if not isinstance(entity, str) or entity not in _ENTITIES:
+            entity = next(
+                (
+                    candidate
+                    for candidate in sorted(_ENTITIES, key=len, reverse=True)
+                    if re.search(rf"_{re.escape(candidate)}_[^_]+$", session_id)
+                ),
+                "dog",
+            )
+        style = level_json.get("style")
+        if not isinstance(style, str) or style not in _STYLES:
+            name_match = re.search(r"\(([^()]+)\)\s*$", str(level_json.get("name") or ""))
+            inferred_style = name_match.group(1) if name_match else None
+            style = inferred_style if inferred_style in _STYLES else "old_pixel_art"
         return {
             "id": session_id,
-            "style": "pixelart",
-            "dog_prompt": _get_entity_prompt("old_pixel_art", "dog"),
+            "style": style,
+            "entity": entity,
+            "dog_prompt": _get_entity_prompt(style, entity),
             "scene_prompt": level_json.get("name", session_id),
             "model": "google/gemini-3.1-flash-image-preview",
             "bg_model": "google/gemini-3.1-flash-image-preview",

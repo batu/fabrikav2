@@ -2396,6 +2396,23 @@ label {
   letter-spacing: 0.05em;
 }
 
+.hitl-confirmation {
+  margin-left: auto;
+  border: 1px solid #535353;
+  border-radius: 999px;
+  background: #202020;
+  color: #bbb;
+  padding: 3px 8px;
+  font-size: 0.68rem;
+  font-weight: 750;
+}
+
+.hitl-confirmation.confirmed {
+  border-color: #4f9d69;
+  background: #173824;
+  color: #bff4cd;
+}
+
 .cutout-review-overlay {
   position: relative;
   width: 100%;

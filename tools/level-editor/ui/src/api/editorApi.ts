@@ -162,6 +162,11 @@ export interface SessionListItem {
   tags?: string[];
   /** Static mount that owns this session's assets. Active editor sessions use `levels`; public-package-only sessions use `public-levels`. */
   assetBase?: 'levels' | 'public-levels';
+  humanConfirmedBirds?: number;
+  reviewableBirds?: number;
+  regenerationCandidateCount?: number;
+  goldenDatasetApproved?: boolean;
+  goldenDatasetReviewedAt?: string | null;
 }
 
 export function getConfig(): Promise<ConfigResponse> {
@@ -863,6 +868,23 @@ export function setArchived(
   });
 }
 
+export function setGoldenDatasetApproval(
+  sessionId: string,
+  approved: boolean,
+): Promise<{ ok: boolean }> {
+  return request(`/api/sessions/${encodeURIComponent(sessionId)}/golden-review`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ approved }),
+  });
+}
+
+export function getGoldenDatasetApproval(
+  sessionId: string,
+): Promise<{ approved: boolean }> {
+  return request(`/api/sessions/${encodeURIComponent(sessionId)}/golden-review`);
+}
+
 export interface LevelsIndexEntry {
   id: string;
   name?: string;
@@ -1307,5 +1329,17 @@ export function saveSpriteCandidatePlacement(
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ spriteBox, flipX, flipY }),
+  });
+}
+
+export function saveSpriteCandidateHumanConfirmation(
+  sessionId: string,
+  candidateId: string,
+  confirmed: boolean,
+): Promise<{ ok: boolean }> {
+  return request(`/api/sessions/${encodeURIComponent(sessionId)}/sprite-candidates/${encodeURIComponent(candidateId)}/human-confirmation`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ confirmed }),
   });
 }

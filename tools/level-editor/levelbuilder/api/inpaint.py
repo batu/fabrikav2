@@ -3867,7 +3867,7 @@ def _run_single_dog_regen(
     if not (0.5 <= padding <= 4.0):
         raise HTTPException(400, detail={"error": "padding must be in [0.5, 4.0]"})
 
-    raw = S.load_session_raw(session_id)
+    raw = S.ensure_session_json(session_id)
     if raw is None:
         raise HTTPException(404, detail={"error": "Session not found"})
 
@@ -3877,19 +3877,13 @@ def _run_single_dog_regen(
 
     sdir = S.session_dir(session_id)
     bg_path = sdir / f"bg_{selected_bg:02d}.png"
+    hitbox_list = _load_retry_hitboxes(session_id)
     # Context-manage the bg file handle so the FD doesn't leak across the
     # async gap into the executor.
     with Image.open(bg_path) as bg_src:
         bg_src.load()
         bg = bg_src.copy()
     w, h = bg.size
-
-    hb_path = sdir / "hitboxes.json"
-    if not hb_path.exists():
-        bg.close()
-        raise HTTPException(400, detail={"error": "No hitboxes saved"})
-    with open(hb_path) as f:
-        hitbox_list = json.load(f)
 
     hb_data = _resolve_regen_hitbox(raw.get("dogs", []), hitbox_list, dog_index)
     if hb_data is None:
@@ -4485,7 +4479,10 @@ def _run_single_cutout_extraction(
         "anchorX": round(anchor_x, 4),
         "anchorY": round(anchor_y, 4),
         "technique": "flatkey-recreate-cutout-only-v2",
-        "quality": {**(metadata.get("quality") or {}), "pickupUsable": True},
+        # This sprite has passed the flat-key extraction gates. Do not retain
+        # diagnostics from the rejected sprite it replaces; those describe a
+        # different image and make the review panel report a false failure.
+        "quality": {"pickupUsable": True},
     }
     _atomic_write_json(next_metadata, metadata_path)
     placement = _auto_place_cutout_best_safe(session_id, dog_index, variant_index)
@@ -4699,7 +4696,7 @@ def compose_with_mask(session_id: str) -> Image.Image | None:
     composited over that base.
     """
     from PIL import UnidentifiedImageError
-    raw = S.load_session_raw(session_id)
+    raw = S.ensure_session_json(session_id)
     if raw is None:
         return None
     selected_bg = _resolve_selected_bg(session_id, raw)
@@ -4713,12 +4710,9 @@ def compose_with_mask(session_id: str) -> Image.Image | None:
     inpaint_mode = raw.get("inpaint_mode")
     color_path = sdir / "color.png"
 
-    hb_path = sdir / "hitboxes.json"
-    if not hb_path.exists():
-        return None
     try:
-        hitbox_list = json.loads(hb_path.read_text())
-    except (OSError, json.JSONDecodeError) as exc:
+        hitbox_list = _load_retry_hitboxes(session_id)
+    except (OSError, json.JSONDecodeError, HTTPException) as exc:
         logger.warning("compose_with_mask: failed to read hitboxes for %s: %s", session_id, exc)
         return None
 

@@ -10,10 +10,10 @@
     2290
   ],
   "spriteBox": [
-    2081,
-    2059,
-    2255,
-    2237
+    2013,
+    2033,
+    2187,
+    2211
   ],
   "cleanupBox": [
     2036,
@@ -23,8 +23,8 @@
   ],
   "width": 174,
   "height": 178,
-  "anchorX": 0.4943,
-  "anchorY": 0.5056,
+  "anchorX": 0.8851,
+  "anchorY": 0.6517,
   "technique": "flatkey-recreate-v1",
   "quality": {
     "visibleCoverage": 0.1633,
@@ -35,5 +35,11 @@
     "pickupUsable": true,
     "backgroundFallback": false,
     "templateFallback": false
+  },
+  "regenerationReview": {
+    "candidate": true,
+    "probability": 0.513055,
+    "model": "extra-trees-depth-4-balanced",
+    "mode": "review-ranking-only"
   }
 }

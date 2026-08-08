@@ -4,6 +4,7 @@ import {
   getSession,
   saveHitboxes,
   setArchived as apiSetArchived,
+  setGoldenDatasetApproval,
   type SessionListItem,
   checkMobileVisibility,
   type VisibilityIssue,
@@ -72,6 +73,7 @@ interface Props {
   config: ConfigResponse;
   onClose: () => void;
   onArchivedChanged: (id: string, archived: boolean, variant?: string) => void;
+  onGoldenReviewChanged: (id: string, approved: boolean) => void;
 }
 
 /** Source PNG for a given variant. Review uses WebP; download keeps PNG. */
@@ -214,7 +216,7 @@ function reducer(state: ModalState, action: ModalAction): ModalState {
 }
 
 export default function GalleryReviewModal({
-  cards, startCardId, config, onClose, onArchivedChanged,
+  cards, startCardId, config, onClose, onArchivedChanged, onGoldenReviewChanged,
 }: Props) {
   // Setting-scoped nav cycles within the current setting only.
   const settings = useMemo(
@@ -224,6 +226,8 @@ export default function GalleryReviewModal({
   const startCard = useMemo(() => cards.find((c) => c.id === startCardId), [cards, startCardId]);
   const [currentSetting, setCurrentSetting] = useState<string>(startCard?.session.setting ?? settings[0] ?? '');
   const [currentCardId, setCurrentCardId] = useState<string>(startCardId);
+  const [blessBusy, setBlessBusy] = useState(false);
+  const [blessError, setBlessError] = useState<string | null>(null);
 
   // FREEZE the working set's MEMBERSHIP at open (ledger 054 #13): `cards` is
   // the gallery's LIVE filtered list, so an action that changes filter
@@ -877,6 +881,32 @@ export default function GalleryReviewModal({
           >
             Save Image
           </a>
+          <button
+            type="button"
+            className="btn"
+            disabled={blessBusy || card === undefined}
+            title="Confirm that this level's hitboxes, cutouts, and placements are solid. Blessed levels are eligible for the golden dataset; this does not affect Lineup or game eligibility."
+            onClick={async () => {
+              if (!card) return;
+              const approved = !card.session.goldenDatasetApproved;
+              setBlessBusy(true);
+              setBlessError(null);
+              try {
+                await setGoldenDatasetApproval(card.session.id, approved);
+                onGoldenReviewChanged(card.session.id, approved);
+              } catch (err) {
+                setBlessError(err instanceof Error ? err.message : 'Blessing failed');
+              } finally {
+                setBlessBusy(false);
+              }
+            }}
+            style={card?.session.goldenDatasetApproved ? {
+              background: '#493b13', color: '#ffe28a', borderColor: '#a78726', fontWeight: 800,
+            } : undefined}
+          >
+            {blessBusy ? 'Saving…' : card?.session.goldenDatasetApproved ? '★ Blessed' : 'Bless level'}
+          </button>
+          {blessError && <span style={{ color: '#ff9c9c', fontSize: 12 }}>{blessError}</span>}
           <button
             type="button"
             className="btn"

@@ -1,1 +1,45 @@
-{"version": 1, "image": "dogs/dog_06/sprite_000.png", "mask": "dogs/dog_06/sprite_mask_000.png", "sourceVariant": "dogs/dog_06/variant_000.png", "sourceBox": [1283, 760, 1709, 1186], "spriteBox": [1419, 966, 1573, 1104], "cleanupBox": [1325, 796, 1560, 1122], "width": 154, "height": 138, "anchorX": 0.5065, "anchorY": 0.058, "technique": "flatkey-recreate-v1", "quality": {"visibleCoverage": 0.0447, "strongCoverage": 0.0429, "bboxCoverage": 0.1009, "edgeTouches": 0, "fullCropLike": false, "pickupUsable": true, "backgroundFallback": false, "templateFallback": false}}
+{
+  "version": 1,
+  "image": "dogs/dog_06/sprite_000.png",
+  "mask": "dogs/dog_06/sprite_mask_000.png",
+  "sourceVariant": "dogs/dog_06/variant_000.png",
+  "sourceBox": [
+    1283,
+    760,
+    1709,
+    1186
+  ],
+  "spriteBox": [
+    1344,
+    931,
+    1498,
+    1069
+  ],
+  "cleanupBox": [
+    1325,
+    796,
+    1560,
+    1122
+  ],
+  "width": 154,
+  "height": 138,
+  "anchorX": 0.9935,
+  "anchorY": 0.3116,
+  "technique": "flatkey-recreate-v1",
+  "quality": {
+    "visibleCoverage": 0.0447,
+    "strongCoverage": 0.0429,
+    "bboxCoverage": 0.1009,
+    "edgeTouches": 0,
+    "fullCropLike": false,
+    "pickupUsable": true,
+    "backgroundFallback": false,
+    "templateFallback": false
+  },
+  "regenerationReview": {
+    "candidate": false,
+    "probability": 0.464814,
+    "model": "extra-trees-depth-4-balanced",
+    "mode": "review-ranking-only"
+  }
+}

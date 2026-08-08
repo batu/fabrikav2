@@ -21,6 +21,7 @@ a multiple of that floor.
 from __future__ import annotations
 
 import json
+import math
 import copy
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
@@ -874,6 +875,39 @@ def evaluate_level_dir(
             record["colorXY25Alignment"] = xy_candidates[1]
             record["colorXYUnlockedAlignment"] = xy_candidates[2]
         record["hybridAlignment"] = matches["hybrid"] if "hybrid" in matches else fit_hybrid(inputs)
+        if inputs.clean_crop is not None and inputs.scene_crop is not None:
+            from levelbuilder.golden_cutouts import cutout_quality_features
+
+            cx0, cy0, _, _ = inputs.crop_box
+            local_box = (sx - cx0, sy - cy0, sx + sw - cx0, sy + sh - cy0)
+            quality_features = cutout_quality_features(
+                inputs.clean_crop, inputs.scene_crop, inputs.sprite, local_box,
+            )
+            quality_features["boxAreaFraction"] = (sw * sh) / max(1, width * height)
+            quality_features["precisionRecallGap"] = abs(
+                quality_features["changedPrecision"] - quality_features["changedRecall"]
+            )
+            quality_features["qualityProduct"] = quality_features["changedIou"] * quality_features["colorSimilarity"]
+            quality_features["logAreaFraction"] = math.log(max(1e-9, quality_features["boxAreaFraction"]))
+            quality_features["logComponentCount"] = math.log1p(quality_features["componentCount"])
+            hybrid = record["hybridAlignment"]
+            fitted = hybrid.get("fittedBox") or list(sprite_box)
+            movement = math.hypot(
+                (fitted[0] + fitted[2] - sprite_box[0] - sprite_box[2]) / 2,
+                (fitted[1] + fitted[3] - sprite_box[1] - sprite_box[3]) / 2,
+            )
+            components = hybrid.get("components") or {}
+            record["qualityFeatures"] = quality_features
+            record["selectionFeatures"] = {
+                **quality_features,
+                "hybridScore": float(hybrid.get("score") or 0.0),
+                "hybridColor": float(components.get("color") or 0.0),
+                "hybridSilhouette": float(components.get("silhouette") or 0.0),
+                "hybridEdge": float(components.get("edge") or 0.0),
+                "hybridScale": float(hybrid.get("scale") or 1.0),
+                "hybridMovementNorm": movement / max(1.0, math.hypot(sw, sh)),
+                "colorScore": float(record["colorAlignment"].get("score") or 0.0),
+            }
         birds.append(record)
         alignment_inputs.append((record, inputs))
 

@@ -1,0 +1,40 @@
+name: bird-xy-alignment
+description: Measure whether independent X/Y scaling improves human-rated cutout alignment over Previous Color.
+metric:
+  primary:
+    type: judge
+    name: portal_human_acceptance
+    direction: maximize
+  degenerate_gates:
+    - name: evaluated_birds
+      check: "== 98"
+    - name: level_geometry_writes
+      check: "== 0"
+  diagnostics:
+    - name: changed_boxes
+    - name: mean_aspect_distortion
+    - name: maximum_aspect_distortion
+measurement:
+  command: uv run level-editor --json evaluate-sprites --game find_the_bird --level ad_campaigns_ad_treehouse_village_bird_24d4 --level hawaii_rainforest_waterfall_bird_0f98 --level cozy_interiors_cozy_toymaker_workshop_bird_4e44 --level ad_campaigns_ad_cozy_library_bird_e654 --level greece_santorini_steps_bird_4634
+  working_directory: tools/level-editor
+  timeout_seconds: 360
+  output_format: json
+scope:
+  mutable:
+    - tools/level-editor/levelbuilder/api/sprite_eval.py
+    - tools/level-editor/tests/test_sprite_eval_deterministic.py
+    - docs/evidence/2026-08-07-first-five-xy-fit
+  immutable:
+    - games/find_the_bird/public/levels
+constraints:
+  - Read-only candidates; do not mutate level geometry.
+  - Previous Color is the baseline.
+  - Compare 12 percent, 25 percent, and unlocked independent-axis scaling.
+execution:
+  mode: serial
+  max_concurrent: 1
+stopping:
+  max_iterations: 3
+  max_hours: 1
+  plateau_iterations: 2
+  target_reached: false
