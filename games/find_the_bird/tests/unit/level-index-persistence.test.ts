@@ -15,4 +15,15 @@ describe('active level index persistence', () => {
     expect(setItem).toHaveBeenCalledOnce();
     expect(setItem).toHaveBeenCalledWith('ftd_level', '7');
   });
+
+  it('keeps the selected in-memory index when storage is unavailable', () => {
+    vi.stubGlobal('localStorage', {
+      setItem: vi.fn(() => {
+        throw new Error('storage unavailable');
+      }),
+    });
+
+    expect(() => gameState.selectLevelIndex(11)).not.toThrow();
+    expect(gameState.currentLevelIndex).toBe(11);
+  });
 });

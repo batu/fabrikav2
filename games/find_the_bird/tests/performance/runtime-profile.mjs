@@ -10,7 +10,11 @@ import { chromium } from '@playwright/test';
 
 const gameRoot = resolve(import.meta.dirname, '../..');
 const distRoot = join(gameRoot, 'dist');
-const cycleCount = Math.max(1, Number.parseInt(process.env.FTB_PROFILE_CYCLES ?? '3', 10));
+const rawCycleCount = process.env.FTB_PROFILE_CYCLES ?? '3';
+const cycleCount = Number(rawCycleCount);
+if (!Number.isSafeInteger(cycleCount) || cycleCount < 1) {
+  throw new Error(`FTB_PROFILE_CYCLES must be a positive integer; received '${rawCycleCount}'`);
+}
 
 if (!existsSync(join(distRoot, 'index.html'))) {
   throw new Error('Missing dist/index.html. Run the production build with VITE_ENABLE_TEST_HARNESS=true first.');
@@ -144,6 +148,9 @@ try {
   page.on('requestfailed', (request) => {
     if (request.url().startsWith(origin)) localRequestFailures.push(request.url());
   });
+  page.on('response', (response) => {
+    if (response.url().startsWith(origin) && response.status() >= 400) localRequestFailures.push(response.url());
+  });
   await page.route('**/*', async (route) => {
     const requestUrl = route.request().url();
     if (requestUrl.startsWith(origin) || requestUrl.startsWith('data:') || requestUrl.startsWith('blob:')) {
@@ -221,16 +228,25 @@ try {
   const textureCountBeforeCycles = await page.evaluate(() => Object.keys(window.__FIND_DOG_GAME__.textures.list).length);
   const heapBeforeCycles = await page.evaluate(() => performance.memory?.usedJSHeapSize ?? 0);
 
-  const pickupStartedAt = await page.evaluate(() => {
+  const pickupAttempt = await page.evaluate(() => {
     const harness = window.__FIND_DOG_HARNESS__;
-    const target = harness.snapshot().dogPositions.find((dog) => !dog.found);
+    const before = harness.snapshot();
+    const target = before.dogPositions.find((dog) => !dog.found);
     if (target === undefined) throw new Error('No unfound bird available for pickup profile');
     const startedAt = performance.now();
-    harness.findDog(target.id);
-    return startedAt;
+    const result = harness.findDog(target.id);
+    return { startedAt, targetId: target.id, foundBefore: before.foundDogIds.length, result };
   });
+  if (!pickupAttempt.result.found || pickupAttempt.result.totalFound !== pickupAttempt.foundBefore + 1) {
+    throw new Error(`Runtime profile pickup did not find ${pickupAttempt.targetId}`);
+  }
   await page.waitForTimeout(1_000);
   const pickupEndedAt = await page.evaluate(() => performance.now());
+  const pickupStateConsistent = await page.evaluate(({ targetId, foundBefore }) => {
+    const snapshot = window.__FIND_DOG_HARNESS__.snapshot();
+    return snapshot.dogPositions.some((dog) => dog.id === targetId && dog.found)
+      && snapshot.foundDogIds.length === foundBefore + 1;
+  }, pickupAttempt);
 
   const cycleReadyTimings = [];
   for (let index = 0; index < cycleCount; index += 1) {
@@ -289,7 +305,19 @@ try {
         .filter((entry) => /\.(?:png|webp|jpe?g)(?:\?|$)/.test(entry.name))
         .reduce((total, entry) => total + entry.encodedBodySize, 0),
     };
-  }, { pickupStartedAt, pickupEndedAt });
+  }, { pickupStartedAt: pickupAttempt.startedAt, pickupEndedAt });
+
+  // Prove the HTTP-error gate itself before trusting a green result. Run the
+  // probe after timing/resource snapshots, then remove only its known URL so
+  // unrelated late failures remain visible in the final gate.
+  const missingAssetProbeUrl = `${origin}/__ftb_runtime_profile_missing__.png`;
+  const missingAssetProbeStatus = await page.evaluate(async (url) => (await fetch(url)).status, missingAssetProbeUrl);
+  if (missingAssetProbeStatus !== 404 || !localRequestFailures.includes(missingAssetProbeUrl)) {
+    throw new Error('Runtime profile HTTP failure gate did not observe its missing-asset probe');
+  }
+  for (let index = localRequestFailures.length - 1; index >= 0; index -= 1) {
+    if (localRequestFailures[index] === missingAssetProbeUrl) localRequestFailures.splice(index, 1);
+  }
 
   const cycleEngineReadyMs = cycleReadyTimings.map((timing) => timing.engineReadyMs);
   const cycleVisibleReadyMs = cycleReadyTimings.map((timing) => timing.visibleReadyMs);
@@ -299,7 +327,7 @@ try {
     runtime_ready_sum_ms: round(homeReadyMs + firstLevelReadyMs + medianCycleReadyMs),
     home_ready_success: 1,
     first_level_ready_success: 1,
-    gameplay_state_consistent: firstSnapshot.levelId.length > 0 && firstSnapshot.totalDogs > 0 ? 1 : 0,
+    gameplay_state_consistent: firstSnapshot.levelId.length > 0 && firstSnapshot.totalDogs > 0 && pickupStateConsistent ? 1 : 0,
     local_request_failures: localRequestFailures.length,
     page_error_count: pageErrors.length,
     texture_growth_count: Math.max(0, textureCountAfterCycles - textureCountBeforeCycles),
