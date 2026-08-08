@@ -117,6 +117,32 @@ experiments:
       cached_cycle_median_ms: 2765.6
       frame_gap_max_ms: 283.3
     learnings: First-level decode improved by 55 ms, but home and cached-cycle costs regressed enough to erase it. The extra concurrency and memory pressure did not clear the noise threshold, so sequential decode remains.
+  - iteration: 4
+    batch: 4
+    hypothesis: Force the prewarm idle callback after 200 ms instead of 800 ms to begin useful decode sooner under a busy home frame.
+    category: scheduling
+    outcome: reverted
+    changes:
+      - file: games/find_the_bird/src/scenes/HomeScene.ts
+        summary: Temporarily reduced the prewarm idle timeout; no retained source change.
+    gates:
+      home_ready_success: 1
+      first_level_ready_success: 1
+      gameplay_state_consistent: 1
+      local_request_failures: 0
+      page_error_count: 0
+      texture_growth_count: 0
+      cached_cycle_worst_ms: 2824.5
+    gates_passed: true
+    primary:
+      runtime_ready_sum_ms: 5663.22
+    primary_delta_ms: 20.79
+    diagnostics:
+      home_ready_ms: 397.75
+      first_level_ready_ms: 2523.8
+      cached_cycle_median_ms: 2678.2
+      frame_gap_max_ms: 250
+    learnings: Component medians shifted slightly but the composite stayed inside noise. Forcing an idle deadline earlier adds contention risk without a defensible win, so the 800 ms fallback remains.
 best:
   iteration: 2
   metrics:
