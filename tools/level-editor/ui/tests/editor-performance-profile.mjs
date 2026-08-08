@@ -107,8 +107,9 @@ async function findFixture() {
   const target = cards[targetIndex];
   const manifest = navigationCards.map((card) => ({
     id: card.id,
-    assetVersion: card.session.assetVersion ?? 0,
     nDogs: card.session.nDogs,
+    orientation: card.session.orientation,
+    selectedBgIndex: card.session.selectedBgIndex ?? null,
   }));
   return {
     cards,
