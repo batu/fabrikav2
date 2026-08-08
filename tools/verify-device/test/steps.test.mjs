@@ -163,11 +163,23 @@ describe('native resource recipe application', () => {
       buildHarnessBundle(gameDir, {
         shImpl: (file, args, opts = {}) => {
           calls.push({ file, args, opts });
+          if (file === 'npx' && args.join(' ') === 'cap add ios') {
+            fs.mkdirSync(path.join(gameDir, 'ios'), { recursive: true });
+          }
+          return '';
+        },
+      });
+      buildHarnessBundle(gameDir, {
+        shImpl: (file, args, opts = {}) => {
+          calls.push({ file, args, opts });
           return '';
         },
       });
 
       expect(calls.map((c) => `${c.file} ${c.args.join(' ')}`)).toEqual([
+        'npx vite build --mode ios',
+        'npx cap add ios',
+        'npx cap sync ios',
         'npx vite build --mode ios',
         'npx cap sync ios',
       ]);
