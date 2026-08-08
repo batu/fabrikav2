@@ -33,6 +33,8 @@ export interface DogSprite {
   cleanup: DogSpriteCleanup;
   anchorX?: number;
   anchorY?: number;
+  flipX?: boolean;
+  flipY?: boolean;
 }
 
 export interface DogSpriteCleanup {

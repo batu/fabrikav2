@@ -190,6 +190,23 @@ class TestBatchedFlatkeySplitter:
         assert calls['single'] == 4
         assert set(out) == set(crops)
 
+    def test_gray_subject_is_not_rejected_as_flat_background(self):
+        from PIL import Image, ImageDraw
+        from levelbuilder.api.flatkey import _panel_cutout
+
+        panel = Image.new('RGB', (240, 240), (255, 0, 255))
+        ImageDraw.Draw(panel).ellipse(
+            (45, 30, 195, 215),
+            fill=(155, 158, 160),
+            outline=(25, 25, 25),
+            width=10,
+        )
+
+        cutout = _panel_cutout(panel)
+
+        assert cutout is not None
+        assert cutout.getbbox() is not None
+
 
 class TestNeighborSuppression:
     """Close birds must not leak into each other's cutout crops (2026-08-06)."""

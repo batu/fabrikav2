@@ -362,7 +362,12 @@ async function run() {
     assert(previewRequests > 0, 'Gallery review did not request proxy preview image.');
     await page.getByRole('tab', { name: 'Cutouts & redo' }).click();
     await page.getByText('No pickup cutouts found.').waitFor({ timeout: 10_000 });
-    assert(await page.getByRole('button', { name: 'Redo selected (0)' }).isDisabled(), 'Empty focused cutout review must not submit regeneration.');
+    assert(await page.locator('.level-canvas').count() > 0, 'Focused review map was not visible initially.');
+    await page.getByRole('button', { name: 'Hide map' }).click();
+    assert(await page.locator('.level-canvas').count() === 0, 'Hide map did not collapse the scene pane.');
+    assert(await page.getByRole('button', { name: 'Show map' }).count() === 1, 'Collapsed scene pane cannot be restored.');
+    await page.screenshot({ path: '/tmp/ftd-cutout-expanded-review.png', fullPage: true });
+    assert(await page.getByRole('button', { name: 'Regenerate selected (0)' }).isDisabled(), 'Empty focused cutout review must not submit regeneration.');
     bodyText = await page.getByRole('dialog').innerText();
     for (const retiredText of [
       'Preview locally',

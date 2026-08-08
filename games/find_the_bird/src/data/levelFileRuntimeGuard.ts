@@ -66,6 +66,12 @@ function assertDogSprite(
   if (sprite.anchorY !== undefined && !isUnitIntervalNumber(sprite.anchorY)) {
     fail(context, `${path}.anchorY must be a finite number in [0, 1] when present`);
   }
+  if (sprite.flipX !== undefined && typeof sprite.flipX !== 'boolean') {
+    fail(context, `${path}.flipX must be a boolean when present`);
+  }
+  if (sprite.flipY !== undefined && typeof sprite.flipY !== 'boolean') {
+    fail(context, `${path}.flipY must be a boolean when present`);
+  }
 }
 
 function assertSections(

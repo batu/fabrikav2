@@ -136,13 +136,9 @@ def flat_ok(flat, cutout):
     keyfrac = float(key.mean()); birdfrac = float(ca.mean())
     if keyfrac + birdfrac < 0.97:  # anything beyond bird+key = painted context
         return False, f"non-flat key (key={keyfrac:.2f} bird={birdfrac:.2f})"
-    # background-purity inside the cutout: near-gray or near-white large zones
-    ca_arr = np.asarray(cutout.convert("RGBA")).astype(np.int16)
-    rr, gg, bb2, aa = ca_arr[:,:,0], ca_arr[:,:,1], ca_arr[:,:,2], ca_arr[:,:,3]
-    vis = aa > 8
-    grayish = vis & (abs(rr-gg) < 18) & (abs(gg-bb2) < 18) & (rr > 90) & (rr < 230)
-    if vis.sum() and float(grayish.sum())/float(vis.sum()) > 0.45:
-        return False, f"cutout dominated by flat gray/white background ({grayish.sum()/vis.sum():.2f})"
+    # Edge-connected gray/white backdrop has already been removed by
+    # strip_flat_rim. Do not classify the remaining subject by color: valid
+    # birds can be predominantly gray.
     from levelbuilder.api.sprite_eval import _connected_components
     comps = _connected_components(ca)
     big = [c for c in comps if c.sum() > 0.25 * max(1, comps[0].sum())]
@@ -208,12 +204,11 @@ def flatkey_recreate_sprite(
 
     for _ in range(attempts):
         flat = edit_image(painted_crop.convert("RGB"), FLAT_PROMPT_TEMPLATE.format(entity=entity), model=model)
-        cutout = chroma_key(flat.convert("RGB"))
+        cutout = strip_flat_rim(chroma_key(flat.convert("RGB")))
         ok, _reason = flat_ok(flat, cutout)
         if not ok:
             continue
         cutout = despill(cutout)
-        cutout = strip_flat_rim(cutout)
         bbox = cutout.getbbox()
         if bbox is None:
             continue
@@ -293,15 +288,15 @@ def split_grid_panels(out: Image.Image, n: int, count: int) -> list[Image.Image 
 
 
 def _panel_cutout(panel: Image.Image) -> Image.Image | None:
-    # Same deterministic gate order as the single path: chroma key, then
-    # flat_ok (non-flat key / gray-panel / duplicate-subject detection),
-    # then despill + rim strip. Batch results are marked prevalidated
-    # downstream, so this is the gate that earns that flag.
-    keyed = chroma_key(panel)
+    # Same deterministic gate order as the single path: chroma key, strip
+    # edge-connected flat remnants, validate context/components, then despill.
+    # Batch results are marked prevalidated downstream, so this is the gate
+    # that earns that flag.
+    keyed = strip_flat_rim(chroma_key(panel))
     ok, _reason = flat_ok(panel, keyed)
     if not ok:
         return None
-    cutout = strip_flat_rim(despill(keyed))
+    cutout = despill(keyed)
     alpha = np.asarray(cutout)[:, :, 3]
     subject = float((alpha > 0).mean())
     if not (0.02 < subject < 0.9):

@@ -5,7 +5,7 @@ import '../src/App.css';
 import type { DogState, Hitbox } from '../src/types';
 
 const HITBOXES: Hitbox[] = [
-  { x: 80, y: 90, r: 30 },
+  { x: 10, y: 20, r: 30 },
   { x: 180, y: 120, r: 36 },
   { x: 280, y: 160, r: 28 },
 ];
@@ -43,6 +43,10 @@ function Harness() {
         sessionId={sessionId}
         sharedPrompt="A cute dog, complete body, clean silhouette, no attached scenery."
         inpaintModel="demo-model"
+        models={[
+          { id: 'google/gemini-3.1-flash-lite-image', label: 'Gemini 3.1 Flash Lite' },
+          { id: 'google/gemini-3.1-flash-image-preview', label: 'Gemini 3.1 Flash' },
+        ]}
         hitboxes={HITBOXES}
         dogs={dogs}
         onDogComplete={handleDogComplete}

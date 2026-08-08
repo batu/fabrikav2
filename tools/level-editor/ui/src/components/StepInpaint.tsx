@@ -619,6 +619,7 @@ export default function StepInpaint({
                     sessionId={sessionId}
                     sharedPrompt={sharedPrompt}
                     inpaintModel={inpaintModel}
+                    models={config?.inpaintModels ?? config?.models ?? []}
                     hitboxes={hitboxes}
                     dogs={dogs}
                     onDogComplete={(dogIndex, file, variantIndex) => applyDogComplete(queryClient, sessionId, dogIndex, file, variantIndex)}

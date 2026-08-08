@@ -63,6 +63,10 @@ export interface SpriteCandidate {
   sceneHeight?: number | null;
   anchorX?: number | null;
   anchorY?: number | null;
+  flipX?: boolean;
+  flipY?: boolean;
+  spriteBox?: [number, number, number, number] | null;
+  cleanupBox?: [number, number, number, number] | null;
   technique?: string | null;
   quality?: Record<string, unknown> | null;
 }

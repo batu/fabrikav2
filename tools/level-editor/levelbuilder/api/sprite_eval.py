@@ -332,11 +332,18 @@ def fit_hybrid(
     *,
     max_shift: int = 96,
     scales: tuple[float, ...] = (0.9, 0.95, 1.0, 1.05, 1.1),
+    weights: tuple[float, float, float, float] = (0.45, 0.35, 0.15, 0.05),
 ) -> dict:
     """Fit with color, silhouette, boundary, scale, and hitbox constraints."""
     if inputs.clean_crop is None or inputs.scene_crop is None:
         return {"score": None, "verdict": "unscored", "evidence": "aligned clean/scene pair required"}
 
+    weight_total = sum(weights)
+    if weight_total <= 0 or any(weight < 0 for weight in weights):
+        raise ValueError("hybrid weights must be non-negative with a positive sum")
+    color_weight, silhouette_weight, edge_weight, scale_weight = (
+        weight / weight_total for weight in weights
+    )
     cx0, cy0, _, _ = inputs.crop_box
     scene = np.clip(inputs.scene_crop, 0, 255).astype(np.uint8)
     target = _alignment_target(inputs, max_shift=max_shift, scales=scales).astype(np.uint8)
@@ -373,7 +380,12 @@ def fit_hybrid(
         edge_intersection = cv2.matchTemplate(target_edge, sprite_edge, cv2.TM_CCORR)
         edge_score = (2.0 * edge_intersection) / max(1.0, target_edge_area + float(sprite_edge.sum()))
         scale_score = 1.0 - min(1.0, abs(scale - 1.0) / 0.1)
-        scores = 0.45 * color_score + 0.35 * silhouette_score + 0.15 * edge_score + 0.05 * scale_score
+        scores = (
+            color_weight * color_score
+            + silhouette_weight * silhouette_score
+            + edge_weight * edge_score
+            + scale_weight * scale_score
+        )
 
         x_min, x_max = max(0, origin_x - max_shift), min(scores.shape[1] - 1, origin_x + max_shift)
         y_min, y_max = max(0, origin_y - max_shift), min(scores.shape[0] - 1, origin_y + max_shift)
@@ -413,6 +425,10 @@ def fit_hybrid(
         "dx": fitted_box[0] - sx0, "dy": fitted_box[1] - sy0,
         "originalBox": list(inputs.sprite_box), "fittedBox": fitted_box,
         "hitboxSafe": True, "components": {key: round(value, 4) for key, value in parts.items()},
+        "weights": {
+            "color": round(color_weight, 4), "silhouette": round(silhouette_weight, 4),
+            "edge": round(edge_weight, 4), "scalePrior": round(scale_weight, 4),
+        },
     }
 
 
@@ -1017,7 +1033,9 @@ def apply_match_report(
                 continue
             try:
                 x0, y0, x1, y1 = [int(round(float(value))) for value in box]
-                target_x, target_y = int(dog["x"]), int(dog["y"])
+                current_sprite = dog.get("sprite") or {}
+                target_x = round(float(current_sprite.get("x", dog["x"])) + float(current_sprite.get("anchorX", 0.5)) * float(current_sprite.get("width", 0)))
+                target_y = round(float(current_sprite.get("y", dog["y"])) + float(current_sprite.get("anchorY", 0.5)) * float(current_sprite.get("height", 0)))
             except (KeyError, TypeError, ValueError):
                 summary["rejected"] += 1
                 continue
@@ -1031,10 +1049,14 @@ def apply_match_report(
                 continue
             anchor_x = round((target_x - x0) / width, 4)
             anchor_y = round((target_y - y0) / height, 4)
-            changed = any(sprite.get(key) != value for key, value in {
+            updates = {
                 "x": x0, "y": y0, "width": width, "height": height,
                 "anchorX": anchor_x, "anchorY": anchor_y,
-            }.items())
+            }
+            for key in ("flipX", "flipY"):
+                if key in result:
+                    updates[key] = result[key] is True
+            changed = any(sprite.get(key) != value for key, value in updates.items())
             if not changed:
                 summary["unchanged"] += 1
                 continue
@@ -1046,10 +1068,7 @@ def apply_match_report(
                 "selectedMethod": result.get("method", method),
                 "score": result.get("score"),
             })
-            sprite.update({
-                "x": x0, "y": y0, "width": width, "height": height,
-                "anchorX": anchor_x, "anchorY": anchor_y,
-            })
+            sprite.update(updates)
             image = sprite.get("image")
             if isinstance(image, str):
                 marker = f"levels/{level_id}/"
@@ -1066,10 +1085,14 @@ def apply_match_report(
                             summary["sourceSidecarsMissing"] += 1
                         continue
                     data = json.loads(sidecar_path.read_text())
-                    data.update({
+                    sidecar_updates = {
                         "spriteBox": [x0, y0, x1, y1], "width": width, "height": height,
                         "anchorX": anchor_x, "anchorY": anchor_y,
-                    })
+                    }
+                    for key in ("flipX", "flipY"):
+                        if key in result:
+                            sidecar_updates[key] = result[key] is True
+                    data.update(sidecar_updates)
                     sidecars[sidecar_path] = data
                     if is_source:
                         summary["sourceSidecarsUpdated"] += 1

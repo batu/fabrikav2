@@ -279,6 +279,7 @@ export default function GalleryReviewModal({
   const [visibilityIssues, setVisibilityIssues] = useState<VisibilityIssue[]>([]);
   const [sceneView, setSceneView] = useState<'painted' | 'restore' | 'pickup' | 'sprites'>('painted');
   const [reviewMode, setReviewMode] = useState<'placement' | 'cutouts'>('placement');
+  const [showMap, setShowMap] = useState(true);
   const pickedUpView = sceneView === 'restore';
   const [loadedMeta, setLoadedMeta] = useState<{ setting?: string | null; scene?: string | null; entity?: string | null; model?: string }>({});
 
@@ -730,7 +731,7 @@ export default function GalleryReviewModal({
         {loading && <p style={{ color: '#888', margin: 'auto' }}>Loading…</p>}
         {!loading && state.bgWidth > 0 && (
           <>
-            <div style={{ flex: 1, minWidth: 0, minHeight: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            {(reviewMode !== 'cutouts' || showMap) && <div style={{ flex: 1, minWidth: 0, minHeight: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <div style={{ height: '100%', aspectRatio: `${state.bgWidth} / ${state.bgHeight}`, maxWidth: '100%' }}>
                 <LevelCanvas
                   state={state}
@@ -739,24 +740,33 @@ export default function GalleryReviewModal({
                   hideVariants
                 />
               </div>
-            </div>
+            </div>}
 
             <aside style={{
-              width: reviewMode === 'cutouts' ? 520 : 360, flexShrink: 0, overflowY: 'auto',
+              width: reviewMode === 'cutouts' ? (showMap ? 'min(52vw, 760px)' : '100%') : 360,
+              flex: reviewMode === 'cutouts' && !showMap ? 1 : undefined,
+              flexShrink: 0, overflowY: 'auto',
               display: 'flex', flexDirection: 'column', gap: 12,
             }}>
               <div className="gallery-review-mode" role="tablist" aria-label="Focused review mode">
                 <button type="button" role="tab" aria-selected={reviewMode === 'placement'} onClick={() => setReviewMode('placement')}>Placement</button>
                 <button type="button" role="tab" aria-selected={reviewMode === 'cutouts'} onClick={() => setReviewMode('cutouts')}>Cutouts &amp; redo</button>
+                {reviewMode === 'cutouts' && (
+                  <button type="button" aria-pressed={!showMap} onClick={() => setShowMap((current) => !current)}>
+                    {showMap ? 'Hide map' : 'Show map'}
+                  </button>
+                )}
               </div>
               {reviewMode === 'cutouts' && state.sessionId ? (
                 <CutoutReviewPanel
                   sessionId={state.sessionId}
                   sharedPrompt={state.dogPrompt}
                   inpaintModel={state.inpaintModel}
+                  models={config.inpaintModels ?? config.models}
                   hitboxes={state.hitboxes}
                   dogs={state.dogs}
                   onDogComplete={handleDogComplete}
+                  expanded={!showMap}
                 />
               ) : <>
               <div style={{ display: 'flex', gap: 6 }}>
