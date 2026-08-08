@@ -43,6 +43,7 @@ const DEFERRED_ICON_URLS: readonly string[] = [
 ];
 
 let warmed = false;
+let deferredWarmed = false;
 let decoded: Promise<void> = Promise.resolve();
 
 function decodeAll(urls: readonly string[]): Promise<void> {
@@ -64,12 +65,17 @@ export function preloadIcons(): void {
   if (warmed) return;
   warmed = true;
   decoded = decodeAll(HOME_ICON_URLS);
-  const deferShop = (): void => { void decodeAll(DEFERRED_ICON_URLS); };
-  if (typeof requestIdleCallback === 'function') {
-    requestIdleCallback(deferShop, { timeout: 4000 });
-  } else {
-    window.setTimeout(deferShop, 1500);
-  }
+}
+
+/** Warm settings/shop art only while HomeScene still owns the idle window.
+ *  `requestIdleCallback({ timeout })` does not delay work — it may run
+ *  immediately — so scheduling this from boot competes with an immediate Play
+ *  tap. HomeScene supplies the cancellable delay and calls this idempotent
+ *  operation only after the player has dwelled on the menu. */
+export function preloadDeferredIcons(): void {
+  if (deferredWarmed) return;
+  deferredWarmed = true;
+  void decodeAll(DEFERRED_ICON_URLS);
 }
 
 /** Resolves once the HOME icons are decoded (paint-ready). Used to hold the

@@ -18,6 +18,7 @@ import { isGameSuspended, registerLifecycleHooks } from '../platform/gameLifecyc
 import type { GameSceneData } from './GameScene';
 import { GameScene } from './GameScene';
 import { FTD_UI_THEME } from '../ui/ftdTheme';
+import { preloadDeferredIcons } from '../ui/iconPreload';
 
 function triggerNavBounce(btn: HTMLButtonElement): void {
   btn.classList.remove('home-nav-btn--tapped');
@@ -56,6 +57,8 @@ const HOME_AMBIENT_IDLE_TIMEOUT_MS = 1_500;
 // generation-guarded, so it never competes with home's own first paint.
 const HOME_PREWARM_DELAY_MS = 300;
 const HOME_PREWARM_IDLE_TIMEOUT_MS = 800;
+const HOME_DEFERRED_ICON_DELAY_MS = 2_000;
+const HOME_DEFERRED_ICON_IDLE_TIMEOUT_MS = 1_500;
 
 function shouldRunHomeBannerVideo(): boolean {
   return !hasLowDataConnection() && !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -91,6 +94,7 @@ export class HomeScene extends Phaser.Scene {
   private isShuttingDown: boolean = false;
   private cancelHomeAmbientSchedule: CancelScheduledIdleWork | null = null;
   private cancelPrewarmSchedule: CancelScheduledIdleWork | null = null;
+  private cancelDeferredIconSchedule: CancelScheduledIdleWork | null = null;
   private unregisterLifecycleHooks: (() => void) | null = null;
   /** In-flight/completed background texture warm for the current level.
    *  `token.stale` flips to abort a warm the launch path has superseded. */
@@ -113,6 +117,7 @@ export class HomeScene extends Phaser.Scene {
     setHomeCallback(() => this.renderHomeScreen());
     this.renderHomeScreen();
     this.scheduleHomeAmbient();
+    this.scheduleDeferredIconPreload();
     this.registerLifecycleSuspendHooks();
     // The level map paints real numbered nodes synchronously (buildLevelMapNodes
     // seeds from gameState.currentLevelIndex before the async index resolves),
@@ -135,6 +140,7 @@ export class HomeScene extends Phaser.Scene {
       this.navigationGeneration += 1;
       this.cancelScheduledHomeAmbient();
       this.cancelScheduledPrewarm();
+      this.cancelScheduledDeferredIconPreload();
       // Abort any in-flight warm so it can't mutate shared textures after the
       // next scene's loader takes over.
       if (this.prewarm !== null) this.prewarm.token.stale = true;
@@ -156,6 +162,7 @@ export class HomeScene extends Phaser.Scene {
         this.navigationGeneration += 1;
         this.cancelScheduledHomeAmbient();
         this.cancelScheduledPrewarm();
+        this.cancelScheduledDeferredIconPreload();
         this.staleActivePrewarm();
         if (this.bannerVideoReplayTimer !== null) {
           window.clearTimeout(this.bannerVideoReplayTimer);
@@ -172,6 +179,7 @@ export class HomeScene extends Phaser.Scene {
         this.startBannerVideoReplay();
         this.scheduleHomeAmbient();
         this.schedulePrewarmCurrentLevel();
+        this.scheduleDeferredIconPreload();
       },
     });
   }
@@ -247,6 +255,7 @@ export class HomeScene extends Phaser.Scene {
     this.navigationGeneration = generation;
     this.cancelScheduledHomeAmbient();
     this.cancelScheduledPrewarm();
+    this.cancelScheduledDeferredIconPreload();
     this.setMapButtonsDisabled(true);
     try {
       if (this.levelIndex.length === 0) {
@@ -333,6 +342,15 @@ export class HomeScene extends Phaser.Scene {
     });
   }
 
+  private scheduleDeferredIconPreload(): void {
+    this.cancelScheduledDeferredIconPreload();
+    this.cancelDeferredIconSchedule = runWhenVisibleAndIdle(preloadDeferredIcons, {
+      delayMs: HOME_DEFERRED_ICON_DELAY_MS,
+      idleTimeoutMs: HOME_DEFERRED_ICON_IDLE_TIMEOUT_MS,
+      shouldRun: () => !this.isShuttingDown && this.sys.isActive(),
+    });
+  }
+
   private cancelScheduledHomeAmbient(): void {
     this.cancelHomeAmbientSchedule?.();
     this.cancelHomeAmbientSchedule = null;
@@ -341,6 +359,11 @@ export class HomeScene extends Phaser.Scene {
   private cancelScheduledPrewarm(): void {
     this.cancelPrewarmSchedule?.();
     this.cancelPrewarmSchedule = null;
+  }
+
+  private cancelScheduledDeferredIconPreload(): void {
+    this.cancelDeferredIconSchedule?.();
+    this.cancelDeferredIconSchedule = null;
   }
 
   private staleActivePrewarm(): void {

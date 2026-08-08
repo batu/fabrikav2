@@ -144,15 +144,17 @@ describe("selected v1 runtime assets", () => {
 
     vi.stubGlobal("Image", MockImage);
     vi.useFakeTimers();
-    const { preloadIcons, whenIconsDecoded } = await import("../../src/ui/iconPreload");
+    const { preloadDeferredIcons, preloadIcons, whenIconsDecoded } = await import("../../src/ui/iconPreload");
 
     preloadIcons();
     preloadIcons();
     await whenIconsDecoded();
-    // Home icons gate the boot path; shop/settings decode from a deferred
-    // idle/timeout callback — advance timers so the deferred set fires.
+    // Home icons gate the boot path. HomeScene explicitly starts the deferred
+    // set after a cancellable dwell, so boot never schedules it by itself.
     expect(decodedSources.filter((src) => src === "/ui/settings/settings_icon_home.png")).toHaveLength(0);
-    vi.runAllTimers();
+    preloadDeferredIcons();
+    preloadDeferredIcons();
+    await Promise.resolve();
     vi.useRealTimers();
 
     expect(decodedSources.filter((src) => src === "/ui/settings/settings_icon_home.png")).toHaveLength(1);
