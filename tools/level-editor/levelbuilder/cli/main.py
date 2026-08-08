@@ -32,6 +32,8 @@ WIZARD_OPERATIONS: dict[str, str] = {
     "assemble-recipe-prompts": "create",
     "create-session": "create",
     "list-sessions": "sessions",
+    "list-sprite-candidates": "sprite-candidates",
+    "manual-sprite-placement": "place-sprite",
     "human-confirm-sprite": "confirm-sprite",
     "golden-review-level": "bless-level",
     "get-session": "session",
@@ -1518,6 +1520,18 @@ def cmd_confirm_sprite(client: Client, args: argparse.Namespace) -> None:
     ))
 
 
+def cmd_sprite_candidates(client: Client, args: argparse.Namespace) -> None:
+    _emit(args, client.get(f"/api/sessions/{args.session_id}/sprite-candidates"))
+
+
+def cmd_place_sprite(client: Client, args: argparse.Namespace) -> None:
+    _emit(args, client.request(
+        "PUT",
+        f"/api/sessions/{args.session_id}/sprite-candidates/{args.candidate_id}/placement",
+        json={"spriteBox": args.box, "flipX": args.flip_x, "flipY": args.flip_y},
+    ))
+
+
 def cmd_bless_level(client: Client, args: argparse.Namespace) -> None:
     _emit(args, client.request(
         "PUT",
@@ -1831,6 +1845,16 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("session_id")
     p.add_argument("candidate_id")
     p.add_argument("--undo", action="store_true", help="remove human confirmation")
+
+    p = verb("sprite-candidates", cmd_sprite_candidates)
+    p.add_argument("session_id")
+
+    p = verb("place-sprite", cmd_place_sprite)
+    p.add_argument("session_id")
+    p.add_argument("candidate_id")
+    p.add_argument("--box", nargs=4, type=int, required=True, metavar=("X0", "Y0", "X1", "Y1"))
+    p.add_argument("--flip-x", action=argparse.BooleanOptionalAction, default=None)
+    p.add_argument("--flip-y", action=argparse.BooleanOptionalAction, default=None)
 
     p = verb("bless-level", cmd_bless_level)
     p.add_argument("session_id")
