@@ -1,0 +1,65 @@
+spec: ftb-game-runtime
+run_id: 2026-08-09T01:30:00+03:00
+started_at: 2026-08-09T01:30:00+03:00
+baseline:
+  timestamp: 2026-08-09T01:46:00+03:00
+  fixture_sha256: 45d55a9f6228d5bc4cec22818660b56c4e14de57c06390af528392509de8a67b
+  repeat_count: 5
+  aggregation: median
+  gates:
+    home_ready_success: 1
+    first_level_ready_success: 1
+    gameplay_state_consistent: 1
+    local_request_failures: 0
+    page_error_count: 0
+    texture_growth_count: 0
+    cached_cycle_worst_ms: 2900.6
+  primary:
+    runtime_ready_sum_ms: 5897.42
+  diagnostics:
+    home_ready_ms: 411.73
+    first_level_ready_ms: 2721.99
+    cached_cycle_median_ms: 2796
+    cached_cycle_worst_ms: 2900.6
+    frame_gap_p95_ms: 66.8
+    frame_gap_max_ms: 250.1
+    pickup_frame_gap_p95_ms: 83.4
+    pickup_frame_gap_max_ms: 166.7
+    long_task_total_ms: 8477
+    long_task_max_ms: 261
+    request_count: 166
+    transfer_bytes: 48314825
+    js_transfer_bytes: 2777364
+    image_transfer_bytes: 44876566
+    heap_growth_bytes: 51528013
+  bundle:
+    js_bytes: 2239346
+    css_bytes: 160936
+    largest_js_bytes: 1992417
+    js_chunks: 16
+experiments: []
+best:
+  iteration: 0
+  metrics:
+    runtime_ready_sum_ms: 5897.42
+hypothesis_backlog:
+  - description: Parallelize independent required level asset fetches after level metadata validation.
+    category: asset-loading
+    priority: high
+    dep_status: not_applicable
+    required_deps: []
+  - description: Move non-gameplay provider initialization out of the first interactive boot chunk and idle-schedule it after home paint.
+    category: startup
+    priority: high
+    dep_status: not_applicable
+    required_deps: []
+  - description: Replace per-frame tween list allocation and repeated camera snapshot allocation with event-backed motion state.
+    category: frame-loop
+    priority: medium
+    dep_status: not_applicable
+    required_deps: []
+  - description: Consolidate duplicated scene teardown and preload scheduling ownership to prevent lifecycle leaks.
+    category: robustness
+    priority: medium
+    dep_status: not_applicable
+    required_deps: []

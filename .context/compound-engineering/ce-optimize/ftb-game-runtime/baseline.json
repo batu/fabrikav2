@@ -1,0 +1,35 @@
+{
+  "timestamp": "2026-08-09T01:46:00+03:00",
+  "sourceCommit": "d7edcfec5882868352a150cb9551c46c7a407c27",
+  "fixtureSha256": "45d55a9f6228d5bc4cec22818660b56c4e14de57c06390af528392509de8a67b",
+  "aggregation": "median",
+  "repeatCount": 5,
+  "noiseThresholdMs": 120,
+  "metrics": {
+    "runtime_ready_sum_ms": 5897.42,
+    "home_ready_ms": 411.73,
+    "first_level_ready_ms": 2721.99,
+    "cached_cycle_median_ms": 2796,
+    "cached_cycle_worst_ms": 2900.6,
+    "frame_gap_p95_ms": 66.8,
+    "frame_gap_max_ms": 250.1,
+    "pickup_frame_gap_p95_ms": 83.4,
+    "pickup_frame_gap_max_ms": 166.7,
+    "long_task_total_ms": 8477,
+    "long_task_max_ms": 261,
+    "request_count": 166,
+    "transfer_bytes": 48314825,
+    "js_transfer_bytes": 2777364,
+    "image_transfer_bytes": 44876566,
+    "heap_growth_bytes": 51528013,
+    "texture_growth_count": 0
+  },
+  "runPrimaryValuesMs": [6104.64, 5881.48, 5897.42, 5847.34, 5973.47],
+  "bundle": {
+    "jsBytes": 2239346,
+    "cssBytes": 160936,
+    "largestJsBytes": 1992417,
+    "jsChunks": 16
+  },
+  "gatesPassed": true
+}

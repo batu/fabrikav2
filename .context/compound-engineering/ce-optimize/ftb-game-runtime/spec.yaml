@@ -1,0 +1,83 @@
+name: ftb-game-runtime
+description: Reduce Find the Bird cold boot, first-play, and cached scene-cycle latency while preserving gameplay, asset authority, and durable progression.
+metric:
+  primary:
+    type: hard
+    name: runtime_ready_sum_ms
+    direction: minimize
+    baseline: 5897.42
+  degenerate_gates:
+    - name: home_ready_success
+      check: "== 1"
+    - name: first_level_ready_success
+      check: "== 1"
+    - name: gameplay_state_consistent
+      check: "== 1"
+    - name: local_request_failures
+      check: "== 0"
+    - name: page_error_count
+      check: "== 0"
+    - name: texture_growth_count
+      check: "<= 2"
+    - name: cached_cycle_worst_ms
+      check: "<= 3500"
+  diagnostics:
+    - name: home_ready_ms
+    - name: first_level_engine_ready_ms
+    - name: first_level_ready_ms
+    - name: cached_cycle_engine_median_ms
+    - name: cached_cycle_engine_worst_ms
+    - name: cached_cycle_median_ms
+    - name: cached_cycle_worst_ms
+    - name: frame_gap_p95_ms
+    - name: frame_gap_max_ms
+    - name: pickup_frame_gap_p95_ms
+    - name: pickup_frame_gap_max_ms
+    - name: long_task_total_ms
+    - name: long_task_max_ms
+    - name: request_count
+    - name: transfer_bytes
+    - name: js_transfer_bytes
+    - name: image_transfer_bytes
+    - name: heap_growth_bytes
+measurement:
+  command: VITE_ENABLE_TEST_HARNESS=true npm run build && node tests/performance/runtime-profile.mjs
+  working_directory: games/find_the_bird
+  timeout_seconds: 180
+  output_format: json
+  stability:
+    mode: repeat
+    repeat_count: 5
+    aggregation: median
+    noise_threshold: 120
+scope:
+  mutable:
+    - games/find_the_bird/src
+    - games/find_the_bird/vite.config.ts
+  immutable:
+    - games/find_the_bird/tests/performance/runtime-profile.mjs
+    - games/find_the_bird/tests
+    - games/find_the_bird/public/levels
+    - games/find_the_bird/design
+constraints:
+  - Preserve gameplay, level content, human hitboxes, sprite placement, and pickup behavior.
+  - Preserve manifest-byte authority and fail-closed required-asset validation.
+  - Preserve idempotent completion transactions and durable progression semantics.
+  - Preserve the 30 fps idle governor and temporary high-frame-rate motion behavior unless device evidence proves a safer replacement.
+  - Report every scenario and worst case separately; do not use the composite to conceal a regression.
+execution:
+  mode: serial
+  backend: worktree
+  max_concurrent: 1
+parallel:
+  port_strategy: none
+  exclusive_resources:
+    - chromium
+dependencies:
+  approved: []
+stopping:
+  max_iterations: 8
+  max_hours: 7
+  plateau_iterations: 3
+  target_reached: false
+max_runner_up_merges_per_batch: 1
