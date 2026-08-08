@@ -91,6 +91,32 @@ experiments:
       cached_cycle_median_ms: 2697.7
       frame_gap_max_ms: 249.9
     learnings: requestIdleCallback already protects home paint; the added timer only withheld useful decode head-start from normal fast Play taps.
+  - iteration: 3
+    batch: 3
+    hypothesis: Decode prewarm images four at a time to reduce wall-clock warm duration without unbounded memory growth.
+    category: asset-loading
+    outcome: reverted
+    changes:
+      - file: games/find_the_bird/src/scenes/GameScene.ts
+        summary: Temporarily batched HTML image decode at concurrency four; no retained source change.
+    gates:
+      home_ready_success: 1
+      first_level_ready_success: 1
+      gameplay_state_consistent: 1
+      local_request_failures: 0
+      page_error_count: 0
+      texture_growth_count: 0
+      cached_cycle_worst_ms: 2830.8
+    gates_passed: true
+    primary:
+      runtime_ready_sum_ms: 5722.41
+    primary_delta_ms: 79.98
+    diagnostics:
+      home_ready_ms: 478.24
+      first_level_ready_ms: 2489.88
+      cached_cycle_median_ms: 2765.6
+      frame_gap_max_ms: 283.3
+    learnings: First-level decode improved by 55 ms, but home and cached-cycle costs regressed enough to erase it. The extra concurrency and memory pressure did not clear the noise threshold, so sequential decode remains.
 best:
   iteration: 2
   metrics:
