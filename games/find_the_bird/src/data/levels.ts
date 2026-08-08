@@ -163,6 +163,7 @@ const ROLLING_CACHE_IDLE_TIMEOUT_MS = 10_000;
 const RUNTIME_ROLLING_CACHE_LOOKAHEAD_COUNT = 2;
 let legacyAssetCacheCleanupStarted = false;
 let cachedIndex: LevelIndexEntry[] | null = null;
+let levelIndexPromise: Promise<LevelIndexEntry[]> | null = null;
 let bundledManifestPromise: Promise<ManifestV1> | null = null;
 let bundledManifestSnapshot: ManifestV1 | null = null;
 let runtimeManifestSnapshot: ManifestV1 | null = null;
@@ -846,9 +847,22 @@ function buildServingAttempt(
  */
 export async function getLevelIndex(): Promise<LevelIndexEntry[]> {
   await ensureManifestInitialized();
-
+  // Refresh manifest-derived caches before the fast-path. ManifestClient may
+  // replace a transient bundled fallback on a later initialize() attempt.
   const manifest = getRuntimeManifest();
   if (cachedIndex !== null) return cachedIndex;
+  if (levelIndexPromise !== null) return await levelIndexPromise;
+
+  const pending = buildLevelIndex(manifest);
+  levelIndexPromise = pending;
+  try {
+    return await pending;
+  } finally {
+    if (levelIndexPromise === pending) levelIndexPromise = null;
+  }
+}
+
+async function buildLevelIndex(manifest: ManifestV1): Promise<LevelIndexEntry[]> {
   const runtimeSequence = await resolveActiveRuntimeSequence(manifest);
   writeLiveListedIfFresh(runtimeSequence);
   const catalog = await getActivePackageCatalog(manifest);
@@ -1357,6 +1371,7 @@ export async function _clearAllLevelCaches(): Promise<void> {
   levelCache.clear();
   loadTokenByLevel.clear();
   cachedIndex = null;
+  levelIndexPromise = null;
   manifestClient = null;
   bundledManifestPromise = null;
   bundledManifestSnapshot = null;

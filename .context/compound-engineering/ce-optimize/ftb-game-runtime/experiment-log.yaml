@@ -226,10 +226,36 @@ experiments:
       request_count: 142
       frame_gap_max_ms: 266.7
     learnings: Bundled path-backed data is immutable for the app session and cheap to retain. Blob-backed entries still invalidate on shutdown, so revoked URLs cannot be reused.
+  - iteration: 8
+    batch: 8
+    hypothesis: Deduplicate concurrent home-render and Play-tap level-index resolution while preserving transient manifest retry semantics.
+    category: concurrency
+    outcome: kept
+    changes:
+      - file: games/find_the_bird/src/data/levels.ts
+        summary: Added one in-flight level-index promise, refreshed manifest authority before cache fast-paths, and reset it with test/dev caches.
+    gates:
+      home_ready_success: 1
+      first_level_ready_success: 1
+      gameplay_state_consistent: 1
+      local_request_failures: 0
+      page_error_count: 0
+      texture_growth_count: 0
+      cached_cycle_worst_ms: 1860.1
+    gates_passed: true
+    primary:
+      runtime_ready_sum_ms: 3882.4
+    primary_delta_ms: -133.2
+    diagnostics:
+      home_ready_ms: 453.91
+      first_level_ready_ms: 1714.67
+      cached_cycle_median_ms: 1757.3
+      frame_gap_max_ms: 266.7
+    learnings: Home render and a fast Play tap can request the same uncached index concurrently. Sharing only the in-flight computation removes duplicate catalog/sequence work; refreshing ManifestClient first preserves the tested fallback-to-live retry contract.
 best:
-  iteration: 7
+  iteration: 8
   metrics:
-    runtime_ready_sum_ms: 4015.6
+    runtime_ready_sum_ms: 3882.4
 hypothesis_backlog:
   - description: Parallelize independent required level asset fetches after level metadata validation.
     category: asset-loading
