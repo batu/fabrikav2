@@ -1,0 +1,2214 @@
+{
+  "schemaVersion": 1,
+  "source": "docs/evidence/2026-08-07-all-level-cutout-matching/report.json",
+  "model": "tools/level-editor/eval/results/golden-cutout-v1/placement-evaluation.json",
+  "excludedLevels": [
+    "ad_campaigns_ad_autumn_forest_bird_389c_gpro"
+  ],
+  "summary": {
+    "birds": 98,
+    "levels": 7,
+    "sameBox": 78,
+    "differentBox": 20,
+    "modelApplied": 25,
+    "modelKept": 73,
+    "bestSafeMethods": {
+      "hybrid": 48,
+      "features": 48,
+      "orb": 2
+    }
+  },
+  "binaryMetrics": {
+    "shouldApplyPlacement": {
+      "samples": 161,
+      "tp": 28,
+      "fp": 10,
+      "tn": 116,
+      "fn": 7,
+      "accuracy": 0.8944099378881988,
+      "balancedAccuracy": 0.8603174603174604,
+      "precision": 0.7368421052631579,
+      "recall": 0.8,
+      "specificity": 0.9206349206349206,
+      "f1": 0.7671232876712328,
+      "name": "logistic-hybrid-safe",
+      "threshold": 0.6
+    },
+    "shouldRegenerate": {
+      "samples": 159,
+      "tp": 25,
+      "fp": 24,
+      "tn": 108,
+      "fn": 2,
+      "accuracy": 0.8364779874213837,
+      "balancedAccuracy": 0.8720538720538721,
+      "precision": 0.5102040816326531,
+      "recall": 0.9259259259259259,
+      "specificity": 0.8181818181818182,
+      "f1": 0.6578947368421053,
+      "name": "extra-trees-depth-4-balanced",
+      "threshold": 0.5,
+      "rocAuc": 0.9270482603815937,
+      "averagePrecision": 0.6639843301623036,
+      "predictionMode": "review-ranking-only"
+    }
+  },
+  "rows": [
+    {
+      "index": 1,
+      "levelId": "ad_campaigns_ad_autumn_forest_bird_34ea",
+      "dogId": "dog_00",
+      "bestSafeMethod": "hybrid",
+      "bestSafeBox": [
+        583,
+        546,
+        756,
+        681
+      ],
+      "modelBox": [
+        583,
+        546,
+        756,
+        681
+      ],
+      "modelProbability": 0.342422,
+      "modelApplied": false,
+      "sameBox": true,
+      "centerDeltaPx": 0.0
+    },
+    {
+      "index": 2,
+      "levelId": "ad_campaigns_ad_autumn_forest_bird_34ea",
+      "dogId": "dog_01",
+      "bestSafeMethod": "hybrid",
+      "bestSafeBox": [
+        812,
+        709,
+        986,
+        881
+      ],
+      "modelBox": [
+        812,
+        709,
+        986,
+        881
+      ],
+      "modelProbability": 0.196305,
+      "modelApplied": false,
+      "sameBox": true,
+      "centerDeltaPx": 0.0
+    },
+    {
+      "index": 3,
+      "levelId": "ad_campaigns_ad_autumn_forest_bird_34ea",
+      "dogId": "dog_02",
+      "bestSafeMethod": "features",
+      "bestSafeBox": [
+        1212,
+        825,
+        1448,
+        1037
+      ],
+      "modelBox": [
+        1212,
+        825,
+        1448,
+        1037
+      ],
+      "modelProbability": 0.035055,
+      "modelApplied": false,
+      "sameBox": true,
+      "centerDeltaPx": 0.0
+    },
+    {
+      "index": 4,
+      "levelId": "ad_campaigns_ad_autumn_forest_bird_34ea",
+      "dogId": "dog_03",
+      "bestSafeMethod": "hybrid",
+      "bestSafeBox": [
+        471,
+        1206,
+        644,
+        1357
+      ],
+      "modelBox": [
+        471,
+        1206,
+        644,
+        1357
+      ],
+      "modelProbability": 0.58081,
+      "modelApplied": false,
+      "sameBox": true,
+      "centerDeltaPx": 0.0
+    },
+    {
+      "index": 5,
+      "levelId": "ad_campaigns_ad_autumn_forest_bird_34ea",
+      "dogId": "dog_04",
+      "bestSafeMethod": "hybrid",
+      "bestSafeBox": [
+        1218,
+        1202,
+        1390,
+        1325
+      ],
+      "modelBox": [
+        1218,
+        1202,
+        1390,
+        1325
+      ],
+      "modelProbability": 0.968769,
+      "modelApplied": true,
+      "sameBox": true,
+      "centerDeltaPx": 0.0
+    },
+    {
+      "index": 6,
+      "levelId": "ad_campaigns_ad_autumn_forest_bird_34ea",
+      "dogId": "dog_05",
+      "bestSafeMethod": "hybrid",
+      "bestSafeBox": [
+        1209,
+        1601,
+        1392,
+        1736
+      ],
+      "modelBox": [
+        1209,
+        1601,
+        1392,
+        1736
+      ],
+      "modelProbability": 0.960701,
+      "modelApplied": true,
+      "sameBox": true,
+      "centerDeltaPx": 0.0
+    },
+    {
+      "index": 7,
+      "levelId": "ad_campaigns_ad_autumn_forest_bird_34ea",
+      "dogId": "dog_06",
+      "bestSafeMethod": "hybrid",
+      "bestSafeBox": [
+        867,
+        1596,
+        1070,
+        1821
+      ],
+      "modelBox": [
+        867,
+        1596,
+        1070,
+        1821
+      ],
+      "modelProbability": 0.985629,
+      "modelApplied": true,
+      "sameBox": true,
+      "centerDeltaPx": 0.0
+    },
+    {
+      "index": 8,
+      "levelId": "ad_campaigns_ad_autumn_forest_bird_34ea",
+      "dogId": "dog_07",
+      "bestSafeMethod": "hybrid",
+      "bestSafeBox": [
+        428,
+        1990,
+        601,
+        2175
+      ],
+      "modelBox": [
+        428,
+        1990,
+        601,
+        2175
+      ],
+      "modelProbability": 0.256004,
+      "modelApplied": false,
+      "sameBox": true,
+      "centerDeltaPx": 0.0
+    },
+    {
+      "index": 9,
+      "levelId": "ad_campaigns_ad_autumn_forest_bird_34ea",
+      "dogId": "dog_08",
+      "bestSafeMethod": "hybrid",
+      "bestSafeBox": [
+        667,
+        2098,
+        831,
+        2254
+      ],
+      "modelBox": [
+        667,
+        2098,
+        831,
+        2254
+      ],
+      "modelProbability": 0.87185,
+      "modelApplied": true,
+      "sameBox": true,
+      "centerDeltaPx": 0.0
+    },
+    {
+      "index": 10,
+      "levelId": "ad_campaigns_ad_autumn_forest_bird_34ea",
+      "dogId": "dog_09",
+      "bestSafeMethod": "features",
+      "bestSafeBox": [
+        369,
+        2279,
+        607,
+        2455
+      ],
+      "modelBox": [
+        369,
+        2279,
+        607,
+        2455
+      ],
+      "modelProbability": 0.02473,
+      "modelApplied": false,
+      "sameBox": true,
+      "centerDeltaPx": 0.0
+    },
+    {
+      "index": 11,
+      "levelId": "ad_campaigns_ad_autumn_forest_bird_34ea",
+      "dogId": "dog_10",
+      "bestSafeMethod": "hybrid",
+      "bestSafeBox": [
+        905,
+        2036,
+        1128,
+        2206
+      ],
+      "modelBox": [
+        905,
+        2036,
+        1128,
+        2206
+      ],
+      "modelProbability": 0.018533,
+      "modelApplied": false,
+      "sameBox": true,
+      "centerDeltaPx": 0.0
+    },
+    {
+      "index": 12,
+      "levelId": "ad_campaigns_ad_autumn_forest_bird_34ea",
+      "dogId": "dog_11",
+      "bestSafeMethod": "features",
+      "bestSafeBox": [
+        1260,
+        2032,
+        1580,
+        2226
+      ],
+      "modelBox": [
+        1261,
+        2032,
+        1580,
+        2226
+      ],
+      "modelProbability": 0.012423,
+      "modelApplied": false,
+      "sameBox": false,
+      "centerDeltaPx": 0.5
+    },
+    {
+      "index": 13,
+      "levelId": "ad_campaigns_ad_autumn_forest_bird_34ea",
+      "dogId": "dog_12",
+      "bestSafeMethod": "hybrid",
+      "bestSafeBox": [
+        1258,
+        2251,
+        1457,
+        2437
+      ],
+      "modelBox": [
+        1258,
+        2251,
+        1457,
+        2437
+      ],
+      "modelProbability": 0.934011,
+      "modelApplied": true,
+      "sameBox": true,
+      "centerDeltaPx": 0.0
+    },
+    {
+      "index": 14,
+      "levelId": "ad_campaigns_ad_autumn_forest_bird_34ea",
+      "dogId": "dog_13",
+      "bestSafeMethod": "features",
+      "bestSafeBox": [
+        1941,
+        1977,
+        2151,
+        2170
+      ],
+      "modelBox": [
+        1941,
+        1978,
+        2151,
+        2170
+      ],
+      "modelProbability": 0.030982,
+      "modelApplied": false,
+      "sameBox": false,
+      "centerDeltaPx": 0.5
+    },
+    {
+      "index": 15,
+      "levelId": "ad_campaigns_ad_autumn_forest_bird_34ea",
+      "dogId": "dog_14",
+      "bestSafeMethod": "hybrid",
+      "bestSafeBox": [
+        1851,
+        1018,
+        2118,
+        1236
+      ],
+      "modelBox": [
+        1851,
+        1018,
+        2118,
+        1236
+      ],
+      "modelProbability": 0.214319,
+      "modelApplied": false,
+      "sameBox": true,
+      "centerDeltaPx": 0.0
+    },
+    {
+      "index": 16,
+      "levelId": "ad_campaigns_ad_autumn_forest_bird_34ea",
+      "dogId": "dog_15",
+      "bestSafeMethod": "hybrid",
+      "bestSafeBox": [
+        1907,
+        1382,
+        2161,
+        1602
+      ],
+      "modelBox": [
+        1907,
+        1382,
+        2161,
+        1602
+      ],
+      "modelProbability": 0.914267,
+      "modelApplied": true,
+      "sameBox": true,
+      "centerDeltaPx": 0.0
+    },
+    {
+      "index": 17,
+      "levelId": "ad_campaigns_ad_autumn_forest_bird_34ea",
+      "dogId": "dog_16",
+      "bestSafeMethod": "hybrid",
+      "bestSafeBox": [
+        2082,
+        1289,
+        2335,
+        1506
+      ],
+      "modelBox": [
+        2082,
+        1289,
+        2335,
+        1506
+      ],
+      "modelProbability": 0.983042,
+      "modelApplied": true,
+      "sameBox": true,
+      "centerDeltaPx": 0.0
+    },
+    {
+      "index": 18,
+      "levelId": "ad_campaigns_ad_autumn_forest_bird_34ea",
+      "dogId": "dog_17",
+      "bestSafeMethod": "hybrid",
+      "bestSafeBox": [
+        2047,
+        679,
+        2303,
+        915
+      ],
+      "modelBox": [
+        2047,
+        679,
+        2303,
+        915
+      ],
+      "modelProbability": 0.107163,
+      "modelApplied": false,
+      "sameBox": true,
+      "centerDeltaPx": 0.0
+    },
+    {
+      "index": 19,
+      "levelId": "ad_campaigns_ad_autumn_forest_bird_389c",
+      "dogId": "dog_00",
+      "bestSafeMethod": "hybrid",
+      "bestSafeBox": [
+        872,
+        885,
+        1160,
+        1171
+      ],
+      "modelBox": [
+        872,
+        885,
+        1160,
+        1171
+      ],
+      "modelProbability": 0.962793,
+      "modelApplied": true,
+      "sameBox": true,
+      "centerDeltaPx": 0.0
+    },
+    {
+      "index": 20,
+      "levelId": "ad_campaigns_ad_autumn_forest_bird_389c",
+      "dogId": "dog_01",
+      "bestSafeMethod": "features",
+      "bestSafeBox": [
+        364,
+        1610,
+        740,
+        1921
+      ],
+      "modelBox": [
+        364,
+        1610,
+        740,
+        1921
+      ],
+      "modelProbability": 0.010348,
+      "modelApplied": false,
+      "sameBox": true,
+      "centerDeltaPx": 0.0
+    },
+    {
+      "index": 21,
+      "levelId": "ad_campaigns_ad_autumn_forest_bird_389c",
+      "dogId": "dog_02",
+      "bestSafeMethod": "hybrid",
+      "bestSafeBox": [
+        940,
+        2056,
+        1242,
+        2289
+      ],
+      "modelBox": [
+        940,
+        2056,
+        1242,
+        2289
+      ],
+      "modelProbability": 0.16875,
+      "modelApplied": false,
+      "sameBox": true,
+      "centerDeltaPx": 0.0
+    },
+    {
+      "index": 22,
+      "levelId": "ad_campaigns_ad_autumn_forest_bird_389c",
+      "dogId": "dog_03",
+      "bestSafeMethod": "features",
+      "bestSafeBox": [
+        1205,
+        2579,
+        1558,
+        2860
+      ],
+      "modelBox": [
+        1205,
+        2579,
+        1558,
+        2860
+      ],
+      "modelProbability": 0.006031,
+      "modelApplied": false,
+      "sameBox": true,
+      "centerDeltaPx": 0.0
+    },
+    {
+      "index": 23,
+      "levelId": "ad_campaigns_ad_autumn_forest_bird_389c",
+      "dogId": "dog_04",
+      "bestSafeMethod": "hybrid",
+      "bestSafeBox": [
+        334,
+        3496,
+        622,
+        3701
+      ],
+      "modelBox": [
+        334,
+        3496,
+        622,
+        3701
+      ],
+      "modelProbability": 0.443338,
+      "modelApplied": false,
+      "sameBox": true,
+      "centerDeltaPx": 0.0
+    },
+    {
+      "index": 24,
+      "levelId": "ad_campaigns_ad_autumn_forest_bird_389c",
+      "dogId": "dog_05",
+      "bestSafeMethod": "features",
+      "bestSafeBox": [
+        1718,
+        905,
+        2073,
+        1172
+      ],
+      "modelBox": [
+        1718,
+        905,
+        2073,
+        1172
+      ],
+      "modelProbability": 0.003767,
+      "modelApplied": false,
+      "sameBox": true,
+      "centerDeltaPx": 0.0
+    },
+    {
+      "index": 25,
+      "levelId": "ad_campaigns_ad_autumn_forest_bird_389c",
+      "dogId": "dog_06",
+      "bestSafeMethod": "hybrid",
+      "bestSafeBox": [
+        1733,
+        1876,
+        1990,
+        2164
+      ],
+      "modelBox": [
+        1733,
+        1876,
+        1990,
+        2164
+      ],
+      "modelProbability": 0.912062,
+      "modelApplied": true,
+      "sameBox": true,
+      "centerDeltaPx": 0.0
+    },
+    {
+      "index": 26,
+      "levelId": "ad_campaigns_ad_autumn_forest_bird_389c",
+      "dogId": "dog_07",
+      "bestSafeMethod": "hybrid",
+      "bestSafeBox": [
+        2069,
+        1712,
+        2357,
+        1928
+      ],
+      "modelBox": [
+        2069,
+        1712,
+        2357,
+        1928
+      ],
+      "modelProbability": 0.946505,
+      "modelApplied": true,
+      "sameBox": true,
+      "centerDeltaPx": 0.0
+    },
+    {
+      "index": 27,
+      "levelId": "ad_campaigns_ad_autumn_forest_bird_389c",
+      "dogId": "dog_08",
+      "bestSafeMethod": "hybrid",
+      "bestSafeBox": [
+        3347,
+        770,
+        3607,
+        995
+      ],
+      "modelBox": [
+        3347,
+        770,
+        3607,
+        995
+      ],
+      "modelProbability": 0.46022,
+      "modelApplied": false,
+      "sameBox": true,
+      "centerDeltaPx": 0.0
+    },
+    {
+      "index": 28,
+      "levelId": "ad_campaigns_ad_autumn_forest_bird_389c",
+      "dogId": "dog_09",
+      "bestSafeMethod": "features",
+      "bestSafeBox": [
+        2824,
+        1403,
+        3155,
+        1634
+      ],
+      "modelBox": [
+        2824,
+        1402,
+        3156,
+        1634
+      ],
+      "modelProbability": 0.002708,
+      "modelApplied": false,
+      "sameBox": false,
+      "centerDeltaPx": 0.71
+    },
+    {
+      "index": 29,
+      "levelId": "ad_campaigns_ad_autumn_forest_bird_389c",
+      "dogId": "dog_10",
+      "bestSafeMethod": "features",
+      "bestSafeBox": [
+        3436,
+        2295,
+        3726,
+        2512
+      ],
+      "modelBox": [
+        3436,
+        2295,
+        3726,
+        2512
+      ],
+      "modelProbability": 0.140914,
+      "modelApplied": false,
+      "sameBox": true,
+      "centerDeltaPx": 0.0
+    },
+    {
+      "index": 30,
+      "levelId": "ad_campaigns_ad_autumn_forest_bird_389c",
+      "dogId": "dog_11",
+      "bestSafeMethod": "hybrid",
+      "bestSafeBox": [
+        3827,
+        2397,
+        4096,
+        2612
+      ],
+      "modelBox": [
+        3827,
+        2397,
+        4096,
+        2612
+      ],
+      "modelProbability": 0.99534,
+      "modelApplied": true,
+      "sameBox": true,
+      "centerDeltaPx": 0.0
+    },
+    {
+      "index": 31,
+      "levelId": "ad_campaigns_ad_autumn_forest_bird_389c",
+      "dogId": "dog_12",
+      "bestSafeMethod": "features",
+      "bestSafeBox": [
+        2128,
+        2802,
+        2493,
+        3034
+      ],
+      "modelBox": [
+        2128,
+        2802,
+        2493,
+        3034
+      ],
+      "modelProbability": 0.058903,
+      "modelApplied": false,
+      "sameBox": true,
+      "centerDeltaPx": 0.0
+    },
+    {
+      "index": 32,
+      "levelId": "ad_campaigns_ad_autumn_forest_bird_389c",
+      "dogId": "dog_13",
+      "bestSafeMethod": "hybrid",
+      "bestSafeBox": [
+        2986,
+        2864,
+        3177,
+        3152
+      ],
+      "modelBox": [
+        2986,
+        2864,
+        3177,
+        3152
+      ],
+      "modelProbability": 0.956619,
+      "modelApplied": true,
+      "sameBox": true,
+      "centerDeltaPx": 0.0
+    },
+    {
+      "index": 33,
+      "levelId": "ad_campaigns_ad_autumn_forest_bird_389c",
+      "dogId": "dog_14",
+      "bestSafeMethod": "features",
+      "bestSafeBox": [
+        2477,
+        3208,
+        2747,
+        3467
+      ],
+      "modelBox": [
+        2477,
+        3208,
+        2747,
+        3467
+      ],
+      "modelProbability": 0.12134,
+      "modelApplied": false,
+      "sameBox": true,
+      "centerDeltaPx": 0.0
+    },
+    {
+      "index": 34,
+      "levelId": "ad_campaigns_ad_autumn_forest_bird_389c",
+      "dogId": "dog_15",
+      "bestSafeMethod": "features",
+      "bestSafeBox": [
+        3730,
+        3309,
+        4055,
+        3557
+      ],
+      "modelBox": [
+        3729,
+        3308,
+        4056,
+        3558
+      ],
+      "modelProbability": 0.596688,
+      "modelApplied": false,
+      "sameBox": false,
+      "centerDeltaPx": 0.0
+    },
+    {
+      "index": 35,
+      "levelId": "ad_campaigns_ad_autumn_forest_bird_389c_adopt",
+      "dogId": "dog_00",
+      "bestSafeMethod": "hybrid",
+      "bestSafeBox": [
+        872,
+        885,
+        1160,
+        1171
+      ],
+      "modelBox": [
+        872,
+        885,
+        1160,
+        1171
+      ],
+      "modelProbability": 0.965509,
+      "modelApplied": true,
+      "sameBox": true,
+      "centerDeltaPx": 0.0
+    },
+    {
+      "index": 36,
+      "levelId": "ad_campaigns_ad_autumn_forest_bird_389c_adopt",
+      "dogId": "dog_01",
+      "bestSafeMethod": "features",
+      "bestSafeBox": [
+        364,
+        1610,
+        740,
+        1921
+      ],
+      "modelBox": [
+        364,
+        1610,
+        740,
+        1920
+      ],
+      "modelProbability": 0.009552,
+      "modelApplied": false,
+      "sameBox": false,
+      "centerDeltaPx": 0.5
+    },
+    {
+      "index": 37,
+      "levelId": "ad_campaigns_ad_autumn_forest_bird_389c_adopt",
+      "dogId": "dog_02",
+      "bestSafeMethod": "hybrid",
+      "bestSafeBox": [
+        940,
+        2056,
+        1242,
+        2289
+      ],
+      "modelBox": [
+        940,
+        2056,
+        1242,
+        2289
+      ],
+      "modelProbability": 0.182688,
+      "modelApplied": false,
+      "sameBox": true,
+      "centerDeltaPx": 0.0
+    },
+    {
+      "index": 38,
+      "levelId": "ad_campaigns_ad_autumn_forest_bird_389c_adopt",
+      "dogId": "dog_03",
+      "bestSafeMethod": "features",
+      "bestSafeBox": [
+        1205,
+        2579,
+        1558,
+        2860
+      ],
+      "modelBox": [
+        1205,
+        2579,
+        1558,
+        2860
+      ],
+      "modelProbability": 0.003804,
+      "modelApplied": false,
+      "sameBox": true,
+      "centerDeltaPx": 0.0
+    },
+    {
+      "index": 39,
+      "levelId": "ad_campaigns_ad_autumn_forest_bird_389c_adopt",
+      "dogId": "dog_04",
+      "bestSafeMethod": "hybrid",
+      "bestSafeBox": [
+        335,
+        3496,
+        623,
+        3701
+      ],
+      "modelBox": [
+        335,
+        3496,
+        623,
+        3701
+      ],
+      "modelProbability": 0.501762,
+      "modelApplied": false,
+      "sameBox": true,
+      "centerDeltaPx": 0.0
+    },
+    {
+      "index": 40,
+      "levelId": "ad_campaigns_ad_autumn_forest_bird_389c_adopt",
+      "dogId": "dog_05",
+      "bestSafeMethod": "features",
+      "bestSafeBox": [
+        1718,
+        905,
+        2074,
+        1172
+      ],
+      "modelBox": [
+        1718,
+        905,
+        2074,
+        1172
+      ],
+      "modelProbability": 0.002037,
+      "modelApplied": false,
+      "sameBox": true,
+      "centerDeltaPx": 0.0
+    },
+    {
+      "index": 41,
+      "levelId": "ad_campaigns_ad_autumn_forest_bird_389c_adopt",
+      "dogId": "dog_06",
+      "bestSafeMethod": "hybrid",
+      "bestSafeBox": [
+        1733,
+        1876,
+        1990,
+        2164
+      ],
+      "modelBox": [
+        1733,
+        1876,
+        1990,
+        2164
+      ],
+      "modelProbability": 0.913986,
+      "modelApplied": true,
+      "sameBox": true,
+      "centerDeltaPx": 0.0
+    },
+    {
+      "index": 42,
+      "levelId": "ad_campaigns_ad_autumn_forest_bird_389c_adopt",
+      "dogId": "dog_07",
+      "bestSafeMethod": "hybrid",
+      "bestSafeBox": [
+        2069,
+        1712,
+        2357,
+        1928
+      ],
+      "modelBox": [
+        2069,
+        1712,
+        2357,
+        1928
+      ],
+      "modelProbability": 0.947501,
+      "modelApplied": true,
+      "sameBox": true,
+      "centerDeltaPx": 0.0
+    },
+    {
+      "index": 43,
+      "levelId": "ad_campaigns_ad_autumn_forest_bird_389c_adopt",
+      "dogId": "dog_08",
+      "bestSafeMethod": "hybrid",
+      "bestSafeBox": [
+        3347,
+        770,
+        3607,
+        995
+      ],
+      "modelBox": [
+        3347,
+        770,
+        3607,
+        995
+      ],
+      "modelProbability": 0.47129,
+      "modelApplied": false,
+      "sameBox": true,
+      "centerDeltaPx": 0.0
+    },
+    {
+      "index": 44,
+      "levelId": "ad_campaigns_ad_autumn_forest_bird_389c_adopt",
+      "dogId": "dog_09",
+      "bestSafeMethod": "features",
+      "bestSafeBox": [
+        2824,
+        1402,
+        3156,
+        1634
+      ],
+      "modelBox": [
+        2824,
+        1402,
+        3156,
+        1634
+      ],
+      "modelProbability": 0.001812,
+      "modelApplied": false,
+      "sameBox": true,
+      "centerDeltaPx": 0.0
+    },
+    {
+      "index": 45,
+      "levelId": "ad_campaigns_ad_autumn_forest_bird_389c_adopt",
+      "dogId": "dog_10",
+      "bestSafeMethod": "features",
+      "bestSafeBox": [
+        3436,
+        2295,
+        3726,
+        2512
+      ],
+      "modelBox": [
+        3436,
+        2295,
+        3726,
+        2512
+      ],
+      "modelProbability": 0.148122,
+      "modelApplied": false,
+      "sameBox": true,
+      "centerDeltaPx": 0.0
+    },
+    {
+      "index": 46,
+      "levelId": "ad_campaigns_ad_autumn_forest_bird_389c_adopt",
+      "dogId": "dog_11",
+      "bestSafeMethod": "hybrid",
+      "bestSafeBox": [
+        3827,
+        2400,
+        4096,
+        2615
+      ],
+      "modelBox": [
+        3827,
+        2400,
+        4096,
+        2615
+      ],
+      "modelProbability": 0.990409,
+      "modelApplied": true,
+      "sameBox": true,
+      "centerDeltaPx": 0.0
+    },
+    {
+      "index": 47,
+      "levelId": "ad_campaigns_ad_autumn_forest_bird_389c_adopt",
+      "dogId": "dog_12",
+      "bestSafeMethod": "features",
+      "bestSafeBox": [
+        2128,
+        2802,
+        2493,
+        3034
+      ],
+      "modelBox": [
+        2128,
+        2802,
+        2493,
+        3034
+      ],
+      "modelProbability": 0.050979,
+      "modelApplied": false,
+      "sameBox": true,
+      "centerDeltaPx": 0.0
+    },
+    {
+      "index": 48,
+      "levelId": "ad_campaigns_ad_autumn_forest_bird_389c_adopt",
+      "dogId": "dog_13",
+      "bestSafeMethod": "hybrid",
+      "bestSafeBox": [
+        2986,
+        2864,
+        3177,
+        3152
+      ],
+      "modelBox": [
+        2986,
+        2864,
+        3177,
+        3152
+      ],
+      "modelProbability": 0.958224,
+      "modelApplied": true,
+      "sameBox": true,
+      "centerDeltaPx": 0.0
+    },
+    {
+      "index": 49,
+      "levelId": "ad_campaigns_ad_autumn_forest_bird_389c_adopt",
+      "dogId": "dog_14",
+      "bestSafeMethod": "features",
+      "bestSafeBox": [
+        2477,
+        3208,
+        2747,
+        3467
+      ],
+      "modelBox": [
+        2477,
+        3208,
+        2747,
+        3467
+      ],
+      "modelProbability": 0.085129,
+      "modelApplied": false,
+      "sameBox": true,
+      "centerDeltaPx": 0.0
+    },
+    {
+      "index": 50,
+      "levelId": "ad_campaigns_ad_autumn_forest_bird_389c_adopt",
+      "dogId": "dog_15",
+      "bestSafeMethod": "features",
+      "bestSafeBox": [
+        3730,
+        3309,
+        4055,
+        3557
+      ],
+      "modelBox": [
+        3730,
+        3309,
+        4056,
+        3558
+      ],
+      "modelProbability": 0.429725,
+      "modelApplied": false,
+      "sameBox": false,
+      "centerDeltaPx": 0.71
+    },
+    {
+      "index": 51,
+      "levelId": "ad_campaigns_ad_autumn_forest_bird_389c_comp",
+      "dogId": "dog_00",
+      "bestSafeMethod": "hybrid",
+      "bestSafeBox": [
+        855,
+        867,
+        1172,
+        1182
+      ],
+      "modelBox": [
+        855,
+        867,
+        1172,
+        1182
+      ],
+      "modelProbability": 0.3363,
+      "modelApplied": false,
+      "sameBox": true,
+      "centerDeltaPx": 0.0
+    },
+    {
+      "index": 52,
+      "levelId": "ad_campaigns_ad_autumn_forest_bird_389c_comp",
+      "dogId": "dog_01",
+      "bestSafeMethod": "features",
+      "bestSafeBox": [
+        387,
+        1679,
+        763,
+        1990
+      ],
+      "modelBox": [
+        387,
+        1679,
+        763,
+        1990
+      ],
+      "modelProbability": 0.000515,
+      "modelApplied": false,
+      "sameBox": true,
+      "centerDeltaPx": 0.0
+    },
+    {
+      "index": 53,
+      "levelId": "ad_campaigns_ad_autumn_forest_bird_389c_comp",
+      "dogId": "dog_02",
+      "bestSafeMethod": "hybrid",
+      "bestSafeBox": [
+        977,
+        2080,
+        1279,
+        2313
+      ],
+      "modelBox": [
+        977,
+        2080,
+        1279,
+        2313
+      ],
+      "modelProbability": 0.203142,
+      "modelApplied": false,
+      "sameBox": true,
+      "centerDeltaPx": 0.0
+    },
+    {
+      "index": 54,
+      "levelId": "ad_campaigns_ad_autumn_forest_bird_389c_comp",
+      "dogId": "dog_03",
+      "bestSafeMethod": "features",
+      "bestSafeBox": [
+        1182,
+        2649,
+        1535,
+        2929
+      ],
+      "modelBox": [
+        1182,
+        2649,
+        1535,
+        2929
+      ],
+      "modelProbability": 0.000492,
+      "modelApplied": false,
+      "sameBox": true,
+      "centerDeltaPx": 0.0
+    },
+    {
+      "index": 55,
+      "levelId": "ad_campaigns_ad_autumn_forest_bird_389c_comp",
+      "dogId": "dog_04",
+      "bestSafeMethod": "features",
+      "bestSafeBox": [
+        331,
+        3519,
+        705,
+        3785
+      ],
+      "modelBox": [
+        331,
+        3519,
+        705,
+        3785
+      ],
+      "modelProbability": 6.7e-05,
+      "modelApplied": false,
+      "sameBox": true,
+      "centerDeltaPx": 0.0
+    },
+    {
+      "index": 56,
+      "levelId": "ad_campaigns_ad_autumn_forest_bird_389c_comp",
+      "dogId": "dog_05",
+      "bestSafeMethod": "features",
+      "bestSafeBox": [
+        1701,
+        965,
+        2057,
+        1232
+      ],
+      "modelBox": [
+        1701,
+        965,
+        2057,
+        1232
+      ],
+      "modelProbability": 0.000115,
+      "modelApplied": false,
+      "sameBox": true,
+      "centerDeltaPx": 0.0
+    },
+    {
+      "index": 57,
+      "levelId": "ad_campaigns_ad_autumn_forest_bird_389c_comp",
+      "dogId": "dog_06",
+      "bestSafeMethod": "features",
+      "bestSafeBox": [
+        1697,
+        1798,
+        2038,
+        2180
+      ],
+      "modelBox": [
+        1697,
+        1798,
+        2038,
+        2180
+      ],
+      "modelProbability": 0.000733,
+      "modelApplied": false,
+      "sameBox": true,
+      "centerDeltaPx": 0.0
+    },
+    {
+      "index": 58,
+      "levelId": "ad_campaigns_ad_autumn_forest_bird_389c_comp",
+      "dogId": "dog_07",
+      "bestSafeMethod": "features",
+      "bestSafeBox": [
+        1983,
+        1781,
+        2370,
+        2071
+      ],
+      "modelBox": [
+        1983,
+        1782,
+        2370,
+        2072
+      ],
+      "modelProbability": 0.000651,
+      "modelApplied": false,
+      "sameBox": false,
+      "centerDeltaPx": 1.0
+    },
+    {
+      "index": 59,
+      "levelId": "ad_campaigns_ad_autumn_forest_bird_389c_comp",
+      "dogId": "dog_08",
+      "bestSafeMethod": "features",
+      "bestSafeBox": [
+        3321,
+        854,
+        3581,
+        1079
+      ],
+      "modelBox": [
+        3321,
+        854,
+        3581,
+        1079
+      ],
+      "modelProbability": 0.035229,
+      "modelApplied": false,
+      "sameBox": true,
+      "centerDeltaPx": 0.0
+    },
+    {
+      "index": 60,
+      "levelId": "ad_campaigns_ad_autumn_forest_bird_389c_comp",
+      "dogId": "dog_09",
+      "bestSafeMethod": "features",
+      "bestSafeBox": [
+        2793,
+        1496,
+        3125,
+        1728
+      ],
+      "modelBox": [
+        2793,
+        1496,
+        3125,
+        1728
+      ],
+      "modelProbability": 0.002775,
+      "modelApplied": false,
+      "sameBox": true,
+      "centerDeltaPx": 0.0
+    },
+    {
+      "index": 61,
+      "levelId": "ad_campaigns_ad_autumn_forest_bird_389c_comp",
+      "dogId": "dog_10",
+      "bestSafeMethod": "features",
+      "bestSafeBox": [
+        3430,
+        2361,
+        3719,
+        2578
+      ],
+      "modelBox": [
+        3430,
+        2361,
+        3719,
+        2578
+      ],
+      "modelProbability": 0.059151,
+      "modelApplied": false,
+      "sameBox": true,
+      "centerDeltaPx": 0.0
+    },
+    {
+      "index": 62,
+      "levelId": "ad_campaigns_ad_autumn_forest_bird_389c_comp",
+      "dogId": "dog_11",
+      "bestSafeMethod": "features",
+      "bestSafeBox": [
+        3827,
+        2494,
+        4096,
+        2709
+      ],
+      "modelBox": [
+        3827,
+        2494,
+        4096,
+        2709
+      ],
+      "modelProbability": 0.064648,
+      "modelApplied": false,
+      "sameBox": true,
+      "centerDeltaPx": 0.0
+    },
+    {
+      "index": 63,
+      "levelId": "ad_campaigns_ad_autumn_forest_bird_389c_comp",
+      "dogId": "dog_12",
+      "bestSafeMethod": "features",
+      "bestSafeBox": [
+        2138,
+        2875,
+        2502,
+        3106
+      ],
+      "modelBox": [
+        2138,
+        2874,
+        2502,
+        3106
+      ],
+      "modelProbability": 0.000575,
+      "modelApplied": false,
+      "sameBox": false,
+      "centerDeltaPx": 0.5
+    },
+    {
+      "index": 64,
+      "levelId": "ad_campaigns_ad_autumn_forest_bird_389c_comp",
+      "dogId": "dog_13",
+      "bestSafeMethod": "hybrid",
+      "bestSafeBox": [
+        2959,
+        2755,
+        3169,
+        3072
+      ],
+      "modelBox": [
+        2959,
+        2755,
+        3169,
+        3072
+      ],
+      "modelProbability": 0.06064,
+      "modelApplied": false,
+      "sameBox": true,
+      "centerDeltaPx": 0.0
+    },
+    {
+      "index": 65,
+      "levelId": "ad_campaigns_ad_autumn_forest_bird_389c_comp",
+      "dogId": "dog_14",
+      "bestSafeMethod": "features",
+      "bestSafeBox": [
+        2443,
+        3297,
+        2713,
+        3556
+      ],
+      "modelBox": [
+        2443,
+        3297,
+        2713,
+        3556
+      ],
+      "modelProbability": 0.045497,
+      "modelApplied": false,
+      "sameBox": true,
+      "centerDeltaPx": 0.0
+    },
+    {
+      "index": 66,
+      "levelId": "ad_campaigns_ad_autumn_forest_bird_389c_comp",
+      "dogId": "dog_15",
+      "bestSafeMethod": "features",
+      "bestSafeBox": [
+        3669,
+        3336,
+        4055,
+        3631
+      ],
+      "modelBox": [
+        3669,
+        3336,
+        4055,
+        3631
+      ],
+      "modelProbability": 5.6e-05,
+      "modelApplied": false,
+      "sameBox": true,
+      "centerDeltaPx": 0.0
+    },
+    {
+      "index": 67,
+      "levelId": "ad_campaigns_ad_autumn_forest_bird_389c_gpro_comp",
+      "dogId": "dog_00",
+      "bestSafeMethod": "hybrid",
+      "bestSafeBox": [
+        985,
+        888,
+        1153,
+        1062
+      ],
+      "modelBox": [
+        985,
+        888,
+        1153,
+        1062
+      ],
+      "modelProbability": 0.079299,
+      "modelApplied": false,
+      "sameBox": true,
+      "centerDeltaPx": 0.0
+    },
+    {
+      "index": 68,
+      "levelId": "ad_campaigns_ad_autumn_forest_bird_389c_gpro_comp",
+      "dogId": "dog_01",
+      "bestSafeMethod": "features",
+      "bestSafeBox": [
+        504,
+        1684,
+        674,
+        1849
+      ],
+      "modelBox": [
+        504,
+        1684,
+        674,
+        1849
+      ],
+      "modelProbability": 0.23499,
+      "modelApplied": false,
+      "sameBox": true,
+      "centerDeltaPx": 0.0
+    },
+    {
+      "index": 69,
+      "levelId": "ad_campaigns_ad_autumn_forest_bird_389c_gpro_comp",
+      "dogId": "dog_02",
+      "bestSafeMethod": "features",
+      "bestSafeBox": [
+        950,
+        1947,
+        1250,
+        2324
+      ],
+      "modelBox": [
+        950,
+        1947,
+        1250,
+        2324
+      ],
+      "modelProbability": 0.000171,
+      "modelApplied": false,
+      "sameBox": true,
+      "centerDeltaPx": 0.0
+    },
+    {
+      "index": 70,
+      "levelId": "ad_campaigns_ad_autumn_forest_bird_389c_gpro_comp",
+      "dogId": "dog_03",
+      "bestSafeMethod": "features",
+      "bestSafeBox": [
+        1255,
+        2705,
+        1528,
+        2957
+      ],
+      "modelBox": [
+        1255,
+        2705,
+        1528,
+        2957
+      ],
+      "modelProbability": 0.067841,
+      "modelApplied": false,
+      "sameBox": true,
+      "centerDeltaPx": 0.0
+    },
+    {
+      "index": 71,
+      "levelId": "ad_campaigns_ad_autumn_forest_bird_389c_gpro_comp",
+      "dogId": "dog_04",
+      "bestSafeMethod": "features",
+      "bestSafeBox": [
+        325,
+        3523,
+        691,
+        3790
+      ],
+      "modelBox": [
+        325,
+        3523,
+        691,
+        3790
+      ],
+      "modelProbability": 5.8e-05,
+      "modelApplied": false,
+      "sameBox": true,
+      "centerDeltaPx": 0.0
+    },
+    {
+      "index": 72,
+      "levelId": "ad_campaigns_ad_autumn_forest_bird_389c_gpro_comp",
+      "dogId": "dog_05",
+      "bestSafeMethod": "hybrid",
+      "bestSafeBox": [
+        1724,
+        915,
+        2041,
+        1205
+      ],
+      "modelBox": [
+        1692,
+        877,
+        2086,
+        1239
+      ],
+      "modelProbability": 0.000106,
+      "modelApplied": false,
+      "sameBox": false,
+      "centerDeltaPx": 6.8
+    },
+    {
+      "index": 73,
+      "levelId": "ad_campaigns_ad_autumn_forest_bird_389c_gpro_comp",
+      "dogId": "dog_06",
+      "bestSafeMethod": "hybrid",
+      "bestSafeBox": [
+        1713,
+        1891,
+        2030,
+        2180
+      ],
+      "modelBox": [
+        1676,
+        1833,
+        2070,
+        2193
+      ],
+      "modelProbability": 0.000133,
+      "modelApplied": false,
+      "sameBox": false,
+      "centerDeltaPx": 22.55
+    },
+    {
+      "index": 74,
+      "levelId": "ad_campaigns_ad_autumn_forest_bird_389c_gpro_comp",
+      "dogId": "dog_07",
+      "bestSafeMethod": "features",
+      "bestSafeBox": [
+        2018,
+        1685,
+        2240,
+        1905
+      ],
+      "modelBox": [
+        2018,
+        1685,
+        2240,
+        1905
+      ],
+      "modelProbability": 0.032907,
+      "modelApplied": false,
+      "sameBox": true,
+      "centerDeltaPx": 0.0
+    },
+    {
+      "index": 75,
+      "levelId": "ad_campaigns_ad_autumn_forest_bird_389c_gpro_comp",
+      "dogId": "dog_08",
+      "bestSafeMethod": "features",
+      "bestSafeBox": [
+        3258,
+        758,
+        3631,
+        1087
+      ],
+      "modelBox": [
+        3258,
+        757,
+        3631,
+        1087
+      ],
+      "modelProbability": 0.004116,
+      "modelApplied": false,
+      "sameBox": false,
+      "centerDeltaPx": 0.5
+    },
+    {
+      "index": 76,
+      "levelId": "ad_campaigns_ad_autumn_forest_bird_389c_gpro_comp",
+      "dogId": "dog_09",
+      "bestSafeMethod": "hybrid",
+      "bestSafeBox": [
+        2786,
+        1471,
+        3088,
+        1719
+      ],
+      "modelBox": [
+        2760,
+        1425,
+        3154,
+        1748
+      ],
+      "modelProbability": 3.9e-05,
+      "modelApplied": false,
+      "sameBox": false,
+      "centerDeltaPx": 21.73
+    },
+    {
+      "index": 77,
+      "levelId": "ad_campaigns_ad_autumn_forest_bird_389c_gpro_comp",
+      "dogId": "dog_10",
+      "bestSafeMethod": "hybrid",
+      "bestSafeBox": [
+        3470,
+        2246,
+        3622,
+        2455
+      ],
+      "modelBox": [
+        3470,
+        2246,
+        3622,
+        2455
+      ],
+      "modelProbability": 0.451292,
+      "modelApplied": false,
+      "sameBox": true,
+      "centerDeltaPx": 0.0
+    },
+    {
+      "index": 78,
+      "levelId": "ad_campaigns_ad_autumn_forest_bird_389c_gpro_comp",
+      "dogId": "dog_11",
+      "bestSafeMethod": "features",
+      "bestSafeBox": [
+        3829,
+        2451,
+        4096,
+        2708
+      ],
+      "modelBox": [
+        3829,
+        2451,
+        4096,
+        2708
+      ],
+      "modelProbability": 0.650837,
+      "modelApplied": true,
+      "sameBox": true,
+      "centerDeltaPx": 0.0
+    },
+    {
+      "index": 79,
+      "levelId": "ad_campaigns_ad_autumn_forest_bird_389c_gpro_comp",
+      "dogId": "dog_12",
+      "bestSafeMethod": "features",
+      "bestSafeBox": [
+        2253,
+        2792,
+        2437,
+        2971
+      ],
+      "modelBox": [
+        2253,
+        2792,
+        2437,
+        2971
+      ],
+      "modelProbability": 0.044854,
+      "modelApplied": false,
+      "sameBox": true,
+      "centerDeltaPx": 0.0
+    },
+    {
+      "index": 80,
+      "levelId": "ad_campaigns_ad_autumn_forest_bird_389c_gpro_comp",
+      "dogId": "dog_13",
+      "bestSafeMethod": "hybrid",
+      "bestSafeBox": [
+        2878,
+        2899,
+        3180,
+        3118
+      ],
+      "modelBox": [
+        2853,
+        2871,
+        3247,
+        3158
+      ],
+      "modelProbability": 6.2e-05,
+      "modelApplied": false,
+      "sameBox": false,
+      "centerDeltaPx": 21.84
+    },
+    {
+      "index": 81,
+      "levelId": "ad_campaigns_ad_autumn_forest_bird_389c_gpro_comp",
+      "dogId": "dog_14",
+      "bestSafeMethod": "hybrid",
+      "bestSafeBox": [
+        2393,
+        3215,
+        2688,
+        3517
+      ],
+      "modelBox": [
+        2377,
+        3188,
+        2757,
+        3577
+      ],
+      "modelProbability": 6.3e-05,
+      "modelApplied": false,
+      "sameBox": false,
+      "centerDeltaPx": 31.22
+    },
+    {
+      "index": 82,
+      "levelId": "ad_campaigns_ad_autumn_forest_bird_389c_gpro_comp",
+      "dogId": "dog_15",
+      "bestSafeMethod": "features",
+      "bestSafeBox": [
+        3692,
+        3251,
+        4054,
+        3622
+      ],
+      "modelBox": [
+        3692,
+        3251,
+        4054,
+        3622
+      ],
+      "modelProbability": 0.000168,
+      "modelApplied": false,
+      "sameBox": true,
+      "centerDeltaPx": 0.0
+    },
+    {
+      "index": 83,
+      "levelId": "ad_campaigns_ad_autumn_forest_bird_389c_gpro_comp",
+      "dogId": "dog_16",
+      "bestSafeMethod": "hybrid",
+      "bestSafeBox": [
+        2692,
+        1119,
+        2938,
+        1407
+      ],
+      "modelBox": [
+        2692,
+        1119,
+        2938,
+        1407
+      ],
+      "modelProbability": 0.999914,
+      "modelApplied": true,
+      "sameBox": true,
+      "centerDeltaPx": 0.0
+    },
+    {
+      "index": 84,
+      "levelId": "ad_campaigns_ad_autumn_forest_bird_389c_gpt2",
+      "dogId": "dog_00",
+      "bestSafeMethod": "hybrid",
+      "bestSafeBox": [
+        987,
+        896,
+        1141,
+        1084
+      ],
+      "modelBox": [
+        987,
+        896,
+        1141,
+        1084
+      ],
+      "modelProbability": 0.170813,
+      "modelApplied": false,
+      "sameBox": true,
+      "centerDeltaPx": 0.0
+    },
+    {
+      "index": 85,
+      "levelId": "ad_campaigns_ad_autumn_forest_bird_389c_gpt2",
+      "dogId": "dog_01",
+      "bestSafeMethod": "features",
+      "bestSafeBox": [
+        434,
+        1839,
+        674,
+        2101
+      ],
+      "modelBox": [
+        434,
+        1839,
+        674,
+        2101
+      ],
+      "modelProbability": 0.390176,
+      "modelApplied": false,
+      "sameBox": true,
+      "centerDeltaPx": 0.0
+    },
+    {
+      "index": 86,
+      "levelId": "ad_campaigns_ad_autumn_forest_bird_389c_gpt2",
+      "dogId": "dog_02",
+      "bestSafeMethod": "features",
+      "bestSafeBox": [
+        771,
+        2714,
+        1040,
+        2972
+      ],
+      "modelBox": [
+        772,
+        2714,
+        1040,
+        2972
+      ],
+      "modelProbability": 0.297589,
+      "modelApplied": false,
+      "sameBox": false,
+      "centerDeltaPx": 0.5
+    },
+    {
+      "index": 87,
+      "levelId": "ad_campaigns_ad_autumn_forest_bird_389c_gpt2",
+      "dogId": "dog_03",
+      "bestSafeMethod": "hybrid",
+      "bestSafeBox": [
+        1730,
+        2583,
+        1946,
+        2871
+      ],
+      "modelBox": [
+        1730,
+        2583,
+        1946,
+        2871
+      ],
+      "modelProbability": 0.99691,
+      "modelApplied": true,
+      "sameBox": true,
+      "centerDeltaPx": 0.0
+    },
+    {
+      "index": 88,
+      "levelId": "ad_campaigns_ad_autumn_forest_bird_389c_gpt2",
+      "dogId": "dog_04",
+      "bestSafeMethod": "features",
+      "bestSafeBox": [
+        1796,
+        992,
+        2016,
+        1240
+      ],
+      "modelBox": [
+        1796,
+        992,
+        2015,
+        1240
+      ],
+      "modelProbability": 0.102798,
+      "modelApplied": false,
+      "sameBox": false,
+      "centerDeltaPx": 0.5
+    },
+    {
+      "index": 89,
+      "levelId": "ad_campaigns_ad_autumn_forest_bird_389c_gpt2",
+      "dogId": "dog_05",
+      "bestSafeMethod": "features",
+      "bestSafeBox": [
+        2030,
+        1745,
+        2260,
+        2020
+      ],
+      "modelBox": [
+        2030,
+        1745,
+        2260,
+        2020
+      ],
+      "modelProbability": 0.137654,
+      "modelApplied": false,
+      "sameBox": true,
+      "centerDeltaPx": 0.0
+    },
+    {
+      "index": 90,
+      "levelId": "ad_campaigns_ad_autumn_forest_bird_389c_gpt2",
+      "dogId": "dog_06",
+      "bestSafeMethod": "orb",
+      "bestSafeBox": [
+        3300,
+        830,
+        3532,
+        1036
+      ],
+      "modelBox": [
+        3300,
+        829,
+        3533,
+        1035
+      ],
+      "modelProbability": 0.167065,
+      "modelApplied": false,
+      "sameBox": false,
+      "centerDeltaPx": 1.12
+    },
+    {
+      "index": 91,
+      "levelId": "ad_campaigns_ad_autumn_forest_bird_389c_gpt2",
+      "dogId": "dog_07",
+      "bestSafeMethod": "features",
+      "bestSafeBox": [
+        2816,
+        1506,
+        3101,
+        1761
+      ],
+      "modelBox": [
+        2817,
+        1507,
+        3101,
+        1762
+      ],
+      "modelProbability": 0.292782,
+      "modelApplied": false,
+      "sameBox": false,
+      "centerDeltaPx": 1.12
+    },
+    {
+      "index": 92,
+      "levelId": "ad_campaigns_ad_autumn_forest_bird_389c_gpt2",
+      "dogId": "dog_08",
+      "bestSafeMethod": "hybrid",
+      "bestSafeBox": [
+        3440,
+        2339,
+        3728,
+        2611
+      ],
+      "modelBox": [
+        3440,
+        2339,
+        3728,
+        2611
+      ],
+      "modelProbability": 0.998553,
+      "modelApplied": true,
+      "sameBox": true,
+      "centerDeltaPx": 0.0
+    },
+    {
+      "index": 93,
+      "levelId": "ad_campaigns_ad_autumn_forest_bird_389c_gpt2",
+      "dogId": "dog_09",
+      "bestSafeMethod": "orb",
+      "bestSafeBox": [
+        2203,
+        2868,
+        2400,
+        3184
+      ],
+      "modelBox": [
+        2209,
+        2877,
+        2398,
+        3179
+      ],
+      "modelProbability": 0.638575,
+      "modelApplied": true,
+      "sameBox": false,
+      "centerDeltaPx": 2.83
+    },
+    {
+      "index": 94,
+      "levelId": "ad_campaigns_ad_autumn_forest_bird_389c_gpt2",
+      "dogId": "dog_10",
+      "bestSafeMethod": "hybrid",
+      "bestSafeBox": [
+        2794,
+        3086,
+        3016,
+        3374
+      ],
+      "modelBox": [
+        2794,
+        3086,
+        3016,
+        3374
+      ],
+      "modelProbability": 0.99614,
+      "modelApplied": true,
+      "sameBox": true,
+      "centerDeltaPx": 0.0
+    },
+    {
+      "index": 95,
+      "levelId": "ad_campaigns_ad_autumn_forest_bird_389c_gpt2_comp",
+      "dogId": "dog_00",
+      "bestSafeMethod": "features",
+      "bestSafeBox": [
+        876,
+        888,
+        1209,
+        1186
+      ],
+      "modelBox": [
+        876,
+        889,
+        1209,
+        1186
+      ],
+      "modelProbability": 7.7e-05,
+      "modelApplied": false,
+      "sameBox": false,
+      "centerDeltaPx": 0.5
+    },
+    {
+      "index": 96,
+      "levelId": "ad_campaigns_ad_autumn_forest_bird_389c_gpt2_comp",
+      "dogId": "dog_01",
+      "bestSafeMethod": "hybrid",
+      "bestSafeBox": [
+        417,
+        1763,
+        719,
+        1978
+      ],
+      "modelBox": [
+        417,
+        1763,
+        719,
+        1978
+      ],
+      "modelProbability": 0.663465,
+      "modelApplied": true,
+      "sameBox": true,
+      "centerDeltaPx": 0.0
+    },
+    {
+      "index": 97,
+      "levelId": "ad_campaigns_ad_autumn_forest_bird_389c_gpt2_comp",
+      "dogId": "dog_02",
+      "bestSafeMethod": "hybrid",
+      "bestSafeBox": [
+        923,
+        1958,
+        1224,
+        2275
+      ],
+      "modelBox": [
+        923,
+        1958,
+        1224,
+        2275
+      ],
+      "modelProbability": 0.050378,
+      "modelApplied": false,
+      "sameBox": true,
+      "centerDeltaPx": 0.0
+    },
+    {
+      "index": 98,
+      "levelId": "ad_campaigns_ad_autumn_forest_bird_389c_gpt2_comp",
+      "dogId": "dog_03",
+      "bestSafeMethod": "hybrid",
+      "bestSafeBox": [
+        1189,
+        2602,
+        1474,
+        2904
+      ],
+      "modelBox": [
+        1189,
+        2602,
+        1474,
+        2904
+      ],
+      "modelProbability": 0.705767,
+      "modelApplied": true,
+      "sameBox": true,
+      "centerDeltaPx": 0.0
+    }
+  ]
+}

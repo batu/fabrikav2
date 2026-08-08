@@ -53,5 +53,16 @@
       2303,
       1066
     ]
+  },
+  "humanReview": {
+    "confirmed": true,
+    "confirmedAt": "2026-08-08T08:37:17.160363+00:00",
+    "source": "level-bless"
+  },
+  "regenerationReview": {
+    "candidate": true,
+    "probability": 0.742668,
+    "model": "extra-trees-depth-4-balanced",
+    "mode": "review-ranking-only"
   }
 }

@@ -1,0 +1,46 @@
+spec: bird-hybrid-alignment
+run_id: 2026-08-07T13:40:00Z
+started_at: 2026-08-07T13:40:00Z
+baseline:
+  timestamp: 2026-08-07T13:40:00Z
+  gates:
+    evaluated_birds: 98
+    hitbox_unsafe_proposals: 14
+  diagnostics:
+    hitbox_safe_proposals: 84
+    scale_extreme_proposals: 53
+    low_score_proposals: 0
+experiments:
+  - iteration: 1
+    batch: 1
+    hypothesis: Combine color, silhouette, edge alignment, scale prior, and hard anchor containment.
+    category: algorithm
+    outcome: kept
+    changes:
+      - file: tools/level-editor/levelbuilder/api/sprite_eval.py
+        summary: Added deterministic hybrid matcher and canonical anchor handling.
+      - file: tools/level-editor/tests/test_sprite_eval_deterministic.py
+        summary: Added color discrimination, resize, and hitbox-constraint coverage.
+    gates:
+      evaluated_birds: 98
+      hitbox_unsafe_proposals: 0
+    gates_passed: true
+    diagnostics:
+      hitbox_safe_proposals: 98
+      scale_extreme_proposals: 0
+      low_score_proposals: 15
+    primary_delta: "+14"
+    learnings: Hybrid fitting removes unsafe and extreme-scale proposals, but semantic no-fit cases still require rejection rather than forced alignment.
+best:
+  iteration: 1
+  metrics:
+    hitbox_safe_proposals: 98
+    hitbox_unsafe_proposals: 0
+    scale_extreme_proposals: 0
+    low_score_proposals: 15
+hypothesis_backlog:
+  - description: Add a semantic same-subject judge for no-fit rejection.
+    category: signal-extraction
+    priority: high
+    dep_status: not_applicable
+    required_deps: []

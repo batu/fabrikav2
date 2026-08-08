@@ -37,5 +37,16 @@
     "templateFallback": false
   },
   "flipX": false,
-  "flipY": false
+  "flipY": false,
+  "humanReview": {
+    "confirmed": true,
+    "confirmedAt": "2026-08-08T08:37:17.151406+00:00",
+    "source": "level-bless"
+  },
+  "regenerationReview": {
+    "candidate": false,
+    "probability": 0.315886,
+    "model": "extra-trees-depth-4-balanced",
+    "mode": "review-ranking-only"
+  }
 }

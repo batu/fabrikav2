@@ -1,0 +1,48 @@
+spec: bird-xy-alignment
+run_id: 2026-08-07T15:00:00Z
+started_at: 2026-08-07T15:00:00Z
+baseline:
+  timestamp: 2026-08-07T14:54:21Z
+  gates:
+    evaluated_birds: 98
+    level_geometry_writes: 0
+  diagnostics:
+    previous_color_acceptable: 69
+    previous_color_only: 37
+    previous_color_tied_with_hybrid: 32
+experiments:
+  - iteration: 1
+    batch: 1
+    hypothesis: Independent X/Y scaling can correct residual size errors without unacceptable deformation.
+    category: transform-search
+    outcome: awaiting_human_judgment
+    gates:
+      evaluated_birds: 98
+      level_geometry_writes: 0
+    gates_passed: true
+    diagnostics:
+      xy12_changed_boxes: 51
+      xy12_mean_aspect_distortion: 0.0390
+      xy12_maximum_aspect_distortion: 0.1176
+      xy25_changed_boxes: 56
+      xy25_mean_aspect_distortion: 0.0712
+      xy25_maximum_aspect_distortion: 0.2500
+      unlocked_changed_boxes: 58
+      unlocked_mean_aspect_distortion: 0.1037
+      unlocked_maximum_aspect_distortion: 0.6667
+    evidence: Portal request req_9f1703
+best:
+  iteration: 0
+  metrics:
+    portal_human_acceptance: pending
+hypothesis_backlog:
+  - description: SAM 2 mask-guided contour fit with independent X/Y scale.
+    category: segmentation
+    priority: high
+    dep_status: available_on_ubuntu_gpu
+    required_deps: [sam2]
+  - description: DINOv2 mutual patch correspondence followed by robust constrained transform fitting.
+    category: semantic-correspondence
+    priority: high
+    dep_status: available_on_ubuntu_gpu
+    required_deps: [dinov2]

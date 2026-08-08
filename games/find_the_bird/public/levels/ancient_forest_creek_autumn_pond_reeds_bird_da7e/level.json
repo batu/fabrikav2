@@ -34,18 +34,20 @@
       "r": 66,
       "sprite": {
         "image": "levels/ancient_forest_creek_autumn_pond_reeds_bird_da7e/dogs/dog_01/sprite_000.png",
-        "x": 1594,
-        "y": 2196,
-        "width": 259,
-        "height": 212,
+        "x": 1606,
+        "y": 2205,
+        "width": 239,
+        "height": 192,
         "cleanup": {
           "x": 1589,
           "y": 2168,
           "width": 336,
           "height": 312
         },
-        "anchorX": 0.5985,
-        "anchorY": 0.5094
+        "anchorX": 0.5983,
+        "anchorY": 0.5156,
+        "flipX": false,
+        "flipY": false
       }
     },
     {
@@ -55,18 +57,20 @@
       "r": 96,
       "sprite": {
         "image": "levels/ancient_forest_creek_autumn_pond_reeds_bird_da7e/dogs/dog_02/sprite_000.png",
-        "x": 853,
-        "y": 3145,
-        "width": 288,
-        "height": 253,
+        "x": 765,
+        "y": 3147,
+        "width": 468,
+        "height": 433,
         "cleanup": {
           "x": 794,
           "y": 3054,
           "width": 485,
           "height": 485
         },
-        "anchorX": 0.6354,
-        "anchorY": 0.5692
+        "anchorX": 0.5791,
+        "anchorY": 0.3279,
+        "flipX": false,
+        "flipY": false
       }
     },
     {
@@ -118,18 +122,20 @@
       "r": 96,
       "sprite": {
         "image": "levels/ancient_forest_creek_autumn_pond_reeds_bird_da7e/dogs/dog_05/sprite_000.png",
-        "x": 146,
-        "y": 2471,
-        "width": 251,
-        "height": 288,
+        "x": 96,
+        "y": 2451,
+        "width": 321,
+        "height": 358,
         "cleanup": {
           "x": 39,
           "y": 2340,
           "width": 452,
           "height": 485
         },
-        "anchorX": 0.5578,
-        "anchorY": 0.3715
+        "anchorX": 0.5919,
+        "anchorY": 0.3547,
+        "flipX": false,
+        "flipY": false
       }
     },
     {
@@ -139,18 +145,20 @@
       "r": 96,
       "sprite": {
         "image": "levels/ancient_forest_creek_autumn_pond_reeds_bird_da7e/dogs/dog_06/sprite_000.png",
-        "x": 144,
-        "y": 1037,
-        "width": 288,
-        "height": 175,
+        "x": 86,
+        "y": 977,
+        "width": 378,
+        "height": 265,
         "cleanup": {
           "x": 24,
           "y": 870,
           "width": 485,
           "height": 485
         },
-        "anchorX": 0.4271,
-        "anchorY": 0.4343
+        "anchorX": 0.4788,
+        "anchorY": 0.5132,
+        "flipX": false,
+        "flipY": false
       }
     },
     {
@@ -202,18 +210,20 @@
       "r": 96,
       "sprite": {
         "image": "levels/ancient_forest_creek_autumn_pond_reeds_bird_da7e/dogs/dog_09/sprite_000.png",
-        "x": 1062,
-        "y": 1378,
-        "width": 288,
-        "height": 243,
+        "x": 1029,
+        "y": 1376,
+        "width": 328,
+        "height": 283,
         "cleanup": {
           "x": 1043,
           "y": 1248,
           "width": 377,
           "height": 485
         },
-        "anchorX": 0.4132,
-        "anchorY": 0.465
+        "anchorX": 0.4634,
+        "anchorY": 0.4064,
+        "flipX": false,
+        "flipY": false
       }
     },
     {
@@ -223,18 +233,20 @@
       "r": 96,
       "sprite": {
         "image": "levels/ancient_forest_creek_autumn_pond_reeds_bird_da7e/dogs/dog_10/sprite_000.png",
-        "x": 3161,
-        "y": 3312,
-        "width": 288,
-        "height": 268,
+        "x": 3388,
+        "y": 3306,
+        "width": 359,
+        "height": 338,
         "cleanup": {
           "x": 3172,
           "y": 3260,
           "width": 485,
           "height": 438
         },
-        "anchorX": 0.8299,
-        "anchorY": 0.5373
+        "anchorX": 0.0334,
+        "anchorY": 0.4438,
+        "flipX": false,
+        "flipY": false
       }
     },
     {
@@ -244,18 +256,20 @@
       "r": 96,
       "sprite": {
         "image": "levels/ancient_forest_creek_autumn_pond_reeds_bird_da7e/dogs/dog_11/sprite_000.png",
-        "x": 3814,
-        "y": 779,
-        "width": 164,
-        "height": 288,
+        "x": 3697,
+        "y": 793,
+        "width": 324,
+        "height": 448,
         "cleanup": {
           "x": 3721,
           "y": 731,
           "width": 375,
           "height": 485
         },
-        "anchorX": 0.5793,
-        "anchorY": 0.6944
+        "anchorX": 0.6543,
+        "anchorY": 0.4152,
+        "flipX": false,
+        "flipY": false
       }
     },
     {
@@ -265,8 +279,8 @@
       "r": 96,
       "sprite": {
         "image": "levels/ancient_forest_creek_autumn_pond_reeds_bird_da7e/dogs/dog_12/sprite_000.png",
-        "x": 3457,
-        "y": 1292,
+        "x": 3523,
+        "y": 1339,
         "width": 288,
         "height": 197,
         "cleanup": {
@@ -275,8 +289,10 @@
           "width": 298,
           "height": 477
         },
-        "anchorX": 0.3785,
-        "anchorY": 0.8274
+        "anchorX": 0.1493,
+        "anchorY": 0.5888,
+        "flipX": false,
+        "flipY": false
       }
     },
     {
@@ -286,18 +302,20 @@
       "r": 96,
       "sprite": {
         "image": "levels/ancient_forest_creek_autumn_pond_reeds_bird_da7e/dogs/dog_13/sprite_000.png",
-        "x": 3245,
-        "y": 1218,
-        "width": 288,
-        "height": 251,
+        "x": 3243,
+        "y": 1061,
+        "width": 283,
+        "height": 538,
         "cleanup": {
-          "x": 3224,
-          "y": 1173,
-          "width": 299,
-          "height": 485
+          "x": 3215,
+          "y": 1048,
+          "width": 363,
+          "height": 588
         },
-        "anchorX": 0.8229,
-        "anchorY": 0.8924
+        "anchorX": 0.8445,
+        "anchorY": 0.7082,
+        "flipX": false,
+        "flipY": false
       }
     },
     {
@@ -307,9 +325,9 @@
       "r": 96,
       "sprite": {
         "image": "levels/ancient_forest_creek_autumn_pond_reeds_bird_da7e/dogs/dog_14/sprite_000.png",
-        "x": 2829,
-        "y": 1440,
-        "width": 288,
+        "x": 2911,
+        "y": 1494,
+        "width": 335,
         "height": 224,
         "cleanup": {
           "x": 2696,
@@ -317,8 +335,10 @@
           "width": 485,
           "height": 484
         },
-        "anchorX": 0.2847,
-        "anchorY": 0.8348
+        "anchorX": 0.0,
+        "anchorY": 0.5938,
+        "flipX": false,
+        "flipY": false
       }
     },
     {
@@ -349,18 +369,20 @@
       "r": 96,
       "sprite": {
         "image": "levels/ancient_forest_creek_autumn_pond_reeds_bird_da7e/dogs/dog_16/sprite_000.png",
-        "x": 2132,
-        "y": 1736,
-        "width": 288,
-        "height": 210,
+        "x": 2082,
+        "y": 1725,
+        "width": 368,
+        "height": 290,
         "cleanup": {
           "x": 2036,
           "y": 1694,
           "width": 392,
           "height": 453
         },
-        "anchorX": 0.4861,
-        "anchorY": 0.8143
+        "anchorX": 0.5163,
+        "anchorY": 0.6276,
+        "flipX": false,
+        "flipY": false
       }
     },
     {
@@ -370,18 +392,20 @@
       "r": 96,
       "sprite": {
         "image": "levels/ancient_forest_creek_autumn_pond_reeds_bird_da7e/dogs/dog_17/sprite_000.png",
-        "x": 2880,
-        "y": 2899,
-        "width": 288,
-        "height": 230,
+        "x": 2865,
+        "y": 2839,
+        "width": 398,
+        "height": 340,
         "cleanup": {
           "x": 2771,
           "y": 2808,
           "width": 485,
           "height": 450
         },
-        "anchorX": 0.4722,
-        "anchorY": 0.713
+        "anchorX": 0.3794,
+        "anchorY": 0.6588,
+        "flipX": false,
+        "flipY": false
       }
     }
   ]

@@ -4,28 +4,28 @@
   "mask": "dogs/dog_15/sprite_mask_000.png",
   "sourceVariant": "dogs/dog_15/variant_000.png",
   "sourceBox": [
-    1139,
-    2028,
-    1565,
-    2454
+    1182,
+    2064,
+    1496,
+    2378
   ],
   "spriteBox": [
-    1160,
-    2145,
-    1422,
-    2371
+    1229,
+    2180,
+    1401,
+    2264
   ],
   "cleanupBox": [
-    1189,
-    2097,
-    1525,
-    2414
+    1182,
+    2064,
+    1496,
+    2378
   ],
-  "width": 262,
-  "height": 226,
-  "anchorX": 0.6832,
-  "anchorY": 0.3363,
-  "technique": "flatkey-recreate-v1",
+  "width": 172,
+  "height": 84,
+  "anchorX": 0.6395,
+  "anchorY": 0.4881,
+  "technique": "flatkey-recreate-cutout-only-v2",
   "quality": {
     "visibleCoverage": 0.1296,
     "strongCoverage": 0.1266,
@@ -35,5 +35,27 @@
     "pickupUsable": true,
     "backgroundFallback": false,
     "templateFallback": false
+  },
+  "autoPlacement": {
+    "method": "hybrid",
+    "score": 0.4303,
+    "originalBox": [
+      1204,
+      2158,
+      1466,
+      2332
+    ],
+    "fittedBox": [
+      1147,
+      2131,
+      1409,
+      2305
+    ]
+  },
+  "regenerationReview": {
+    "candidate": false,
+    "probability": 0.343755,
+    "model": "extra-trees-depth-4-balanced",
+    "mode": "review-ranking-only"
   }
 }

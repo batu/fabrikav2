@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Focused Gallery cutout review</title>
+  <style>
+    :root { color-scheme: dark; --bg:#090b0e; --panel:#151920; --line:#303844; --ink:#f7f4eb; --muted:#a4adb8; --green:#55e68b; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.5 system-ui; padding:40px; }
+    main { max-width:1440px; margin:auto; }
+    h1 { font-size:clamp(38px,6vw,72px); line-height:.95; margin:12px 0 20px; max-width:900px; }
+    .lede { color:var(--muted); font-size:19px; max-width:900px; }
+    .facts { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin:28px 0; }
+    .fact { background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:16px; }
+    .fact b { display:block; color:var(--green); margin-bottom:5px; }
+    figure { margin:0; border:1px solid var(--line); border-radius:18px; overflow:hidden; background:#030405; }
+    figure img { display:block; width:100%; }
+    figcaption { padding:14px 18px; color:var(--muted); }
+    @media(max-width:760px) { body{padding:18px}.facts{grid-template-columns:1fr} }
+  </style>
+</head>
+<body><main>
+  <small>FIND THE BIRD · HUMAN-IN-THE-LOOP</small>
+  <h1>Cutout review now lives where review happens.</h1>
+  <p class="lede">Focused Gallery has a dedicated <strong>Cutouts &amp; redo</strong> mode. It uses the existing regeneration authority, so review does not create a second job path or silently rewrite level geometry.</p>
+  <section class="facts">
+    <div class="fact"><b>Multi-select</b>Keep several acceptable cutouts or mark several for redo before submitting.</div>
+    <div class="fact"><b>Fast resend</b>Redo selected submits the existing per-dog regeneration flow, then recomposites once and refreshes candidates.</div>
+    <div class="fact"><b>Fail visibly</b>Individual failures remain reported; missing masks render as an explicit fallback instead of broken image chrome.</div>
+  </section>
+  <figure><img src="focused-gallery-hitl-viewport.png" alt="Focused Gallery showing scene and cutout review cards"><figcaption>Live editor data against the worktree backend. The screenshot proves the rendered review state; no paid regeneration was triggered during verification.</figcaption></figure>
+</main></body></html>

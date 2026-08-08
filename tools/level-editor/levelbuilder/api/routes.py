@@ -519,6 +519,14 @@ class SaveSpritePlacementRequest(BaseModel):
     flipY: bool | None = None
 
 
+class SaveHumanConfirmationRequest(BaseModel):
+    confirmed: bool
+
+
+class SaveGoldenReviewRequest(BaseModel):
+    approved: bool
+
+
 def _job_artifact_response(artifact: JobArtifact) -> JobArtifactResponse:
     return JobArtifactResponse(
         id=artifact.id,
@@ -1203,7 +1211,19 @@ def save_sprite_candidate_placement(
         level_path = S.GAME_PUBLIC_LEVELS / session_id / "level.json"
         level = json.loads(level_path.read_text())
         dogs = level.get("dogs") or []
-        dog = dogs[dog_index]
+        candidate_image = candidate.get("image")
+        dog = next((
+            item for item in dogs
+            if isinstance(item, dict)
+            and isinstance((item.get("sprite") or {}).get("image"), str)
+            and isinstance(candidate_image, str)
+            and (item.get("sprite") or {})["image"].endswith(candidate_image)
+        ), None)
+        if dog is None:
+            stable_id = f"dog_{dog_index:02d}"
+            dog = next((item for item in dogs if isinstance(item, dict) and item.get("id") == stable_id), None)
+        if dog is None:
+            raise ValueError("sprite candidate does not match an active level bird")
         dog_id = dog["id"]
         x0, y0, x1, y1 = req.spriteBox
         if x1 <= x0 or y1 <= y0:
@@ -1246,6 +1266,39 @@ def save_sprite_candidate_placement(
     except (OSError, KeyError, IndexError, TypeError, ValueError, json.JSONDecodeError) as error:
         raise HTTPException(422, detail={"error": str(error)}) from error
     return {"ok": True, "spriteBox": [x0, y0, x1, y1], "catalog": catalog}
+
+
+@router.put("/sessions/{session_id}/sprite-candidates/{candidate_id}/human-confirmation")
+def save_sprite_candidate_human_confirmation(
+    session_id: str,
+    candidate_id: str,
+    req: SaveHumanConfirmationRequest,
+):
+    _validate_session_id(session_id)
+    try:
+        with S._session_lock:
+            review = S.set_sprite_human_confirmation(session_id, candidate_id, req.confirmed)
+    except (OSError, ValueError, json.JSONDecodeError) as error:
+        raise HTTPException(422, detail={"error": str(error)}) from error
+    return {"ok": True, "humanReview": review}
+
+
+@router.put("/sessions/{session_id}/golden-review")
+def save_level_golden_review(session_id: str, req: SaveGoldenReviewRequest):
+    _validate_session_id(session_id)
+    try:
+        with S._session_lock:
+            review = S.set_level_golden_review(session_id, req.approved)
+    except (OSError, ValueError, json.JSONDecodeError) as error:
+        raise HTTPException(422, detail={"error": str(error)}) from error
+    return {"ok": True, "goldenReview": review}
+
+
+@router.get("/sessions/{session_id}/golden-review")
+def get_level_golden_review(session_id: str):
+    _validate_session_id(session_id)
+    review = S.get_level_golden_review(session_id)
+    return {"approved": bool(review and review.get("approved") is True), "goldenReview": review}
 
 
 @router.get("/sessions/{session_id}/cutout-extraction-prompt")

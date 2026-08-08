@@ -10,10 +10,10 @@
     2005
   ],
   "spriteBox": [
-    1547,
-    1653,
-    1754,
-    1880
+    1553,
+    1650,
+    1760,
+    1877
   ],
   "cleanupBox": [
     1465,
@@ -23,8 +23,8 @@
   ],
   "width": 207,
   "height": 227,
-  "anchorX": 0.372,
-  "anchorY": 0.4802,
+  "anchorX": 0.343,
+  "anchorY": 0.4934,
   "technique": "flatkey-recreate-v1",
   "quality": {
     "visibleCoverage": 0.1563,
@@ -35,5 +35,11 @@
     "pickupUsable": true,
     "backgroundFallback": false,
     "templateFallback": false
+  },
+  "regenerationReview": {
+    "candidate": true,
+    "probability": 0.700713,
+    "model": "extra-trees-depth-4-balanced",
+    "mode": "review-ranking-only"
   }
 }

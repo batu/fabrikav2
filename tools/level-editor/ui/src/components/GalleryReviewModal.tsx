@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
-import type { Background, ConfigResponse, DogState, GenerationProgress, Hitbox, LevelSection, Orientation, SessionResponse } from '../types';
+import type { ConfigResponse, DogState, Hitbox, LevelSection, Orientation, SessionResponse } from '../types';
 import {
   getSession,
   saveHitboxes,
   setArchived as apiSetArchived,
+  setGoldenDatasetApproval,
   type SessionListItem,
   checkMobileVisibility,
   type VisibilityIssue,
@@ -14,21 +15,23 @@ import CutoutReviewPanel from './CutoutReviewPanel';
 
 const PREVIEW_IMAGE_CACHE_LIMIT = 8;
 
+export type ReviewCardState = 'background' | 'inpainted' | 'exported';
+
 /** One card per (session × variant) — matches `GalleryPage.VariantCard`. */
 export interface ReviewCard {
   id: string;                      // `${session.id}::${variant}`
   session: SessionListItem;
   variant: string;
-  state: 'background' | 'inpainted' | 'exported';
+  state: ReviewCardState;
   archived: boolean;
 }
 
-function sessionCreatedAtMs(session: SessionListItem): number {
+export function sessionCreatedAtMs(session: SessionListItem): number {
   const parsed = Date.parse(session.createdAt ?? '');
   return Number.isNaN(parsed) ? 0 : parsed;
 }
 
-function compareCards(a: ReviewCard, b: ReviewCard): number {
+export function compareCards(a: ReviewCard, b: ReviewCard): number {
   const createdDelta = sessionCreatedAtMs(b.session) - sessionCreatedAtMs(a.session);
   if (createdDelta !== 0) return createdDelta;
   if (a.session.id !== b.session.id) return a.session.id.localeCompare(b.session.id);
@@ -66,12 +69,13 @@ function adjacentNavigableCards(cards: ReviewCard[], currentCardId: string): Rev
 
 interface Props {
   /** All variant cards for the current gallery result set. Arrow navigation
-   *  skips archived cards within the current setting. */
+   *  skips archived cards across the filtered collection. */
   cards: ReviewCard[];
   startCardId: string;
   config: ConfigResponse;
   onClose: () => void;
   onArchivedChanged: (id: string, archived: boolean, variant?: string) => void;
+  onGoldenReviewChanged: (id: string, approved: boolean) => void;
 }
 
 /** Source PNG for a given variant. Review uses WebP; download keeps PNG. */
@@ -99,22 +103,8 @@ function compositeDownloadName(session: SessionListItem, variant: string): strin
 }
 
 interface ModalState extends LevelCanvasState {
-  config: ConfigResponse | null;
-  backgrounds: Background[];
   dogPrompt: string;
-  generating: boolean;
-  generationProgress: GenerationProgress;
-  generationErrors: string[];
-  inpainting: boolean;
   inpaintModel: string;
-  inpaintProgress: {
-    done: number;
-    total: number;
-    currentPass: number;
-    totalPasses: number;
-  };
-  configSummary: string;
-  exportError: string | null;
   orientation: Orientation;
   sections: LevelSection[];
   dogs: DogState[];
@@ -122,11 +112,9 @@ interface ModalState extends LevelCanvasState {
 
 function initialModalState(): ModalState {
   return {
-    config: null,
     sessionId: null,
     orientation: 'portrait',
     sections: [],
-    backgrounds: [],
     selectedBgIndex: null,
     bgWidth: 0,
     bgHeight: 0,
@@ -137,14 +125,7 @@ function initialModalState(): ModalState {
     radius: 30,
     inpaintPadding: 2.75,
     showOverlay: true,
-    generating: false,
-    generationProgress: { succeeded: 0, failed: 0, total: 0 },
-    generationErrors: [],
-    inpainting: false,
     inpaintModel: '',
-    inpaintProgress: { done: 0, total: 0, currentPass: 0, totalPasses: 0 },
-    configSummary: '',
-    exportError: null,
   };
 }
 
@@ -175,7 +156,6 @@ function reducer(state: ModalState, action: ModalAction): ModalState {
         sessionId: s.id,
         orientation: s.orientation,
         sections: s.sections,
-        backgrounds: s.backgrounds,
         selectedBgIndex: s.selectedBgIndex,
         bgWidth: s.bgWidth,
         bgHeight: s.bgHeight,
@@ -214,7 +194,7 @@ function reducer(state: ModalState, action: ModalAction): ModalState {
 }
 
 export default function GalleryReviewModal({
-  cards, startCardId, config, onClose, onArchivedChanged,
+  cards, startCardId, config, onClose, onArchivedChanged, onGoldenReviewChanged,
 }: Props) {
   // Setting-scoped nav cycles within the current setting only.
   const settings = useMemo(
@@ -224,6 +204,8 @@ export default function GalleryReviewModal({
   const startCard = useMemo(() => cards.find((c) => c.id === startCardId), [cards, startCardId]);
   const [currentSetting, setCurrentSetting] = useState<string>(startCard?.session.setting ?? settings[0] ?? '');
   const [currentCardId, setCurrentCardId] = useState<string>(startCardId);
+  const [blessBusy, setBlessBusy] = useState(false);
+  const [blessError, setBlessError] = useState<string | null>(null);
 
   // FREEZE the working set's MEMBERSHIP at open (ledger 054 #13): `cards` is
   // the gallery's LIVE filtered list, so an action that changes filter
@@ -274,13 +256,12 @@ export default function GalleryReviewModal({
   const [state, dispatchNarrow] = useReducer(reducer, undefined, initialModalState);
   const [loading, setLoading] = useState(true);
   const [status, setStatus] = useState<string | null>(null);
-  const [activeAction, setActiveAction] = useState<string | null>(null);
+  const [archiveBusy, setArchiveBusy] = useState(false);
   const [colorVersion, setColorVersion] = useState(0);
   const [visibilityIssues, setVisibilityIssues] = useState<VisibilityIssue[]>([]);
   const [sceneView, setSceneView] = useState<'painted' | 'restore' | 'pickup' | 'sprites'>('painted');
   const [reviewMode, setReviewMode] = useState<'placement' | 'cutouts'>('placement');
   const [showMap, setShowMap] = useState(true);
-  const pickedUpView = sceneView === 'restore';
   const [loadedMeta, setLoadedMeta] = useState<{ setting?: string | null; scene?: string | null; entity?: string | null; model?: string }>({});
 
   const dispatch: React.Dispatch<LevelCanvasAction> = useCallback((action) => {
@@ -403,18 +384,12 @@ export default function GalleryReviewModal({
     if (cached) {
       applySession(cached);
       setLoading(false);
-      void checkMobileVisibility(cached.id)
-        .then((report) => { if (!cancelled) setVisibilityIssues(report.issues); })
-        .catch(() => { if (!cancelled) setVisibilityIssues([]); });
       return () => { cancelled = true; };
     }
     getCachedSession(item.id)
       .then((session) => {
         if (cancelled) return;
         applySession(session);
-        void checkMobileVisibility(session.id)
-          .then((report) => { if (!cancelled) setVisibilityIssues(report.issues); })
-          .catch(() => { if (!cancelled) setVisibilityIssues([]); });
       })
       .catch((err) => { if (!cancelled) setStatus(`Load failed: ${err instanceof Error ? err.message : String(err)}`); })
       .finally(() => { if (!cancelled) setLoading(false); });
@@ -467,11 +442,12 @@ export default function GalleryReviewModal({
       return;
     }
     let cancelled = false;
+    const delay = state.hitboxes === loadedHitboxesRef.current ? 0 : 550;
     const timer = setTimeout(() => {
       checkMobileVisibility(state.sessionId!)
         .then((report) => { if (!cancelled) setVisibilityIssues(report.issues); })
         .catch(() => { if (!cancelled) setVisibilityIssues([]); });
-    }, 550);
+    }, delay);
     return () => {
       cancelled = true;
       clearTimeout(timer);
@@ -495,7 +471,7 @@ export default function GalleryReviewModal({
   }, [queueHitboxSave, state.sessionId, state.hitboxes]);
 
   const goTo = useCallback(async (delta: number) => {
-    if (!items.length || activeAction !== null) return;
+    if (!items.length || archiveBusy) return;
     try {
       await flushPendingSave();
     } catch {
@@ -506,13 +482,13 @@ export default function GalleryReviewModal({
     }
     const nextId = nextNavigableCardId(items, currentCardId, delta > 0 ? 1 : -1);
     if (nextId) setCurrentCardId(nextId);
-  }, [items, activeAction, currentCardId, flushPendingSave]);
+  }, [items, archiveBusy, currentCardId, flushPendingSave]);
 
   const handlePrev = useCallback(() => { void goTo(-1); }, [goTo]);
   const handleNext = useCallback(() => { void goTo(+1); }, [goTo]);
 
   const handleSettingChange = useCallback(async (setting: string) => {
-    if (activeAction !== null) return;
+    if (archiveBusy) return;
     try {
       await flushPendingSave();
     } catch {
@@ -523,10 +499,10 @@ export default function GalleryReviewModal({
     const settingItems = cards.filter((c) => c.session.setting === setting).sort(compareCards);
     const first = settingItems.find((c) => !c.archived) ?? settingItems[0];
     if (first) setCurrentCardId(first.id);
-  }, [cards, activeAction, flushPendingSave]);
+  }, [cards, archiveBusy, flushPendingSave]);
 
   const handleClose = useCallback(async () => {
-    if (activeAction !== null) return;
+    if (archiveBusy) return;
     setStatus('Saving...');
     try {
       await flushPendingSave();
@@ -543,12 +519,12 @@ export default function GalleryReviewModal({
       discardOnNextCloseRef.current = false;
     }
     onClose();
-  }, [activeAction, flushPendingSave, onClose]);
+  }, [archiveBusy, flushPendingSave, onClose]);
 
   const handleArchiveToggle = useCallback(async () => {
-    if (!item || !card || activeAction !== null) return;
+    if (!item || !card || archiveBusy) return;
     const nextArchived = !card.archived;
-    setActiveAction('archive');
+    setArchiveBusy(true);
     setStatus('Saving…');
     try {
       await flushPendingSave();
@@ -572,12 +548,12 @@ export default function GalleryReviewModal({
     } catch (e) {
       setStatus(`${nextArchived ? 'Archive' : 'Unarchive'} failed: ${e instanceof Error ? e.message : String(e)}`);
     } finally {
-      setActiveAction(null);
+      setArchiveBusy(false);
     }
-  }, [item, card, activeAction, items, index, flushPendingSave, onArchivedChanged, onClose]);
+  }, [item, card, archiveBusy, items, index, flushPendingSave, onArchivedChanged, onClose]);
 
   const handleOpenWizard = useCallback(() => {
-    if (!item || activeAction !== null) return;
+    if (!item || archiveBusy) return;
     void flushPendingSave().then(
       () => {
         window.location.hash = `session=${item.id}`;
@@ -588,7 +564,7 @@ export default function GalleryReviewModal({
       // away as if the edit persisted (ledger 054 #12).
       () => setStatus('Hitbox save failed — retry the edit before opening the wizard.'),
     );
-  }, [item, activeAction, flushPendingSave, onClose]);
+  }, [item, archiveBusy, flushPendingSave, onClose]);
 
   // Keyboard nav.
   useEffect(() => {
@@ -596,7 +572,7 @@ export default function GalleryReviewModal({
       const tag = (e.target as HTMLElement | null)?.tagName;
       if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
       const mutatingShortcutPressed = ['a', 'A'].includes(e.key);
-      if (activeAction !== null && mutatingShortcutPressed) {
+      if (archiveBusy && mutatingShortcutPressed) {
         e.preventDefault();
         return;
       }
@@ -614,7 +590,7 @@ export default function GalleryReviewModal({
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
-  }, [activeAction, handlePrev, handleNext, handleArchiveToggle, handleClose, handleOpenWizard]);
+  }, [archiveBusy, handlePrev, handleNext, handleArchiveToggle, handleClose, handleOpenWizard]);
 
   const visibilitySummaries = useMemo(() => summarizeVisibilityIssues(visibilityIssues), [visibilityIssues]);
   const blockerCount = blockingVisibilitySummaries(visibilitySummaries).length;
@@ -690,9 +666,9 @@ export default function GalleryReviewModal({
         <select
           value={currentSetting}
           onChange={(e) => handleSettingChange(e.target.value)}
-          disabled={activeAction !== null}
+          disabled={archiveBusy}
           className="inline-select"
-          title="Jump to a different setting. ← / → stays within the current one."
+          title="Jump to a different setting. ← / → moves across the filtered collection."
           style={{ fontSize: '0.9rem' }}
         >
           {settings.map((s) => {
@@ -723,7 +699,7 @@ export default function GalleryReviewModal({
         </div>
         <div style={{ marginLeft: 'auto', display: 'flex', gap: 8, alignItems: 'center' }}>
           {status && <span style={{ fontSize: '0.8rem', color: status.includes('fail') || status.includes('blocked') ? '#ff8080' : '#8ec18e' }}>{status}</span>}
-          <button type="button" className="btn" onClick={() => { void handleClose(); }} disabled={activeAction !== null} title="Close (Esc)">Close</button>
+          <button type="button" className="btn" onClick={() => { void handleClose(); }} disabled={archiveBusy} title="Close (Esc)">Close</button>
         </div>
       </div>
 
@@ -847,10 +823,10 @@ export default function GalleryReviewModal({
         display: 'flex', gap: 8, alignItems: 'center', justifyContent: 'space-between',
       }}>
         <div style={{ display: 'flex', gap: 8 }}>
-          <button type="button" className="btn" onClick={handlePrev} disabled={activeAction !== null} title="← previous level">
+          <button type="button" className="btn" onClick={handlePrev} disabled={archiveBusy} title="← previous level">
             ← Prev
           </button>
-          <button type="button" className="btn" onClick={handleNext} disabled={activeAction !== null} title="→ next level">
+          <button type="button" className="btn" onClick={handleNext} disabled={archiveBusy} title="→ next level">
             Next →
           </button>
         </div>
@@ -880,8 +856,34 @@ export default function GalleryReviewModal({
           <button
             type="button"
             className="btn"
+            disabled={blessBusy || card === undefined}
+            title="Confirm that this level's hitboxes, cutouts, and placements are solid. Blessed levels are eligible for the golden dataset; this does not affect Lineup or game eligibility."
+            onClick={async () => {
+              if (!card) return;
+              const approved = !card.session.goldenDatasetApproved;
+              setBlessBusy(true);
+              setBlessError(null);
+              try {
+                await setGoldenDatasetApproval(card.session.id, approved);
+                onGoldenReviewChanged(card.session.id, approved);
+              } catch (err) {
+                setBlessError(err instanceof Error ? err.message : 'Blessing failed');
+              } finally {
+                setBlessBusy(false);
+              }
+            }}
+            style={card?.session.goldenDatasetApproved ? {
+              background: '#493b13', color: '#ffe28a', borderColor: '#a78726', fontWeight: 800,
+            } : undefined}
+          >
+            {blessBusy ? 'Saving…' : card?.session.goldenDatasetApproved ? '★ Blessed' : 'Bless level'}
+          </button>
+          {blessError && <span style={{ color: '#ff9c9c', fontSize: 12 }}>{blessError}</span>}
+          <button
+            type="button"
+            className="btn"
             onClick={handleArchiveToggle}
-            disabled={activeAction !== null}
+            disabled={archiveBusy}
             title={card?.archived ? 'Unarchive (A) \u2014 restore this card' : 'Archive (A) \u2014 hides this card from gallery'}
           >
             {card?.archived ? 'Unarchive (A)' : 'Archive (A)'}
@@ -890,7 +892,7 @@ export default function GalleryReviewModal({
             type="button"
             className="btn"
             onClick={handleOpenWizard}
-            disabled={activeAction !== null}
+            disabled={archiveBusy}
             title="Open in Wizard (W)"
           >
             Wizard (W)

@@ -10,10 +10,10 @@
     1994
   ],
   "spriteBox": [
-    1681,
-    1681,
-    1889,
-    1879
+    1677,
+    1674,
+    1895,
+    1881
   ],
   "cleanupBox": [
     1642,
@@ -21,10 +21,10 @@
     1953,
     1918
   ],
-  "width": 208,
-  "height": 198,
-  "anchorX": 0.4952,
-  "anchorY": 0.6414,
+  "width": 218,
+  "height": 207,
+  "anchorX": 0.4908,
+  "anchorY": 0.6473,
   "technique": "flatkey-recreate-v1",
   "quality": {
     "visibleCoverage": 0.1016,
@@ -35,5 +35,11 @@
     "pickupUsable": true,
     "backgroundFallback": false,
     "templateFallback": false
+  },
+  "regenerationReview": {
+    "candidate": false,
+    "probability": 0.332409,
+    "model": "extra-trees-depth-4-balanced",
+    "mode": "review-ranking-only"
   }
 }

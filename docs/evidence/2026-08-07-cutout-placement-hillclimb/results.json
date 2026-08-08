@@ -1,0 +1,692 @@
+{
+  "schemaVersion": 1,
+  "manifest": "/Users/base/dev/appletolye/fabrikav2/.worktrees/ftb-toggleable-pickup/tools/level-editor/eval/golden-cutout-placement-v1/manifest.json",
+  "samples": 6,
+  "levels": [
+    "cozy_interiors_cozy_attic_workshop_bird_6acc",
+    "cozy_interiors_cozy_potting_shed_garden_bird_bd9a",
+    "cozy_interiors_cozy_toymaker_workshop_bird_4e44"
+  ],
+  "baseline": {
+    "config": {
+      "weights": {
+        "color": 0.45,
+        "silhouette": 0.35,
+        "edge": 0.15,
+        "scalePrior": 0.05
+      },
+      "scaleMin": 0.9,
+      "scaleMax": 1.1,
+      "maxShift": 96
+    },
+    "loss": 0.1937185479914967,
+    "meanIou": 0.72237461336545,
+    "meanCenterPx": 12.510151917374522,
+    "rows": [
+      {
+        "levelId": "cozy_interiors_cozy_attic_workshop_bird_6acc",
+        "dogId": "dog_14",
+        "predictedBox": [
+          1750,
+          1333,
+          1959,
+          1514
+        ],
+        "targetBox": [
+          1745,
+          1331,
+          1977,
+          1532
+        ],
+        "matcherScore": 0.6279,
+        "loss": 0.12893436210343548,
+        "iou": 0.811224052153028,
+        "centerPx": 10.307764064044152,
+        "widthLogError": 0.10440311970149896,
+        "heightLogError": 0.10480787679324999
+      },
+      {
+        "levelId": "cozy_interiors_cozy_potting_shed_garden_bird_bd9a",
+        "dogId": "dog_01",
+        "predictedBox": [
+          921,
+          739,
+          1099,
+          906
+        ],
+        "targetBox": [
+          935,
+          749,
+          1093,
+          896
+        ],
+        "matcherScore": 0.4908,
+        "loss": 0.14480936900155944,
+        "iou": 0.7813362039965014,
+        "centerPx": 4.0,
+        "widthLogError": 0.11918851726511835,
+        "heightLogError": 0.12756122563801875
+      },
+      {
+        "levelId": "cozy_interiors_cozy_potting_shed_garden_bird_bd9a",
+        "dogId": "dog_02",
+        "predictedBox": [
+          1118,
+          823,
+          1195,
+          901
+        ],
+        "targetBox": [
+          1075,
+          791,
+          1202,
+          919
+        ],
+        "matcherScore": 0.4465,
+        "loss": 0.4665083420287153,
+        "iou": 0.36946358267716534,
+        "centerPx": 19.313207915827967,
+        "widthLogError": 0.5003816646049074,
+        "heightLogError": 0.4953214372300254
+      },
+      {
+        "levelId": "cozy_interiors_cozy_potting_shed_garden_bird_bd9a",
+        "dogId": "dog_07",
+        "predictedBox": [
+          904,
+          1414,
+          1101,
+          1580
+        ],
+        "targetBox": [
+          909,
+          1411,
+          1106,
+          1577
+        ],
+        "matcherScore": 0.4355,
+        "loss": 0.04688061272447533,
+        "iou": 0.9175559985927055,
+        "centerPx": 5.830951894845301,
+        "widthLogError": 0.0,
+        "heightLogError": 0.0
+      },
+      {
+        "levelId": "cozy_interiors_cozy_potting_shed_garden_bird_bd9a",
+        "dogId": "dog_08",
+        "predictedBox": [
+          1173,
+          1531,
+          1453,
+          1703
+        ],
+        "targetBox": [
+          1171,
+          1523,
+          1411,
+          1655
+        ],
+        "matcherScore": 0.4018,
+        "loss": 0.29165998399702436,
+        "iou": 0.5863932602130028,
+        "centerPx": 35.608987629529715,
+        "widthLogError": 0.15415067982725836,
+        "heightLogError": 0.26469255422708216
+      },
+      {
+        "levelId": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+        "dogId": "dog_10",
+        "predictedBox": [
+          1870,
+          1176,
+          2010,
+          1330
+        ],
+        "targetBox": [
+          1875,
+          1181,
+          2005,
+          1325
+        ],
+        "matcherScore": 0.4593,
+        "loss": 0.08351861809377036,
+        "iou": 0.8682745825602969,
+        "centerPx": 0.0,
+        "widthLogError": 0.07410797215372183,
+        "heightLogError": 0.06713930283762852
+      }
+    ]
+  },
+  "winner": {
+    "config": {
+      "weights": {
+        "color": 0.45,
+        "silhouette": 0.35,
+        "edge": 0.15,
+        "scalePrior": 0.0
+      },
+      "scaleMin": 0.95,
+      "scaleMax": 1.25,
+      "maxShift": 128
+    },
+    "loss": 0.13332621679859144,
+    "meanIou": 0.8035272899245194,
+    "meanCenterPx": 8.845969962554515,
+    "rows": [
+      {
+        "levelId": "cozy_interiors_cozy_attic_workshop_bird_6acc",
+        "dogId": "dog_14",
+        "predictedBox": [
+          1743,
+          1328,
+          1963,
+          1519
+        ],
+        "targetBox": [
+          1745,
+          1331,
+          1977,
+          1532
+        ],
+        "matcherScore": 0.6063,
+        "loss": 0.09234188109049474,
+        "iou": 0.8597801460099018,
+        "centerPx": 11.313708498984761,
+        "widthLogError": 0.05310982531394841,
+        "heightLogError": 0.051031480012445875
+      },
+      {
+        "levelId": "cozy_interiors_cozy_potting_shed_garden_bird_bd9a",
+        "dogId": "dog_01",
+        "predictedBox": [
+          927,
+          743,
+          1096,
+          902
+        ],
+        "targetBox": [
+          935,
+          749,
+          1093,
+          896
+        ],
+        "matcherScore": 0.4669,
+        "loss": 0.08894205610820828,
+        "iou": 0.8643519035391314,
+        "centerPx": 2.5,
+        "widthLogError": 0.0673036818961066,
+        "heightLogError": 0.07847161544149531
+      },
+      {
+        "levelId": "cozy_interiors_cozy_potting_shed_garden_bird_bd9a",
+        "dogId": "dog_02",
+        "predictedBox": [
+          1094,
+          814,
+          1190,
+          912
+        ],
+        "targetBox": [
+          1075,
+          791,
+          1202,
+          919
+        ],
+        "matcherScore": 0.4523,
+        "loss": 0.29109948823084975,
+        "iou": 0.5787401574803149,
+        "centerPx": 8.73212459828649,
+        "widthLogError": 0.27983889499075504,
+        "heightLogError": 0.26706278524904525
+      },
+      {
+        "levelId": "cozy_interiors_cozy_potting_shed_garden_bird_bd9a",
+        "dogId": "dog_07",
+        "predictedBox": [
+          907,
+          1415,
+          1094,
+          1573
+        ],
+        "targetBox": [
+          909,
+          1411,
+          1106,
+          1577
+        ],
+        "matcherScore": 0.3884,
+        "loss": 0.07684174176510837,
+        "iou": 0.8852746986492216,
+        "centerPx": 7.0,
+        "widthLogError": 0.05209511188340193,
+        "heightLogError": 0.049392755329576474
+      },
+      {
+        "levelId": "cozy_interiors_cozy_potting_shed_garden_bird_bd9a",
+        "dogId": "dog_08",
+        "predictedBox": [
+          1173,
+          1518,
+          1439,
+          1681
+        ],
+        "targetBox": [
+          1171,
+          1523,
+          1411,
+          1655
+        ],
+        "matcherScore": 0.3592,
+        "loss": 0.19584401814006394,
+        "iou": 0.7201870615744349,
+        "centerPx": 18.309833423600555,
+        "widthLogError": 0.10285738543970782,
+        "heightLogError": 0.2109482782203915
+      },
+      {
+        "levelId": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+        "dogId": "dog_10",
+        "predictedBox": [
+          1872,
+          1175,
+          2005,
+          1321
+        ],
+        "targetBox": [
+          1875,
+          1181,
+          2005,
+          1325
+        ],
+        "matcherScore": 0.4351,
+        "loss": 0.054888115456823566,
+        "iou": 0.9128297722941118,
+        "centerPx": 5.220153254455275,
+        "widthLogError": 0.022814677766171264,
+        "heightLogError": 0.01379332213233577
+      }
+    ]
+  },
+  "history": [
+    {
+      "step": 0,
+      "config": {
+        "weights": {
+          "color": 0.45,
+          "silhouette": 0.35,
+          "edge": 0.15,
+          "scalePrior": 0.05
+        },
+        "scaleMin": 0.9,
+        "scaleMax": 1.1,
+        "maxShift": 96
+      },
+      "loss": 0.1937185479914967,
+      "meanIou": 0.72237461336545,
+      "meanCenterPx": 12.510151917374522
+    },
+    {
+      "step": 1,
+      "config": {
+        "weights": {
+          "color": 0.45,
+          "silhouette": 0.35,
+          "edge": 0.15,
+          "scalePrior": 0.0
+        },
+        "scaleMin": 0.9,
+        "scaleMax": 1.1,
+        "maxShift": 96
+      },
+      "loss": 0.1744372313061728,
+      "meanIou": 0.745210509892858,
+      "meanCenterPx": 12.674469990966193
+    },
+    {
+      "step": 2,
+      "config": {
+        "weights": {
+          "color": 0.45,
+          "silhouette": 0.35,
+          "edge": 0.15,
+          "scalePrior": 0.0
+        },
+        "scaleMin": 0.9,
+        "scaleMax": 1.1,
+        "maxShift": 128
+      },
+      "loss": 0.1496812653029799,
+      "meanIou": 0.7803373993445569,
+      "meanCenterPx": 7.176995823475977
+    },
+    {
+      "step": 3,
+      "config": {
+        "weights": {
+          "color": 0.45,
+          "silhouette": 0.35,
+          "edge": 0.15,
+          "scalePrior": 0.0
+        },
+        "scaleMin": 0.9,
+        "scaleMax": 1.25,
+        "maxShift": 128
+      },
+      "loss": 0.13337667619385443,
+      "meanIou": 0.8018474059062367,
+      "meanCenterPx": 6.965683256523725
+    },
+    {
+      "step": 4,
+      "config": {
+        "weights": {
+          "color": 0.45,
+          "silhouette": 0.35,
+          "edge": 0.15,
+          "scalePrior": 0.0
+        },
+        "scaleMin": 0.95,
+        "scaleMax": 1.25,
+        "maxShift": 128
+      },
+      "loss": 0.13332621679859144,
+      "meanIou": 0.8035272899245194,
+      "meanCenterPx": 8.845969962554515
+    }
+  ],
+  "leaveOneLevelOut": [
+    {
+      "heldOutLevel": "cozy_interiors_cozy_attic_workshop_bird_6acc",
+      "config": {
+        "weights": {
+          "color": 0.45,
+          "silhouette": 0.35,
+          "edge": 0.15,
+          "scalePrior": 0.0
+        },
+        "scaleMin": 0.9,
+        "scaleMax": 1.25,
+        "maxShift": 128
+      },
+      "trainLoss": 0.1342651390119382,
+      "heldOut": {
+        "loss": 0.12893436210343548,
+        "meanIou": 0.811224052153028,
+        "meanCenterPx": 10.307764064044152,
+        "rows": [
+          {
+            "levelId": "cozy_interiors_cozy_attic_workshop_bird_6acc",
+            "dogId": "dog_14",
+            "predictedBox": [
+              1750,
+              1333,
+              1959,
+              1514
+            ],
+            "targetBox": [
+              1745,
+              1331,
+              1977,
+              1532
+            ],
+            "matcherScore": 0.6546,
+            "loss": 0.12893436210343548,
+            "iou": 0.811224052153028,
+            "centerPx": 10.307764064044152,
+            "widthLogError": 0.10440311970149896,
+            "heightLogError": 0.10480787679324999
+          }
+        ]
+      }
+    },
+    {
+      "heldOutLevel": "cozy_interiors_cozy_potting_shed_garden_bird_bd9a",
+      "config": {
+        "weights": {
+          "color": 0.45,
+          "silhouette": 0.35,
+          "edge": 0.15,
+          "scalePrior": 0.15
+        },
+        "scaleMin": 0.9,
+        "scaleMax": 1.1,
+        "maxShift": 96
+      },
+      "trainLoss": 0.08243190213021269,
+      "heldOut": {
+        "loss": 0.2374645769379436,
+        "meanIou": 0.6636872613698438,
+        "meanCenterPx": 16.188286860050745,
+        "rows": [
+          {
+            "levelId": "cozy_interiors_cozy_potting_shed_garden_bird_bd9a",
+            "dogId": "dog_01",
+            "predictedBox": [
+              921,
+              739,
+              1099,
+              906
+            ],
+            "targetBox": [
+              935,
+              749,
+              1093,
+              896
+            ],
+            "matcherScore": 0.5371,
+            "loss": 0.14480936900155944,
+            "iou": 0.7813362039965014,
+            "centerPx": 4.0,
+            "widthLogError": 0.11918851726511835,
+            "heightLogError": 0.12756122563801875
+          },
+          {
+            "levelId": "cozy_interiors_cozy_potting_shed_garden_bird_bd9a",
+            "dogId": "dog_02",
+            "predictedBox": [
+              1118,
+              823,
+              1195,
+              901
+            ],
+            "targetBox": [
+              1075,
+              791,
+              1202,
+              919
+            ],
+            "matcherScore": 0.4968,
+            "loss": 0.4665083420287153,
+            "iou": 0.36946358267716534,
+            "centerPx": 19.313207915827967,
+            "widthLogError": 0.5003816646049074,
+            "heightLogError": 0.4953214372300254
+          },
+          {
+            "levelId": "cozy_interiors_cozy_potting_shed_garden_bird_bd9a",
+            "dogId": "dog_07",
+            "predictedBox": [
+              904,
+              1414,
+              1101,
+              1580
+            ],
+            "targetBox": [
+              909,
+              1411,
+              1106,
+              1577
+            ],
+            "matcherScore": 0.4868,
+            "loss": 0.04688061272447533,
+            "iou": 0.9175559985927055,
+            "centerPx": 5.830951894845301,
+            "widthLogError": 0.0,
+            "heightLogError": 0.0
+          },
+          {
+            "levelId": "cozy_interiors_cozy_potting_shed_garden_bird_bd9a",
+            "dogId": "dog_08",
+            "predictedBox": [
+              1173,
+              1531,
+              1453,
+              1703
+            ],
+            "targetBox": [
+              1171,
+              1523,
+              1411,
+              1655
+            ],
+            "matcherScore": 0.4562,
+            "loss": 0.29165998399702436,
+            "iou": 0.5863932602130028,
+            "centerPx": 35.608987629529715,
+            "widthLogError": 0.15415067982725836,
+            "heightLogError": 0.26469255422708216
+          }
+        ]
+      }
+    },
+    {
+      "heldOutLevel": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+      "config": {
+        "weights": {
+          "color": 0.45,
+          "silhouette": 0.35,
+          "edge": 0.15,
+          "scalePrior": 0.0
+        },
+        "scaleMin": 0.9,
+        "scaleMax": 1.25,
+        "maxShift": 128
+      },
+      "trainLoss": 0.14084654703490446,
+      "heldOut": {
+        "loss": 0.09602732198860425,
+        "meanIou": 0.8478249783262788,
+        "meanCenterPx": 9.013878188659973,
+        "rows": [
+          {
+            "levelId": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+            "dogId": "dog_10",
+            "predictedBox": [
+              1874,
+              1175,
+              2000,
+              1314
+            ],
+            "targetBox": [
+              1875,
+              1181,
+              2005,
+              1325
+            ],
+            "matcherScore": 0.4557,
+            "loss": 0.09602732198860425,
+            "iou": 0.8478249783262788,
+            "centerPx": 9.013878188659973,
+            "widthLogError": 0.031252543504104426,
+            "heightLogError": 0.03533936644530885
+          }
+        ]
+      }
+    }
+  ],
+  "colorBaseline": {
+    "loss": 0.2714259026413175,
+    "rows": [
+      {
+        "levelId": "cozy_interiors_cozy_attic_workshop_bird_6acc",
+        "dogId": "dog_14",
+        "predictedBox": [
+          1765,
+          1331,
+          1927,
+          1516
+        ],
+        "loss": 0.2477608191549291,
+        "iou": 0.6426917138445702,
+        "centerPx": 17.0,
+        "widthLogError": 0.35914103643392586,
+        "heightLogError": 0.0829490829807509
+      },
+      {
+        "levelId": "cozy_interiors_cozy_potting_shed_garden_bird_bd9a",
+        "dogId": "dog_01",
+        "predictedBox": [
+          932,
+          749,
+          1092,
+          899
+        ],
+        "loss": 0.029108330292225693,
+        "iou": 0.955770903217791,
+        "centerPx": 2.5,
+        "widthLogError": 0.012578782206860185,
+        "heightLogError": 0.02020270731751947
+      },
+      {
+        "levelId": "cozy_interiors_cozy_potting_shed_garden_bird_bd9a",
+        "dogId": "dog_02",
+        "predictedBox": [
+          1094,
+          814,
+          1190,
+          912
+        ],
+        "loss": 0.29109948823084975,
+        "iou": 0.5787401574803149,
+        "centerPx": 8.73212459828649,
+        "widthLogError": 0.27983889499075504,
+        "heightLogError": 0.26706278524904525
+      },
+      {
+        "levelId": "cozy_interiors_cozy_potting_shed_garden_bird_bd9a",
+        "dogId": "dog_07",
+        "predictedBox": [
+          1071,
+          1545,
+          1298,
+          1736
+        ],
+        "loss": 0.7507538126653786,
+        "iou": 0.014945488997718144,
+        "centerPx": 229.76346532902048,
+        "widthLogError": 0.1417462887434142,
+        "heightLogError": 0.14028563969008673
+      },
+      {
+        "levelId": "cozy_interiors_cozy_potting_shed_garden_bird_bd9a",
+        "dogId": "dog_08",
+        "predictedBox": [
+          1179,
+          1525,
+          1389,
+          1654
+        ],
+        "loss": 0.09841364793120964,
+        "iou": 0.8551136363636364,
+        "centerPx": 7.0178344238090995,
+        "widthLogError": 0.13353139262452263,
+        "heightLogError": 0.02298951822469872
+      },
+      {
+        "levelId": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+        "dogId": "dog_10",
+        "predictedBox": [
+          1877,
+          1177,
+          1989,
+          1300
+        ],
+        "loss": 0.21141931757331223,
+        "iou": 0.6953255425709516,
+        "centerPx": 16.101242188104617,
+        "widthLogError": 0.14903557916048782,
+        "heightLogError": 0.15762894420358317
+      }
+    ]
+  }
+}

@@ -38,7 +38,18 @@ def test_manual_sprite_placement_updates_public_level_and_sidecar(app_client, is
     sprite = {"image": f"levels/{session_id}/dogs/dog_00/sprite_000.png", "x": 70, "y": 70, "width": 60, "height": 60, "cleanup": {"x": 60, "y": 60, "width": 80, "height": 80}, "anchorX": 0.5, "anchorY": 0.5}
     # Panoramic exports can store hitboxes in a section-local frame while the
     # sprite geometry is global. The sprite anchor is the portable target.
-    (public_dir / "level.json").write_text(json.dumps({"id": session_id, "name": "Manual sprite", "width": 200, "height": 200, "dogs": [{"id": "dog_00", "x": 10, "y": 20, "r": 20, "sprite": sprite}]}))
+    (public_dir / "level.json").write_text(json.dumps({
+        "id": session_id,
+        "name": "Manual sprite",
+        "width": 200,
+        "height": 200,
+        # Stable dog folder indices are not guaranteed to equal list offsets;
+        # retired entries can leave gaps in either representation.
+        "dogs": [
+            {"id": "retired", "x": 5, "y": 5, "r": 5},
+            {"id": "dog_00", "x": 10, "y": 20, "r": 20, "sprite": sprite},
+        ],
+    }))
     (dog_dir / "sprite_000.json").write_text(json.dumps({"image": "dogs/dog_00/sprite_000.png", "spriteBox": [70, 70, 130, 130], "cleanupBox": [60, 60, 140, 140], "width": 60, "height": 60, "anchorX": 0.5, "anchorY": 0.5, "quality": {"pickupUsable": True}}))
     monkeypatch.setattr(isolated_session, "refresh_catalog_packages", lambda ids: {"refreshedLevels": ids})
     real_apply = sprite_eval.apply_match_report
@@ -64,18 +75,115 @@ def test_manual_sprite_placement_updates_public_level_and_sidecar(app_client, is
     assert response.status_code == 200
     level = json.loads((public_dir / "level.json").read_text())
     metadata = json.loads((dog_dir / "sprite_000.json").read_text())
-    assert [level["dogs"][0]["sprite"][key] for key in ("x", "y", "width", "height")] == [65, 75, 70, 50]
+    assert [level["dogs"][1]["sprite"][key] for key in ("x", "y", "width", "height")] == [65, 75, 70, 50]
     assert metadata["spriteBox"] == [65, 75, 135, 125]
     assert metadata["anchorX"] == 0.5
     assert metadata["anchorY"] == 0.5
-    assert level["dogs"][0]["sprite"]["flipX"] is True
-    assert level["dogs"][0]["sprite"]["flipY"] is True
+    assert level["dogs"][1]["sprite"]["flipX"] is True
+    assert level["dogs"][1]["sprite"]["flipY"] is True
     assert metadata["flipX"] is True
     assert metadata["flipY"] is True
     candidates = app_client.get(f"/api/sessions/{session_id}/sprite-candidates").json()["candidates"]
     assert candidates[0]["flipX"] is True
     assert candidates[0]["flipY"] is True
     assert placement_lock_states == [True]
+
+
+def test_bless_level_records_golden_snapshot_without_changing_lineup(app_client, isolated_session):
+    session_id = "blessed_level"
+    public_dir = isolated_session.GAME_PUBLIC_LEVELS / session_id
+    dog_dir = public_dir / "dogs" / "dog_00"
+    dog_dir.mkdir(parents=True)
+    Image.new("RGB", (120, 120), (80, 100, 120)).save(public_dir / "color.png")
+    Image.new("RGBA", (30, 30), (200, 80, 30, 255)).save(dog_dir / "sprite_000.png")
+    sprite_path = f"levels/{session_id}/dogs/dog_00/sprite_000.png"
+    (public_dir / "level.json").write_text(json.dumps({
+        "id": session_id,
+        "name": "Blessed level",
+        "width": 120,
+        "height": 120,
+        "dogs": [{"id": "dog_00", "x": 50, "y": 50, "r": 15, "sprite": {
+            "image": sprite_path, "x": 40, "y": 40, "width": 30, "height": 30,
+            "anchorX": 0.5, "anchorY": 0.5,
+        }}],
+    }))
+    (dog_dir / "sprite_000.json").write_text(json.dumps({
+        "image": "dogs/dog_00/sprite_000.png",
+        "spriteBox": [40, 40, 70, 70],
+        "quality": {"pickupUsable": True},
+    }))
+
+    response = app_client.put(f"/api/sessions/{session_id}/golden-review", json={"approved": True})
+
+    assert response.status_code == 200
+    review = json.loads((public_dir / "golden-review.json").read_text())
+    assert review["approved"] is True
+    assert review["trainingEligible"] is True
+    assert review["affectsLineup"] is False
+    assert review["birds"][0]["dogId"] == "dog_00"
+    assert len(review["birds"][0]["spriteSha256"]) == 64
+    metadata = json.loads((dog_dir / "sprite_000.json").read_text())
+    assert metadata["humanReview"]["confirmed"] is True
+    listed = app_client.get("/api/sessions?include_public=true").json()
+    session = next(item for item in listed if item["id"] == session_id)
+    assert session["goldenDatasetApproved"] is True
+
+
+def test_bless_level_confirms_existing_workspace_and_public_sidecars(app_client, isolated_session):
+    session_id = "dual_store_blessed_level"
+    public_dir = isolated_session.GAME_PUBLIC_LEVELS / session_id
+    workspace_dir = isolated_session.LEVELS_DIR / session_id
+    for base in (workspace_dir, public_dir):
+        dog_dir = base / "dogs" / "dog_00"
+        dog_dir.mkdir(parents=True)
+        Image.new("RGB", (120, 120), (80, 100, 120)).save(base / "color.png")
+        Image.new("RGBA", (30, 30), (200, 80, 30, 255)).save(dog_dir / "sprite_000.png")
+        (dog_dir / "sprite_000.json").write_text(json.dumps({
+            "image": "dogs/dog_00/sprite_000.png",
+            "spriteBox": [40, 40, 70, 70],
+        }))
+    level = {
+        "id": session_id,
+        "name": "Dual store blessed level",
+        "dogs": [{"id": "dog_00", "sprite": {
+            "image": f"levels/{session_id}/dogs/dog_00/sprite_000.png",
+        }}],
+    }
+    (workspace_dir / "level.json").write_text(json.dumps(level))
+    (public_dir / "level.json").write_text(json.dumps(level))
+
+    response = app_client.put(f"/api/sessions/{session_id}/golden-review", json={"approved": True})
+
+    assert response.status_code == 200
+    for base in (workspace_dir, public_dir):
+        metadata = json.loads((base / "dogs" / "dog_00" / "sprite_000.json").read_text())
+        assert metadata["humanReview"]["confirmed"] is True
+
+
+def test_bless_level_validates_all_birds_before_confirming_any(app_client, isolated_session):
+    session_id = "incomplete_blessed_level"
+    public_dir = isolated_session.GAME_PUBLIC_LEVELS / session_id
+    first_dir = public_dir / "dogs" / "dog_00"
+    first_dir.mkdir(parents=True)
+    Image.new("RGB", (120, 120), (80, 100, 120)).save(public_dir / "color.png")
+    Image.new("RGBA", (30, 30), (200, 80, 30, 255)).save(first_dir / "sprite_000.png")
+    first_metadata = {"image": "dogs/dog_00/sprite_000.png", "spriteBox": [40, 40, 70, 70]}
+    first_sidecar = first_dir / "sprite_000.json"
+    first_sidecar.write_text(json.dumps(first_metadata))
+    (public_dir / "level.json").write_text(json.dumps({
+        "id": session_id,
+        "name": "Incomplete blessed level",
+        "dogs": [
+            {"id": "dog_00", "sprite": {"image": f"levels/{session_id}/dogs/dog_00/sprite_000.png"}},
+            {"id": "dog_01", "sprite": {"image": f"levels/{session_id}/dogs/dog_01/sprite_000.png"}},
+        ],
+    }))
+    before = first_sidecar.read_bytes()
+
+    response = app_client.put(f"/api/sessions/{session_id}/golden-review", json={"approved": True})
+
+    assert response.status_code == 422
+    assert first_sidecar.read_bytes() == before
 
 
 def test_cutout_only_regen_never_rewrites_scene_or_hitboxes(isolated_session, monkeypatch):
@@ -101,7 +209,11 @@ def test_cutout_only_regen_never_rewrites_scene_or_hitboxes(isolated_session, mo
         "sourceVariant": "dogs/dog_00/variant_000.png",
         "spriteBox": [80, 55, 120, 105],
         "cleanupBox": [75, 50, 125, 110],
-        "quality": {"pickupUsable": True},
+        "quality": {
+            "pickupUsable": True,
+            "repairReason": "oversized_or_scene_mask",
+            "backgroundFallback": True,
+        },
     }))
 
     color_before = (sdir / "color.png").read_bytes()
@@ -132,6 +244,7 @@ def test_cutout_only_regen_never_rewrites_scene_or_hitboxes(isolated_session, mo
     assert metadata["technique"] == "flatkey-recreate-cutout-only-v2"
     assert metadata["sourceBox"] == [60, 40, 140, 120]
     assert metadata["cleanupBox"] == [60, 40, 140, 120]
+    assert metadata["quality"] == {"pickupUsable": True}
 
 
 def test_cutout_retry_accepts_public_package_without_session_or_hitboxes_file(isolated_session, monkeypatch):
@@ -195,6 +308,65 @@ def test_cutout_retry_accepts_public_package_without_session_or_hitboxes_file(is
     assert used_models
     assert set(used_models) == {"google/gemini-3.1-flash-lite-image"}
     assert not (public_dir / "session.json").exists()
+
+
+def test_scene_regen_accepts_public_package_without_session_or_hitboxes_file(isolated_session, monkeypatch):
+    from levelbuilder.api import inpaint
+
+    session_id = "cozy_interiors_public_bakery_bird_7ba7"
+    public_dir = isolated_session.GAME_PUBLIC_LEVELS / session_id
+    dog_dir = public_dir / "dogs" / "dog_00"
+    dog_dir.mkdir(parents=True)
+    Image.new("RGB", (200, 200), (80, 100, 120)).save(public_dir / "bg_00.png")
+    Image.new("RGB", (200, 200), (80, 100, 120)).save(public_dir / "color.png")
+    Image.new("RGBA", (40, 50), (200, 80, 30, 255)).save(dog_dir / "sprite_000.png")
+    (public_dir / "level.json").write_text(json.dumps({
+        "id": session_id,
+        "name": f"Level {session_id} (clean_old_cartoon)",
+        "width": 200,
+        "height": 200,
+        "dogs": [{
+            "id": "bird-0", "x": 100, "y": 100, "r": 20,
+            "sprite": {"image": f"levels/{session_id}/dogs/dog_00/sprite_000.png"},
+        }],
+    }))
+
+    provider_calls = []
+
+    def fake_provider(_fn, source, *_args, **_kwargs):
+        provider_calls.append(source.size)
+        return Image.new("RGB", source.size, (200, 80, 30))
+
+    monkeypatch.setattr(inpaint, "_with_retries_and_timeout", fake_provider)
+    monkeypatch.setattr(inpaint, "write_generation_sidecar", lambda *_args, **_kwargs: None)
+    monkeypatch.setattr(inpaint, "_save_sprite_assets", lambda **_kwargs: {"pickupUsable": True})
+    monkeypatch.setattr(
+        inpaint,
+        "_auto_place_cutout_best_safe",
+        lambda *_args, **_kwargs: {"accepted": True, "method": "best"},
+    )
+
+    result = inpaint._run_single_dog_regen(
+        session_id,
+        0,
+        prompt="Regenerate this bird without changing the surrounding scene.",
+        padding=2.75,
+        crop_box=(60, 60, 140, 140),
+        inpaint_model="google/gemini-3.1-flash-image-preview",
+        defer_composite=True,
+    )
+
+    assert result["variantIndex"] == 0
+    assert result["file"] == "dogs/dog_00/variant_000.png"
+    assert provider_calls == [(80, 80)]
+    assert inpaint.compose_with_mask(session_id) is not None
+    synthesized = isolated_session.ensure_session_json(session_id)
+    assert synthesized["entity"] == "bird"
+    assert synthesized["style"] == "clean_old_cartoon"
+    assert "bird" in synthesized["dog_prompt"].lower()
+    assert "dog" not in synthesized["dog_prompt"].lower()
+    assert not (public_dir / "session.json").exists()
+    assert not (public_dir / "hitboxes.json").exists()
 
 
 def test_best_safe_auto_placement_updates_sprite_sidecar_and_public_level(isolated_session, monkeypatch):

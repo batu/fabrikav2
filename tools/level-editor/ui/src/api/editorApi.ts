@@ -162,6 +162,11 @@ export interface SessionListItem {
   tags?: string[];
   /** Static mount that owns this session's assets. Active editor sessions use `levels`; public-package-only sessions use `public-levels`. */
   assetBase?: 'levels' | 'public-levels';
+  humanConfirmedBirds?: number;
+  reviewableBirds?: number;
+  regenerationCandidateCount?: number;
+  goldenDatasetApproved?: boolean;
+  goldenDatasetReviewedAt?: string | null;
 }
 
 export function getConfig(): Promise<ConfigResponse> {
@@ -359,12 +364,18 @@ export function getSession(sessionId: string): Promise<SessionResponse> {
   return request<SessionResponse>(`/api/sessions/${sessionId}`);
 }
 
-export function listSpriteCandidates(sessionId: string): Promise<{ candidates: SpriteCandidate[] }> {
-  return request<{ candidates: SpriteCandidate[] }>(`/api/sessions/${sessionId}/sprite-candidates`);
+export function listSpriteCandidates(
+  sessionId: string,
+  options?: Pick<RequestOptions, 'signal' | 'suppressToast'>,
+): Promise<{ candidates: SpriteCandidate[] }> {
+  return request<{ candidates: SpriteCandidate[] }>(`/api/sessions/${sessionId}/sprite-candidates`, options);
 }
 
-export function getCutoutExtractionPrompt(sessionId: string): Promise<{ prompt: string; entity: string }> {
-  return request(`/api/sessions/${sessionId}/cutout-extraction-prompt`);
+export function getCutoutExtractionPrompt(
+  sessionId: string,
+  options?: Pick<RequestOptions, 'signal' | 'suppressToast'>,
+): Promise<{ prompt: string; entity: string }> {
+  return request(`/api/sessions/${sessionId}/cutout-extraction-prompt`, options);
 }
 
 export interface CreateAnimationJobRequest {
@@ -803,6 +814,7 @@ export function startRetryFailedDogsJob(
   inpaintModel?: string,
   cropBoxes: Record<number, [number, number, number, number]> = {},
   cutoutOnly: boolean = false,
+  options?: Pick<RequestOptions, 'signal' | 'suppressToast'>,
 ): Promise<RetryFailedDogsJobResponse> {
   return request(`/api/sessions/${sessionId}/dogs/retry-inpaint/jobs`, {
     method: 'POST',
@@ -815,14 +827,16 @@ export function startRetryFailedDogsJob(
       cutoutOnly,
       ...(inpaintModel ? { inpaintModel } : {}),
     }),
+    ...options,
   });
 }
 
 export function getRetryFailedDogsJob(
   sessionId: string,
   jobId: string,
+  options?: Pick<RequestOptions, 'signal' | 'suppressToast'>,
 ): Promise<RetryFailedDogsJobResponse> {
-  return request(`/api/sessions/${sessionId}/dogs/retry-inpaint/jobs/${jobId}`, { suppressToast: true });
+  return request(`/api/sessions/${sessionId}/dogs/retry-inpaint/jobs/${jobId}`, { suppressToast: true, ...options });
 }
 
 export function recompositeSession(sessionId: string): Promise<{ ok: boolean }> {
@@ -861,6 +875,23 @@ export function setArchived(
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ archived, ...(variant ? { variant } : {}) }),
   });
+}
+
+export function setGoldenDatasetApproval(
+  sessionId: string,
+  approved: boolean,
+): Promise<{ ok: boolean }> {
+  return request(`/api/sessions/${encodeURIComponent(sessionId)}/golden-review`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ approved }),
+  });
+}
+
+export function getGoldenDatasetApproval(
+  sessionId: string,
+): Promise<{ approved: boolean }> {
+  return request(`/api/sessions/${encodeURIComponent(sessionId)}/golden-review`);
 }
 
 export interface LevelsIndexEntry {
@@ -1307,5 +1338,17 @@ export function saveSpriteCandidatePlacement(
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ spriteBox, flipX, flipY }),
+  });
+}
+
+export function saveSpriteCandidateHumanConfirmation(
+  sessionId: string,
+  candidateId: string,
+  confirmed: boolean,
+): Promise<{ ok: boolean }> {
+  return request(`/api/sessions/${encodeURIComponent(sessionId)}/sprite-candidates/${encodeURIComponent(candidateId)}/human-confirmation`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ confirmed }),
   });
 }

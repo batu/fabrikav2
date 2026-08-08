@@ -195,10 +195,6 @@ body {
   touch-action: none;
 }
 
-.cutout-review-overlay:active {
-  cursor: grabbing;
-}
-
 .sprite-candidate-card:hover:not(:disabled) {
   border-color: var(--accent);
   background: var(--bg-elevated);
@@ -2267,8 +2263,7 @@ label {
   font-size: 16px;
 }
 
-.cutout-review-summary,
-.cutout-review-meta {
+.cutout-review-summary {
   color: var(--text-secondary);
   font-size: 12px;
 }
@@ -2375,8 +2370,6 @@ label {
 }
 
 .cutout-review-card-top,
-.cutout-review-meta,
-.cutout-review-flags,
 .cutout-review-buttons {
   display: flex;
   align-items: center;
@@ -2394,6 +2387,23 @@ label {
   font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 0.05em;
+}
+
+.hitl-confirmation {
+  margin-left: auto;
+  border: 1px solid #535353;
+  border-radius: 999px;
+  background: #202020;
+  color: #bbb;
+  padding: 3px 8px;
+  font-size: 0.68rem;
+  font-weight: 750;
+}
+
+.hitl-confirmation.confirmed {
+  border-color: #4f9d69;
+  background: #173824;
+  color: #bff4cd;
 }
 
 .cutout-review-overlay {
@@ -2557,19 +2567,6 @@ label {
   object-fit: contain;
 }
 
-.cutout-review-flags span {
-  padding: 2px 6px;
-  border-radius: 999px;
-  background: rgba(255,255,255,0.08);
-  color: var(--text-secondary);
-  font-size: 11px;
-}
-
-.cutout-review-flags .regenerate-chip {
-  color: #ffe7a3;
-  background: rgba(251, 191, 36, 0.18);
-}
-
 .cutout-review-buttons button {
   min-height: 44px;
   padding: 0 12px;
@@ -2635,17 +2632,6 @@ label {
   cursor: pointer;
 }
 
-.cutout-crop-nudge {
-  grid-column: 1 / -1;
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 4px;
-}
-
-.cutout-crop-nudge.cutout-crop-pair {
-  grid-template-columns: repeat(2, 1fr);
-}
-
 .cutout-resize-grid {
   grid-column: 1 / -1;
   display: grid;
@@ -2653,7 +2639,8 @@ label {
   gap: 4px;
 }
 
-.cutout-resize-grid button {
+.cutout-resize-grid button,
+.cutout-flip-controls button {
   min-height: 34px;
   border: 1px solid var(--border);
   border-radius: 5px;
@@ -2669,27 +2656,9 @@ label {
   gap: 4px;
 }
 
-.cutout-flip-controls button {
-  min-height: 34px;
-  border: 1px solid var(--border);
-  border-radius: 5px;
-  background: #11151a;
-  color: var(--text-primary);
-  cursor: pointer;
-}
-
 .cutout-flip-controls button.selected {
   border-color: #4ce389;
   background: rgba(76, 227, 137, 0.16);
-}
-
-.cutout-crop-nudge button {
-  min-height: 34px;
-  border: 1px solid var(--border);
-  border-radius: 5px;
-  background: #11151a;
-  color: var(--text-primary);
-  cursor: pointer;
 }
 
 .cutout-prompt-disclosure {

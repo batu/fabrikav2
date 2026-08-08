@@ -69,6 +69,9 @@ export interface SpriteCandidate {
   cleanupBox?: [number, number, number, number] | null;
   technique?: string | null;
   quality?: Record<string, unknown> | null;
+  humanConfirmed?: boolean;
+  regenerationCandidate?: boolean;
+  regenerationProbability?: number | null;
 }
 
 export type AnimationJobStatus = 'running' | 'completed' | 'failed';

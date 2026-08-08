@@ -1,0 +1,43 @@
+name: bird-hybrid-alignment
+description: Improve cutout-to-painted-bird alignment without unsafe hitbox moves or scale-score exploits.
+metric:
+  primary:
+    type: hard
+    name: hitbox_safe_proposals
+    direction: maximize
+    target: 98
+  degenerate_gates:
+    - name: evaluated_birds
+      check: "== 98"
+    - name: hitbox_unsafe_proposals
+      check: "== 0"
+  diagnostics:
+    - name: scale_extreme_proposals
+    - name: low_score_proposals
+measurement:
+  command: uv run level-editor --json evaluate-sprites --game find_the_bird --level ad_campaigns_ad_treehouse_village_bird_24d4 --level hawaii_rainforest_waterfall_bird_0f98 --level cozy_interiors_cozy_toymaker_workshop_bird_4e44 --level ad_campaigns_ad_cozy_library_bird_e654 --level greece_santorini_steps_bird_4634
+  working_directory: tools/level-editor
+  timeout_seconds: 180
+  output_format: json
+  stability:
+    mode: stable
+    noise_threshold: 0
+scope:
+  mutable:
+    - tools/level-editor/levelbuilder/api/sprite_eval.py
+    - tools/level-editor/tests/test_sprite_eval_deterministic.py
+  immutable:
+    - games/find_the_bird/public/levels
+constraints:
+  - Read-only experiment; do not mutate level geometry.
+  - Preserve human-authored anchor points.
+  - Use deterministic image math for coordinates.
+execution:
+  mode: serial
+  backend: worktree
+  max_concurrent: 1
+stopping:
+  max_iterations: 2
+  max_hours: 1
+  plateau_iterations: 2
+  target_reached: true
