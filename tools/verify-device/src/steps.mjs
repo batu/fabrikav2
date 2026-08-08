@@ -152,7 +152,7 @@ export function unlockKeychain(password) {
  */
 export function buildHarnessBundle(gameDir, { shImpl = sh } = {}) {
   const env = { ...process.env, VITE_ENABLE_TEST_HARNESS: 'true', VITE_INSITU_TOUR: 'allstates' };
-  shImpl('npx', ['vite', 'build'], { cwd: gameDir, env });
+  shImpl('npx', ['vite', 'build', '--mode', 'ios'], { cwd: gameDir, env });
   shImpl('npx', ['cap', 'sync', 'ios'], { cwd: gameDir, env });
   const applied = applyNativeRecipe(gameDir, 'ios');
   if (applied.length) {

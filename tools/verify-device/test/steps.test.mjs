@@ -168,7 +168,7 @@ describe('native resource recipe application', () => {
       });
 
       expect(calls.map((c) => `${c.file} ${c.args.join(' ')}`)).toEqual([
-        'npx vite build',
+        'npx vite build --mode ios',
         'npx cap sync ios',
       ]);
       expect(fs.readFileSync(path.join(gameDir, 'ios', 'App', 'App', 'Info.plist'), 'utf8')).toBe('<plist />');
