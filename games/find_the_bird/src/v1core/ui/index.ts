@@ -463,7 +463,7 @@ function addCompletionSideConfetti(
   // read as a sustained squirt rather than one dump. (Whole effect runs at
   // 1.25x speed: 3800/2400ms -> 3040/1920ms.)
   const maxDelayMs = reducedMotion ? 0 : 1920;
-  const count = reducedMotion ? 20 : 1080;
+  const count = reducedMotion ? 20 : 360;
   const rand = (lo: number, hi: number): number => lo + Math.random() * (hi - lo);
   const canAnimate = typeof layer.animate === 'function';
 

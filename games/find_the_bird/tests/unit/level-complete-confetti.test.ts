@@ -84,8 +84,8 @@ describe("level-complete confetti", () => {
     const handle = mountCompletion();
     const pieces = Array.from(handle.el.querySelectorAll<HTMLElement>(".fab-confetti-piece"));
 
-    expect(pieces).toHaveLength(1080);
-    expect(animate).toHaveBeenCalledTimes(1080);
+    expect(pieces).toHaveLength(360);
+    expect(animate).toHaveBeenCalledTimes(360);
     expect(pieces[0]?.style.width).toBe("10px");
     expect(pieces[0]?.style.height).toBe("13px");
     expect(handle.el.querySelector(".fab-complete-confetti-fall")).toBeNull();
