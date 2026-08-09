@@ -24,6 +24,14 @@ v2:
   version: dev
   viewport: 390x844
 
+verifyDevice:
+  indistinguishableStates:
+    allow:
+      - states:
+          - level
+          - pause
+        reason: "The game has no pause screen; this state proves lifecycle suspension on the level surface."
+
 # Canonical states (tools/refcap-compare/src/manifest.mjs CANONICAL_STATES).
 # Each lane needs either "offline" (a committed PNG) or an explicit "gap".
 states:

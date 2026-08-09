@@ -35,8 +35,12 @@ const mocks = vi.hoisted(() => {
     setFailOverlayPendingRecoveryMsForTest: vi.fn(),
     setRewardedAdResultForTest: vi.fn(),
     remoteConfigService: {
+      healthBarEnabled: false,
+      value: vi.fn((key: string) => key === "healthBarEnabled" ? mocks.remoteConfigService.healthBarEnabled : undefined),
       snapshot: vi.fn(() => ({ values: {} })),
-      setValuesForTest: vi.fn(),
+      setValuesForTest: vi.fn((values: { healthBarEnabled?: boolean }) => {
+        if (values.healthBarEnabled !== undefined) mocks.remoteConfigService.healthBarEnabled = values.healthBarEnabled;
+      }),
     },
     iapService: {
       snapshot: vi.fn(() => ({ state: "idle", products: [], nativeOperationInProgress: false })),
@@ -93,9 +97,12 @@ const mocks = vi.hoisted(() => {
       this.gameState.hintsRemaining = 3;
       this.gameState.hintCircleActive = false;
       this.gameState.settings.tutorialEnabled = false;
+      this.remoteConfigService.healthBarEnabled = false;
       this.driveInputAt.mockClear();
       this.initHUD.mockClear();
       this.openPage.mockClear();
+      this.remoteConfigService.value.mockClear();
+      this.remoteConfigService.setValuesForTest.mockClear();
       this.setLifecycleForTest.mockClear();
       this.gameState.save.mockClear();
     },
@@ -243,6 +250,7 @@ function createFakeGame(options: { deferHomeRender?: boolean } = {}) {
         }
         return;
       }
+      if (!mocks.remoteConfigService.value("healthBarEnabled")) return;
       mocks.gameState.lives -= 1;
       if (mocks.gameState.lives <= 0) {
         const failed = document.createElement("div");
@@ -526,6 +534,21 @@ describe("find_the_dog TestHarness real-flow wiring", () => {
 
     expect(harness.findDog("dog-a")).toEqual({ found: true, totalFound: 1 });
     expect(mocks.gameState.lives).toBe(3);
+  });
+
+  it("temporarily enables health so failLevel remains reachable when health is disabled", async () => {
+    const { createFindTheDogHarness } = await import("../../src/testing/TestHarness");
+    const fixture = createFakeGame();
+    const harness = createFindTheDogHarness(fixture.game as never);
+    await harness.verbs.startLevel.run();
+
+    expect(mocks.remoteConfigService.healthBarEnabled).toBe(false);
+    await expect(harness.failLevel()).resolves.toBe(true);
+
+    expect(harness.snapshot()).toMatchObject({ status: "failed", lives: 0 });
+    expect(mocks.remoteConfigService.healthBarEnabled).toBe(false);
+    expect(mocks.remoteConfigService.setValuesForTest).toHaveBeenNthCalledWith(1, { healthBarEnabled: true });
+    expect(mocks.remoteConfigService.setValuesForTest).toHaveBeenNthCalledWith(2, { healthBarEnabled: false });
   });
 
   it("publishes every canonical tour marker in order through the real harness", async () => {

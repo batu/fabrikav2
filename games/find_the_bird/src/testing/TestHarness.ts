@@ -560,21 +560,27 @@ export function createFindTheDogHarness(game: Phaser.Game): FindTheDogHarness {
   }
 
   async function failLevel(): Promise<boolean> {
-    // One wrong tap should end the level: burning every life through the
-    // penalty cooldown adds seconds of variance the capture runner's per-state
-    // budget has to absorb after the previous state's dwell.
-    if (gameState.lives > 1) gameState.lives = 1;
-    for (let i = 0; i < GAMEPLAY.LIVES_PER_LEVEL + 2; i += 1) {
-      if (findTheDogDrivePredicates.fail(driveSnapshot())) return true;
-      tapSafeMiss();
-      if (findTheDogDrivePredicates.fail(driveSnapshot())) return true;
-      await sleep(WRONG_TAP_SETTLE_MS);
+    const healthWasEnabled = remoteConfigService.value('healthBarEnabled');
+    if (!healthWasEnabled) remoteConfigService.setValuesForTest({ healthBarEnabled: true });
+    try {
+      // One wrong tap should end the level: burning every life through the
+      // penalty cooldown adds seconds of variance the capture runner's per-state
+      // budget has to absorb after the previous state's dwell.
+      if (gameState.lives > 1) gameState.lives = 1;
+      for (let i = 0; i < GAMEPLAY.LIVES_PER_LEVEL + 2; i += 1) {
+        if (findTheDogDrivePredicates.fail(driveSnapshot())) return true;
+        tapSafeMiss();
+        if (findTheDogDrivePredicates.fail(driveSnapshot())) return true;
+        await sleep(WRONG_TAP_SETTLE_MS);
+      }
+      return waitUntil(
+        () => findTheDogDrivePredicates.fail(driveSnapshot()),
+        TERMINAL_TARGET_POLL_MS,
+        TERMINAL_TARGET_MAX_POLLS,
+      );
+    } finally {
+      if (!healthWasEnabled) remoteConfigService.setValuesForTest({ healthBarEnabled: false });
     }
-    return waitUntil(
-      () => findTheDogDrivePredicates.fail(driveSnapshot()),
-      TERMINAL_TARGET_POLL_MS,
-      TERMINAL_TARGET_MAX_POLLS,
-    );
   }
 
   function driveSnapshot(): DriveSnapshot {
