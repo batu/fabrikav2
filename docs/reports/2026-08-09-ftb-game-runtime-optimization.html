@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Find the Bird runtime optimization — 9 August 2026</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b0d0d;
+      --panel: #121615;
+      --panel-2: #171c1a;
+      --line: #2a322e;
+      --ink: #eef2ec;
+      --muted: #9da79f;
+      --green: #75d59b;
+      --green-deep: #1c5b39;
+      --amber: #f2bc62;
+      --red: #ef8577;
+      --blue: #83b8e8;
+      --mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      --serif: "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+      --sans: Avenir, "Avenir Next", "Trebuchet MS", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font: 16px/1.55 var(--sans);
+    }
+    main { width: min(1180px, calc(100% - 36px)); margin: 0 auto; padding: 38px 0 86px; }
+    header { border-top: 7px solid var(--amber); padding: 22px 0 28px; }
+    .eyebrow, .label, th, .tag, .audit { font-family: var(--mono); }
+    .eyebrow { margin: 0 0 10px; color: var(--amber); font-size: 11px; font-weight: 800; letter-spacing: .13em; text-transform: uppercase; }
+    h1 { max-width: 980px; margin: 0 0 16px; font: 700 clamp(42px, 7vw, 82px)/.96 var(--serif); letter-spacing: -.045em; }
+    h2 { margin: 0; font: 700 clamp(26px, 4vw, 42px)/1 var(--serif); letter-spacing: -.025em; }
+    h3 { margin: 0 0 8px; font-size: 18px; }
+    p { margin: 0 0 12px; }
+    .summary { max-width: 850px; color: #cbd2cc; font-size: clamp(18px, 2.1vw, 24px); }
+    .status { display: inline-flex; gap: 9px; align-items: center; margin-top: 10px; padding: 8px 12px; border: 1px solid #376149; background: #13281d; color: #adf0c5; font: 700 12px var(--mono); }
+    .status::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--green); box-shadow: 0 0 0 4px #75d59b20; }
+    .hero-grid { display: grid; grid-template-columns: 1.25fr .75fr; gap: 14px; margin: 18px 0 54px; }
+    .verdict { padding: 26px; background: var(--panel-2); border-left: 5px solid var(--green); }
+    .verdict strong { color: var(--green); }
+    .residual { padding: 26px; border: 1px solid var(--line); }
+    .residual strong { color: var(--amber); }
+    .metrics { display: grid; grid-template-columns: repeat(5, 1fr); border: 1px solid var(--line); background: var(--panel); }
+    .metric { min-width: 0; padding: 20px 16px; border-right: 1px solid var(--line); }
+    .metric:last-child { border-right: 0; }
+    .metric b { display: block; font: 700 clamp(25px, 3vw, 37px)/1 var(--serif); color: var(--green); }
+    .metric span { display: block; margin-top: 8px; color: var(--muted); font: 10px/1.35 var(--mono); text-transform: uppercase; letter-spacing: .05em; }
+    section { margin-top: 68px; padding-top: 26px; border-top: 1px solid var(--line); }
+    .section-head { display: grid; grid-template-columns: .68fr 1.32fr; gap: 42px; margin-bottom: 24px; }
+    .section-head p { color: var(--muted); font-size: 18px; }
+    .comparison { overflow: auto; border: 1px solid var(--line); background: var(--panel); }
+    table { width: 100%; border-collapse: collapse; min-width: 760px; }
+    th, td { padding: 13px 14px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: middle; }
+    th { color: var(--muted); font-size: 10px; letter-spacing: .08em; text-transform: uppercase; }
+    td:nth-child(n+2) { font-variant-numeric: tabular-nums; }
+    tbody tr:last-child td { border-bottom: 0; }
+    .delta { color: var(--green); font-weight: 800; }
+    .flat { color: var(--muted); }
+    .bar { width: 140px; height: 6px; margin-top: 5px; background: #29302c; overflow: hidden; }
+    .bar i { display: block; height: 100%; background: var(--green); transform-origin: left; animation: grow .65s ease-out both; }
+    .architecture { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--line); border: 1px solid var(--line); }
+    .architecture article { background: var(--panel); padding: 22px; }
+    .architecture .label { display: inline-block; margin-bottom: 12px; color: var(--amber); font-size: 10px; letter-spacing: .08em; text-transform: uppercase; }
+    .architecture p { color: #bec6c0; }
+    .controls { display: flex; gap: 8px; margin-bottom: 12px; }
+    .controls button { appearance: none; padding: 8px 11px; border: 1px solid var(--line); background: var(--panel); color: var(--muted); font: 11px var(--mono); cursor: pointer; }
+    .controls button:hover, .controls button[aria-pressed="true"] { border-color: var(--amber); color: var(--ink); }
+    .controls button:focus-visible, summary:focus-visible { outline: 3px solid var(--blue); outline-offset: 3px; }
+    .ledger { display: grid; gap: 1px; background: var(--line); border: 1px solid var(--line); }
+    .experiment { display: grid; grid-template-columns: 50px 155px 1fr 130px; gap: 14px; align-items: start; padding: 15px; background: var(--panel); }
+    .experiment p { margin: 0; color: #c5ccc7; }
+    .experiment small { display: block; margin-top: 4px; color: var(--muted); }
+    .tag { display: inline-block; width: max-content; padding: 4px 7px; font-size: 10px; }
+    .tag.kept { background: #163523; color: var(--green); }
+    .tag.reverted { background: #34201d; color: #f3a89d; }
+    .tag.safety { background: #262b29; color: #c2cbc4; }
+    .experiment[hidden] { display: none; }
+    .confetti-result { display: grid; grid-template-columns: .8fr 1.2fr; gap: 1px; background: var(--line); border: 1px solid var(--line); }
+    .confetti-result > div { background: var(--panel); padding: 24px; }
+    .big-number { display: block; color: var(--green); font: 700 52px/1 var(--serif); }
+    .candidates { display: grid; gap: 14px; }
+    .candidate { display: grid; grid-template-columns: 70px 1fr auto; gap: 14px; align-items: center; }
+    .candidate .track { height: 8px; background: #2b322f; }
+    .candidate .track i { display: block; height: 100%; background: var(--red); }
+    .candidate.retained .track i { background: var(--green); }
+    .candidate b { font-family: var(--mono); font-size: 12px; }
+    .proof-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .proof { padding: 20px; border: 1px solid var(--line); background: var(--panel); }
+    .proof ul { margin: 10px 0 0; padding-left: 20px; color: #c2cac4; }
+    .pass { color: var(--green); }
+    .partial { color: var(--amber); }
+    .known { color: var(--red); }
+    details { margin-top: 12px; padding: 14px 16px; border: 1px solid var(--line); background: var(--panel); }
+    summary { cursor: pointer; color: var(--blue); font-weight: 700; }
+    .audit { margin-top: 12px; color: var(--muted); font-size: 11px; overflow-wrap: anywhere; }
+    footer { margin-top: 68px; padding-top: 20px; border-top: 1px solid var(--line); color: var(--muted); font-size: 13px; }
+    @keyframes grow { from { transform: scaleX(0); } }
+    @media (max-width: 840px) {
+      .hero-grid, .section-head, .confetti-result { grid-template-columns: 1fr; }
+      .metrics { grid-template-columns: 1fr 1fr; }
+      .metric { border-bottom: 1px solid var(--line); }
+      .architecture, .proof-grid { grid-template-columns: 1fr; }
+      .experiment { grid-template-columns: 38px 1fr; }
+      .experiment > :nth-child(3), .experiment > :nth-child(4) { grid-column: 2; }
+    }
+    @media (max-width: 480px) { .metrics { grid-template-columns: 1fr; } .metric { border-right: 0; } }
+    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } .bar i { animation: none; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <p class="eyebrow">Measured engineering report · 9 August 2026</p>
+      <h1>Find the Bird reaches play 34% faster.</h1>
+      <p class="summary">Eleven startup experiments, two explicit startup reversions, two rejected completion densities, a simplification pass, adversarial review, and a final physical iPhone tour produced a faster runtime without changing levels, hitboxes, sprite placement, progression, or the Classic pickup default.</p>
+      <span class="status">Retained branch verified on iPhone 12</span>
+    </header>
+
+    <div class="hero-grid">
+      <div class="verdict"><p class="eyebrow">Retain</p><p><strong>Ship the runtime branch after normal merge approval.</strong> The five-run median composite fell from 5,897.42 ms to 3,865.57 ms. Requests, bytes, and heap growth all moved in the same direction; every benchmark correctness gate passed.</p></div>
+      <div class="residual"><p class="eyebrow">Remaining evidence gap</p><p><strong>Physical motion is not yet recorded.</strong> The final build passed the device tour and its states were inspected, but stills do not prove pickup, haptic, or confetti timing.</p></div>
+    </div>
+
+    <div class="metrics" aria-label="Headline results">
+      <div class="metric"><b>−34.45%</b><span>ready-time composite</span></div>
+      <div class="metric"><b>−37.94%</b><span>first level ready</span></div>
+      <div class="metric"><b>−38.17%</b><span>cached cycle median</span></div>
+      <div class="metric"><b>−48.10%</b><span>heap growth</span></div>
+      <div class="metric"><b>1 / 1</b><span>physical XCUITest</span></div>
+    </div>
+
+    <section aria-labelledby="metrics-title">
+      <div class="section-head"><h2 id="metrics-title">Every primary pressure moved down</h2><p>The profiler uses a frozen content fixture and five-run medians. The composite is not allowed to hide a slower scenario, so first play, cached cycles, requests, memory, frame gaps, and bundle size stay visible separately.</p></div>
+      <div class="comparison">
+        <table>
+          <thead><tr><th>Measure</th><th>Baseline</th><th>Final</th><th>Delta</th><th>Final relative load</th></tr></thead>
+          <tbody>
+            <tr><td>Runtime-ready composite</td><td>5,897.42 ms</td><td>3,865.57 ms</td><td class="delta">−34.45%</td><td><div class="bar"><i style="width:65.55%"></i></div></td></tr>
+            <tr><td>Home ready</td><td>411.73 ms</td><td>398.81 ms</td><td class="delta">−3.14%</td><td><div class="bar"><i style="width:96.86%"></i></div></td></tr>
+            <tr><td>First level ready</td><td>2,721.99 ms</td><td>1,689.28 ms</td><td class="delta">−37.94%</td><td><div class="bar"><i style="width:62.06%"></i></div></td></tr>
+            <tr><td>Cached cycle median</td><td>2,796.00 ms</td><td>1,728.90 ms</td><td class="delta">−38.17%</td><td><div class="bar"><i style="width:61.83%"></i></div></td></tr>
+            <tr><td>Network requests</td><td>166</td><td>139</td><td class="delta">−16.27%</td><td><div class="bar"><i style="width:83.73%"></i></div></td></tr>
+            <tr><td>Transferred bytes</td><td>48,314,825</td><td>42,202,753</td><td class="delta">−12.65%</td><td><div class="bar"><i style="width:87.35%"></i></div></td></tr>
+            <tr><td>Heap growth</td><td>51,528,013 B</td><td>26,740,530 B</td><td class="delta">−48.10%</td><td><div class="bar"><i style="width:51.90%"></i></div></td></tr>
+            <tr><td>Pickup frame-gap p95</td><td>83.4 ms</td><td>66.7 ms</td><td class="delta">−20.02%</td><td><div class="bar"><i style="width:79.98%"></i></div></td></tr>
+            <tr><td>JavaScript bundle</td><td>2,239,346 B</td><td>2,239,895 B</td><td class="flat">+549 B</td><td><div class="bar"><i style="width:99.98%"></i></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section aria-labelledby="changes-title">
+      <div class="section-head"><h2 id="changes-title">The retained shape is simpler</h2><p>The speedup came mostly from removing waits and duplicate work. Robustness changes were retained even when their timing stayed inside the declared 120 ms noise band, but only when they removed a demonstrated race or ownership ambiguity.</p></div>
+      <div class="architecture">
+        <article><span class="label">Critical path</span><h3>Start useful work sooner</h3><p>Current-level prewarm begins in the first idle window. Deferred settings and shop art is owned by Home and canceled when play starts. A ready board no longer waits through obsolete cover dwell.</p></article>
+        <article><span class="label">Reuse</span><h3>Do stable work once</h3><p>Bundled level data survives scene shutdown, concurrent level-index requests share one in-flight computation, and current-level persistence writes only the field that changed.</p></article>
+        <article><span class="label">Ownership</span><h3>Make teardown explicit</h3><p>Blob-backed assets still revoke and rebuild, hidden-page idle work requeues correctly, scene resources have one named release path, and camera sampling no longer allocates an object every frame.</p></article>
+      </div>
+    </section>
+
+    <section aria-labelledby="ledger-title">
+      <div class="section-head"><h2 id="ledger-title">Eleven experiments, no survivor bias</h2><p>Two startup candidates were reverted because they failed to beat the retained frontier. Four non-metric changes stayed because they reduced traffic, persistence work, allocation, or lifecycle risk under dedicated tests.</p></div>
+      <div class="controls" aria-label="Experiment filters">
+        <button type="button" data-filter="all" aria-pressed="true">All 11</button>
+        <button type="button" data-filter="kept" aria-pressed="false">Retained</button>
+        <button type="button" data-filter="reverted" aria-pressed="false">Reverted</button>
+      </div>
+      <div class="ledger">
+        <article class="experiment" data-outcome="kept"><b>01</b><span class="tag safety">safety retain</span><p>Cancel deferred menu art outside Home.<small>17 fewer startup requests and 3.94 MB less transfer; latency inside noise.</small></p><span class="tag kept">retained</span></article>
+        <article class="experiment" data-outcome="kept"><b>02</b><span class="tag kept">metric win</span><p>Prewarm the current level in the first idle window.<small>Composite −254.99 ms; the extra timer had only withheld useful work.</small></p><span class="tag kept">retained</span></article>
+        <article class="experiment" data-outcome="reverted"><b>03</b><span class="tag reverted">reverted</span><p>Decode four prewarm images concurrently.<small>First-level decode improved, but home and cached cycles regressed.</small></p><span class="tag reverted">+79.98 ms</span></article>
+        <article class="experiment" data-outcome="reverted"><b>04</b><span class="tag reverted">reverted</span><p>Force the idle deadline at 200 ms.<small>The composite moved only +20.79 ms inside noise and added contention risk.</small></p><span class="tag reverted">no win</span></article>
+        <article class="experiment" data-outcome="kept"><b>05</b><span class="tag kept">metric win</span><p>Finish play entry when the board is ready.<small>Removed obsolete choreography dwell while preserving every visual phase.</small></p><span class="tag kept">−978.86 ms</span></article>
+        <article class="experiment" data-outcome="kept"><b>06</b><span class="tag kept">metric win</span><p>Reveal the rendered board after a 300 ms cover hold.<small>The cover remains legible; ready gameplay is exposed sooner.</small></p><span class="tag kept">−338.84 ms</span></article>
+        <article class="experiment" data-outcome="kept"><b>07</b><span class="tag kept">metric win</span><p>Retain parsed bundled level data across scene shutdown.<small>Blob-backed scenes still revoke Object URLs and rebuild.</small></p><span class="tag kept">−309.13 ms</span></article>
+        <article class="experiment" data-outcome="kept"><b>08</b><span class="tag kept">metric win</span><p>Share concurrent home and Play level-index resolution.<small>Deduplicates the same catalog work without caching transient failures.</small></p><span class="tag kept">−133.20 ms</span></article>
+        <article class="experiment" data-outcome="kept"><b>09</b><span class="tag safety">safety retain</span><p>Requeue one-shot idle work after visibility races.<small>Prevents hidden-page transitions from silently losing deferred work.</small></p><span class="tag kept">tested</span></article>
+        <article class="experiment" data-outcome="kept"><b>10</b><span class="tag safety">simplify</span><p>Replace per-frame camera snapshot objects with scalars.<small>Removes an indefinite 30-per-second idle allocation.</small></p><span class="tag kept">retained</span></article>
+        <article class="experiment" data-outcome="kept"><b>11</b><span class="tag safety">simplify</span><p>Persist only the selected level on the navigation hot path.<small>Smaller synchronous write and smaller partial-failure surface.</small></p><span class="tag kept">retained</span></article>
+      </div>
+    </section>
+
+    <section aria-labelledby="completion-title">
+      <div class="section-head"><h2 id="completion-title">The celebration was the remaining frame hog</h2><p>The first completion recording exposed 1,080 DOM confetti pieces and 1,090 simultaneous animations. A separate three-run, two-second overlay benchmark compared three lower densities. The smallest tested candidate was also the only one with a stable 50 ms maximum in every run.</p></div>
+      <div class="confetti-result">
+        <div><span class="big-number">16.8 ms</span><p>final completion p95, down from 33.3 ms. Visual review retained the effect: both side cannons and the top rain remain obvious without covering the reward card.</p></div>
+        <div class="candidates">
+          <div class="candidate retained"><b>360 kept</b><div class="track"><i style="width:37.5%"></i></div><span>50 / 50 / 50 ms max</span></div>
+          <div class="candidate"><b>480</b><div class="track"><i style="width:50%"></i></div><span>50 / 66.7 / 50 ms</span></div>
+          <div class="candidate"><b>600</b><div class="track"><i style="width:62.5%"></i></div><span>83.3 / 66.6 / 83.4 ms</span></div>
+          <div class="candidate"><b>1,080 old</b><div class="track"><i style="width:100%"></i></div><span>133.3 / 100 / 133.3 ms</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section aria-labelledby="proof-title">
+      <div class="section-head"><h2 id="proof-title">Verified, with one honest gap</h2><p>The exact retained commit was built, installed, toured, inspected, and relaunched on the connected phone. Browser and unit proof covers timing and invariants more deeply; device stills cover physical rendering, not motion.</p></div>
+      <div class="proof-grid">
+        <article class="proof"><h3 class="pass">Passed</h3><ul><li>TypeScript typecheck and ESLint</li><li>22 focused completion and harness tests</li><li>315 unit tests across 54 files, excluding one known stale assertion</li><li>All runtime benchmark correctness gates</li><li>iPhone 12 build, install, six-state tour, XCUITest 1/1, relaunch</li></ul></article>
+        <article class="proof"><h3 class="partial">Partial</h3><ul><li>No physical pickup or completion video on the final commit</li><li>No trusted phash reference set for automated device visual diffs</li><li>Live CDN failure behavior was not induced on the phone</li><li>Browser timings are Chromium, not WKWebView timings</li></ul></article>
+      </div>
+      <details><summary>Known test debt</summary><p>The unfiltered suite contains one pre-existing stale byte-size assertion in <code>five-square-campaign.test.ts</code>: expected 9,629 bytes, actual 9,628. The same mismatch exists on the base commit. Level content was not altered to appease bookkeeping.</p></details>
+      <details><summary>Review and audit trail</summary><p>No actionable finding remained after correctness, testing, performance, reliability, maintainability, frontend-race, agent-native, project-standard, and adversarial review. Cross-model review was attempted but produced no parseable artifact.</p><p class="audit">Base d7edcfec5882868352a150cb9551c46c7a407c27 · retained 3042d5cf4f0898e4b0a0cb06e1329ba773031d37 · fixture 89cc40611e2e209c743fc49b1c1e02a9f61c06ce5bf88c164d41699a2b3a3ab0 · review 20260809-023232-d67faea5</p></details>
+      <details><summary>Durable source evidence</summary><p><code>.context/compound-engineering/ce-optimize/ftb-game-runtime/</code> contains the frozen baseline, metric contract, full experiment log, and strategy digest. <code>docs/evidence/2026-08-09-ftb-runtime-optimization/</code> contains browser recordings, screenshots, device captures, and the evidence verdict.</p></details>
+    </section>
+
+    <footer>Branch <code>optimize/ftb-game-runtime</code> is committed and verified. It has not been merged or pushed; that remains a separate approval boundary.</footer>
+  </main>
+  <script>
+    const buttons = [...document.querySelectorAll('[data-filter]')];
+    const experiments = [...document.querySelectorAll('.experiment')];
+    for (const button of buttons) {
+      button.addEventListener('click', () => {
+        const filter = button.dataset.filter;
+        for (const candidate of buttons) candidate.setAttribute('aria-pressed', String(candidate === button));
+        for (const experiment of experiments) experiment.hidden = filter !== 'all' && experiment.dataset.outcome !== filter;
+      });
+    }
+  </script>
+</body>
+</html>
