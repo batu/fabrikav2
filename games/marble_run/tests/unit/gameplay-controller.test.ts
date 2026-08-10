@@ -63,6 +63,7 @@ vi.mock("../../src/three/BoardScene", () => {
     setAnimationSpeed() {}
     isAnimating() { return false; }
     isSpawningMarbles() { return false; }
+    requiresContinuousFrames() { return false; }
   }
   return { BoardScene: MockBoardSceneImpl };
 });

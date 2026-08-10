@@ -62,6 +62,8 @@ export interface MarbleTapTarget {
 /** Keep refreshing shadows briefly after motion stops, so the settled frame is
  * drawn with a current shadow map rather than the last in-motion one. */
 const SHADOW_SETTLE_TAIL_MS = 400;
+/** Static boards do not need a phone-heating 60 WebGL renders per second. */
+const IDLE_RENDER_INTERVAL_MS = 1000;
 
 const TAP_ASSIST_RADIUS_PX = 46;
 const PRECISE_BLOCKED_HIT_MAX_PX = 8;
@@ -108,6 +110,7 @@ export class GameplayController {
   private winModalTimer: number | null = null;
   private rafHandle: number | null = null;
   private shadowsDirtyUntil = 0;
+  private lastRenderTime = 0;
   private disposed = false;
 
   private readonly boundPointerDown: (e: PointerEvent) => void;
@@ -555,19 +558,23 @@ export class GameplayController {
     this.lastTime = now;
     // Shadows only need redrawing while the scene is actually moving. Keep a
     // short tail so the settle frame after the last roll is not left stale.
-    const busy = this.board?.isAnimating() === true
-      || this.board?.isSpawningMarbles() === true
+    const busy = this.board?.requiresContinuousFrames() === true
       || this.tutorialCell !== null;
     if (busy) this.shadowsDirtyUntil = now + SHADOW_SETTLE_TAIL_MS;
-    if (now <= this.shadowsDirtyUntil) this.stage.markShadowsDirty();
-    if (!this.paused) {
+    const shadowsSettling = now <= this.shadowsDirtyUntil;
+    const idleRefreshDue = now - this.lastRenderTime >= IDLE_RENDER_INTERVAL_MS;
+    if (shadowsSettling) this.stage.markShadowsDirty();
+    if (!this.paused && busy) {
       this.board?.tick(dt);
       // The cue is mounted before the board's settle/drop animation completes.
       // Reproject it each frame so the visible marble and its tap cue stay one
       // target instead of separating vertically during first-level onboarding.
       this.updateTutorialPosition();
     }
-    this.stage.render();
+    if (busy || shadowsSettling || idleRefreshDue) {
+      this.stage.render();
+      this.lastRenderTime = now;
+    }
     this.rafHandle = requestAnimationFrame(() => this.loop());
   }
 

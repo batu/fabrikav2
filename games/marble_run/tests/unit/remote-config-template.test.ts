@@ -15,7 +15,7 @@ const templatePath = resolve(__dirname, '../../docs/remote-config-template.json'
 
 describe('firebase remote config template', () => {
   it('matches the compiled schema', () => {
-    const generated = `${stableRemoteConfigTemplateJson(buildFirebaseRemoteConfigTemplate())}\n`;
+    const generated = stableRemoteConfigTemplateJson(buildFirebaseRemoteConfigTemplate());
     if (process.env.UPDATE_REMOTE_CONFIG_TEMPLATE === '1') {
       writeFileSync(templatePath, generated);
     }

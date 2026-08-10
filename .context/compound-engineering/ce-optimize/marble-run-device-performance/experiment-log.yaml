@@ -120,6 +120,35 @@ experiments:
     primary_delta: "0 ms"
     structural_delta: "-40040 visible triangles on level 68"
     learnings: Mobile sphere LOD preserved hot-run frame time while cutting another 34 percent of the remaining submitted geometry; physical visual acceptance remains required.
+  - iteration: 4
+    batch: 4
+    hypothesis: Stop rendering a static gameplay board at display refresh rate while preserving 60 fps for every active visual effect and route preview.
+    category: rendering
+    outcome: kept
+    changes:
+      - file: games/marble_run/src/three/BoardScene.ts
+        summary: Report every visual state that requires continuous frames.
+      - file: games/marble_run/src/gameplay/GameplayController.ts
+        summary: Render active scenes continuously and static scenes once per second.
+      - file: games/marble_run/tests/unit/gameplay-controller.test.ts
+        summary: Keep the headless BoardScene contract aligned with the runtime.
+    gates:
+      levels_profiled: 6
+      idle_renders_per_12s: 12
+      late_game_p95_ms: 18
+      frames_min: 718
+    gates_passed: true
+    diagnostics:
+      repeats: 3
+      p95_ms: 18
+      p50_ms: 17
+      renders_max: 12
+      late_game_renders_max: 12
+      previous_renders_max: 720
+      level_68_p95_ms: 18
+    primary_delta: "-708 idle renders per 12 seconds (-98.3 percent)"
+    structural_delta: "Static WebGL cadence reduced from 60 fps to 1 fps; active visuals remain requestAnimationFrame-driven."
+    learnings: Sparse 4 fps and 30 fps schedules exposed render-cost spikes in rAF p95. One static recovery render per second removed sustained GPU work while keeping p95 at 17-18 ms.
 baseline:
   timestamp: 2026-08-10T12:36:58Z
   repeats: 3
@@ -159,10 +188,10 @@ baseline:
   thermal_observation: Consecutive hot runs drove level 68 from 715 frames at 18 ms p95 to 666-670 frames at 22 ms p95.
   noise_warning: Primary range is 2 ms under sustained load; require a median win above 2 ms or pair it with an exact structural reduction.
 best:
-  iteration: 3
+  iteration: 4
   metrics:
-    p95_ms: 19
-    worst_ms: 21
+    p95_ms: 18
+    idle_renders_per_12s: 12
     p50_ms: 17
     draw_calls: 643
     triangles: 78426
