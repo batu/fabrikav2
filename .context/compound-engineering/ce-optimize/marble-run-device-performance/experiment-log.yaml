@@ -31,8 +31,52 @@ superseded_baseline:
     level_20_triangles: 92998
   noise_warning: Primary range is 1 ms, above the 0.75 ms threshold; require at least a 1 ms median win and prefer exact structural diagnostics.
 experiments: []
-baseline: null
-best: null
+baseline:
+  timestamp: 2026-08-10T12:36:58Z
+  repeats: 3
+  aggregation: median
+  raw_primary: [20, 22, 22]
+  primary_range: 2
+  gates:
+    levels_profiled: 6
+    draw_calls: 802
+    triangles: 232946
+    frames_min: 670
+  diagnostics:
+    p95_ms: 22
+    worst_ms: 26
+    p50_ms: 18
+    draw_calls: 802
+    triangles: 232946
+    frames_min: 670
+    level_1_p95_ms: 18
+    level_20_p95_ms: 19
+    level_21_p95_ms: 18
+    level_30_p95_ms: 20
+    level_68_p95_ms: 22
+    level_106_p95_ms: 19
+    level_1_draw_calls: 51
+    level_20_draw_calls: 313
+    level_21_draw_calls: 637
+    level_30_draw_calls: 748
+    level_68_draw_calls: 802
+    level_106_draw_calls: 748
+    level_1_triangles: 12826
+    level_20_triangles: 92998
+    level_21_triangles: 183842
+    level_30_triangles: 218906
+    level_68_triangles: 232946
+    level_106_triangles: 218906
+  thermal_observation: Consecutive hot runs drove level 68 from 715 frames at 18 ms p95 to 666-670 frames at 22 ms p95.
+  noise_warning: Primary range is 2 ms under sustained load; require a median win above 2 ms or pair it with an exact structural reduction.
+best:
+  iteration: 0
+  metrics:
+    p95_ms: 22
+    worst_ms: 26
+    p50_ms: 18
+    draw_calls: 802
+    triangles: 232946
 hypothesis_backlog:
   - description: Batch visually identical marble meshes with instancing to collapse per-marble draw calls.
     category: rendering
