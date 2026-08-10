@@ -28,7 +28,13 @@ export class Stage {
   private cameraYawDeg = 45;
   private framedBoard: { readonly w: number; readonly d: number } | null = null;
 
-  constructor(canvas: HTMLCanvasElement) {
+  /**
+   * `manualShadowUpdates` hands shadow-map refresh to the caller. Only worth it
+   * for a surface that is static most of the time (gameplay between taps); a
+   * continuously animating surface like the menu's spinning board must leave it
+   * off, or its shadow freezes at the first frame while the board turns.
+   */
+  constructor(canvas: HTMLCanvasElement, options: { manualShadowUpdates?: boolean } = {}) {
     this.renderer = new THREE.WebGLRenderer({
       canvas,
       antialias: true,
@@ -42,7 +48,7 @@ export class Stage {
     // 10x12 board that is ~300 extra draws per frame, and the board is static
     // between taps — so update shadows only when something actually moved.
     // Failure mode is a briefly stale shadow, never a frozen picture.
-    this.renderer.shadowMap.autoUpdate = false;
+    this.renderer.shadowMap.autoUpdate = options.manualShadowUpdates !== true;
     this.renderer.shadowMap.needsUpdate = true;
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
 

@@ -142,7 +142,7 @@ export class GameplayController {
     } satisfies Partial<CSSStyleDeclaration>);
     container.appendChild(this.hudRoot);
 
-    this.stage = new Stage(this.canvas);
+    this.stage = new Stage(this.canvas, { manualShadowUpdates: true });
     this.stage.setViewOffsetYRatio(0.035);
     this.stage.setDebugCamera('dimetric', GAMEPLAY_CAMERA_GROUND_ANGLE_DEG, 90);
 
