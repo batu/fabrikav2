@@ -36,6 +36,9 @@
         user-select: none;
         -webkit-user-select: none;
         -webkit-touch-callout: none;
+        /* Web-side belt for the same defect ios.scrollEnabled=false fixes
+           natively: no rubber-band, no scroll chaining, anywhere. */
+        overscroll-behavior: none;
       }
       img {
         -webkit-user-drag: none;
@@ -64,6 +67,17 @@
         inset: 0;
         z-index: 4;
         pointer-events: none;
+        /* Without this the browser owns pan/drag gestures on every modal, so
+           settings and result cards can be physically dragged around. The
+           canvas got this lock; the modal layer never did. JS touch handlers
+           (e.g. the swipe-down-to-close page gesture) are unaffected — this
+           only suppresses the browser's own gestures. */
+        touch-action: none;
+      }
+      /* The shop page scrolls (HUD.ts scrolls .home-page-body on deep links),
+         so it opts back into vertical panning. */
+      .home-page-body {
+        touch-action: pan-y;
       }
       #scene-transition-cover {
         position: absolute;
