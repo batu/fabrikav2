@@ -4,6 +4,7 @@ import {
   type SdkBuildEnv,
   type SdkEnvironments,
 } from '@fabrikav2/sdk';
+import { envString } from '@fabrikav2/sdk/config-env';
 import {
   AppLovinMaxProvider,
   createAdProvider,
@@ -67,6 +68,7 @@ import {
   type FindTheDogIapComposition,
 } from '../shop/IapService';
 import { buildShopCatalog } from '../shop/ProductCatalog';
+import { firebaseConfigPresentInEnv } from './includePlugins';
 
 type Env = Record<string, string | boolean | undefined>;
 type FirebaseAnalyticsLoader = () => Promise<{
@@ -160,7 +162,7 @@ export function createSdkContext(deps: CreateSdkContextDependencies = {}): GameS
   // Native Firebase (@capacitor-firebase/analytics) aborts at +[FIRApp configure]
   // when the build ships no Firebase config. Mirror V1 firebaseOptions(): only
   // construct the sink on native iOS when API_KEY+PROJECT_ID+APP_ID are all present.
-  if (platform === 'ios' && isNativePlatform && firebaseConfigPresent(env)) {
+  if (platform === 'ios' && isNativePlatform && firebaseConfigPresentInEnv(env)) {
     sinks.push(createFirebaseSink(createLazyFirebaseTransport(
       deps.firebaseAnalyticsLoader ?? (() => import('@capacitor-firebase/analytics')),
     )));
@@ -290,21 +292,6 @@ export function getSdkContext(): GameSdkContext {
 
 function normalizePlatform(value: string): 'android' | 'ios' | 'web' {
   return value === 'ios' || value === 'android' ? value : 'web';
-}
-
-/** Mirrors V1 firebaseOptions() completeness: the native Firebase SDK requires
- * API_KEY, PROJECT_ID, and APP_ID to configure. Absent any of them, the app must
- * make zero native Firebase touches. */
-function firebaseConfigPresent(env: Env): boolean {
-  return envString(env.VITE_FIREBASE_API_KEY) !== null
-    && envString(env.VITE_FIREBASE_PROJECT_ID) !== null
-    && envString(env.VITE_FIREBASE_APP_ID) !== null;
-}
-
-function envString(value: string | boolean | undefined): string | null {
-  if (typeof value !== 'string') return null;
-  const trimmed = value.trim();
-  return trimmed.length > 0 ? trimmed : null;
 }
 
 function createLazyFirebaseTransport(loader: FirebaseAnalyticsLoader): FirebaseTransport {

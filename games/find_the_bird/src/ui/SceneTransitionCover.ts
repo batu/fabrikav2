@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { prefersReducedMotion } from '@fabrikav2/ui';
 import { whenIconsDecoded } from './iconPreload';
 
 const COVER_ID = 'scene-transition-cover';
@@ -33,10 +34,6 @@ function isCurrentCover(cover: HTMLElement, generation: string): boolean {
 
 function isCurrentTransition(cover: HTMLElement, generation: string, kind: TransitionKind): boolean {
   return isCurrentCover(cover, generation) && cover.dataset.transitionKind === kind;
-}
-
-function prefersReducedMotion(): boolean {
-  return window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
 }
 
 function hudOverlay(): HTMLElement | null {

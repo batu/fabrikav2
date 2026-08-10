@@ -1,3 +1,5 @@
+import { envString, parseBooleanEnv, requiredValue } from '@fabrikav2/sdk/config-env';
+
 export interface GameAnalyticsIosConfig {
   gameKey: string;
   secretKey: string;
@@ -22,6 +24,8 @@ const REQUIRED_GAMEANALYTICS_KEYS = [
   'VITE_GAMEANALYTICS_IOS_SECRET_KEY',
 ] as const;
 type RequiredGameAnalyticsKey = (typeof REQUIRED_GAMEANALYTICS_KEYS)[number];
+const CONFIG_READ_AFTER_VALIDATION_ERROR =
+  'GameAnalytics config value was read after missing-key validation.';
 
 export function readGameAnalyticsIosConfig(
   env: GameAnalyticsEnv,
@@ -43,7 +47,10 @@ export function readGameAnalyticsIosConfig(
     };
   }
 
-  if (!isGameAnalyticsGameKey(requiredValue(values.VITE_GAMEANALYTICS_IOS_GAME_KEY))) {
+  if (!isGameAnalyticsGameKey(requiredValue(
+    values.VITE_GAMEANALYTICS_IOS_GAME_KEY,
+    CONFIG_READ_AFTER_VALIDATION_ERROR,
+  ))) {
     return {
       enabled: false,
       reason: 'VITE_GAMEANALYTICS_IOS_GAME_KEY must be 32 characters',
@@ -51,7 +58,10 @@ export function readGameAnalyticsIosConfig(
     };
   }
 
-  if (!isGameAnalyticsSecretKey(requiredValue(values.VITE_GAMEANALYTICS_IOS_SECRET_KEY))) {
+  if (!isGameAnalyticsSecretKey(requiredValue(
+    values.VITE_GAMEANALYTICS_IOS_SECRET_KEY,
+    CONFIG_READ_AFTER_VALIDATION_ERROR,
+  ))) {
     return {
       enabled: false,
       reason: 'VITE_GAMEANALYTICS_IOS_SECRET_KEY must be 40 characters',
@@ -62,8 +72,8 @@ export function readGameAnalyticsIosConfig(
   return {
     enabled: true,
     config: {
-      gameKey: requiredValue(values.VITE_GAMEANALYTICS_IOS_GAME_KEY),
-      secretKey: requiredValue(values.VITE_GAMEANALYTICS_IOS_SECRET_KEY),
+      gameKey: requiredValue(values.VITE_GAMEANALYTICS_IOS_GAME_KEY, CONFIG_READ_AFTER_VALIDATION_ERROR),
+      secretKey: requiredValue(values.VITE_GAMEANALYTICS_IOS_SECRET_KEY, CONFIG_READ_AFTER_VALIDATION_ERROR),
       verboseLogging: !isProductionBuild && parseBooleanEnv(env.VITE_GAMEANALYTICS_VERBOSE_LOGGING, false),
     },
   };
@@ -85,26 +95,4 @@ function isGameAnalyticsGameKey(value: string): boolean {
 
 function isGameAnalyticsSecretKey(value: string): boolean {
   return value.length === 40;
-}
-
-function envString(value: string | boolean | undefined): string | null {
-  if (typeof value !== 'string') return null;
-  const trimmed = value.trim();
-  return trimmed.length > 0 ? trimmed : null;
-}
-
-function requiredValue(value: string | null): string {
-  if (value === null) {
-    throw new Error('GameAnalytics config value was read after missing-key validation.');
-  }
-  return value;
-}
-
-function parseBooleanEnv(value: string | boolean | undefined, defaultValue: boolean): boolean {
-  if (typeof value === 'boolean') return value;
-  if (typeof value !== 'string') return defaultValue;
-  const normalized = value.trim().toLowerCase();
-  if (['true', '1', 'yes', 'on'].includes(normalized)) return true;
-  if (['false', '0', 'no', 'off'].includes(normalized)) return false;
-  return defaultValue;
 }

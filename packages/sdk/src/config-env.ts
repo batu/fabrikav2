@@ -9,9 +9,12 @@ export function envString(value: string | boolean | undefined): string | null {
   return trimmed.length > 0 ? trimmed : null;
 }
 
-export function requiredValue(value: string | null): string {
+export function requiredValue(
+  value: string | null,
+  diagnostic = 'Config value was read after missing-key validation.',
+): string {
   if (value === null) {
-    throw new Error('Config value was read after missing-key validation.');
+    throw new Error(diagnostic);
   }
   return value;
 }

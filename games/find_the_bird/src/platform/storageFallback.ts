@@ -10,6 +10,8 @@
  * so it runs before any module reads storage during evaluation.
  */
 
+import { localStorageOrNull } from './localStorage';
+
 function createMemoryStorage(): Storage {
   const entries = new Map<string, string>();
   return {
@@ -35,10 +37,12 @@ function createMemoryStorage(): Storage {
 }
 
 function storageIsUsable(): boolean {
+  const storage = localStorageOrNull();
+  if (storage === null) return false;
   try {
     const probe = '__ftb_storage_probe__';
-    window.localStorage.setItem(probe, '1');
-    window.localStorage.removeItem(probe);
+    storage.setItem(probe, '1');
+    storage.removeItem(probe);
     return true;
   } catch {
     return false;

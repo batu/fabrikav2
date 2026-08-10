@@ -1,3 +1,5 @@
+import { envString } from '@fabrikav2/sdk/config-env';
+
 export interface OwnedAnalyticsMirrorConfig {
   readonly enabled: boolean;
   readonly endpointUrl: string | null;
@@ -111,12 +113,6 @@ function configIssueReason(missingKeys: readonly string[], invalidKeys: readonly
   if (missingKeys.length > 0) parts.push(`missing ${missingKeys.join(', ')}`);
   if (invalidKeys.length > 0) parts.push(`invalid ${invalidKeys.join(', ')}`);
   return parts.join('; ');
-}
-
-function envString(value: string | boolean | undefined): string | null {
-  if (typeof value !== 'string') return null;
-  const trimmed = value.trim();
-  return trimmed.length > 0 ? trimmed : null;
 }
 
 function envPositiveInt(value: string | boolean | undefined, fallback: number): number {

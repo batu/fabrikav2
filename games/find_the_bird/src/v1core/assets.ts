@@ -1,3 +1,5 @@
+import { localStorageOrNull } from '../platform/localStorage';
+
 export type CohortBucketSpec = 'all' | readonly [number, number];
 
 export interface LevelAsset {
@@ -233,19 +235,10 @@ export function createCohortResolver(options: { numBuckets?: number } = {}): Coh
     return (hash >>> 0) % numBuckets;
   }
 
-  function storage(): Storage | null {
-    if (typeof window === 'undefined') return null;
-    try {
-      return window.localStorage;
-    } catch {
-      return null;
-    }
-  }
-
   return {
     async initialize(experimentId): Promise<number> {
       const key = COHORT_KEY_PREFIX + experimentId;
-      const store = storage();
+      const store = localStorageOrNull();
       const raw = store?.getItem(key) ?? null;
       if (raw !== null) {
         try {

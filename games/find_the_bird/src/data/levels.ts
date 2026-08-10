@@ -29,6 +29,7 @@ import {
 } from '../sequence/runtimeSequence';
 import { hasLowDataConnection, runWhenVisibleAndIdle } from '../platform/browserScheduling';
 import { cohortBucket } from './cohortContext';
+import { isBundledAssetPath } from './assetPath';
 import { manifestEntryFromCatalogLevel } from './catalogManifestEntry';
 import { catalogSnapshotFetchUrls } from './catalogSnapshotUrls';
 import { assertRuntimeLevelFile } from './levelFileRuntimeGuard';
@@ -589,10 +590,6 @@ function cdnAssetPath(path: string, hash: string): string {
   return `/assets/${hash}${extension}`;
 }
 
-function shouldUseBundledAssetPath(path: string, bundled: boolean): boolean {
-  return bundled && !path.startsWith('/assets/');
-}
-
 const ASSET_FETCH_TIMEOUT_MS = 30_000;
 const PREFETCH_ASSET_FETCH_TIMEOUT_MS = 8_000;
 const OPTIONAL_SPRITE_FETCH_TIMEOUT_MS = 3_000;
@@ -662,7 +659,7 @@ async function fetchAssetBlob(
   timeoutMs: number = ASSET_FETCH_TIMEOUT_MS,
 ): Promise<Blob> {
   const origin = getCdnOrigin();
-  if (origin === null || shouldUseBundledAssetPath(path, bundled)) {
+  if (origin === null || isBundledAssetPath(path, bundled)) {
     // Bundled / same-origin path: cache is pointless — the blob is
     // already served by the APK's webroot. Fetch, blob, return.
     const url = resolveAssetUrl(path);
@@ -696,7 +693,7 @@ async function fetchAssetBlob(
 }
 
 async function fetchPackageAssetForCache(asset: PackageAssetDescriptor): Promise<Blob> {
-  const bundledLocal = shouldUseBundledAssetPath(asset.path, asset.bundled);
+  const bundledLocal = isBundledAssetPath(asset.path, asset.bundled);
   const path = bundledLocal ? asset.path : cdnAssetPath(asset.path, asset.hash);
   return await fetchWithTimeout(resolveAssetUrl(path, !bundledLocal), PREFETCH_ASSET_FETCH_TIMEOUT_MS, async (response) => {
     if (!response.ok) throw new Error(`package asset fetch failed: ${asset.path} (${response.status})`);
@@ -909,15 +906,17 @@ export async function getLevelSelectEntries(): Promise<LevelSelectEntry[]> {
   return await Promise.all(index.map(async (level): Promise<LevelSelectEntry> => {
     const entry = await getRuntimeEntry(level.id);
     const thumbnailAsset = entry?.assets.thumbnailImage ?? entry?.assets.colorImage ?? null;
+    const bundledLocal = thumbnailAsset !== null
+      && isBundledAssetPath(thumbnailAsset.path, entry?.bundled ?? false);
     // webp fallback, not png: the native bundle ships only webp (the png
     // would 404 on device) and the png is ~17x heavier for a thumbnail.
     const thumbnailImage = thumbnailAsset === null
       ? `levels/${level.id}/color.webp`
       : resolveAssetUrl(
-        shouldUseBundledAssetPath(thumbnailAsset.path, entry?.bundled ?? false)
+        bundledLocal
           ? thumbnailAsset.path
           : cdnAssetPath(thumbnailAsset.path, thumbnailAsset.hash),
-        !shouldUseBundledAssetPath(thumbnailAsset.path, entry?.bundled ?? false),
+        !bundledLocal,
       );
     return {
       ...level,
@@ -964,11 +963,11 @@ async function loadLevelFromEntry(id: string, entry: ManifestLevelEntry, useCach
   // consumes a same-origin URL (no canvas taint from CDN CORS).
   const origin = getCdnOrigin();
   const levelUsesRemoteAssets = origin !== null && (
-    !shouldUseBundledAssetPath(entry.assets.levelJson.path, entry.bundled)
-    || !shouldUseBundledAssetPath(styleAsset.path, entry.bundled)
+    !isBundledAssetPath(entry.assets.levelJson.path, entry.bundled)
+    || !isBundledAssetPath(styleAsset.path, entry.bundled)
   );
   let colorImageUrl: string;
-  if (origin === null || shouldUseBundledAssetPath(styleAsset.path, entry.bundled)) {
+  if (origin === null || isBundledAssetPath(styleAsset.path, entry.bundled)) {
     // Bundled mode: pass through the same-origin relative path.
     // Phaser resolves against document origin; no Object URL needed,
     // no revocation concern.
@@ -1002,7 +1001,7 @@ async function loadLevelFromEntry(id: string, entry: ManifestLevelEntry, useCach
   if (entry.assets.bgImages && entry.assets.bgImages.length > 0) {
     const urls: string[] = [];
     const allBgImagesUseBundledPaths = entry.assets.bgImages.every((bg) => (
-      shouldUseBundledAssetPath(bg.path, entry.bundled)
+      isBundledAssetPath(bg.path, entry.bundled)
     ));
     if (origin === null || allBgImagesUseBundledPaths) {
       for (const bg of entry.assets.bgImages) urls.push(bg.path);
@@ -1063,7 +1062,7 @@ async function loadLevelFromEntry(id: string, entry: ManifestLevelEntry, useCach
     let spriteUrl: string | null = null;
     if (
       origin === null
-      || (shouldUseBundledAssetPath(sourceSprite.image, entry.bundled) && !levelUsesRemoteAssets)
+      || (isBundledAssetPath(sourceSprite.image, entry.bundled) && !levelUsesRemoteAssets)
     ) {
       spriteUrl = sourceSprite.image;
     } else {

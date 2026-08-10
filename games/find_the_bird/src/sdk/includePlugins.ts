@@ -11,6 +11,8 @@
 // matches what the bundle actually ships. Bundling GoogleService-Info.plist when
 // config IS present is FTD-PARITY-2's apply-ios-firebase tool's job, not this one.
 
+import { envString } from '@fabrikav2/sdk/config-env';
+
 /** Plugins always safe to load — no config-dependent native call at boot. */
 export const ALWAYS_INCLUDED_PLUGINS: readonly string[] = [
   '@capacitor/app',
@@ -19,18 +21,14 @@ export const ALWAYS_INCLUDED_PLUGINS: readonly string[] = [
   '@revenuecat/purchases-capacitor',
 ];
 
-type EnvLike = Record<string, string | undefined>;
-
-function present(value: string | undefined): boolean {
-  return typeof value === 'string' && value.trim().length > 0;
-}
+type EnvLike = Record<string, string | boolean | undefined>;
 
 /** True when API_KEY, PROJECT_ID, and APP_ID are all present — mirrors V1
  * firebaseOptions() completeness and the SdkContext JS gate. */
 export function firebaseConfigPresentInEnv(env: EnvLike): boolean {
-  return present(env.VITE_FIREBASE_API_KEY)
-    && present(env.VITE_FIREBASE_PROJECT_ID)
-    && present(env.VITE_FIREBASE_APP_ID);
+  return envString(env.VITE_FIREBASE_API_KEY) !== null
+    && envString(env.VITE_FIREBASE_PROJECT_ID) !== null
+    && envString(env.VITE_FIREBASE_APP_ID) !== null;
 }
 
 /** Compute the native plugin allowlist. Firebase analytics is included ONLY when

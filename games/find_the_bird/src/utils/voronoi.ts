@@ -95,7 +95,7 @@ function lineIntersectBisector(
 /**
  * Ray-casting point-in-polygon test.
  */
-export function pointInPolygon(p: Point, polygon: Point[]): boolean {
+export function pointInPolygon(p: Readonly<Point>, polygon: readonly Readonly<Point>[]): boolean {
   let inside = false;
   for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
     const xi = polygon[i].x, yi = polygon[i].y;

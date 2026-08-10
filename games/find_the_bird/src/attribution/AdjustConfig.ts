@@ -1,3 +1,4 @@
+import { envString, parseBooleanEnv, requiredValue } from '@fabrikav2/sdk/config-env';
 import type { AdjustEnvironment } from './AdjustAttributionPlugin';
 import type { AttributionEventName } from './AttributionProvider';
 
@@ -45,6 +46,8 @@ const EVENT_TOKEN_ENV_KEYS = {
 
 const PRODUCTION_GUARD_REASON =
   'VITE_ADJUST_IOS_ENVIRONMENT must be production for production builds';
+const CONFIG_READ_AFTER_VALIDATION_ERROR =
+  'Adjust config value was read after missing-key validation.';
 
 export function readAdjustIosConfig(
   env: AdjustEnv = import.meta.env,
@@ -74,7 +77,10 @@ export function readAdjustIosConfig(
     };
   }
 
-  const environment = parseAdjustEnvironment(requiredValue(values.VITE_ADJUST_IOS_ENVIRONMENT));
+  const environment = parseAdjustEnvironment(requiredValue(
+    values.VITE_ADJUST_IOS_ENVIRONMENT,
+    CONFIG_READ_AFTER_VALIDATION_ERROR,
+  ));
   if (environment === null) {
     return {
       enabled: false,
@@ -83,7 +89,10 @@ export function readAdjustIosConfig(
     };
   }
 
-  if (!isAdjustAppToken(requiredValue(values.VITE_ADJUST_IOS_APP_TOKEN))) {
+  if (!isAdjustAppToken(requiredValue(
+    values.VITE_ADJUST_IOS_APP_TOKEN,
+    CONFIG_READ_AFTER_VALIDATION_ERROR,
+  ))) {
     return {
       enabled: false,
       reason: 'VITE_ADJUST_IOS_APP_TOKEN must be a 12-character Adjust app token',
@@ -102,7 +111,7 @@ export function readAdjustIosConfig(
   return {
     enabled: true,
     config: {
-      appToken: requiredValue(values.VITE_ADJUST_IOS_APP_TOKEN),
+      appToken: requiredValue(values.VITE_ADJUST_IOS_APP_TOKEN, CONFIG_READ_AFTER_VALIDATION_ERROR),
       environment,
       verboseLogging: !isProductionBuild && parseBooleanEnv(env.VITE_ADJUST_VERBOSE_LOGGING, false),
       eventTokens: readEventTokens(env),
@@ -139,26 +148,4 @@ function parseAdjustEnvironment(value: string): AdjustEnvironment | null {
     return normalized;
   }
   return null;
-}
-
-function envString(value: string | boolean | undefined): string | null {
-  if (typeof value !== 'string') return null;
-  const trimmed = value.trim();
-  return trimmed.length > 0 ? trimmed : null;
-}
-
-function requiredValue(value: string | null): string {
-  if (value === null) {
-    throw new Error('Adjust config value was read after missing-key validation.');
-  }
-  return value;
-}
-
-function parseBooleanEnv(value: string | boolean | undefined, defaultValue: boolean): boolean {
-  if (typeof value === 'boolean') return value;
-  if (typeof value !== 'string') return defaultValue;
-  const normalized = value.trim().toLowerCase();
-  if (['true', '1', 'yes', 'on'].includes(normalized)) return true;
-  if (['false', '0', 'no', 'off'].includes(normalized)) return false;
-  return defaultValue;
 }

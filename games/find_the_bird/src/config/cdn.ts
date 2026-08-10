@@ -1,4 +1,5 @@
 import { Capacitor } from '@capacitor/core';
+import { envString } from '@fabrikav2/sdk/config-env';
 
 /**
  * CDN + experiment configuration for Find the Bird.
@@ -21,12 +22,6 @@ export const COHORT_BUCKET_COUNT = 100;
 export type CdnRuntimeEnv = Record<string, string | boolean | undefined>;
 
 const DEFAULT_CDN_ORIGIN = 'https://ftb-level-origin.batuaytemiz.workers.dev';
-
-function envString(value: string | boolean | undefined): string | null {
-  if (typeof value !== 'string') return null;
-  const trimmed = value.trim();
-  return trimmed.length > 0 ? trimmed : null;
-}
 
 export function resolveCdnOriginForRuntime(
   env: CdnRuntimeEnv,

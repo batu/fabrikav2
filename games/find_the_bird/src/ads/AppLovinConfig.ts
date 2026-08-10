@@ -1,3 +1,4 @@
+import { envString, parseBooleanEnv, requiredValue } from '@fabrikav2/sdk/config-env';
 import { KEYMASTER_APPLOVIN_AD_UNIT_IDS } from '../config/KeymasterConfig';
 import { DEFAULT_LEGAL_LINKS } from '../platform/LegalLinks';
 
@@ -70,6 +71,8 @@ const PLATFORM_ENV_KEYS: Record<AppLovinPlatform, PlatformEnvKeys> = {
     sdkKey: 'VITE_APPLOVIN_ANDROID_SDK_KEY',
   },
 };
+const CONFIG_READ_AFTER_VALIDATION_ERROR =
+  'AppLovin config value was read after missing-key validation.';
 
 export function readAppLovinIosConfig(env: AppLovinEnv = import.meta.env): AppLovinConfigResult {
   return readAppLovinConfigForPlatform('ios', env);
@@ -126,7 +129,7 @@ export function readAppLovinConfigForPlatform(
     platform,
     config: {
       platform,
-      sdkKey: requiredValue(sdkKey),
+      sdkKey: requiredValue(sdkKey, CONFIG_READ_AFTER_VALIDATION_ERROR),
       adUnitIds,
       verboseLogging: !isProductionBuild && parseBooleanEnv(env.VITE_APPLOVIN_VERBOSE_LOGGING, false),
       privacy: {
@@ -142,28 +145,6 @@ export function readAppLovinConfigForPlatform(
       },
     },
   };
-}
-
-function envString(value: string | boolean | undefined): string | null {
-  if (typeof value !== 'string') return null;
-  const trimmed = value.trim();
-  return trimmed.length > 0 ? trimmed : null;
-}
-
-function requiredValue(value: string | null): string {
-  if (value === null) {
-    throw new Error('AppLovin config value was read after missing-key validation.');
-  }
-  return value;
-}
-
-function parseBooleanEnv(value: string | boolean | undefined, defaultValue: boolean): boolean {
-  if (typeof value === 'boolean') return value;
-  if (typeof value !== 'string') return defaultValue;
-  const normalized = value.trim().toLowerCase();
-  if (['true', '1', 'yes', 'on'].includes(normalized)) return true;
-  if (['false', '0', 'no', 'off'].includes(normalized)) return false;
-  return defaultValue;
 }
 
 function platformDisplayName(platform: AppLovinPlatform): string {

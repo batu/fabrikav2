@@ -1,4 +1,5 @@
 import type { AssetCache, ManifestLevelEntry, ManifestV1, LevelAsset } from '../v1core/assets';
+import { localStorageOrNull } from '../platform/localStorage';
 import {
   DEFAULT_LEVEL_PACKAGE_CACHE_BUDGET_BYTES,
   planPackageRetention,
@@ -12,6 +13,7 @@ import type {
   RuntimeCatalogPackageAsset,
 } from '../sequence/runtimeSequence';
 import { manifestEntryFromCatalogLevel } from './catalogManifestEntry';
+import { isBundledAssetPath } from './assetPath';
 import { isPlayableLevelAspect } from './playableAspect';
 
 export const PACKAGE_CACHE_LOOKAHEAD_COUNT = 10;
@@ -83,16 +85,7 @@ export interface LastKnownLiveListedState {
   readonly updatedAtMs: number;
 }
 
-function defaultStorage(): Storage | null {
-  if (typeof window === 'undefined') return null;
-  try {
-    return window.localStorage;
-  } catch {
-    return null;
-  }
-}
-
-export function readLastKnownLiveListed(storage: Storage | null = defaultStorage()): LastKnownLiveListedState | null {
+export function readLastKnownLiveListed(storage: Storage | null = localStorageOrNull()): LastKnownLiveListedState | null {
   if (storage === null) return null;
   try {
     const raw = storage.getItem(LAST_KNOWN_LIVE_LISTED_STORAGE_KEY);
@@ -115,7 +108,7 @@ export function readLastKnownLiveListed(storage: Storage | null = defaultStorage
 
 export function writeLastKnownLiveListed(
   state: LastKnownLiveListedState,
-  storage: Storage | null = defaultStorage(),
+  storage: Storage | null = localStorageOrNull(),
 ): void {
   if (storage === null) return;
   try {
@@ -125,7 +118,7 @@ export function writeLastKnownLiveListed(
   }
 }
 
-export function readRecentlyServedLevelIds(storage: Storage | null = defaultStorage()): readonly string[] {
+export function readRecentlyServedLevelIds(storage: Storage | null = localStorageOrNull()): readonly string[] {
   if (storage === null) return [];
   try {
     const raw = storage.getItem(RECENTLY_SERVED_LEVELS_STORAGE_KEY);
@@ -138,7 +131,7 @@ export function readRecentlyServedLevelIds(storage: Storage | null = defaultStor
   }
 }
 
-export function rememberServedLevelId(levelId: string, storage: Storage | null = defaultStorage()): void {
+export function rememberServedLevelId(levelId: string, storage: Storage | null = localStorageOrNull()): void {
   if (storage === null) return;
   try {
     const next = [levelId, ...readRecentlyServedLevelIds(storage).filter((item) => item !== levelId)]
@@ -174,10 +167,6 @@ function manifestAssets(entry: ManifestLevelEntry): readonly PackageAssetDescrip
     pushAsset(`styleVariant:${slug}`, asset);
   }
   return assets;
-}
-
-function isBundledAssetPath(path: string, bundled: boolean): boolean {
-  return bundled && !path.startsWith('/assets/');
 }
 
 function allAssetsBundled(assets: readonly PackageAssetDescriptor[]): boolean {

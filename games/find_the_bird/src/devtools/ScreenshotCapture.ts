@@ -1,5 +1,6 @@
 import type Phaser from 'phaser';
 import { gameState } from '../core/GameState';
+import { snapshotGameImage } from '../utils/phaserSnapshot';
 
 /**
  * Dev-only screenshot capture, wired into the 4-tap debug panel.
@@ -15,15 +16,6 @@ import { gameState } from '../core/GameState';
  *
  * Only rendered in DEV builds — prod users never see this button.
  */
-
-function snapshotGame(game: Phaser.Game): Promise<HTMLImageElement> {
-  return new Promise<HTMLImageElement>((resolve, reject) => {
-    game.renderer.snapshot((img: HTMLImageElement | Phaser.Display.Color): void => {
-      if (img instanceof HTMLImageElement) resolve(img);
-      else reject(new Error('Phaser snapshot returned a Color instead of an Image'));
-    });
-  });
-}
 
 function imageToPngBase64(img: HTMLImageElement): string {
   const canvas = document.createElement('canvas');
@@ -65,7 +57,7 @@ export interface CaptureResult {
 export async function captureScreenshot(game: Phaser.Game): Promise<CaptureResult> {
   const filename = buildFilename(game);
   try {
-    const img = await snapshotGame(game);
+    const img = await snapshotGameImage(game);
     const base64 = imageToPngBase64(img);
     captureWeb(filename, base64);
     return { filename };

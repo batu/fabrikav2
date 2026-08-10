@@ -1,4 +1,5 @@
 import type Phaser from 'phaser';
+import { snapshotGameImage } from '../utils/phaserSnapshot';
 import { formatDuration } from './format';
 
 /**
@@ -17,15 +18,6 @@ export interface ShareWinContext {
   levelName: string;
   dogsFound: number;
   timeSeconds: number;
-}
-
-function snapshotGame(game: Phaser.Game): Promise<HTMLImageElement> {
-  return new Promise<HTMLImageElement>((resolve, reject) => {
-    game.renderer.snapshot((img: HTMLImageElement | Phaser.Display.Color): void => {
-      if (img instanceof HTMLImageElement) resolve(img);
-      else reject(new Error('Phaser snapshot returned a Color instead of an Image'));
-    });
-  });
 }
 
 /**
@@ -108,7 +100,7 @@ async function ensureCaptionFont(): Promise<void> {
 /** Build the shareable PNG and raise the share UI. Throws on render failure. */
 export async function shareWinScreen(game: Phaser.Game, ctx: ShareWinContext): Promise<void> {
   await ensureCaptionFont();
-  const img = await snapshotGame(game);
+  const img = await snapshotGameImage(game);
   const base64 = composeCaptioned(img, ctx);
   const filename = buildFilename(ctx);
   shareWeb(filename, base64);

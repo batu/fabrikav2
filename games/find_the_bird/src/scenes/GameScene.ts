@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { Capacitor } from '@capacitor/core';
+import { prefersReducedMotion } from '@fabrikav2/ui';
 import { COLORS, GAME, GAMEPLAY, TEST_HARNESS_ENABLED, TIMING } from '../core/Constants';
 import { gameState } from '../core/GameState';
 import {
@@ -2005,10 +2006,6 @@ export class GameScene extends Phaser.Scene {
 
   /** Whether the user has asked for reduced motion. Read live (not cached) so a
    *  mid-session OS toggle is honored; cheap enough to call per interaction. */
-  private prefersReducedMotion(): boolean {
-    return window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
-  }
-
   /** Wrong tap. With healthBarEnabled off this is silent: counter only. */
   private onWrongTap(worldX: number, worldY: number, canvasX: number, canvasY: number): void {
     const now = Date.now();
@@ -2016,7 +2013,7 @@ export class GameScene extends Phaser.Scene {
 
     // Read once per miss and thread the boolean through the effects, rather than
     // re-querying matchMedia in each helper (and so they can never disagree).
-    const reducedMotion = this.prefersReducedMotion();
+    const reducedMotion = prefersReducedMotion();
 
     // Health off (default): a miss is a NON-EVENT. No lives, no X marker, no
     // shake, no dust, no sound or haptic — the whole punishment vocabulary
@@ -2528,7 +2525,7 @@ export class GameScene extends Phaser.Scene {
   /** Style A — Flashbulb: cover flash, punch-up hold, then a clean arc. */
   private playPickupFlashbulb(dog: LevelDog): void {
     const { image, start, target } = this.spawnPickupImage(dog);
-    const reducedMotion = this.prefersReducedMotion();
+    const reducedMotion = prefersReducedMotion();
     const baseX = image.scaleX;
     const baseY = image.scaleY;
     const size = Math.max(image.displayWidth, image.displayHeight, 1);
@@ -2575,7 +2572,7 @@ export class GameScene extends Phaser.Scene {
   /** Style B — Feather Burst: particles erupt and the sprite rides a trail. */
   private playPickupBurst(dog: LevelDog): void {
     const { image, start, target } = this.spawnPickupImage(dog);
-    const reducedMotion = this.prefersReducedMotion();
+    const reducedMotion = prefersReducedMotion();
     const baseX = image.scaleX;
     const baseY = image.scaleY;
     const size = Math.max(image.displayWidth, image.displayHeight, 1);
@@ -2671,7 +2668,7 @@ export class GameScene extends Phaser.Scene {
   /** Style C — Pop & Tumble: anticipation squash, shockwave, tumbling dive. */
   private playPickupTumble(dog: LevelDog): void {
     const { image, start, target } = this.spawnPickupImage(dog);
-    const reducedMotion = this.prefersReducedMotion();
+    const reducedMotion = prefersReducedMotion();
     const baseX = image.scaleX;
     const baseY = image.scaleY;
     const size = Math.max(image.displayWidth, image.displayHeight, 1);
@@ -2745,7 +2742,7 @@ export class GameScene extends Phaser.Scene {
    *  carries the "credit" to the counter. Cutout quality barely matters. */
   private playPickupDissolve(dog: LevelDog): void {
     const { image, start, target } = this.spawnPickupImage(dog);
-    const reducedMotion = this.prefersReducedMotion();
+    const reducedMotion = prefersReducedMotion();
     this.pickupAnimationsActive += 1;
     this.ensurePickupParticleTexture();
     this.ensurePickupFeatherTexture();
@@ -2829,7 +2826,7 @@ export class GameScene extends Phaser.Scene {
     const viewport = this.levelToViewportPoint(dog.x, dog.y);
     const start = this.viewportToScrollFactorZeroPoint(viewport.x, viewport.y);
     const target = this.counterTargetPoint();
-    const reducedMotion = this.prefersReducedMotion();
+    const reducedMotion = prefersReducedMotion();
     if (reducedMotion) {
       const feather = this.add.image(target.x, target.y, 'pickup-feather')
         .setScrollFactor(0)
@@ -2978,7 +2975,7 @@ export class GameScene extends Phaser.Scene {
       y: Math.min(start.y, target.y) - arcHeight,
     };
     const progress = { t: 0 };
-    const reducedMotion = this.prefersReducedMotion();
+    const reducedMotion = prefersReducedMotion();
 
     this.pickupAnimationsActive += 1;
     this.tweens.add({
