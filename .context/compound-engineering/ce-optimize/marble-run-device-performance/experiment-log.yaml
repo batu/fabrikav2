@@ -30,7 +30,36 @@ superseded_baseline:
     level_13_triangles: 53094
     level_20_triangles: 92998
   noise_warning: Primary range is 1 ms, above the 0.75 ms threshold; require at least a 1 ms median win and prefer exact structural diagnostics.
-experiments: []
+experiments:
+  - iteration: 1
+    batch: 1
+    hypothesis: Fully transparent Modeler parts still submit draw calls and triangles; hiding those objects preserves pixels while reducing late-game GPU work.
+    category: rendering
+    outcome: kept
+    changes:
+      - file: games/marble_run/src/three/ModelerSpec.ts
+        summary: Mark zero-opacity transparent Modeler meshes invisible at construction.
+      - file: games/marble_run/src/three/ModelerSpec.test.ts
+        summary: Lock the zero-opacity culling invariant.
+    gates:
+      levels_profiled: 6
+      draw_calls: 643
+      triangles: 118466
+      frames_min: 717
+    gates_passed: true
+    diagnostics:
+      p95_ms: 19
+      worst_ms: 22
+      p50_ms: 17
+      draw_calls: 643
+      triangles: 118466
+      frames_min: 717
+      level_68_p95_ms: 18
+      level_68_draw_calls: 643
+      level_68_triangles: 118466
+    primary_delta: "-3 ms"
+    structural_delta: "-159 draw calls; -114480 submitted triangles on level 68"
+    learnings: Zero-alpha decorative geometry accounted for 49 percent of submitted late-game triangles; three consecutive hot runs held at 18 ms p95 on level 68.
 baseline:
   timestamp: 2026-08-10T12:36:58Z
   repeats: 3
@@ -70,13 +99,13 @@ baseline:
   thermal_observation: Consecutive hot runs drove level 68 from 715 frames at 18 ms p95 to 666-670 frames at 22 ms p95.
   noise_warning: Primary range is 2 ms under sustained load; require a median win above 2 ms or pair it with an exact structural reduction.
 best:
-  iteration: 0
+  iteration: 1
   metrics:
-    p95_ms: 22
-    worst_ms: 26
-    p50_ms: 18
-    draw_calls: 802
-    triangles: 232946
+    p95_ms: 19
+    worst_ms: 22
+    p50_ms: 17
+    draw_calls: 643
+    triangles: 118466
 hypothesis_backlog:
   - description: Batch visually identical marble meshes with instancing to collapse per-marble draw calls.
     category: rendering
