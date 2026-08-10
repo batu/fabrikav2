@@ -62,6 +62,19 @@ if ((!import.meta.env.PROD || TEST_HARNESS_ENABLED) && import.meta.env.VITE_SDK_
       console.log('[sdk-verifier] autopreload rewarded:', await ads.preloadRewarded().then(() => 'resolved', (e) => `rejected: ${String(e)}`));
     })();
   }
+  // VITE_SDK_VERIFIER_AUTOCRASH=true kills the app on purpose a few seconds
+  // after boot, so crash-reporting delivery can be verified with no tap path on
+  // a physical device. The delay lets Crashlytics finish its own startup —
+  // crashing before it installs its handler produces no report at all. Same
+  // gate as the automount; never enabled in a store/TestFlight archive.
+  if (import.meta.env.VITE_SDK_VERIFIER_AUTOCRASH === 'true') {
+    void (async (): Promise<void> => {
+      const { forceCrash } = await import('./devtools/crashlyticsProbe');
+      await new Promise((resolve) => setTimeout(resolve, 8000));
+      console.log('[sdk-verifier] autocrash: firing');
+      await forceCrash();
+    })();
+  }
 }
 
 const game: Phaser.Game = new Phaser.Game(GameConfig);

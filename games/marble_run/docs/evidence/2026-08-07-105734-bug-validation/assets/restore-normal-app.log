@@ -1,0 +1,675 @@
+
+> @fabrikav2/marble_run@0.0.0 build
+> vite build
+
+vite v6.4.3 building for production...
+transforming...
+✓ 216 modules transformed.
+rendering chunks...
+[plugin vite:reporter] 
+(!) /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/src/audio/AmbientManager.ts is dynamically imported by /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/src/bootstrap.ts but also statically imported by /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/src/menu/settings.ts, /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/src/scenes/GameScene.ts, /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/src/scenes/HomeScene.ts, /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/src/ui/HUD.ts, dynamic import will not move module into another chunk.
+
+[plugin vite:reporter] 
+(!) /Users/base/dev/appletolye/fabrikav2/node_modules/@capacitor/core/dist/index.js is dynamically imported by /Users/base/dev/appletolye/fabrikav2/packages/sdk/src/ads/AdMobProvider.ts, /Users/base/dev/appletolye/fabrikav2/packages/sdk/src/ads/AdMobProvider.ts but also statically imported by /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/src/config/cdn.ts, /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/src/gameplay/haptics.ts, /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/src/haptics/HapticsManager.ts, /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/src/notifications/NotificationService.ts, /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/src/sdk/SdkContext.ts, /Users/base/dev/appletolye/fabrikav2/node_modules/@capacitor-firebase/analytics/dist/esm/index.js, /Users/base/dev/appletolye/fabrikav2/node_modules/@capacitor-firebase/analytics/dist/esm/web.js, /Users/base/dev/appletolye/fabrikav2/node_modules/@capacitor/haptics/dist/esm/index.js, /Users/base/dev/appletolye/fabrikav2/node_modules/@capacitor/haptics/dist/esm/web.js, /Users/base/dev/appletolye/fabrikav2/node_modules/@capacitor/local-notifications/dist/esm/index.js, /Users/base/dev/appletolye/fabrikav2/node_modules/@capacitor/local-notifications/dist/esm/web.js, /Users/base/dev/appletolye/fabrikav2/packages/sdk/src/ads/AppLovinMaxPlugin.ts, /Users/base/dev/appletolye/fabrikav2/packages/sdk/src/attribution/AdjustAttributionPlugin.ts, /Users/base/dev/appletolye/fabrikav2/packages/sdk/src/attribution/AppsFlyerAttributionPlugin.ts, /Users/base/dev/appletolye/fabrikav2/packages/sdk/src/attribution/AttributionService.ts, /Users/base/dev/appletolye/fabrikav2/packages/sdk/src/meta/CapacitorMetaPlugin.ts, dynamic import will not move module into another chunk.
+
+[plugin vite:reporter] 
+(!) /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/src/ads/Service.ts is dynamically imported by /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/src/privacy/PrivacyConsentService.ts but also statically imported by /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/src/analytics/AnalyticsService.ts, /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/src/bootstrap.ts, /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/src/scenes/GameScene.ts, /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/src/scenes/HomeScene.ts, /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/src/sdk/SdkContext.ts, /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/src/testing/TestHarness.ts, /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/src/ui/HUD.ts, dynamic import will not move module into another chunk.
+
+[plugin vite:reporter] 
+(!) /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/src/sdk/shims/capacitor-community-admob.ts is dynamically imported by /Users/base/dev/appletolye/fabrikav2/packages/sdk/src/ads/AdMobProvider.ts, /Users/base/dev/appletolye/fabrikav2/packages/sdk/src/ads/AdMobProvider.ts, /Users/base/dev/appletolye/fabrikav2/packages/sdk/src/ads/AdMobProvider.ts, /Users/base/dev/appletolye/fabrikav2/packages/sdk/src/ads/AdMobProvider.ts, /Users/base/dev/appletolye/fabrikav2/packages/sdk/src/ads/AdMobProvider.ts, /Users/base/dev/appletolye/fabrikav2/packages/sdk/src/ads/AdMobProvider.ts, /Users/base/dev/appletolye/fabrikav2/packages/sdk/src/ads/AdMobProvider.ts, /Users/base/dev/appletolye/fabrikav2/packages/sdk/src/ads/AdMobProvider.ts, /Users/base/dev/appletolye/fabrikav2/packages/sdk/src/ads/AdMobProvider.ts but also statically imported by /Users/base/dev/appletolye/fabrikav2/packages/sdk/src/ads/AdMobProvider.ts, dynamic import will not move module into another chunk.
+
+computing gzip size...
+dist/build-info.json                          0.11 kB │ gzip:   0.11 kB
+dist/index.html                               3.41 kB │ gzip:   1.18 kB
+dist/assets/bootstrap-DLx36KjC.css          152.84 kB │ gzip:  29.15 kB
+dist/assets/index-0bQTfmso.js                 0.72 kB │ gzip:   0.42 kB │ map:      1.69 kB
+dist/assets/index-6eHj9KFo.js                 0.86 kB │ gzip:   0.49 kB │ map:      2.12 kB
+dist/assets/web-BnaroAbO.js                   0.97 kB │ gzip:   0.50 kB │ map:      3.11 kB
+dist/assets/pixelsmithStates-t5o23nVd.js      2.14 kB │ gzip:   0.84 kB │ map:     11.87 kB
+dist/assets/index-BJxaLyNv.js                 2.54 kB │ gzip:   1.29 kB │ map:      2.35 kB
+dist/assets/SdkVerifierMount-DbBsbsWH.js      3.40 kB │ gzip:   1.34 kB │ map:     10.21 kB
+dist/assets/web-69wy28tO.js                   3.52 kB │ gzip:   1.17 kB │ map:      9.94 kB
+dist/assets/TestHarness-BpGHAdZK.js          23.77 kB │ gzip:   7.33 kB │ map:    119.35 kB
+dist/assets/web-D2H42LGj.js                  70.29 kB │ gzip:  15.00 kB │ map:    323.63 kB
+dist/assets/bootstrap-Dk7a9SgM.js         2,432.41 kB │ gzip: 585.95 kB │ map: 14,445.17 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 3.93s
+
+> @fabrikav2/marble_run@0.0.0 ios:sync
+> npx cap sync ios && node ../../tools/native-shell/apply.mjs --game marble_run && node ../../tools/native-shell/validate.mjs --game marble_run && node ../../tools/marble-run/ios-inject-team.mjs && node ../../tools/marble-run/sync-native-resources.mjs ios
+
+✔ Copying web assets from dist to ios/App/App/public in 47.86ms
+✔ Creating capacitor.config.json in ios/App/App in 376.54μs
+✔ copy ios in 54.76ms
+✔ Updating iOS plugins in 191.46μs
+[info] All Capacitor plugins have a Package.swift file and will be included in Package.swift
+[info] Writing Package.swift
+[info] Found 4 Capacitor plugins for ios:
+       @capacitor/app@8.1.1
+       @capacitor/haptics@8.0.2
+       @capacitor/local-notifications@8.2.1
+       @capacitor-firebase/analytics@8.3.0
+✔ update ios in 9.85ms
+[info] Sync finished in 0.068s
+Applied native shell for marble_run: CapApp-SPM/Package.swift (152 SKAdNetwork IDs; Firebase plist wired)
+Validated native shell for marble_run: generated project validated; 152 SKAdNetwork IDs; Firebase plist may be absent
+[ios-inject-team] ios/App/App.xcodeproj/project.pbxproj: injected DEVELOPMENT_TEAM=42L77JAX72 into 2 of 2 target(s).
+[sync-native-resources] ios: overlay already in sync; no change.
+Command line invocation:
+    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -project ios/App/App.xcodeproj -scheme App -configuration Debug -destination id=00008101-000410EC3EF9001E -derivedDataPath /private/tmp/marble-run-validation-derived-data -allowProvisioningUpdates build
+
+Resolve Package Graph
+
+
+Resolved source packages:
+  GoogleUserMessagingPlatform: https://github.com/googleads/swift-package-manager-google-user-messaging-platform.git @ 3.1.0
+  CapApp-SPM: /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/ios/App/CapApp-SPM @ local
+  GoogleAppMeasurement: https://github.com/google/GoogleAppMeasurement.git @ 12.17.0
+  Promises: https://github.com/google/promises.git @ 2.4.1
+  CapacitorHaptics: /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/node_modules/@capacitor/haptics @ local
+  Facebook: https://github.com/facebook/facebook-ios-sdk.git @ 18.1.0
+  GTMSessionFetcher: https://github.com/google/gtm-session-fetcher.git @ 5.3.1
+  abseil: https://github.com/google/abseil-cpp-binary.git @ 1.2024072200.0
+  AppsFlyerLib: https://github.com/AppsFlyerSDK/AppsFlyerFramework.git @ 6.18.1
+  gRPC: https://github.com/google/grpc-binary.git @ 1.69.1
+  leveldb: https://github.com/firebase/leveldb.git @ 1.22.5
+  Firebase: https://github.com/firebase/firebase-ios-sdk.git @ 12.17.0
+  AppLovinSDK: https://github.com/AppLovin/AppLovin-MAX-Swift-Package.git @ 13.6.3
+  InteropForGoogle: https://github.com/google/interop-ios-for-google-sdks.git @ 101.0.0
+  CapacitorFirebaseAnalytics: /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/node_modules/@capacitor-firebase/analytics @ local
+  GoogleAdsOnDeviceConversion: https://github.com/googleads/google-ads-on-device-conversion-ios-sdk @ 3.6.1
+  GoogleDataTransport: https://github.com/google/GoogleDataTransport.git @ 10.1.1
+  AppCheck: https://github.com/google/app-check.git @ 11.3.1
+  nanopb: https://github.com/firebase/nanopb.git @ 2.30910.1
+  capacitor-swift-pm: https://github.com/ionic-team/capacitor-swift-pm.git @ 8.4.1
+  CapacitorApp: /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/node_modules/@capacitor/app @ local
+  CapacitorLocalNotifications: /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/node_modules/@capacitor/local-notifications @ local
+  GoogleUtilities: https://github.com/google/GoogleUtilities.git @ 8.1.2
+
+2026-08-07 11:05:49.102 xcodebuild[24815:33754483] [MT] IDERunDestination: Supported platforms for the buildables in the current scheme is empty.
+ComputePackagePrebuildTargetDependencyGraph
+
+Prepare packages
+
+CreateBuildRequest
+
+SendProjectDescription
+
+CreateBuildOperation
+
+ComputeTargetDependencyGraph
+note: Building targets in dependency order
+note: Target dependency graph (66 targets)
+    Target 'App' in project 'App'
+        ➜ Explicit dependency on target 'CapApp-SPM' in project 'CapApp-SPM'
+    Target 'CapApp-SPM' in project 'CapApp-SPM'
+        ➜ Explicit dependency on target 'CapApp-SPM' in project 'CapApp-SPM'
+        ➜ Explicit dependency on target 'Capacitor' in project 'capacitor-swift-pm'
+        ➜ Explicit dependency on target 'Cordova' in project 'capacitor-swift-pm'
+        ➜ Explicit dependency on target 'AppLovinSDK' in project 'AppLovinSDK'
+        ➜ Explicit dependency on target 'GoogleUserMessagingPlatform' in project 'GoogleUserMessagingPlatform'
+        ➜ Explicit dependency on target 'AppsFlyerLib' in project 'AppsFlyerLib'
+        ➜ Explicit dependency on target 'FacebookCore' in project 'Facebook'
+        ➜ Explicit dependency on target 'CapacitorApp' in project 'CapacitorApp'
+        ➜ Explicit dependency on target 'CapacitorHaptics' in project 'CapacitorHaptics'
+        ➜ Explicit dependency on target 'CapacitorLocalNotifications' in project 'CapacitorLocalNotifications'
+        ➜ Explicit dependency on target 'CapacitorFirebaseAnalytics' in project 'CapacitorFirebaseAnalytics'
+    Target 'CapApp-SPM' in project 'CapApp-SPM'
+        ➜ Explicit dependency on target 'Capacitor' in project 'capacitor-swift-pm'
+        ➜ Explicit dependency on target 'Cordova' in project 'capacitor-swift-pm'
+        ➜ Explicit dependency on target 'AppLovinSDK' in project 'AppLovinSDK'
+        ➜ Explicit dependency on target 'GoogleUserMessagingPlatform' in project 'GoogleUserMessagingPlatform'
+        ➜ Explicit dependency on target 'AppsFlyerLib' in project 'AppsFlyerLib'
+        ➜ Explicit dependency on target 'FacebookCore' in project 'Facebook'
+        ➜ Explicit dependency on target 'CapacitorApp' in project 'CapacitorApp'
+        ➜ Explicit dependency on target 'CapacitorHaptics' in project 'CapacitorHaptics'
+        ➜ Explicit dependency on target 'CapacitorLocalNotifications' in project 'CapacitorLocalNotifications'
+        ➜ Explicit dependency on target 'CapacitorFirebaseAnalytics' in project 'CapacitorFirebaseAnalytics'
+    Target 'CapacitorFirebaseAnalytics' in project 'CapacitorFirebaseAnalytics'
+        ➜ Explicit dependency on target 'FirebaseAnalyticsPlugin' in project 'CapacitorFirebaseAnalytics'
+        ➜ Explicit dependency on target 'Capacitor' in project 'capacitor-swift-pm'
+        ➜ Explicit dependency on target 'Cordova' in project 'capacitor-swift-pm'
+        ➜ Explicit dependency on target 'FirebaseAnalyticsCore' in project 'Firebase'
+        ➜ Explicit dependency on target 'FirebaseCore' in project 'Firebase'
+    Target 'FirebaseAnalyticsPlugin' in project 'CapacitorFirebaseAnalytics'
+        ➜ Explicit dependency on target 'Capacitor' in project 'capacitor-swift-pm'
+        ➜ Explicit dependency on target 'Cordova' in project 'capacitor-swift-pm'
+        ➜ Explicit dependency on target 'FirebaseAnalyticsCore' in project 'Firebase'
+        ➜ Explicit dependency on target 'FirebaseCore' in project 'Firebase'
+    Target 'FirebaseCore' in project 'Firebase'
+        ➜ Explicit dependency on target 'FirebaseCore' in project 'Firebase'
+        ➜ Explicit dependency on target 'Firebase_FirebaseCore' in project 'Firebase'
+        ➜ Explicit dependency on target 'Firebase' in project 'Firebase'
+        ➜ Explicit dependency on target 'FirebaseCoreInternal' in project 'Firebase'
+        ➜ Explicit dependency on target 'GULNSData' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GULEnvironment' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GULLogger' in project 'GoogleUtilities'
+    Target 'FirebaseAnalyticsCore' in project 'Firebase'
+        ➜ Explicit dependency on target 'FirebaseAnalyticsCoreTarget' in project 'Firebase'
+        ➜ Explicit dependency on target 'Firebase' in project 'Firebase'
+        ➜ Explicit dependency on target 'FirebaseCoreInternal' in project 'Firebase'
+        ➜ Explicit dependency on target 'FirebaseCore' in project 'Firebase'
+        ➜ Explicit dependency on target 'FirebaseInstallations' in project 'Firebase'
+        ➜ Explicit dependency on target 'FirebaseAnalyticsCoreWrapper' in project 'Firebase'
+        ➜ Explicit dependency on target 'GULNSData' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GULEnvironment' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GULLogger' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'FBLPromises' in project 'Promises'
+        ➜ Explicit dependency on target 'GULUserDefaults' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleAppMeasurementCore' in project 'GoogleAppMeasurement'
+        ➜ Explicit dependency on target 'GULAppDelegateSwizzler' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GULMethodSwizzler' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GULNetwork' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'nanopb' in project 'nanopb'
+    Target 'FirebaseAnalyticsCoreTarget' in project 'Firebase'
+        ➜ Explicit dependency on target 'Firebase' in project 'Firebase'
+        ➜ Explicit dependency on target 'FirebaseCoreInternal' in project 'Firebase'
+        ➜ Explicit dependency on target 'FirebaseCore' in project 'Firebase'
+        ➜ Explicit dependency on target 'FirebaseInstallations' in project 'Firebase'
+        ➜ Explicit dependency on target 'FirebaseAnalyticsCoreWrapper' in project 'Firebase'
+        ➜ Explicit dependency on target 'GULNSData' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GULEnvironment' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GULLogger' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'FBLPromises' in project 'Promises'
+        ➜ Explicit dependency on target 'GULUserDefaults' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleAppMeasurementCore' in project 'GoogleAppMeasurement'
+        ➜ Explicit dependency on target 'GULAppDelegateSwizzler' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GULMethodSwizzler' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GULNetwork' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'nanopb' in project 'nanopb'
+    Target 'FirebaseAnalyticsCoreWrapper' in project 'Firebase'
+        ➜ Explicit dependency on target 'Firebase' in project 'Firebase'
+        ➜ Explicit dependency on target 'FirebaseCoreInternal' in project 'Firebase'
+        ➜ Explicit dependency on target 'FirebaseCore' in project 'Firebase'
+        ➜ Explicit dependency on target 'FirebaseInstallations' in project 'Firebase'
+        ➜ Explicit dependency on target 'GULNSData' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GULEnvironment' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GULLogger' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'FBLPromises' in project 'Promises'
+        ➜ Explicit dependency on target 'GULUserDefaults' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleAppMeasurementCore' in project 'GoogleAppMeasurement'
+        ➜ Explicit dependency on target 'GULAppDelegateSwizzler' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GULMethodSwizzler' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GULNetwork' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'nanopb' in project 'nanopb'
+    Target 'GoogleAppMeasurementCore' in project 'GoogleAppMeasurement'
+        ➜ Explicit dependency on target 'GoogleAppMeasurementCoreTarget' in project 'GoogleAppMeasurement'
+        ➜ Explicit dependency on target 'GULAppDelegateSwizzler' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GULMethodSwizzler' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GULNSData' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GULNetwork' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GULLogger' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GULEnvironment' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'nanopb' in project 'nanopb'
+    Target 'GoogleAppMeasurementCoreTarget' in project 'GoogleAppMeasurement'
+        ➜ Explicit dependency on target 'GULAppDelegateSwizzler' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GULMethodSwizzler' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GULNSData' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GULNetwork' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GULLogger' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GULEnvironment' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'nanopb' in project 'nanopb'
+    Target 'nanopb' in project 'nanopb'
+        ➜ Explicit dependency on target 'nanopb' in project 'nanopb'
+        ➜ Explicit dependency on target 'nanopb_nanopb' in project 'nanopb'
+    Target 'nanopb' in project 'nanopb'
+        ➜ Explicit dependency on target 'nanopb_nanopb' in project 'nanopb'
+    Target 'nanopb_nanopb' in project 'nanopb' (no dependencies)
+    Target 'GULNetwork' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Network' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities_GoogleUtilities-Network' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'third-party-IsAppEncrypted' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Environment' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Logger' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-NSData' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Reachability' in project 'GoogleUtilities'
+    Target 'GULMethodSwizzler' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-MethodSwizzler' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities_GoogleUtilities-MethodSwizzler' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'third-party-IsAppEncrypted' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Environment' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Logger' in project 'GoogleUtilities'
+    Target 'GoogleUtilities-MethodSwizzler' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities_GoogleUtilities-MethodSwizzler' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'third-party-IsAppEncrypted' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Environment' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Logger' in project 'GoogleUtilities'
+    Target 'GoogleUtilities_GoogleUtilities-MethodSwizzler' in project 'GoogleUtilities' (no dependencies)
+    Target 'GULAppDelegateSwizzler' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-AppDelegateSwizzler' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities_GoogleUtilities-AppDelegateSwizzler' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'third-party-IsAppEncrypted' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Environment' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Logger' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-NSData' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Reachability' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Network' in project 'GoogleUtilities'
+    Target 'GoogleUtilities-AppDelegateSwizzler' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities_GoogleUtilities-AppDelegateSwizzler' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'third-party-IsAppEncrypted' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Environment' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Logger' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-NSData' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Reachability' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Network' in project 'GoogleUtilities'
+    Target 'GoogleUtilities-Network' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities_GoogleUtilities-Network' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'third-party-IsAppEncrypted' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Environment' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Logger' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-NSData' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Reachability' in project 'GoogleUtilities'
+    Target 'GoogleUtilities_GoogleUtilities-Network' in project 'GoogleUtilities' (no dependencies)
+    Target 'GoogleUtilities-Reachability' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities_GoogleUtilities-Reachability' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'third-party-IsAppEncrypted' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Environment' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Logger' in project 'GoogleUtilities'
+    Target 'GoogleUtilities_GoogleUtilities-Reachability' in project 'GoogleUtilities' (no dependencies)
+    Target 'GoogleUtilities_GoogleUtilities-AppDelegateSwizzler' in project 'GoogleUtilities' (no dependencies)
+    Target 'FirebaseInstallations' in project 'Firebase'
+        ➜ Explicit dependency on target 'Firebase_FirebaseInstallations' in project 'Firebase'
+        ➜ Explicit dependency on target 'Firebase' in project 'Firebase'
+        ➜ Explicit dependency on target 'FirebaseCoreInternal' in project 'Firebase'
+        ➜ Explicit dependency on target 'FirebaseCore' in project 'Firebase'
+        ➜ Explicit dependency on target 'GULNSData' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GULEnvironment' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GULLogger' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'FBLPromises' in project 'Promises'
+        ➜ Explicit dependency on target 'GULUserDefaults' in project 'GoogleUtilities'
+    Target 'GULUserDefaults' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-UserDefaults' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities_GoogleUtilities-UserDefaults' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'third-party-IsAppEncrypted' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Environment' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Logger' in project 'GoogleUtilities'
+    Target 'GoogleUtilities-UserDefaults' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities_GoogleUtilities-UserDefaults' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'third-party-IsAppEncrypted' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Environment' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Logger' in project 'GoogleUtilities'
+    Target 'GoogleUtilities_GoogleUtilities-UserDefaults' in project 'GoogleUtilities' (no dependencies)
+    Target 'FBLPromises' in project 'Promises'
+        ➜ Explicit dependency on target 'FBLPromises' in project 'Promises'
+        ➜ Explicit dependency on target 'Promises_FBLPromises' in project 'Promises'
+    Target 'FBLPromises' in project 'Promises'
+        ➜ Explicit dependency on target 'Promises_FBLPromises' in project 'Promises'
+    Target 'Promises_FBLPromises' in project 'Promises' (no dependencies)
+    Target 'Firebase_FirebaseInstallations' in project 'Firebase' (no dependencies)
+    Target 'FirebaseCore' in project 'Firebase'
+        ➜ Explicit dependency on target 'Firebase_FirebaseCore' in project 'Firebase'
+        ➜ Explicit dependency on target 'Firebase' in project 'Firebase'
+        ➜ Explicit dependency on target 'FirebaseCoreInternal' in project 'Firebase'
+        ➜ Explicit dependency on target 'GULNSData' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GULEnvironment' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GULLogger' in project 'GoogleUtilities'
+    Target 'GULLogger' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Logger' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities_GoogleUtilities-Logger' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'third-party-IsAppEncrypted' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Environment' in project 'GoogleUtilities'
+    Target 'GoogleUtilities-Logger' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities_GoogleUtilities-Logger' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'third-party-IsAppEncrypted' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Environment' in project 'GoogleUtilities'
+    Target 'GoogleUtilities_GoogleUtilities-Logger' in project 'GoogleUtilities' (no dependencies)
+    Target 'GULEnvironment' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Environment' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities_GoogleUtilities-Environment' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'third-party-IsAppEncrypted' in project 'GoogleUtilities'
+    Target 'GoogleUtilities-Environment' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities_GoogleUtilities-Environment' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'third-party-IsAppEncrypted' in project 'GoogleUtilities'
+    Target 'third-party-IsAppEncrypted' in project 'GoogleUtilities' (no dependencies)
+    Target 'GoogleUtilities_GoogleUtilities-Environment' in project 'GoogleUtilities' (no dependencies)
+    Target 'Firebase_FirebaseCore' in project 'Firebase' (no dependencies)
+    Target 'FirebaseCoreInternal' in project 'Firebase'
+        ➜ Explicit dependency on target 'Firebase_FirebaseCoreInternal' in project 'Firebase'
+        ➜ Explicit dependency on target 'GULNSData' in project 'GoogleUtilities'
+    Target 'GULNSData' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-NSData' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities_GoogleUtilities-NSData' in project 'GoogleUtilities'
+    Target 'GoogleUtilities-NSData' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities_GoogleUtilities-NSData' in project 'GoogleUtilities'
+    Target 'GoogleUtilities_GoogleUtilities-NSData' in project 'GoogleUtilities' (no dependencies)
+    Target 'Firebase_FirebaseCoreInternal' in project 'Firebase' (no dependencies)
+    Target 'Firebase' in project 'Firebase' (no dependencies)
+    Target 'CapacitorLocalNotifications' in project 'CapacitorLocalNotifications'
+        ➜ Explicit dependency on target 'LocalNotificationsPlugin' in project 'CapacitorLocalNotifications'
+        ➜ Explicit dependency on target 'Capacitor' in project 'capacitor-swift-pm'
+        ➜ Explicit dependency on target 'Cordova' in project 'capacitor-swift-pm'
+    Target 'LocalNotificationsPlugin' in project 'CapacitorLocalNotifications'
+        ➜ Explicit dependency on target 'Capacitor' in project 'capacitor-swift-pm'
+        ➜ Explicit dependency on target 'Cordova' in project 'capacitor-swift-pm'
+    Target 'CapacitorHaptics' in project 'CapacitorHaptics'
+        ➜ Explicit dependency on target 'HapticsPlugin' in project 'CapacitorHaptics'
+        ➜ Explicit dependency on target 'Capacitor' in project 'capacitor-swift-pm'
+        ➜ Explicit dependency on target 'Cordova' in project 'capacitor-swift-pm'
+    Target 'HapticsPlugin' in project 'CapacitorHaptics'
+        ➜ Explicit dependency on target 'Capacitor' in project 'capacitor-swift-pm'
+        ➜ Explicit dependency on target 'Cordova' in project 'capacitor-swift-pm'
+    Target 'CapacitorApp' in project 'CapacitorApp'
+        ➜ Explicit dependency on target 'AppPlugin' in project 'CapacitorApp'
+        ➜ Explicit dependency on target 'Capacitor' in project 'capacitor-swift-pm'
+        ➜ Explicit dependency on target 'Cordova' in project 'capacitor-swift-pm'
+    Target 'AppPlugin' in project 'CapacitorApp'
+        ➜ Explicit dependency on target 'Capacitor' in project 'capacitor-swift-pm'
+        ➜ Explicit dependency on target 'Cordova' in project 'capacitor-swift-pm'
+    Target 'FacebookCore' in project 'Facebook'
+        ➜ Explicit dependency on target 'FacebookCore' in project 'Facebook'
+        ➜ Explicit dependency on target 'Facebook_FacebookCore' in project 'Facebook'
+        ➜ Explicit dependency on target 'FacebookAEM' in project 'Facebook'
+    Target 'FacebookCore' in project 'Facebook'
+        ➜ Explicit dependency on target 'Facebook_FacebookCore' in project 'Facebook'
+        ➜ Explicit dependency on target 'FacebookAEM' in project 'Facebook'
+    Target 'FacebookAEM' in project 'Facebook'
+        ➜ Explicit dependency on target 'Facebook_FacebookAEM' in project 'Facebook'
+    Target 'Facebook_FacebookAEM' in project 'Facebook' (no dependencies)
+    Target 'Facebook_FacebookCore' in project 'Facebook' (no dependencies)
+    Target 'AppsFlyerLib' in project 'AppsFlyerLib' (no dependencies)
+    Target 'GoogleUserMessagingPlatform' in project 'GoogleUserMessagingPlatform'
+        ➜ Explicit dependency on target 'UserMessagingPlatformTarget' in project 'GoogleUserMessagingPlatform'
+    Target 'UserMessagingPlatformTarget' in project 'GoogleUserMessagingPlatform' (no dependencies)
+    Target 'AppLovinSDK' in project 'AppLovinSDK'
+        ➜ Explicit dependency on target 'AppLovinSDKResources' in project 'AppLovinSDK'
+    Target 'AppLovinSDKResources' in project 'AppLovinSDK' (no dependencies)
+    Target 'Cordova' in project 'capacitor-swift-pm' (no dependencies)
+    Target 'Capacitor' in project 'capacitor-swift-pm' (no dependencies)
+
+GatherProvisioningInputs
+
+CreateBuildDescription
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -v -E -dM -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk -x objective-c -c /dev/null
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc --version
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -v -E -dM -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk -x c -c /dev/null
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -v -E -dM -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk -x c -c /dev/null
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/usr/bin/actool --print-asset-tag-combinations --output-format xml1 /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/ios/App/App/Assets.xcassets
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/usr/bin/ibtool --version --output-format xml1
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld -version_details
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/usr/bin/actool --version --output-format xml1
+
+Build description signature: da81e065cf5c3c6f67ae43abc051b8bb
+Build description path: /tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/XCBuildData/da81e065cf5c3c6f67ae43abc051b8bb.xcbuilddata
+ClangStatCache /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang-stat-cache /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk /tmp/marble-run-validation-derived-data/SDKStatCaches.noindex/iphoneos26.5-23F73-32daed1954a7d5dd0789fcaf2a9bb78b.sdkstatcache
+    cd /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/ios/App/App.xcodeproj
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang-stat-cache /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk -o /tmp/marble-run-validation-derived-data/SDKStatCaches.noindex/iphoneos26.5-23F73-32daed1954a7d5dd0789fcaf2a9bb78b.sdkstatcache
+
+ProcessInfoPlistFile /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/Facebook_FacebookCore.bundle/Info.plist /tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/Facebook.build/Debug-iphoneos/Facebook_FacebookCore.build/empty-Facebook_FacebookCore.plist (in target 'Facebook_FacebookCore' from project 'Facebook')
+    cd /tmp/marble-run-validation-derived-data/SourcePackages/checkouts/facebook-ios-sdk
+    builtin-infoPlistUtility /tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/Facebook.build/Debug-iphoneos/Facebook_FacebookCore.build/empty-Facebook_FacebookCore.plist -producttype com.apple.product-type.bundle -expandbuildsettings -format binary -platform iphoneos -requiredArchitecture arm64 -o /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/Facebook_FacebookCore.bundle/Info.plist
+
+ProcessInfoPlistFile /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/Facebook_FacebookAEM.bundle/Info.plist /tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/Facebook.build/Debug-iphoneos/Facebook_FacebookAEM.build/empty-Facebook_FacebookAEM.plist (in target 'Facebook_FacebookAEM' from project 'Facebook')
+    cd /tmp/marble-run-validation-derived-data/SourcePackages/checkouts/facebook-ios-sdk
+    builtin-infoPlistUtility /tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/Facebook.build/Debug-iphoneos/Facebook_FacebookAEM.build/empty-Facebook_FacebookAEM.plist -producttype com.apple.product-type.bundle -expandbuildsettings -format binary -platform iphoneos -requiredArchitecture arm64 -o /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/Facebook_FacebookAEM.bundle/Info.plist
+
+ProcessInfoPlistFile /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/Firebase_FirebaseCoreInternal.bundle/Info.plist /tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/Firebase.build/Debug-iphoneos/Firebase_FirebaseCoreInternal.build/empty-Firebase_FirebaseCoreInternal.plist (in target 'Firebase_FirebaseCoreInternal' from project 'Firebase')
+    cd /tmp/marble-run-validation-derived-data/SourcePackages/checkouts/firebase-ios-sdk
+    builtin-infoPlistUtility /tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/Firebase.build/Debug-iphoneos/Firebase_FirebaseCoreInternal.build/empty-Firebase_FirebaseCoreInternal.plist -producttype com.apple.product-type.bundle -expandbuildsettings -format binary -platform iphoneos -requiredArchitecture arm64 -o /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/Firebase_FirebaseCoreInternal.bundle/Info.plist
+
+ProcessInfoPlistFile /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/GoogleUtilities_GoogleUtilities-NSData.bundle/Info.plist /tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/GoogleUtilities.build/Debug-iphoneos/GoogleUtilities_GoogleUtilities-NSData.build/empty-GoogleUtilities_GoogleUtilities-NSData.plist (in target 'GoogleUtilities_GoogleUtilities-NSData' from project 'GoogleUtilities')
+    cd /tmp/marble-run-validation-derived-data/SourcePackages/checkouts/GoogleUtilities
+    builtin-infoPlistUtility /tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/GoogleUtilities.build/Debug-iphoneos/GoogleUtilities_GoogleUtilities-NSData.build/empty-GoogleUtilities_GoogleUtilities-NSData.plist -producttype com.apple.product-type.bundle -expandbuildsettings -format binary -platform iphoneos -requiredArchitecture arm64 -o /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/GoogleUtilities_GoogleUtilities-NSData.bundle/Info.plist
+
+ProcessInfoPlistFile /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/Firebase_FirebaseCore.bundle/Info.plist /tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/Firebase.build/Debug-iphoneos/Firebase_FirebaseCore.build/empty-Firebase_FirebaseCore.plist (in target 'Firebase_FirebaseCore' from project 'Firebase')
+    cd /tmp/marble-run-validation-derived-data/SourcePackages/checkouts/firebase-ios-sdk
+    builtin-infoPlistUtility /tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/Firebase.build/Debug-iphoneos/Firebase_FirebaseCore.build/empty-Firebase_FirebaseCore.plist -producttype com.apple.product-type.bundle -expandbuildsettings -format binary -platform iphoneos -requiredArchitecture arm64 -o /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/Firebase_FirebaseCore.bundle/Info.plist
+
+SwiftDriver App normal arm64 com.apple.xcode.tools.swift.compiler (in target 'App' from project 'App')
+    cd /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/ios/App
+    builtin-SwiftDriver -- /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name App -Onone @/tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/App.build/Debug-iphoneos/App.build/Objects-normal/arm64/App.SwiftFileList -DDEBUG -Xcc -fmodule-map-file\=/tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/GeneratedModuleMaps-iphoneos/UserMessagingPlatformTarget.modulemap -Xcc -fmodule-map-file\=/tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/GeneratedModuleMaps-iphoneos/GoogleUtilities-UserDefaults.modulemap -Xcc -fmodule-map-file\=/tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/GeneratedModuleMaps-iphoneos/GoogleAppMeasurementCoreTarget.modulemap -Xcc -fmodule-map-file\=/tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/GeneratedModuleMaps-iphoneos/GoogleUtilities-AppDelegateSwizzler.modulemap -Xcc -fmodule-map-file\=/tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/GeneratedModuleMaps-iphoneos/GoogleUtilities-MethodSwizzler.modulemap -Xcc -fmodule-map-file\=/tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/GeneratedModuleMaps-iphoneos/GoogleUtilities-Reachability.modulemap -Xcc -fmodule-map-file\=/tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/GeneratedModuleMaps-iphoneos/GoogleUtilities-Network.modulemap -Xcc -fmodule-map-file\=/tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/GeneratedModuleMaps-iphoneos/nanopb.modulemap -Xcc -fmodule-map-file\=/tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/GeneratedModuleMaps-iphoneos/FirebaseAnalyticsCoreWrapper.modulemap -Xcc -fmodule-map-file\=/tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/GeneratedModuleMaps-iphoneos/FirebaseInstallations.modulemap -Xcc -fmodule-map-file\=/tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/GeneratedModuleMaps-iphoneos/FirebaseAnalyticsCoreTarget.modulemap -Xcc -fmodule-map-file\=/tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/GeneratedModuleMaps-iphoneos/GoogleUtilities-NSData.modulemap -Xcc -fmodule-map-file\=/tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/GeneratedModuleMaps-iphoneos/GoogleUtilities-Environment.modulemap -Xcc -fmodule-map-file\=/tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/GeneratedModuleMaps-iphoneos/third-party-IsAppEncrypted.modulemap -Xcc -fmodule-map-file\=/tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/GeneratedModuleMaps-iphoneos/GoogleUtilities-Logger.modulemap -Xcc -fmodule-map-file\=/tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/GeneratedModuleMaps-iphoneos/FirebaseCore.modulemap -D COCOAPODS -DDEBUG -enable-bare-slash-regex -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk -target arm64-apple-ios15.0 -g -module-cache-path /tmp/marble-run-validation-derived-data/ModuleCache.noindex -Xfrontend -serialize-debugging-options -enable-testing -index-store-path /tmp/marble-run-validation-derived-data/Index.noindex/DataStore -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -swift-version 5 -I /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos -F /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/PackageFrameworks -F /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/PackageFrameworks -F /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/PackageFrameworks -F /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/PackageFrameworks -F /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/PackageFrameworks -F /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/PackageFrameworks -F /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/PackageFrameworks -F /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/PackageFrameworks -F /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/PackageFrameworks -F /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/PackageFrameworks -F /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/PackageFrameworks -F /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/PackageFrameworks -F /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/PackageFrameworks -F /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/PackageFrameworks -F /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/PackageFrameworks -F /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/PackageFrameworks -F /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/PackageFrameworks -F /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/PackageFrameworks -F /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/PackageFrameworks -F /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/PackageFrameworks -F /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/PackageFrameworks -F /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/PackageFrameworks -F /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/PackageFrameworks -F /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/PackageFrameworks -F /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/PackageFrameworks -F /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/PackageFrameworks -F /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/PackageFrameworks -F /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos -c -j10 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /tmp/marble-run-validation-derived-data/SDKStatCaches.noindex/iphoneos26.5-23F73-32daed1954a7d5dd0789fcaf2a9bb78b.sdkstatcache -output-file-map /tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/App.build/Debug-iphoneos/App.build/Objects-normal/arm64/App-OutputFileMap.json -use-frontend-parseable-output -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /tmp/marble-run-validation-derived-data/ModuleCache.noindex -sdk-module-cache-path /tmp/marble-run-validation-derived-data/ModuleCache.noindex -serialize-diagnostics -emit-dependencies -emit-module -emit-module-path /tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/App.build/Debug-iphoneos/App.build/Objects-normal/arm64/App.swiftmodule -validate-clang-modules-once -clang-build-session-file /tmp/marble-run-validation-derived-data/ModuleCache.noindex/Session.modulevalidation -Xcc -I/tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/App.build/Debug-iphoneos/App.build/swift-overrides.hmap -emit-const-values -Xfrontend -const-gather-protocols-file -Xfrontend /tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/App.build/Debug-iphoneos/App.build/Objects-normal/arm64/App_const_extract_protocols.json -Xcc -iquote -Xcc /tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/App.build/Debug-iphoneos/App.build/App-generated-files.hmap -Xcc -I/tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/App.build/Debug-iphoneos/App.build/App-own-target-headers.hmap -Xcc -I/tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/App.build/Debug-iphoneos/App.build/App-all-non-framework-target-headers.hmap -Xcc -ivfsoverlay -Xcc /tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/App.build/Debug-iphoneos/App-0ca3007d900a678c2b4d53418799ee3d-VFS-iphoneos/all-product-headers.yaml -Xcc -iquote -Xcc /tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/App.build/Debug-iphoneos/App.build/App-project-headers.hmap -Xcc -I/tmp/marble-run-validation-derived-data/SourcePackages/checkouts/swift-package-manager-google-user-messaging-platform/UserMessagingPlatformTarget/include -Xcc -I/tmp/marble-run-validation-derived-data/SourcePackages/checkouts/promises/Sources/FBLPromises/include -Xcc -I/tmp/marble-run-validation-derived-data/SourcePackages/checkouts/GoogleUtilities/GoogleUtilities/UserDefaults/Public -Xcc -I/tmp/marble-run-validation-derived-data/SourcePackages/checkouts/GoogleAppMeasurement/GoogleAppMeasurementCoreWrapper/include -Xcc -I/tmp/marble-run-validation-derived-data/SourcePackages/checkouts/GoogleUtilities/GoogleUtilities/AppDelegateSwizzler/Public -Xcc -I/tmp/marble-run-validation-derived-data/SourcePackages/checkouts/GoogleUtilities/GoogleUtilities/MethodSwizzler/Public -Xcc -I/tmp/marble-run-validation-derived-data/SourcePackages/checkouts/GoogleUtilities/GoogleUtilities/Reachability/Public -Xcc -I/tmp/marble-run-validation-derived-data/SourcePackages/checkouts/GoogleUtilities/GoogleUtilities/Network/Public -Xcc -I/tmp/marble-run-validation-derived-data/SourcePackages/checkouts/nanopb/spm_headers -Xcc -I/tmp/marble-run-validation-derived-data/SourcePackages/checkouts/firebase-ios-sdk/FirebaseAnalyticsCoreWrapper/include -Xcc -I/tmp/marble-run-validation-derived-data/SourcePackages/checkouts/firebase-ios-sdk/FirebaseInstallations/Source/Library/Public -Xcc -I/tmp/marble-run-validation-derived-data/SourcePackages/checkouts/firebase-ios-sdk/SwiftPM-PlatformExclude/FirebaseAnalyticsCoreWrap/include -Xcc -I/tmp/marble-run-validation-derived-data/SourcePackages/checkouts/GoogleUtilities/GoogleUtilities/NSData+zlib/Public -Xcc -I/tmp/marble-run-validation-derived-data/SourcePackages/checkouts/GoogleUtilities/GoogleUtilities/Environment/Public -Xcc -I/tmp/marble-run-validation-derived-data/SourcePackages/checkouts/GoogleUtilities/third_party/IsAppEncrypted/Public -Xcc -I/tmp/marble-run-validation-derived-data/SourcePackages/checkouts/GoogleUtilities/GoogleUtilities/Logger/Public -Xcc -I/tmp/marble-run-validation-derived-data/SourcePackages/checkouts/firebase-ios-sdk/CoreOnly/Sources -Xcc -I/tmp/marble-run-validation-derived-data/SourcePackages/checkouts/firebase-ios-sdk/FirebaseCore/Sources/Public -Xcc -I/tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/include -Xcc -I/tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/App.build/Debug-iphoneos/App.build/DerivedSources-normal/arm64 -Xcc -I/tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/App.build/Debug-iphoneos/App.build/DerivedSources/arm64 -Xcc -I/tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/App.build/Debug-iphoneos/App.build/DerivedSources -Xcc -DDEBUG\=1 -emit-objc-header -emit-objc-header-path /tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/App.build/Debug-iphoneos/App.build/Objects-normal/arm64/App-Swift.h -working-directory /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/ios/App -experimental-emit-module-separately -disable-cmo
+
+ProcessInfoPlistFile /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/GoogleUtilities_GoogleUtilities-Environment.bundle/Info.plist /tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/GoogleUtilities.build/Debug-iphoneos/GoogleUtilities_GoogleUtilities-Environment.build/empty-GoogleUtilities_GoogleUtilities-Environment.plist (in target 'GoogleUtilities_GoogleUtilities-Environment' from project 'GoogleUtilities')
+    cd /tmp/marble-run-validation-derived-data/SourcePackages/checkouts/GoogleUtilities
+    builtin-infoPlistUtility /tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/GoogleUtilities.build/Debug-iphoneos/GoogleUtilities_GoogleUtilities-Environment.build/empty-GoogleUtilities_GoogleUtilities-Environment.plist -producttype com.apple.product-type.bundle -expandbuildsettings -format binary -platform iphoneos -requiredArchitecture arm64 -o /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/GoogleUtilities_GoogleUtilities-Environment.bundle/Info.plist
+
+ProcessInfoPlistFile /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/GoogleUtilities_GoogleUtilities-Logger.bundle/Info.plist /tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/GoogleUtilities.build/Debug-iphoneos/GoogleUtilities_GoogleUtilities-Logger.build/empty-GoogleUtilities_GoogleUtilities-Logger.plist (in target 'GoogleUtilities_GoogleUtilities-Logger' from project 'GoogleUtilities')
+    cd /tmp/marble-run-validation-derived-data/SourcePackages/checkouts/GoogleUtilities
+    builtin-infoPlistUtility /tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/GoogleUtilities.build/Debug-iphoneos/GoogleUtilities_GoogleUtilities-Logger.build/empty-GoogleUtilities_GoogleUtilities-Logger.plist -producttype com.apple.product-type.bundle -expandbuildsettings -format binary -platform iphoneos -requiredArchitecture arm64 -o /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/GoogleUtilities_GoogleUtilities-Logger.bundle/Info.plist
+
+ProcessInfoPlistFile /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/Firebase_FirebaseInstallations.bundle/Info.plist /tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/Firebase.build/Debug-iphoneos/Firebase_FirebaseInstallations.build/empty-Firebase_FirebaseInstallations.plist (in target 'Firebase_FirebaseInstallations' from project 'Firebase')
+    cd /tmp/marble-run-validation-derived-data/SourcePackages/checkouts/firebase-ios-sdk
+    builtin-infoPlistUtility /tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/Firebase.build/Debug-iphoneos/Firebase_FirebaseInstallations.build/empty-Firebase_FirebaseInstallations.plist -producttype com.apple.product-type.bundle -expandbuildsettings -format binary -platform iphoneos -requiredArchitecture arm64 -o /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/Firebase_FirebaseInstallations.bundle/Info.plist
+
+ProcessInfoPlistFile /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/Promises_FBLPromises.bundle/Info.plist /tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/Promises.build/Debug-iphoneos/Promises_FBLPromises.build/empty-Promises_FBLPromises.plist (in target 'Promises_FBLPromises' from project 'Promises')
+    cd /tmp/marble-run-validation-derived-data/SourcePackages/checkouts/promises
+    builtin-infoPlistUtility /tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/Promises.build/Debug-iphoneos/Promises_FBLPromises.build/empty-Promises_FBLPromises.plist -producttype com.apple.product-type.bundle -expandbuildsettings -format binary -platform iphoneos -requiredArchitecture arm64 -o /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/Promises_FBLPromises.bundle/Info.plist
+
+ProcessInfoPlistFile /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/GoogleUtilities_GoogleUtilities-UserDefaults.bundle/Info.plist /tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/GoogleUtilities.build/Debug-iphoneos/GoogleUtilities_GoogleUtilities-UserDefaults.build/empty-GoogleUtilities_GoogleUtilities-UserDefaults.plist (in target 'GoogleUtilities_GoogleUtilities-UserDefaults' from project 'GoogleUtilities')
+    cd /tmp/marble-run-validation-derived-data/SourcePackages/checkouts/GoogleUtilities
+    builtin-infoPlistUtility /tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/GoogleUtilities.build/Debug-iphoneos/GoogleUtilities_GoogleUtilities-UserDefaults.build/empty-GoogleUtilities_GoogleUtilities-UserDefaults.plist -producttype com.apple.product-type.bundle -expandbuildsettings -format binary -platform iphoneos -requiredArchitecture arm64 -o /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/GoogleUtilities_GoogleUtilities-UserDefaults.bundle/Info.plist
+
+ProcessInfoPlistFile /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/GoogleUtilities_GoogleUtilities-AppDelegateSwizzler.bundle/Info.plist /tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/GoogleUtilities.build/Debug-iphoneos/GoogleUtilities_GoogleUtilities-AppDelegateSwizzler.build/empty-GoogleUtilities_GoogleUtilities-AppDelegateSwizzler.plist (in target 'GoogleUtilities_GoogleUtilities-AppDelegateSwizzler' from project 'GoogleUtilities')
+    cd /tmp/marble-run-validation-derived-data/SourcePackages/checkouts/GoogleUtilities
+    builtin-infoPlistUtility /tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/GoogleUtilities.build/Debug-iphoneos/GoogleUtilities_GoogleUtilities-AppDelegateSwizzler.build/empty-GoogleUtilities_GoogleUtilities-AppDelegateSwizzler.plist -producttype com.apple.product-type.bundle -expandbuildsettings -format binary -platform iphoneos -requiredArchitecture arm64 -o /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/GoogleUtilities_GoogleUtilities-AppDelegateSwizzler.bundle/Info.plist
+
+ProcessInfoPlistFile /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/GoogleUtilities_GoogleUtilities-Reachability.bundle/Info.plist /tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/GoogleUtilities.build/Debug-iphoneos/GoogleUtilities_GoogleUtilities-Reachability.build/empty-GoogleUtilities_GoogleUtilities-Reachability.plist (in target 'GoogleUtilities_GoogleUtilities-Reachability' from project 'GoogleUtilities')
+    cd /tmp/marble-run-validation-derived-data/SourcePackages/checkouts/GoogleUtilities
+    builtin-infoPlistUtility /tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/GoogleUtilities.build/Debug-iphoneos/GoogleUtilities_GoogleUtilities-Reachability.build/empty-GoogleUtilities_GoogleUtilities-Reachability.plist -producttype com.apple.product-type.bundle -expandbuildsettings -format binary -platform iphoneos -requiredArchitecture arm64 -o /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/GoogleUtilities_GoogleUtilities-Reachability.bundle/Info.plist
+
+ProcessInfoPlistFile /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/GoogleUtilities_GoogleUtilities-Network.bundle/Info.plist /tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/GoogleUtilities.build/Debug-iphoneos/GoogleUtilities_GoogleUtilities-Network.build/empty-GoogleUtilities_GoogleUtilities-Network.plist (in target 'GoogleUtilities_GoogleUtilities-Network' from project 'GoogleUtilities')
+    cd /tmp/marble-run-validation-derived-data/SourcePackages/checkouts/GoogleUtilities
+    builtin-infoPlistUtility /tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/GoogleUtilities.build/Debug-iphoneos/GoogleUtilities_GoogleUtilities-Network.build/empty-GoogleUtilities_GoogleUtilities-Network.plist -producttype com.apple.product-type.bundle -expandbuildsettings -format binary -platform iphoneos -requiredArchitecture arm64 -o /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/GoogleUtilities_GoogleUtilities-Network.bundle/Info.plist
+
+ProcessInfoPlistFile /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/GoogleUtilities_GoogleUtilities-MethodSwizzler.bundle/Info.plist /tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/GoogleUtilities.build/Debug-iphoneos/GoogleUtilities_GoogleUtilities-MethodSwizzler.build/empty-GoogleUtilities_GoogleUtilities-MethodSwizzler.plist (in target 'GoogleUtilities_GoogleUtilities-MethodSwizzler' from project 'GoogleUtilities')
+    cd /tmp/marble-run-validation-derived-data/SourcePackages/checkouts/GoogleUtilities
+    builtin-infoPlistUtility /tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/GoogleUtilities.build/Debug-iphoneos/GoogleUtilities_GoogleUtilities-MethodSwizzler.build/empty-GoogleUtilities_GoogleUtilities-MethodSwizzler.plist -producttype com.apple.product-type.bundle -expandbuildsettings -format binary -platform iphoneos -requiredArchitecture arm64 -o /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/GoogleUtilities_GoogleUtilities-MethodSwizzler.bundle/Info.plist
+
+ProcessInfoPlistFile /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/nanopb_nanopb.bundle/Info.plist /tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/nanopb.build/Debug-iphoneos/nanopb_nanopb.build/empty-nanopb_nanopb.plist (in target 'nanopb_nanopb' from project 'nanopb')
+    cd /tmp/marble-run-validation-derived-data/SourcePackages/checkouts/nanopb
+    builtin-infoPlistUtility /tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/nanopb.build/Debug-iphoneos/nanopb_nanopb.build/empty-nanopb_nanopb.plist -producttype com.apple.product-type.bundle -expandbuildsettings -format binary -platform iphoneos -requiredArchitecture arm64 -o /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/nanopb_nanopb.bundle/Info.plist
+
+CopyPlistFile /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/App.app/GoogleService-Info.plist /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/ios/App/App/GoogleService-Info.plist (in target 'App' from project 'App')
+    cd /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/ios/App
+    builtin-copyPlist --convert binary1 --outdir /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/App.app -- /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/ios/App/App/GoogleService-Info.plist
+
+CpResource /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/App.app/config.xml /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/ios/App/App/config.xml (in target 'App' from project 'App')
+    cd /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/ios/App
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/ios/App/App/config.xml /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/App.app
+
+CpResource /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/App.app/capacitor.config.json /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/ios/App/App/capacitor.config.json (in target 'App' from project 'App')
+    cd /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/ios/App
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/ios/App/App/capacitor.config.json /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/App.app
+
+CpResource /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/App.app/PrivacyInfo.xcprivacy /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/ios/App/App/PrivacyInfo.xcprivacy (in target 'App' from project 'App')
+    cd /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/ios/App
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/ios/App/App/PrivacyInfo.xcprivacy /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/App.app
+
+CpResource /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/App.app/public /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/ios/App/App/public (in target 'App' from project 'App')
+    cd /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/ios/App
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/ios/App/App/public /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/App.app
+
+SwiftEmitModule normal arm64 Emitting\ module\ for\ App (in target 'App' from project 'App')
+
+EmitSwiftModule normal arm64 (in target 'App' from project 'App')
+    cd /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/ios/App
+    
+
+SwiftCompile normal arm64 Compiling\ AppDelegate.swift /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/ios/App/App/AppDelegate.swift (in target 'App' from project 'App')
+
+SwiftCompile normal arm64 /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/ios/App/App/AppDelegate.swift (in target 'App' from project 'App')
+    cd /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/ios/App
+    
+
+SwiftCompile normal arm64 Compiling\ MarbleRunBridgeViewController.swift /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/ios/App/App/MarbleRunBridgeViewController.swift (in target 'App' from project 'App')
+
+SwiftCompile normal arm64 /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/ios/App/App/MarbleRunBridgeViewController.swift (in target 'App' from project 'App')
+    cd /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/ios/App
+    
+
+SwiftCompile normal arm64 Compiling\ AppLovinMaxPlugin.swift /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/ios/App/App/AppLovinMaxPlugin.swift (in target 'App' from project 'App')
+SwiftCompile normal arm64 /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/ios/App/App/AppLovinMaxPlugin.swift (in target 'App' from project 'App')
+    cd /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/ios/App
+    
+
+SwiftCompile normal arm64 Compiling\ MetaEventsPlugin.swift /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/ios/App/App/MetaEventsPlugin.swift (in target 'App' from project 'App')
+
+SwiftCompile normal arm64 /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/ios/App/App/MetaEventsPlugin.swift (in target 'App' from project 'App')
+    cd /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/ios/App
+    
+
+SwiftCompile normal arm64 Compiling\ AppsFlyerAttributionPlugin.swift /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/ios/App/App/AppsFlyerAttributionPlugin.swift (in target 'App' from project 'App')
+
+SwiftCompile normal arm64 /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/ios/App/App/AppsFlyerAttributionPlugin.swift (in target 'App' from project 'App')
+    cd /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/ios/App
+    
+
+SwiftDriverJobDiscovery normal arm64 Compiling MarbleRunBridgeViewController.swift (in target 'App' from project 'App')
+
+SwiftDriverJobDiscovery normal arm64 Compiling AppDelegate.swift (in target 'App' from project 'App')
+
+SwiftDriverJobDiscovery normal arm64 Emitting module for App (in target 'App' from project 'App')
+
+SwiftDriver\ Compilation\ Requirements App normal arm64 com.apple.xcode.tools.swift.compiler (in target 'App' from project 'App')
+    cd /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/ios/App
+    builtin-Swift-Compilation-Requirements -- /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name App -Onone @/tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/App.build/Debug-iphoneos/App.build/Objects-normal/arm64/App.SwiftFileList -DDEBUG -Xcc -fmodule-map-file\=/tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/GeneratedModuleMaps-iphoneos/UserMessagingPlatformTarget.modulemap -Xcc -fmodule-map-file\=/tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/GeneratedModuleMaps-iphoneos/GoogleUtilities-UserDefaults.modulemap -Xcc -fmodule-map-file\=/tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/GeneratedModuleMaps-iphoneos/GoogleAppMeasurementCoreTarget.modulemap -Xcc -fmodule-map-file\=/tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/GeneratedModuleMaps-iphoneos/GoogleUtilities-AppDelegateSwizzler.modulemap -Xcc -fmodule-map-file\=/tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/GeneratedModuleMaps-iphoneos/GoogleUtilities-MethodSwizzler.modulemap -Xcc -fmodule-map-file\=/tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/GeneratedModuleMaps-iphoneos/GoogleUtilities-Reachability.modulemap -Xcc -fmodule-map-file\=/tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/GeneratedModuleMaps-iphoneos/GoogleUtilities-Network.modulemap -Xcc -fmodule-map-file\=/tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/GeneratedModuleMaps-iphoneos/nanopb.modulemap -Xcc -fmodule-map-file\=/tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/GeneratedModuleMaps-iphoneos/FirebaseAnalyticsCoreWrapper.modulemap -Xcc -fmodule-map-file\=/tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/GeneratedModuleMaps-iphoneos/FirebaseInstallations.modulemap -Xcc -fmodule-map-file\=/tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/GeneratedModuleMaps-iphoneos/FirebaseAnalyticsCoreTarget.modulemap -Xcc -fmodule-map-file\=/tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/GeneratedModuleMaps-iphoneos/GoogleUtilities-NSData.modulemap -Xcc -fmodule-map-file\=/tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/GeneratedModuleMaps-iphoneos/GoogleUtilities-Environment.modulemap -Xcc -fmodule-map-file\=/tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/GeneratedModuleMaps-iphoneos/third-party-IsAppEncrypted.modulemap -Xcc -fmodule-map-file\=/tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/GeneratedModuleMaps-iphoneos/GoogleUtilities-Logger.modulemap -Xcc -fmodule-map-file\=/tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/GeneratedModuleMaps-iphoneos/FirebaseCore.modulemap -D COCOAPODS -DDEBUG -enable-bare-slash-regex -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk -target arm64-apple-ios15.0 -g -module-cache-path /tmp/marble-run-validation-derived-data/ModuleCache.noindex -Xfrontend -serialize-debugging-options -enable-testing -index-store-path /tmp/marble-run-validation-derived-data/Index.noindex/DataStore -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -swift-version 5 -I /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos -F /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/PackageFrameworks -F /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/PackageFrameworks -F /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/PackageFrameworks -F /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/PackageFrameworks -F /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/PackageFrameworks -F /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/PackageFrameworks -F /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/PackageFrameworks -F /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/PackageFrameworks -F /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/PackageFrameworks -F /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/PackageFrameworks -F /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/PackageFrameworks -F /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/PackageFrameworks -F /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/PackageFrameworks -F /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/PackageFrameworks -F /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/PackageFrameworks -F /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/PackageFrameworks -F /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/PackageFrameworks -F /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/PackageFrameworks -F /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/PackageFrameworks -F /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/PackageFrameworks -F /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/PackageFrameworks -F /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/PackageFrameworks -F /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/PackageFrameworks -F /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/PackageFrameworks -F /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/PackageFrameworks -F /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/PackageFrameworks -F /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/PackageFrameworks -F /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos -c -j10 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /tmp/marble-run-validation-derived-data/SDKStatCaches.noindex/iphoneos26.5-23F73-32daed1954a7d5dd0789fcaf2a9bb78b.sdkstatcache -output-file-map /tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/App.build/Debug-iphoneos/App.build/Objects-normal/arm64/App-OutputFileMap.json -use-frontend-parseable-output -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /tmp/marble-run-validation-derived-data/ModuleCache.noindex -sdk-module-cache-path /tmp/marble-run-validation-derived-data/ModuleCache.noindex -serialize-diagnostics -emit-dependencies -emit-module -emit-module-path /tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/App.build/Debug-iphoneos/App.build/Objects-normal/arm64/App.swiftmodule -validate-clang-modules-once -clang-build-session-file /tmp/marble-run-validation-derived-data/ModuleCache.noindex/Session.modulevalidation -Xcc -I/tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/App.build/Debug-iphoneos/App.build/swift-overrides.hmap -emit-const-values -Xfrontend -const-gather-protocols-file -Xfrontend /tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/App.build/Debug-iphoneos/App.build/Objects-normal/arm64/App_const_extract_protocols.json -Xcc -iquote -Xcc /tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/App.build/Debug-iphoneos/App.build/App-generated-files.hmap -Xcc -I/tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/App.build/Debug-iphoneos/App.build/App-own-target-headers.hmap -Xcc -I/tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/App.build/Debug-iphoneos/App.build/App-all-non-framework-target-headers.hmap -Xcc -ivfsoverlay -Xcc /tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/App.build/Debug-iphoneos/App-0ca3007d900a678c2b4d53418799ee3d-VFS-iphoneos/all-product-headers.yaml -Xcc -iquote -Xcc /tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/App.build/Debug-iphoneos/App.build/App-project-headers.hmap -Xcc -I/tmp/marble-run-validation-derived-data/SourcePackages/checkouts/swift-package-manager-google-user-messaging-platform/UserMessagingPlatformTarget/include -Xcc -I/tmp/marble-run-validation-derived-data/SourcePackages/checkouts/promises/Sources/FBLPromises/include -Xcc -I/tmp/marble-run-validation-derived-data/SourcePackages/checkouts/GoogleUtilities/GoogleUtilities/UserDefaults/Public -Xcc -I/tmp/marble-run-validation-derived-data/SourcePackages/checkouts/GoogleAppMeasurement/GoogleAppMeasurementCoreWrapper/include -Xcc -I/tmp/marble-run-validation-derived-data/SourcePackages/checkouts/GoogleUtilities/GoogleUtilities/AppDelegateSwizzler/Public -Xcc -I/tmp/marble-run-validation-derived-data/SourcePackages/checkouts/GoogleUtilities/GoogleUtilities/MethodSwizzler/Public -Xcc -I/tmp/marble-run-validation-derived-data/SourcePackages/checkouts/GoogleUtilities/GoogleUtilities/Reachability/Public -Xcc -I/tmp/marble-run-validation-derived-data/SourcePackages/checkouts/GoogleUtilities/GoogleUtilities/Network/Public -Xcc -I/tmp/marble-run-validation-derived-data/SourcePackages/checkouts/nanopb/spm_headers -Xcc -I/tmp/marble-run-validation-derived-data/SourcePackages/checkouts/firebase-ios-sdk/FirebaseAnalyticsCoreWrapper/include -Xcc -I/tmp/marble-run-validation-derived-data/SourcePackages/checkouts/firebase-ios-sdk/FirebaseInstallations/Source/Library/Public -Xcc -I/tmp/marble-run-validation-derived-data/SourcePackages/checkouts/firebase-ios-sdk/SwiftPM-PlatformExclude/FirebaseAnalyticsCoreWrap/include -Xcc -I/tmp/marble-run-validation-derived-data/SourcePackages/checkouts/GoogleUtilities/GoogleUtilities/NSData+zlib/Public -Xcc -I/tmp/marble-run-validation-derived-data/SourcePackages/checkouts/GoogleUtilities/GoogleUtilities/Environment/Public -Xcc -I/tmp/marble-run-validation-derived-data/SourcePackages/checkouts/GoogleUtilities/third_party/IsAppEncrypted/Public -Xcc -I/tmp/marble-run-validation-derived-data/SourcePackages/checkouts/GoogleUtilities/GoogleUtilities/Logger/Public -Xcc -I/tmp/marble-run-validation-derived-data/SourcePackages/checkouts/firebase-ios-sdk/CoreOnly/Sources -Xcc -I/tmp/marble-run-validation-derived-data/SourcePackages/checkouts/firebase-ios-sdk/FirebaseCore/Sources/Public -Xcc -I/tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/include -Xcc -I/tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/App.build/Debug-iphoneos/App.build/DerivedSources-normal/arm64 -Xcc -I/tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/App.build/Debug-iphoneos/App.build/DerivedSources/arm64 -Xcc -I/tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/App.build/Debug-iphoneos/App.build/DerivedSources -Xcc -DDEBUG\=1 -emit-objc-header -emit-objc-header-path /tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/App.build/Debug-iphoneos/App.build/Objects-normal/arm64/App-Swift.h -working-directory /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/ios/App -experimental-emit-module-separately -disable-cmo
+
+Copy /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/App.swiftmodule/arm64-apple-ios.abi.json /tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/App.build/Debug-iphoneos/App.build/Objects-normal/arm64/App.abi.json (in target 'App' from project 'App')
+    cd /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/ios/App
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename /tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/App.build/Debug-iphoneos/App.build/Objects-normal/arm64/App.abi.json /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/App.swiftmodule/arm64-apple-ios.abi.json
+
+Copy /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/App.swiftmodule/Project/arm64-apple-ios.swiftsourceinfo /tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/App.build/Debug-iphoneos/App.build/Objects-normal/arm64/App.swiftsourceinfo (in target 'App' from project 'App')
+    cd /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/ios/App
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename /tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/App.build/Debug-iphoneos/App.build/Objects-normal/arm64/App.swiftsourceinfo /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/App.swiftmodule/Project/arm64-apple-ios.swiftsourceinfo
+
+SwiftDriverJobDiscovery normal arm64 Compiling MetaEventsPlugin.swift (in target 'App' from project 'App')
+
+SwiftDriverJobDiscovery normal arm64 Compiling AppsFlyerAttributionPlugin.swift (in target 'App' from project 'App')
+
+SwiftDriverJobDiscovery normal arm64 Compiling AppLovinMaxPlugin.swift (in target 'App' from project 'App')
+
+SwiftDriver\ Compilation App normal arm64 com.apple.xcode.tools.swift.compiler (in target 'App' from project 'App')
+    cd /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/ios/App
+    builtin-Swift-Compilation -- /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name App -Onone @/tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/App.build/Debug-iphoneos/App.build/Objects-normal/arm64/App.SwiftFileList -DDEBUG -Xcc -fmodule-map-file\=/tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/GeneratedModuleMaps-iphoneos/UserMessagingPlatformTarget.modulemap -Xcc -fmodule-map-file\=/tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/GeneratedModuleMaps-iphoneos/GoogleUtilities-UserDefaults.modulemap -Xcc -fmodule-map-file\=/tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/GeneratedModuleMaps-iphoneos/GoogleAppMeasurementCoreTarget.modulemap -Xcc -fmodule-map-file\=/tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/GeneratedModuleMaps-iphoneos/GoogleUtilities-AppDelegateSwizzler.modulemap -Xcc -fmodule-map-file\=/tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/GeneratedModuleMaps-iphoneos/GoogleUtilities-MethodSwizzler.modulemap -Xcc -fmodule-map-file\=/tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/GeneratedModuleMaps-iphoneos/GoogleUtilities-Reachability.modulemap -Xcc -fmodule-map-file\=/tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/GeneratedModuleMaps-iphoneos/GoogleUtilities-Network.modulemap -Xcc -fmodule-map-file\=/tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/GeneratedModuleMaps-iphoneos/nanopb.modulemap -Xcc -fmodule-map-file\=/tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/GeneratedModuleMaps-iphoneos/FirebaseAnalyticsCoreWrapper.modulemap -Xcc -fmodule-map-file\=/tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/GeneratedModuleMaps-iphoneos/FirebaseInstallations.modulemap -Xcc -fmodule-map-file\=/tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/GeneratedModuleMaps-iphoneos/FirebaseAnalyticsCoreTarget.modulemap -Xcc -fmodule-map-file\=/tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/GeneratedModuleMaps-iphoneos/GoogleUtilities-NSData.modulemap -Xcc -fmodule-map-file\=/tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/GeneratedModuleMaps-iphoneos/GoogleUtilities-Environment.modulemap -Xcc -fmodule-map-file\=/tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/GeneratedModuleMaps-iphoneos/third-party-IsAppEncrypted.modulemap -Xcc -fmodule-map-file\=/tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/GeneratedModuleMaps-iphoneos/GoogleUtilities-Logger.modulemap -Xcc -fmodule-map-file\=/tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/GeneratedModuleMaps-iphoneos/FirebaseCore.modulemap -D COCOAPODS -DDEBUG -enable-bare-slash-regex -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk -target arm64-apple-ios15.0 -g -module-cache-path /tmp/marble-run-validation-derived-data/ModuleCache.noindex -Xfrontend -serialize-debugging-options -enable-testing -index-store-path /tmp/marble-run-validation-derived-data/Index.noindex/DataStore -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -swift-version 5 -I /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos -F /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/PackageFrameworks -F /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/PackageFrameworks -F /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/PackageFrameworks -F /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/PackageFrameworks -F /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/PackageFrameworks -F /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/PackageFrameworks -F /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/PackageFrameworks -F /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/PackageFrameworks -F /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/PackageFrameworks -F /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/PackageFrameworks -F /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/PackageFrameworks -F /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/PackageFrameworks -F /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/PackageFrameworks -F /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/PackageFrameworks -F /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/PackageFrameworks -F /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/PackageFrameworks -F /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/PackageFrameworks -F /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/PackageFrameworks -F /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/PackageFrameworks -F /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/PackageFrameworks -F /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/PackageFrameworks -F /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/PackageFrameworks -F /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/PackageFrameworks -F /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/PackageFrameworks -F /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/PackageFrameworks -F /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/PackageFrameworks -F /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/PackageFrameworks -F /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos -c -j10 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /tmp/marble-run-validation-derived-data/SDKStatCaches.noindex/iphoneos26.5-23F73-32daed1954a7d5dd0789fcaf2a9bb78b.sdkstatcache -output-file-map /tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/App.build/Debug-iphoneos/App.build/Objects-normal/arm64/App-OutputFileMap.json -use-frontend-parseable-output -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /tmp/marble-run-validation-derived-data/ModuleCache.noindex -sdk-module-cache-path /tmp/marble-run-validation-derived-data/ModuleCache.noindex -serialize-diagnostics -emit-dependencies -emit-module -emit-module-path /tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/App.build/Debug-iphoneos/App.build/Objects-normal/arm64/App.swiftmodule -validate-clang-modules-once -clang-build-session-file /tmp/marble-run-validation-derived-data/ModuleCache.noindex/Session.modulevalidation -Xcc -I/tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/App.build/Debug-iphoneos/App.build/swift-overrides.hmap -emit-const-values -Xfrontend -const-gather-protocols-file -Xfrontend /tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/App.build/Debug-iphoneos/App.build/Objects-normal/arm64/App_const_extract_protocols.json -Xcc -iquote -Xcc /tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/App.build/Debug-iphoneos/App.build/App-generated-files.hmap -Xcc -I/tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/App.build/Debug-iphoneos/App.build/App-own-target-headers.hmap -Xcc -I/tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/App.build/Debug-iphoneos/App.build/App-all-non-framework-target-headers.hmap -Xcc -ivfsoverlay -Xcc /tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/App.build/Debug-iphoneos/App-0ca3007d900a678c2b4d53418799ee3d-VFS-iphoneos/all-product-headers.yaml -Xcc -iquote -Xcc /tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/App.build/Debug-iphoneos/App.build/App-project-headers.hmap -Xcc -I/tmp/marble-run-validation-derived-data/SourcePackages/checkouts/swift-package-manager-google-user-messaging-platform/UserMessagingPlatformTarget/include -Xcc -I/tmp/marble-run-validation-derived-data/SourcePackages/checkouts/promises/Sources/FBLPromises/include -Xcc -I/tmp/marble-run-validation-derived-data/SourcePackages/checkouts/GoogleUtilities/GoogleUtilities/UserDefaults/Public -Xcc -I/tmp/marble-run-validation-derived-data/SourcePackages/checkouts/GoogleAppMeasurement/GoogleAppMeasurementCoreWrapper/include -Xcc -I/tmp/marble-run-validation-derived-data/SourcePackages/checkouts/GoogleUtilities/GoogleUtilities/AppDelegateSwizzler/Public -Xcc -I/tmp/marble-run-validation-derived-data/SourcePackages/checkouts/GoogleUtilities/GoogleUtilities/MethodSwizzler/Public -Xcc -I/tmp/marble-run-validation-derived-data/SourcePackages/checkouts/GoogleUtilities/GoogleUtilities/Reachability/Public -Xcc -I/tmp/marble-run-validation-derived-data/SourcePackages/checkouts/GoogleUtilities/GoogleUtilities/Network/Public -Xcc -I/tmp/marble-run-validation-derived-data/SourcePackages/checkouts/nanopb/spm_headers -Xcc -I/tmp/marble-run-validation-derived-data/SourcePackages/checkouts/firebase-ios-sdk/FirebaseAnalyticsCoreWrapper/include -Xcc -I/tmp/marble-run-validation-derived-data/SourcePackages/checkouts/firebase-ios-sdk/FirebaseInstallations/Source/Library/Public -Xcc -I/tmp/marble-run-validation-derived-data/SourcePackages/checkouts/firebase-ios-sdk/SwiftPM-PlatformExclude/FirebaseAnalyticsCoreWrap/include -Xcc -I/tmp/marble-run-validation-derived-data/SourcePackages/checkouts/GoogleUtilities/GoogleUtilities/NSData+zlib/Public -Xcc -I/tmp/marble-run-validation-derived-data/SourcePackages/checkouts/GoogleUtilities/GoogleUtilities/Environment/Public -Xcc -I/tmp/marble-run-validation-derived-data/SourcePackages/checkouts/GoogleUtilities/third_party/IsAppEncrypted/Public -Xcc -I/tmp/marble-run-validation-derived-data/SourcePackages/checkouts/GoogleUtilities/GoogleUtilities/Logger/Public -Xcc -I/tmp/marble-run-validation-derived-data/SourcePackages/checkouts/firebase-ios-sdk/CoreOnly/Sources -Xcc -I/tmp/marble-run-validation-derived-data/SourcePackages/checkouts/firebase-ios-sdk/FirebaseCore/Sources/Public -Xcc -I/tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/include -Xcc -I/tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/App.build/Debug-iphoneos/App.build/DerivedSources-normal/arm64 -Xcc -I/tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/App.build/Debug-iphoneos/App.build/DerivedSources/arm64 -Xcc -I/tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/App.build/Debug-iphoneos/App.build/DerivedSources -Xcc -DDEBUG\=1 -emit-objc-header -emit-objc-header-path /tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/App.build/Debug-iphoneos/App.build/Objects-normal/arm64/App-Swift.h -working-directory /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/ios/App -experimental-emit-module-separately -disable-cmo
+
+ExtractAppIntentsMetadata (in target 'App' from project 'App')
+    cd /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/ios/App
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/appintentsmetadataprocessor --toolchain-dir /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain --module-name App --sdk-root /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk --xcode-version 17F42 --platform-family iOS --deployment-target 15.0 --bundle-identifier com.basegamelab.marblerun --output /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/App.app --target-triple arm64-apple-ios15.0 --binary-file /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/App.app/App --dependency-file /tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/App.build/Debug-iphoneos/App.build/Objects-normal/arm64/App_dependency_info.dat --stringsdata-file /tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/App.build/Debug-iphoneos/App.build/Objects-normal/arm64/ExtractedAppShortcutsMetadata.stringsdata --source-file-list /tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/App.build/Debug-iphoneos/App.build/Objects-normal/arm64/App.SwiftFileList --metadata-file-list /tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/App.build/Debug-iphoneos/App.build/App.DependencyMetadataFileList --static-metadata-file-list /tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/App.build/Debug-iphoneos/App.build/App.DependencyStaticMetadataFileList --swift-const-vals-list /tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/App.build/Debug-iphoneos/App.build/Objects-normal/arm64/App.SwiftConstValuesFileList --compile-time-extraction --deployment-aware-processing --validate-assistant-intents --no-app-shortcuts-localization
+2026-08-07 11:05:54.242 appintentsmetadataprocessor[25148:33756013] Starting appintentsmetadataprocessor export
+2026-08-07 11:05:54.243 appintentsmetadataprocessor[25148:33756013] warning: Metadata extraction skipped. No AppIntents.framework dependency found.
+
+Copy /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/App.app/GoogleUtilities_GoogleUtilities-Logger.bundle /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/GoogleUtilities_GoogleUtilities-Logger.bundle (in target 'App' from project 'App')
+    cd /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/ios/App
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/GoogleUtilities_GoogleUtilities-Logger.bundle /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/App.app
+
+Copy /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/App.app/Firebase_FirebaseInstallations.bundle /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/Firebase_FirebaseInstallations.bundle (in target 'App' from project 'App')
+    cd /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/ios/App
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/Firebase_FirebaseInstallations.bundle /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/App.app
+
+Copy /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/App.app/Firebase_FirebaseCore.bundle /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/Firebase_FirebaseCore.bundle (in target 'App' from project 'App')
+    cd /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/ios/App
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/Firebase_FirebaseCore.bundle /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/App.app
+
+Copy /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/App.app/GoogleUtilities_GoogleUtilities-Environment.bundle /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/GoogleUtilities_GoogleUtilities-Environment.bundle (in target 'App' from project 'App')
+    cd /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/ios/App
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/GoogleUtilities_GoogleUtilities-Environment.bundle /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/App.app
+
+Copy /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/App.app/Firebase_FirebaseCoreInternal.bundle /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/Firebase_FirebaseCoreInternal.bundle (in target 'App' from project 'App')
+    cd /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/ios/App
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/Firebase_FirebaseCoreInternal.bundle /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/App.app
+
+Copy /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/App.app/nanopb_nanopb.bundle /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/nanopb_nanopb.bundle (in target 'App' from project 'App')
+    cd /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/ios/App
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/nanopb_nanopb.bundle /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/App.app
+
+Copy /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/App.app/Promises_FBLPromises.bundle /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/Promises_FBLPromises.bundle (in target 'App' from project 'App')
+    cd /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/ios/App
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/Promises_FBLPromises.bundle /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/App.app
+
+Copy /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/App.app/GoogleUtilities_GoogleUtilities-UserDefaults.bundle /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/GoogleUtilities_GoogleUtilities-UserDefaults.bundle (in target 'App' from project 'App')
+    cd /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/ios/App
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/GoogleUtilities_GoogleUtilities-UserDefaults.bundle /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/App.app
+
+Copy /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/App.app/GoogleUtilities_GoogleUtilities-Reachability.bundle /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/GoogleUtilities_GoogleUtilities-Reachability.bundle (in target 'App' from project 'App')
+    cd /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/ios/App
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/GoogleUtilities_GoogleUtilities-Reachability.bundle /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/App.app
+
+Copy /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/App.app/GoogleUtilities_GoogleUtilities-Network.bundle /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/GoogleUtilities_GoogleUtilities-Network.bundle (in target 'App' from project 'App')
+    cd /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/ios/App
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/GoogleUtilities_GoogleUtilities-Network.bundle /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/App.app
+
+Copy /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/App.app/GoogleUtilities_GoogleUtilities-NSData.bundle /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/GoogleUtilities_GoogleUtilities-NSData.bundle (in target 'App' from project 'App')
+    cd /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/ios/App
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/GoogleUtilities_GoogleUtilities-NSData.bundle /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/App.app
+
+Copy /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/App.app/GoogleUtilities_GoogleUtilities-MethodSwizzler.bundle /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/GoogleUtilities_GoogleUtilities-MethodSwizzler.bundle (in target 'App' from project 'App')
+    cd /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/ios/App
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/GoogleUtilities_GoogleUtilities-MethodSwizzler.bundle /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/App.app
+
+Copy /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/App.app/GoogleUtilities_GoogleUtilities-AppDelegateSwizzler.bundle /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/GoogleUtilities_GoogleUtilities-AppDelegateSwizzler.bundle (in target 'App' from project 'App')
+    cd /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/ios/App
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/GoogleUtilities_GoogleUtilities-AppDelegateSwizzler.bundle /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/App.app
+
+Copy /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/App.app/Facebook_FacebookCore.bundle /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/Facebook_FacebookCore.bundle (in target 'App' from project 'App')
+    cd /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/ios/App
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/Facebook_FacebookCore.bundle /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/App.app
+
+Copy /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/App.app/Facebook_FacebookAEM.bundle /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/Facebook_FacebookAEM.bundle (in target 'App' from project 'App')
+    cd /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/ios/App
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/Facebook_FacebookAEM.bundle /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/App.app
+
+ProcessInfoPlistFile /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/App.app/Info.plist /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/ios/App/App/Info.plist (in target 'App' from project 'App')
+    cd /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/ios/App
+    builtin-infoPlistUtility /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/ios/App/App/Info.plist -producttype com.apple.product-type.application -genpkginfo /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/App.app/PkgInfo -expandbuildsettings -format binary -platform iphoneos -additionalcontentfile /tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/App.build/Debug-iphoneos/App.build/Base.lproj/LaunchScreen-SBPartialInfo.plist -additionalcontentfile /tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/App.build/Debug-iphoneos/App.build/Base.lproj/Main-SBPartialInfo.plist -additionalcontentfile /tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/App.build/Debug-iphoneos/App.build/assetcatalog_generated_info.plist -scanforprivacyfile /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/App.app/Facebook_FacebookAEM.bundle -scanforprivacyfile /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/App.app/Facebook_FacebookCore.bundle -scanforprivacyfile /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/App.app/Firebase_FirebaseCore.bundle -scanforprivacyfile /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/App.app/Firebase_FirebaseCoreInternal.bundle -scanforprivacyfile /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/App.app/Firebase_FirebaseInstallations.bundle -scanforprivacyfile /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/App.app/Frameworks/AppLovinSDK.framework -scanforprivacyfile /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/App.app/Frameworks/AppsFlyerLib.framework -scanforprivacyfile /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/App.app/Frameworks/Capacitor.framework -scanforprivacyfile /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/App.app/Frameworks/Cordova.framework -scanforprivacyfile /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/App.app/Frameworks/FBAEMKit.framework -scanforprivacyfile /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/App.app/Frameworks/FBSDKCoreKit.framework -scanforprivacyfile /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/App.app/Frameworks/FBSDKCoreKit_Basics.framework -scanforprivacyfile /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/App.app/Frameworks/FirebaseAnalytics.framework -scanforprivacyfile /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/App.app/Frameworks/GoogleAppMeasurement.framework -scanforprivacyfile /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/App.app/Frameworks/UserMessagingPlatform.framework -scanforprivacyfile /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/App.app/GoogleUtilities_GoogleUtilities-AppDelegateSwizzler.bundle -scanforprivacyfile /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/App.app/GoogleUtilities_GoogleUtilities-Environment.bundle -scanforprivacyfile /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/App.app/GoogleUtilities_GoogleUtilities-Logger.bundle -scanforprivacyfile /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/App.app/GoogleUtilities_GoogleUtilities-MethodSwizzler.bundle -scanforprivacyfile /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/App.app/GoogleUtilities_GoogleUtilities-NSData.bundle -scanforprivacyfile /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/App.app/GoogleUtilities_GoogleUtilities-Network.bundle -scanforprivacyfile /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/App.app/GoogleUtilities_GoogleUtilities-Reachability.bundle -scanforprivacyfile /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/App.app/GoogleUtilities_GoogleUtilities-UserDefaults.bundle -scanforprivacyfile /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/App.app/Promises_FBLPromises.bundle -scanforprivacyfile /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/App.app/nanopb_nanopb.bundle -requiredArchitecture arm64 -o /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/App.app/Info.plist
+
+CopySwiftLibs /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/App.app (in target 'App' from project 'App')
+    cd /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/ios/App
+    builtin-swiftStdLibTool --copy --verbose --sign 6E013F81F5674714B026E2B75F0435951A3C9CE2 --scan-executable /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/App.app/App.debug.dylib --scan-folder /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/App.app/Frameworks --scan-folder /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/App.app/PlugIns --scan-folder /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/App.app/SystemExtensions --scan-folder /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/App.app/Extensions --scan-folder /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk/System/Library/Frameworks/AppTrackingTransparency.framework --scan-folder /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk/System/Library/Frameworks/AdSupport.framework --scan-folder /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk/System/Library/Frameworks/StoreKit.framework --scan-folder /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk/System/Library/Frameworks/AdServices.framework --platform iphoneos --toolchain /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain --destination /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/App.app/Frameworks --strip-bitcode --strip-bitcode-tool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/bitcode_strip --emit-dependency-info /tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/App.build/Debug-iphoneos/App.build/SwiftStdLibToolInputDependencies.dep --filter-for-swift-os
+
+CodeSign /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/App.app/App.debug.dylib (in target 'App' from project 'App')
+    cd /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/ios/App
+    
+    Signing Identity:     "Apple Development: BATU AYTEMIZ (YU2AJP5RGS)"
+    Provisioning Profile: "iOS Team Provisioning Profile: com.basegamelab.marblerun"
+                          (031e7f5e-18e9-4b9a-b5fd-6b065efc2ee9)
+    
+    /usr/bin/codesign --force --sign 6E013F81F5674714B026E2B75F0435951A3C9CE2 --timestamp\=none --generate-entitlement-der /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/App.app/App.debug.dylib
+/tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/App.app/App.debug.dylib: replacing existing signature
+
+CodeSign /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/App.app/__preview.dylib (in target 'App' from project 'App')
+    cd /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/ios/App
+    
+    Signing Identity:     "Apple Development: BATU AYTEMIZ (YU2AJP5RGS)"
+    Provisioning Profile: "iOS Team Provisioning Profile: com.basegamelab.marblerun"
+                          (031e7f5e-18e9-4b9a-b5fd-6b065efc2ee9)
+    
+    /usr/bin/codesign --force --sign 6E013F81F5674714B026E2B75F0435951A3C9CE2 --timestamp\=none --generate-entitlement-der /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/App.app/__preview.dylib
+/tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/App.app/__preview.dylib: replacing existing signature
+
+CodeSign /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/App.app (in target 'App' from project 'App')
+    cd /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/ios/App
+    
+    Signing Identity:     "Apple Development: BATU AYTEMIZ (YU2AJP5RGS)"
+    Provisioning Profile: "iOS Team Provisioning Profile: com.basegamelab.marblerun"
+                          (031e7f5e-18e9-4b9a-b5fd-6b065efc2ee9)
+    
+    /usr/bin/codesign --force --sign 6E013F81F5674714B026E2B75F0435951A3C9CE2 --entitlements /tmp/marble-run-validation-derived-data/Build/Intermediates.noindex/App.build/Debug-iphoneos/App.build/App.app.xcent --timestamp\=none --generate-entitlement-der /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/App.app
+/tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/App.app: replacing existing signature
+
+Validate /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/App.app (in target 'App' from project 'App')
+    cd /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/ios/App
+    builtin-validationUtility /tmp/marble-run-validation-derived-data/Build/Products/Debug-iphoneos/App.app -shallow-bundle -infoplist-subpath Info.plist
+
+** BUILD SUCCEEDED **
+
+11:05:54  Acquired tunnel connection to device.
+11:05:54  Enabling developer disk image services.
+11:05:54  Acquired usage assertion.
+App installed:
+• bundleID: com.basegamelab.marblerun
+• installationURL: file:///private/var/containers/Bundle/Application/7D78DF54-16F7-41F3-982A-5F79ADBD3D92/App.app/
+• launchServicesIdentifier: unknown
+• databaseUUID: EED6CF9A-6234-4152-A9B2-8D97581840FE
+• databaseSequenceNumber: 3380
+• options: 

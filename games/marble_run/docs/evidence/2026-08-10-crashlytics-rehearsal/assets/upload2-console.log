@@ -1,0 +1,60 @@
+10:16:49  Acquired tunnel connection to device.
+10:16:49  Enabling developer disk image services.
+10:16:49  Acquired usage assertion.
+Launched application with com.basegamelab.marblerun bundle identifier.
+Waiting for the application to terminate…
+2026-08-10 00:16:50.142 App[26183:6474822] DiskCookieStorage changing policy from 2 to 0, cookie file: file:///private/var/mobile/Containers/Data/Application/0E6F7B58-5C31-48A9-A938-06E166748384/Library/Cookies/Cookies.binarycookies
+2026-08-10 00:16:50.199 App[26183:6474822] [Firebase/Crashlytics] Version 12.17.0
+⚡️  Loading app at capacitor://localhost...
+⚡️  WebView loaded
+⚡️  [info] - [startup] js-entry 36.0ms
+⚡️  [info] - [startup] viewport-stable 120.0ms
+⚡️  [info] - [startup] bootstrap-evaluating 206.0ms
+⚡️  [info] - [meta] initializing Facebook SDK {"appId":"4138472436283342","clientToken":"<redacted:a518>","autoLogAppEvents":false,"advertiserIdCollection":false}
+⚡️  [log] - %c %c %c %c %c Phaser v3.90.0 (Canvas | Web Audio) %c https://phaser.io/v390 background: #ff0000 background: #ffff00 background: #00ff00 background: #00ffff color: #ffffff; background: #000000 background: transparent
+⚡️  [info] - [startup] phaser-created 235.0ms
+⚡️  [info] - [ads:applovin] initializing AppLovin MAX {"sdkKey":"<redacted:wBUP>","verboseLogging":false}
+⚡️  To Native ->  MetaEvents initialize 65449237
+⚡️  To Native ->  AppLovinMax initialize 65449238
+2026-08-10 00:16:50.582 App[26183:6474822] [meta] Facebook SDK initialized appId=4138472436283342 clientToken=<redacted:a518>
+⚡️  TO JS {"initialized":true}
+2026-08-10 00:16:50.593 App[26183:6474822] [ads:applovin] initializing MAX SDK units=2 verbose=false consentFlow=false hasUserConsent=false doNotSell=true
+⚡️  To Native ->  FirebaseAnalytics logEvent 65449239
+⚡️  To Native ->  FirebaseAnalytics logEvent 65449240
+⚡️  TO JS undefined
+⚡️  TO JS undefined
+⚡️  [info] - [startup] boot-scene-create 288.0ms
+⚡️  [info] - [meta] Facebook SDK initialized 
+⚡️  [info] - [startup] home-scene-create 498.0ms
+⚡️  [warn] - [levels] catalog manifest unavailable; preserving cached sequence/fallback state {}
+⚡️  [info] - [startup] home-first-paint 548.0ms
+2026-08-10 00:16:51.010 App[26183:6474822] [ads:applovin] MAX SDK initialized
+⚡️  TO JS {"initialized":true}
+⚡️  [info] - [ads:applovin] AppLovin MAX initialized 
+⚡️  To Native ->  AppLovinMax addListener 65449241
+⚡️  To Native ->  AppLovinMax preloadRewarded 65449242
+⚡️  [info] - [ads:applovin] preloading rewarded ad 
+2026-08-10 00:16:51.073 App[26183:6474822] [ads:applovin] rewarded load requested unit=<redacted:0899>
+⚡️  To Native ->  AppLovinMax hideBanner 65449243
+⚡️  [info] - [ads:applovin] preloading interstitial 
+⚡️  To Native ->  AppLovinMax preloadInterstitial 65449244
+2026-08-10 00:16:51.116 App[26183:6474822] [ads:applovin] banner hidden
+2026-08-10 00:16:51.117 App[26183:6474822] [ads:applovin] interstitial load requested unit=<redacted:97bd>
+⚡️  TO JS undefined
+2026-08-10 00:16:51.256 App[26183:6474935] ProtocolBuffer message hasn't been initialized. GetArray can't be performed
+2026-08-10 00:16:51.257 App[26183:6474935] ProtocolBuffer message hasn't been initialized. GetArray can't be performed
+2026-08-10 00:16:51.309 App[26183:6474822] FBSDKLog: starting with Graph API v2.4, GET requests for /4138472436283342/model_asset should contain an explicit "fields" parameter
+2026-08-10 00:16:51.310 App[26183:6474860] FBSDKLog: starting with Graph API v2.4, GET requests for /4138472436283342/ios_skadnetwork_conversion_config should contain an explicit "fields" parameter
+2026-08-10 00:16:52.555 App[26183:6474822] [ads:applovin] interstitial loaded unit=<redacted:97bd>
+⚡️  TO JS {"loaded":true}
+⚡️  [info] - [attribution:appsflyer] initializing AppsFlyer {"devKey":"<redacted:uXxA>","appleAppId":"6793860059","debugLogging":false,"attWaitSeconds":60}
+⚡️  To Native ->  AppsFlyerAttribution initialize 65449245
+2026-08-10 00:16:52.567 App[26183:6474822] [attribution:appsflyer] AppsFlyer SDK started appleAppId=6793860059 devKey=<redacted:uXxA>
+⚡️  TO JS {"initialized":true}
+⚡️  To Native ->  AppsFlyerAttribution trackEvent 65449246
+⚡️  [info] - [attribution:appsflyer] AppsFlyer initialized 
+2026-08-10 00:16:52.573 App[26183:6474822] [attribution:appsflyer] event logged name=appOpen
+⚡️  TO JS {"tracked":true}
+2026-08-10 00:16:52.703 App[26183:6474822] [ads:applovin] rewarded loaded unit=<redacted:0899>
+⚡️  TO JS {"loaded":true}
+App terminated due to signal 15.

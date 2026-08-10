@@ -1,0 +1,37 @@
+
+> fabrikav2@0.0.0 verify-device
+> node tools/verify-device/cli.mjs --game marble_run --platform ios --device 00008101-000410EC3EF9001E --out games/marble_run/docs/evidence/2026-08-07-105734-bug-validation/assets/verify-device --skip-panel
+
+  $ xcrun devicectl list devices --json-output /var/folders/_j/mn9clxv5027561fkknp6sxn40000gn/T/verify-device-2026-08-07/devices.json
+verify-device: using requested device Batu’s iPhone (00008101-000410EC3EF9001E)
+  (no MAC_PASSWORD — skipping keychain unlock; relying on an already-unlocked login keychain)
+  $ npx vite build
+[plugin vite:reporter] 
+(!) /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/src/audio/AmbientManager.ts is dynamically imported by /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/src/bootstrap.ts but also statically imported by /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/src/menu/settings.ts, /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/src/scenes/GameScene.ts, /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/src/scenes/HomeScene.ts, /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/src/ui/HUD.ts, dynamic import will not move module into another chunk.
+
+[plugin vite:reporter] 
+(!) /Users/base/dev/appletolye/fabrikav2/node_modules/@capacitor/core/dist/index.js is dynamically imported by /Users/base/dev/appletolye/fabrikav2/packages/sdk/src/ads/AdMobProvider.ts, /Users/base/dev/appletolye/fabrikav2/packages/sdk/src/ads/AdMobProvider.ts but also statically imported by /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/src/config/cdn.ts, /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/src/gameplay/haptics.ts, /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/src/haptics/HapticsManager.ts, /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/src/notifications/NotificationService.ts, /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/src/sdk/SdkContext.ts, /Users/base/dev/appletolye/fabrikav2/node_modules/@capacitor-firebase/analytics/dist/esm/index.js, /Users/base/dev/appletolye/fabrikav2/node_modules/@capacitor-firebase/analytics/dist/esm/web.js, /Users/base/dev/appletolye/fabrikav2/node_modules/@capacitor/haptics/dist/esm/index.js, /Users/base/dev/appletolye/fabrikav2/node_modules/@capacitor/haptics/dist/esm/web.js, /Users/base/dev/appletolye/fabrikav2/node_modules/@capacitor/local-notifications/dist/esm/index.js, /Users/base/dev/appletolye/fabrikav2/node_modules/@capacitor/local-notifications/dist/esm/web.js, /Users/base/dev/appletolye/fabrikav2/packages/sdk/src/ads/AppLovinMaxPlugin.ts, /Users/base/dev/appletolye/fabrikav2/packages/sdk/src/attribution/AdjustAttributionPlugin.ts, /Users/base/dev/appletolye/fabrikav2/packages/sdk/src/attribution/AppsFlyerAttributionPlugin.ts, /Users/base/dev/appletolye/fabrikav2/packages/sdk/src/attribution/AttributionService.ts, /Users/base/dev/appletolye/fabrikav2/packages/sdk/src/meta/CapacitorMetaPlugin.ts, dynamic import will not move module into another chunk.
+
+[plugin vite:reporter] 
+(!) /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/src/ads/Service.ts is dynamically imported by /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/src/privacy/PrivacyConsentService.ts but also statically imported by /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/src/analytics/AnalyticsService.ts, /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/src/bootstrap.ts, /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/src/scenes/GameScene.ts, /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/src/scenes/HomeScene.ts, /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/src/sdk/SdkContext.ts, /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/src/testing/TestHarness.ts, /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/src/ui/HUD.ts, dynamic import will not move module into another chunk.
+
+[plugin vite:reporter] 
+(!) /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/src/sdk/shims/capacitor-community-admob.ts is dynamically imported by /Users/base/dev/appletolye/fabrikav2/packages/sdk/src/ads/AdMobProvider.ts, /Users/base/dev/appletolye/fabrikav2/packages/sdk/src/ads/AdMobProvider.ts, /Users/base/dev/appletolye/fabrikav2/packages/sdk/src/ads/AdMobProvider.ts, /Users/base/dev/appletolye/fabrikav2/packages/sdk/src/ads/AdMobProvider.ts, /Users/base/dev/appletolye/fabrikav2/packages/sdk/src/ads/AdMobProvider.ts, /Users/base/dev/appletolye/fabrikav2/packages/sdk/src/ads/AdMobProvider.ts, /Users/base/dev/appletolye/fabrikav2/packages/sdk/src/ads/AdMobProvider.ts, /Users/base/dev/appletolye/fabrikav2/packages/sdk/src/ads/AdMobProvider.ts, /Users/base/dev/appletolye/fabrikav2/packages/sdk/src/ads/AdMobProvider.ts but also statically imported by /Users/base/dev/appletolye/fabrikav2/packages/sdk/src/ads/AdMobProvider.ts, dynamic import will not move module into another chunk.
+
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+  $ npx cap sync ios
+  native-resources ios recipe applied: App/Assets.xcassets/AppIcon.appiconset/AppIcon-512@2x.png, App/Assets.xcassets/AppIcon.appiconset/Contents.json, App/Assets.xcassets/Splash.imageset/Contents.json, App/Assets.xcassets/Splash.imageset/splash-2732x2732-1.png, App/Assets.xcassets/Splash.imageset/splash-2732x2732-2.png, App/Assets.xcassets/Splash.imageset/splash-2732x2732.png, App/Info.plist, AppDelegate.swift, AppLovinMaxPlugin.swift, AppsFlyerAttributionPlugin.swift, GoogleService-Info.plist, MarbleRunBridgeViewController.swift, MetaEventsPlugin.swift, PrivacyInfo.xcprivacy
+  $ node /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/tools/native-shell/apply.mjs --game marble_run
+  $ xcodebuild -project /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/ios/App/App.xcodeproj -scheme App -configuration Debug -destination id=00008101-000410EC3EF9001E -derivedDataPath /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/ios/App/build build
+2026-08-07 11:02:21.565 xcodebuild[17911:33722467] [MT] IDERunDestination: Supported platforms for the buildables in the current scheme is empty.
+** BUILD FAILED **
+
+
+The following build commands failed:
+	Building project App with scheme App and configuration Debug
+(1 failure)
+verify-device: Command failed: xcodebuild -project /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/ios/App/App.xcodeproj -scheme App -configuration Debug -destination id=00008101-000410EC3EF9001E -derivedDataPath /Users/base/dev/appletolye/fabrikav2/.worktrees/marble-run/games/marble_run/ios/App/build build

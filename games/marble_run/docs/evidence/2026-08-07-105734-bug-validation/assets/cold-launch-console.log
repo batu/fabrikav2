@@ -1,0 +1,291 @@
+11:01:09  Acquired tunnel connection to device.
+11:01:09  Enabling developer disk image services.
+11:01:09  Acquired usage assertion.
+Launched application with com.basegamelab.marblerun bundle identifier.
+Waiting for the application to terminate…
+2026-08-07 01:01:10.906 App[20373:5413799] DiskCookieStorage changing policy from 2 to 0, cookie file: file:///private/var/mobile/Containers/Data/Application/AD096E34-8709-413C-BDB9-01AF2D9010FB/Library/Cookies/Cookies.binarycookies
+⚡️  Loading app at capacitor://localhost...
+⚡️  [info] - [startup] js-entry 57.0ms
+⚡️  WebView loaded
+⚡️  [info] - [startup] viewport-stable 392.0ms
+⚡️  [info] - [startup] bootstrap-evaluating 562.0ms
+⚡️  [info] - [meta] initializing Facebook SDK {"appId":"4138472436283342","clientToken":"<redacted:a518>","autoLogAppEvents":false,"advertiserIdCollection":false}
+⚡️  [log] - %c %c %c %c %c Phaser v3.90.0 (Canvas | Web Audio) %c https://phaser.io/v390 background: #ff0000 background: #ffff00 background: #00ff00 background: #00ffff color: #ffffff; background: #000000 background: transparent
+⚡️  [info] - [startup] phaser-created 600.0ms
+⚡️  [info] - [ads:applovin] initializing AppLovin MAX {"sdkKey":"<redacted:wBUP>","verboseLogging":false}
+⚡️  To Native ->  MetaEvents initialize 53207286
+⚡️  To Native ->  AppLovinMax initialize 53207287
+2026-08-07 01:01:12.186 App[20373:5413799] [meta] Facebook SDK initialized appId=4138472436283342 clientToken=<redacted:a518>
+⚡️  TO JS {"initialized":true}
+2026-08-07 01:01:12.223 App[20373:5413799] [ads:applovin] initializing MAX SDK units=2 verbose=false consentFlow=false hasUserConsent=false doNotSell=true
+⚡️  To Native ->  FirebaseAnalytics logEvent 53207288
+⚡️  To Native ->  FirebaseAnalytics logEvent 53207289
+⚡️  TO JS undefined
+⚡️  TO JS undefined
+⚡️  [info] - [startup] boot-scene-create 761.0ms
+⚡️  [info] - [meta] Facebook SDK initialized 
+⚡️  [info] - [startup] home-scene-create 916.0ms
+⚡️  [warn] - [levels] catalog manifest unavailable; preserving cached sequence/fallback state {}
+⚡️  [info] - [startup] home-first-paint 989.0ms
+2026-08-07 01:01:12.621 App[20373:5413799] [ads:applovin] MAX SDK initialized
+⚡️  TO JS {"initialized":true}
+⚡️  To Native ->  AppLovinMax addListener 53207290
+⚡️  To Native ->  AppLovinMax preloadRewarded 53207291
+2026-08-07 01:01:12.644 App[20373:5413799] [ads:applovin] rewarded load requested unit=<redacted:0899>
+⚡️  [info] - [ads:applovin] AppLovin MAX initialized 
+⚡️  To Native ->  AppLovinMax hideBanner 53207292
+⚡️  To Native ->  AppLovinMax preloadInterstitial 53207293
+⚡️  [info] - [ads:applovin] preloading rewarded ad 
+⚡️  [info] - [ads:applovin] preloading interstitial 
+⚡️  TO JS undefined
+2026-08-07 01:01:12.645 App[20373:5413799] [ads:applovin] banner hidden
+2026-08-07 01:01:12.645 App[20373:5413799] [ads:applovin] interstitial load requested unit=<redacted:97bd>
+⚡️  TO JS {"loaded":true}
+2026-08-07 01:01:16.540 App[20373:5413799] [ads:applovin] rewarded loaded unit=<redacted:0899>
+2026-08-07 01:01:16.540 App[20373:5413799] [ads:applovin] interstitial loaded unit=<redacted:97bd>
+⚡️  TO JS {"loaded":true}
+⚡️  [info] - [attribution:appsflyer] initializing AppsFlyer {"devKey":"<redacted:uXxA>","appleAppId":"6793860059","debugLogging":false,"attWaitSeconds":60}
+⚡️  To Native ->  AppsFlyerAttribution initialize 53207294
+⚡️  TO JS {"initialized":true}
+⚡️  [info] - [attribution:appsflyer] AppsFlyer initialized 
+⚡️  To Native ->  AppsFlyerAttribution trackEvent 53207295
+⚡️  TO JS {"tracked":true}
+2026-08-07 01:01:16.555 App[20373:5413799] [attribution:appsflyer] AppsFlyer SDK started appleAppId=6793860059 devKey=<redacted:uXxA>
+2026-08-07 01:01:16.559 App[20373:5413799] [attribution:appsflyer] event logged name=appOpen
+2026-08-07 01:01:18.473 App[20373:5414065] [attribution:appsflyer] ATT authorization resolved status=3
+⚡️  [info] - [ads:applovin] banner ad unit not configured; skipping 
+⚡️  To Native ->  FirebaseAnalytics logEvent 53207296
+2026-08-07 01:01:18.986 App[20373:5413799] [attribution:appsflyer] event logged name=levelStart
+⚡️  To Native ->  AppsFlyerAttribution trackEvent 53207297
+⚡️  TO JS undefined
+⚡️  TO JS {"tracked":true}
+2026-08-07 01:01:19.264 App[20373:5413799] FBSDKLog: starting with Graph API v2.4, GET requests for /4138472436283342/model_asset should contain an explicit "fields" parameter
+2026-08-07 01:01:19.265 App[20373:5413918] FBSDKLog: starting with Graph API v2.4, GET requests for /4138472436283342/ios_skadnetwork_conversion_config should contain an explicit "fields" parameter
+⚡️  To Native ->  AppLovinMax preloadRewarded 53207298
+⚡️  [info] - [ads:applovin] preloading rewarded ad 
+⚡️  TO JS {"loaded":true}
+⚡️  To Native ->  Haptics impact 53207299
+⚡️  TO JS undefined
+⚡️  To Native ->  Haptics impact 53207300
+⚡️  TO JS undefined
+⚡️  To Native ->  Haptics impact 53207301
+⚡️  TO JS undefined
+⚡️  To Native ->  Haptics impact 53207302
+⚡️  TO JS undefined
+⚡️  To Native ->  Haptics impact 53207303
+⚡️  TO JS undefined
+⚡️  To Native ->  Haptics impact 53207304
+⚡️  TO JS undefined
+⚡️  To Native ->  Haptics impact 53207305
+⚡️  TO JS undefined
+⚡️  To Native ->  Haptics impact 53207306
+⚡️  TO JS undefined
+⚡️  To Native ->  Haptics impact 53207307
+⚡️  TO JS undefined
+⚡️  To Native ->  Haptics impact 53207308
+⚡️  TO JS undefined
+⚡️  To Native ->  Haptics impact 53207309
+⚡️  TO JS undefined
+⚡️  To Native ->  Haptics impact 53207310
+⚡️  TO JS undefined
+⚡️  To Native ->  Haptics impact 53207311
+⚡️  TO JS undefined
+⚡️  To Native ->  Haptics impact 53207312
+⚡️  TO JS undefined
+⚡️  To Native ->  Haptics impact 53207313
+⚡️  TO JS undefined
+2026-08-07 01:01:23.808 App[20373:5413799] [attribution:appsflyer] event logged name=levelComplete
+⚡️  To Native ->  Haptics impact 53207314
+⚡️  TO JS undefined
+⚡️  To Native ->  Haptics notification 53207315
+⚡️  To Native ->  Haptics impact 53207316
+⚡️  TO JS undefined
+⚡️  To Native ->  FirebaseAnalytics logEvent 53207317
+⚡️  TO JS undefined
+⚡️  TO JS undefined
+⚡️  To Native ->  FirebaseAnalytics logEvent 53207318
+⚡️  To Native ->  FirebaseAnalytics logEvent 53207319
+⚡️  To Native ->  AppsFlyerAttribution trackEvent 53207320
+⚡️  TO JS undefined
+⚡️  TO JS undefined
+⚡️  TO JS {"tracked":true}
+⚡️  To Native ->  Haptics impact 53207321
+⚡️  TO JS undefined
+⚡️  To Native ->  Haptics impact 53207322
+2026-08-07 01:01:24.144 App[20373:5413799] [ads:applovin] banner hidden
+⚡️  To Native ->  AppLovinMax hideBanner 53207323
+⚡️  TO JS undefined
+⚡️  TO JS undefined
+⚡️  To Native ->  Haptics impact 53207324
+⚡️  TO JS undefined
+⚡️  To Native ->  Haptics impact 53207325
+⚡️  TO JS undefined
+⚡️  To Native ->  FirebaseAnalytics logEvent 53207326
+2026-08-07 01:01:26.119 App[20373:5413799] [attribution:appsflyer] event logged name=levelStart
+⚡️  To Native ->  AppsFlyerAttribution trackEvent 53207327
+⚡️  TO JS undefined
+⚡️  TO JS {"tracked":true}
+⚡️  To Native ->  Haptics impact 53207328
+⚡️  TO JS undefined
+⚡️  To Native ->  Haptics impact 53207329
+⚡️  TO JS undefined
+⚡️  To Native ->  Haptics impact 53207330
+⚡️  TO JS undefined
+⚡️  To Native ->  Haptics impact 53207331
+⚡️  TO JS undefined
+⚡️  To Native ->  Haptics impact 53207332
+⚡️  TO JS undefined
+⚡️  To Native ->  Haptics impact 53207333
+⚡️  TO JS undefined
+⚡️  To Native ->  Haptics impact 53207334
+⚡️  TO JS undefined
+⚡️  To Native ->  Haptics impact 53207335
+⚡️  TO JS undefined
+⚡️  To Native ->  Haptics impact 53207336
+⚡️  TO JS undefined
+⚡️  To Native ->  Haptics impact 53207337
+⚡️  TO JS undefined
+⚡️  To Native ->  Haptics impact 53207338
+⚡️  TO JS undefined
+⚡️  To Native ->  Haptics impact 53207339
+⚡️  TO JS undefined
+⚡️  To Native ->  Haptics impact 53207340
+⚡️  TO JS undefined
+⚡️  To Native ->  Haptics impact 53207341
+⚡️  TO JS undefined
+⚡️  To Native ->  Haptics impact 53207342
+⚡️  TO JS undefined
+⚡️  To Native ->  Haptics impact 53207343
+⚡️  TO JS undefined
+⚡️  To Native ->  Haptics notification 53207344
+⚡️  To Native ->  Haptics impact 53207345
+⚡️  TO JS undefined
+⚡️  TO JS undefined
+⚡️  To Native ->  FirebaseAnalytics logEvent 53207346
+⚡️  To Native ->  FirebaseAnalytics logEvent 53207347
+⚡️  To Native ->  FirebaseAnalytics logEvent 53207348
+⚡️  To Native ->  AppsFlyerAttribution trackEvent 53207349
+⚡️  TO JS undefined
+⚡️  TO JS undefined
+⚡️  TO JS undefined
+2026-08-07 01:01:29.462 App[20373:5413799] [attribution:appsflyer] event logged name=levelComplete
+⚡️  TO JS {"tracked":true}
+⚡️  To Native ->  Haptics impact 53207350
+⚡️  TO JS undefined
+⚡️  To Native ->  Haptics impact 53207351
+2026-08-07 01:01:29.737 App[20373:5413799] [ads:applovin] banner hidden
+⚡️  To Native ->  AppLovinMax hideBanner 53207352
+⚡️  TO JS undefined
+⚡️  TO JS undefined
+⚡️  To Native ->  Haptics impact 53207353
+⚡️  TO JS undefined
+⚡️  To Native ->  Haptics impact 53207354
+⚡️  TO JS undefined
+⚡️  To Native ->  FirebaseAnalytics logEvent 53207355
+2026-08-07 01:01:31.390 App[20373:5413799] [attribution:appsflyer] event logged name=levelStart
+⚡️  To Native ->  AppsFlyerAttribution trackEvent 53207356
+⚡️  TO JS undefined
+⚡️  TO JS {"tracked":true}
+⚡️  To Native ->  Haptics impact 53207357
+⚡️  TO JS undefined
+⚡️  To Native ->  Haptics impact 53207358
+⚡️  TO JS undefined
+⚡️  To Native ->  Haptics impact 53207359
+⚡️  TO JS undefined
+⚡️  To Native ->  Haptics impact 53207360
+⚡️  TO JS undefined
+⚡️  To Native ->  Haptics impact 53207361
+⚡️  TO JS undefined
+⚡️  To Native ->  Haptics impact 53207362
+⚡️  TO JS undefined
+⚡️  To Native ->  Haptics impact 53207363
+⚡️  TO JS undefined
+⚡️  To Native ->  Haptics impact 53207364
+⚡️  TO JS undefined
+⚡️  To Native ->  Haptics impact 53207365
+⚡️  TO JS undefined
+⚡️  To Native ->  Haptics impact 53207366
+⚡️  TO JS undefined
+⚡️  To Native ->  Haptics impact 53207367
+⚡️  TO JS undefined
+⚡️  To Native ->  Haptics impact 53207368
+⚡️  TO JS undefined
+⚡️  To Native ->  Haptics impact 53207369
+⚡️  TO JS undefined
+⚡️  To Native ->  Haptics impact 53207370
+⚡️  TO JS undefined
+⚡️  To Native ->  Haptics impact 53207371
+⚡️  TO JS undefined
+⚡️  To Native ->  Haptics impact 53207372
+⚡️  TO JS undefined
+⚡️  To Native ->  Haptics notification 53207373
+⚡️  To Native ->  Haptics impact 53207374
+⚡️  TO JS undefined
+⚡️  To Native ->  FirebaseAnalytics logEvent 53207375
+⚡️  TO JS undefined
+⚡️  TO JS undefined
+⚡️  To Native ->  FirebaseAnalytics logEvent 53207376
+⚡️  To Native ->  FirebaseAnalytics logEvent 53207377
+⚡️  To Native ->  AppsFlyerAttribution trackEvent 53207378
+⚡️  TO JS undefined
+2026-08-07 01:01:34.895 App[20373:5413799] [attribution:appsflyer] event logged name=levelComplete
+⚡️  TO JS undefined
+⚡️  TO JS {"tracked":true}
+⚡️  To Native ->  Haptics impact 53207379
+⚡️  TO JS undefined
+⚡️  To Native ->  Haptics impact 53207380
+⚡️  To Native ->  AppLovinMax hideBanner 53207381
+2026-08-07 01:01:35.191 App[20373:5413799] [ads:applovin] banner hidden
+⚡️  TO JS undefined
+⚡️  TO JS undefined
+⚡️  To Native ->  Haptics impact 53207382
+⚡️  TO JS undefined
+⚡️  To Native ->  Haptics impact 53207383
+⚡️  TO JS undefined
+⚡️  To Native ->  FirebaseAnalytics logEvent 53207384
+2026-08-07 01:01:36.837 App[20373:5413799] [attribution:appsflyer] event logged name=levelStart
+⚡️  To Native ->  AppsFlyerAttribution trackEvent 53207385
+⚡️  TO JS undefined
+⚡️  TO JS {"tracked":true}
+⚡️  To Native ->  Haptics impact 53207386
+⚡️  TO JS undefined
+⚡️  To Native ->  Haptics impact 53207387
+⚡️  TO JS undefined
+⚡️  To Native ->  Haptics impact 53207388
+⚡️  TO JS undefined
+⚡️  To Native ->  Haptics impact 53207389
+⚡️  TO JS undefined
+⚡️  To Native ->  Haptics impact 53207390
+⚡️  TO JS undefined
+⚡️  To Native ->  Haptics impact 53207391
+⚡️  TO JS undefined
+⚡️  To Native ->  Haptics impact 53207392
+⚡️  TO JS undefined
+⚡️  To Native ->  Haptics impact 53207393
+⚡️  TO JS undefined
+⚡️  To Native ->  Haptics impact 53207394
+⚡️  TO JS undefined
+⚡️  To Native ->  Haptics impact 53207395
+⚡️  TO JS undefined
+⚡️  To Native ->  Haptics impact 53207396
+⚡️  TO JS undefined
+⚡️  To Native ->  Haptics impact 53207397
+⚡️  TO JS undefined
+⚡️  To Native ->  Haptics impact 53207398
+⚡️  TO JS undefined
+⚡️  To Native ->  Haptics impact 53207399
+⚡️  TO JS undefined
+⚡️  To Native ->  Haptics impact 53207400
+⚡️  TO JS undefined
+⚡️  To Native ->  Haptics impact 53207401
+⚡️  TO JS undefined
+⚡️  To Native ->  Haptics impact 53207402
+⚡️  TO JS undefined
+⚡️  To Native ->  Haptics impact 53207403
+⚡️  TO JS undefined
+⚡️  To Native ->  Haptics impact 53207404
+⚡️  TO JS undefined
+⚡️  To Native ->  Haptics impact 53207405
+⚡️  TO JS undefined
+⚡️  To Native ->  Haptics impact 53207406
+⚡️  TO JS undefined

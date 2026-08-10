@@ -30,13 +30,15 @@ export function firebaseConfigPresentInEnv(env: EnvLike): boolean {
     && present(env.VITE_FIREBASE_APP_ID);
 }
 
-/** Compute the native plugin allowlist. Firebase analytics is included ONLY when
- * the Firebase env config is complete, so a config-less build never bundles the
- * pod that crashes at +[FIRApp configure]. */
+/** Compute the native plugin allowlist. The Firebase plugins are included ONLY
+ * when the Firebase env config is complete, so a config-less build never bundles
+ * a pod that crashes at +[FIRApp configure]. Crashlytics shares that gate: its
+ * native load() reaches the same FirebaseApp. */
 export function computeIncludePlugins(env: EnvLike): string[] {
   const plugins = [...ALWAYS_INCLUDED_PLUGINS];
   if (firebaseConfigPresentInEnv(env)) {
     plugins.push('@capacitor-firebase/analytics');
+    plugins.push('@capacitor-firebase/crashlytics');
   }
   return plugins;
 }
