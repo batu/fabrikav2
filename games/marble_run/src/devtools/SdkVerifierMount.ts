@@ -5,6 +5,13 @@ import {
   type SdkVerifierPane,
 } from '@fabrikav2/testkit/debug';
 import { redactAppLovinSdkKey } from './redact';
+import {
+  crashlyticsStatus,
+  enableCrashlyticsCollection,
+  forceCrash,
+  readCrashlyticsState,
+  sendUnsentCrashReports,
+} from './crashlyticsProbe';
 import { analytics } from '../analytics/AnalyticsService';
 import { attribution } from '../attribution/AttributionService';
 import type { GameSdkContext } from '../sdk/SdkContext';
@@ -83,6 +90,22 @@ export function buildEntries(context: GameSdkContext): SdkVerifierEntry[] {
             return 'settings_changed dispatched';
           },
         },
+      ],
+    },
+    {
+      // Crash reporting is verified by killing the app on purpose: the report
+      // uploads at the NEXT launch, so the sequence is crash → relaunch → read
+      // state. Launching from Xcode swallows the signal; launch from the home
+      // screen or no report is ever written.
+      name: 'firebase crashlytics',
+      configuredIds: { configPresent: String(configuredIds.firebasePresent) },
+      getStatus: (): string =>
+        configuredIds.firebasePresent ? crashlyticsStatus() : 'not configured: firebase env absent',
+      actions: [
+        { label: 'Read state', run: async (): Promise<string> => await readCrashlyticsState() },
+        { label: 'Enable collection', run: async (): Promise<string> => await enableCrashlyticsCollection() },
+        { label: 'Send unsent reports', run: async (): Promise<string> => await sendUnsentCrashReports() },
+        { label: 'FORCE CRASH (kills app)', run: async (): Promise<string> => await forceCrash() },
       ],
     },
     {

@@ -33,6 +33,11 @@
         "traits": [
           "AnalyticsWithoutAdIdSupport"
         ]
+      },
+      {
+        "name": "CapacitorFirebaseCrashlytics",
+        "path": "../../../../../node_modules/@capacitor-firebase/crashlytics",
+        "product": "CapacitorFirebaseCrashlytics"
       }
     ],
     "remotePackages": [
