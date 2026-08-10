@@ -121,6 +121,23 @@ if (TEST_HARNESS_ENABLED) {
       console.log('[tapprobe] results:', JSON.stringify(results));
     })();
   }
+
+  // VITE_PERF_PROBE_LEVELS="1,20" samples steady-state frame times per level.
+  const perfLevels = String(import.meta.env.VITE_PERF_PROBE_LEVELS ?? '')
+    .split(',').map((v) => Number(v.trim())).filter((v) => Number.isFinite(v) && v > 0);
+  if (perfLevels.length > 0) {
+    void (async (): Promise<void> => {
+      const win = window as unknown as { __MARBLE_RUN_HARNESS__?: MarbleRunHarness };
+      for (let i = 0; i < 100 && win.__MARBLE_RUN_HARNESS__ === undefined; i += 1) {
+        await new Promise((resolve) => setTimeout(resolve, 100));
+      }
+      const harness = win.__MARBLE_RUN_HARNESS__;
+      if (!harness) { console.log('[perf] harness unavailable'); return; }
+      const samples = [];
+      for (const level of perfLevels) samples.push(await harness.profileLevel(level));
+      console.log('[perf] results:', JSON.stringify(samples));
+    })();
+  }
 }
 
 const game: Phaser.Game = new Phaser.Game(GameConfig);

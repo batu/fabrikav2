@@ -59,6 +59,10 @@ export interface MarbleTapTarget {
   readonly onTarget: boolean;
 }
 
+/** Keep refreshing shadows briefly after motion stops, so the settled frame is
+ * drawn with a current shadow map rather than the last in-motion one. */
+const SHADOW_SETTLE_TAIL_MS = 400;
+
 const TAP_ASSIST_RADIUS_PX = 46;
 const PRECISE_BLOCKED_HIT_MAX_PX = 8;
 const PRECISE_BLOCKED_HIT_ASSIST_RATIO = 0.25;
@@ -103,6 +107,7 @@ export class GameplayController {
   private failModalTimer: number | null = null;
   private winModalTimer: number | null = null;
   private rafHandle: number | null = null;
+  private shadowsDirtyUntil = 0;
   private disposed = false;
 
   private readonly boundPointerDown: (e: PointerEvent) => void;
@@ -179,6 +184,8 @@ export class GameplayController {
     this.stage.world.add(this.board.root);
     const { w, d } = this.board.boardSize();
     this.stage.frameBoard(w, d);
+    // New board geometry: the cached shadow map is stale by definition.
+    this.shadowsDirtyUntil = performance.now() + SHADOW_SETTLE_TAIL_MS;
     this.board.refreshGateLiveness();
 
     const spawnDelay = this.engine.remainingCount() * W3D.SPAWN_STAGGER_S * 1000;
@@ -546,6 +553,13 @@ export class GameplayController {
     const now = performance.now();
     const dt = Math.min((now - this.lastTime) / 1000, 0.05);
     this.lastTime = now;
+    // Shadows only need redrawing while the scene is actually moving. Keep a
+    // short tail so the settle frame after the last roll is not left stale.
+    const busy = this.board?.isAnimating() === true
+      || this.board?.isSpawningMarbles() === true
+      || this.tutorialCell !== null;
+    if (busy) this.shadowsDirtyUntil = now + SHADOW_SETTLE_TAIL_MS;
+    if (now <= this.shadowsDirtyUntil) this.stage.markShadowsDirty();
     if (!this.paused) {
       this.board?.tick(dt);
       // The cue is mounted before the board's settle/drop animation completes.

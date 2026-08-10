@@ -80,6 +80,16 @@ const PLAY_LEVEL_TAP_INTERVAL_MS = 260;
 
 export type PlayLevelOutcome = 'win' | 'fail' | 'exhausted' | 'unavailable';
 
+export interface PerfSample {
+  level: number;
+  frames: number;
+  p50Ms: number;
+  p95Ms: number;
+  worstMs: number;
+  drawCalls: number;
+  triangles: number;
+}
+
 export interface TapProbeEntry {
   level: number;
   started: boolean;
@@ -290,6 +300,8 @@ export interface MarbleRunHarness extends GameHarness<MarbleRunVerb> {
   playLevels(count: number): Promise<PlayLevelsEntry[]>;
   /** Per-level tap-targeting probe; no tapping. */
   probeTapTargets(levels: readonly number[]): Promise<TapProbeEntry[]>;
+  /** Sample steady-state frame times on a level. */
+  profileLevel(level: number, sampleMs?: number): Promise<PerfSample | null>;
   gotoGameScene(levelId?: string): void;
   /**
    * Start GameScene with a synthetic LevelData payload. Test-only:
@@ -822,6 +834,50 @@ export function createMarbleRunHarness(game: Phaser.Game): MarbleRunHarness {
         });
       }
       return out;
+    },
+
+    /**
+     * Sample real frame times on a given level. Overheating is a sustained-cost
+     * problem, so measure the steady state rather than reasoning about it.
+     */
+    async profileLevel(level: number, sampleMs: number = 12000): Promise<PerfSample | null> {
+      const nextPill = document.querySelector<HTMLElement>('.marble-win-next-standalone');
+      if (nextPill !== null) {
+        driveElementClick(nextPill);
+        await sleep(PLAY_LEVEL_TAP_INTERVAL_MS * 2);
+      }
+      const started = await startLevel(level);
+      if (!started) return null;
+      await sleep(1500);
+      const controller = getGameScene()?.getGameplayControllerForTest();
+      const renderer = controller?.stage.renderer as unknown as {
+        info: { render: { calls: number; triangles: number } };
+      } | undefined;
+      const frames: number[] = [];
+      let last = performance.now();
+      const deadline = last + sampleMs;
+      await new Promise<void>((resolve) => {
+        const step = (): void => {
+          const now = performance.now();
+          frames.push(now - last);
+          last = now;
+          if (now >= deadline) { resolve(); return; }
+          requestAnimationFrame(step);
+        };
+        requestAnimationFrame(step);
+      });
+      frames.shift();
+      const sorted = [...frames].sort((a, b) => a - b);
+      const at = (q: number): number => Math.round((sorted[Math.floor(sorted.length * q)] ?? 0) * 100) / 100;
+      return {
+        level,
+        frames: frames.length,
+        p50Ms: at(0.5),
+        p95Ms: at(0.95),
+        worstMs: Math.round((sorted[sorted.length - 1] ?? 0) * 100) / 100,
+        drawCalls: renderer?.info.render.calls ?? -1,
+        triangles: renderer?.info.render.triangles ?? -1,
+      };
     },
 
     /** Where every marble renders, and which cell a tap there actually actions. */

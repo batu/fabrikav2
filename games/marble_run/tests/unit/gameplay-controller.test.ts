@@ -12,6 +12,7 @@ vi.mock("../../src/three/Stage", () => ({
     setViewOffsetYRatio() {}
     setDebugCamera() {}
     frameBoard() {}
+    markShadowsDirty() {}
     render() {}
     dispose() {}
     pickObject() { return null; }
