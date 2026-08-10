@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { publishLevelToCatalog } from '../api/editorApi';
-import type { CSSProperties } from 'react';
+import type { CSSProperties, ReactNode } from 'react';
 import {
   listSessions,
   setArchived,
@@ -27,6 +27,19 @@ interface Props {
 type ModelFilter = 'all' | string;
 type CardState = ReviewCardState;
 type GallerySortMode = 'newest' | 'name' | 'dogs' | 'regeneration';
+type HumanReviewCondition = 'needs-hitbox-review' | 'needs-cutout-review' | 'reviewed';
+
+const HUMAN_REVIEW_CONDITIONS: HumanReviewCondition[] = [
+  'needs-hitbox-review',
+  'needs-cutout-review',
+  'reviewed',
+];
+
+const HUMAN_REVIEW_FILTER_LABELS: Record<HumanReviewCondition, string> = {
+  'needs-hitbox-review': 'Hitboxes need review',
+  'needs-cutout-review': 'Cutouts need review',
+  reviewed: 'Hitboxes + cutouts reviewed',
+};
 
 const VARIANT_LABELS: Record<string, string> = {
   gemini: 'Gemini',
@@ -40,17 +53,6 @@ const VARIANT_LABELS: Record<string, string> = {
 function variantThumbnailUrl(session: SessionListItem, variant: string): string {
   const version = session.assetVersion ? `?v=${session.assetVersion}` : '';
   return `/api/sessions/${encodeURIComponent(session.id)}/gallery-thumb/${encodeURIComponent(variant)}${version}`;
-}
-
-function variantPreviewUrl(session: SessionListItem, variant: string): string {
-  const version = session.assetVersion ? `?v=${session.assetVersion}` : '';
-  return `/api/sessions/${encodeURIComponent(session.id)}/gallery-preview/${encodeURIComponent(variant)}${version}`;
-}
-
-function compositeDownloadName(session: SessionListItem, variant: string): string {
-  const variantLabel = (VARIANT_LABELS[variant] ?? variant).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-  const sessionLabel = session.id.toLowerCase().replace(/[^a-z0-9_-]+/g, '-').replace(/^-|-$/g, '');
-  return `${sessionLabel || 'level'}-${variantLabel || 'composite'}.png`;
 }
 
 /** Classify a (session, variant) pair into a lifecycle state. */
@@ -92,6 +94,25 @@ function sortCards(cards: VariantCard[], sortMode: GallerySortMode): VariantCard
   });
 }
 
+function humanReviewSummary(session: SessionListItem) {
+  const hitboxesStale = Boolean(session.hitboxesBlessingStale);
+  const cutoutsStale = Boolean(session.cutoutsFinalBlessingStale);
+  const stale = hitboxesStale || cutoutsStale;
+  const hitboxesReviewed = Boolean(session.hitboxesBlessed) && !hitboxesStale;
+  const cutoutsReviewed = Boolean(session.cutoutsFinalBlessed) && !stale;
+  const conditions: HumanReviewCondition[] = [];
+  if (!hitboxesReviewed) conditions.push('needs-hitbox-review');
+  if (stale || (hitboxesReviewed && !cutoutsReviewed)) conditions.push('needs-cutout-review');
+  if (hitboxesReviewed && cutoutsReviewed) conditions.push('reviewed');
+  return {
+    conditions,
+    hitboxesReviewed,
+    hitboxesStale,
+    cutoutsReviewed,
+    cutoutsStale,
+  };
+}
+
 export default function GalleryPage({ config, onOpen }: Props) {
   const [sessions, setSessions] = useState<SessionListItem[]>([]);
   const [lineupState, setLineupState] = useState<SequenceWorkflowState | null>(null);
@@ -103,12 +124,16 @@ export default function GalleryPage({ config, onOpen }: Props) {
   const [modelFilter, setModelFilter] = useState<ModelFilter>('all');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [search, setSearch] = useState('');
-  const [showArchived, setShowArchived] = useState(false);
   const [lineupOnly, setLineupOnly] = useState(false);
   const [stateFilter, setStateFilter] = useState<Record<CardState, boolean>>({
     background: true,
     inpainted: true,
     exported: true,
+  });
+  const [humanReviewFilter, setHumanReviewFilter] = useState<Record<HumanReviewCondition, boolean>>({
+    'needs-hitbox-review': true,
+    'needs-cutout-review': true,
+    reviewed: true,
   });
   const [reviewStartCardId, setReviewStartCardId] = useState<string | null>(null);
   const [sortMode, setSortMode] = useState<GallerySortMode>('newest');
@@ -173,11 +198,12 @@ export default function GalleryPage({ config, onOpen }: Props) {
     const lineupSet = new Set(lineupOrder);
     return orderedAllCards
       .filter((c) => (lineupOnly ? lineupSet.has(c.session.id) : true))
-      .filter((c) => (showArchived ? true : !c.archived))
+      .filter((c) => !c.archived)
       .filter((c) => (settingFilter === 'all' ? true : c.session.setting === settingFilter))
       .filter((c) => (modelFilter === 'all' ? true : c.session.model === modelFilter))
       .filter((c) => selectedTags.every((tag) => (c.session.tags ?? []).includes(tag)))
       .filter((c) => stateFilter[c.state])
+      .filter((c) => humanReviewSummary(c.session).conditions.some((condition) => humanReviewFilter[condition]))
       .filter((c) => {
         if (!q) return true;
         const haystack = [
@@ -194,7 +220,7 @@ export default function GalleryPage({ config, onOpen }: Props) {
       .sort((a, b) => (lineupOnly
         ? lineupOrder.indexOf(a.session.id) - lineupOrder.indexOf(b.session.id)
         : 0));
-  }, [orderedAllCards, lineupOnly, lineupState, showArchived, settingFilter, modelFilter, selectedTags, stateFilter, search, config.settings]);
+  }, [orderedAllCards, lineupOnly, lineupState, settingFilter, modelFilter, selectedTags, stateFilter, humanReviewFilter, search, config.settings]);
 
   const visibilitySessionIds = useMemo(
     () => Array.from(new Set(
@@ -251,6 +277,20 @@ export default function GalleryPage({ config, onOpen }: Props) {
     return c;
   }, [allCards]);
 
+  const humanReviewCounts = useMemo(() => {
+    const counts: Record<HumanReviewCondition, number> = {
+      'needs-hitbox-review': 0,
+      'needs-cutout-review': 0,
+      reviewed: 0,
+    };
+    const countableCards = allCards.filter((card) => !card.archived);
+    const gallerySessions = new Map(countableCards.map((card) => [card.session.id, card.session]));
+    for (const session of gallerySessions.values()) {
+      for (const condition of humanReviewSummary(session).conditions) counts[condition]++;
+    }
+    return counts;
+  }, [allCards]);
+
   const handleCardOpen = useCallback((cardId: string) => {
     setReviewStartCardId(cardId);
   }, []);
@@ -285,10 +325,20 @@ export default function GalleryPage({ config, onOpen }: Props) {
     }));
   }, []);
 
-  const handleGoldenReviewChanged = useCallback((id: string, approved: boolean) => {
-    setSessions((prev) => prev.map((session) => (
-      session.id === id ? { ...session, goldenDatasetApproved: approved } : session
-    )));
+  const handleReviewChanged = useCallback((id: string, patch: Partial<SessionListItem>) => {
+    setSessions((prev) => {
+      let changed = false;
+      const next = prev.map((session) => {
+        if (session.id !== id) return session;
+        const differs = Object.entries(patch).some(
+          ([key, value]) => session[key as keyof SessionListItem] !== value,
+        );
+        if (!differs) return session;
+        changed = true;
+        return { ...session, ...patch };
+      });
+      return changed ? next : prev;
+    });
   }, []);
 
   const handleModalClose = useCallback(() => {
@@ -375,14 +425,6 @@ export default function GalleryPage({ config, onOpen }: Props) {
               <option value="dogs">Entities high-low</option>
               <option value="regeneration">Redo candidates high-low</option>
             </select>
-            <label style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: '0.85rem', color: '#ccc' }}>
-              <input
-                type="checkbox"
-                checked={showArchived}
-                onChange={(e) => setShowArchived(e.target.checked)}
-              />
-              Show archived
-            </label>
             <label style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: '0.85rem', color: lineupOnly ? '#67e8f9' : '#ccc', fontWeight: lineupOnly ? 700 : 400 }}>
               <input
                 type="checkbox"
@@ -413,6 +455,18 @@ export default function GalleryPage({ config, onOpen }: Props) {
               />
               <StateBadge state={s} />
               <span style={{ color: '#777' }}>({stateCounts[s]})</span>
+            </label>
+          ))}
+          <span style={{ color: '#888', fontSize: '0.8rem' }}>Review:</span>
+          {HUMAN_REVIEW_CONDITIONS.map((reviewState) => (
+            <label key={reviewState} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: '0.8rem', color: '#ccc' }}>
+              <input
+                type="checkbox"
+                checked={humanReviewFilter[reviewState]}
+                onChange={(e) => setHumanReviewFilter((prev) => ({ ...prev, [reviewState]: e.target.checked }))}
+              />
+              {HUMAN_REVIEW_FILTER_LABELS[reviewState]}
+              <span style={{ color: '#777' }}>({humanReviewCounts[reviewState]})</span>
             </label>
           ))}
           {tagKeys.length > 0 && (
@@ -486,7 +540,7 @@ export default function GalleryPage({ config, onOpen }: Props) {
           config={config}
           onClose={handleModalClose}
           onArchivedChanged={handleArchivedChanged}
-          onGoldenReviewChanged={handleGoldenReviewChanged}
+          onReviewChanged={handleReviewChanged}
         />
       )}
     </div>
@@ -505,6 +559,55 @@ function StateBadge({ state }: { state: CardState }) {
       background: t.bg, color: t.fg, fontSize: '0.68rem',
       padding: '1px 6px', borderRadius: 3, fontWeight: 600,
     }}>{t.label}</span>
+  );
+}
+
+function HumanReviewBadge({
+  children,
+  tone,
+  title,
+}: {
+  children: ReactNode;
+  tone: 'good' | 'pending' | 'final';
+  title: string;
+}) {
+  const colors = {
+    good: { background: '#183c2c', color: '#9bf0bf', border: '#38865d' },
+    pending: { background: '#3d2d17', color: '#ffd39a', border: '#8a6030' },
+    final: { background: '#493b13', color: '#ffe28a', border: '#a78726' },
+  }[tone];
+  return (
+    <span title={title} style={{
+      background: colors.background,
+      color: colors.color,
+      border: `1px solid ${colors.border}`,
+      borderRadius: 4,
+      padding: '2px 5px',
+      fontSize: 10,
+      lineHeight: 1.2,
+      fontWeight: 850,
+      whiteSpace: 'nowrap',
+    }}>
+      {children}
+    </span>
+  );
+}
+
+function HumanReviewBadges({ session }: { session: SessionListItem }) {
+  const review = humanReviewSummary(session);
+  return (
+    <div data-review-conditions={review.conditions.join(' ')} style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+      {review.hitboxesReviewed ? (
+        <HumanReviewBadge tone="good" title="A human reviewed the current hitbox geometry.">✓ Hitboxes reviewed</HumanReviewBadge>
+      ) : (
+        <HumanReviewBadge tone="pending" title="A human has not reviewed the current hitbox geometry.">{HUMAN_REVIEW_FILTER_LABELS['needs-hitbox-review']}</HumanReviewBadge>
+      )}
+      {review.conditions.includes('needs-cutout-review') ? (
+        <HumanReviewBadge tone="pending" title="Current cutouts and sprite placements need human review.">{HUMAN_REVIEW_FILTER_LABELS['needs-cutout-review']}</HumanReviewBadge>
+      ) : review.cutoutsReviewed ? (
+        <HumanReviewBadge tone="final" title="A human reviewed the current cutout pixels and sprite placements.">★ Cutouts reviewed</HumanReviewBadge>
+      ) : null}
+    </div>
   );
 }
 
@@ -533,17 +636,16 @@ function GalleryCard({
 }) {
   const { session, variant, state } = card;
   const thumbSrc = variantThumbnailUrl(session, variant);
-  const previewSrc = variantPreviewUrl(session, variant);
   const [thumbFailed, setThumbFailed] = useState(false);
   const [publishBusy, setPublishBusy] = useState(false);
   const [publishError, setPublishError] = useState<string | null>(null);
-  const downloadName = compositeDownloadName(session, variant);
   useEffect(() => {
     setThumbFailed(false);
   }, [variant, session.id, session.assetVersion]);
   const visibilitySummaries = useMemo(() => summarizeVisibilityIssues(visibilityIssues), [visibilityIssues]);
   const blockerCount = blockingVisibilitySummaries(visibilitySummaries).length;
   const warnCount = visibilitySummaries.length;
+  const fullyReviewed = humanReviewSummary(session).conditions.includes('reviewed');
   const missingAssetReason = state !== 'background' && session.hasImage === false
     ? 'Missing composite image asset. Open in Wizard or review assets before adding this level to Lineup.'
     : state !== 'background' && session.hasThumbnail === false
@@ -704,17 +806,31 @@ function GalleryCard({
           </span>
         )}
       </div>
-      {session.goldenDatasetApproved && (
-        <span
-          aria-label="Blessed level"
-          title="Human-reviewed: hitboxes, cutouts, and placements are solid"
+      {fullyReviewed && (
+        <div
+          aria-label="Fully reviewed"
+          title="Hitboxes and cutouts are human reviewed"
           style={{
-            position: 'absolute', top: 5, right: 8, zIndex: 2,
-            color: '#ffd84d', fontSize: '2rem', lineHeight: 1,
-            fontWeight: 900, textShadow: '0 2px 5px rgba(0,0,0,0.85)',
+            position: 'absolute',
+            top: 8,
+            right: 8,
+            width: 36,
+            height: 36,
+            display: 'grid',
+            placeItems: 'center',
+            borderRadius: '50%',
+            background: 'rgba(20, 15, 3, 0.88)',
+            border: '1px solid rgba(255, 220, 92, 0.72)',
+            color: '#ffdc5c',
+            fontSize: '1.55rem',
+            lineHeight: 1,
+            textShadow: '0 1px 5px rgba(0, 0, 0, 0.9)',
+            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.5)',
             pointerEvents: 'none',
           }}
-        >★</span>
+        >
+          ★
+        </div>
       )}
       <div style={{ padding: 10, display: 'flex', flexDirection: 'column', gap: 4 }}>
         <div style={{ fontWeight: 600, fontSize: '0.9rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
@@ -723,6 +839,7 @@ function GalleryCard({
         <div style={{ fontSize: '0.7rem', color: '#888' }}>
           {session.nDogs} dogs
         </div>
+        <HumanReviewBadges session={session} />
         <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap', fontSize: '0.68rem' }}>
           {(session.regenerationCandidateCount ?? 0) > 0 && (
             <span style={{ color: '#ffb06b', fontWeight: 750 }}>
@@ -791,30 +908,6 @@ function GalleryCard({
         >
           Open in Wizard
         </button>
-        <a
-          data-gallery-no-reorder="true"
-          href={previewSrc}
-          download={downloadName}
-          draggable={false}
-          onPointerDown={(e) => e.stopPropagation()}
-          onClick={(e) => e.stopPropagation()}
-          onDragStart={(e) => e.preventDefault()}
-          title="Download the currently shown composite image"
-          style={{
-            background: '#1f3329',
-            color: '#bfe8ce',
-            border: '1px solid #2f674b',
-            borderRadius: 4,
-            padding: '4px 8px',
-            fontSize: '0.75rem',
-            cursor: 'pointer',
-            fontWeight: 600,
-            textAlign: 'center',
-            textDecoration: 'none',
-          }}
-        >
-          Save Image
-        </a>
         <button
           type="button"
           data-gallery-no-reorder="true"

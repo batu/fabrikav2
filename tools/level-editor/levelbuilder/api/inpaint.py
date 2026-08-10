@@ -2005,6 +2005,39 @@ def _save_sprite_assets(
     return metadata
 
 
+def _save_pending_sprite_metadata(
+    *,
+    dog_dir: Path,
+    variant_idx: int,
+    hitbox: Hitbox,
+    box: tuple[int, int, int, int],
+) -> dict[str, Any]:
+    """Record a painted variant for later extraction without creating a cutout."""
+    radius = max(1, int(hitbox.radius))
+    x0 = max(int(box[0]), int(hitbox.x) - radius)
+    y0 = max(int(box[1]), int(hitbox.y) - radius)
+    x1 = min(int(box[2]), int(hitbox.x) + radius)
+    y1 = min(int(box[3]), int(hitbox.y) + radius)
+    sprite_box = [x0, y0, max(x0 + 1, x1), max(y0 + 1, y1)]
+    rel_dir = f"dogs/{dog_dir.name}"
+    metadata = {
+        "version": 1,
+        "image": f"{rel_dir}/sprite_{variant_idx:03d}.png",
+        "sourceVariant": f"{rel_dir}/variant_{variant_idx:03d}.png",
+        "sourceBox": [int(value) for value in box],
+        "spriteBox": sprite_box,
+        "cleanupBox": sprite_box,
+        "width": sprite_box[2] - sprite_box[0],
+        "height": sprite_box[3] - sprite_box[1],
+        "anchorX": 0.5,
+        "anchorY": 0.5,
+        "technique": "pending-hitbox-blessing",
+        "quality": {"pickupUsable": False, "pendingHitboxBlessing": True},
+    }
+    _atomic_write_json(metadata, dog_dir / f"sprite_{variant_idx:03d}.json")
+    return metadata
+
+
 def _save_variant_box(variant_path, box) -> None:
     """Write a sidecar JSON next to a variant PNG recording its crop box.
 
@@ -3023,6 +3056,12 @@ def _run_crop_inpaint_job(job: JobRecord, store: JobStore) -> dict[str, Any]:
     raw = S.load_session_raw(session_id)
     if raw is None:
         raise TerminalJobError("session_not_found", "Session not found")
+    hitbox_review = S.get_hitbox_review_status(session_id)
+    job_hitboxes_sha = S._semantic_json_sha256(hitbox_list)
+    cutouts_allowed = (
+        hitbox_review["current"]
+        and hitbox_review.get("currentHitboxesSha256") == job_hitboxes_sha
+    )
 
     sdir = S.session_dir(session_id)
     level_path = sdir / "level.json"
@@ -3168,16 +3207,29 @@ def _run_crop_inpaint_job(job: JobRecord, store: JobStore) -> dict[str, Any]:
                         "dogIndex": dog_index},
             )
             _save_variant_box(variant_path, box)
-            _save_sprite_assets(
-                dog_dir=dog_dir,
-                variant_idx=variant_idx,
-                painted=painted,
-                dog_mask=dog_mask,
-                hitbox=hitbox,
-                box=box,
-                clean_crop=clean_crop,
-                model=model,
-            )
+            current_hitbox_review = S.get_hitbox_review_status(session_id)
+            if (
+                cutouts_allowed
+                and current_hitbox_review["current"]
+                and current_hitbox_review.get("currentHitboxesSha256") == job_hitboxes_sha
+            ):
+                _save_sprite_assets(
+                    dog_dir=dog_dir,
+                    variant_idx=variant_idx,
+                    painted=painted,
+                    dog_mask=dog_mask,
+                    hitbox=hitbox,
+                    box=box,
+                    clean_crop=clean_crop,
+                    model=model,
+                )
+            else:
+                _save_pending_sprite_metadata(
+                    dog_dir=dog_dir,
+                    variant_idx=variant_idx,
+                    hitbox=hitbox,
+                    box=box,
+                )
             isolated_variant.close()
             # Ring mode composites the FULL feathered ring interior — the
             # model painted shadow/occlusion/light into those pixels with the
@@ -3864,6 +3916,12 @@ def _run_single_dog_regen(
     consumers (builder preview, export) see the updated scene.
     """
     _validate_session_id(session_id)
+    try:
+        S.require_hitboxes_blessed(session_id)
+    except ValueError as error:
+        raise HTTPException(
+            409, detail={"error": str(error), "code": "hitboxes_not_blessed"},
+        ) from error
     if not (0.5 <= padding <= 4.0):
         raise HTTPException(400, detail={"error": "padding must be in [0.5, 4.0]"})
 
@@ -3937,6 +3995,12 @@ def _run_single_dog_regen(
             params={"dogIndex": dog_index},
         )
         _save_variant_box(variant_path, box)
+        try:
+            S.require_hitboxes_blessed(session_id)
+        except ValueError as error:
+            raise HTTPException(
+                409, detail={"error": str(error), "code": "hitboxes_not_blessed"},
+            ) from error
         sprite_metadata = _save_sprite_assets(
             dog_dir=dog_dir,
             variant_idx=variant_idx,
@@ -4129,6 +4193,14 @@ def _retry_crop_target(session_id: str, dog_index: int, hitbox: dict) -> tuple[i
 
 def _start_retry_failed_dogs_job_record(session_id: str, req: RetryFailedDogsJobRequest) -> JobRecord:
     _validate_session_id(session_id)
+    hitbox_review: dict[str, Any] | None = None
+    if req.cutoutOnly:
+        try:
+            hitbox_review = S.require_hitboxes_blessed(session_id)
+        except ValueError as error:
+            raise HTTPException(
+                409, detail={"error": str(error), "code": "hitboxes_not_blessed"},
+            ) from error
     raw = S.ensure_session_json(session_id)
     if raw is None:
         raise HTTPException(404, detail={"error": "Session not found"})
@@ -4179,6 +4251,7 @@ def _start_retry_failed_dogs_job_record(session_id: str, req: RetryFailedDogsJob
             "padding": req.padding,
             "cropBoxes": {str(index): list(box) for index, box in req.cropBoxes.items()},
             "cutoutOnly": req.cutoutOnly,
+            "hitboxesSha256": hitbox_review.get("currentHitboxesSha256") if hitbox_review else None,
             "safeToRequeue": True,
         },
     )
@@ -4362,27 +4435,7 @@ def _auto_place_cutout_best_safe(
     })
     _atomic_write_json(metadata, metadata_path)
 
-    level_path = S.GAME_PUBLIC_LEVELS / session_id / "level.json"
-    if level_path.is_file():
-        level = json.loads(level_path.read_text())
-        dog_id = next((dog.get("id") for dog in dogs if dog.get("index") == dog_index), None)
-        level_dog = next((dog for dog in level.get("dogs", []) if dog_id is not None and dog.get("id") == dog_id), None)
-        if level_dog is None and 0 <= dog_index < len(level.get("dogs", [])):
-            level_dog = level["dogs"][dog_index]
-        if isinstance(level_dog, dict):
-            cleanup = metadata.get("cleanupBox") or box
-            level_dog["sprite"] = {
-                **(level_dog.get("sprite") or {}),
-                "image": f"levels/{session_id}/dogs/dog_{dog_index:02d}/{sprite_path.name}",
-                "x": x0, "y": y0, "width": sprite_width, "height": sprite_height,
-                "anchorX": anchor_x, "anchorY": anchor_y,
-                "cleanup": {
-                    "x": int(cleanup[0]), "y": int(cleanup[1]),
-                    "width": int(cleanup[2]) - int(cleanup[0]),
-                    "height": int(cleanup[3]) - int(cleanup[1]),
-                },
-            }
-            _atomic_write_json(level, level_path)
+    S.sync_sprite_metadata_to_levels(session_id, dog_index, variant_index, metadata)
     return {**result, "accepted": True, "fittedBox": box}
 
 
@@ -4392,8 +4445,23 @@ def _run_single_cutout_extraction(
     *,
     crop_box: tuple[int, int, int, int],
     inpaint_model: str | None = None,
+    expected_hitboxes_sha256: str | None = None,
 ) -> dict[str, Any]:
     """Extract and duplicate only the pickup sprite; scene and hitboxes stay immutable."""
+    try:
+        hitbox_review = S.require_hitboxes_blessed(session_id)
+    except ValueError as error:
+        raise HTTPException(
+            409, detail={"error": str(error), "code": "hitboxes_not_blessed"},
+        ) from error
+    if (
+        expected_hitboxes_sha256 is not None
+        and hitbox_review.get("currentHitboxesSha256") != expected_hitboxes_sha256
+    ):
+        raise HTTPException(
+            409,
+            detail={"error": "Blessed hitboxes changed after this cutout job was queued", "code": "hitboxes_changed"},
+        )
     raw = S.ensure_session_json(session_id)
     if raw is None:
         raise HTTPException(404, detail={"error": "Session not found"})
@@ -4451,6 +4519,24 @@ def _run_single_cutout_extraction(
     fitted_width, fitted_height = fitted.size
     placed_box = [placed_x0, placed_y0, placed_x0 + fitted_width, placed_y0 + fitted_height]
     alpha = fitted.getchannel("A")
+    try:
+        current_hitbox_review = S.require_hitboxes_blessed(session_id)
+    except ValueError as error:
+        fitted.close()
+        alpha.close()
+        raise HTTPException(
+            409, detail={"error": str(error), "code": "hitboxes_not_blessed"},
+        ) from error
+    if (
+        expected_hitboxes_sha256 is not None
+        and current_hitbox_review.get("currentHitboxesSha256") != expected_hitboxes_sha256
+    ):
+        fitted.close()
+        alpha.close()
+        raise HTTPException(
+            409,
+            detail={"error": "Blessed hitboxes changed while extracting this cutout", "code": "hitboxes_changed"},
+        )
     sprite_path = dog_dir / f"sprite_{variant_index:03d}.png"
     mask_path = dog_dir / f"sprite_mask_{variant_index:03d}.png"
     _atomic_save_image(fitted, sprite_path)
@@ -4543,7 +4629,11 @@ def _run_retry_failed_dogs_job(job: JobRecord, store: JobStore) -> dict[str, Any
                 if crop_box is None:
                     raise HTTPException(400, detail={"error": f"Cutout-only redo requires a crop box for dog {dog_index}"})
                 result = _run_single_cutout_extraction(
-                    session_id, dog_index, crop_box=crop_box, inpaint_model=model,
+                    session_id,
+                    dog_index,
+                    crop_box=crop_box,
+                    inpaint_model=model,
+                    expected_hitboxes_sha256=metadata.get("hitboxesSha256"),
                 )
             else:
                 result = _run_single_dog_regen(

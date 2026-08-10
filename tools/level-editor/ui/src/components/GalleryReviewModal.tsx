@@ -2,9 +2,11 @@ import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'r
 import type { ConfigResponse, DogState, Hitbox, LevelSection, Orientation, SessionResponse } from '../types';
 import {
   getSession,
+  getFinalCutoutReviewReadiness,
   saveHitboxes,
   setArchived as apiSetArchived,
-  setGoldenDatasetApproval,
+  setFinalCutoutApproval,
+  setHitboxApproval,
   type SessionListItem,
   checkMobileVisibility,
   type VisibilityIssue,
@@ -75,31 +77,11 @@ interface Props {
   config: ConfigResponse;
   onClose: () => void;
   onArchivedChanged: (id: string, archived: boolean, variant?: string) => void;
-  onGoldenReviewChanged: (id: string, approved: boolean) => void;
-}
-
-/** Source PNG for a given variant. Review uses WebP; download keeps PNG. */
-function variantSourceFile(variant: string, selectedBgIndex?: number | null): string {
-  const selectedBg = Number.isInteger(selectedBgIndex) ? selectedBgIndex : 0;
-  switch (variant) {
-    case 'gemini':            return 'color.png';
-    case 'openai':            return 'openai_color.png';
-    case 'openai_v2':         return 'openai_color_v2.png';
-    case 'gemini_bg_only':    return `bg_${String(selectedBg).padStart(2, '0')}.png`;
-    case 'openai_bg_only':    return 'openai_bg.png';
-    case 'openai_v2_bg_only': return 'openai_bg_v2.png';
-    default:                  return 'color.png';
-  }
+  onReviewChanged: (id: string, patch: Partial<SessionListItem>) => void;
 }
 
 function variantPreviewUrl(session: SessionListItem, variant: string, version: number): string {
   return `/api/sessions/${encodeURIComponent(session.id)}/gallery-preview/${encodeURIComponent(variant)}?v=${version}`;
-}
-
-function compositeDownloadName(session: SessionListItem, variant: string): string {
-  const variantLabel = variant.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-  const sessionLabel = session.id.toLowerCase().replace(/[^a-z0-9_-]+/g, '-').replace(/^-|-$/g, '');
-  return `${sessionLabel || 'level'}-${variantLabel || 'composite'}.png`;
 }
 
 interface ModalState extends LevelCanvasState {
@@ -194,7 +176,7 @@ function reducer(state: ModalState, action: ModalAction): ModalState {
 }
 
 export default function GalleryReviewModal({
-  cards, startCardId, config, onClose, onArchivedChanged, onGoldenReviewChanged,
+  cards, startCardId, config, onClose, onArchivedChanged, onReviewChanged,
 }: Props) {
   // Setting-scoped nav cycles within the current setting only.
   const settings = useMemo(
@@ -204,7 +186,9 @@ export default function GalleryReviewModal({
   const startCard = useMemo(() => cards.find((c) => c.id === startCardId), [cards, startCardId]);
   const [currentSetting, setCurrentSetting] = useState<string>(startCard?.session.setting ?? settings[0] ?? '');
   const [currentCardId, setCurrentCardId] = useState<string>(startCardId);
-  const [blessBusy, setBlessBusy] = useState(false);
+  const [hitboxBlessBusy, setHitboxBlessBusy] = useState(false);
+  const [cutoutBlessBusy, setCutoutBlessBusy] = useState(false);
+  const [cutoutPlacementPending, setCutoutPlacementPending] = useState(false);
   const [blessError, setBlessError] = useState<string | null>(null);
 
   // FREEZE the working set's MEMBERSHIP at open (ledger 054 #13): `cards` is
@@ -346,7 +330,13 @@ export default function GalleryReviewModal({
   const persistCachedHitboxes = useCallback(async (sessionId: string, hitboxes: Hitbox[]): Promise<void> => {
     await persistHitboxes(sessionId, hitboxes);
     updateCachedHitboxes(sessionId, hitboxes);
-  }, [updateCachedHitboxes]);
+    onReviewChanged(sessionId, {
+      hitboxesBlessed: false,
+      hitboxesBlessingStale: true,
+      cutoutsFinalBlessed: false,
+      cutoutsFinalBlessingStale: true,
+    });
+  }, [onReviewChanged, updateCachedHitboxes]);
 
   const queueHitboxSave = useCallback((sessionId: string, hitboxes: Hitbox[]): Promise<void> => {
     const hitboxSnapshot = hitboxes.map((hitbox) => ({ ...hitbox }));
@@ -356,6 +346,21 @@ export default function GalleryReviewModal({
     hitboxSaveChainRef.current = queued;
     return queued;
   }, [persistCachedHitboxes]);
+
+  const invalidateCutoutReview = useCallback(() => {
+    if (!state.sessionId) return;
+    const sessionId = state.sessionId;
+    onReviewChanged(sessionId, {
+      cutoutsFinalBlessed: false,
+      cutoutsFinalBlessingStale: true,
+    });
+    void getFinalCutoutReviewReadiness(sessionId).then((readiness) => {
+      onReviewChanged(sessionId, {
+        finalCutoutReviewReady: readiness.ready,
+        missingFinalCutouts: readiness.missingCutouts,
+      });
+    }).catch(() => undefined);
+  }, [onReviewChanged, state.sessionId]);
 
   const applySession = useCallback((session: SessionResponse): void => {
     // Mark this exact array as "server-loaded, not user-edited" so the save
@@ -530,6 +535,11 @@ export default function GalleryReviewModal({
       await flushPendingSave();
       setStatus(nextArchived ? 'Archiving…' : 'Unarchiving…');
       await apiSetArchived(item.id, nextArchived, card.variant);
+      // The parent gallery removes archived cards from its filtered `cards`
+      // prop. Preserve the frozen focused-review membership, but update this
+      // cached card before that removal so arrow navigation cannot resurrect
+      // its stale pre-archive state.
+      knownCardsRef.current.set(card.id, { ...card, archived: nextArchived });
       onArchivedChanged(item.id, nextArchived, card.variant);
       setStatus(nextArchived ? '\u2713 Archived.' : '\u2713 Unarchived.');
       if (!nextArchived) {
@@ -628,11 +638,6 @@ export default function GalleryReviewModal({
     }
     return variantPreviewUrl(item, card.variant, item.assetVersion ?? colorVersion);
   }, [item, state.sessionId, colorVersion, card, sceneView, state.selectedBgIndex]);
-  const downloadHref = item && card
-    ? `/levels/${item.id}/${variantSourceFile(card.variant, state.selectedBgIndex)}?v=${item.assetVersion ?? colorVersion}`
-    : '';
-  const downloadName = item && card ? compositeDownloadName(item, card.variant) : 'level-composite.png';
-
   if (!item) { return null; }
 
   // Strip the `{setting}_` prefix from the scene slug only when there IS
@@ -742,6 +747,8 @@ export default function GalleryReviewModal({
                   hitboxes={state.hitboxes}
                   dogs={state.dogs}
                   onDogComplete={handleDogComplete}
+                  onCutoutsChanged={invalidateCutoutReview}
+                  onPlacementPendingChanged={setCutoutPlacementPending}
                   expanded={!showMap}
                 />
               ) : <>
@@ -831,52 +838,78 @@ export default function GalleryReviewModal({
           </button>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <a
-            href={downloadHref}
-            download={downloadName}
-            title="Download the currently shown composite image"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              padding: '8px 14px',
-              borderRadius: 4,
-              background: '#1f3329',
-              color: '#bfe8ce',
-              border: '1px solid #2f674b',
-              fontSize: 13,
-              fontWeight: 700,
-              cursor: 'pointer',
-              textDecoration: 'none',
-              whiteSpace: 'nowrap',
-            }}
-          >
-            Save Image
-          </a>
           <button
             type="button"
             className="btn"
-            disabled={blessBusy || card === undefined}
-            title="Confirm that this level's hitboxes, cutouts, and placements are solid. Blessed levels are eligible for the golden dataset; this does not affect Lineup or game eligibility."
+            disabled={hitboxBlessBusy || cutoutBlessBusy || card === undefined}
+            title="Confirm that the current hitbox geometry has been reviewed by a human. Any later hitbox edit makes this approval stale."
             onClick={async () => {
               if (!card) return;
-              const approved = !card.session.goldenDatasetApproved;
-              setBlessBusy(true);
+              const approved = !card.session.hitboxesBlessed;
+              setHitboxBlessBusy(true);
               setBlessError(null);
               try {
-                await setGoldenDatasetApproval(card.session.id, approved);
-                onGoldenReviewChanged(card.session.id, approved);
+                await flushPendingSave();
+                const { hitboxReview, finalCutoutReadiness } = await setHitboxApproval(card.session.id, approved);
+                onReviewChanged(card.session.id, {
+                  hitboxesBlessed: hitboxReview.current,
+                  hitboxesBlessingStale: hitboxReview.stale,
+                  hitboxesBlessedAt: hitboxReview.reviewedAt,
+                  finalCutoutReviewReady: approved && finalCutoutReadiness.ready,
+                  missingFinalCutouts: finalCutoutReadiness.missingCutouts,
+                  ...(approved ? {} : {
+                    cutoutsFinalBlessed: false,
+                    cutoutsFinalBlessingStale: true,
+                  }),
+                });
               } catch (err) {
-                setBlessError(err instanceof Error ? err.message : 'Blessing failed');
+                setBlessError(err instanceof Error ? err.message : 'Saving hitbox review failed');
               } finally {
-                setBlessBusy(false);
+                setHitboxBlessBusy(false);
               }
             }}
-            style={card?.session.goldenDatasetApproved ? {
-              background: '#493b13', color: '#ffe28a', borderColor: '#a78726', fontWeight: 800,
+            style={card?.session.hitboxesBlessed ? {
+              background: '#183c2c', color: '#9bf0bf', borderColor: '#38865d', fontWeight: 800,
             } : undefined}
           >
-            {blessBusy ? 'Saving…' : card?.session.goldenDatasetApproved ? '★ Blessed' : 'Bless level'}
+            {hitboxBlessBusy ? 'Saving…' : card?.session.hitboxesBlessed ? '✓ Hitboxes reviewed' : 'Mark hitboxes reviewed'}
+          </button>
+          <button
+            type="button"
+            className="btn"
+            disabled={cutoutBlessBusy || hitboxBlessBusy || cutoutPlacementPending || card === undefined || !card.session.hitboxesBlessed || card.session.finalCutoutReviewReady !== true}
+            title={cutoutPlacementPending
+              ? 'Wait for the current sprite placement to finish saving.'
+              : !card?.session.hitboxesBlessed
+              ? 'Review the current hitboxes before marking cutouts reviewed.'
+              : card.session.finalCutoutReviewReady !== true
+              ? card.session.invalidFinalPadding
+                ? `${card.session.invalidFinalPadding} padding box(es) target a different bird.`
+                : `${card.session.missingFinalCutouts ?? 0} active bird cutout(s) are still missing.`
+              : 'Confirm that every current cutout and sprite placement is final. Later sprite edits make this approval stale.'}
+            onClick={async () => {
+              if (!card) return;
+              const approved = !card.session.cutoutsFinalBlessed;
+              setCutoutBlessBusy(true);
+              setBlessError(null);
+              try {
+                const { finalCutoutReview } = await setFinalCutoutApproval(card.session.id, approved);
+                onReviewChanged(card.session.id, {
+                  cutoutsFinalBlessed: finalCutoutReview.current,
+                  cutoutsFinalBlessingStale: finalCutoutReview.stale,
+                  cutoutsFinalBlessedAt: finalCutoutReview.reviewedAt,
+                });
+              } catch (err) {
+                setBlessError(err instanceof Error ? err.message : 'Saving cutout review failed');
+              } finally {
+                setCutoutBlessBusy(false);
+              }
+            }}
+            style={card?.session.cutoutsFinalBlessed ? {
+              background: '#183c2c', color: '#9bf0bf', borderColor: '#38865d', fontWeight: 800,
+            } : undefined}
+          >
+            {cutoutBlessBusy ? 'Saving…' : card?.session.cutoutsFinalBlessed ? '★ Cutouts reviewed' : 'Mark cutouts reviewed'}
           </button>
           {blessError && <span style={{ color: '#ff9c9c', fontSize: 12 }}>{blessError}</span>}
           <button

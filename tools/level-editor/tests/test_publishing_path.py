@@ -254,6 +254,7 @@ def test_magenta_detection_sprites_make_whole_image_exportable(
         return alpha
 
     monkeypatch.setattr(inpaint, "_semantic_sprite_alpha", fake_semantic_alpha)
+    sess.set_hitbox_review(session_id, True, source="test")
     result = sess.materialize_detection_sprites(
         session_id,
         detections=[{

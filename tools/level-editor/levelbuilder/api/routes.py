@@ -519,6 +519,10 @@ class SaveSpritePlacementRequest(BaseModel):
     flipY: bool | None = None
 
 
+class AutoPlaceSpritesRequest(BaseModel):
+    includeHumanConfirmed: bool = False
+
+
 class SaveHumanConfirmationRequest(BaseModel):
     confirmed: bool
 
@@ -1196,6 +1200,76 @@ def sprite_candidate_overlay(
     return Response(content=content, media_type="image/png", headers={"Cache-Control": "no-store"})
 
 
+@router.post("/sessions/{session_id}/sprite-candidates/auto-placement")
+def auto_place_sprite_candidates(
+    session_id: str,
+    req: AutoPlaceSpritesRequest,
+):
+    """Run the server-owned best-safe matcher over ready sprite candidates.
+
+    Human-confirmed geometry is immutable by default. Candidate failures are
+    isolated so one malformed sprite cannot prevent the rest of a level from
+    receiving a safe placement proposal.
+    """
+    _validate_session_id(session_id)
+    try:
+        S.require_hitboxes_blessed(session_id)
+    except ValueError as error:
+        raise HTTPException(
+            409, detail={"error": str(error), "code": "hitboxes_not_blessed"},
+        ) from error
+    from levelbuilder.api import inpaint
+
+    candidates = S.sprite_animation_candidates(session_id)
+    placements: list[dict[str, Any]] = []
+    skipped_human_confirmed = 0
+    skipped_unavailable = 0
+    for candidate in candidates:
+        if candidate.get("status") != "ready":
+            skipped_unavailable += 1
+            continue
+        if candidate.get("humanConfirmed") is True and not req.includeHumanConfirmed:
+            skipped_human_confirmed += 1
+            continue
+        dog_index = candidate.get("dogIndex")
+        sprite_index = candidate.get("spriteIndex")
+        if not isinstance(dog_index, int) or not isinstance(sprite_index, int):
+            skipped_unavailable += 1
+            continue
+        try:
+            result = inpaint._auto_place_cutout_best_safe(
+                session_id, dog_index, sprite_index,
+            )
+        except Exception:  # noqa: BLE001 - isolate one corrupt candidate
+            logger.exception(
+                "best-safe placement failed for %s candidate %s",
+                session_id,
+                candidate.get("id"),
+            )
+            result = {
+                "method": "best",
+                "accepted": False,
+                "reason": "placement_error",
+            }
+        placements.append({
+            "candidateId": candidate.get("id"),
+            "dogIndex": dog_index,
+            "spriteIndex": sprite_index,
+            **result,
+        })
+    accepted = sum(item.get("accepted") is True for item in placements)
+    return {
+        "sessionId": session_id,
+        "candidates": len(candidates),
+        "attempted": len(placements),
+        "accepted": accepted,
+        "rejected": len(placements) - accepted,
+        "skippedHumanConfirmed": skipped_human_confirmed,
+        "skippedUnavailable": skipped_unavailable,
+        "placements": placements,
+    }
+
+
 @router.put("/sessions/{session_id}/sprite-candidates/{candidate_id}/placement")
 def save_sprite_candidate_placement(
     session_id: str,
@@ -1230,11 +1304,30 @@ def save_sprite_candidate_placement(
             raise ValueError("spriteBox must have positive width and height")
         if not (0 <= x0 < x1 <= int(level["width"]) and 0 <= y0 < y1 <= int(level["height"])):
             raise ValueError("spriteBox must stay inside the scene")
-        current_sprite = dog.get("sprite") or {}
-        target_x = round(float(current_sprite.get("x", dog["x"])) + float(current_sprite.get("anchorX", 0.5)) * float(current_sprite.get("width", 0)))
-        target_y = round(float(current_sprite.get("y", dog["y"])) + float(current_sprite.get("anchorY", 0.5)) * float(current_sprite.get("height", 0)))
+        hitboxes, _ = S._current_hitbox_snapshot(session_id)
+        raw_session = S.load_session_raw(session_id) or {}
+        active_targets = S.active_dog_variant_targets(
+            session_id,
+            raw_session.get("dogs") or [],
+            hitboxes,
+        )
+        target_index = next((
+            index for index, target in active_targets.items()
+            if target == (dog_index, int(candidate["spriteIndex"]))
+        ), None)
+        stable_id = f"dog_{dog_index:02d}"
+        hitbox = hitboxes[target_index] if target_index is not None else next((
+            item for item in hitboxes
+            if isinstance(item, dict) and item.get("id") in {dog_id, stable_id}
+        ), None)
+        if hitbox is None and 0 <= dog_index < len(hitboxes):
+            hitbox = hitboxes[dog_index]
+        if not isinstance(hitbox, dict):
+            raise ValueError("sprite candidate does not match a current bird hitbox")
+        target_x = round(float(hitbox["x"]))
+        target_y = round(float(hitbox["y"]))
         if not (x0 <= target_x <= x1 and y0 <= target_y <= y1):
-            raise ValueError("spriteBox must contain the bird pickup point")
+            raise ValueError("spriteBox must contain the current bird hitbox")
         from levelbuilder.api.sprite_eval import apply_match_report
         report = {"levels": [{
             "levelId": session_id,
@@ -1294,11 +1387,60 @@ def save_level_golden_review(session_id: str, req: SaveGoldenReviewRequest):
     return {"ok": True, "goldenReview": review}
 
 
+@router.put("/sessions/{session_id}/hitbox-review")
+def save_hitbox_review(session_id: str, req: SaveGoldenReviewRequest):
+    _validate_session_id(session_id)
+    try:
+        with S._session_lock:
+            review = S.set_hitbox_review(session_id, req.approved)
+    except (OSError, ValueError, json.JSONDecodeError) as error:
+        raise HTTPException(422, detail={"error": str(error)}) from error
+    return {
+        "ok": True,
+        "hitboxReview": review,
+        "finalCutoutReadiness": S.get_final_cutout_review_readiness(session_id),
+    }
+
+
+@router.get("/sessions/{session_id}/hitbox-review")
+def get_hitbox_review(session_id: str):
+    _validate_session_id(session_id)
+    review = S.get_hitbox_review_status(session_id)
+    return {"approved": review["current"], "hitboxReview": review}
+
+
+@router.put("/sessions/{session_id}/final-cutout-review")
+def save_final_cutout_review(session_id: str, req: SaveGoldenReviewRequest):
+    if req.approved:
+        try:
+            S.require_hitboxes_blessed(session_id)
+        except ValueError as error:
+            raise HTTPException(
+                409, detail={"error": str(error), "code": "hitboxes_not_blessed"},
+            ) from error
+    save_level_golden_review(session_id, req)
+    review = S.get_final_cutout_review_status(session_id)
+    return {"ok": True, "finalCutoutReview": review}
+
+
+@router.get("/sessions/{session_id}/final-cutout-review")
+def get_final_cutout_review(session_id: str):
+    _validate_session_id(session_id)
+    review = S.get_final_cutout_review_status(session_id)
+    return {"approved": review["current"], "finalCutoutReview": review}
+
+
+@router.get("/sessions/{session_id}/final-cutout-review/readiness")
+def get_final_cutout_review_readiness(session_id: str):
+    _validate_session_id(session_id)
+    return S.get_final_cutout_review_readiness(session_id)
+
+
 @router.get("/sessions/{session_id}/golden-review")
 def get_level_golden_review(session_id: str):
     _validate_session_id(session_id)
-    review = S.get_level_golden_review(session_id)
-    return {"approved": bool(review and review.get("approved") is True), "goldenReview": review}
+    review = S.get_final_cutout_review_status(session_id)
+    return {"approved": review["current"], "goldenReview": review}
 
 
 @router.get("/sessions/{session_id}/cutout-extraction-prompt")
@@ -2432,6 +2574,15 @@ def pickup_preview(session_id: str):
                 continue
     if lj is None:
         raise HTTPException(409, detail={"error": "no level.json with cleanup metadata"})
+    try:
+        current_hitboxes = json.loads((sdir / "hitboxes.json").read_text())
+    except (OSError, ValueError):
+        current_hitboxes = []
+    hitboxes_by_id = {
+        hitbox.get("id"): hitbox
+        for hitbox in current_hitboxes
+        if isinstance(hitbox, dict) and hitbox.get("id")
+    }
     with Image.open(color_path) as _c:
         color = _c.convert("RGB")
     restore_path = S.GAME_PUBLIC_LEVELS / session_id / "bg_00.webp"
@@ -2449,14 +2600,24 @@ def pickup_preview(session_id: str):
         scale_y = color.height / (lj.get("height") or color.height)
         out = color.copy()
         n = 0
-        for dog in lj.get("dogs") or []:
+        for dog_index, dog in enumerate(lj.get("dogs") or []):
             sprite = dog.get("sprite") if isinstance(dog, dict) else None
             cl = sprite.get("cleanup") if isinstance(sprite, dict) else None
             if not isinstance(cl, dict):
                 continue
-            x0 = max(0, int(cl["x"] * scale_x)); y0 = max(0, int(cl["y"] * scale_y))
-            x1 = min(out.width, int((cl["x"] + cl["width"]) * scale_x))
-            y1 = min(out.height, int((cl["y"] + cl["height"]) * scale_y))
+            hitbox = hitboxes_by_id.get(dog.get("id"))
+            if hitbox is None and dog_index < len(current_hitboxes):
+                hitbox = current_hitboxes[dog_index]
+            dx = dy = 0
+            if isinstance(hitbox, dict) and "x" in dog and "y" in dog:
+                dx = int(hitbox["x"]) - int(dog["x"])
+                dy = int(hitbox["y"]) - int(dog["y"])
+            cleanup_x = int(cl["x"]) + dx
+            cleanup_y = int(cl["y"]) + dy
+            x0 = max(0, int(cleanup_x * scale_x))
+            y0 = max(0, int(cleanup_y * scale_y))
+            x1 = min(out.width, int((cleanup_x + cl["width"]) * scale_x))
+            y1 = min(out.height, int((cleanup_y + cl["height"]) * scale_y))
             if x1 <= x0 or y1 <= y0:
                 continue
             out.paste(restore.crop((x0, y0, x1, y1)), (x0, y0))

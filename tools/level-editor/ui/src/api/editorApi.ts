@@ -165,6 +165,15 @@ export interface SessionListItem {
   humanConfirmedBirds?: number;
   reviewableBirds?: number;
   regenerationCandidateCount?: number;
+  hitboxesBlessed?: boolean;
+  hitboxesBlessingStale?: boolean;
+  hitboxesBlessedAt?: string | null;
+  cutoutsFinalBlessed?: boolean;
+  cutoutsFinalBlessingStale?: boolean;
+  cutoutsFinalBlessedAt?: string | null;
+  finalCutoutReviewReady?: boolean;
+  missingFinalCutouts?: number;
+  invalidFinalPadding?: number;
   goldenDatasetApproved?: boolean;
   goldenDatasetReviewedAt?: string | null;
 }
@@ -877,21 +886,43 @@ export function setArchived(
   });
 }
 
-export function setGoldenDatasetApproval(
+export interface ReviewStatus {
+  approved: boolean;
+  current: boolean;
+  stale: boolean;
+  reviewedAt?: string | null;
+}
+
+export function setHitboxApproval(
   sessionId: string,
   approved: boolean,
-): Promise<{ ok: boolean }> {
-  return request(`/api/sessions/${encodeURIComponent(sessionId)}/golden-review`, {
+): Promise<{
+  ok: boolean;
+  hitboxReview: ReviewStatus;
+  finalCutoutReadiness: { ready: boolean; activeBirds: number; missingCutouts: number };
+}> {
+  return request(`/api/sessions/${encodeURIComponent(sessionId)}/hitbox-review`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ approved }),
   });
 }
 
-export function getGoldenDatasetApproval(
+export function setFinalCutoutApproval(
   sessionId: string,
-): Promise<{ approved: boolean }> {
-  return request(`/api/sessions/${encodeURIComponent(sessionId)}/golden-review`);
+  approved: boolean,
+): Promise<{ ok: boolean; finalCutoutReview: ReviewStatus }> {
+  return request(`/api/sessions/${encodeURIComponent(sessionId)}/final-cutout-review`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ approved }),
+  });
+}
+
+export function getFinalCutoutReviewReadiness(
+  sessionId: string,
+): Promise<{ ready: boolean; activeBirds: number; missingCutouts: number }> {
+  return request(`/api/sessions/${encodeURIComponent(sessionId)}/final-cutout-review/readiness`);
 }
 
 export interface LevelsIndexEntry {

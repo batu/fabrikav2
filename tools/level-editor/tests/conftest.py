@@ -44,4 +44,10 @@ def isolated_session(tmp_path, monkeypatch):
     monkeypatch.setattr(sessmod, "LEVELS_DIR", levels_dir)
     monkeypatch.setattr(sessmod, "GAME_PUBLIC_LEVELS", public_levels)
     monkeypatch.setattr(sessmod, "GAME_LEVELS_INDEX", public_levels / "levels-index.json")
+    monkeypatch.setattr(
+        sessmod,
+        "ARCHIVE_LEDGER_PATH",
+        tmp_path / "state" / "archive-ledger.json",
+        raising=False,
+    )
     return sessmod

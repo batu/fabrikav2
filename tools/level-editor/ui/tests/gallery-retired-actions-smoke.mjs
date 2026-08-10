@@ -131,6 +131,10 @@ const sessionListItem = {
   archived: false,
   archivedVariants: [],
   tags: ['featured', 'garden'],
+  hitboxesBlessed: true,
+  hitboxesBlessingStale: false,
+  cutoutsFinalBlessed: true,
+  cutoutsFinalBlessingStale: false,
   selectedBgIndex: 0,
   assetVersion: 4,
 };
@@ -146,7 +150,45 @@ const missingAssetSessionListItem = {
   hasImage: false,
   hasThumbnail: false,
   tags: ['broken'],
+  hitboxesBlessed: false,
+  cutoutsFinalBlessed: false,
   assetVersion: 1,
+};
+
+const pendingCutoutSessionListItem = {
+  ...sessionListItem,
+  id: 'pending-cutout-session',
+  name: 'Pending Cutout Session',
+  variants: ['gemini', 'openai_v2'],
+  tags: [],
+  hitboxesBlessed: true,
+  cutoutsFinalBlessed: false,
+  assetVersion: 2,
+};
+
+const staleCutoutSessionListItem = {
+  ...sessionListItem,
+  id: 'stale-cutout-session',
+  name: 'Stale Cutout Session',
+  tags: [],
+  hitboxesBlessed: true,
+  // Defensive fixture: a stale flag must outrank a contradictory historical
+  // blessed boolean if an older server/client combination emits both.
+  cutoutsFinalBlessed: true,
+  cutoutsFinalBlessingStale: true,
+  assetVersion: 3,
+};
+
+const staleHitboxSessionListItem = {
+  ...sessionListItem,
+  id: 'stale-hitbox-session',
+  name: 'Stale Hitbox Session',
+  tags: [],
+  hitboxesBlessed: false,
+  hitboxesBlessingStale: true,
+  cutoutsFinalBlessed: false,
+  cutoutsFinalBlessingStale: false,
+  assetVersion: 4,
 };
 
 const sessionResponse = {
@@ -218,7 +260,6 @@ const lineupState = {
 
 let currentLineupState = JSON.parse(JSON.stringify(lineupState));
 let sequenceGetCount = 0;
-let sequenceSaveCount = 0;
 let visibilityBatchCount = 0;
 let thumbnailRequests = 0;
 let previewRequests = 0;
@@ -249,26 +290,17 @@ async function run() {
         return;
       }
       if (url.pathname === '/api/sessions' && route.request().method() === 'GET') {
-        await route.fulfill({ json: [sessionListItem, missingAssetSessionListItem] });
+        await route.fulfill({ json: [
+          sessionListItem,
+          missingAssetSessionListItem,
+          pendingCutoutSessionListItem,
+          staleCutoutSessionListItem,
+          staleHitboxSessionListItem,
+        ] });
         return;
       }
       if (url.pathname === '/api/sequence-workflow' && route.request().method() === 'GET') {
         sequenceGetCount += 1;
-        await route.fulfill({ json: currentLineupState });
-        return;
-      }
-      if (url.pathname === '/api/sequence-workflow/draft' && route.request().method() === 'PUT') {
-        sequenceSaveCount += 1;
-        const body = JSON.parse(route.request().postData() ?? '{}');
-        currentLineupState = {
-          ...currentLineupState,
-          draft: {
-            ...currentLineupState.draft,
-            levelIds: body.levelIds,
-            draftRevision: `draft-${sequenceSaveCount + 1}`,
-            updatedAt: '2026-06-12T12:01:00Z',
-          },
-        };
         await route.fulfill({ json: currentLineupState });
         return;
       }
@@ -325,22 +357,60 @@ async function run() {
     await card.getByText('No preview').waitFor({ timeout: 10_000 });
     const missingAssetCard = page.locator('[data-gallery-card-id="missing-asset-session::gemini"]');
     await missingAssetCard.getByText('Missing composite image asset.').waitFor({ timeout: 10_000 });
-    const missingAssetAdd = missingAssetCard.getByRole('button', { name: 'Add to Lineup' });
-    assert(await missingAssetAdd.isDisabled(), 'Missing-asset Gallery card should not be selectable for Lineup.');
+    await card.getByText('✓ Hitboxes reviewed').waitFor({ timeout: 10_000 });
+    await card.getByText('★ Cutouts reviewed').waitFor({ timeout: 10_000 });
+    await missingAssetCard.getByText('Hitboxes need review').waitFor({ timeout: 10_000 });
+    const pendingCutoutCard = page.locator('[data-gallery-card-id="pending-cutout-session::gemini"]');
+    await pendingCutoutCard.getByText('✓ Hitboxes reviewed').waitFor({ timeout: 10_000 });
+    await pendingCutoutCard.getByText('Cutouts need review').waitFor({ timeout: 10_000 });
+    const staleCutoutCard = page.locator('[data-gallery-card-id="stale-cutout-session::gemini"]');
+    await staleCutoutCard.getByText('✓ Hitboxes reviewed').waitFor({ timeout: 10_000 });
+    await staleCutoutCard.getByText('Cutout review stale').waitFor({ timeout: 10_000 });
+    await staleCutoutCard.getByText('Cutouts need review').waitFor({ timeout: 10_000 });
+    const staleHitboxCard = page.locator('[data-gallery-card-id="stale-hitbox-session::gemini"]');
+    await staleHitboxCard.getByText('Hitbox review stale').waitFor({ timeout: 10_000 });
+    await staleHitboxCard.getByText('Hitboxes need review').waitFor({ timeout: 10_000 });
+    assert(await staleHitboxCard.getByText('Cutout review stale').count() === 0, 'Hitbox-only staleness incorrectly labeled cutout snapshot stale.');
+    await staleHitboxCard.getByText('Cutouts need review').waitFor({ timeout: 10_000 });
+    const galleryText = await page.locator('body').innerText();
+    assert(/Hitboxes \+ cutouts reviewed\s*\(1\)/i.test(galleryText), 'Reviewed filter count is incorrect.');
+    assert(/Hitboxes need review\s*\(2\)/i.test(galleryText), 'Pending hitbox filter must include stale hitboxes.');
+    assert(/Cutouts need review\s*\(3\)/i.test(galleryText), 'Pending cutout filter must include stale reviews without counting variants.');
+    assert(/Review stale\s*\(2\)/i.test(galleryText), 'Stale review filter count is incorrect.');
 
-    await card.getByRole('button', { name: 'Add to Lineup' }).click();
-    await page.waitForFunction(() => (
-      document.querySelector('[data-gallery-card-id="wide-complete-session::gemini"]')?.getAttribute('data-lineup-selected') === 'true'
-    ));
-    assert(sequenceSaveCount === 1, 'Gallery selection did not save through /api/sequence-workflow/draft');
+    const needsHitboxFilter = page.getByRole('checkbox', { name: /Hitboxes need review/ });
+    const needsCutoutFilter = page.getByRole('checkbox', { name: /Cutouts need review/ });
+    const reviewedFilter = page.getByRole('checkbox', { name: /Hitboxes \+ cutouts reviewed/ });
+    const staleFilter = page.getByRole('checkbox', { name: /Review stale/ });
+    await needsHitboxFilter.uncheck();
+    await needsCutoutFilter.uncheck();
+    await staleFilter.uncheck();
+    assert(await card.count() === 1, 'Reviewed filter hid the reviewed card.');
+    assert(await missingAssetCard.count() === 0, 'Reviewed filter kept an unreviewed card.');
+    await needsHitboxFilter.check();
+    await reviewedFilter.uncheck();
+    assert(await card.count() === 0, 'Pending-hitbox filter kept a reviewed card.');
+    assert(await missingAssetCard.count() === 1, 'Pending-hitbox filter hid the unreviewed card.');
+    assert(await staleHitboxCard.count() === 1, 'Pending-hitbox filter must include stale hitboxes.');
+    await needsHitboxFilter.uncheck();
+    await needsCutoutFilter.check();
+    assert(await pendingCutoutCard.count() === 1, 'Pending-cutout filter hid a pending level.');
+    assert(await staleCutoutCard.count() === 1, 'Pending-cutout filter must include stale cutouts.');
+    assert(await staleHitboxCard.count() === 1, 'Pending-cutout filter must include stale reviews.');
+    await needsCutoutFilter.uncheck();
+    await staleFilter.check();
+    assert(await staleCutoutCard.count() === 1, 'Stale-only filter hid a stale cutout review.');
+    assert(await staleHitboxCard.count() === 1, 'Stale-only filter hid a stale hitbox review.');
+    assert(await pendingCutoutCard.count() === 0, 'Stale-only filter kept a non-stale pending level.');
+    await reviewedFilter.check();
+    await needsHitboxFilter.check();
+    await needsCutoutFilter.check();
 
     const searchBox = page.getByPlaceholder('Search name, setting, scene, tags');
     await searchBox.fill('does-not-match');
     await page.getByText('No cards match the current filters.').waitFor({ timeout: 10_000 });
     await searchBox.fill('featured');
-    await page.waitForFunction(() => (
-      document.querySelector('[data-gallery-card-id="wide-complete-session::gemini"]')?.getAttribute('data-lineup-selected') === 'true'
-    ));
+    await card.waitFor({ state: 'visible' });
 
     let bodyText = await page.locator('body').innerText();
     for (const retiredText of [
@@ -358,6 +428,11 @@ async function run() {
 
     await page.locator('[data-gallery-card-id="wide-complete-session::gemini"] button').first().click();
     await page.getByRole('dialog').waitFor({ timeout: 10_000 });
+    const reviewedCutoutsButton = page.getByRole('button', { name: '★ Cutouts reviewed' });
+    assert(
+      await reviewedCutoutsButton.evaluate((button) => getComputedStyle(button).backgroundColor) === 'rgb(24, 60, 44)',
+      'The confirmed cutout-review action must render with the same clear green success treatment as hitbox review.',
+    );
     await waitUntil(() => geometryRequests > 0, 'Gallery review LevelCanvas did not request server geometry config.');
     assert(previewRequests > 0, 'Gallery review did not request proxy preview image.');
     await page.getByRole('tab', { name: 'Cutouts & redo' }).click();
