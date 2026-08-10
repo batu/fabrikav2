@@ -1,0 +1,21 @@
+
+> @fabrikav2/marble_run@0.0.0 ios:sync
+> npx cap sync ios && node ../../tools/native-shell/apply.mjs --game marble_run && node ../../tools/native-shell/validate.mjs --game marble_run && node ../../tools/marble-run/ios-inject-team.mjs && node ../../tools/marble-run/sync-native-resources.mjs ios
+
+✔ Copying web assets from dist to ios/App/App/public in 94.69ms
+✔ Creating capacitor.config.json in ios/App/App in 1.17ms
+✔ copy ios in 111.06ms
+✔ Updating iOS plugins in 393.83μs
+[info] All Capacitor plugins have a Package.swift file and will be included in Package.swift
+[info] Writing Package.swift
+[info] Found 4 Capacitor plugins for ios:
+       @capacitor/app@8.1.1
+       @capacitor/haptics@8.0.2
+       @capacitor/local-notifications@8.2.1
+       @capacitor-firebase/analytics@8.3.0
+✔ update ios in 19.50ms
+[info] Sync finished in 0.142s
+Applied native shell for marble_run: App.xcodeproj/project.pbxproj, CapApp-SPM/Package.swift (152 SKAdNetwork IDs; Firebase plist wired)
+Validated native shell for marble_run: generated project validated; 152 SKAdNetwork IDs; Firebase plist may be absent
+[ios-inject-team] ios/App/App.xcodeproj/project.pbxproj: injected DEVELOPMENT_TEAM=42L77JAX72 into 2 of 2 target(s).
+[sync-native-resources] ios: overlay already in sync; no change.
