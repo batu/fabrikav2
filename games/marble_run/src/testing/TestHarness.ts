@@ -4,6 +4,8 @@ import { gameState, type CompletionTransaction, type GameSettings, type WalletSn
 import { GAMEPLAY, TIMING } from '../core/Constants';
 import { LEVEL_COUNT } from '../three/constants';
 import { GameScene } from '../scenes/GameScene';
+import type { MarbleTapTarget } from '../gameplay/GameplayController';
+import type { PerfSample, TapProbeEntry } from './deviceProbeTypes';
 import { loadLevel, packageCacheSnapshot as getPackageCacheSnapshot, runtimeSequenceSnapshot as getRuntimeSequenceSnapshot, type LevelData } from '../data/levels';
 import type { RuntimeSequenceResolution } from '../sequence/runtimeSequence';
 import type { planRollingPackageRetention } from '../data/levelPackageCache';
@@ -245,6 +247,14 @@ export interface MarbleRunHarness extends GameHarness<MarbleRunVerb> {
     winLevel: { run: () => Promise<boolean> };
     failLevel: { run: () => Promise<boolean> };
   };
+  /** Where every marble renders and which cell a tap there actions. */
+  marbleTapTargets(): MarbleTapTarget[];
+  /** Real hit-tested tap at a marble's rendered centre. */
+  tapMarbleAt(marbleId: number): boolean;
+  /** Per-level tap-targeting probe; no tapping. */
+  probeTapTargets(): TapProbeEntry;
+  /** Sample steady-state frame times on a level. */
+  profileCurrentLevel(sampleMs?: number): Promise<PerfSample | null>;
   gotoGameScene(levelId?: string): void;
   /**
    * Start GameScene with a synthetic LevelData payload. Test-only:
@@ -713,6 +723,93 @@ export function createMarbleRunHarness(game: Phaser.Game): MarbleRunHarness {
 
     grantCoins(amount: number): void {
       gameState.grantCoins(amount, 'test');
+    },
+
+    /**
+     * Start each level in turn and report every marble whose rendered centre
+     * resolves to a different cell — tap-targeting truth, with no tapping.
+     */
+    probeTapTargets(): TapProbeEntry {
+      const scene = getGameScene();
+      const controller = scene?.getGameplayControllerForTest();
+      const targets = controller?.marbleTapTargets() ?? [];
+      const offTarget = targets.filter((target) => !target.onTarget);
+      const topRowY = targets.length > 0 ? Math.min(...targets.map((target) => target.cell.y)) : null;
+      const bottomRowY = targets.length > 0 ? Math.max(...targets.map((target) => target.cell.y)) : null;
+      const spanFor = (row: number | null): { up: number; down: number }[] => row === null
+        ? []
+        : targets
+          .filter((target) => target.cell.y === row)
+          .slice(0, 5)
+          .map((target) => controller?.marbleHitSpan(target.marbleId) ?? { up: -1, down: -1 });
+      return {
+        level: Number(scene?.getLevel()?.id ?? 0),
+        started: controller != null,
+        marbles: targets.length,
+        offTarget: offTarget.length,
+        offTargetRows: [...new Set(offTarget.map((target) => target.cell.y))].sort((a, b) => a - b),
+        topRowY,
+        topRowSpans: spanFor(topRowY),
+        bottomRowSpans: spanFor(bottomRowY),
+      };
+    },
+
+    /**
+     * Sample real frame times on a given level. Overheating is a sustained-cost
+     * problem, so measure the steady state rather than reasoning about it.
+     */
+    async profileCurrentLevel(sampleMs: number = 12000): Promise<PerfSample | null> {
+      const scene = getGameScene();
+      const controller = scene?.getGameplayControllerForTest();
+      if (!controller) return null;
+      const renderer = controller?.stage.renderer as unknown as {
+        info: { render: { calls: number; triangles: number; frame: number } };
+      } | undefined;
+      const renderFrameStart = renderer?.info.render.frame ?? 0;
+      const frames: number[] = [];
+      let last = performance.now();
+      const deadline = last + sampleMs;
+      await new Promise<void>((resolve) => {
+        const step = (): void => {
+          const now = performance.now();
+          frames.push(now - last);
+          last = now;
+          if (now >= deadline) { resolve(); return; }
+          requestAnimationFrame(step);
+        };
+        requestAnimationFrame(step);
+      });
+      frames.shift();
+      const sorted = [...frames].sort((a, b) => a - b);
+      const at = (q: number): number => Math.round((sorted[Math.floor(sorted.length * q)] ?? 0) * 100) / 100;
+      return {
+        level: Number(scene?.getLevel()?.id ?? 0),
+        frames: frames.length,
+        p50Ms: at(0.5),
+        p95Ms: at(0.95),
+        worstMs: Math.round((sorted[sorted.length - 1] ?? 0) * 100) / 100,
+        renders: Math.max(0, (renderer?.info.render.frame ?? renderFrameStart) - renderFrameStart),
+        drawCalls: renderer?.info.render.calls ?? -1,
+        triangles: renderer?.info.render.triangles ?? -1,
+      };
+    },
+
+    /** Where every marble renders, and which cell a tap there actually actions. */
+    marbleTapTargets(): MarbleTapTarget[] {
+      return getGameScene()?.getGameplayControllerForTest()?.marbleTapTargets() ?? [];
+    },
+
+    /**
+     * Tap a marble the way a player does: a real hit-tested pointer/touch pair
+     * at its rendered centre. The win drive calls controller.tapCell() instead,
+     * which skips hit-testing and projection entirely — which is exactly why a
+     * tap-targeting offset has never once failed an automated run.
+     */
+    tapMarbleAt(marbleId: number): boolean {
+      const target = harness.marbleTapTargets().find((t) => t.marbleId === marbleId);
+      if (!target) return false;
+      const { hitTarget } = driveInputAt(target.client);
+      return hitTarget !== null;
     },
 
     gotoGameScene(levelId?: string): void {

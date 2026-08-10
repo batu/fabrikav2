@@ -1,0 +1,253 @@
+spec: marble-run-device-performance
+run_id: 2026-08-10T12:20:38Z
+started_at: 2026-08-10T12:20:38Z
+superseded_baseline:
+  timestamp: 2026-08-10T12:23:43Z
+  superseded_reason: User required post-level-20 thermal coverage after approving the initial baseline.
+  repeats: 3
+  aggregation: median
+  raw_primary: [19, 20, 19]
+  primary_range: 1
+  gates:
+    levels_profiled: 3
+    draw_calls: 313
+    triangles: 92998
+    frames_min: 718
+  diagnostics:
+    p95_ms: 19
+    worst_ms: 27
+    p50_ms: 17
+    draw_calls: 313
+    triangles: 92998
+    frames_min: 718
+    level_1_p95_ms: 18
+    level_13_p95_ms: 18
+    level_20_p95_ms: 19
+    level_1_draw_calls: 51
+    level_13_draw_calls: 182
+    level_20_draw_calls: 313
+    level_1_triangles: 12826
+    level_13_triangles: 53094
+    level_20_triangles: 92998
+  noise_warning: Primary range is 1 ms, above the 0.75 ms threshold; require at least a 1 ms median win and prefer exact structural diagnostics.
+experiments:
+  - iteration: 1
+    batch: 1
+    hypothesis: Fully transparent Modeler parts still submit draw calls and triangles; hiding those objects preserves pixels while reducing late-game GPU work.
+    category: rendering
+    outcome: kept
+    changes:
+      - file: games/marble_run/src/three/ModelerSpec.ts
+        summary: Mark zero-opacity transparent Modeler meshes invisible at construction.
+      - file: games/marble_run/src/three/ModelerSpec.test.ts
+        summary: Lock the zero-opacity culling invariant.
+    gates:
+      levels_profiled: 6
+      draw_calls: 643
+      triangles: 118466
+      frames_min: 717
+    gates_passed: true
+    diagnostics:
+      p95_ms: 19
+      worst_ms: 22
+      p50_ms: 17
+      draw_calls: 643
+      triangles: 118466
+      frames_min: 717
+      level_68_p95_ms: 18
+      level_68_draw_calls: 643
+      level_68_triangles: 118466
+    primary_delta: "-3 ms"
+    structural_delta: "-159 draw calls; -114480 submitted triangles on level 68"
+    learnings: Zero-alpha decorative geometry accounted for 49 percent of submitted late-game triangles; three consecutive hot runs held at 18 ms p95 on level 68.
+  - iteration: 2
+    batch: 2
+    hypothesis: Instance the six repeated visible blocked-cell meshes to collapse hundreds of late-game draw calls without changing geometry.
+    category: rendering
+    outcome: rejected
+    changes:
+      - file: games/marble_run/src/three/BoardScene.ts
+        summary: Temporarily batched blocked-cell parts into four InstancedMesh submissions; removed after device regression.
+    gates:
+      levels_profiled: 6
+      draw_calls: 278
+      triangles: 118466
+      frames_min: 688
+    gates_passed: true
+    diagnostics:
+      p95_ms: 22
+      worst_ms: 26
+      p50_ms: 17
+      draw_calls: 278
+      triangles: 118466
+      frames_min: 688
+      level_68_p95_ms: 22
+      level_68_draw_calls: 269
+      level_68_triangles: 118466
+    primary_delta: "+3 ms regression"
+    structural_delta: "-365 draw calls; no triangle change"
+    learnings: On the iPhone 12, instancing shadow-casting blocked-cell meshes reduced submissions but made sustained frame time materially worse; draw-call count alone is not the authority.
+  - iteration: 3
+    batch: 3
+    hypothesis: Use mobile-appropriate 20x12 sphere tessellation for small marbles and blocked caps to reduce visible GPU geometry without changing their screen-space silhouette.
+    category: rendering
+    outcome: kept
+    changes:
+      - file: games/marble_run/src/three/ModelerSpec.ts
+        summary: Support explicit width and height segments for sphere parts.
+      - file: games/marble_run/src/three/specs/sugar3d-marble-core.json
+        summary: Set the marble core to 20x12 sphere segments.
+      - file: games/marble_run/src/three/specs/sugar3d-plug-cap.json
+        summary: Set the blocked porcelain cap to 20x12 sphere segments.
+      - file: games/marble_run/src/three/ModelerSpec.test.ts
+        summary: Verify explicit sphere tessellation reaches the generated geometry.
+    gates:
+      levels_profiled: 6
+      draw_calls: 643
+      triangles: 78426
+      frames_min: 718
+    gates_passed: true
+    diagnostics:
+      p95_ms: 19
+      worst_ms: 21
+      p50_ms: 17
+      draw_calls: 643
+      triangles: 78426
+      frames_min: 718
+      level_68_p95_ms: 18
+      level_68_draw_calls: 643
+      level_68_triangles: 78426
+    primary_delta: "0 ms"
+    structural_delta: "-40040 visible triangles on level 68"
+    learnings: Mobile sphere LOD preserved hot-run frame time while cutting another 34 percent of the remaining submitted geometry; physical visual acceptance remains required.
+  - iteration: 4
+    batch: 4
+    hypothesis: Stop rendering a static gameplay board at display refresh rate while preserving 60 fps for every active visual effect and route preview.
+    category: rendering
+    outcome: kept
+    changes:
+      - file: games/marble_run/src/three/BoardScene.ts
+        summary: Report every visual state that requires continuous frames.
+      - file: games/marble_run/src/gameplay/GameplayController.ts
+        summary: Render active scenes continuously and static scenes once per second.
+      - file: games/marble_run/tests/unit/gameplay-controller.test.ts
+        summary: Keep the headless BoardScene contract aligned with the runtime.
+    gates:
+      levels_profiled: 6
+      idle_renders_per_12s: 12
+      late_game_p95_ms: 18
+      frames_min: 718
+    gates_passed: true
+    diagnostics:
+      repeats: 3
+      p95_ms: 18
+      p50_ms: 17
+      renders_max: 12
+      late_game_renders_max: 12
+      previous_renders_max: 720
+      level_68_p95_ms: 18
+    primary_delta: "-708 idle renders per 12 seconds (-98.3 percent)"
+    structural_delta: "Static WebGL cadence reduced from 60 fps to 1 fps; active visuals remain requestAnimationFrame-driven."
+    learnings: Sparse 4 fps and 30 fps schedules exposed render-cost spikes in rAF p95. One static recovery render per second removed sustained GPU work while keeping p95 at 17-18 ms.
+  - iteration: 5
+    batch: 5
+    hypothesis: Request the browser's low-power GPU path to reduce sustained thermal cost without changing the scene.
+    category: rendering
+    outcome: rejected
+    changes:
+      - file: games/marble_run/src/three/Stage.ts
+        summary: Temporarily changed WebGL powerPreference to low-power; restored after measurement.
+    gates:
+      levels_profiled: 6
+      idle_renders_per_12s: 12
+      p95_ms: 18
+    gates_passed: true
+    diagnostics:
+      worst_ms: 46
+      draw_calls: 643
+      triangles: 78426
+      frames_min: 718
+    primary_delta: "0 ms p95; +14 ms worst-frame regression"
+    structural_delta: "No render, draw-call, or triangle reduction."
+    learnings: The iPhone did not expose a measurable benefit from the low-power WebGL preference, and its worst sampled frame regressed.
+  - iteration: 6
+    batch: 6
+    hypothesis: Halve the directional-light shadow map dimensions to reduce shadow fill cost on dense late-game boards.
+    category: rendering
+    outcome: rejected
+    changes:
+      - file: games/marble_run/src/three/Stage.ts
+        summary: Temporarily reduced the shadow map from 1024 to 512; restored after device measurement and capture.
+    gates:
+      levels_profiled: 6
+      idle_renders_per_12s: 12
+      p95_ms: 18
+    gates_passed: true
+    diagnostics:
+      draw_calls: 643
+      triangles: 78426
+      frames_min: 718
+      visual_capture: games/marble_run/docs/evidence/2026-08-11-shadow-512/raw-captures/level.png
+    primary_delta: "0 ms"
+    structural_delta: "No submitted-work reduction; only shadow texture resolution changed."
+    learnings: A smaller shadow target produced no device-measured frame-time or render-count gain and spends visual fidelity budget for no proven benefit.
+baseline:
+  timestamp: 2026-08-10T12:36:58Z
+  repeats: 3
+  aggregation: median
+  raw_primary: [20, 22, 22]
+  primary_range: 2
+  gates:
+    levels_profiled: 6
+    draw_calls: 802
+    triangles: 232946
+    frames_min: 670
+  diagnostics:
+    p95_ms: 22
+    worst_ms: 26
+    p50_ms: 18
+    draw_calls: 802
+    triangles: 232946
+    frames_min: 670
+    level_1_p95_ms: 18
+    level_20_p95_ms: 19
+    level_21_p95_ms: 18
+    level_30_p95_ms: 20
+    level_68_p95_ms: 22
+    level_106_p95_ms: 19
+    level_1_draw_calls: 51
+    level_20_draw_calls: 313
+    level_21_draw_calls: 637
+    level_30_draw_calls: 748
+    level_68_draw_calls: 802
+    level_106_draw_calls: 748
+    level_1_triangles: 12826
+    level_20_triangles: 92998
+    level_21_triangles: 183842
+    level_30_triangles: 218906
+    level_68_triangles: 232946
+    level_106_triangles: 218906
+  thermal_observation: Consecutive hot runs drove level 68 from 715 frames at 18 ms p95 to 666-670 frames at 22 ms p95.
+  noise_warning: Primary range is 2 ms under sustained load; require a median win above 2 ms or pair it with an exact structural reduction.
+best:
+  iteration: 4
+  metrics:
+    p95_ms: 18
+    idle_renders_per_12s: 12
+    p50_ms: 17
+    draw_calls: 643
+    triangles: 78426
+hypothesis_backlog:
+  - description: Batch visually identical marble meshes with instancing to collapse per-marble draw calls.
+    category: rendering
+    priority: high
+    dep_status: not_applicable
+    required_deps: []
+  - description: Share immutable marble geometry and materials where instancing is incompatible with gameplay animation.
+    category: allocation
+    priority: medium
+    dep_status: not_applicable
+    required_deps: []
+parallel_readiness:
+  mode: serial
+  reason: Every measurement installs to and exclusively controls the same physical iPhone 12.

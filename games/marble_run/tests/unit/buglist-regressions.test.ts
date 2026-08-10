@@ -15,6 +15,16 @@ describe("Marble Run publisher bug-list regressions", () => {
     expect(imageRule).toMatch(/-webkit-user-drag:\s*none/);
   });
 
+  it("locks browser gestures on the modal layer without a scrollable-surface exception", () => {
+    // The 2026-08-07 pass only asserted the html/body/img rules and reported
+    // dragging as fixed; in-game windows stayed draggable because the modal
+    // layer never got touch-action. Scope is the point here, not presence.
+    const html = gameFile("index.html");
+    const modalRule = html.match(/#modal-root\s*\{([^}]*)\}/)?.[1];
+    expect(modalRule).toMatch(/touch-action:\s*none/);
+    expect(html).not.toMatch(/\.home-page-body\s*\{[^}]*touch-action:\s*pan-y/);
+  });
+
   it("does not hold the first paint behind a remote-config network round trip", () => {
     const bootScene = gameFile("src/scenes/BootScene.ts");
     const bootstrap = gameFile("src/bootstrap.ts");

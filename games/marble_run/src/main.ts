@@ -5,7 +5,10 @@
 // FIT letterboxes the whole canvas with background bars down the sides
 // (the "first boot: sides cropped / not mirrored" bug). Defer every app
 // import until the viewport holds still for a few consecutive frames.
+import { installViewportTouchGuard } from './platform/viewportTouchGuard';
+
 console.info(`[startup] js-entry ${performance.now().toFixed(1)}ms`);
+installViewportTouchGuard(document);
 
 async function waitForStableViewport(maxWaitMs: number): Promise<void> {
   const nextFrame = (): Promise<void> => new Promise((resolve) => requestAnimationFrame(() => resolve()));

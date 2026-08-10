@@ -354,6 +354,29 @@ export class BoardScene {
     return this.spawns.length > 0;
   }
 
+  /** True while tick() can still change anything visible. */
+  requiresContinuousFrames(): boolean {
+    const gateIsGulping = [...this.gates.values()].some(
+      (gate) => ((gate.userData as { gulp?: number }).gulp ?? 0) > 0,
+    );
+    return this.entryT < 1
+      || this.mistakeFeedbackT > 0
+      || this.routePreview !== null
+      || this.spawns.length > 0
+      || this.rolls.length > 0
+      || this.blockedRolls.length > 0
+      || this.breakingGates.length > 0
+      || this.gateShards.length > 0
+      || this.wobbles.length > 0
+      || gateIsGulping
+      || this.hints.length > 0
+      || this.sparks.length > 0
+      || this.collectBursts.length > 0
+      || this.collectRings.length > 0
+      || this.trailRibbons.length > 0
+      || this.impactRings.length > 0;
+  }
+
   isBlockedMarbleAnimating(id: number): boolean {
     return this.blockedRolls.some((roll) => roll.change.marbleId === id);
   }

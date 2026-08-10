@@ -60,6 +60,10 @@ export function buildModelerSpec(spec: ModelerSpec, options: ModelerRenderOption
         metalness: 0,
       });
     const mesh = new THREE.Mesh(geometry, material);
+    // Several Sugar3D specs keep legacy decorative parts at opacity 0. Three.js
+    // still submits those meshes unless the object itself is hidden, wasting a
+    // draw call for pixels that can never contribute to the frame.
+    if (material.transparent && material.opacity <= 0) mesh.visible = false;
     mesh.name = id;
     mesh.userData.modelerPartId = id;
     mesh.userData.modelerSwatch = part.swatch;
@@ -122,7 +126,11 @@ function geometryForPart(part: ModelerSpecPart): THREE.BufferGeometry {
         dims.segments ?? 24,
       );
     case 'sphere':
-      return new THREE.SphereGeometry(dims.radius ?? 0.5, 24, 16);
+      return new THREE.SphereGeometry(
+        dims.radius ?? 0.5,
+        dims.widthSegments ?? 24,
+        dims.heightSegments ?? 16,
+      );
     case 'cone':
       return new THREE.ConeGeometry(dims.radius ?? 0.5, dims.height ?? 1, dims.segments ?? 24);
     case 'torus':

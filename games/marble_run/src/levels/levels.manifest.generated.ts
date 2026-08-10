@@ -103,7 +103,7 @@ export const LEVEL_MANIFEST: readonly LevelManifestEntry[] = [
     "id": 13,
     "slot": "band",
     "target": 11,
-    "shapeKind": "plain",
+    "shapeKind": "corners",
     "symmetric": false
   },
   {
