@@ -44,6 +44,7 @@ const automatedDeviceProbe = TEST_HARNESS_ENABLED && [
   import.meta.env.VITE_PLAYTHROUGH_LEVELS,
   import.meta.env.VITE_PROBE_TAP_LEVELS,
   import.meta.env.VITE_PERF_PROBE_LEVELS,
+  import.meta.env.VITE_INSITU_TOUR,
 ].some((value) => String(value ?? '').trim().length > 0);
 
 // Compose the SDK providers (ads / attribution / meta / analytics sinks) from
@@ -52,6 +53,10 @@ const automatedDeviceProbe = TEST_HARNESS_ENABLED && [
 installSdkContext(createSdkContext());
 if (automatedDeviceProbe) {
   configureAdService(new DisabledAdProvider('ads disabled during automated device probes'));
+  // Tours must exercise the normal ad-enabled product surfaces without ever
+  // invoking an ad SDK. This also repairs stale false values persisted by older
+  // probe builds when their scripted state was subsequently saved.
+  gameState.settings.adsEnabled = true;
 }
 void analytics.init();
 void getSdkContext().meta.init();

@@ -90,7 +90,7 @@ export const REMOTE_CONFIG_DEFAULTS: RemoteConfigValues = {
   findMomentBurstEnabled: true,
   microAnimationsEnabled: false,
   hintRwEnabled: true,
-  levelContinueRwEnabled: false,
+  levelContinueRwEnabled: true,
   levelEndClaimX2Enabled: true,
   interstitialAdsEnabled: true,
   interstitialFirstLevel: 10,
