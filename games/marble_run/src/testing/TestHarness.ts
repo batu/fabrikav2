@@ -86,6 +86,7 @@ export interface PerfSample {
   p50Ms: number;
   p95Ms: number;
   worstMs: number;
+  renders: number;
   drawCalls: number;
   triangles: number;
 }
@@ -851,8 +852,9 @@ export function createMarbleRunHarness(game: Phaser.Game): MarbleRunHarness {
       await sleep(1500);
       const controller = getGameScene()?.getGameplayControllerForTest();
       const renderer = controller?.stage.renderer as unknown as {
-        info: { render: { calls: number; triangles: number } };
+        info: { render: { calls: number; triangles: number; frame: number } };
       } | undefined;
+      const renderFrameStart = renderer?.info.render.frame ?? 0;
       const frames: number[] = [];
       let last = performance.now();
       const deadline = last + sampleMs;
@@ -875,6 +877,7 @@ export function createMarbleRunHarness(game: Phaser.Game): MarbleRunHarness {
         p50Ms: at(0.5),
         p95Ms: at(0.95),
         worstMs: Math.round((sorted[sorted.length - 1] ?? 0) * 100) / 100,
+        renders: Math.max(0, (renderer?.info.render.frame ?? renderFrameStart) - renderFrameStart),
         drawCalls: renderer?.info.render.calls ?? -1,
         triangles: renderer?.info.render.triangles ?? -1,
       };

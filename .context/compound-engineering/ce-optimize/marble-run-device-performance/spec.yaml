@@ -14,28 +14,33 @@ metric:
       check: "> 0"
     - name: frames_min
       check: "> 500"
+    - name: late_game_renders_max
+      check: "> 0"
   diagnostics:
     - name: worst_ms
     - name: p50_ms
     - name: draw_calls
     - name: triangles
     - name: frames_min
+    - name: renders_max
+    - name: late_game_renders_max
     - name: level_1_p95_ms
-    - name: level_13_p95_ms
     - name: level_20_p95_ms
     - name: level_21_p95_ms
     - name: level_30_p95_ms
     - name: level_68_p95_ms
     - name: level_106_p95_ms
+    - name: level_21_renders
+    - name: level_30_renders
+    - name: level_68_renders
+    - name: level_106_renders
     - name: level_1_draw_calls
-    - name: level_13_draw_calls
     - name: level_20_draw_calls
     - name: level_21_draw_calls
     - name: level_30_draw_calls
     - name: level_68_draw_calls
     - name: level_106_draw_calls
     - name: level_1_triangles
-    - name: level_13_triangles
     - name: level_20_triangles
     - name: level_21_triangles
     - name: level_30_triangles

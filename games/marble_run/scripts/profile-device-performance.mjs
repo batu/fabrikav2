@@ -112,9 +112,12 @@ const result = {
   draw_calls: max('drawCalls'),
   triangles: max('triangles'),
   frames_min: min('frames'),
+  renders_max: max('renders'),
+  late_game_renders_max: Math.max(...samples.filter((sample) => sample.level > 20).map((sample) => Number(sample.renders))),
 };
 for (const sample of samples) {
   result[`level_${sample.level}_p95_ms`] = Number(sample.p95Ms);
+  result[`level_${sample.level}_renders`] = Number(sample.renders);
   result[`level_${sample.level}_draw_calls`] = Number(sample.drawCalls);
   result[`level_${sample.level}_triangles`] = Number(sample.triangles);
 }
