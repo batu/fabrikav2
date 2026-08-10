@@ -60,6 +60,33 @@ experiments:
     primary_delta: "-3 ms"
     structural_delta: "-159 draw calls; -114480 submitted triangles on level 68"
     learnings: Zero-alpha decorative geometry accounted for 49 percent of submitted late-game triangles; three consecutive hot runs held at 18 ms p95 on level 68.
+  - iteration: 2
+    batch: 2
+    hypothesis: Instance the six repeated visible blocked-cell meshes to collapse hundreds of late-game draw calls without changing geometry.
+    category: rendering
+    outcome: rejected
+    changes:
+      - file: games/marble_run/src/three/BoardScene.ts
+        summary: Temporarily batched blocked-cell parts into four InstancedMesh submissions; removed after device regression.
+    gates:
+      levels_profiled: 6
+      draw_calls: 278
+      triangles: 118466
+      frames_min: 688
+    gates_passed: true
+    diagnostics:
+      p95_ms: 22
+      worst_ms: 26
+      p50_ms: 17
+      draw_calls: 278
+      triangles: 118466
+      frames_min: 688
+      level_68_p95_ms: 22
+      level_68_draw_calls: 269
+      level_68_triangles: 118466
+    primary_delta: "+3 ms regression"
+    structural_delta: "-365 draw calls; no triangle change"
+    learnings: On the iPhone 12, instancing shadow-casting blocked-cell meshes reduced submissions but made sustained frame time materially worse; draw-call count alone is not the authority.
 baseline:
   timestamp: 2026-08-10T12:36:58Z
   repeats: 3
