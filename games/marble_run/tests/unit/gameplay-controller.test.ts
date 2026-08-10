@@ -80,7 +80,11 @@ vi.mock("../../src/audio/Sfx", () => ({
   spawnTick: vi.fn(),
 }));
 
-import { GameplayController, type GameplayHooks } from "../../src/gameplay/GameplayController";
+import {
+  GameplayController,
+  gameplayRenderPolicy,
+  type GameplayHooks,
+} from "../../src/gameplay/GameplayController";
 import { LEVELS } from "../../src/levels/levels.generated";
 import { LEVEL_COIN_REWARD, HINT_COIN_COST } from "../../src/three/constants";
 import { solveLevel } from "../../src/marble-board";
@@ -255,5 +259,31 @@ describe("GameplayController", () => {
     expect(controller.engineRef()).toBeNull();
     expect(container.querySelector(".mr-three-canvas")).toBeNull();
     controller = null;
+  });
+});
+
+describe("gameplayRenderPolicy", () => {
+  it("drops a paused busy board to idle rendering", () => {
+    expect(gameplayRenderPolicy({
+      paused: true,
+      sceneBusy: true,
+      shadowsSettling: false,
+      idleRefreshDue: false,
+    })).toEqual({ tick: false, render: false, extendShadowTail: false });
+  });
+
+  it("renders continuously while active and once when idle refresh is due", () => {
+    expect(gameplayRenderPolicy({
+      paused: false,
+      sceneBusy: true,
+      shadowsSettling: false,
+      idleRefreshDue: false,
+    })).toEqual({ tick: true, render: true, extendShadowTail: true });
+    expect(gameplayRenderPolicy({
+      paused: false,
+      sceneBusy: false,
+      shadowsSettling: false,
+      idleRefreshDue: true,
+    })).toEqual({ tick: false, render: true, extendShadowTail: false });
   });
 });

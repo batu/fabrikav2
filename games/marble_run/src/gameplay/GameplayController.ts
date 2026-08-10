@@ -65,6 +65,20 @@ const SHADOW_SETTLE_TAIL_MS = 400;
 /** Static boards do not need a phone-heating 60 WebGL renders per second. */
 const IDLE_RENDER_INTERVAL_MS = 1000;
 
+export function gameplayRenderPolicy(options: {
+  paused: boolean;
+  sceneBusy: boolean;
+  shadowsSettling: boolean;
+  idleRefreshDue: boolean;
+}): { tick: boolean; render: boolean; extendShadowTail: boolean } {
+  const continuous = !options.paused && options.sceneBusy;
+  return {
+    tick: continuous,
+    render: continuous || options.shadowsSettling || options.idleRefreshDue,
+    extendShadowTail: continuous,
+  };
+}
+
 const TAP_ASSIST_RADIUS_PX = 46;
 const PRECISE_BLOCKED_HIT_MAX_PX = 8;
 const PRECISE_BLOCKED_HIT_ASSIST_RATIO = 0.25;
@@ -558,20 +572,26 @@ export class GameplayController {
     this.lastTime = now;
     // Shadows only need redrawing while the scene is actually moving. Keep a
     // short tail so the settle frame after the last roll is not left stale.
-    const busy = this.board?.requiresContinuousFrames() === true
+    const sceneBusy = this.board?.requiresContinuousFrames() === true
       || this.tutorialCell !== null;
-    if (busy) this.shadowsDirtyUntil = now + SHADOW_SETTLE_TAIL_MS;
     const shadowsSettling = now <= this.shadowsDirtyUntil;
     const idleRefreshDue = now - this.lastRenderTime >= IDLE_RENDER_INTERVAL_MS;
+    const policy = gameplayRenderPolicy({
+      paused: this.paused,
+      sceneBusy,
+      shadowsSettling,
+      idleRefreshDue,
+    });
+    if (policy.extendShadowTail) this.shadowsDirtyUntil = now + SHADOW_SETTLE_TAIL_MS;
     if (shadowsSettling) this.stage.markShadowsDirty();
-    if (!this.paused && busy) {
+    if (policy.tick) {
       this.board?.tick(dt);
       // The cue is mounted before the board's settle/drop animation completes.
       // Reproject it each frame so the visible marble and its tap cue stay one
       // target instead of separating vertically during first-level onboarding.
       this.updateTutorialPosition();
     }
-    if (busy || shadowsSettling || idleRefreshDue) {
+    if (policy.render) {
       this.stage.render();
       this.lastRenderTime = now;
     }
