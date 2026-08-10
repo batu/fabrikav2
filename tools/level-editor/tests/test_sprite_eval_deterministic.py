@@ -434,6 +434,35 @@ def test_apply_match_report_rejects_box_that_drops_human_pickup_point(level_dir)
     assert sprite["x"] == 30
 
 
+def test_apply_match_report_manual_override_preserves_relative_anchor(level_dir):
+    report = {"levels": [{"levelId": "test_level", "birds": [{
+        "dogId": "dog_00", "cutoutMatches": {"manual": {
+            "accepted": True, "fittedBox": [0, 0, 20, 25],
+        }},
+    }]}]}
+
+    result = apply_match_report(level_dir.parent, report, method="manual")
+
+    assert result["applied"] == 1
+    sprite = json.loads((level_dir / "level.json").read_text())["dogs"][0]["sprite"]
+    assert (sprite["x"], sprite["y"], sprite["width"], sprite["height"]) == (0, 0, 20, 25)
+    assert (sprite["anchorX"], sprite["anchorY"]) == (0.5, 0.5)
+
+
+def test_apply_match_report_rejects_manual_override_outside_scene(level_dir):
+    report = {"levels": [{"levelId": "test_level", "birds": [{
+        "dogId": "dog_00", "cutoutMatches": {"manual": {
+            "accepted": True, "fittedBox": [-1, 0, 20, 25],
+        }},
+    }]}]}
+
+    result = apply_match_report(level_dir.parent, report, method="manual")
+
+    assert result["unsafe"] == 1
+    sprite = json.loads((level_dir / "level.json").read_text())["dogs"][0]["sprite"]
+    assert sprite["x"] == 30
+
+
 def test_neighbor_sprite_content_is_not_pop_in():
     clean = _flat(100, 100, 100)
     scene = clean.copy()

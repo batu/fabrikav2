@@ -46,6 +46,7 @@ SPECK_MIN_AREA = 8
 ALIGNMENT_OUTLIER_SCORE = 0.55
 ALIGNMENT_ABSOLUTE_FLOOR = 0.25
 DEFAULT_MATCH_METHODS = ("color", "hybrid", "features", "orb", "chamfer", "best")
+MANUAL_MATCH_METHOD = "manual"
 
 
 @dataclass(frozen=True)
@@ -1031,9 +1032,9 @@ def apply_match_report(
 ) -> dict:
     """Apply accepted matcher boxes to exports and their session sidecars.
 
-    Cleanup boxes remain human-owned. Anchors are recomputed from the stable
-    pickup point, and every proposed box must contain that point regardless of
-    which matcher produced it.
+    Cleanup boxes remain human-owned. Automatic matcher boxes must contain the
+    stable pickup point. Explicit manual placement instead preserves the
+    sprite's current relative anchor so a human can correct a bad mapping.
     """
     summary = {
         "method": method, "levels": 0, "birds": 0, "applied": 0,
@@ -1050,6 +1051,11 @@ def apply_match_report(
             continue
         level = json.loads(level_path.read_text())
         updated_level = copy.deepcopy(level)
+        try:
+            scene_width = int(level.get("width", 0))
+            scene_height = int(level.get("height", 0))
+        except (TypeError, ValueError):
+            scene_width = scene_height = 0
         dogs = {dog.get("id"): dog for dog in updated_level.get("dogs", []) if isinstance(dog, dict)}
         sidecars: dict[Path, dict] = {}
         level_changed = False
@@ -1067,22 +1073,45 @@ def apply_match_report(
                 continue
             try:
                 x0, y0, x1, y1 = [int(round(float(value))) for value in box]
-                current_sprite = dog.get("sprite") or {}
-                target_x = round(float(current_sprite.get("x", dog["x"])) + float(current_sprite.get("anchorX", 0.5)) * float(current_sprite.get("width", 0)))
-                target_y = round(float(current_sprite.get("y", dog["y"])) + float(current_sprite.get("anchorY", 0.5)) * float(current_sprite.get("height", 0)))
             except (KeyError, TypeError, ValueError):
                 summary["rejected"] += 1
                 continue
             width, height = x1 - x0, y1 - y0
-            if width <= 0 or height <= 0 or not (x0 <= target_x <= x1 and y0 <= target_y <= y1):
+            if (
+                width <= 0
+                or height <= 0
+                or scene_width <= 0
+                or scene_height <= 0
+                or not (0 <= x0 < x1 <= scene_width and 0 <= y0 < y1 <= scene_height)
+            ):
                 summary["unsafe"] += 1
                 continue
             sprite = dog.get("sprite")
             if not isinstance(sprite, dict):
                 summary["rejected"] += 1
                 continue
-            anchor_x = round((target_x - x0) / width, 4)
-            anchor_y = round((target_y - y0) / height, 4)
+            try:
+                if method == MANUAL_MATCH_METHOD:
+                    anchor_x = round(float(sprite.get("anchorX", 0.5)), 4)
+                    anchor_y = round(float(sprite.get("anchorY", 0.5)), 4)
+                else:
+                    target_x = round(
+                        float(sprite.get("x", dog["x"]))
+                        + float(sprite.get("anchorX", 0.5)) * float(sprite.get("width", 0))
+                    )
+                    target_y = round(
+                        float(sprite.get("y", dog["y"]))
+                        + float(sprite.get("anchorY", 0.5)) * float(sprite.get("height", 0))
+                    )
+            except (KeyError, TypeError, ValueError):
+                summary["rejected"] += 1
+                continue
+            if method != MANUAL_MATCH_METHOD:
+                if not (x0 <= target_x <= x1 and y0 <= target_y <= y1):
+                    summary["unsafe"] += 1
+                    continue
+                anchor_x = round((target_x - x0) / width, 4)
+                anchor_y = round((target_y - y0) / height, 4)
             updates = {
                 "x": x0, "y": y0, "width": width, "height": height,
                 "anchorX": anchor_x, "anchorY": anchor_y,

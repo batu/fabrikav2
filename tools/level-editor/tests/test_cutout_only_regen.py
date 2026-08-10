@@ -96,7 +96,7 @@ def test_manual_sprite_placement_updates_public_level_and_sidecar(app_client, is
     assert placement_lock_states == [True]
 
 
-def test_manual_sprite_placement_rejects_box_that_misses_current_hitbox(
+def test_manual_sprite_placement_allows_human_override_away_from_current_hitbox(
     app_client, isolated_session, monkeypatch,
 ):
     session_id = "manual_sprite_misses_hitbox"
@@ -118,7 +118,11 @@ def test_manual_sprite_placement_rejects_box_that_misses_current_hitbox(
         "height": 200,
         "dogs": [{
             "id": "dog_00", "x": 40, "y": 40, "r": 20,
-            "sprite": {"x": 20, "y": 20, "width": 40, "height": 40, "anchorX": 0.5, "anchorY": 0.5},
+            "sprite": {
+                "image": f"levels/{session_id}/dogs/dog_00/sprite_000.png",
+                "x": 20, "y": 20, "width": 40, "height": 40,
+                "anchorX": 0.5, "anchorY": 0.5,
+            },
         }],
     }))
     (public_dir / "hitboxes.json").write_text(json.dumps([
@@ -128,11 +132,60 @@ def test_manual_sprite_placement_rejects_box_that_misses_current_hitbox(
 
     response = app_client.put(
         f"/api/sessions/{session_id}/sprite-candidates/dog_00:sprite_000/placement",
-        json={"spriteBox": [20, 20, 60, 60]},
+        json={"spriteBox": [25, 30, 70, 80]},
     )
 
-    assert response.status_code == 422
-    assert response.json()["detail"]["error"] == "spriteBox must contain the current bird hitbox"
+    assert response.status_code == 200
+    level = json.loads((public_dir / "level.json").read_text())
+    sidecar = json.loads((dog_dir / "sprite_000.json").read_text())
+    assert [level["dogs"][0]["sprite"][key] for key in ("x", "y", "width", "height")] == [25, 30, 45, 50]
+    assert sidecar["spriteBox"] == [25, 30, 70, 80]
+
+
+def test_manual_sprite_placement_rejects_only_invalid_geometry(
+    app_client, isolated_session, monkeypatch,
+):
+    session_id = "manual_sprite_geometry_validation"
+    public_dir = isolated_session.GAME_PUBLIC_LEVELS / session_id
+    dog_dir = public_dir / "dogs" / "dog_00"
+    dog_dir.mkdir(parents=True)
+    Image.new("RGB", (200, 200), (80, 100, 120)).save(public_dir / "color.png")
+    Image.new("RGBA", (40, 40), (200, 80, 30, 255)).save(dog_dir / "sprite_000.png")
+    (dog_dir / "sprite_000.json").write_text(json.dumps({
+        "image": "dogs/dog_00/sprite_000.png",
+        "spriteBox": [80, 80, 120, 120],
+        "anchorX": 0.5,
+        "anchorY": 0.5,
+        "quality": {"pickupUsable": True},
+    }))
+    (public_dir / "level.json").write_text(json.dumps({
+        "id": session_id,
+        "width": 200,
+        "height": 200,
+        "dogs": [{
+            "id": "dog_00", "x": 100, "y": 100, "r": 20,
+            "sprite": {
+                "image": f"levels/{session_id}/dogs/dog_00/sprite_000.png",
+                "x": 80, "y": 80, "width": 40, "height": 40,
+                "anchorX": 0.5, "anchorY": 0.5,
+            },
+        }],
+    }))
+    monkeypatch.setattr(isolated_session, "refresh_catalog_packages", lambda ids: {"refreshedLevels": ids})
+
+    reversed_box = app_client.put(
+        f"/api/sessions/{session_id}/sprite-candidates/dog_00:sprite_000/placement",
+        json={"spriteBox": [100, 100, 90, 120]},
+    )
+    outside_scene = app_client.put(
+        f"/api/sessions/{session_id}/sprite-candidates/dog_00:sprite_000/placement",
+        json={"spriteBox": [180, 180, 210, 210]},
+    )
+
+    assert reversed_box.status_code == 422
+    assert reversed_box.json()["detail"]["error"] == "spriteBox must have positive width and height"
+    assert outside_scene.status_code == 422
+    assert outside_scene.json()["detail"]["error"] == "spriteBox must stay inside the scene"
 
 
 def test_auto_place_sprites_runs_best_safe_for_ready_unconfirmed_candidates(
