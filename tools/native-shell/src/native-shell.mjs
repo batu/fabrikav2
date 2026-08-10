@@ -6,6 +6,33 @@ const GAME_NAME = /^[a-z0-9_]+$/;
 const SKAD_ID = /^[a-z0-9]{10}\.skadnetwork$/;
 const FIREBASE_PLIST = 'GoogleService-Info.plist';
 
+// Stable PBX identity for the Crashlytics dSYM upload phase. Crashlytics hides
+// a crash report entirely until a matching dSYM exists, so a build shipped
+// without one produces reports that look like a broken integration. Uploading
+// by hand works until the one time someone forgets; this makes the archive do
+// it. Emitted as a single pbxproj line so removeWiring() can unwire it.
+const CRASHLYTICS_PHASE_ID = 'A11F00302FAD000000000030';
+
+// Runs only when a dSYM was actually produced (Release/archive), so Debug
+// builds pay nothing. upload-symbols ships inside the firebase-ios-sdk SPM
+// checkout — the `firebase` CLI's crashlytics:symbols:upload is the Android
+// NDK/breakpad path and fails on iOS dSYMs.
+const CRASHLYTICS_UPLOAD_SCRIPT_LINES = [
+  'if [ "${DEBUG_INFORMATION_FORMAT}" != "dwarf-with-dsym" ]; then exit 0; fi',
+  'GSP="${SRCROOT}/App/GoogleService-Info.plist"',
+  'UPLOAD="${BUILD_DIR%/Build/*}/SourcePackages/checkouts/firebase-ios-sdk/Crashlytics/upload-symbols"',
+  'if [ ! -f "$GSP" ]; then echo "warning: Crashlytics symbol upload skipped (no GoogleService-Info.plist)"; exit 0; fi',
+  'if [ ! -x "$UPLOAD" ]; then echo "warning: Crashlytics symbol upload skipped (upload-symbols not found)"; exit 0; fi',
+  '"$UPLOAD" -gsp "$GSP" -p ios "${DWARF_DSYM_FOLDER_PATH}"',
+];
+
+/** pbxproj quoted strings need backslashes and double quotes escaped, and
+ * newlines written as a literal \n — an unescaped quote silently corrupts the
+ * project file and Xcode then refuses to open it at all. */
+const CRASHLYTICS_UPLOAD_SCRIPT = CRASHLYTICS_UPLOAD_SCRIPT_LINES
+  .map((line) => line.replace(/\\/g, '\\\\').replace(/"/g, '\\"'))
+  .join('\\n');
+
 const nativeFileIds = {
   'AppLovinMaxPlugin.swift': {
     buildId: 'A11F00012FAD000000000001',
@@ -221,6 +248,27 @@ function wireResource(content, file) {
   return next;
 }
 
+function wireCrashlyticsUploadPhase(content, manifest) {
+  if (manifest.ios?.crashlyticsSymbolUpload !== true) return removeWiring(content, [CRASHLYTICS_PHASE_ID]);
+  if (content.includes(CRASHLYTICS_PHASE_ID)) return content;
+  const phase = `\t\t${CRASHLYTICS_PHASE_ID} /* Upload Crashlytics dSYMs */ = {isa = PBXShellScriptBuildPhase; alwaysOutOfDate = 1; buildActionMask = 2147483647; files = (); inputPaths = (); name = "Upload Crashlytics dSYMs"; outputPaths = (); runOnlyForDeploymentPostprocessing = 0; shellPath = /bin/sh; shellScript = "${CRASHLYTICS_UPLOAD_SCRIPT}"; };`;
+  let next = content.includes('/* End PBXShellScriptBuildPhase section */')
+    ? insertBefore(content, '/* End PBXShellScriptBuildPhase section */', phase, 'Crashlytics upload phase')
+    : insertBefore(
+      content,
+      '/* Begin PBXSourcesBuildPhase section */',
+      `/* Begin PBXShellScriptBuildPhase section */\n${phase}\n/* End PBXShellScriptBuildPhase section */\n`,
+      'Crashlytics upload phase section',
+    );
+  // Last in the target's phase list: the dSYM only exists once linking is done.
+  return insertAfter(
+    next,
+    /^\s*[0-9A-F]{24} \/\* Resources \*\/,\s*$/m,
+    `\t\t\t\t${CRASHLYTICS_PHASE_ID} /* Upload Crashlytics dSYMs */,`,
+    'Crashlytics upload phase reference',
+  );
+}
+
 function wireFramework(content, [name, buildId, refId]) {
   const state = frameworkWiringState(content, name);
   assertWiringState(state, name);
@@ -297,6 +345,7 @@ export function patchPbxproj(content, manifest, { googleServicePresent = false }
   if (!googleServicePresent && googleState === 'wired') {
     throw new Error(`${FIREBASE_PLIST} is wired but missing on disk; restore it or regenerate the project`);
   }
+  next = wireCrashlyticsUploadPhase(next, manifest);
   return ensureBuildSettings(next, manifest);
 }
 
@@ -444,6 +493,9 @@ function validateManifest(manifest, issues) {
   if (new Set(manifest.ios?.swiftSources ?? []).size !== (manifest.ios?.swiftSources ?? []).length) issues.push('shell manifest swiftSources must be unique');
   for (const source of manifest.ios?.swiftSources ?? []) if (!nativeFileIds[source]) issues.push(`shell manifest swift source has no stable PBX identity: ${source}`);
   if (manifest.ios?.privacyManifest !== 'PrivacyInfo.xcprivacy') issues.push('shell manifest privacyManifest must be PrivacyInfo.xcprivacy');
+  if (manifest.ios?.crashlyticsSymbolUpload != null && typeof manifest.ios.crashlyticsSymbolUpload !== 'boolean') {
+    issues.push('shell manifest ios.crashlyticsSymbolUpload must be a boolean when present');
+  }
 }
 
 function validateRecipeSources(recipeDir, manifest, issues) {
