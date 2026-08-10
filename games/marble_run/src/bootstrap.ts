@@ -5,6 +5,7 @@ import Phaser from 'phaser';
 import { assignWindowBindings, maybeRunInsituTour } from '@fabrikav2/testkit/testing';
 import { GameConfig } from './core/GameConfig';
 import { TEST_HARNESS_ENABLED } from './core/Constants';
+import type { MarbleRunHarness } from './testing/TestHarness';
 import { gameState } from './core/GameState';
 import { initHUD } from './ui/HUD';
 import { analytics } from './analytics/AnalyticsService';
@@ -73,6 +74,51 @@ if ((!import.meta.env.PROD || TEST_HARNESS_ENABLED) && import.meta.env.VITE_SDK_
       await new Promise((resolve) => setTimeout(resolve, 8000));
       console.log('[sdk-verifier] autocrash: firing');
       await forceCrash();
+    })();
+  }
+}
+
+// VITE_PLAYTHROUGH_LEVELS=<n> plays levels 1..n on device through the real input
+// path (hit-tested taps at rendered marble centres) and logs the outcome plus
+// every off-target tap. Deliberately OUTSIDE the verifier-automount block: that
+// pane is a DOM overlay and would win the hit-test against the board it is
+// meant to be testing.
+if (TEST_HARNESS_ENABLED) {
+  const playthroughLevels = Number(import.meta.env.VITE_PLAYTHROUGH_LEVELS ?? '');
+  if (Number.isFinite(playthroughLevels) && playthroughLevels > 0) {
+    void (async (): Promise<void> => {
+      const win = window as unknown as { __MARBLE_RUN_HARNESS__?: MarbleRunHarness };
+      // The harness installs asynchronously further down; wait rather than race.
+      for (let i = 0; i < 100 && win.__MARBLE_RUN_HARNESS__ === undefined; i += 1) {
+        await new Promise((resolve) => setTimeout(resolve, 100));
+      }
+      const harness = win.__MARBLE_RUN_HARNESS__;
+      if (!harness) {
+        console.log('[playthrough] harness unavailable');
+        return;
+      }
+      const results = await harness.playLevels(playthroughLevels);
+      console.log('[playthrough] results:', JSON.stringify(results));
+    })();
+  }
+
+  // VITE_PROBE_TAP_LEVELS="9,13,16" reports, per level, how many marbles
+  // resolve a tap at their own rendered centre to a different cell.
+  const probeLevels = String(import.meta.env.VITE_PROBE_TAP_LEVELS ?? '')
+    .split(',').map((v) => Number(v.trim())).filter((v) => Number.isFinite(v) && v > 0);
+  if (probeLevels.length > 0) {
+    void (async (): Promise<void> => {
+      const win = window as unknown as { __MARBLE_RUN_HARNESS__?: MarbleRunHarness };
+      for (let i = 0; i < 100 && win.__MARBLE_RUN_HARNESS__ === undefined; i += 1) {
+        await new Promise((resolve) => setTimeout(resolve, 100));
+      }
+      const harness = win.__MARBLE_RUN_HARNESS__;
+      if (!harness) {
+        console.log('[tapprobe] harness unavailable');
+        return;
+      }
+      const results = await harness.probeTapTargets(probeLevels);
+      console.log('[tapprobe] results:', JSON.stringify(results));
     })();
   }
 }

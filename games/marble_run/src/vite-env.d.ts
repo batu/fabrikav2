@@ -7,6 +7,8 @@ interface ImportMetaEnv {
   readonly VITE_SDK_VERIFIER_AUTOMOUNT?: string;
   readonly VITE_SDK_VERIFIER_AUTOPRELOAD?: string;
   readonly VITE_SDK_VERIFIER_AUTOCRASH?: string;
+  readonly VITE_PLAYTHROUGH_LEVELS?: string;
+  readonly VITE_PROBE_TAP_LEVELS?: string;
   readonly VITE_FTD_FORCE_CANVAS?: string;
   readonly VITE_FTD_SIM_AUTOPLAY?: string;
   readonly VITE_FTD_DISABLE_REMOTE_CONFIG?: string;

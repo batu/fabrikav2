@@ -4,6 +4,7 @@ import { gameState, type CompletionTransaction, type GameSettings, type WalletSn
 import { GAMEPLAY, TIMING } from '../core/Constants';
 import { LEVEL_COUNT } from '../three/constants';
 import { GameScene } from '../scenes/GameScene';
+import type { MarbleTapTarget } from '../gameplay/GameplayController';
 import { loadLevel, packageCacheSnapshot as getPackageCacheSnapshot, runtimeSequenceSnapshot as getRuntimeSequenceSnapshot, type LevelData } from '../data/levels';
 import type { RuntimeSequenceResolution } from '../sequence/runtimeSequence';
 import type { planRollingPackageRetention } from '../data/levelPackageCache';
@@ -72,6 +73,40 @@ const START_LEVEL_TARGET_MAX_POLLS = 160;
 const TERMINAL_TARGET_POLL_MS = 50;
 const TERMINAL_TARGET_MAX_POLLS = 160;
 const LOSE_LIFE_SETTLE_MS = TIMING.PENALTY_COOLDOWN_MS + 20;
+// playLevel(): real taps at real screen points, so it runs at normal speed and
+// needs headroom for marble travel between taps.
+const PLAY_LEVEL_MAX_TAPS = 200;
+const PLAY_LEVEL_TAP_INTERVAL_MS = 260;
+
+export type PlayLevelOutcome = 'win' | 'fail' | 'exhausted' | 'unavailable';
+
+export interface TapProbeEntry {
+  level: number;
+  started: boolean;
+  marbles: number;
+  offTarget: number;
+  offTargetRows: number[];
+  topRowY: number | null;
+  /** Usable tap span above/below each top-row marble's rendered centre, px. */
+  topRowSpans: { up: number; down: number }[];
+  bottomRowSpans: { up: number; down: number }[];
+}
+
+export interface PlayLevelsEntry extends PlayLevelResult {
+  level: number;
+  started: boolean;
+}
+
+export interface PlayLevelResult {
+  outcome: PlayLevelOutcome;
+  taps: number;
+  /** Taps whose resolved cell differed from the marble actually tapped. */
+  offTarget: MarbleTapTarget[];
+}
+
+function sameHarnessCell(a: { x: number; y: number }, b: { x: number; y: number }): boolean {
+  return a.x === b.x && a.y === b.y;
+}
 
 const sleep = (ms: number): Promise<void> =>
   new Promise((resolve) => window.setTimeout(resolve, ms));
@@ -245,6 +280,16 @@ export interface MarbleRunHarness extends GameHarness<MarbleRunVerb> {
     winLevel: { run: () => Promise<boolean> };
     failLevel: { run: () => Promise<boolean> };
   };
+  /** Where every marble renders and which cell a tap there actions. */
+  marbleTapTargets(): MarbleTapTarget[];
+  /** Real hit-tested tap at a marble's rendered centre. */
+  tapMarbleAt(marbleId: number): boolean;
+  /** Play a level through the real input path; reports off-target taps. */
+  playLevel(maxTaps?: number): Promise<PlayLevelResult>;
+  /** Play levels 1..count in order, each through the real input path. */
+  playLevels(count: number): Promise<PlayLevelsEntry[]>;
+  /** Per-level tap-targeting probe; no tapping. */
+  probeTapTargets(levels: readonly number[]): Promise<TapProbeEntry[]>;
   gotoGameScene(levelId?: string): void;
   /**
    * Start GameScene with a synthetic LevelData payload. Test-only:
@@ -713,6 +758,135 @@ export function createMarbleRunHarness(game: Phaser.Game): MarbleRunHarness {
 
     grantCoins(amount: number): void {
       gameState.grantCoins(amount, 'test');
+    },
+
+    async playLevels(count: number): Promise<PlayLevelsEntry[]> {
+      const results: PlayLevelsEntry[] = [];
+      for (let level = 1; level <= count; level += 1) {
+        // A finished level leaves its completion card over the board; the next
+        // level starts behind it and every tap lands on the overlay instead.
+        // Dismiss it through the real Next pill before playing on.
+        const nextPill = document.querySelector<HTMLElement>('.marble-win-next-standalone');
+        if (nextPill !== null) {
+          driveElementClick(nextPill);
+          await sleep(PLAY_LEVEL_TAP_INTERVAL_MS * 2);
+        }
+        const started = await startLevel(level);
+        const played = started
+          ? await harness.playLevel()
+          : { outcome: 'unavailable' as PlayLevelOutcome, taps: 0, offTarget: [] };
+        results.push({ level, started, ...played });
+      }
+      return results;
+    },
+
+    /**
+     * Start each level in turn and report every marble whose rendered centre
+     * resolves to a different cell — tap-targeting truth, with no tapping.
+     */
+    async probeTapTargets(levels: readonly number[]): Promise<TapProbeEntry[]> {
+      const out: TapProbeEntry[] = [];
+      for (const level of levels) {
+        const nextPill = document.querySelector<HTMLElement>('.marble-win-next-standalone');
+        if (nextPill !== null) {
+          driveElementClick(nextPill);
+          await sleep(PLAY_LEVEL_TAP_INTERVAL_MS * 2);
+        }
+        const started = await startLevel(level);
+        await sleep(PLAY_LEVEL_TAP_INTERVAL_MS * 4);
+        const controller = getGameScene()?.getGameplayControllerForTest();
+        const targets = controller?.marbleTapTargets() ?? [];
+        const offTarget = targets.filter((t) => !t.onTarget);
+        const topRowY = targets.length > 0 ? Math.min(...targets.map((t) => t.cell.y)) : null;
+        const bottomRowY = targets.length > 0 ? Math.max(...targets.map((t) => t.cell.y)) : null;
+        // Tapping the exact centre resolves correctly everywhere; the reported
+        // defect is that the region AROUND it is biased downward. Measure the
+        // usable span above/below centre on the top row, and the bottom row as
+        // a control.
+        const spanFor = (row: number | null): { up: number; down: number }[] =>
+          row === null
+            ? []
+            : targets
+              .filter((t) => t.cell.y === row)
+              .slice(0, 5)
+              .map((t) => controller?.marbleHitSpan(t.marbleId) ?? { up: -1, down: -1 });
+        out.push({
+          level,
+          started,
+          marbles: targets.length,
+          offTarget: offTarget.length,
+          offTargetRows: [...new Set(offTarget.map((t) => t.cell.y))].sort((a, b) => a - b),
+          topRowY,
+          topRowSpans: spanFor(topRowY),
+          bottomRowSpans: spanFor(bottomRowY),
+        });
+      }
+      return out;
+    },
+
+    /** Where every marble renders, and which cell a tap there actually actions. */
+    marbleTapTargets(): MarbleTapTarget[] {
+      return getGameScene()?.getGameplayControllerForTest()?.marbleTapTargets() ?? [];
+    },
+
+    /**
+     * Tap a marble the way a player does: a real hit-tested pointer/touch pair
+     * at its rendered centre. The win drive calls controller.tapCell() instead,
+     * which skips hit-testing and projection entirely — which is exactly why a
+     * tap-targeting offset has never once failed an automated run.
+     */
+    tapMarbleAt(marbleId: number): boolean {
+      const target = harness.marbleTapTargets().find((t) => t.marbleId === marbleId);
+      if (!target) return false;
+      const { hitTarget } = driveInputAt(target.client);
+      return hitTarget !== null;
+    },
+
+    /**
+     * Play a level through the real input path: repeatedly tap the rendered
+     * centre of a movable marble until the level ends. Returns what happened
+     * plus every off-target tap seen on the way, so a playthrough reports tap
+     * defects instead of silently routing around them.
+     */
+    async playLevel(maxTaps: number = PLAY_LEVEL_MAX_TAPS): Promise<PlayLevelResult> {
+      const controller = getGameScene()?.getGameplayControllerForTest();
+      if (!controller) return { outcome: 'unavailable', taps: 0, offTarget: [] };
+      const offTarget: MarbleTapTarget[] = [];
+      for (let i = 0; i < maxTaps; i += 1) {
+        const snapshot = driveSnapshot();
+        if (pixelsmithStatePredicates.win(snapshot)) return { outcome: 'win', taps: i, offTarget };
+        if (marbleRunDrivePredicates.fail(snapshot)) return { outcome: 'fail', taps: i, offTarget };
+        const state = controller.snapshot();
+        // Level 1 gates every tap to the tutorial cell (GameplayController
+        // pulses the hint and swallows anything else), and taps before
+        // inputReady are dropped outright — a playthrough that ignores either
+        // just burns its tap budget.
+        if (state.inputReady !== true || state.animating === true) {
+          await sleep(PLAY_LEVEL_TAP_INTERVAL_MS);
+          continue;
+        }
+        const movableCells = controller.engineRef()?.movableMarbles() ?? [];
+        if (movableCells.length === 0) {
+          await sleep(PLAY_LEVEL_TAP_INTERVAL_MS);
+          continue;
+        }
+        const targets = controller.marbleTapTargets();
+        const tutorialTarget = state.tutorialTarget as { x: number; y: number } | null;
+        const next = tutorialTarget
+          ? targets.find((t) => sameHarnessCell(t.cell, tutorialTarget))
+          : targets.find((t) => movableCells.some((m) => sameHarnessCell(m.cell, t.cell)));
+        if (!next) {
+          await sleep(PLAY_LEVEL_TAP_INTERVAL_MS);
+          continue;
+        }
+        if (!next.onTarget) offTarget.push(next);
+        driveInputAt(next.client);
+        await sleep(PLAY_LEVEL_TAP_INTERVAL_MS);
+      }
+      const settled = driveSnapshot();
+      if (pixelsmithStatePredicates.win(settled)) return { outcome: 'win', taps: maxTaps, offTarget };
+      if (marbleRunDrivePredicates.fail(settled)) return { outcome: 'fail', taps: maxTaps, offTarget };
+      return { outcome: 'exhausted', taps: maxTaps, offTarget };
     },
 
     gotoGameScene(levelId?: string): void {
