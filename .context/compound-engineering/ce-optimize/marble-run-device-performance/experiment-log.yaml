@@ -87,6 +87,39 @@ experiments:
     primary_delta: "+3 ms regression"
     structural_delta: "-365 draw calls; no triangle change"
     learnings: On the iPhone 12, instancing shadow-casting blocked-cell meshes reduced submissions but made sustained frame time materially worse; draw-call count alone is not the authority.
+  - iteration: 3
+    batch: 3
+    hypothesis: Use mobile-appropriate 20x12 sphere tessellation for small marbles and blocked caps to reduce visible GPU geometry without changing their screen-space silhouette.
+    category: rendering
+    outcome: kept
+    changes:
+      - file: games/marble_run/src/three/ModelerSpec.ts
+        summary: Support explicit width and height segments for sphere parts.
+      - file: games/marble_run/src/three/specs/sugar3d-marble-core.json
+        summary: Set the marble core to 20x12 sphere segments.
+      - file: games/marble_run/src/three/specs/sugar3d-plug-cap.json
+        summary: Set the blocked porcelain cap to 20x12 sphere segments.
+      - file: games/marble_run/src/three/ModelerSpec.test.ts
+        summary: Verify explicit sphere tessellation reaches the generated geometry.
+    gates:
+      levels_profiled: 6
+      draw_calls: 643
+      triangles: 78426
+      frames_min: 718
+    gates_passed: true
+    diagnostics:
+      p95_ms: 19
+      worst_ms: 21
+      p50_ms: 17
+      draw_calls: 643
+      triangles: 78426
+      frames_min: 718
+      level_68_p95_ms: 18
+      level_68_draw_calls: 643
+      level_68_triangles: 78426
+    primary_delta: "0 ms"
+    structural_delta: "-40040 visible triangles on level 68"
+    learnings: Mobile sphere LOD preserved hot-run frame time while cutting another 34 percent of the remaining submitted geometry; physical visual acceptance remains required.
 baseline:
   timestamp: 2026-08-10T12:36:58Z
   repeats: 3
@@ -126,13 +159,13 @@ baseline:
   thermal_observation: Consecutive hot runs drove level 68 from 715 frames at 18 ms p95 to 666-670 frames at 22 ms p95.
   noise_warning: Primary range is 2 ms under sustained load; require a median win above 2 ms or pair it with an exact structural reduction.
 best:
-  iteration: 1
+  iteration: 3
   metrics:
     p95_ms: 19
-    worst_ms: 22
+    worst_ms: 21
     p50_ms: 17
     draw_calls: 643
-    triangles: 118466
+    triangles: 78426
 hypothesis_backlog:
   - description: Batch visually identical marble meshes with instancing to collapse per-marble draw calls.
     category: rendering

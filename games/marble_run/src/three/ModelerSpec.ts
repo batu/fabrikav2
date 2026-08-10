@@ -126,7 +126,11 @@ function geometryForPart(part: ModelerSpecPart): THREE.BufferGeometry {
         dims.segments ?? 24,
       );
     case 'sphere':
-      return new THREE.SphereGeometry(dims.radius ?? 0.5, 24, 16);
+      return new THREE.SphereGeometry(
+        dims.radius ?? 0.5,
+        dims.widthSegments ?? 24,
+        dims.heightSegments ?? 16,
+      );
     case 'cone':
       return new THREE.ConeGeometry(dims.radius ?? 0.5, dims.height ?? 1, dims.segments ?? 24);
     case 'torus':

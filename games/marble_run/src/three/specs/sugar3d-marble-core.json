@@ -20,7 +20,9 @@
       "id": "core",
       "prim": "sphere",
       "dims": {
-        "radius": 0.36
+        "radius": 0.36,
+        "widthSegments": 20,
+        "heightSegments": 12
       },
       "swatch": "P5",
       "cell": [

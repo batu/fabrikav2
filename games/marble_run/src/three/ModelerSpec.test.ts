@@ -21,4 +21,18 @@ describe('buildModelerSpec', () => {
     expect(model.getObjectByName('visible')?.visible).toBe(true);
     expect(model.getObjectByName('transparent')?.visible).toBe(false);
   });
+
+  it('honors mobile sphere segment counts', () => {
+    const model = buildModelerSpec({
+      parts: [{
+        id: 'sphere',
+        prim: 'sphere',
+        dims: { radius: 0.36, widthSegments: 20, heightSegments: 12 },
+        cell: [0, 0],
+      }],
+    });
+    const sphere = model.getObjectByName('sphere') as THREE.Mesh;
+
+    expect(sphere.geometry.index?.count).toBe(1320);
+  });
 });
