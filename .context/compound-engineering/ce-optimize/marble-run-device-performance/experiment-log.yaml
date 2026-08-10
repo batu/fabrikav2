@@ -149,6 +149,48 @@ experiments:
     primary_delta: "-708 idle renders per 12 seconds (-98.3 percent)"
     structural_delta: "Static WebGL cadence reduced from 60 fps to 1 fps; active visuals remain requestAnimationFrame-driven."
     learnings: Sparse 4 fps and 30 fps schedules exposed render-cost spikes in rAF p95. One static recovery render per second removed sustained GPU work while keeping p95 at 17-18 ms.
+  - iteration: 5
+    batch: 5
+    hypothesis: Request the browser's low-power GPU path to reduce sustained thermal cost without changing the scene.
+    category: rendering
+    outcome: rejected
+    changes:
+      - file: games/marble_run/src/three/Stage.ts
+        summary: Temporarily changed WebGL powerPreference to low-power; restored after measurement.
+    gates:
+      levels_profiled: 6
+      idle_renders_per_12s: 12
+      p95_ms: 18
+    gates_passed: true
+    diagnostics:
+      worst_ms: 46
+      draw_calls: 643
+      triangles: 78426
+      frames_min: 718
+    primary_delta: "0 ms p95; +14 ms worst-frame regression"
+    structural_delta: "No render, draw-call, or triangle reduction."
+    learnings: The iPhone did not expose a measurable benefit from the low-power WebGL preference, and its worst sampled frame regressed.
+  - iteration: 6
+    batch: 6
+    hypothesis: Halve the directional-light shadow map dimensions to reduce shadow fill cost on dense late-game boards.
+    category: rendering
+    outcome: rejected
+    changes:
+      - file: games/marble_run/src/three/Stage.ts
+        summary: Temporarily reduced the shadow map from 1024 to 512; restored after device measurement and capture.
+    gates:
+      levels_profiled: 6
+      idle_renders_per_12s: 12
+      p95_ms: 18
+    gates_passed: true
+    diagnostics:
+      draw_calls: 643
+      triangles: 78426
+      frames_min: 718
+      visual_capture: games/marble_run/docs/evidence/2026-08-11-shadow-512/raw-captures/level.png
+    primary_delta: "0 ms"
+    structural_delta: "No submitted-work reduction; only shadow texture resolution changed."
+    learnings: A smaller shadow target produced no device-measured frame-time or render-count gain and spends visual fidelity budget for no proven benefit.
 baseline:
   timestamp: 2026-08-10T12:36:58Z
   repeats: 3

@@ -945,6 +945,27 @@ export function createMarbleRunHarness(game: Phaser.Game): MarbleRunHarness {
       const settled = driveSnapshot();
       if (pixelsmithStatePredicates.win(settled)) return { outcome: 'win', taps: maxTaps, offTarget };
       if (marbleRunDrivePredicates.fail(settled)) return { outcome: 'fail', taps: maxTaps, offTarget };
+      const finalState = controller.snapshot();
+      const finalMovable = controller.engineRef()?.movableMarbles() ?? [];
+      const finalTargets = controller.marbleTapTargets();
+      const firstMovableTarget = finalTargets.find((target) => (
+        finalMovable.some((marble) => sameHarnessCell(marble.cell, target.cell))
+      ));
+      const finalHit = firstMovableTarget
+        ? document.elementFromPoint(firstMovableTarget.client.x, firstMovableTarget.client.y)
+        : null;
+      console.log('[playthrough] exhausted diagnostics:', JSON.stringify({
+        remaining: finalState.remaining,
+        status: finalState.status,
+        inputReady: finalState.inputReady,
+        animating: finalState.animating,
+        spawningMarbles: finalState.spawningMarbles,
+        movable: finalMovable.length,
+        targets: finalTargets.length,
+        firstMovableTarget: firstMovableTarget?.cell ?? null,
+        firstMovableHit: describeElement(finalHit),
+        firstMovableHitHtml: finalHit instanceof HTMLElement ? finalHit.outerHTML.slice(0, 300) : null,
+      }));
       return { outcome: 'exhausted', taps: maxTaps, offTarget };
     },
 

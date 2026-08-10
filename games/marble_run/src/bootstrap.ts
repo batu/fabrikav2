@@ -11,7 +11,6 @@ import { initHUD } from './ui/HUD';
 import { analytics } from './analytics/AnalyticsService';
 import { attribution, configureAttributionStartupGate } from './attribution/AttributionService';
 import { initializeAdsForGameplay } from './ads/Service';
-import { configureAdService } from './ads/Service';
 import { DisabledAdProvider } from './ads/DisabledAdProvider';
 import { createSdkContext, getSdkContext, installSdkContext } from './sdk/SdkContext';
 import { initializeCohort } from './data/cohortContext';
@@ -50,13 +49,23 @@ const automatedDeviceProbe = TEST_HARNESS_ENABLED && [
 // Compose the SDK providers (ads / attribution / meta / analytics sinks) from
 // env config before any consumer fires an init or event. Off is a first-class
 // Disabled* state, so this is safe with an empty env.
-installSdkContext(createSdkContext());
+const composedSdkContext = createSdkContext();
 if (automatedDeviceProbe) {
-  configureAdService(new DisabledAdProvider('ads disabled during automated device probes'));
+  const disabledAds = new DisabledAdProvider('ads disabled during automated device probes');
+  // Install the disabled provider into BOTH ad access paths. Replacing only the
+  // Service facade leaves getSdkContext().ads pointing at the live provider,
+  // which can later initialize and display a real ad during a probe.
+  installSdkContext({
+    ...composedSdkContext,
+    ads: disabledAds,
+    selection: { ...composedSdkContext.selection, ads: disabledAds.providerName },
+  });
   // Tours must exercise the normal ad-enabled product surfaces without ever
   // invoking an ad SDK. This also repairs stale false values persisted by older
   // probe builds when their scripted state was subsequently saved.
   gameState.settings.adsEnabled = true;
+} else {
+  installSdkContext(composedSdkContext);
 }
 void analytics.init();
 void getSdkContext().meta.init();
@@ -66,7 +75,9 @@ remoteConfigService.init();
 // Build-time automount for device evidence capture: a dev/harness build with
 // VITE_SDK_VERIFIER_AUTOMOUNT=true shows the SDK verifier pane at launch, so
 // screenshots need no tap choreography. Same gate as the 4-tap path.
-if ((!import.meta.env.PROD || TEST_HARNESS_ENABLED) && import.meta.env.VITE_SDK_VERIFIER_AUTOMOUNT === 'true') {
+if (!automatedDeviceProbe
+  && (!import.meta.env.PROD || TEST_HARNESS_ENABLED)
+  && import.meta.env.VITE_SDK_VERIFIER_AUTOMOUNT === 'true') {
   void import('./devtools/SdkVerifierMount').then(({ toggleSdkVerifierPane }): void => {
     toggleSdkVerifierPane(getSdkContext());
   });
@@ -219,7 +230,7 @@ game.events.once('destroy', (): void => {
 });
 
 if (typeof window !== 'undefined') {
-  if (!import.meta.env.PROD || TEST_HARNESS_ENABLED) {
+  if (!automatedDeviceProbe && (!import.meta.env.PROD || TEST_HARNESS_ENABLED)) {
     releaseSdkVerifierGesture = installSdkVerifierGesture(window, (): void => {
       if (sdkVerifierTogglePending) return;
       sdkVerifierTogglePending = true;
