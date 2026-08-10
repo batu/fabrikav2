@@ -161,7 +161,9 @@ installGameLifecycle(game);
 // NotificationService module + its user-initiated settings toggle stay dormant
 // plumbing — no install()/maybePromptOnLaunch() at boot, so no OS permission
 // prompt fires. Re-enabling retention reminders is a deferred later-wave call.
-const shouldInitializeAds = gameState.settings.adsEnabled && !gameState.hasNoAdsEntitlement;
+const shouldInitializeAds = !automatedDeviceProbe
+  && gameState.settings.adsEnabled
+  && !gameState.hasNoAdsEntitlement;
 const adConsentReady = shouldInitializeAds ? initializeAdsForGameplay() : Promise.resolve();
 configureAttributionStartupGate(adConsentReady);
 void adConsentReady
