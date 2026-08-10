@@ -1,0 +1,53 @@
+spec: marble-run-device-performance
+run_id: 2026-08-10T12:20:38Z
+started_at: 2026-08-10T12:20:38Z
+baseline:
+  timestamp: 2026-08-10T12:23:43Z
+  repeats: 3
+  aggregation: median
+  raw_primary: [19, 20, 19]
+  primary_range: 1
+  gates:
+    levels_profiled: 3
+    draw_calls: 313
+    triangles: 92998
+    frames_min: 718
+  diagnostics:
+    p95_ms: 19
+    worst_ms: 27
+    p50_ms: 17
+    draw_calls: 313
+    triangles: 92998
+    frames_min: 718
+    level_1_p95_ms: 18
+    level_13_p95_ms: 18
+    level_20_p95_ms: 19
+    level_1_draw_calls: 51
+    level_13_draw_calls: 182
+    level_20_draw_calls: 313
+    level_1_triangles: 12826
+    level_13_triangles: 53094
+    level_20_triangles: 92998
+  noise_warning: Primary range is 1 ms, above the 0.75 ms threshold; require at least a 1 ms median win and prefer exact structural diagnostics.
+experiments: []
+best:
+  iteration: 0
+  metrics:
+    p95_ms: 19
+    worst_ms: 27
+    draw_calls: 313
+    triangles: 92998
+hypothesis_backlog:
+  - description: Batch visually identical marble meshes with instancing to collapse per-marble draw calls.
+    category: rendering
+    priority: high
+    dep_status: not_applicable
+    required_deps: []
+  - description: Share immutable marble geometry and materials where instancing is incompatible with gameplay animation.
+    category: allocation
+    priority: medium
+    dep_status: not_applicable
+    required_deps: []
+parallel_readiness:
+  mode: serial
+  reason: Every measurement installs to and exclusively controls the same physical iPhone 12.
