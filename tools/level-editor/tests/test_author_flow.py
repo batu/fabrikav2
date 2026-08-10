@@ -27,6 +27,7 @@ def _script() -> dict:
         "/api/sessions/auth_1/select-bg": {"selectedBgIndex": 0},
         "/api/sessions/auth_1/auto-hitboxes": {"hitboxes": [{"x": 1, "y": 1, "r": 26}] * 20},
         "/api/sessions/auth_1/inpaint/jobs": {"jobId": "j1"},
+        "/api/sessions/auth_1/hitbox-review": {"approved": True, "current": True},
         "/api/sessions/auth_1/sprite-gaps": {"missing": []},
         "/api/sessions/auth_1/fix-hitboxes": {"moved": []},
         "/api/sessions/auth_1/approve-catalog": {"ok": True},
@@ -53,7 +54,7 @@ def test_full_flow_runs_every_step_in_order(monkeypatch, capsys):
     assert code == 0, out
     steps = [entry["step"] for entry in json.loads(out)["trace"]]
     assert steps == ["create", "generate-bg", "select-bg", "upscale", "auto-hitboxes",
-                     "inpaint", "repair-sprites", "fix-hitboxes", "export"]
+                     "inpaint", "hitbox-review-checkpoint", "repair-sprites", "fix-hitboxes", "export"]
 
 
 def test_stop_after_truncates_the_flow(monkeypatch, capsys):
@@ -64,6 +65,21 @@ def test_stop_after_truncates_the_flow(monkeypatch, capsys):
     steps = [entry["step"] for entry in json.loads(out)["trace"]]
     assert steps == ["create", "generate-bg", "select-bg"]
     assert not any("inpaint" in path for _, path in stub.calls)
+
+
+def test_author_stops_for_human_hitbox_review_before_cutout_repairs(monkeypatch, capsys):
+    script = _script()
+    script["/api/sessions/auth_1/hitbox-review"] = {"approved": False, "current": False}
+    stub = _StubClient(script)
+
+    code, out = _run(monkeypatch, capsys, stub, ["author", "--template", "t1", "--force-disk"])
+
+    assert code == 2
+    payload = json.loads(out)
+    assert payload["error"]["code"] == "human_review_required"
+    assert payload["error"]["stage"] == "hitbox-review-checkpoint"
+    assert "--start-from hitbox-review-checkpoint" in payload["error"]["message"]
+    assert not any("sprite-gaps" in path for _, path in stub.calls)
 
 
 def test_existing_session_is_reused_not_recreated(monkeypatch, capsys):

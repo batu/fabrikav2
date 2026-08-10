@@ -3646,6 +3646,7 @@ def materialize_detection_sprites(
         })
     raw["dogs"] = dogs
     save_session(session_id, raw)
+    sync_active_sprite_set_to_levels(session_id, dogs, hitboxes)
     return {
         "sessionId": session_id,
         "materialized": len(materialized),
@@ -3658,6 +3659,109 @@ def materialize_detection_sprites(
         "flatkeyCount": flatkey_count,
         "degradedToFreeChain": max(0, len(pending) - flatkey_count),
     }
+
+
+def sync_active_sprite_set_to_levels(
+    session_id: str,
+    dogs: list[dict],
+    hitboxes: list[dict],
+) -> None:
+    """Rebuild level birds from current hitboxes and active sprite sidecars."""
+    sprite_metadata = active_sprite_metadata_map(session_id, dogs, hitboxes)
+    public_root = GAME_PUBLIC_LEVELS / session_id
+    if (public_root / "level.json").is_file():
+        for dog in dogs:
+            index = dog.get("index") if isinstance(dog, dict) else None
+            variant = dog.get("activeVariant") if isinstance(dog, dict) else None
+            if not isinstance(index, int) or not isinstance(variant, int):
+                continue
+            source_dir = dogs_dir(session_id) / f"dog_{index:02d}"
+            target_dir = public_root / "dogs" / f"dog_{index:02d}"
+            target_dir.mkdir(parents=True, exist_ok=True)
+            for source in (
+                source_dir / f"sprite_{variant:03d}.png",
+                source_dir / f"sprite_mask_{variant:03d}.png",
+                source_dir / f"sprite_{variant:03d}.json",
+                source_dir / f"variant_{variant:03d}.png",
+                source_dir / f"variant_{variant:03d}.box.json",
+            ):
+                if source.is_file():
+                    shutil.copy2(source, target_dir / source.name)
+    for root in (session_dir(session_id), GAME_PUBLIC_LEVELS / session_id):
+        level_path = root / "level.json"
+        if not level_path.is_file():
+            continue
+        level = json.loads(level_path.read_text())
+        level["dogs"] = [
+            {
+                "id": f"dog_{index:02d}",
+                "x": hitbox["x"],
+                "y": hitbox["y"],
+                "r": hitbox.get("r", hitbox.get("radius", 30)),
+                **({"difficulty": "hard"} if str(hitbox.get("difficulty") or "").lower() == "hard" else {}),
+                **({"sprite": sprite_metadata[index]} if index in sprite_metadata else {}),
+            }
+            for index, hitbox in enumerate(hitboxes)
+        ]
+        temporary = level_path.with_suffix(level_path.suffix + ".tmp")
+        temporary.write_text(json.dumps(level, indent=2) + "\n")
+        temporary.replace(level_path)
+
+
+def sync_sprite_metadata_to_levels(
+    session_id: str,
+    dog_index: int,
+    variant_index: int,
+    metadata: dict[str, Any],
+) -> None:
+    """Keep authoring and exported level geometry aligned with a sprite sidecar."""
+    box = metadata.get("spriteBox")
+    if not (isinstance(box, list) and len(box) == 4):
+        return
+    cleanup = metadata.get("cleanupBox") or box
+    if not (isinstance(cleanup, list) and len(cleanup) == 4):
+        cleanup = box
+    x0, y0, x1, y1 = [int(value) for value in box]
+    cx0, cy0, cx1, cy1 = [int(value) for value in cleanup]
+    raw = load_session_raw(session_id) or {}
+    stable_id = next((
+        dog.get("id")
+        for dog in raw.get("dogs") or []
+        if isinstance(dog, dict) and dog.get("index") == dog_index
+    ), None)
+    for root in (session_dir(session_id), GAME_PUBLIC_LEVELS / session_id):
+        level_path = root / "level.json"
+        if not level_path.is_file():
+            continue
+        level = json.loads(level_path.read_text())
+        level_dogs = level.get("dogs") or []
+        level_dog = next((
+            dog for dog in level_dogs
+            if isinstance(dog, dict) and stable_id is not None and dog.get("id") == stable_id
+        ), None)
+        if level_dog is None and 0 <= dog_index < len(level_dogs):
+            level_dog = level_dogs[dog_index]
+        if not isinstance(level_dog, dict):
+            continue
+        level_dog["sprite"] = {
+            **(level_dog.get("sprite") or {}),
+            "image": f"levels/{session_id}/dogs/dog_{dog_index:02d}/sprite_{variant_index:03d}.png",
+            "x": x0,
+            "y": y0,
+            "width": x1 - x0,
+            "height": y1 - y0,
+            "anchorX": float(metadata.get("anchorX", 0.5)),
+            "anchorY": float(metadata.get("anchorY", 0.5)),
+            "cleanup": {
+                "x": cx0,
+                "y": cy0,
+                "width": cx1 - cx0,
+                "height": cy1 - cy0,
+            },
+        }
+        temporary = level_path.with_suffix(level_path.suffix + ".tmp")
+        temporary.write_text(json.dumps(level, indent=2) + "\n")
+        temporary.replace(level_path)
 
 
 def finalize_one_shot_from_detections(

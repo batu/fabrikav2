@@ -27,6 +27,8 @@ interface Props {
   hitboxes: Hitbox[];
   dogs: DogState[];
   onDogComplete: (dogIndex: number, file: string, variantIndex: number) => void;
+  onCutoutsChanged?: () => void;
+  onPlacementPendingChanged?: (pending: boolean) => void;
   expanded?: boolean;
 }
 
@@ -307,6 +309,8 @@ export default function CutoutReviewPanel({
   hitboxes,
   dogs,
   onDogComplete,
+  onCutoutsChanged,
+  onPlacementPendingChanged,
   expanded = false,
 }: Props) {
   const cutoutModels = useMemo(() => models.filter((model) => !model.id.startsWith('fal-ai/')), [models]);
@@ -340,6 +344,7 @@ export default function CutoutReviewPanel({
   const dragRef = useRef<{ candidateId: string; mode: ControlMode; startX: number; startY: number; box: CropBox } | null>(null);
   const draggedCandidateRef = useRef<string | null>(null);
   const placementSaveTimers = useRef(new Map<string, number>());
+  const placementSavesInFlight = useRef(new Set<string>());
 
   dogsRef.current = dogs;
   currentSessionRef.current = sessionId;
@@ -430,6 +435,7 @@ export default function CutoutReviewPanel({
       setCandidates((current) => current.map((item) => (
         item.id === candidate.id ? { ...item, humanConfirmed: confirmed } : item
       )));
+      onCutoutsChanged?.();
     } catch (err) {
       if (currentSessionRef.current !== saveSessionId || confirmationRunIds.current.get(candidate.id) !== saveRunId) return;
       setError(err instanceof Error ? err.message : String(err));
@@ -438,7 +444,7 @@ export default function CutoutReviewPanel({
         setSavingConfirmation(null);
       }
     }
-  }, [sessionId]);
+  }, [onCutoutsChanged, sessionId]);
 
   const toggleCandidate = useCallback((candidate: SpriteCandidate) => {
     setReview((prev) => {
@@ -464,6 +470,8 @@ export default function CutoutReviewPanel({
     const pending = placementSaveTimers.current.get(candidate.id);
     if (pending !== undefined) window.clearTimeout(pending);
     placementSaveTimers.current.delete(candidate.id);
+    placementSavesInFlight.current.add(candidate.id);
+    onPlacementPendingChanged?.(true);
     setSavingPlacement(candidate.id);
     setError(null);
     try {
@@ -474,15 +482,20 @@ export default function CutoutReviewPanel({
       )));
       setPlacementBoxes((current) => ({ ...current, [candidate.id]: saved.spriteBox }));
       setLastResult(`${candidateLabel(candidate)} placement saved`);
+      onCutoutsChanged?.();
     } catch (err) {
       if (currentSessionRef.current !== saveSessionId || placementSaveRunIds.current.get(candidate.id) !== saveRunId) return;
       setError(err instanceof Error ? err.message : String(err));
     } finally {
       if (currentSessionRef.current === saveSessionId && placementSaveRunIds.current.get(candidate.id) === saveRunId) {
+        placementSavesInFlight.current.delete(candidate.id);
         setSavingPlacement(null);
+        if (placementSaveTimers.current.size === 0 && placementSavesInFlight.current.size === 0) {
+          onPlacementPendingChanged?.(false);
+        }
       }
     }
-  }, [sessionId]);
+  }, [onCutoutsChanged, onPlacementPendingChanged, sessionId]);
 
   const setPlacementBox = useCallback((candidate: SpriteCandidate, hitbox: Hitbox, box: CropBox) => {
     const target = candidateTarget(candidate, hitbox);
@@ -494,32 +507,38 @@ export default function CutoutReviewPanel({
     const y1 = Math.min(height, Math.max(Math.round(target.y), Math.round(box[3])));
     const next: CropBox = [x0, y0, x1, y1];
     setPlacementBoxes((prev) => ({ ...prev, [candidate.id]: next }));
+    onPlacementPendingChanged?.(true);
     const pending = placementSaveTimers.current.get(candidate.id);
     if (pending !== undefined) window.clearTimeout(pending);
     placementSaveTimers.current.set(candidate.id, window.setTimeout(() => {
       placementSaveTimers.current.delete(candidate.id);
       void savePlacement(candidate, next);
     }, 1000));
-  }, [savePlacement]);
+  }, [onPlacementPendingChanged, savePlacement]);
 
   const resetPlacement = useCallback((candidateId: string) => {
     const pending = placementSaveTimers.current.get(candidateId);
     if (pending !== undefined) window.clearTimeout(pending);
     placementSaveTimers.current.delete(candidateId);
+    if (placementSaveTimers.current.size === 0 && placementSavesInFlight.current.size === 0) {
+      onPlacementPendingChanged?.(false);
+    }
     setPlacementBoxes((prev) => {
       const next = { ...prev };
       delete next[candidateId];
       return next;
     });
-  }, []);
+  }, [onPlacementPendingChanged]);
 
   useEffect(() => () => {
     for (const timer of placementSaveTimers.current.values()) window.clearTimeout(timer);
     placementSaveTimers.current.clear();
+    placementSavesInFlight.current.clear();
+    onPlacementPendingChanged?.(false);
     placementSaveRunIds.current.clear();
     confirmationRunIds.current.clear();
     operationAbortRef.current?.abort();
-  }, [sessionId]);
+  }, [onPlacementPendingChanged, sessionId]);
 
   const runSelected = useCallback(async (operation: Operation) => {
     const targets = reviewTargets(candidates, review);
@@ -566,6 +585,7 @@ export default function CutoutReviewPanel({
       if (failures > 0) {
         setError(completed.error || `${failures} ${noun}${failures === 1 ? '' : 's'} failed`);
       }
+      if (completedVariants.size > 0) onCutoutsChanged?.();
       setLastResult(`${targets.length - failures}/${targets.length} ${noun}${targets.length === 1 ? '' : 's'} finished`);
     } catch (err) {
       if (!isAbortError(err)) setError(err instanceof Error ? err.message : String(err));
@@ -575,7 +595,7 @@ export default function CutoutReviewPanel({
         setRunningOperation(null);
       }
     }
-  }, [candidates, cropBoxes, cutoutModel, dogs, hitboxes, onDogComplete, refresh, review, runningOperation, sessionId, sharedPrompt]);
+  }, [candidates, cropBoxes, cutoutModel, dogs, hitboxes, onCutoutsChanged, onDogComplete, refresh, review, runningOperation, sessionId, sharedPrompt]);
 
   const busy = runningOperation !== null;
 

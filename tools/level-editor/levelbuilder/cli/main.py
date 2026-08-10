@@ -35,6 +35,8 @@ WIZARD_OPERATIONS: dict[str, str] = {
     "list-sprite-candidates": "sprite-candidates",
     "manual-sprite-placement": "place-sprite",
     "human-confirm-sprite": "confirm-sprite",
+    "human-review-hitboxes": "bless-hitboxes",
+    "human-review-final-cutouts": "bless-cutouts",
     "golden-review-level": "bless-level",
     "get-session": "session",
     "background-generation-job": "generate-bg",
@@ -744,7 +746,7 @@ def cmd_dogs(client: Client, args: argparse.Namespace) -> None:
 
 AUTHOR_STEPS = (
     "create", "generate-bg", "select-bg", "upscale", "auto-hitboxes",
-    "inpaint", "repair-sprites", "fix-hitboxes", "export",
+    "inpaint", "hitbox-review-checkpoint", "repair-sprites", "fix-hitboxes", "export",
 )
 
 
@@ -909,6 +911,17 @@ def cmd_author(client: Client, args: argparse.Namespace) -> None:
                 job = _require_success(_wait_for_job(client, job.get("jobId") or job.get("id"),
                                                      timeout_s=args.inpaint_timeout, quiet=True))
                 note("inpaint", job.get("result", {}))
+            elif step == "hitbox-review-checkpoint":
+                review = client.get(f"/api/sessions/{session_id}/hitbox-review") or {}
+                if review.get("approved") is not True:
+                    raise CliError(
+                        "human_review_required",
+                        "Painting is complete. Review and bless hitboxes, then resume with "
+                        f"`levelbuilder author --session-id {session_id} "
+                        "--start-from hitbox-review-checkpoint`.",
+                        stage="hitbox-review-checkpoint",
+                    )
+                note("hitbox-review-checkpoint", {"approved": True})
             elif step == "repair-sprites":
                 budget = args.max_repairs
                 regen_failures: list[dict] = []
@@ -1524,6 +1537,14 @@ def cmd_sprite_candidates(client: Client, args: argparse.Namespace) -> None:
     _emit(args, client.get(f"/api/sessions/{args.session_id}/sprite-candidates"))
 
 
+def cmd_auto_place_sprites(client: Client, args: argparse.Namespace) -> None:
+    _emit(args, client.request(
+        "POST",
+        f"/api/sessions/{args.session_id}/sprite-candidates/auto-placement",
+        json={"includeHumanConfirmed": args.include_human_confirmed},
+    ))
+
+
 def cmd_place_sprite(client: Client, args: argparse.Namespace) -> None:
     _emit(args, client.request(
         "PUT",
@@ -1533,10 +1554,26 @@ def cmd_place_sprite(client: Client, args: argparse.Namespace) -> None:
 
 
 def cmd_bless_level(client: Client, args: argparse.Namespace) -> None:
+    cmd_bless_cutouts(client, args)
+
+
+def _requested_approval(args: argparse.Namespace) -> bool:
+    return bool(getattr(args, "approved", not getattr(args, "undo", False)))
+
+
+def cmd_bless_hitboxes(client: Client, args: argparse.Namespace) -> None:
     _emit(args, client.request(
         "PUT",
-        f"/api/sessions/{args.session_id}/golden-review",
-        json={"approved": not args.undo},
+        f"/api/sessions/{args.session_id}/hitbox-review",
+        json={"approved": _requested_approval(args)},
+    ))
+
+
+def cmd_bless_cutouts(client: Client, args: argparse.Namespace) -> None:
+    _emit(args, client.request(
+        "PUT",
+        f"/api/sessions/{args.session_id}/final-cutout-review",
+        json={"approved": _requested_approval(args)},
     ))
 
 
@@ -1849,6 +1886,14 @@ def build_parser() -> argparse.ArgumentParser:
     p = verb("sprite-candidates", cmd_sprite_candidates)
     p.add_argument("session_id")
 
+    p = verb("auto-place-sprites", cmd_auto_place_sprites)
+    p.add_argument("session_id")
+    p.add_argument(
+        "--include-human-confirmed",
+        action="store_true",
+        help="allow best-safe to replace human-confirmed geometry",
+    )
+
     p = verb("place-sprite", cmd_place_sprite)
     p.add_argument("session_id")
     p.add_argument("candidate_id")
@@ -1859,6 +1904,14 @@ def build_parser() -> argparse.ArgumentParser:
     p = verb("bless-level", cmd_bless_level)
     p.add_argument("session_id")
     p.add_argument("--undo", action="store_true", help="remove golden-dataset approval")
+
+    p = verb("bless-hitboxes", cmd_bless_hitboxes)
+    p.add_argument("session_id")
+    p.add_argument("--undo", action="store_true", help="remove current hitbox approval")
+
+    p = verb("bless-cutouts", cmd_bless_cutouts)
+    p.add_argument("session_id")
+    p.add_argument("--undo", action="store_true", help="remove final cutout approval")
 
     p = verb("job", cmd_job)
     p.add_argument("job_id")

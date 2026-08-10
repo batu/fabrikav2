@@ -49,7 +49,7 @@ floor (`LEVEL_EDITOR_DISK_FLOOR_GIB`, default 5).
 
 | Verb | Does |
 |---|---|
-| `author --template T [--session-id S]` | **the whole flow in one command** (create → bg → hitboxes → inpaint → repair → recenter → export) |
+| `author --template T [--session-id S]` | resumable authoring flow; stops after painting for human hitbox blessing, then resumes through cutouts, recenter, and export |
 | `serve --game G [--port]` | run the backend for one game |
 | `doctor --game G` | server-free workspace census: orphans, stuck jobs, locks, disk |
 | `status` / `config` | server + generation status / full recipe catalog |
@@ -60,12 +60,15 @@ floor (`LEVEL_EDITOR_DISK_FLOOR_GIB`, default 5).
 | `upscale <id> [--wait]` | background upscale job |
 | `auto-hitboxes <id> [--count N] [--strategy smart] [--radius R]` | place hiding spots; shrinks the radius until they fit |
 | `set-hitboxes <id> --file F` | replace hitboxes from JSON |
+| `bless-hitboxes <id>` | approve the current hitbox geometry; required before any cutout extraction |
 | `fix-hitboxes <id> [--max-offset]` | recenter hitboxes onto painted sprites (server-side) |
 | `repair-sprites <id> [--drop-unrepairable]` | regenerate birds missing a pickup sprite; explicit drop for hopeless placements |
+| `auto-place-sprites <id>` | run best-safe placement over ready cutouts; preserves human-confirmed geometry by default |
 | `visibility-check <id>` | contrast/visibility report |
 | `inpaint <id> [--wait] [--hard-percent] [--retry-failed]` | paint all birds (durable job) |
 | `regenerate <id> --dog <stable-id>` | repaint one bird (note: stable dog id, not `dog_NN`) |
 | `cutouts <id> --dog <stable-id> [--dog ...] [--operation extract\|regenerate] [--crop-box ID=x0,y0,x1,y1] [--model M] [--wait]` | run the focused cutout flow for selected birds; both operations cut and Best-safe-place the resulting pickup sprite |
+| `bless-cutouts <id>` | final-approve current cutouts and sprite placements after hitboxes are blessed |
 | `dogs <id> [--set-active ID --variant N \| --delete ID]` | list/manage variants (`--set-active` requires `--variant`) |
 | `review <id> --out DIR` | download bg/color/eval + per-dog variants for visual inspection |
 | `watch <id>` | stream job status + session-revision changes (co-presence) |
