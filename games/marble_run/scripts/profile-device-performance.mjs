@@ -10,7 +10,9 @@ const hardwareUdid = process.env.MARBLE_RUN_HARDWARE_UDID ?? '00008101-000410EC3
 const coreDeviceId = process.env.MARBLE_RUN_CORE_DEVICE_ID ?? '2D894791-A5A3-58BE-9C88-AE0AF08B8C09';
 const bundleId = 'com.basegamelab.marblerun';
 const derivedData = process.env.MARBLE_RUN_DERIVED_DATA ?? '/private/tmp/marble-run-optimize-dd';
-const levels = process.env.MARBLE_RUN_PROFILE_LEVELS ?? '1,13,20';
+// Cover the opener, the former level-20 ceiling, the first late-game board,
+// and the three marble-count leaders across levels 21-110.
+const levels = process.env.MARBLE_RUN_PROFILE_LEVELS ?? '1,20,21,30,68,106';
 const timeoutMs = Number(process.env.MARBLE_RUN_PROFILE_TIMEOUT_MS ?? 180_000);
 
 const env = {
