@@ -58,7 +58,6 @@ void getSdkContext().meta.init();
 // Cached/compiled values are usable immediately. Refresh in the background so
 // a slow or offline Firebase request never holds the first Home scene paint.
 remoteConfigService.init();
-if (automatedDeviceProbe) gameState.settings.adsEnabled = false;
 // Build-time automount for device evidence capture: a dev/harness build with
 // VITE_SDK_VERIFIER_AUTOMOUNT=true shows the SDK verifier pane at launch, so
 // screenshots need no tap choreography. Same gate as the 4-tap path.
