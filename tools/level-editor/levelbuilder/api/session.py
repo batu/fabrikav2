@@ -41,6 +41,8 @@ from levelbuilder.prompts import SETTINGS
 from . import public_levels as PublicLevels
 from .level_schema import LevelFileV1
 
+DEFAULT_FLATKEY_GRID = 2
+
 # Legacy Japanese-Village session ids that predate the readable-id scheme
 # (2026-04-13 shipped set). Mapped to setting='japan' for grouping.
 _LEGACY_JAPAN_IDS = {
@@ -89,6 +91,7 @@ GAME_PUBLIC_LEVELS = GAME_ROOT / "public" / "levels"
 # from GAME_PUBLIC_LEVELS so monkeypatching the public root stays authoritative.
 GAME_LEVELS_INDEX = PublicLevels.levels_index_path(GAME_PUBLIC_LEVELS)
 GAME_BUNDLED_MANIFEST = PublicLevels.bundled_manifest_path(GAME_PUBLIC_LEVELS)
+ARCHIVE_LEDGER_PATH = WORKSPACE_ROOT / "state" / "archive-ledger.json"
 
 # Module-level lock for all read-modify-write operations on session.json.
 # NOTE (review P1 #5): this is OVERLOADED — it guards both per-session files
@@ -103,6 +106,42 @@ _session_lock = threading.Lock()
 # Separate manifest lock so catalog mutations can serialize without nesting the
 # session lock held by package generation and preview-manifest updates.
 _catalog_lock = threading.RLock()
+_archive_ledger_lock = threading.Lock()
+
+
+def _load_archive_ledger() -> dict[str, dict[str, Any]]:
+    try:
+        payload = json.loads(ARCHIVE_LEDGER_PATH.read_text())
+    except (FileNotFoundError, OSError, json.JSONDecodeError):
+        return {}
+    sessions = payload.get("sessions") if isinstance(payload, dict) else None
+    return sessions if isinstance(sessions, dict) else {}
+
+
+def _save_archive_ledger(sessions: dict[str, dict[str, Any]]) -> None:
+    ARCHIVE_LEDGER_PATH.parent.mkdir(parents=True, exist_ok=True)
+    tmp = ARCHIVE_LEDGER_PATH.with_suffix(f".json.tmp-{os.getpid()}-{threading.get_ident()}")
+    try:
+        tmp.write_text(json.dumps({"version": 1, "sessions": sessions}, indent=2, sort_keys=True))
+        os.replace(tmp, ARCHIVE_LEDGER_PATH)
+    finally:
+        tmp.unlink(missing_ok=True)
+
+
+def _record_archive_state(session_id: str, *, archived: bool, variants: list[str]) -> None:
+    """Persist archive intent outside disposable authoring directories."""
+    with _archive_ledger_lock:
+        sessions = _load_archive_ledger()
+        clean_variants = sorted({variant for variant in variants if isinstance(variant, str) and variant})
+        if archived or clean_variants:
+            desired = {"archived": bool(archived), "archivedVariants": clean_variants}
+            if sessions.get(session_id) == desired:
+                return
+            sessions[session_id] = desired
+        else:
+            if sessions.pop(session_id, None) is None:
+                return
+        _save_archive_ledger(sessions)
 _CATALOG_APPROVAL_REQUEST_LIMIT = 200
 _CATALOG_APPROVAL_REQUESTS: dict[str, dict[str, Any]] = {}
 _BG_FILE_RE = re.compile(r"^bg_(\d{2})\.png$")
@@ -684,6 +723,115 @@ def sprite_animation_candidates(session_id: str) -> list[dict[str, Any]]:
     return candidates
 
 
+def _box_target(data: dict[str, Any]) -> tuple[float, float] | None:
+    box = data.get("spriteBox")
+    if not (isinstance(box, list) and len(box) == 4):
+        return None
+    try:
+        anchor_x = float(data.get("anchorX", 0.5))
+        anchor_y = float(data.get("anchorY", 0.5))
+        return (
+            float(box[0]) + anchor_x * (float(box[2]) - float(box[0])),
+            float(box[1]) + anchor_y * (float(box[3]) - float(box[1])),
+        )
+    except (TypeError, ValueError):
+        return None
+
+
+def _translated_box_around_target(
+    box: list[Any], target: tuple[float, float], scene_size: tuple[int, int],
+) -> list[int]:
+    left, top, right, bottom = [int(round(float(value))) for value in box]
+    width = max(1, right - left)
+    height = max(1, bottom - top)
+    scene_width, scene_height = scene_size
+    left = max(0, min(scene_width - width, int(round(target[0] - width / 2))))
+    top = max(0, min(scene_height - height, int(round(target[1] - height / 2))))
+    return [left, top, left + width, top + height]
+
+
+def repair_cross_bird_padding(session_id: str, *, apply: bool = False) -> dict[str, Any]:
+    """Find padding boxes that cannot contain their own placed sprite target.
+
+    Padding may be asymmetric and independently sized, but it must contain the
+    bird it will extract. Hitbox reordering once preserved dog-folder indices
+    while cycling the hitbox array, leaving padding on neighboring birds. The
+    placed sprite anchor is the current human-visible authority, so repair only
+    translates the existing box; it never changes its tuned dimensions.
+    """
+    base = session_dir(session_id)
+    scene_path = base / "color.png"
+    if not scene_path.is_file():
+        return {"sessionId": session_id, "issues": [], "repaired": 0}
+    with Image.open(scene_path) as scene:
+        scene_size = scene.size
+    raw = load_session_raw(session_id) or {}
+    active_variants = {
+        int(dog["index"]): int(dog["activeVariant"])
+        for dog in raw.get("dogs", [])
+        if isinstance(dog, dict)
+        and isinstance(dog.get("index"), int)
+        and isinstance(dog.get("activeVariant"), int)
+    }
+    issues: list[dict[str, Any]] = []
+    roots = tuple(dict.fromkeys((base, GAME_PUBLIC_LEVELS / session_id)))
+    for candidate in sprite_animation_candidates(session_id):
+        dog_index = int(candidate["dogIndex"])
+        if active_variants and candidate["spriteIndex"] != active_variants.get(dog_index):
+            continue
+        cleanup = candidate.get("cleanupBox")
+        target = _box_target(candidate)
+        if not (isinstance(cleanup, list) and len(cleanup) == 4 and target):
+            continue
+        if cleanup[0] <= target[0] <= cleanup[2] and cleanup[1] <= target[1] <= cleanup[3]:
+            continue
+        repaired_box = _translated_box_around_target(cleanup, target, scene_size)
+        issue = {
+            "candidateId": candidate["id"],
+            "dogIndex": dog_index,
+            "before": cleanup,
+            "after": repaired_box,
+            "target": [round(target[0], 2), round(target[1], 2)],
+        }
+        issues.append(issue)
+        if not apply:
+            continue
+        relative = Path(str(candidate["metadataPath"]))
+        for root in roots:
+            metadata_path = root / relative
+            if not metadata_path.is_file():
+                continue
+            metadata = json.loads(metadata_path.read_text())
+            root_target = _box_target(metadata)
+            root_cleanup = metadata.get("cleanupBox")
+            if not (root_target and isinstance(root_cleanup, list) and len(root_cleanup) == 4):
+                continue
+            metadata["cleanupBox"] = _translated_box_around_target(root_cleanup, root_target, scene_size)
+            temporary = metadata_path.with_suffix(metadata_path.suffix + ".tmp")
+            temporary.write_text(json.dumps(metadata, indent=2) + "\n")
+            temporary.replace(metadata_path)
+            level_path = root / "level.json"
+            if level_path.is_file():
+                level = json.loads(level_path.read_text())
+                dogs = level.get("dogs", [])
+                if dog_index < len(dogs) and isinstance(dogs[dog_index], dict):
+                    sprite = dogs[dog_index].get("sprite")
+                    if isinstance(sprite, dict):
+                        x0, y0, x1, y1 = metadata["cleanupBox"]
+                        sprite["cleanup"] = {"x": x0, "y": y0, "width": x1 - x0, "height": y1 - y0}
+                        level_path.write_text(json.dumps(level, indent=2) + "\n")
+    if apply and issues:
+        _write_review_file(session_id, "golden-review.json", {
+            "schemaVersion": 1,
+            "reviewStage": "final-cutouts",
+            "approved": False,
+            "blessed": False,
+            "reviewedAt": None,
+            "source": "cross-bird-padding-repair",
+        })
+    return {"sessionId": session_id, "issues": issues, "repaired": len(issues) if apply else 0}
+
+
 def animation_jobs_dir(session_id: str) -> Path:
     return session_dir(session_id) / "animations" / "jobs"
 
@@ -726,6 +874,143 @@ def set_sprite_human_confirmation(session_id: str, candidate_id: str, confirmed:
     return review
 
 
+def _semantic_json_sha256(value: Any) -> str:
+    encoded = json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+    return hashlib.sha256(encoded.encode("utf-8")).hexdigest()
+
+
+def _read_review_file(session_id: str, filename: str) -> dict[str, Any] | None:
+    # Older reviews were written only to the exported public package. An
+    # editable workspace can later shadow that package, so consult both stores
+    # and let the snapshot checks below decide whether the review is current.
+    for base in dict.fromkeys((session_dir(session_id), GAME_PUBLIC_LEVELS / session_id)):
+        path = base / filename
+        if not path.is_file():
+            continue
+        try:
+            value = json.loads(path.read_text())
+        except (OSError, json.JSONDecodeError):
+            continue
+        if isinstance(value, dict):
+            return value
+    return None
+
+
+def _write_review_file(session_id: str, filename: str, review: dict[str, Any]) -> None:
+    base = session_dir(session_id)
+    for target_base in {base, GAME_PUBLIC_LEVELS / session_id}:
+        if not target_base.exists():
+            continue
+        path = target_base / filename
+        temporary = path.with_suffix(path.suffix + ".tmp")
+        temporary.write_text(json.dumps(review, indent=2) + "\n")
+        temporary.replace(path)
+
+
+def _current_hitbox_snapshot(session_id: str) -> tuple[list[dict[str, Any]], str]:
+    selected_dir = session_dir(session_id)
+    hitboxes = _load_hitboxes_raw(selected_dir)
+    if not hitboxes and selected_dir == GAME_PUBLIC_LEVELS / session_id:
+        # Export packages encode runtime dog ids in level.json, while the
+        # authoring hitboxes retain stable editor UUIDs. Reuse the reviewed
+        # authoring snapshot when its geometry is identical; otherwise hashing
+        # the runtime representation falsely marks an unchanged review stale.
+        authoring_hitboxes = _load_hitboxes_raw(LEVELS_DIR / session_id)
+        try:
+            public_dogs = json.loads((selected_dir / "level.json").read_text()).get("dogs", [])
+        except (OSError, json.JSONDecodeError):
+            public_dogs = []
+        geometry = lambda dogs: sorted(
+            (dog.get("x"), dog.get("y"), dog.get("r", 30))
+            for dog in dogs
+            if isinstance(dog, dict)
+        )
+        if authoring_hitboxes and geometry(authoring_hitboxes) == geometry(public_dogs):
+            hitboxes = authoring_hitboxes
+    if not hitboxes:
+        level_path = selected_dir / "level.json"
+        try:
+            level = json.loads(level_path.read_text())
+        except (OSError, json.JSONDecodeError):
+            level = {}
+        hitboxes = [
+            {"id": dog.get("id"), "x": dog["x"], "y": dog["y"], "r": dog.get("r", 30)}
+            for dog in level.get("dogs", [])
+            if isinstance(dog, dict) and "x" in dog and "y" in dog
+        ]
+    if not hitboxes:
+        raise ValueError("hitboxes.json was not found or is empty")
+    return hitboxes, _semantic_json_sha256(hitboxes)
+
+
+def get_hitbox_review_status(session_id: str) -> dict[str, Any]:
+    review = _read_review_file(session_id, "hitbox-review.json")
+    legacy = False
+    if review is None:
+        golden = get_level_golden_review(session_id)
+        if golden and (golden.get("approved") is True or golden.get("blessed") is True):
+            # The old one-stage blessing explicitly asserted that hitboxes were
+            # human reviewed. Preserve those approved levels until geometry is
+            # next saved, when save_hitboxes writes an explicit revocation.
+            review = {
+                "approved": True,
+                "reviewedAt": golden.get("reviewedAt"),
+                "source": "legacy-golden-review",
+                "levelSha256": golden.get("levelSha256"),
+            }
+            legacy = True
+    try:
+        hitboxes, current_sha = _current_hitbox_snapshot(session_id)
+    except ValueError:
+        hitboxes, current_sha = [], None
+    approved = bool(review and review.get("approved") is True)
+    stored_sha = review.get("hitboxesSha256") if review else None
+    snapshot_current = stored_sha == current_sha
+    if legacy:
+        reviewed_level_sha = review.get("levelSha256")
+        level_path = session_dir(session_id) / "level.json"
+        snapshot_current = (
+            reviewed_level_sha is None
+            or (
+                level_path.is_file()
+                and hashlib.sha256(level_path.read_bytes()).hexdigest() == reviewed_level_sha
+            )
+        )
+    current = approved and bool(hitboxes) and snapshot_current
+    return {
+        **(review or {}),
+        "approved": current,
+        "current": current,
+        "stale": approved and not current,
+        "legacyGoldenReview": legacy,
+        "currentHitboxesSha256": current_sha,
+    }
+
+
+def require_hitboxes_blessed(session_id: str) -> dict[str, Any]:
+    status = get_hitbox_review_status(session_id)
+    if not status["current"]:
+        raise ValueError("Bless the current hitboxes first; cutouts require human-reviewed hitboxes")
+    return status
+
+
+def set_hitbox_review(session_id: str, approved: bool, *, source: str = "editor") -> dict[str, Any]:
+    hitboxes, digest = _current_hitbox_snapshot(session_id)
+    review = {
+        "schemaVersion": 1,
+        "reviewStage": "hitboxes",
+        "approved": approved,
+        "blessed": approved,
+        "blessingMeaning": "current hitbox geometry is human-reviewed",
+        "reviewedAt": now_iso(),
+        "source": source,
+        "hitboxesSha256": digest,
+        "hitboxCount": len(hitboxes),
+    }
+    _write_review_file(session_id, "hitbox-review.json", review)
+    return get_hitbox_review_status(session_id)
+
+
 def set_level_golden_review(session_id: str, approved: bool, *, source: str = "editor") -> dict[str, Any]:
     """Snapshot a human-reviewed level for later golden-dataset ingestion.
 
@@ -734,19 +1019,22 @@ def set_level_golden_review(session_id: str, approved: bool, *, source: str = "e
     assertion would otherwise contradict its per-bird review state.
     """
     base = session_dir(session_id)
+    hitbox_review = require_hitboxes_blessed(session_id) if approved else None
     level_path = base / "level.json"
     if not level_path.is_file():
         raise ValueError("level.json was not found")
     now = datetime.now(timezone.utc).isoformat()
     review: dict[str, Any] = {
         "schemaVersion": 1,
+        "reviewStage": "final-cutouts",
         "approved": approved,
         "blessed": approved,
-        "blessingMeaning": "human-reviewed hitboxes, cutouts, and sprite placements are solid",
+        "blessingMeaning": "current cutouts and sprite placements are final and human-reviewed",
         "trainingEligible": approved,
         "affectsLineup": False,
         "reviewedAt": now,
         "source": source,
+        "hitboxesSha256": hitbox_review.get("currentHitboxesSha256") if hitbox_review else None,
     }
     if approved:
         level = json.loads(level_path.read_text())
@@ -757,14 +1045,28 @@ def set_level_golden_review(session_id: str, approved: bool, *, source: str = "e
             sprite = dog.get("sprite") if isinstance(dog, dict) else None
             image = sprite.get("image") if isinstance(sprite, dict) else None
             if not isinstance(image, str):
-                continue
+                raise ValueError(f"active sprite is incomplete: {dog.get('id')}")
             marker = f"levels/{session_id}/"
             relative = Path(image.split(marker, 1)[-1] if marker in image else image)
             sprite_path = base / relative
             sidecar_path = sprite_path.with_suffix(".json")
             if not sprite_path.is_file() or not sidecar_path.is_file():
                 raise ValueError(f"active sprite is incomplete: {dog.get('id')}")
-            sidecar = json.loads(sidecar_path.read_text())
+            try:
+                sidecar = json.loads(sidecar_path.read_text())
+            except (OSError, json.JSONDecodeError):
+                current = False
+                break
+            target = _box_target(sidecar)
+            cleanup = sidecar.get("cleanupBox") or sidecar.get("spriteBox")
+            if not (
+                target is not None
+                and isinstance(cleanup, list)
+                and len(cleanup) == 4
+                and cleanup[0] <= target[0] <= cleanup[2]
+                and cleanup[1] <= target[1] <= cleanup[3]
+            ):
+                raise ValueError(f"active sprite padding targets a different bird: {dog.get('id')}")
             human_review = {"confirmed": True, "confirmedAt": now, "source": "level-bless"}
             for target_base in target_bases:
                 target_sprite = target_base / relative
@@ -780,10 +1082,14 @@ def set_level_golden_review(session_id: str, approved: bool, *, source: str = "e
                 "dogId": dog.get("id"),
                 "sprite": relative.as_posix(),
                 "spriteSha256": hashlib.sha256(sprite_path.read_bytes()).hexdigest(),
+                "spriteSize": sprite_path.stat().st_size,
+                "spriteMtimeNs": sprite_path.stat().st_mtime_ns,
                 "spriteBox": sidecar.get("spriteBox"),
                 "flipX": sidecar.get("flipX") is True,
                 "flipY": sidecar.get("flipY") is True,
             })
+        if not birds:
+            raise ValueError("No active cutouts are available for final blessing")
         # Validate and prepare every active bird before mutating either store.
         # A missing later bird must not leave earlier sidecars half-confirmed.
         for sidecar_path, sidecar in sidecar_updates:
@@ -797,25 +1103,119 @@ def set_level_golden_review(session_id: str, approved: bool, *, source: str = "e
             "sceneSha256": hashlib.sha256(scene_path.read_bytes()).hexdigest() if scene_path.is_file() else None,
             "birds": birds,
         })
-    for target_base in {base, GAME_PUBLIC_LEVELS / session_id}:
-        if not target_base.exists():
-            continue
-        path = target_base / "golden-review.json"
-        temporary = path.with_suffix(path.suffix + ".tmp")
-        temporary.write_text(json.dumps(review, indent=2) + "\n")
-        temporary.replace(path)
+    _write_review_file(session_id, "golden-review.json", review)
     return review
 
 
 def get_level_golden_review(session_id: str) -> dict[str, Any] | None:
-    path = session_dir(session_id) / "golden-review.json"
-    if not path.is_file():
-        return None
+    return _read_review_file(session_id, "golden-review.json")
+
+
+def get_final_cutout_review_status(
+    session_id: str,
+    *,
+    hitbox_status: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    review = get_level_golden_review(session_id)
+    approved = bool(review and (review.get("approved") is True or review.get("blessed") is True))
+    if not approved:
+        return {**(review or {}), "approved": False, "current": False, "stale": False}
+    hitbox_status = hitbox_status or get_hitbox_review_status(session_id)
+    reviewed_hitbox_sha = review.get("hitboxesSha256") if review else None
+    current = (
+        approved
+        and hitbox_status["current"]
+        and (
+            reviewed_hitbox_sha is None  # legacy one-stage approval
+            or reviewed_hitbox_sha == hitbox_status.get("currentHitboxesSha256")
+        )
+    )
+    level_path = session_dir(session_id) / "level.json"
+    reviewed_level_sha = review.get("levelSha256") if review else None
+    if current and reviewed_level_sha is not None:
+        current = (
+            level_path.is_file()
+            and hashlib.sha256(level_path.read_bytes()).hexdigest() == reviewed_level_sha
+        )
+    if current and isinstance(review.get("birds"), list):
+        require_per_sprite_confirmation = review.get("reviewStage") == "final-cutouts"
+        for bird in review["birds"]:
+            if not isinstance(bird, dict) or not isinstance(bird.get("sprite"), str):
+                current = False
+                break
+            sprite_path = session_dir(session_id) / bird["sprite"]
+            sidecar_path = sprite_path.with_suffix(".json")
+            if not sprite_path.is_file() or not sidecar_path.is_file():
+                current = False
+                break
+            sidecar = json.loads(sidecar_path.read_text())
+            pixels_current = (
+                hashlib.sha256(sprite_path.read_bytes()).hexdigest() == bird.get("spriteSha256")
+            )
+            current = (
+                pixels_current
+                and sidecar.get("spriteBox") == bird.get("spriteBox")
+                and (sidecar.get("flipX") is True) == (bird.get("flipX") is True)
+                and (sidecar.get("flipY") is True) == (bird.get("flipY") is True)
+                and (
+                    not require_per_sprite_confirmation
+                    or bool((sidecar.get("humanReview") or {}).get("confirmed"))
+                )
+            )
+            if not current:
+                break
+    return {
+        **(review or {}),
+        "approved": current,
+        "current": current,
+        "stale": approved and not current,
+    }
+
+
+def get_final_cutout_review_readiness(session_id: str) -> dict[str, Any]:
+    level_path = session_dir(session_id) / "level.json"
     try:
-        value = json.loads(path.read_text())
+        level = json.loads(level_path.read_text())
     except (OSError, json.JSONDecodeError):
-        return None
-    return value if isinstance(value, dict) else None
+        return {"ready": False, "activeBirds": 0, "missingCutouts": 0, "invalidPadding": 0}
+    dogs = [dog for dog in level.get("dogs", []) if isinstance(dog, dict)]
+    missing = 0
+    invalid_padding = 0
+    for dog in dogs:
+        sprite = dog.get("sprite")
+        image = sprite.get("image") if isinstance(sprite, dict) else None
+        if not isinstance(image, str):
+            missing += 1
+            continue
+        marker = f"levels/{session_id}/"
+        relative = Path(image.split(marker, 1)[-1] if marker in image else image)
+        sprite_path = session_dir(session_id) / relative
+        sidecar_path = sprite_path.with_suffix(".json")
+        if not sprite_path.is_file() or not sidecar_path.is_file():
+            missing += 1
+            continue
+        try:
+            sidecar = json.loads(sidecar_path.read_text())
+        except (OSError, json.JSONDecodeError):
+            missing += 1
+            continue
+        target = _box_target(sidecar)
+        cleanup = sidecar.get("cleanupBox") or sidecar.get("spriteBox")
+        padding_current = (
+            target is not None
+            and isinstance(cleanup, list)
+            and len(cleanup) == 4
+            and cleanup[0] <= target[0] <= cleanup[2]
+            and cleanup[1] <= target[1] <= cleanup[3]
+        )
+        if not padding_current:
+            invalid_padding += 1
+    return {
+        "ready": bool(dogs) and missing == 0 and invalid_padding == 0,
+        "activeBirds": len(dogs),
+        "missingCutouts": missing,
+        "invalidPadding": invalid_padding,
+    }
 
 
 def require_ready_sprite_animation_candidate(session_id: str, candidate_id: str) -> dict[str, Any]:
@@ -1109,9 +1509,51 @@ def now_iso() -> str:
 
 def session_dir(session_id: str) -> Path:
     active_dir = LEVELS_DIR / session_id
+    public_dir = GAME_PUBLIC_LEVELS / session_id
+    if active_dir.exists() and public_dir.exists():
+        # Exported levels can coexist with an older authoring-session copy.
+        # A final blessing records the authoritative level bytes; prefer the
+        # duplicate that still matches that reviewed snapshot. Otherwise the
+        # editor can silently display stale sprites despite showing a blessed
+        # public package for the same id.
+        reviewed_hashes: set[str] = set()
+        for base in (active_dir, public_dir):
+            review_path = base / "golden-review.json"
+            try:
+                review = json.loads(review_path.read_text())
+            except (OSError, json.JSONDecodeError):
+                continue
+            if review.get("approved") is True or review.get("blessed") is True:
+                level_hash = review.get("levelSha256")
+                if isinstance(level_hash, str) and level_hash:
+                    reviewed_hashes.add(level_hash)
+        if reviewed_hashes:
+            def hitbox_geometry(base: Path) -> list[tuple[Any, Any, Any]]:
+                path = base / "hitboxes.json"
+                try:
+                    dogs = json.loads(path.read_text())
+                except (OSError, json.JSONDecodeError):
+                    try:
+                        dogs = json.loads((base / "level.json").read_text()).get("dogs", [])
+                    except (OSError, json.JSONDecodeError):
+                        return []
+                return sorted(
+                    (dog.get("x"), dog.get("y"), dog.get("r", 30))
+                    for dog in dogs
+                    if isinstance(dog, dict)
+                )
+
+            if hitbox_geometry(active_dir) != hitbox_geometry(public_dir):
+                # Geometry edits are human-owned and must surface as a stale
+                # blessing. Sprite-only divergence is the stale-copy failure
+                # that should yield to the final reviewed export.
+                return active_dir
+            for base in (active_dir, public_dir):
+                level_path = base / "level.json"
+                if level_path.is_file() and hashlib.sha256(level_path.read_bytes()).hexdigest() in reviewed_hashes:
+                    return base
     if active_dir.exists():
         return active_dir
-    public_dir = GAME_PUBLIC_LEVELS / session_id
     if public_dir.exists():
         return public_dir
     return LEVELS_DIR / session_id
@@ -1147,8 +1589,17 @@ def clone_session(src_id: str, new_id: str, *, reset_paint: bool = False) -> dic
         ignore.append("dogs")
     _shutil.copytree(src, dst, ignore=_shutil.ignore_patterns(*ignore))
 
+    def rewrite_asset_refs(value: Any) -> Any:
+        if isinstance(value, str):
+            return value.replace(f"levels/{src_id}/", f"levels/{new_id}/")
+        if isinstance(value, list):
+            return [rewrite_asset_refs(item) for item in value]
+        if isinstance(value, dict):
+            return {key: rewrite_asset_refs(item) for key, item in value.items()}
+        return value
+
     with open(dst / "session.json") as f:
-        sj = json.load(f)
+        sj = rewrite_asset_refs(json.load(f))
     for key in ("id", "sessionId", "session_id"):
         if key in sj:
             sj[key] = new_id
@@ -1170,9 +1621,13 @@ def clone_session(src_id: str, new_id: str, *, reset_paint: bool = False) -> dic
         json.dump(sj, f, indent=1)
     lj_path = dst / "level.json"
     if lj_path.exists():
-        level = json.loads(lj_path.read_text())
+        level = rewrite_asset_refs(json.loads(lj_path.read_text()))
         level["id"] = new_id
         lj_path.write_text(json.dumps(level, indent=1))
+    # A clone preserves reviewed hitbox geometry but is a new cutout trial.
+    # Carrying the source's final blessing makes later mutations appear human
+    # approved and lets comparison lanes contaminate golden-state reporting.
+    (dst / "golden-review.json").unlink(missing_ok=True)
     return {"sessionId": new_id, "clonedFrom": src_id, "resetPaint": reset_paint}
 
 
@@ -1400,6 +1855,7 @@ def list_sessions(*, include_public: bool = False) -> list[dict]:
         if isinstance(level, dict) and isinstance(level.get("id"), str)
     }
     catalog_entries = _catalog_levels_by_id(load_catalog_manifest())
+    archive_ledger = _load_archive_ledger()
     roots = [(LEVELS_DIR, "levels")]
     if include_public:
         roots.append((GAME_PUBLIC_LEVELS, "public-levels"))
@@ -1408,6 +1864,14 @@ def list_sessions(*, include_public: bool = False) -> list[dict]:
             continue
         for d in sorted(root.iterdir()):
             if not d.is_dir() or d.name in seen_session_ids:
+                continue
+            catalog_entry = catalog_entries.get(d.name)
+            # Tombstoning removes a catalog package from every authoring and
+            # selection surface while retaining its content-addressed bytes for
+            # historical catalog snapshots. A source session still wins above,
+            # so an operator can inspect its explicit archived state until that
+            # disposable source directory is cleaned up.
+            if asset_base == "public-levels" and catalog_entry and catalog_entry.get("tombstonedAt") is not None:
                 continue
             has_session = (d / "session.json").exists()
             has_hitboxes = (d / "hitboxes.json").exists()
@@ -1469,7 +1933,6 @@ def list_sessions(*, include_public: bool = False) -> list[dict]:
             # rather than raw package-file presence. Catalog-uploaded-but-unlisted
             # assets can live under public/levels/ without being preview/live listed.
             exported = d.name in previewed_level_ids
-            catalog_entry = catalog_entries.get(d.name)
             catalog_uploaded = catalog_entry is not None
             catalog_listable = bool(catalog_entry and catalog_entry.get("listable") is True)
             catalog_tombstoned = bool(catalog_entry and catalog_entry.get("tombstonedAt") is not None)
@@ -1521,8 +1984,17 @@ def list_sessions(*, include_public: bool = False) -> list[dict]:
                 (raw_for_setting or {}).get("inpaint_model")
                 or (raw_for_setting or {}).get("model", "")
             ) if raw_for_setting else ""
-            archived = bool((raw_for_setting or {}).get("archived", False)) if raw_for_setting else False
-            archived_variants = list((raw_for_setting or {}).get("archived_variants") or []) if raw_for_setting else []
+            persisted_archive = archive_ledger.get(d.name)
+            if not isinstance(persisted_archive, dict):
+                persisted_archive = {}
+            archived = bool(
+                (raw_for_setting or {}).get("archived", False)
+                or persisted_archive.get("archived", False)
+            )
+            archived_variants = sorted({
+                *((raw_for_setting or {}).get("archived_variants") or []),
+                *(persisted_archive.get("archivedVariants") or []),
+            })
             scene = (raw_for_setting or {}).get("scene") if raw_for_setting else None
             entity = (raw_for_setting or {}).get("entity") if raw_for_setting else None
             exported_variant = (raw_for_setting or {}).get("exported_variant", "gemini") if raw_for_setting else "gemini"
@@ -1535,13 +2007,15 @@ def list_sessions(*, include_public: bool = False) -> list[dict]:
             if orientation not in ("portrait", "landscape"):
                 orientation = "landscape" if width > height else "portrait"
 
-            golden_review = None
-            golden_review_path = d / "golden-review.json"
-            if golden_review_path.is_file():
-                try:
-                    golden_review = json.loads(golden_review_path.read_text())
-                except (OSError, json.JSONDecodeError):
-                    golden_review = None
+            hitbox_review = get_hitbox_review_status(d.name)
+            final_cutout_review = get_final_cutout_review_status(
+                d.name, hitbox_status=hitbox_review,
+            )
+            final_cutout_readiness = (
+                get_final_cutout_review_readiness(d.name)
+                if hitbox_review["current"]
+                else {"ready": False, "activeBirds": n_dogs, "missingCutouts": n_dogs}
+            )
 
             review_sidecars = []
             for sidecar_path in d.glob("dogs/dog_*/sprite_*.json"):
@@ -1591,8 +2065,18 @@ def list_sessions(*, include_public: bool = False) -> list[dict]:
                 "humanConfirmedBirds": human_confirmed_birds,
                 "reviewableBirds": len(review_sidecars),
                 "regenerationCandidateCount": regeneration_candidate_count,
-                "goldenDatasetApproved": bool(golden_review and (golden_review.get("blessed") is True or golden_review.get("approved") is True)),
-                "goldenDatasetReviewedAt": golden_review.get("reviewedAt") if isinstance(golden_review, dict) else None,
+                "hitboxesBlessed": hitbox_review["current"],
+                "hitboxesBlessingStale": hitbox_review["stale"],
+                "hitboxesBlessedAt": hitbox_review.get("reviewedAt"),
+                "cutoutsFinalBlessed": final_cutout_review["current"],
+                "cutoutsFinalBlessingStale": final_cutout_review["stale"],
+                "cutoutsFinalBlessedAt": final_cutout_review.get("reviewedAt"),
+                "finalCutoutReviewReady": final_cutout_readiness["ready"],
+                "missingFinalCutouts": final_cutout_readiness["missingCutouts"],
+                "invalidFinalPadding": final_cutout_readiness.get("invalidPadding", 0),
+                # Wire compatibility for older clients and golden-dataset tools.
+                "goldenDatasetApproved": final_cutout_review["current"],
+                "goldenDatasetReviewedAt": final_cutout_review.get("reviewedAt"),
             })
     return results
 
@@ -1605,7 +2089,10 @@ def ensure_session_json(session_id: str) -> dict | None:
     """
     sdir = session_dir(session_id)
     public_dir = GAME_PUBLIC_LEVELS / session_id
-    is_public_package = sdir == public_dir and not (LEVELS_DIR / session_id).exists()
+    # session_dir may deliberately select a reviewed public package over a
+    # stale authoring duplicate. Treat the selected root as authoritative;
+    # the mere existence of that duplicate must not change hydration.
+    is_public_package = sdir == public_dir
     if not sdir.exists():
         if not (public_dir / "level.json").exists() or not (public_dir / "color.png").exists():
             return None
@@ -2090,6 +2577,7 @@ def create_session(
 
     sdir = session_dir(session_id)
     sdir.mkdir(parents=True, exist_ok=True)
+    _record_archive_state(session_id, archived=False, variants=[])
     resolved_bg_model = bg_model or model
     resolved_inpaint_model = inpaint_model or model
     resolved_bg_provider = bg_provider or ("layer" if str(resolved_bg_model).startswith("layer/") else "merceka")
@@ -2875,6 +3363,10 @@ def materialize_detection_sprites(
     from levelbuilder.api import inpaint as _inpaint
 
     _validate_session_id_or_raise(session_id)
+    try:
+        require_hitboxes_blessed(session_id)
+    except ValueError as error:
+        raise LevelNotReadyError(str(error)) from error
     sdir = session_dir(session_id)
     color_path = sdir / "color.png"
     if not color_path.exists():
@@ -3063,7 +3555,8 @@ def materialize_detection_sprites(
                 except (OSError, ValueError):
                     pass
             pending.append((index, hitbox_data))
-        # Batched flat-key recreate (2026-08-05, default 3x3): all pending
+        # Batched flat-key recreate (2x2 default after the controlled 112-bird
+        # human review on 2026-08-10): all pending
         # birds' crops go through grid calls FIRST ($0.0045/bird vs $0.034
         # single, quality-matched on the native2k eval; ladder falls back to
         # 2x2 then single per failed panel). _process_one consumes the
@@ -3074,7 +3567,7 @@ def materialize_detection_sprites(
             flatkey_model = os.environ.get(
                 "FTD_FLATKEY_MODEL", "google/gemini-3.1-flash-image-preview"
             )
-            grid_n = max(1, int(os.environ.get("FTD_FLATKEY_GRID", "3")))
+            grid_n = max(1, int(os.environ.get("FTD_FLATKEY_GRID", str(DEFAULT_FLATKEY_GRID))))
             entity = str(raw.get("entity") or "bird")
             batch_crops: dict[int, Image.Image] = {}
             # Small detections are grid-poisonous: thumbnailed into a 3x3
@@ -3330,6 +3823,20 @@ def save_hitboxes(session_id: str, hitboxes: list[dict]) -> list[dict] | None:
                     tmp.unlink()
                 except OSError:
                     pass
+        existing_digest = _semantic_json_sha256(existing)
+        persisted_digest = _semantic_json_sha256(persisted)
+        if existing_digest != persisted_digest:
+            _write_review_file(session_id, "hitbox-review.json", {
+                "schemaVersion": 1,
+                "reviewStage": "hitboxes",
+                "approved": False,
+                "blessed": False,
+                "blessingMeaning": "current hitbox geometry is human-reviewed",
+                "reviewedAt": None,
+                "source": "hitbox-change",
+                "hitboxesSha256": persisted_digest,
+                "hitboxCount": len(persisted),
+            })
     # Return the id-STAMPED list so a caller that needs the on-disk identities
     # (the magenta path -> _mark_session_dogs_done) doesn't re-derive them from the
     # still-id-less in-memory input (final-rereview iter3 P1: that minted a
@@ -4883,6 +5390,11 @@ def set_archived(session_id: str, archived: bool, variant: str | None = None) ->
                     raw["archived"] = False
             raw["archived_variants"] = sorted(current)
         save_session(session_id, raw)
+        _record_archive_state(
+            session_id,
+            archived=bool(raw.get("archived", False)),
+            variants=list(raw.get("archived_variants") or []),
+        )
 
 
 def revoke_export(session_id: str) -> dict:
