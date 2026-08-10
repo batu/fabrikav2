@@ -11,6 +11,8 @@ import { initHUD } from './ui/HUD';
 import { analytics } from './analytics/AnalyticsService';
 import { attribution, configureAttributionStartupGate } from './attribution/AttributionService';
 import { initializeAdsForGameplay } from './ads/Service';
+import { configureAdService } from './ads/Service';
+import { DisabledAdProvider } from './ads/DisabledAdProvider';
 import { createSdkContext, getSdkContext, installSdkContext } from './sdk/SdkContext';
 import { initializeCohort } from './data/cohortContext';
 import { remoteConfigService } from './config/RemoteConfigService';
@@ -36,22 +38,26 @@ installButtonVoiceEffects();
 installShellArt(document);
 preloadIcons();
 
-// Compose the SDK providers (ads / attribution / meta / analytics sinks) from
-// env config before any consumer fires an init or event. Off is a first-class
-// Disabled* state, so this is safe with an empty env.
-installSdkContext(createSdkContext());
-void analytics.init();
-void getSdkContext().meta.init();
-// Cached/compiled values are usable immediately. Refresh in the background so
-// a slow or offline Firebase request never holds the first Home scene paint.
-remoteConfigService.init();
-// Device automation must be deterministic and must never display an ad. Keep
-// this assignment in-memory: a probe build must not persist a user preference.
+// Device automation must be deterministic and must never initialize or display
+// an ad. The provider override is process-local and cannot persist a setting.
 const automatedDeviceProbe = TEST_HARNESS_ENABLED && [
   import.meta.env.VITE_PLAYTHROUGH_LEVELS,
   import.meta.env.VITE_PROBE_TAP_LEVELS,
   import.meta.env.VITE_PERF_PROBE_LEVELS,
 ].some((value) => String(value ?? '').trim().length > 0);
+
+// Compose the SDK providers (ads / attribution / meta / analytics sinks) from
+// env config before any consumer fires an init or event. Off is a first-class
+// Disabled* state, so this is safe with an empty env.
+installSdkContext(createSdkContext());
+if (automatedDeviceProbe) {
+  configureAdService(new DisabledAdProvider('ads disabled during automated device probes'));
+}
+void analytics.init();
+void getSdkContext().meta.init();
+// Cached/compiled values are usable immediately. Refresh in the background so
+// a slow or offline Firebase request never holds the first Home scene paint.
+remoteConfigService.init();
 if (automatedDeviceProbe) gameState.settings.adsEnabled = false;
 // Build-time automount for device evidence capture: a dev/harness build with
 // VITE_SDK_VERIFIER_AUTOMOUNT=true shows the SDK verifier pane at launch, so
