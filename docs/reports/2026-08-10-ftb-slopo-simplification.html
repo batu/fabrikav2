@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Find the Bird Slopo simplification — 10 August 2026</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --paper: #f2efe7;
+      --sheet: #fbf9f3;
+      --ink: #1b211d;
+      --muted: #69716b;
+      --line: #d6d4c9;
+      --green: #236a47;
+      --green-soft: #dce9df;
+      --amber: #976015;
+      --amber-soft: #f1e5ca;
+      --red: #9b4035;
+      --mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      --serif: "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+      --sans: Avenir, "Avenir Next", "Trebuchet MS", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; background: var(--paper); color: var(--ink); font: 16px/1.55 var(--sans); }
+    main { width: min(1160px, calc(100% - 34px)); margin: 0 auto; padding: 34px 0 82px; }
+    header { padding: 24px 0 30px; border-top: 8px solid var(--green); }
+    h1 { max-width: 980px; margin: 0 0 18px; font: 700 clamp(42px, 7vw, 78px)/.97 var(--serif); letter-spacing: -.045em; }
+    h2 { margin: 0; font: 700 clamp(27px, 4vw, 42px)/1.02 var(--serif); letter-spacing: -.026em; }
+    h3 { margin: 0 0 7px; font-size: 18px; }
+    p { margin: 0 0 12px; }
+    code, .eyebrow, .label, th, .status, .audit { font-family: var(--mono); }
+    code { font-size: .88em; }
+    .eyebrow { margin: 0 0 10px; color: var(--green); font-size: 11px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+    .summary { max-width: 870px; color: #3f4943; font-size: clamp(18px, 2.1vw, 24px); }
+    .status { display: inline-flex; align-items: center; gap: 9px; margin-top: 10px; padding: 8px 11px; background: var(--green-soft); color: var(--green); font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; }
+    .status::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--green); }
+    .hero { display: grid; grid-template-columns: 1.35fr .65fr; gap: 1px; margin: 14px 0 48px; border: 1px solid var(--line); background: var(--line); }
+    .hero article { padding: 26px; background: var(--sheet); }
+    .hero .verdict { border-left: 5px solid var(--green); }
+    .hero .boundary { border-left: 5px solid var(--amber); }
+    .hero strong { color: var(--green); }
+    .hero .boundary strong { color: var(--amber); }
+    .metrics { display: grid; grid-template-columns: repeat(5, 1fr); background: var(--ink); color: #fff; }
+    .metric { min-width: 0; padding: 19px 16px; border-right: 1px solid #3e4741; }
+    .metric:last-child { border-right: 0; }
+    .metric b { display: block; color: #a5dfb8; font: 700 clamp(25px, 3vw, 37px)/1 var(--serif); }
+    .metric span { display: block; margin-top: 8px; color: #bdc5bf; font: 10px/1.35 var(--mono); text-transform: uppercase; letter-spacing: .05em; }
+    section { margin-top: 64px; padding-top: 25px; border-top: 1px solid var(--line); }
+    .section-head { display: grid; grid-template-columns: .72fr 1.28fr; gap: 44px; margin-bottom: 23px; }
+    .section-head p { color: var(--muted); font-size: 18px; }
+    .comparison { overflow: auto; border: 1px solid var(--line); background: var(--sheet); }
+    table { width: 100%; min-width: 760px; border-collapse: collapse; }
+    th, td { padding: 13px 14px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: middle; }
+    th { color: var(--muted); font-size: 10px; letter-spacing: .08em; text-transform: uppercase; }
+    td:nth-child(n+2) { font-variant-numeric: tabular-nums; }
+    tbody tr { transition: background-color 130ms ease; }
+    tbody tr:hover { background: #f0f4ee; }
+    tbody tr:last-child td { border-bottom: 0; }
+    .good { color: var(--green); font-weight: 800; }
+    .neutral { color: var(--muted); }
+    .bar { width: 140px; height: 7px; background: #e1e1d7; }
+    .bar i { display: block; height: 100%; background: var(--green); }
+    .experiments { display: grid; gap: 1px; background: var(--line); border: 1px solid var(--line); }
+    .experiment { display: grid; grid-template-columns: 52px 155px 1fr 130px; gap: 16px; align-items: start; padding: 17px; background: var(--sheet); }
+    .experiment > b { font: 700 28px/1 var(--serif); color: var(--green); }
+    .experiment p { margin: 0; color: #434c46; }
+    .experiment small { display: block; margin-top: 5px; color: var(--muted); }
+    .label { display: inline-block; width: max-content; padding: 4px 7px; background: var(--green-soft); color: var(--green); font-size: 10px; font-weight: 800; text-transform: uppercase; }
+    .architecture { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--line); border: 1px solid var(--line); }
+    .architecture article { padding: 21px; background: var(--sheet); }
+    .architecture p { color: var(--muted); }
+    .architecture .label { margin-bottom: 11px; }
+    .proof-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .proof { padding: 21px; border: 1px solid var(--line); background: var(--sheet); }
+    .proof ul { margin: 9px 0 0; padding-left: 20px; color: #454e48; }
+    .pass { color: var(--green); }
+    .partial { color: var(--amber); }
+    .known { color: var(--red); }
+    details { margin-top: 12px; padding: 14px 16px; border: 1px solid var(--line); background: var(--sheet); }
+    summary { cursor: pointer; color: var(--green); font-weight: 800; }
+    summary:focus-visible { outline: 3px solid var(--amber); outline-offset: 3px; }
+    .audit { margin-top: 12px; color: var(--muted); font-size: 11px; overflow-wrap: anywhere; }
+    footer { margin-top: 65px; padding-top: 20px; border-top: 1px solid var(--line); color: var(--muted); font-size: 13px; }
+    @media (max-width: 880px) {
+      .hero, .section-head { grid-template-columns: 1fr; }
+      .metrics { grid-template-columns: 1fr 1fr; }
+      .metric { border-bottom: 1px solid #3e4741; }
+      .architecture { grid-template-columns: 1fr 1fr; }
+      .experiment { grid-template-columns: 40px 1fr; }
+      .experiment > :nth-child(3), .experiment > :nth-child(4) { grid-column: 2; }
+    }
+    @media (max-width: 560px) {
+      .metrics, .architecture, .proof-grid { grid-template-columns: 1fr; }
+      .metric { border-right: 0; }
+    }
+    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } tbody tr { transition: none; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <p class="eyebrow">Measured simplification report · 10 August 2026</p>
+      <h1>Nine real duplicates removed. Eight false friends left alone.</h1>
+      <p class="summary">Slopo mapped semantic duplication across Find the Bird; four gated experiments consolidated shared policy without changing gameplay, content, pickup behavior, editor contracts, or provider diagnostics.</p>
+      <span class="status">Target reached · independent review complete</span>
+    </header>
+
+    <div class="hero">
+      <article class="verdict"><p class="eyebrow">Retain</p><p><strong>The simplification plateau is clean.</strong> Actionable clusters fell from 9 to 0. The maintained game and SDK suites, production build, runtime invariants, and editor parity contract all pass. Three independent reviewers found two small improvements; both were applied and remeasured.</p></article>
+      <article class="boundary"><p class="eyebrow">Release boundary</p><p><strong>The release tag stays on the pre-refactor runtime commit.</strong> This branch is a separate behavior-preserving candidate and is not merged or pushed.</p></article>
+    </div>
+
+    <div class="metrics" aria-label="Headline simplification results">
+      <div class="metric"><b>9 → 0</b><span>actionable clusters</span></div>
+      <div class="metric"><b>−58%</b><span>cross-file clusters</span></div>
+      <div class="metric"><b>−52%</b><span>exact-copy units</span></div>
+      <div class="metric"><b>612</b><span>green unit tests</span></div>
+      <div class="metric"><b>3 / 3</b><span>editor parity tests</span></div>
+    </div>
+
+    <section aria-labelledby="movement-title">
+      <div class="section-head"><h2 id="movement-title">The signal moved without deleting the product</h2><p>The primary metric counted only reviewed clusters, not Slopo’s raw similarity score. Anti-deletion gates held source coverage above the frozen floor. Runtime numbers are disclosed as diagnostics: they did not regress, but this pass does not claim that deduplication caused the timing movement.</p></div>
+      <div class="comparison">
+        <table>
+          <thead><tr><th>Measure</th><th>Baseline</th><th>Final</th><th>Change</th><th>Final relative load</th></tr></thead>
+          <tbody>
+            <tr><td>Actionable duplicate clusters</td><td>9</td><td>0</td><td class="good">−100%</td><td><div class="bar"><i style="width:0%"></i></div></td></tr>
+            <tr><td>All Slopo clusters</td><td>41</td><td>30</td><td class="good">−26.8%</td><td><div class="bar"><i style="width:73.2%"></i></div></td></tr>
+            <tr><td>Cross-file clusters</td><td>19</td><td>8</td><td class="good">−57.9%</td><td><div class="bar"><i style="width:42.1%"></i></div></td></tr>
+            <tr><td>Exact-copy units</td><td>29</td><td>14</td><td class="good">−51.7%</td><td><div class="bar"><i style="width:48.3%"></i></div></td></tr>
+            <tr><td>Non-exact similarity</td><td>4.56%</td><td>3.70%</td><td class="good">−0.86 pp</td><td><div class="bar"><i style="width:81.1%"></i></div></td></tr>
+            <tr><td>Indexed code units</td><td>1,497</td><td>1,475</td><td class="neutral">−22</td><td><div class="bar"><i style="width:98.5%"></i></div></td></tr>
+            <tr><td>Source files</td><td>117</td><td>120</td><td class="neutral">+3 focused helpers</td><td><div class="bar"><i style="width:100%"></i></div></td></tr>
+            <tr><td>Source lines</td><td>35,040</td><td>34,949</td><td class="good">−91</td><td><div class="bar"><i style="width:99.7%"></i></div></td></tr>
+            <tr><td>Runtime-ready diagnostic</td><td>3,998.70 ms</td><td>3,756.08 ms</td><td class="good">−6.1%</td><td><div class="bar"><i style="width:93.9%"></i></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section aria-labelledby="experiments-title">
+      <div class="section-head"><h2 id="experiments-title">Four experiments reached the plateau</h2><p>Each experiment changed one ownership boundary, ran focused checks, then ran the same frozen evaluator: game and SDK gates, production build, three runtime samples, and a fresh Slopo index. No experiment was retained merely because similarity fell.</p></div>
+      <div class="experiments">
+        <article class="experiment"><b>01</b><span class="label">9 → 6</span><p><strong>One environment contract.</strong> Find the Bird’s provider configurations now use the existing SDK string, boolean, and required-value readers. Provider-specific error text remains exact.<small>Removed repeated config mechanics across ads, analytics, attribution, and CDN modules.</small></p><span class="label">retained</span></article>
+        <article class="experiment"><b>02</b><span class="label">6 → 4</span><p><strong>One motion authority; one snapshot lane.</strong> Gameplay and the transition cover share the UI package’s reduced-motion query. Two capture flows share a Phaser snapshot adapter; the zoom evaluator remains local because its callback owns camera metadata.<small>Consolidated policy without flattening a meaningfully different renderer callback.</small></p><span class="label">retained</span></article>
+        <article class="experiment"><b>03</b><span class="label">4 → 2</span><p><strong>One defensive storage accessor; one bundled-path rule.</strong> Opaque-origin storage failure handling and local/CDN path authority now each have one focused home.<small>Fallback order, object-URL lifetime, CDN hashes, and package retry behavior remained unchanged.</small></p><span class="label">retained</span></article>
+        <article class="experiment"><b>04</b><span class="label">2 → 0</span><p><strong>One geometry implementation; one Firebase completeness gate.</strong> Pickup cleanup re-exports the canonical ray-casting function, and runtime/native Firebase inclusion share the same non-blank-string requirement.<small>This removes drift from two safety-critical decisions while preserving public names and boolean rejection.</small></p><span class="label">retained</span></article>
+      </div>
+    </section>
+
+    <section aria-labelledby="shape-title">
+      <div class="section-head"><h2 id="shape-title">What became simpler</h2><p>The retained abstractions are narrow and policy-owned. They remove duplicated decisions, not merely repeated syntax. Three new helper files make the ownership boundaries explicit; the broader diff removes substantially more code than it adds.</p></div>
+      <div class="architecture">
+        <article><span class="label">SDK</span><h3>Configuration parsing</h3><p>Shared input normalization and boolean parsing, with exact caller diagnostics.</p></article>
+        <article><span class="label">UI + Phaser</span><h3>Motion and snapshots</h3><p>Existing reduced-motion authority plus one callback-to-promise adapter.</p></article>
+        <article><span class="label">Platform + data</span><h3>Storage and asset paths</h3><p>Defensive browser access and bundled/CDN policy each live in one place.</p></article>
+        <article><span class="label">Safety gates</span><h3>Geometry and Firebase</h3><p>Shared predicates now prevent pickup and native-startup decisions from drifting.</p></article>
+      </div>
+    </section>
+
+    <section aria-labelledby="proof-title">
+      <div class="section-head"><h2 id="proof-title">Verification is green where this branch has authority</h2><p>The final evaluator was rerun after independent review. Root-level checks distinguish Find the Bird evidence from unrelated monorepo debt. The physical-device lane is reported separately because build, install, launch, drive, and visual inspection are different facts.</p></div>
+      <div class="proof-grid">
+        <article class="proof"><h3 class="pass">Verified</h3><ul><li>Find the Bird typecheck and lint</li><li>315 maintained game tests across 54 files</li><li>SDK typecheck, lint, and 297 tests across 33 files</li><li>Production web build and three-sample runtime profile</li><li>Root monorepo typecheck</li><li>Level-editor CLI/UI parity: 3 tests</li><li>Slopo: zero actionable clusters after review</li></ul></article>
+        <article class="proof"><h3 class="partial">Device lane: installed, visual capture blocked</h3><ul><li>Normal player bundle built with the test-harness constant compiled to <code>false</code></li><li>Native shell synced and validated</li><li>iOS app signed by team <code>42L77JAX72</code></li><li>Bundle <code>com.baseardahan.hiddenobj</code>, version 1.0.2 (19), verified and installed on Batu’s iPhone 12</li><li>Exact app launched; its process remained live after the timed recheck</li><li>Screenshot inspection blocked: the Wi-Fi-only DVT capture tunnel requires an unavailable Mac administrator password</li></ul></article>
+      </div>
+      <details><summary>Independent simplification review</summary><p>Reuse reviewer Beauvoir found one redundant non-blank-string predicate; efficiency reviewer Laplace found one repeated bundled-path call; quality reviewer Arendt found no quality defect. Both findings were applied. Final rerun remained at zero actionable clusters with all scoped gates green.</p></details>
+      <details><summary>Intentional similarity left alone</summary><p>Eight cross-file clusters remain by design: a scene lifecycle predicate, byte-to-hex callback, catalog mapping, record guards with different array semantics, provider log-once paths with different owners, domain-specific sorted-string functions, incidental dot-product arithmetic, and fresh-slot guards with component-specific diagnostics. Parameterizing these would make local code harder to read while erasing meaningful differences.</p></details>
+      <details><summary>Known red checks outside the retained scope</summary><p>The frozen campaign diagnostic still reports the pre-existing one-byte metadata mismatch for <code>ad_campaigns_ad_treehouse_village_bird_24d4/level.json</code>: disk 9,628 bytes, manifest 9,629. The root lint command also retains five unrelated errors in Find the Dog and Shell Template, plus two warnings. Find the Bird and the SDK have zero lint errors.</p></details>
+      <details><summary>Physical-device classification</summary><p><strong>Built: PASS.</strong> <strong>Installed: PASS.</strong> <strong>Launched: PASS.</strong> <strong>Normal-player harness gate: PASS by compiled artifact inspection.</strong> <strong>Visual gameplay inspection: BLOCKED.</strong> The phone was reachable only through CoreDevice’s network transport. XCUITest reached its capture stage but requested a privileged DVT tunnel password; the session did not have authority to provide it. The temporary automated-tour process was identified by its exact bundle container and terminated. The normal-player app remains installed and running; no app was uninstalled and no app data was deleted.</p></details>
+      <details><summary>Tooling and spend</summary><p>Slopo 0.4.0 ran from <code>rafal-qa/slopo</code> at revision <code>9b6296f2a6ab5e10cfdae7d6ed521f9bf3cb79fa</code>. Embeddings came from the local Ollama model <code>unclemusclez/jina-embeddings-v2-base-code</code>. No external model API was called and provider spend was zero.</p></details>
+      <details><summary>Audit breadcrumbs</summary><p class="audit">Frozen base 484119bfa9d8fdfd46047d3743778e0d65876af7 · release tag ftb-runtime-optimized-v1 · branch optimize/ftb-slopo-simplify · final evaluator experiment-05.json · generated Slopo report .context/compound-engineering/ce-optimize/ftb-slopo-simplify/slopo-report/index.md</p></details>
+    </section>
+
+    <footer>The release tag was pushed and verified before this simplification began. The simplification commit remains a separate local branch pending merge/push authorization.</footer>
+  </main>
+</body>
+</html>
