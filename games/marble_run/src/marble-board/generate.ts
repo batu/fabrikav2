@@ -5,7 +5,7 @@
  * (seed, params) pair always regenerates the same level.
  */
 import { mulberry32 } from '@fabrikav2/kernel';
-import { solveLevel } from './solver';
+import { isLevelSolvable, solveLevel } from './solver';
 import type { GateDef, LevelDef, MarbleColor } from './types';
 import { COLOR_TO_CHAR } from './types';
 
@@ -273,7 +273,7 @@ function tryFill(
         const mirror = open[mirrorIdx]!;
         setChar(cells, cell.x, cell.y, COLOR_TO_CHAR[color]);
         setChar(cells, mirror.x, mirror.y, COLOR_TO_CHAR[color]);
-        if (solveLevel(snapshot()).solvable) {
+        if (isLevelSolvable(snapshot())) {
           // Splice the higher index first so the lower stays valid.
           const [hi, lo] = idx > mirrorIdx ? [idx, mirrorIdx] : [mirrorIdx, idx];
           open.splice(hi, 1);
@@ -299,7 +299,7 @@ function tryFill(
     }
 
     setChar(cells, cell.x, cell.y, COLOR_TO_CHAR[color]);
-    if (solveLevel(snapshot()).solvable) {
+    if (isLevelSolvable(snapshot())) {
       open.splice(idx, 1);
       placed += 1;
       stall = 0;
