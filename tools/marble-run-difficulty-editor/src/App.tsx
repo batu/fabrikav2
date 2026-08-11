@@ -9,6 +9,7 @@ import { JourneyView, type JourneyReading } from './features/journey/JourneyView
 import { LevelView } from './features/level/LevelView.tsx';
 import { SHIPPED_MEASURED_DIFFICULTY } from './features/measurements.ts';
 import { PlayView } from './features/play/PlayView.tsx';
+import { ExportReview } from './features/export/ExportReview.tsx';
 
 export interface AppProps { readonly workspaceOwner?: WorkspaceOwner }
 
@@ -20,6 +21,7 @@ export function App({ workspaceOwner = defaultWorkspaceOwner }: AppProps): React
   const [reading, setReading] = useState<JourneyReading>('author');
   const [drawer, setDrawer] = useState<'model' | 'guide' | null>(null);
   const [playRequest, setPlayRequest] = useState<number | null>(null);
+  const [exportOpen, setExportOpen] = useState(false);
   const expanded = useMemo(() => expandDifficultyDraft(state.draft), [state.draft]);
   const measurements = useMemo(() => Object.fromEntries(expanded.map(({ id }) => [id, state.accepted[id]?.evidence.measuredDifficulty ?? SHIPPED_MEASURED_DIFFICULTY[id - 1]!])), [expanded, state.accepted]);
 
@@ -33,11 +35,12 @@ export function App({ workspaceOwner = defaultWorkspaceOwner }: AppProps): React
           <button data-primary-view="journey" aria-current={primaryView === 'journey' ? 'page' : undefined} onClick={() => setPrimaryView('journey')}>Journey</button>
           <button data-primary-view="level" aria-current={primaryView === 'level' ? 'page' : undefined} onClick={() => setPrimaryView('level')}>Level</button>
         </nav>
-        <div className="header-actions"><span className="editor-shell__state"><i />{state.phase}</span><button className="text-action" data-action="model" onClick={() => setDrawer('model')}>Difficulty model</button><button className="guide-action" data-action="guide" aria-label="Open difficulty guide" onClick={() => setDrawer('guide')}>?</button></div>
+        <div className="header-actions"><span className="editor-shell__state"><i />{state.phase}</span><button className="text-action" data-action="model" onClick={() => setDrawer('model')}>Difficulty model</button><button className="text-action" data-action="review-export" onClick={() => setExportOpen(true)}>Review export</button><button className="guide-action" data-action="guide" aria-label="Open difficulty guide" onClick={() => setDrawer('guide')}>?</button></div>
       </header>
       {primaryView === 'journey' ? <JourneyView state={state} draft={state.draft} expanded={expanded} measurements={measurements} reading={reading} onReading={setReading} onEdit={(draft) => workspace.edit(draft)} onSelect={(id) => { store.selectLevel(id); if (reading === 'boards') setPlayRequest(id); }} /> : <LevelView state={state} draft={state.draft} level={expanded[state.selectedLevelId - 1]!} onEdit={(draft) => workspace.edit(draft)} onPlay={setPlayRequest} />}
       {drawer === 'model' && <DifficultyModelDrawer draft={state.draft} onEdit={(draft) => workspace.edit(draft)} onClose={() => setDrawer(null)} />}
       {drawer === 'guide' && <DifficultyGuide onClose={() => setDrawer(null)} />}
+      {exportOpen && <ExportReview state={state} onClose={() => setExportOpen(false)} />}
       {playRequest !== null && <PlayView
         board={state.boards[playRequest]!}
         canRegenerate={!state.draft.locks.some((lock) => lock.levelId === playRequest)}

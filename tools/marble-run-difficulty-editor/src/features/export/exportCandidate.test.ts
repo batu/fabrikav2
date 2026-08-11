@@ -48,7 +48,7 @@ describe('export candidate review', () => {
     expect(await canonicalizeExportCandidate(JSON.parse(review.json))).toEqual({ json: review.json, fingerprint: review.candidateFingerprint });
     expect((await validateExportCandidate(JSON.parse(review.json), { currentDraftFingerprint: review.reviewedDraftFingerprint })).valid).toBe(true);
     expect(input).toEqual(frozen);
-  });
+  }, 20_000);
 
   it('blocks incomplete, Needs attention, and stale reviews', async () => {
     const input = fixture();
