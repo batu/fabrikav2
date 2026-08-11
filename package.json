@@ -16,7 +16,8 @@
     "tools/game-env",
     "tools/native-shell",
     "tools/level-editor",
-    "tools/level-editor/ui"
+    "tools/level-editor/ui",
+    "tools/marble-run-difficulty-editor"
   ],
   "scripts": {
     "typecheck": "npm run typecheck --workspaces --if-present",
