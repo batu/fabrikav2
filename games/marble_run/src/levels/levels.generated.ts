@@ -378,43 +378,43 @@ export const LEVELS: readonly LevelDef[] = [
   },
   {
     "id": 13,
-    "cols": 5,
+    "cols": 6,
     "rows": 9,
     "cells": [
-      "RYPRG",
-      "G...R",
-      ".G.B.",
-      "BP...",
-      "Y...R",
-      "Y.Y.R",
-      ".R...",
-      ".BYBY",
-      "PPY.Y"
+      "#G...#",
+      "...R.P",
+      "...PRP",
+      "G...B.",
+      "RG.B..",
+      "Y....R",
+      ".P...P",
+      "YRPPGB",
+      "#GGRB#"
     ],
     "gates": [
       {
         "side": "top",
-        "index": 0,
+        "index": 1,
         "color": "red"
       },
       {
         "side": "bottom",
-        "index": 0,
+        "index": 1,
         "color": "blue"
       },
       {
         "side": "left",
-        "index": 1,
+        "index": 2,
         "color": "green"
       },
       {
         "side": "right",
-        "index": 2,
+        "index": 3,
         "color": "yellow"
       },
       {
         "side": "top",
-        "index": 3,
+        "index": 4,
         "color": "purple"
       }
     ]

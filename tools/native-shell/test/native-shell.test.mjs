@@ -52,6 +52,10 @@ ${partial ? '\t\tA11F00012FAD000000000001 /* AppLovinMaxPlugin.swift in Sources 
 \t\tfiles = (
 \t\t\t\t4D22ABE92AF431CB00220026 /* CapApp-SPM in Frameworks */,
 \t\t);
+\t\t\tbuildPhases = (
+\t\t\t\t1234567890ABCDEF12345679 /* Sources */,
+\t\t\t\t1234567890ABCDEF12345678 /* Resources */,
+\t\t\t);
 /* Begin PBXResourcesBuildPhase section */
 \t\t1234567890ABCDEF12345678 /* Resources */ = {
 \t\t\tisa = PBXResourcesBuildPhase;
@@ -160,6 +164,50 @@ describe('native shell transforms', () => {
     const story = patchStoryboard(storyboard());
     expect(story).toContain('customClass="FindTheDogBridgeViewController"');
     expect(patchStoryboard(story)).toBe(story);
+  });
+
+  it('omits the Crashlytics dSYM upload phase unless the manifest opts in', () => {
+    const off = patchPbxproj(pbxproj(), manifest(), { googleServicePresent: false });
+    expect(off).not.toContain('Upload Crashlytics dSYMs');
+    expect(off).not.toContain('PBXShellScriptBuildPhase');
+  });
+
+  it('wires the Crashlytics dSYM upload phase idempotently when opted in', () => {
+    const withUpload = { ...manifest(), ios: { ...manifest().ios, crashlyticsSymbolUpload: true } };
+    const once = patchPbxproj(pbxproj(), withUpload, { googleServicePresent: false });
+
+    expect(once).toContain('/* Begin PBXShellScriptBuildPhase section */');
+    expect(once).toContain('Upload Crashlytics dSYMs');
+    // Runs after Resources, because the dSYM does not exist until linking ends.
+    expect(once).toMatch(/\/\* Resources \*\/,\n\s*A11F00302FAD000000000030 \/\* Upload Crashlytics dSYMs \*\/,/);
+    // Debug builds emit no dSYM; the phase must cost them nothing.
+    expect(once).toContain('DEBUG_INFORMATION_FORMAT');
+    // upload-symbols, not the firebase CLI, which is the Android/NDK path.
+    expect(once).toContain('Crashlytics/upload-symbols');
+    expect(patchPbxproj(once, withUpload, { googleServicePresent: false })).toBe(once);
+  });
+
+  it('escapes the upload script so the project file still parses', () => {
+    // The script embeds double quotes. Unescaped, they terminate the pbxproj
+    // string and Xcode refuses to open the project at all ("damaged ... parse
+    // error"). Cost one failed archive to learn.
+    const withUpload = { ...manifest(), ios: { ...manifest().ios, crashlyticsSymbolUpload: true } };
+    const once = patchPbxproj(pbxproj(), withUpload, { googleServicePresent: false });
+    const script = /shellScript = "((?:[^"\\]|\\.)*)";/.exec(once);
+
+    expect(script).not.toBeNull();
+    expect(script[1]).toContain('\\"$UPLOAD\\" -gsp \\"$GSP\\"');
+    // Every quote inside the value must be backslash-escaped.
+    expect(script[1].replace(/\\"/g, '')).not.toContain('"');
+  });
+
+  it('unwires the Crashlytics upload phase when the manifest opts back out', () => {
+    const withUpload = { ...manifest(), ios: { ...manifest().ios, crashlyticsSymbolUpload: true } };
+    const wired = patchPbxproj(pbxproj(), withUpload, { googleServicePresent: false });
+    const unwired = patchPbxproj(wired, manifest(), { googleServicePresent: false });
+
+    expect(unwired).not.toContain('A11F00302FAD000000000030');
+    expect(unwired).not.toContain('Upload Crashlytics dSYMs');
   });
 });
 

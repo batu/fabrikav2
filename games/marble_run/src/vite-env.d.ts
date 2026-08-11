@@ -6,6 +6,8 @@ interface ImportMetaEnv {
   readonly VITE_ENABLE_TEST_HARNESS?: string;
   readonly VITE_SDK_VERIFIER_AUTOMOUNT?: string;
   readonly VITE_SDK_VERIFIER_AUTOPRELOAD?: string;
+  readonly VITE_SDK_VERIFIER_AUTOCRASH?: string;
+  readonly VITE_AUTOMATED_DEVICE_PROBE?: string;
   readonly VITE_FTD_FORCE_CANVAS?: string;
   readonly VITE_FTD_SIM_AUTOPLAY?: string;
   readonly VITE_FTD_DISABLE_REMOTE_CONFIG?: string;

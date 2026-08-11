@@ -28,7 +28,13 @@ export class Stage {
   private cameraYawDeg = 45;
   private framedBoard: { readonly w: number; readonly d: number } | null = null;
 
-  constructor(canvas: HTMLCanvasElement) {
+  /**
+   * `manualShadowUpdates` hands shadow-map refresh to the caller. Only worth it
+   * for a surface that is static most of the time (gameplay between taps); a
+   * continuously animating surface like the menu's spinning board must leave it
+   * off, or its shadow freezes at the first frame while the board turns.
+   */
+  constructor(canvas: HTMLCanvasElement, options: { manualShadowUpdates?: boolean } = {}) {
     this.renderer = new THREE.WebGLRenderer({
       canvas,
       antialias: true,
@@ -38,6 +44,12 @@ export class Stage {
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, MAX_RENDER_DPR));
     this.renderer.shadowMap.enabled = true;
     this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    // The shadow pass redraws every caster into a soft-filtered depth map. On a
+    // 10x12 board that is ~300 extra draws per frame, and the board is static
+    // between taps — so update shadows only when something actually moved.
+    // Failure mode is a briefly stale shadow, never a frozen picture.
+    this.renderer.shadowMap.autoUpdate = options.manualShadowUpdates !== true;
+    this.renderer.shadowMap.needsUpdate = true;
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
 
     // Dimetric camera: azimuth defaults to 45deg, elevation controlled by
@@ -51,7 +63,8 @@ export class Stage {
     const sun = new THREE.DirectionalLight(0xffffff, 2.4);
     sun.position.set(6, 14, 4);
     sun.castShadow = true;
-    sun.shadow.mapSize.set(2048, 2048);
+    // 1024 is plenty for a board this size and quarters the shadow fill cost.
+    sun.shadow.mapSize.set(1024, 1024);
     sun.shadow.camera.left = -10;
     sun.shadow.camera.right = 10;
     sun.shadow.camera.top = 10;
@@ -193,6 +206,11 @@ export class Stage {
     this.placeCamera();
     this.camera.updateProjectionMatrix();
     this.camera.setViewOffset(width, height, 0, height * this.viewOffsetYRatio, width, height);
+  }
+
+  /** Re-render the shadow map on the next frame (something moved). */
+  markShadowsDirty(): void {
+    this.renderer.shadowMap.needsUpdate = true;
   }
 
   render(): void {

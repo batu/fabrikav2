@@ -23,6 +23,14 @@ const config = {
     // Phaser's frozen viewport constants, so native inset adjustment must stay
     // pinned at the Capacitor config level.
     contentInset: "never",
+    // The publisher reported that in-game windows — and the whole background —
+    // could be dragged. CSS cannot fix that: it is the WKWebView's own
+    // UIScrollView panning/bouncing the document, which `position: fixed` on
+    // body and `touch-action` on the modal layer do not touch. This sets
+    // UIScrollView.isScrollEnabled = false. The game never scrolls the
+    // document (the shop scrolls its own inner element), so nothing legitimate
+    // depends on it.
+    scrollEnabled: false,
   },
 };
 

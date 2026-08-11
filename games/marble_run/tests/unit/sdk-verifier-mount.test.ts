@@ -5,18 +5,20 @@ import { createSdkContext } from '../../src/sdk/SdkContext';
 const emptyContext = () => createSdkContext({ platform: 'ios', isNativePlatform: true, env: {}, isProductionBuild: false });
 
 describe('SdkVerifierMount', () => {
-  it('builds five entries reporting not-configured states for an empty env', () => {
+  it('builds six entries reporting not-configured states for an empty env', () => {
     const entries = buildEntries(emptyContext());
 
     expect(entries.map((e) => e.name)).toEqual([
       'ads (disabled)',
       'attribution (disabled)',
       'firebase analytics',
+      'firebase crashlytics',
       'facebook (meta-disabled)',
       'remote config (ads)',
     ]);
     expect(entries[2].getStatus()).toContain('not configured');
     expect(entries[3].getStatus()).toContain('not configured');
+    expect(entries[4].getStatus()).toContain('not configured');
   });
 
   it('never exposes the full AppLovin sdk key in configured ids', () => {

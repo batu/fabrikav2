@@ -99,6 +99,12 @@ describe('includePlugins', () => {
     expect(computeIncludePlugins(env)).toContain('@capacitor-firebase/analytics');
   });
 
+  it('gates crashlytics behind the same firebase triple as analytics', () => {
+    const env = { VITE_FIREBASE_API_KEY: 'k', VITE_FIREBASE_PROJECT_ID: 'p', VITE_FIREBASE_APP_ID: 'a' };
+    expect(computeIncludePlugins(env)).toContain('@capacitor-firebase/crashlytics');
+    expect(computeIncludePlugins({})).not.toContain('@capacitor-firebase/crashlytics');
+  });
+
   it('loads production env values before computing the Capacitor plugin allowlist', () => {
     const env = loadCapacitorSyncEnv(
       { NODE_ENV: 'production', VITE_FIREBASE_PROJECT_ID: 'shell-override' },

@@ -33,7 +33,9 @@
       "id": "porcelain-cap",
       "prim": "sphere",
       "dims": {
-        "radius": 0.33
+        "radius": 0.33,
+        "widthSegments": 20,
+        "heightSegments": 12
       },
       "scale": [
         1,

@@ -196,6 +196,8 @@ export const CLIMAX_MARBLE_CAP = 80;
 
 /** Climax boards need a larger playable area to reach their scheduled peak. */
 const CLIMAX_BOARD_SIZE = { cols: 11, rows: 13 } as const;
+/** Tallest a generated board may be relative to its width (rows / cols). */
+const MAX_BOARD_RATIO = 1.5;
 
 /**
  * Highest non-climax difficulty `scoreLevel` can actually report under
@@ -304,6 +306,16 @@ export function boardSizeFor(id: number): BoardSize {
   // Keep boards portrait-ish (rows ~1.2x cols) to match the phone viewport.
   let cols = Math.min(10, Math.max(4, Math.round(Math.sqrt(wantedArea / 1.2)) - spotlight));
   let rows = Math.min(12, Math.max(4, Math.ceil(wantedArea / cols) - spotlight));
+
+  // Cap how tall-and-narrow a board may get. `rows = ceil(area / cols)`
+  // overshoots the intended ~1.2 ratio badly at small marble counts — level 13
+  // came out 5x9 (1.80), the most extreme board in the early game and the one
+  // players report as hard to tap. Widen rather than shorten: shortening drops
+  // the cell count below the marble target the level needs.
+  if (rows > cols * MAX_BOARD_RATIO) {
+    cols = Math.min(10, Math.max(cols, Math.ceil(rows / MAX_BOARD_RATIO)));
+    rows = Math.min(12, Math.max(4, Math.ceil(wantedArea / cols)));
+  }
 
   // A plugs/voids debut must be big enough to actually show plugs/voids.
   if (needsSculptedBoard(id)) {

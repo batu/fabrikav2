@@ -50,6 +50,35 @@ interface PointerTarget {
   readonly holdCell: Cell;
 }
 
+/** One marble's rendered screen position and the cell a tap there resolves to. */
+export interface MarbleTapTarget {
+  readonly marbleId: number;
+  readonly cell: Cell;
+  readonly client: { x: number; y: number };
+  readonly resolvedActionCell: Cell | null;
+  readonly onTarget: boolean;
+}
+
+/** Keep refreshing shadows briefly after motion stops, so the settled frame is
+ * drawn with a current shadow map rather than the last in-motion one. */
+const SHADOW_SETTLE_TAIL_MS = 400;
+/** Static boards do not need a phone-heating 60 WebGL renders per second. */
+const IDLE_RENDER_INTERVAL_MS = 1000;
+
+export function gameplayRenderPolicy(options: {
+  paused: boolean;
+  sceneBusy: boolean;
+  shadowsSettling: boolean;
+  idleRefreshDue: boolean;
+}): { tick: boolean; render: boolean; extendShadowTail: boolean } {
+  const continuous = !options.paused && options.sceneBusy;
+  return {
+    tick: continuous,
+    render: continuous || options.shadowsSettling || options.idleRefreshDue,
+    extendShadowTail: continuous,
+  };
+}
+
 const TAP_ASSIST_RADIUS_PX = 46;
 const PRECISE_BLOCKED_HIT_MAX_PX = 8;
 const PRECISE_BLOCKED_HIT_ASSIST_RATIO = 0.25;
@@ -94,6 +123,8 @@ export class GameplayController {
   private failModalTimer: number | null = null;
   private winModalTimer: number | null = null;
   private rafHandle: number | null = null;
+  private shadowsDirtyUntil = 0;
+  private lastRenderTime = 0;
   private disposed = false;
 
   private readonly boundPointerDown: (e: PointerEvent) => void;
@@ -128,7 +159,7 @@ export class GameplayController {
     } satisfies Partial<CSSStyleDeclaration>);
     container.appendChild(this.hudRoot);
 
-    this.stage = new Stage(this.canvas);
+    this.stage = new Stage(this.canvas, { manualShadowUpdates: true });
     this.stage.setViewOffsetYRatio(0.035);
     this.stage.setDebugCamera('dimetric', GAMEPLAY_CAMERA_GROUND_ANGLE_DEG, 90);
 
@@ -170,6 +201,8 @@ export class GameplayController {
     this.stage.world.add(this.board.root);
     const { w, d } = this.board.boardSize();
     this.stage.frameBoard(w, d);
+    // New board geometry: the cached shadow map is stale by definition.
+    this.shadowsDirtyUntil = performance.now() + SHADOW_SETTLE_TAIL_MS;
     this.board.refreshGateLiveness();
 
     const spawnDelay = this.engine.remainingCount() * W3D.SPAWN_STAGGER_S * 1000;
@@ -288,12 +321,22 @@ export class GameplayController {
   }
 
   private resolvePointerTarget(e: PointerEvent): PointerTarget | null {
+    return this.resolveTargetAt(e.clientX, e.clientY);
+  }
+
+  /**
+   * Split out from the pointer handler so the harness can ask "which cell does
+   * a tap at this exact screen point action?" without synthesizing an event.
+   * Tap targeting is a projection problem; a unit test with a mocked stage
+   * cannot see it, so the question has to be answerable on the device.
+   */
+  private resolveTargetAt(clientX: number, clientY: number): PointerTarget | null {
     if (!this.board || !this.engine) return null;
-    const assistedMovableCell = this.nearestProjectedMovableCell(e.clientX, e.clientY);
-    const planeCell = this.pointerPlaneCell(e.clientX, e.clientY);
+    const assistedMovableCell = this.nearestProjectedMovableCell(clientX, clientY);
+    const planeCell = this.pointerPlaneCell(clientX, clientY);
     // Precise pick first: in dimetric, a marble's upper half hovers over
     // the cell BEHIND it — plane-mapping alone mis-taps there.
-    const hit = this.stage.pickObject(e.clientX, e.clientY, this.board.marbleMeshes());
+    const hit = this.stage.pickObject(clientX, clientY, this.board.marbleMeshes());
     if (hit) {
       const id = (hit.userData as { marbleId?: number }).marbleId;
       if (id !== undefined) {
@@ -307,7 +350,7 @@ export class GameplayController {
           if (
             planeCell
             && sameCell(planeCell, cell)
-            && this.isPreciseBlockedHit(cell, assistedMovableCell, e.clientX, e.clientY)
+            && this.isPreciseBlockedHit(cell, assistedMovableCell, clientX, clientY)
           ) {
             return { actionCell: cell, holdCell: cell };
           }
@@ -527,15 +570,93 @@ export class GameplayController {
     const now = performance.now();
     const dt = Math.min((now - this.lastTime) / 1000, 0.05);
     this.lastTime = now;
-    if (!this.paused) {
+    // Shadows only need redrawing while the scene is actually moving. Keep a
+    // short tail so the settle frame after the last roll is not left stale.
+    const sceneBusy = this.board?.requiresContinuousFrames() === true
+      || this.tutorialCell !== null;
+    const shadowsSettling = now <= this.shadowsDirtyUntil;
+    const idleRefreshDue = now - this.lastRenderTime >= IDLE_RENDER_INTERVAL_MS;
+    const policy = gameplayRenderPolicy({
+      paused: this.paused,
+      sceneBusy,
+      shadowsSettling,
+      idleRefreshDue,
+    });
+    if (policy.extendShadowTail) this.shadowsDirtyUntil = now + SHADOW_SETTLE_TAIL_MS;
+    if (shadowsSettling) this.stage.markShadowsDirty();
+    if (policy.tick) {
       this.board?.tick(dt);
       // The cue is mounted before the board's settle/drop animation completes.
       // Reproject it each frame so the visible marble and its tap cue stay one
       // target instead of separating vertically during first-level onboarding.
       this.updateTutorialPosition();
     }
-    this.stage.render();
+    if (policy.render) {
+      this.stage.render();
+      this.lastRenderTime = now;
+    }
     this.rafHandle = requestAnimationFrame(() => this.loop());
+  }
+
+  /**
+   * Harness probe: for every marble on the board, where it renders on screen
+   * and which cell a tap at that exact point would action. `onTarget` false
+   * means tapping the marble's visible centre actions a different cell — the
+   * class of defect the publisher reports as "the tap position is offset".
+   *
+   * A tool, not an agent: one query, no loop, no judgement.
+   */
+  marbleTapTargets(): MarbleTapTarget[] {
+    if (!this.board || !this.engine) return [];
+    const targets: MarbleTapTarget[] = [];
+    for (const mesh of this.board.marbleMeshes()) {
+      const marbleId = (mesh.userData as { marbleId?: number }).marbleId;
+      if (marbleId === undefined) continue;
+      const cell = this.board.cellOfMarble(marbleId);
+      if (!cell) continue;
+      const client = this.cellClientPoint(cell);
+      if (!client) continue;
+      const resolved = this.resolveTargetAt(client.x, client.y);
+      targets.push({
+        marbleId,
+        cell,
+        client,
+        resolvedActionCell: resolved?.actionCell ?? null,
+        onTarget: resolved !== null && sameCell(resolved.actionCell, cell),
+      });
+    }
+    return targets;
+  }
+
+  /**
+   * Harness probe: for one marble, the vertical span around its rendered centre
+   * where a tap still resolves to its own cell. Reported as offsets in CSS px
+   * (negative = above centre). A region centred on 0 is correct; a region
+   * biased positive means the upper half of the ball is dead — the publisher's
+   * "the actual tappable area is below the center".
+   */
+  marbleHitSpan(marbleId: number, reachPx: number = 40, stepPx: number = 2): { up: number; down: number } | null {
+    if (!this.board) return null;
+    const cell = this.board.cellOfMarble(marbleId);
+    if (!cell) return null;
+    const centre = this.cellClientPoint(cell);
+    if (!centre) return null;
+    const hits = (dy: number): boolean => {
+      const resolved = this.resolveTargetAt(centre.x, centre.y + dy);
+      return resolved !== null && sameCell(resolved.actionCell, cell);
+    };
+    if (!hits(0)) return { up: 0, down: 0 };
+    let up = 0;
+    for (let dy = -stepPx; dy >= -reachPx; dy -= stepPx) {
+      if (!hits(dy)) break;
+      up = -dy;
+    }
+    let down = 0;
+    for (let dy = stepPx; dy <= reachPx; dy += stepPx) {
+      if (!hits(dy)) break;
+      down = dy;
+    }
+    return { up, down };
   }
 
   cellClientPoint(cell: Cell): { x: number; y: number } | null {

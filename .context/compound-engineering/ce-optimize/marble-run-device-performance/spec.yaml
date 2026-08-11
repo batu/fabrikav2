@@ -1,0 +1,90 @@
+name: marble-run-device-performance
+description: Reduce sustained Marble Run rendering cost on a physical iPhone 12 without changing gameplay, visuals, monetization, or interaction behavior.
+metric:
+  primary:
+    type: hard
+    name: p95_ms
+    direction: minimize
+  degenerate_gates:
+    - name: levels_profiled
+      check: "== 6"
+    - name: draw_calls
+      check: "> 0"
+    - name: triangles
+      check: "> 0"
+    - name: frames_min
+      check: "> 500"
+    - name: late_game_renders_max
+      check: "> 0"
+  diagnostics:
+    - name: worst_ms
+    - name: p50_ms
+    - name: draw_calls
+    - name: triangles
+    - name: frames_min
+    - name: renders_max
+    - name: late_game_renders_max
+    - name: level_1_p95_ms
+    - name: level_20_p95_ms
+    - name: level_21_p95_ms
+    - name: level_30_p95_ms
+    - name: level_68_p95_ms
+    - name: level_106_p95_ms
+    - name: level_21_renders
+    - name: level_30_renders
+    - name: level_68_renders
+    - name: level_106_renders
+    - name: level_1_draw_calls
+    - name: level_20_draw_calls
+    - name: level_21_draw_calls
+    - name: level_30_draw_calls
+    - name: level_68_draw_calls
+    - name: level_106_draw_calls
+    - name: level_1_triangles
+    - name: level_20_triangles
+    - name: level_21_triangles
+    - name: level_30_triangles
+    - name: level_68_triangles
+    - name: level_106_triangles
+measurement:
+  command: node scripts/profile-device-performance.mjs
+  working_directory: games/marble_run
+  timeout_seconds: 240
+  output_format: json
+  stability:
+    mode: repeat
+    repeat_count: 3
+    aggregation: median
+    noise_threshold: 0.75
+scope:
+  mutable:
+    - games/marble_run/src/three
+    - games/marble_run/src/gameplay
+    - games/marble_run/src/core/GameConfig.ts
+    - games/marble_run/tests/unit
+  immutable:
+    - games/marble_run/scripts/profile-device-performance.mjs
+    - games/marble_run/src/testing/TestHarness.ts
+    - games/marble_run/public/levels
+    - games/marble_run/native-resources
+constraints:
+  - Physical iPhone 12 results are the optimization authority; browser, simulator, and unit-test results are not device proof.
+  - Sustained profiles must cover levels 21, 30, 68, and 106 because the reported heating begins after level 20.
+  - Preserve gameplay, progression, visuals, input behavior, rewarded ads, and the deferred long-press route preview.
+  - Marble Run has no Shop; do not add or preserve fictional Shop behavior.
+  - Automated probes must never show ads.
+  - Reinstall and launch a clean no-probe build after every experiment cycle.
+  - Thermal behavior on the unavailable iPhone 12 mini remains blocked and cannot be claimed verified.
+execution:
+  mode: serial
+  backend: worktree
+  max_concurrent: 1
+parallel:
+  port_strategy: none
+  exclusive_resources:
+    - physical-iphone-12
+stopping:
+  max_iterations: 12
+  max_hours: 6
+  plateau_iterations: 2
+  target_reached: false
