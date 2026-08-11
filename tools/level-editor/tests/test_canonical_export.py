@@ -137,3 +137,18 @@ def test_public_export_entrypoint_routes_canonical_sessions_without_authoring_wr
     assert result["variant"] == "canonical"
     assert result["contentRevision"] == pointer.content_revision
     assert store.read().pointer == before
+
+
+def test_catalog_approval_retains_revision_addressed_canonical_package(isolated_session):
+    _store, pointer = _reviewed_export_session(isolated_session, "canonical_catalog_retention")
+
+    result = isolated_session.approve_level_for_catalog(
+        "canonical_catalog_retention",
+        request_id="canonical-retention-request",
+    )
+
+    entry = result["catalogEntry"]
+    retained = isolated_session.GAME_PUBLIC_LEVELS / entry["retainedPackagePath"]
+    assert entry["contentRevision"] == pointer.content_revision
+    assert retained.is_dir()
+    assert (retained / "artifact-manifest.json").is_file()

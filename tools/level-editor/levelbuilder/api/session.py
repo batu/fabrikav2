@@ -5493,6 +5493,24 @@ def _cleanup_package_backup(backup: Path | None) -> None:
         shutil.rmtree(backup)
 
 
+def _retain_immutable_package_revision(session_id: str, staging_root: Path, content_revision: str) -> Path:
+    """Keep canonical package bytes addressable for catalog rollback and installed clients."""
+    revision_slug = content_revision.removeprefix("sha256:")
+    retained = GAME_PUBLIC_LEVELS / ".package-revisions" / session_id / revision_slug
+    staged = staging_root / session_id
+    if retained.exists():
+        return retained
+    retained.parent.mkdir(parents=True, exist_ok=True)
+    temporary = retained.with_name(f".{retained.name}.tmp-{uuid.uuid4().hex}")
+    try:
+        shutil.copytree(staged, temporary)
+        os.replace(temporary, retained)
+    finally:
+        if temporary.exists():
+            shutil.rmtree(temporary)
+    return retained
+
+
 def _catalog_approval_signature(
     *,
     session_id: str,
@@ -5643,6 +5661,11 @@ def approve_level_for_catalog(
                 cohort_buckets=cohort_buckets if cohort_buckets is not None else (existing_entry.get("cohortBuckets") if existing_entry else None),
             )
             entry["sourceVariant"] = export_result["variant"]
+            content_revision = export_result.get("contentRevision")
+            if isinstance(content_revision, str):
+                retained = _retain_immutable_package_revision(session_id, staging_root, content_revision)
+                entry["contentRevision"] = content_revision
+                entry["retainedPackagePath"] = retained.relative_to(GAME_PUBLIC_LEVELS).as_posix()
             existing_by_id[session_id] = _merge_existing_catalog_metadata(
                 entry,
                 existing_entry,
