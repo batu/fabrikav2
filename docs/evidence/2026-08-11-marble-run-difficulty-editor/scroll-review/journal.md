@@ -58,3 +58,31 @@ Change explanation: Native overlay scrollbars were replaced only on the three ed
 Decision: passed after moving the Boards horizontal rail above the board field.
 
 Next action: activate the reviewed artifact in Portal after deployment consent.
+
+### Iteration 3
+
+Planned result: Prove the same affordances on the authenticated live Portal artifact, not the local preview.
+
+Capture setup: Live Portal route, exact iframe content hash `e6a20c180c661c54555afabc8c6bedba377ffeb7e5d1d7e16a715787aaae64bc`, Chromium at 1440 x 900 and 760 x 900.
+
+![Live Pattern at desktop width](assets/pattern-live-1440.png)
+What to compare: The right-edge rail is present in the first viewport and corresponds to the editor shell's actual vertical offset.
+Acceptance check: Track click moved scrollTop from 0 to 579.
+
+![Live Boards at desktop width](assets/boards-live-1440.png)
+What to compare: The 110-board campaign remains dense while the right-edge rail communicates the content below the fold.
+Acceptance check: All 110 board thumbnails rendered; no page errors.
+
+![Live Ranges at narrow width](assets/ranges-live-760.png)
+What to compare: The range marks retain their readable width and the horizontal rail remains visible beneath the chart.
+Acceptance check: Chart width 1126 over a 724-pixel viewport; track click moved scrollLeft from 0 to 402.
+
+![Live Boards at narrow width](assets/boards-live-760.png)
+What to compare: The horizontal rail is visible before the board field rather than hidden beneath 110 boards.
+Acceptance check: Board field width 1100 over a 724-pixel viewport; track click moved scrollLeft from 0 to 376.
+
+Change explanation: The final narrow-width pass removed the media rule that compressed all 110 ranges into the viewport. Compression had technically removed overflow by making the chart illegible, which is a rather literal solution to the wrong problem.
+
+Decision: passed on the live authenticated Portal route with zero page errors.
+
+Next action: push the source commit and retain the activation backup for rollback.
