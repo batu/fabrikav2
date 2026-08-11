@@ -91,8 +91,7 @@ export function createLevelSolvabilityChecker(
   const { cols, rows } = level;
   const size = cols * rows;
   const colorCodes = new Map<MarbleColor, number>();
-  const gateMouths: Array<{ readonly code: number; readonly key: number }> = [];
-  const mouthFlags = new Uint8Array((level.gates.length + 1) * size);
+  const mouthMasks = new Uint32Array(size);
   for (const gate of level.gates) {
     let code = colorCodes.get(gate.color);
     if (code === undefined) {
@@ -101,14 +100,15 @@ export function createLevelSolvabilityChecker(
     }
     const mouth = gateMouthCell(gate, cols, rows);
     const key = mouth.y * cols + mouth.x;
-    gateMouths.push({ code, key });
-    mouthFlags[code * size + key] = 1;
+    mouthMasks[key] |= 1 << (code - 1);
   }
 
   const grid = new Int8Array(size);
-  const reachable = new Uint8Array((colorCodes.size + 1) * size);
+  const componentAt = new Uint16Array(size);
+  const componentMasks = new Uint32Array(size);
   const queue = new Int16Array(size);
   const movable = new Int16Array(size);
+  const unvisited = 0xffff;
 
   return (cells: readonly string[]): boolean => {
     let remaining = 0;
@@ -132,42 +132,73 @@ export function createLevelSolvabilityChecker(
     }
 
     while (remaining > 0) {
-      reachable.fill(0);
-      for (const gate of gateMouths) {
-        if (grid[gate.key] !== 0) continue;
-        const offset = gate.code * size;
-        if (reachable[offset + gate.key] !== 0) continue;
+      componentAt.fill(unvisited);
+      let componentCount = 0;
+      for (let start = 0; start < size; start += 1) {
+        if (grid[start] !== 0 || componentAt[start] !== unvisited) continue;
         let head = 0;
         let tail = 1;
-        queue[0] = gate.key;
-        reachable[offset + gate.key] = 1;
+        let gateMask = 0;
+        queue[0] = start;
+        componentAt[start] = componentCount;
         while (head < tail) {
           const key = queue[head++]!;
           const x = key % cols;
-          const visit = (next: number): void => {
-            if (grid[next] !== 0 || reachable[offset + next] !== 0) return;
-            reachable[offset + next] = 1;
-            queue[tail++] = next;
-          };
-          if (key >= cols) visit(key - cols);
-          if (x + 1 < cols) visit(key + 1);
-          if (key + cols < size) visit(key + cols);
-          if (x > 0) visit(key - 1);
+          gateMask |= mouthMasks[key]!;
+          let next: number;
+          if (key >= cols) {
+            next = key - cols;
+            if (grid[next] === 0 && componentAt[next] === unvisited) {
+              componentAt[next] = componentCount;
+              queue[tail++] = next;
+            }
+          }
+          if (x + 1 < cols) {
+            next = key + 1;
+            if (grid[next] === 0 && componentAt[next] === unvisited) {
+              componentAt[next] = componentCount;
+              queue[tail++] = next;
+            }
+          }
+          if (key + cols < size) {
+            next = key + cols;
+            if (grid[next] === 0 && componentAt[next] === unvisited) {
+              componentAt[next] = componentCount;
+              queue[tail++] = next;
+            }
+          }
+          if (x > 0) {
+            next = key - 1;
+            if (grid[next] === 0 && componentAt[next] === unvisited) {
+              componentAt[next] = componentCount;
+              queue[tail++] = next;
+            }
+          }
         }
+        componentMasks[componentCount] = gateMask;
+        componentCount += 1;
       }
 
       let movableCount = 0;
       for (let key = 0; key < size; key += 1) {
         const code = grid[key]!;
         if (code <= 0) continue;
-        const offset = code * size;
+        const colorMask = 1 << (code - 1);
         const x = key % cols;
         if (
-          mouthFlags[offset + key] !== 0 ||
-          (key >= cols && reachable[offset + key - cols] !== 0) ||
-          (x + 1 < cols && reachable[offset + key + 1] !== 0) ||
-          (key + cols < size && reachable[offset + key + cols] !== 0) ||
-          (x > 0 && reachable[offset + key - 1] !== 0)
+          (mouthMasks[key]! & colorMask) !== 0 ||
+          (key >= cols &&
+            grid[key - cols] === 0 &&
+            (componentMasks[componentAt[key - cols]!]! & colorMask) !== 0) ||
+          (x + 1 < cols &&
+            grid[key + 1] === 0 &&
+            (componentMasks[componentAt[key + 1]!]! & colorMask) !== 0) ||
+          (key + cols < size &&
+            grid[key + cols] === 0 &&
+            (componentMasks[componentAt[key + cols]!]! & colorMask) !== 0) ||
+          (x > 0 &&
+            grid[key - 1] === 0 &&
+            (componentMasks[componentAt[key - 1]!]! & colorMask) !== 0)
         ) {
           movable[movableCount++] = key;
         }

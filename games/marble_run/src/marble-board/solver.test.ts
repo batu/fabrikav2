@@ -36,6 +36,29 @@ describe('isLevelSolvable', () => {
     expect(check(['R..', '...', '...'])).toBe(true);
   });
 
+  it('rebuilds component gate masks when empty-space topology changes', () => {
+    const contract = {
+      cols: 3,
+      rows: 3,
+      gates: [
+        { side: 'top', index: 0, color: 'red' },
+        { side: 'bottom', index: 2, color: 'blue' },
+      ] as const,
+    };
+    const check = createLevelSolvabilityChecker(contract);
+    const boards = [
+      ['R..', '...', '..B'],
+      ['R#B', '###', 'B#R'],
+      ['...', '.#.', '...'],
+      ['R..', '...', '..B'],
+    ];
+    for (const [index, cells] of boards.entries()) {
+      expect(check(cells), `reuse ${index}`).toBe(
+        solveLevel({ id: 25_000 + index, ...contract, cells }).solvable,
+      );
+    }
+  });
+
   it('matches the route-producing solver for all shipped boards', () => {
     for (const level of LEVELS) expectEquivalent(level);
   });
