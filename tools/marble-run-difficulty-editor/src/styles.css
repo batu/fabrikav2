@@ -191,8 +191,6 @@ select { background: transparent; border: 0; border-bottom: 1px solid var(--line
   .progression-block { grid-column: auto; }
   .range-selection { grid-template-columns: repeat(2, 1fr); }
   .range-selection__wide { grid-column: 1 / -1; }
-  .range-chart { grid-template-columns: 26px minmax(680px, 1fr); }
-  .range-chart__levels { grid-template-columns: repeat(110, minmax(0, 1fr)); }
   .range-mark { min-width: 4px; }
   .level-board { min-height: 360px; }
   .export-inventories { grid-template-columns: repeat(2, 1fr); }
