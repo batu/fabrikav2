@@ -14,6 +14,9 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const MARKER = '// marble-run-sdk-deps';
+const CRASHLYTICS_MARKER = '// marble-run-crashlytics-plugin';
+const CRASHLYTICS_CLASSPATH =
+  `        classpath 'com.google.firebase:firebase-crashlytics-gradle:3.0.7' ${CRASHLYTICS_MARKER}`;
 
 export const SDK_DEPENDENCIES = [
   `    implementation "com.applovin:applovin-sdk:13.5.1" ${MARKER}`,
@@ -30,10 +33,32 @@ const PLUGIN_IMPORTS = [
 const AD_ID_PERMISSION = '    <uses-permission android:name="com.google.android.gms.permission.AD_ID"/>';
 
 export function patchBuildGradle(content) {
-  if (content.includes(MARKER)) return content;
-  const anchor = /dependencies \{\n/;
-  if (!anchor.test(content)) throw new Error('android/app/build.gradle has no dependencies block');
-  return content.replace(anchor, `dependencies {\n${SDK_DEPENDENCIES.join('\n')}\n`);
+  let next = content;
+  if (!next.includes(MARKER)) {
+    const anchor = /dependencies \{\n/;
+    if (!anchor.test(next)) throw new Error('android/app/build.gradle has no dependencies block');
+    next = next.replace(anchor, `dependencies {\n${SDK_DEPENDENCIES.join('\n')}\n`);
+  }
+  if (!next.includes("apply plugin: 'com.google.firebase.crashlytics'")) {
+    const googleServices = "        apply plugin: 'com.google.gms.google-services'";
+    if (!next.includes(googleServices)) {
+      throw new Error('android/app/build.gradle has no conditional google-services plugin');
+    }
+    next = next.replace(
+      googleServices,
+      `${googleServices}\n        apply plugin: 'com.google.firebase.crashlytics' ${CRASHLYTICS_MARKER}`,
+    );
+  }
+  return next;
+}
+
+export function patchRootBuildGradle(content) {
+  if (content.includes(CRASHLYTICS_CLASSPATH)) return content;
+  const googleServices = /^(\s*)classpath 'com\.google\.gms:google-services:[^']+'\s*$/m;
+  if (!googleServices.test(content)) {
+    throw new Error('android/build.gradle has no google-services classpath');
+  }
+  return content.replace(googleServices, (line) => `${line}\n${CRASHLYTICS_CLASSPATH}`);
 }
 
 export function patchManifest(content) {
@@ -75,6 +100,7 @@ export function patchMainActivity(content) {
 
 function apply(root) {
   const targets = [
+    ['android/build.gradle', patchRootBuildGradle],
     ['android/app/build.gradle', patchBuildGradle],
     ['android/app/src/main/AndroidManifest.xml', patchManifest],
     ['android/app/src/main/java/com/basegamelab/marblerun/MainActivity.java', patchMainActivity],
