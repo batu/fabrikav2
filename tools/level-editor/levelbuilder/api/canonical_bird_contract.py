@@ -1,0 +1,273 @@
+"""Canonical Find the Bird authoring identity and revision primitives.
+
+This module deliberately knows nothing about public packages.  Its store is
+rooted at an authoring session directory supplied by the caller; projections
+must enter through an explicit migration in a later pipeline stage.
+"""
+
+from __future__ import annotations
+
+import copy
+import fcntl
+import hashlib
+import json
+import os
+import re
+import tempfile
+from dataclasses import dataclass
+from enum import Enum
+from pathlib import Path
+from typing import Any
+
+
+SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
+BIRD_ID_RE = re.compile(r"^bird_[A-Za-z0-9][A-Za-z0-9._-]*$")
+SLOT_RE = re.compile(r"^dog_\d{2,}$")
+
+
+class ContractValidationError(ValueError):
+    pass
+
+
+class RevisionConflictError(RuntimeError):
+    def __init__(self, expected: str | None, actual: str | None):
+        self.expected = expected
+        self.actual = actual
+        super().__init__(f"content revision conflict: expected {expected!r}, actual {actual!r}")
+
+
+class CanonicalReadState(str, Enum):
+    VALID_CURRENT = "valid_current"
+    MIGRATION_REQUIRED = "migration_required"
+    QUARANTINED_INTEGRITY = "quarantined_integrity"
+    ORPHANED_STAGE = "orphaned_stage"
+
+
+@dataclass(frozen=True)
+class SnapshotRevisions:
+    content_revision: str
+    operational_revision: str
+
+
+@dataclass(frozen=True)
+class RevisionPointer:
+    revision_file: str
+    content_revision: str
+    operational_revision: str
+
+
+@dataclass(frozen=True)
+class CanonicalReadResult:
+    state: CanonicalReadState
+    snapshot: dict[str, Any] | None = None
+    pointer: RevisionPointer | None = None
+    detail: str | None = None
+
+
+def canonical_json(value: Any) -> str:
+    return json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+
+
+def _hash(value: Any) -> str:
+    return "sha256:" + hashlib.sha256(canonical_json(value).encode("utf-8")).hexdigest()
+
+
+def _require(condition: bool, message: str) -> None:
+    if not condition:
+        raise ContractValidationError(message)
+
+
+def _validate_asset(asset: Any, label: str) -> None:
+    _require(isinstance(asset, dict), f"{label} must be an asset descriptor")
+    _require(isinstance(asset.get("path"), str) and bool(asset["path"]), f"{label}.path is required")
+    _require(isinstance(asset.get("sha256"), str) and bool(SHA256_RE.fullmatch(asset["sha256"])), f"{label}.sha256 is invalid")
+    _require(isinstance(asset.get("bytes"), int) and asset["bytes"] >= 0, f"{label}.bytes is invalid")
+
+
+def _content_projection(snapshot: dict[str, Any]) -> dict[str, Any]:
+    birds = []
+    for source in snapshot["birds"]:
+        bird = {key: copy.deepcopy(value) for key, value in source.items() if key != "presentationOrder"}
+        birds.append(bird)
+    birds.sort(key=lambda item: item["birdId"])
+    return {
+        "schemaVersion": snapshot["schemaVersion"],
+        "sessionId": snapshot["sessionId"],
+        "assets": copy.deepcopy(snapshot["assets"]),
+        "restore": copy.deepcopy(snapshot["restore"]),
+        "birds": birds,
+    }
+
+
+def _operational_projection(snapshot: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "schemaVersion": snapshot["schemaVersion"],
+        "sessionId": snapshot["sessionId"],
+        "presentationOrder": {
+            bird["birdId"]: bird.get("presentationOrder") for bird in snapshot["birds"]
+        },
+        "operational": copy.deepcopy(snapshot.get("operational", {})),
+    }
+
+
+def snapshot_revisions(snapshot: dict[str, Any]) -> SnapshotRevisions:
+    validate_snapshot(snapshot, validate_reviews=False)
+    return SnapshotRevisions(
+        content_revision=_hash(_content_projection(snapshot)),
+        operational_revision=_hash(_operational_projection(snapshot)),
+    )
+
+
+def validate_snapshot(snapshot: Any, *, validate_reviews: bool = True) -> dict[str, Any]:
+    _require(isinstance(snapshot, dict), "snapshot must be an object")
+    _require(snapshot.get("schemaVersion") == 1, "schemaVersion must be 1")
+    _require(isinstance(snapshot.get("sessionId"), str) and bool(snapshot["sessionId"]), "sessionId is required")
+    assets = snapshot.get("assets")
+    _require(isinstance(assets, dict), "assets is required")
+    _validate_asset(assets.get("scene"), "assets.scene")
+    _validate_asset(assets.get("cleanBackground"), "assets.cleanBackground")
+    restore = snapshot.get("restore")
+    _require(isinstance(restore, dict), "restore provenance is required")
+    _validate_asset(restore.get("asset"), "restore.asset")
+    _require(restore["asset"]["sha256"] == assets["cleanBackground"]["sha256"], "restore asset provenance mismatch")
+    _require(restore.get("sourceSceneSha256") == assets["scene"]["sha256"], "restore scene provenance mismatch")
+
+    birds = snapshot.get("birds")
+    _require(isinstance(birds, list), "birds must be a list")
+    ids: set[str] = set()
+    slots: set[str] = set()
+    for index, bird in enumerate(birds):
+        label = f"birds[{index}]"
+        _require(isinstance(bird, dict), f"{label} must be an object")
+        bird_id = bird.get("birdId")
+        slot = bird.get("compatibilitySlot")
+        _require(isinstance(bird_id, str) and bool(BIRD_ID_RE.fullmatch(bird_id)), f"{label}.birdId is invalid")
+        _require(bird_id not in ids, f"duplicate birdId: {bird_id}")
+        ids.add(bird_id)
+        _require(isinstance(slot, str) and bool(SLOT_RE.fullmatch(slot)), f"{label}.compatibilitySlot is invalid")
+        _require(slot not in slots, f"duplicate compatibilitySlot: {slot}")
+        slots.add(slot)
+        _require(isinstance(bird.get("presentationOrder"), int) and bird["presentationOrder"] >= 0, f"{label}.presentationOrder is invalid")
+        hitbox = bird.get("hitbox")
+        _require(isinstance(hitbox, dict) and all(isinstance(hitbox.get(k), int) for k in ("x", "y", "r")) and hitbox["r"] > 0, f"{label}.hitbox is invalid")
+        generation = bird.get("activeGeneration")
+        _require(isinstance(generation, dict) and isinstance(generation.get("generationId"), str) and bool(generation["generationId"]), f"{label}.activeGeneration is invalid")
+        _require(generation.get("inputSceneSha256") == assets["scene"]["sha256"], f"{label} generation provenance mismatch")
+        sprite = bird.get("sprite")
+        _require(isinstance(sprite, dict), f"{label}.sprite is required")
+        _validate_asset(sprite.get("asset"), f"{label}.sprite.asset")
+        placement = sprite.get("placement")
+        _require(isinstance(placement, dict) and all(isinstance(placement.get(k), int) for k in ("x", "y", "width", "height")) and placement["width"] > 0 and placement["height"] > 0, f"{label}.sprite.placement is invalid")
+        _require(isinstance(sprite.get("anchorX"), (int, float)) and 0 <= sprite["anchorX"] <= 1, f"{label}.sprite.anchorX is invalid")
+        _require(isinstance(sprite.get("anchorY"), (int, float)) and 0 <= sprite["anchorY"] <= 1, f"{label}.sprite.anchorY is invalid")
+        _require(isinstance(sprite.get("flipX"), bool) and isinstance(sprite.get("flipY"), bool), f"{label}.sprite flips are invalid")
+        cleanup = bird.get("cleanup")
+        _require(isinstance(cleanup, dict) and all(isinstance(cleanup.get(k), int) for k in ("x", "y", "width", "height")) and cleanup["width"] > 0 and cleanup["height"] > 0, f"{label}.cleanup is invalid")
+        _require(cleanup.get("sourceSpriteSha256") == sprite["asset"]["sha256"], f"{label} cleanup provenance mismatch")
+
+    _require(isinstance(snapshot.get("operational", {}), dict), "operational must be an object")
+    reviews = snapshot.get("reviews", {})
+    _require(isinstance(reviews, dict), "reviews must be an object")
+    if validate_reviews:
+        content_revision = snapshot_revisions(snapshot).content_revision
+        for kind, review in reviews.items():
+            _require(kind in {"hitboxes", "finalCutouts"}, f"unknown review assertion: {kind}")
+            _require(isinstance(review, dict), f"{kind} review must be an object")
+            _require(review.get("contentRevision") == content_revision, f"{kind} review contentRevision is stale")
+            _require(isinstance(review.get("reviewer"), str) and review["reviewer"].startswith("human:"), f"{kind} review requires an attributable human")
+            _require(isinstance(review.get("reviewedAt"), str) and bool(review["reviewedAt"]), f"{kind} review reviewedAt is required")
+    return copy.deepcopy(snapshot)
+
+
+class CanonicalRevisionStore:
+    def __init__(self, session_root: Path):
+        self.session_root = Path(session_root)
+        self.root = self.session_root / ".canonical"
+        self.revisions_dir = self.root / "revisions"
+        self.staging_dir = self.root / "staging"
+        self.pointer_path = self.root / "current.json"
+        self.lock_path = self.root / "commit.lock"
+
+    def read(self) -> CanonicalReadResult:
+        if not self.pointer_path.exists():
+            state = CanonicalReadState.ORPHANED_STAGE if self.staging_dir.exists() and any(self.staging_dir.iterdir()) else CanonicalReadState.MIGRATION_REQUIRED
+            return CanonicalReadResult(state)
+        try:
+            pointer_raw = json.loads(self.pointer_path.read_text())
+            pointer = RevisionPointer(
+                revision_file=pointer_raw["revisionFile"],
+                content_revision=pointer_raw["contentRevision"],
+                operational_revision=pointer_raw["operationalRevision"],
+            )
+            if Path(pointer.revision_file).name != pointer.revision_file:
+                raise ValueError("unsafe revision filename")
+            snapshot_path = self.revisions_dir / pointer.revision_file
+            snapshot = json.loads(snapshot_path.read_text())
+            validated = validate_snapshot(snapshot)
+            revisions = snapshot_revisions(validated)
+            if revisions.content_revision != pointer.content_revision or revisions.operational_revision != pointer.operational_revision:
+                raise ValueError("pointer revision mismatch")
+            return CanonicalReadResult(CanonicalReadState.VALID_CURRENT, validated, pointer)
+        except (OSError, KeyError, TypeError, ValueError, json.JSONDecodeError, ContractValidationError) as exc:
+            return CanonicalReadResult(CanonicalReadState.QUARANTINED_INTEGRITY, detail=str(exc))
+
+    def commit(self, snapshot: dict[str, Any], *, expected_content_revision: str | None) -> RevisionPointer:
+        validated = validate_snapshot(snapshot)
+        revisions = snapshot_revisions(validated)
+        self.root.mkdir(parents=True, exist_ok=True)
+        self.revisions_dir.mkdir(exist_ok=True)
+        self.staging_dir.mkdir(exist_ok=True)
+        self.lock_path.touch(exist_ok=True)
+        with self.lock_path.open("rb") as lock_file:
+            fcntl.flock(lock_file.fileno(), fcntl.LOCK_EX)
+            current = self.read()
+            actual = current.pointer.content_revision if current.state is CanonicalReadState.VALID_CURRENT and current.pointer else None
+            if actual != expected_content_revision:
+                raise RevisionConflictError(expected_content_revision, actual)
+
+            encoded = (canonical_json(validated) + "\n").encode("utf-8")
+            snapshot_digest = hashlib.sha256(encoded).hexdigest()
+            revision_file = f"revision-{snapshot_digest}.json"
+            stage_fd, stage_name = tempfile.mkstemp(prefix="revision-", suffix=".json", dir=self.staging_dir)
+            try:
+                with os.fdopen(stage_fd, "wb") as staged:
+                    staged.write(encoded)
+                    staged.flush()
+                    os.fsync(staged.fileno())
+                destination = self.revisions_dir / revision_file
+                if destination.exists():
+                    Path(stage_name).unlink()
+                else:
+                    os.replace(stage_name, destination)
+                    self._fsync_dir(self.revisions_dir)
+                pointer = RevisionPointer(revision_file, revisions.content_revision, revisions.operational_revision)
+                self._atomic_pointer_write(pointer)
+                return pointer
+            finally:
+                Path(stage_name).unlink(missing_ok=True)
+
+    def _atomic_pointer_write(self, pointer: RevisionPointer) -> None:
+        payload = {
+            "schemaVersion": 1,
+            "revisionFile": pointer.revision_file,
+            "contentRevision": pointer.content_revision,
+            "operationalRevision": pointer.operational_revision,
+        }
+        fd, name = tempfile.mkstemp(prefix="current-", suffix=".json", dir=self.root)
+        try:
+            with os.fdopen(fd, "wb") as handle:
+                handle.write((canonical_json(payload) + "\n").encode("utf-8"))
+                handle.flush()
+                os.fsync(handle.fileno())
+            os.replace(name, self.pointer_path)
+            self._fsync_dir(self.root)
+        finally:
+            Path(name).unlink(missing_ok=True)
+
+    @staticmethod
+    def _fsync_dir(path: Path) -> None:
+        descriptor = os.open(path, os.O_RDONLY)
+        try:
+            os.fsync(descriptor)
+        finally:
+            os.close(descriptor)

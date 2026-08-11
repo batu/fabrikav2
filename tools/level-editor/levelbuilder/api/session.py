@@ -1559,22 +1559,6 @@ def session_dir(session_id: str) -> Path:
     return LEVELS_DIR / session_id
 
 
-def artifact_revision_store(session_id: str):
-    """Return the canonical authoring revision store for a source session.
-
-    Public packages are deliberately excluded: they are projections and must
-    never become editable authority through a fallback read.
-    """
-    _validate_session_id_or_raise(session_id)
-    from .artifact_revision import ArtifactRevisionStore
-
-    return ArtifactRevisionStore(LEVELS_DIR / session_id)
-
-
-def read_artifact_revision(session_id: str):
-    return artifact_revision_store(session_id).read()
-
-
 def canonical_session_store(session_id: str):
     """Return the canonical authoring store without consulting projections.
 
