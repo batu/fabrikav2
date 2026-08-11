@@ -64,6 +64,9 @@ export interface BakeLevelInput {
   readonly targetRange?: { readonly min: number; readonly max: number };
   readonly seed?: number;
   readonly overrideState?: GeneratedEvidence['overrideState'];
+  readonly params?: Partial<Omit<GenerateParams, 'id' | 'seed'>>;
+  /** Editor-authored mechanic spotlight. Null explicitly disables the shipped debut marker invariant. */
+  readonly requiredShapeMarker?: 'X' | '#' | null;
 }
 
 export interface BakeEvidence extends GeneratedEvidence, PriorBakeEvidence {
@@ -192,13 +195,17 @@ function failure(code: BakeFailureCode, id: number, attempts: number, reason: st
   return { ok: false, failure: { code, levelId: id, attempts, reason, ...(best === undefined ? {} : { bestMeasuredDifficulty: best }) } };
 }
 
+export function difficultyRangeDistance(value: number, range: { readonly min: number; readonly max: number }): number {
+  return value < range.min ? range.min - value : value > range.max ? value - range.max : 0;
+}
+
 export function bakeLevel(input: BakeLevelInput): BakeLevelResult {
   const started = performance.now();
   const maxReseeds = input.maxReseeds ?? DEFAULT_MAX_RESEEDS;
   if (!Number.isInteger(input.id) || input.id < 1 || input.id > LEVEL_TOTAL || !Number.isInteger(maxReseeds) || maxReseeds < 0) {
     return failure('invalid-input', input.id, 0, 'level id or reseed bound is outside the supported campaign contract');
   }
-  const base = bakeParamsFor(input.id, input.shapeKind);
+  const base = { ...bakeParamsFor(input.id, input.shapeKind), ...input.params };
   const target = effectiveTargetFor(input.id);
   const targetRange = input.targetRange ?? { min: target - ACCEPT_WINDOW, max: target + ACCEPT_WINDOW };
   const cycleSpikes = input.priorEvidence.filter((row) =>
@@ -226,18 +233,26 @@ export function bakeLevel(input: BakeLevelInput): BakeLevelResult {
       return failure('time-limit', input.id, reseed + 1, `per-level diagnostic ceiling of ${input.deadlineMs}ms exceeded`, best?.measured);
     }
     const measured = scoreLevel(level);
-    if (best === null || Math.abs(measured - target) < Math.abs(best.measured - target)) {
+    const accepted = measured >= targetRange.min && measured <= targetRange.max && (climaxFloor === null || measured >= climaxFloor);
+    if (accepted) {
+      best = { level, measured, reseeds: reseed, seed };
+      break;
+    }
+    if (best === null || difficultyRangeDistance(measured, targetRange) < difficultyRangeDistance(best.measured, targetRange)) {
       best = { level, measured, reseeds: reseed, seed };
     }
-    if (measured >= targetRange.min && measured <= targetRange.max && (climaxFloor === null || measured >= climaxFloor)) break;
   }
   if (best === null || best.measured < targetRange.min || best.measured > targetRange.max || (climaxFloor !== null && best.measured < climaxFloor)) {
     return failure('reseed-exhausted', input.id, maxReseeds, `no candidate satisfied target and dependency invariants`, best?.measured);
   }
   if (!gateColorsCovered(best.level)) return failure('hard-invariant', input.id, best.reseeds + 1, 'orphan gate survived generator acceptance');
   const board = best.level.cells.join('');
-  if (input.id === TEACH_PINS.plugs && !board.includes('X')) return failure('hard-invariant', input.id, best.reseeds + 1, 'plugs debut has no visible plug');
-  if (input.id === TEACH_PINS.voids && !board.includes('#')) return failure('hard-invariant', input.id, best.reseeds + 1, 'voids debut has no visible void');
+  const requiredShapeMarker = input.requiredShapeMarker === undefined
+    ? input.id === TEACH_PINS.plugs ? 'X' : input.id === TEACH_PINS.voids ? '#' : null
+    : input.requiredShapeMarker;
+  if (requiredShapeMarker !== null && !board.includes(requiredShapeMarker)) {
+    return failure('hard-invariant', input.id, best.reseeds + 1, `${requiredShapeMarker === 'X' ? 'plugs' : 'voids'} debut has no visible marker`);
+  }
   const report = analyzeDifficulty(best.level);
   const distance = mirrorDistance(best.level.cells, best.level.cols);
   const evidence: BakeEvidence = {

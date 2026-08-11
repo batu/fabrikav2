@@ -42,7 +42,7 @@ describe('export candidate review', () => {
     expect(review.canExport).toBe(true);
     expect(review.summary.changedLevelIds).toEqual(review.candidate.changedLevelIds);
     expect(review.summary.validatedLevelIds).toHaveLength(110);
-    const download = await prepareCandidateDownload(review, input.draft);
+    const download = await prepareCandidateDownload(review, input);
     expect(new TextDecoder().decode(download.bytes)).toBe(review.json);
     expect(download.fingerprint).toBe(review.candidateFingerprint);
     expect(await canonicalizeExportCandidate(JSON.parse(review.json))).toEqual({ json: review.json, fingerprint: review.candidateFingerprint });
@@ -61,8 +61,9 @@ describe('export candidate review', () => {
     expect(failedReview.summary.validatedLevelIds).not.toContain(8);
     const review = await createExportReview(input);
     const edited = { ...input.draft, authored: { ...input.draft.authored, onboarding: input.draft.authored.onboarding.map((entry, index) => index === 0 ? { ...entry, targetRange: { min: 1, max: 2 } } : entry) } };
-    await expect(reviewIsCurrent(review, edited)).resolves.toBe(false);
-    await expect(prepareCandidateDownload(review, edited)).rejects.toThrow(/stale/i);
+    const editedInput = { ...input, draft: edited };
+    await expect(reviewIsCurrent(review, editedInput)).resolves.toBe(false);
+    await expect(prepareCandidateDownload(review, editedInput)).rejects.toThrow(/stale/i);
   }, 20_000);
 
   it('blocks out-of-range evidence and reports overrides and locks exactly', async () => {

@@ -34,13 +34,13 @@ export function ExportReview({ state, onClose }: ExportReviewProps): React.JSX.E
   useEffect(() => {
     let active = true;
     if (review === null) return () => { active = false; };
-    void reviewIsCurrent(review, state.draft).then((current) => {
+    void reviewIsCurrent(review, { draft: state.draft, accepted: state.accepted, failures: state.failures }).then((current) => {
       if (!active || current) return;
       setStale(true);
       setConfirmed(false);
     });
     return () => { active = false; };
-  }, [review, state.draft]);
+  }, [review, state.draft, state.accepted, state.failures]);
 
   const beginReview = async () => {
     setReviewing(true);
@@ -58,7 +58,7 @@ export function ExportReview({ state, onClose }: ExportReviewProps): React.JSX.E
   const download = async () => {
     if (review === null) return;
     setMessage(null);
-    try { triggerCandidateDownload(await prepareCandidateDownload(review, state.draft)); }
+    try { triggerCandidateDownload(await prepareCandidateDownload(review, { draft: state.draft, accepted: state.accepted, failures: state.failures })); }
     catch (error) { setMessage(error instanceof Error ? error.message : String(error)); }
   };
 

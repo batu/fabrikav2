@@ -38,6 +38,7 @@ export class EditorGameplayPreview {
       onHintUsed: () => undefined,
       openSettings: () => undefined,
       isFirstLevel: () => false,
+      enableAudioUnlock: false,
     });
     this.controller.startLevelDefinition(level);
     this.onOutcome('playing');

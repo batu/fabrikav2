@@ -1,5 +1,6 @@
 import type { DifficultyDraft, DifficultyRange, LevelOverride, OverrideField } from '../../../../../games/marble_run/src/levels/difficulty-contract.ts';
 import type { ExpandedDifficultyLevel } from '../../../../../games/marble_run/src/levels/difficulty-expand.ts';
+import type { GateDef, Side } from '../../../../../games/marble_run/src/marble-board/types.ts';
 import type { EditorWorkspaceState } from '../../domain/draftStore.ts';
 import { BoardThumbnail } from '../boards/BoardThumbnail.tsx';
 
@@ -11,7 +12,7 @@ interface LevelViewProps {
 interface OverrideValues {
   readonly targetRange: DifficultyRange;
   readonly dimensions: { readonly cols: number; readonly rows: number };
-  readonly gatePlacement: readonly { readonly side: string; readonly index: number }[];
+  readonly gatePlacement: readonly GateDef[];
   readonly caps: { readonly marbles?: number; readonly colors?: number };
   readonly symmetryMode: string;
   readonly seed: number;
@@ -30,6 +31,9 @@ export function LevelView({ state, draft, level, onEdit, onPlay }: LevelViewProp
   const lockLevel = () => onEdit({ ...draft, locks: [...draft.locks.filter(({ levelId }) => levelId !== level.id), { levelId: level.id, reason: 'Accepted by designer' }].sort((a, b) => a.levelId - b.levelId) });
   const unlock = () => onEdit({ ...draft, locks: draft.locks.filter(({ levelId }) => levelId !== level.id) });
   const range = override?.values.targetRange as DifficultyRange | undefined ?? level.targetRange;
+  const gates = override?.values.gatePlacement as readonly GateDef[] | undefined ?? state.boards[level.id]!.gates;
+  const firstGate = gates[0] ?? { side: 'top', index: 0, color: 'red' };
+  const moveFirstGate = (next: Pick<GateDef, 'side' | 'index'>) => upsertOverride('gatePlacement', [{ ...firstGate, ...next }, ...gates.slice(1)]);
   return (
     <section className="level-view" aria-labelledby="level-title">
       <div className="level-heading"><div><p className="eyebrow">Focused exception</p><h2 id="level-title">Level {level.id}</h2><p>{level.id === 1 && state.revision === 0 ? 'Default selection · ' : ''}{override === undefined ? `Inherited from ${source}` : `Detached from Journey · replaces ${override.replaces.join(', ')}`}</p></div><button className="primary-action" onClick={() => onPlay(level.id)}>Play level</button></div>
@@ -45,8 +49,8 @@ export function LevelView({ state, draft, level, onEdit, onPlay }: LevelViewProp
           <details className="advanced"><summary>Advanced level controls</summary><div className="advanced__grid">
             <label>Columns<input aria-label="Override columns" type="number" min="4" max="20" value={(override?.values.dimensions as { cols: number; rows: number } | undefined)?.cols ?? state.boards[level.id]!.cols} onChange={(event) => upsertOverride('dimensions', { cols: Number(event.target.value), rows: (override?.values.dimensions as { rows?: number } | undefined)?.rows ?? state.boards[level.id]!.rows })} /></label>
             <label>Rows<input aria-label="Override rows" type="number" min="4" max="20" value={(override?.values.dimensions as { cols: number; rows: number } | undefined)?.rows ?? state.boards[level.id]!.rows} onChange={(event) => upsertOverride('dimensions', { cols: (override?.values.dimensions as { cols?: number } | undefined)?.cols ?? state.boards[level.id]!.cols, rows: Number(event.target.value) })} /></label>
-            <label>Gate side<select aria-label="Override gate side" value={(override?.values.gatePlacement as readonly { side: string; index: number }[] | undefined)?.[0]?.side ?? state.boards[level.id]!.gates[0]?.side ?? 'top'} onChange={(event) => upsertOverride('gatePlacement', [{ side: event.target.value, index: (override?.values.gatePlacement as readonly { index: number }[] | undefined)?.[0]?.index ?? state.boards[level.id]!.gates[0]?.index ?? 0 }])}><option value="top">Top</option><option value="right">Right</option><option value="bottom">Bottom</option><option value="left">Left</option></select></label>
-            <label>Gate index<input aria-label="Override gate index" type="number" min="0" max="19" value={(override?.values.gatePlacement as readonly { side: string; index: number }[] | undefined)?.[0]?.index ?? state.boards[level.id]!.gates[0]?.index ?? 0} onChange={(event) => upsertOverride('gatePlacement', [{ side: (override?.values.gatePlacement as readonly { side: string }[] | undefined)?.[0]?.side ?? state.boards[level.id]!.gates[0]?.side ?? 'top', index: Number(event.target.value) }])} /></label>
+            <label>Gate side<select aria-label="Override gate side" value={firstGate.side} onChange={(event) => moveFirstGate({ side: event.target.value as Side, index: firstGate.index })}><option value="top">Top</option><option value="right">Right</option><option value="bottom">Bottom</option><option value="left">Left</option></select></label>
+            <label>Gate index<input aria-label="Override gate index" type="number" min="0" max="19" value={firstGate.index} onChange={(event) => moveFirstGate({ side: firstGate.side, index: Number(event.target.value) })} /></label>
             <label>Marble cap<input aria-label="Override marble cap" type="number" min="1" max="160" value={(override?.values.caps as { marbles?: number } | undefined)?.marbles ?? Math.round(level.resolvedMappings.marbleCount)} onChange={(event) => upsertOverride('caps', { ...(override?.values.caps as object | undefined), marbles: Number(event.target.value) })} /></label>
             <label>Color cap<input aria-label="Override color cap" type="number" min="2" max="6" value={(override?.values.caps as { colors?: number } | undefined)?.colors ?? Math.round(level.resolvedMappings.colorCount)} onChange={(event) => upsertOverride('caps', { ...(override?.values.caps as object | undefined), colors: Number(event.target.value) })} /></label>
             <label>Symmetry<select aria-label="Override symmetry" value={override?.values.symmetryMode as string | undefined ?? 'asymmetric'} onChange={(event) => upsertOverride('symmetryMode', event.target.value)}><option value="asymmetric">Asymmetric</option><option value="mirror">Mirror</option></select></label>

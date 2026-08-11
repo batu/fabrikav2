@@ -6,12 +6,13 @@ import {
   bakeCampaign,
   bakeLevel,
   characterizeShippedBaseline,
+  difficultyRangeDistance,
 } from './level-bake';
 
 describe('pure v2 level bake', () => {
   it('reconstructs all 110 shipped boards and manifest entries exactly', () => {
     const result = bakeCampaign();
-    expect(result.complete).toBe(true);
+    expect(result.complete, JSON.stringify(result.failure)).toBe(true);
     expect(result.levels).toEqual(LEVELS);
     expect(result.manifest).toEqual(LEVEL_MANIFEST);
     expect(result.evidence).toHaveLength(110);
@@ -36,12 +37,27 @@ describe('pure v2 level bake', () => {
     expect(first.level.cells.join('')).toContain('X');
   });
 
+  it.each([
+    [8, 'plain'],
+    [6, 'plain'],
+  ] as const)('allows the shipped mechanic marker at level %i to be moved by an authored draft', (id, shapeKind) => {
+    const result = bakeLevel({ id, shapeKind, priorEvidence: [], targetRange: { min: 1, max: 20 }, maxReseeds: 1, requiredShapeMarker: null });
+    expect(result).toMatchObject({ ok: true });
+  });
+
   it('fails structurally when the bounded search cannot run', () => {
     const result = bakeLevel({ id: 1, shapeKind: 'plain', priorEvidence: [], maxReseeds: 0 });
     expect(result).toMatchObject({
       ok: false,
       failure: { code: 'reseed-exhausted', levelId: 1, attempts: 0 },
     });
+  });
+
+  it('ranks candidates against the authored range rather than the shipped target', () => {
+    const range = { min: 14, max: 16 };
+    expect(difficultyRangeDistance(15, range)).toBe(0);
+    expect(difficultyRangeDistance(13, range)).toBe(1);
+    expect(difficultyRangeDistance(8, range)).toBe(6);
   });
 
   it('requires preceding cycle spike evidence only for climaxes', () => {

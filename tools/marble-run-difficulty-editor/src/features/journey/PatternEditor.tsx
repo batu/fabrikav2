@@ -21,6 +21,17 @@ export function PatternEditor({ draft, onEdit }: PatternEditorProps): React.JSX.
     ...draft,
     authored: { ...draft.authored, onboarding: draft.authored.onboarding.map((entry, i) => i === index ? { ...entry, targetRange } : entry) },
   });
+  const moveMechanicDebut = (index: number, mechanicDebut: Feature | null) => onEdit({
+    ...draft,
+    authored: {
+      ...draft.authored,
+      onboarding: draft.authored.onboarding.map((item, i) => ({
+        ...item,
+        mechanicDebut: i === index ? mechanicDebut : item.mechanicDebut === mechanicDebut ? null : item.mechanicDebut,
+        spotlight: i === index && mechanicDebut !== null ? true : item.spotlight,
+      })),
+    },
+  });
   const setSlotRange = (index: number, targetRange: DifficultyRange) => onEdit({
     ...draft,
     authored: { ...draft.authored, baseCycle: draft.authored.baseCycle.map((slot, i) => i === index ? { ...slot, targetRange } : slot) },
@@ -37,7 +48,7 @@ export function PatternEditor({ draft, onEdit }: PatternEditorProps): React.JSX.
         <div className="pattern-rows">
           {draft.authored.onboarding.map((entry, index) => (
             <div className="pattern-row" key={entry.levelId}>
-              <strong>{entry.levelId}</strong><select aria-label={`Mechanic debut at level ${entry.levelId}`} value={entry.mechanicDebut ?? ''} onChange={(event) => onEdit({ ...draft, authored: { ...draft.authored, onboarding: draft.authored.onboarding.map((item, i) => i === index ? { ...item, mechanicDebut: (event.target.value || null) as Feature | null } : item) } })}><option value="">Foundation</option>{features.map((feature) => <option key={feature} value={feature}>{feature}</option>)}</select>
+              <strong>{entry.levelId}</strong><select aria-label={`Mechanic debut at level ${entry.levelId}`} value={entry.mechanicDebut ?? ''} onChange={(event) => moveMechanicDebut(index, (event.target.value || null) as Feature | null)}><option value="">Foundation</option>{features.map((feature) => <option key={feature} value={feature}>{feature}</option>)}</select>
               <RangeFields range={entry.targetRange} label={`Level ${entry.levelId}`} onChange={(range) => setOnboardingRange(index, range)} />
               <label className="compact-check"><input type="checkbox" checked={entry.spotlight} onChange={(event) => onEdit({ ...draft, authored: { ...draft.authored, onboarding: draft.authored.onboarding.map((item, i) => i === index ? { ...item, spotlight: event.target.checked } : item) } })} /><span>Spotlight</span></label>
             </div>

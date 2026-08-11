@@ -1,17 +1,19 @@
 /// <reference lib="webworker" />
 
-import { canonicalDifficultyJson } from '../../../../games/marble_run/src/levels/difficulty-contract.ts';
+import { canonicalDifficultyJson, createDefaultDifficultyDraft } from '../../../../games/marble_run/src/levels/difficulty-contract.ts';
 import { expandDifficultyDraft } from '../../../../games/marble_run/src/levels/difficulty-expand.ts';
 import { slotFor } from '../../../../games/marble_run/src/levels/funnel-schedule.ts';
-import { bakeLevel, pickShapeKind, type PriorBakeEvidence } from '../../../../games/marble_run/src/levels/level-bake.ts';
+import { bakeLevel, type PriorBakeEvidence } from '../../../../games/marble_run/src/levels/level-bake.ts';
 import { LEVELS } from '../../../../games/marble_run/src/levels/levels.generated.ts';
 import { LEVEL_MANIFEST } from '../../../../games/marble_run/src/levels/levels.manifest.generated.ts';
 import type { ShapeKind } from '../../../../games/marble_run/src/marble-board/shapes.ts';
 import { scoreLevel } from '../../../../games/marble_run/src/marble-board/score.ts';
 
 import type { GenerationRequest, GenerationResponse } from './protocol.ts';
+import { effectiveGenerationInput } from './effectiveParams.ts';
 
 const worker = self as DedicatedWorkerGlobalScope;
+const baselineExpanded = expandDifficultyDraft(createDefaultDifficultyDraft());
 
 function publish(message: GenerationResponse): void { worker.postMessage(message); }
 
@@ -27,7 +29,8 @@ worker.onmessage = ({ data }: MessageEvent<GenerationRequest>): void => {
     const effective = expanded[levelId - 1];
     if (effective === undefined || effective.overrideState === 'locked') continue;
     const previous = accepted.get(levelId - 1)?.evidence.shapeKind ?? LEVEL_MANIFEST[levelId - 2]?.shapeKind ?? null;
-    const shapeKind: ShapeKind = pickShapeKind(levelId, previous);
+    const generation = effectiveGenerationInput(effective, baselineExpanded[levelId - 1]!, previous);
+    const shapeKind: ShapeKind = generation.shapeKind;
     const priorEvidence: PriorBakeEvidence[] = [...accepted.values()].map(({ evidence }) => evidence);
     if (effective.role === 'climax') {
       for (let priorId = Math.max(1, levelId - 18); priorId < levelId; priorId += 1) {
@@ -43,6 +46,8 @@ worker.onmessage = ({ data }: MessageEvent<GenerationRequest>): void => {
       targetRange: effective.targetRange,
       seed,
       overrideState: effective.overrideState,
+      params: generation.params,
+      requiredShapeMarker: effective.spotlightMechanic === 'plugs' ? 'X' : effective.spotlightMechanic === 'voids' ? '#' : null,
     });
     if (!baked.ok) {
       publish({ type: 'failed', revision: data.revision, levelId, failure: baked.failure });

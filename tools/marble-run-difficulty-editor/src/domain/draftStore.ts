@@ -8,6 +8,9 @@ import {
 } from '../../../../games/marble_run/src/levels/difficulty-contract.ts';
 import { affectedLevelIds, expandDifficultyDraft } from '../../../../games/marble_run/src/levels/difficulty-expand.ts';
 import { LEVELS } from '../../../../games/marble_run/src/levels/levels.generated.ts';
+import { LEVEL_MANIFEST } from '../../../../games/marble_run/src/levels/levels.manifest.generated.ts';
+import { scoreLevel } from '../../../../games/marble_run/src/marble-board/score.ts';
+import { analyzeDifficulty } from '../../../../games/marble_run/src/marble-board/solver.ts';
 import type { LevelDef } from '../../../../games/marble_run/src/marble-board/types.ts';
 
 import { GENERATION_ENGINE_VERSION, type AcceptedLevel } from '../generation/protocol.ts';
@@ -95,6 +98,40 @@ function compatibleAccepted(value: unknown, draft: DifficultyDraft): readonly Ac
   });
 }
 
+function shippedAccepted(draft: DifficultyDraft): Readonly<Record<number, AcceptedLevel>> {
+  const baseline = createDefaultDifficultyDraft();
+  const changed = new Set(affectedLevelIds(baseline, draft));
+  const expanded = expandDifficultyDraft(draft);
+  return Object.fromEntries(LEVELS.flatMap((level) => {
+    if (changed.has(level.id)) return [];
+    const effective = expanded[level.id - 1]!;
+    const report = analyzeDifficulty(level);
+    const manifest = LEVEL_MANIFEST[level.id - 1]!;
+    const result: AcceptedLevel = {
+      level,
+      evidence: {
+        levelId: level.id,
+        source: 'derived',
+        solvable: true,
+        targetRange: effective.targetRange,
+        measuredDifficulty: scoreLevel(level),
+        marbleCount: report.marbles,
+        solverWaves: report.waves,
+        initiallyMovableShare: report.initialMovableFraction,
+        seed: { provenance: 'unknown' },
+        overrideState: effective.overrideState,
+        slot: manifest.slot,
+        shapeKind: manifest.shapeKind,
+        reseeds: 0,
+        mirrorDistance: manifest.symmetric ? 0 : 1,
+      },
+      effectiveInputFingerprint: canonicalDifficultyJson(effective),
+      seed: 0,
+    };
+    return [[level.id, result] as const];
+  }));
+}
+
 export function restoreWorkspace(storage: StorageLike | null = guardedBrowserStorage()): Pick<EditorWorkspaceState, 'draft' | 'accepted' | 'phase'> {
   const baseline = createDefaultDifficultyDraft();
   if (storage === null) return { draft: baseline, accepted: {}, phase: 'Current baseline' };
@@ -127,11 +164,13 @@ export class DraftStore {
     this.now = options.now ?? (() => performance.now());
     this.autosaveMs = options.autosaveMs ?? AUTOSAVE_SETTLE_MS;
     const restored = restoreWorkspace(this.storage);
+    const accepted = { ...shippedAccepted(restored.draft), ...restored.accepted };
     this.state = {
       ...restored,
+      accepted,
       boards: {
         ...Object.fromEntries(LEVELS.map((level) => [level.id, level])),
-        ...Object.fromEntries(Object.values(restored.accepted).map((result) => [result.level.id, result.level])),
+        ...Object.fromEntries(Object.values(accepted).map((result) => [result.level.id, result.level])),
       },
       selectedLevelId: 1,
       revision: 0,
@@ -156,11 +195,13 @@ export class DraftStore {
     if (affected.length === 0 && canonicalDifficultyJson(this.state.draft) === canonicalDifficultyJson(validated)) return affected;
     const levelStates = { ...this.state.levelStates };
     const failures = { ...this.state.failures };
+    const accepted = { ...this.state.accepted };
     for (const levelId of affected) {
       levelStates[levelId] = 'Generating';
       delete failures[levelId];
+      delete accepted[levelId];
     }
-    this.publish({ ...this.state, phase: 'Draft', draft: validated, revision: this.state.revision + 1, levelStates, failures });
+    this.publish({ ...this.state, phase: 'Draft', draft: validated, revision: this.state.revision + 1, accepted, levelStates, failures });
     this.scheduleAutosave();
     return affected;
   }
@@ -168,8 +209,12 @@ export class DraftStore {
   markGenerating(levelIds: readonly number[], revision: number): void {
     if (revision < this.state.revision) return;
     const levelStates = { ...this.state.levelStates };
-    for (const id of levelIds) levelStates[id] = 'Generating';
-    this.publish({ ...this.state, revision, levelStates });
+    const accepted = { ...this.state.accepted };
+    for (const id of levelIds) {
+      levelStates[id] = 'Generating';
+      delete accepted[id];
+    }
+    this.publish({ ...this.state, revision, accepted, levelStates });
   }
 
   accept(revision: number, result: AcceptedLevel): void {

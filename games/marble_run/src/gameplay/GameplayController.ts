@@ -99,6 +99,8 @@ export interface GameplayHooks {
   openSettings(): void;
   /** True when this is the player's first-ever run of level 1 (tutorial gate). */
   isFirstLevel(): boolean;
+  /** Editor previews have no audio service to unlock. Runtime defaults to true. */
+  enableAudioUnlock?: boolean;
 }
 
 export class GameplayController {
@@ -176,7 +178,7 @@ export class GameplayController {
     this.canvas.addEventListener('pointerup', this.boundPointerUp);
     this.canvas.addEventListener('pointercancel', this.boundPointerCancel);
     this.canvas.addEventListener('lostpointercapture', this.boundPointerCancel);
-    window.addEventListener('pointerdown', this.boundUnlockAudio);
+    if (this.hooks.enableAudioUnlock !== false) window.addEventListener('pointerdown', this.boundUnlockAudio);
 
     this.lastTime = performance.now();
     this.rafHandle = requestAnimationFrame(() => this.loop());
@@ -711,7 +713,7 @@ export class GameplayController {
     this.canvas.removeEventListener('pointerup', this.boundPointerUp);
     this.canvas.removeEventListener('pointercancel', this.boundPointerCancel);
     this.canvas.removeEventListener('lostpointercapture', this.boundPointerCancel);
-    window.removeEventListener('pointerdown', this.boundUnlockAudio);
+    if (this.hooks.enableAudioUnlock !== false) window.removeEventListener('pointerdown', this.boundUnlockAudio);
     this.hud.dispose();
     // Editor previews create and destroy gameplay repeatedly. Explicitly lose
     // the context so Chromium/iOS do not retain every disposed renderer until

@@ -9,7 +9,7 @@ import type { ExportReview as ExportReviewResult } from './exportCandidate.ts';
 
 const calls = vi.hoisted(() => ({ current: true, downloads: 0 }));
 const readyReview = {
-  reviewedDraftFingerprint: 'a'.repeat(64), candidateFingerprint: 'b'.repeat(64), json: '{}', canExport: true, issues: [], candidate: {},
+  reviewedDraftFingerprint: 'a'.repeat(64), reviewedWorkspaceFingerprint: 'c'.repeat(64), candidateFingerprint: 'b'.repeat(64), json: '{}', canExport: true, issues: [], candidate: {},
   summary: { changedLevelIds: [3, 9], overriddenLevelIds: [9], lockedLevelIds: [4], failedLevelIds: [], validatedLevelIds: Array.from({ length: 110 }, (_, index) => index + 1) },
 } as unknown as ExportReviewResult;
 

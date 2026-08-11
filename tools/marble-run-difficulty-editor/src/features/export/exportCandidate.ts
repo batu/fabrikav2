@@ -21,6 +21,7 @@ export interface ExportReviewInput {
 export interface ExportReview {
   readonly candidate: ExportCandidate;
   readonly reviewedDraftFingerprint: string;
+  readonly reviewedWorkspaceFingerprint: string;
   readonly candidateFingerprint: string;
   readonly json: string;
   readonly canExport: boolean;
@@ -65,6 +66,11 @@ function coreValidationIssues(issues: readonly string[]): readonly string[] {
 
 export async function createExportReview(input: ExportReviewInput): Promise<ExportReview> {
   const reviewedDraftFingerprint = await fingerprintDifficultyDraft(input.draft);
+  const reviewedWorkspaceFingerprint = await fingerprintCanonicalDifficultyJson({
+    draft: draftReviewProjection(input.draft),
+    accepted: Object.values(input.accepted).sort((a, b) => a.level.id - b.level.id),
+    failures: input.failures ?? {},
+  });
   const accepted = Object.values(input.accepted).sort((a, b) => a.level.id - b.level.id);
   const failedLevelIds = Object.keys(input.failures ?? {}).map(Number).sort((a, b) => a - b);
   const changedLevelIds = changedInventory(input.draft, input.accepted);
@@ -94,6 +100,7 @@ export async function createExportReview(input: ExportReviewInput): Promise<Expo
   return {
     candidate,
     reviewedDraftFingerprint,
+    reviewedWorkspaceFingerprint,
     candidateFingerprint: canonical.fingerprint,
     json: canonical.json,
     canExport: final.valid && failedLevelIds.length === 0,
@@ -108,13 +115,18 @@ export async function createExportReview(input: ExportReviewInput): Promise<Expo
   };
 }
 
-export async function reviewIsCurrent(review: ExportReview, draft: DifficultyDraft): Promise<boolean> {
-  return review.reviewedDraftFingerprint === await fingerprintDifficultyDraft(draft);
+export async function reviewIsCurrent(review: ExportReview, input: ExportReviewInput): Promise<boolean> {
+  const fingerprint = await fingerprintCanonicalDifficultyJson({
+    draft: draftReviewProjection(input.draft),
+    accepted: Object.values(input.accepted).sort((a, b) => a.level.id - b.level.id),
+    failures: input.failures ?? {},
+  });
+  return review.reviewedWorkspaceFingerprint === fingerprint;
 }
 
-export async function prepareCandidateDownload(review: ExportReview, currentDraft: DifficultyDraft): Promise<CandidateDownload> {
+export async function prepareCandidateDownload(review: ExportReview, current: ExportReviewInput): Promise<CandidateDownload> {
   if (!review.canExport) throw new Error('Export Candidate is blocked by validation.');
-  if (!await reviewIsCurrent(review, currentDraft)) throw new Error('Export Candidate review is stale; review the current draft again.');
+  if (!await reviewIsCurrent(review, current)) throw new Error('Export Candidate review is stale; review the current workspace again.');
   const validation = await validateExportCandidate(review.candidate, { currentDraftFingerprint: review.reviewedDraftFingerprint });
   if (!validation.valid) throw new Error(`Export Candidate no longer validates: ${validation.issues.join(' ')}`);
   const canonical = await canonicalizeExportCandidate(review.candidate);

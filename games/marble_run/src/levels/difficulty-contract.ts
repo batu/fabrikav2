@@ -1,4 +1,4 @@
-import type { LevelDef, Side } from '../marble-board/types';
+import { ALL_MARBLE_COLORS, type LevelDef, type Side } from '../marble-board/types';
 import {
   LEVEL_TOTAL,
   TEACH_PINS,
@@ -306,10 +306,12 @@ function validateOverrideBounds(values: Record<string, unknown>, path: string): 
   if (values.gatePlacement !== undefined) {
     assertArray(values.gatePlacement, `${path}.gatePlacement`);
     const sides = new Set<Side>(['top', 'bottom', 'left', 'right']);
+    const colors = new Set(ALL_MARBLE_COLORS);
     for (const gate of values.gatePlacement) {
       assertPlainRecord(gate, `${path}.gatePlacement[]`);
       if (!sides.has(gate.side as Side)) throw new TypeError(`${path}.gatePlacement has an invalid side.`);
       assertIntegerInRange(gate.index, 0, 19, `${path}.gatePlacement[].index`);
+      if (!colors.has(gate.color as typeof ALL_MARBLE_COLORS[number])) throw new TypeError(`${path}.gatePlacement has an invalid color.`);
     }
   }
   if (values.symmetryMode !== undefined && values.symmetryMode !== 'mirror' && values.symmetryMode !== 'asymmetric') throw new TypeError(`${path}.symmetryMode is invalid.`);

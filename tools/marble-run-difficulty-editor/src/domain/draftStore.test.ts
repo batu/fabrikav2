@@ -118,9 +118,23 @@ describe('DraftStore persistence and state', () => {
   it('starts with every shipped board as the prior valid display result', () => {
     const store = new DraftStore({ storage: null });
     expect(Object.keys(store.getSnapshot().boards)).toHaveLength(110);
+    expect(Object.keys(store.getSnapshot().accepted)).toHaveLength(110);
     store.markGenerating([1], 1);
+    expect(store.getSnapshot().accepted[1]).toBeUndefined();
+    expect(store.getSnapshot().boards[1]).toBe(LEVELS[0]);
     store.fail(1, 1, 'fixture failure');
     expect(store.getSnapshot().boards[1]).toBe(LEVELS[0]);
+  });
+
+  it('keeps stale boards visible but removes them from export eligibility after an edit', () => {
+    const store = new DraftStore({ storage: null });
+    const draft = createDefaultDifficultyDraft();
+    const edited = { ...draft, authored: { ...draft.authored, onboarding: draft.authored.onboarding.map((entry, index) => index === 0 ? { ...entry, targetRange: { min: 1, max: 2 } } : entry) } };
+    const affected = store.edit(edited);
+    expect(affected).toContain(1);
+    expect(store.getSnapshot().boards[1]).toBe(LEVELS[0]);
+    expect(store.getSnapshot().accepted[1]).toBeUndefined();
+    expect(store.getSnapshot().levelStates[1]).toBe('Generating');
   });
 
   it('makes StrictMode-style attach/detach probes idempotent', async () => {

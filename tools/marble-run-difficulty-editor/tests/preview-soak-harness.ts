@@ -11,6 +11,7 @@ export interface PreviewSoakResult {
   readonly activeAnimationFrames: number;
   readonly activeResizeListeners: number;
   readonly activeWindowPointerListeners: number;
+  readonly browserHarnessPointerListeners: number;
   readonly activeCanvasPointerListeners: number;
   readonly hostRetained: boolean;
 }
@@ -36,6 +37,7 @@ export async function runPreviewSoak(): Promise<PreviewSoakResult> {
   let peakContexts = 0;
   let peakCanvases = 0;
   let peakAnimationFrames = 0;
+  let browserHarnessPointerListeners: number | null = null;
 
   window.addEventListener = ((type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions) => {
     if (type === 'resize') resizeListeners.add(listener);
@@ -91,13 +93,16 @@ export async function runPreviewSoak(): Promise<PreviewSoakResult> {
       await new Promise<void>((resolve) => originalRaf(() => originalRaf(() => resolve())));
       peakCanvases = Math.max(peakCanvases, host.querySelectorAll('canvas').length);
       if (host.querySelectorAll('canvas').length !== 1) throw new Error(`Cycle ${cycle + 1} mounted more than one canvas.`);
-      if (resizeListeners.size !== 1 || windowPointerListeners.size !== 1 || canvasPointerCount() !== 4) throw new Error(`Cycle ${cycle + 1} listener ownership was resize=${resizeListeners.size}, windowPointer=${windowPointerListeners.size}, canvasPointer=${canvasPointerCount()}.`);
+      const expectedHarnessPointers: number = browserHarnessPointerListeners ?? 0;
+      if (resizeListeners.size !== 1 || windowPointerListeners.size !== expectedHarnessPointers || canvasPointerCount() !== 4) throw new Error(`Cycle ${cycle + 1} listener ownership was resize=${resizeListeners.size}, windowPointer=${windowPointerListeners.size}, canvasPointer=${canvasPointerCount()}.`);
       if (activeFrames.size > 1) throw new Error(`Cycle ${cycle + 1} duplicated the animation loop.`);
       preview.close();
       await new Promise<void>((resolve) => window.setTimeout(resolve, 20));
       if (host.querySelectorAll('canvas').length !== 0) throw new Error(`Cycle ${cycle + 1} retained a canvas.`);
-      const retainedListeners = resizeListeners.size + windowPointerListeners.size + canvasPointerCount();
-      if (retainedListeners !== 0) throw new Error(`Cycle ${cycle + 1} retained listeners.`);
+      if (browserHarnessPointerListeners === null) browserHarnessPointerListeners = windowPointerListeners.size;
+      if (browserHarnessPointerListeners > 1) throw new Error(`Browser harness installed ${browserHarnessPointerListeners} pointer listeners.`);
+      const retainedPreviewListeners = resizeListeners.size + canvasPointerCount();
+      if (retainedPreviewListeners !== 0 || windowPointerListeners.size !== browserHarnessPointerListeners) throw new Error(`Cycle ${cycle + 1} retained listeners: resize=${resizeListeners.size}, windowPointer=${windowPointerListeners.size}, canvasPointer=${canvasPointerCount()}.`);
       if (activeFrames.size !== 0) throw new Error(`Cycle ${cycle + 1} retained an animation frame.`);
     }
     await new Promise<void>((resolve) => window.setTimeout(resolve, 50));
@@ -109,7 +114,8 @@ export async function runPreviewSoak(): Promise<PreviewSoakResult> {
       peakAnimationFrames,
       activeAnimationFrames: activeFrames.size,
       activeResizeListeners: resizeListeners.size,
-      activeWindowPointerListeners: windowPointerListeners.size,
+      activeWindowPointerListeners: windowPointerListeners.size - (browserHarnessPointerListeners ?? 0),
+      browserHarnessPointerListeners: browserHarnessPointerListeners ?? 0,
       activeCanvasPointerListeners: canvasPointerCount(),
       hostRetained: host.isConnected,
     };

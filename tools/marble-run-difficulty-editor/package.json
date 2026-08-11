@@ -9,6 +9,7 @@
     "typecheck": "tsc --noEmit",
     "test:unit": "vitest run && node --test tests/build-manifest.test.mjs",
     "test:manifest": "node --test tests/build-manifest.test.mjs",
+    "test:browser": "node scripts/run-browser-gates.mjs",
     "lint": "eslint ."
   },
   "dependencies": {
