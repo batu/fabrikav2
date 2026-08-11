@@ -910,8 +910,10 @@ export default function GalleryReviewModal({
           <button
             type="button"
             className="btn"
-            disabled={cutoutBlessBusy || hitboxBlessBusy || cutoutPlacementPending || card === undefined || !card.session.hitboxesBlessed || card.session.finalCutoutReviewReady !== true}
-            title={cutoutPlacementPending
+            disabled={cutoutBlessBusy || hitboxBlessBusy || cutoutPlacementPending || card === undefined || card.session.canonicalState === 'quarantined_integrity' || !card.session.hitboxesBlessed || card.session.finalCutoutReviewReady !== true}
+            title={card?.session.canonicalState === 'quarantined_integrity'
+              ? 'This level is quarantined because its bird artifacts do not match. Repair the listed integrity problems before reviewing cutouts.'
+              : cutoutPlacementPending
               ? 'Wait for the current sprite placement to finish saving.'
               : !card?.session.hitboxesBlessed
               ? 'Review the current hitboxes before marking cutouts reviewed.'

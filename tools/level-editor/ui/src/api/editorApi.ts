@@ -50,6 +50,19 @@ export function apiErrorCode(err: unknown): string | null {
   return typeof nested.code === 'string' ? nested.code : null;
 }
 
+function apiErrorMessage(detail: unknown, status: number): string {
+  if (detail && typeof detail === 'object') {
+    const outer = detail as Record<string, unknown>;
+    const nested = outer.detail && typeof outer.detail === 'object'
+      ? outer.detail as Record<string, unknown>
+      : outer;
+    const message = nested.error ?? nested.message;
+    if (typeof message === 'string' && message.trim()) return message;
+    if (typeof outer.detail === 'string' && outer.detail.trim()) return outer.detail;
+  }
+  return `API error ${status}`;
+}
+
 /** Options for `request()` beyond the standard RequestInit.
  *
  * `suppressToast` is the escape hatch for call sites that OWN their
@@ -105,7 +118,7 @@ async function request<T>(url: string, options?: RequestOptions): Promise<T> {
     } catch {
       detail = { error: res.statusText };
     }
-    const err = new ApiError(`API error ${res.status}`, res.status, url, method, detail);
+    const err = new ApiError(apiErrorMessage(detail, res.status), res.status, url, method, detail);
     if (!suppressToast) dispatchApiError(err);
     throw err;
   }
