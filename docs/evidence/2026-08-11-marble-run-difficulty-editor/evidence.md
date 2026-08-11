@@ -1,5 +1,5 @@
 ---
-status: partial
+status: passed
 subject: Marble Run difficulty editor v0
 created: 2026-08-11
 mode: pipeline
@@ -9,7 +9,7 @@ mode: pipeline
 
 ## Verdict
 
-The Fabrikav2 editor candidate passes its deterministic generation, browser lifecycle, visual, export, and build gates; Portal integration passes locally but live authenticated activation remains consent-gated and unverified.
+The Fabrikav2 editor candidate passes its deterministic generation, browser lifecycle, visual, export, and build gates. Portal integration is merged, activated, and verified through the live authenticated route against the exact pinned artifact hash.
 
 ## What Changed
 
@@ -27,8 +27,9 @@ The Fabrikav2 editor candidate passes its deterministic generation, browser life
 | unit and static | editor unit, typecheck, lint | passed: 38 tests, typecheck, and lint |
 | game oracle | focused Marble Run bake/contract/expand/validation suite | passed: 35 tests including exact 110-board reproduction |
 | deterministic build | two consecutive production builds and `cmp` | passed: byte-identical manifest, final content hash `5181796617e2c38361f1f6da61e7e08c863615d54a933ef660ea20681c55e5f4` |
-| Portal | `uv run pytest -q` in the isolated Portal worktree | passed: 458 tests; no live activation performed |
+| Portal | `uv run --with pytest --with httpx2 pytest -q` in the merged Portal worktree | passed: 458 tests; Portal `main` pushed at `edee626b774cc6fbc2c871d643a3c97e17910d8c` |
 | Portal browser | local authenticated gateway serving the final retained archive | passed: shell 200, exact hash-namespaced iframe, level 46 selected and playable with one canvas, all seven HUD images loaded, no page errors; [capture](assets/portal-local-level-46.png) |
+| Portal live browser | `https://portal.basegamelab.com/tools/marble-run-difficulty/` with authenticated operator session | passed: shell 200, iframe URL pinned to content hash `5181796617e2c38361f1f6da61e7e08c863615d54a933ef660ea20681c55e5f4`, level 46 selected and playable, one canvas, all seven HUD images loaded, zero page errors |
 | candidate download | production build review, confirmation, and browser download | passed: 91,090 bytes, 110 boards, 110 evidence rows, no validation issues; filename and file SHA-256 both `d6ef426b3b1e4fccd22816cdae3d90edb953cba7c9745ee70722f42d40d4fc3b` |
 | generation recovery | invalid gate 19 on level 1, then Return to Journey inheritance | passed: [Needs attention](assets/generation-failure.png) appeared while the last valid board remained visible; [recovered](assets/generation-recovered.png) removed the exception after regeneration |
 | screenshot | [Journey](assets/journey.png), [Ranges](assets/ranges.png), [Boards](assets/boards.png), [Play preview](assets/play-preview.png), [ready export](assets/export-ready.png) | inspected: one visual hierarchy, 110-board overview, playable injected board, and complete 110/110 export review |
@@ -43,13 +44,12 @@ The Fabrikav2 editor candidate passes its deterministic generation, browser life
 
 ## Analysis
 
-The implementation gates are green and the built artifact is deterministic. This evidence remains partial because Portal production configuration and deployment are external state changes requiring explicit authorization. Candidate export also intentionally does not migrate generated levels into the shipped game; source migration and physical-iPhone acceptance are a later workflow by product contract.
+The implementation gates are green, the built artifact is deterministic, and the exact retained archive is active behind Portal's authenticated production route. Candidate export intentionally does not migrate generated levels into the shipped game; source migration and physical-iPhone acceptance remain a later workflow by product contract.
 
 ## Gaps
 
-- Live authenticated Portal route has not been activated or inspected.
 - Export Candidate migration, physical-iPhone verification, and game release are explicitly deferred.
 
-## Next Action
+## Completion State
 
-Authorize Portal deployment and activation of the final pinned editor artifact, then inspect the authenticated live route.
+Editor candidate and Portal integration are complete. Runtime migration, physical-device acceptance, and game release remain explicitly outside this plan.
