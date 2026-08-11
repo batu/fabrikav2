@@ -1080,6 +1080,11 @@ def get_session(session_id: str):
     data = S.hydrate_session(session_id)
     if data is None:
         raise HTTPException(404, detail={"error": "Session not found"})
+    canonical = S.read_canonical_session(session_id)
+    data["canonicalState"] = canonical.state.value
+    if canonical.pointer is not None:
+        data["contentRevision"] = canonical.pointer.content_revision
+        data["operationalRevision"] = canonical.pointer.operational_revision
     return data
 
 

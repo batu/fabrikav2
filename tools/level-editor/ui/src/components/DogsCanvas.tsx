@@ -68,7 +68,7 @@ export default function DogsCanvas({ sessionId }: Props) {
       // the move to land before refetching (otherwise the refetch reverts the
       // not-yet-saved move — rereview round-1 P2 #3). The server reconciles by id
       // so a stale id-less echo can never re-stamp a sibling.
-      const post = saveHitboxes(sessionId, hitboxes, 'edit');
+      const post = saveHitboxes(sessionId, hitboxes, 'edit').then(() => undefined);
       inflightSaveRef.current = post.catch(() => {});
       return post;
     }

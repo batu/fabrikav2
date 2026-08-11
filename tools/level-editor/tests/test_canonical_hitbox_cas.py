@@ -36,8 +36,15 @@ def _snapshot(session_id: str) -> dict:
 
 
 def _canonical_session(isolated_session, session_id: str):
-    root = isolated_session.LEVELS_DIR / session_id
-    root.mkdir()
+    isolated_session.create_session(
+        session_id,
+        scene_prompt="scene",
+        dog_prompt="bird",
+        style="clean_old_cartoon",
+        model="test/model",
+        n_options=1,
+        n_dogs=1,
+    )
     store = isolated_session.canonical_session_store(session_id)
     pointer = store.commit(_snapshot(session_id), expected_content_revision=None)
     return store, pointer
@@ -119,6 +126,16 @@ def test_legacy_hitbox_save_still_accepts_missing_revision(app_client, isolated_
         json={"hitboxes": [{"x": 10, "y": 20, "r": 5}]},
     )
     assert response.status_code == 204
+
+
+def test_session_read_exposes_canonical_revision(app_client, isolated_session):
+    _store, pointer = _canonical_session(isolated_session, "canonical_read")
+
+    response = app_client.get("/api/sessions/canonical_read")
+
+    assert response.status_code == 200
+    assert response.json()["canonicalState"] == "valid_current"
+    assert response.json()["contentRevision"] == pointer.content_revision
 
 
 def test_concurrent_save_and_bless_cannot_approve_old_geometry(isolated_session, monkeypatch):

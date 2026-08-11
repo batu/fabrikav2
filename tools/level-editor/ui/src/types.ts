@@ -176,6 +176,10 @@ export interface MaskParams {
 
 export interface SessionResponse {
   id: string;
+  /** Immutable authoring revision used for compare-and-set mutations. */
+  contentRevision?: string;
+  operationalRevision?: string;
+  canonicalState?: 'valid_current' | 'migration_required' | 'quarantined_integrity' | 'orphaned_stage';
   /** Level orientation. Always present after Slice A; pre-feature legacy
    * sessions hydrate as 'portrait'. (Note: the prior `mode: 'setup' | 'workspace'`
    * field was UI flow-state — repurposed; the new field is `orientation`.) */

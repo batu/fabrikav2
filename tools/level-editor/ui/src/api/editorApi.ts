@@ -568,11 +568,12 @@ export function saveHitboxes(
   sessionId: string,
   hitboxes: Hitbox[],
   action: string = 'edit',
-): Promise<void> {
+  expectedContentRevision?: string,
+): Promise<{ ok: boolean; contentRevision: string; operationalRevision: string } | void> {
   return request('/api/sessions/' + sessionId + '/hitboxes', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ hitboxes, action }),
+    body: JSON.stringify({ hitboxes, action, expectedContentRevision }),
   });
 }
 

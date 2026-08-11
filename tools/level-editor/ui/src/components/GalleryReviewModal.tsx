@@ -328,8 +328,19 @@ export default function GalleryReviewModal({
   }, []);
 
   const persistCachedHitboxes = useCallback(async (sessionId: string, hitboxes: Hitbox[]): Promise<void> => {
-    await persistHitboxes(sessionId, hitboxes);
+    const cached = sessionCacheRef.current.get(sessionId);
+    const result = await persistHitboxes(sessionId, hitboxes, cached?.contentRevision);
     updateCachedHitboxes(sessionId, hitboxes);
+    if (result) {
+      const updated = sessionCacheRef.current.get(sessionId);
+      if (updated) {
+        sessionCacheRef.current.set(sessionId, {
+          ...updated,
+          contentRevision: result.contentRevision,
+          operationalRevision: result.operationalRevision,
+        });
+      }
+    }
     onReviewChanged(sessionId, {
       hitboxesBlessed: false,
       hitboxesBlessingStale: true,
@@ -943,6 +954,7 @@ export default function GalleryReviewModal({
 async function persistHitboxes(
   sessionId: string,
   hitboxes: Hitbox[],
+  expectedContentRevision?: string,
 ) {
   // Just persist hitbox coordinates \u2014 don't recomposite. A hitbox is
   // the invisible click target; dragging it should move the click
@@ -958,5 +970,5 @@ async function persistHitboxes(
   // cache, and Catalog upload / Preview then proceeded with stale server-side
   // positions while the UI claimed the save succeeded. request() already
   // toasts; callers decide whether to abort (approve/nav) or discard (close).
-  await saveHitboxes(sessionId, hitboxes, 'edit');
+  return saveHitboxes(sessionId, hitboxes, 'edit', expectedContentRevision);
 }
