@@ -10,6 +10,8 @@ from levelbuilder.cli.main import (
     cmd_bless_cutouts,
     cmd_bless_hitboxes,
     cmd_integrity_audit,
+    cmd_integrity_migration_apply,
+    cmd_integrity_migration_preview,
     cmd_place_sprite,
     cmd_sprite_candidates,
 )
@@ -110,6 +112,20 @@ def test_integrity_audit_cli_uses_shared_api(capsys) -> None:
 
     assert client.calls == [("GET", "/api/artifact-integrity-audit", None)]
     assert '"candidates": []' in capsys.readouterr().out
+
+
+def test_integrity_migration_cli_uses_shared_api(capsys) -> None:
+    client = _Client()
+    cmd_integrity_migration_preview(client, argparse.Namespace(json=True))
+    cmd_integrity_migration_apply(client, argparse.Namespace(
+        level_ids=["level-a"], expected_manifest_sha256="sha256:manifest", json=True,
+    ))
+    assert client.calls == [
+        ("GET", "/api/artifact-integrity-migration", None),
+        ("POST", "/api/artifact-integrity-migration/apply", {
+            "levelIds": ["level-a"], "expectedManifestSha256": "sha256:manifest",
+        }),
+    ]
 
 
 def test_two_stage_review_cli_uses_shared_api(capsys) -> None:

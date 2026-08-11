@@ -199,6 +199,32 @@ export function getArtifactIntegrityAudit(): Promise<Record<string, unknown>> {
   return request('/api/artifact-integrity-audit');
 }
 
+export interface ArtifactIntegrityMigrationManifest {
+  schemaVersion: number;
+  manifestSha256: string;
+  levels: Array<{
+    levelId: string;
+    action: 'migrate' | 'unchanged' | 'quarantine' | 'skip_archived' | 'frozen_public';
+    issues: string[];
+    restoreSource: string | null;
+  }>;
+}
+
+export function getArtifactIntegrityMigration(): Promise<ArtifactIntegrityMigrationManifest> {
+  return request('/api/artifact-integrity-migration');
+}
+
+export function applyArtifactIntegrityMigration(
+  levelIds: string[],
+  expectedManifestSha256: string,
+): Promise<Record<string, unknown>> {
+  return request('/api/artifact-integrity-migration/apply', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ levelIds, expectedManifestSha256 }),
+  });
+}
+
 export interface GeometryConfigResponse {
   hudFraction: number;
   bannerFraction: number;

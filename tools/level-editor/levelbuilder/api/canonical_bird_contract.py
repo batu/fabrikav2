@@ -21,7 +21,7 @@ from typing import Any
 
 
 SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
-BIRD_ID_RE = re.compile(r"^bird_[A-Za-z0-9][A-Za-z0-9._-]*$")
+BIRD_ID_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]*$")
 SLOT_RE = re.compile(r"^dog_\d{2,}$")
 
 _REVIEW_INVALIDATION: dict[str, frozenset[str]] = {
@@ -202,7 +202,6 @@ def validate_snapshot(snapshot: Any, *, validate_reviews: bool = True) -> dict[s
     restore = snapshot.get("restore")
     _require(isinstance(restore, dict), "restore provenance is required")
     _validate_asset(restore.get("asset"), "restore.asset")
-    _require(restore["asset"]["sha256"] == assets["cleanBackground"]["sha256"], "restore asset provenance mismatch")
     _require(restore.get("sourceSceneSha256") == assets["scene"]["sha256"], "restore scene provenance mismatch")
 
     birds = snapshot.get("birds")
@@ -214,7 +213,12 @@ def validate_snapshot(snapshot: Any, *, validate_reviews: bool = True) -> dict[s
         _require(isinstance(bird, dict), f"{label} must be an object")
         bird_id = bird.get("birdId")
         slot = bird.get("compatibilitySlot")
-        _require(isinstance(bird_id, str) and bool(BIRD_ID_RE.fullmatch(bird_id)), f"{label}.birdId is invalid")
+        _require(
+            isinstance(bird_id, str)
+            and bool(BIRD_ID_RE.fullmatch(bird_id))
+            and not bool(SLOT_RE.fullmatch(bird_id)),
+            f"{label}.birdId is invalid",
+        )
         _require(bird_id not in ids, f"duplicate birdId: {bird_id}")
         ids.add(bird_id)
         _require(isinstance(slot, str) and bool(SLOT_RE.fullmatch(slot)), f"{label}.compatibilitySlot is invalid")
@@ -263,9 +267,18 @@ class CanonicalRevisionStore:
         self.revisions_dir = self.root / "revisions"
         self.staging_dir = self.root / "staging"
         self.pointer_path = self.root / "current.json"
+        self.quarantine_path = self.root / "quarantine.json"
         self.lock_path = self.root / "commit.lock"
 
     def read(self) -> CanonicalReadResult:
+        if self.quarantine_path.exists():
+            try:
+                quarantine = json.loads(self.quarantine_path.read_text())
+                issues = quarantine.get("issues")
+                detail = ", ".join(issues) if isinstance(issues, list) else "quarantine marker present"
+            except (OSError, ValueError, json.JSONDecodeError):
+                detail = "unreadable quarantine marker"
+            return CanonicalReadResult(CanonicalReadState.QUARANTINED_INTEGRITY, detail=detail)
         if not self.pointer_path.exists():
             state = CanonicalReadState.ORPHANED_STAGE if self.staging_dir.exists() and any(self.staging_dir.iterdir()) else CanonicalReadState.MIGRATION_REQUIRED
             return CanonicalReadResult(state)

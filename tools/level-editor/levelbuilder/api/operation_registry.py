@@ -31,6 +31,8 @@ PRIMARY_OPERATIONS = (
     OperationSpec("list-sessions", "sessions", "GET", "/api/sessions", "listSessions"),
     OperationSpec("get-session", "session", "GET", "/api/sessions/{session_id}", "getSession"),
     OperationSpec("artifact-integrity-audit", "integrity-audit", "GET", "/api/artifact-integrity-audit", "getArtifactIntegrityAudit"),
+    OperationSpec("artifact-integrity-migration-preview", "integrity-migration-preview", "GET", "/api/artifact-integrity-migration", "getArtifactIntegrityMigration"),
+    OperationSpec("artifact-integrity-migration-apply", "integrity-migration-apply", "POST", "/api/artifact-integrity-migration/apply", "applyArtifactIntegrityMigration"),
     OperationSpec("save-hitboxes", "set-hitboxes", "POST", "/api/sessions/{session_id}/hitboxes", "saveHitboxes"),
     OperationSpec("list-sprite-candidates", "sprite-candidates", "GET", "/api/sessions/{session_id}/sprite-candidates", "listSpriteCandidates"),
     OperationSpec("manual-sprite-placement", "place-sprite", "PUT", "/api/sessions/{session_id}/sprite-candidates/{candidate_id}/placement", "saveSpriteCandidatePlacement"),

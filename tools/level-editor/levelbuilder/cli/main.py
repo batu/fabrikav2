@@ -398,6 +398,17 @@ def cmd_integrity_audit(client: Client, args: argparse.Namespace) -> None:
     _emit(args, client.get("/api/artifact-integrity-audit"))
 
 
+def cmd_integrity_migration_preview(client: Client, args: argparse.Namespace) -> None:
+    _emit(args, client.get("/api/artifact-integrity-migration"))
+
+
+def cmd_integrity_migration_apply(client: Client, args: argparse.Namespace) -> None:
+    _emit(args, client.request("POST", "/api/artifact-integrity-migration/apply", json={
+        "levelIds": args.level_ids,
+        "expectedManifestSha256": args.expected_manifest_sha256,
+    }))
+
+
 def cmd_session(client: Client, args: argparse.Namespace) -> None:
     _emit(args, client.get(f"/api/sessions/{args.session_id}"))
 
@@ -1660,6 +1671,10 @@ def build_parser() -> argparse.ArgumentParser:
     verb("config", cmd_config)
     verb("sessions", cmd_sessions)
     verb("integrity-audit", cmd_integrity_audit)
+    verb("integrity-migration-preview", cmd_integrity_migration_preview)
+    p = verb("integrity-migration-apply", cmd_integrity_migration_apply)
+    p.add_argument("--level-id", dest="level_ids", nargs="+", required=True)
+    p.add_argument("--expected-manifest-sha256", required=True)
     verb("session", cmd_session).add_argument("session_id")
 
     p = verb("create", cmd_create)

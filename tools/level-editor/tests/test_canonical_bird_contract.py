@@ -66,6 +66,14 @@ def test_contract_rejects_duplicate_bird_ids_and_slots():
     with pytest.raises(ContractValidationError, match="duplicate birdId"):
         validate_snapshot(payload)
 
+    payload = _snapshot()
+    payload["birds"][0]["birdId"] = "dog_00"
+    with pytest.raises(ContractValidationError, match="birdId is invalid"):
+        validate_snapshot(payload)
+
+    payload["birds"][0]["birdId"] = "018f4f34-cc65-7c21-b59d-9b44c8c02a33"
+    validate_snapshot(payload)
+
 
 def test_content_and_operational_hash_domains_are_separate():
     from levelbuilder.api.canonical_bird_contract import snapshot_revisions

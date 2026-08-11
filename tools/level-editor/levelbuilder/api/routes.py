@@ -47,6 +47,7 @@ from .integrity_audit import audit_level_inventory
 from .operation_registry import operation_payload
 from .canonical_bird_contract import RevisionConflictError
 from .cleanup_geometry import CleanupSite, Rect, cleanup_polygons_for_site
+from .corpus_migration import apply_level_plan, plan_corpus, plan_manifest
 from .job_store import JobArtifact, JobEvent, JobRecord, JobStore, is_failed_terminal_status
 from .job_worker import JobWorker, RetryableJobError, TerminalJobError, get_default_job_worker
 from .remote_config_publisher import DisabledRemoteConfigPublisher
@@ -742,6 +743,52 @@ def get_artifact_integrity_audit():
         lineup_ids=lineup_ids,
         archived_ids=S.archived_session_ids(),
     ).to_dict()
+
+
+class ApplyArtifactIntegrityMigrationRequest(BaseModel):
+    levelIds: list[str]
+    expectedManifestSha256: str
+
+
+def _artifact_integrity_migration_plan():
+    plans = plan_corpus(
+        S.LEVELS_DIR,
+        S.GAME_PUBLIC_LEVELS,
+        archived_ids=S.archived_session_ids(),
+    )
+    return plans, plan_manifest(plans)
+
+
+@router.get("/artifact-integrity-migration")
+def preview_artifact_integrity_migration():
+    """Return a deterministic, read-only migration manifest for operator review."""
+    _plans, manifest = _artifact_integrity_migration_plan()
+    return manifest
+
+
+@router.post("/artifact-integrity-migration/apply")
+def apply_artifact_integrity_migration(body: ApplyArtifactIntegrityMigrationRequest):
+    plans, manifest = _artifact_integrity_migration_plan()
+    if body.expectedManifestSha256 != manifest["manifestSha256"]:
+        raise HTTPException(409, detail={
+            "code": "migration_manifest_conflict",
+            "expectedManifestSha256": body.expectedManifestSha256,
+            "actualManifestSha256": manifest["manifestSha256"],
+        })
+    selected = set(body.levelIds)
+    by_id = {plan.level_id: plan for plan in plans}
+    unknown = sorted(selected - set(by_id))
+    if unknown:
+        raise HTTPException(422, detail={"code": "unknown_migration_levels", "levelIds": unknown})
+    results = []
+    journal_root = S.WORKSPACE_ROOT / "state" / "canonical-migration-journal"
+    for level_id in sorted(selected):
+        plan = by_id[level_id]
+        if plan.action not in {"migrate", "quarantine"}:
+            results.append({"levelId": level_id, "action": plan.action, "issues": list(plan.issues)})
+            continue
+        results.append(apply_level_plan(plan, S.LEVELS_DIR / level_id, journal_root))
+    return {"manifestSha256": manifest["manifestSha256"], "results": results}
 
 
 @router.get("/config")
