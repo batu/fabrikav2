@@ -1,7 +1,10 @@
+import { useRef } from 'react';
+
 import type { ExpandedDifficultyLevel } from '../../../../../games/marble_run/src/levels/difficulty-expand.ts';
 import type { LevelDef } from '../../../../../games/marble_run/src/marble-board/types.ts';
 import type { EditorWorkspaceState } from '../../domain/draftStore.ts';
 import { BoardThumbnail } from './BoardThumbnail.tsx';
+import { ScrollRail } from '../../components/ScrollRail.tsx';
 
 interface BoardsViewProps {
   readonly state: EditorWorkspaceState;
@@ -19,13 +22,15 @@ function exceptionalStatus(state: EditorWorkspaceState, levelId: number, overrid
 }
 
 export function BoardsView({ state, expanded, measurements, onSelect }: BoardsViewProps): React.JSX.Element {
+  const boardsRef = useRef<HTMLDivElement>(null);
   return (
     <section className="boards-view" aria-labelledby="boards-title">
       <div className="section-heading">
         <div><p className="eyebrow">Reading 02</p><h2 id="boards-title">Boards</h2></div>
         <p>Scan the generated campaign. Select any board to play it.</p>
       </div>
-      <div className="boards-overflow" data-board-scroll>
+      <ScrollRail axis="horizontal" targetRef={boardsRef} />
+      <div className="boards-overflow" data-board-scroll ref={boardsRef}>
         <div className="boards-grid">
           {expanded.map((level) => {
             const board = state.boards[level.id] as LevelDef;

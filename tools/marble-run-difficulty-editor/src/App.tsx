@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, useSyncExternalStore } from 'react';
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 
 import { expandDifficultyDraft } from '../../../games/marble_run/src/levels/difficulty-expand.ts';
 
@@ -10,6 +10,7 @@ import { LevelView } from './features/level/LevelView.tsx';
 import { SHIPPED_MEASURED_DIFFICULTY } from './features/measurements.ts';
 import { PlayView } from './features/play/PlayView.tsx';
 import { ExportReview } from './features/export/ExportReview.tsx';
+import { ScrollRail } from './components/ScrollRail.tsx';
 
 export interface AppProps { readonly workspaceOwner?: WorkspaceOwner }
 
@@ -22,13 +23,14 @@ export function App({ workspaceOwner = defaultWorkspaceOwner }: AppProps): React
   const [drawer, setDrawer] = useState<'model' | 'guide' | null>(null);
   const [playRequest, setPlayRequest] = useState<number | null>(null);
   const [exportOpen, setExportOpen] = useState(false);
+  const shellRef = useRef<HTMLElement>(null);
   const expanded = useMemo(() => expandDifficultyDraft(state.draft), [state.draft]);
   const measurements = useMemo(() => Object.fromEntries(expanded.map(({ id }) => [id, state.accepted[id]?.evidence.measuredDifficulty ?? SHIPPED_MEASURED_DIFFICULTY[id - 1]!])), [expanded, state.accepted]);
 
   useEffect(() => workspace.attach(), [workspace]);
 
   return (
-    <main className="editor-shell">
+    <main className="editor-shell" ref={shellRef}>
       <header className="editor-header">
         <div className="editor-title"><span>Marble Run</span><h1>Difficulty editor</h1></div>
         <nav className="primary-nav" aria-label="Primary">
@@ -47,6 +49,7 @@ export function App({ workspaceOwner = defaultWorkspaceOwner }: AppProps): React
         onRegenerate={() => workspace.regenerateLevel(playRequest)}
         onClose={() => setPlayRequest(null)}
       />}
+      <ScrollRail axis="vertical" targetRef={shellRef} />
     </main>
   );
 }

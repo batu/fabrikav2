@@ -1,6 +1,9 @@
+import { useRef } from 'react';
+
 import { inheritedLevelIdsForBaseSlot, type DifficultyDraft } from '../../../../../games/marble_run/src/levels/difficulty-contract.ts';
 import type { ExpandedDifficultyLevel } from '../../../../../games/marble_run/src/levels/difficulty-expand.ts';
 import type { EditorWorkspaceState } from '../../domain/draftStore.ts';
+import { ScrollRail } from '../../components/ScrollRail.tsx';
 
 interface RangesViewProps {
   readonly state: EditorWorkspaceState;
@@ -11,6 +14,7 @@ interface RangesViewProps {
 }
 
 export function RangesView({ state, draft, expanded, measurements, onSelect }: RangesViewProps): React.JSX.Element {
+  const chartRef = useRef<HTMLDivElement>(null);
   const selected = expanded[state.selectedLevelId - 1]!;
   const linked = selected.baseCycleSlot === null ? [selected.id] : inheritedLevelIdsForBaseSlot(draft, selected.baseCycleSlot);
   return (
@@ -19,7 +23,7 @@ export function RangesView({ state, draft, expanded, measurements, onSelect }: R
         <div><p className="eyebrow">Reading 01</p><h2 id="ranges-title">Ranges</h2></div>
         <p>Every authored interval against its generated result, from difficulty 1 to 20.</p>
       </div>
-      <div className="range-chart" aria-label="All 110 level difficulty ranges">
+      <div className="range-chart" aria-label="All 110 level difficulty ranges" ref={chartRef}>
         <div className="range-chart__scale" aria-hidden="true"><span>20</span><span>10</span><span>1</span></div>
         <div className="range-chart__levels">
           {expanded.map((level) => {
@@ -45,6 +49,7 @@ export function RangesView({ state, draft, expanded, measurements, onSelect }: R
           })}
         </div>
       </div>
+      <ScrollRail axis="horizontal" targetRef={chartRef} />
       <aside className="range-selection" aria-live="polite">
         <div><span className="eyebrow">Selected</span><strong>Level {selected.id}</strong><span>{selected.targetRange.min.toFixed(1)}–{selected.targetRange.max.toFixed(1)}</span></div>
         <div><span>Role</span><strong>{selected.role}</strong></div>
