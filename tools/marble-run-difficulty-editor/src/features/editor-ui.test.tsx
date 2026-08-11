@@ -43,6 +43,20 @@ describe('difficulty editor authoring surface', () => {
     await act(async () => element!.dispatchEvent(new MouseEvent('click', { bubbles: true })));
   };
 
+  it('explains the journey in plain language and edits only the selected steps', async () => {
+    const visibleCopy = container.textContent?.toLowerCase() ?? '';
+    for (const jargon of ['spike', 'band', 'recover', 'climax', 'cycle', 'offset', 'maximum']) {
+      expect(visibleCopy).not.toContain(jargon);
+    }
+    expect(container.textContent).toContain('Teach the basics');
+    expect(container.textContent).toContain('Shape the journey');
+    await click(Array.from(container.querySelectorAll('.step-chip')).find((button) => button.textContent?.includes('Blocked spaces')) ?? null);
+    expect(container.textContent).toContain('Level 8');
+    await click(Array.from(container.querySelectorAll('.step-chip')).find((button) => button.textContent === '5Challenge') ?? null);
+    expect(container.textContent).toContain('Step 5');
+    expect(container.textContent).toContain('Create a noticeable test above the surrounding levels.');
+  });
+
   it('shows all ranges, exact selected values, and linked occurrence context', async () => {
     await click(container.querySelector('[data-view="ranges"]'));
     expect(container.querySelectorAll('[data-range-level]')).toHaveLength(110);
