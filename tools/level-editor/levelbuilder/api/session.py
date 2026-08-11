@@ -2447,6 +2447,7 @@ def list_sessions(*, include_public: bool = False) -> list[dict]:
                 if hitbox_review["current"]
                 else {"ready": False, "activeBirds": n_dogs, "missingCutouts": n_dogs}
             )
+            canonical_state = read_canonical_session(d.name).state.value
 
             review_sidecars = []
             for sidecar_path in d.glob("dogs/dog_*/sprite_*.json"):
@@ -2492,6 +2493,7 @@ def list_sessions(*, include_public: bool = False) -> list[dict]:
                 "tags": tags,
                 "createdAt": created_at,
                 "orientation": orientation,
+                "canonicalState": canonical_state,
                 "assetBase": asset_base,
                 "humanConfirmedBirds": human_confirmed_birds,
                 "reviewableBirds": len(review_sidecars),
@@ -4861,6 +4863,11 @@ def export_to_game(
     sdir = session_dir(session_id)
     public_levels_root = destination_root or GAME_PUBLIC_LEVELS
     canonical = read_canonical_session(session_id)
+    from .canonical_bird_contract import CanonicalReadState
+
+    if canonical.state is not CanonicalReadState.MIGRATION_REQUIRED and canonical.pointer is None:
+        detail = f": {canonical.detail}" if canonical.detail else ""
+        raise LevelNotReadyError(f"canonical authoring is {canonical.state.value}{detail}")
     if canonical.pointer is not None:
         from .canonical_export import CanonicalExportError, export_canonical_revision
 

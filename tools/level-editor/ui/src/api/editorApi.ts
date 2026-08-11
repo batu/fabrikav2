@@ -116,6 +116,7 @@ async function request<T>(url: string, options?: RequestOptions): Promise<T> {
 export interface SessionListItem {
   id: string;
   name: string;
+  canonicalState?: 'valid_current' | 'migration_required' | 'quarantined_integrity' | 'orphaned_stage';
   /** @deprecated Ambiguous: this field reports the *shipped* count (from
    * level.json.dogs.length) for SessionListItem, but the *intended*
    * count (session.json.n_dogs) for SessionResponse. Prefer

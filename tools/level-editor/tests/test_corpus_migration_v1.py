@@ -13,7 +13,12 @@ def _write_json(path: Path, value: object) -> None:
     path.write_text(json.dumps(value, indent=2) + "\n")
 
 
-def _legacy_level(tmp_path: Path, *, cleanup_box=(8, 8, 32, 32)) -> tuple[Path, Path]:
+def _legacy_level(
+    tmp_path: Path,
+    *,
+    cleanup_box=(8, 8, 32, 32),
+    restore_color="gray",
+) -> tuple[Path, Path]:
     session = tmp_path / "source" / "example"
     public = tmp_path / "public" / "example"
     dog_dir = session / "dogs" / "dog_00"
@@ -21,7 +26,7 @@ def _legacy_level(tmp_path: Path, *, cleanup_box=(8, 8, 32, 32)) -> tuple[Path, 
     public.mkdir(parents=True)
     Image.new("RGB", (64, 64), "white").save(session / "color.png")
     Image.new("RGB", (64, 64), "gray").save(session / "bg_00.png")
-    Image.new("RGB", (64, 64), "black").save(public / "bg_00.webp")
+    Image.new("RGB", (64, 64), restore_color).save(public / "bg_00.webp")
     _write_json(public / "level.json", {"id": "example", "dogs": []})
     Image.new("RGBA", (16, 16), (255, 0, 0, 255)).save(dog_dir / "sprite_000.png")
     _write_json(session / "session.json", {
@@ -87,6 +92,20 @@ def test_ambiguous_level_is_quarantined_and_cannot_fall_back(tmp_path):
     read = CanonicalRevisionStore(session).read()
     assert read.state is CanonicalReadState.QUARANTINED_INTEGRITY
     assert "cleanup_misses_hitbox" in read.detail
+    replay = plan_legacy_level(session, public, archived=False)
+    assert replay.action == "quarantine"
+    assert replay.issues == plan.issues
+
+
+def test_restore_scene_mismatch_is_quarantined_before_migration(tmp_path):
+    from levelbuilder.api.corpus_migration import checksum_tree, plan_legacy_level
+
+    session, public = _legacy_level(tmp_path, restore_color="black")
+    before = checksum_tree(session)
+    plan = plan_legacy_level(session, public, archived=False)
+    assert plan.action == "quarantine"
+    assert any(issue.startswith("restore_scene_mismatch:") for issue in plan.issues)
+    assert checksum_tree(session) == before
 
 
 def test_archived_and_public_only_levels_are_not_mutated(tmp_path):

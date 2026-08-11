@@ -21,7 +21,9 @@ from typing import Any
 
 
 SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
-BIRD_ID_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]*$")
+BIRD_ID_RE = re.compile(
+    r"^(?:bird_[A-Za-z0-9][A-Za-z0-9._-]*|[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12})$"
+)
 SLOT_RE = re.compile(r"^dog_\d{2,}$")
 
 _REVIEW_INVALIDATION: dict[str, frozenset[str]] = {
@@ -270,8 +272,9 @@ class CanonicalRevisionStore:
         self.quarantine_path = self.root / "quarantine.json"
         self.lock_path = self.root / "commit.lock"
 
-    def read(self) -> CanonicalReadResult:
-        if self.quarantine_path.exists():
+    def read(self, *, inspect_quarantined_source: bool = False) -> CanonicalReadResult:
+        """Read current authority; migration may explicitly inspect beneath quarantine."""
+        if self.quarantine_path.exists() and not inspect_quarantined_source:
             try:
                 quarantine = json.loads(self.quarantine_path.read_text())
                 issues = quarantine.get("issues")

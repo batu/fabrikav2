@@ -164,6 +164,7 @@ const pendingCutoutSessionListItem = {
   hitboxesBlessed: true,
   cutoutsFinalBlessed: false,
   assetVersion: 2,
+  canonicalState: 'quarantined_integrity',
 };
 
 const staleCutoutSessionListItem = {
@@ -404,6 +405,7 @@ async function run() {
     assert(await staleHitboxCard.getByText('Cutouts need review').count() === 0, 'A level needing hitbox review must not also appear as needing cutout review.');
     const galleryText = await page.locator('body').innerText();
     assert(/Reviewed\s*\(2\)/i.test(galleryText), 'Reviewed filter count is incorrect.');
+    assert(galleryText.includes('Quarantined'), 'Quarantined authoring must be visibly labeled in the Gallery.');
     assert(/Hitboxes need review\s*\(2\)/i.test(galleryText), 'Pending hitbox filter must include stale hitboxes.');
     assert(/Cutouts need review\s*\(2\)/i.test(galleryText), 'Pending cutout filter must include stale cutouts without counting variants.');
     assert(!galleryText.includes('Background Only Session'), 'Background-only sessions must not appear in Gallery.');

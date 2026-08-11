@@ -634,14 +634,17 @@ function GalleryCard({
   const blockerCount = blockingVisibilitySummaries(visibilitySummaries).length;
   const warnCount = visibilitySummaries.length;
   const fullyReviewed = humanReviewSummary(session).state === 'reviewed';
+  const quarantined = session.canonicalState === 'quarantined_integrity';
   const missingAssetReason = state !== 'background' && session.hasImage === false
     ? 'Missing composite image asset. Open in Wizard or review assets before adding this level to Lineup.'
     : state !== 'background' && session.hasThumbnail === false
       ? 'Missing preview thumbnail asset. Repair assets before adding this level to Lineup.'
       : null;
-  const selectableForLineup = !card.archived && state !== 'background' && blockerCount === 0 && missingAssetReason === null;
+  const selectableForLineup = !card.archived && !quarantined && state !== 'background' && blockerCount === 0 && missingAssetReason === null;
   const disabledReason = card.archived
     ? 'Archived cards are not selectable for Lineup.'
+    : quarantined
+      ? 'Quarantined authoring is inspectable but cannot be added or republished until repaired.'
     : missingAssetReason
       ? missingAssetReason
       : state === 'background'
@@ -826,6 +829,9 @@ function GalleryCard({
         <div style={{ fontSize: '0.7rem', color: '#888' }}>
           {session.nDogs} dogs
         </div>
+        {quarantined && (
+          <HumanReviewBadge tone="pending" title="Artifact identity or provenance is ambiguous. Inspect and repair before publishing.">Quarantined</HumanReviewBadge>
+        )}
         <HumanReviewBadges session={session} />
         <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap', fontSize: '0.68rem' }}>
           {(session.regenerationCandidateCount ?? 0) > 0 && (

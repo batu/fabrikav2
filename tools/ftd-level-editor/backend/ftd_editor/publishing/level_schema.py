@@ -34,7 +34,9 @@ class DogSprite(BaseModel):
 class Dog(BaseModel):
     model_config = ConfigDict(extra="ignore")
 
-    id: str = Field(min_length=1)
+    id: str = Field(
+        pattern=r"^(?:dog_\d{2,}|bird_[A-Za-z0-9][A-Za-z0-9._-]*|[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12})$",
+    )
     compatibilitySlot: str | None = Field(default=None, pattern=r"^dog_\d{2,}$")
     x: int
     y: int

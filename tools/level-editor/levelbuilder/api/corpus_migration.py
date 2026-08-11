@@ -11,11 +11,13 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Literal
 
-from PIL import Image
+from PIL import Image, ImageChops, ImageStat
 
 from .canonical_bird_contract import CanonicalReadState, CanonicalRevisionStore, validate_snapshot
 
 MigrationAction = Literal["migrate", "unchanged", "quarantine", "skip_archived", "frozen_public"]
+RESTORE_FRAME_MAE_LIMIT = 5.0
+RESTORE_LOCAL_MAE_LIMIT = 15.0
 
 
 @dataclass(frozen=True)
@@ -79,6 +81,54 @@ def _candidate_restore(session_dir: Path, public_dir: Path | None, selected_bg: 
     return candidate if candidate.is_file() else None
 
 
+def _mean_absolute_difference(first: Image.Image, second: Image.Image) -> float:
+    return sum(ImageStat.Stat(ImageChops.difference(first.convert("RGB"), second.convert("RGB"))).mean) / 3
+
+
+def _canonical_pixel_issues(
+    session_dir: Path,
+    snapshot: dict[str, Any],
+    *,
+    restore_override: Path | None = None,
+) -> list[str]:
+    issues: list[str] = []
+    try:
+        scene = session_dir / snapshot["assets"]["scene"]["path"]
+        clean = session_dir / snapshot["assets"]["cleanBackground"]["path"]
+        restore = restore_override or session_dir / snapshot["restore"]["asset"]["path"]
+        for label, path, descriptor in (
+            ("scene", scene, snapshot["assets"]["scene"]),
+            ("clean_background", clean, snapshot["assets"]["cleanBackground"]),
+            ("restore", restore, snapshot["restore"]["asset"]),
+        ):
+            payload = path.read_bytes()
+            if len(payload) != descriptor["bytes"] or hashlib.sha256(payload).hexdigest() != descriptor["sha256"]:
+                issues.append(f"{label}_asset_hash_mismatch")
+        if issues:
+            return issues
+        with Image.open(scene) as scene_image, Image.open(clean) as clean_image, Image.open(restore) as restore_image:
+            if scene_image.size != clean_image.size or scene_image.size != restore_image.size:
+                return ["restore_dimensions_mismatch"]
+            preview_size = (256, 256)
+            frame_mae = _mean_absolute_difference(
+                clean_image.resize(preview_size), restore_image.resize(preview_size),
+            )
+            if frame_mae > RESTORE_FRAME_MAE_LIMIT:
+                issues.append(f"restore_scene_mismatch:{frame_mae:.2f}")
+            for bird in snapshot["birds"]:
+                cleanup = bird["cleanup"]
+                box = (
+                    cleanup["x"], cleanup["y"],
+                    cleanup["x"] + cleanup["width"], cleanup["y"] + cleanup["height"],
+                )
+                local_mae = _mean_absolute_difference(clean_image.crop(box), restore_image.crop(box))
+                if local_mae > RESTORE_LOCAL_MAE_LIMIT:
+                    issues.append(f"{bird['birdId']}:restore_residue_outlier:{local_mae:.2f}")
+    except (KeyError, OSError, TypeError, ValueError):
+        issues.append("canonical_asset_validation_failed")
+    return issues
+
+
 def plan_legacy_level(
     session_dir: Path | None,
     public_dir: Path | None,
@@ -90,8 +140,11 @@ def plan_legacy_level(
         return LevelMigrationPlan(level_id, "skip_archived", ())
     if session_dir is None:
         return LevelMigrationPlan(level_id, "frozen_public", ("public_only_requires_explicit_import",))
-    read = CanonicalRevisionStore(session_dir).read()
+    read = CanonicalRevisionStore(session_dir).read(inspect_quarantined_source=True)
     if read.state is CanonicalReadState.VALID_CURRENT:
+        pixel_issues = _canonical_pixel_issues(session_dir, read.snapshot)
+        if pixel_issues:
+            return LevelMigrationPlan(level_id, "quarantine", tuple(sorted(pixel_issues)))
         return LevelMigrationPlan(level_id, "unchanged", ())
     if read.state is not CanonicalReadState.MIGRATION_REQUIRED:
         return LevelMigrationPlan(level_id, "quarantine", (f"canonical_{read.state.value}",))
@@ -220,6 +273,9 @@ def plan_legacy_level(
             "reviewHistory": _review_history(session_dir, public_dir),
         },
     })
+    pixel_issues = _canonical_pixel_issues(session_dir, snapshot, restore_override=restore)
+    if pixel_issues:
+        return LevelMigrationPlan(level_id, "quarantine", tuple(sorted(pixel_issues)))
     return LevelMigrationPlan(
         level_id, "migrate", (), snapshot=snapshot,
         restore_source=str(restore) if restore_relative is None else None,
@@ -269,7 +325,13 @@ def apply_level_plan(plan: LevelMigrationPlan, session_dir: Path, journal_root: 
     journal_root.mkdir(parents=True, exist_ok=True)
     journal_path = journal_root / f"{plan.level_id}.json"
     if journal_path.is_file():
-        return _json(journal_path)
+        previous = _json(journal_path)
+        if (
+            isinstance(previous, dict)
+            and previous.get("action") == plan.action
+            and previous.get("issues") == list(plan.issues)
+        ):
+            return previous
     before = checksum_tree(session_dir)
     result = {"levelId": plan.level_id, "action": plan.action, "issues": list(plan.issues), "before": before}
     if plan.action == "migrate" and plan.snapshot is not None:

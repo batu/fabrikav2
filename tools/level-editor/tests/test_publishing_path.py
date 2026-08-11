@@ -93,6 +93,27 @@ def test_approve_same_request_id_is_replay_protected(isolated_session):
     assert package.stat().st_mtime_ns == mtime_after_first, "package bytes must not be rewritten on replay"
 
 
+def test_quarantined_authoring_cannot_fall_back_to_legacy_export(isolated_session):
+    sess = isolated_session
+    session_id = "publish_test_quarantine"
+    _build_exportable_session(sess, session_id)
+    canonical = sess.LEVELS_DIR / session_id / ".canonical"
+    canonical.mkdir()
+    (canonical / "quarantine.json").write_text(json.dumps({
+        "schemaVersion": 1, "issues": ["bird_id_set_mismatch"],
+    }))
+    public = sess.GAME_PUBLIC_LEVELS / session_id
+    public.mkdir(parents=True)
+    sentinel = public / "last-known-good.txt"
+    sentinel.write_text("retain")
+
+    with pytest.raises(sess.LevelNotReadyError, match="quarantined_integrity"):
+        sess.export_to_game(session_id)
+
+    assert sentinel.read_text() == "retain"
+    assert not (public / "level.json").exists()
+
+
 def test_approve_different_request_ids_advance_twice(isolated_session):
     sess = isolated_session
     _build_exportable_session(sess, "publish_test_c3d4")

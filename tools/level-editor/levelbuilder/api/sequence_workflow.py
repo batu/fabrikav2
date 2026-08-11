@@ -33,6 +33,9 @@ SEQUENCE_WORKFLOW_DIAGNOSTIC_CODES = frozenset({
     "catalogSnapshotsMissing",
     "changelogMissing",
     "levelVisibilityBlocked",
+    "levelAuthoringMigrationRequired",
+    "levelAuthoringQuarantined",
+    "levelAuthoringReviewRequired",
     "sequenceDestructiveChange",
     "sequenceDraftCatalogStale",
     "sequenceDraftStale",
@@ -440,6 +443,46 @@ def _visibility_diagnostics(level_ids: list[str]) -> list[dict[str, Any]]:
     return diagnostics
 
 
+def _artifact_integrity_diagnostics(level_ids: list[str]) -> list[dict[str, Any]]:
+    from .canonical_bird_contract import CanonicalReadState
+
+    diagnostics: list[dict[str, Any]] = []
+    for level_id in level_ids:
+        current = S.read_canonical_session(level_id)
+        if current.state is CanonicalReadState.MIGRATION_REQUIRED:
+            diagnostics.append(_diagnostic(
+                "levelAuthoringMigrationRequired",
+                f"Draft-listed level {level_id} has not been migrated to the canonical artifact contract.",
+                level_id=level_id,
+            ))
+            continue
+        if current.state is not CanonicalReadState.VALID_CURRENT or current.snapshot is None or current.pointer is None:
+            diagnostics.append(_diagnostic(
+                "levelAuthoringQuarantined",
+                f"Draft-listed level {level_id} authoring is {current.state.value} and cannot be activated.",
+                level_id=level_id,
+                details={"canonicalState": current.state.value, "reason": current.detail},
+            ))
+            continue
+        reviews = current.snapshot.get("reviews") or {}
+        hitbox_review = reviews.get("hitboxes")
+        final_review = reviews.get("finalCutouts")
+        revision = current.pointer.content_revision
+        if (
+            not isinstance(hitbox_review, dict)
+            or hitbox_review.get("contentRevision") != revision
+            or not isinstance(final_review, dict)
+            or final_review.get("contentRevision") != revision
+        ):
+            diagnostics.append(_diagnostic(
+                "levelAuthoringReviewRequired",
+                f"Draft-listed level {level_id} does not have current human hitbox and final-cutout reviews.",
+                level_id=level_id,
+                details={"contentRevision": revision},
+            ))
+    return diagnostics
+
+
 def _row_statuses(
     *,
     live_level_ids: list[str],
@@ -583,6 +626,7 @@ def _validate_editor_state(
             ))
 
     diagnostics.extend(_visibility_diagnostics(draft_level_ids))
+    diagnostics.extend(_artifact_integrity_diagnostics(draft_level_ids))
     diagnostics.extend(supported_builds["diagnostics"])
 
     starter_level_ids = list(supported_builds["starterLevelIds"])
