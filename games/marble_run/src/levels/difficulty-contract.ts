@@ -122,6 +122,8 @@ export interface DifficultyDraft {
 
 export interface ExportCandidate {
   readonly version: typeof EXPORT_CANDIDATE_VERSION;
+  /** Fingerprint of the exact draft reviewed immediately before confirmation. */
+  readonly reviewedDraftFingerprint: string;
   readonly baseline: ContentFingerprint;
   readonly authored: AuthoredDifficultyInputs;
   readonly levels: readonly ExpandedLevelIdentity[];
