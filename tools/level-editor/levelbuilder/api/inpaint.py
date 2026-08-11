@@ -3913,6 +3913,8 @@ def _run_single_dog_regen(
     crop_box: tuple[int, int, int, int] | None = None,
     inpaint_model: str | None,
     defer_composite: bool,
+    artifact_dir: Path | None = None,
+    captured_input: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Re-inpaint a single hitbox with a (possibly tweaked) prompt.
 
@@ -3922,12 +3924,24 @@ def _run_single_dog_regen(
     consumers (builder preview, export) see the updated scene.
     """
     _validate_session_id(session_id)
-    try:
-        S.require_hitboxes_blessed(session_id)
-    except ValueError as error:
-        raise HTTPException(
-            409, detail={"error": str(error), "code": "hitboxes_not_blessed"},
-        ) from error
+    if captured_input is not None:
+        from .canonical_job_provenance import BirdJobInput, verify_bird_job_input
+
+        current = S.read_canonical_session(session_id)
+        verification = (
+            verify_bird_job_input(current.snapshot, BirdJobInput.from_dict(captured_input))
+            if current.snapshot is not None
+            else None
+        )
+        if verification is None or not verification.current:
+            raise HTTPException(409, detail={"error": "Canonical job input changed", "code": "bird_input_changed"})
+    else:
+        try:
+            S.require_hitboxes_blessed(session_id)
+        except ValueError as error:
+            raise HTTPException(
+                409, detail={"error": str(error), "code": "hitboxes_not_blessed"},
+            ) from error
     if not (0.5 <= padding <= 4.0):
         raise HTTPException(400, detail={"error": "padding must be in [0.5, 4.0]"})
 
@@ -3956,6 +3970,7 @@ def _run_single_dog_regen(
     hb = Hitbox(x=hb_data["x"], y=hb_data["y"], radius=hb_data.get("r", hb_data.get("radius", 30)))
 
     dog_dir = S.dogs_dir(session_id) / f"dog_{dog_index:02d}"
+    output_dir = artifact_dir or dog_dir
     model = inpaint_model or raw.get("inpaint_model") or raw["model"]
     if model not in INPAINT_MODEL_IDS:
         fallback_model = next((m for m in INPAINT_MODEL_IDS if m.startswith("openai/")), None)
@@ -3991,24 +4006,37 @@ def _run_single_dog_regen(
             painted = resized
         dog_mask = _extract_dog_pixels(crop_before, painted, threshold=30)
 
-        dog_dir.mkdir(parents=True, exist_ok=True)
-        with S._session_lock:
-            variant_idx = S.get_next_variant_index(session_id, dog_index)
-        variant_path = dog_dir / f"variant_{variant_idx:03d}.png"
+        output_dir.mkdir(parents=True, exist_ok=True)
+        if artifact_dir is not None:
+            variant_idx = 0
+        else:
+            with S._session_lock:
+                variant_idx = S.get_next_variant_index(session_id, dog_index)
+        variant_path = output_dir / f"variant_{variant_idx:03d}.png"
         _atomic_save_image(painted, variant_path)
         write_generation_sidecar(
             variant_path, kind="dog_regenerate", prompt=prompt, model=model,
             params={"dogIndex": dog_index},
         )
         _save_variant_box(variant_path, box)
-        try:
-            S.require_hitboxes_blessed(session_id)
-        except ValueError as error:
-            raise HTTPException(
-                409, detail={"error": str(error), "code": "hitboxes_not_blessed"},
-            ) from error
+        if captured_input is not None:
+            current = S.read_canonical_session(session_id)
+            verification = (
+                verify_bird_job_input(current.snapshot, BirdJobInput.from_dict(captured_input))
+                if current.snapshot is not None
+                else None
+            )
+            if verification is None or not verification.current:
+                raise HTTPException(409, detail={"error": "Canonical job input changed", "code": "bird_input_changed"})
+        else:
+            try:
+                S.require_hitboxes_blessed(session_id)
+            except ValueError as error:
+                raise HTTPException(
+                    409, detail={"error": str(error), "code": "hitboxes_not_blessed"},
+                ) from error
         sprite_metadata = _save_sprite_assets(
-            dog_dir=dog_dir,
+            dog_dir=output_dir,
             variant_idx=variant_idx,
             painted=painted,
             dog_mask=dog_mask,
@@ -4019,34 +4047,39 @@ def _run_single_dog_regen(
         )
         if sprite_metadata is None:
             raise RuntimeError(f"regenerated dog {dog_index} did not yield a usable pickup sprite")
-        with S._session_lock:
+        if artifact_dir is None:
+            with S._session_lock:
             # Flip this dog's activeVariant to the just-saved index so
             # the global recompose below picks up the new paint.
-            raw_current = S.load_session_raw(session_id)
-            if raw_current is not None:
-                dogs = raw_current.setdefault("dogs", [])
-                dog_entry = next((d for d in dogs if d["index"] == dog_index), None)
-                if dog_entry is None:
+                raw_current = S.load_session_raw(session_id)
+                if raw_current is not None:
+                    dogs = raw_current.setdefault("dogs", [])
+                    dog_entry = next((d for d in dogs if d["index"] == dog_index), None)
+                    if dog_entry is None:
                     # A1: stamp a stable id on creation, identically to the other
                     # mint sites (set_active_variant / update_dog_status).
-                    dogs.append(S._new_dog_meta(
-                        session_id, dog_index, status="done", active_variant=variant_idx,
-                    ))
-                else:
-                    dog_entry["status"] = "done"
-                    dog_entry["activeVariant"] = variant_idx
-                S.save_session(session_id, raw_current)
+                        dogs.append(S._new_dog_meta(
+                            session_id, dog_index, status="done", active_variant=variant_idx,
+                        ))
+                    else:
+                        dog_entry["status"] = "done"
+                        dog_entry["activeVariant"] = variant_idx
+                    S.save_session(session_id, raw_current)
 
-        placement = _auto_place_cutout_best_safe(
-            session_id, dog_index, variant_idx,
-            painted_crop=painted,
-            painted_box=box,
+        placement = (
+            {"method": "staged", "accepted": True, "fittedBox": sprite_metadata["spriteBox"]}
+            if artifact_dir is not None
+            else _auto_place_cutout_best_safe(
+                session_id, dog_index, variant_idx,
+                painted_crop=painted,
+                painted_box=box,
+            )
         )
 
         # Full recomposite, but with the exact same raw diff-mask paste
         # used by the initial inpaint stream. Radial/feather made regen
         # and variant swaps diverge from first-pass output.
-        if not defer_composite:
+        if artifact_dir is None and not defer_composite:
             recomposite_color(session_id)
     except InpaintError as e:
         raise e
@@ -4063,13 +4096,17 @@ def _run_single_dog_regen(
             closed.add(image_id)
             image.close()
 
-    S.update_dog_status(session_id, dog_index, "done", activeVariant=variant_idx)
+    if artifact_dir is None:
+        S.update_dog_status(session_id, dog_index, "done", activeVariant=variant_idx)
 
     return {
         "variantIndex": variant_idx,
         "file": f"dogs/dog_{dog_index:02d}/variant_{variant_idx:03d}.png",
         "composited": not defer_composite,
         "placement": placement,
+        "artifactSpritePath": str(output_dir / f"sprite_{variant_idx:03d}.png") if artifact_dir is not None else None,
+        "artifactPaintedPath": str(variant_path) if artifact_dir is not None else None,
+        "spriteMetadata": sprite_metadata if artifact_dir is not None else None,
     }
 
 
@@ -4799,18 +4836,6 @@ def _run_retry_failed_dogs_job(job: JobRecord, store: JobStore) -> dict[str, Any
                     captured_input=bird_input_data if isinstance(bird_input_data, dict) else None,
                 )
             else:
-                if isinstance(bird_input_data, dict):
-                    if child is not None:
-                        child_jobs[dog_index] = store.transition_job(
-                            child.id,
-                            status="failed_terminal",
-                            stage="staging_required",
-                            retryable=False,
-                            error_code="canonical_regeneration_requires_staged_promotion",
-                            error_message="Canonical regeneration is disabled until provider output can be promoted atomically.",
-                        )
-                    failed += 1
-                    continue
                 result = _run_single_dog_regen(
                     session_id,
                     dog_index,
@@ -4819,6 +4844,12 @@ def _run_retry_failed_dogs_job(job: JobRecord, store: JobStore) -> dict[str, Any
                     crop_box=crop_boxes.get(dog_index),
                     inpaint_model=model,
                     defer_composite=True,
+                    artifact_dir=(
+                        S.LEVELS_DIR / session_id / ".canonical" / "job-artifacts" / job.id / str(child.metadata["birdId"])
+                        if child is not None and isinstance(child.metadata.get("birdInput"), dict)
+                        else None
+                    ),
+                    captured_input=bird_input_data if isinstance(bird_input_data, dict) else None,
                 )
             disposition = "committed"
             promoted_revision = None
@@ -4829,6 +4860,7 @@ def _run_retry_failed_dogs_job(job: JobRecord, store: JobStore) -> dict[str, Any
                     captured_input=bird_input_data,
                     generation_id=child.id if child is not None else job.id,
                     sprite_path=sprite_path,
+                    painted_path=(Path(str(result["artifactPaintedPath"])) if result.get("artifactPaintedPath") else None),
                     metadata=dict(result["spriteMetadata"]),
                 )
                 if promoted is None:

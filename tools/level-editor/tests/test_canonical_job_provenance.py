@@ -166,6 +166,8 @@ def test_unattached_sprite_promotes_only_while_target_input_is_current(isolated_
     artifact = isolated_session.LEVELS_DIR / "canonical_artifact_promote" / ".canonical" / "job-artifacts" / "j1" / "bird_one" / "sprite.png"
     artifact.parent.mkdir(parents=True)
     artifact.write_bytes(b"new-sprite")
+    painted = artifact.with_name("painted.png")
+    painted.write_bytes(b"new-painted-crop")
     metadata = {"spriteBox": [20, 30, 60, 80], "cleanupBox": [15, 25, 65, 85], "anchorX": 0.5, "anchorY": 0.6}
 
     promoted, disposition = isolated_session.promote_canonical_sprite_artifact(
@@ -173,11 +175,13 @@ def test_unattached_sprite_promotes_only_while_target_input_is_current(isolated_
         captured_input=captured.to_dict(),
         generation_id="job:j1",
         sprite_path=artifact,
+        painted_path=painted,
         metadata=metadata,
     )
     assert disposition == "committed"
     assert promoted.content_revision != pointer.content_revision
     assert store.read().snapshot["birds"][0]["activeGeneration"]["generationId"] == "job:j1"
+    assert store.read().snapshot["birds"][0]["activeGeneration"]["paintedAsset"]["path"].endswith("painted.png")
 
     stale_artifact = artifact.with_name("stale.png")
     stale_artifact.write_bytes(b"stale-sprite")

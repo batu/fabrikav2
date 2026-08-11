@@ -1899,6 +1899,7 @@ def promote_canonical_sprite_artifact(
     generation_id: str,
     sprite_path: Path,
     metadata: dict[str, Any],
+    painted_path: Path | None = None,
 ):
     """Promote an unattached provider artifact iff its bird inputs remain current."""
     from levelbuilder.api.canonical_bird_contract import (
@@ -1917,6 +1918,8 @@ def promote_canonical_sprite_artifact(
         raise ContractValidationError("job artifact session mismatch")
     if not sprite_path.is_file():
         raise ContractValidationError("job sprite artifact is missing")
+    if painted_path is not None and not painted_path.is_file():
+        raise ContractValidationError("job painted artifact is missing")
     try:
         relative_sprite = sprite_path.resolve().relative_to((LEVELS_DIR / session_id).resolve())
     except ValueError as error:
@@ -1948,6 +1951,13 @@ def promote_canonical_sprite_artifact(
             "generationId": generation_id,
             "inputSceneSha256": captured.scene_sha256,
             "inputRevision": captured.bird_input_revision,
+            **({
+                "paintedAsset": {
+                    "path": painted_path.resolve().relative_to((LEVELS_DIR / session_id).resolve()).as_posix(),
+                    "sha256": hashlib.sha256(painted_path.read_bytes()).hexdigest(),
+                    "bytes": painted_path.stat().st_size,
+                },
+            } if painted_path is not None else {}),
         }
         bird["sprite"] = {
             "asset": {
