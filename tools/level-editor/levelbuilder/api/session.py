@@ -962,6 +962,11 @@ def _current_hitbox_snapshot(session_id: str) -> tuple[list[dict[str, Any]], str
 
 
 def get_hitbox_review_status(session_id: str) -> dict[str, Any]:
+    canonical = read_canonical_session(session_id)
+    if canonical.state.value == "valid_current" and canonical.snapshot is not None:
+        review = canonical.snapshot.get("reviews", {}).get("hitboxes")
+        current = isinstance(review, dict)
+        return {**(review or {}), "approved": current, "current": current, "stale": False}
     review = _read_review_file(session_id, "hitbox-review.json")
     legacy = False
     if review is None:
@@ -1134,6 +1139,13 @@ def get_final_cutout_review_status(
     *,
     hitbox_status: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
+    canonical = read_canonical_session(session_id)
+    if canonical.state.value == "valid_current" and canonical.snapshot is not None:
+        reviews = canonical.snapshot.get("reviews", {})
+        hitbox_review = reviews.get("hitboxes")
+        final_review = reviews.get("finalCutouts")
+        current = isinstance(hitbox_review, dict) and isinstance(final_review, dict)
+        return {**(final_review or {}), "approved": current, "current": current, "stale": False}
     review = get_level_golden_review(session_id)
     approved = bool(review and (review.get("approved") is True or review.get("blessed") is True))
     if not approved:
@@ -2438,6 +2450,7 @@ def list_sessions(*, include_public: bool = False) -> list[dict]:
             if orientation not in ("portrait", "landscape"):
                 orientation = "landscape" if width > height else "portrait"
 
+            canonical = read_canonical_session(d.name)
             hitbox_review = get_hitbox_review_status(d.name)
             final_cutout_review = get_final_cutout_review_status(
                 d.name, hitbox_status=hitbox_review,
@@ -2447,7 +2460,7 @@ def list_sessions(*, include_public: bool = False) -> list[dict]:
                 if hitbox_review["current"]
                 else {"ready": False, "activeBirds": n_dogs, "missingCutouts": n_dogs}
             )
-            canonical_state = read_canonical_session(d.name).state.value
+            canonical_state = canonical.state.value
 
             review_sidecars = []
             for sidecar_path in d.glob("dogs/dog_*/sprite_*.json"):

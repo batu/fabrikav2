@@ -37,6 +37,180 @@ class LevelMigrationPlan:
         }
 
 
+class CleanupIdentityRepairError(ValueError):
+    """Raised when cleanup geometry cannot prove one unambiguous bird binding."""
+
+
+def _atomic_json(path: Path, value: Any) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = path.with_name(f".{path.name}.tmp-{uuid.uuid4().hex}")
+    temporary.write_text(json.dumps(value, indent=2) + "\n")
+    os.replace(temporary, path)
+
+
+def propose_cleanup_identity_repair(session_dir: Path) -> dict[str, Any]:
+    """Prove a full slot-to-bird bijection from cleanup boxes and hitbox centers."""
+    quarantine = _json(session_dir / ".canonical" / "quarantine.json", {})
+    issues = quarantine.get("issues") if isinstance(quarantine, dict) else None
+    if not isinstance(issues, list) or not issues or any(
+        not isinstance(issue, str) or not issue.endswith(":cleanup_misses_hitbox")
+        for issue in issues
+    ):
+        raise CleanupIdentityRepairError("repair requires a cleanup-only quarantine")
+
+    raw = _json(session_dir / "session.json", {})
+    hitboxes = _json(session_dir / "hitboxes.json", [])
+    dogs = raw.get("dogs") if isinstance(raw, dict) else None
+    if not isinstance(dogs, list) or not isinstance(hitboxes, list) or len(dogs) != len(hitboxes):
+        raise CleanupIdentityRepairError("session dogs and reviewed hitboxes must have equal cardinality")
+    hitbox_ids = [item.get("id") for item in hitboxes if isinstance(item, dict)]
+    if len(hitbox_ids) != len(hitboxes) or any(not isinstance(value, str) or not value for value in hitbox_ids):
+        raise CleanupIdentityRepairError("every hitbox must have a stable bird ID")
+    if len(set(hitbox_ids)) != len(hitbox_ids):
+        raise CleanupIdentityRepairError("hitbox bird IDs must be unique")
+
+    bindings: list[dict[str, Any]] = []
+    claimed: set[str] = set()
+    for dog in dogs:
+        if not isinstance(dog, dict) or not isinstance(dog.get("index"), int):
+            raise CleanupIdentityRepairError("every session dog must have a compatibility slot")
+        index = dog["index"]
+        variant = dog.get("activeVariant")
+        if not isinstance(variant, int) or variant < 0:
+            raise CleanupIdentityRepairError(f"dog_{index:02d} has no active sprite")
+        sidecar = _json(session_dir / "dogs" / f"dog_{index:02d}" / f"sprite_{variant:03d}.json", {})
+        cleanup = sidecar.get("cleanupBox") if isinstance(sidecar, dict) else None
+        if not isinstance(cleanup, list) or len(cleanup) != 4:
+            raise CleanupIdentityRepairError(f"dog_{index:02d} has no cleanup box")
+        x0, y0, x1, y1 = map(int, cleanup)
+        matches = [
+            hitbox for hitbox in hitboxes
+            if isinstance(hitbox, dict) and x0 <= int(hitbox["x"]) <= x1 and y0 <= int(hitbox["y"]) <= y1
+        ]
+        if len(matches) != 1:
+            raise CleanupIdentityRepairError(
+                f"dog_{index:02d} cleanup contains {len(matches)} hitbox centers; expected exactly one"
+            )
+        bird_id = str(matches[0]["id"])
+        if bird_id in claimed:
+            raise CleanupIdentityRepairError(f"multiple sprite slots claim bird {bird_id}")
+        claimed.add(bird_id)
+        bindings.append({
+            "compatibilitySlot": f"dog_{index:02d}",
+            "index": index,
+            "oldBirdId": dog.get("id"),
+            "birdId": bird_id,
+        })
+    if claimed != set(hitbox_ids):
+        raise CleanupIdentityRepairError("cleanup-to-hitbox mapping is not a complete bijection")
+    return {"levelId": session_dir.name, "bindings": bindings, "issues": issues}
+
+
+def repair_cleanup_identity_bindings(
+    session_dir: Path,
+    public_dir: Path | None,
+    journal_root: Path,
+    *,
+    preserve_review_kinds: frozenset[str] = frozenset(),
+) -> dict[str, Any]:
+    """Rebind only proven identities, then create an unreviewed canonical revision."""
+    proposal = propose_cleanup_identity_repair(session_dir)
+    raw = _json(session_dir / "session.json", {})
+    dogs = raw["dogs"]
+    by_index = {binding["index"]: binding for binding in proposal["bindings"]}
+    for dog in dogs:
+        dog["id"] = by_index[dog["index"]]["birdId"]
+
+    quarantine_path = session_dir / ".canonical" / "quarantine.json"
+    quarantine_payload = quarantine_path.read_bytes()
+    session_path = session_dir / "session.json"
+    session_payload = session_path.read_bytes()
+    level_path = session_dir / "level.json"
+    level_payload = level_path.read_bytes() if level_path.is_file() else None
+    history_path = session_dir / ".canonical" / "quarantine-history" / (
+        hashlib.sha256(quarantine_payload).hexdigest() + ".json"
+    )
+    try:
+        _atomic_json(session_path, raw)
+        history_path.parent.mkdir(parents=True, exist_ok=True)
+        if not history_path.exists():
+            history_path.write_bytes(quarantine_payload)
+        quarantine_path.unlink()
+        plan = plan_legacy_level(session_dir, public_dir, archived=False)
+        if plan.action != "migrate" or plan.snapshot is None:
+            raise CleanupIdentityRepairError(
+                "rebound level did not pass migration: " + ", ".join(plan.issues)
+            )
+        if preserve_review_kinds:
+            from .canonical_bird_contract import bless_snapshot
+
+            snapshot = plan.snapshot
+            history = {
+                item["kind"]: item for item in snapshot["operational"].get("reviewHistory", [])
+            }
+            for kind in ("hitboxes", "finalCutouts"):
+                if kind not in preserve_review_kinds:
+                    continue
+                assertion = history.get(kind, {}).get("assertion", {})
+                reviewed_at = assertion.get("reviewedAt")
+                if not isinstance(reviewed_at, str) or not reviewed_at:
+                    raise CleanupIdentityRepairError(f"cannot preserve {kind} review without its timestamp")
+                snapshot = bless_snapshot(
+                    snapshot,
+                    review_kind=kind,
+                    reviewer="human:legacy-repair",
+                    reviewed_at=reviewed_at,
+                )
+            plan = LevelMigrationPlan(
+                plan.level_id,
+                plan.action,
+                plan.issues,
+                snapshot=snapshot,
+                restore_source=plan.restore_source,
+            )
+        applied = apply_level_plan(plan, session_dir, journal_root)
+        level = _json(level_path, {})
+        if not isinstance(level, dict):
+            level = {}
+        existing_by_slot = {
+            f"dog_{index:02d}": dog for index, dog in enumerate(level.get("dogs", []))
+            if isinstance(dog, dict)
+        }
+        projected = []
+        for bird in sorted(plan.snapshot["birds"], key=lambda item: item["presentationOrder"]):
+            dog = dict(existing_by_slot.get(bird["compatibilitySlot"], {}))
+            dog.update({"id": bird["birdId"], **bird["hitbox"]})
+            sprite = dict(dog.get("sprite") or {})
+            sprite.update(bird["sprite"]["placement"])
+            sprite["cleanup"] = {key: bird["cleanup"][key] for key in ("x", "y", "width", "height")}
+            sprite.update({key: bird["sprite"][key] for key in ("anchorX", "anchorY", "flipX", "flipY")})
+            dog["sprite"] = sprite
+            dog["compatibilitySlot"] = bird["compatibilitySlot"]
+            projected.append(dog)
+        level["dogs"] = projected
+        level["artifactRevision"] = applied["contentRevision"]
+        level["compatibilityAliases"] = {
+            bird["compatibilitySlot"]: bird["birdId"] for bird in plan.snapshot["birds"]
+        }
+        _atomic_json(level_path, level)
+    except Exception:
+        _atomic_json(session_path, json.loads(session_payload))
+        if level_payload is None:
+            level_path.unlink(missing_ok=True)
+        else:
+            _atomic_json(level_path, json.loads(level_payload))
+        quarantine_path.parent.mkdir(parents=True, exist_ok=True)
+        quarantine_path.write_bytes(quarantine_payload)
+        raise
+    return {
+        **proposal,
+        "contentRevision": applied["contentRevision"],
+        "reviewRequired": not {"hitboxes", "finalCutouts"}.issubset(preserve_review_kinds),
+        "preservedReviews": sorted(preserve_review_kinds),
+        "quarantineHistory": history_path.relative_to(session_dir).as_posix(),
+    }
+
+
 def _json(path: Path, default: Any = None) -> Any:
     try:
         return json.loads(path.read_text())
