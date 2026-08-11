@@ -7,12 +7,12 @@
  * routes outcomes to shell callbacks instead of showing its own modals.
  *
  * vida art is served from `public/v1/ui/vida/GameScreen/` (ported by MRV2-3),
- * referenced by absolute URL rather than a bundler import — matching how the
- * rest of the v2 game references its `public/` assets.
+ * referenced through Vite's configured base so the same HUD works in the game
+ * root and in the editor's hash-namespaced Portal artifact.
  */
 import { HINT_COIN_COST } from '../three/constants';
 
-const VIDA = '/v1/ui/vida/GameScreen';
+const VIDA = `${import.meta.env.BASE_URL}v1/ui/vida/GameScreen`;
 const GOALS_FRAME = `${VIDA}/Frame_Goals.png`;
 const CURRENCY_FRAME = `${VIDA}/Frame_Currency.png`;
 const BOOSTER_BUTTON = `${VIDA}/Button_Booster.png`;

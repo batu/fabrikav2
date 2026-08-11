@@ -24,10 +24,11 @@ The Fabrikav2 editor candidate passes its deterministic generation, browser life
 |------|--------------------|--------|
 | browser | `npm run test:browser -w @fabrikav2/marble-run-difficulty-editor` | passed: 110/110 accepted in ascending order, exact shipped bytes, worker 30,361.3 ms, main-thread long task 0 ms, input-to-paint p95 9.1 ms, stale results 0 |
 | browser soak | same executable Chromium gate | passed: 30 cycles across levels 1, 46, and 90; peak one canvas/context/rAF; zero retained preview contexts, listeners, or frames |
-| unit and static | editor unit, typecheck, lint | passed: 36 tests, typecheck, and lint |
+| unit and static | editor unit, typecheck, lint | passed: 38 tests, typecheck, and lint |
 | game oracle | focused Marble Run bake/contract/expand/validation suite | passed: 35 tests including exact 110-board reproduction |
-| deterministic build | two consecutive production builds and `cmp` | passed: byte-identical manifest, content hash `8f0dc47d510754b4e3ee829eac8ddf20d6265c3f836f2dcb7bc125c9d50c7841` |
+| deterministic build | two consecutive production builds and `cmp` | passed: byte-identical manifest, final content hash `5181796617e2c38361f1f6da61e7e08c863615d54a933ef660ea20681c55e5f4` |
 | Portal | `uv run pytest -q` in the isolated Portal worktree | passed: 458 tests; no live activation performed |
+| Portal browser | local authenticated gateway serving the final retained archive | passed: shell 200, exact hash-namespaced iframe, level 46 selected and playable with one canvas, all seven HUD images loaded, no page errors; [capture](assets/portal-local-level-46.png) |
 | candidate download | production build review, confirmation, and browser download | passed: 91,090 bytes, 110 boards, 110 evidence rows, no validation issues; filename and file SHA-256 both `d6ef426b3b1e4fccd22816cdae3d90edb953cba7c9745ee70722f42d40d4fc3b` |
 | generation recovery | invalid gate 19 on level 1, then Return to Journey inheritance | passed: [Needs attention](assets/generation-failure.png) appeared while the last valid board remained visible; [recovered](assets/generation-recovered.png) removed the exception after regeneration |
 | screenshot | [Journey](assets/journey.png), [Ranges](assets/ranges.png), [Boards](assets/boards.png), [Play preview](assets/play-preview.png), [ready export](assets/export-ready.png) | inspected: one visual hierarchy, 110-board overview, playable injected board, and complete 110/110 export review |
