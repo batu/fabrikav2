@@ -10,7 +10,7 @@ interface JourneyProps {
   readonly state: EditorWorkspaceState; readonly draft: DifficultyDraft; readonly expanded: readonly ExpandedDifficultyLevel[];
   readonly measurements: Readonly<Record<number, number>>;
   readonly reading: JourneyReading; readonly onReading: (view: JourneyReading) => void; readonly onEdit: (draft: DifficultyDraft) => void;
-  readonly onSelect: (id: number) => void; readonly playRequest: number | null;
+  readonly onSelect: (id: number) => void;
 }
 
 export function JourneyView(props: JourneyProps): React.JSX.Element {
@@ -23,7 +23,7 @@ export function JourneyView(props: JourneyProps): React.JSX.Element {
       </nav>
       {props.reading === 'author' && <PatternEditor draft={props.draft} onEdit={props.onEdit} />}
       {props.reading === 'ranges' && <RangesView state={props.state} draft={props.draft} expanded={props.expanded} measurements={props.measurements} onSelect={props.onSelect} />}
-      {props.reading === 'boards' && <BoardsView state={props.state} expanded={props.expanded} measurements={props.measurements} onSelect={props.onSelect} playRequest={props.playRequest} />}
+      {props.reading === 'boards' && <BoardsView state={props.state} expanded={props.expanded} measurements={props.measurements} onSelect={props.onSelect} />}
     </div>
   );
 }

@@ -24,7 +24,7 @@ import { GAMEPLAY_CAMERA_GROUND_ANGLE_DEG, HINT_COIN_COST, LEVEL_COIN_REWARD, LE
 import { gameState } from '../core/GameState';
 import { LEVELS } from '../levels/levels.generated';
 import { BoardEngine } from '../marble-board';
-import type { Cell, TapChange } from '../marble-board';
+import type { Cell, LevelDef, TapChange } from '../marble-board';
 import {
   absorbPlop,
   heartBreak,
@@ -186,14 +186,20 @@ export class GameplayController {
 
   /** Start a level run. `levelId` is 1-based (shell progression + 1). */
   startLevel(levelId: number): void {
-    this.levelId = Math.min(Math.max(levelId, 1), LEVEL_COUNT);
+    const committedLevelId = Math.min(Math.max(levelId, 1), LEVEL_COUNT);
+    this.startLevelDefinition(LEVELS[committedLevelId - 1]!);
+  }
+
+  /** Start an injected immutable board without changing the runtime id wrapper. */
+  startLevelDefinition(level: LevelDef): void {
+    this.levelId = level.id;
     this.paused = false;
     this.ended = false;
     this.consecutiveBlocked = 0;
     this.cancelPendingPointer();
     this.clearBoard();
 
-    this.engine = new BoardEngine(LEVELS[this.levelId - 1]);
+    this.engine = new BoardEngine(level);
     this.board = new BoardScene(this.engine, {
       onAbsorbed: (change) => this.handleAbsorbed(change),
       onBlockedImpact: (change) => this.handleBlockedImpact(change),
@@ -707,6 +713,10 @@ export class GameplayController {
     this.canvas.removeEventListener('lostpointercapture', this.boundPointerCancel);
     window.removeEventListener('pointerdown', this.boundUnlockAudio);
     this.hud.dispose();
+    // Editor previews create and destroy gameplay repeatedly. Explicitly lose
+    // the context so Chromium/iOS do not retain every disposed renderer until
+    // the browser's context quota is exhausted.
+    this.stage.renderer.forceContextLoss();
     this.stage.dispose();
     this.canvas.remove();
     this.hudRoot.remove();

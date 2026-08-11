@@ -8,6 +8,7 @@ import { DifficultyModelDrawer } from './features/journey/DifficultyModelDrawer.
 import { JourneyView, type JourneyReading } from './features/journey/JourneyView.tsx';
 import { LevelView } from './features/level/LevelView.tsx';
 import { SHIPPED_MEASURED_DIFFICULTY } from './features/measurements.ts';
+import { PlayView } from './features/play/PlayView.tsx';
 
 export interface AppProps { readonly workspaceOwner?: WorkspaceOwner }
 
@@ -34,9 +35,15 @@ export function App({ workspaceOwner = defaultWorkspaceOwner }: AppProps): React
         </nav>
         <div className="header-actions"><span className="editor-shell__state"><i />{state.phase}</span><button className="text-action" data-action="model" onClick={() => setDrawer('model')}>Difficulty model</button><button className="guide-action" data-action="guide" aria-label="Open difficulty guide" onClick={() => setDrawer('guide')}>?</button></div>
       </header>
-      {primaryView === 'journey' ? <JourneyView state={state} draft={state.draft} expanded={expanded} measurements={measurements} reading={reading} onReading={setReading} onEdit={(draft) => workspace.edit(draft)} onSelect={(id) => { store.selectLevel(id); if (reading === 'boards') setPlayRequest(id); }} playRequest={playRequest} /> : <LevelView state={state} draft={state.draft} level={expanded[state.selectedLevelId - 1]!} onEdit={(draft) => workspace.edit(draft)} onPlay={setPlayRequest} />}
+      {primaryView === 'journey' ? <JourneyView state={state} draft={state.draft} expanded={expanded} measurements={measurements} reading={reading} onReading={setReading} onEdit={(draft) => workspace.edit(draft)} onSelect={(id) => { store.selectLevel(id); if (reading === 'boards') setPlayRequest(id); }} /> : <LevelView state={state} draft={state.draft} level={expanded[state.selectedLevelId - 1]!} onEdit={(draft) => workspace.edit(draft)} onPlay={setPlayRequest} />}
       {drawer === 'model' && <DifficultyModelDrawer draft={state.draft} onEdit={(draft) => workspace.edit(draft)} onClose={() => setDrawer(null)} />}
       {drawer === 'guide' && <DifficultyGuide onClose={() => setDrawer(null)} />}
+      {playRequest !== null && <PlayView
+        board={state.boards[playRequest]!}
+        canRegenerate={!state.draft.locks.some((lock) => lock.levelId === playRequest)}
+        onRegenerate={() => workspace.regenerateLevel(playRequest)}
+        onClose={() => setPlayRequest(null)}
+      />}
     </main>
   );
 }

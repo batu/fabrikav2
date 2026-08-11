@@ -8,7 +8,6 @@ interface BoardsViewProps {
   readonly expanded: readonly ExpandedDifficultyLevel[];
   readonly measurements: Readonly<Record<number, number>>;
   readonly onSelect: (levelId: number) => void;
-  readonly playRequest: number | null;
 }
 
 function exceptionalStatus(state: EditorWorkspaceState, levelId: number, overrideState: ExpandedDifficultyLevel['overrideState']): string | null {
@@ -19,14 +18,13 @@ function exceptionalStatus(state: EditorWorkspaceState, levelId: number, overrid
   return null;
 }
 
-export function BoardsView({ state, expanded, measurements, onSelect, playRequest }: BoardsViewProps): React.JSX.Element {
+export function BoardsView({ state, expanded, measurements, onSelect }: BoardsViewProps): React.JSX.Element {
   return (
     <section className="boards-view" aria-labelledby="boards-title">
       <div className="section-heading">
         <div><p className="eyebrow">Reading 02</p><h2 id="boards-title">Boards</h2></div>
         <p>Scan the generated campaign. Select any board to play it.</p>
       </div>
-      {playRequest !== null && <div className="play-seam" role="status">Play level {playRequest} · Preview opens here in the next delivery unit.</div>}
       <div className="boards-overflow" data-board-scroll>
         <div className="boards-grid">
           {expanded.map((level) => {

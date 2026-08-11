@@ -1,6 +1,16 @@
 import { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
+const previewCalls = vi.hoisted(() => ({ opens: [] as number[], restarts: 0, disposals: 0 }));
+const reactTestEnvironment = globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT: boolean };
+vi.mock('../preview/EditorGameplayPreview.ts', () => ({
+  EditorGameplayPreview: class {
+    open(board: { id: number }): void { previewCalls.opens.push(board.id); }
+    restart(): boolean { previewCalls.restarts += 1; return true; }
+    dispose(): void { previewCalls.disposals += 1; }
+  },
+}));
 
 import { App } from '../App.tsx';
 import { EditorWorkspace } from '../domain/workspace.ts';
@@ -11,6 +21,10 @@ describe('difficulty editor authoring surface', () => {
   let root: Root;
 
   beforeEach(async () => {
+    reactTestEnvironment.IS_REACT_ACT_ENVIRONMENT = true;
+    previewCalls.opens = [];
+    previewCalls.restarts = 0;
+    previewCalls.disposals = 0;
     container = document.createElement('div');
     document.body.append(container);
     root = createRoot(container);
@@ -20,6 +34,7 @@ describe('difficulty editor authoring surface', () => {
 
   afterEach(async () => {
     await act(async () => root.unmount());
+    reactTestEnvironment.IS_REACT_ACT_ENVIRONMENT = false;
     container.remove();
   });
 
@@ -46,6 +61,15 @@ describe('difficulty editor authoring surface', () => {
     scroll.scrollLeft = 220;
     await click(container.querySelector('[data-board-level="46"]'));
     expect(container.textContent).toContain('Play level 46');
+    expect(previewCalls.opens).toEqual([46]);
+    expect(scroll.scrollLeft).toBe(220);
+    await click(container.querySelector('[data-action="restart"]'));
+    expect(previewCalls.restarts).toBe(1);
+    await click(container.querySelector('[data-action="regenerate"]'));
+    expect(container.textContent).toContain('Generating');
+    await click(container.querySelector('[data-action="close-play"]'));
+    expect(container.querySelector('[data-play-level]')).toBeNull();
+    expect(previewCalls.disposals).toBe(1);
     expect(scroll.scrollLeft).toBe(220);
   });
 

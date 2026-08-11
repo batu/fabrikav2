@@ -41,6 +41,15 @@ export class EditorWorkspace {
     return affected;
   }
 
+  regenerateLevel(levelId: number): boolean {
+    if (this.disposed) throw new Error('Editor workspace is disposed.');
+    const state = this.store.getSnapshot();
+    if (state.draft.locks.some((lock) => lock.levelId === levelId)) return false;
+    const revision = this.coordinator.schedule(state.draft, [levelId], Object.values(state.accepted));
+    this.store.markGenerating([levelId], revision);
+    return true;
+  }
+
   /** Defers final cleanup one microtask so React StrictMode's probe remount reuses the same resources. */
   attach(): () => void {
     if (this.disposed) throw new Error('Editor workspace is disposed.');
