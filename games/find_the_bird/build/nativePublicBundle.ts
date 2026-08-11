@@ -68,6 +68,27 @@ function collectManifestPaths(value: ManifestValue, paths: Set<string>): void {
   }
 }
 
+function validateManifestAssets(value: ManifestValue, publicRoot: string): void {
+  if (Array.isArray(value)) {
+    for (const item of value) validateManifestAssets(item, publicRoot);
+    return;
+  }
+  if (value === null || typeof value !== 'object') return;
+  if (typeof value.path === 'string') {
+    if (typeof value.hash !== 'string' || typeof value.size !== 'number') {
+      throw new Error(`Native bundled asset has incomplete integrity metadata: ${value.path}`);
+    }
+    const actual = assetMetadata(publicRoot, value.path);
+    if (actual.size !== value.size || actual.hash !== value.hash) {
+      throw new Error(
+        `Native bundled asset changed after approval: ${value.path} ` +
+        `(expected ${value.size}/${value.hash}, got ${actual.size}/${actual.hash})`,
+      );
+    }
+  }
+  for (const item of Object.values(value)) validateManifestAssets(item, publicRoot);
+}
+
 function directorySize(root: string): number {
   let bytes = 0;
   for (const entry of readdirSync(root, { withFileTypes: true })) {
@@ -92,7 +113,7 @@ function manifestLevels(value: ManifestValue, manifestPath: string): Array<{ [ke
 function assetMetadata(outputRoot: string, relativePath: string): { hash: string; size: number } {
   const assetPath = assetPathWithinRoot(outputRoot, relativePath);
   const stat = statSync(assetPath, { throwIfNoEntry: false });
-  if (!stat?.isFile()) throw new Error(`Native manifested asset is missing from output: ${relativePath}`);
+  if (!stat?.isFile()) throw new Error(`Native manifested asset is missing: ${relativePath}`);
   return {
     hash: createHash('sha256').update(readFileSync(assetPath)).digest('hex'),
     size: stat.size,
@@ -235,6 +256,7 @@ export function copyNativePublicBundle(publicRoot: string, outputRoot: string): 
   const bundledManifestPath = path.join(levelsRoot, 'bundled-manifest.json');
   const bundledManifest = JSON.parse(readFileSync(bundledManifestPath, 'utf8')) as ManifestValue;
   manifestLevels(bundledManifest, bundledManifestPath);
+  validateManifestAssets(bundledManifest, publicRoot);
   const requiredPaths = new Set<string>([
     'levels/bundled-manifest.json',
     'levels/catalog-manifest.json',
