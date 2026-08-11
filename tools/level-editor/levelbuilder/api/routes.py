@@ -533,8 +533,10 @@ class CreateAnimationJobRequest(BaseModel):
 
 class SaveSpritePlacementRequest(BaseModel):
     spriteBox: tuple[int, int, int, int]
+    cleanupBox: tuple[int, int, int, int] | None = None
     flipX: bool | None = None
     flipY: bool | None = None
+    expectedContentRevision: str | None = None
 
 
 class AutoPlaceSpritesRequest(BaseModel):
@@ -543,6 +545,7 @@ class AutoPlaceSpritesRequest(BaseModel):
 
 class SaveHumanConfirmationRequest(BaseModel):
     confirmed: bool
+    expectedContentRevision: str | None = None
 
 
 class SaveGoldenReviewRequest(BaseModel):
@@ -1320,6 +1323,27 @@ def save_sprite_candidate_placement(
     if candidate is None:
         raise HTTPException(404, detail={"error": "Sprite candidate not found"})
     try:
+        bird_id = candidate.get("birdId")
+        if isinstance(bird_id, str):
+            canonical = S.save_canonical_sprite_geometry_if_present(
+                session_id,
+                bird_id,
+                sprite_box=req.spriteBox,
+                cleanup_box=req.cleanupBox,
+                flip_x=req.flipX,
+                flip_y=req.flipY,
+                expected_content_revision=req.expectedContentRevision,
+            )
+            if canonical is None:
+                raise ValueError("canonical candidate has no canonical session")
+            return {
+                "ok": True,
+                "spriteBox": list(req.spriteBox),
+                "cleanupBox": list(req.cleanupBox) if req.cleanupBox else None,
+                "contentRevision": canonical.content_revision,
+                "operationalRevision": canonical.operational_revision,
+                "catalog": None,
+            }
         dog_index = int(candidate["dogIndex"])
         level_path = S.GAME_PUBLIC_LEVELS / session_id / "level.json"
         level = json.loads(level_path.read_text())
@@ -1354,6 +1378,7 @@ def save_sprite_candidate_placement(
                     "method": MANUAL_MATCH_METHOD,
                     **({"flipX": req.flipX} if req.flipX is not None else {}),
                     **({"flipY": req.flipY} if req.flipY is not None else {}),
+                    **({"cleanupBox": list(req.cleanupBox)} if req.cleanupBox is not None else {}),
                 }},
             }],
         }]}
@@ -1371,9 +1396,16 @@ def save_sprite_candidate_placement(
         if result.get("applied") != 1 and result.get("unchanged") != 1:
             raise ValueError("manual placement was rejected")
         catalog = S.refresh_catalog_packages([session_id]) if result.get("applied") == 1 else None
+    except RevisionConflictError as error:
+        raise _content_revision_conflict(error, ["spritePlacement", "cleanup", "spriteFlip"]) from error
     except (OSError, KeyError, IndexError, TypeError, ValueError, json.JSONDecodeError) as error:
         raise HTTPException(422, detail={"error": str(error)}) from error
-    return {"ok": True, "spriteBox": [x0, y0, x1, y1], "catalog": catalog}
+    return {
+        "ok": True,
+        "spriteBox": [x0, y0, x1, y1],
+        "cleanupBox": list(req.cleanupBox) if req.cleanupBox else None,
+        "catalog": catalog,
+    }
 
 
 @router.put("/sessions/{session_id}/sprite-candidates/{candidate_id}/human-confirmation")
@@ -1384,8 +1416,29 @@ def save_sprite_candidate_human_confirmation(
 ):
     _validate_session_id(session_id)
     try:
+        candidate = S.sprite_animation_candidate_by_id(session_id, candidate_id)
+        if candidate is None:
+            raise ValueError("sprite candidate metadata was not found")
+        bird_id = candidate.get("birdId")
+        if isinstance(bird_id, str):
+            canonical = S.set_canonical_candidate_confirmation_if_present(
+                session_id,
+                bird_id,
+                req.confirmed,
+                expected_content_revision=req.expectedContentRevision,
+            )
+            if canonical is None:
+                raise ValueError("canonical candidate has no canonical session")
+            return {
+                "ok": True,
+                "contentRevision": canonical.content_revision,
+                "operationalRevision": canonical.operational_revision,
+                "humanReview": {"confirmed": req.confirmed, "source": "editor"},
+            }
         with S._session_lock:
             review = S.set_sprite_human_confirmation(session_id, candidate_id, req.confirmed)
+    except RevisionConflictError as error:
+        raise _content_revision_conflict(error, ["candidateReview"]) from error
     except (OSError, ValueError, json.JSONDecodeError) as error:
         raise HTTPException(422, detail={"error": str(error)}) from error
     return {"ok": True, "humanReview": review}
@@ -1419,7 +1472,13 @@ def save_hitbox_review(session_id: str, req: SaveGoldenReviewRequest):
                 "hitboxReview": {
                     "approved": req.approved,
                     "current": req.approved,
+                    "stale": False,
                     "contentRevision": canonical.content_revision,
+                },
+                "finalCutoutReadiness": {
+                    "ready": True,
+                    "activeBirds": len((S.read_canonical_session(session_id).snapshot or {}).get("birds", [])),
+                    "missingCutouts": 0,
                 },
             }
         with S._session_lock:
@@ -1444,6 +1503,28 @@ def get_hitbox_review(session_id: str):
 
 @router.put("/sessions/{session_id}/final-cutout-review")
 def save_final_cutout_review(session_id: str, req: SaveGoldenReviewRequest):
+    try:
+        canonical = S.set_canonical_final_review_if_present(
+            session_id,
+            req.approved,
+            expected_content_revision=req.expectedContentRevision,
+        )
+    except RevisionConflictError as error:
+        raise _content_revision_conflict(error, ["finalCutoutReview"]) from error
+    except (OSError, ValueError, json.JSONDecodeError) as error:
+        raise HTTPException(422, detail={"error": str(error)}) from error
+    if canonical is not None:
+        return {
+            "ok": True,
+            "contentRevision": canonical.content_revision,
+            "operationalRevision": canonical.operational_revision,
+            "finalCutoutReview": {
+                "approved": req.approved,
+                "current": req.approved,
+                "stale": False,
+                "contentRevision": canonical.content_revision,
+            },
+        }
     if req.approved:
         try:
             S.require_hitboxes_blessed(session_id)
@@ -2458,7 +2539,12 @@ def set_active_variant_by_id(
 
 
 @router.delete("/sessions/{session_id}/dogs/by-id/{dog_id}")
-def delete_dog_by_id(session_id: str, dog_id: str, background_tasks: BackgroundTasks):
+def delete_dog_by_id(
+    session_id: str,
+    dog_id: str,
+    background_tasks: BackgroundTasks,
+    expectedContentRevision: str | None = Query(None),
+):
     """Delete a dog by stable id (spec -004 §6.9). Removes the hitbox + the
     dogs[] entry carrying the id under one lock (no sibling re-index, no orphan
     hitbox); color.png recomposites from the survivors AFTER the response
@@ -2466,6 +2552,22 @@ def delete_dog_by_id(session_id: str, dog_id: str, background_tasks: BackgroundT
     _validate_session_id(session_id)
     if not S.session_dir(session_id).exists():
         raise HTTPException(404, detail={"error": "Session not found"})
+    try:
+        canonical = S.delete_canonical_bird_if_present(
+            session_id,
+            dog_id,
+            expected_content_revision=expectedContentRevision,
+        )
+    except RevisionConflictError as error:
+        raise _content_revision_conflict(error, ["birdSet", "hitboxes", "finalCutouts"]) from error
+    except ValueError as error:
+        raise HTTPException(422, detail={"error": str(error)}) from error
+    if canonical is not None:
+        return {
+            "ok": True,
+            "contentRevision": canonical.content_revision,
+            "operationalRevision": canonical.operational_revision,
+        }
     if not S.delete_dog_by_id(session_id, dog_id):
         raise HTTPException(404, detail={"error": f"No dog with id {dog_id}"})
     from . import inpaint as _inpaint

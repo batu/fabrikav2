@@ -49,6 +49,7 @@ export type SpriteCandidateStatus =
 
 export interface SpriteCandidate {
   id: string;
+  birdId?: string | null;
   dogIndex: number;
   spriteIndex: number;
   status: SpriteCandidateStatus;

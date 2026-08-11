@@ -582,8 +582,15 @@ export function saveHitboxes(
  * server-side with no sibling re-index, then recomposites. 404 (unknown/legacy
  * id) surfaces through the shared error toast like any other mutation.
  */
-export function deleteDogById(sessionId: string, dogId: string): Promise<void> {
-  return request('/api/sessions/' + sessionId + '/dogs/by-id/' + encodeURIComponent(dogId), {
+export function deleteDogById(
+  sessionId: string,
+  dogId: string,
+  expectedContentRevision?: string,
+): Promise<{ ok: boolean; contentRevision: string; operationalRevision: string } | void> {
+  const params = expectedContentRevision
+    ? `?expectedContentRevision=${encodeURIComponent(expectedContentRevision)}`
+    : '';
+  return request('/api/sessions/' + sessionId + '/dogs/by-id/' + encodeURIComponent(dogId) + params, {
     method: 'DELETE',
   });
 }
@@ -897,26 +904,35 @@ export interface ReviewStatus {
 export function setHitboxApproval(
   sessionId: string,
   approved: boolean,
+  expectedContentRevision?: string,
 ): Promise<{
   ok: boolean;
+  contentRevision?: string;
+  operationalRevision?: string;
   hitboxReview: ReviewStatus;
   finalCutoutReadiness: { ready: boolean; activeBirds: number; missingCutouts: number };
 }> {
   return request(`/api/sessions/${encodeURIComponent(sessionId)}/hitbox-review`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ approved }),
+    body: JSON.stringify({ approved, expectedContentRevision }),
   });
 }
 
 export function setFinalCutoutApproval(
   sessionId: string,
   approved: boolean,
-): Promise<{ ok: boolean; finalCutoutReview: ReviewStatus }> {
+  expectedContentRevision?: string,
+): Promise<{
+  ok: boolean;
+  contentRevision?: string;
+  operationalRevision?: string;
+  finalCutoutReview: ReviewStatus;
+}> {
   return request(`/api/sessions/${encodeURIComponent(sessionId)}/final-cutout-review`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ approved }),
+    body: JSON.stringify({ approved, expectedContentRevision }),
   });
 }
 
@@ -1365,11 +1381,19 @@ export function saveSpriteCandidatePlacement(
   spriteBox: [number, number, number, number],
   flipX?: boolean,
   flipY?: boolean,
-): Promise<{ ok: boolean; spriteBox: [number, number, number, number] }> {
+  cleanupBox?: [number, number, number, number],
+  expectedContentRevision?: string,
+): Promise<{
+  ok: boolean;
+  spriteBox: [number, number, number, number];
+  cleanupBox?: [number, number, number, number] | null;
+  contentRevision?: string;
+  operationalRevision?: string;
+}> {
   return request(`/api/sessions/${encodeURIComponent(sessionId)}/sprite-candidates/${encodeURIComponent(candidateId)}/placement`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ spriteBox, flipX, flipY }),
+    body: JSON.stringify({ spriteBox, cleanupBox, flipX, flipY, expectedContentRevision }),
   });
 }
 
@@ -1377,10 +1401,15 @@ export function saveSpriteCandidateHumanConfirmation(
   sessionId: string,
   candidateId: string,
   confirmed: boolean,
-): Promise<{ ok: boolean }> {
+  expectedContentRevision?: string,
+): Promise<{
+  ok: boolean;
+  contentRevision?: string;
+  operationalRevision?: string;
+}> {
   return request(`/api/sessions/${encodeURIComponent(sessionId)}/sprite-candidates/${encodeURIComponent(candidateId)}/human-confirmation`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ confirmed }),
+    body: JSON.stringify({ confirmed, expectedContentRevision }),
   });
 }

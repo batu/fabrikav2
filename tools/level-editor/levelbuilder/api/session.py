@@ -634,6 +634,13 @@ def sprite_animation_candidates(session_id: str) -> list[dict[str, Any]]:
     if not base.exists():
         return []
 
+    canonical = read_canonical_session(session_id)
+    canonical_slots = {
+        bird["compatibilitySlot"]: bird["birdId"]
+        for bird in (canonical.snapshot or {}).get("birds", [])
+        if isinstance(bird, dict)
+    }
+
     scene_width: int | None = None
     scene_height: int | None = None
     scene_path = session_dir(session_id) / "color.png"
@@ -652,6 +659,7 @@ def sprite_animation_candidates(session_id: str) -> list[dict[str, Any]]:
         if dog_match is None:
             continue
         dog_index = int(dog_match.group(1))
+        bird_id = canonical_slots.get(dog_folder.name)
         sprite_indices: set[int] = set()
         for child in dog_folder.iterdir():
             if meta_match := _SPRITE_META_RE.match(child.name):
@@ -696,7 +704,8 @@ def sprite_animation_candidates(session_id: str) -> list[dict[str, Any]]:
                 image_readable=image_readable,
             )
             candidate: dict[str, Any] = {
-                "id": f"dog_{dog_index:02d}:{stem}",
+                "id": f"{bird_id or f'dog_{dog_index:02d}'}:{stem}",
+                "birdId": bird_id,
                 "dogIndex": dog_index,
                 "spriteIndex": sprite_index,
                 "status": status,
@@ -1639,7 +1648,11 @@ def save_canonical_hitboxes_if_present(
     for bird in updated["birds"]:
         hitbox = incoming[bird["birdId"]]
         bird["hitbox"] = {key: hitbox[key] for key in ("x", "y", "r")}
-    return store.commit(updated, expected_content_revision=expected_content_revision)
+    return store.commit(
+        updated,
+        expected_content_revision=expected_content_revision,
+        expected_operational_revision=current.pointer.operational_revision if current.pointer else None,
+    )
 
 
 def set_canonical_hitbox_review_if_present(
@@ -1678,7 +1691,204 @@ def set_canonical_hitbox_review_if_present(
         )
     else:
         updated = invalidate_reviews(current.snapshot, changed_artifacts={"hitboxes"})
-    return store.commit(updated, expected_content_revision=expected_content_revision)
+    return store.commit(
+        updated,
+        expected_content_revision=expected_content_revision,
+        expected_operational_revision=current.pointer.operational_revision if current.pointer else None,
+    )
+
+
+def save_canonical_sprite_geometry_if_present(
+    session_id: str,
+    bird_id: str,
+    *,
+    sprite_box: list[int] | tuple[int, int, int, int],
+    cleanup_box: list[int] | tuple[int, int, int, int] | None,
+    flip_x: bool | None,
+    flip_y: bool | None,
+    expected_content_revision: str | None,
+):
+    """CAS-save one canonical bird's sprite and cleanup geometry by birdId."""
+    from levelbuilder.api.canonical_bird_contract import (
+        CanonicalReadState,
+        ContractValidationError,
+        RevisionConflictError,
+        invalidate_reviews,
+    )
+
+    store = canonical_session_store(session_id)
+    current = store.read()
+    if current.state is CanonicalReadState.MIGRATION_REQUIRED:
+        return None
+    if current.state is not CanonicalReadState.VALID_CURRENT or current.snapshot is None:
+        raise ContractValidationError(f"canonical session is not writable: {current.state.value}")
+    actual = current.pointer.content_revision if current.pointer else None
+    if expected_content_revision is None:
+        raise RevisionConflictError(None, actual)
+    if (
+        len(sprite_box) != 4
+        or sprite_box[0] < 0
+        or sprite_box[1] < 0
+        or sprite_box[2] <= sprite_box[0]
+        or sprite_box[3] <= sprite_box[1]
+    ):
+        raise ContractValidationError("spriteBox must have positive width and height")
+    if cleanup_box is not None and (
+        len(cleanup_box) != 4
+        or cleanup_box[0] < 0
+        or cleanup_box[1] < 0
+        or cleanup_box[2] <= cleanup_box[0]
+        or cleanup_box[3] <= cleanup_box[1]
+    ):
+        raise ContractValidationError("cleanupBox must have positive width and height")
+    bird = next((item for item in current.snapshot["birds"] if item["birdId"] == bird_id), None)
+    if bird is None:
+        raise ContractValidationError(f"unknown birdId: {bird_id}")
+    changed = {"spritePlacement"}
+    if flip_x is not None or flip_y is not None:
+        changed.add("spriteFlip")
+    if cleanup_box is not None:
+        changed.add("cleanup")
+    updated = invalidate_reviews(current.snapshot, changed_artifacts=changed)
+    target = next(item for item in updated["birds"] if item["birdId"] == bird_id)
+    x0, y0, x1, y1 = map(int, sprite_box)
+    target["sprite"]["placement"] = {"x": x0, "y": y0, "width": x1 - x0, "height": y1 - y0}
+    if flip_x is not None:
+        target["sprite"]["flipX"] = flip_x
+    if flip_y is not None:
+        target["sprite"]["flipY"] = flip_y
+    if cleanup_box is not None:
+        cx0, cy0, cx1, cy1 = map(int, cleanup_box)
+        target["cleanup"].update({"x": cx0, "y": cy0, "width": cx1 - cx0, "height": cy1 - cy0})
+    return store.commit(
+        updated,
+        expected_content_revision=expected_content_revision,
+        expected_operational_revision=current.pointer.operational_revision if current.pointer else None,
+    )
+
+
+def set_canonical_final_review_if_present(
+    session_id: str,
+    approved: bool,
+    *,
+    expected_content_revision: str | None,
+    reviewer: str = "human:editor",
+):
+    """CAS-bind final review after the same revision's hitboxes are reviewed."""
+    from levelbuilder.api.canonical_bird_contract import (
+        CanonicalReadState,
+        ContractValidationError,
+        RevisionConflictError,
+        bless_snapshot,
+        invalidate_reviews,
+    )
+
+    store = canonical_session_store(session_id)
+    current = store.read()
+    if current.state is CanonicalReadState.MIGRATION_REQUIRED:
+        return None
+    if current.state is not CanonicalReadState.VALID_CURRENT or current.snapshot is None:
+        raise ContractValidationError(f"canonical session is not writable: {current.state.value}")
+    actual = current.pointer.content_revision if current.pointer else None
+    if expected_content_revision is None:
+        raise RevisionConflictError(None, actual)
+    if approved:
+        hitbox_review = current.snapshot.get("reviews", {}).get("hitboxes")
+        if not isinstance(hitbox_review, dict) or hitbox_review.get("contentRevision") != actual:
+            raise ContractValidationError("current hitbox review is required before final blessing")
+        updated = bless_snapshot(
+            current.snapshot,
+            review_kind="finalCutouts",
+            reviewer=reviewer,
+            reviewed_at=now_iso(),
+        )
+    else:
+        updated = invalidate_reviews(current.snapshot, changed_artifacts={"spritePlacement"})
+    return store.commit(
+        updated,
+        expected_content_revision=expected_content_revision,
+        expected_operational_revision=current.pointer.operational_revision if current.pointer else None,
+    )
+
+
+def delete_canonical_bird_if_present(
+    session_id: str,
+    bird_id: str,
+    *,
+    expected_content_revision: str | None,
+):
+    """CAS-delete one canonical bird without reusing its identity or slot."""
+    from levelbuilder.api.canonical_bird_contract import (
+        CanonicalReadState,
+        ContractValidationError,
+        RevisionConflictError,
+        invalidate_reviews,
+    )
+
+    store = canonical_session_store(session_id)
+    current = store.read()
+    if current.state is CanonicalReadState.MIGRATION_REQUIRED:
+        return None
+    if current.state is not CanonicalReadState.VALID_CURRENT or current.snapshot is None:
+        raise ContractValidationError(f"canonical session is not writable: {current.state.value}")
+    actual = current.pointer.content_revision if current.pointer else None
+    if expected_content_revision is None:
+        raise RevisionConflictError(None, actual)
+    if not any(bird["birdId"] == bird_id for bird in current.snapshot["birds"]):
+        raise ContractValidationError(f"unknown birdId: {bird_id}")
+    updated = invalidate_reviews(current.snapshot, changed_artifacts={"birdSet"})
+    updated["birds"] = [bird for bird in updated["birds"] if bird["birdId"] != bird_id]
+    tombstones = updated.setdefault("operational", {}).setdefault("deletedBirdIds", [])
+    if bird_id not in tombstones:
+        tombstones.append(bird_id)
+        tombstones.sort()
+    return store.commit(
+        updated,
+        expected_content_revision=expected_content_revision,
+        expected_operational_revision=current.pointer.operational_revision if current.pointer else None,
+    )
+
+
+def set_canonical_candidate_confirmation_if_present(
+    session_id: str,
+    bird_id: str,
+    confirmed: bool,
+    *,
+    expected_content_revision: str | None,
+    reviewer: str = "human:editor",
+):
+    """Record candidate review as operational metadata without blessing content."""
+    from levelbuilder.api.canonical_bird_contract import (
+        CanonicalReadState,
+        ContractValidationError,
+        RevisionConflictError,
+    )
+
+    store = canonical_session_store(session_id)
+    current = store.read()
+    if current.state is CanonicalReadState.MIGRATION_REQUIRED:
+        return None
+    if current.state is not CanonicalReadState.VALID_CURRENT or current.snapshot is None:
+        raise ContractValidationError(f"canonical session is not writable: {current.state.value}")
+    actual = current.pointer.content_revision if current.pointer else None
+    if expected_content_revision is None:
+        raise RevisionConflictError(None, actual)
+    bird = next((item for item in current.snapshot["birds"] if item["birdId"] == bird_id), None)
+    if bird is None:
+        raise ContractValidationError(f"unknown birdId: {bird_id}")
+    updated = json.loads(json.dumps(current.snapshot))
+    reviews = updated.setdefault("operational", {}).setdefault("candidateReviews", {})
+    reviews[bird_id] = {
+        "generationId": bird["activeGeneration"]["generationId"],
+        "confirmed": confirmed,
+        "reviewer": reviewer,
+        "reviewedAt": now_iso(),
+    }
+    return store.commit(
+        updated,
+        expected_content_revision=expected_content_revision,
+        expected_operational_revision=current.pointer.operational_revision if current.pointer else None,
+    )
 
 
 def dogs_dir(session_id: str) -> Path:

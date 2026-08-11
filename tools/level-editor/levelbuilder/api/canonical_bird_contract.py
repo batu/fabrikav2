@@ -122,6 +122,7 @@ def _operational_projection(snapshot: dict[str, Any]) -> dict[str, Any]:
             bird["birdId"]: bird.get("presentationOrder") for bird in snapshot["birds"]
         },
         "operational": copy.deepcopy(snapshot.get("operational", {})),
+        "reviews": copy.deepcopy(snapshot.get("reviews", {})),
     }
 
 
@@ -131,6 +132,22 @@ def snapshot_revisions(snapshot: dict[str, Any]) -> SnapshotRevisions:
         content_revision=_hash(_content_projection(snapshot)),
         operational_revision=_hash(_operational_projection(snapshot)),
     )
+
+
+def review_scope_revision(snapshot: dict[str, Any], review_kind: str) -> str:
+    """Hash only the artifacts governed by one human review stage."""
+    _require(review_kind in {"hitboxes", "finalCutouts"}, "unknown review assertion")
+    if review_kind == "finalCutouts":
+        return _hash(_content_projection(snapshot))
+    return _hash({
+        "scene": copy.deepcopy(snapshot["assets"]["scene"]),
+        "cleanBackground": copy.deepcopy(snapshot["assets"]["cleanBackground"]),
+        "restore": copy.deepcopy(snapshot["restore"]),
+        "birds": sorted(
+            ({"birdId": bird["birdId"], "hitbox": copy.deepcopy(bird["hitbox"])} for bird in snapshot["birds"]),
+            key=lambda bird: bird["birdId"],
+        ),
+    })
 
 
 def bless_snapshot(
@@ -148,6 +165,7 @@ def bless_snapshot(
     revision = snapshot_revisions(result).content_revision
     result.setdefault("reviews", {})[review_kind] = {
         "contentRevision": revision,
+        "scopeRevision": review_scope_revision(result, review_kind),
         "reviewer": reviewer,
         "reviewedAt": reviewed_at,
     }
@@ -228,7 +246,11 @@ def validate_snapshot(snapshot: Any, *, validate_reviews: bool = True) -> dict[s
         for kind, review in reviews.items():
             _require(kind in {"hitboxes", "finalCutouts"}, f"unknown review assertion: {kind}")
             _require(isinstance(review, dict), f"{kind} review must be an object")
-            _require(review.get("contentRevision") == content_revision, f"{kind} review contentRevision is stale")
+            scope_revision = review.get("scopeRevision")
+            if scope_revision is None:
+                _require(review.get("contentRevision") == content_revision, f"{kind} review contentRevision is stale")
+            else:
+                _require(scope_revision == review_scope_revision(snapshot, kind), f"{kind} review scopeRevision is stale")
             _require(isinstance(review.get("reviewer"), str) and review["reviewer"].startswith("human:"), f"{kind} review requires an attributable human")
             _require(isinstance(review.get("reviewedAt"), str) and bool(review["reviewedAt"]), f"{kind} review reviewedAt is required")
     return copy.deepcopy(snapshot)
@@ -266,7 +288,13 @@ class CanonicalRevisionStore:
         except (OSError, KeyError, TypeError, ValueError, json.JSONDecodeError, ContractValidationError) as exc:
             return CanonicalReadResult(CanonicalReadState.QUARANTINED_INTEGRITY, detail=str(exc))
 
-    def commit(self, snapshot: dict[str, Any], *, expected_content_revision: str | None) -> RevisionPointer:
+    def commit(
+        self,
+        snapshot: dict[str, Any],
+        *,
+        expected_content_revision: str | None,
+        expected_operational_revision: str | None = None,
+    ) -> RevisionPointer:
         validated = validate_snapshot(snapshot)
         revisions = snapshot_revisions(validated)
         self.root.mkdir(parents=True, exist_ok=True)
@@ -279,6 +307,13 @@ class CanonicalRevisionStore:
             actual = current.pointer.content_revision if current.state is CanonicalReadState.VALID_CURRENT and current.pointer else None
             if actual != expected_content_revision:
                 raise RevisionConflictError(expected_content_revision, actual)
+            actual_operational = (
+                current.pointer.operational_revision
+                if current.state is CanonicalReadState.VALID_CURRENT and current.pointer
+                else None
+            )
+            if expected_operational_revision is not None and actual_operational != expected_operational_revision:
+                raise RevisionConflictError(expected_operational_revision, actual_operational)
 
             encoded = (canonical_json(validated) + "\n").encode("utf-8")
             snapshot_digest = hashlib.sha256(encoded).hexdigest()

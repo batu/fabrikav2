@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import pytest
+
 import concurrent.futures
 import threading
 
@@ -138,6 +140,149 @@ def test_session_read_exposes_canonical_revision(app_client, isolated_session):
     assert response.json()["contentRevision"] == pointer.content_revision
 
 
+def test_canonical_sprite_geometry_is_by_bird_id_and_stales_final_only(isolated_session):
+    from levelbuilder.api.canonical_bird_contract import bless_snapshot
+
+    store, pointer = _canonical_session(isolated_session, "canonical_sprite_geometry")
+    snapshot = bless_snapshot(
+        bless_snapshot(
+            store.read().snapshot,
+            review_kind="hitboxes",
+            reviewer="human:batu",
+            reviewed_at="now",
+        ),
+        review_kind="finalCutouts",
+        reviewer="human:batu",
+        reviewed_at="now",
+    )
+    store.commit(snapshot, expected_content_revision=pointer.content_revision)
+
+    result = isolated_session.save_canonical_sprite_geometry_if_present(
+        "canonical_sprite_geometry",
+        "bird_one",
+        sprite_box=[20, 30, 60, 80],
+        cleanup_box=[15, 25, 65, 85],
+        flip_x=True,
+        flip_y=False,
+        expected_content_revision=pointer.content_revision,
+    )
+
+    assert result is not None
+    current = store.read().snapshot
+    assert current["birds"][0]["sprite"]["placement"] == {"x": 20, "y": 30, "width": 40, "height": 50}
+    assert current["birds"][0]["cleanup"]["x"] == 15
+    assert current["birds"][0]["sprite"]["flipX"] is True
+    assert set(current["reviews"]) == {"hitboxes"}
+
+
+def test_canonical_final_bless_requires_current_hitbox_assertion(isolated_session):
+    from levelbuilder.api.canonical_bird_contract import ContractValidationError
+
+    store, pointer = _canonical_session(isolated_session, "canonical_final_bless")
+    with pytest.raises(ContractValidationError, match="hitbox review"):
+        isolated_session.set_canonical_final_review_if_present(
+            "canonical_final_bless",
+            True,
+            expected_content_revision=pointer.content_revision,
+        )
+
+    hitbox_pointer = isolated_session.set_canonical_hitbox_review_if_present(
+        "canonical_final_bless",
+        True,
+        expected_content_revision=pointer.content_revision,
+    )
+    final_pointer = isolated_session.set_canonical_final_review_if_present(
+        "canonical_final_bless",
+        True,
+        expected_content_revision=hitbox_pointer.content_revision,
+    )
+    assert final_pointer is not None
+    assert set(store.read().snapshot["reviews"]) == {"hitboxes", "finalCutouts"}
+
+
+def test_stale_canonical_sprite_placement_returns_409(app_client, isolated_session, monkeypatch):
+    _store, pointer = _canonical_session(isolated_session, "canonical_sprite_stale")
+    monkeypatch.setattr(
+        isolated_session,
+        "sprite_animation_candidate_by_id",
+        lambda _session_id, _candidate_id: {"birdId": "bird_one", "dogIndex": 0},
+    )
+
+    response = app_client.put(
+        "/api/sessions/canonical_sprite_stale/sprite-candidates/bird_one%3Asprite_000/placement",
+        json={
+            "spriteBox": [20, 30, 60, 80],
+            "cleanupBox": [15, 25, 65, 85],
+            "expectedContentRevision": "sha256:" + "0" * 64,
+        },
+    )
+
+    assert response.status_code == 409
+    assert response.json()["detail"]["actualContentRevision"] == pointer.content_revision
+
+
+def test_canonical_final_bless_route_uses_revision_cas(app_client, isolated_session):
+    _store, pointer = _canonical_session(isolated_session, "canonical_final_route")
+    hitbox_pointer = isolated_session.set_canonical_hitbox_review_if_present(
+        "canonical_final_route",
+        True,
+        expected_content_revision=pointer.content_revision,
+    )
+
+    response = app_client.put(
+        "/api/sessions/canonical_final_route/final-cutout-review",
+        json={"approved": True, "expectedContentRevision": hitbox_pointer.content_revision},
+    )
+
+    assert response.status_code == 200, response.text
+    assert response.json()["finalCutoutReview"]["current"] is True
+
+
+def test_canonical_delete_is_by_bird_id_and_revision_checked(app_client, isolated_session):
+    store, pointer = _canonical_session(isolated_session, "canonical_delete")
+
+    stale = app_client.delete(
+        "/api/sessions/canonical_delete/dogs/by-id/bird_one",
+        params={"expectedContentRevision": "sha256:" + "0" * 64},
+    )
+    assert stale.status_code == 409
+    assert len(store.read().snapshot["birds"]) == 1
+
+    deleted = app_client.delete(
+        "/api/sessions/canonical_delete/dogs/by-id/bird_one",
+        params={"expectedContentRevision": pointer.content_revision},
+    )
+    assert deleted.status_code == 200, deleted.text
+    assert store.read().snapshot["birds"] == []
+    assert store.read().snapshot["operational"]["deletedBirdIds"] == ["bird_one"]
+
+
+def test_candidate_confirmation_is_operational_and_does_not_stale_blessing(isolated_session):
+    from levelbuilder.api.canonical_bird_contract import bless_snapshot
+
+    store, pointer = _canonical_session(isolated_session, "canonical_candidate_review")
+    snapshot = bless_snapshot(
+        store.read().snapshot,
+        review_kind="hitboxes",
+        reviewer="human:batu",
+        reviewed_at="now",
+    )
+    reviewed = store.commit(snapshot, expected_content_revision=pointer.content_revision)
+
+    result = isolated_session.set_canonical_candidate_confirmation_if_present(
+        "canonical_candidate_review",
+        "bird_one",
+        True,
+        expected_content_revision=reviewed.content_revision,
+    )
+
+    assert result.content_revision == reviewed.content_revision
+    assert result.operational_revision != reviewed.operational_revision
+    current = store.read().snapshot
+    assert "hitboxes" in current["reviews"]
+    assert current["operational"]["candidateReviews"]["bird_one"]["confirmed"] is True
+
+
 def test_concurrent_save_and_bless_cannot_approve_old_geometry(isolated_session, monkeypatch):
     from levelbuilder.api.canonical_bird_contract import CanonicalRevisionStore, RevisionConflictError
 
@@ -145,10 +290,21 @@ def test_concurrent_save_and_bless_cannot_approve_old_geometry(isolated_session,
     barrier = threading.Barrier(2)
     original_commit = CanonicalRevisionStore.commit
 
-    def synchronized_commit(self, snapshot, *, expected_content_revision):
+    def synchronized_commit(
+        self,
+        snapshot,
+        *,
+        expected_content_revision,
+        expected_operational_revision=None,
+    ):
         if expected_content_revision is not None:
             barrier.wait(timeout=3)
-        return original_commit(self, snapshot, expected_content_revision=expected_content_revision)
+        return original_commit(
+            self,
+            snapshot,
+            expected_content_revision=expected_content_revision,
+            expected_operational_revision=expected_operational_revision,
+        )
 
     monkeypatch.setattr(CanonicalRevisionStore, "commit", synchronized_commit)
 

@@ -26,6 +26,8 @@ interface Props {
   models: ModelOption[];
   hitboxes: Hitbox[];
   dogs: DogState[];
+  contentRevision?: string;
+  onRevisionChanged?: (contentRevision?: string, operationalRevision?: string) => void;
   onDogComplete: (dogIndex: number, file: string, variantIndex: number) => void;
   onCutoutsChanged?: () => void;
   onPlacementPendingChanged?: (pending: boolean) => void;
@@ -308,6 +310,8 @@ export default function CutoutReviewPanel({
   models,
   hitboxes,
   dogs,
+  contentRevision,
+  onRevisionChanged,
   onDogComplete,
   onCutoutsChanged,
   onPlacementPendingChanged,
@@ -345,9 +349,11 @@ export default function CutoutReviewPanel({
   const draggedCandidateRef = useRef<string | null>(null);
   const placementSaveTimers = useRef(new Map<string, number>());
   const placementSavesInFlight = useRef(new Set<string>());
+  const contentRevisionRef = useRef(contentRevision);
 
   dogsRef.current = dogs;
   currentSessionRef.current = sessionId;
+  contentRevisionRef.current = contentRevision;
 
   const reviewStorageKey = `ftd-cutout-review:${sessionId}`;
 
@@ -430,11 +436,20 @@ export default function CutoutReviewPanel({
     setSavingConfirmation(candidate.id);
     setError(null);
     try {
-      await saveSpriteCandidateHumanConfirmation(saveSessionId, candidate.id, confirmed);
+      const saved = await saveSpriteCandidateHumanConfirmation(
+        saveSessionId,
+        candidate.id,
+        confirmed,
+        contentRevisionRef.current,
+      );
       if (currentSessionRef.current !== saveSessionId || confirmationRunIds.current.get(candidate.id) !== saveRunId) return;
       setCandidates((current) => current.map((item) => (
         item.id === candidate.id ? { ...item, humanConfirmed: confirmed } : item
       )));
+      if (saved.contentRevision) {
+        contentRevisionRef.current = saved.contentRevision;
+        onRevisionChanged?.(saved.contentRevision, saved.operationalRevision);
+      }
       onCutoutsChanged?.();
     } catch (err) {
       if (currentSessionRef.current !== saveSessionId || confirmationRunIds.current.get(candidate.id) !== saveRunId) return;
@@ -444,7 +459,7 @@ export default function CutoutReviewPanel({
         setSavingConfirmation(null);
       }
     }
-  }, [onCutoutsChanged, sessionId]);
+  }, [onCutoutsChanged, onRevisionChanged, sessionId]);
 
   const toggleCandidate = useCallback((candidate: SpriteCandidate) => {
     setReview((prev) => {
@@ -454,15 +469,12 @@ export default function CutoutReviewPanel({
     });
   }, []);
 
-  const setCropBox = useCallback((candidate: SpriteCandidate, hitbox: Hitbox, box: CropBox) => {
-    setCropBoxes((prev) => ({ ...prev, [candidate.id]: clampCropBox(candidate, hitbox, box) }));
-  }, []);
-
   const savePlacement = useCallback(async (
     candidate: SpriteCandidate,
     box: CropBox,
     flipX = candidate.flipX ?? false,
     flipY = candidate.flipY ?? false,
+    cleanupBox = cropBoxes[candidate.id] ?? candidate.cleanupBox ?? undefined,
   ) => {
     const saveSessionId = sessionId;
     const saveRunId = (placementSaveRunIds.current.get(candidate.id) ?? 0) + 1;
@@ -475,12 +487,25 @@ export default function CutoutReviewPanel({
     setSavingPlacement(candidate.id);
     setError(null);
     try {
-      const saved = await saveSpriteCandidatePlacement(saveSessionId, candidate.id, box, flipX, flipY);
+      const saved = await saveSpriteCandidatePlacement(
+        saveSessionId,
+        candidate.id,
+        box,
+        flipX,
+        flipY,
+        cleanupBox ?? undefined,
+        contentRevisionRef.current,
+      );
       if (currentSessionRef.current !== saveSessionId || placementSaveRunIds.current.get(candidate.id) !== saveRunId) return;
       setCandidates((current) => current.map((item) => (
         item.id === candidate.id ? { ...item, flipX, flipY } : item
       )));
       setPlacementBoxes((current) => ({ ...current, [candidate.id]: saved.spriteBox }));
+      if (saved.cleanupBox) setCropBoxes((current) => ({ ...current, [candidate.id]: saved.cleanupBox! }));
+      if (saved.contentRevision) {
+        contentRevisionRef.current = saved.contentRevision;
+        onRevisionChanged?.(saved.contentRevision, saved.operationalRevision);
+      }
       setLastResult(`${candidateLabel(candidate)} placement saved`);
       onCutoutsChanged?.();
     } catch (err) {
@@ -495,7 +520,21 @@ export default function CutoutReviewPanel({
         }
       }
     }
-  }, [onCutoutsChanged, onPlacementPendingChanged, sessionId]);
+  }, [cropBoxes, onCutoutsChanged, onPlacementPendingChanged, onRevisionChanged, sessionId]);
+
+  const setCropBox = useCallback((candidate: SpriteCandidate, hitbox: Hitbox, box: CropBox) => {
+    const next = clampCropBox(candidate, hitbox, box);
+    setCropBoxes((prev) => ({ ...prev, [candidate.id]: next }));
+    const spriteBox = placementBoxes[candidate.id] ?? candidate.spriteBox;
+    if (!spriteBox) return;
+    onPlacementPendingChanged?.(true);
+    const pending = placementSaveTimers.current.get(candidate.id);
+    if (pending !== undefined) window.clearTimeout(pending);
+    placementSaveTimers.current.set(candidate.id, window.setTimeout(() => {
+      placementSaveTimers.current.delete(candidate.id);
+      void savePlacement(candidate, spriteBox, candidate.flipX, candidate.flipY, next);
+    }, 1000));
+  }, [onPlacementPendingChanged, placementBoxes, savePlacement]);
 
   const setPlacementBox = useCallback((candidate: SpriteCandidate, hitbox: Hitbox, box: CropBox) => {
     const target = candidateTarget(candidate, hitbox);

@@ -72,7 +72,12 @@ def test_manual_sprite_placement_updates_public_level_and_sidecar(app_client, is
     scene_only = app_client.get(f"/api/sessions/{session_id}/sprite-candidates/dog_00:sprite_000/overlay?cropBox=50,50,150,150&spriteBox=70,70,130,130&sceneOnly=true")
     response = app_client.put(
         f"/api/sessions/{session_id}/sprite-candidates/dog_00:sprite_000/placement",
-        json={"spriteBox": [65, 75, 135, 125], "flipX": True, "flipY": True},
+        json={
+            "spriteBox": [65, 75, 135, 125],
+            "cleanupBox": [55, 65, 145, 145],
+            "flipX": True,
+            "flipY": True,
+        },
     )
 
     assert overlay.status_code == 200
@@ -84,6 +89,8 @@ def test_manual_sprite_placement_updates_public_level_and_sidecar(app_client, is
     metadata = json.loads((dog_dir / "sprite_000.json").read_text())
     assert [level["dogs"][1]["sprite"][key] for key in ("x", "y", "width", "height")] == [65, 75, 70, 50]
     assert metadata["spriteBox"] == [65, 75, 135, 125]
+    assert metadata["cleanupBox"] == [55, 65, 145, 145]
+    assert level["dogs"][1]["sprite"]["cleanup"] == {"x": 55, "y": 65, "width": 90, "height": 80}
     assert metadata["anchorX"] == 0.5
     assert metadata["anchorY"] == 0.5
     assert level["dogs"][1]["sprite"]["flipX"] is True

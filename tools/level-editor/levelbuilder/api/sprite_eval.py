@@ -1119,7 +1119,20 @@ def apply_match_report(
             for key in ("flipX", "flipY"):
                 if key in result:
                     updates[key] = result[key] is True
+            cleanup_box = result.get("cleanupBox")
+            cleanup_updates = None
+            if cleanup_box is not None:
+                try:
+                    cx0, cy0, cx1, cy1 = [int(round(float(value))) for value in cleanup_box]
+                except (TypeError, ValueError):
+                    summary["unsafe"] += 1
+                    continue
+                if not (0 <= cx0 < cx1 <= scene_width and 0 <= cy0 < cy1 <= scene_height):
+                    summary["unsafe"] += 1
+                    continue
+                cleanup_updates = {"x": cx0, "y": cy0, "width": cx1 - cx0, "height": cy1 - cy0}
             changed = any(sprite.get(key) != value for key, value in updates.items())
+            changed = changed or (cleanup_updates is not None and sprite.get("cleanup") != cleanup_updates)
             if not changed:
                 summary["unchanged"] += 1
                 continue
@@ -1132,6 +1145,8 @@ def apply_match_report(
                 "score": result.get("score"),
             })
             sprite.update(updates)
+            if cleanup_updates is not None:
+                sprite["cleanup"] = cleanup_updates
             image = sprite.get("image")
             if isinstance(image, str):
                 marker = f"levels/{level_id}/"
@@ -1152,6 +1167,8 @@ def apply_match_report(
                         "spriteBox": [x0, y0, x1, y1], "width": width, "height": height,
                         "anchorX": anchor_x, "anchorY": anchor_y,
                     }
+                    if cleanup_box is not None:
+                        sidecar_updates["cleanupBox"] = [cx0, cy0, cx1, cy1]
                     for key in ("flipX", "flipY"):
                         if key in result:
                             sidecar_updates[key] = result[key] is True

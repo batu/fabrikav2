@@ -90,6 +90,8 @@ interface ModalState extends LevelCanvasState {
   orientation: Orientation;
   sections: LevelSection[];
   dogs: DogState[];
+  contentRevision?: string;
+  operationalRevision?: string;
 }
 
 function initialModalState(): ModalState {
@@ -119,7 +121,8 @@ type ModalAction =
   | { type: 'SELECT_DOG'; index: number | null }
   | { type: 'SET_RADIUS'; radius: number }
   | { type: 'TOGGLE_OVERLAY' }
-  | { type: 'SET_HITBOXES'; hitboxes: Hitbox[] };
+  | { type: 'SET_HITBOXES'; hitboxes: Hitbox[] }
+  | { type: 'SET_REVISIONS'; contentRevision?: string; operationalRevision?: string };
 
 type ModalCanvasAction = Extract<
   ModalAction,
@@ -145,10 +148,14 @@ function reducer(state: ModalState, action: ModalAction): ModalState {
         dogs: s.dogs,
         dogPrompt: s.dogPrompt,
         inpaintModel: s.inpaintModel ?? '',
+        contentRevision: s.contentRevision,
+        operationalRevision: s.operationalRevision,
         selectedDogIndex: null,
         radius: s.hitboxes[0]?.r ?? state.radius,
       };
     }
+    case 'SET_REVISIONS':
+      return { ...state, contentRevision: action.contentRevision, operationalRevision: action.operationalRevision };
     case 'ADD_HITBOX':
       return { ...state, hitboxes: [...state.hitboxes, action.hitbox], selectedDogIndex: state.hitboxes.length };
     case 'MOVE_HITBOX':
@@ -332,6 +339,11 @@ export default function GalleryReviewModal({
     const result = await persistHitboxes(sessionId, hitboxes, cached?.contentRevision);
     updateCachedHitboxes(sessionId, hitboxes);
     if (result) {
+      dispatchNarrow({
+        type: 'SET_REVISIONS',
+        contentRevision: result.contentRevision,
+        operationalRevision: result.operationalRevision,
+      });
       const updated = sessionCacheRef.current.get(sessionId);
       if (updated) {
         sessionCacheRef.current.set(sessionId, {
@@ -757,6 +769,10 @@ export default function GalleryReviewModal({
                   models={config.inpaintModels ?? config.models}
                   hitboxes={state.hitboxes}
                   dogs={state.dogs}
+                  contentRevision={state.contentRevision}
+                  onRevisionChanged={(contentRevision, operationalRevision) => dispatchNarrow({
+                    type: 'SET_REVISIONS', contentRevision, operationalRevision,
+                  })}
                   onDogComplete={handleDogComplete}
                   onCutoutsChanged={invalidateCutoutReview}
                   onPlacementPendingChanged={setCutoutPlacementPending}
@@ -861,7 +877,13 @@ export default function GalleryReviewModal({
               setBlessError(null);
               try {
                 await flushPendingSave();
-                const { hitboxReview, finalCutoutReadiness } = await setHitboxApproval(card.session.id, approved);
+                const result = await setHitboxApproval(card.session.id, approved, state.contentRevision);
+                const { hitboxReview, finalCutoutReadiness } = result;
+                if (result.contentRevision) dispatchNarrow({
+                  type: 'SET_REVISIONS',
+                  contentRevision: result.contentRevision,
+                  operationalRevision: result.operationalRevision,
+                });
                 onReviewChanged(card.session.id, {
                   hitboxesBlessed: hitboxReview.current,
                   hitboxesBlessingStale: hitboxReview.stale,
@@ -904,7 +926,13 @@ export default function GalleryReviewModal({
               setCutoutBlessBusy(true);
               setBlessError(null);
               try {
-                const { finalCutoutReview } = await setFinalCutoutApproval(card.session.id, approved);
+                const result = await setFinalCutoutApproval(card.session.id, approved, state.contentRevision);
+                const { finalCutoutReview } = result;
+                if (result.contentRevision) dispatchNarrow({
+                  type: 'SET_REVISIONS',
+                  contentRevision: result.contentRevision,
+                  operationalRevision: result.operationalRevision,
+                });
                 onReviewChanged(card.session.id, {
                   cutoutsFinalBlessed: finalCutoutReview.current,
                   cutoutsFinalBlessingStale: finalCutoutReview.stale,
