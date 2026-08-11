@@ -10,7 +10,7 @@ import {
   type ShapeKind,
 } from '../marble-board/shapes';
 import type { GateDef, LevelDef, MarbleColor, Side } from '../marble-board/types';
-import type { GeneratedEvidence, SeedProvenance } from './difficulty-contract';
+import { canonicalDifficultyJson, type GeneratedEvidence, type SeedProvenance } from './difficulty-contract';
 import {
   LEVEL_TOTAL,
   TEACH_PINS,
@@ -344,15 +344,6 @@ function percentile(sorted: readonly number[], quantile: number): number {
   return sorted[Math.max(0, Math.ceil(sorted.length * quantile) - 1)] ?? 0;
 }
 
-function canonicalStructure(value: unknown): string {
-  if (Array.isArray(value)) return `[${value.map(canonicalStructure).join(',')}]`;
-  if (value !== null && typeof value === 'object') {
-    const record = value as Record<string, unknown>;
-    return `{${Object.keys(record).sort().map((key) => `${JSON.stringify(key)}:${canonicalStructure(record[key])}`).join(',')}}`;
-  }
-  return JSON.stringify(value);
-}
-
 export function characterizeShippedBaseline(baked: CampaignBakeResult = bakeCampaign()): BaselineCharacterizationReport {
   const mismatches: BaselineMismatch[] = [];
   for (let index = 0; index < LEVEL_TOTAL; index += 1) {
@@ -363,7 +354,7 @@ export function characterizeShippedBaseline(baked: CampaignBakeResult = bakeCamp
       continue;
     }
     if (JSON.stringify(generated) !== JSON.stringify(shipped)) {
-      const structurallyEqual = canonicalStructure(generated) === canonicalStructure(shipped);
+      const structurallyEqual = canonicalDifficultyJson(generated) === canonicalDifficultyJson(shipped);
       mismatches.push({ levelId: index + 1, category: structurallyEqual ? 'serialization' : 'engine', component: 'level', reason: structurallyEqual ? 'property serialization differs' : 'generated board differs' });
     }
     if (JSON.stringify(baked.manifest[index]) !== JSON.stringify(LEVEL_MANIFEST[index])) {

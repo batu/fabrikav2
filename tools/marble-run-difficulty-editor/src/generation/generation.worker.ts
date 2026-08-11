@@ -18,7 +18,7 @@ function publish(message: GenerationResponse): void { worker.postMessage(message
 worker.onmessage = ({ data }: MessageEvent<GenerationRequest>): void => {
   if (data.type !== 'generate') return;
   const startedAt = performance.now();
-  publish({ type: 'started', revision: data.revision, startedAt });
+  publish({ type: 'started', revision: data.revision });
   const expanded = expandDifficultyDraft(data.draft);
   const accepted = new Map(data.accepted.map((result) => [result.level.id, result]));
   const ids = [...new Set(data.levelIds)].sort((a, b) => a - b);

@@ -4,7 +4,7 @@ const COLORS: Readonly<Record<string, string>> = {
   R: '#c85445', B: '#3c71aa', G: '#47866a', Y: '#d3a83e', P: '#82629b', O: '#cb763b',
 };
 
-export function BoardThumbnail({ board }: { readonly board: LevelDef }): React.JSX.Element {
+export const BoardThumbnail = memo(function BoardThumbnail({ board }: { readonly board: LevelDef }): React.JSX.Element {
   const cells = board.cells.flatMap((row, y) => [...row].map((cell, x) => ({ cell, x, y })));
   return (
     <svg className="board-thumbnail" viewBox={`-1 -1 ${board.cols + 2} ${board.rows + 2}`} role="img" aria-label={`Board ${board.id}, ${board.cols} by ${board.rows}`}>
@@ -16,11 +16,11 @@ export function BoardThumbnail({ board }: { readonly board: LevelDef }): React.J
         </g>
       ))}
       {board.gates.map((gate, index) => {
-        const vertical = gate.side === 'left' || gate.side === 'right';
         const x = gate.side === 'left' ? -.62 : gate.side === 'right' ? board.cols + .12 : gate.index + .25;
         const y = gate.side === 'top' ? -.62 : gate.side === 'bottom' ? board.rows + .12 : gate.index + .25;
-        return <rect key={`${gate.side}-${gate.index}-${index}`} x={x} y={y} width={vertical ? .5 : .5} height={vertical ? .5 : .5} rx=".12" fill={COLORS[gate.color[0]!.toUpperCase()] ?? '#20231f'} />;
+        return <rect key={`${gate.side}-${gate.index}-${index}`} x={x} y={y} width=".5" height=".5" rx=".12" fill={COLORS[gate.color[0]!.toUpperCase()] ?? '#20231f'} />;
       })}
     </svg>
   );
-}
+});
+import { memo } from 'react';

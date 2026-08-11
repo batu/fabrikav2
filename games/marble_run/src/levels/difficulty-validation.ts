@@ -13,8 +13,6 @@ import { affectedLevelIds, expandDifficultyDraft } from './difficulty-expand';
 
 export interface CandidateValidationContext {
   readonly baselineCandidate?: ExportCandidate;
-  /** Deprecated caller echo; candidate.reviewedDraftFingerprint is authoritative. */
-  readonly reviewedDraftFingerprint?: string;
   readonly currentDraftFingerprint?: string;
 }
 
@@ -83,7 +81,6 @@ async function validateCandidate(candidate: ExportCandidate, context: CandidateV
   }
 
   if (context.currentDraftFingerprint !== undefined && candidate.reviewedDraftFingerprint !== context.currentDraftFingerprint) issues.push('Reviewed draft fingerprint is stale.');
-  if (context.reviewedDraftFingerprint !== undefined && candidate.reviewedDraftFingerprint !== context.reviewedDraftFingerprint) issues.push('Candidate reviewed draft fingerprint does not match the confirmed review.');
   if (context.baselineCandidate !== undefined) {
     if (canonicalDifficultyJson(candidate.baseline) !== canonicalDifficultyJson(context.baselineCandidate.baseline)) issues.push('Candidate baseline fingerprint does not match the loaded baseline.');
     const changed = new Set(affectedLevelIds(

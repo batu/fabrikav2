@@ -11,7 +11,7 @@ export interface AcceptedLevel {
   readonly seed: number;
 }
 
-export interface GenerateRequest {
+export interface GenerationRequest {
   readonly type: 'generate';
   readonly revision: number;
   readonly draft: DifficultyDraft;
@@ -19,10 +19,8 @@ export interface GenerateRequest {
   readonly accepted: readonly AcceptedLevel[];
 }
 
-export type GenerationRequest = GenerateRequest;
-
 export type GenerationResponse =
-  | { readonly type: 'started'; readonly revision: number; readonly startedAt: number }
+  | { readonly type: 'started'; readonly revision: number }
   | { readonly type: 'accepted'; readonly revision: number; readonly result: AcceptedLevel }
   | { readonly type: 'failed'; readonly revision: number; readonly levelId: number; readonly failure: BakeFailure }
   | { readonly type: 'complete'; readonly revision: number; readonly computeMs: number };

@@ -63,7 +63,7 @@ describe('GenerationCoordinator', () => {
     expect(acceptedEvent).not.toHaveBeenCalled();
     vi.advanceTimersByTime(150);
     expect(workers).toHaveLength(2);
-    workers[1]!.send({ type: 'started', revision: 2, startedAt: 0 });
+    workers[1]!.send({ type: 'started', revision: 2 });
     expect(coordinator.metrics().latestStartLatencyMs).toBeLessThanOrEqual(250);
     expect(coordinator.metrics().staleResultCount).toBe(2);
   });
