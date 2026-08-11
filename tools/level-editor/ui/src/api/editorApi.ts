@@ -709,6 +709,7 @@ export function regenDogById(
 
 export interface RetryFailedDogUnitResponse {
   dogIndex: number;
+  birdId?: string | null;
   status: JobStatus;
   retryable: boolean;
   error: string | null;
@@ -832,15 +833,24 @@ export function startRetryFailedDogsJob(
   cropBoxes: Record<number, [number, number, number, number]> = {},
   cutoutOnly: boolean = false,
   options?: Pick<RequestOptions, 'signal' | 'suppressToast'>,
+  canonicalInput?: {
+    birdIds: string[];
+    cropBoxesByBirdId: Record<string, [number, number, number, number]>;
+    expectedContentRevision: string;
+  },
 ): Promise<RetryFailedDogsJobResponse> {
   return request(`/api/sessions/${sessionId}/dogs/retry-inpaint/jobs`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      dogIndices,
+      ...(canonicalInput ? { birdIds: canonicalInput.birdIds } : { dogIndices }),
       prompt,
       padding,
       cropBoxes,
+      ...(canonicalInput ? {
+        cropBoxesByBirdId: canonicalInput.cropBoxesByBirdId,
+        expectedContentRevision: canonicalInput.expectedContentRevision,
+      } : {}),
       cutoutOnly,
       ...(inpaintModel ? { inpaintModel } : {}),
     }),

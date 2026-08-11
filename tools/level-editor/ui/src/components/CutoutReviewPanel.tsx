@@ -590,19 +590,32 @@ export default function CutoutReviewPanel({
     operationAbortRef.current = controller;
     const completedVariants = new Map<number, number>();
     try {
+      const selectedCropBoxes = Object.fromEntries(targets.flatMap((candidate) => {
+        const hitbox = hitboxes[candidate.dogIndex];
+        if (!hitbox) return [];
+        return [[candidate.dogIndex, cropBoxes[candidate.id] ?? defaultCropBox(candidate, hitbox)]];
+      }));
+      const canonicalTargets = contentRevisionRef.current && targets.every((candidate) => candidate.birdId)
+        ? {
+            birdIds: targets.map((candidate) => candidate.birdId!),
+            cropBoxesByBirdId: Object.fromEntries(targets.flatMap((candidate) => {
+              const hitbox = hitboxes[candidate.dogIndex];
+              if (!candidate.birdId || !hitbox) return [];
+              return [[candidate.birdId, cropBoxes[candidate.id] ?? defaultCropBox(candidate, hitbox)]];
+            })),
+            expectedContentRevision: contentRevisionRef.current,
+          }
+        : undefined;
       const started = await startRetryFailedDogsJob(
         sessionId,
         targets.map((candidate) => candidate.dogIndex),
         sharedPrompt,
         2.75,
         cutoutModel,
-        Object.fromEntries(targets.flatMap((candidate) => {
-          const hitbox = hitboxes[candidate.dogIndex];
-          if (!hitbox) return [];
-          return [[candidate.dogIndex, cropBoxes[candidate.id] ?? defaultCropBox(candidate, hitbox)]];
-        })),
+        selectedCropBoxes,
         operation === 'extract',
         { signal: controller.signal, suppressToast: true },
+        canonicalTargets,
       );
       const completed = await waitForRetryJob(sessionId, started, controller.signal);
       for (const unit of completed.units) {

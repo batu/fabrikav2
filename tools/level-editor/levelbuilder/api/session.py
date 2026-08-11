@@ -1618,6 +1618,7 @@ def save_canonical_hitboxes_if_present(
     from levelbuilder.api.canonical_bird_contract import (
         CanonicalReadState,
         ContractValidationError,
+        RevisionConflictError,
         invalidate_reviews,
     )
 
@@ -1889,6 +1890,94 @@ def set_canonical_candidate_confirmation_if_present(
         expected_content_revision=expected_content_revision,
         expected_operational_revision=current.pointer.operational_revision if current.pointer else None,
     )
+
+
+def promote_canonical_sprite_artifact(
+    session_id: str,
+    *,
+    captured_input: dict[str, Any],
+    generation_id: str,
+    sprite_path: Path,
+    metadata: dict[str, Any],
+):
+    """Promote an unattached provider artifact iff its bird inputs remain current."""
+    from levelbuilder.api.canonical_bird_contract import (
+        CanonicalReadState,
+        ContractValidationError,
+        RevisionConflictError,
+        invalidate_reviews,
+    )
+    from levelbuilder.api.canonical_job_provenance import (
+        BirdJobInput,
+        verify_bird_job_input,
+    )
+
+    captured = BirdJobInput.from_dict(captured_input)
+    if captured.session_id != session_id:
+        raise ContractValidationError("job artifact session mismatch")
+    if not sprite_path.is_file():
+        raise ContractValidationError("job sprite artifact is missing")
+    try:
+        relative_sprite = sprite_path.resolve().relative_to((LEVELS_DIR / session_id).resolve())
+    except ValueError as error:
+        raise ContractValidationError("job sprite artifact is outside the authoring session") from error
+    sprite_box = metadata.get("spriteBox")
+    cleanup_box = metadata.get("cleanupBox")
+    if not (
+        isinstance(sprite_box, list)
+        and len(sprite_box) == 4
+        and isinstance(cleanup_box, list)
+        and len(cleanup_box) == 4
+    ):
+        raise ContractValidationError("job sprite geometry is incomplete")
+
+    store = canonical_session_store(session_id)
+    for _attempt in range(3):
+        current = store.read()
+        if current.state is not CanonicalReadState.VALID_CURRENT or current.snapshot is None or current.pointer is None:
+            raise ContractValidationError(f"canonical session is not promotable: {current.state.value}")
+        verification = verify_bird_job_input(current.snapshot, captured)
+        if not verification.current:
+            return None, verification.code
+        updated = invalidate_reviews(current.snapshot, changed_artifacts={"activeGeneration", "spritePixels", "spritePlacement", "cleanup"})
+        bird = next(item for item in updated["birds"] if item["birdId"] == captured.bird_id)
+        sprite_digest = hashlib.sha256(sprite_path.read_bytes()).hexdigest()
+        x0, y0, x1, y1 = map(int, sprite_box)
+        cx0, cy0, cx1, cy1 = map(int, cleanup_box)
+        bird["activeGeneration"] = {
+            "generationId": generation_id,
+            "inputSceneSha256": captured.scene_sha256,
+            "inputRevision": captured.bird_input_revision,
+        }
+        bird["sprite"] = {
+            "asset": {
+                "path": relative_sprite.as_posix(),
+                "sha256": sprite_digest,
+                "bytes": sprite_path.stat().st_size,
+            },
+            "placement": {"x": x0, "y": y0, "width": x1 - x0, "height": y1 - y0},
+            "anchorX": float(metadata.get("anchorX", 0.5)),
+            "anchorY": float(metadata.get("anchorY", 0.5)),
+            "flipX": metadata.get("flipX") is True,
+            "flipY": metadata.get("flipY") is True,
+        }
+        bird["cleanup"] = {
+            "x": cx0,
+            "y": cy0,
+            "width": cx1 - cx0,
+            "height": cy1 - cy0,
+            "sourceSpriteSha256": sprite_digest,
+        }
+        try:
+            pointer = store.commit(
+                updated,
+                expected_content_revision=current.pointer.content_revision,
+                expected_operational_revision=current.pointer.operational_revision,
+            )
+            return pointer, "committed"
+        except RevisionConflictError:
+            continue
+    return None, "revision_conflict"
 
 
 def dogs_dir(session_id: str) -> Path:
