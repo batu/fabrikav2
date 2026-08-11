@@ -44,6 +44,7 @@ from . import sequence_workflow as SequenceWorkflow
 from . import session as S
 from . import smart_hitboxes as SmartHitboxes
 from .integrity_audit import audit_level_inventory
+from .operation_registry import operation_payload
 from .canonical_bird_contract import RevisionConflictError
 from .cleanup_geometry import CleanupSite, Rect, cleanup_polygons_for_site
 from .job_store import JobArtifact, JobEvent, JobRecord, JobStore, is_failed_terminal_status
@@ -304,6 +305,11 @@ def _safe_provider_error(exc: Exception) -> str:
 router = APIRouter(prefix="/api")
 
 
+@router.get("/operations")
+def editor_operations():
+    return {"operations": operation_payload()}
+
+
 # ── Request/Response models ───────────────────────────────────────────────────
 
 class CreateSessionRequest(BaseModel):
@@ -547,11 +553,21 @@ class AutoPlaceSpritesRequest(BaseModel):
 class SaveHumanConfirmationRequest(BaseModel):
     confirmed: bool
     expectedContentRevision: str | None = None
+    humanActor: str | None = None
 
 
 class SaveGoldenReviewRequest(BaseModel):
     approved: bool
     expectedContentRevision: str | None = None
+    humanActor: str | None = None
+
+
+def _human_actor(approved: bool, value: str | None) -> str:
+    if not approved:
+        return value or "human:editor"
+    if not isinstance(value, str) or not value.startswith("human:") or len(value) <= len("human:"):
+        raise HTTPException(422, detail={"code": "human_attribution_required", "error": "Human approval requires humanActor"})
+    return value
 
 
 def _job_artifact_response(artifact: JobArtifact) -> JobArtifactResponse:
@@ -1422,11 +1438,13 @@ def save_sprite_candidate_human_confirmation(
             raise ValueError("sprite candidate metadata was not found")
         bird_id = candidate.get("birdId")
         if isinstance(bird_id, str):
+            reviewer = _human_actor(req.confirmed, req.humanActor)
             canonical = S.set_canonical_candidate_confirmation_if_present(
                 session_id,
                 bird_id,
                 req.confirmed,
                 expected_content_revision=req.expectedContentRevision,
+                reviewer=reviewer,
             )
             if canonical is None:
                 raise ValueError("canonical candidate has no canonical session")
@@ -1464,6 +1482,7 @@ def save_hitbox_review(session_id: str, req: SaveGoldenReviewRequest):
             session_id,
             req.approved,
             expected_content_revision=req.expectedContentRevision,
+            reviewer=_human_actor(req.approved, req.humanActor),
         )
         if canonical is not None:
             return {
@@ -1509,6 +1528,7 @@ def save_final_cutout_review(session_id: str, req: SaveGoldenReviewRequest):
             session_id,
             req.approved,
             expected_content_revision=req.expectedContentRevision,
+            reviewer=_human_actor(req.approved, req.humanActor),
         )
     except RevisionConflictError as error:
         raise _content_revision_conflict(error, ["finalCutoutReview"]) from error

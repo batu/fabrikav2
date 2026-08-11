@@ -23,50 +23,11 @@ from typing import Any
 
 import httpx
 
+from levelbuilder.api.operation_registry import OPERATIONS
+
 DEFAULT_URL = os.environ.get("LEVEL_EDITOR_URL", "http://127.0.0.1:5192")
 
-# Wizard-operation inventory (curated; the parity claim). Keys are operations a
-# human can perform in the UI; values are the CLI verb that covers them.
-WIZARD_OPERATIONS: dict[str, str] = {
-    "config": "config",
-    "assemble-recipe-prompts": "create",
-    "create-session": "create",
-    "list-sessions": "sessions",
-    "artifact-integrity-audit": "integrity-audit",
-    "list-sprite-candidates": "sprite-candidates",
-    "manual-sprite-placement": "place-sprite",
-    "human-confirm-sprite": "confirm-sprite",
-    "human-review-hitboxes": "bless-hitboxes",
-    "human-review-final-cutouts": "bless-cutouts",
-    "golden-review-level": "bless-level",
-    "get-session": "session",
-    "background-generation-job": "generate-bg",
-    "select-background": "select-bg",
-    "upscale-background-job": "upscale",
-    "auto-hitboxes": "auto-hitboxes",
-    "save-hitboxes": "set-hitboxes",
-    "visibility-check": "visibility-check",
-    "inpaint-job": "inpaint",
-    "retry-failed-dogs-job": "inpaint",
-    "single-dog-regenerate": "regenerate",
-    "selected-cutout-extraction": "cutouts",
-    "selected-cutout-regeneration": "cutouts",
-    "dog-set-active-variant": "dogs",
-    "dog-delete": "dogs",
-    "list-jobs": "jobs",
-    "get-job": "job",
-    "sequence-state": "export",
-    "sequence-draft": "export",
-    "sequence-dry-run": "export",
-    "sequence-start-job": "export",
-    "session-archive": "archive",
-    "approve-catalog": "approve",
-    "sprite-gaps": "repair-sprites",
-    "compare-inpaint": "compare",
-    "bundle-starter": "export",
-    "prompt-library": "prompts",
-    "generation-status": "status",
-}
+WIZARD_OPERATIONS: dict[str, str] = {item.operation_id: item.cli_verb for item in OPERATIONS}
 
 # Endpoints that write session.json. Catalog/bundle/sequence calls legitimately
 # leave the session untouched, so warning on them is a false alarm.
@@ -594,11 +555,12 @@ def cmd_auto_hitboxes(client: Client, args: argparse.Namespace) -> None:
 
 def cmd_set_hitboxes(client: Client, args: argparse.Namespace) -> None:
     hitboxes = json.loads(Path(args.file).read_text())
+    revision = client.get(f"/api/sessions/{args.session_id}").get("contentRevision")
     _emit(
         args,
         client.post(
             f"/api/sessions/{args.session_id}/hitboxes",
-            json={"hitboxes": hitboxes, "action": "edit"},
+            json={"hitboxes": hitboxes, "action": "edit", **({"expectedContentRevision": revision} if revision else {})},
         ),
     )
 
@@ -1543,10 +1505,13 @@ def cmd_jobs(client: Client, args: argparse.Namespace) -> None:
 
 
 def cmd_confirm_sprite(client: Client, args: argparse.Namespace) -> None:
+    confirmed = not args.undo
+    actor = _human_actor_argument(args, confirmed)
+    revision = client.get(f"/api/sessions/{args.session_id}").get("contentRevision")
     _emit(args, client.request(
         "PUT",
         f"/api/sessions/{args.session_id}/sprite-candidates/{args.candidate_id}/human-confirmation",
-        json={"confirmed": not args.undo},
+        json={"confirmed": confirmed, **({"expectedContentRevision": revision} if revision else {}), **({"humanActor": actor} if actor else {})},
     ))
 
 
@@ -1563,10 +1528,14 @@ def cmd_auto_place_sprites(client: Client, args: argparse.Namespace) -> None:
 
 
 def cmd_place_sprite(client: Client, args: argparse.Namespace) -> None:
+    revision = client.get(f"/api/sessions/{args.session_id}").get("contentRevision")
     _emit(args, client.request(
         "PUT",
         f"/api/sessions/{args.session_id}/sprite-candidates/{args.candidate_id}/placement",
-        json={"spriteBox": args.box, "flipX": args.flip_x, "flipY": args.flip_y},
+        json={
+            "spriteBox": args.box, "flipX": args.flip_x, "flipY": args.flip_y,
+            **({"expectedContentRevision": revision} if revision else {}),
+        },
     ))
 
 
@@ -1578,19 +1547,39 @@ def _requested_approval(args: argparse.Namespace) -> bool:
     return bool(getattr(args, "approved", not getattr(args, "undo", False)))
 
 
+def _human_actor_argument(args: argparse.Namespace, approved: bool) -> str | None:
+    value = getattr(args, "human_confirmed_by", None)
+    if not approved:
+        return None
+    if not isinstance(value, str) or not value.strip():
+        raise CliError(
+            "human_attribution_required",
+            "approval requires --human-confirmed-by <name>",
+            stage="human-review",
+        )
+    value = value.strip()
+    return value if value.startswith("human:") else f"human:{value}"
+
+
 def cmd_bless_hitboxes(client: Client, args: argparse.Namespace) -> None:
+    approved = _requested_approval(args)
+    actor = _human_actor_argument(args, approved)
+    revision = client.get(f"/api/sessions/{args.session_id}").get("contentRevision")
     _emit(args, client.request(
         "PUT",
         f"/api/sessions/{args.session_id}/hitbox-review",
-        json={"approved": _requested_approval(args)},
+        json={"approved": approved, **({"expectedContentRevision": revision} if revision else {}), **({"humanActor": actor} if actor else {})},
     ))
 
 
 def cmd_bless_cutouts(client: Client, args: argparse.Namespace) -> None:
+    approved = _requested_approval(args)
+    actor = _human_actor_argument(args, approved)
+    revision = client.get(f"/api/sessions/{args.session_id}").get("contentRevision")
     _emit(args, client.request(
         "PUT",
         f"/api/sessions/{args.session_id}/final-cutout-review",
-        json={"approved": _requested_approval(args)},
+        json={"approved": approved, **({"expectedContentRevision": revision} if revision else {}), **({"humanActor": actor} if actor else {})},
     ))
 
 
@@ -1900,6 +1889,7 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("session_id")
     p.add_argument("candidate_id")
     p.add_argument("--undo", action="store_true", help="remove human confirmation")
+    p.add_argument("--human-confirmed-by", help="human operator name (required when confirming)")
 
     p = verb("sprite-candidates", cmd_sprite_candidates)
     p.add_argument("session_id")
@@ -1922,14 +1912,17 @@ def build_parser() -> argparse.ArgumentParser:
     p = verb("bless-level", cmd_bless_level)
     p.add_argument("session_id")
     p.add_argument("--undo", action="store_true", help="remove golden-dataset approval")
+    p.add_argument("--human-confirmed-by", help="human operator name (required when approving)")
 
     p = verb("bless-hitboxes", cmd_bless_hitboxes)
     p.add_argument("session_id")
     p.add_argument("--undo", action="store_true", help="remove current hitbox approval")
+    p.add_argument("--human-confirmed-by", help="human operator name (required when approving)")
 
     p = verb("bless-cutouts", cmd_bless_cutouts)
     p.add_argument("session_id")
     p.add_argument("--undo", action="store_true", help="remove final cutout approval")
+    p.add_argument("--human-confirmed-by", help="human operator name (required when approving)")
 
     p = verb("job", cmd_job)
     p.add_argument("job_id")

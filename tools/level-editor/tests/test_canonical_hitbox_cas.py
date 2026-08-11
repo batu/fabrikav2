@@ -101,7 +101,7 @@ def test_stale_canonical_hitbox_blessing_returns_409(app_client, isolated_sessio
     store, pointer = _canonical_session(isolated_session, "canonical_stale_bless")
     response = app_client.put(
         "/api/sessions/canonical_stale_bless/hitbox-review",
-        json={"approved": True, "expectedContentRevision": "sha256:" + "f" * 64},
+        json={"approved": True, "expectedContentRevision": "sha256:" + "f" * 64, "humanActor": "human:test"},
     )
     assert response.status_code == 409
     assert response.json()["detail"]["actualContentRevision"] == pointer.content_revision
@@ -112,12 +112,24 @@ def test_canonical_hitbox_blessing_binds_current_revision(app_client, isolated_s
     store, pointer = _canonical_session(isolated_session, "canonical_bless")
     response = app_client.put(
         "/api/sessions/canonical_bless/hitbox-review",
-        json={"approved": True, "expectedContentRevision": pointer.content_revision},
+        json={"approved": True, "expectedContentRevision": pointer.content_revision, "humanActor": "human:test"},
     )
     assert response.status_code == 200
     review = store.read().snapshot["reviews"]["hitboxes"]
     assert review["contentRevision"] == pointer.content_revision
-    assert review["reviewer"] == "human:editor"
+    assert review["reviewer"] == "human:test"
+
+
+def test_canonical_blessing_requires_attributable_human(app_client, isolated_session):
+    _store, pointer = _canonical_session(isolated_session, "canonical_bless_actor")
+
+    response = app_client.put(
+        "/api/sessions/canonical_bless_actor/hitbox-review",
+        json={"approved": True, "expectedContentRevision": pointer.content_revision},
+    )
+
+    assert response.status_code == 422
+    assert response.json()["detail"]["code"] == "human_attribution_required"
 
 
 def test_legacy_hitbox_save_still_accepts_missing_revision(app_client, isolated_session):
@@ -231,7 +243,7 @@ def test_canonical_final_bless_route_uses_revision_cas(app_client, isolated_sess
 
     response = app_client.put(
         "/api/sessions/canonical_final_route/final-cutout-review",
-        json={"approved": True, "expectedContentRevision": hitbox_pointer.content_revision},
+        json={"approved": True, "expectedContentRevision": hitbox_pointer.content_revision, "humanActor": "human:test"},
     )
 
     assert response.status_code == 200, response.text
@@ -332,6 +344,9 @@ def test_concurrent_save_and_bless_cannot_approve_old_geometry(isolated_session,
                 outcomes.append("conflict")
 
     current = store.read().snapshot
-    assert current["birds"][0]["hitbox"]["x"] == 99
-    assert "hitboxes" not in current["reviews"]
-    assert outcomes
+    assert outcomes.count("conflict") == 1
+    if current["birds"][0]["hitbox"]["x"] == 99:
+        assert "hitboxes" not in current["reviews"]
+    else:
+        assert current["birds"][0]["hitbox"]["x"] == 10
+        assert current["reviews"]["hitboxes"]["contentRevision"] == pointer.content_revision

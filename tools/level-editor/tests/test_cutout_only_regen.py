@@ -269,7 +269,7 @@ def test_bless_level_records_golden_snapshot_without_changing_lineup(app_client,
     ]))
 
     hitbox_response = app_client.put(
-        f"/api/sessions/{session_id}/hitbox-review", json={"approved": True},
+        f"/api/sessions/{session_id}/hitbox-review", json={"approved": True, "humanActor": "human:test"},
     )
     assert hitbox_response.status_code == 200
 
@@ -310,7 +310,7 @@ def test_hitbox_blessing_becomes_stale_when_geometry_changes(app_client, isolate
     hitboxes_path = public_dir / "hitboxes.json"
     hitboxes_path.write_text(json.dumps([{"id": "dog_00", "x": 40, "y": 50, "r": 12}]))
 
-    response = app_client.put(f"/api/sessions/{session_id}/hitbox-review", json={"approved": True})
+    response = app_client.put(f"/api/sessions/{session_id}/hitbox-review", json={"approved": True, "humanActor": "human:test"})
     assert response.status_code == 200
     assert response.json()["hitboxReview"]["current"] is True
 
@@ -399,7 +399,7 @@ def test_final_cutout_blessing_requires_current_hitbox_blessing(app_client, isol
     ]))
 
     response = app_client.put(
-        f"/api/sessions/{session_id}/final-cutout-review", json={"approved": True},
+        f"/api/sessions/{session_id}/final-cutout-review", json={"approved": True, "humanActor": "human:test"},
     )
     assert response.status_code == 409
     assert response.json()["detail"]["code"] == "hitboxes_not_blessed"
@@ -475,7 +475,7 @@ def test_bless_level_confirms_existing_workspace_and_public_sidecars(app_client,
         ]))
 
     hitbox_response = app_client.put(
-        f"/api/sessions/{session_id}/hitbox-review", json={"approved": True},
+        f"/api/sessions/{session_id}/hitbox-review", json={"approved": True, "humanActor": "human:test"},
     )
     assert hitbox_response.status_code == 200
 
@@ -510,7 +510,7 @@ def test_bless_level_validates_all_birds_before_confirming_any(app_client, isola
         {"id": "dog_01", "x": 90, "y": 90, "r": 15},
     ]))
     hitbox_response = app_client.put(
-        f"/api/sessions/{session_id}/hitbox-review", json={"approved": True},
+        f"/api/sessions/{session_id}/hitbox-review", json={"approved": True, "humanActor": "human:test"},
     )
     assert hitbox_response.status_code == 200
     before = first_sidecar.read_bytes()

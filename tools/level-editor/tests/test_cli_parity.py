@@ -1,8 +1,7 @@
-"""AE3: every wizard-reachable operation has a mapped CLI verb, and every
-mapped verb exists in the parser. The inventory is hand-curated (the parity
-claim); this test guards drift in both directions."""
+"""Server-owned operation contracts must be reachable from both clients."""
 
 import argparse
+from pathlib import Path
 
 from levelbuilder.cli.main import (
     WIZARD_OPERATIONS,
@@ -14,6 +13,7 @@ from levelbuilder.cli.main import (
     cmd_place_sprite,
     cmd_sprite_candidates,
 )
+from levelbuilder.api.operation_registry import PRIMARY_OPERATIONS
 
 
 def _parser_verbs() -> set[str]:
@@ -43,12 +43,33 @@ def test_core_wizard_operations_are_covered() -> None:
     assert not missing, f"wizard operations missing from inventory: {missing}"
 
 
+def test_primary_operation_contracts_match_routes_and_ui_exports(app_client) -> None:
+    routes = {
+        (method, route.path)
+        for route in app_client.app.routes
+        for method in getattr(route, "methods", set())
+    }
+    ui_source = (Path(__file__).parents[1] / "ui" / "src" / "api" / "editorApi.ts").read_text()
+    missing_routes = [
+        item.operation_id for item in PRIMARY_OPERATIONS
+        if (item.method, item.path) not in routes
+    ]
+    missing_ui = [
+        item.operation_id for item in PRIMARY_OPERATIONS
+        if item.ui_function and f"function {item.ui_function}(" not in ui_source
+    ]
+    assert not missing_routes, f"registered operations missing FastAPI routes: {missing_routes}"
+    assert not missing_ui, f"registered operations missing UI API exports: {missing_ui}"
+
+
 class _Client:
     def __init__(self) -> None:
         self.calls = []
 
     def get(self, path):
         self.calls.append(("GET", path, None))
+        if path.startswith("/api/sessions/") and not path.endswith("/sprite-candidates"):
+            return {"contentRevision": "sha256:current"}
         return {"candidates": []}
 
     def request(self, method, path, *, json=None):
@@ -73,8 +94,10 @@ def test_sprite_candidate_cli_uses_shared_api(capsys) -> None:
 
     assert client.calls == [
         ("GET", "/api/sessions/level-a/sprite-candidates", None),
+        ("GET", "/api/sessions/level-a", None),
         ("PUT", "/api/sessions/level-a/sprite-candidates/dog_03:sprite_000/placement", {
             "spriteBox": [10, 20, 70, 90], "flipX": True, "flipY": None,
+            "expectedContentRevision": "sha256:current",
         }),
     ]
     assert '"ok": true' in capsys.readouterr().out
@@ -92,12 +115,22 @@ def test_integrity_audit_cli_uses_shared_api(capsys) -> None:
 def test_two_stage_review_cli_uses_shared_api(capsys) -> None:
     client = _Client()
 
-    cmd_bless_hitboxes(client, argparse.Namespace(session_id="level-a", approved=True, json=True))
-    cmd_bless_cutouts(client, argparse.Namespace(session_id="level-a", approved=True, json=True))
+    cmd_bless_hitboxes(client, argparse.Namespace(
+        session_id="level-a", approved=True, human_confirmed_by="batu", json=True,
+    ))
+    cmd_bless_cutouts(client, argparse.Namespace(
+        session_id="level-a", approved=True, human_confirmed_by="batu", json=True,
+    ))
 
     assert client.calls == [
-        ("PUT", "/api/sessions/level-a/hitbox-review", {"approved": True}),
-        ("PUT", "/api/sessions/level-a/final-cutout-review", {"approved": True}),
+        ("GET", "/api/sessions/level-a", None),
+        ("PUT", "/api/sessions/level-a/hitbox-review", {
+            "approved": True, "expectedContentRevision": "sha256:current", "humanActor": "human:batu",
+        }),
+        ("GET", "/api/sessions/level-a", None),
+        ("PUT", "/api/sessions/level-a/final-cutout-review", {
+            "approved": True, "expectedContentRevision": "sha256:current", "humanActor": "human:batu",
+        }),
     ]
     assert capsys.readouterr().out.count('"ok": true') == 2
 

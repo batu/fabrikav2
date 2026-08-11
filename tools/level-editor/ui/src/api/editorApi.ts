@@ -182,6 +182,23 @@ export function getConfig(): Promise<ConfigResponse> {
   return request<ConfigResponse>('/api/config');
 }
 
+export interface EditorOperation {
+  operationId: string;
+  cliVerb: string;
+  method: string | null;
+  path: string | null;
+  uiFunction: string | null;
+  humanOnly: boolean;
+}
+
+export function getEditorOperations(): Promise<{ operations: EditorOperation[] }> {
+  return request('/api/operations');
+}
+
+export function getArtifactIntegrityAudit(): Promise<Record<string, unknown>> {
+  return request('/api/artifact-integrity-audit');
+}
+
 export interface GeometryConfigResponse {
   hudFraction: number;
   bannerFraction: number;
@@ -929,7 +946,7 @@ export function setHitboxApproval(
   return request(`/api/sessions/${encodeURIComponent(sessionId)}/hitbox-review`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ approved, expectedContentRevision }),
+    body: JSON.stringify({ approved, expectedContentRevision, ...(approved ? { humanActor: 'human:editor' } : {}) }),
   });
 }
 
@@ -946,7 +963,7 @@ export function setFinalCutoutApproval(
   return request(`/api/sessions/${encodeURIComponent(sessionId)}/final-cutout-review`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ approved, expectedContentRevision }),
+    body: JSON.stringify({ approved, expectedContentRevision, ...(approved ? { humanActor: 'human:editor' } : {}) }),
   });
 }
 
@@ -1424,6 +1441,17 @@ export function saveSpriteCandidateHumanConfirmation(
   return request(`/api/sessions/${encodeURIComponent(sessionId)}/sprite-candidates/${encodeURIComponent(candidateId)}/human-confirmation`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ confirmed, expectedContentRevision }),
+    body: JSON.stringify({ confirmed, expectedContentRevision, ...(confirmed ? { humanActor: 'human:editor' } : {}) }),
+  });
+}
+
+export function autoPlaceSpriteCandidates(
+  sessionId: string,
+  includeHumanConfirmed: boolean = false,
+): Promise<{ ok: boolean; contentRevision?: string; results: unknown[] }> {
+  return request(`/api/sessions/${encodeURIComponent(sessionId)}/sprite-candidates/auto-placement`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ includeHumanConfirmed }),
   });
 }
