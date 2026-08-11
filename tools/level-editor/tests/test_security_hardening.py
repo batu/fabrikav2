@@ -1,7 +1,8 @@
 """Regressions for the 2026-07-29 review findings."""
 
-import json
 import os
+import subprocess
+import sys
 
 import pytest
 
@@ -60,6 +61,21 @@ def test_partial_workspace_env_is_an_error(monkeypatch) -> None:
     with pytest.raises(UnknownGameError) as excinfo:
         apply_game_from_env()
     assert "LEVELBUILDER_GAME_ROOT" in str(excinfo.value)
+
+
+def test_direct_session_import_without_game_profile_fails_closed() -> None:
+    env = os.environ.copy()
+    for key in ("LEVELBUILDER_WORKSPACE", "LEVELBUILDER_GAME_ROOT", "LEVEL_EDITOR_GAME"):
+        env.pop(key, None)
+    result = subprocess.run(
+        [sys.executable, "-c", "import levelbuilder.api.session"],
+        env=env,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    assert result.returncode != 0
+    assert "select a game with --game or LEVEL_EDITOR_GAME" in result.stderr
 
 
 def test_bundle_refuses_uninstalled_package(app_client) -> None:

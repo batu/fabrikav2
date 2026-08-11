@@ -10,7 +10,6 @@ future slices will cut readers over once parity is proven.
 from __future__ import annotations
 
 import json
-import os
 import re
 import sqlite3
 import threading
@@ -20,14 +19,9 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Iterator, Literal, Sequence
 
-LEVELS_DB_PATH = (
-    Path(
-        os.environ.get("LEVELBUILDER_WORKSPACE")
-        or Path(__file__).resolve().parent.parent
-    )
-    / "state"
-    / "levels.sqlite"
-)
+from levelbuilder.settings import require_game_from_env
+
+LEVELS_DB_PATH = require_game_from_env().workspace / "state" / "levels.sqlite"
 _SCHEMA_LOCK = threading.Lock()
 _PUBLIC_DOG_ID_RE = re.compile(r"^dog_\d{2,}$")
 

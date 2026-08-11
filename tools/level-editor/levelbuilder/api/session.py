@@ -38,6 +38,7 @@ from levelbuilder.sections import (
     section_ranges,
 )
 from levelbuilder.prompts import SETTINGS
+from levelbuilder.settings import require_game_from_env
 from . import public_levels as PublicLevels
 from .level_schema import LevelFileV1
 
@@ -70,22 +71,16 @@ def _detect_setting(session_id: str, raw: dict | None = None) -> str:
             return key
     return "other"
 
-# Per-game workspace override: LEVELBUILDER_WORKSPACE points at a directory
-# that owns levels/, state/, and prompts_library.json for one game. Unset, the
-# builder keeps its historical FTD layout next to this module.
-WORKSPACE_ROOT = Path(
-    os.environ.get("LEVELBUILDER_WORKSPACE")
-    or Path(__file__).resolve().parent.parent
-)
+# The active game profile owns levels/, state/, prompts, and public exports.
+# Storage imports fail closed when no profile was selected; a module-relative
+# fallback once made maintenance scripts scan a convincing but wrong corpus.
+_ACTIVE_GAME = require_game_from_env()
+WORKSPACE_ROOT = _ACTIVE_GAME.workspace
 LEVELS_DIR = WORKSPACE_ROOT / "levels"
 LEVELS_DIR.mkdir(parents=True, exist_ok=True)
 
-# Game paths for export. LEVELBUILDER_GAME_ROOT points at the consuming game
-# folder (its public/levels receives exports); default is games/find_the_dog.
-GAME_ROOT = Path(
-    os.environ.get("LEVELBUILDER_GAME_ROOT")
-    or Path(__file__).resolve().parents[3]
-)
+# Game paths for export. GAME_ROOT is paired with WORKSPACE_ROOT by the profile.
+GAME_ROOT = _ACTIVE_GAME.game_root
 GAME_PUBLIC_LEVELS = GAME_ROOT / "public" / "levels"
 # Compatibility aliases for older tests/callers. Runtime helpers derive paths
 # from GAME_PUBLIC_LEVELS so monkeypatching the public root stays authoritative.
