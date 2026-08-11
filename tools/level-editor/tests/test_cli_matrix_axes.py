@@ -1,6 +1,5 @@
 import json
 
-from levelbuilder.cli import main as cli
 from tests.test_cli_errors import _StubClient, _run
 
 
@@ -119,6 +118,7 @@ def test_cutouts_extract_forwards_selected_stable_ids_model_and_crop_boxes(monke
             "setting": "japan", "scene": "market", "entity": "bird",
             "view": "front", "style": "clean_old_cartoon",
             "bgWidth": 400, "bgHeight": 300,
+            "contentRevision": "sha256:canonical-revision",
             "dogs": [
                 {"id": "bird-a", "index": 3, "activeVariant": 0},
                 {"id": "bird-b", "index": 9, "activeVariant": 0},
@@ -148,11 +148,12 @@ def test_cutouts_extract_forwards_selected_stable_ids_model_and_crop_boxes(monke
     assert code == 0, out
     body = captured["/api/sessions/s1/dogs/retry-inpaint/jobs"]
     assert body == {
-        "dogIndices": [3, 9],
+        "birdIds": ["bird-a", "bird-b"],
         "prompt": "Extract one bird only.",
         "inpaintModel": "google/gemini-3.1-flash-lite-image",
         "padding": 2.75,
-        "cropBoxes": {3: [25, 35, 135, 145], 9: [100, 40, 260, 210]},
+        "cropBoxesByBirdId": {"bird-a": [25, 35, 135, 145], "bird-b": [100, 40, 260, 210]},
+        "expectedContentRevision": "sha256:canonical-revision",
         "cutoutOnly": True,
     }
 

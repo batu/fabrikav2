@@ -230,3 +230,9 @@ def test_post_provider_revision_conflict_is_retained_and_never_resubmitted(isola
     assert child.status == "succeeded"
     assert child.stage == "completed_stale"
     assert child.result["disposition"] == "needs_review"
+    response = inpaint._retry_failed_dogs_job_response(inpaint.JOB_STORE.get_job(job.id))
+    assert response.stale == 1
+    assert response.units[0].birdId == "bird_one"
+    assert response.units[0].inputContentRevision == pointer.content_revision
+    assert response.units[0].stage == "completed_stale"
+    assert response.units[0].disposition == "needs_review"

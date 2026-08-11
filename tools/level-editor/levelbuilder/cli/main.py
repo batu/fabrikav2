@@ -683,6 +683,7 @@ def cmd_cutouts(client: Client, args: argparse.Namespace) -> None:
     scene_width = int(session.get("bgWidth") or session.get("width") or 0)
     scene_height = int(session.get("bgHeight") or session.get("height") or 0)
     crop_boxes: dict[int, list[int]] = {}
+    crop_boxes_by_bird_id: dict[str, list[int]] = {}
     dog_indices: list[int] = []
     for dog_id in selected_ids:
         dog = dogs_by_id[dog_id]
@@ -695,6 +696,7 @@ def cmd_cutouts(client: Client, args: argparse.Namespace) -> None:
             raise CliError("hitbox_not_found", f"dog {dog_id!r} has no matching hitbox")
         if dog_id in custom_boxes:
             crop_boxes[dog_index] = custom_boxes[dog_id]
+            crop_boxes_by_bird_id[dog_id] = custom_boxes[dog_id]
             continue
         radius = float(hitbox.get("r", hitbox.get("radius", 30)))
         half_side = round(radius * args.padding)
@@ -705,18 +707,28 @@ def cmd_cutouts(client: Client, args: argparse.Namespace) -> None:
             min(scene_width, x + half_side) if scene_width > 0 else x + half_side,
             min(scene_height, y + half_side) if scene_height > 0 else y + half_side,
         ]
+        crop_boxes_by_bird_id[dog_id] = crop_boxes[dog_index]
 
     if args.operation == "extract":
         prompt = client.get(f"/api/sessions/{args.session_id}/cutout-extraction-prompt")["prompt"]
     else:
         prompts = client.post("/api/actions/assemble-recipe-prompts", json=_session_recipe(session))
         prompt = prompts["dogPrompt"]
+    content_revision = session.get("contentRevision")
+    target_fields = (
+        {
+            "birdIds": selected_ids,
+            "cropBoxesByBirdId": crop_boxes_by_bird_id,
+            "expectedContentRevision": content_revision,
+        }
+        if isinstance(content_revision, str) and content_revision
+        else {"dogIndices": dog_indices, "cropBoxes": crop_boxes}
+    )
     body = {
-        "dogIndices": dog_indices,
+        **target_fields,
         "prompt": prompt,
         "inpaintModel": args.model,
         "padding": args.padding,
-        "cropBoxes": crop_boxes,
         "cutoutOnly": args.operation == "extract",
     }
     job = client.post(f"/api/sessions/{args.session_id}/dogs/retry-inpaint/jobs", json=body)

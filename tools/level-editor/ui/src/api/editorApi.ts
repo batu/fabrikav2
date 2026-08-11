@@ -710,7 +710,10 @@ export function regenDogById(
 export interface RetryFailedDogUnitResponse {
   dogIndex: number;
   birdId?: string | null;
+  inputContentRevision?: string | null;
   status: JobStatus;
+  stage: string;
+  disposition?: 'committed' | 'needs_review' | null;
   retryable: boolean;
   error: string | null;
   file: string | null;
@@ -722,6 +725,7 @@ export interface RetryFailedDogsJobResponse {
   status: JobStatus;
   succeeded: number;
   failed: number;
+  stale: number;
   units: RetryFailedDogUnitResponse[];
   error: string | null;
 }

@@ -3837,7 +3837,10 @@ class RetryFailedDogsJobRequest(BaseModel):
 class RetryFailedDogUnitResponse(BaseModel):
     dogIndex: int
     birdId: str | None = None
+    inputContentRevision: str | None = None
     status: str
+    stage: str
+    disposition: str | None = None
     retryable: bool
     error: str | None = None
     file: str | None = None
@@ -3849,6 +3852,7 @@ class RetryFailedDogsJobResponse(BaseModel):
     status: str
     succeeded: int = 0
     failed: int = 0
+    stale: int = 0
     units: list[RetryFailedDogUnitResponse] = Field(default_factory=list)
     error: str | None = None
 
@@ -4370,23 +4374,29 @@ def _retry_failed_dogs_job_response(job: JobRecord) -> RetryFailedDogsJobRespons
         JOB_STORE.list_child_jobs(job.id, kind=_CROP_INPAINT_UNIT_KIND),
         key=lambda child: int(child.metadata.get("dogIndex") or 0),
     )
-    units = [
-        RetryFailedDogUnitResponse(
-            dogIndex=int(child.metadata.get("dogIndex") or child.result.get("dogIndex") or 0),
+    units = []
+    for child in children:
+        result = child.result if isinstance(child.result, dict) else {}
+        bird_input = child.metadata.get("birdInput")
+        input_revision = bird_input.get("contentRevision") if isinstance(bird_input, dict) else None
+        units.append(RetryFailedDogUnitResponse(
+            dogIndex=int(child.metadata.get("dogIndex") or result.get("dogIndex") or 0),
             birdId=child.metadata.get("birdId") if isinstance(child.metadata.get("birdId"), str) else None,
+            inputContentRevision=input_revision if isinstance(input_revision, str) else None,
             status=child.status,
+            stage=child.stage,
+            disposition=result.get("disposition") if isinstance(result.get("disposition"), str) else None,
             retryable=child.retryable,
             error=child.error_message,
-            file=child.result.get("file") if isinstance(child.result.get("file"), str) else None,
-            variantIndex=child.result.get("variantIndex") if isinstance(child.result.get("variantIndex"), int) else None,
-        )
-        for child in children
-    ]
+            file=result.get("file") if isinstance(result.get("file"), str) else None,
+            variantIndex=result.get("variantIndex") if isinstance(result.get("variantIndex"), int) else None,
+        ))
     return RetryFailedDogsJobResponse(
         jobId=job.id,
         status=job.status,
         succeeded=int(job.result.get("succeeded") or 0),
         failed=int(job.result.get("failed") or 0),
+        stale=int(job.result.get("stale") or 0),
         units=units,
         error=job.error_message,
     )
