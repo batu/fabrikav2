@@ -1559,6 +1559,53 @@ def session_dir(session_id: str) -> Path:
     return LEVELS_DIR / session_id
 
 
+def artifact_revision_store(session_id: str):
+    """Return the canonical authoring revision store for a source session.
+
+    Public packages are deliberately excluded: they are projections and must
+    never become editable authority through a fallback read.
+    """
+    _validate_session_id_or_raise(session_id)
+    from .artifact_revision import ArtifactRevisionStore
+
+    return ArtifactRevisionStore(LEVELS_DIR / session_id)
+
+
+def read_artifact_revision(session_id: str):
+    return artifact_revision_store(session_id).read()
+
+
+def canonical_session_store(session_id: str):
+    """Return the canonical authoring store without consulting projections.
+
+    This deliberately does not call :func:`session_dir`: that legacy resolver
+    may select a public package. Canonical reads and writes are workspace-only.
+    """
+    from levelbuilder.api.canonical_bird_contract import CanonicalRevisionStore
+
+    return CanonicalRevisionStore(LEVELS_DIR / session_id)
+
+
+def read_canonical_session(session_id: str):
+    """Read the explicit canonical pointer state for an authoring session."""
+    return canonical_session_store(session_id).read()
+
+
+def commit_canonical_session(
+    session_id: str,
+    snapshot: dict[str, Any],
+    *,
+    expected_content_revision: str | None,
+):
+    """CAS-install one immutable authoring revision under the session flock."""
+    if snapshot.get("sessionId") != session_id:
+        raise ValueError("canonical snapshot sessionId does not match route session")
+    return canonical_session_store(session_id).commit(
+        snapshot,
+        expected_content_revision=expected_content_revision,
+    )
+
+
 def dogs_dir(session_id: str) -> Path:
     return session_dir(session_id) / "dogs"
 
