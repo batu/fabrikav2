@@ -1304,39 +1304,15 @@ def save_sprite_candidate_placement(
             raise ValueError("spriteBox must have positive width and height")
         if not (0 <= x0 < x1 <= int(level["width"]) and 0 <= y0 < y1 <= int(level["height"])):
             raise ValueError("spriteBox must stay inside the scene")
-        hitboxes, _ = S._current_hitbox_snapshot(session_id)
-        raw_session = S.load_session_raw(session_id) or {}
-        active_targets = S.active_dog_variant_targets(
-            session_id,
-            raw_session.get("dogs") or [],
-            hitboxes,
-        )
-        target_index = next((
-            index for index, target in active_targets.items()
-            if target == (dog_index, int(candidate["spriteIndex"]))
-        ), None)
-        stable_id = f"dog_{dog_index:02d}"
-        hitbox = hitboxes[target_index] if target_index is not None else next((
-            item for item in hitboxes
-            if isinstance(item, dict) and item.get("id") in {dog_id, stable_id}
-        ), None)
-        if hitbox is None and 0 <= dog_index < len(hitboxes):
-            hitbox = hitboxes[dog_index]
-        if not isinstance(hitbox, dict):
-            raise ValueError("sprite candidate does not match a current bird hitbox")
-        target_x = round(float(hitbox["x"]))
-        target_y = round(float(hitbox["y"]))
-        if not (x0 <= target_x <= x1 and y0 <= target_y <= y1):
-            raise ValueError("spriteBox must contain the current bird hitbox")
-        from levelbuilder.api.sprite_eval import apply_match_report
+        from levelbuilder.api.sprite_eval import MANUAL_MATCH_METHOD, apply_match_report
         report = {"levels": [{
             "levelId": session_id,
             "birds": [{
                 "dogId": dog_id,
-                "cutoutMatches": {"manual": {
+                "cutoutMatches": {MANUAL_MATCH_METHOD: {
                     "accepted": True,
                     "fittedBox": [x0, y0, x1, y1],
-                    "method": "manual",
+                    "method": MANUAL_MATCH_METHOD,
                     **({"flipX": req.flipX} if req.flipX is not None else {}),
                     **({"flipY": req.flipY} if req.flipY is not None else {}),
                 }},
@@ -1350,7 +1326,7 @@ def save_sprite_candidate_placement(
             result = apply_match_report(
                 S.GAME_PUBLIC_LEVELS,
                 report,
-                method="manual",
+                method=MANUAL_MATCH_METHOD,
                 workspace_root=S.WORKSPACE_ROOT,
             )
         if result.get("applied") != 1 and result.get("unchanged") != 1:
