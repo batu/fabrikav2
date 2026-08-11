@@ -45,7 +45,7 @@
   </div>
   <details><summary>Idempotency evidence</summary><p class="audit">Canonical tree before repeat: ab3e1da77db28077810fe812d0c967ddf4f9c62226abc5b9618700f78086ca16 · after repeat: ab3e1da77db28077810fe812d0c967ddf4f9c62226abc5b9618700f78086ca16 · identical: true</p></details>
   <details><summary>Machine-readable evidence</summary><p class="audit">Per-level journals: games/find_the_bird/.levelbuilder/state/canonical-migration-journal/*.json · current manifest: sha256:b4c3db0dd3000147126d3c7fc528ab2453eb786c48743648055eec4b717fea45 · migration implementation: 627864d4f</p></details>
-  <details><summary>Remaining work before release proof</summary><p>The 59 quarantined authoring sessions require explicit repair or remain frozen. Release gates must prove that no quarantined or unreviewed revision can be republished or activated. Physical-phone pickup verification follows those gates.</p></details>
+  <details open><summary>Release blocker exposed</summary><p>The 66 quarantined authoring sessions require explicit repair or remain frozen. Portal now blocks their republish and lineup activation. The native iOS build also fails closed because the approved Hawaii starter manifest expects the 9,013-byte package while the mutable projection contains a later 9,826-byte level file. No phone install or pickup claim was made from those stale bytes.</p></details>
   </section>
   <footer>This migration deliberately did not repair by proximity, folder index, or array order. Those shortcuts caused the recurring wrong-bird cleanup defect in the first place.</footer>
 </main></body></html>
