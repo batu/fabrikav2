@@ -154,3 +154,59 @@ def test_contract_fixture_round_trips_as_canonical_json(tmp_path):
     encoded = canonical_json(validate_snapshot(payload))
     assert canonical_json(validate_snapshot(json.loads(encoded))) == encoded
     assert snapshot_revisions(payload).content_revision == "sha256:ea523da1375bd6fbcfb7edcf4ca6673a6ebaa1dc219f4067ea9ee0d660fb8c23"
+
+
+def test_review_invalidation_follows_artifact_dependencies():
+    from levelbuilder.api.canonical_bird_contract import (
+        bless_snapshot,
+        invalidate_reviews,
+    )
+
+    blessed = bless_snapshot(
+        bless_snapshot(
+            _snapshot(),
+            review_kind="hitboxes",
+            reviewer="human:batu",
+            reviewed_at="2026-08-11T01:00:00Z",
+        ),
+        review_kind="finalCutouts",
+        reviewer="human:batu",
+        reviewed_at="2026-08-11T01:01:00Z",
+    )
+
+    sprite_changed = invalidate_reviews(blessed, changed_artifacts={"spritePlacement"})
+    assert set(sprite_changed["reviews"]) == {"hitboxes"}
+    assert sprite_changed["operational"]["reviewHistory"][-1]["kind"] == "finalCutouts"
+
+    hitbox_changed = invalidate_reviews(blessed, changed_artifacts={"hitboxes"})
+    assert hitbox_changed["reviews"] == {}
+    assert {entry["kind"] for entry in hitbox_changed["operational"]["reviewHistory"]} == {
+        "hitboxes", "finalCutouts",
+    }
+
+    operational_only = invalidate_reviews(blessed, changed_artifacts={"archive"})
+    assert operational_only["reviews"] == blessed["reviews"]
+
+
+def test_blessing_requires_attributable_human_and_exact_current_revision():
+    from levelbuilder.api.canonical_bird_contract import (
+        ContractValidationError,
+        bless_snapshot,
+        snapshot_revisions,
+    )
+
+    with pytest.raises(ContractValidationError, match="attributable human"):
+        bless_snapshot(
+            _snapshot(),
+            review_kind="hitboxes",
+            reviewer="automation:repair",
+            reviewed_at="2026-08-11T01:00:00Z",
+        )
+
+    blessed = bless_snapshot(
+        _snapshot(),
+        review_kind="hitboxes",
+        reviewer="human:batu",
+        reviewed_at="2026-08-11T01:00:00Z",
+    )
+    assert blessed["reviews"]["hitboxes"]["contentRevision"] == snapshot_revisions(blessed).content_revision

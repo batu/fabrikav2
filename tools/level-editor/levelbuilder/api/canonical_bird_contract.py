@@ -24,6 +24,21 @@ SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 BIRD_ID_RE = re.compile(r"^bird_[A-Za-z0-9][A-Za-z0-9._-]*$")
 SLOT_RE = re.compile(r"^dog_\d{2,}$")
 
+_REVIEW_INVALIDATION: dict[str, frozenset[str]] = {
+    "scene": frozenset({"hitboxes", "finalCutouts"}),
+    "restore": frozenset({"hitboxes", "finalCutouts"}),
+    "birdSet": frozenset({"hitboxes", "finalCutouts"}),
+    "hitboxes": frozenset({"hitboxes", "finalCutouts"}),
+    "activeGeneration": frozenset({"finalCutouts"}),
+    "spritePixels": frozenset({"finalCutouts"}),
+    "spritePlacement": frozenset({"finalCutouts"}),
+    "spriteFlip": frozenset({"finalCutouts"}),
+    "cleanup": frozenset({"finalCutouts"}),
+    "archive": frozenset(),
+    "lineup": frozenset(),
+    "jobState": frozenset(),
+}
+
 
 class ContractValidationError(ValueError):
     pass
@@ -116,6 +131,46 @@ def snapshot_revisions(snapshot: dict[str, Any]) -> SnapshotRevisions:
         content_revision=_hash(_content_projection(snapshot)),
         operational_revision=_hash(_operational_projection(snapshot)),
     )
+
+
+def bless_snapshot(
+    snapshot: dict[str, Any],
+    *,
+    review_kind: str,
+    reviewer: str,
+    reviewed_at: str,
+) -> dict[str, Any]:
+    """Create a human assertion over the exact current content revision."""
+    _require(review_kind in {"hitboxes", "finalCutouts"}, "unknown review assertion")
+    _require(reviewer.startswith("human:"), "review requires an attributable human")
+    _require(bool(reviewed_at), "reviewedAt is required")
+    result = validate_snapshot(snapshot)
+    revision = snapshot_revisions(result).content_revision
+    result.setdefault("reviews", {})[review_kind] = {
+        "contentRevision": revision,
+        "reviewer": reviewer,
+        "reviewedAt": reviewed_at,
+    }
+    return validate_snapshot(result)
+
+
+def invalidate_reviews(
+    snapshot: dict[str, Any],
+    *,
+    changed_artifacts: set[str] | frozenset[str],
+) -> dict[str, Any]:
+    """Invalidate dependent assertions while retaining their audit history."""
+    unknown = set(changed_artifacts) - _REVIEW_INVALIDATION.keys()
+    _require(not unknown, f"unknown changed artifact classes: {sorted(unknown)}")
+    result = validate_snapshot(snapshot)
+    invalidated = set().union(*(_REVIEW_INVALIDATION[name] for name in changed_artifacts))
+    reviews = result.setdefault("reviews", {})
+    history = result.setdefault("operational", {}).setdefault("reviewHistory", [])
+    for kind in sorted(invalidated):
+        review = reviews.pop(kind, None)
+        if review is not None:
+            history.append({"kind": kind, "assertion": review, "invalidatedBy": sorted(changed_artifacts)})
+    return validate_snapshot(result)
 
 
 def validate_snapshot(snapshot: Any, *, validate_reviews: bool = True) -> dict[str, Any]:
