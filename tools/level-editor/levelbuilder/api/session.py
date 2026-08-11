@@ -1599,6 +1599,88 @@ def commit_canonical_session(
     )
 
 
+def save_canonical_hitboxes_if_present(
+    session_id: str,
+    hitboxes: list[dict[str, Any]],
+    *,
+    expected_content_revision: str | None,
+):
+    """CAS-save canonical hitboxes, or return ``None`` for a legacy session."""
+    from levelbuilder.api.canonical_bird_contract import (
+        CanonicalReadState,
+        ContractValidationError,
+        invalidate_reviews,
+    )
+
+    store = canonical_session_store(session_id)
+    current = store.read()
+    if current.state is CanonicalReadState.MIGRATION_REQUIRED:
+        return None
+    if current.state is not CanonicalReadState.VALID_CURRENT or current.snapshot is None:
+        raise ContractValidationError(
+            f"canonical session is not writable: {current.state.value}: {current.detail or ''}".rstrip()
+        )
+    if expected_content_revision is None:
+        from levelbuilder.api.canonical_bird_contract import RevisionConflictError
+
+        raise RevisionConflictError(None, current.pointer.content_revision if current.pointer else None)
+
+    incoming: dict[str, dict[str, Any]] = {}
+    for hitbox in hitboxes:
+        bird_id = hitbox.get("id") if isinstance(hitbox, dict) else None
+        if not isinstance(bird_id, str) or bird_id in incoming:
+            raise ContractValidationError("canonical hitboxes require unique birdId values")
+        incoming[bird_id] = hitbox
+    canonical_ids = {bird["birdId"] for bird in current.snapshot["birds"]}
+    if set(incoming) != canonical_ids:
+        raise ContractValidationError("canonical hitbox identity set does not match the current revision")
+
+    updated = invalidate_reviews(current.snapshot, changed_artifacts={"hitboxes"})
+    for bird in updated["birds"]:
+        hitbox = incoming[bird["birdId"]]
+        bird["hitbox"] = {key: hitbox[key] for key in ("x", "y", "r")}
+    return store.commit(updated, expected_content_revision=expected_content_revision)
+
+
+def set_canonical_hitbox_review_if_present(
+    session_id: str,
+    approved: bool,
+    *,
+    expected_content_revision: str | None,
+    reviewer: str = "human:editor",
+):
+    """CAS-bind a human hitbox assertion, or return ``None`` for legacy."""
+    from levelbuilder.api.canonical_bird_contract import (
+        CanonicalReadState,
+        bless_snapshot,
+        ContractValidationError,
+        invalidate_reviews,
+        RevisionConflictError,
+    )
+
+    store = canonical_session_store(session_id)
+    current = store.read()
+    if current.state is CanonicalReadState.MIGRATION_REQUIRED:
+        return None
+    if current.state is not CanonicalReadState.VALID_CURRENT or current.snapshot is None:
+        raise ContractValidationError(
+            f"canonical session is not writable: {current.state.value}: {current.detail or ''}".rstrip()
+        )
+    actual = current.pointer.content_revision if current.pointer else None
+    if expected_content_revision is None:
+        raise RevisionConflictError(None, actual)
+    if approved:
+        updated = bless_snapshot(
+            current.snapshot,
+            review_kind="hitboxes",
+            reviewer=reviewer,
+            reviewed_at=now_iso(),
+        )
+    else:
+        updated = invalidate_reviews(current.snapshot, changed_artifacts={"hitboxes"})
+    return store.commit(updated, expected_content_revision=expected_content_revision)
+
+
 def dogs_dir(session_id: str) -> Path:
     return session_dir(session_id) / "dogs"
 

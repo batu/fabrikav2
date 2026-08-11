@@ -44,6 +44,7 @@ from . import sequence_workflow as SequenceWorkflow
 from . import session as S
 from . import smart_hitboxes as SmartHitboxes
 from .integrity_audit import audit_level_inventory
+from .canonical_bird_contract import RevisionConflictError
 from .job_store import JobArtifact, JobEvent, JobRecord, JobStore, is_failed_terminal_status
 from .job_worker import JobWorker, RetryableJobError, TerminalJobError, get_default_job_worker
 from .remote_config_publisher import DisabledRemoteConfigPublisher
@@ -51,6 +52,21 @@ from .layer_provider import LAYER_MODEL_OPTIONS, is_layer_model, layer_configure
 
 REMOTE_CONFIG_PUBLISHER_FACTORY = DisabledRemoteConfigPublisher
 JOB_STORE = JobStore()
+
+
+def _content_revision_conflict(
+    error: RevisionConflictError,
+    changed_artifact_classes: list[str],
+) -> HTTPException:
+    return HTTPException(
+        409,
+        detail={
+            "code": "content_revision_conflict",
+            "expectedContentRevision": error.expected,
+            "actualContentRevision": error.actual,
+            "changedArtifactClasses": changed_artifact_classes,
+        },
+    )
 
 SCALE_PRESETS = {
     "none": {
@@ -499,6 +515,7 @@ class UpscaleBgJobResponse(BaseModel):
 class SaveHitboxesRequest(BaseModel):
     hitboxes: list[dict]
     action: str = "edit"
+    expectedContentRevision: str | None = None
 
 
 class VisibilityChecksRequest(BaseModel):
@@ -530,6 +547,7 @@ class SaveHumanConfirmationRequest(BaseModel):
 
 class SaveGoldenReviewRequest(BaseModel):
     approved: bool
+    expectedContentRevision: str | None = None
 
 
 def _job_artifact_response(artifact: JobArtifact) -> JobArtifactResponse:
@@ -1383,8 +1401,26 @@ def save_level_golden_review(session_id: str, req: SaveGoldenReviewRequest):
 def save_hitbox_review(session_id: str, req: SaveGoldenReviewRequest):
     _validate_session_id(session_id)
     try:
+        canonical = S.set_canonical_hitbox_review_if_present(
+            session_id,
+            req.approved,
+            expected_content_revision=req.expectedContentRevision,
+        )
+        if canonical is not None:
+            return {
+                "ok": True,
+                "contentRevision": canonical.content_revision,
+                "operationalRevision": canonical.operational_revision,
+                "hitboxReview": {
+                    "approved": req.approved,
+                    "current": req.approved,
+                    "contentRevision": canonical.content_revision,
+                },
+            }
         with S._session_lock:
             review = S.set_hitbox_review(session_id, req.approved)
+    except RevisionConflictError as error:
+        raise _content_revision_conflict(error, ["hitboxReview"]) from error
     except (OSError, ValueError, json.JSONDecodeError) as error:
         raise HTTPException(422, detail={"error": str(error)}) from error
     return {
@@ -2051,6 +2087,22 @@ def save_hitboxes(session_id: str, req: SaveHitboxesRequest):
     _validate_session_id(session_id)
     if not S.session_dir(session_id).exists():
         raise HTTPException(404, detail={"error": "Session not found"})
+    try:
+        canonical = S.save_canonical_hitboxes_if_present(
+            session_id,
+            req.hitboxes,
+            expected_content_revision=req.expectedContentRevision,
+        )
+    except RevisionConflictError as error:
+        raise _content_revision_conflict(error, ["hitboxes"]) from error
+    except (OSError, ValueError, json.JSONDecodeError) as error:
+        raise HTTPException(422, detail={"error": str(error)}) from error
+    if canonical is not None:
+        return {
+            "ok": True,
+            "contentRevision": canonical.content_revision,
+            "operationalRevision": canonical.operational_revision,
+        }
     S.save_hitboxes(session_id, req.hitboxes)
     return Response(status_code=204)
 
