@@ -4762,14 +4762,21 @@ def _run_retry_failed_dogs_job(job: JobRecord, store: JobStore) -> dict[str, Any
             # requeue and re-emit completion so the event stream and progress stay
             # coherent without re-billing (R3).
             prior = child.result if isinstance(child.result, dict) else {}
-            store.append_event(job.id, "dog_complete", data={
+            prior_disposition = prior.get("disposition")
+            event_type = "dog_stale" if prior_disposition == "needs_review" else "dog_complete"
+            store.append_event(job.id, event_type, data={
                 "dogIndex": dog_index,
-                "status": "done",
+                "birdId": child.metadata.get("birdId"),
+                "status": "completed_stale" if prior_disposition == "needs_review" else "done",
+                "disposition": prior_disposition,
                 "file": prior.get("file"),
                 "variantIndex": prior.get("variantIndex"),
                 "passIndex": 0,
             })
-            succeeded += 1
+            if prior_disposition == "needs_review":
+                stale += 1
+            else:
+                succeeded += 1
             continue
         bird_input_data = child.metadata.get("birdInput") if child is not None else None
         if isinstance(bird_input_data, dict):
@@ -4787,11 +4794,8 @@ def _run_retry_failed_dogs_job(job: JobRecord, store: JobStore) -> dict[str, Any
                 if child is not None:
                     child_jobs[dog_index] = store.transition_job(
                         child.id,
-                        status="failed_terminal",
+                        status="succeeded",
                         stage="completed_stale",
-                        retryable=False,
-                        error_code=code,
-                        error_message="Generation input changed before provider submission.",
                         result={
                             "dogIndex": dog_index,
                             "birdId": captured.bird_id,
@@ -4806,7 +4810,6 @@ def _run_retry_failed_dogs_job(job: JobRecord, store: JobStore) -> dict[str, Any
                     "disposition": "needs_review",
                     "reason": code,
                 })
-                failed += 1
                 stale += 1
                 continue
         S.update_dog_status(session_id, dog_index, "generating")
@@ -4911,6 +4914,33 @@ def _run_retry_failed_dogs_job(job: JobRecord, store: JobStore) -> dict[str, Any
                 "passIndex": 0,
             })
             succeeded += 1
+        except HTTPException as exc:
+            detail = exc.detail if isinstance(exc.detail, dict) else {}
+            code = str(detail.get("code") or "generation_input_changed")
+            if exc.status_code != 409:
+                raise
+            artifact_root = S.LEVELS_DIR / session_id / ".canonical" / "job-artifacts" / job.id
+            if child is not None:
+                child_jobs[dog_index] = store.transition_job(
+                    child.id,
+                    status="succeeded",
+                    stage="completed_stale",
+                    result={
+                        "dogIndex": dog_index,
+                        "birdId": child.metadata.get("birdId"),
+                        "disposition": "needs_review",
+                        "staleReason": code,
+                        "artifactRoot": str(artifact_root),
+                    },
+                )
+            store.append_event(job.id, "dog_stale", data={
+                "dogIndex": dog_index,
+                "birdId": child.metadata.get("birdId") if child is not None else None,
+                "status": "completed_stale",
+                "disposition": "needs_review",
+                "reason": code,
+            })
+            stale += 1
         except InpaintError as exc:
             error_message = _sanitized_error(exc.cause)
             S.update_dog_status(session_id, dog_index, "error")

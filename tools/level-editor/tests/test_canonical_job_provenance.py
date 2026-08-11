@@ -195,3 +195,38 @@ def test_unattached_sprite_promotes_only_while_target_input_is_current(isolated_
     assert rejected is None
     assert disposition == "bird_input_changed"
     assert store.read().snapshot["birds"][0]["activeGeneration"]["generationId"] == "job:j1"
+
+
+def test_post_provider_revision_conflict_is_retained_and_never_resubmitted(isolated_session, monkeypatch):
+    from fastapi import HTTPException
+    from levelbuilder.api import inpaint
+    from levelbuilder.api.inpaint import RetryFailedDogsJobRequest
+
+    _store, pointer = _canonical_session(isolated_session, "canonical_job_post_provider_stale")
+    job = inpaint._start_retry_failed_dogs_job_record(
+        "canonical_job_post_provider_stale",
+        RetryFailedDogsJobRequest(
+            birdIds=["bird_one"],
+            prompt="regenerate bird",
+            inpaintModel="test/model",
+            cropBoxesByBirdId={"bird_one": (1, 2, 30, 40)},
+            expectedContentRevision=pointer.content_revision,
+        ),
+    )
+    submissions = []
+
+    def provider_then_conflict(*_args, **_kwargs):
+        submissions.append("submitted")
+        raise HTTPException(409, detail={"code": "bird_input_changed"})
+
+    monkeypatch.setattr(inpaint, "_run_single_dog_regen", provider_then_conflict)
+
+    first = inpaint._run_retry_failed_dogs_job(job, inpaint.JOB_STORE)
+    second = inpaint._run_retry_failed_dogs_job(job, inpaint.JOB_STORE)
+
+    assert submissions == ["submitted"]
+    assert first["stale"] == second["stale"] == 1
+    child = inpaint.JOB_STORE.list_child_jobs(job.id)[0]
+    assert child.status == "succeeded"
+    assert child.stage == "completed_stale"
+    assert child.result["disposition"] == "needs_review"
