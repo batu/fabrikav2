@@ -2,6 +2,7 @@ import type { LevelDef, Side } from '../marble-board/types';
 import {
   LEVEL_TOTAL,
   TEACH_PINS,
+  effectiveTargetFor,
   lastWavePreferenceFor,
   openerSpreadFor,
   slotFor,
@@ -59,6 +60,7 @@ export interface CycleProgression {
   readonly difficultyOffsets: readonly number[];
   readonly maximumOffset: number;
   readonly affectedRoles: readonly Slot[];
+  readonly roleCeilings: Readonly<Record<Slot, number>>;
   /** The shipped first cycle replaces the later cycles' ramp opening. */
   readonly firstCycleOpening: readonly BaseCycleSlot[];
 }
@@ -146,32 +148,49 @@ function debutAt(levelId: number): Feature | null {
   return (Object.entries(TEACH_PINS).find(([, id]) => id === levelId)?.[0] as Feature | undefined) ?? null;
 }
 
-function exactRange(value: number): DifficultyRange { return { min: value, max: value }; }
+/** The shipped bake accepts candidates within 1.5 points of the target. */
+function shippedAcceptanceRange(value: number): DifficultyRange {
+  return { min: Math.max(1, value - 1.5), max: Math.min(20, value + 1.5) };
+}
 
-function cycleSlot(levelId: number, index: number): BaseCycleSlot {
+function cycleSlot(levelId: number, index: number, effective: boolean = false): BaseCycleSlot {
   const role = slotFor(levelId) as Exclude<Slot, 'onboarding'>;
   return {
     index,
     role,
-    targetRange: exactRange(targetFor(levelId)),
+    targetRange: shippedAcceptanceRange(effective ? effectiveTargetFor(levelId) : targetFor(levelId)),
     progression: role === 'band' || role === 'spike' ? 'creeping' : role === 'climax' ? 'alternating' : 'fixed',
   };
+}
+
+function baseCycleSourceLevel(index: number): number {
+  // The shipped first repetition has a special three-slot opening. The
+  // remaining positions are the uncrept canonical values used by later cycles.
+  if (index < 3) return 31 + index;
+  // Level 17 is an orange spotlight; the corresponding fixed recovery at 36
+  // supplies the unspotlighted Base Cycle value.
+  return index === 5 ? 36 : 12 + index;
 }
 
 export function createDefaultDifficultyDraft(): DifficultyDraft {
   const onboarding = Array.from({ length: 11 }, (_, index): OnboardingEntry => {
     const levelId = index + 1;
     const mechanicDebut = debutAt(levelId);
-    return { levelId, targetRange: exactRange(targetFor(levelId)), role: 'onboarding', mechanicDebut, spotlight: mechanicDebut !== null };
+    return { levelId, targetRange: shippedAcceptanceRange(targetFor(levelId)), role: 'onboarding', mechanicDebut, spotlight: mechanicDebut !== null };
   });
-  // Level 31 begins the first unmodified repetition of the canonical cycle.
-  const baseCycle = Array.from({ length: 19 }, (_, index) => cycleSlot(31 + index, index));
+  const baseCycle = Array.from({ length: 19 }, (_, index) => cycleSlot(baseCycleSourceLevel(index), index, true));
   const firstCycleOpening = Array.from({ length: 3 }, (_, index) => cycleSlot(12 + index, index));
   const roleOrder: readonly Slot[] = ['onboarding', 'ramp', 'band', 'spike', 'recover', 'relax', 'climax'];
   const authored: AuthoredDifficultyInputs = {
     onboarding,
     baseCycle,
-    progression: { difficultyOffsets: [0, 1, 2, 3, 3], maximumOffset: 3, affectedRoles: ['band', 'spike'], firstCycleOpening },
+    progression: {
+      difficultyOffsets: [0, 1, 2, 3, 3],
+      maximumOffset: 3,
+      affectedRoles: ['band', 'spike'],
+      roleCeilings: { onboarding: 20, ramp: 20, band: 17.5, spike: 17, recover: 20, relax: 20, climax: 18.5 },
+      firstCycleOpening,
+    },
     mappings: {
       marbleCount: mapping(MARBLE_VALUES),
       boardArea: mapping([16, 20, 36, 40, 56, 80, 108, 130, 143]),
@@ -220,10 +239,34 @@ export function parseDifficultyDraft(input: unknown): DifficultyDraft {
     if (entry.index !== index) throw new TypeError('Base Cycle slot identities must be sequential.');
     assertRange(entry.targetRange, `$.authored.baseCycle[${index}].targetRange`);
   });
+  const roles = new Set<Slot>(['onboarding', 'ramp', 'band', 'spike', 'recover', 'relax', 'climax']);
+  assertPlainRecord(input.authored.progression, '$.authored.progression');
+  assertArray(input.authored.progression.difficultyOffsets, '$.authored.progression.difficultyOffsets');
+  if (input.authored.progression.difficultyOffsets.length === 0) throw new TypeError('$.authored.progression.difficultyOffsets must not be empty.');
+  input.authored.progression.difficultyOffsets.forEach((value, index) => assertFiniteInRange(value, 0, 20, `$.authored.progression.difficultyOffsets[${index}]`));
+  assertFiniteInRange(input.authored.progression.maximumOffset, 0, 20, '$.authored.progression.maximumOffset');
+  assertArray(input.authored.progression.affectedRoles, '$.authored.progression.affectedRoles');
+  if (input.authored.progression.affectedRoles.some((role) => !roles.has(role as Slot))) throw new TypeError('$.authored.progression.affectedRoles contains an invalid role.');
+  assertPlainRecord(input.authored.progression.roleCeilings, '$.authored.progression.roleCeilings');
+  for (const role of roles) assertFiniteInRange(input.authored.progression.roleCeilings[role], 1, 20, `$.authored.progression.roleCeilings.${role}`);
+  assertArrayLength(input.authored.progression.firstCycleOpening, 3, '$.authored.progression.firstCycleOpening');
+  input.authored.progression.firstCycleOpening.forEach((entry, index) => {
+    assertPlainRecord(entry, `$.authored.progression.firstCycleOpening[${index}]`);
+    assertRange(entry.targetRange, `$.authored.progression.firstCycleOpening[${index}].targetRange`);
+  });
   assertPlainRecord(input.authored.mappings, '$.authored.mappings');
   for (const name of ['marbleCount', 'boardArea', 'colorCount', 'openingGenerosity', 'solverWaveDepth']) {
     assertMapping(input.authored.mappings[name], `$.authored.mappings.${name}`);
   }
+  assertArrayLength(input.authored.roleRules, roles.size, '$.authored.roleRules');
+  const ruleRoles = new Set<unknown>();
+  input.authored.roleRules.forEach((rule, index) => {
+    assertPlainRecord(rule, `$.authored.roleRules[${index}]`);
+    if (!roles.has(rule.role as Slot) || ruleRoles.has(rule.role)) throw new TypeError('Role rules must contain every role exactly once.');
+    ruleRoles.add(rule.role);
+    if (typeof rule.spreadOpeningRoutes !== 'boolean') throw new TypeError(`$.authored.roleRules[${index}].spreadOpeningRoutes must be boolean.`);
+    if (rule.finish !== 'cascade' && rule.finish !== 'thin') throw new TypeError(`$.authored.roleRules[${index}].finish is invalid.`);
+  });
   assertArrayLength(input.levels, LEVEL_TOTAL, '$.levels');
   const identities = new Set<number>();
   input.levels.forEach((level, index) => {

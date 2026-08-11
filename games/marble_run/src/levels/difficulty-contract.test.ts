@@ -20,6 +20,7 @@ const INVALID_DRAFT_CASES: readonly [string, (draft: DifficultyDraft) => unknown
   ['out-of-range difficulty', (draft) => ({ ...draft, authored: { ...draft.authored, onboarding: [{ ...draft.authored.onboarding[0], targetRange: { min: 0, max: 1 } }, ...draft.authored.onboarding.slice(1)] } })],
   ['malformed mapping', (draft) => ({ ...draft, authored: { ...draft.authored, mappings: { ...draft.authored.mappings, marbleCount: [{ difficulty: 2, value: 7 }, { difficulty: 1, value: 6 }] } } })],
   ['invalid override reference', (draft) => ({ ...draft, overrides: [{ levelId: 111, replaces: ['targetRange'], values: { targetRange: { min: 1, max: 2 } } }] })],
+  ['invalid role ceiling', (draft) => ({ ...draft, authored: { ...draft.authored, progression: { ...draft.authored.progression, roleCeilings: { ...draft.authored.progression.roleCeilings, spike: 0 } } } })],
 ];
 
 describe('difficulty contract', () => {
@@ -34,6 +35,10 @@ describe('difficulty contract', () => {
     expect(draft.locks).toEqual([]);
     expect(draft.overrides).toEqual([]);
     expect(draft.levels.every(({ seed }) => seed.provenance === 'unknown')).toBe(true);
+    expect(draft.authored.onboarding[0]!.targetRange).toEqual({ min: 1, max: 2.5 });
+    expect(draft.authored.baseCycle[0]!.targetRange).toEqual({ min: 3.5, max: 6.5 });
+    expect(draft.authored.baseCycle[3]!.targetRange).toEqual({ min: 9.5, max: 12.5 });
+    expect(draft.authored.baseCycle[18]!.targetRange).toEqual({ min: 17, max: 20 });
   });
 
   it('fingerprints exact shipped source bytes independently of derived evidence', async () => {

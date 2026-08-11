@@ -4,6 +4,7 @@ import { createDefaultDifficultyDraft, fingerprintCanonicalDifficultyJson, SHIPP
 import { canonicalizeExportCandidate, validateExportCandidate } from './difficulty-validation';
 import { scoreLevel } from '../marble-board/score';
 import { analyzeDifficulty } from '../marble-board/solver';
+import { expandDifficultyDraft } from './difficulty-expand';
 
 function candidate(): ExportCandidate {
   const draft = createDefaultDifficultyDraft();
@@ -13,10 +14,11 @@ function candidate(): ExportCandidate {
     baseCycle: draft.authored.baseCycle.map((slot) => ({ ...slot, targetRange: { min: 1, max: 20 } })),
     progression: { ...draft.authored.progression, difficultyOffsets: [0, 0, 0, 0, 0], maximumOffset: 0, firstCycleOpening: draft.authored.progression.firstCycleOpening.map((slot) => ({ ...slot, targetRange: { min: 1, max: 20 } })) },
   };
+  const expanded = expandDifficultyDraft({ ...draft, authored });
   const evidence: GeneratedEvidence[] = LEVELS.map((level) => {
     const report = analyzeDifficulty(level);
     const measuredDifficulty = scoreLevel(level);
-    return { levelId: level.id, source: 'derived', solvable: true, targetRange: { min: 1, max: 20 }, measuredDifficulty, marbleCount: report.marbles, solverWaves: report.waves, initiallyMovableShare: report.initialMovableFraction, seed: { provenance: 'unknown' }, overrideState: 'inherited' };
+    return { levelId: level.id, source: 'derived', solvable: true, targetRange: expanded[level.id - 1]!.targetRange, measuredDifficulty, marbleCount: report.marbles, solverWaves: report.waves, initiallyMovableShare: report.initialMovableFraction, seed: { provenance: 'unknown' }, overrideState: 'inherited' };
   });
   return { version: 1, reviewedDraftFingerprint: 'a'.repeat(64), baseline: SHIPPED_BASELINE, authored, levels: draft.levels, boards: LEVELS, evidence, locks: [], overrides: [], validation: { valid: true, issues: [] }, changedLevelIds: [] };
 }

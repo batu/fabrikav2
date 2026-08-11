@@ -1,11 +1,27 @@
 import { describe, expect, it } from 'vitest';
 import { createDefaultDifficultyDraft } from './difficulty-contract';
+import { effectiveTargetFor } from './funnel-schedule';
 import { affectedLevelIds, expandDifficultyDraft } from './difficulty-expand';
 
 type Mutable<T> = { -readonly [K in keyof T]: T[K] extends readonly (infer U)[] ? Mutable<U>[] : T[K] extends object ? Mutable<T[K]> : T[K] };
 const clone = <T>(value: T): Mutable<T> => structuredClone(value) as Mutable<T>;
 
 describe('difficulty expansion', () => {
+  it('reproduces the shipped target windows across every cycle and partial tail', () => {
+    const draft = createDefaultDifficultyDraft();
+    const expanded = expandDifficultyDraft(draft);
+    for (const row of expanded) {
+      const target = effectiveTargetFor(row.id);
+      expect(row.targetRange, `level ${row.id}`).toEqual({
+        min: Math.max(1, target - 1.5),
+        max: Math.min(20, target + 1.5),
+      });
+    }
+    expect(expanded[14]!.targetRange).toEqual({ min: 9.5, max: 12.5 });
+    expect(expanded[29]!.targetRange).toEqual({ min: 17, max: 20 });
+    expect(expanded[48]!.targetRange).toEqual({ min: 17, max: 20 });
+    expect(expanded[67]!.targetRange).toEqual({ min: 17, max: 20 });
+  });
   it('propagates a base slot through cycle offsets but excludes locked and overridden occurrences', () => {
     const before = clone(createDefaultDifficultyDraft());
     const linked = before.levels.filter((level) => level.baseCycleSlot === 3).map((level) => level.id);

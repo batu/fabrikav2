@@ -49,12 +49,15 @@ function mechanicPins(draft: DifficultyDraft): Readonly<Record<Feature, number>>
 
 function offsetFor(draft: DifficultyDraft, cycle: number, role: Slot, progression: string): number {
   const rule = draft.authored.progression;
+  if (progression === 'alternating') return cycle % 2;
   if (progression === 'fixed' || !rule.affectedRoles.includes(role)) return 0;
   return Math.min(rule.maximumOffset, rule.difficultyOffsets[Math.min(cycle, rule.difficultyOffsets.length - 1)] ?? 0);
 }
 
-function shifted(range: DifficultyRange, offset: number): DifficultyRange {
-  return { min: Math.min(20, range.min + offset), max: Math.min(20, range.max + offset) };
+function shifted(range: DifficultyRange, offset: number, ceiling: number): DifficultyRange {
+  const halfWidth = (range.max - range.min) / 2;
+  const center = Math.min(ceiling, (range.min + range.max) / 2 + offset);
+  return { min: Math.max(1, center - halfWidth), max: Math.min(20, center + halfWidth) };
 }
 
 function interpolate(anchors: readonly MappingAnchor[], difficulty: number): number {
@@ -94,12 +97,17 @@ export function expandDifficultyDraft(draft: DifficultyDraft): readonly Expanded
       : draft.authored.baseCycle[identity.baseCycleSlot]!;
     const role = onboarding?.role ?? authoredSlot!.role;
     const offset = onboarding === undefined ? offsetFor(draft, cycle!, role, authoredSlot!.progression) : 0;
-    const inheritedRange = shifted(onboarding?.targetRange ?? authoredSlot!.targetRange, offset);
+    const spotlightMechanic = FEATURES.find((feature) => pins[feature] === id) ?? null;
+    const spotlightActive = spotlightMechanic !== null && onboarding?.spotlight !== false;
+    const inheritedRange = shifted(
+      onboarding?.targetRange ?? authoredSlot!.targetRange,
+      offset - (spotlightActive ? 1 : 0),
+      draft.authored.progression.roleCeilings[role],
+    );
     const override = overrideFor(draft, id);
     const targetRange = override?.replaces.includes('targetRange')
       ? override.values.targetRange as DifficultyRange
       : inheritedRange;
-    const spotlightMechanic = FEATURES.find((feature) => pins[feature] === id) ?? null;
     const seed = override?.replaces.includes('seed')
       ? { provenance: 'pinned', seed: override.values.seed as number, source: 'level override', sourceHash: draft.baseline.aggregate } as const
       : identity.seed;
@@ -111,7 +119,7 @@ export function expandDifficultyDraft(draft: DifficultyDraft): readonly Expanded
       cycleOffset: offset,
       targetRange,
       availableMechanics: FEATURES.filter((feature) => id >= pins[feature]),
-      spotlightMechanic: onboarding?.spotlight === false ? null : spotlightMechanic,
+      spotlightMechanic: spotlightActive ? spotlightMechanic : null,
       mappings: draft.authored.mappings,
       resolvedMappings: resolveMappings(draft.authored.mappings, targetRange),
       roleRule: draft.authored.roleRules.find((rule) => rule.role === role)!,
