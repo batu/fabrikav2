@@ -21,6 +21,16 @@ interface LevelDogJson {
 }
 interface LevelJson { width: number; height: number; dogs: LevelDogJson[] }
 
+interface CleanupFixture {
+  name: string;
+  width: number;
+  height: number;
+  target: string;
+  protected: string[];
+  sites: Array<{ id: string; x: number; y: number; cleanup: [number, number, number, number] }>;
+  polygons: number[][][];
+}
+
 function siteFor(dog: LevelDogJson): CleanupSite {
   const c = dog.sprite?.cleanup;
   return {
@@ -43,6 +53,28 @@ function shippedLevels(): Array<{ id: string; level: LevelJson }> {
 }
 
 describe('restoration cleanup geometry', () => {
+  it('matches the shared editor/runtime cleanup fixtures', () => {
+    const fixturePath = join(gameRoot, '..', '..', 'tools', 'level-editor', 'fixtures', 'cleanup_geometry_parity.json');
+    const fixtures = JSON.parse(readFileSync(fixturePath, 'utf8')) as { cases: CleanupFixture[] };
+    for (const fixture of fixtures.cases) {
+      const sites: CleanupSite[] = fixture.sites.map((site) => ({
+        id: site.id,
+        x: site.x,
+        y: site.y,
+        cleanup: {
+          left: site.cleanup[0], top: site.cleanup[1], right: site.cleanup[2], bottom: site.cleanup[3],
+        },
+      }));
+      const target = sites.find((site) => site.id === fixture.target);
+      expect(target, fixture.name).toBeDefined();
+      const protectedIds = new Set(fixture.protected);
+      const actual = cleanupPolygonsForSite(
+        target!, sites, fixture.width, fixture.height, (site) => protectedIds.has(site.id),
+      ).map((polygon) => polygon.map((point) => [point.x, point.y]));
+      expect(actual, fixture.name).toEqual(fixture.polygons);
+    }
+  });
+
   it('keeps the picked site inside its own cleared area when a neighbour contests it', () => {
     // Two birds 100px apart with heavily overlapping padded areas: the old
     // whole-rect subtraction surrendered the entire overlap and could clear

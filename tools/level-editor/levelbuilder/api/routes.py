@@ -45,6 +45,7 @@ from . import session as S
 from . import smart_hitboxes as SmartHitboxes
 from .integrity_audit import audit_level_inventory
 from .canonical_bird_contract import RevisionConflictError
+from .cleanup_geometry import CleanupSite, Rect, cleanup_polygons_for_site
 from .job_store import JobArtifact, JobEvent, JobRecord, JobStore, is_failed_terminal_status
 from .job_worker import JobWorker, RetryableJobError, TerminalJobError, get_default_job_worker
 from .remote_config_publisher import DisabledRemoteConfigPublisher
@@ -2710,7 +2711,34 @@ def pickup_preview(session_id: str):
     selected clean bg otherwise."""
     _validate_session_id(session_id)
     sdir = S.session_dir(session_id)
+    canonical = S.read_canonical_session(session_id)
+    canonical_snapshot = canonical.snapshot if canonical.pointer is not None else None
     color_path = sdir / "color.png"
+    restore_path: Path | None = None
+    sites: list[CleanupSite] = []
+    level_width = level_height = 0
+    if canonical_snapshot is not None:
+        scene_ref = canonical_snapshot["assets"]["scene"]["path"]
+        restore_ref = canonical_snapshot["restore"]["asset"]["path"]
+        for value, label in ((scene_ref, "scene"), (restore_ref, "restore")):
+            resolved = S._session_relative_asset_path(session_id, value)
+            if resolved is None:
+                raise HTTPException(409, detail={"error": f"canonical {label} path leaves the session"})
+            if label == "scene":
+                color_path = resolved[1]
+            else:
+                restore_path = resolved[1]
+        sites = [CleanupSite(
+            bird_id=bird["birdId"],
+            x=float(bird["hitbox"]["x"]),
+            y=float(bird["hitbox"]["y"]),
+            cleanup=Rect(
+                float(bird["cleanup"]["x"]),
+                float(bird["cleanup"]["y"]),
+                float(bird["cleanup"]["x"] + bird["cleanup"]["width"]),
+                float(bird["cleanup"]["y"] + bird["cleanup"]["height"]),
+            ),
+        ) for bird in canonical_snapshot["birds"]]
     if not color_path.exists():
         raise HTTPException(404, detail={"error": "no color.png"})
     level_path = sdir / "level.json"
@@ -2723,20 +2751,46 @@ def pickup_preview(session_id: str):
                 break
             except (OSError, ValueError):
                 continue
-    if lj is None:
+    if lj is None and canonical_snapshot is None:
         raise HTTPException(409, detail={"error": "no level.json with cleanup metadata"})
-    try:
-        current_hitboxes = json.loads((sdir / "hitboxes.json").read_text())
-    except (OSError, ValueError):
-        current_hitboxes = []
-    hitboxes_by_id = {
-        hitbox.get("id"): hitbox
-        for hitbox in current_hitboxes
-        if isinstance(hitbox, dict) and hitbox.get("id")
-    }
     with Image.open(color_path) as _c:
         color = _c.convert("RGB")
-    restore_path = S.GAME_PUBLIC_LEVELS / session_id / "bg_00.webp"
+    if canonical_snapshot is not None:
+        level_width, level_height = color.size
+    else:
+        try:
+            current_hitboxes = json.loads((sdir / "hitboxes.json").read_text())
+        except (OSError, ValueError):
+            current_hitboxes = []
+        hitboxes_by_id = {
+            hitbox.get("id"): hitbox
+            for hitbox in current_hitboxes
+            if isinstance(hitbox, dict) and hitbox.get("id")
+        }
+        level_width = int(lj.get("width") or color.width)
+        level_height = int(lj.get("height") or color.height)
+        for dog_index, dog in enumerate(lj.get("dogs") or []):
+            sprite = dog.get("sprite") if isinstance(dog, dict) else None
+            cleanup = sprite.get("cleanup") if isinstance(sprite, dict) else None
+            if not isinstance(cleanup, dict):
+                continue
+            hitbox = hitboxes_by_id.get(dog.get("id"))
+            if hitbox is None and dog_index < len(current_hitboxes):
+                hitbox = current_hitboxes[dog_index]
+            dx = int(hitbox["x"]) - int(dog["x"]) if isinstance(hitbox, dict) else 0
+            dy = int(hitbox["y"]) - int(dog["y"]) if isinstance(hitbox, dict) else 0
+            sites.append(CleanupSite(
+                bird_id=str(dog.get("id") or f"legacy_{dog_index}"),
+                x=float(hitbox.get("x", dog["x"])) if isinstance(hitbox, dict) else float(dog["x"]),
+                y=float(hitbox.get("y", dog["y"])) if isinstance(hitbox, dict) else float(dog["y"]),
+                cleanup=Rect(
+                    float(cleanup["x"] + dx), float(cleanup["y"] + dy),
+                    float(cleanup["x"] + dx + cleanup["width"]),
+                    float(cleanup["y"] + dy + cleanup["height"]),
+                ),
+            ))
+    if restore_path is None:
+        restore_path = S.GAME_PUBLIC_LEVELS / session_id / "bg_00.webp"
     if not restore_path.exists():
         raw = S.load_session_raw(session_id) or {}
         selected = raw.get("selected_bg") or 0
@@ -2746,32 +2800,32 @@ def pickup_preview(session_id: str):
     with Image.open(restore_path) as _b:
         restore = _b.convert("RGB")
         if restore.size != color.size:
+            if canonical_snapshot is not None:
+                restore.close()
+                color.close()
+                raise HTTPException(409, detail={
+                    "error": "canonical restore dimensions do not match the scene",
+                    "code": "restore_dimensions_mismatch",
+                })
             restore = restore.resize(color.size, Image.LANCZOS)
-        scale_x = color.width / (lj.get("width") or color.width)
-        scale_y = color.height / (lj.get("height") or color.height)
+        scale_x = color.width / level_width
+        scale_y = color.height / level_height
         out = color.copy()
         n = 0
-        for dog_index, dog in enumerate(lj.get("dogs") or []):
-            sprite = dog.get("sprite") if isinstance(dog, dict) else None
-            cl = sprite.get("cleanup") if isinstance(sprite, dict) else None
-            if not isinstance(cl, dict):
+        for site_index, site in enumerate(sites):
+            protected_ids = {other.bird_id for other in sites[site_index + 1:]}
+            polygons = cleanup_polygons_for_site(
+                site, sites, level_width, level_height,
+                lambda other: other.bird_id in protected_ids,
+            )
+            if not polygons:
                 continue
-            hitbox = hitboxes_by_id.get(dog.get("id"))
-            if hitbox is None and dog_index < len(current_hitboxes):
-                hitbox = current_hitboxes[dog_index]
-            dx = dy = 0
-            if isinstance(hitbox, dict) and "x" in dog and "y" in dog:
-                dx = int(hitbox["x"]) - int(dog["x"])
-                dy = int(hitbox["y"]) - int(dog["y"])
-            cleanup_x = int(cl["x"]) + dx
-            cleanup_y = int(cl["y"]) + dy
-            x0 = max(0, int(cleanup_x * scale_x))
-            y0 = max(0, int(cleanup_y * scale_y))
-            x1 = min(out.width, int((cleanup_x + cl["width"]) * scale_x))
-            y1 = min(out.height, int((cleanup_y + cl["height"]) * scale_y))
-            if x1 <= x0 or y1 <= y0:
-                continue
-            out.paste(restore.crop((x0, y0, x1, y1)), (x0, y0))
+            mask = Image.new("L", out.size, 0)
+            draw = ImageDraw.Draw(mask)
+            for polygon in polygons:
+                draw.polygon([(point.x * scale_x, point.y * scale_y) for point in polygon], fill=255)
+            out.paste(restore, (0, 0), mask)
+            mask.close()
             n += 1
     buf = io.BytesIO()
     out.save(buf, "JPEG", quality=88)
