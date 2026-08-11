@@ -10,6 +10,7 @@ from levelbuilder.cli.main import (
     cmd_auto_place_sprites,
     cmd_bless_cutouts,
     cmd_bless_hitboxes,
+    cmd_integrity_audit,
     cmd_place_sprite,
     cmd_sprite_candidates,
 )
@@ -77,6 +78,15 @@ def test_sprite_candidate_cli_uses_shared_api(capsys) -> None:
         }),
     ]
     assert '"ok": true' in capsys.readouterr().out
+
+
+def test_integrity_audit_cli_uses_shared_api(capsys) -> None:
+    client = _Client()
+
+    cmd_integrity_audit(client, argparse.Namespace(json=True))
+
+    assert client.calls == [("GET", "/api/artifact-integrity-audit", None)]
+    assert '"candidates": []' in capsys.readouterr().out
 
 
 def test_two_stage_review_cli_uses_shared_api(capsys) -> None:

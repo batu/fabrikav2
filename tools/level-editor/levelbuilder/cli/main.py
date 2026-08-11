@@ -32,6 +32,7 @@ WIZARD_OPERATIONS: dict[str, str] = {
     "assemble-recipe-prompts": "create",
     "create-session": "create",
     "list-sessions": "sessions",
+    "artifact-integrity-audit": "integrity-audit",
     "list-sprite-candidates": "sprite-candidates",
     "manual-sprite-placement": "place-sprite",
     "human-confirm-sprite": "confirm-sprite",
@@ -430,6 +431,10 @@ def cmd_config(client: Client, args: argparse.Namespace) -> None:
 
 def cmd_sessions(client: Client, args: argparse.Namespace) -> None:
     _emit(args, client.get("/api/sessions"))
+
+
+def cmd_integrity_audit(client: Client, args: argparse.Namespace) -> None:
+    _emit(args, client.get("/api/artifact-integrity-audit"))
 
 
 def cmd_session(client: Client, args: argparse.Namespace) -> None:
@@ -1653,6 +1658,7 @@ def build_parser() -> argparse.ArgumentParser:
     verb("status", cmd_status)
     verb("config", cmd_config)
     verb("sessions", cmd_sessions)
+    verb("integrity-audit", cmd_integrity_audit)
     verb("session", cmd_session).add_argument("session_id")
 
     p = verb("create", cmd_create)

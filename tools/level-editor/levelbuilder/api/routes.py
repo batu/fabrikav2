@@ -43,6 +43,7 @@ from . import sequence_activation as SequenceActivation
 from . import sequence_workflow as SequenceWorkflow
 from . import session as S
 from . import smart_hitboxes as SmartHitboxes
+from .integrity_audit import audit_level_inventory
 from .job_store import JobArtifact, JobEvent, JobRecord, JobStore, is_failed_terminal_status
 from .job_worker import JobWorker, RetryableJobError, TerminalJobError, get_default_job_worker
 from .remote_config_publisher import DisabledRemoteConfigPublisher
@@ -688,6 +689,21 @@ def _load_templates_for_config() -> list[dict]:
 
     # LEVELS_DIR sits inside the workspace; templates.json lives beside it.
     return load_templates(S.LEVELS_DIR.parent)
+
+
+@router.get("/artifact-integrity-audit")
+def get_artifact_integrity_audit():
+    """Inventory source and derived levels without hydrating or repairing them."""
+    sequence = SequenceWorkflow.get_sequence_editor_state()
+    live_ids = sequence.get("liveSequence", {}).get("levelIds", [])
+    draft_ids = sequence.get("draft", {}).get("levelIds", [])
+    lineup_ids = list(dict.fromkeys([*live_ids, *draft_ids]))
+    return audit_level_inventory(
+        source_root=S.LEVELS_DIR,
+        public_root=S.GAME_PUBLIC_LEVELS,
+        lineup_ids=lineup_ids,
+        archived_ids=S.archived_session_ids(),
+    ).to_dict()
 
 
 @router.get("/config")

@@ -118,6 +118,15 @@ def _load_archive_ledger() -> dict[str, dict[str, Any]]:
     return sessions if isinstance(sessions, dict) else {}
 
 
+def archived_session_ids() -> set[str]:
+    """Return persisted archived session ids without hydrating any session."""
+    return {
+        session_id
+        for session_id, state in _load_archive_ledger().items()
+        if isinstance(state, dict) and state.get("archived") is True
+    }
+
+
 def _save_archive_ledger(sessions: dict[str, dict[str, Any]]) -> None:
     ARCHIVE_LEDGER_PATH.parent.mkdir(parents=True, exist_ok=True)
     tmp = ARCHIVE_LEDGER_PATH.with_suffix(f".json.tmp-{os.getpid()}-{threading.get_ident()}")
