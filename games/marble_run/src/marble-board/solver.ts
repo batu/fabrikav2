@@ -79,96 +79,108 @@ export function solveLevel(level: LevelDef): SolveResult {
  * required.
  */
 export function isLevelSolvable(level: LevelDef): boolean {
-  const cells = level.cells.map((row) => [...row]);
-  let remaining = 0;
-  for (const row of cells) {
-    for (const ch of row) {
-      if (CHAR_TO_COLOR[ch]) remaining += 1;
-    }
-  }
-
-  while (remaining > 0) {
-    const reachableByColor = new Map<MarbleColor, Set<number>>();
-    const gateMouthsByColor = new Map<MarbleColor, Set<number>>();
-
-    for (const gate of level.gates) {
-      const mouth = gateMouthCell(gate, level.cols, level.rows);
-      const key = mouth.y * level.cols + mouth.x;
-      let mouths = gateMouthsByColor.get(gate.color);
-      if (!mouths) {
-        mouths = new Set<number>();
-        gateMouthsByColor.set(gate.color, mouths);
-      }
-      mouths.add(key);
-
-      if (cells[mouth.y]?.[mouth.x] !== '.') continue;
-      let reachable = reachableByColor.get(gate.color);
-      if (!reachable) {
-        reachable = new Set<number>();
-        reachableByColor.set(gate.color, reachable);
-      }
-      floodEmptyCells(cells, level.cols, level.rows, mouth, reachable);
-    }
-
-    const movable: Cell[] = [];
-    for (let y = 0; y < level.rows; y += 1) {
-      for (let x = 0; x < level.cols; x += 1) {
-        const color = CHAR_TO_COLOR[cells[y]![x]!];
-        if (!color) continue;
-        const key = y * level.cols + x;
-        if (gateMouthsByColor.get(color)?.has(key)) {
-          movable.push({ x, y });
-          continue;
-        }
-        const reachable = reachableByColor.get(color);
-        if (!reachable) continue;
-        if (
-          (y > 0 && reachable.has(key - level.cols)) ||
-          (x + 1 < level.cols && reachable.has(key + 1)) ||
-          (y + 1 < level.rows && reachable.has(key + level.cols)) ||
-          (x > 0 && reachable.has(key - 1))
-        ) {
-          movable.push({ x, y });
-        }
-      }
-    }
-
-    if (movable.length === 0) return false;
-    for (const cell of movable) cells[cell.y]![cell.x] = '.';
-    remaining -= movable.length;
-  }
-
-  return true;
+  return createLevelSolvabilityChecker(level)(level.cells);
 }
 
-function floodEmptyCells(
-  cells: readonly (readonly string[])[],
-  cols: number,
-  rows: number,
-  start: Cell,
-  reachable: Set<number>,
-): void {
-  const startKey = start.y * cols + start.x;
-  if (reachable.has(startKey)) return;
-  reachable.add(startKey);
-  const queue: number[] = [startKey];
+export type LevelSolvabilityChecker = (cells: readonly string[]) => boolean;
 
-  for (let head = 0; head < queue.length; head += 1) {
-    const key = queue[head]!;
-    const x = key % cols;
-    const y = Math.floor(key / cols);
-    const visit = (nx: number, ny: number): void => {
-      if (nx < 0 || ny < 0 || nx >= cols || ny >= rows || cells[ny]![nx] !== '.') return;
-      const nextKey = ny * cols + nx;
-      if (reachable.has(nextKey)) return;
-      reachable.add(nextKey);
-      queue.push(nextKey);
-    };
-    visit(x, y - 1);
-    visit(x + 1, y);
-    visit(x, y + 1);
-    visit(x - 1, y);
+/** Compile immutable board geometry and reuse its numeric scratch buffers. */
+export function createLevelSolvabilityChecker(
+  level: Pick<LevelDef, 'cols' | 'rows' | 'gates'>,
+): LevelSolvabilityChecker {
+  const { cols, rows } = level;
+  const size = cols * rows;
+  const colorCodes = new Map<MarbleColor, number>();
+  const gateMouths: Array<{ readonly code: number; readonly key: number }> = [];
+  const mouthFlags = new Uint8Array((level.gates.length + 1) * size);
+  for (const gate of level.gates) {
+    let code = colorCodes.get(gate.color);
+    if (code === undefined) {
+      code = colorCodes.size + 1;
+      colorCodes.set(gate.color, code);
+    }
+    const mouth = gateMouthCell(gate, cols, rows);
+    const key = mouth.y * cols + mouth.x;
+    gateMouths.push({ code, key });
+    mouthFlags[code * size + key] = 1;
   }
+
+  const grid = new Int8Array(size);
+  const reachable = new Uint8Array((colorCodes.size + 1) * size);
+  const queue = new Int16Array(size);
+  const movable = new Int16Array(size);
+
+  return (cells: readonly string[]): boolean => {
+    let remaining = 0;
+    for (let y = 0; y < rows; y += 1) {
+      const row = cells[y]!;
+      for (let x = 0; x < cols; x += 1) {
+        const key = y * cols + x;
+        const ch = row[x]!;
+        if (ch === '.') {
+          grid[key] = 0;
+          continue;
+        }
+        const color = CHAR_TO_COLOR[ch];
+        if (!color) {
+          grid[key] = -1;
+          continue;
+        }
+        grid[key] = colorCodes.get(color) ?? -2;
+        remaining += 1;
+      }
+    }
+
+    while (remaining > 0) {
+      reachable.fill(0);
+      for (const gate of gateMouths) {
+        if (grid[gate.key] !== 0) continue;
+        const offset = gate.code * size;
+        if (reachable[offset + gate.key] !== 0) continue;
+        let head = 0;
+        let tail = 1;
+        queue[0] = gate.key;
+        reachable[offset + gate.key] = 1;
+        while (head < tail) {
+          const key = queue[head++]!;
+          const x = key % cols;
+          const visit = (next: number): void => {
+            if (grid[next] !== 0 || reachable[offset + next] !== 0) return;
+            reachable[offset + next] = 1;
+            queue[tail++] = next;
+          };
+          if (key >= cols) visit(key - cols);
+          if (x + 1 < cols) visit(key + 1);
+          if (key + cols < size) visit(key + cols);
+          if (x > 0) visit(key - 1);
+        }
+      }
+
+      let movableCount = 0;
+      for (let key = 0; key < size; key += 1) {
+        const code = grid[key]!;
+        if (code <= 0) continue;
+        const offset = code * size;
+        const x = key % cols;
+        if (
+          mouthFlags[offset + key] !== 0 ||
+          (key >= cols && reachable[offset + key - cols] !== 0) ||
+          (x + 1 < cols && reachable[offset + key + 1] !== 0) ||
+          (key + cols < size && reachable[offset + key + cols] !== 0) ||
+          (x > 0 && reachable[offset + key - 1] !== 0)
+        ) {
+          movable[movableCount++] = key;
+        }
+      }
+
+      if (movableCount === 0) return false;
+      for (let index = 0; index < movableCount; index += 1) {
+        grid[movable[index]!] = 0;
+      }
+      remaining -= movableCount;
+    }
+    return true;
+  };
 }
 
 export interface DifficultyReport {

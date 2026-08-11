@@ -5,7 +5,11 @@
  * (seed, params) pair always regenerates the same level.
  */
 import { mulberry32 } from '@fabrikav2/kernel';
-import { isLevelSolvable, solveLevel } from './solver';
+import {
+  createLevelSolvabilityChecker,
+  solveLevel,
+  type LevelSolvabilityChecker,
+} from './solver';
 import type { GateDef, LevelDef, MarbleColor } from './types';
 import { COLOR_TO_CHAR } from './types';
 
@@ -154,13 +158,14 @@ export function generateLevel(params: GenerateParams): LevelDef {
   let bestValid: LevelDef | null = null;
   let bestValidScore = -Infinity;
   let windowEnd = -1;
+  const isSolvable = createLevelSolvabilityChecker(params);
 
   for (let attempt = 0; attempt < attempts; attempt += 1) {
     // Stop at the deadline even when the last candidate was invalid/null.
     if (bestValid && attempt > windowEnd) return bestValid;
     const rand = mulberry32(params.seed + attempt * 7919);
     const cells = params.shape ? [...params.shape] : emptyShape(params.cols, params.rows);
-    const level = tryFill(params, cells, rand);
+    const level = tryFill(params, cells, rand, isSolvable);
     if (!level) continue;
     const solved = solveLevel(level);
     if (!solved.solvable) continue; // paranoia — tryFill guarantees solvable
@@ -222,6 +227,7 @@ function tryFill(
   params: GenerateParams,
   cells: string[],
   rand: () => number,
+  isSolvable: LevelSolvabilityChecker,
 ): LevelDef | null {
   const open: Array<{ x: number; y: number }> = [];
   for (let y = 0; y < params.rows; y += 1) {
@@ -273,7 +279,7 @@ function tryFill(
         const mirror = open[mirrorIdx]!;
         setChar(cells, cell.x, cell.y, COLOR_TO_CHAR[color]);
         setChar(cells, mirror.x, mirror.y, COLOR_TO_CHAR[color]);
-        if (isLevelSolvable(snapshot())) {
+        if (isSolvable(cells)) {
           // Splice the higher index first so the lower stays valid.
           const [hi, lo] = idx > mirrorIdx ? [idx, mirrorIdx] : [mirrorIdx, idx];
           open.splice(hi, 1);
@@ -299,7 +305,7 @@ function tryFill(
     }
 
     setChar(cells, cell.x, cell.y, COLOR_TO_CHAR[color]);
-    if (isLevelSolvable(snapshot())) {
+    if (isSolvable(cells)) {
       open.splice(idx, 1);
       placed += 1;
       stall = 0;

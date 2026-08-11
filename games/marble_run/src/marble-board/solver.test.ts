@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { LEVELS } from '../levels/levels.generated';
 import { generateLevel, type GenerateParams } from './generate';
-import { isLevelSolvable, solveLevel } from './solver';
+import { createLevelSolvabilityChecker, isLevelSolvable, solveLevel } from './solver';
 import type { LevelDef } from './types';
 
 const GENERATED_BASE: GenerateParams = {
@@ -23,6 +23,19 @@ function expectEquivalent(level: LevelDef): void {
 }
 
 describe('isLevelSolvable', () => {
+  it('reuses a compiled checker without retaining prior board state', () => {
+    const contract = {
+      cols: 3,
+      rows: 3,
+      gates: [{ side: 'top', index: 0, color: 'red' }] as const,
+    };
+    const check = createLevelSolvabilityChecker(contract);
+    expect(check(['R..', '...', '...'])).toBe(true);
+    expect(check(['BBB', 'BRB', 'BBB'])).toBe(false);
+    expect(check(['...', '...', '...'])).toBe(true);
+    expect(check(['R..', '...', '...'])).toBe(true);
+  });
+
   it('matches the route-producing solver for all shipped boards', () => {
     for (const level of LEVELS) expectEquivalent(level);
   });
