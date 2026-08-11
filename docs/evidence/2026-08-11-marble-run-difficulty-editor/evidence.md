@@ -28,7 +28,9 @@ The Fabrikav2 editor candidate passes its deterministic generation, browser life
 | game oracle | focused Marble Run bake/contract/expand/validation suite | passed: 35 tests including exact 110-board reproduction |
 | deterministic build | two consecutive production builds and `cmp` | passed: byte-identical manifest, content hash `8f0dc47d510754b4e3ee829eac8ddf20d6265c3f836f2dcb7bc125c9d50c7841` |
 | Portal | `uv run pytest -q` in the isolated Portal worktree | passed: 458 tests; no live activation performed |
-| screenshot | [Journey](assets/journey.png), [Ranges](assets/ranges.png), [Boards](assets/boards.png), [Play preview](assets/play-preview.png), [Export review](assets/export-review.png) | inspected: one visual hierarchy, 110-board overview, playable injected board, and explicit blocked-review state |
+| candidate download | production build review, confirmation, and browser download | passed: 91,090 bytes, 110 boards, 110 evidence rows, no validation issues; filename and file SHA-256 both `d6ef426b3b1e4fccd22816cdae3d90edb953cba7c9745ee70722f42d40d4fc3b` |
+| generation recovery | invalid gate 19 on level 1, then Return to Journey inheritance | passed: [Needs attention](assets/generation-failure.png) appeared while the last valid board remained visible; [recovered](assets/generation-recovered.png) removed the exception after regeneration |
+| screenshot | [Journey](assets/journey.png), [Ranges](assets/ranges.png), [Boards](assets/boards.png), [Play preview](assets/play-preview.png), [ready export](assets/export-ready.png) | inspected: one visual hierarchy, 110-board overview, playable injected board, and complete 110/110 export review |
 
 ## Reviewer Assessments
 
