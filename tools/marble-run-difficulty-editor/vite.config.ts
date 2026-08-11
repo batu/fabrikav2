@@ -4,6 +4,7 @@ import { defineConfig } from 'vitest/config';
 export default defineConfig({
   root: import.meta.dirname,
   base: './',
+  publicDir: '../../games/marble_run/public',
   plugins: [react()],
   build: {
     outDir: 'dist',
@@ -11,5 +12,6 @@ export default defineConfig({
   },
   test: {
     environment: 'happy-dom',
+    include: ['src/**/*.test.{ts,tsx}'],
   },
 });

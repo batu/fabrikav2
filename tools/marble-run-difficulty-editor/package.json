@@ -5,9 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build && node scripts/write-build-manifest.mjs",
     "typecheck": "tsc --noEmit",
-    "test:unit": "vitest run",
+    "test:unit": "vitest run && node --test tests/build-manifest.test.mjs",
+    "test:manifest": "node --test tests/build-manifest.test.mjs",
     "lint": "eslint ."
   },
   "dependencies": {
