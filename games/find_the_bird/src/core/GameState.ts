@@ -971,8 +971,12 @@ export class GameState {
    * (GameScene) treats a persistence failure as best-effort — the achievement path
    * never disrupts attempt memory/analytics — so this catches and returns null.
    */
-  recordDogFound(servedLevelId: string, dogId: string): CommittedAchievementDelta | null {
+  recordDogFound(servedLevelId: string, dogId: string, compatibilitySlot?: string): CommittedAchievementDelta | null {
     if (servedLevelId.length === 0 || dogId.length === 0) return null;
+    if (compatibilitySlot !== undefined && compatibilitySlot !== dogId) {
+      const legacyOccurrenceId = `dog:${servedLevelId}:${compatibilitySlot}`;
+      if (this._achievementRecord.processedOccurrenceIds.includes(legacyOccurrenceId)) return null;
+    }
     const fact: DogFoundFact = {
       kind: 'dog-found',
       occurrenceId: `dog:${servedLevelId}:${dogId}`,

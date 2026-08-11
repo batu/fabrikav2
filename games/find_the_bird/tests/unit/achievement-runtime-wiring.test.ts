@@ -9,7 +9,7 @@ function source(path: string): string {
 describe('achievement runtime wiring contract', () => {
   it('records accepted dog finds before draining their analytics outbox', () => {
     const gameScene = source('src/scenes/GameScene.ts');
-    const record = gameScene.indexOf('gameState.recordDogFound(this.level!.id, dog.id);');
+    const record = gameScene.indexOf('gameState.recordDogFound(this.level!.id, dog.id, dog.compatibilitySlot);');
     const drain = gameScene.indexOf('gameState.drainAnalyticsOutbox();', record);
     expect(record).toBeGreaterThan(-1);
     expect(drain).toBeGreaterThan(record);

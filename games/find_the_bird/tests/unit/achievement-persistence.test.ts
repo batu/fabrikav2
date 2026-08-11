@@ -632,4 +632,15 @@ describe('dog-found (AC3)', () => {
     expect(gs.achievementRecordSnapshot().progress['dogs_25']).toBe(first);
     expect(gs.achievementRecordSnapshot().processedOccurrenceIds).toContain('dog:lvl-a:dog-1');
   });
+
+  it('does not count a stable bird twice when its legacy slot was already processed', () => {
+    const gs = new GameState();
+    gs.recordDogFound('level-a', 'dog_00');
+    const before = gs.achievementRecordSnapshot();
+
+    const result = gs.recordDogFound('level-a', 'bird_stable', 'dog_00');
+
+    expect(result).toBeNull();
+    expect(gs.achievementRecordSnapshot()).toEqual(before);
+  });
 });

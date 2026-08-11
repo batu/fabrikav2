@@ -4860,6 +4860,23 @@ def export_to_game(
     _validate_session_id_or_raise(session_id)
     sdir = session_dir(session_id)
     public_levels_root = destination_root or GAME_PUBLIC_LEVELS
+    canonical = read_canonical_session(session_id)
+    if canonical.pointer is not None:
+        from .canonical_export import CanonicalExportError, export_canonical_revision
+
+        try:
+            result = export_canonical_revision(canonical_session_store(session_id), public_levels_root)
+        except CanonicalExportError as error:
+            raise LevelNotReadyError(str(error)) from error
+        if update_preview_manifest:
+            _ensure_levels_index_entry(session_id)
+            upsert_bundled_manifest_level(session_id)
+        return {
+            "levelId": session_id,
+            "path": f"public/levels/{session_id}/",
+            "variant": "canonical",
+            "contentRevision": result["contentRevision"],
+        }
     dst = public_levels_root / session_id
     color_src_name = _VARIANT_COLOR_SRC.get(variant, "color.png")
     color_src = sdir / color_src_name
