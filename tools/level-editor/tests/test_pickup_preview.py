@@ -52,6 +52,8 @@ def test_canonical_pickup_preview_uses_revision_geometry_without_level_projectio
         "x": 35, "y": 25, "width": 10, "height": 10,
         "sourceSpriteSha256": snapshot["birds"][0]["sprite"]["asset"]["sha256"],
     }
+    from conftest import restamp_snapshot_assets
+    restamp_snapshot_assets(sdir, snapshot)
     store.commit(snapshot, expected_content_revision=pointer.content_revision)
     (sdir / "level.json").unlink(missing_ok=True)
 

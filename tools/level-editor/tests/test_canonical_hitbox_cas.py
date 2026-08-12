@@ -50,7 +50,10 @@ def _canonical_session(isolated_session, session_id: str):
         n_dogs=1,
     )
     store = isolated_session.canonical_session_store(session_id)
-    pointer = store.commit(_snapshot(session_id), expected_content_revision=None)
+    from conftest import materialize_snapshot_assets
+    snapshot = _snapshot(session_id)
+    materialize_snapshot_assets(store.session_root, snapshot)
+    pointer = store.commit(snapshot, expected_content_revision=None)
     return store, pointer
 
 

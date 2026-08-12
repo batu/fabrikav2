@@ -287,6 +287,8 @@ class CanonicalRevisionStore:
             return CanonicalReadResult(state)
         try:
             pointer_raw = json.loads(self.pointer_path.read_text())
+            if pointer_raw.get("schemaVersion") != 1:
+                raise ValueError(f"unsupported pointer schemaVersion: {pointer_raw.get('schemaVersion')!r}")
             pointer = RevisionPointer(
                 revision_file=pointer_raw["revisionFile"],
                 content_revision=pointer_raw["contentRevision"],
@@ -295,7 +297,13 @@ class CanonicalRevisionStore:
             if Path(pointer.revision_file).name != pointer.revision_file:
                 raise ValueError("unsafe revision filename")
             snapshot_path = self.revisions_dir / pointer.revision_file
-            snapshot = json.loads(snapshot_path.read_text())
+            snapshot_bytes = snapshot_path.read_bytes()
+            file_digest = hashlib.sha256(snapshot_bytes).hexdigest()
+            if f"revision-{file_digest}.json" != pointer.revision_file:
+                raise ValueError(
+                    f"revision file bytes do not match its name: recomputed {file_digest[:12]}…"
+                )
+            snapshot = json.loads(snapshot_bytes)
             validated = validate_snapshot(snapshot)
             revisions = snapshot_revisions(validated)
             if revisions.content_revision != pointer.content_revision or revisions.operational_revision != pointer.operational_revision:
@@ -311,7 +319,10 @@ class CanonicalRevisionStore:
         match: dict[str, Any] | None = None
         for path in self.revisions_dir.glob("revision-*.json"):
             try:
-                snapshot = validate_snapshot(json.loads(path.read_text()))
+                raw = path.read_bytes()
+                if f"revision-{hashlib.sha256(raw).hexdigest()}.json" != path.name:
+                    continue  # tampered/corrupt historical file is not evidence
+                snapshot = validate_snapshot(json.loads(raw))
             except (OSError, ValueError, json.JSONDecodeError, ContractValidationError):
                 continue
             if snapshot_revisions(snapshot).content_revision != content_revision:
@@ -320,6 +331,76 @@ class CanonicalRevisionStore:
                 raise ContractValidationError("content revision resolves to conflicting snapshots")
             match = snapshot
         return copy.deepcopy(match)
+
+    def _referenced_assets(self, snapshot: dict[str, Any]) -> list[tuple[str, dict[str, Any]]]:
+        assets = [("assets.scene", snapshot["assets"]["scene"]),
+                  ("assets.cleanBackground", snapshot["assets"]["cleanBackground"]),
+                  ("restore.asset", snapshot["restore"]["asset"])]
+        for index, bird in enumerate(snapshot.get("birds", [])):
+            sprite_asset = (bird.get("sprite") or {}).get("asset")
+            if isinstance(sprite_asset, dict):
+                assets.append((f"birds[{index}].sprite.asset", sprite_asset))
+        return assets
+
+    def verify_and_store_assets(self, snapshot: dict[str, Any]) -> None:
+        """FF-1: a snapshot may only commit if every referenced asset exists on disk
+        with the exact declared bytes+sha256; verified bytes are mirrored into the
+        immutable CAS at .canonical/objects/<sha256><ext> (deduplicated)."""
+        objects_dir = self.root / "objects"
+        for label, descriptor in self._referenced_assets(snapshot):
+            relative = Path(descriptor["path"])
+            if relative.is_absolute() or ".." in relative.parts:
+                raise ContractValidationError(f"{label}.path escapes the session: {descriptor['path']!r}")
+            source = self.session_root / relative
+            data: bytes | None = None
+            if source.is_file():
+                candidate = source.read_bytes()
+                if (
+                    hashlib.sha256(candidate).hexdigest() == descriptor["sha256"]
+                    and len(candidate) == descriptor["bytes"]
+                ):
+                    data = candidate
+            if data is None:
+                # Digest-addressed fallback: crash-safe writers (promote's scene
+                # lane) stage new bytes under objects/ or staging/ before the
+                # path projection is replaced post-commit. Truth is the digest,
+                # the path file is a projection.
+                suffix = source.suffix.lower()
+                for candidate_path in (
+                    objects_dir / f"{descriptor['sha256']}{suffix}",
+                    self.staging_dir / f"scene-{descriptor['sha256']}{suffix}",
+                ):
+                    if candidate_path.is_file():
+                        candidate = candidate_path.read_bytes()
+                        if (
+                            hashlib.sha256(candidate).hexdigest() == descriptor["sha256"]
+                            and len(candidate) == descriptor["bytes"]
+                        ):
+                            data = candidate
+                            break
+            if data is None:
+                found = "missing"
+                if source.is_file():
+                    on_disk = source.read_bytes()
+                    found = f"{hashlib.sha256(on_disk).hexdigest()[:12]}…/{len(on_disk)}b"
+                raise ContractValidationError(
+                    f"{label} bytes match neither their path nor a digest-addressed "
+                    f"object (declared {descriptor['sha256'][:12]}…/{descriptor['bytes']}b, "
+                    f"path has {found}): {descriptor['path']}"
+                )
+            digest = descriptor["sha256"]
+            objects_dir.mkdir(parents=True, exist_ok=True)
+            target = objects_dir / f"{digest}{source.suffix.lower()}"
+            if not target.exists():
+                stage_fd, stage_name = tempfile.mkstemp(prefix="object-", dir=objects_dir)
+                try:
+                    with os.fdopen(stage_fd, "wb") as staged:
+                        staged.write(data)
+                        staged.flush()
+                        os.fsync(staged.fileno())
+                    os.replace(stage_name, target)
+                finally:
+                    Path(stage_name).unlink(missing_ok=True)
 
     def commit(
         self,
@@ -330,6 +411,7 @@ class CanonicalRevisionStore:
     ) -> RevisionPointer:
         validated = validate_snapshot(snapshot)
         revisions = snapshot_revisions(validated)
+        self.verify_and_store_assets(validated)
         self.root.mkdir(parents=True, exist_ok=True)
         self.revisions_dir.mkdir(exist_ok=True)
         self.staging_dir.mkdir(exist_ok=True)

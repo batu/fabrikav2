@@ -40,11 +40,15 @@ def test_sequence_diagnostics_block_legacy_quarantined_and_unreviewed(monkeypatc
     quarantine = levels / "quarantined" / ".canonical"
     quarantine.mkdir(parents=True)
     (quarantine / "quarantine.json").write_text(json.dumps({"issues": ["bird_id_set_mismatch"]}))
+    from conftest import materialize_snapshot_assets
+    unreviewed = _snapshot("unreviewed")
+    materialize_snapshot_assets(levels / "unreviewed", unreviewed)
     CanonicalRevisionStore(levels / "unreviewed").commit(
-        _snapshot("unreviewed"), expected_content_revision=None,
+        unreviewed, expected_content_revision=None,
     )
     reviewed_store = CanonicalRevisionStore(levels / "reviewed")
     reviewed = _snapshot("reviewed")
+    materialize_snapshot_assets(levels / "reviewed", reviewed)
     pointer = reviewed_store.commit(reviewed, expected_content_revision=None)
     reviewed["reviews"] = {
         kind: {

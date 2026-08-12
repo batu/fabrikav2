@@ -51,3 +51,52 @@ def isolated_session(tmp_path, monkeypatch):
         raising=False,
     )
     return sessmod
+
+
+def materialize_snapshot_assets(root: Path, snapshot: dict) -> None:
+    """FF-1: commits verify referenced bytes on disk. Write each descriptor's file
+    with deterministic content and stamp the descriptor with the true digest, keeping
+    provenance couplings (restore scene sha, cleanup sprite sha) intact."""
+    import hashlib
+
+    seen: dict[str, bytes] = {}
+
+    def _fix(descriptor: dict) -> None:
+        path = root / descriptor["path"]
+        if descriptor["path"] not in seen:
+            path.parent.mkdir(parents=True, exist_ok=True)
+            data = f"asset:{descriptor['path']}".encode()
+            path.write_bytes(data)
+            seen[descriptor["path"]] = data
+        data = seen[descriptor["path"]]
+        descriptor["sha256"] = hashlib.sha256(data).hexdigest()
+        descriptor["bytes"] = len(data)
+
+    _fix(snapshot["assets"]["scene"])
+    _fix(snapshot["assets"]["cleanBackground"])
+    _fix(snapshot["restore"]["asset"])
+    snapshot["restore"]["sourceSceneSha256"] = snapshot["assets"]["scene"]["sha256"]
+    for bird in snapshot["birds"]:
+        _fix(bird["sprite"]["asset"])
+        bird["activeGeneration"]["inputSceneSha256"] = snapshot["assets"]["scene"]["sha256"]
+        bird["cleanup"]["sourceSpriteSha256"] = bird["sprite"]["asset"]["sha256"]
+
+
+def restamp_snapshot_assets(root: Path, snapshot: dict) -> None:
+    """Recompute descriptor sha256/bytes from the files currently on disk (for tests
+    that overwrite fixture assets with real images after the initial commit)."""
+    import hashlib
+
+    def _stamp(descriptor: dict) -> None:
+        data = (root / descriptor["path"]).read_bytes()
+        descriptor["sha256"] = hashlib.sha256(data).hexdigest()
+        descriptor["bytes"] = len(data)
+
+    _stamp(snapshot["assets"]["scene"])
+    _stamp(snapshot["assets"]["cleanBackground"])
+    _stamp(snapshot["restore"]["asset"])
+    snapshot["restore"]["sourceSceneSha256"] = snapshot["assets"]["scene"]["sha256"]
+    for bird in snapshot["birds"]:
+        _stamp(bird["sprite"]["asset"])
+        bird["activeGeneration"]["inputSceneSha256"] = snapshot["assets"]["scene"]["sha256"]
+        bird["cleanup"]["sourceSpriteSha256"] = bird["sprite"]["asset"]["sha256"]

@@ -105,12 +105,22 @@ _archive_ledger_lock = threading.Lock()
 
 
 def _load_archive_ledger() -> dict[str, dict[str, Any]]:
+    """FF-9: the ledger is the archive authority — corruption must be loud,
+    never indistinguishable from an empty ledger."""
+    if not ARCHIVE_LEDGER_PATH.exists():
+        return {}
     try:
         payload = json.loads(ARCHIVE_LEDGER_PATH.read_text())
-    except (FileNotFoundError, OSError, json.JSONDecodeError):
-        return {}
+    except (OSError, json.JSONDecodeError) as error:
+        raise PublicLevels.FormatError(
+            f"archive-ledger is present but unreadable: {ARCHIVE_LEDGER_PATH} ({error})"
+        ) from error
     sessions = payload.get("sessions") if isinstance(payload, dict) else None
-    return sessions if isinstance(sessions, dict) else {}
+    if not isinstance(sessions, dict):
+        raise PublicLevels.FormatError(
+            f"archive-ledger must contain a sessions object: {ARCHIVE_LEDGER_PATH}"
+        )
+    return sessions
 
 
 def archived_session_ids() -> set[str]:
