@@ -215,6 +215,46 @@ Three tiers, executed during this phase, not before:
   (policy #11; the promotion sweep exists — wire `restore_verified_*` into migration apply
   so over-invalidation self-heals instead of needing an operator).
 
+## Geometry model vNEXT — stress-tested (simulator over 64 real levels × 3 pickup orders
+## incl. adversarial; codex adversarial spec review; both archived in the reports dir)
+
+Final definitions (supersede any looser phrasing in CL-5..CL-9):
+1. **Hitbox** = stored center + authored tap radius. Runtime does only circle membership +
+   deterministic nearest-center arbitration. Nothing at runtime mutates a radius.
+2. **Restore source** = the quality-gated paint-diff (scene − clean bg), never sprite
+   bounds. Diff gate: perceptual threshold, low-frequency tint removal, tiny-component
+   scrub, and a fail-closed "needs restoration review" when the footprint is globally
+   distributed (measured: 749k px unassigned junk on 3 drifted levels — the gate doubles
+   as a repaint-drift detector).
+3. **Restore ownership** = a complete per-pixel partition of the accepted diff: components
+   split across the global Voronoi partition (deterministic, stable-id ordered) before
+   assignment — components are never the indivisible ownership unit. Set-level derivation
+   with a full dependency hash (scene, clean bg, complete hitbox set, sprite geometry,
+   recipe); any input change stales the whole partition.
+4. **Dissolve** (validated: premature-erasure = 0 px corpus-wide, worst-case order):
+   `reveal = union over FOUND birds of (their region − union(still-unfound birds'
+   OWNED-paint mask ∪ sprite alpha mask))`, recomputed on every pickup (progressive
+   re-dissolve — protections only shrink; closes the 63k px stranded-residue hole the
+   first simulation found). Voronoi survives only as the assignment rule; no runtime
+   bisector geometry.
+5. **Tap-radius migration** (corrects CL-6/CL-8's "×2 bake"): bake each bird's RESOLVED
+   legacy effective radius (full formula: floor, square vs non-square multiplier, neighbor
+   clamp, original neighbor set) — not raw×2. Migration gate: dense tap-point grid,
+   legacy winner == migrated winner everywhere. Radii live in a narrow uniformity band
+   with a derived recommended radius per bird; outliers flagged for an explicit decision,
+   never silently multiplied. Body-coverage invariant: required % of core body mask
+   inside the circle.
+6. **Manual overrides** carry dependency provenance and go `STALE_MANUAL` on any input
+   change — bytes preserved, publish blocked until re-derive / reconfirm / re-edit.
+   Tie-band pixels (equidistant props) get a deterministic primary owner + all tied birds
+   as protectors, or are flagged for review.
+
+Simulator invariants (export-gate suite; prototype checked in at
+`tools/level-editor/scripts/geometry_model_sim.py`, final metrics in the reports dir):
+complete-cleanup + permutation convergence; unfound-bird preservation; ownership
+conservation (union == accepted diff, exclusive owners disjoint); tap-migration
+equivalence + body coverage; determinism + provenance freshness.
+
 ## Operator change list (dictated during the 2026-08-12 four-level review pass)
 
 Small, concrete editor changes requested while reviewing; execute with the plan (most land
@@ -266,9 +306,10 @@ naturally inside step 4's geometry service or Phase 5), each with its own commit
   the line. Compose, never replace. Converges to a fully clean scene
   because each bird's own dissolve covers the area neighbors spared. Kills the
   leftover-sliver artifact; runtime already ships sprite boxes + masks, no new data.
-  Hitbox and restore region stay distinct on purpose: hitbox = uniform tap truth,
-  restore region = derived from sprite bounds (tracks the art). With CL-5 this removes
-  "cleanup" as an operator-managed concept entirely.
+  Hitbox and restore region stay distinct on purpose: hitbox = tap truth, restore
+  region = derived from the accepted paint-diff (CL-5 is authoritative; an earlier
+  sprite-bounds phrasing here contradicted it — codex adversarial review caught it).
+  With CL-5 this removes "cleanup" as an operator-managed concept entirely.
 - **CL-3. Hitbox add/remove must be legal or impossible** (italy_tuscan archived over this,
   2026-08-12: "canonical hitbox identity set does not match the current revision"). The
   editor offers add-by-click / remove-by-double-click, but the canonical `/hitboxes` save
