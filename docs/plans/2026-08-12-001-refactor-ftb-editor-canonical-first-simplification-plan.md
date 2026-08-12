@@ -345,6 +345,19 @@ naturally inside step 4's geometry service or Phase 5), each with its own commit
   region = derived from the accepted paint-diff (CL-5 is authoritative; an earlier
   sprite-bounds phrasing here contradicted it — codex adversarial review caught it).
   With CL-5 this removes "cleanup" as an operator-managed concept entirely.
+- **CL-10. Instant scene views.** Painted / Clean / All-picked-up / Sprites-only become
+  pre-rendered, revision-addressed webp previews generated once per scene commit (they ARE
+  the R8 evidence artifacts), served statically; toggling is an img swap. Preview carries
+  its revision hash — stale is detectable, never silent. Kills the per-click full-res
+  server composite.
+- **CL-11. Residue gate + heatmap.** `residue = perceptual-diff(all-picked-up, clean bg)`
+  computed in the same scene-commit obligation, using the RUNTIME composite rules (the
+  derivation-vs-runtime handshake). Surfaces: export gate (blocks approval above
+  threshold — the 08-06 "padded areas should be larger" incident as an invariant),
+  gallery card badge (residue px), and a fifth modal toggle rendering residue pixels as a
+  heatmap. Under the vNEXT geometry model residue is ~0 by construction, so the gate's
+  standing job is catching stale overrides, drifted data, and derivation/runtime
+  disagreement.
 - **CL-3. Hitbox add/remove must be legal or impossible** (italy_tuscan archived over this,
   2026-08-12: "canonical hitbox identity set does not match the current revision"). The
   editor offers add-by-click / remove-by-double-click, but the canonical `/hitboxes` save
