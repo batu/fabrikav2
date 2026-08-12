@@ -358,6 +358,13 @@ naturally inside step 4's geometry service or Phase 5), each with its own commit
   heatmap. Under the vNEXT geometry model residue is ~0 by construction, so the gate's
   standing job is catching stale overrides, drifted data, and derivation/runtime
   disagreement.
+- **CL-12. Extraction/regen crops derive from the owned-paint footprint.** bbox(bird's
+  per-pixel owned paint) + margin — provably contains the whole painted bird incl. props
+  (the exact guarantee the manual amber box existed to provide, per 08-04 "padding isn't
+  covering all the birds"); regen crop additionally clamped against neighbors' owned
+  paint; obligation chain re-derives after repaint. Shown read-only in the cutout preview;
+  a manual override box appears only when the diff quality gate flags the level
+  (R6-flagged, provenance-stamped). Deletes Padding mode from the cutout UI entirely.
 - **CL-3. Hitbox add/remove must be legal or impossible** (italy_tuscan archived over this,
   2026-08-12: "canonical hitbox identity set does not match the current revision"). The
   editor offers add-by-click / remove-by-double-click, but the canonical `/hitboxes` save
