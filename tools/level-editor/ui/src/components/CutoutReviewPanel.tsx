@@ -11,6 +11,7 @@ import {
   spriteCandidateOverlayUrl,
   startRetryFailedDogsJob,
   type RetryFailedDogsJobResponse,
+  saveHitboxes,
 } from '../api/editorApi';
 
 type CropBox = [number, number, number, number];
@@ -154,6 +155,7 @@ function PlacementPreview({
   controlMode,
   hitbox,
   showHitbox,
+  onHitboxMoved,
 }: {
   sessionId: string;
   candidate: SpriteCandidate;
@@ -163,6 +165,7 @@ function PlacementPreview({
   controlMode: ControlMode;
   hitbox?: Hitbox;
   showHitbox: boolean;
+  onHitboxMoved?: (hitbox: Hitbox) => void;
 }) {
   const sourceBox = candidate.spriteBox ?? placementBox;
   const baseCrop = candidate.cleanupBox ?? sourceBox;
@@ -210,8 +213,41 @@ function PlacementPreview({
         draggable={false}
         style={{ ...spriteStyle, transform: `scale(${candidate.flipX ? -1 : 1}, ${candidate.flipY ? -1 : 1})` }}
       />
-      {showHitbox && hitboxStyle && (
-        <span className="cutout-hitbox-circle" style={hitboxStyle} aria-hidden="true" />
+      {showHitbox && hitboxStyle && target && (
+        /* CL-13: the circle edits the hitbox truth directly on the card —
+           same canonical commit as the map, no mode switch. */
+        <span
+          className="cutout-hitbox-circle"
+          style={{ ...hitboxStyle, cursor: onHitboxMoved ? 'grab' : undefined, pointerEvents: onHitboxMoved ? 'auto' : 'none' }}
+          onPointerDown={onHitboxMoved ? (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            const surface = (event.currentTarget.parentElement as HTMLElement).getBoundingClientRect();
+            const start = { x: event.clientX, y: event.clientY };
+            const origin = { x: target.x, y: target.y };
+            const el = event.currentTarget;
+            el.setPointerCapture(event.pointerId);
+            const onMove = (move: PointerEvent) => {
+              const sceneDx = (move.clientX - start.x) / surface.width * width;
+              const sceneDy = (move.clientY - start.y) / surface.height * height;
+              el.style.left = `${(origin.x + sceneDx - target.r - viewport[0]) / width * 100}%`;
+              el.style.top = `${(origin.y + sceneDy - target.r - viewport[1]) / height * 100}%`;
+            };
+            const onUp = (up: PointerEvent) => {
+              el.removeEventListener('pointermove', onMove);
+              el.removeEventListener('pointerup', onUp);
+              const sceneDx = (up.clientX - start.x) / surface.width * width;
+              const sceneDy = (up.clientY - start.y) / surface.height * height;
+              onHitboxMoved({
+                ...(hitbox as Hitbox),
+                x: Math.round(origin.x + sceneDx),
+                y: Math.round(origin.y + sceneDy),
+              });
+            };
+            el.addEventListener('pointermove', onMove);
+            el.addEventListener('pointerup', onUp);
+          } : undefined}
+        />
       )}
       {controlMode === 'sprite' && (
         <span className="cutout-placement-bounds" style={spriteStyle} aria-hidden="true">
@@ -850,7 +886,20 @@ export default function CutoutReviewPanel({
                 }}
               >
                 {cropBox && placementBox && imageUrl ? (
-                  <PlacementPreview sessionId={sessionId} candidate={candidate} cropBox={cropBox} placementBox={placementBox} imageUrl={imageUrl} controlMode={controlMode} hitbox={hitbox} showHitbox={showHitbox} />
+                  <PlacementPreview sessionId={sessionId} candidate={candidate} cropBox={cropBox} placementBox={placementBox} imageUrl={imageUrl} controlMode={controlMode} hitbox={hitbox} showHitbox={showHitbox}
+                    onHitboxMoved={async (moved) => {
+                      // CL-13: same canonical commit path as the map save.
+                      try {
+                        const revision = contentRevisionRef.current;
+                        const next = hitboxes.map((h) => (h.id === moved.id ? moved : h));
+                        const result = await saveHitboxes(sessionId, next, 'edit', revision) as
+                          { contentRevision?: string; operationalRevision?: string } | undefined;
+                        if (result?.contentRevision) onRevisionChangedRef.current?.(result.contentRevision, result.operationalRevision);
+                        setLastResult(`Hitbox ${moved.id?.slice(0, 8) ?? ''} moved to (${moved.x}, ${moved.y}).`);
+                      } catch (err) {
+                        setError(err instanceof Error ? err.message : 'Hitbox save failed');
+                      }
+                    }} />
                 ) : (
                   <span>overlay unavailable</span>
                 )}
