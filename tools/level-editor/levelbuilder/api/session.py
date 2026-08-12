@@ -6053,6 +6053,15 @@ def set_archived(session_id: str, archived: bool, variant: str | None = None) ->
     with _session_lock:
         raw = load_session_raw(session_id)
         if raw is None:
+            # Package-only level: the authoring session is gone but the card
+            # still lists from the public root. The archive ledger is the only
+            # persistence available — silently returning here made the archive
+            # button report success and change nothing (2026-08-12).
+            _record_archive_state(
+                session_id,
+                archived=bool(archived),
+                variants=[variant] if archived and variant is not None else [],
+            )
             return
         if variant is None:
             raw["archived"] = bool(archived)
