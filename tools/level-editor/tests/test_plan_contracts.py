@@ -135,3 +135,43 @@ def test_provider_attempt_cap_env_clamps_retries(monkeypatch):
     with pytest.raises(Exception):
         inpaint._with_retries_and_timeout(flaky)
     assert calls["n"] == inpaint._MAX_ATTEMPTS
+
+
+def test_kill9_drill_leaves_no_stuck_or_double_billable_state(tmp_path):
+    """Failure-class ledger row 6 proof: a worker dying mid-batch (kill -9
+    equivalent: running jobs with dead heartbeats) recovers with no stuck
+    jobs and no double-billable state — paid attempts become orphaned_unknown
+    (never auto-retried), pre-provider attempts requeue, succeeded units keep
+    their results."""
+    from datetime import datetime, timedelta, timezone
+
+    from levelbuilder.api.job_store import JobStore
+    from levelbuilder.api.job_worker import JobWorker
+
+    store = JobStore(tmp_path / "jobs.sqlite3")
+    stale = (datetime.now(timezone.utc) - timedelta(hours=2)).isoformat()
+
+    paid = store.create_job(kind="k", session_id="s", idempotency_key="paid-1")
+    store.transition_job(paid.id, status="running", stage="calling")
+    store.update_metadata(paid.id, {"providerSubmissionStarted": True})
+    pre = store.create_job(kind="k", session_id="s", idempotency_key="pre-1",
+                           metadata={"safeToRequeue": True})
+    store.transition_job(pre.id, status="running", stage="preparing")
+    done = store.create_job(kind="k", session_id="s", idempotency_key="done-1")
+    store.transition_job(done.id, status="running", stage="calling")
+    store.transition_job(done.id, status="succeeded", stage="done", result={"paid": True})
+
+    import sqlite3
+    with sqlite3.connect(tmp_path / "jobs.sqlite3") as conn:
+        conn.execute("UPDATE jobs SET heartbeat_at = ? WHERE status = 'running'", (stale,))
+
+    worker = JobWorker(store=store, lock_path=tmp_path / 'worker.lock')
+    worker.recover_stale_jobs()
+
+    refreshed = {j.idempotency_key: j for j in (store.get_job(paid.id), store.get_job(pre.id), store.get_job(done.id))}
+    assert refreshed["paid-1"].status == "orphaned_unknown"   # never re-billed
+    assert refreshed["pre-1"].status == "queued"              # safely requeued
+    assert refreshed["done-1"].status == "succeeded"          # result intact
+    assert refreshed["done-1"].result.get("paid") is True
+    # No job left permanently running.
+    assert not store.list_jobs_by_status(("running",))
