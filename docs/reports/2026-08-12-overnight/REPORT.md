@@ -1,9 +1,9 @@
 # Overnight run report — 2026-08-12/13 (canonical-first foundations)
 
-Worktree: `.claude/worktrees/overnight-canonical` · base `7eea4adf6` → HEAD `37383b524`
-Dirty at end: 1 files (none — all committed).
+Worktree: `.claude/worktrees/overnight-canonical` · base `7eea4adf6` → HEAD (see git log; count includes report/audit commits) `37383b524`
+Dirty at end (pre-report-commit measurement): 1 files (none — all committed).
 Verification: `uv run pytest` → **455 passed, 1 failed (named baseline: test_golden_cutout_dataset,
-pre-existing frozen-hash drift), 2 xfailed (P2c job-store, correctly deferred)**;
+pre-existing baseline red — manifests as approved-sprite hash mismatch in the main checkout and missing color.png in this sparse worktree; both are the same golden-dataset-vs-churned-corpus drift, declared at run start), 2 xfailed (P2c job-store, correctly deferred)**;
 `ui npm run build` green; game `tsc` green; O1 vitest 4/4.
 Paid spend: **$0.00** (merceka ledger read: no entries after 17:02 UTC — all pre-run).
 Protected levels: **4/4 bit-for-bit MATCH** (baseline vs final, same hash method;
@@ -16,12 +16,12 @@ note: the hash pipeline embeds relative paths — run it from repo root).
 | 1. FF-5 strict loaders + FF-1 asset CAS | **PASS** | db3f60b87, d21c9630d; corpus pre-verified (64 pointers, 1,842 revisions digest-clean); tests |
 | 2. A2 resolver + A3 lane selector | **PASS** | d39c7d351; tamper/escape/CAS-only tests |
 | 3. Hydrate overlay + DAG + read surfaces | **PASS** | 6433558f5, 09b515c99, 562d97d65, b3c4e1513; live-proven in shakedown |
-| 4. P1.8 read-back + provenance strip | **PASS** | eeb6afd71; serverHitboxes on 409, UI reconciliation, no blind approval retry |
-| 5. P1.6 geometry service + census | **PASS** | 6e8ce19b2 + CR-1 batch; **both target xfails FLIPPED to hard passes** |
-| 6. O1 freshness guard + O2 budget | **PASS** | f8bd9631f, 9ca7f1b05; 4 unit cases + junk-PNG regression fixture |
-| 7. Recipe schema slice | **PASS** | bce8d48cf; UI/CLI parity by construction, dry-run diff |
+| 4. P1.8 read-back + provenance strip | **AUTOMATED ONLY** | eeb6afd71; contract tests green; the live rejected-save UI flow was NOT observed (no browser in the rig) |
+| 5. P1.6 geometry service + census | **PARTIAL** | 6e8ce19b2 + CR-1 batch; live rig observed only identical-move/no-op; add/delete/CL-4/census are AUTOMATED ONLY. Both xfails flipped — note: the auto-place test now accepts the REFUSAL branch (422 identity_refused on sprited sessions), which is the intended CR-1 semantics, not the original update-behavior claim |
+| 6. O1 freshness guard + O2 budget | **AUTOMATED ONLY** | f8bd9631f, 9ca7f1b05; unit-tested; NOT observed on-device (device mutations prohibited tonight) |
+| 7. Recipe schema slice | **AUTOMATED ONLY** | bce8d48cf; parity test compares API vs backend resolve (both call the one resolver); no UI consumer exercised live |
 | 8. Shakedown | **PARTIAL** | Free lane **PASS live** (24-bird alpine: import→migrate→VALID_CURRENT→CAS→no-op→readiness→hydrate, isolated rig); paid regen **PARKED** (see below) |
-| 9. 50-run | **NOT STARTED** | Gate (shakedown PASS + CR-3) never opened |
+| 9. 50-run | **NOT STARTED** | Gate (paid-shakedown PASS + immutable manifest + CR-3) never opened; no preflight attempted, $0, nothing to restore; smallest next action = clear item-8 blockers |
 
 ## Codex checkpoints
 - Per-item reviews: cr-item1 (9 findings, all P0/P1 fixed same night), cr-item3
@@ -32,13 +32,19 @@ note: the hash pipeline embeds relative paths — run it from repo root).
 
 ## PARKED: paid uk_cotswolds_3a43 regen — blockers
 1. **Package worse than recorded:** `dogs/dog_01/` absent while level.json
-   references it (+ 25 birds/20 unique sprites). Repair = choosing which sprite
-   to duplicate = data invention → operator decision.
-   Smallest next action: pick donor sprite for dog_01 (or delete the bird) in
-   the editor, then re-run the import in the rig.
-2. **CR-2 NO-GO list** (cr2-prepaid-audit.md): runtime attempts=1 enforcement,
-   immutable pre-call manifest, code-level staging mode, executable abort rules.
-   These are engineering tasks for the P2b/P2c phases, not paperwork.
+   references it (+ 25 birds/20 unique sprites). Exact error:
+   `PublicImportError: bird dog_01 is missing sprite artifacts` (import fails
+   closed BEFORE any mutation — no restore needed, the rig copy is disposable;
+   worktree SHA at park time: see git log around the shakedown-result commit).
+   Repair = choosing which sprite to duplicate = data invention → operator
+   decision. Smallest next action: pick donor sprite for dog_01 (or delete the
+   bird) in the editor, then re-run the import in the rig.
+2. **CR-2 NO-GO list** (cr2-prepaid-audit.md, committed on this branch):
+   runtime attempts=1 enforcement, immutable pre-call manifest, code-level
+   staging mode, executable abort rules — P2b/P2c engineering, not paperwork.
+   Smallest next action: implement the attempts=1 runtime clamp (single
+   config/guard in the retry-inpaint job start), it unblocks the rest.
+   No spend, no mutation, nothing to restore.
 
 ## Defects FOUND & FIXED tonight (beyond plan items)
 - Promote scene lane committed descriptors before bytes landed (FF-1 caught it;
