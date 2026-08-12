@@ -3,6 +3,7 @@
 import asyncio
 import hashlib
 import json
+import shutil
 from datetime import datetime, timezone
 from pathlib import Path
 import logging
@@ -4114,6 +4115,7 @@ def _run_single_dog_regen(
         "placement": placement,
         "artifactSpritePath": str(output_dir / f"sprite_{variant_idx:03d}.png") if artifact_dir is not None else None,
         "artifactPaintedPath": str(variant_path) if artifact_dir is not None else None,
+        "paintedBox": list(box) if artifact_dir is not None else None,
         "spriteMetadata": sprite_metadata if artifact_dir is not None else None,
     }
 
@@ -4874,12 +4876,19 @@ def _run_retry_failed_dogs_job(job: JobRecord, store: JobStore) -> dict[str, Any
             promoted_revision = None
             if isinstance(bird_input_data, dict):
                 sprite_path = Path(str(result["artifactSpritePath"]))
+                painted_artifact = Path(str(result["artifactPaintedPath"])) if result.get("artifactPaintedPath") else None
+                painted_box = (
+                    tuple(int(value) for value in result["paintedBox"])
+                    if isinstance(result.get("paintedBox"), list) and len(result["paintedBox"]) == 4
+                    else None
+                )
                 promoted, disposition = S.promote_canonical_sprite_artifact(
                     session_id,
                     captured_input=bird_input_data,
                     generation_id=child.id if child is not None else job.id,
                     sprite_path=sprite_path,
-                    painted_path=(Path(str(result["artifactPaintedPath"])) if result.get("artifactPaintedPath") else None),
+                    painted_path=painted_artifact,
+                    painted_box=painted_box,
                     metadata=dict(result["spriteMetadata"]),
                 )
                 if promoted is None:
@@ -4906,6 +4915,20 @@ def _run_retry_failed_dogs_job(job: JobRecord, store: JobStore) -> dict[str, Any
                     stale += 1
                     continue
                 promoted_revision = promoted.content_revision
+                # Project the committed painting into the session variant rail
+                # so the editor's legacy surfaces (variant picker, composite
+                # tooling) see the regeneration that just changed the scene.
+                if painted_artifact is not None and painted_box is not None:
+                    with S._session_lock:
+                        rail_idx = S.get_next_variant_index(session_id, dog_index)
+                    rail_dir = S.dogs_dir(session_id) / f"dog_{dog_index:02d}"
+                    rail_dir.mkdir(parents=True, exist_ok=True)
+                    rail_path = rail_dir / f"variant_{rail_idx:03d}.png"
+                    shutil.copy2(painted_artifact, rail_path)
+                    _save_variant_box(rail_path, painted_box)
+                    S.update_dog_status(session_id, dog_index, "done", activeVariant=rail_idx)
+                    result["variantIndex"] = rail_idx
+                    result["file"] = f"dogs/dog_{dog_index:02d}/{rail_path.name}"
             variant_idx = int(result["variantIndex"])
             file_name = str(result["file"])
             _mark_crop_inpaint_unit_succeeded(

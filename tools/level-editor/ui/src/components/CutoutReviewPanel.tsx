@@ -635,15 +635,14 @@ export default function CutoutReviewPanel({
       const succeeded = unit?.status === 'succeeded' && unit.file !== null && unit.variantIndex !== null;
       if (succeeded) {
         // Extraction replaces the sprite derivative for the current painted
-        // variant. Only LEGACY scene regeneration creates a selectable
-        // variant in the session rail; canonical regeneration stages its
-        // painting as a job artifact and commits only the sprite, so the
-        // reported file/variantIndex must not touch the rail (they describe
-        // the artifact staging area, not session variants).
-        if (operation === 'regenerate' && !candidate.birdId) {
+        // variant. Only scene regeneration creates a selectable variant —
+        // legacy writes it directly; canonical commits the scene and then
+        // projects the painting into the rail, reporting the projected
+        // variant index and file.
+        if (operation === 'regenerate') {
           onDogComplete(unit.dogIndex, unit.file!, unit.variantIndex!);
         }
-        const refreshedDogs = candidate.birdId ? dogsRef.current : dogsRef.current.map((dog) => (
+        const refreshedDogs = dogsRef.current.map((dog) => (
           dog.index === unit.dogIndex ? { ...dog, activeVariant: unit.variantIndex! } : dog
         ));
         await refresh(refreshedDogs);

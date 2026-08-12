@@ -236,3 +236,73 @@ def test_post_provider_revision_conflict_is_retained_and_never_resubmitted(isola
     assert response.units[0].inputContentRevision == pointer.content_revision
     assert response.units[0].stage == "completed_stale"
     assert response.units[0].disposition == "needs_review"
+
+
+def test_regen_promotion_commits_the_painted_scene_with_coherent_provenance(isolated_session):
+    import hashlib as _hashlib
+    from PIL import Image
+    from levelbuilder.api.canonical_job_provenance import capture_bird_job_input
+    from test_canonical_hitbox_cas import _canonical_session
+
+    store, pointer = _canonical_session(isolated_session, "canonical_scene_commit")
+    session_dir = isolated_session.LEVELS_DIR / "canonical_scene_commit"
+
+    # Real scene pixels so the composite has something to paste into.
+    scene_file = session_dir / "color.png"
+    Image.new("RGB", (64, 64), (10, 120, 10)).save(scene_file)
+    snapshot = store.read().snapshot
+    payload = scene_file.read_bytes()
+    scene_digest = _hashlib.sha256(payload).hexdigest()
+    snapshot["assets"]["scene"] = {"path": "color.png", "sha256": scene_digest, "bytes": len(payload)}
+    snapshot["restore"]["sourceSceneSha256"] = scene_digest
+    snapshot["birds"][0]["activeGeneration"]["inputSceneSha256"] = scene_digest
+    pointer = store.commit(snapshot, expected_content_revision=pointer.content_revision)
+    snapshot = store.read().snapshot
+    snapshot["reviews"] = {
+        "hitboxes": {"contentRevision": pointer.content_revision, "reviewer": "human:batu", "reviewedAt": "now"},
+    }
+    pointer = store.commit(snapshot, expected_content_revision=pointer.content_revision)
+
+    captured = capture_bird_job_input(
+        store.read().snapshot,
+        bird_id="bird_one",
+        operation="regenerate",
+        crop_box=(20, 20, 36, 36),
+        model="gemini-flash",
+        prompt="bird",
+    )
+    artifact_dir = session_dir / ".canonical" / "job-artifacts" / "regen1" / "bird_one"
+    artifact_dir.mkdir(parents=True)
+    sprite_path = artifact_dir / "sprite_000.png"
+    Image.new("RGBA", (10, 12), (200, 40, 40, 255)).save(sprite_path)
+    painted_path = artifact_dir / "variant_000.png"
+    Image.new("RGB", (16, 16), (240, 20, 20)).save(painted_path)
+
+    promoted, disposition = isolated_session.promote_canonical_sprite_artifact(
+        "canonical_scene_commit",
+        captured_input=captured.to_dict(),
+        generation_id="job:regen1",
+        sprite_path=sprite_path,
+        painted_path=painted_path,
+        painted_box=(20, 20, 36, 36),
+        metadata={"spriteBox": [20, 24, 30, 36], "cleanupBox": [18, 18, 38, 38], "anchorX": 0.5, "anchorY": 0.5},
+    )
+    assert disposition == "committed"
+
+    current = store.read().snapshot
+    new_scene = current["assets"]["scene"]
+    assert new_scene["sha256"] != scene_digest
+    on_disk = scene_file.read_bytes()
+    assert _hashlib.sha256(on_disk).hexdigest() == new_scene["sha256"]
+    with Image.open(scene_file) as composed:
+        assert composed.getpixel((28, 28)) == (240, 20, 20)  # painted crop landed
+        assert composed.getpixel((5, 5)) == (10, 120, 10)    # rest of scene untouched
+    # Every provenance pointer advances to the composed scene together.
+    assert all(bird["activeGeneration"]["inputSceneSha256"] == new_scene["sha256"] for bird in current["birds"])
+    assert current["restore"]["sourceSceneSha256"] == new_scene["sha256"]
+    # The repaint invalidates scene-dependent human reviews.
+    assert "hitboxes" not in current.get("reviews", {})
+    assert any(
+        entry.get("kind") == "hitboxes" and "scene" in (entry.get("invalidatedBy") or [])
+        for entry in current["operational"]["reviewHistory"]
+    )

@@ -1933,6 +1933,7 @@ def promote_canonical_sprite_artifact(
     sprite_path: Path,
     metadata: dict[str, Any],
     painted_path: Path | None = None,
+    painted_box: tuple[int, int, int, int] | None = None,
 ):
     """Promote an unattached provider artifact iff its bird inputs remain current."""
     from levelbuilder.api.canonical_bird_contract import (
@@ -1975,7 +1976,10 @@ def promote_canonical_sprite_artifact(
         verification = verify_bird_job_input(current.snapshot, captured)
         if not verification.current:
             return None, verification.code
-        updated = invalidate_reviews(current.snapshot, changed_artifacts={"activeGeneration", "spritePixels", "spritePlacement", "cleanup"})
+        changed_classes = {"activeGeneration", "spritePixels", "spritePlacement", "cleanup"}
+        if painted_path is not None and painted_box is not None:
+            changed_classes.add("scene")
+        updated = invalidate_reviews(current.snapshot, changed_artifacts=changed_classes)
         bird = next(item for item in updated["birds"] if item["birdId"] == captured.bird_id)
         sprite_digest = hashlib.sha256(sprite_path.read_bytes()).hexdigest()
         x0, y0, x1, y1 = map(int, sprite_box)
@@ -2011,16 +2015,49 @@ def promote_canonical_sprite_artifact(
             "height": cy1 - cy0,
             "sourceSpriteSha256": sprite_digest,
         }
+        # Scene replacement (canonical regenerate): paste the painted crop
+        # into the scene inside the same CAS commit. The contract requires
+        # every bird's generation provenance and the restore provenance to
+        # reference the scene they now live in, so all of them advance to the
+        # composed scene's digest together.
+        staged_scene: Path | None = None
+        scene_file: Path | None = None
+        if painted_path is not None and painted_box is not None:
+            scene_rel = updated["assets"]["scene"]["path"]
+            scene_file = session_dir(session_id) / scene_rel
+            bx0, by0, bx1, by1 = [int(value) for value in painted_box]
+            with Image.open(scene_file) as scene_image, Image.open(painted_path) as crop_image:
+                composed = scene_image.convert("RGB")
+                composed.paste(crop_image.convert("RGB").resize((bx1 - bx0, by1 - by0)), (bx0, by0))
+                staged_scene = scene_file.with_name(f".{scene_file.name}.promote-{uuid.uuid4().hex}")
+                composed.save(staged_scene, format="PNG")
+                composed.close()
+            scene_bytes = staged_scene.read_bytes()
+            scene_digest = hashlib.sha256(scene_bytes).hexdigest()
+            updated["assets"]["scene"] = {
+                "path": scene_rel,
+                "sha256": scene_digest,
+                "bytes": len(scene_bytes),
+            }
+            for item in updated["birds"]:
+                item["activeGeneration"]["inputSceneSha256"] = scene_digest
+            updated["restore"]["sourceSceneSha256"] = scene_digest
         try:
             pointer = store.commit(
                 updated,
                 expected_content_revision=current.pointer.content_revision,
                 expected_operational_revision=current.pointer.operational_revision,
             )
+            if staged_scene is not None and scene_file is not None:
+                os.replace(staged_scene, scene_file)
+                staged_scene = None
             project_canonical_bird_compatibility(session_id, updated, captured.bird_id)
             return pointer, "committed"
         except RevisionConflictError:
             continue
+        finally:
+            if staged_scene is not None:
+                staged_scene.unlink(missing_ok=True)
     return None, "revision_conflict"
 
 
