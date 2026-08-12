@@ -105,12 +105,27 @@ _archive_ledger_lock = threading.Lock()
 
 
 def _load_archive_ledger() -> dict[str, dict[str, Any]]:
+    """FF-9: the ledger is the archive authority — corruption must be loud,
+    never indistinguishable from an empty ledger."""
+    if not ARCHIVE_LEDGER_PATH.exists():
+        return {}
     try:
         payload = json.loads(ARCHIVE_LEDGER_PATH.read_text())
-    except (FileNotFoundError, OSError, json.JSONDecodeError):
-        return {}
+    except (OSError, json.JSONDecodeError) as error:
+        raise PublicLevels.FormatError(
+            f"archive-ledger is present but unreadable: {ARCHIVE_LEDGER_PATH} ({error})"
+        ) from error
     sessions = payload.get("sessions") if isinstance(payload, dict) else None
-    return sessions if isinstance(sessions, dict) else {}
+    if not isinstance(sessions, dict):
+        raise PublicLevels.FormatError(
+            f"archive-ledger must contain a sessions object: {ARCHIVE_LEDGER_PATH}"
+        )
+    invalid = [key for key, value in sessions.items() if not isinstance(value, dict)]
+    if invalid:
+        raise PublicLevels.FormatError(
+            f"archive-ledger has non-object session entries {invalid[:5]}: {ARCHIVE_LEDGER_PATH}"
+        )
+    return sessions
 
 
 def archived_session_ids() -> set[str]:
@@ -1192,6 +1207,39 @@ def get_final_cutout_review_status(
 
 
 def get_final_cutout_review_readiness(session_id: str) -> dict[str, Any]:
+    # P1.2 (CR-1 finding 5): canonical sessions derive readiness from the
+    # snapshot — every bird has a verified sprite asset and no pending
+    # extract obligation. The legacy level.json walk serves only legacy lanes.
+    from .canonical_bird_contract import CanonicalReadState
+
+    canonical = read_canonical_session(session_id)
+    if canonical.state is CanonicalReadState.VALID_CURRENT and canonical.snapshot is not None:
+        from .artifact_dag import pending_obligations
+        from .canonical_assets import AssetIntegrityError, resolve_asset
+
+        birds = canonical.snapshot.get("birds", [])
+        store = canonical_session_store(session_id)
+        missing = 0
+        for bird in birds:
+            asset = (bird.get("sprite") or {}).get("asset")
+            if not isinstance(asset, dict):
+                missing += 1
+                continue
+            try:
+                resolve_asset(store, asset)
+            except AssetIntegrityError:
+                missing += 1
+        extract_pending = sum(
+            1 for o in pending_obligations(canonical.snapshot) if o["obligation"] == "extract"
+        )
+        missing = max(missing, extract_pending)
+        return {
+            "ready": missing == 0 and bool(birds),
+            "activeBirds": len(birds),
+            "missingCutouts": missing,
+            "missingFinalCutouts": missing,
+            "invalidPadding": 0,
+        }
     level_path = session_dir(session_id) / "level.json"
     try:
         level = json.loads(level_path.read_text())
@@ -1616,6 +1664,7 @@ def save_canonical_hitboxes_if_present(
     hitboxes: list[dict[str, Any]],
     *,
     expected_content_revision: str | None,
+    actor: str = "human:editor",
 ):
     """CAS-save canonical hitboxes, or return ``None`` for a legacy session."""
     from levelbuilder.api.canonical_bird_contract import (
@@ -1638,24 +1687,18 @@ def save_canonical_hitboxes_if_present(
 
         raise RevisionConflictError(None, current.pointer.content_revision if current.pointer else None)
 
-    incoming: dict[str, dict[str, Any]] = {}
-    for hitbox in hitboxes:
-        bird_id = hitbox.get("id") if isinstance(hitbox, dict) else None
-        if not isinstance(bird_id, str) or bird_id in incoming:
-            raise ContractValidationError("canonical hitboxes require unique birdId values")
-        incoming[bird_id] = hitbox
-    canonical_ids = {bird["birdId"] for bird in current.snapshot["birds"]}
-    if set(incoming) != canonical_ids:
-        raise ContractValidationError("canonical hitbox identity set does not match the current revision")
+    # P1.6: the geometry service is the one mutation path (no-op saves
+    # preserve approvals, R7 human authority, projected mirrors). Returns the
+    # GeometryResult (revision fields + the committed snapshot) so responses
+    # stay revision-consistent (CR-1 finding 8).
+    from .geometry_service import mutate_geometry
 
-    updated = invalidate_reviews(current.snapshot, changed_artifacts={"hitboxes"})
-    for bird in updated["birds"]:
-        hitbox = incoming[bird["birdId"]]
-        bird["hitbox"] = {key: hitbox[key] for key in ("x", "y", "r")}
-    return store.commit(
-        updated,
+    return mutate_geometry(
+        session_id,
+        "move",
+        hitboxes=hitboxes,
         expected_content_revision=expected_content_revision,
-        expected_operational_revision=current.pointer.operational_revision if current.pointer else None,
+        actor=actor,
     )
 
 
@@ -1868,17 +1911,19 @@ def delete_canonical_bird_if_present(
         raise RevisionConflictError(None, actual)
     if not any(bird["birdId"] == bird_id for bird in current.snapshot["birds"]):
         raise ContractValidationError(f"unknown birdId: {bird_id}")
-    updated = invalidate_reviews(current.snapshot, changed_artifacts={"birdSet"})
-    updated["birds"] = [bird for bird in updated["birds"] if bird["birdId"] != bird_id]
-    tombstones = updated.setdefault("operational", {}).setdefault("deletedBirdIds", [])
-    if bird_id not in tombstones:
-        tombstones.append(bird_id)
-        tombstones.sort()
-    return store.commit(
-        updated,
+    # P1.6 (CR-1 finding 9): deletion goes through the geometry service — one
+    # commit path, retired slot, projected legacy mirrors. Tombstone the id
+    # in the same commit's operational record via the service's snapshot.
+    from .geometry_service import mutate_geometry
+
+    result = mutate_geometry(
+        session_id,
+        "delete",
+        bird_ids=[bird_id],
         expected_content_revision=expected_content_revision,
-        expected_operational_revision=current.pointer.operational_revision if current.pointer else None,
+        actor="human:editor",
     )
+    return result
 
 
 def set_canonical_candidate_confirmation_if_present(
@@ -3077,7 +3122,7 @@ def hydrate_session(session_id: str) -> dict | None:
         for level in bundled_manifest.get("levels") or []
     )
     catalog_entry = _catalog_level_entry(session_id)
-    return {
+    payload = {
         "id": session_id,
         "orientation": orientation,
         "style": raw.get("style", ""),
@@ -3124,6 +3169,71 @@ def hydrate_session(session_id: str) -> dict | None:
             "feather": float(mask_params.get("feather", 0.0)),
         },
     }
+    return _overlay_canonical_truth(session_id, payload)
+
+
+def _overlay_canonical_truth(session_id: str, payload: dict) -> dict:
+    """A1/P1.1: for VALID_CURRENT sessions the snapshot is the read truth —
+    hitboxes, bird identity, sprite geometry, and revision stamps come from the
+    canonical store, never from sidecars that may lag or be clobbered. Every
+    hydrate_session consumer gets this; there is no un-overlaid read path."""
+    from .canonical_bird_contract import CanonicalReadState
+
+    canonical = read_canonical_session(session_id)
+    payload["canonicalState"] = canonical.state.value
+    # A partial/quarantined store must never present sidecar state as editable
+    # truth (CR-item3 P0 #3): fields stay for triage, editing is blocked.
+    payload["editingBlocked"] = canonical.state in (
+        CanonicalReadState.ORPHANED_STAGE,
+        CanonicalReadState.QUARANTINED_INTEGRITY,
+    )
+    if canonical.state is not CanonicalReadState.VALID_CURRENT or canonical.snapshot is None:
+        return payload
+    snapshot = canonical.snapshot
+    payload["contentRevision"] = canonical.pointer.content_revision
+    payload["operationalRevision"] = canonical.pointer.operational_revision
+
+    from .artifact_dag import pending_obligations
+
+    payload["pendingObligations"] = pending_obligations(snapshot)
+    birds = sorted(snapshot["birds"], key=lambda b: b.get("presentationOrder", 0))
+    payload["hitboxes"] = [
+        {"x": b["hitbox"]["x"], "y": b["hitbox"]["y"], "r": b["hitbox"]["r"], "id": b["birdId"]}
+        for b in birds
+    ]
+    slot_index = {b["compatibilitySlot"]: b for b in birds}
+    by_slot = {f"dog_{dog['index']:02d}": dog for dog in payload.get("dogs", [])}
+    # The snapshot's bird set IS the dog set (CR-item3 P0 #1): sidecar dogs
+    # without a canonical bird are stale and dropped; canonical birds missing
+    # from the sidecar are synthesized. Output order == hitbox order
+    # (presentationOrder) so positional UI joins stay coherent (P0 #2).
+    dogs: list[dict[str, Any]] = []
+    for bird in birds:
+        slot = bird["compatibilitySlot"]
+        dog = by_slot.get(slot)
+        if dog is None:
+            dog = {
+                "index": int(slot.removeprefix("dog_")),
+                "id": bird["birdId"],
+                "status": "done" if (bird.get("sprite") or {}).get("asset") else "pending",
+                "activeVariant": None,
+                "promptOverride": None,
+                "variants": [],
+            }
+        _overlay_bird_onto_dog(dog, bird)
+        dogs.append(dog)
+    payload["dogs"] = dogs
+    return payload
+
+
+def _overlay_bird_onto_dog(dog: dict, bird: dict) -> None:
+    dog["id"] = bird["birdId"]
+    sprite = bird.get("sprite") or {}
+    placement = sprite.get("placement")
+    if isinstance(placement, dict):
+        dog["spritePlacement"] = dict(placement)
+    dog["spriteFlipX"] = bool(sprite.get("flipX", False))
+    dog["spriteFlipY"] = bool(sprite.get("flipY", False))
 
 
 def create_session(
@@ -4441,6 +4551,37 @@ def save_hitboxes(session_id: str, hitboxes: list[dict]) -> list[dict] | None:
     """
     if is_public_package_only(session_id):
         return
+    # P1.6 chokepoint: on VALID_CURRENT sessions the sidecar is a projection —
+    # a legacy writer landing here goes through the geometry service (machine
+    # replace_set, R7-guarded), loudly, instead of clobbering canonical truth.
+    # Fail-closed lane selection (merge-review F1): quarantined/orphaned
+    # stores raise here — they never fall through to the sidecar writer.
+    from .canonical_assets import select_lane
+
+    canonical = read_canonical_session(session_id)
+    lane = select_lane(canonical.state)
+    if lane == "canonical" and canonical.pointer is not None:
+        import logging
+
+        from .geometry_service import mutate_geometry
+
+        logging.getLogger(__name__).warning(
+            "save_hitboxes on canonical session %s routed through geometry service "
+            "(legacy writer should migrate to mutate_geometry)", session_id,
+        )
+        mutate_geometry(
+            session_id,
+            "replace_set",
+            hitboxes=hitboxes,
+            expected_content_revision=canonical.pointer.content_revision,
+            actor="machine:legacy-writer",
+        )
+        snapshot = read_canonical_session(session_id).snapshot or {}
+        birds = sorted(snapshot.get("birds", []), key=lambda b: b.get("presentationOrder", 0))
+        return [
+            {"id": b["birdId"], "x": b["hitbox"]["x"], "y": b["hitbox"]["y"], "r": b["hitbox"]["r"]}
+            for b in birds
+        ]
     sdir = session_dir(session_id)
     # Stable-id reconcile (A1 mint + B2 Slice-1 reconcile-by-id, spec -004 §6.3).
     # Three cases per incoming hitbox, NONE of which re-stamp an existing identity:

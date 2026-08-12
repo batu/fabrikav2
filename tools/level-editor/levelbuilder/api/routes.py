@@ -57,19 +57,36 @@ REMOTE_CONFIG_PUBLISHER_FACTORY = DisabledRemoteConfigPublisher
 JOB_STORE = JobStore()
 
 
+def _snapshot_hitboxes(snapshot: dict) -> list[dict]:
+    birds = sorted(snapshot.get("birds", []), key=lambda b: b.get("presentationOrder", 0))
+    return [
+        {"x": b["hitbox"]["x"], "y": b["hitbox"]["y"], "r": b["hitbox"]["r"], "id": b["birdId"]}
+        for b in birds
+    ]
+
+
+def _current_canonical_hitboxes(session_id: str) -> list[dict] | None:
+    snapshot = S.read_canonical_session(session_id).snapshot
+    return _snapshot_hitboxes(snapshot) if snapshot else None
+
+
 def _content_revision_conflict(
     error: RevisionConflictError,
     changed_artifact_classes: list[str],
+    *,
+    server_hitboxes: list[dict] | None = None,
 ) -> HTTPException:
-    return HTTPException(
-        409,
-        detail={
-            "code": "content_revision_conflict",
-            "expectedContentRevision": error.expected,
-            "actualContentRevision": error.actual,
-            "changedArtifactClasses": changed_artifact_classes,
-        },
-    )
+    detail = {
+        "code": "content_revision_conflict",
+        "expectedContentRevision": error.expected,
+        "actualContentRevision": error.actual,
+        "changedArtifactClasses": changed_artifact_classes,
+    }
+    if server_hitboxes is not None:
+        # P1.8: a rejection hands the client current server truth so local
+        # minted/unpersisted IDs are reconciled instead of rendered as reality.
+        detail["serverHitboxes"] = server_hitboxes
+    return HTTPException(409, detail=detail)
 
 SCALE_PRESETS = {
     "none": {
@@ -1147,11 +1164,8 @@ def get_session(session_id: str):
     data = S.hydrate_session(session_id)
     if data is None:
         raise HTTPException(404, detail={"error": "Session not found"})
-    canonical = S.read_canonical_session(session_id)
-    data["canonicalState"] = canonical.state.value
-    if canonical.pointer is not None:
-        data["contentRevision"] = canonical.pointer.content_revision
-        data["operationalRevision"] = canonical.pointer.operational_revision
+    # canonicalState/revisions come from the single read inside hydrate — a
+    # second read here could tear against a concurrent commit (CR-item3 P0 #5).
     return data
 
 
@@ -1575,6 +1589,21 @@ def get_hitbox_review(session_id: str):
 
 @router.put("/sessions/{session_id}/final-cutout-review")
 def save_final_cutout_review(session_id: str, req: SaveGoldenReviewRequest):
+    if req.approved:
+        # CR-1 finding 5: a canonical level with pending extract obligations
+        # can never be final-blessed — completeness is checked at the gate,
+        # not trusted from a stale UI readiness flag. Legacy lanes keep their
+        # own gate order (hitboxes_not_blessed first).
+        from .canonical_bird_contract import CanonicalReadState as _CRS
+
+        if S.read_canonical_session(session_id).state is _CRS.VALID_CURRENT:
+            readiness = S.get_final_cutout_review_readiness(session_id)
+            if readiness.get("ready") is not True:
+                raise HTTPException(409, detail={
+                    "error": f"{readiness.get('missingFinalCutouts', readiness.get('missingCutouts', 0))} "
+                             "bird cutout(s) are missing or unresolved",
+                    "code": "final_cutouts_incomplete",
+                })
     try:
         canonical = S.set_canonical_final_review_if_present(
             session_id,
@@ -2253,17 +2282,49 @@ def save_hitboxes(session_id: str, req: SaveHitboxesRequest):
             expected_content_revision=req.expectedContentRevision,
         )
     except RevisionConflictError as error:
-        raise _content_revision_conflict(error, ["hitboxes"]) from error
+        raise _content_revision_conflict(
+            error, ["hitboxes"], server_hitboxes=_current_canonical_hitboxes(session_id),
+        ) from error
     except (OSError, ValueError, json.JSONDecodeError) as error:
         raise HTTPException(422, detail={"error": str(error)}) from error
     if canonical is not None:
+        # P1.8 read-back: one revision-consistent snapshot from the commit
+        # itself (CR-1 finding 8) — never a second read that can tear.
+        from .artifact_dag import pending_obligations
+
+        snapshot = getattr(canonical, "snapshot", None) or S.read_canonical_session(session_id).snapshot or {}
         return {
             "ok": True,
             "contentRevision": canonical.content_revision,
             "operationalRevision": canonical.operational_revision,
+            "hitboxes": _snapshot_hitboxes(snapshot),
+            "pendingObligations": pending_obligations(snapshot),
         }
     S.save_hitboxes(session_id, req.hitboxes)
-    return Response(status_code=204)
+    persisted = json.loads((S.session_dir(session_id) / "hitboxes.json").read_text())
+    return {"ok": True, "hitboxes": persisted}
+
+
+@router.get("/sessions/{session_id}/recipe")
+def get_session_recipe(session_id: str):
+    """Resolved effective recipe (read-only): the same resolution the CLI
+    (python -m levelbuilder.recipe) performs — parity by construction."""
+    _validate_session_id(session_id)
+    if not S.session_dir(session_id).exists():
+        raise HTTPException(404, detail={"error": "Session not found"})
+    import json as _json
+
+    from ..recipe import DEFAULT_RECIPE, RecipeError, recipe_diff, recipe_hash, resolve_recipe, serialize_recipe
+
+    try:
+        resolved = resolve_recipe(S.load_session_raw(session_id))
+    except RecipeError as error:
+        raise HTTPException(422, detail={"error": str(error), "code": "invalid_recipe"}) from error
+    return {
+        "recipe": resolved,
+        "recipeHash": recipe_hash(resolved),
+        "diffVsDefault": recipe_diff(_json.loads(serialize_recipe(DEFAULT_RECIPE)), resolved),
+    }
 
 
 @router.get("/sessions/{session_id}/visibility-check")
@@ -2437,6 +2498,35 @@ def _landscape_deadzones(bg_w: int, bg_h: int) -> list:
     ]
 
 
+def _persist_auto_hitboxes(session_id: str, payload: list) -> list:
+    """P1.6: auto-placement commits canonically on VALID_CURRENT sessions —
+    a machine replace_set (R7-guarded), never a raw hitboxes.json write."""
+    from .canonical_assets import select_lane
+    from .geometry_service import mutate_geometry
+
+    canonical = S.read_canonical_session(session_id)
+    lane = select_lane(canonical.state)
+    if lane == "legacy":
+        return S.save_hitboxes(session_id, payload) or payload
+    revision = canonical.pointer.content_revision if canonical.pointer else None
+    from .canonical_bird_contract import ContractValidationError as _CVE
+
+    try:
+        mutate_geometry(
+            session_id,
+            "replace_set",
+            hitboxes=payload,
+            expected_content_revision=revision,
+            actor="machine:auto-place",
+        )
+    except _CVE as error:
+        raise HTTPException(422, detail={
+            "error": str(error), "code": "identity_refused",
+        }) from error
+    snapshot = S.read_canonical_session(session_id).snapshot or {}
+    return _snapshot_hitboxes(snapshot)
+
+
 @router.post("/sessions/{session_id}/auto-hitboxes")
 def auto_place_hitboxes(session_id: str, req: AutoHitboxesRequest) -> dict[str, Any]:
     from levelbuilder.hitboxes import generate_hitboxes_grounded
@@ -2539,7 +2629,7 @@ def auto_place_hitboxes(session_id: str, req: AutoHitboxesRequest) -> dict[str, 
                 "code": "smart_hitboxes_failed",
             }) from exc
         payload = SmartHitboxes.hitbox_payload(selected)
-        persisted = S.save_hitboxes(session_id, payload) or payload
+        persisted = _persist_auto_hitboxes(session_id, payload)
         return {
             "hitboxes": persisted,
             "strategy": "smart",
@@ -2561,7 +2651,7 @@ def auto_place_hitboxes(session_id: str, req: AutoHitboxesRequest) -> dict[str, 
         forbidden=forbidden,
     )
     payload = [{"x": hb.x, "y": hb.y, "r": hb.radius} for hb in hitboxes]
-    persisted = S.save_hitboxes(session_id, payload) or payload
+    persisted = _persist_auto_hitboxes(session_id, payload)
     return {"hitboxes": persisted, "strategy": "random"}
 
 
@@ -2789,17 +2879,28 @@ def pickup_preview(session_id: str):
     restore_path: Path | None = None
     sites: list[CleanupSite] = []
     level_width = level_height = 0
-    if canonical_snapshot is not None:
-        scene_ref = canonical_snapshot["assets"]["scene"]["path"]
-        restore_ref = canonical_snapshot["restore"]["asset"]["path"]
-        for value, label in ((scene_ref, "scene"), (restore_ref, "restore")):
-            resolved = S._session_relative_asset_path(session_id, value)
-            if resolved is None:
-                raise HTTPException(409, detail={"error": f"canonical {label} path leaves the session"})
-            if label == "scene":
-                color_path = resolved[1]
-            else:
-                restore_path = resolved[1]
+    canonical_scene_bytes: bytes | None = None
+    canonical_restore_bytes: bytes | None = None
+    from .canonical_assets import AssetIntegrityError, LaneSelectionError, resolve_asset, select_lane
+
+    try:
+        lane = select_lane(canonical.state)
+    except LaneSelectionError as error:
+        # Quarantined/orphaned stores never fall back to raw sidecar pixels
+        # (CR-item3 P0 #4) — that would render unverified bytes as truth.
+        raise HTTPException(409, detail={
+            "error": str(error), "code": "canonical_state_blocked",
+        }) from error
+    if lane == "canonical" and canonical_snapshot is not None:
+        store = S.canonical_session_store(session_id)
+        try:
+            canonical_scene_bytes = resolve_asset(store, canonical_snapshot["assets"]["scene"]).data
+            canonical_restore_bytes = resolve_asset(store, canonical_snapshot["restore"]["asset"]).data
+        except AssetIntegrityError as error:
+            raise HTTPException(409, detail={
+                "error": f"canonical asset integrity failure: {error}",
+                "code": "asset_integrity",
+            }) from error
         sites = [CleanupSite(
             bird_id=bird["birdId"],
             x=float(bird["hitbox"]["x"]),
@@ -2811,7 +2912,7 @@ def pickup_preview(session_id: str):
                 float(bird["cleanup"]["y"] + bird["cleanup"]["height"]),
             ),
         ) for bird in canonical_snapshot["birds"]]
-    if not color_path.exists():
+    if canonical_scene_bytes is None and not color_path.exists():
         raise HTTPException(404, detail={"error": "no color.png"})
     level_path = sdir / "level.json"
     exported = S.GAME_PUBLIC_LEVELS / session_id / "level.json"
@@ -2825,8 +2926,12 @@ def pickup_preview(session_id: str):
                 continue
     if lj is None and canonical_snapshot is None:
         raise HTTPException(409, detail={"error": "no level.json with cleanup metadata"})
-    with Image.open(color_path) as _c:
-        color = _c.convert("RGB")
+    if canonical_scene_bytes is not None:
+        with Image.open(io.BytesIO(canonical_scene_bytes)) as _c:
+            color = _c.convert("RGB")
+    else:
+        with Image.open(color_path) as _c:
+            color = _c.convert("RGB")
     if canonical_snapshot is not None:
         level_width, level_height = color.size
     else:
@@ -2861,15 +2966,19 @@ def pickup_preview(session_id: str):
                     float(cleanup["y"] + dy + cleanup["height"]),
                 ),
             ))
-    if restore_path is None:
-        restore_path = S.GAME_PUBLIC_LEVELS / session_id / "bg_00.webp"
-    if not restore_path.exists():
-        raw = S.load_session_raw(session_id) or {}
-        selected = raw.get("selected_bg") or 0
-        restore_path = sdir / f"bg_{int(selected):02d}.png"
-    if not restore_path.exists():
-        raise HTTPException(409, detail={"error": "no restore background"})
-    with Image.open(restore_path) as _b:
+    if canonical_restore_bytes is not None:
+        restore_source = io.BytesIO(canonical_restore_bytes)
+    else:
+        if restore_path is None:
+            restore_path = S.GAME_PUBLIC_LEVELS / session_id / "bg_00.webp"
+        if not restore_path.exists():
+            raw = S.load_session_raw(session_id) or {}
+            selected = raw.get("selected_bg") or 0
+            restore_path = sdir / f"bg_{int(selected):02d}.png"
+        if not restore_path.exists():
+            raise HTTPException(409, detail={"error": "no restore background"})
+        restore_source = restore_path
+    with Image.open(restore_source) as _b:
         restore = _b.convert("RGB")
         if restore.size != color.size:
             if canonical_snapshot is not None:
@@ -3394,10 +3503,21 @@ def _bundle_projection() -> dict:
     levels: list[dict] = []
     cumulative = 0
     boundary_index = 0
+    seen_paths: set = set()
     for level_id in level_ids:
         public_dir = S.GAME_PUBLIC_LEVELS / level_id
         exported = (public_dir / "level.json").exists()
-        size = (_directory_size(public_dir) or 0) if exported else 0
+        size = 0
+        if exported:
+            # O2: budget exactly what the native packer ships (manifest-
+            # referenced webp-preferred assets + dogs tree), de-duplicated
+            # projection-wide — never raw directory size, which counted
+            # authoring PNG masters and bundled 8 of 44 fitting levels.
+            for path in S.PublicLevels.shipped_file_paths(S.GAME_PUBLIC_LEVELS, level_id):
+                if path in seen_paths:
+                    continue
+                seen_paths.add(path)
+                size += path.stat().st_size
         bundled = False
         if exported and cumulative + size <= _BUNDLE_CAP_BYTES and boundary_index == len(levels):
             # contiguous prefix only: the first non-fitting (or unexported)

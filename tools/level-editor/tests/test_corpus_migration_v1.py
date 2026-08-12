@@ -541,3 +541,40 @@ def test_canonical_commits_project_back_to_editor_sidecars(tmp_path, monkeypatch
     assert sidecar["spriteBox"] == [14, 14, 30, 30]
     assert sidecar["cleanupBox"] == [6, 6, 34, 34]
     assert sidecar["flipX"] is True
+
+
+def test_import_reads_canonical_packages_without_legacy_sidecars(tmp_path):
+    """Canonically-exported packages ship sprite PNGs + artifact-manifest but
+    no legacy .json sidecars; the resurrection lane must still read them —
+    every geometry field it needs lives in level.json (2026-08-12 overnight
+    shakedown finding)."""
+    import json as _json
+
+    from levelbuilder.api import corpus_migration as CM
+
+    public = tmp_path / "public" / "canon_pkg"
+    session = tmp_path / "levels" / "canon_pkg"
+    (public / "dogs" / "dog_00").mkdir(parents=True)
+    session.mkdir(parents=True)
+    from PIL import Image
+
+    Image.new("RGB", (64, 64), (10, 10, 200)).save(public / "color.png")
+    Image.new("RGB", (64, 64), (10, 200, 10)).save(public / "bg_00.png")
+    Image.new("RGBA", (10, 10), (1, 2, 3, 255)).save(public / "dogs" / "dog_00" / "sprite_000.png")
+    (public / "level.json").write_text(_json.dumps({
+        "name": "canon_pkg", "width": 64, "height": 64,
+        "dogs": [{
+            "id": "b13e72ce-b8ed-5bed-a6b9-4cefd15578c1",
+            "x": 20, "y": 20, "r": 8,
+            "sprite": {
+                "image": "levels/canon_pkg/dogs/dog_00/sprite_000.png",
+                "x": 12, "y": 12, "width": 16, "height": 16,
+                "cleanup": {"x": 10, "y": 10, "width": 20, "height": 20},
+            },
+        }],
+    }))
+    result = CM.import_authoring_from_public(session, public)
+    assert result["birds"] == 1
+    # The projected sidecar exists post-import with level.json geometry.
+    sidecar = _json.loads((session / "dogs" / "dog_00" / "sprite_000.json").read_text())
+    assert sidecar["spriteBox"] == [12, 12, 28, 28]

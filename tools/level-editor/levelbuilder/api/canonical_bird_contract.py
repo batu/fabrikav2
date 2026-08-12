@@ -229,20 +229,28 @@ def validate_snapshot(snapshot: Any, *, validate_reviews: bool = True) -> dict[s
         _require(isinstance(bird.get("presentationOrder"), int) and bird["presentationOrder"] >= 0, f"{label}.presentationOrder is invalid")
         hitbox = bird.get("hitbox")
         _require(isinstance(hitbox, dict) and all(isinstance(hitbox.get(k), int) for k in ("x", "y", "r")) and hitbox["r"] > 0, f"{label}.hitbox is invalid")
+        # CL-3: a bird may exist pre-extraction — hitbox only, no generation,
+        # no sprite, no cleanup (the DAG reports the pending extract
+        # obligation). When present, each block is validated strictly.
         generation = bird.get("activeGeneration")
-        _require(isinstance(generation, dict) and isinstance(generation.get("generationId"), str) and bool(generation["generationId"]), f"{label}.activeGeneration is invalid")
-        _require(generation.get("inputSceneSha256") == assets["scene"]["sha256"], f"{label} generation provenance mismatch")
         sprite = bird.get("sprite")
-        _require(isinstance(sprite, dict), f"{label}.sprite is required")
-        _validate_asset(sprite.get("asset"), f"{label}.sprite.asset")
-        placement = sprite.get("placement")
-        _require(isinstance(placement, dict) and all(isinstance(placement.get(k), int) for k in ("x", "y", "width", "height")) and placement["width"] > 0 and placement["height"] > 0, f"{label}.sprite.placement is invalid")
-        _require(isinstance(sprite.get("anchorX"), (int, float)) and 0 <= sprite["anchorX"] <= 1, f"{label}.sprite.anchorX is invalid")
-        _require(isinstance(sprite.get("anchorY"), (int, float)) and 0 <= sprite["anchorY"] <= 1, f"{label}.sprite.anchorY is invalid")
-        _require(isinstance(sprite.get("flipX"), bool) and isinstance(sprite.get("flipY"), bool), f"{label}.sprite flips are invalid")
         cleanup = bird.get("cleanup")
-        _require(isinstance(cleanup, dict) and all(isinstance(cleanup.get(k), int) for k in ("x", "y", "width", "height")) and cleanup["width"] > 0 and cleanup["height"] > 0, f"{label}.cleanup is invalid")
-        _require(cleanup.get("sourceSpriteSha256") == sprite["asset"]["sha256"], f"{label} cleanup provenance mismatch")
+        if generation is not None:
+            _require(isinstance(generation, dict) and isinstance(generation.get("generationId"), str) and bool(generation["generationId"]), f"{label}.activeGeneration is invalid")
+            _require(generation.get("inputSceneSha256") == assets["scene"]["sha256"], f"{label} generation provenance mismatch")
+        if sprite is not None:
+            _require(generation is not None, f"{label}.sprite requires activeGeneration provenance")
+            _require(isinstance(sprite, dict), f"{label}.sprite is required")
+            _validate_asset(sprite.get("asset"), f"{label}.sprite.asset")
+            placement = sprite.get("placement")
+            _require(isinstance(placement, dict) and all(isinstance(placement.get(k), int) for k in ("x", "y", "width", "height")) and placement["width"] > 0 and placement["height"] > 0, f"{label}.sprite.placement is invalid")
+            _require(isinstance(sprite.get("anchorX"), (int, float)) and 0 <= sprite["anchorX"] <= 1, f"{label}.sprite.anchorX is invalid")
+            _require(isinstance(sprite.get("anchorY"), (int, float)) and 0 <= sprite["anchorY"] <= 1, f"{label}.sprite.anchorY is invalid")
+            _require(isinstance(sprite.get("flipX"), bool) and isinstance(sprite.get("flipY"), bool), f"{label}.sprite flips are invalid")
+            _require(isinstance(cleanup, dict) and all(isinstance(cleanup.get(k), int) for k in ("x", "y", "width", "height")) and cleanup["width"] > 0 and cleanup["height"] > 0, f"{label}.cleanup is invalid")
+            _require(cleanup.get("sourceSpriteSha256") == sprite["asset"]["sha256"], f"{label} cleanup provenance mismatch")
+        else:
+            _require(cleanup is None, f"{label}.cleanup requires a sprite")
 
     _require(isinstance(snapshot.get("operational", {}), dict), "operational must be an object")
     reviews = snapshot.get("reviews", {})
@@ -287,6 +295,10 @@ class CanonicalRevisionStore:
             return CanonicalReadResult(state)
         try:
             pointer_raw = json.loads(self.pointer_path.read_text())
+            if not isinstance(pointer_raw, dict):
+                raise ValueError(f"pointer must be an object, got {type(pointer_raw).__name__}")
+            if pointer_raw.get("schemaVersion") != 1:
+                raise ValueError(f"unsupported pointer schemaVersion: {pointer_raw.get('schemaVersion')!r}")
             pointer = RevisionPointer(
                 revision_file=pointer_raw["revisionFile"],
                 content_revision=pointer_raw["contentRevision"],
@@ -295,7 +307,13 @@ class CanonicalRevisionStore:
             if Path(pointer.revision_file).name != pointer.revision_file:
                 raise ValueError("unsafe revision filename")
             snapshot_path = self.revisions_dir / pointer.revision_file
-            snapshot = json.loads(snapshot_path.read_text())
+            snapshot_bytes = snapshot_path.read_bytes()
+            file_digest = hashlib.sha256(snapshot_bytes).hexdigest()
+            if f"revision-{file_digest}.json" != pointer.revision_file:
+                raise ValueError(
+                    f"revision file bytes do not match its name: recomputed {file_digest[:12]}…"
+                )  # detail contract: readers match on "match its name"
+            snapshot = json.loads(snapshot_bytes)
             validated = validate_snapshot(snapshot)
             revisions = snapshot_revisions(validated)
             if revisions.content_revision != pointer.content_revision or revisions.operational_revision != pointer.operational_revision:
@@ -311,7 +329,10 @@ class CanonicalRevisionStore:
         match: dict[str, Any] | None = None
         for path in self.revisions_dir.glob("revision-*.json"):
             try:
-                snapshot = validate_snapshot(json.loads(path.read_text()))
+                raw = path.read_bytes()
+                if f"revision-{hashlib.sha256(raw).hexdigest()}.json" != path.name:
+                    continue  # tampered/corrupt historical file is not evidence
+                snapshot = validate_snapshot(json.loads(raw))
             except (OSError, ValueError, json.JSONDecodeError, ContractValidationError):
                 continue
             if snapshot_revisions(snapshot).content_revision != content_revision:
@@ -320,6 +341,85 @@ class CanonicalRevisionStore:
                 raise ContractValidationError("content revision resolves to conflicting snapshots")
             match = snapshot
         return copy.deepcopy(match)
+
+    def _referenced_assets(self, snapshot: dict[str, Any]) -> list[tuple[str, dict[str, Any]]]:
+        assets = [("assets.scene", snapshot["assets"]["scene"]),
+                  ("assets.cleanBackground", snapshot["assets"]["cleanBackground"]),
+                  ("restore.asset", snapshot["restore"]["asset"])]
+        for index, bird in enumerate(snapshot.get("birds", [])):
+            sprite_asset = (bird.get("sprite") or {}).get("asset")
+            if isinstance(sprite_asset, dict):
+                assets.append((f"birds[{index}].sprite.asset", sprite_asset))
+            painted = (bird.get("activeGeneration") or {}).get("paintedAsset")
+            if isinstance(painted, dict):
+                assets.append((f"birds[{index}].activeGeneration.paintedAsset", painted))
+        return assets
+
+    def verify_and_store_assets(self, snapshot: dict[str, Any]) -> None:
+        """FF-1: a snapshot may only commit if every referenced asset exists on disk
+        with the exact declared bytes+sha256; verified bytes are mirrored into the
+        immutable CAS at .canonical/objects/<sha256><ext> (deduplicated)."""
+        objects_dir = self.root / "objects"
+        for label, descriptor in self._referenced_assets(snapshot):
+            relative = Path(descriptor["path"])
+            if relative.is_absolute() or ".." in relative.parts:
+                raise ContractValidationError(f"{label}.path escapes the session: {descriptor['path']!r}")
+            source = self.session_root / relative
+            data: bytes | None = None
+            if source.is_file():
+                candidate = source.read_bytes()
+                if (
+                    hashlib.sha256(candidate).hexdigest() == descriptor["sha256"]
+                    and len(candidate) == descriptor["bytes"]
+                ):
+                    data = candidate
+            if data is None:
+                # Digest-addressed fallback: crash-safe writers (promote's scene
+                # lane) stage new bytes under objects/ or staging/ before the
+                # path projection is replaced post-commit. Truth is the digest,
+                # the path file is a projection.
+                suffix = source.suffix.lower()
+                for candidate_path in (
+                    objects_dir / f"{descriptor['sha256']}{suffix}",
+                    self.staging_dir / f"scene-{descriptor['sha256']}{suffix}",
+                ):
+                    if candidate_path.is_file():
+                        candidate = candidate_path.read_bytes()
+                        if (
+                            hashlib.sha256(candidate).hexdigest() == descriptor["sha256"]
+                            and len(candidate) == descriptor["bytes"]
+                        ):
+                            data = candidate
+                            break
+            if data is None:
+                found = "missing"
+                if source.is_file():
+                    on_disk = source.read_bytes()
+                    found = f"{hashlib.sha256(on_disk).hexdigest()[:12]}…/{len(on_disk)}b"
+                raise ContractValidationError(
+                    f"{label} bytes match neither their path nor a digest-addressed "
+                    f"object (declared {descriptor['sha256'][:12]}…/{descriptor['bytes']}b, "
+                    f"path has {found}): {descriptor['path']}"
+                )
+            digest = descriptor["sha256"]
+            objects_dir.mkdir(parents=True, exist_ok=True)
+            target = objects_dir / f"{digest}{source.suffix.lower()}"
+            target_valid = (
+                target.exists()
+                and hashlib.sha256(target.read_bytes()).hexdigest() == digest
+            )
+            if not target_valid:
+                # Missing OR corrupt digest-named object: (re)write atomically —
+                # a truncated object must never survive a successful commit.
+                stage_fd, stage_name = tempfile.mkstemp(prefix="object-", dir=objects_dir)
+                try:
+                    with os.fdopen(stage_fd, "wb") as staged:
+                        staged.write(data)
+                        staged.flush()
+                        os.fsync(staged.fileno())
+                    os.replace(stage_name, target)
+                finally:
+                    Path(stage_name).unlink(missing_ok=True)
 
     def commit(
         self,
@@ -330,6 +430,7 @@ class CanonicalRevisionStore:
     ) -> RevisionPointer:
         validated = validate_snapshot(snapshot)
         revisions = snapshot_revisions(validated)
+        self.verify_and_store_assets(validated)
         self.root.mkdir(parents=True, exist_ok=True)
         self.revisions_dir.mkdir(exist_ok=True)
         self.staging_dir.mkdir(exist_ok=True)
@@ -358,9 +459,12 @@ class CanonicalRevisionStore:
                     staged.flush()
                     os.fsync(staged.fileno())
                 destination = self.revisions_dir / revision_file
-                if destination.exists():
+                if destination.exists() and destination.read_bytes() == encoded:
                     Path(stage_name).unlink()
                 else:
+                    # Missing OR corrupt (bytes ≠ digest-named content): install
+                    # the freshly staged bytes — reusing an unverified existing
+                    # file would commit a pointer read() immediately quarantines.
                     os.replace(stage_name, destination)
                     self._fsync_dir(self.revisions_dir)
                 pointer = RevisionPointer(revision_file, revisions.content_revision, revisions.operational_revision)

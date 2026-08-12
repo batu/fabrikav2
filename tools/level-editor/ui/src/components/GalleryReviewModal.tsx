@@ -344,7 +344,38 @@ export default function GalleryReviewModal({
 
   const persistCachedHitboxes = useCallback(async (sessionId: string, hitboxes: Hitbox[]): Promise<void> => {
     const cached = sessionCacheRef.current.get(sessionId);
-    const result = await persistHitboxes(sessionId, hitboxes, cached?.contentRevision);
+    let result;
+    try {
+      result = await persistHitboxes(sessionId, hitboxes, cached?.contentRevision);
+    } catch (error) {
+      // P1.8 reconciliation: a rejected save must not leave local
+      // minted/unpersisted hitboxes rendered as truth — one rejection used to
+      // poison every subsequent edit for the level until reload (2026-08-12).
+      // The 409 carries server truth; adopt it and surface the rejection.
+      if (error instanceof ApiError && error.status === 409 && error.detail
+          && typeof error.detail === 'object') {
+        // FastAPI wraps the payload as {detail: {...}}; unwrap like
+        // conflictRevision does (CR-1 finding 7).
+        const outer = error.detail as Record<string, unknown>;
+        const detail = (outer.detail && typeof outer.detail === 'object'
+          ? outer.detail : outer) as {
+          serverHitboxes?: Hitbox[];
+          actualContentRevision?: string;
+        };
+        if (Array.isArray(detail.serverHitboxes) && cached) {
+          sessionCacheRef.current.set(sessionId, {
+            ...cached,
+            hitboxes: detail.serverHitboxes,
+            contentRevision: detail.actualContentRevision ?? cached.contentRevision,
+          });
+          dispatchNarrow({
+            type: 'SET_REVISIONS',
+            contentRevision: detail.actualContentRevision,
+          });
+        }
+      }
+      throw error;
+    }
     updateCachedHitboxes(sessionId, hitboxes);
     if (result) {
       dispatchNarrow({
@@ -760,6 +791,15 @@ export default function GalleryReviewModal({
               flexShrink: 0, overflowY: 'auto',
               display: 'flex', flexDirection: 'column', gap: 12,
             }}>
+              {state.contentRevision && (
+                <div
+                  data-testid="provenance-strip"
+                  title={`persisted @ ${state.contentRevision}`}
+                  style={{ fontSize: 11, color: '#8fa3b8', fontFamily: 'monospace' }}
+                >
+                  persisted @ {state.contentRevision.replace('sha256:', '').slice(0, 12)}
+                </div>
+              )}
               <div className="gallery-review-mode" role="tablist" aria-label="Focused review mode">
                 <button type="button" role="tab" aria-selected={reviewMode === 'placement'} onClick={() => setReviewMode('placement')}>Placement</button>
                 <button type="button" role="tab" aria-selected={reviewMode === 'cutouts'} onClick={() => setReviewMode('cutouts')}>Cutouts &amp; redo</button>
@@ -951,8 +991,12 @@ export default function GalleryReviewModal({
                 } catch (error) {
                   const currentRevision = conflictRevision(error);
                   if (!currentRevision) throw error;
+                  // P2b.3: never blind-retry a human approval at a revision the
+                  // human has not seen — adopt the server revision and require
+                  // a fresh look + click.
                   dispatchNarrow({ type: 'SET_REVISIONS', contentRevision: currentRevision });
-                  result = await setFinalCutoutApproval(card.session.id, approved, currentRevision);
+                  setBlessError('The level changed on the server since you loaded it — re-check the cutouts and click again.');
+                  return;
                 }
                 const { finalCutoutReview } = result;
                 if (result.contentRevision) dispatchNarrow({

@@ -52,6 +52,8 @@ def test_canonical_pickup_preview_uses_revision_geometry_without_level_projectio
         "x": 35, "y": 25, "width": 10, "height": 10,
         "sourceSpriteSha256": snapshot["birds"][0]["sprite"]["asset"]["sha256"],
     }
+    from conftest import restamp_snapshot_assets
+    restamp_snapshot_assets(sdir, snapshot)
     store.commit(snapshot, expected_content_revision=pointer.content_revision)
     (sdir / "level.json").unlink(missing_ok=True)
 
@@ -65,12 +67,58 @@ def test_canonical_pickup_preview_uses_revision_geometry_without_level_projectio
 
 def test_canonical_pickup_preview_rejects_mismatched_restore_dimensions(app_client, isolated_session):
     session_id = "pickup_preview_bad_restore"
-    _canonical_session(isolated_session, session_id)
+    store, pointer = _canonical_session(isolated_session, session_id)
     sdir = isolated_session.session_dir(session_id)
     Image.new("RGB", (80, 60), (220, 20, 20)).save(sdir / "color.png")
     Image.new("RGB", (40, 30), (20, 180, 20)).save(sdir / "bg.png")
+    from conftest import restamp_snapshot_assets
+    snapshot = store.read().snapshot
+    restamp_snapshot_assets(sdir, snapshot)
+    store.commit(snapshot, expected_content_revision=pointer.content_revision)
 
     response = app_client.get(f"/api/sessions/{session_id}/pickup-preview")
 
     assert response.status_code == 409
     assert response.json()["detail"]["code"] == "restore_dimensions_mismatch"
+
+
+def test_canonical_pickup_preview_survives_missing_projection_and_rejects_tamper(app_client, isolated_session):
+    """CR-item1 P0: preview resolves scene/restore through the canonical
+    resolver — a deleted path projection is served from the CAS; bytes that
+    match nothing are a 409, never stale pixels."""
+    session_id = "pickup_preview_resolver"
+    store, pointer = _canonical_session(isolated_session, session_id)
+    sdir = isolated_session.session_dir(session_id)
+    Image.new("RGB", (64, 48), (200, 30, 30)).save(sdir / "color.png")
+    Image.new("RGB", (64, 48), (30, 160, 30)).save(sdir / "bg.png")
+    snapshot = store.read().snapshot
+    from conftest import restamp_snapshot_assets
+    restamp_snapshot_assets(sdir, snapshot)
+    store.commit(snapshot, expected_content_revision=pointer.content_revision)
+
+    # Projection deleted: CAS serves the committed scene.
+    (sdir / "color.png").unlink()
+    response = app_client.get(f"/api/sessions/{session_id}/pickup-preview")
+    assert response.status_code == 200
+
+    # Projection AND CAS both wrong: loud 409, not stale pixels.
+    Image.new("RGB", (64, 48), (1, 2, 3)).save(sdir / "color.png")
+    scene_sha = store.read().snapshot["assets"]["scene"]["sha256"]
+    for obj in (store.root / "objects").iterdir():
+        if obj.name.startswith(scene_sha):
+            obj.unlink()
+    response = app_client.get(f"/api/sessions/{session_id}/pickup-preview")
+    assert response.status_code == 409
+    assert "integrity" in json.dumps(response.json()).lower()
+
+
+def test_pickup_preview_refuses_quarantined_sessions(app_client, isolated_session):
+    """CR-item3 P0 #4: a quarantined store never falls back to sidecar pixels."""
+    session_id = "pickup_preview_quarantined"
+    store, _ = _canonical_session(isolated_session, session_id)
+    sdir = isolated_session.session_dir(session_id)
+    Image.new("RGB", (64, 48), (200, 30, 30)).save(sdir / "color.png")
+    store.pointer_path.write_text("not json")
+    response = app_client.get(f"/api/sessions/{session_id}/pickup-preview")
+    assert response.status_code == 409
+    assert response.json()["detail"]["code"] == "canonical_state_blocked"

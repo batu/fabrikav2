@@ -181,6 +181,9 @@ export interface SessionResponse {
   contentRevision?: string;
   operationalRevision?: string;
   canonicalState?: 'valid_current' | 'migration_required' | 'quarantined_integrity' | 'orphaned_stage';
+  /** True for quarantined/orphaned stores: fields are triage-only, every
+   * mutation surface must refuse (server enforces; UI should not offer). */
+  editingBlocked?: boolean;
   /** Level orientation. Always present after Slice A; pre-feature legacy
    * sessions hydrate as 'portrait'. (Note: the prior `mode: 'setup' | 'workspace'`
    * field was UI flow-state — repurposed; the new field is `orientation`.) */

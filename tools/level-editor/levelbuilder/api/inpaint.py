@@ -4283,13 +4283,21 @@ def _start_retry_failed_dogs_job_record(session_id: str, req: RetryFailedDogsJob
         for bird_id in bird_ids:
             crop_box = req.cropBoxesByBirdId.get(bird_id)
             if crop_box is None:
-                cleanup = birds[bird_id]["cleanup"]
-                crop_box = (
-                    cleanup["x"],
-                    cleanup["y"],
-                    cleanup["x"] + cleanup["width"],
-                    cleanup["y"] + cleanup["height"],
-                )
+                cleanup = birds[bird_id].get("cleanup")
+                if cleanup is None:
+                    # CR-1 finding 4: a pre-extraction bird (CL-3 add) has no
+                    # cleanup yet — derive the crop from its hitbox with the
+                    # same padding contract the placement lane uses.
+                    hb = birds[bird_id]["hitbox"]
+                    pad = max(2 * int(hb.get("r", 30)), 96)
+                    crop_box = (hb["x"] - pad, hb["y"] - pad, hb["x"] + pad, hb["y"] + pad)
+                else:
+                    crop_box = (
+                        cleanup["x"],
+                        cleanup["y"],
+                        cleanup["x"] + cleanup["width"],
+                        cleanup["y"] + cleanup["height"],
+                    )
             # Same containment contract as the legacy lane (which targets the
             # sprite anchor, falling back to the hitbox): a client-supplied
             # crop that no longer contains the bird (moved by another client,
@@ -4297,9 +4305,14 @@ def _start_retry_failed_dogs_job_record(session_id: str, req: RetryFailedDogsJob
             # before any provider spend (codex review 2026-08-12 finding #7).
             bird = birds[bird_id]
             hitbox = bird["hitbox"]
-            placement = bird["sprite"]["placement"]
-            target_x = round(placement["x"] + float(bird["sprite"].get("anchorX", 0.5)) * placement["width"])
-            target_y = round(placement["y"] + float(bird["sprite"].get("anchorY", 0.5)) * placement["height"])
+            sprite = bird.get("sprite")
+            if sprite and isinstance(sprite.get("placement"), dict):
+                placement = sprite["placement"]
+                target_x = round(placement["x"] + float(sprite.get("anchorX", 0.5)) * placement["width"])
+                target_y = round(placement["y"] + float(sprite.get("anchorY", 0.5)) * placement["height"])
+            else:
+                # Pre-extraction bird: the hitbox IS the target (CL-4/CL-5).
+                target_x, target_y = int(hitbox["x"]), int(hitbox["y"])
             x0, y0, x1, y1 = (int(value) for value in crop_box)
             radius = int(hitbox.get("r", 30))
             if x0 >= x1 or y0 >= y1:

@@ -1,3 +1,4 @@
+import hashlib
 import json
 import multiprocessing
 from pathlib import Path
@@ -7,6 +8,30 @@ import pytest
 
 def _asset(name: str, digest: str) -> dict:
     return {"path": name, "sha256": digest * 64, "bytes": 12}
+
+
+def materialize_snapshot_assets(root: Path, snapshot: dict) -> None:
+    """FF-1: commits verify referenced bytes on disk — write each descriptor's file
+    with real content and stamp the descriptor with the true digest."""
+    seen: dict[str, bytes] = {}
+    def _fix(descriptor: dict) -> None:
+        path = root / descriptor["path"]
+        if descriptor["path"] not in seen:
+            path.parent.mkdir(parents=True, exist_ok=True)
+            data = f"asset:{descriptor['path']}".encode()
+            path.write_bytes(data)
+            seen[descriptor["path"]] = data
+        data = seen[descriptor["path"]]
+        descriptor["sha256"] = hashlib.sha256(data).hexdigest()
+        descriptor["bytes"] = len(data)
+    _fix(snapshot["assets"]["scene"])
+    _fix(snapshot["assets"]["cleanBackground"])
+    _fix(snapshot["restore"]["asset"])
+    snapshot["restore"]["sourceSceneSha256"] = snapshot["assets"]["scene"]["sha256"]
+    for bird in snapshot["birds"]:
+        _fix(bird["sprite"]["asset"])
+        bird["activeGeneration"]["inputSceneSha256"] = snapshot["assets"]["scene"]["sha256"]
+        bird["cleanup"]["sourceSpriteSha256"] = bird["sprite"]["asset"]["sha256"]
 
 
 def _snapshot(*, presentation_order: int = 0, flip_x: bool = False) -> dict:
@@ -49,6 +74,7 @@ def _race_commit(root: str, expected: str | None, queue) -> None:
     from levelbuilder.api.canonical_bird_contract import CanonicalRevisionStore
 
     snapshot = _snapshot()
+    materialize_snapshot_assets(Path(root), snapshot)
     snapshot["operational"]["worker"] = multiprocessing.current_process().name
     snapshot["birds"][0]["hitbox"]["x"] += int(multiprocessing.current_process().name.rsplit("-", 1)[-1])
     try:
@@ -140,8 +166,12 @@ def test_commit_is_fsynced_cas_and_cross_process_locked(tmp_path):
     from levelbuilder.api.canonical_bird_contract import CanonicalReadState, CanonicalRevisionStore
 
     store = CanonicalRevisionStore(tmp_path / "session")
-    initial = store.commit(_snapshot(), expected_content_revision=None)
+    first = _snapshot()
+    materialize_snapshot_assets(tmp_path / "session", first)
+    initial = store.commit(first, expected_content_revision=None)
     assert store.read().state is CanonicalReadState.VALID_CURRENT
+    objects = list((tmp_path / "session" / ".canonical" / "objects").iterdir())
+    assert len(objects) == 3  # scene, clean bg (=restore), sprite — deduplicated CAS
 
     queue = multiprocessing.get_context("spawn").Queue()
     workers = [
@@ -222,3 +252,109 @@ def test_blessing_requires_attributable_human_and_exact_current_revision():
         reviewed_at="2026-08-11T01:00:00Z",
     )
     assert blessed["reviews"]["hitboxes"]["contentRevision"] == snapshot_revisions(blessed).content_revision
+
+
+def test_commit_accepts_digest_addressed_staged_bytes_and_rejects_absent_assets(tmp_path):
+    """FF-1: declared bytes may live in digest-addressed staging (promote's
+    crash-safe scene lane) — the CAS ingests them at commit. Bytes existing
+    nowhere fail the commit."""
+    import hashlib as _hashlib
+
+    from levelbuilder.api.canonical_bird_contract import (
+        CanonicalRevisionStore,
+        ContractValidationError,
+    )
+
+    root = tmp_path / "session"
+    store = CanonicalRevisionStore(root)
+    snapshot = _snapshot()
+    materialize_snapshot_assets(root, snapshot)
+    pointer = store.commit(snapshot, expected_content_revision=None)
+
+    # Replace the scene: bytes staged digest-addressed, path file still old.
+    staged = root / ".canonical" / "staging"
+    staged.mkdir(parents=True, exist_ok=True)
+    new_scene = b"composed-scene-bytes"
+    digest = _hashlib.sha256(new_scene).hexdigest()
+    (staged / f"scene-{digest}.png").write_bytes(new_scene)
+    nxt = store.read().snapshot
+    nxt["assets"]["scene"] = {"path": "color.png", "sha256": digest, "bytes": len(new_scene)}
+    nxt["restore"]["sourceSceneSha256"] = digest
+    for bird in nxt["birds"]:
+        bird["activeGeneration"]["inputSceneSha256"] = digest
+    pointer = store.commit(nxt, expected_content_revision=pointer.content_revision)
+    assert (root / ".canonical" / "objects" / f"{digest}.png").exists()
+
+    # Declared bytes existing nowhere: refused.
+    ghost = store.read().snapshot
+    ghost["assets"]["scene"] = {"path": "color.png", "sha256": "f" * 64, "bytes": 3}
+    ghost["restore"]["sourceSceneSha256"] = "f" * 64
+    for bird in ghost["birds"]:
+        bird["activeGeneration"]["inputSceneSha256"] = "f" * 64
+    with pytest.raises(ContractValidationError):
+        store.commit(ghost, expected_content_revision=pointer.content_revision)
+
+
+def test_read_fails_closed_on_malformed_pointers_and_tampered_revisions(tmp_path):
+    """CR-item1 P0s: non-object pointer, wrong pointer schema, and tampered
+    revision bytes all read as QUARANTINED_INTEGRITY, never crash."""
+    from levelbuilder.api.canonical_bird_contract import CanonicalReadState, CanonicalRevisionStore
+
+    store = CanonicalRevisionStore(tmp_path / "session")
+    snapshot = _snapshot()
+    materialize_snapshot_assets(tmp_path / "session", snapshot)
+    pointer = store.commit(snapshot, expected_content_revision=None)
+
+    store.pointer_path.write_text("[]")
+    assert store.read().state is CanonicalReadState.QUARANTINED_INTEGRITY
+    store.pointer_path.write_text("null")
+    assert store.read().state is CanonicalReadState.QUARANTINED_INTEGRITY
+    store.pointer_path.write_text(json.dumps({
+        "schemaVersion": 9, "revisionFile": pointer.revision_file,
+        "contentRevision": pointer.content_revision,
+        "operationalRevision": pointer.operational_revision,
+    }))
+    result = store.read()
+    assert result.state is CanonicalReadState.QUARANTINED_INTEGRITY
+    assert "schemaVersion" in (result.detail or "")
+
+    # Restore pointer, tamper the revision file bytes.
+    store._atomic_pointer_write(pointer)
+    revision_path = store.revisions_dir / pointer.revision_file
+    revision_path.write_text(revision_path.read_text() + " ")
+    result = store.read()
+    assert result.state is CanonicalReadState.QUARANTINED_INTEGRITY
+    assert "match its name" in (result.detail or "")
+
+
+def test_commit_verifies_preexisting_cas_objects_and_painted_assets(tmp_path):
+    """CR-item1 P0/P1: a corrupt digest-named CAS object is repaired at commit;
+    activeGeneration.paintedAsset descriptors are verified like every other asset."""
+    import hashlib as _hashlib
+
+    from levelbuilder.api.canonical_bird_contract import (
+        CanonicalRevisionStore,
+        ContractValidationError,
+    )
+
+    root = tmp_path / "session"
+    store = CanonicalRevisionStore(root)
+    snapshot = _snapshot()
+    materialize_snapshot_assets(root, snapshot)
+
+    # Pre-seed a corrupt object under the scene's digest: commit must repair it.
+    scene_sha = snapshot["assets"]["scene"]["sha256"]
+    objects = root / ".canonical" / "objects"
+    objects.mkdir(parents=True)
+    (objects / f"{scene_sha}.png").write_bytes(b"corrupt")
+    pointer = store.commit(snapshot, expected_content_revision=None)
+    repaired = (objects / f"{scene_sha}.png").read_bytes()
+    assert _hashlib.sha256(repaired).hexdigest() == scene_sha
+
+    # paintedAsset with bytes that exist nowhere refuses to commit.
+    nxt = store.read().snapshot
+    nxt["birds"][0]["activeGeneration"]["paintedAsset"] = {
+        "path": "dogs/dog_00/painted_000.png", "sha256": "e" * 64, "bytes": 9,
+    }
+    with pytest.raises(ContractValidationError, match="paintedAsset"):
+        store.commit(nxt, expected_content_revision=pointer.content_revision)
