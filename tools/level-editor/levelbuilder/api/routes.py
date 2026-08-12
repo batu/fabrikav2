@@ -2290,6 +2290,28 @@ def save_hitboxes(session_id: str, req: SaveHitboxesRequest):
     return {"ok": True, "hitboxes": persisted}
 
 
+@router.get("/sessions/{session_id}/recipe")
+def get_session_recipe(session_id: str):
+    """Resolved effective recipe (read-only): the same resolution the CLI
+    (python -m levelbuilder.recipe) performs — parity by construction."""
+    _validate_session_id(session_id)
+    if not S.session_dir(session_id).exists():
+        raise HTTPException(404, detail={"error": "Session not found"})
+    import json as _json
+
+    from ..recipe import DEFAULT_RECIPE, RecipeError, recipe_diff, recipe_hash, resolve_recipe, serialize_recipe
+
+    try:
+        resolved = resolve_recipe(S.load_session_raw(session_id))
+    except RecipeError as error:
+        raise HTTPException(422, detail={"error": str(error), "code": "invalid_recipe"}) from error
+    return {
+        "recipe": resolved,
+        "recipeHash": recipe_hash(resolved),
+        "diffVsDefault": recipe_diff(_json.loads(serialize_recipe(DEFAULT_RECIPE)), resolved),
+    }
+
+
 @router.get("/sessions/{session_id}/visibility-check")
 def visibility_check(session_id: str):
     return _visibility_check_for_session(session_id)
