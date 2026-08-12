@@ -22,6 +22,8 @@ export interface LevelCanvasState {
   showOverlay: boolean;
   radius: number;
   inpaintPadding: number;
+  /** CL-7: dashed padded-crop preview — crop-lane only, never the magenta default. */
+  showCropPreview?: boolean;
 }
 
 /**
@@ -566,21 +568,22 @@ export default function LevelCanvas({ state, dispatch, readOnly = false, allowAd
         if (showOverlay) {
           const zoneSeverity = hitboxZoneSeverity(hb, deadZonesRef.current);
 
-          // Padded inpaint-crop square (what the backend actually sends to
-          // Gemini — radius * INPAINT_PADDING on each side). This is drawn in
-          // neutral grey only; red/orange danger states below are based solely
-          // on the actual hitbox circle radius.
-          const inpaintPadding = inpaintPaddingRef.current;
-          const padHalf = hb.r * inpaintPadding * scale;
-          ctx.save();
-          ctx.setLineDash([6, 4]);
-          ctx.lineWidth = 4;
-          ctx.strokeStyle = PADDED_BOX_SHADOW;
-          ctx.strokeRect(cx - padHalf, cy - padHalf, padHalf * 2, padHalf * 2);
-          ctx.lineWidth = 2;
-          ctx.strokeStyle = PADDED_BOX_COLOR;
-          ctx.strokeRect(cx - padHalf, cy - padHalf, padHalf * 2, padHalf * 2);
-          ctx.restore();
+          // CL-7: the padded inpaint-crop square previews a crop the
+          // canonical MAGENTA lane never sends — draw it only when the crop
+          // lane is explicitly active (showCropPreview), never by default.
+          if (state.showCropPreview === true) {
+            const inpaintPadding = inpaintPaddingRef.current;
+            const padHalf = hb.r * inpaintPadding * scale;
+            ctx.save();
+            ctx.setLineDash([6, 4]);
+            ctx.lineWidth = 4;
+            ctx.strokeStyle = PADDED_BOX_SHADOW;
+            ctx.strokeRect(cx - padHalf, cy - padHalf, padHalf * 2, padHalf * 2);
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = PADDED_BOX_COLOR;
+            ctx.strokeRect(cx - padHalf, cy - padHalf, padHalf * 2, padHalf * 2);
+            ctx.restore();
+          }
 
           ctx.beginPath();
           ctx.arc(cx, cy, cr, 0, Math.PI * 2);
