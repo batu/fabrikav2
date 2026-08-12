@@ -185,6 +185,24 @@ review clicks. The stress battery (isolated rig, ~100 contended ops, SIGKILL mid
 confirms the *canonical CAS + guarded projection* core holds — the failures are all in the
 lanes that bypass it, which is the strongest argument for Phase 1/P1.6 being the payoff.
 
+## Pre-execution verification (2026-08-12, done while waiting)
+
+- **Executable defect ledger:** `tests/test_plan_contracts.py` — strict-xfail contract tests
+  reproducing four load-bearing findings (bg retry wipes paid child results; requeue accepts
+  RUNNING jobs; byte-identical saves revoke reviews; auto-place bypasses canonical). All four
+  reproduced. They flip to hard assertions as the phases land; add one per finding fixed.
+- **Phase 3 gate — ANSWERED:** find_the_dog corpus census: 105 levels, all
+  `public_only/frozen_legacy`, zero authoring sessions. FTB is 100% canonical. No corpus
+  anywhere still needs the legacy migration engine; public-only resurrection is served by
+  `import_authoring_from_public`. Phase 3's remaining decision is only whether to keep
+  `backfill_stable_ids`' geometric rebinding as a cold recovery tool (recommend: move to
+  an `attic/` with its tests, out of the import graph).
+- **Consumer matrix:** drafted by codex, checked in beside the reports; verify counts during
+  Phase 1, not before.
+- **Stress battery:** canonical core held (see findings section); rig recipe lives in the
+  session scratchpad notes — rebuild: copy one level into a throwaway workspace, run a second
+  server with `LEVELBUILDER_WORKSPACE`/`LEVELBUILDER_GAME_ROOT`.
+
 ## Risks
 
 - P1.1 changes candidate identity/geometry sourcing — the cutout panel, animation wizard, and
