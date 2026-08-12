@@ -37,7 +37,8 @@ addressing schemes (stable bird id vs positional slot index) used interchangeabl
 ## Phase 1 — Canonical-first reads (the payoff phase)
 
 **P1.1** `sprite_animation_candidates`: when the session is `VALID_CURRENT`, build candidates
-from the snapshot (geometry, image path, flips, confirmation from `candidateReviews`), using
+from the snapshot (geometry, image path, flips, per-sprite records from `candidateReviews`
+— derived plumbing auto-stamped by the level review, never an operator action), using
 sidecars only for fields canonical does not govern (quality diagnostics, regeneration review).
 Non-canonical sessions keep the sidecar path unchanged.
 **P1.2** `get_final_cutout_review_readiness`: for canonical sessions, readiness = snapshot
@@ -150,6 +151,12 @@ migration apply so representation-only changes self-heal approvals.
 **P2e.4 — Golden loop** (mining #5): machine-before/human-after geometry pairs are recorded
 automatically on every human correction, feeding the eval set that calibrates placement —
 the operator's corrections become training data without a separate "make golden" ritual.
+**Label-strength rule (2026-08-12 audit):** per-sprite "human confirmed" records are
+auto-stamped by level-scope review — a level glance, NOT a per-sprite endorsement. Eval
+and golden-dataset ingestion must treat level-review stamps as WEAK labels; only artifacts
+the operator actually edited (or explicitly flagged) are strong labels. Existing
+sprite-quality datasets keyed on humanConfirmed must be re-weighted accordingly; the
+hand-edited hitbox golden sets are unaffected (those were real edits).
 **P2e.5 — R8 visual evidence:** every generation/regeneration run emits a contact sheet
 (full level, overlays, all-picked-up reconstruction, representative pickups) with
 image-load and registration/dimension assertions; promotion blocks on missing or broken
@@ -380,10 +387,12 @@ naturally inside step 4's geometry service or Phase 5), each with its own commit
   assertion for cutouts. Remove the per-bird Confirm button from the cutout UI — it is
   golden-dataset/eval plumbing (level review already auto-stamps per-sprite records for
   that machinery, which keeps working invisibly). One click, one ledger, no operator-facing
-  per-bird confirmation concept.
+  per-bird confirmation concept — including the derived surfaces: the
+  humanConfirmedBirds/reviewableBirds counts leave the gallery listing and cards.
 - **CL-17. "Re-run stale" action.** One button discharging whatever obligations the DAG
-  reports pending for the level (subsumes "extract all unconfirmed"; bulk work is
-  otherwise automatic via obligation edges). Uses the existing per-bird concurrent queue.
+  reports pending for the level. Batch selection is DAG-staleness, never confirmation
+  state (there is no operator-facing per-bird confirmation). Uses the existing per-bird
+  concurrent queue.
 - **CL-18. Keep the hide-map 3-across scroll layout** (operator preference); it gains
   from CL-10 instant previews, CL-12 card simplification, CL-15 ordering. No focused
   single-bird mode.
