@@ -10,4 +10,17 @@ set +a
 cd /Users/base/dev/appletolye/fabrikav2/tools/level-editor
 export MERCEKA_FORCE_OPENROUTER="${MERCEKA_FORCE_OPENROUTER:-1}"  # Google prepay depleted 2026-08-04; route via OpenRouter
 export FTD_SAM2_URL="${FTD_SAM2_URL:-http://localhost:8977}"
+
+# The portal serves the editor UI from ui/dist as static files. dist is a
+# build artifact nothing else refreshes, so a "restart" that skips this step
+# serves yesterday's UI against today's backend — that silent skew has bitten
+# three times (2026-07-29 x2, 2026-08-12). Build on every start; a build
+# failure must stop the launch loudly, never fall back to a stale UI.
+if ! command -v npm >/dev/null 2>&1; then
+  echo "FATAL: npm not on PATH; cannot build the editor UI (stale-dist guard)" >&2
+  exit 1
+fi
+echo "Building editor UI (stale-dist guard)..."
+npm --prefix ui run build
+
 exec uv run python -m levelbuilder.api.server --game find_the_bird --port 5196
