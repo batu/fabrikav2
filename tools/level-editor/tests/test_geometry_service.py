@@ -352,3 +352,43 @@ def test_sprite_revert_restores_previous_extraction(isolated_session):
     on_disk = (sdir / current["sprite"]["asset"]["path"]).read_bytes()
     assert _hashlib.sha256(on_disk).hexdigest() == original_sha
     assert result.content_revision != pointer.content_revision
+
+
+def test_human_corrections_of_machine_geometry_record_golden_pairs(isolated_session):
+    """P2e.4: a human moving MACHINE-placed geometry auto-records the
+    before/after pair — corrections become eval data without a ritual.
+    Human-over-human edits and no-ops record nothing."""
+    import json as _json
+
+    from levelbuilder.api import session as S
+    from levelbuilder.api.geometry_service import mutate_geometry
+
+    store, pointer = _canonical_session(isolated_session, "geo_golden")
+    machine = mutate_geometry(
+        "geo_golden", "replace_set",
+        hitboxes=[{"id": "bird_one", "x": 40, "y": 40, "r": 8}],
+        expected_content_revision=pointer.content_revision, actor="machine:auto-place",
+    )
+    corrected = mutate_geometry(
+        "geo_golden", "move",
+        hitboxes=[{"id": "bird_one", "x": 52, "y": 44, "r": 8}],
+        expected_content_revision=machine.content_revision, actor="human:batu",
+    )
+    ledger = S.WORKSPACE_ROOT / "state" / "golden-geometry-pairs.jsonl"
+    assert ledger.is_file()
+    rows = [_json.loads(line) for line in ledger.read_text().splitlines()]
+    assert len(rows) == 1
+    row = rows[0]
+    assert row["birdId"] == "bird_one"
+    assert row["machine"] == {"x": 40, "y": 40, "r": 8}
+    assert row["human"] == {"x": 52, "y": 44, "r": 8}
+    assert row["machineActor"] == "machine:auto-place"
+
+    # Human refining their own placement is not a machine correction.
+    mutate_geometry(
+        "geo_golden", "move",
+        hitboxes=[{"id": "bird_one", "x": 53, "y": 44, "r": 8}],
+        expected_content_revision=corrected.content_revision, actor="human:batu",
+    )
+    rows = [_json.loads(line) for line in ledger.read_text().splitlines()]
+    assert len(rows) == 1

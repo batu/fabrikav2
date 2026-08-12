@@ -151,11 +151,26 @@ def mutate_geometry(
                 # Byte-identical geometry: no commit, approvals intact.
                 return _result(current.pointer, no_op=True, snapshot=snapshot)
             updated = invalidate_reviews(snapshot, changed_artifacts={"hitboxes"})
+            golden_pairs: list[dict[str, Any]] = []
             for bird in updated["birds"]:
                 if bird["hitbox"] != incoming[bird["birdId"]]:
                     _guard_human(bird)
+                    if not is_machine and str(bird.get("geometryOrigin", "")).startswith("machine:"):
+                        # P2e.4: a human correcting machine placement IS the
+                        # golden signal — record it without a ritual.
+                        golden_pairs.append({
+                            "birdId": bird["birdId"],
+                            "machine": dict(bird["hitbox"]),
+                            "human": dict(incoming[bird["birdId"]]),
+                            "machineActor": bird.get("geometryOrigin"),
+                            "humanActor": actor,
+                            "sessionId": session_id,
+                            "fromContentRevision": expected_content_revision,
+                        })
                     bird["hitbox"] = incoming[bird["birdId"]]
                     bird["geometryOrigin"] = actor
+            if golden_pairs:
+                _record_golden_pairs(golden_pairs)
         else:
             # replace_set is id-aware (CR-1 findings 1/3): id-carrying entries
             # move their birds, birds absent from the set are deleted, id-less
@@ -289,6 +304,27 @@ def mutate_geometry(
     )
     _project_geometry(session_id, updated)
     return _result(pointer, no_op=False, snapshot=updated)
+
+
+def _record_golden_pairs(pairs: list[dict[str, Any]]) -> None:
+    """P2e.4: append machine-before/human-after pairs to the golden ledger.
+    Best-effort — eval data collection must never fail the human's save —
+    but failures log loudly."""
+    import json as _json
+    import logging
+    import time as _time
+
+    from . import session as S
+
+    try:
+        path = S.WORKSPACE_ROOT / "state" / "golden-geometry-pairs.jsonl"
+        path.parent.mkdir(parents=True, exist_ok=True)
+        stamp = _time.strftime("%Y-%m-%dT%H:%M:%SZ", _time.gmtime())
+        with open(path, "a") as handle:
+            for pair in pairs:
+                handle.write(_json.dumps({**pair, "recordedAt": stamp}) + "\n")
+    except OSError:
+        logging.getLogger(__name__).exception("golden-pair recording failed")
 
 
 def _project_geometry(session_id: str, snapshot: dict[str, Any]) -> None:
