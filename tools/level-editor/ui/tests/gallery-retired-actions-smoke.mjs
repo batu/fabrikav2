@@ -405,7 +405,7 @@ async function run() {
     assert(await staleHitboxCard.getByText('Cutouts need review').count() === 0, 'A level needing hitbox review must not also appear as needing cutout review.');
     const galleryText = await page.locator('body').innerText();
     assert(/Reviewed\s*\(2\)/i.test(galleryText), 'Reviewed filter count is incorrect.');
-    assert(galleryText.includes('Quarantined'), 'Quarantined authoring must be visibly labeled in the Gallery.');
+    assert(galleryText.includes('Needs repair'), 'Mismatched bird artifacts must be visibly labeled as needing repair.');
     assert(/Hitboxes need review\s*\(2\)/i.test(galleryText), 'Pending hitbox filter must include stale hitboxes.');
     assert(/Cutouts need review\s*\(2\)/i.test(galleryText), 'Pending cutout filter must include stale cutouts without counting variants.');
     assert(!galleryText.includes('Background Only Session'), 'Background-only sessions must not appear in Gallery.');
@@ -479,7 +479,10 @@ async function run() {
     assert(await page.locator('.level-canvas').count() === 0, 'Hide map did not collapse the scene pane.');
     assert(await page.getByRole('button', { name: 'Show map' }).count() === 1, 'Collapsed scene pane cannot be restored.');
     await page.screenshot({ path: '/tmp/ftd-cutout-expanded-review.png', fullPage: true });
-    assert(await page.getByRole('button', { name: 'Regenerate selected (0)' }).isDisabled(), 'Empty focused cutout review must not submit regeneration.');
+    // Batch selection was retired; with no cutout candidates there must be no
+    // per-cutout generation actions to submit at all.
+    assert(await page.getByRole('dialog').getByRole('button', { name: 'Regenerate', exact: true }).count() === 0, 'Empty focused cutout review must not offer regeneration.');
+    assert(await page.getByRole('dialog').getByRole('button', { name: 'Extract', exact: true }).count() === 0, 'Empty focused cutout review must not offer extraction.');
     bodyText = await page.getByRole('dialog').innerText();
     for (const retiredText of [
       'Preview locally',

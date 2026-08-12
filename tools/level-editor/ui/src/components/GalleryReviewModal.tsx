@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import type { ConfigResponse, DogState, Hitbox, LevelSection, Orientation, SessionResponse } from '../types';
 import {
+  ApiError,
   getSession,
   getFinalCutoutReviewReadiness,
   saveHitboxes,
@@ -16,6 +17,13 @@ import LevelCanvas, { type LevelCanvasAction, type LevelCanvasState } from './Le
 import CutoutReviewPanel from './CutoutReviewPanel';
 
 const PREVIEW_IMAGE_CACHE_LIMIT = 8;
+
+function conflictRevision(error: unknown): string | undefined {
+  if (!(error instanceof ApiError) || error.status !== 409 || !error.detail || typeof error.detail !== 'object') return undefined;
+  const outer = error.detail as Record<string, unknown>;
+  const detail = outer.detail && typeof outer.detail === 'object' ? outer.detail as Record<string, unknown> : outer;
+  return typeof detail.actualContentRevision === 'string' ? detail.actualContentRevision : undefined;
+}
 
 export type ReviewCardState = 'background' | 'inpainted' | 'exported';
 
@@ -877,7 +885,9 @@ export default function GalleryReviewModal({
               setBlessError(null);
               try {
                 await flushPendingSave();
-                const result = await setHitboxApproval(card.session.id, approved, state.contentRevision);
+                const expectedContentRevision = state.contentRevision
+                  ?? sessionCacheRef.current.get(card.session.id)?.contentRevision;
+                const result = await setHitboxApproval(card.session.id, approved, expectedContentRevision);
                 const { hitboxReview, finalCutoutReadiness } = result;
                 if (result.contentRevision) dispatchNarrow({
                   type: 'SET_REVISIONS',
@@ -912,7 +922,7 @@ export default function GalleryReviewModal({
             className="btn"
             disabled={cutoutBlessBusy || hitboxBlessBusy || cutoutPlacementPending || card === undefined || card.session.canonicalState === 'quarantined_integrity' || !card.session.hitboxesBlessed || card.session.finalCutoutReviewReady !== true}
             title={card?.session.canonicalState === 'quarantined_integrity'
-              ? 'This level is quarantined because its bird artifacts do not match. Repair the listed integrity problems before reviewing cutouts.'
+              ? 'This level has mismatched bird artifacts. Repair the bird mappings before reviewing cutouts.'
               : cutoutPlacementPending
               ? 'Wait for the current sprite placement to finish saving.'
               : !card?.session.hitboxesBlessed
@@ -928,7 +938,18 @@ export default function GalleryReviewModal({
               setCutoutBlessBusy(true);
               setBlessError(null);
               try {
-                const result = await setFinalCutoutApproval(card.session.id, approved, state.contentRevision);
+                await flushPendingSave();
+                const expectedContentRevision = state.contentRevision
+                  ?? sessionCacheRef.current.get(card.session.id)?.contentRevision;
+                let result;
+                try {
+                  result = await setFinalCutoutApproval(card.session.id, approved, expectedContentRevision);
+                } catch (error) {
+                  const currentRevision = conflictRevision(error);
+                  if (!currentRevision) throw error;
+                  dispatchNarrow({ type: 'SET_REVISIONS', contentRevision: currentRevision });
+                  result = await setFinalCutoutApproval(card.session.id, approved, currentRevision);
+                }
                 const { finalCutoutReview } = result;
                 if (result.contentRevision) dispatchNarrow({
                   type: 'SET_REVISIONS',

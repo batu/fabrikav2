@@ -304,6 +304,23 @@ class CanonicalRevisionStore:
         except (OSError, KeyError, TypeError, ValueError, json.JSONDecodeError, ContractValidationError) as exc:
             return CanonicalReadResult(CanonicalReadState.QUARANTINED_INTEGRITY, detail=str(exc))
 
+    def snapshot_for_content_revision(self, content_revision: str) -> dict[str, Any] | None:
+        """Return the immutable snapshot for an exact historical content revision."""
+        if not self.revisions_dir.is_dir():
+            return None
+        match: dict[str, Any] | None = None
+        for path in self.revisions_dir.glob("revision-*.json"):
+            try:
+                snapshot = validate_snapshot(json.loads(path.read_text()))
+            except (OSError, ValueError, json.JSONDecodeError, ContractValidationError):
+                continue
+            if snapshot_revisions(snapshot).content_revision != content_revision:
+                continue
+            if match is not None and _content_projection(match) != _content_projection(snapshot):
+                raise ContractValidationError("content revision resolves to conflicting snapshots")
+            match = snapshot
+        return copy.deepcopy(match)
+
     def commit(
         self,
         snapshot: dict[str, Any],

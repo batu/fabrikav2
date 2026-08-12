@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { DogState, Hitbox, ModelOption, SpriteCandidate } from '../types';
 import {
+  ApiError,
   dogVariantUrl,
   getCutoutExtractionPrompt,
   getRetryFailedDogsJob,
@@ -13,10 +14,15 @@ import {
   type RetryFailedDogsJobResponse,
 } from '../api/editorApi';
 
-type ReviewStatus = 'pending' | 'approved' | 'cleanup' | 'rejected';
 type CropBox = [number, number, number, number];
 type Operation = 'extract' | 'regenerate';
+interface CandidateJobState {
+  operation: Operation;
+  phase: 'running' | 'done' | 'failed';
+  message: string;
+}
 type ControlMode = 'sprite' | 'padding';
+type ResizeHandle = 'nw' | 'ne' | 'sw' | 'se';
 const DEFAULT_CUTOUT_MODEL = 'google/gemini-3.1-flash-image-preview';
 
 interface Props {
@@ -47,41 +53,23 @@ function CandidateImage({ src, alt, fallback, flipX = false, flipY = false }: {
   return <img src={src} alt={alt} draggable={false} style={{ transform: `scale(${flipX ? -1 : 1}, ${flipY ? -1 : 1})` }} onDragStart={(event) => event.preventDefault()} onError={() => setFailed(true)} />;
 }
 
-function numericQuality(candidate: SpriteCandidate, key: string): number | null {
-  const value = candidate.quality?.[key];
-  return typeof value === 'number' ? value : null;
-}
-
-function booleanQuality(candidate: SpriteCandidate, key: string): boolean {
-  return candidate.quality?.[key] === true;
-}
-
-function cutoutFlags(candidate: SpriteCandidate): string[] {
-  const flags: string[] = [];
-  if (candidate.status !== 'ready') {
-    flags.push(candidate.reason ?? candidate.status);
-    return flags;
-  }
-  if (booleanQuality(candidate, 'fullCropLike')) flags.push('full crop');
-  const edgeTouches = numericQuality(candidate, 'edgeTouches');
-  if (edgeTouches !== null && edgeTouches >= 2) flags.push('edge');
-  const bboxCoverage = numericQuality(candidate, 'bboxCoverage');
-  if (bboxCoverage !== null && bboxCoverage >= 0.52) flags.push('large');
-  const visibleCoverage = numericQuality(candidate, 'visibleCoverage');
-  if (visibleCoverage !== null && visibleCoverage < 0.02) flags.push('tiny');
-  if (!candidate.technique?.includes('sam2') && bboxCoverage !== null && bboxCoverage >= 0.35) {
-    flags.push('attached');
-  }
-  return flags;
-}
-
-function initialStatus(candidate: SpriteCandidate): ReviewStatus {
-  if (candidate.status !== 'ready') return 'rejected';
-  return cutoutFlags(candidate).length > 0 ? 'cleanup' : 'pending';
-}
-
 function candidateLabel(candidate: SpriteCandidate): string {
   return `dog #${candidate.dogIndex} · sprite ${String(candidate.spriteIndex).padStart(3, '0')}`;
+}
+
+function candidateHitbox(candidate: SpriteCandidate, hitboxes: Hitbox[]): Hitbox | undefined {
+  if (candidate.birdId) {
+    const stableMatch = hitboxes.find((hitbox) => hitbox.id === candidate.birdId);
+    if (stableMatch) return stableMatch;
+  }
+  return hitboxes[candidate.dogIndex];
+}
+
+function conflictRevision(error: unknown): string | undefined {
+  if (!(error instanceof ApiError) || error.status !== 409 || !error.detail || typeof error.detail !== 'object') return undefined;
+  const outer = error.detail as Record<string, unknown>;
+  const detail = outer.detail && typeof outer.detail === 'object' ? outer.detail as Record<string, unknown> : outer;
+  return typeof detail.actualContentRevision === 'string' ? detail.actualContentRevision : undefined;
 }
 
 function candidateTarget(candidate: SpriteCandidate, hitbox: Hitbox): { x: number; y: number; r: number } {
@@ -165,6 +153,8 @@ function PlacementPreview({
   placementBox,
   imageUrl,
   controlMode,
+  hitbox,
+  showHitbox,
 }: {
   sessionId: string;
   candidate: SpriteCandidate;
@@ -172,12 +162,21 @@ function PlacementPreview({
   placementBox: CropBox;
   imageUrl: string;
   controlMode: ControlMode;
+  hitbox?: Hitbox;
+  showHitbox: boolean;
 }) {
   const sourceBox = candidate.spriteBox ?? placementBox;
   const baseCrop = candidate.cleanupBox ?? sourceBox;
   const viewport = overlaySceneCrop(candidate, baseCrop, sourceBox);
   const width = viewport[2] - viewport[0];
   const height = viewport[3] - viewport[1];
+  const target = hitbox ? candidateTarget(candidate, hitbox) : null;
+  const hitboxStyle = target ? {
+    left: `${(target.x - target.r - viewport[0]) / width * 100}%`,
+    top: `${(target.y - target.r - viewport[1]) / height * 100}%`,
+    width: `${target.r * 2 / width * 100}%`,
+    height: `${target.r * 2 / height * 100}%`,
+  } : null;
   const spriteStyle = {
     left: `${(placementBox[0] - viewport[0]) / width * 100}%`,
     top: `${(placementBox[1] - viewport[1]) / height * 100}%`,
@@ -200,7 +199,11 @@ function PlacementPreview({
         alt={`${candidateLabel(candidate)} painted scene crop`}
         fallback="overlay unavailable"
       />
-      <span className="cutout-padding-box" style={paddingStyle} />
+      <span className="cutout-padding-box" style={paddingStyle}>
+        {controlMode === 'padding' && (['nw', 'ne', 'sw', 'se'] as const).map((handle) => (
+          <span key={handle} className={`cutout-resize-handle padding-handle handle-${handle}`} data-resize-handle={handle} />
+        ))}
+      </span>
       <img
         className="cutout-placement-sprite"
         src={imageUrl}
@@ -208,28 +211,18 @@ function PlacementPreview({
         draggable={false}
         style={{ ...spriteStyle, transform: `scale(${candidate.flipX ? -1 : 1}, ${candidate.flipY ? -1 : 1})` }}
       />
+      {showHitbox && hitboxStyle && (
+        <span className="cutout-hitbox-circle" style={hitboxStyle} aria-hidden="true" />
+      )}
+      {controlMode === 'sprite' && (
+        <span className="cutout-placement-bounds" style={spriteStyle} aria-hidden="true">
+          {(['nw', 'ne', 'sw', 'se'] as const).map((handle) => (
+            <span key={handle} className={`cutout-resize-handle handle-${handle}`} data-resize-handle={handle} />
+          ))}
+        </span>
+      )}
     </span>
   );
-}
-
-function isReviewStatus(value: unknown): value is ReviewStatus {
-  return value === 'pending' || value === 'approved' || value === 'cleanup' || value === 'rejected';
-}
-
-function parseStoredReview(raw: string | null): Record<string, ReviewStatus> {
-  if (raw === null) return {};
-  try {
-    const parsed: unknown = JSON.parse(raw);
-    if (parsed === null || typeof parsed !== 'object' || Array.isArray(parsed)) return {};
-    return Object.fromEntries(
-      Object.entries(parsed).filter((entry): entry is [string, ReviewStatus] => {
-        const [key, value] = entry;
-        return key.length > 0 && isReviewStatus(value);
-      }),
-    );
-  } catch {
-    return {};
-  }
 }
 
 function activeCandidates(candidates: SpriteCandidate[], dogs: DogState[]): SpriteCandidate[] {
@@ -257,13 +250,6 @@ function activeCandidates(candidates: SpriteCandidate[], dogs: DogState[]): Spri
       });
     })
     .sort((a, b) => a.dogIndex - b.dogIndex);
-}
-
-function reviewTargets(candidates: SpriteCandidate[], review: Record<string, ReviewStatus>): SpriteCandidate[] {
-  return candidates.filter((candidate) => {
-    const status = review[candidate.id] ?? initialStatus(candidate);
-    return status === 'cleanup' || status === 'rejected';
-  });
 }
 
 function isTerminalRetryStatus(status: RetryFailedDogsJobResponse['status']): boolean {
@@ -327,12 +313,10 @@ export default function CutoutReviewPanel({
   const [assetRevision, setAssetRevision] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [review, setReview] = useState<Record<string, ReviewStatus>>({});
-  const [loadedReviewKey, setLoadedReviewKey] = useState<string | null>(null);
-  const [runningOperation, setRunningOperation] = useState<Operation | null>(null);
+  const [candidateJobs, setCandidateJobs] = useState<Record<string, CandidateJobState>>({});
+  const [showHitbox, setShowHitbox] = useState(false);
   const [extractionPrompt, setExtractionPrompt] = useState<string>('');
   const [lastResult, setLastResult] = useState<string | null>(null);
-  const [showOnlySelected, setShowOnlySelected] = useState(false);
   const [cropBoxes, setCropBoxes] = useState<Record<string, CropBox>>({});
   const [placementBoxes, setPlacementBoxes] = useState<Record<string, CropBox>>({});
   const [controlModes, setControlModes] = useState<Record<string, ControlMode>>({});
@@ -342,20 +326,29 @@ export default function CutoutReviewPanel({
   const dogsRef = useRef(dogs);
   const currentSessionRef = useRef(sessionId);
   const refreshAbortRef = useRef<AbortController | null>(null);
-  const operationAbortRef = useRef<AbortController | null>(null);
+  const operationAbortsRef = useRef(new Map<string, AbortController>());
   const placementSaveRunIds = useRef(new Map<string, number>());
   const confirmationRunIds = useRef(new Map<string, number>());
-  const dragRef = useRef<{ candidateId: string; mode: ControlMode; startX: number; startY: number; box: CropBox } | null>(null);
+  const dragRef = useRef<{ candidateId: string; mode: ControlMode; resizeHandle: ResizeHandle | null; startX: number; startY: number; box: CropBox } | null>(null);
   const draggedCandidateRef = useRef<string | null>(null);
   const placementSaveTimers = useRef(new Map<string, number>());
   const placementSavesInFlight = useRef(new Set<string>());
+  const placementSaveQueueRef = useRef<Promise<void>>(Promise.resolve());
+  const placementSaveErrorRef = useRef<Error | null>(null);
+  const placementFlipRef = useRef(new Map<string, { flipX: boolean; flipY: boolean }>());
   const contentRevisionRef = useRef(contentRevision);
+  const onRevisionChangedRef = useRef(onRevisionChanged);
 
   dogsRef.current = dogs;
   currentSessionRef.current = sessionId;
-  contentRevisionRef.current = contentRevision;
 
-  const reviewStorageKey = `ftd-cutout-review:${sessionId}`;
+  useEffect(() => {
+    contentRevisionRef.current = contentRevision;
+  }, [contentRevision]);
+
+  useEffect(() => {
+    onRevisionChangedRef.current = onRevisionChanged;
+  }, [onRevisionChanged]);
 
   const refresh = useCallback(async (dogSnapshot?: DogState[]) => {
     refreshAbortRef.current?.abort();
@@ -371,15 +364,10 @@ export default function CutoutReviewPanel({
       const nextCandidates = activeCandidates(response.candidates, dogSnapshot ?? dogsRef.current);
       setCandidates(nextCandidates);
       setAssetRevision(Date.now());
-      setReview((prev) => {
-        const next = { ...prev };
-        for (const candidate of nextCandidates) {
-          if (next[candidate.id] === undefined) {
-            next[candidate.id] = initialStatus(candidate);
-          }
-        }
-        return next;
-      });
+      if (response.contentRevision) {
+        contentRevisionRef.current = response.contentRevision;
+        onRevisionChangedRef.current?.(response.contentRevision, response.operationalRevision);
+      }
     } catch (err) {
       if (isAbortError(err)) return;
       if (refreshRunId.current !== runId) return;
@@ -393,12 +381,11 @@ export default function CutoutReviewPanel({
   }, [sessionId]);
 
   useEffect(() => {
-    setReview(parseStoredReview(window.localStorage.getItem(reviewStorageKey)));
-    setLoadedReviewKey(reviewStorageKey);
     setCandidates([]);
     setCropBoxes({});
     setPlacementBoxes({});
     setControlModes({});
+    setCandidateJobs({});
     setExtractionPrompt('');
     setLastResult(null);
     setError(null);
@@ -411,22 +398,7 @@ export default function CutoutReviewPanel({
       promptController.abort();
       refreshAbortRef.current?.abort();
     };
-  }, [refresh, reviewStorageKey, sessionId]);
-
-  useEffect(() => {
-    if (loadedReviewKey !== reviewStorageKey) return;
-    window.localStorage.setItem(reviewStorageKey, JSON.stringify(review));
-  }, [loadedReviewKey, review, reviewStorageKey]);
-
-  const selectedCount = useMemo(() => reviewTargets(candidates, review).length, [candidates, review]);
-
-  const visibleCandidates = useMemo(() => (
-    showOnlySelected ? reviewTargets(candidates, review) : candidates
-  ), [candidates, review, showOnlySelected]);
-
-  const setCandidateStatus = useCallback((candidate: SpriteCandidate, status: ReviewStatus) => {
-    setReview((prev) => ({ ...prev, [candidate.id]: status }));
-  }, []);
+  }, [refresh, sessionId]);
 
   const toggleHumanConfirmation = useCallback(async (candidate: SpriteCandidate) => {
     const saveSessionId = sessionId;
@@ -461,21 +433,17 @@ export default function CutoutReviewPanel({
     }
   }, [onCutoutsChanged, onRevisionChanged, sessionId]);
 
-  const toggleCandidate = useCallback((candidate: SpriteCandidate) => {
-    setReview((prev) => {
-      const current = prev[candidate.id] ?? initialStatus(candidate);
-      const selected = current === 'cleanup' || current === 'rejected';
-      return { ...prev, [candidate.id]: selected ? 'pending' : 'cleanup' };
-    });
-  }, []);
-
   const savePlacement = useCallback(async (
     candidate: SpriteCandidate,
     box: CropBox,
-    flipX = candidate.flipX ?? false,
-    flipY = candidate.flipY ?? false,
+    flipX?: boolean,
+    flipY?: boolean,
     cleanupBox = cropBoxes[candidate.id] ?? candidate.cleanupBox ?? undefined,
   ) => {
+    const latestFlip = placementFlipRef.current.get(candidate.id);
+    const effectiveFlipX = flipX ?? latestFlip?.flipX ?? candidate.flipX ?? false;
+    const effectiveFlipY = flipY ?? latestFlip?.flipY ?? candidate.flipY ?? false;
+    placementFlipRef.current.set(candidate.id, { flipX: effectiveFlipX, flipY: effectiveFlipY });
     const saveSessionId = sessionId;
     const saveRunId = (placementSaveRunIds.current.get(candidate.id) ?? 0) + 1;
     placementSaveRunIds.current.set(candidate.id, saveRunId);
@@ -483,44 +451,75 @@ export default function CutoutReviewPanel({
     if (pending !== undefined) window.clearTimeout(pending);
     placementSaveTimers.current.delete(candidate.id);
     placementSavesInFlight.current.add(candidate.id);
+    placementSaveErrorRef.current = null;
     onPlacementPendingChanged?.(true);
     setSavingPlacement(candidate.id);
     setError(null);
+    const previousSave = placementSaveQueueRef.current;
+    let releaseSaveQueue!: () => void;
+    placementSaveQueueRef.current = new Promise<void>((resolve) => {
+      releaseSaveQueue = resolve;
+    });
+    await previousSave;
     try {
-      const saved = await saveSpriteCandidatePlacement(
+      const save = (revision?: string) => saveSpriteCandidatePlacement(
         saveSessionId,
         candidate.id,
         box,
-        flipX,
-        flipY,
+        effectiveFlipX,
+        effectiveFlipY,
         cleanupBox ?? undefined,
-        contentRevisionRef.current,
+        revision,
+        { suppressToast: true },
       );
-      if (currentSessionRef.current !== saveSessionId || placementSaveRunIds.current.get(candidate.id) !== saveRunId) return;
-      setCandidates((current) => current.map((item) => (
-        item.id === candidate.id ? { ...item, flipX, flipY } : item
-      )));
-      setPlacementBoxes((current) => ({ ...current, [candidate.id]: saved.spriteBox }));
-      if (saved.cleanupBox) setCropBoxes((current) => ({ ...current, [candidate.id]: saved.cleanupBox! }));
+      let saved;
+      try {
+        saved = await save(contentRevisionRef.current);
+      } catch (error) {
+        const currentRevision = conflictRevision(error);
+        if (!currentRevision) throw error;
+        contentRevisionRef.current = currentRevision;
+        onRevisionChanged?.(currentRevision);
+        saved = await save(currentRevision);
+      }
+      if (currentSessionRef.current !== saveSessionId) return;
+      // Every successful canonical mutation advances the revision used by the
+      // next queued save, even when a newer interaction superseded its UI result.
       if (saved.contentRevision) {
         contentRevisionRef.current = saved.contentRevision;
         onRevisionChanged?.(saved.contentRevision, saved.operationalRevision);
       }
+      if (placementSaveRunIds.current.get(candidate.id) !== saveRunId) return;
+      setCandidates((current) => current.map((item) => (
+        item.id === candidate.id ? { ...item, flipX: effectiveFlipX, flipY: effectiveFlipY } : item
+      )));
+      setPlacementBoxes((current) => ({ ...current, [candidate.id]: saved.spriteBox }));
+      if (saved.cleanupBox) setCropBoxes((current) => ({ ...current, [candidate.id]: saved.cleanupBox! }));
       setLastResult(`${candidateLabel(candidate)} placement saved`);
       onCutoutsChanged?.();
     } catch (err) {
+      placementSaveErrorRef.current = err instanceof Error ? err : new Error(String(err));
       if (currentSessionRef.current !== saveSessionId || placementSaveRunIds.current.get(candidate.id) !== saveRunId) return;
       setError(err instanceof Error ? err.message : String(err));
     } finally {
+      releaseSaveQueue();
       if (currentSessionRef.current === saveSessionId && placementSaveRunIds.current.get(candidate.id) === saveRunId) {
         placementSavesInFlight.current.delete(candidate.id);
         setSavingPlacement(null);
-        if (placementSaveTimers.current.size === 0 && placementSavesInFlight.current.size === 0) {
+        if (operationAbortsRef.current.size === 0 && placementSaveTimers.current.size === 0 && placementSavesInFlight.current.size === 0) {
           onPlacementPendingChanged?.(false);
         }
       }
     }
   }, [cropBoxes, onCutoutsChanged, onPlacementPendingChanged, onRevisionChanged, sessionId]);
+
+  const waitForPlacementSaves = useCallback(async (): Promise<void> => {
+    while (placementSaveTimers.current.size > 0) {
+      await new Promise<void>((resolve) => window.setTimeout(resolve, 25));
+    }
+    await placementSaveQueueRef.current;
+    if (placementSaveErrorRef.current) throw placementSaveErrorRef.current;
+  }, []);
 
   const setCropBox = useCallback((candidate: SpriteCandidate, hitbox: Hitbox, box: CropBox) => {
     const next = clampCropBox(candidate, hitbox, box);
@@ -532,18 +531,17 @@ export default function CutoutReviewPanel({
     if (pending !== undefined) window.clearTimeout(pending);
     placementSaveTimers.current.set(candidate.id, window.setTimeout(() => {
       placementSaveTimers.current.delete(candidate.id);
-      void savePlacement(candidate, spriteBox, candidate.flipX, candidate.flipY, next);
+      void savePlacement(candidate, spriteBox, undefined, undefined, next);
     }, 1000));
   }, [onPlacementPendingChanged, placementBoxes, savePlacement]);
 
-  const setPlacementBox = useCallback((candidate: SpriteCandidate, hitbox: Hitbox, box: CropBox) => {
-    const target = candidateTarget(candidate, hitbox);
+  const setPlacementBox = useCallback((candidate: SpriteCandidate, _hitbox: Hitbox, box: CropBox) => {
     const width = candidate.sceneWidth ?? Number.MAX_SAFE_INTEGER;
     const height = candidate.sceneHeight ?? Number.MAX_SAFE_INTEGER;
-    const x0 = Math.max(0, Math.min(Math.round(target.x), Math.round(box[0])));
-    const y0 = Math.max(0, Math.min(Math.round(target.y), Math.round(box[1])));
-    const x1 = Math.min(width, Math.max(Math.round(target.x), Math.round(box[2])));
-    const y1 = Math.min(height, Math.max(Math.round(target.y), Math.round(box[3])));
+    const x0 = Math.max(0, Math.min(width - 1, Math.round(box[0])));
+    const y0 = Math.max(0, Math.min(height - 1, Math.round(box[1])));
+    const x1 = Math.max(x0 + 1, Math.min(width, Math.round(box[2])));
+    const y1 = Math.max(y0 + 1, Math.min(height, Math.round(box[3])));
     const next: CropBox = [x0, y0, x1, y1];
     setPlacementBoxes((prev) => ({ ...prev, [candidate.id]: next }));
     onPlacementPendingChanged?.(true);
@@ -559,7 +557,7 @@ export default function CutoutReviewPanel({
     const pending = placementSaveTimers.current.get(candidateId);
     if (pending !== undefined) window.clearTimeout(pending);
     placementSaveTimers.current.delete(candidateId);
-    if (placementSaveTimers.current.size === 0 && placementSavesInFlight.current.size === 0) {
+    if (operationAbortsRef.current.size === 0 && placementSaveTimers.current.size === 0 && placementSavesInFlight.current.size === 0) {
       onPlacementPendingChanged?.(false);
     }
     setPlacementBoxes((prev) => {
@@ -575,124 +573,128 @@ export default function CutoutReviewPanel({
     placementSavesInFlight.current.clear();
     onPlacementPendingChanged?.(false);
     placementSaveRunIds.current.clear();
+    placementFlipRef.current.clear();
+    placementSaveErrorRef.current = null;
     confirmationRunIds.current.clear();
-    operationAbortRef.current?.abort();
+    for (const controller of operationAbortsRef.current.values()) controller.abort();
+    operationAbortsRef.current.clear();
   }, [onPlacementPendingChanged, sessionId]);
 
-  const runSelected = useCallback(async (operation: Operation) => {
-    const targets = reviewTargets(candidates, review);
-    if (targets.length === 0 || runningOperation !== null) return;
-    setRunningOperation(operation);
-    setError(null);
-    setLastResult(null);
-    operationAbortRef.current?.abort();
+  const runCandidate = useCallback(async (operation: Operation, candidate: SpriteCandidate) => {
+    // One job per candidate at a time; other candidates and the rest of the
+    // panel stay interactive while this one runs.
+    if (operationAbortsRef.current.has(candidate.id)) return;
+    const runSessionId = sessionId;
     const controller = new AbortController();
-    operationAbortRef.current = controller;
-    const completedVariants = new Map<number, number>();
+    operationAbortsRef.current.set(candidate.id, controller);
+    const noun = operation === 'extract' ? 'extraction' : 'regeneration';
+    const setJob = (job: CandidateJobState) => {
+      if (currentSessionRef.current !== runSessionId) return;
+      setCandidateJobs((prev) => ({ ...prev, [candidate.id]: job }));
+    };
+    setJob({ operation, phase: 'running', message: `${noun} queued…` });
+    onPlacementPendingChanged?.(true);
     try {
-      const selectedCropBoxes = Object.fromEntries(targets.flatMap((candidate) => {
-        const hitbox = hitboxes[candidate.dogIndex];
-        if (!hitbox) return [];
-        return [[candidate.dogIndex, cropBoxes[candidate.id] ?? defaultCropBox(candidate, hitbox)]];
-      }));
-      const canonicalTargets = contentRevisionRef.current && targets.every((candidate) => candidate.birdId)
-        ? {
-            birdIds: targets.map((candidate) => candidate.birdId!),
-            cropBoxesByBirdId: Object.fromEntries(targets.flatMap((candidate) => {
-              const hitbox = hitboxes[candidate.dogIndex];
-              if (!candidate.birdId || !hitbox) return [];
-              return [[candidate.birdId, cropBoxes[candidate.id] ?? defaultCropBox(candidate, hitbox)]];
-            })),
-            expectedContentRevision: contentRevisionRef.current,
-          }
-        : undefined;
-      const started = await startRetryFailedDogsJob(
-        sessionId,
-        targets.map((candidate) => candidate.dogIndex),
+      await waitForPlacementSaves();
+      const hitbox = candidateHitbox(candidate, hitboxes);
+      const cropBox = hitbox ? (cropBoxes[candidate.id] ?? defaultCropBox(candidate, hitbox)) : undefined;
+      // Distinct nonce per click: forces a fresh generation even when the
+      // crop box, prompt, and model are unchanged since the last run.
+      const attemptNonce = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+      const start = (revision?: string) => startRetryFailedDogsJob(
+        runSessionId,
+        [candidate.dogIndex],
         sharedPrompt,
         2.75,
         cutoutModel,
-        selectedCropBoxes,
+        cropBox ? { [candidate.dogIndex]: cropBox } : {},
         operation === 'extract',
         { signal: controller.signal, suppressToast: true },
-        canonicalTargets,
+        revision && candidate.birdId && cropBox
+          ? {
+              birdIds: [candidate.birdId],
+              cropBoxesByBirdId: { [candidate.birdId]: cropBox },
+              expectedContentRevision: revision,
+            }
+          : undefined,
+        attemptNonce,
       );
-      const completed = await waitForRetryJob(sessionId, started, controller.signal);
-      for (const unit of completed.units) {
-        if (unit.status !== 'succeeded' || unit.file === null || unit.variantIndex === null) continue;
+      let started;
+      try {
+        started = await start(contentRevisionRef.current);
+      } catch (startError) {
+        const currentRevision = conflictRevision(startError);
+        if (!currentRevision) throw startError;
+        contentRevisionRef.current = currentRevision;
+        onRevisionChangedRef.current?.(currentRevision);
+        started = await start(currentRevision);
+      }
+      setJob({ operation, phase: 'running', message: `${noun} running…` });
+      const completed = await waitForRetryJob(runSessionId, started, controller.signal);
+      const unit = completed.units.find((item) => item.dogIndex === candidate.dogIndex) ?? completed.units[0];
+      const succeeded = unit?.status === 'succeeded' && unit.file !== null && unit.variantIndex !== null;
+      if (succeeded) {
         // Extraction replaces the sprite derivative for the current painted
         // variant. Only scene regeneration creates a selectable variant.
         if (operation === 'regenerate') {
-          onDogComplete(unit.dogIndex, unit.file, unit.variantIndex);
+          onDogComplete(unit.dogIndex, unit.file!, unit.variantIndex!);
         }
-        completedVariants.set(unit.dogIndex, unit.variantIndex);
+        const refreshedDogs = dogsRef.current.map((dog) => (
+          dog.index === unit.dogIndex ? { ...dog, activeVariant: unit.variantIndex! } : dog
+        ));
+        await refresh(refreshedDogs);
+        onCutoutsChanged?.();
+        setJob({ operation, phase: 'done', message: `${noun} saved at ${new Date().toLocaleTimeString()}` });
+      } else {
+        await refresh();
+        setJob({ operation, phase: 'failed', message: unit?.error || completed.error || `${noun} failed` });
       }
-      const refreshedDogs = dogs.map((dog) => {
-        const activeVariant = completedVariants.get(dog.index);
-        return activeVariant === undefined ? dog : { ...dog, activeVariant };
-      });
-      await refresh(refreshedDogs);
-      const failures = targets.length - completedVariants.size;
-      const noun = operation === 'extract' ? 'extraction' : 'regeneration';
-      if (failures > 0) {
-        setError(completed.error || `${failures} ${noun}${failures === 1 ? '' : 's'} failed`);
-      }
-      if (completedVariants.size > 0) onCutoutsChanged?.();
-      setLastResult(`${targets.length - failures}/${targets.length} ${noun}${targets.length === 1 ? '' : 's'} finished`);
     } catch (err) {
-      if (!isAbortError(err)) setError(err instanceof Error ? err.message : String(err));
+      if (isAbortError(err)) {
+        setJob({ operation, phase: 'failed', message: `${noun} cancelled — late results are rejected if the level changed` });
+      } else {
+        setJob({ operation, phase: 'failed', message: err instanceof Error ? err.message : String(err) });
+      }
     } finally {
-      if (operationAbortRef.current === controller) {
-        operationAbortRef.current = null;
-        setRunningOperation(null);
+      operationAbortsRef.current.delete(candidate.id);
+      if (currentSessionRef.current === runSessionId
+        && operationAbortsRef.current.size === 0
+        && placementSaveTimers.current.size === 0
+        && placementSavesInFlight.current.size === 0) {
+        onPlacementPendingChanged?.(false);
       }
     }
-  }, [candidates, cropBoxes, cutoutModel, dogs, hitboxes, onCutoutsChanged, onDogComplete, refresh, review, runningOperation, sessionId, sharedPrompt]);
+  }, [cropBoxes, cutoutModel, hitboxes, onCutoutsChanged, onDogComplete, onPlacementPendingChanged, refresh, sessionId, sharedPrompt, waitForPlacementSaves]);
 
-  const busy = runningOperation !== null;
+  const busy = savingConfirmation !== null;
+  const runningJobCount = Object.values(candidateJobs).filter((job) => job.phase === 'running').length;
 
   return (
     <section className="cutout-review-panel">
       <div className="cutout-review-header">
         <div>
           <h3>Cutout review</h3>
-          <div className="cutout-review-summary">
-            {selectedCount} selected
-          </div>
         </div>
         <div className="cutout-review-actions">
-          <label className="cutout-review-toggle">
-            <input
-              type="checkbox"
-              checked={showOnlySelected}
-              onChange={(event) => setShowOnlySelected(event.target.checked)}
-            />
-            Show only selected
-          </label>
-          <label className="cutout-model-picker">
-            <span>Model</span>
-            <select value={cutoutModel} onChange={(event) => setCutoutModel(event.target.value)} disabled={busy}>
-              {cutoutModels.map((model) => <option key={model.id} value={model.id}>{model.label}</option>)}
-            </select>
-          </label>
-          <button type="button" className="btn" onClick={() => void refresh()} disabled={loading || busy}>
-            Refresh
-          </button>
-          <button
-            type="button"
-            className="btn btn-primary"
-            onClick={() => void runSelected('extract')}
-            disabled={busy || selectedCount === 0}
-          >
-            {runningOperation === 'extract' ? 'Extracting...' : `Extract selected (${selectedCount})`}
-          </button>
+          {runningJobCount > 0 && (
+            <span className="cutout-jobs-running">{runningJobCount} job{runningJobCount === 1 ? '' : 's'} running</span>
+          )}
           <button
             type="button"
             className="btn"
-            onClick={() => void runSelected('regenerate')}
-            disabled={busy || selectedCount === 0}
+            aria-pressed={showHitbox}
+            onClick={() => setShowHitbox((current) => !current)}
           >
-            {runningOperation === 'regenerate' ? 'Regenerating...' : `Regenerate selected (${selectedCount})`}
+            {showHitbox ? 'Hide hitbox' : 'Show hitbox'}
+          </button>
+          <label className="cutout-model-picker">
+            <span>Model</span>
+            <select value={cutoutModel} onChange={(event) => setCutoutModel(event.target.value)}>
+              {cutoutModels.map((model) => <option key={model.id} value={model.id}>{model.label}</option>)}
+            </select>
+          </label>
+          <button type="button" className="btn" onClick={() => void refresh()} disabled={loading}>
+            Refresh
           </button>
         </div>
       </div>
@@ -710,23 +712,19 @@ export default function CutoutReviewPanel({
       {!loading && candidates.length === 0 && (
         <div className="cutout-review-empty">No pickup cutouts found.</div>
       )}
-      {!loading && candidates.length > 0 && visibleCandidates.length === 0 && (
-        <div className="cutout-review-empty">No cutouts selected.</div>
-      )}
-
       <div className={`cutout-review-grid${expanded ? ' expanded' : ''}`}>
-        {visibleCandidates.map((candidate) => {
-          const status = review[candidate.id] ?? initialStatus(candidate);
-          const willRegenerate = status === 'cleanup' || status === 'rejected';
+        {candidates.map((candidate) => {
           const imageUrl = candidate.image
             ? `${dogVariantUrl(sessionId, candidate.image)}?v=${assetRevision}`
             : null;
-          const hitbox = hitboxes[candidate.dogIndex];
+          const hitbox = candidateHitbox(candidate, hitboxes);
           const cropBox = hitbox ? (cropBoxes[candidate.id] ?? candidate.cleanupBox ?? defaultCropBox(candidate, hitbox)) : null;
           const placementBox = candidate.spriteBox
             ? (placementBoxes[candidate.id] ?? candidate.spriteBox)
             : null;
           const controlMode = controlModes[candidate.id] ?? 'sprite';
+          const job = candidateJobs[candidate.id];
+          const jobRunning = job?.phase === 'running';
           const activeBox = controlMode === 'sprite' ? placementBox : cropBox;
           const resizeActiveBox = (delta: CropBox) => {
             if (!hitbox || !activeBox) return;
@@ -734,20 +732,24 @@ export default function CutoutReviewPanel({
             if (controlMode === 'sprite') setPlacementBox(candidate, hitbox, next);
             else setCropBox(candidate, hitbox, next);
           };
+          const movePaddingBox = (dx: number, dy: number) => {
+            if (!hitbox || !cropBox) return;
+            setCropBox(candidate, hitbox, translateCropBox(candidate, hitbox, cropBox, dx, dy));
+          };
           const resetActiveBox = () => {
             if (!hitbox) return;
             if (controlMode === 'sprite') resetPlacement(candidate.id);
             else setCropBox(candidate, hitbox, defaultCropBox(candidate, hitbox));
           };
           return (
-            <article key={candidate.id} className={`cutout-review-card ${status}`}>
+            <article key={candidate.id} className="cutout-review-card">
               <div className="cutout-review-card-top">
                 <strong>{candidateLabel(candidate)}</strong>
                 <button
                   type="button"
                   className={`hitl-confirmation ${candidate.humanConfirmed ? 'confirmed' : ''}`}
                   aria-pressed={candidate.humanConfirmed ?? false}
-                  disabled={savingConfirmation === candidate.id}
+                  disabled={busy}
                   onClick={() => void toggleHumanConfirmation(candidate)}
                 >
                   {savingConfirmation === candidate.id ? 'Saving…' : candidate.humanConfirmed ? 'Human confirmed' : 'Confirm'}
@@ -756,23 +758,26 @@ export default function CutoutReviewPanel({
               <button
                 type="button"
                 className="cutout-review-overlay"
-                aria-label={`${willRegenerate ? 'Remove' : 'Select'} ${candidateLabel(candidate)} ${willRegenerate ? 'from' : 'for'} cutout action`}
-                aria-pressed={willRegenerate}
-                title="Drag to place the sprite. Click to select it for extraction."
+                disabled={jobRunning}
+                aria-label={`Place ${candidateLabel(candidate)}`}
+                title={controlMode === 'sprite'
+                  ? 'Drag to place the sprite. Drag a green corner to scale it.'
+                  : 'Drag to move the padding box. Drag an amber corner to resize it. The sprite stays put.'}
                 onClick={() => {
                   if (draggedCandidateRef.current === candidate.id) {
                     draggedCandidateRef.current = null;
                     return;
                   }
-                  toggleCandidate(candidate);
                 }}
                 onPointerDown={(event) => {
                   if (!placementBox || !cropBox) return;
+                  const resizeHandle = (event.target as HTMLElement).closest<HTMLElement>('[data-resize-handle]')?.dataset.resizeHandle as ResizeHandle | undefined;
                   draggedCandidateRef.current = null;
                   event.currentTarget.setPointerCapture(event.pointerId);
                   dragRef.current = {
                     candidateId: candidate.id,
                     mode: controlMode,
+                    resizeHandle: resizeHandle ?? null,
                     startX: event.clientX,
                     startY: event.clientY,
                     box: controlMode === 'sprite' ? placementBox : cropBox,
@@ -797,8 +802,24 @@ export default function CutoutReviewPanel({
                   const dx = Math.round(dxPixels * sceneWidth / renderedWidth);
                   const dy = Math.round(dyPixels * sceneHeight / renderedHeight);
                   if (drag.mode === 'sprite') {
-                    const moved: CropBox = [drag.box[0] + dx, drag.box[1] + dy, drag.box[2] + dx, drag.box[3] + dy];
-                    setPlacementBox(candidate, hitbox, moved);
+                    if (drag.resizeHandle) {
+                      const resized: CropBox = [...drag.box];
+                      if (drag.resizeHandle.includes('w')) resized[0] += dx;
+                      if (drag.resizeHandle.includes('e')) resized[2] += dx;
+                      if (drag.resizeHandle.includes('n')) resized[1] += dy;
+                      if (drag.resizeHandle.includes('s')) resized[3] += dy;
+                      setPlacementBox(candidate, hitbox, resized);
+                    } else {
+                      const moved: CropBox = [drag.box[0] + dx, drag.box[1] + dy, drag.box[2] + dx, drag.box[3] + dy];
+                      setPlacementBox(candidate, hitbox, moved);
+                    }
+                  } else if (drag.resizeHandle) {
+                    const resized: CropBox = [...drag.box];
+                    if (drag.resizeHandle.includes('w')) resized[0] += dx;
+                    if (drag.resizeHandle.includes('e')) resized[2] += dx;
+                    if (drag.resizeHandle.includes('n')) resized[1] += dy;
+                    if (drag.resizeHandle.includes('s')) resized[3] += dy;
+                    setCropBox(candidate, hitbox, resized);
                   } else {
                     setCropBox(candidate, hitbox, translateCropBox(candidate, hitbox, drag.box, dx, dy));
                   }
@@ -814,11 +835,10 @@ export default function CutoutReviewPanel({
                 }}
               >
                 {cropBox && placementBox && imageUrl ? (
-                  <PlacementPreview sessionId={sessionId} candidate={candidate} cropBox={cropBox} placementBox={placementBox} imageUrl={imageUrl} controlMode={controlMode} />
+                  <PlacementPreview sessionId={sessionId} candidate={candidate} cropBox={cropBox} placementBox={placementBox} imageUrl={imageUrl} controlMode={controlMode} hitbox={hitbox} showHitbox={showHitbox} />
                 ) : (
                   <span>overlay unavailable</span>
                 )}
-                {willRegenerate && <span>Selected</span>}
               </button>
               <div className="cutout-review-images">
                 <div className="cutout-review-tool-image">
@@ -826,8 +846,8 @@ export default function CutoutReviewPanel({
                 </div>
                 <div className="cutout-review-controls">
                   <div className="cutout-control-mode" role="tablist" aria-label={`${candidateLabel(candidate)} control target`}>
-                    <button type="button" role="tab" aria-selected={controlMode === 'sprite'} onClick={() => setControlModes((prev) => ({ ...prev, [candidate.id]: 'sprite' }))}>Sprite</button>
-                    <button type="button" role="tab" aria-selected={controlMode === 'padding'} onClick={() => setControlModes((prev) => ({ ...prev, [candidate.id]: 'padding' }))}>Padding</button>
+                    <button type="button" role="tab" disabled={jobRunning} aria-selected={controlMode === 'sprite'} onClick={() => setControlModes((prev) => ({ ...prev, [candidate.id]: 'sprite' }))}>Sprite</button>
+                    <button type="button" role="tab" disabled={jobRunning} aria-selected={controlMode === 'padding'} onClick={() => setControlModes((prev) => ({ ...prev, [candidate.id]: 'padding' }))}>Padding</button>
                   </div>
                   {hitbox && activeBox && <div className="cutout-crop-controls">
                     <div className="cutout-crop-heading">
@@ -850,42 +870,72 @@ export default function CutoutReviewPanel({
                       </label>
                     ))}
                     <div className="cutout-resize-grid">
-                      <button type="button" onClick={() => resizeActiveBox([5, 5, -5, -5])}>Smaller</button>
-                      <button type="button" onClick={() => resizeActiveBox([-5, -5, 5, 5])}>Larger</button>
-                      <button type="button" onClick={() => resizeActiveBox([-5, 0, 5, 0])}>Wider</button>
-                      <button type="button" onClick={() => resizeActiveBox([5, 0, -5, 0])}>Narrower</button>
-                      <button type="button" onClick={() => resizeActiveBox([0, -5, 0, 5])}>Taller</button>
-                      <button type="button" onClick={() => resizeActiveBox([0, 5, 0, -5])}>Shorter</button>
+                      {controlMode === 'padding' && <>
+                        <button type="button" disabled={jobRunning} onClick={() => movePaddingBox(-10, 0)}>Move left</button>
+                        <button type="button" disabled={jobRunning} onClick={() => movePaddingBox(10, 0)}>Move right</button>
+                        <button type="button" disabled={jobRunning} onClick={() => movePaddingBox(0, -10)}>Move up</button>
+                        <button type="button" disabled={jobRunning} onClick={() => movePaddingBox(0, 10)}>Move down</button>
+                      </>}
+                      <button type="button" disabled={jobRunning} onClick={() => resizeActiveBox([5, 5, -5, -5])}>Smaller</button>
+                      <button type="button" disabled={jobRunning} onClick={() => resizeActiveBox([-5, -5, 5, 5])}>Larger</button>
+                      <button type="button" disabled={jobRunning} onClick={() => resizeActiveBox([-5, 0, 5, 0])}>Wider</button>
+                      <button type="button" disabled={jobRunning} onClick={() => resizeActiveBox([5, 0, -5, 0])}>Narrower</button>
+                      <button type="button" disabled={jobRunning} onClick={() => resizeActiveBox([0, -5, 0, 5])}>Taller</button>
+                      <button type="button" disabled={jobRunning} onClick={() => resizeActiveBox([0, 5, 0, -5])}>Shorter</button>
                     </div>
                     {controlMode === 'sprite' && placementBox && <div className="cutout-flip-controls">
                       <button
                         type="button"
-                        disabled={savingPlacement === candidate.id}
+                        disabled={jobRunning || savingPlacement === candidate.id}
                         className={candidate.flipX ? 'selected' : ''}
                         aria-pressed={candidate.flipX ?? false}
                         onClick={() => void savePlacement(candidate, placementBox, !(candidate.flipX ?? false), candidate.flipY ?? false)}
                       >Flip X</button>
                       <button
                         type="button"
-                        disabled={savingPlacement === candidate.id}
+                        disabled={jobRunning || savingPlacement === candidate.id}
                         className={candidate.flipY ? 'selected' : ''}
                         aria-pressed={candidate.flipY ?? false}
                         onClick={() => void savePlacement(candidate, placementBox, candidate.flipX ?? false, !(candidate.flipY ?? false))}
                       >Flip Y</button>
                     </div>}
-                    <button type="button" onClick={resetActiveBox}>Reset</button>
+                    <button type="button" disabled={jobRunning} onClick={resetActiveBox}>Reset</button>
                   </div>}
                 </div>
               </div>
               <div className="cutout-review-buttons">
                 <button
                   type="button"
-                  className={willRegenerate ? 'selected' : ''}
-                  onClick={() => setCandidateStatus(candidate, 'cleanup')}
+                  className="btn btn-primary"
+                  disabled={jobRunning}
+                  onClick={() => void runCandidate('extract', candidate)}
                 >
-                  Select
+                  {jobRunning && job.operation === 'extract' ? 'Extracting…' : 'Extract'}
                 </button>
+                <button
+                  type="button"
+                  className="btn"
+                  disabled={jobRunning}
+                  onClick={() => void runCandidate('regenerate', candidate)}
+                >
+                  {jobRunning && job.operation === 'regenerate' ? 'Regenerating…' : 'Regenerate'}
+                </button>
+                {jobRunning && (
+                  <button
+                    type="button"
+                    className="btn"
+                    onClick={() => operationAbortsRef.current.get(candidate.id)?.abort()}
+                    title="Stop waiting for this job. Any late result is rejected if newer edits changed the level revision."
+                  >
+                    Stop
+                  </button>
+                )}
               </div>
+              {job && (
+                <div className={`cutout-job-status ${job.phase}`} role="status">
+                  {job.message}
+                </div>
+              )}
             </article>
           );
         })}

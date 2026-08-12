@@ -18,6 +18,8 @@ from .canonical_bird_contract import CanonicalReadState, CanonicalRevisionStore,
 MigrationAction = Literal["migrate", "unchanged", "quarantine", "skip_archived", "frozen_public"]
 RESTORE_FRAME_MAE_LIMIT = 5.0
 RESTORE_LOCAL_MAE_LIMIT = 15.0
+MAX_SPRITE_BIND_DISTANCE_DIAGONALS = 0.75
+MIN_SPRITE_BIND_MARGIN = 15.0
 
 
 @dataclass(frozen=True)
@@ -48,15 +50,184 @@ def _atomic_json(path: Path, value: Any) -> None:
     os.replace(temporary, path)
 
 
+def restore_verified_legacy_hitbox_review(
+    session_dir: Path,
+    *,
+    dry_run: bool = False,
+) -> dict[str, Any]:
+    """Promote an exact legacy hitbox assertion into canonical review state.
+
+    Migration retained old approvals as history, but canonical reads quite
+    correctly ignored that history.  Promotion is safe only when the current
+    authoring hitboxes are byte-semantically identical to the human-reviewed
+    snapshot and contain the same stable bird IDs as the canonical revision.
+    """
+    store = CanonicalRevisionStore(session_dir)
+    current = store.read()
+    if current.state is not CanonicalReadState.VALID_CURRENT or current.snapshot is None or current.pointer is None:
+        return {"levelId": session_dir.name, "restored": False, "reason": "canonical_not_current"}
+    if isinstance(current.snapshot.get("reviews", {}).get("hitboxes"), dict):
+        return {"levelId": session_dir.name, "restored": False, "reason": "already_reviewed"}
+
+    history = current.snapshot.get("operational", {}).get("reviewHistory", [])
+    historical = next((
+        item for item in reversed(history)
+        if isinstance(item, dict) and item.get("kind") == "hitboxes"
+        and isinstance(item.get("assertion"), dict)
+        and item["assertion"].get("approved") is True
+    ), None)
+    if historical is None:
+        return {"levelId": session_dir.name, "restored": False, "reason": "no_historical_approval"}
+    assertion = historical["assertion"]
+    reviewed_at = assertion.get("reviewedAt")
+    stored_digest = assertion.get("hitboxesSha256")
+    hitboxes = _json(session_dir / "hitboxes.json", [])
+    if not isinstance(reviewed_at, str) or not reviewed_at:
+        return {"levelId": session_dir.name, "restored": False, "reason": "missing_review_timestamp"}
+    if not isinstance(hitboxes, list) or not hitboxes:
+        return {"levelId": session_dir.name, "restored": False, "reason": "missing_hitboxes"}
+    current_digest = hashlib.sha256(
+        json.dumps(hitboxes, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
+    ).hexdigest()
+    if stored_digest != current_digest:
+        return {"levelId": session_dir.name, "restored": False, "reason": "hitbox_hash_mismatch"}
+    if assertion.get("hitboxCount") not in (None, len(hitboxes)):
+        return {"levelId": session_dir.name, "restored": False, "reason": "hitbox_count_mismatch"}
+    hitbox_ids = {item.get("id") for item in hitboxes if isinstance(item, dict)}
+    canonical_ids = {bird["birdId"] for bird in current.snapshot["birds"]}
+    if len(hitbox_ids) != len(hitboxes) or hitbox_ids != canonical_ids:
+        return {"levelId": session_dir.name, "restored": False, "reason": "bird_id_set_mismatch"}
+
+    from .canonical_bird_contract import bless_snapshot
+
+    restored = bless_snapshot(
+        current.snapshot,
+        review_kind="hitboxes",
+        reviewer="human:legacy-verified",
+        reviewed_at=reviewed_at,
+    )
+    if dry_run:
+        return {
+            "levelId": session_dir.name,
+            "restored": False,
+            "eligible": True,
+            "reason": "exact_historical_approval",
+            "reviewedAt": reviewed_at,
+        }
+    pointer = store.commit(
+        restored,
+        expected_content_revision=current.pointer.content_revision,
+        expected_operational_revision=current.pointer.operational_revision,
+    )
+    return {
+        "levelId": session_dir.name,
+        "restored": True,
+        "contentRevision": pointer.content_revision,
+        "reviewedAt": reviewed_at,
+    }
+
+
+def restore_verified_legacy_final_cutout_review(
+    session_dir: Path,
+    *,
+    dry_run: bool = False,
+) -> dict[str, Any]:
+    """Promote an unchanged legacy final-cutout assertion after migration."""
+    store = CanonicalRevisionStore(session_dir)
+    current = store.read()
+    if current.state is not CanonicalReadState.VALID_CURRENT or current.snapshot is None or current.pointer is None:
+        return {"levelId": session_dir.name, "restored": False, "reason": "canonical_not_current"}
+    reviews = current.snapshot.get("reviews", {})
+    if isinstance(reviews.get("finalCutouts"), dict):
+        return {"levelId": session_dir.name, "restored": False, "reason": "already_reviewed"}
+    if not isinstance(reviews.get("hitboxes"), dict):
+        return {"levelId": session_dir.name, "restored": False, "reason": "hitboxes_not_reviewed"}
+
+    history = current.snapshot.get("operational", {}).get("reviewHistory", [])
+    historical = next((
+        item for item in reversed(history)
+        if isinstance(item, dict) and item.get("kind") == "finalCutouts"
+        and isinstance(item.get("assertion"), dict)
+        and item["assertion"].get("approved") is True
+    ), None)
+    if historical is None:
+        return {"levelId": session_dir.name, "restored": False, "reason": "no_historical_approval"}
+    assertion = historical["assertion"]
+    reviewed_at = assertion.get("reviewedAt")
+    level_path = session_dir / "level.json"
+    if not isinstance(reviewed_at, str) or not reviewed_at:
+        return {"levelId": session_dir.name, "restored": False, "reason": "missing_review_timestamp"}
+    if not level_path.is_file() or assertion.get("levelSha256") != hashlib.sha256(level_path.read_bytes()).hexdigest():
+        return {"levelId": session_dir.name, "restored": False, "reason": "level_hash_mismatch"}
+    if assertion.get("sceneSha256") != current.snapshot["assets"]["scene"]["sha256"]:
+        return {"levelId": session_dir.name, "restored": False, "reason": "scene_hash_mismatch"}
+
+    asserted_birds = assertion.get("birds")
+    if not isinstance(asserted_birds, list) or len(asserted_birds) != len(current.snapshot["birds"]):
+        return {"levelId": session_dir.name, "restored": False, "reason": "bird_count_mismatch"}
+    canonical_by_slot = {bird["compatibilitySlot"]: bird for bird in current.snapshot["birds"]}
+    for asserted in asserted_birds:
+        if not isinstance(asserted, dict):
+            return {"levelId": session_dir.name, "restored": False, "reason": "invalid_bird_assertion"}
+        bird = canonical_by_slot.get(asserted.get("dogId"))
+        if bird is None:
+            return {"levelId": session_dir.name, "restored": False, "reason": "bird_slot_mismatch"}
+        placement = bird["sprite"]["placement"]
+        expected_box = [
+            placement["x"], placement["y"],
+            placement["x"] + placement["width"], placement["y"] + placement["height"],
+        ]
+        if asserted.get("spriteSha256") != bird["sprite"]["asset"]["sha256"]:
+            return {"levelId": session_dir.name, "restored": False, "reason": "sprite_hash_mismatch"}
+        if asserted.get("spriteBox") != expected_box:
+            return {"levelId": session_dir.name, "restored": False, "reason": "sprite_placement_mismatch"}
+        if bool(asserted.get("flipX", False)) != bird["sprite"]["flipX"] or bool(
+            asserted.get("flipY", False)
+        ) != bird["sprite"]["flipY"]:
+            return {"levelId": session_dir.name, "restored": False, "reason": "sprite_flip_mismatch"}
+
+    from .canonical_bird_contract import bless_snapshot
+
+    restored = bless_snapshot(
+        current.snapshot,
+        review_kind="finalCutouts",
+        reviewer="human:legacy-verified",
+        reviewed_at=reviewed_at,
+    )
+    if dry_run:
+        return {
+            "levelId": session_dir.name,
+            "restored": False,
+            "eligible": True,
+            "reason": "exact_historical_approval",
+            "reviewedAt": reviewed_at,
+        }
+    pointer = store.commit(
+        restored,
+        expected_content_revision=current.pointer.content_revision,
+        expected_operational_revision=current.pointer.operational_revision,
+    )
+    return {
+        "levelId": session_dir.name,
+        "restored": True,
+        "contentRevision": pointer.content_revision,
+        "reviewedAt": reviewed_at,
+    }
+
+
 def propose_cleanup_identity_repair(session_dir: Path) -> dict[str, Any]:
     """Prove a full slot-to-bird bijection from cleanup boxes and hitbox centers."""
     quarantine = _json(session_dir / ".canonical" / "quarantine.json", {})
     issues = quarantine.get("issues") if isinstance(quarantine, dict) else None
-    if not isinstance(issues, list) or not issues or any(
-        not isinstance(issue, str) or not issue.endswith(":cleanup_misses_hitbox")
+    cleanup_only = isinstance(issues, list) and bool(issues) and all(
+        isinstance(issue, str) and issue.endswith(":cleanup_misses_hitbox")
         for issue in issues
-    ):
-        raise CleanupIdentityRepairError("repair requires a cleanup-only quarantine")
+    )
+    bird_id_set_only = issues == ["bird_id_set_mismatch"]
+    if not cleanup_only and not bird_id_set_only:
+        raise CleanupIdentityRepairError(
+            "repair requires a cleanup-only or bird-id-set quarantine"
+        )
 
     raw = _json(session_dir / "session.json", {})
     hitboxes = _json(session_dir / "hitboxes.json", [])
@@ -71,6 +242,8 @@ def propose_cleanup_identity_repair(session_dir: Path) -> dict[str, Any]:
 
     bindings: list[dict[str, Any]] = []
     claimed: set[str] = set()
+    exact = True
+    sprite_evidence: list[dict[str, Any]] = []
     for dog in dogs:
         if not isinstance(dog, dict) or not isinstance(dog.get("index"), int):
             raise CleanupIdentityRepairError("every session dog must have a compatibility slot")
@@ -80,20 +253,35 @@ def propose_cleanup_identity_repair(session_dir: Path) -> dict[str, Any]:
             raise CleanupIdentityRepairError(f"dog_{index:02d} has no active sprite")
         sidecar = _json(session_dir / "dogs" / f"dog_{index:02d}" / f"sprite_{variant:03d}.json", {})
         cleanup = sidecar.get("cleanupBox") if isinstance(sidecar, dict) else None
+        sprite_box = sidecar.get("spriteBox") if isinstance(sidecar, dict) else None
         if not isinstance(cleanup, list) or len(cleanup) != 4:
             raise CleanupIdentityRepairError(f"dog_{index:02d} has no cleanup box")
+        if not isinstance(sprite_box, list) or len(sprite_box) != 4:
+            raise CleanupIdentityRepairError(f"dog_{index:02d} has no sprite box")
+        sx0, sy0, sx1, sy1 = map(int, sprite_box)
+        if sx1 <= sx0 or sy1 <= sy0:
+            raise CleanupIdentityRepairError(f"dog_{index:02d} has an invalid sprite box")
+        sprite_evidence.append({
+            "dog": dog,
+            "index": index,
+            "sidecarPath": sidecar,
+            "spriteBox": [sx0, sy0, sx1, sy1],
+            "cleanupBox": list(map(int, cleanup)),
+            "center": ((sx0 + sx1) / 2, (sy0 + sy1) / 2),
+            "diagonal": ((sx1 - sx0) ** 2 + (sy1 - sy0) ** 2) ** 0.5,
+        })
         x0, y0, x1, y1 = map(int, cleanup)
         matches = [
             hitbox for hitbox in hitboxes
             if isinstance(hitbox, dict) and x0 <= int(hitbox["x"]) <= x1 and y0 <= int(hitbox["y"]) <= y1
         ]
         if len(matches) != 1:
-            raise CleanupIdentityRepairError(
-                f"dog_{index:02d} cleanup contains {len(matches)} hitbox centers; expected exactly one"
-            )
+            exact = False
+            continue
         bird_id = str(matches[0]["id"])
         if bird_id in claimed:
-            raise CleanupIdentityRepairError(f"multiple sprite slots claim bird {bird_id}")
+            exact = False
+            continue
         claimed.add(bird_id)
         bindings.append({
             "compatibilitySlot": f"dog_{index:02d}",
@@ -101,9 +289,60 @@ def propose_cleanup_identity_repair(session_dir: Path) -> dict[str, Any]:
             "oldBirdId": dog.get("id"),
             "birdId": bird_id,
         })
-    if claimed != set(hitbox_ids):
-        raise CleanupIdentityRepairError("cleanup-to-hitbox mapping is not a complete bijection")
-    return {"levelId": session_dir.name, "bindings": bindings, "issues": issues}
+    if exact and claimed == set(hitbox_ids):
+        return {
+            "levelId": session_dir.name,
+            "method": "cleanup-containment",
+            "bindings": bindings,
+            "issues": issues,
+        }
+
+    from scipy.optimize import linear_sum_assignment
+
+    costs = [[
+        ((evidence["center"][0] - float(hitbox["x"])) ** 2
+         + (evidence["center"][1] - float(hitbox["y"])) ** 2) ** 0.5
+        for hitbox in hitboxes
+    ] for evidence in sprite_evidence]
+    rows, columns = linear_sum_assignment(costs)
+    if len(rows) != len(hitboxes):
+        raise CleanupIdentityRepairError("sprite-to-hitbox assignment is incomplete")
+    bindings = []
+    weak: list[str] = []
+    for row, column in zip(rows.tolist(), columns.tolist(), strict=True):
+        evidence = sprite_evidence[row]
+        hitbox = hitboxes[column]
+        distance = costs[row][column]
+        normalized = distance / max(1.0, evidence["diagonal"])
+        alternatives = sorted(costs[row])
+        margin = alternatives[1] - alternatives[0] if len(alternatives) > 1 else float("inf")
+        if normalized > MAX_SPRITE_BIND_DISTANCE_DIAGONALS or margin < MIN_SPRITE_BIND_MARGIN:
+            weak.append(
+                f"dog_{evidence['index']:02d}(distance={distance:.1f},normalized={normalized:.3f},margin={margin:.1f})"
+            )
+        cx0, cy0, cx1, cy1 = evidence["cleanupBox"]
+        hx, hy = int(hitbox["x"]), int(hitbox["y"])
+        proposed_cleanup = None if cx0 <= hx <= cx1 and cy0 <= hy <= cy1 else [
+            min(cx0, hx - 2), min(cy0, hy - 2), max(cx1, hx + 2), max(cy1, hy + 2),
+        ]
+        bindings.append({
+            "compatibilitySlot": f"dog_{evidence['index']:02d}",
+            "index": evidence["index"],
+            "oldBirdId": evidence["dog"].get("id"),
+            "birdId": str(hitbox["id"]),
+            "distance": round(distance, 3),
+            "normalizedDistance": round(normalized, 6),
+            "margin": round(margin, 3),
+            "proposedCleanupBox": proposed_cleanup,
+        })
+    if weak:
+        raise CleanupIdentityRepairError("low-confidence global assignment: " + ", ".join(weak))
+    return {
+        "levelId": session_dir.name,
+        "method": "sprite-center-hungarian",
+        "bindings": bindings,
+        "issues": issues,
+    }
 
 
 def repair_cleanup_identity_bindings(
@@ -127,11 +366,25 @@ def repair_cleanup_identity_bindings(
     session_payload = session_path.read_bytes()
     level_path = session_dir / "level.json"
     level_payload = level_path.read_bytes() if level_path.is_file() else None
+    sidecar_payloads: dict[Path, bytes] = {}
     history_path = session_dir / ".canonical" / "quarantine-history" / (
         hashlib.sha256(quarantine_payload).hexdigest() + ".json"
     )
     try:
         _atomic_json(session_path, raw)
+        for binding in proposal["bindings"]:
+            cleanup = binding.get("proposedCleanupBox")
+            if cleanup is None:
+                continue
+            dog = next(item for item in dogs if item["index"] == binding["index"])
+            sidecar_path = (
+                session_dir / "dogs" / binding["compatibilitySlot"]
+                / f"sprite_{dog['activeVariant']:03d}.json"
+            )
+            sidecar_payloads[sidecar_path] = sidecar_path.read_bytes()
+            sidecar = json.loads(sidecar_payloads[sidecar_path])
+            sidecar["cleanupBox"] = cleanup
+            _atomic_json(sidecar_path, sidecar)
         history_path.parent.mkdir(parents=True, exist_ok=True)
         if not history_path.exists():
             history_path.write_bytes(quarantine_payload)
@@ -201,6 +454,8 @@ def repair_cleanup_identity_bindings(
             _atomic_json(level_path, json.loads(level_payload))
         quarantine_path.parent.mkdir(parents=True, exist_ok=True)
         quarantine_path.write_bytes(quarantine_payload)
+        for sidecar_path, payload in sidecar_payloads.items():
+            _atomic_json(sidecar_path, json.loads(payload))
         raise
     return {
         **proposal,

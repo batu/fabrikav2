@@ -1075,16 +1075,10 @@ def set_level_golden_review(session_id: str, approved: bool, *, source: str = "e
             except (OSError, json.JSONDecodeError):
                 current = False
                 break
-            target = _box_target(sidecar)
-            cleanup = sidecar.get("cleanupBox") or sidecar.get("spriteBox")
-            if not (
-                target is not None
-                and isinstance(cleanup, list)
-                and len(cleanup) == 4
-                and cleanup[0] <= target[0] <= cleanup[2]
-                and cleanup[1] <= target[1] <= cleanup[3]
-            ):
-                raise ValueError(f"active sprite padding targets a different bird: {dog.get('id')}")
+            # Cross-bird padding mismatches are advisory only (2026-08-12):
+            # the editor cannot resolve them, so blessing must not hard-block
+            # on them. get_final_cutout_review_readiness still reports the
+            # count for visibility.
             human_review = {"confirmed": True, "confirmedAt": now, "source": "level-bless"}
             for target_base in target_bases:
                 target_sprite = target_base / relative
@@ -1236,7 +1230,9 @@ def get_final_cutout_review_readiness(session_id: str) -> dict[str, Any]:
         if not padding_current:
             invalid_padding += 1
     return {
-        "ready": bool(dogs) and missing == 0 and invalid_padding == 0,
+        # invalidPadding is advisory only (2026-08-12): the editor has no way
+        # to resolve a cross-bird padding mismatch, so it must not gate review.
+        "ready": bool(dogs) and missing == 0,
         "activeBirds": len(dogs),
         "missingCutouts": missing,
         "invalidPadding": invalid_padding,
@@ -1733,6 +1729,30 @@ def save_canonical_sprite_geometry_if_present(
     actual = current.pointer.content_revision if current.pointer else None
     if expected_content_revision is None:
         raise RevisionConflictError(None, actual)
+    commit_revision = expected_content_revision
+    if expected_content_revision != actual:
+        base = store.snapshot_for_content_revision(expected_content_revision)
+        base_bird = next(
+            (item for item in (base or {}).get("birds", []) if item.get("birdId") == bird_id),
+            None,
+        )
+        current_bird = next(
+            (item for item in current.snapshot["birds"] if item["birdId"] == bird_id),
+            None,
+        )
+        base_context = {
+            "assets": (base or {}).get("assets"),
+            "restore": (base or {}).get("restore"),
+            "bird": base_bird,
+        }
+        current_context = {
+            "assets": current.snapshot.get("assets"),
+            "restore": current.snapshot.get("restore"),
+            "bird": current_bird,
+        }
+        if base is None or base_context != current_context:
+            raise RevisionConflictError(expected_content_revision, actual)
+        commit_revision = actual
     if (
         len(sprite_box) != 4
         or sprite_box[0] < 0
@@ -1770,7 +1790,7 @@ def save_canonical_sprite_geometry_if_present(
         target["cleanup"].update({"x": cx0, "y": cy0, "width": cx1 - cx0, "height": cy1 - cy0})
     return store.commit(
         updated,
-        expected_content_revision=expected_content_revision,
+        expected_content_revision=commit_revision,
         expected_operational_revision=current.pointer.operational_revision if current.pointer else None,
     )
 
@@ -1789,6 +1809,7 @@ def set_canonical_final_review_if_present(
         RevisionConflictError,
         bless_snapshot,
         invalidate_reviews,
+        review_scope_revision,
     )
 
     store = canonical_session_store(session_id)
@@ -1802,7 +1823,8 @@ def set_canonical_final_review_if_present(
         raise RevisionConflictError(None, actual)
     if approved:
         hitbox_review = current.snapshot.get("reviews", {}).get("hitboxes")
-        if not isinstance(hitbox_review, dict) or hitbox_review.get("contentRevision") != actual:
+        hitbox_scope = review_scope_revision(current.snapshot, "hitboxes")
+        if not isinstance(hitbox_review, dict) or hitbox_review.get("scopeRevision") != hitbox_scope:
             raise ContractValidationError("current hitbox review is required before final blessing")
         updated = bless_snapshot(
             current.snapshot,

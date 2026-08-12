@@ -2477,6 +2477,32 @@ label {
     drop-shadow(0 0 2px #4ce7a0);
 }
 
+.cutout-placement-bounds {
+  position: absolute;
+  z-index: 4;
+  display: block;
+  box-sizing: border-box;
+  border: 2px solid #4ce7a0;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.82), inset 0 0 0 1px rgba(0, 0, 0, 0.55);
+  pointer-events: none;
+}
+
+.cutout-resize-handle {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border: 2px solid #07110c;
+  border-radius: 3px;
+  background: #4ce7a0;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
+  pointer-events: auto;
+}
+
+.cutout-resize-handle.handle-nw { left: 0; top: 0; transform: translate(-50%, -50%); cursor: nwse-resize; }
+.cutout-resize-handle.handle-ne { right: 0; top: 0; transform: translate(50%, -50%); cursor: nesw-resize; }
+.cutout-resize-handle.handle-sw { left: 0; bottom: 0; transform: translate(-50%, 50%); cursor: nesw-resize; }
+.cutout-resize-handle.handle-se { right: 0; bottom: 0; transform: translate(50%, 50%); cursor: nwse-resize; }
+
 .cutout-padding-box {
   position: absolute;
   z-index: 3;
@@ -2484,6 +2510,53 @@ label {
   border: 4px solid #fbbf24;
   box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.75), inset 0 0 0 1px rgba(0, 0, 0, 0.75);
   pointer-events: none;
+}
+
+.cutout-resize-handle.padding-handle {
+  border-color: #211703;
+  background: #fbbf24;
+  z-index: 5;
+}
+
+.cutout-hitbox-circle {
+  position: absolute;
+  z-index: 4;
+  display: block;
+  box-sizing: border-box;
+  border: 2px dashed #ff5c5c;
+  border-radius: 50%;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.7), inset 0 0 0 1px rgba(0, 0, 0, 0.55);
+  pointer-events: none;
+}
+
+.cutout-jobs-running {
+  font-size: 12px;
+  font-weight: 700;
+  color: #7fd4ff;
+  white-space: nowrap;
+}
+
+.cutout-job-status {
+  margin-top: 6px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.cutout-job-status.running {
+  background: rgba(37, 99, 235, 0.16);
+  color: #9ec5ff;
+}
+
+.cutout-job-status.done {
+  background: rgba(22, 163, 74, 0.16);
+  color: #8ff0b4;
+}
+
+.cutout-job-status.failed {
+  background: rgba(220, 38, 38, 0.18);
+  color: #ffb4b4;
 }
 
 .cutout-placement-preview.control-sprite .cutout-padding-box {

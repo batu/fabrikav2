@@ -3832,6 +3832,10 @@ class RetryFailedDogsJobRequest(BaseModel):
     cropBoxesByBirdId: dict[str, tuple[int, int, int, int]] = Field(default_factory=dict)
     cutoutOnly: bool = False
     expectedContentRevision: str | None = None
+    # Per-click client nonce. Distinct nonces force a fresh job even when all
+    # other inputs match a previously completed one; identical nonces (poll
+    # retries, resume) still dedupe onto the same job.
+    attemptNonce: str | None = Field(None, max_length=64)
 
 
 class RetryFailedDogUnitResponse(BaseModel):
@@ -4306,10 +4310,10 @@ def _start_retry_failed_dogs_job_record(session_id: str, req: RetryFailedDogsJob
         raise HTTPException(404, detail={"error": "Session not found"})
     if not canonical_inputs:
         dog_indices = _normalized_retry_dog_indices(session_id, req.dogIndices)
-    unknown_crop_boxes = sorted(set(req.cropBoxes) - set(dog_indices))
+    unknown_crop_boxes = sorted(set(req.cropBoxes) - set(dog_indices)) if not canonical_inputs else []
     if unknown_crop_boxes:
         raise HTTPException(400, detail={"error": f"Crop box supplied for unselected dog: {unknown_crop_boxes[0]}"})
-    if req.cropBoxes:
+    if req.cropBoxes and not canonical_inputs:
         hitboxes = _load_retry_hitboxes(session_id)
         dogs = raw.get("dogs") or []
         for dog_index, box in req.cropBoxes.items():
@@ -4341,6 +4345,8 @@ def _start_retry_failed_dogs_job_record(session_id: str, req: RetryFailedDogsJob
             cutout_only=req.cutoutOnly,
         )
     )
+    if req.attemptNonce:
+        key = f"{key}:nonce:{req.attemptNonce}"
     existing = JOB_STORE.get_job_by_idempotency_key(kind="crop_inpaint_retry", idempotency_key=key)
     if existing is not None:
         if _should_requeue_failed_generation_job(existing):

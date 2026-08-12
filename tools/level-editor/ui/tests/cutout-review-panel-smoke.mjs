@@ -55,9 +55,9 @@ function waitForServer() {
 
 async function run() {
   const vite = spawn(
-    process.platform === 'win32' ? 'npx.cmd' : 'npx',
-    ['vite', '--host', '127.0.0.1', '--port', String(port)],
-    { detached: process.platform !== 'win32', stdio: ['ignore', 'ignore', 'ignore'] },
+    process.platform === 'win32' ? '../../../node_modules/.bin/vite.cmd' : '../../../node_modules/.bin/vite',
+    ['--host', '127.0.0.1', '--port', String(port)],
+    { stdio: ['ignore', 'ignore', 'ignore'] },
   );
   let browser;
   try {
@@ -67,11 +67,16 @@ async function run() {
     let completedRegens = 0;
     let batchSubmissions = 0;
     let submittedDogIndices = [];
+    let submittedBirdIds = [];
+    let submittedCropBoxesByBirdId = {};
     let submittedCropBoxes = {};
     let submittedCutoutOnly = false;
     let submittedPlacement = null;
     let submittedFlipX = false;
     let submittedFlipY = false;
+    const submittedPlacementRevisions = [];
+    let placementRequestCount = 0;
+    let placementRequestCountAtBatch = 0;
     let submittedModel = null;
     let overlayRequests = 0;
     const candidateRequests = new Map();
@@ -86,9 +91,12 @@ async function run() {
         candidateRequests.set(candidateSessionId, (candidateRequests.get(candidateSessionId) ?? 0) + 1);
         await route.fulfill({
           json: {
+            contentRevision: completedRegens > 0 ? 'revision-after-job' : undefined,
+            operationalRevision: completedRegens > 0 ? 'operation-after-job' : undefined,
             candidates: [
               {
                 id: 'dog_00:sprite_000',
+                birdId: 'bird-zero',
                 dogIndex: 0,
                 spriteIndex: 0,
                 status: 'ready',
@@ -111,6 +119,7 @@ async function run() {
               },
               {
                 id: 'dog_00:sprite_001',
+                birdId: 'bird-zero',
                 dogIndex: 0,
                 spriteIndex: 1,
                 status: 'ready',
@@ -127,6 +136,7 @@ async function run() {
               },
               {
                 id: 'dog_01:sprite_000',
+                birdId: 'bird-one',
                 dogIndex: 1,
                 spriteIndex: 0,
                 status: 'ready',
@@ -144,6 +154,7 @@ async function run() {
               ...(completedRegens > 0
                 ? [{
                     id: 'dog_01:sprite_001',
+                    birdId: 'bird-one',
                     dogIndex: 1,
                     spriteIndex: 1,
                     status: 'ready',
@@ -161,6 +172,7 @@ async function run() {
                 : []),
               {
                 id: 'dog_02:sprite_000',
+                birdId: 'bird-two',
                 dogIndex: 2,
                 spriteIndex: 0,
                 status: 'not_pickup_usable',
@@ -198,19 +210,31 @@ async function run() {
         await route.fulfill({ contentType: 'image/png', body: png('green') });
         return;
       }
-      if (url.pathname === `/api/sessions/${sessionId}/sprite-candidates/dog_00%3Asprite_000/placement` && route.request().method() === 'PUT') {
+      if (url.pathname.startsWith(`/api/sessions/${sessionId}/sprite-candidates/`) && url.pathname.endsWith('/placement') && route.request().method() === 'PUT') {
+        placementRequestCount += 1;
         const body = route.request().postDataJSON();
         submittedPlacement = body.spriteBox;
         submittedFlipX = body.flipX;
         submittedFlipY = body.flipY;
-        await route.fulfill({ json: { ok: true, spriteBox: submittedPlacement } });
+        submittedPlacementRevisions.push(body.expectedContentRevision);
+        if (placementRequestCount === 1) {
+          await new Promise((resolve) => setTimeout(resolve, 1600));
+        }
+        await route.fulfill({ json: {
+          ok: true,
+          spriteBox: submittedPlacement,
+          contentRevision: `revision-${submittedPlacementRevisions.length + 1}`,
+        } });
         return;
       }
       if (url.pathname === `/api/sessions/${sessionId}/dogs/retry-inpaint/jobs` && route.request().method() === 'POST') {
         batchSubmissions += 1;
+        placementRequestCountAtBatch = placementRequestCount;
         const body = route.request().postDataJSON();
         submittedDogIndices = body.dogIndices;
+        submittedBirdIds = body.birdIds;
         submittedCropBoxes = body.cropBoxes;
+        submittedCropBoxesByBirdId = body.cropBoxesByBirdId;
         submittedCutoutOnly = body.cutoutOnly;
         submittedModel = body.inpaintModel;
         await route.fulfill({ json: {
@@ -242,6 +266,11 @@ async function run() {
     }, `ftd-cutout-review:${sessionId}`);
     await page.goto(`${baseUrl}/tests/cutout-review-panel-harness.html`);
     await page.waitForSelector('.cutout-review-card');
+    await page.waitForTimeout(250);
+    if ((candidateRequests.get(sessionId) ?? 0) !== 1) {
+      throw new Error(`Revision callback caused a cutout refresh loop: ${JSON.stringify(Object.fromEntries(candidateRequests))}`);
+    }
+    await page.screenshot({ path: '/tmp/ftb-cutout-inline-actions.png', fullPage: true });
     if (await page.getByLabel('Model').inputValue() !== 'google/gemini-3.1-flash-image-preview') {
       throw new Error('Cutout model picker did not default to Gemini 3.1 Flash');
     }
@@ -293,6 +322,14 @@ async function run() {
     await page.mouse.up();
     await firstCard.getByRole('tab', { name: 'Padding' }).click();
     await page.waitForTimeout(100);
+    for (const label of ['Move left', 'Move right', 'Move up', 'Move down']) {
+      if (await controls.getByRole('button', { name: label, exact: true }).count() !== 1) {
+        throw new Error(`Missing ${label} padding movement control`);
+      }
+    }
+    if (await draggableOverlay.getAttribute('title') !== 'Drag to move the padding box. Drag an amber corner to resize it. The sprite stays put.') {
+      throw new Error('Padding mode did not explain its drag behavior');
+    }
     const paddingLeft = firstCard.getByLabel('dog #0 · sprite 000 padding left');
     const paddingTop = firstCard.getByLabel('dog #0 · sprite 000 padding top');
     const paddingRight = firstCard.getByLabel('dog #0 · sprite 000 padding right');
@@ -313,6 +350,10 @@ async function run() {
     }
     const paddingWidthBefore = paddingRightBefore - paddingLeftBefore;
     const paddingHeightBefore = paddingBottomBefore - paddingTopBefore;
+    await controls.getByRole('button', { name: 'Move right', exact: true }).click();
+    if (Number(await paddingLeft.inputValue()) <= paddingLeftBefore) {
+      throw new Error('Move right did not translate the padding box');
+    }
     const paddingWidthAfter = Number(await paddingRight.inputValue()) - Number(await paddingLeft.inputValue());
     const paddingHeightAfter = Number(await paddingBottom.inputValue()) - Number(await paddingTop.inputValue());
     if (paddingWidthAfter !== paddingWidthBefore || paddingHeightAfter !== paddingHeightBefore) {
@@ -323,7 +364,16 @@ async function run() {
     }
     await firstCard.getByRole('tab', { name: 'Sprite' }).click();
     await controls.getByRole('button', { name: 'Flip X', exact: true }).click();
-    await page.waitForTimeout(1200);
+    const southeastHandle = firstCard.locator('[data-resize-handle="se"]');
+    await southeastHandle.waitFor();
+    await southeastHandle.scrollIntoViewIfNeeded();
+    const handleBounds = await southeastHandle.boundingBox();
+    if (!handleBounds) throw new Error('Sprite southeast resize handle was not rendered');
+    await page.mouse.move(handleBounds.x + handleBounds.width / 2, handleBounds.y + handleBounds.height / 2);
+    await page.mouse.down();
+    await page.mouse.move(handleBounds.x + handleBounds.width / 2 + 24, handleBounds.y + handleBounds.height / 2 + 18, { steps: 4 });
+    await page.mouse.up();
+    await page.waitForTimeout(3000);
     await page.waitForFunction(() => document.querySelector('.cutout-review-result')?.textContent?.includes('placement saved'));
     if (!submittedPlacement || submittedPlacement[0] <= 60 || submittedPlacement[2] <= 120 || submittedPlacement[2] - submittedPlacement[0] > 100) {
       throw new Error(`Manual placement was not submitted: ${JSON.stringify(submittedPlacement)}`);
@@ -331,55 +381,51 @@ async function run() {
     if (submittedFlipX !== true || submittedFlipY !== false) {
       throw new Error(`Delayed drag autosave overwrote flip metadata: ${JSON.stringify({ submittedFlipX, submittedFlipY })}`);
     }
+    if (submittedPlacement[2] - submittedPlacement[0] <= 60 || submittedPlacement[3] - submittedPlacement[1] <= 50) {
+      throw new Error(`Dragging the sprite resize handle did not scale the placement box: ${JSON.stringify(submittedPlacement)}`);
+    }
+    if (submittedPlacementRevisions.length < 2 || submittedPlacementRevisions[1] !== 'revision-2') {
+      throw new Error(`Consecutive placement saves reused a stale revision: ${JSON.stringify(submittedPlacementRevisions)}`);
+    }
     if (await controls.getByRole('button', { name: 'Flip X', exact: true }).getAttribute('aria-pressed') !== 'true') {
       throw new Error('Flip X did not remain selected after delayed autosave');
     }
     if ((candidateRequests.get(sessionId) ?? 0) !== candidateRequestsBeforePlacement) {
       throw new Error(`Placement autosave refreshed every cutout: ${JSON.stringify(Object.fromEntries(candidateRequests))}`);
     }
-    const summary = await page.locator('.cutout-review-summary').innerText();
-    if (!summary.includes('2 selected')) {
-      throw new Error(`Unexpected initial summary: ${summary}`);
+    if (await page.getByLabel('Show only selected').count() !== 0 ||
+        await page.getByRole('button', { name: /selected \(/i }).count() !== 0) {
+      throw new Error('Batch selection UI is still present');
     }
-    const selectedOnly = page.getByLabel('Show only selected');
-    await selectedOnly.check();
-    if (await page.locator('.cutout-review-card').count() !== 2) {
-      throw new Error('Selected-only filter did not hide unselected cutouts');
+    if (await firstCard.getByRole('button', { name: 'Extract', exact: true }).count() !== 1 ||
+        await firstCard.getByRole('button', { name: 'Regenerate', exact: true }).count() !== 1) {
+      throw new Error('Per-cutout Extract and Regenerate actions are missing');
     }
-    if (!await page.getByRole('button', { name: 'Extract selected (2)' }).isEnabled()) {
-      throw new Error('Selected-only filter changed the extraction target set');
-    }
-    await selectedOnly.uncheck();
-    if (await page.locator('.cutout-review-card').count() !== 3) {
-      throw new Error('Disabling selected-only filter did not restore all cutouts');
-    }
-    const firstOverlay = page.getByRole('button', { name: 'Select dog #0 · sprite 000 for cutout action' });
-    if (await firstOverlay.getAttribute('aria-pressed') !== 'false') {
-      throw new Error('Clean overlay unexpectedly started selected.');
-    }
-    await firstOverlay.click();
-    await page.getByRole('button', { name: 'Extract selected (3)' }).waitFor();
-    const selectedOverlays = await page.locator('.cutout-review-overlay[aria-pressed="true"]').count();
-    if (selectedOverlays !== 3) throw new Error(`Expected three independently selected overlays, saw ${selectedOverlays}`);
-    await page.getByRole('button', { name: 'Remove dog #0 · sprite 000 from cutout action' }).click();
-    await page.getByRole('button', { name: 'Extract selected (2)' }).waitFor();
-    await page.getByRole('button', { name: 'Regenerate selected (2)' }).waitFor();
+    await page.screenshot({ path: '/tmp/ftb-cutout-inline-actions.png', fullPage: true });
     await page.getByText('Extraction prompt', { exact: true }).click();
     await page.getByText(/Extract and faithfully duplicate exactly ONE/).waitFor();
     const dogOneCard = page.locator('.cutout-review-card').nth(1);
     await dogOneCard.getByRole('tab', { name: 'Padding' }).click();
     await dogOneCard.getByLabel('dog #1 · sprite 000 padding left').fill('100');
-    await page.getByText('Extract selected (2)').click();
-    await page.getByText('1/2 extractions finished').waitFor();
+    await firstCard.getByRole('tab', { name: 'Padding' }).click();
+    await firstCard.getByLabel('dog #0 · sprite 000 padding left').fill('45');
+    await dogOneCard.getByRole('button', { name: 'Extract', exact: true }).click();
+    await dogOneCard.getByText(/extraction saved at/).waitFor();
     if (await page.locator('#last-action').innerText() !== 'none') {
       throw new Error('Cutout extraction was incorrectly applied as a painted-scene variant');
     }
     if (batchSubmissions !== 1) throw new Error(`Expected one durable batch submission, saw ${batchSubmissions}`);
-    if (JSON.stringify(submittedDogIndices) !== JSON.stringify([1, 2])) {
-      throw new Error(`Batch did not target the selected dog indices: ${JSON.stringify(submittedDogIndices)}`);
+    if (placementRequestCountAtBatch < 2) {
+      throw new Error(`Extraction started before pending placement autosave: ${JSON.stringify({ placementRequestCountAtBatch, placementRequestCount })}`);
     }
-    if (submittedCropBoxes['1']?.[0] !== 100) {
-      throw new Error(`Adjusted padding box was not submitted: ${JSON.stringify(submittedCropBoxes)}`);
+    if (submittedDogIndices !== undefined || submittedCropBoxes !== undefined) {
+      throw new Error(`Canonical extraction leaked legacy fields: ${JSON.stringify({ submittedDogIndices, submittedCropBoxes })}`);
+    }
+    if (JSON.stringify(submittedBirdIds) !== JSON.stringify(['bird-one'])) {
+      throw new Error(`Inline action targeted the wrong bird: ${JSON.stringify(submittedBirdIds)}`);
+    }
+    if (submittedCropBoxesByBirdId['bird-one']?.[0] !== 100 || submittedCropBoxesByBirdId['bird-one']?.[2] < 216) {
+      throw new Error(`Stable-ID padding box was not submitted: ${JSON.stringify(submittedCropBoxesByBirdId)}`);
     }
     if (submittedCutoutOnly !== true) {
       throw new Error('Cutout review submitted a scene-edit job instead of extraction-only');
@@ -387,29 +433,27 @@ async function run() {
     if (submittedModel !== 'google/gemini-3.1-flash-image-preview') {
       throw new Error(`Cutout review ignored the selected model: ${submittedModel}`);
     }
-    await page.getByText('one failed').waitFor();
+    if (await page.locator('#observed-revision').innerText() !== 'revision-after-job') {
+      throw new Error('Completed extraction did not refresh the canonical content revision');
+    }
     const refreshedLabel = await page.locator('.cutout-review-card').nth(1).locator('strong').innerText();
     if (!refreshedLabel.includes('sprite 000')) {
       throw new Error(`Extracted dog did not refresh its active cutout candidate: ${refreshedLabel}`);
     }
+    await firstCard.getByRole('tab', { name: 'Sprite' }).click();
     await page.screenshot({ path: '/tmp/pcdNQRrf-cutout-review-panel.png', fullPage: true });
     await page.locator('#switch-session').click();
-    await page.waitForSelector('.cutout-review-summary');
+    await page.waitForSelector('.cutout-review-card');
     await page.waitForTimeout(100);
     if ((candidateRequests.get(secondSessionId) ?? 0) !== 1 || (promptRequests.get(secondSessionId) ?? 0) !== 1) {
       throw new Error(`Session switch duplicated cutout metadata requests: ${JSON.stringify({ candidates: Object.fromEntries(candidateRequests), prompts: Object.fromEntries(promptRequests) })}`);
     }
+  } catch (error) {
+    console.error(error);
+    throw error;
   } finally {
     if (browser) await browser.close();
-    if (process.platform === 'win32') {
-      vite.kill('SIGTERM');
-    } else if (vite.pid) {
-      try {
-        process.kill(-vite.pid, 'SIGTERM');
-      } catch (error) {
-        if (error.code !== 'ESRCH') throw error;
-      }
-    }
+    vite.kill('SIGTERM');
   }
 }
 

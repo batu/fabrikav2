@@ -1156,11 +1156,16 @@ def get_session(session_id: str):
 
 
 @router.get("/sessions/{session_id}/sprite-candidates")
-def list_sprite_candidates(session_id: str) -> dict[str, list[dict[str, Any]]]:
+def list_sprite_candidates(session_id: str) -> dict[str, Any]:
     _validate_session_id(session_id)
     if not S.session_dir(session_id).exists():
         raise HTTPException(404, detail={"error": "Session not found"})
-    return {"candidates": S.sprite_animation_candidates(session_id)}
+    response: dict[str, Any] = {"candidates": S.sprite_animation_candidates(session_id)}
+    canonical = S.read_canonical_session(session_id)
+    if canonical.pointer is not None:
+        response["contentRevision"] = canonical.pointer.content_revision
+        response["operationalRevision"] = canonical.pointer.operational_revision
+    return response
 
 
 @router.get("/sessions/{session_id}/sprite-candidate/{asset_path:path}")

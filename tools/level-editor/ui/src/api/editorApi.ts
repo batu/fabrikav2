@@ -51,8 +51,19 @@ export function apiErrorCode(err: unknown): string | null {
 }
 
 function apiErrorMessage(detail: unknown, status: number): string {
+  if (Array.isArray(detail)) {
+    const messages = detail.flatMap((item) => {
+      if (!item || typeof item !== 'object') return [];
+      const record = item as Record<string, unknown>;
+      const location = Array.isArray(record.loc) ? record.loc.slice(1).join('.') : '';
+      const message = typeof record.msg === 'string' ? record.msg : '';
+      return message ? [`${location ? `${location}: ` : ''}${message}`] : [];
+    });
+    if (messages.length > 0) return messages.join('; ');
+  }
   if (detail && typeof detail === 'object') {
     const outer = detail as Record<string, unknown>;
+    if (Array.isArray(outer.detail)) return apiErrorMessage(outer.detail, status);
     const nested = outer.detail && typeof outer.detail === 'object'
       ? outer.detail as Record<string, unknown>
       : outer;
@@ -61,6 +72,19 @@ function apiErrorMessage(detail: unknown, status: number): string {
     if (typeof outer.detail === 'string' && outer.detail.trim()) return outer.detail;
   }
   return `API error ${status}`;
+}
+
+export function apiErrorHint(err: ApiError): string {
+  const code = apiErrorCode(err);
+  const message = err.message.toLowerCase();
+  if (err.status === 409 && message.includes('revision')) return 'The level changed while this save was pending. Refresh the level and retry; supported editor saves retry automatically.';
+  if (message.includes('padding') || message.includes('different bird')) return 'Select Padding for the named bird, then drag the yellow box or use the Move controls until it contains that sprite.';
+  if (message.includes('quarantin') || message.includes('mapping')) return 'This is an artifact-identity problem, not a visual approval. Repair the bird mapping before final review or publishing.';
+  if (code === 'package_not_installed' || message.includes('level.json') || message.includes('public package')) return 'The reviewed package is not installed. Publish it through the Gallery bundled-catalog action before adding it to Lineup.';
+  if (err.status === 502) return 'The generation service failed upstream. Retry Extract or Regenerate for the affected bird; existing cutouts were preserved.';
+  if (err.status === 422) return 'The server rejected the submitted values. The message above names the field or geometry that must be corrected.';
+  if (err.status === 409) return 'The requested change conflicts with the level’s current state. Refresh the level and use the prerequisite named above.';
+  return '';
 }
 
 /** Options for `request()` beyond the standard RequestInit.
@@ -433,8 +457,8 @@ export function getSession(sessionId: string): Promise<SessionResponse> {
 export function listSpriteCandidates(
   sessionId: string,
   options?: Pick<RequestOptions, 'signal' | 'suppressToast'>,
-): Promise<{ candidates: SpriteCandidate[] }> {
-  return request<{ candidates: SpriteCandidate[] }>(`/api/sessions/${sessionId}/sprite-candidates`, options);
+): Promise<{ candidates: SpriteCandidate[]; contentRevision?: string; operationalRevision?: string }> {
+  return request<{ candidates: SpriteCandidate[]; contentRevision?: string; operationalRevision?: string }>(`/api/sessions/${sessionId}/sprite-candidates`, options);
 }
 
 export function getCutoutExtractionPrompt(
@@ -899,21 +923,22 @@ export function startRetryFailedDogsJob(
     cropBoxesByBirdId: Record<string, [number, number, number, number]>;
     expectedContentRevision: string;
   },
+  attemptNonce?: string,
 ): Promise<RetryFailedDogsJobResponse> {
   return request(`/api/sessions/${sessionId}/dogs/retry-inpaint/jobs`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      ...(canonicalInput ? { birdIds: canonicalInput.birdIds } : { dogIndices }),
-      prompt,
-      padding,
-      cropBoxes,
       ...(canonicalInput ? {
+        birdIds: canonicalInput.birdIds,
         cropBoxesByBirdId: canonicalInput.cropBoxesByBirdId,
         expectedContentRevision: canonicalInput.expectedContentRevision,
-      } : {}),
+      } : { dogIndices, cropBoxes }),
+      prompt,
+      padding,
       cutoutOnly,
       ...(inpaintModel ? { inpaintModel } : {}),
+      ...(attemptNonce ? { attemptNonce } : {}),
     }),
     ...options,
   });
@@ -1068,10 +1093,9 @@ export interface BundledManifest {
  *  it with catalogLevelMissing. */
 export async function publishLevelToCatalog(sessionId: string): Promise<void> {
   const requestId = `ui-${sessionId}-${Date.now()}`;
-  await request(`/api/sessions/${sessionId}/approve-catalog?requestId=${encodeURIComponent(requestId)}`, {
+  await request(`/api/sessions/${sessionId}/approve-catalog?requestId=${encodeURIComponent(requestId)}&bundled=true`, {
     method: 'POST',
   });
-  await request(`/api/sessions/${sessionId}/bundle`, { method: 'POST' });
 }
 
 export function getBundledManifest(): Promise<BundledManifest> {
@@ -1454,6 +1478,7 @@ export function saveSpriteCandidatePlacement(
   flipY?: boolean,
   cleanupBox?: [number, number, number, number],
   expectedContentRevision?: string,
+  options?: Pick<RequestOptions, 'suppressToast'>,
 ): Promise<{
   ok: boolean;
   spriteBox: [number, number, number, number];
@@ -1465,6 +1490,7 @@ export function saveSpriteCandidatePlacement(
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ spriteBox, cleanupBox, flipX, flipY, expectedContentRevision }),
+    ...options,
   });
 }
 

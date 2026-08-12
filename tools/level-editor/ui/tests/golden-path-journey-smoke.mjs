@@ -274,10 +274,12 @@ function makeWorkflowState({ diagnostics = [], activation = null } = {}) {
       available: true,
       catalogRevision,
       levelCount: sessions.size,
-      levels: draftIds.map((id) => ({
-        id,
-        name: sessions.get(id)?.name ?? id,
-        packageId: `${id}:pkg`,
+      // Lineup membership is managed on the Lineup page (ff2d11258): the
+      // catalog picker lists every exported level so drafts can append them.
+      levels: Array.from(sessions.values()).filter((session) => session.exported).map((session) => ({
+        id: session.id,
+        name: session.name,
+        packageId: `${session.id}:pkg`,
         listable: true,
         bundledInApp: false,
         cohortBuckets: ['all'],
@@ -547,6 +549,9 @@ async function run() {
       browserDiagnostics.push(`pageerror: ${error.message}`);
     });
     await page.addInitScript(() => {
+      // This journey's fixtures mock the crop inpaint lane; the app defaults
+      // to magenta since 2026-08-05, so pin the mode the fixtures serve.
+      localStorage.setItem('ftd.inpaintMode', 'crop');
       window.__journeyEventSources = [];
       class FakeEventSource {
         constructor(url) {
@@ -880,7 +885,7 @@ async function run() {
       throw new Error(`Auto-place did not update hitbox count. Diagnostics:\n${browserDiagnostics.join('\n')}\nBody:\n${await page.locator('body').innerText()}\n${error.message}`);
     }
     await page.getByRole('button', { name: /Inpaint All dogs \(30\)/ }).click();
-    await page.waitForFunction(() => document.body.innerText.includes('Regenerate All Dogs (30)'));
+    await page.waitForFunction(() => document.body.innerText.includes('Regenerate All Entities (30)'));
 
     assert(backgroundJobStarts >= 1, `Expected a durable background job for single generation, got ${backgroundJobStarts}.`);
     assert(inpaintJobStarts === 1, `Expected one durable inpaint job, got ${inpaintJobStarts}.`);
@@ -912,6 +917,9 @@ async function run() {
     assert(JSON.stringify(createdScenes) === JSON.stringify(['japan_garden', 'japan_garden', 'japan_market']), `Expected single plus two many-scene create calls, got ${JSON.stringify(createdScenes)}.`);
     assert(backgroundJobStarts === 3, `Expected three durable background jobs, got ${backgroundJobStarts}.`);
 
+    // The wizard legitimately loads the full scene while editing; the
+    // hot-path guard below covers Gallery/Lineup only.
+    fullColorRequests = 0;
     await page.getByRole('button', { name: 'Gallery' }).click();
     await page.waitForSelector('[data-gallery-card-id]');
     await assertAbsentNormalFlowText(page, 'body');
@@ -922,15 +930,19 @@ async function run() {
     const completedIds = Array.from(sessions.values()).filter((session) => session.exported).map((session) => session.id);
     const selectedIds = [singleSessionId, completedIds.find((id) => id !== singleSessionId)].filter(Boolean);
     assert(selectedIds.length === 2, `Expected two completed sessions for Lineup selection, got ${JSON.stringify(completedIds)}.`);
-    for (const id of selectedIds) {
-      const card = page.locator(`[data-gallery-card-id="${id}::gemini"]`);
-      await card.getByRole('button', { name: 'Add to Lineup' }).click();
-      await page.waitForSelector(`[data-gallery-card-id="${id}::gemini"][data-lineup-selected="true"]`);
-    }
-    assert(JSON.stringify(draftIds) === JSON.stringify(selectedIds), `Gallery should own Lineup membership; got ${JSON.stringify(draftIds)}.`);
-
     await page.getByRole('button', { name: 'Lineup', exact: true }).click();
     await page.waitForSelector('.sequence-page');
+    // Lineup membership moved to the Lineup page catalog picker (ff2d11258).
+    for (const id of selectedIds) {
+      await page.getByTitle(`Append ${id} to the draft lineup`).click();
+      await page.waitForSelector(`[data-sequence-card-id="${id}"]`);
+    }
+    await page.getByRole('button', { name: 'Save order' }).click();
+    const saveDeadline = Date.now() + 10_000;
+    while (JSON.stringify(draftIds) !== JSON.stringify(selectedIds) && Date.now() < saveDeadline) {
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    }
+    assert(JSON.stringify(draftIds) === JSON.stringify(selectedIds), `Lineup picker should own membership; got ${JSON.stringify(draftIds)}.`);
     await assertAbsentNormalFlowText(page, '.sequence-page');
     await page.waitForTimeout(250);
     assert(galleryThumbRequests > 0, 'Expected Gallery/Lineup to request thumbnail proxy URLs.');

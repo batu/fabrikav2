@@ -644,7 +644,7 @@ function GalleryCard({
   const disabledReason = card.archived
     ? 'Archived cards are not selectable for Lineup.'
     : quarantined
-      ? 'Quarantined authoring is inspectable but cannot be added or republished until repaired.'
+      ? 'Bird mappings need repair before this level can be added or republished.'
     : missingAssetReason
       ? missingAssetReason
       : state === 'background'
@@ -830,7 +830,7 @@ function GalleryCard({
           {session.nDogs} dogs
         </div>
         {quarantined && (
-          <HumanReviewBadge tone="pending" title="Artifact identity or provenance is ambiguous. Inspect and repair before publishing.">Quarantined</HumanReviewBadge>
+          <HumanReviewBadge tone="pending" title="Artifact identity or provenance needs repair before publishing.">Needs repair</HumanReviewBadge>
         )}
         <HumanReviewBadges session={session} />
         <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap', fontSize: '0.68rem' }}>

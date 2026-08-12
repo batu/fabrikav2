@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import copy
+
 import pytest
 
 import concurrent.futures
@@ -212,6 +214,33 @@ def test_canonical_final_bless_requires_current_hitbox_assertion(isolated_sessio
     assert set(store.read().snapshot["reviews"]) == {"hitboxes", "finalCutouts"}
 
 
+def test_canonical_final_bless_accepts_unchanged_hitbox_scope_after_sprite_edit(isolated_session):
+    store, pointer = _canonical_session(isolated_session, "canonical_final_after_sprite_edit")
+    hitbox_pointer = isolated_session.set_canonical_hitbox_review_if_present(
+        "canonical_final_after_sprite_edit",
+        True,
+        expected_content_revision=pointer.content_revision,
+    )
+    sprite_pointer = isolated_session.save_canonical_sprite_geometry_if_present(
+        "canonical_final_after_sprite_edit",
+        "bird_one",
+        sprite_box=[20, 30, 60, 80],
+        cleanup_box=[15, 25, 65, 85],
+        flip_x=False,
+        flip_y=False,
+        expected_content_revision=hitbox_pointer.content_revision,
+    )
+
+    final_pointer = isolated_session.set_canonical_final_review_if_present(
+        "canonical_final_after_sprite_edit",
+        True,
+        expected_content_revision=sprite_pointer.content_revision,
+    )
+
+    assert final_pointer is not None
+    assert set(store.read().snapshot["reviews"]) == {"hitboxes", "finalCutouts"}
+
+
 def test_stale_canonical_sprite_placement_returns_409(app_client, isolated_session, monkeypatch):
     _store, pointer = _canonical_session(isolated_session, "canonical_sprite_stale")
     monkeypatch.setattr(
@@ -231,6 +260,60 @@ def test_stale_canonical_sprite_placement_returns_409(app_client, isolated_sessi
 
     assert response.status_code == 409
     assert response.json()["detail"]["actualContentRevision"] == pointer.content_revision
+    candidates = app_client.get("/api/sessions/canonical_sprite_stale/sprite-candidates")
+    assert candidates.status_code == 200
+    assert candidates.json()["contentRevision"] == pointer.content_revision
+    assert candidates.json()["operationalRevision"] == pointer.operational_revision
+
+
+def test_stale_sprite_placement_rebases_when_only_another_bird_changed(isolated_session):
+    store, pointer = _canonical_session(isolated_session, "canonical_sprite_other_bird")
+    snapshot = store.read().snapshot
+    second = copy.deepcopy(snapshot["birds"][0])
+    second.update({"birdId": "bird_two", "compatibilitySlot": "dog_01", "presentationOrder": 1})
+    snapshot["birds"].append(second)
+    store.commit(snapshot, expected_content_revision=pointer.content_revision)
+
+    result = isolated_session.save_canonical_sprite_geometry_if_present(
+        "canonical_sprite_other_bird",
+        "bird_one",
+        sprite_box=[20, 30, 60, 80],
+        cleanup_box=[15, 25, 65, 85],
+        flip_x=True,
+        flip_y=False,
+        expected_content_revision=pointer.content_revision,
+    )
+
+    assert result is not None
+    current = store.read().snapshot
+    assert len(current["birds"]) == 2
+    assert current["birds"][0]["sprite"]["flipX"] is True
+
+
+def test_stale_sprite_placement_rejects_when_same_bird_changed(isolated_session):
+    _store, pointer = _canonical_session(isolated_session, "canonical_sprite_same_bird")
+    isolated_session.save_canonical_sprite_geometry_if_present(
+        "canonical_sprite_same_bird",
+        "bird_one",
+        sprite_box=[20, 30, 60, 80],
+        cleanup_box=[15, 25, 65, 85],
+        flip_x=False,
+        flip_y=False,
+        expected_content_revision=pointer.content_revision,
+    )
+
+    from levelbuilder.api.canonical_bird_contract import RevisionConflictError
+
+    with pytest.raises(RevisionConflictError):
+        isolated_session.save_canonical_sprite_geometry_if_present(
+            "canonical_sprite_same_bird",
+            "bird_one",
+            sprite_box=[25, 35, 65, 85],
+            cleanup_box=[20, 30, 70, 90],
+            flip_x=True,
+            flip_y=False,
+            expected_content_revision=pointer.content_revision,
+        )
 
 
 def test_canonical_final_bless_route_uses_revision_cas(app_client, isolated_session):
