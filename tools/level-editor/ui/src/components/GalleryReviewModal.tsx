@@ -4,6 +4,7 @@ import {
   ApiError,
   getSession,
   getFinalCutoutReviewReadiness,
+  runGeometryOperation,
   saveHitboxes,
   setArchived as apiSetArchived,
   setFinalCutoutApproval,
@@ -688,18 +689,17 @@ export default function GalleryReviewModal({
       return `/levels/${item.id}/bg_${bg}.png?v=${item.assetVersion ?? colorVersion}`;
     }
     if (sceneView === 'sprites') {
-      // Sprite cutouts alone on a checkerboard — chroma-key/rim defects have
-      // nowhere to hide.
-      return `/api/sessions/${encodeURIComponent(item.id)}/sprites-preview?v=${item.assetVersion ?? colorVersion}`;
+      // CL-10: revision-addressed cached preview — an img swap, not a
+      // per-click server composite. rev busts across revisions; the server
+      // marks the response immutable so the browser caches it.
+      return `/api/sessions/${encodeURIComponent(item.id)}/scene-previews/sprites?rev=${state.contentRevision ?? item.assetVersion ?? colorVersion}`;
     }
     if (sceneView === 'pickup') {
-      // Faithful runtime post-pickup state: painted scene with ONLY each
-      // dog's cleanup rect swapped to the restore bg — the seams a player
-      // actually sees.
-      return `/api/sessions/${encodeURIComponent(item.id)}/pickup-preview?v=${item.assetVersion ?? colorVersion}`;
+      // CL-10: cached runtime post-pickup state (see sprites note).
+      return `/api/sessions/${encodeURIComponent(item.id)}/scene-previews/pickup?rev=${state.contentRevision ?? item.assetVersion ?? colorVersion}`;
     }
     return variantPreviewUrl(item, card.variant, item.assetVersion ?? colorVersion);
-  }, [item, state.sessionId, colorVersion, card, sceneView, state.selectedBgIndex]);
+  }, [item, state.sessionId, colorVersion, card, sceneView, state.selectedBgIndex, state.contentRevision]);
   if (!item) { return null; }
 
   // Strip the `{setting}_` prefix from the scene slug only when there IS
@@ -838,10 +838,58 @@ export default function GalleryReviewModal({
                     key={mode}
                     type="button"
                     onClick={() => setSceneView(mode)}
+                    onMouseEnter={() => {
+                      // CL-10: warm the cached preview on hover so the first
+                      // click is an instant swap too.
+                      if ((mode === 'pickup' || mode === 'sprites') && item) {
+                        new window.Image().src = `/api/sessions/${encodeURIComponent(item.id)}/scene-previews/${mode}?rev=${state.contentRevision ?? item.assetVersion ?? colorVersion}`;
+                      }
+                    }}
                     style={{
                       flex: 1, padding: '10px 6px', borderRadius: 8, border: '1px solid #333', cursor: 'pointer',
                       background: sceneView === mode ? '#2e5d34' : '#1a1a1a',
                       color: sceneView === mode ? '#d6ffd9' : '#ccc', fontWeight: 700, fontSize: '0.78rem',
+                    }}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+              <div style={{ display: 'flex', gap: 6 }}>
+                {/* CL-1/CL-2: bulk hitbox operations through the geometry service. */}
+                {([
+                  ['clear', '🗑 Clear all hitboxes'],
+                  ['grow', '⊕ Grow all +10%'],
+                  ['shrink', '⊖ Shrink all −10%'],
+                ] as const).map(([op, label]) => (
+                  <button
+                    key={op}
+                    type="button"
+                    className="btn"
+                    style={{ flex: 1, fontSize: '0.72rem' }}
+                    onClick={async () => {
+                      if (!card || !state.sessionId) return;
+                      const revision = state.contentRevision
+                        ?? sessionCacheRef.current.get(card.session.id)?.contentRevision;
+                      if (!revision) return;
+                      const count = state.hitboxes?.length ?? 0;
+                      if (op === 'clear' && !window.confirm(
+                        `Delete ALL ${count} hitboxes (and their birds) on this level? `
+                        + 'Cutouts become stale and reviews are invalidated.')) return;
+                      try {
+                        const body = op === 'clear'
+                          ? { operation: 'clear' as const, expectedContentRevision: revision, humanActor: 'human:editor' }
+                          : { operation: 'scale' as const, factor: op === 'grow' ? 1.1 : 1 / 1.1,
+                              expectedContentRevision: revision, humanActor: 'human:editor' };
+                        const result = await runGeometryOperation(card.session.id, body);
+                        dispatchNarrow({ type: 'SET_REVISIONS', contentRevision: result.contentRevision, operationalRevision: result.operationalRevision });
+                        dispatchNarrow({ type: 'SET_HITBOXES', hitboxes: result.hitboxes });
+                        updateCachedHitboxes(card.session.id, result.hitboxes);
+                        onReviewChanged(card.session.id, {
+                          hitboxesBlessed: false, hitboxesBlessingStale: true,
+                          cutoutsFinalBlessed: false, cutoutsFinalBlessingStale: true,
+                        });
+                      } catch { /* request() toasts */ }
                     }}
                   >
                     {label}

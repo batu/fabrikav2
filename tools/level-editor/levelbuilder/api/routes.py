@@ -2327,6 +2327,60 @@ def get_session_recipe(session_id: str):
     }
 
 
+class GeometryOperationRequest(BaseModel):
+    operation: str
+    expectedContentRevision: str
+    humanActor: str
+    factor: float | None = None
+    birdIds: list[str] | None = None
+    hitboxes: list[dict] | None = None
+    overrideHuman: list[str] | None = None
+
+
+@router.post("/sessions/{session_id}/geometry")
+def geometry_operation(session_id: str, req: GeometryOperationRequest):
+    """CL-1/CL-2 (+ future ops): bulk geometry mutations through the one
+    service — one CAS commit, typed refusals, read-back response."""
+    _validate_session_id(session_id)
+    if not S.session_dir(session_id).exists():
+        raise HTTPException(404, detail={"error": "Session not found"})
+    if not req.humanActor.startswith("human:"):
+        raise HTTPException(422, detail={"error": "humanActor must be attributable (human:*)",
+                                         "code": "human_attribution_required"})
+    from .artifact_dag import pending_obligations
+    from .canonical_bird_contract import ContractValidationError
+    from .geometry_service import HumanAuthorityError, mutate_geometry
+
+    try:
+        result = mutate_geometry(
+            session_id,
+            req.operation,
+            expected_content_revision=req.expectedContentRevision,
+            actor=req.humanActor,
+            hitboxes=req.hitboxes,
+            bird_ids=req.birdIds,
+            factor=req.factor,
+            override_human=req.overrideHuman,
+        )
+    except RevisionConflictError as error:
+        raise _content_revision_conflict(
+            error, ["hitboxes"], server_hitboxes=_current_canonical_hitboxes(session_id),
+        ) from error
+    except HumanAuthorityError as error:
+        raise HTTPException(409, detail={"error": str(error), "code": "human_authority"}) from error
+    except ContractValidationError as error:
+        raise HTTPException(422, detail={"error": str(error), "code": "geometry_invalid"}) from error
+    snapshot = result.snapshot or S.read_canonical_session(session_id).snapshot or {}
+    return {
+        "ok": True,
+        "noOp": result.no_op,
+        "contentRevision": result.content_revision,
+        "operationalRevision": result.operational_revision,
+        "hitboxes": _snapshot_hitboxes(snapshot),
+        "pendingObligations": pending_obligations(snapshot),
+    }
+
+
 @router.get("/sessions/{session_id}/visibility-check")
 def visibility_check(session_id: str):
     return _visibility_check_for_session(session_id)
@@ -3079,6 +3133,62 @@ def sprites_preview(session_id: str):
     out.close()
     return Response(content=buf.getvalue(), media_type="image/jpeg",
                     headers={"X-Sprites-Composited": str(n), "Cache-Control": "no-store"})
+
+
+_SCENE_PREVIEW_RENDERERS = {
+    "pickup": lambda session_id: pickup_preview(session_id),
+    "sprites": lambda session_id: sprites_preview(session_id),
+}
+
+_SCENE_PREVIEW_MAX_LONG_EDGE = 1600  # review preview, not print resolution
+
+
+@router.get("/sessions/{session_id}/scene-previews/{view}")
+def scene_preview(session_id: str, view: str):
+    """CL-10: revision-addressed scene previews. Rendered ONCE per content
+    revision per view into .previews/<rev16>/<view>.webp, then served
+    statically with immutable caching — toggling views is an img swap.
+    The composite endpoints above remain the single source of render truth;
+    this endpoint is their cache."""
+    _validate_session_id(session_id)
+    renderer = _SCENE_PREVIEW_RENDERERS.get(view)
+    if renderer is None:
+        raise HTTPException(422, detail={
+            "error": f"unknown scene view {view!r}",
+            "views": sorted(_SCENE_PREVIEW_RENDERERS),
+        })
+    canonical = S.read_canonical_session(session_id)
+    revision = canonical.pointer.content_revision if canonical.pointer else None
+    if revision is None:
+        # Legacy sessions have no revision to address by — render live.
+        rendered = renderer(session_id)
+        return rendered
+    rev16 = revision.removeprefix("sha256:")[:16]
+    cache_dir = S.session_dir(session_id) / ".previews" / rev16
+    cache_path = cache_dir / f"{view}.webp"
+    if not cache_path.is_file():
+        rendered = renderer(session_id)
+        with Image.open(io.BytesIO(rendered.body)) as img:
+            preview = img.convert("RGB")
+            long_edge = max(preview.size)
+            if long_edge > _SCENE_PREVIEW_MAX_LONG_EDGE:
+                scale = _SCENE_PREVIEW_MAX_LONG_EDGE / long_edge
+                preview = preview.resize(
+                    (round(preview.width * scale), round(preview.height * scale)),
+                    Image.LANCZOS,
+                )
+            cache_dir.mkdir(parents=True, exist_ok=True)
+            temporary = cache_path.with_suffix(".webp.tmp")
+            preview.save(temporary, "WEBP", quality=82)
+            temporary.replace(cache_path)
+    return Response(
+        content=cache_path.read_bytes(),
+        media_type="image/webp",
+        headers={
+            "Cache-Control": "public, max-age=31536000, immutable",
+            "X-Preview-Revision": rev16,
+        },
+    )
 
 
 @router.post("/sessions/{session_id}/clone")

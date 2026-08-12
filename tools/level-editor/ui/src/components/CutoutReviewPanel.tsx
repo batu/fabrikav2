@@ -7,7 +7,6 @@ import {
   getRetryFailedDogsJob,
   isAbortError,
   listSpriteCandidates,
-  saveSpriteCandidateHumanConfirmation,
   saveSpriteCandidatePlacement,
   spriteCandidateOverlayUrl,
   startRetryFailedDogsJob,
@@ -321,7 +320,6 @@ export default function CutoutReviewPanel({
   const [placementBoxes, setPlacementBoxes] = useState<Record<string, CropBox>>({});
   const [controlModes, setControlModes] = useState<Record<string, ControlMode>>({});
   const [savingPlacement, setSavingPlacement] = useState<string | null>(null);
-  const [savingConfirmation, setSavingConfirmation] = useState<string | null>(null);
   const refreshRunId = useRef(0);
   const dogsRef = useRef(dogs);
   const currentSessionRef = useRef(sessionId);
@@ -400,38 +398,6 @@ export default function CutoutReviewPanel({
     };
   }, [refresh, sessionId]);
 
-  const toggleHumanConfirmation = useCallback(async (candidate: SpriteCandidate) => {
-    const saveSessionId = sessionId;
-    const saveRunId = (confirmationRunIds.current.get(candidate.id) ?? 0) + 1;
-    confirmationRunIds.current.set(candidate.id, saveRunId);
-    const confirmed = !candidate.humanConfirmed;
-    setSavingConfirmation(candidate.id);
-    setError(null);
-    try {
-      const saved = await saveSpriteCandidateHumanConfirmation(
-        saveSessionId,
-        candidate.id,
-        confirmed,
-        contentRevisionRef.current,
-      );
-      if (currentSessionRef.current !== saveSessionId || confirmationRunIds.current.get(candidate.id) !== saveRunId) return;
-      setCandidates((current) => current.map((item) => (
-        item.id === candidate.id ? { ...item, humanConfirmed: confirmed } : item
-      )));
-      if (saved.contentRevision) {
-        contentRevisionRef.current = saved.contentRevision;
-        onRevisionChanged?.(saved.contentRevision, saved.operationalRevision);
-      }
-      onCutoutsChanged?.();
-    } catch (err) {
-      if (currentSessionRef.current !== saveSessionId || confirmationRunIds.current.get(candidate.id) !== saveRunId) return;
-      setError(err instanceof Error ? err.message : String(err));
-    } finally {
-      if (currentSessionRef.current === saveSessionId && confirmationRunIds.current.get(candidate.id) === saveRunId) {
-        setSavingConfirmation(null);
-      }
-    }
-  }, [onCutoutsChanged, onRevisionChanged, sessionId]);
 
   const savePlacement = useCallback(async (
     candidate: SpriteCandidate,
@@ -672,7 +638,6 @@ export default function CutoutReviewPanel({
     }
   }, [cropBoxes, cutoutModel, hitboxes, onCutoutsChanged, onDogComplete, onPlacementPendingChanged, refresh, sessionId, sharedPrompt, waitForPlacementSaves]);
 
-  const busy = savingConfirmation !== null;
   const runningJobCount = Object.values(candidateJobs).filter((job) => job.phase === 'running').length;
 
   return (
@@ -757,15 +722,9 @@ export default function CutoutReviewPanel({
             <article key={candidate.id} className="cutout-review-card">
               <div className="cutout-review-card-top">
                 <strong>{candidateLabel(candidate)}</strong>
-                <button
-                  type="button"
-                  className={`hitl-confirmation ${candidate.humanConfirmed ? 'confirmed' : ''}`}
-                  aria-pressed={candidate.humanConfirmed ?? false}
-                  disabled={busy}
-                  onClick={() => void toggleHumanConfirmation(candidate)}
-                >
-                  {savingConfirmation === candidate.id ? 'Saving…' : candidate.humanConfirmed ? 'Human confirmed' : 'Confirm'}
-                </button>
+                {/* CL-16: no per-bird confirmation — "Mark cutouts reviewed"
+                    is the ONLY operator-facing cutout assertion; per-sprite
+                    records are auto-stamped plumbing, invisible here. */}
               </div>
               <button
                 type="button"

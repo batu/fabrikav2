@@ -2657,11 +2657,6 @@ def list_sessions(*, include_public: bool = False) -> list[dict]:
                     review_sidecars.append(json.loads(sidecar_path.read_text()))
                 except (OSError, json.JSONDecodeError):
                     continue
-            human_confirmed_birds = sum(
-                bool((item.get("humanReview") or {}).get("confirmed"))
-                for item in review_sidecars
-                if isinstance(item, dict)
-            )
             regeneration_candidate_count = sum(
                 bool((item.get("regenerationReview") or {}).get("candidate"))
                 and not bool((item.get("humanReview") or {}).get("confirmed"))
@@ -2697,8 +2692,6 @@ def list_sessions(*, include_public: bool = False) -> list[dict]:
                 "orientation": orientation,
                 "canonicalState": canonical_state,
                 "assetBase": asset_base,
-                "humanConfirmedBirds": human_confirmed_birds,
-                "reviewableBirds": len(review_sidecars),
                 "regenerationCandidateCount": regeneration_candidate_count,
                 "hitboxesBlessed": hitbox_review["current"],
                 "hitboxesBlessingStale": hitbox_review["stale"],

@@ -200,8 +200,6 @@ export interface SessionListItem {
   tags?: string[];
   /** Static mount that owns this session's assets. Active editor sessions use `levels`; public-package-only sessions use `public-levels`. */
   assetBase?: 'levels' | 'public-levels';
-  humanConfirmedBirds?: number;
-  reviewableBirds?: number;
   regenerationCandidateCount?: number;
   hitboxesBlessed?: boolean;
   hitboxesBlessingStale?: boolean;
@@ -643,6 +641,33 @@ export function autoPlaceHitboxes(
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ nDogs, nonce, radius, strategy }),
   });
+}
+
+export interface GeometryOperationResult {
+  ok: boolean;
+  noOp: boolean;
+  contentRevision: string;
+  operationalRevision: string;
+  hitboxes: Hitbox[];
+  pendingObligations: { obligation: string; birdId?: string; reason?: string }[];
+}
+
+/** CL-1/CL-2: bulk geometry ops (clear/scale/…) through the one service. */
+export async function runGeometryOperation(
+  sessionId: string,
+  body: {
+    operation: 'clear' | 'scale' | 'add' | 'delete';
+    expectedContentRevision: string;
+    humanActor: string;
+    factor?: number;
+    birdIds?: string[];
+    hitboxes?: Partial<Hitbox>[];
+  },
+): Promise<GeometryOperationResult> {
+  return request<GeometryOperationResult>(
+    `/api/sessions/${encodeURIComponent(sessionId)}/geometry`,
+    { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) },
+  );
 }
 
 export function saveHitboxes(

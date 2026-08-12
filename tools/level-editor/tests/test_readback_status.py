@@ -69,3 +69,37 @@ def test_readiness_and_blessing_track_canonical_obligations(app_client, isolated
     )
     assert response.status_code in (409, 422)
     assert store.read().snapshot["reviews"].get("finalCutouts") is None
+
+
+def test_geometry_endpoint_clear_and_scale(app_client, isolated_session):
+    """CL-1/CL-2: bulk geometry operations ride the service through one
+    endpoint — one CAS commit, read-back response, R6 impact in the reply."""
+    store, pointer = _canonical_session(isolated_session, "geo_endpoint")
+    scale = app_client.post(
+        "/api/sessions/geo_endpoint/geometry",
+        json={"operation": "scale", "factor": 2.0,
+              "expectedContentRevision": pointer.content_revision,
+              "humanActor": "human:batu"},
+    )
+    assert scale.status_code == 200, scale.text
+    body = scale.json()
+    assert body["hitboxes"][0]["r"] == 10
+    assert body["contentRevision"] != pointer.content_revision
+
+    clear = app_client.post(
+        "/api/sessions/geo_endpoint/geometry",
+        json={"operation": "clear",
+              "expectedContentRevision": body["contentRevision"],
+              "humanActor": "human:batu"},
+    )
+    assert clear.status_code == 200, clear.text
+    assert clear.json()["hitboxes"] == []
+    assert store.read().snapshot["birds"] == []
+
+    stale = app_client.post(
+        "/api/sessions/geo_endpoint/geometry",
+        json={"operation": "clear",
+              "expectedContentRevision": pointer.content_revision,
+              "humanActor": "human:batu"},
+    )
+    assert stale.status_code == 409
