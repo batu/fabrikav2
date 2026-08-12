@@ -3680,12 +3680,21 @@ def recenter_hitboxes_to_sprites(
         variant = dog.get("activeVariant")
         if not isinstance(index, int) or not isinstance(variant, int):
             continue
-        if index >= len(hitboxes):
-            continue
         sprite = _level_sprite_metadata(session_id, index, variant)
         if sprite is None:
             continue
-        hb = hitboxes[index]
+        # Bind the hitbox by stable id: dog.index is the sprite SLOT, not the
+        # hitboxes array position, and the two diverge whenever slots have
+        # gaps (pruned or imported levels). Positional fallback only for
+        # legacy sessions without ids.
+        hb = next(
+            (item for item in hitboxes if isinstance(item, dict) and item.get("id") and item.get("id") == dog.get("id")),
+            None,
+        )
+        if hb is None:
+            if dog.get("id") is not None or index >= len(hitboxes):
+                continue
+            hb = hitboxes[index]
         cx = sprite["x"] + sprite["width"] / 2
         cy = sprite["y"] + sprite["height"] / 2
         inside = (
