@@ -734,7 +734,13 @@ slot after Phase 2 (they touch the same publish surfaces Phase 2 stabilizes).
   the other ways stop working; the plan's own author bypassed the pipeline four times in
   one evening — manual bundled-manifest upsert, hand-regenerated webp, direct publish
   script, inline cap raise — each "necessary", each how authority #8 is born).
-  Four layers, strongest first:
+  Four layers — CORRECTED ORDER per zen-final review (the CLI is the *easiest* layer to
+  bypass, not the strongest): (0) server-side release authority first — one
+  `ReleaseService.release()` owning approval/export/revision/upload/read-back, UI and
+  CLI as thin adapters to one `/release` endpoint with an adapter-parity test; every
+  other mutation route (approve-catalog, apply-bundle-projection, bundled-manifest
+  order, levels-index writes) enumerated and deleted/410'd/put behind the release
+  capability; digests RECOMPUTED, never trusted from files. Then:
   1. **CLI, structural:** `ftb release` owns the entire O3 transaction; the editor's
      Start button and the CLI are the same code path (P2d.1 parity). Nothing else is
      invocable: `publish_ftb_cdn.py` and the manual endpoints become internals or die
@@ -749,10 +755,14 @@ slot after Phase 2 (they touch the same publish surfaces Phase 2 stabilizes).
   4. **Hooks, thin and optional:** PreToolUse block on raw `wrangler r2 object put` and
      direct writes under `public/levels/` outside the CLI — only for the money-shaped
      commands; digest gates already cover the rest.
-  **Break-glass (practicality beats purity, never silently):** `ftb release --break-glass
-  <invariant>` performs the bypass, prints exactly which invariant is suspended, and
-  writes a reconciliation marker the next gate refuses until cleared. Emergency paths
-  that don't exist get invented ad hoc and invisibly — tonight, four times.
+  **Break-glass (practicality beats purity, never silently):** an append-only
+  SERVER-SIDE release-journal entry (release id, invariant enum, reason, actor,
+  timestamps, before/observed revision+digest, status) written `OPEN` before the bypass;
+  only `ftb reconcile <id>` closes it after local recomputation + R2 read-back;
+  `/release`, `build:ios`, and CI all refuse while any entry is open. A local marker
+  file is not checkable — raw-credential holders remain an acknowledged administrative
+  bypass, stated, not pretended away. Emergency paths that don't exist get invented ad
+  hoc and invisibly — tonight, four times.
 
 **Failure-class ledger row 7 (2026-08-12 night, third occurrence):** approve-catalog
 silently DELETES webp derivatives it does not know how to regenerate (canonical export
