@@ -420,3 +420,34 @@ def catalog_entry_has_retention(entry: dict[str, Any]) -> bool:
 
 def utc_now_iso() -> str:
     return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+
+
+def shipped_file_paths(public_levels_dir: Path, session_id: str) -> list[Path]:
+    """O2: the exact files the native packer ships for one level — the
+    manifest-referenced assets (webp preferred) plus the dogs/ sprite tree.
+    The bundle-projection budget and the packer must share this selection so
+    the boundary metric can never drift from shipped reality again
+    (2026-08-12: directory-size budgeting counted authoring PNG masters and
+    bundled 8 of 44 levels that easily fit)."""
+    entry = public_level_manifest_entry(public_levels_dir, session_id)
+    root = public_levels_dir.parent
+    paths: dict[Path, None] = {}
+
+    def _collect(value) -> None:
+        if isinstance(value, dict):
+            relative = value.get("path")
+            if isinstance(relative, str) and relative:
+                paths.setdefault(root / relative, None)
+            for child in value.values():
+                _collect(child)
+        elif isinstance(value, list):
+            for child in value:
+                _collect(child)
+
+    _collect(entry.get("assets"))
+    dogs_root = public_levels_dir / session_id / "dogs"
+    if dogs_root.is_dir():
+        for path in dogs_root.rglob("*"):
+            if path.is_file():
+                paths.setdefault(path, None)
+    return [path for path in paths if path.is_file()]

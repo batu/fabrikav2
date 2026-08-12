@@ -3405,10 +3405,21 @@ def _bundle_projection() -> dict:
     levels: list[dict] = []
     cumulative = 0
     boundary_index = 0
+    seen_paths: set = set()
     for level_id in level_ids:
         public_dir = S.GAME_PUBLIC_LEVELS / level_id
         exported = (public_dir / "level.json").exists()
-        size = (_directory_size(public_dir) or 0) if exported else 0
+        size = 0
+        if exported:
+            # O2: budget exactly what the native packer ships (manifest-
+            # referenced webp-preferred assets + dogs tree), de-duplicated
+            # projection-wide — never raw directory size, which counted
+            # authoring PNG masters and bundled 8 of 44 fitting levels.
+            for path in S.PublicLevels.shipped_file_paths(S.GAME_PUBLIC_LEVELS, level_id):
+                if path in seen_paths:
+                    continue
+                seen_paths.add(path)
+                size += path.stat().st_size
         bundled = False
         if exported and cumulative + size <= _BUNDLE_CAP_BYTES and boundary_index == len(levels):
             # contiguous prefix only: the first non-fitting (or unexported)
