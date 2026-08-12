@@ -3438,6 +3438,70 @@ def revert_sprite(session_id: str, bird_id: str, req: RevertSpriteRequest):
     }
 
 
+@router.get("/sessions/{session_id}/evidence/contact-sheet")
+def evidence_contact_sheet(session_id: str):
+    """P2e.5 / R8: the run-evidence contact sheet — painted scene, all-picked-
+    up reconstruction, and sprites-only, side by side, revision-addressed and
+    cached like the scene previews. A sheet that fails to decode is broken
+    evidence; panels are rendered through the same verified lanes the
+    operator's toggles use (derivation-vs-runtime handshake)."""
+    import numpy as _np
+
+    _validate_session_id(session_id)
+    canonical = S.read_canonical_session(session_id)
+    if canonical.snapshot is None or canonical.pointer is None:
+        raise HTTPException(409, detail={"error": "not a canonical session", "code": "canonical_required"})
+    revision = canonical.pointer.content_revision
+    rev16 = revision.removeprefix("sha256:")[:16]
+    cache_dir = S.session_dir(session_id) / ".previews" / rev16
+    cache_path = cache_dir / "contact-sheet.webp"
+    if not cache_path.is_file():
+        from .canonical_assets import AssetIntegrityError, resolve_asset
+
+        store = S.canonical_session_store(session_id)
+        try:
+            scene_bytes = resolve_asset(store, canonical.snapshot["assets"]["scene"]).data
+        except AssetIntegrityError as error:
+            raise HTTPException(409, detail={"error": str(error), "code": "asset_integrity"}) from error
+        panels = []
+        with Image.open(io.BytesIO(scene_bytes)) as img:
+            panels.append(("painted", img.convert("RGB")))
+        pickup = pickup_preview(session_id, _lossless=True)
+        with Image.open(io.BytesIO(pickup.body)) as img:
+            panels.append(("all picked up", img.convert("RGB")))
+        sprites = sprites_preview(session_id)
+        with Image.open(io.BytesIO(sprites.body)) as img:
+            panels.append(("sprites", img.convert("RGB")))
+        # Uniform panel height, side-by-side, labeled.
+        PANEL_H = 640
+        scaled = []
+        for label, panel in panels:
+            ratio = PANEL_H / panel.height
+            scaled.append((label, panel.resize((max(1, round(panel.width * ratio)), PANEL_H), Image.LANCZOS)))
+        GAP, LABEL_H = 12, 28
+        total_w = sum(p.width for _, p in scaled) + GAP * (len(scaled) + 1)
+        sheet = Image.new("RGB", (total_w, PANEL_H + LABEL_H + GAP * 2), (16, 18, 22))
+        draw = ImageDraw.Draw(sheet)
+        x = GAP
+        for label, panel in scaled:
+            sheet.paste(panel, (x, LABEL_H + GAP))
+            draw.text((x + 4, 6), f"{label} · {rev16}", fill=(160, 200, 240))
+            x += panel.width + GAP
+        cache_dir.mkdir(parents=True, exist_ok=True)
+        import tempfile as _tempfile
+
+        fd, tmp_name = _tempfile.mkstemp(prefix=".sheet-", suffix=".webp.tmp", dir=cache_dir)
+        os.close(fd)
+        sheet.save(tmp_name, "WEBP", quality=80)
+        os.replace(tmp_name, cache_path)
+        # Image-load assertion: broken evidence must never serve.
+        with Image.open(cache_path) as verify:
+            verify.load()
+    return Response(content=cache_path.read_bytes(), media_type="image/webp",
+                    headers={"Cache-Control": "public, max-age=31536000, immutable",
+                             "X-Preview-Revision": rev16})
+
+
 @router.get("/sessions/{session_id}/residue")
 def residue_gate(session_id: str):
     """CL-11 gate surface: residue pixel count + verdict + dependency hash."""

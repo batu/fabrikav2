@@ -174,3 +174,20 @@ def test_sprite_history_and_revert_endpoints(app_client, isolated_session):
     )
     assert revert.status_code == 200, revert.text
     assert store.read().snapshot["birds"][0]["sprite"]["asset"]["sha256"] == original_sha
+
+
+def test_evidence_contact_sheet_generates_per_revision(app_client, isolated_session):
+    """P2e.5/R8: every scene state can emit its evidence contact sheet —
+    painted scene, all-picked-up, sprites — revision-addressed, image-load
+    asserted (a sheet that doesn't decode is broken evidence)."""
+    from io import BytesIO
+
+    from PIL import Image as PILImage
+
+    _real_scene_session(isolated_session, "evidence_sheet")
+    response = app_client.get("/api/sessions/evidence_sheet/evidence/contact-sheet")
+    assert response.status_code == 200
+    assert response.headers["content-type"] == "image/webp"
+    with PILImage.open(BytesIO(response.content)) as img:
+        assert img.width > 0 and img.height > 0
+    assert response.headers["x-preview-revision"]
