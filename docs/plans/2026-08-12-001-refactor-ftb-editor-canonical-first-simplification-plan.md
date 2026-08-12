@@ -85,6 +85,23 @@ mismatched UI is detectable in one request.
 Dead editorApi exports (15), the always-410 `DELETE /catalog/levels/{id}` stub, knip-confirmed
 UI files as they fall out of Phases 1–2, duplicate `checksum_tree`.
 
+**P5.1 — Dog→entity verbiage (operator request 2026-08-12, recurring since 2026-08-04).**
+Three tiers, executed during this phase, not before:
+- *User-visible strings* (UI labels, tooltips, aria, API error messages): dynamic
+  `session.entity` where component context has it (the `entityPlural` plumbing already
+  exists), neutral "entity" elsewhere. A prepared diff was reverted on 2026-08-12 pending the
+  migration — the mechanical recipe: `candidateLabel(candidate, noun)` threading in
+  CutoutReviewPanel/AnimationLibraryPage/SpriteAnimationWizard, DogStrip/DogRegenList labels,
+  GalleryReviewModal "{n} dogs", backend `"error": f"Dog {i}…"` strings; pin the panel
+  harness to `entity="dog"` so smoke strings survive.
+- *Code identifiers and wire fields* (`nDogs`, `dogIndices`, `dogPrompt`, `DogsCanvas`…):
+  rename as each surface is converted in Phases 1–2 (wire fields only at the Phase 2 lane
+  boundary, with the UI updated in the same commit).
+- *On-disk formats stay frozen*: `dogs/dog_NN` slots, `session.json` dogs[], and the shipped
+  `level.json` dogs[] contract are compatibility surfaces the game runtime reads — renaming
+  them breaks every existing level and package for zero player value. Document as
+  "compatibility naming" in CONTEXT.md instead.
+
 ## Robustification (cross-cutting, lands with each phase)
 
 - **R1. Slot vs id lint:** one helper for hitbox↔dog binding (by id, positional fallback
@@ -184,6 +201,38 @@ fix-hitboxes/canonical drift; the gallery blind-retry (#1) is the same pattern t
 review clicks. The stress battery (isolated rig, ~100 contended ops, SIGKILL mid-burst)
 confirms the *canonical CAS + guarded projection* core holds — the failures are all in the
 lanes that bypass it, which is the strongest argument for Phase 1/P1.6 being the payoff.
+
+## Operator-mining amendments (2026-08-12, from the conversation corpus)
+
+Source: `docs/research/2026-08-12-ftb-operator-message-mining.md` (two independent reads of
+339 operator messages, 07-27→08-12). The mining's four product concepts map onto this plan:
+
+- **Recipe** (mining #7, #9): versioned canonical recipe shared by UI/CLI, experiment
+  manifest with human labels + cost + provenance, "adopt winner as canonical" — new
+  **Phase 2d**. Kills the `deepdive`/`poststretch` tag-as-provenance pattern and the
+  "write what I am looking at in a div" class of requests.
+- **Revision + human-work authority** (mining #1, #5): human edits/approvals are an
+  append-only authority layer; every regenerate/rebind shows an impact plan (preserved /
+  invalidated / cost) before running; machine-before/human-after hitbox pairs auto-recorded
+  as golden data — extends A2/R4, new **R6 (impact plan before destructive regen)** and
+  **R7 (human-geometry provenance: pipeline steps refuse to overwrite human-placed geometry
+  without explicit consent)**. R7 is the fix for "Did we lose all my hitbox cleanup work?"
+  as a *class*.
+- **Review transaction + artifact DAG** (mining #2, #3, #4, #6): explicit dependency DAG
+  (background → scene → hitboxes → crops → cutouts → export) with stale-descendant
+  regeneration and read-back-verified status — this IS Phase 1 + amendment A2 done
+  properly; the DAG becomes the Phase 1 data model rather than an afterthought. Visual
+  evidence (contact sheets, all-picked-up reconstruction, registration checks) becomes a
+  mandatory run artifact (**R8**), generalizing the aspect-stretch lesson.
+- **Release snapshot + lifecycle** (mining #8, #10): one state machine
+  draft→review→approved→lineup→published(+archived) replacing independent flags — folds
+  into **Phase 2b**; retire sprite-only compositing from all production surfaces (guard
+  test already exists per the FTD parity sweep).
+
+Addendum items: **R9 cost ledger** (measured $/stage on every revision and card, Δ$/1000
+projection on recipe change), **R10 batch count reconciliation** (expected vs actual counts,
+hard-fail with itemized diff), **R11 gameplay tolerances as versioned export-gate
+invariants** (min tap radius, 2× tap acceptance, size uniformity, hint-on-screen, no-wrap).
 
 ## Pre-execution verification (2026-08-12, done while waiting)
 
