@@ -28,7 +28,13 @@ addressing schemes (stable bird id vs positional slot index) used interchangeabl
 
 ## Non-goals
 
-- No storage format changes; the canonical revision store stays as-is.
+- No REPLACEMENT of the canonical revision-store architecture or the frozen runtime
+  compatibility fields (`dogs/dog_NN`, shipped `level.json` dogs[] naming). Additive,
+  versioned schema changes ARE in scope — the file-formats review (2026-08-12,
+  `docs/reports/2026-08-12-ftb-editor-codex-review/file-formats-review.md`) proved the
+  original "no storage format changes" non-goal unsafe: the store does not make asset
+  bytes immutable and mixes authored with operational state. See "File-format
+  amendments (binding)".
 - No speculative features. The only additions are invariants and the operator-loop items
   mined from the conversation corpus (Phases 2b–2e) — each traces to a dated operator
   correction, not to taste.
@@ -48,8 +54,22 @@ completeness (every bird has a sprite asset on disk). Delete the sidecar-walk fo
 **P1.4** Demote `project_canonical_bird_compatibility` to exactly what still needs it after
 P1.1–P1.3 (target: export lane and nothing else), then inline or delete it.
 **P1.5** Regression: a test that commits via every canonical write path (geometry, promote
-with scene, confirmation) and asserts the *API responses* (not files) reflect the commit —
-the phantom-save class, pinned at the contract level.
+with scene, level-scope review commit) and asserts the *API responses* (not files) reflect
+the commit — the phantom-save class, pinned at the contract level.
+**P1.6 — Geometry mutation service, the contract** (was defined only in F-A prose; Zen
+review finding #3): ONE service through which every geometry writer mutates canonical
+state. Operations enum: `move | add | delete | clear | scale | recenter | import | repair`.
+Every request carries `expectedContentRevision` + the session's authoritative
+`canonicalState`; the service commits one atomic snapshot revision and returns it (or a
+typed error: `revision-conflict | identity-conflict | state-refused | validation`).
+Rules: byte-identical mutation = no-op preserving approvals; review invalidation scoped
+to actually-changed artifacts; human-origin geometry refuses automated override without
+itemized consent (R7); a 409 is surfaced and refetched, never blindly retried; a
+content-addressed preimage + journal entry precede every destructive mutation. Ships
+with a checked-in WRITER CENSUS (direct UI saves, auto-placement, both recenters, VLM
+placement, magenta finalize/reconcile, `/select-bg`, add/remove/move, fix-hitboxes,
+import/repair lanes) and one contract test per operation per writer. `VALID_CURRENT`
+sessions accept zero raw `hitboxes.json`/`session.json` geometry writes outside it.
 **P1.7 — Artifact DAG as the Phase 1 data model** (mining #2). Encode the dependency graph
 explicitly: background → painted scene → hitboxes → padded crops → cutouts → export. Each
 canonical commit marks only descendants stale; a `regenerate` action previews affected
@@ -335,20 +355,22 @@ naturally inside step 4's geometry service or Phase 5), each with its own commit
   flagged; DAG re-derives on hitbox/sprite/scene moves. Sprite keeps box + flips; anchor becomes recomputed,
   never a stored competing position. Kills cleanup_misses_hitbox, stale-anchor drift, and
   the padding-name collision as classes.
-- **CL-6. Tap truth: kill the in-game 2× leniency multiplier.** One-time data bake
-  (stored radii ×2, clamped to R11 floor/ceiling), remove the runtime multiplier; editor
-  circle = actual tap area. Magenta paint-dot radius moves to the canonical recipe as a
-  generation parameter — paint size and tap size get separate honest owners.
+- **CL-6. [SUPERSEDED — implement Geometry vNEXT §5, not this text.]** Original intent
+  (kill the in-game 2× leniency multiplier; paint-dot radius becomes a recipe parameter)
+  stands, but the bake is the RESOLVED legacy effective radius per vNEXT §5 — never raw
+  ×2. Kept for history only.
 - **CL-7. Remove the map's padded-crop preview under the magenta default** — it previews a
   crop the canonical lane never sends; show only when the crop lane is explicitly active.
-- **CL-8. Collapse the tap-radius stack** (extends CL-6; verified in
+- **CL-8. [SUPERSEDED — implement Geometry vNEXT §1+§5, not this text.]** (extends CL-6; verified in
   `hitboxGeometry.resolveRuntimeHitRadius` + `findClosestUnfoundDogInSet`). Stored r
   becomes the tap radius: bake the tolerance multiplier and minimum floor into the data
   once (floor moves to authoring via R11); runtime keeps only the arbitration rules —
   nearest-center-wins and the neighbor bisector clamp. Overlapping hitboxes become legal:
   placement stops shrinking/nudging close pairs, editor overlap warning becomes
   informational. Editor circle = what actually taps.
-- **CL-9. Composed dissolve rule (operator formulation, 2026-08-12).** Pickup dissolve:
+- **CL-9. [SUPERSEDED — implement Geometry vNEXT §4 (ownership-exact progressive
+  re-dissolve), not this formula; the bisector survives only as the ASSIGNMENT rule, no
+  runtime bisector geometry.]** Original operator formulation (history): pickup dissolve:
   `dissolve(A) = restoreRegion(A) ∩ A's Voronoi half-spaces − union(sprite footprint of
   every still-unfound neighbor)`. The bisector STAYS — it protects neighbors' unlabeled
   painted props (bucket/flower spill, measured at 45-60% of paint outside sprite bounds);
@@ -746,3 +768,174 @@ enforcement section, nothing else; every other section (CL/R/A/F ledgers, geomet
 vNEXT, mining) is reference consulted when its step arrives. Read top-down = execute;
 read deep = context. A step that needs prose outside its own reference sections is
 underspecified and must be fixed in the plan, not improvised.
+
+## File-format amendments (binding — from the 2026-08-12 file-formats review)
+
+Full review: `docs/reports/.../file-formats-review.md` (16 findings, 2 audits of live
+corruption) + my convergent pass. These amend the phases; where they conflict with older
+phase text, these win.
+
+**Live-corpus facts that reshape scope:** 163 of 2,268 catalog asset descriptors already
+disagree with on-disk bytes (catalog snapshots reference MUTABLE paths — "immutable" is
+currently false); 57 of 101 published packages have no artifact-manifest; two incompatible
+shipped level.json contracts coexist (legacy `dogs[].id = dog_NN` vs canonical UUID +
+compatibilitySlot) and `LevelFileV1` rejects the canonical one.
+
+- **FF-1 (P0). Canonical asset CAS before canonical-first reads:** snapshots currently
+  reference MUTABLE authoring paths (`dogs/dog_NN/sprite_000.png`); `VALID_CURRENT` can
+  be a lie after any pixel overwrite (today's goat_pasture 409 was this). Asset bytes move
+  under `.canonical/objects/<sha256>.<ext>`; commit/export verify existence+digest. Slots
+  become projections. This precedes step 2's read conversion.
+- **FF-2 (P0). Projections stamped or dead:** until deleted, every compat projection
+  carries `sourceContentRevision` + birdId + asset digest; projection failure is never
+  swallowed (today: best-effort + broad except).
+- **FF-3 (P0). Canonical export generates webp INSIDE the atomic export** (closes ledger
+  row 7 at the format level); derivatives record `sourceSha256` + encoder recipe.
+- **FF-4 (P0). Content-addressed package references:** ManifestV2 and catalog snapshots
+  point at immutable per-revision package paths, full-digest package identity (current
+  `packageId` is a 16-hex truncation of a descriptor hash, and `complete` is stored
+  opinion, not derived fact).
+- **FF-5. Strict versioned loaders FIRST:** every retained format gets a checked major
+  `schemaVersion` and loud rejection (today most version fields are decorative;
+  levels-index parses invalid data as `[]`). Precedes projection deletion.
+- **FF-6. Split content truth from operational state** in the snapshot (order, jobs,
+  migration/audit history, candidate reviews out of the content revision; provenance
+  moves, never deleted). Full-file digest check on read (revision filename must equal
+  recomputed snapshot digest — currently unverified).
+- **FF-7. Identity contract, normative:** `birdId` is identity; `compatibilitySlot` is a
+  frozen storage alias, NEVER renumbered; reorder only via `presentationOrder`; public
+  import must prefer embedded birdId/aliases over slot-derived UUIDs (today it re-mints
+  identity from position). Bijection invariant tested at the projection boundary.
+- **FF-8. `LevelJsonV2`:** required schemaVersion, stable birdId, `sourceContentRevision`
+  (staleness becomes self-describing), compatibility alias; exporter and runtime cut over
+  together; unsupported versions rejected loudly.
+- **FF-9. One archive authority:** the versioned ledger; present-but-invalid fails loudly
+  (today corruption reads as empty); session flags become stamped projections.
+- **FF-10. Format-authority registry:** a checked-in table naming, for every field class,
+  exactly one authored owner; every other occurrence is a stamped projection or deleted.
+  Corpus gates: backfill/quarantine the 57 manifest-less packages and the 163 drifted
+  descriptors before ManifestV2 becomes mandatory.
+- **Target inventory:** the file-formats review's end table is the target-state contract
+  (canonical store [pointer + content record + objects + operational log], LevelJsonV2,
+  Package/Catalog ManifestV2, provenance-stamped derivatives, generated bundled starter
+  manifest; DEAD: levels-index, sprite-sidecar geometry, hitboxes.json, session dogs[]
+  authority, standalone artifact-manifest). `commit.lock`/`staging/` are private
+  mechanics, not formats.
+
+## OVERNIGHT GOAL BRIEF — SOLE EXECUTION AUTHORITY (2026-08-12)
+
+Where ANY other section of this plan, any amendment, CL item, or estimate differs from
+this section, THIS SECTION WINS. An executor with no conversation memory follows this
+section top-down and consults the rest of the file only as reference.
+
+### Context in three sentences
+The FTB level editor's write-truth (canonical revision store) and its read/publish
+surfaces (legacy sidecars, manifests, CDN) drifted apart, producing a day of phantom
+saves, eaten reviews, stale orders, and money bugs; three codex reviews + two of mine
+(all in `docs/reports/2026-08-12-ftb-editor-codex-review/`) converged on canonical-first
+reads, one geometry mutation service, one release authority, and format hardening. The
+corpus is 64 authoring sessions (all `valid_current`), 44 published+bundled levels live
+on device and TestFlight build 27. Tonight builds the foundations; paid generation is
+gated hard.
+
+### Isolation (mandatory, before any code)
+Work in a fresh git worktree off the current branch; run the backend on a SEPARATE port
+with isolated `LEVELBUILDER_WORKSPACE`/`LEVELBUILDER_GAME_ROOT` copies for any
+data-touching test. NEVER restart or mutate the shared editor backend (port 5196), the
+portal, the production `public/levels`, R2, or the device build. Commit per item to the
+worktree branch; no merges to main, no deploys, no force-push.
+
+### Allowlist (only these, in this order)
+1. **FF-5 strict loaders + FF-1 asset CAS groundwork** (formats before reads).
+2. **Step 1: canonical asset resolver + state classifier** (A2/A3; resolver verifies
+   containment, existence, bytes, sha256; lane selection by `canonicalState`, fail-closed
+   on orphaned/quarantined/partial).
+3. **Step 2: hydrate_session canonical overlay + read surfaces + DAG schema** (consumer
+   matrix reconciled; DAG = schema/staleness/pending-state/blocking gates ONLY — no paid
+   auto-run obligations tonight, that is P2c).
+4. **Step 3: read-back status + provenance strip** (rejected saves reconcile; no poisoned
+   local IDs — the CL-3 escalation class).
+5. **Step 4: P1.6 geometry mutation service per its contract** (writer census; CL-3
+   add/remove as real bird create/delete; CL-4 hitbox-follows; xfails
+   `test_auto_placement_updates_canonical_geometry` +
+   `test_identical_hitbox_save_preserves_review` flip to hard passes).
+6. **O1 + O2 hotfixes** (CDN freshness guard in `createManifestClient.initialize` +
+   bundle-projection budget by packer-shipped files; both with their unit cases).
+7. **Minimal recipe schema slice** (versioned, deterministic hash, backward-read default,
+   UI/CLI parity resolution + dry-run diff; NO experiment UI, NO cost UI, NO R11
+   enforcement).
+8. **uk_cotswolds_3a43 shakedown — STAGE ONLY** (gates below).
+9. **50-level run — ONLY if its manifest gate passes** (gates below).
+
+### CODEX REVIEW CHECKPOINTS (mandatory, blocking)
+Run `codex exec --json -C <repo> "<prompt>" < /dev/null`, extract agent messages, archive
+under `docs/reports/2026-08-12-overnight/`; triage every finding; P0s are fixed before
+proceeding, the rest recorded. Checkpoints:
+- **CR-1 after item 5 (geometry service):** adversarial review of the full worktree diff —
+  "find a writer that bypasses the service, a projection that drifts silently, a rejected
+  save that poisons state."
+- **CR-2 before item 8 (pre-paid):** audit the shakedown preflight record against the
+  gate list below — "name any missing cap, unverifiable claim, or non-isolated path."
+- **CR-3 before item 9:** audit the 50-run manifest the same way.
+- **CR-4 morning:** verification audit of the final report — "which PASS claims lack named
+  evidence artifacts; which AUTOMATED ONLY are presented as PASS."
+Codex hang gotcha: always `< /dev/null`; prompt via `"$(cat file)"`.
+
+### Protected levels (bit-for-bit untouched)
+`ad_campaigns_ad_bazaar_alley_bird_3663`, `fairytale_forest_fairy_ring_picnic_bird_9ed2`,
+`hawaii_volcano_national_park_bird_3900`, `italy_tuscan_hill_village_bird_a61f`.
+Record each one's `contentRevision` + a hash over its `.canonical` + governed assets at
+start; recompute at the end; report both. No edits, saves, reviews, regeneration, import,
+repair, or fixture writes against the SOURCE sessions; reclamation testing uses isolated
+copies only; source-level reclamation proof is a MORNING/manual task.
+
+### Paid-work gates
+Shakedown (`uk_cotswolds_3a43`, isolated copy): freeze source revision + recipe hash +
+seed + expected counts + idempotency key BEFORE the call; max attempts 1; USD cap $2
+(read the merceka ledger before/after — measured, never estimated); wall-clock 30 min;
+evidence contact sheet required; result STAGED for inspection, NOT republished, NOT
+lineup'd. A failed shakedown is not retried.
+50-run: requires shakedown PASS + CR-3 + a checked-in immutable manifest (50 unique ids,
+per-entry source revision/recipe hash/seed/expected counts/idempotency key) + caps:
+concurrency 4, attempts 1/unit, per-level $0.60, TOTAL $15, wall-clock 6h, abort on
+meter unavailability, count-reconciliation mismatch, CAS mismatch, or projected cap
+breach. Failures stay failures, itemized; "done" = 50 reconciled terminal records within
+caps, not 50 successes. No publish, no lineup.
+
+### Hard prohibitions tonight
+No P2b/P2c beyond what items 3–5 name; no Phase 3/4/5; no order steps 5–10; no
+projection deletion/demotion; no radius bake or tap-behavior change anywhere; no R11
+enforcement (measurement + proposal only); no CL-1/CL-2/CL-5..CL-18 beyond the named
+CL-3/CL-4 clauses; no O3–O10; no publish/republish/Start/RC/R2/TestFlight/device
+mutations; no corpus-wide migration or cleanup; no dependency additions; no weakening a
+gate or xfail-ing a test to proceed.
+
+### Verification contract (exact commands)
+- Python: `cd tools/level-editor && uv run pytest` (xfail flips named per item).
+- UI: `cd tools/level-editor/ui && npm run build` (tsc + vite; also the stale-dist guard).
+- Isolated live check per item: start backend via `run-backend.sh` on the isolated
+  port/workspace, one commit → read-back assertion through the API.
+- Statuses: `PASS` (real behavior observed) / `AUTOMATED ONLY` / `PARTIAL` / `PARKED`
+  (blocker recorded) / `NOT STARTED`. AUTOMATED ONLY never becomes PASS.
+
+### Blocker protocol
+Park (record: item, SHA, exact command+error, money spent, restore point, smallest
+next human action), continue the next allowlisted item. Dependency-blocked items are
+NOT STARTED, never silently skipped. Telegram lane if available for morning-decision
+queue; never wait on a reply.
+
+### Morning deliverable
+One standalone report (docs/reports/2026-08-12-overnight/REPORT.md):
+executive table (Item | Status | Commits | Verification | Evidence | Blocker), base/end
+SHAs, per-item definition-of-done checklist with unmet clauses explicit, xfails flipped,
+protected-level before/after hashes, paid ledger (measured $), CR-1..CR-4 outcomes,
+rollback notes per committed change, explicitly-unverified list, recommended (not
+executed) next actions. The night is "complete" only if every allowlisted item is PASS;
+otherwise report per-item truth.
+
+### Morning queue (operator decisions, prepared not executed)
+R11 value approval (from measurement proposal); radius-bake authorization (gated on
+tap-equivalence grid); reclamation test on the 4 protected levels; backfill_stable_ids
+keep/attic/delete decision; 200MB cap decision (restore 100MB vs streaming); RC
+activation credentials; O3–O10 scheduling; cutout offender list from device play
+(treehouse_30fd is #1).
