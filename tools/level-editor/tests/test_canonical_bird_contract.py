@@ -358,3 +358,29 @@ def test_commit_verifies_preexisting_cas_objects_and_painted_assets(tmp_path):
     }
     with pytest.raises(ContractValidationError, match="paintedAsset"):
         store.commit(nxt, expected_content_revision=pointer.content_revision)
+
+
+def test_stale_commit_refuses_before_hashing_assets(tmp_path, monkeypatch):
+    """Merge-review perf finding: a known-stale commit must 409 on the cheap
+    revision check without reading/hashing megabytes of asset bytes."""
+    from levelbuilder.api import canonical_bird_contract as C
+
+    store = C.CanonicalRevisionStore(tmp_path / "session")
+    snapshot = _snapshot()
+    materialize_snapshot_assets(tmp_path / "session", snapshot)
+    store.commit(snapshot, expected_content_revision=None)
+
+    calls = {"n": 0}
+    original = C.CanonicalRevisionStore.verify_and_store_assets
+
+    def counting(self, snap):
+        calls["n"] += 1
+        return original(self, snap)
+
+    monkeypatch.setattr(C.CanonicalRevisionStore, "verify_and_store_assets", counting)
+    stale = _snapshot()
+    materialize_snapshot_assets(tmp_path / "session", stale)
+    stale["birds"][0]["hitbox"]["x"] = 999
+    with pytest.raises(C.RevisionConflictError):
+        store.commit(stale, expected_content_revision="sha256:" + "0" * 64)
+    assert calls["n"] == 0  # refused before any asset bytes were touched

@@ -103,3 +103,23 @@ def test_geometry_endpoint_clear_and_scale(app_client, isolated_session):
               "humanActor": "human:batu"},
     )
     assert stale.status_code == 409
+
+
+def test_gallery_listing_reads_canonical_once_per_session(isolated_session, monkeypatch):
+    """Merge-review perf finding: one canonical read per session per listing —
+    review status, readiness, and state all derive from the same read."""
+    from levelbuilder.api import session as S
+
+    _canonical_session(isolated_session, "listing_perf")
+    calls = {"n": 0}
+    original = S.read_canonical_session
+
+    def counting(session_id):
+        calls["n"] += 1
+        return original(session_id)
+
+    monkeypatch.setattr(S, "read_canonical_session", counting)
+    listing = S.list_sessions()
+    assert any(item["id"] == "listing_perf" for item in listing)
+    per_session = calls["n"] / max(1, len(listing))
+    assert per_session <= 1, f"{calls['n']} canonical reads for {len(listing)} sessions"
