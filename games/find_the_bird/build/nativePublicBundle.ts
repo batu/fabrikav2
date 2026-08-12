@@ -11,7 +11,10 @@ import {
 import path from 'node:path';
 import type { Plugin } from 'vite';
 
-export const NATIVE_WEB_BUNDLE_MAX_BYTES = 100 * 1024 * 1024;
+// 2026-08-12: temporarily 200MB so the full 44-level reviewed lineup can be
+// bundled for on-device QA (level payload alone is 103MB). Restore 100MB once
+// CDN streaming or a sprite-size diet lands.
+export const NATIVE_WEB_BUNDLE_MAX_BYTES = 200 * 1024 * 1024;
 
 type ManifestValue = null | boolean | number | string | ManifestValue[] | { [key: string]: ManifestValue };
 type ManifestObject = { [key: string]: ManifestValue };
