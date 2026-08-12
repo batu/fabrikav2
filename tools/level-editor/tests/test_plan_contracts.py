@@ -175,3 +175,33 @@ def test_kill9_drill_leaves_no_stuck_or_double_billable_state(tmp_path):
     assert refreshed["done-1"].result.get("paid") is True
     # No job left permanently running.
     assert not store.list_jobs_by_status(("running",))
+
+
+def test_one_active_paid_job_per_bird_guard(app_client, isolated_session, monkeypatch):
+    """A6: a second retry-inpaint job targeting a bird with an ACTIVE job is
+    refused even with a fresh attemptNonce — nonce dedupes accidental
+    retries; this guard closes deliberate cross-client double spend."""
+    from levelbuilder.api import inpaint as I
+    from test_canonical_hitbox_cas import _canonical_session
+
+    _store, pointer = _canonical_session(isolated_session, "double_spend")
+    monkeypatch.setattr(I, "get_default_job_worker", lambda: type("W", (), {
+        "register_handler": lambda *a, **k: None, "start": lambda self: None,
+    })(), raising=False)
+
+    first = app_client.post(
+        "/api/sessions/double_spend/dogs/retry-inpaint/jobs",
+        json={"birdIds": ["bird_one"], "prompt": "bird",
+              "expectedContentRevision": pointer.content_revision,
+              "attemptNonce": "nonce-aaaa"},
+    )
+    assert first.status_code == 200, first.text
+
+    second = app_client.post(
+        "/api/sessions/double_spend/dogs/retry-inpaint/jobs",
+        json={"birdIds": ["bird_one"], "prompt": "bird",
+              "expectedContentRevision": pointer.content_revision,
+              "attemptNonce": "nonce-bbbb"},
+    )
+    assert second.status_code == 409, second.text
+    assert second.json()["detail"]["code"] == "bird_job_active"

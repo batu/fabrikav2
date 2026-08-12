@@ -4398,6 +4398,28 @@ def _start_retry_failed_dogs_job_record(session_id: str, req: RetryFailedDogsJob
         if _should_requeue_failed_generation_job(existing):
             return JOB_STORE.requeue_job(existing.id, reason="Retry requested through failed-dog inpaint endpoint.")
         return existing
+    # A6 one-active-paid-job guard: the nonce dedupes accidental retries onto
+    # the same job; a DIFFERENT nonce targeting a bird that already has an
+    # active job is deliberate double spend — refuse it.
+    requested_birds = {
+        item.bird_id for item in canonical_inputs
+    } if canonical_inputs else set()
+    if requested_birds:
+        for active in JOB_STORE.list_jobs_by_status(("queued", "running")):
+            if active.kind != "crop_inpaint_retry" or active.session_id != session_id:
+                continue
+            active_birds = {
+                (entry or {}).get("birdId")
+                for entry in (active.metadata.get("birdInputs") or [])
+                if isinstance(entry, dict)
+            }
+            overlap = requested_birds & active_birds
+            if overlap:
+                raise HTTPException(409, detail={
+                    "error": f"bird(s) {sorted(overlap)} already have an active paid job ({active.id})",
+                    "code": "bird_job_active",
+                    "activeJobId": active.id,
+                })
     return JOB_STORE.create_job(
         kind="crop_inpaint_retry",
         session_id=session_id,
