@@ -989,23 +989,26 @@ def import_authoring_from_public(session_dir: Path, public_dir: Path) -> dict[st
         if not geometry_ok:
             raise PublicImportError(f"bird {dog.get('id')} is missing geometry")
         source_png = public_dir / relative
-        source_sidecar = source_png.with_suffix(".json")
-        if not source_png.is_file() or not source_sidecar.is_file():
+        if not source_png.is_file():
             # Some packages reference a slot whose artifacts were lost from
             # the public tree; the session's own slot-addressed sprite is the
             # only remaining copy. Geometry still comes from level.json.
             source_png = session_dir / relative
-            source_sidecar = source_png.with_suffix(".json")
-            if not source_png.is_file() or not source_sidecar.is_file():
+            if not source_png.is_file():
                 raise PublicImportError(f"bird {dog.get('id')} is missing sprite artifacts")
-        # Parse every sidecar BEFORE any mutation: a malformed document must
-        # refuse the whole import, not abort after backgrounds were replaced.
-        try:
-            sidecar_data = json.loads(source_sidecar.read_text())
-            if not isinstance(sidecar_data, dict):
-                raise ValueError("sidecar is not an object")
-        except (OSError, json.JSONDecodeError, ValueError) as error:
-            raise PublicImportError(f"bird {dog.get('id')} sidecar is unreadable: {error}") from error
+        # Sidecars are OPTIONAL: canonically-exported packages ship no legacy
+        # .json sidecars — every geometry field the import writes is projected
+        # from level.json below. A PRESENT sidecar must still parse (a
+        # malformed document refuses the whole import before any mutation).
+        source_sidecar = source_png.with_suffix(".json")
+        sidecar_data: dict[str, Any] = {}
+        if source_sidecar.is_file():
+            try:
+                sidecar_data = json.loads(source_sidecar.read_text())
+                if not isinstance(sidecar_data, dict):
+                    raise ValueError("sidecar is not an object")
+            except (OSError, json.JSONDecodeError, ValueError) as error:
+                raise PublicImportError(f"bird {dog.get('id')} sidecar is unreadable: {error}") from error
         imported.append({
             "levelDog": dog,
             "index": index,
