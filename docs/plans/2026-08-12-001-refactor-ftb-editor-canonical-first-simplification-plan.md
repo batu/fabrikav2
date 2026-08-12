@@ -235,6 +235,40 @@ naturally inside step 4's geometry service or Phase 5), each with its own commit
   anchor demoted to a sprite-internal alignment detail; the Show-hitbox overlay must render
   the actual hitbox, never a derived target. DAG (P1.7) marks crops/cutouts stale when
   hitboxes move, which is what "doesn't respect it" actually is.
+- **CL-5. Geometry model: one truth + deriveds** (operator discussion 2026-08-12 evening,
+  becomes step 4's data model). Hitbox = the bird's position AND its real tap radius.
+  Generation crop: derived, never stored. Restore region (rename of cleanupBox): derived
+  from the PAINT-DIFF footprint (scene − clean bg, components Voronoi-assigned to the
+  nearest bird) — NOT sprite bounds: verified on healthy levels that 45-60% of a bird's
+  painted pixels can lie outside its sprite (cheese_farm dog_19: the water bucket the bird
+  drinks from; france_mont dog_16 — evidence measured 2026-08-12). Manual override
+  flagged; DAG re-derives on hitbox/sprite/scene moves. Sprite keeps box + flips; anchor becomes recomputed,
+  never a stored competing position. Kills cleanup_misses_hitbox, stale-anchor drift, and
+  the padding-name collision as classes.
+- **CL-6. Tap truth: kill the in-game 2× leniency multiplier.** One-time data bake
+  (stored radii ×2, clamped to R11 floor/ceiling), remove the runtime multiplier; editor
+  circle = actual tap area. Magenta paint-dot radius moves to the canonical recipe as a
+  generation parameter — paint size and tap size get separate honest owners.
+- **CL-7. Remove the map's padded-crop preview under the magenta default** — it previews a
+  crop the canonical lane never sends; show only when the crop lane is explicitly active.
+- **CL-8. Collapse the tap-radius stack** (extends CL-6; verified in
+  `hitboxGeometry.resolveRuntimeHitRadius` + `findClosestUnfoundDogInSet`). Stored r
+  becomes the tap radius: bake the tolerance multiplier and minimum floor into the data
+  once (floor moves to authoring via R11); runtime keeps only the arbitration rules —
+  nearest-center-wins and the neighbor bisector clamp. Overlapping hitboxes become legal:
+  placement stops shrinking/nudging close pairs, editor overlap warning becomes
+  informational. Editor circle = what actually taps.
+- **CL-9. Composed dissolve rule (operator formulation, 2026-08-12).** Pickup dissolve:
+  `dissolve(A) = restoreRegion(A) ∩ A's Voronoi half-spaces − union(sprite footprint of
+  every still-unfound neighbor)`. The bisector STAYS — it protects neighbors' unlabeled
+  painted props (bucket/flower spill, measured at 45-60% of paint outside sprite bounds);
+  the sprite-footprint subtraction adds protection for neighbor body pixels that cross
+  the line. Compose, never replace. Converges to a fully clean scene
+  because each bird's own dissolve covers the area neighbors spared. Kills the
+  leftover-sliver artifact; runtime already ships sprite boxes + masks, no new data.
+  Hitbox and restore region stay distinct on purpose: hitbox = uniform tap truth,
+  restore region = derived from sprite bounds (tracks the art). With CL-5 this removes
+  "cleanup" as an operator-managed concept entirely.
 - **CL-3. Hitbox add/remove must be legal or impossible** (italy_tuscan archived over this,
   2026-08-12: "canonical hitbox identity set does not match the current revision"). The
   editor offers add-by-click / remove-by-double-click, but the canonical `/hitboxes` save
