@@ -4,36 +4,52 @@
   "mask": "dogs/dog_01/sprite_mask_000.png",
   "sourceVariant": "dogs/dog_01/variant_000.png",
   "sourceBox": [
-    3877,
-    3553,
-    4096,
-    3897
+    2879,
+    585,
+    3529,
+    1235
   ],
   "spriteBox": [
-    3941,
-    3588,
-    4088,
-    3801
+    3128,
+    813,
+    3273,
+    1042
   ],
   "cleanupBox": [
-    3971,
-    3622,
-    4096,
-    3829
+    3127,
+    874,
+    3280,
+    1111
   ],
-  "width": 147,
-  "height": 213,
-  "anchorX": 0.7415,
-  "anchorY": 0.6479,
+  "width": 145,
+  "height": 229,
+  "anchorX": 0.531,
+  "anchorY": 0.4279,
   "technique": "flatkey-recreate-v1",
   "quality": {
-    "visibleCoverage": 0.2386,
-    "strongCoverage": 0.2332,
-    "bboxCoverage": 0.3799,
-    "edgeTouches": 1,
+    "visibleCoverage": 0.0478,
+    "strongCoverage": 0.0469,
+    "bboxCoverage": 0.07,
+    "edgeTouches": 0,
     "fullCropLike": false,
     "pickupUsable": true,
     "backgroundFallback": false,
     "templateFallback": false
+  },
+  "autoPlacement": {
+    "method": "hybrid",
+    "score": 0.4433,
+    "originalBox": [
+      3131,
+      878,
+      3276,
+      1107
+    ],
+    "fittedBox": [
+      3128,
+      813,
+      3273,
+      1042
+    ]
   }
 }

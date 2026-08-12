@@ -10,10 +10,10 @@
     1706
   ],
   "spriteBox": [
-    1076,
-    1453,
-    1233,
-    1682
+    1097,
+    1450,
+    1224,
+    1669
   ],
   "cleanupBox": [
     986,
@@ -21,10 +21,10 @@
     1300,
     1706
   ],
-  "width": 157,
-  "height": 229,
-  "anchorX": 0.4268,
-  "anchorY": 0.4192,
+  "width": 127,
+  "height": 219,
+  "anchorX": 0.3622,
+  "anchorY": 0.4521,
   "technique": "flatkey-recreate-cutout-only-v2",
   "quality": {
     "visibleCoverage": 0.1249,
@@ -54,7 +54,7 @@
   },
   "humanReview": {
     "confirmed": true,
-    "confirmedAt": "2026-08-08T08:37:17.167878+00:00",
+    "confirmedAt": "2026-08-10T08:30:11.728160+00:00",
     "source": "level-bless"
   },
   "regenerationReview": {
@@ -62,5 +62,7 @@
     "probability": 0.151703,
     "model": "extra-trees-depth-4-balanced",
     "mode": "review-ranking-only"
-  }
+  },
+  "flipX": false,
+  "flipY": false
 }

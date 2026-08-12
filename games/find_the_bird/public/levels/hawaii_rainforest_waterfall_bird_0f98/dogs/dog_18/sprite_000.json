@@ -10,21 +10,21 @@
     2335
   ],
   "spriteBox": [
-    1709,
-    1986,
-    1996,
-    2204
+    1705,
+    1985,
+    1992,
+    2203
   ],
   "cleanupBox": [
-    1664,
-    1950,
-    1978,
-    2295
+    1677,
+    1911,
+    1991,
+    2256
   ],
   "width": 287,
   "height": 218,
-  "anchorX": 0.4355,
-  "anchorY": 0.4495,
+  "anchorX": 0.4495,
+  "anchorY": 0.4541,
   "technique": "flatkey-recreate-v1",
   "quality": {
     "visibleCoverage": 0.0729,
@@ -41,5 +41,12 @@
     "probability": 0.125824,
     "model": "extra-trees-depth-4-balanced",
     "mode": "review-ranking-only"
+  },
+  "flipX": false,
+  "flipY": false,
+  "humanReview": {
+    "confirmed": true,
+    "confirmedAt": "2026-08-10T20:07:08.349383+00:00",
+    "source": "level-bless"
   }
 }

@@ -1,639 +1,761 @@
 {
   "id": "nordic_cold_stockholm_christmas_market_bird_53ea",
-  "name": "Level nordic_cold_stockholm_christmas_market_bird_53ea (clean_old_cartoon)",
+  "name": "Level nordic_cold_stockholm_christmas_market_bird_53ea",
   "width": 2688,
   "height": 2688,
-  "bwImage": "levels/nordic_cold_stockholm_christmas_market_bird_53ea/bw.png",
   "colorImage": "levels/nordic_cold_stockholm_christmas_market_bird_53ea/color.png",
+  "artifactRevision": "sha256:37de699bf3d2c4a31967ecc08320a2a7f116d08b67e99c44423c0960d913f715",
+  "compatibilityAliases": {
+    "dog_00": "0018c7b8-b8c1-5b08-a3f6-df92b0762c97",
+    "dog_01": "cca611f1-27e7-59a0-a3b6-1bc0070e20e8",
+    "dog_02": "683ffbce-0db8-5916-ae78-cc12ab96485d",
+    "dog_03": "5b32bc75-84ef-5775-869e-97a74302cae1",
+    "dog_04": "de9c4679-42d4-5a00-893b-28c39e3128e8",
+    "dog_05": "8d3db7df-cd6e-51fc-af67-69b743f09237",
+    "dog_06": "74d6a3df-2443-55e3-916d-6842f2f22ee7",
+    "dog_07": "841a8428-55b0-503c-b9b2-a8bb9514f344",
+    "dog_08": "2cf271d6-f246-5e4d-80cb-6b33d80f2fb8",
+    "dog_09": "cfad41b8-abcf-5e44-b7c9-3589533ff143",
+    "dog_12": "0311e3fe-89c0-53e9-aaac-e89007c04d7c",
+    "dog_13": "b3d9ad3c-41ff-5673-a12c-3ccf1956237d",
+    "dog_10": "caf14681-678e-533f-93c0-6c5e4dd0f396",
+    "dog_11": "4c7ac8c5-0988-58f7-980b-bc10905f5f80",
+    "dog_15": "f25e37c6-a6bf-5f8d-b4ff-fba3807a189d",
+    "dog_14": "56f73631-6938-5c7c-a682-6a71b4852cdf",
+    "dog_16": "79f2a248-5ae4-5146-84d8-1f294d8d7540",
+    "dog_17": "62277bf0-a802-5edc-8cdd-20f543ae0bb8",
+    "dog_18": "8debc42f-e159-5a71-9007-f97c02e029e5",
+    "dog_25": "5012010b-5079-54f0-aac8-f8c42f0ad555",
+    "dog_19": "e616a33a-e2d8-5136-aa8b-34464b291dbb",
+    "dog_20": "606e07dd-2ce4-5ef6-bf4b-258082e9d591",
+    "dog_24": "3c5eddf1-b491-527c-8b9f-1355e97ce1a3",
+    "dog_21": "176df4ab-a508-5294-ae3e-88a9422a30a0",
+    "dog_23": "d438a4d3-605f-5f1f-825d-455bb798baad",
+    "dog_29": "e4bb7eee-95f0-566e-9a46-391d9d348754",
+    "dog_28": "f6eeea44-d652-5723-98c0-6c3667ea6594",
+    "dog_22": "9a9a7974-5767-5d1e-ba9b-09162bd7322b",
+    "dog_26": "289f9548-168e-55d7-ae4c-f9432f4a3e32",
+    "dog_27": "7c96685b-4ae1-58b7-8a40-3e9f4f47fb31"
+  },
   "dogs": [
     {
-      "id": "dog_00",
-      "x": 431,
-      "y": 644,
+      "id": "0018c7b8-b8c1-5b08-a3f6-df92b0762c97",
+      "compatibilitySlot": "dog_00",
+      "x": 470,
+      "y": 637,
       "r": 57,
       "sprite": {
         "image": "levels/nordic_cold_stockholm_christmas_market_bird_53ea/dogs/dog_00/sprite_000.png",
-        "x": 315,
-        "y": 505,
-        "width": 256,
-        "height": 220,
+        "height": 140,
+        "width": 176,
+        "x": 339,
+        "y": 584,
         "cleanup": {
-          "x": 335,
-          "y": 464,
-          "width": 307,
-          "height": 345
+          "x": 315,
+          "y": 505,
+          "width": 256,
+          "height": 220
         },
-        "anchorX": 0.4531,
-        "anchorY": 0.6318
+        "anchorX": 0.6055,
+        "anchorY": 0.6,
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_01",
-      "x": 587,
-      "y": 1089,
+      "id": "cca611f1-27e7-59a0-a3b6-1bc0070e20e8",
+      "compatibilitySlot": "dog_01",
+      "x": 691,
+      "y": 977,
       "r": 57,
       "sprite": {
         "image": "levels/nordic_cold_stockholm_christmas_market_bird_53ea/dogs/dog_01/sprite_000.png",
-        "x": 536,
-        "y": 935,
-        "width": 236,
-        "height": 200,
+        "height": 110,
+        "width": 146,
+        "x": 593,
+        "y": 903,
         "cleanup": {
-          "x": 587,
-          "y": 974,
-          "width": 168,
-          "height": 184
+          "x": 560,
+          "y": 842,
+          "width": 236,
+          "height": 200
         },
-        "anchorX": 0.6949,
-        "anchorY": 0.275
+        "anchorX": 0.5551,
+        "anchorY": 0.675,
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_02",
-      "x": 811,
-      "y": 947,
+      "id": "683ffbce-0db8-5916-ae78-cc12ab96485d",
+      "compatibilitySlot": "dog_02",
+      "x": 815,
+      "y": 948,
       "r": 57,
       "sprite": {
         "image": "levels/nordic_cold_stockholm_christmas_market_bird_53ea/dogs/dog_02/sprite_000.png",
-        "x": 747,
-        "y": 802,
-        "width": 224,
-        "height": 214,
+        "height": 134,
+        "width": 144,
+        "x": 775,
+        "y": 878,
         "cleanup": {
-          "x": 757,
-          "y": 794,
-          "width": 191,
-          "height": 302
+          "x": 747,
+          "y": 802,
+          "width": 224,
+          "height": 214
         },
-        "anchorX": 0.2857,
-        "anchorY": 0.6776
+        "anchorX": 0.3036,
+        "anchorY": 0.6822,
+        "flipX": true,
+        "flipY": false
       }
     },
     {
-      "id": "dog_03",
-      "x": 664,
-      "y": 953,
+      "id": "5b32bc75-84ef-5775-869e-97a74302cae1",
+      "compatibilitySlot": "dog_03",
+      "x": 591,
+      "y": 1095,
       "r": 57,
       "sprite": {
         "image": "levels/nordic_cold_stockholm_christmas_market_bird_53ea/dogs/dog_03/sprite_000.png",
-        "x": 448,
-        "y": 809,
-        "width": 232,
-        "height": 190,
+        "height": 88,
+        "width": 124,
+        "x": 513,
+        "y": 1049,
         "cleanup": {
-          "x": 535,
-          "y": 813,
-          "width": 211,
-          "height": 159
+          "x": 411,
+          "y": 1039,
+          "width": 232,
+          "height": 190
         },
-        "anchorX": 0.931,
-        "anchorY": 0.7579
+        "anchorX": 0.7759,
+        "anchorY": 0.2947,
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_04",
-      "x": 1197,
-      "y": 773,
+      "id": "de9c4679-42d4-5a00-893b-28c39e3128e8",
+      "compatibilitySlot": "dog_04",
+      "x": 1194,
+      "y": 781,
       "r": 57,
       "sprite": {
         "image": "levels/nordic_cold_stockholm_christmas_market_bird_53ea/dogs/dog_04/sprite_000.png",
-        "x": 1014,
-        "y": 644,
-        "width": 230,
-        "height": 218,
+        "height": 128,
+        "width": 140,
+        "x": 1106,
+        "y": 703,
         "cleanup": {
-          "x": 1013,
-          "y": 600,
-          "width": 227,
-          "height": 342
+          "x": 1043,
+          "y": 643,
+          "width": 231,
+          "height": 218
         },
-        "anchorX": 0.7957,
-        "anchorY": 0.5917
+        "anchorX": 0.9957,
+        "anchorY": 0.9312,
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_05",
-      "x": 1282,
-      "y": 854,
+      "id": "8d3db7df-cd6e-51fc-af67-69b743f09237",
+      "compatibilitySlot": "dog_05",
+      "x": 1269,
+      "y": 863,
       "r": 57,
       "sprite": {
         "image": "levels/nordic_cold_stockholm_christmas_market_bird_53ea/dogs/dog_05/sprite_000.png",
-        "x": 1112,
-        "y": 796,
-        "width": 262,
-        "height": 211,
+        "height": 131,
+        "width": 182,
+        "x": 1146,
+        "y": 797,
         "cleanup": {
-          "x": 1242,
-          "y": 730,
-          "width": 197,
-          "height": 243
+          "x": 1109,
+          "y": 798,
+          "width": 262,
+          "height": 211
         },
-        "anchorX": 0.6489,
-        "anchorY": 0.2749
+        "anchorX": 0.6107,
+        "anchorY": 0.3081,
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_06",
-      "x": 1535,
-      "y": 576,
+      "id": "74d6a3df-2443-55e3-916d-6842f2f22ee7",
+      "compatibilitySlot": "dog_06",
+      "x": 1551,
+      "y": 595,
       "r": 57,
       "sprite": {
         "image": "levels/nordic_cold_stockholm_christmas_market_bird_53ea/dogs/dog_06/sprite_000.png",
-        "x": 1376,
-        "y": 466,
-        "width": 256,
-        "height": 207,
+        "height": 167,
+        "width": 216,
+        "x": 1390,
+        "y": 503,
         "cleanup": {
-          "x": 1346,
-          "y": 414,
-          "width": 324,
-          "height": 303
+          "x": 1376,
+          "y": 467,
+          "width": 256,
+          "height": 207
         },
-        "anchorX": 0.6211,
-        "anchorY": 0.5314
+        "anchorX": 0.6836,
+        "anchorY": 0.6184,
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_07",
-      "x": 1874,
-      "y": 602,
+      "id": "841a8428-55b0-503c-b9b2-a8bb9514f344",
+      "compatibilitySlot": "dog_07",
+      "x": 1890,
+      "y": 621,
       "r": 57,
       "sprite": {
         "image": "levels/nordic_cold_stockholm_christmas_market_bird_53ea/dogs/dog_07/sprite_000.png",
-        "x": 1757,
-        "y": 585,
-        "width": 237,
-        "height": 204,
+        "height": 114,
+        "width": 147,
+        "x": 1823,
+        "y": 560,
         "cleanup": {
-          "x": 1708,
-          "y": 509,
-          "width": 320,
-          "height": 309
+          "x": 1749,
+          "y": 496,
+          "width": 237,
+          "height": 204
         },
-        "anchorX": 0.4937,
-        "anchorY": 0.0833
+        "anchorX": 0.5949,
+        "anchorY": 0.6127,
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_08",
-      "x": 2224,
-      "y": 768,
+      "id": "2cf271d6-f246-5e4d-80cb-6b33d80f2fb8",
+      "compatibilitySlot": "dog_08",
+      "x": 2237,
+      "y": 761,
       "r": 57,
       "sprite": {
         "image": "levels/nordic_cold_stockholm_christmas_market_bird_53ea/dogs/dog_08/sprite_000.png",
-        "x": 2076,
-        "y": 630,
-        "width": 258,
-        "height": 218,
+        "height": 138,
+        "width": 178,
+        "x": 2161,
+        "y": 691,
         "cleanup": {
-          "x": 2030,
-          "y": 638,
-          "width": 320,
-          "height": 241
+          "x": 2076,
+          "y": 630,
+          "width": 258,
+          "height": 218
         },
-        "anchorX": 0.5736,
-        "anchorY": 0.633
+        "anchorX": 0.624,
+        "anchorY": 0.6009,
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_09",
-      "x": 2149,
-      "y": 957,
+      "id": "cfad41b8-abcf-5e44-b7c9-3589533ff143",
+      "compatibilitySlot": "dog_09",
+      "x": 2140,
+      "y": 965,
       "r": 57,
       "sprite": {
         "image": "levels/nordic_cold_stockholm_christmas_market_bird_53ea/dogs/dog_09/sprite_000.png",
-        "x": 2046,
-        "y": 920,
-        "width": 219,
-        "height": 193,
+        "height": 83,
+        "width": 89,
+        "x": 2101,
+        "y": 917,
         "cleanup": {
-          "x": 1912,
-          "y": 881,
-          "width": 345,
-          "height": 229
+          "x": 2046,
+          "y": 920,
+          "width": 219,
+          "height": 193
         },
-        "anchorX": 0.4703,
-        "anchorY": 0.1917
+        "anchorX": 0.4292,
+        "anchorY": 0.2332,
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_10",
-      "x": 1091,
-      "y": 1179,
-      "r": 57,
-      "sprite": {
-        "image": "levels/nordic_cold_stockholm_christmas_market_bird_53ea/dogs/dog_10/sprite_000.png",
-        "x": 1010,
-        "y": 1054,
-        "width": 247,
-        "height": 212,
-        "cleanup": {
-          "x": 966,
-          "y": 1026,
-          "width": 272,
-          "height": 314
-        },
-        "anchorX": 0.3279,
-        "anchorY": 0.5896
-      }
-    },
-    {
-      "id": "dog_11",
-      "x": 1303,
-      "y": 1340,
-      "r": 57,
-      "sprite": {
-        "image": "levels/nordic_cold_stockholm_christmas_market_bird_53ea/dogs/dog_11/sprite_000.png",
-        "x": 1187,
-        "y": 1201,
-        "width": 262,
-        "height": 218,
-        "cleanup": {
-          "x": 1240,
-          "y": 1228,
-          "width": 275,
-          "height": 227
-        },
-        "anchorX": 0.4427,
-        "anchorY": 0.6376
-      }
-    },
-    {
-      "id": "dog_12",
-      "x": 1641,
+      "id": "0311e3fe-89c0-53e9-aaac-e89007c04d7c",
+      "compatibilitySlot": "dog_12",
+      "x": 1614,
       "y": 977,
       "r": 57,
       "sprite": {
         "image": "levels/nordic_cold_stockholm_christmas_market_bird_53ea/dogs/dog_12/sprite_000.png",
-        "x": 1466,
-        "y": 883,
-        "width": 227,
         "height": 230,
+        "width": 227,
+        "x": 1464,
+        "y": 889,
         "cleanup": {
-          "x": 1527,
-          "y": 822,
-          "width": 247,
-          "height": 323
+          "x": 1466,
+          "y": 883,
+          "width": 227,
+          "height": 230
         },
-        "anchorX": 0.7709,
-        "anchorY": 0.4087
+        "anchorX": 0.5903,
+        "anchorY": 0.2446,
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_13",
+      "id": "b3d9ad3c-41ff-5673-a12c-3ccf1956237d",
+      "compatibilitySlot": "dog_13",
       "x": 1451,
-      "y": 1076,
+      "y": 1082,
       "r": 57,
       "sprite": {
         "image": "levels/nordic_cold_stockholm_christmas_market_bird_53ea/dogs/dog_13/sprite_000.png",
-        "x": 1282,
-        "y": 984,
-        "width": 259,
-        "height": 213,
+        "height": 103,
+        "width": 149,
+        "x": 1374,
+        "y": 1045,
         "cleanup": {
-          "x": 1278,
-          "y": 975,
-          "width": 247,
-          "height": 251
+          "x": 1281,
+          "y": 984,
+          "width": 259,
+          "height": 213
         },
-        "anchorX": 0.6525,
-        "anchorY": 0.4319
+        "anchorX": 0.6564,
+        "anchorY": 0.4319,
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_14",
-      "x": 1392,
-      "y": 1533,
+      "id": "caf14681-678e-533f-93c0-6c5e4dd0f396",
+      "compatibilitySlot": "dog_10",
+      "x": 1119,
+      "y": 1179,
       "r": 57,
       "sprite": {
-        "image": "levels/nordic_cold_stockholm_christmas_market_bird_53ea/dogs/dog_14/sprite_000.png",
-        "x": 1224,
-        "y": 1409,
-        "width": 239,
-        "height": 224,
+        "image": "levels/nordic_cold_stockholm_christmas_market_bird_53ea/dogs/dog_10/sprite_000.png",
+        "height": 112,
+        "width": 147,
+        "x": 993,
+        "y": 1139,
         "cleanup": {
-          "x": 1227,
-          "y": 1457,
-          "width": 304,
-          "height": 214
+          "x": 1010,
+          "y": 1054,
+          "width": 247,
+          "height": 212
         },
-        "anchorX": 0.7029,
-        "anchorY": 0.5536
+        "anchorX": 0.3279,
+        "anchorY": 0.5896,
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_15",
-      "x": 1709,
-      "y": 1445,
+      "id": "4c7ac8c5-0988-58f7-980b-bc10905f5f80",
+      "compatibilitySlot": "dog_11",
+      "x": 1308,
+      "y": 1333,
+      "r": 57,
+      "sprite": {
+        "image": "levels/nordic_cold_stockholm_christmas_market_bird_53ea/dogs/dog_11/sprite_000.png",
+        "height": 148,
+        "width": 192,
+        "x": 1195,
+        "y": 1256,
+        "cleanup": {
+          "x": 1187,
+          "y": 1201,
+          "width": 262,
+          "height": 218
+        },
+        "anchorX": 0.4427,
+        "anchorY": 0.6376,
+        "flipX": false,
+        "flipY": false
+      }
+    },
+    {
+      "id": "f25e37c6-a6bf-5f8d-b4ff-fba3807a189d",
+      "compatibilitySlot": "dog_15",
+      "x": 1678,
+      "y": 1409,
       "r": 57,
       "sprite": {
         "image": "levels/nordic_cold_stockholm_christmas_market_bird_53ea/dogs/dog_15/sprite_000.png",
-        "x": 1558,
-        "y": 1228,
-        "width": 237,
-        "height": 229,
+        "height": 139,
+        "width": 147,
+        "x": 1635,
+        "y": 1378,
         "cleanup": {
-          "x": 1533,
-          "y": 1229,
-          "width": 298,
-          "height": 284
+          "x": 1558,
+          "y": 1228,
+          "width": 237,
+          "height": 229
         },
         "anchorX": 0.6371,
-        "anchorY": 0.9476
+        "anchorY": 0.9476,
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_16",
-      "x": 434,
-      "y": 1463,
+      "id": "56f73631-6938-5c7c-a682-6a71b4852cdf",
+      "compatibilitySlot": "dog_14",
+      "x": 1381,
+      "y": 1512,
+      "r": 57,
+      "sprite": {
+        "image": "levels/nordic_cold_stockholm_christmas_market_bird_53ea/dogs/dog_14/sprite_000.png",
+        "height": 128,
+        "width": 121,
+        "x": 1291,
+        "y": 1474,
+        "cleanup": {
+          "x": 1244,
+          "y": 1484,
+          "width": 239,
+          "height": 224
+        },
+        "anchorX": 0.6192,
+        "anchorY": 0.2188,
+        "flipX": false,
+        "flipY": false
+      }
+    },
+    {
+      "id": "79f2a248-5ae4-5146-84d8-1f294d8d7540",
+      "compatibilitySlot": "dog_16",
+      "x": 472,
+      "y": 1488,
       "r": 57,
       "sprite": {
         "image": "levels/nordic_cold_stockholm_christmas_market_bird_53ea/dogs/dog_16/sprite_000.png",
-        "x": 362,
-        "y": 1338,
-        "width": 202,
-        "height": 256,
+        "height": 226,
+        "width": 172,
+        "x": 346,
+        "y": 1381,
         "cleanup": {
-          "x": 318,
-          "y": 1311,
-          "width": 345,
-          "height": 284
+          "x": 362,
+          "y": 1338,
+          "width": 202,
+          "height": 256
         },
-        "anchorX": 0.3564,
-        "anchorY": 0.4883
+        "anchorX": 0.5446,
+        "anchorY": 0.5859,
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_17",
-      "x": 500,
-      "y": 1733,
+      "id": "62277bf0-a802-5edc-8cdd-20f543ae0bb8",
+      "compatibilitySlot": "dog_17",
+      "x": 476,
+      "y": 1708,
       "r": 57,
       "sprite": {
         "image": "levels/nordic_cold_stockholm_christmas_market_bird_53ea/dogs/dog_17/sprite_000.png",
-        "x": 440,
-        "y": 1637,
-        "width": 135,
-        "height": 229,
+        "height": 201,
+        "width": 119,
+        "x": 451,
+        "y": 1644,
         "cleanup": {
-          "x": 302,
-          "y": 1597,
-          "width": 332,
-          "height": 283
+          "x": 451,
+          "y": 1644,
+          "width": 119,
+          "height": 201
         },
-        "anchorX": 0.4444,
-        "anchorY": 0.4192
+        "anchorX": 0.2101,
+        "anchorY": 0.3184,
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_18",
-      "x": 560,
-      "y": 2128,
+      "id": "8debc42f-e159-5a71-9007-f97c02e029e5",
+      "compatibilitySlot": "dog_18",
+      "x": 566,
+      "y": 2148,
       "r": 57,
       "sprite": {
         "image": "levels/nordic_cold_stockholm_christmas_market_bird_53ea/dogs/dog_18/sprite_000.png",
+        "height": 199,
+        "width": 182,
         "x": 437,
         "y": 2052,
-        "width": 182,
-        "height": 199,
         "cleanup": {
-          "x": 405,
-          "y": 1983,
-          "width": 337,
-          "height": 275
+          "x": 437,
+          "y": 2052,
+          "width": 182,
+          "height": 199
         },
-        "anchorX": 0.6758,
-        "anchorY": 0.3819
+        "anchorX": 0.7088,
+        "anchorY": 0.4824,
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_19",
-      "x": 909,
-      "y": 1928,
+      "id": "5012010b-5079-54f0-aac8-f8c42f0ad555",
+      "compatibilitySlot": "dog_25",
+      "x": 668,
+      "y": 2366,
+      "r": 57,
+      "sprite": {
+        "image": "levels/nordic_cold_stockholm_christmas_market_bird_53ea/dogs/dog_25/sprite_000.png",
+        "height": 161,
+        "width": 152,
+        "x": 584,
+        "y": 2293,
+        "cleanup": {
+          "x": 534,
+          "y": 2242,
+          "width": 212,
+          "height": 221
+        },
+        "anchorX": 0.6179,
+        "anchorY": 0.543,
+        "flipX": true,
+        "flipY": false
+      }
+    },
+    {
+      "id": "e616a33a-e2d8-5136-aa8b-34464b291dbb",
+      "compatibilitySlot": "dog_19",
+      "x": 908,
+      "y": 1929,
       "r": 57,
       "sprite": {
         "image": "levels/nordic_cold_stockholm_christmas_market_bird_53ea/dogs/dog_19/sprite_000.png",
+        "height": 179,
+        "width": 223,
         "x": 813,
         "y": 1822,
-        "width": 223,
-        "height": 179,
         "cleanup": {
-          "x": 744,
-          "y": 1755,
-          "width": 337,
-          "height": 337
+          "x": 813,
+          "y": 1822,
+          "width": 223,
+          "height": 179
         },
         "anchorX": 0.4305,
-        "anchorY": 0.5922
+        "anchorY": 0.5922,
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_20",
+      "id": "606e07dd-2ce4-5ef6-bf4b-258082e9d591",
+      "compatibilitySlot": "dog_20",
       "x": 1357,
       "y": 1876,
       "r": 57,
       "sprite": {
         "image": "levels/nordic_cold_stockholm_christmas_market_bird_53ea/dogs/dog_20/sprite_000.png",
+        "height": 202,
+        "width": 169,
         "x": 1278,
         "y": 1774,
-        "width": 169,
-        "height": 202,
         "cleanup": {
-          "x": 1231,
-          "y": 1726,
-          "width": 230,
-          "height": 307
+          "x": 1278,
+          "y": 1774,
+          "width": 169,
+          "height": 202
         },
         "anchorX": 0.4675,
-        "anchorY": 0.505
+        "anchorY": 0.505,
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_21",
-      "x": 1588,
-      "y": 2078,
-      "r": 57,
-      "sprite": {
-        "image": "levels/nordic_cold_stockholm_christmas_market_bird_53ea/dogs/dog_21/sprite_000.png",
-        "x": 1494,
-        "y": 2050,
-        "width": 220,
-        "height": 160,
-        "cleanup": {
-          "x": 1473,
-          "y": 1905,
-          "width": 283,
-          "height": 312
-        },
-        "anchorX": 0.4273,
-        "anchorY": 0.175
-      }
-    },
-    {
-      "id": "dog_22",
-      "x": 1944,
-      "y": 2088,
-      "r": 57,
-      "sprite": {
-        "image": "levels/nordic_cold_stockholm_christmas_market_bird_53ea/dogs/dog_22/sprite_000.png",
-        "x": 1835,
-        "y": 2028,
-        "width": 233,
-        "height": 179,
-        "cleanup": {
-          "x": 1758,
-          "y": 1894,
-          "width": 268,
-          "height": 318
-        },
-        "anchorX": 0.4678,
-        "anchorY": 0.3352
-      }
-    },
-    {
-      "id": "dog_23",
-      "x": 1678,
-      "y": 2359,
-      "r": 57,
-      "sprite": {
-        "image": "levels/nordic_cold_stockholm_christmas_market_bird_53ea/dogs/dog_23/sprite_000.png",
-        "x": 1567,
-        "y": 2264,
-        "width": 213,
-        "height": 168,
-        "cleanup": {
-          "x": 1505,
-          "y": 2220,
-          "width": 345,
-          "height": 276
-        },
-        "anchorX": 0.5211,
-        "anchorY": 0.5655
-      }
-    },
-    {
-      "id": "dog_24",
-      "x": 1238,
+      "id": "3c5eddf1-b491-527c-8b9f-1355e97ce1a3",
+      "compatibilitySlot": "dog_24",
+      "x": 1201,
       "y": 2322,
       "r": 57,
       "sprite": {
         "image": "levels/nordic_cold_stockholm_christmas_market_bird_53ea/dogs/dog_24/sprite_000.png",
-        "x": 1115,
-        "y": 2248,
-        "width": 228,
-        "height": 175,
+        "height": 205,
+        "width": 258,
+        "x": 1100,
+        "y": 2233,
         "cleanup": {
-          "x": 1011,
-          "y": 2149,
-          "width": 345,
-          "height": 345
+          "x": 1115,
+          "y": 2248,
+          "width": 228,
+          "height": 175
         },
         "anchorX": 0.5395,
-        "anchorY": 0.4229
+        "anchorY": 0.4229,
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_25",
-      "x": 665,
-      "y": 2362,
+      "id": "176df4ab-a508-5294-ae3e-88a9422a30a0",
+      "compatibilitySlot": "dog_21",
+      "x": 1587,
+      "y": 2083,
       "r": 57,
       "sprite": {
-        "image": "levels/nordic_cold_stockholm_christmas_market_bird_53ea/dogs/dog_25/sprite_000.png",
-        "x": 511,
-        "y": 2215,
-        "width": 212,
-        "height": 221,
+        "image": "levels/nordic_cold_stockholm_christmas_market_bird_53ea/dogs/dog_21/sprite_000.png",
+        "height": 100,
+        "width": 160,
+        "x": 1479,
+        "y": 2051,
         "cleanup": {
-          "x": 492,
-          "y": 2260,
-          "width": 345,
-          "height": 274
+          "x": 1494,
+          "y": 2050,
+          "width": 220,
+          "height": 160
         },
-        "anchorX": 0.7264,
-        "anchorY": 0.6652
+        "anchorX": 0.4273,
+        "anchorY": 0.175,
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_26",
-      "x": 1907,
-      "y": 1640,
+      "id": "d438a4d3-605f-5f1f-825d-455bb798baad",
+      "compatibilitySlot": "dog_23",
+      "x": 1677,
+      "y": 2359,
       "r": 57,
       "sprite": {
-        "image": "levels/nordic_cold_stockholm_christmas_market_bird_53ea/dogs/dog_26/sprite_000.png",
-        "x": 1775,
-        "y": 1560,
-        "width": 220,
-        "height": 207,
+        "image": "levels/nordic_cold_stockholm_christmas_market_bird_53ea/dogs/dog_23/sprite_000.png",
+        "height": 148,
+        "width": 193,
+        "x": 1566,
+        "y": 2261,
         "cleanup": {
-          "x": 1723,
-          "y": 1515,
-          "width": 345,
-          "height": 283
+          "x": 1567,
+          "y": 2264,
+          "width": 213,
+          "height": 168
         },
-        "anchorX": 0.6,
-        "anchorY": 0.3865
+        "anchorX": 0.5211,
+        "anchorY": 0.5655,
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_27",
-      "x": 2174,
-      "y": 1226,
-      "r": 57,
-      "sprite": {
-        "image": "levels/nordic_cold_stockholm_christmas_market_bird_53ea/dogs/dog_27/sprite_000.png",
-        "x": 1986,
-        "y": 1138,
-        "width": 210,
-        "height": 198,
-        "cleanup": {
-          "x": 1941,
-          "y": 1112,
-          "width": 345,
-          "height": 314
-        },
-        "anchorX": 0.8952,
-        "anchorY": 0.4444
-      }
-    },
-    {
-      "id": "dog_28",
-      "x": 2128,
-      "y": 2231,
-      "r": 57,
-      "sprite": {
-        "image": "levels/nordic_cold_stockholm_christmas_market_bird_53ea/dogs/dog_28/sprite_000.png",
-        "x": 1976,
-        "y": 2177,
-        "width": 210,
-        "height": 197,
-        "cleanup": {
-          "x": 2028,
-          "y": 2059,
-          "width": 272,
-          "height": 248
-        },
-        "anchorX": 0.7238,
-        "anchorY": 0.2741
-      }
-    },
-    {
-      "id": "dog_29",
+      "id": "e4bb7eee-95f0-566e-9a46-391d9d348754",
+      "compatibilitySlot": "dog_29",
       "x": 2205,
       "y": 2385,
       "r": 57,
       "sprite": {
         "image": "levels/nordic_cold_stockholm_christmas_market_bird_53ea/dogs/dog_29/sprite_000.png",
-        "x": 2077,
+        "height": 163,
+        "width": 187,
+        "x": 2095,
         "y": 2308,
-        "width": 217,
-        "height": 193,
         "cleanup": {
-          "x": 2032,
-          "y": 2309,
-          "width": 307,
-          "height": 204
+          "x": 2078,
+          "y": 2308,
+          "width": 217,
+          "height": 193
         },
-        "anchorX": 0.5899,
-        "anchorY": 0.399
+        "anchorX": 0.5853,
+        "anchorY": 0.399,
+        "flipX": false,
+        "flipY": false
+      }
+    },
+    {
+      "id": "f6eeea44-d652-5723-98c0-6c3667ea6594",
+      "compatibilitySlot": "dog_28",
+      "x": 2128,
+      "y": 2230,
+      "r": 57,
+      "sprite": {
+        "image": "levels/nordic_cold_stockholm_christmas_market_bird_53ea/dogs/dog_28/sprite_000.png",
+        "height": 127,
+        "width": 140,
+        "x": 2078,
+        "y": 2185,
+        "cleanup": {
+          "x": 1962,
+          "y": 2196,
+          "width": 210,
+          "height": 197
+        },
+        "anchorX": 0.7905,
+        "anchorY": 0.1777,
+        "flipX": true,
+        "flipY": false
+      }
+    },
+    {
+      "id": "9a9a7974-5767-5d1e-ba9b-09162bd7322b",
+      "compatibilitySlot": "dog_22",
+      "x": 1930,
+      "y": 2068,
+      "r": 57,
+      "sprite": {
+        "image": "levels/nordic_cold_stockholm_christmas_market_bird_53ea/dogs/dog_22/sprite_000.png",
+        "height": 129,
+        "width": 183,
+        "x": 1866,
+        "y": 2044,
+        "cleanup": {
+          "x": 1835,
+          "y": 2028,
+          "width": 233,
+          "height": 179
+        },
+        "anchorX": 0.4678,
+        "anchorY": 0.3352,
+        "flipX": false,
+        "flipY": false
+      }
+    },
+    {
+      "id": "289f9548-168e-55d7-ae4c-f9432f4a3e32",
+      "compatibilitySlot": "dog_26",
+      "x": 1891,
+      "y": 1633,
+      "r": 57,
+      "sprite": {
+        "image": "levels/nordic_cold_stockholm_christmas_market_bird_53ea/dogs/dog_26/sprite_000.png",
+        "height": 177,
+        "width": 190,
+        "x": 1790,
+        "y": 1575,
+        "cleanup": {
+          "x": 1792,
+          "y": 1559,
+          "width": 220,
+          "height": 207
+        },
+        "anchorX": 0.5227,
+        "anchorY": 0.3913,
+        "flipX": false,
+        "flipY": false
+      }
+    },
+    {
+      "id": "7c96685b-4ae1-58b7-8a40-3e9f4f47fb31",
+      "compatibilitySlot": "dog_27",
+      "x": 2118,
+      "y": 1253,
+      "r": 57,
+      "sprite": {
+        "image": "levels/nordic_cold_stockholm_christmas_market_bird_53ea/dogs/dog_27/sprite_000.png",
+        "height": 158,
+        "width": 170,
+        "x": 2096,
+        "y": 1151,
+        "cleanup": {
+          "x": 1986,
+          "y": 1138,
+          "width": 210,
+          "height": 198
+        },
+        "anchorX": 0.8952,
+        "anchorY": 0.4444,
+        "flipX": true,
+        "flipY": false
       }
     }
   ]

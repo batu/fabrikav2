@@ -10,16 +10,16 @@
     1177
   ],
   "spriteBox": [
-    1304,
-    889,
-    1490,
-    1062
+    1215,
+    884,
+    1401,
+    1057
   ],
   "cleanupBox": [
-    1208,
-    872,
-    1553,
-    1097
+    1155,
+    850,
+    1458,
+    1074
   ],
   "width": 186,
   "height": 173,
@@ -41,5 +41,7 @@
     "probability": 0.737574,
     "model": "extra-trees-depth-4-balanced",
     "mode": "review-ranking-only"
-  }
+  },
+  "flipX": true,
+  "flipY": false
 }

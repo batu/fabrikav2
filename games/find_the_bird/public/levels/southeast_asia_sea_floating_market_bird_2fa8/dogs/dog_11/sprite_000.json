@@ -10,19 +10,19 @@
     1924
   ],
   "spriteBox": [
-    2019,
-    1601,
-    2262,
-    1840
+    2054,
+    1660,
+    2227,
+    1829
   ],
   "cleanupBox": [
-    1955,
-    1539,
-    2283,
-    1877
+    1964,
+    1631,
+    2309,
+    1870
   ],
-  "width": 243,
-  "height": 239,
+  "width": 173,
+  "height": 169,
   "anchorX": 0.4815,
   "anchorY": 0.6276,
   "technique": "flatkey-recreate-v1",
@@ -41,5 +41,7 @@
     "probability": 0.727118,
     "model": "extra-trees-depth-4-balanced",
     "mode": "review-ranking-only"
-  }
+  },
+  "flipX": false,
+  "flipY": false
 }

@@ -10,16 +10,16 @@
     1306
   ],
   "spriteBox": [
-    333,
-    965,
-    561,
-    1166
+    331,
+    964,
+    559,
+    1165
   ],
   "cleanupBox": [
-    279,
-    969,
-    624,
-    1266
+    281,
+    948,
+    626,
+    1223
   ],
   "width": 228,
   "height": 201,
@@ -41,5 +41,12 @@
     "probability": 0.099274,
     "model": "extra-trees-depth-4-balanced",
     "mode": "review-ranking-only"
-  }
+  },
+  "humanReview": {
+    "confirmed": true,
+    "confirmedAt": "2026-08-10T20:07:08.349383+00:00",
+    "source": "level-bless"
+  },
+  "flipX": false,
+  "flipY": false
 }

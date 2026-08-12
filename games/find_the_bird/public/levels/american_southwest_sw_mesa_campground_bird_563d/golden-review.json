@@ -1,0 +1,257 @@
+{
+  "schemaVersion": 1,
+  "reviewStage": "final-cutouts",
+  "approved": true,
+  "blessed": true,
+  "blessingMeaning": "current cutouts and sprite placements are final and human-reviewed",
+  "trainingEligible": true,
+  "affectsLineup": false,
+  "reviewedAt": "2026-08-10T19:40:21.376592+00:00",
+  "source": "editor",
+  "hitboxesSha256": "9a1448b5c6338290bab1ebca5d071e5a77bcc08479917567da29e4d298ff8368",
+  "levelSha256": "6c2009ad9c5ae9a9e8366fef62085532211b84f838681821bde452338ce33e7a",
+  "scene": "color.png",
+  "sceneSha256": "a2ada9e22e5500b6ef18642bfec24a4d14a3bfff7cba150fdb63c8249071b454",
+  "birds": [
+    {
+      "dogId": "dog_00",
+      "sprite": "dogs/dog_00/sprite_000.png",
+      "spriteSha256": "7e3b6889328bf5168a88714a73f1bc536fc8156cd41d823c76c35661f6127ce1",
+      "spriteSize": 25357,
+      "spriteMtimeNs": 1786007470269418592,
+      "spriteBox": [
+        1074,
+        583,
+        1255,
+        745
+      ],
+      "flipX": false,
+      "flipY": false
+    },
+    {
+      "dogId": "dog_01",
+      "sprite": "dogs/dog_01/sprite_000.png",
+      "spriteSha256": "c05b494331bb33c03a9e7f68d5f9e0292b8533a129f9b003433e09432d848100",
+      "spriteSize": 37677,
+      "spriteMtimeNs": 1786348884469316882,
+      "spriteBox": [
+        501,
+        915,
+        639,
+        1054
+      ],
+      "flipX": false,
+      "flipY": false
+    },
+    {
+      "dogId": "dog_02",
+      "sprite": "dogs/dog_02/sprite_000.png",
+      "spriteSha256": "48e0994f203ec9fded0c693e77ee01fe92e19003db31edfb03e93c44ec6b64c3",
+      "spriteSize": 37309,
+      "spriteMtimeNs": 1786007470271251307,
+      "spriteBox": [
+        1536,
+        817,
+        1734,
+        976
+      ],
+      "flipX": false,
+      "flipY": false
+    },
+    {
+      "dogId": "dog_03",
+      "sprite": "dogs/dog_03/sprite_000.png",
+      "spriteSha256": "6f6480ff18cca4266c42c600e9884633bcc33d332774cc97186605d8841de1db",
+      "spriteSize": 28164,
+      "spriteMtimeNs": 1786007470269441217,
+      "spriteBox": [
+        1770,
+        938,
+        1961,
+        1070
+      ],
+      "flipX": false,
+      "flipY": false
+    },
+    {
+      "dogId": "dog_04",
+      "sprite": "dogs/dog_04/sprite_000.png",
+      "spriteSha256": "52868db685afcadf4d4d56961413d87a7a06a3b9bfde78559fde84879fa881d5",
+      "spriteSize": 51694,
+      "spriteMtimeNs": 1786348901949765777,
+      "spriteBox": [
+        2155,
+        1038,
+        2322,
+        1209
+      ],
+      "flipX": false,
+      "flipY": false
+    },
+    {
+      "dogId": "dog_05",
+      "sprite": "dogs/dog_05/sprite_000.png",
+      "spriteSha256": "9b89c4c3221aeda3444dad2a9d53b8be623a7ae0540dca866f3f663a73628176",
+      "spriteSize": 28970,
+      "spriteMtimeNs": 1786007470335214595,
+      "spriteBox": [
+        957,
+        1303,
+        1214,
+        1453
+      ],
+      "flipX": false,
+      "flipY": false
+    },
+    {
+      "dogId": "dog_06",
+      "sprite": "dogs/dog_06/sprite_000.png",
+      "spriteSha256": "579740c2e7f9aceb8f0fc259162656a16c769e7f71212e6edc1ac0d38715f10e",
+      "spriteSize": 23250,
+      "spriteMtimeNs": 1786007470347189558,
+      "spriteBox": [
+        1115,
+        1356,
+        1311,
+        1523
+      ],
+      "flipX": false,
+      "flipY": false
+    },
+    {
+      "dogId": "dog_07",
+      "sprite": "dogs/dog_07/sprite_000.png",
+      "spriteSha256": "2f530e23bddfe306482b59f5c7040e7381041582b77380e6a7cd016195a66cd8",
+      "spriteSize": 16602,
+      "spriteMtimeNs": 1786007470349070107,
+      "spriteBox": [
+        847,
+        1422,
+        993,
+        1567
+      ],
+      "flipX": false,
+      "flipY": false
+    },
+    {
+      "dogId": "dog_08",
+      "sprite": "dogs/dog_08/sprite_000.png",
+      "spriteSha256": "002646b07276f44e82c33379e6a4b530995a6c8ab14c5907b8844936e47ff5e9",
+      "spriteSize": 14686,
+      "spriteMtimeNs": 1786007470346438722,
+      "spriteBox": [
+        769,
+        1623,
+        950,
+        1779
+      ],
+      "flipX": false,
+      "flipY": false
+    },
+    {
+      "dogId": "dog_09",
+      "sprite": "dogs/dog_09/sprite_000.png",
+      "spriteSha256": "05f4401ec0c48a07aaea50ee483fd5a7b7184763bed19af19fe86241e65a05ae",
+      "spriteSize": 38675,
+      "spriteMtimeNs": 1786348919580020654,
+      "spriteBox": [
+        1284,
+        1532,
+        1438,
+        1643
+      ],
+      "flipX": false,
+      "flipY": false
+    },
+    {
+      "dogId": "dog_10",
+      "sprite": "dogs/dog_10/sprite_000.png",
+      "spriteSha256": "33200ccfacf77d60281449324ea382c80c920f1fc40e647e3ad9f84073aeac9e",
+      "spriteSize": 43725,
+      "spriteMtimeNs": 1786348939366028073,
+      "spriteBox": [
+        1378,
+        1927,
+        1545,
+        2058
+      ],
+      "flipX": false,
+      "flipY": false
+    },
+    {
+      "dogId": "dog_11",
+      "sprite": "dogs/dog_11/sprite_000.png",
+      "spriteSha256": "f03dc70f37c1f68b85365edae44420519eaa6c254ab83c5a44567e071e656774",
+      "spriteSize": 36688,
+      "spriteMtimeNs": 1786348959527228266,
+      "spriteBox": [
+        1561,
+        1928,
+        1712,
+        2039
+      ],
+      "flipX": true,
+      "flipY": false
+    },
+    {
+      "dogId": "dog_12",
+      "sprite": "dogs/dog_12/sprite_000.png",
+      "spriteSha256": "5b5a95a1e34f39d7778e1ae01b84e52b63d498dbd28e5586a5dab188d74841d6",
+      "spriteSize": 60756,
+      "spriteMtimeNs": 1786007470466120433,
+      "spriteBox": [
+        1716,
+        1859,
+        2012,
+        2133
+      ],
+      "flipX": false,
+      "flipY": false
+    },
+    {
+      "dogId": "dog_13",
+      "sprite": "dogs/dog_13/sprite_000.png",
+      "spriteSha256": "e9f92c06df6c2d2c736611f1042c573f129a8295e9b8220854c45389b44a3953",
+      "spriteSize": 22404,
+      "spriteMtimeNs": 1786007470465054804,
+      "spriteBox": [
+        2102,
+        2018,
+        2288,
+        2204
+      ],
+      "flipX": false,
+      "flipY": false
+    },
+    {
+      "dogId": "dog_14",
+      "sprite": "dogs/dog_14/sprite_000.png",
+      "spriteSha256": "34bc597d1392bcd6bee461867f90afa3b441d48d97beedf38d7698505e60a9c4",
+      "spriteSize": 33258,
+      "spriteMtimeNs": 1786348977478418967,
+      "spriteBox": [
+        634,
+        2090,
+        797,
+        2217
+      ],
+      "flipX": false,
+      "flipY": false
+    },
+    {
+      "dogId": "dog_15",
+      "sprite": "dogs/dog_15/sprite_000.png",
+      "spriteSha256": "aaec05194be7c805c66c8cfa7a3abf770d28ac8c3ecfe300295001e4a25831cc",
+      "spriteSize": 45324,
+      "spriteMtimeNs": 1786007470499759438,
+      "spriteBox": [
+        1339,
+        2277,
+        1623,
+        2527
+      ],
+      "flipX": false,
+      "flipY": false
+    }
+  ]
+}

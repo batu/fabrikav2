@@ -5,9 +5,9 @@
   "blessingMeaning": "human-reviewed hitboxes, cutouts, and sprite placements are solid",
   "trainingEligible": true,
   "affectsLineup": false,
-  "reviewedAt": "2026-08-08T08:37:17.160363+00:00",
-  "source": "golden-manifest-backfill",
-  "levelSha256": "14b10944b096b4994666be372468a2fd42e8971d3429d647d37085997a7c6b1d",
+  "reviewedAt": "2026-08-10T08:35:59.674499+00:00",
+  "source": "editor",
+  "levelSha256": "cc3cf718c366f8f145bb387b296e618307b55ce489a850cdcda33753c9c421b9",
   "scene": "color.png",
   "sceneSha256": "093623dedbd60a284c2977551ad359c9e9fdea934a5a3975a0b013627f3c4f75",
   "birds": [
@@ -16,10 +16,10 @@
       "sprite": "dogs/dog_00/sprite_000.png",
       "spriteSha256": "7c35d91f53b56dbf7af8b5966f3c884657d656196a0059d6fd77f8182eebd154",
       "spriteBox": [
-        1043,
-        541,
-        1237,
-        681
+        1048,
+        539,
+        1242,
+        679
       ],
       "flipX": false,
       "flipY": false
@@ -53,12 +53,12 @@
     {
       "dogId": "dog_03",
       "sprite": "dogs/dog_03/sprite_000.png",
-      "spriteSha256": "3e1731f171d51991d109224d37e14e34b05c2be17a76a5939792983ed4993cde",
+      "spriteSha256": "98c2b6a60a1658c10afb13ada1db8ff91b19fcae3a6060266cecf4ac7d570ac5",
       "spriteBox": [
-        1583,
-        1038,
-        1760,
-        1241
+        1491,
+        1039,
+        1773,
+        1342
       ],
       "flipX": false,
       "flipY": false
@@ -66,12 +66,12 @@
     {
       "dogId": "dog_04",
       "sprite": "dogs/dog_04/sprite_000.png",
-      "spriteSha256": "351fbdf7541a64108cc562fb2d1c3940b5e5e6bff7f8c58132960df90f2652c6",
+      "spriteSha256": "8260f3d612776dfd5b822f9c29b0281ac1dd6cdbaf5deda997bbee89eccba58b",
       "spriteBox": [
-        2015,
-        829,
-        2175,
-        944
+        2014,
+        825,
+        2193,
+        966
       ],
       "flipX": false,
       "flipY": false
@@ -79,25 +79,25 @@
     {
       "dogId": "dog_05",
       "sprite": "dogs/dog_05/sprite_000.png",
-      "spriteSha256": "6626f69cb70ace94f15d08ea42ac44b944f2b8ccc7c8022f9b6dd3457aafb7b4",
+      "spriteSha256": "e6c5baa5668f9b6115ddf5951cd97f341b44d762855a38e6ee7d8fb08b0096f7",
       "spriteBox": [
         2183,
-        873,
-        2355,
-        1010
+        868,
+        2346,
+        1035
       ],
-      "flipX": true,
+      "flipX": false,
       "flipY": false
     },
     {
       "dogId": "dog_06",
       "sprite": "dogs/dog_06/sprite_000.png",
-      "spriteSha256": "66bf8d4f76a5b12a0931dfaf58ad7c546a380297538194cedd53b0d5f308c071",
+      "spriteSha256": "0b7cbca34fdc6b5a453a45f22b74e66dd7ed5c37c1eb826224dfd81460107939",
       "spriteBox": [
-        713,
-        1237,
-        937,
-        1404
+        693,
+        1247,
+        866,
+        1385
       ],
       "flipX": false,
       "flipY": false
@@ -131,12 +131,12 @@
     {
       "dogId": "dog_09",
       "sprite": "dogs/dog_09/sprite_000.png",
-      "spriteSha256": "42fef90fb905defe7b61f0ab9941595556a18d84ac2aceb7dfada82c0375eedb",
+      "spriteSha256": "93b04b36fc1226d46189b2f1e229d4423ef44a064fbab9d7b9c7143be7524d40",
       "spriteBox": [
-        749,
-        2058,
-        1005,
-        2273
+        747,
+        2056,
+        1042,
+        2320
       ],
       "flipX": false,
       "flipY": false
@@ -159,10 +159,10 @@
       "sprite": "dogs/dog_11/sprite_000.png",
       "spriteSha256": "92ae3c5a4641a61e9a1e20655d008470791ce43b7e31f10809bab8257242e08b",
       "spriteBox": [
-        1032,
-        1949,
-        1238,
-        2216
+        1035,
+        1950,
+        1241,
+        2217
       ],
       "flipX": false,
       "flipY": false

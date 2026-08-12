@@ -10,21 +10,21 @@
     2255
   ],
   "spriteBox": [
-    1004,
-    1903,
-    1147,
-    2065
+    991,
+    1879,
+    1177,
+    2083
   ],
   "cleanupBox": [
-    920,
-    1951,
-    1253,
-    2231
+    911,
+    1834,
+    1244,
+    2114
   ],
-  "width": 143,
-  "height": 162,
-  "anchorX": 0.5105,
-  "anchorY": 0.4383,
+  "width": 186,
+  "height": 204,
+  "anchorX": 0.4624,
+  "anchorY": 0.4657,
   "technique": "flatkey-recreate-v1",
   "quality": {
     "visibleCoverage": 0.0447,
@@ -41,5 +41,7 @@
     "probability": 0.526346,
     "model": "extra-trees-depth-4-balanced",
     "mode": "review-ranking-only"
-  }
+  },
+  "flipX": false,
+  "flipY": false
 }

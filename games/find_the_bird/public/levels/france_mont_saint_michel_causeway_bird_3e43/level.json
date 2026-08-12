@@ -21,10 +21,12 @@
           "x": 935,
           "y": 418,
           "width": 345,
-          "height": 318
+          "height": 317
         },
         "anchorX": 0.458,
-        "anchorY": 0.3862
+        "anchorY": 0.3862,
+        "flipX": false,
+        "flipY": false
       }
     },
     {
@@ -34,18 +36,20 @@
       "r": 57,
       "sprite": {
         "image": "levels/france_mont_saint_michel_causeway_bird_3e43/dogs/dog_01/sprite_000.png",
-        "x": 1499,
-        "y": 501,
+        "x": 1486,
+        "y": 496,
         "width": 261,
         "height": 224,
         "cleanup": {
-          "x": 1419,
+          "x": 1429,
           "y": 458,
-          "width": 345,
+          "width": 337,
           "height": 299
         },
-        "anchorX": 0.4253,
-        "anchorY": 0.6562
+        "anchorX": 0.5019,
+        "anchorY": 0.6161,
+        "flipX": false,
+        "flipY": false
       }
     },
     {
@@ -60,8 +64,8 @@
         "width": 229,
         "height": 176,
         "cleanup": {
-          "x": 997,
-          "y": 738,
+          "x": 1041,
+          "y": 721,
           "width": 345,
           "height": 252
         },
@@ -81,8 +85,8 @@
         "width": 260,
         "height": 213,
         "cleanup": {
-          "x": 412,
-          "y": 646,
+          "x": 413,
+          "y": 674,
           "width": 345,
           "height": 290
         },
@@ -102,13 +106,13 @@
         "width": 254,
         "height": 194,
         "cleanup": {
-          "x": 372,
-          "y": 938,
-          "width": 311,
-          "height": 289
+          "x": 378,
+          "y": 937,
+          "width": 305,
+          "height": 291
         },
         "anchorX": 0.5157,
-        "anchorY": 0.3299
+        "anchorY": 0.3402
       }
     },
     {
@@ -123,8 +127,8 @@
         "width": 329,
         "height": 305,
         "cleanup": {
-          "x": 685,
-          "y": 980,
+          "x": 689,
+          "y": 982,
           "width": 269,
           "height": 341
         },
@@ -144,8 +148,8 @@
         "width": 223,
         "height": 146,
         "cleanup": {
-          "x": 955,
-          "y": 992,
+          "x": 947,
+          "y": 973,
           "width": 281,
           "height": 252
         },
@@ -165,10 +169,10 @@
         "width": 211,
         "height": 184,
         "cleanup": {
-          "x": 1292,
+          "x": 1306,
           "y": 1078,
-          "width": 266,
-          "height": 313
+          "width": 260,
+          "height": 310
         },
         "anchorX": 0.3886,
         "anchorY": 0.6087
@@ -186,13 +190,13 @@
         "width": 255,
         "height": 155,
         "cleanup": {
-          "x": 1027,
-          "y": 1246,
-          "width": 263,
-          "height": 299
+          "x": 1061,
+          "y": 1220,
+          "width": 243,
+          "height": 324
         },
-        "anchorX": 0.4941,
-        "anchorY": 0.4774
+        "anchorX": 0.6039,
+        "anchorY": 0.4839
       }
     },
     {
@@ -207,13 +211,13 @@
         "width": 173,
         "height": 129,
         "cleanup": {
-          "x": 512,
+          "x": 506,
           "y": 1323,
           "width": 345,
-          "height": 337
+          "height": 332
         },
-        "anchorX": 0.6127,
-        "anchorY": 0.6667
+        "anchorX": 0.5838,
+        "anchorY": 0.4341
       }
     },
     {
@@ -228,13 +232,13 @@
         "width": 219,
         "height": 183,
         "cleanup": {
-          "x": 1108,
+          "x": 1104,
           "y": 1547,
           "width": 299,
-          "height": 313
+          "height": 290
         },
-        "anchorX": 0.4749,
-        "anchorY": 0.6503
+        "anchorX": 0.4658,
+        "anchorY": 0.6448
       }
     },
     {
@@ -250,7 +254,7 @@
         "height": 157,
         "cleanup": {
           "x": 409,
-          "y": 1747,
+          "y": 1753,
           "width": 345,
           "height": 335
         },
@@ -270,8 +274,8 @@
         "width": 222,
         "height": 231,
         "cleanup": {
-          "x": 826,
-          "y": 1832,
+          "x": 840,
+          "y": 1829,
           "width": 282,
           "height": 327
         },
@@ -291,8 +295,8 @@
         "width": 251,
         "height": 195,
         "cleanup": {
-          "x": 493,
-          "y": 2084,
+          "x": 504,
+          "y": 2079,
           "width": 331,
           "height": 334
         },
@@ -312,8 +316,8 @@
         "width": 176,
         "height": 138,
         "cleanup": {
-          "x": 1426,
-          "y": 1701,
+          "x": 1427,
+          "y": 1700,
           "width": 345,
           "height": 342
         },
@@ -333,7 +337,7 @@
         "width": 154,
         "height": 234,
         "cleanup": {
-          "x": 1855,
+          "x": 1843,
           "y": 1126,
           "width": 320,
           "height": 345
@@ -354,8 +358,8 @@
         "width": 160,
         "height": 111,
         "cleanup": {
-          "x": 1876,
-          "y": 1498,
+          "x": 1877,
+          "y": 1522,
           "width": 345,
           "height": 247
         },
@@ -370,18 +374,18 @@
       "r": 57,
       "sprite": {
         "image": "levels/france_mont_saint_michel_causeway_bird_3e43/dogs/dog_17/sprite_000.png",
-        "x": 2093,
-        "y": 1748,
+        "x": 2077,
+        "y": 1722,
         "width": 257,
         "height": 185,
         "cleanup": {
-          "x": 2025,
-          "y": 1747,
-          "width": 345,
-          "height": 271
+          "x": 2079,
+          "y": 1734,
+          "width": 304,
+          "height": 245
         },
-        "anchorX": 0.4086,
-        "anchorY": 0.5297
+        "anchorX": 0.4981,
+        "anchorY": 0.5351
       }
     },
     {
@@ -396,8 +400,8 @@
         "width": 231,
         "height": 197,
         "cleanup": {
-          "x": 1201,
-          "y": 2154,
+          "x": 1202,
+          "y": 2155,
           "width": 345,
           "height": 345
         },
@@ -417,8 +421,8 @@
         "width": 226,
         "height": 147,
         "cleanup": {
-          "x": 1752,
-          "y": 2156,
+          "x": 1753,
+          "y": 2160,
           "width": 345,
           "height": 312
         },
