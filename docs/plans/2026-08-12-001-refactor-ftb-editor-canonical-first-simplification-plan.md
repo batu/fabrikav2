@@ -29,7 +29,9 @@ addressing schemes (stable bird id vs positional slot index) used interchangeabl
 ## Non-goals
 
 - No storage format changes; the canonical revision store stays as-is.
-- No new features. This plan removes code and adds invariants.
+- No speculative features. The only additions are invariants and the operator-loop items
+  mined from the conversation corpus (Phases 2b–2e) — each traces to a dated operator
+  correction, not to taste.
 - find_the_dog corpus migration is out of scope (Phase 3 gates on it).
 
 ## Phase 1 — Canonical-first reads (the payoff phase)
@@ -47,9 +49,20 @@ P1.1–P1.3 (target: export lane and nothing else), then inline or delete it.
 **P1.5** Regression: a test that commits via every canonical write path (geometry, promote
 with scene, confirmation) and asserts the *API responses* (not files) reflect the commit —
 the phantom-save class, pinned at the contract level.
+**P1.7 — Artifact DAG as the Phase 1 data model** (mining #2). Encode the dependency graph
+explicitly: background → painted scene → hitboxes → padded crops → cutouts → export. Each
+canonical commit marks only descendants stale; a `regenerate` action previews affected
+artifacts + approvals + cost before running and executes only stale nodes. Retires "delete
+whole level" and rebinding as recovery rituals. ("What step do we need to regenerate?" 08-12,
+"This wont require a regeneration of sprites right?" 08-07.)
+**P1.8 — Read-back truthful status** (mining #3). Replace generic "saved" with read-back
+states — `persisted @ revision N`, `rendered from revision N`, `export stale`, `in build X` —
+rendered from a post-mutation refetch, never from request completion. A provenance strip
+(revision, method/model, approval state) on every level view. ("It says extraction saved but
+I see the old version" 08-12.)
 
 Exit criteria: kill the projection sweep; `grep -c project_canonical_bird_compatibility` ≤ 2;
-phantom-save test green.
+phantom-save test green; every mutation endpoint's response consumed via read-back state.
 
 ## Phase 2 — One generation lane
 
@@ -61,6 +74,92 @@ and logs loudly when taken.
 today only as a fallback that immediately 409s and retries — send canonical or fail).
 **P2.3** Delete the `hitboxesSha256` staleness plumbing from the canonical path (provenance
 verification already covers it; two gates, one meaning).
+
+## Phase 2b — Publication integrity (gallery review F-B)
+
+**P2b.1** Catalog entries are revision-bound: publish stamps the reviewed authoring
+`contentRevision` + package identity; sequence validation and Start refuse a catalog entry
+whose revision ≠ the currently reviewed one; Gallery shows "Republish" when they differ.
+**P2b.2** Transactional Start: build the complete bundle/index candidate in memory against
+the exact validated draft revision, activate, then commit atomically; failure leaves disk
+untouched.
+**P2b.3** No blind CAS-retry on human approvals: a 409 on hitbox/final-cutout approval
+reloads the level and requires a fresh human click (same class as today's review-click loss).
+**P2b.4 — Lifecycle state machine** (mining #8): replace independent flags with
+`draft → needs-review → approved → lineup → published`, plus `archived`; archiving atomically
+un-lineups whole sessions only (never a sibling variant); builds consume a named immutable
+lineup snapshot; one reconciliation panel shows counts and any illegal combination.
+("archive should automatically unline up" 08-07; "Catalog levels not in the lineup what are
+these" 08-07.)
+**P2b.5 — Retire sprite-only compositing** from wizard/gallery/publish surfaces (mining
+#10); keep the guard test; archive the lane's code path behind an explicit experiment flag.
+
+Exit: publish/Start cannot ship a revision that differs from the reviewed one (contract
+test); archived⇒not-in-lineup enforced by state machine, not convention.
+
+## Phase 2c — Job-store hardening (jobs review F-C)
+
+**P2c.1** Attempt generations + explicit transition graph in `transition_job`; every
+execution transition carries expected status/owner/attempt; stale attempts cannot finalize.
+**P2c.2** Requeue retains succeeded children and their results; only failed/unresolved units
+re-execute (generalize the failed-bird lane's model; flips the
+`test_background_retry_retains_succeeded_children` xfail).
+**P2c.3** Requeue refuses non-terminal jobs (flips `test_requeue_refuses_running_jobs`).
+**P2c.4** Owner-aware crash recovery reruns after startup (no permanently `running` jobs);
+provider-timeout attempts that cannot be cancelled become `orphaned_unknown`, never retried
+into double spend; one-active-paid-job per (session, bird, operation) guard.
+**P2c.5** Magenta inpaint moves onto the durable job store + resume layer; SSE lanes emit a
+canonical terminal event; UI reconciliation derives success only from `job.status`.
+**P2c.6 — Batch count reconciliation** (mining addendum B): every batch job declares
+expected counts, reconciles at completion, hard-fails with an itemized diff on mismatch.
+("the math doesnt check out. we had 30 you spent 15 and now we have 10" 08-06.)
+
+Exit: both job-store xfails flipped; kill -9 during a batch leaves no stuck jobs and no
+double-billable state; a deliberately short batch fails loudly.
+
+## Phase 2d — Canonical recipe & experiment manifest (mining #7, #9)
+
+**P2d.1** One versioned `recipe` object (prompt templates, model, dimensions, safe areas,
+placement, inpaint, cutout, export settings) serialized with every level revision; UI and
+CLI call the same operations with the same recipe. Dry-run recipe diff.
+**P2d.2** Experiment manifest: every candidate level carries a human label, recipe revision,
+seed, model, source revision, measured cost, duration, artifact hashes. Standard contact-
+sheet comparison view; "adopt winner as canonical" action. Retires tag-as-provenance
+(`poststretch`, `deepdive`). ("write the name of the model to the level" 08-05; "for the
+love of god please write what I am looking at" 08-05.)
+**P2d.3 — Cost ledger** (mining addendum A): $/stage measured from the merceka ledger on
+every revision and gallery card; recipe changes show projected Δ$/1000 levels. Never
+estimated when a meter exists.
+**P2d.4** Tests ban dog-specific copy/config inside bird recipes; experiment overrides live
+behind an explicit experiment mode that cannot silently become production.
+
+## Phase 2e — Human-work authority (mining #1, #5)
+
+**P2e.1 — R7, the class fix:** human-placed/edited geometry (hitboxes, padding, placements)
+and approvals carry provenance (`human:` origin) in the canonical snapshot; every automated
+lane (auto-place, recenter, magenta reconcile, import, repair) refuses to modify
+human-origin geometry without an explicit `--override-human` consent, listing exactly what
+it would change. ("Did we lose all my hitbox cleanup work?" 08-07; "the 17 hitbox review I
+made disappeared" 08-12.)
+**P2e.2 — R6 impact plan:** destructive operations (regenerate, rebind, migrate, import)
+print/preview: preserved edits, invalidated edits + why, artifacts regenerated, projected
+cost — before executing; auto-snapshot before, one-click diff/restore after.
+**P2e.3** Byte-identical saves are no-ops that preserve approvals (flips
+`test_identical_hitbox_save_preserves_review`); `restore_verified_*` promotion wired into
+migration apply so representation-only changes self-heal approvals.
+**P2e.4 — Golden loop** (mining #5): machine-before/human-after geometry pairs are recorded
+automatically on every human correction, feeding the eval set that calibrates placement —
+the operator's corrections become training data without a separate "make golden" ritual.
+**P2e.5 — R8 visual evidence:** every generation/regeneration run emits a contact sheet
+(full level, overlays, all-picked-up reconstruction, representative pickups) with
+image-load and registration/dimension assertions; promotion blocks on missing or broken
+evidence. ("your report shows no images" 08-03.)
+**P2e.6 — R11 tolerance invariants:** minimum tap radius, 2× tap acceptance, hitbox size
+uniformity band, hint-on-screen, no-wrap-after-last-level — versioned numbers in the recipe,
+asserted by the export gate and runtime-config tests so regeneration can never regress them.
+
+Exit: an automated lane attempting to move a human-placed hitbox without consent is a test
+failure; a regeneration run without a contact sheet cannot promote.
 
 ## Phase 3 — Shrink the migration machinery (~1,400 lines)
 
@@ -116,11 +215,28 @@ Three tiers, executed during this phase, not before:
   (policy #11; the promotion sweep exists — wire `restore_verified_*` into migration apply
   so over-invalidation self-heals instead of needing an operator).
 
-## Order & estimates
+## Order & estimates (amended dependency order — supersedes the phase numbering)
 
-Phase 1: ~1 day. Phase 2: ~half day. Phase 4: ~half day. Phase 3: ~half day after its gate.
-Phase 5: riding along. Each phase lands green (`uv run pytest`, tsc, panel+gallery+golden-path
-smokes) and restarts the backend through `run-backend.sh`.
+1. Canonical asset resolver + canonical-state classifier (A2, A3 foundations) — ~half day.
+2. `hydrate_session` canonical overlay + read surfaces + DAG data model (P1.1–P1.3, P1.7)
+   — ~1 day.
+3. Read-back status + provenance strip (P1.8) — ~half day, lands with 2.
+4. Geometry mutation service for all writers + human-work authority (P1.6, P2e.1–P2e.3)
+   — ~1 day. R7 lands HERE, before any further lane work, because it protects the
+   operator's ongoing review pass.
+5. Generation lane boundary + job-store hardening (P2, P2c) — ~1 day.
+6. Publication integrity + lifecycle state machine (P2b) — ~1 day.
+7. Live shakedown: one paid regeneration + one full publish→Start on a scratch lineup;
+   only then demote projection (P1.4) — ~half day.
+8. Recipe + experiment manifest + cost ledger + visual evidence + tolerances
+   (P2d, P2e.4–P2e.6) — ~1.5 days.
+9. Phase 4 single deploy surface — ~half day, any time after step 3 stabilizes the API.
+10. Census re-check, then Phase 3 deletion; Phase 5 pruning + P5.1 verbiage — ~1 day.
+
+Total ~8 working days. Each step lands green (`uv run pytest` incl. flipped xfails, tsc,
+panel+gallery+golden-path smokes) and restarts the backend through `run-backend.sh`; the
+defect-ledger xfails in `tests/test_plan_contracts.py` flip to hard assertions at their
+step, and each new invariant adds its contract test in the same file.
 
 ## Amendments from codex review (binding)
 
