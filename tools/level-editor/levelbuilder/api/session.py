@@ -3092,7 +3092,7 @@ def hydrate_session(session_id: str) -> dict | None:
         for level in bundled_manifest.get("levels") or []
     )
     catalog_entry = _catalog_level_entry(session_id)
-    return {
+    payload = {
         "id": session_id,
         "orientation": orientation,
         "style": raw.get("style", ""),
@@ -3139,6 +3139,65 @@ def hydrate_session(session_id: str) -> dict | None:
             "feather": float(mask_params.get("feather", 0.0)),
         },
     }
+    return _overlay_canonical_truth(session_id, payload)
+
+
+def _overlay_canonical_truth(session_id: str, payload: dict) -> dict:
+    """A1/P1.1: for VALID_CURRENT sessions the snapshot is the read truth —
+    hitboxes, bird identity, sprite geometry, and revision stamps come from the
+    canonical store, never from sidecars that may lag or be clobbered. Every
+    hydrate_session consumer gets this; there is no un-overlaid read path."""
+    from .canonical_bird_contract import CanonicalReadState
+
+    canonical = read_canonical_session(session_id)
+    payload["canonicalState"] = canonical.state.value
+    if canonical.state is not CanonicalReadState.VALID_CURRENT or canonical.snapshot is None:
+        return payload
+    snapshot = canonical.snapshot
+    payload["contentRevision"] = canonical.pointer.content_revision
+    payload["operationalRevision"] = canonical.pointer.operational_revision
+
+    birds = sorted(snapshot["birds"], key=lambda b: b.get("presentationOrder", 0))
+    payload["hitboxes"] = [
+        {"x": b["hitbox"]["x"], "y": b["hitbox"]["y"], "r": b["hitbox"]["r"], "id": b["birdId"]}
+        for b in birds
+    ]
+    slot_index = {b["compatibilitySlot"]: b for b in birds}
+    dogs = payload.get("dogs", [])
+    seen_slots = {f"dog_{dog['index']:02d}" for dog in dogs}
+    for dog in dogs:
+        bird = slot_index.get(f"dog_{dog['index']:02d}")
+        if bird is None:
+            continue
+        _overlay_bird_onto_dog(dog, bird)
+    # A canonical bird with no legacy dogs[] entry still exists — the snapshot
+    # is the identity truth, not the sidecar.
+    for slot, bird in slot_index.items():
+        if slot in seen_slots:
+            continue
+        synthesized = {
+            "index": int(slot.removeprefix("dog_")),
+            "id": bird["birdId"],
+            "status": "done" if (bird.get("sprite") or {}).get("asset") else "pending",
+            "activeVariant": None,
+            "promptOverride": None,
+            "variants": [],
+        }
+        _overlay_bird_onto_dog(synthesized, bird)
+        dogs.append(synthesized)
+    dogs.sort(key=lambda d: d["index"])
+    payload["dogs"] = dogs
+    return payload
+
+
+def _overlay_bird_onto_dog(dog: dict, bird: dict) -> None:
+    dog["id"] = bird["birdId"]
+    sprite = bird.get("sprite") or {}
+    placement = sprite.get("placement")
+    if isinstance(placement, dict):
+        dog["spritePlacement"] = dict(placement)
+    dog["spriteFlipX"] = bool(sprite.get("flipX", False))
+    dog["spriteFlipY"] = bool(sprite.get("flipY", False))
 
 
 def create_session(
