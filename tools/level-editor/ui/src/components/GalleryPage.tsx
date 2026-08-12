@@ -95,18 +95,24 @@ function sortCards(cards: VariantCard[], sortMode: GallerySortMode): VariantCard
 }
 
 function humanReviewSummary(session: SessionListItem) {
+  const packageOnly = session.assetBase === 'public-levels';
   const hitboxesStale = Boolean(session.hitboxesBlessingStale);
   const cutoutsStale = Boolean(session.cutoutsFinalBlessingStale);
   const stale = hitboxesStale || cutoutsStale;
   const hitboxesReviewed = Boolean(session.hitboxesBlessed) && !hitboxesStale;
   const cutoutsReviewed = Boolean(session.cutoutsFinalBlessed) && !stale;
-  const state: HumanReviewState = !hitboxesReviewed
-    ? 'needs-hitbox-review'
-    : !cutoutsReviewed
-      ? 'needs-cutout-review'
-      : 'reviewed';
+  // Package-only levels have no authoring session left — review is
+  // impossible, so they must not sit in the needs-work buckets forever.
+  const state: HumanReviewState = packageOnly
+    ? 'reviewed'
+    : !hitboxesReviewed
+      ? 'needs-hitbox-review'
+      : !cutoutsReviewed
+        ? 'needs-cutout-review'
+        : 'reviewed';
   return {
     state,
+    packageOnly,
     hitboxesReviewed,
     cutoutsReviewed,
   };
@@ -583,6 +589,13 @@ function HumanReviewBadge({
 
 function HumanReviewBadges({ session }: { session: SessionListItem }) {
   const review = humanReviewSummary(session);
+  if (review.packageOnly) {
+    return (
+      <div data-review-state="package-only" style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+        <HumanReviewBadge tone="pending" title="Only the shipped package remains; the authoring session was deleted. Nothing here can be reviewed or edited.">Package only</HumanReviewBadge>
+      </div>
+    );
+  }
   return (
     <div data-review-state={review.state} style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
       {review.hitboxesReviewed ? (

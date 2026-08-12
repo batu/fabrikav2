@@ -876,8 +876,10 @@ export default function GalleryReviewModal({
           <button
             type="button"
             className="btn"
-            disabled={hitboxBlessBusy || cutoutBlessBusy || card === undefined}
-            title="Confirm that the current hitbox geometry has been reviewed by a human. Any later hitbox edit makes this approval stale."
+            disabled={hitboxBlessBusy || cutoutBlessBusy || card === undefined || card.session.assetBase === 'public-levels'}
+            title={card?.session.assetBase === 'public-levels'
+              ? 'Only the shipped package remains; the authoring session was deleted. Nothing here can be reviewed.'
+              : 'Confirm that the current hitbox geometry has been reviewed by a human. Any later hitbox edit makes this approval stale.'}
             onClick={async () => {
               if (!card) return;
               const approved = !card.session.hitboxesBlessed;
@@ -920,8 +922,10 @@ export default function GalleryReviewModal({
           <button
             type="button"
             className="btn"
-            disabled={cutoutBlessBusy || hitboxBlessBusy || cutoutPlacementPending || card === undefined || card.session.canonicalState === 'quarantined_integrity' || !card.session.hitboxesBlessed || card.session.finalCutoutReviewReady !== true}
-            title={card?.session.canonicalState === 'quarantined_integrity'
+            disabled={cutoutBlessBusy || hitboxBlessBusy || cutoutPlacementPending || card === undefined || card.session.assetBase === 'public-levels' || card.session.canonicalState === 'quarantined_integrity' || !card.session.hitboxesBlessed || card.session.finalCutoutReviewReady !== true}
+            title={card?.session.assetBase === 'public-levels'
+              ? 'Only the shipped package remains; the authoring session was deleted. Nothing here can be reviewed.'
+              : card?.session.canonicalState === 'quarantined_integrity'
               ? 'This level has mismatched bird artifacts. Repair the bird mappings before reviewing cutouts.'
               : cutoutPlacementPending
               ? 'Wait for the current sprite placement to finish saving.'
