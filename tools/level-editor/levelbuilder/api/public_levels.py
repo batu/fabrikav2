@@ -111,6 +111,13 @@ def load_catalog_snapshot(public_levels_dir: Path, catalog_revision: str) -> dic
     data = _load_strict_json(snapshot_path, "catalog-snapshot")
     if not isinstance(data, dict):
         raise FormatError(f"catalog-snapshot must be an object, got {type(data).__name__}: {snapshot_path}")
+    if data.get("version") != 1 or not isinstance(data.get("levels"), list):
+        raise FormatError(f"catalog-snapshot has unsupported shape (version/levels): {snapshot_path}")
+    if data.get("catalogRevision") != catalog_revision:
+        raise FormatError(
+            f"catalog-snapshot catalogRevision {data.get('catalogRevision')!r} does not match "
+            f"its filename revision {catalog_revision!r}: {snapshot_path}"
+        )
     return data
 
 

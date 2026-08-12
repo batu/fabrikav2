@@ -120,6 +120,11 @@ def _load_archive_ledger() -> dict[str, dict[str, Any]]:
         raise PublicLevels.FormatError(
             f"archive-ledger must contain a sessions object: {ARCHIVE_LEDGER_PATH}"
         )
+    invalid = [key for key, value in sessions.items() if not isinstance(value, dict)]
+    if invalid:
+        raise PublicLevels.FormatError(
+            f"archive-ledger has non-object session entries {invalid[:5]}: {ARCHIVE_LEDGER_PATH}"
+        )
     return sessions
 
 

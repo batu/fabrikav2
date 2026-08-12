@@ -293,3 +293,68 @@ def test_commit_accepts_digest_addressed_staged_bytes_and_rejects_absent_assets(
         bird["activeGeneration"]["inputSceneSha256"] = "f" * 64
     with pytest.raises(ContractValidationError):
         store.commit(ghost, expected_content_revision=pointer.content_revision)
+
+
+def test_read_fails_closed_on_malformed_pointers_and_tampered_revisions(tmp_path):
+    """CR-item1 P0s: non-object pointer, wrong pointer schema, and tampered
+    revision bytes all read as QUARANTINED_INTEGRITY, never crash."""
+    from levelbuilder.api.canonical_bird_contract import CanonicalReadState, CanonicalRevisionStore
+
+    store = CanonicalRevisionStore(tmp_path / "session")
+    snapshot = _snapshot()
+    materialize_snapshot_assets(tmp_path / "session", snapshot)
+    pointer = store.commit(snapshot, expected_content_revision=None)
+
+    store.pointer_path.write_text("[]")
+    assert store.read().state is CanonicalReadState.QUARANTINED_INTEGRITY
+    store.pointer_path.write_text("null")
+    assert store.read().state is CanonicalReadState.QUARANTINED_INTEGRITY
+    store.pointer_path.write_text(json.dumps({
+        "schemaVersion": 9, "revisionFile": pointer.revision_file,
+        "contentRevision": pointer.content_revision,
+        "operationalRevision": pointer.operational_revision,
+    }))
+    result = store.read()
+    assert result.state is CanonicalReadState.QUARANTINED_INTEGRITY
+    assert "schemaVersion" in (result.detail or "")
+
+    # Restore pointer, tamper the revision file bytes.
+    store._atomic_pointer_write(pointer)
+    revision_path = store.revisions_dir / pointer.revision_file
+    revision_path.write_text(revision_path.read_text() + " ")
+    result = store.read()
+    assert result.state is CanonicalReadState.QUARANTINED_INTEGRITY
+    assert "match its name" in (result.detail or "")
+
+
+def test_commit_verifies_preexisting_cas_objects_and_painted_assets(tmp_path):
+    """CR-item1 P0/P1: a corrupt digest-named CAS object is repaired at commit;
+    activeGeneration.paintedAsset descriptors are verified like every other asset."""
+    import hashlib as _hashlib
+
+    from levelbuilder.api.canonical_bird_contract import (
+        CanonicalRevisionStore,
+        ContractValidationError,
+    )
+
+    root = tmp_path / "session"
+    store = CanonicalRevisionStore(root)
+    snapshot = _snapshot()
+    materialize_snapshot_assets(root, snapshot)
+
+    # Pre-seed a corrupt object under the scene's digest: commit must repair it.
+    scene_sha = snapshot["assets"]["scene"]["sha256"]
+    objects = root / ".canonical" / "objects"
+    objects.mkdir(parents=True)
+    (objects / f"{scene_sha}.png").write_bytes(b"corrupt")
+    pointer = store.commit(snapshot, expected_content_revision=None)
+    repaired = (objects / f"{scene_sha}.png").read_bytes()
+    assert _hashlib.sha256(repaired).hexdigest() == scene_sha
+
+    # paintedAsset with bytes that exist nowhere refuses to commit.
+    nxt = store.read().snapshot
+    nxt["birds"][0]["activeGeneration"]["paintedAsset"] = {
+        "path": "dogs/dog_00/painted_000.png", "sha256": "e" * 64, "bytes": 9,
+    }
+    with pytest.raises(ContractValidationError, match="paintedAsset"):
+        store.commit(nxt, expected_content_revision=pointer.content_revision)

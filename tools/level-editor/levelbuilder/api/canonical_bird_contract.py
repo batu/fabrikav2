@@ -287,6 +287,8 @@ class CanonicalRevisionStore:
             return CanonicalReadResult(state)
         try:
             pointer_raw = json.loads(self.pointer_path.read_text())
+            if not isinstance(pointer_raw, dict):
+                raise ValueError(f"pointer must be an object, got {type(pointer_raw).__name__}")
             if pointer_raw.get("schemaVersion") != 1:
                 raise ValueError(f"unsupported pointer schemaVersion: {pointer_raw.get('schemaVersion')!r}")
             pointer = RevisionPointer(
@@ -302,7 +304,7 @@ class CanonicalRevisionStore:
             if f"revision-{file_digest}.json" != pointer.revision_file:
                 raise ValueError(
                     f"revision file bytes do not match its name: recomputed {file_digest[:12]}…"
-                )
+                )  # detail contract: readers match on "match its name"
             snapshot = json.loads(snapshot_bytes)
             validated = validate_snapshot(snapshot)
             revisions = snapshot_revisions(validated)
@@ -340,6 +342,9 @@ class CanonicalRevisionStore:
             sprite_asset = (bird.get("sprite") or {}).get("asset")
             if isinstance(sprite_asset, dict):
                 assets.append((f"birds[{index}].sprite.asset", sprite_asset))
+            painted = (bird.get("activeGeneration") or {}).get("paintedAsset")
+            if isinstance(painted, dict):
+                assets.append((f"birds[{index}].activeGeneration.paintedAsset", painted))
         return assets
 
     def verify_and_store_assets(self, snapshot: dict[str, Any]) -> None:
@@ -391,7 +396,13 @@ class CanonicalRevisionStore:
             digest = descriptor["sha256"]
             objects_dir.mkdir(parents=True, exist_ok=True)
             target = objects_dir / f"{digest}{source.suffix.lower()}"
-            if not target.exists():
+            target_valid = (
+                target.exists()
+                and hashlib.sha256(target.read_bytes()).hexdigest() == digest
+            )
+            if not target_valid:
+                # Missing OR corrupt digest-named object: (re)write atomically —
+                # a truncated object must never survive a successful commit.
                 stage_fd, stage_name = tempfile.mkstemp(prefix="object-", dir=objects_dir)
                 try:
                     with os.fdopen(stage_fd, "wb") as staged:
@@ -440,9 +451,12 @@ class CanonicalRevisionStore:
                     staged.flush()
                     os.fsync(staged.fileno())
                 destination = self.revisions_dir / revision_file
-                if destination.exists():
+                if destination.exists() and destination.read_bytes() == encoded:
                     Path(stage_name).unlink()
                 else:
+                    # Missing OR corrupt (bytes ≠ digest-named content): install
+                    # the freshly staged bytes — reusing an unverified existing
+                    # file would commit a pointer read() immediately quarantines.
                     os.replace(stage_name, destination)
                     self._fsync_dir(self.revisions_dir)
                 pointer = RevisionPointer(revision_file, revisions.content_revision, revisions.operational_revision)

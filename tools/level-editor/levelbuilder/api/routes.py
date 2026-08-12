@@ -2789,17 +2789,20 @@ def pickup_preview(session_id: str):
     restore_path: Path | None = None
     sites: list[CleanupSite] = []
     level_width = level_height = 0
+    canonical_scene_bytes: bytes | None = None
+    canonical_restore_bytes: bytes | None = None
     if canonical_snapshot is not None:
-        scene_ref = canonical_snapshot["assets"]["scene"]["path"]
-        restore_ref = canonical_snapshot["restore"]["asset"]["path"]
-        for value, label in ((scene_ref, "scene"), (restore_ref, "restore")):
-            resolved = S._session_relative_asset_path(session_id, value)
-            if resolved is None:
-                raise HTTPException(409, detail={"error": f"canonical {label} path leaves the session"})
-            if label == "scene":
-                color_path = resolved[1]
-            else:
-                restore_path = resolved[1]
+        from .canonical_assets import AssetIntegrityError, resolve_asset
+
+        store = S.canonical_session_store(session_id)
+        try:
+            canonical_scene_bytes = resolve_asset(store, canonical_snapshot["assets"]["scene"]).data
+            canonical_restore_bytes = resolve_asset(store, canonical_snapshot["restore"]["asset"]).data
+        except AssetIntegrityError as error:
+            raise HTTPException(409, detail={
+                "error": f"canonical asset integrity failure: {error}",
+                "code": "asset_integrity",
+            }) from error
         sites = [CleanupSite(
             bird_id=bird["birdId"],
             x=float(bird["hitbox"]["x"]),
@@ -2811,7 +2814,7 @@ def pickup_preview(session_id: str):
                 float(bird["cleanup"]["y"] + bird["cleanup"]["height"]),
             ),
         ) for bird in canonical_snapshot["birds"]]
-    if not color_path.exists():
+    if canonical_scene_bytes is None and not color_path.exists():
         raise HTTPException(404, detail={"error": "no color.png"})
     level_path = sdir / "level.json"
     exported = S.GAME_PUBLIC_LEVELS / session_id / "level.json"
@@ -2825,8 +2828,12 @@ def pickup_preview(session_id: str):
                 continue
     if lj is None and canonical_snapshot is None:
         raise HTTPException(409, detail={"error": "no level.json with cleanup metadata"})
-    with Image.open(color_path) as _c:
-        color = _c.convert("RGB")
+    if canonical_scene_bytes is not None:
+        with Image.open(io.BytesIO(canonical_scene_bytes)) as _c:
+            color = _c.convert("RGB")
+    else:
+        with Image.open(color_path) as _c:
+            color = _c.convert("RGB")
     if canonical_snapshot is not None:
         level_width, level_height = color.size
     else:
@@ -2861,15 +2868,19 @@ def pickup_preview(session_id: str):
                     float(cleanup["y"] + dy + cleanup["height"]),
                 ),
             ))
-    if restore_path is None:
-        restore_path = S.GAME_PUBLIC_LEVELS / session_id / "bg_00.webp"
-    if not restore_path.exists():
-        raw = S.load_session_raw(session_id) or {}
-        selected = raw.get("selected_bg") or 0
-        restore_path = sdir / f"bg_{int(selected):02d}.png"
-    if not restore_path.exists():
-        raise HTTPException(409, detail={"error": "no restore background"})
-    with Image.open(restore_path) as _b:
+    if canonical_restore_bytes is not None:
+        restore_source = io.BytesIO(canonical_restore_bytes)
+    else:
+        if restore_path is None:
+            restore_path = S.GAME_PUBLIC_LEVELS / session_id / "bg_00.webp"
+        if not restore_path.exists():
+            raw = S.load_session_raw(session_id) or {}
+            selected = raw.get("selected_bg") or 0
+            restore_path = sdir / f"bg_{int(selected):02d}.png"
+        if not restore_path.exists():
+            raise HTTPException(409, detail={"error": "no restore background"})
+        restore_source = restore_path
+    with Image.open(restore_source) as _b:
         restore = _b.convert("RGB")
         if restore.size != color.size:
             if canonical_snapshot is not None:

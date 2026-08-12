@@ -62,3 +62,32 @@ def test_archive_ledger_missing_is_empty_corrupt_is_loud(tmp_path, monkeypatch):
         json.dumps({"version": 1, "sessions": {"x": {"archived": True}}})
     )
     assert S._load_archive_ledger() == {"x": {"archived": True}}
+
+
+def test_catalog_snapshot_validates_shape_and_revision(public_dir):
+    from levelbuilder.api import public_levels as P
+
+    assert P.load_catalog_snapshot(public_dir, "catalog-000001") is None
+    snap_dir = public_dir / "catalog-snapshots"
+    snap_dir.mkdir()
+    (snap_dir / "catalog-000001.json").write_text(json.dumps({}))
+    with pytest.raises(P.FormatError, match="catalog-snapshot"):
+        P.load_catalog_snapshot(public_dir, "catalog-000001")
+    (snap_dir / "catalog-000001.json").write_text(json.dumps({
+        "version": 1, "catalogRevision": "catalog-999999", "levels": [],
+    }))
+    with pytest.raises(P.FormatError, match="catalogRevision"):
+        P.load_catalog_snapshot(public_dir, "catalog-000001")
+    (snap_dir / "catalog-000001.json").write_text(json.dumps({
+        "version": 1, "catalogRevision": "catalog-000001", "levels": [],
+    }))
+    assert P.load_catalog_snapshot(public_dir, "catalog-000001")["catalogRevision"] == "catalog-000001"
+
+
+def test_archive_ledger_rejects_non_object_session_values(tmp_path, monkeypatch):
+    from levelbuilder.api import session as S
+
+    monkeypatch.setattr(S, "ARCHIVE_LEDGER_PATH", tmp_path / "ledger.json")
+    (tmp_path / "ledger.json").write_text(json.dumps({"version": 1, "sessions": {"x": "junk"}}))
+    with pytest.raises(S.PublicLevels.FormatError, match="archive-ledger"):
+        S._load_archive_ledger()
