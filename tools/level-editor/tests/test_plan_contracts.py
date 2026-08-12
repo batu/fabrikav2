@@ -246,3 +246,33 @@ def test_paid_unit_spend_is_session_attributed(app_client, isolated_session, mon
     assert meta["birdId"] == "bird_one"
     assert meta["operation"] in ("dog_regen", "cutout_extraction")
     assert meta["app"] == "ftb-level-editor"
+
+
+def test_sse_magenta_run_leaves_a_durable_job_record(isolated_session, monkeypatch):
+    """P2c.5: the SSE magenta lane books its run in the durable job store —
+    a disconnect/crash mid-run leaves a claimed record with provider state,
+    never an untracked side effect."""
+    from levelbuilder.api import inpaint as I
+
+    isolated_session.create_session(
+        "magenta_durable", scene_prompt="s", dog_prompt="d", style="clean_old_cartoon",
+        model="m", n_options=1, n_dogs=1,
+    )
+
+    def fake_core(session_id, **kwargs):
+        return {"ok": True, "session": session_id}
+
+    monkeypatch.setattr(I, "run_magenta_inpaint", fake_core)
+    summary = I.run_magenta_inpaint_durably(
+        "magenta_durable",
+        hitbox_list=[{"x": 1, "y": 1, "r": 5}],
+        dog_prompt="d",
+        model="m",
+        magenta_override=None,
+        bg_index=0,
+    )
+    assert summary["ok"] is True
+    jobs = [j for j in I.JOB_STORE.list_jobs_by_status(("succeeded",))
+            if j.kind == "magenta_inpaint" and j.session_id == "magenta_durable"]
+    assert jobs, "no durable record for the SSE magenta run"
+    assert jobs[0].metadata.get("providerSubmissionStarted") is True

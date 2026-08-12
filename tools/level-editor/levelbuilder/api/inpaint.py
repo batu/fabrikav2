@@ -6100,6 +6100,64 @@ def recenter_hitboxes_local_diff(
     return {"sessionId": session_id, "moved": moved, "total": len(hitboxes), "overlapFlags": overlap_flags, "pruned": pruned}
 
 
+def run_magenta_inpaint_durably(
+    session_id: str,
+    *,
+    hitbox_list,
+    dog_prompt: str,
+    model: str,
+    magenta_override=None,
+    bg_index=None,
+) -> dict:
+    """P2c.5: run the magenta core THROUGH the durable job store. The SSE
+    route calls this instead of the bare core, so a disconnect or crash
+    mid-run leaves a claimed record with provider-submission state (crash
+    recovery then orphans it, never re-bills silently)."""
+    import uuid as _uuid
+
+    idempotency_key = f"magenta-sse:{session_id}:{_uuid.uuid4().hex[:16]}"
+    job = JOB_STORE.create_job(
+        kind="magenta_inpaint",
+        session_id=session_id,
+        idempotency_key=idempotency_key,
+        input_hash=idempotency_key,
+        metadata={
+            "selectedBg": bg_index,
+            "dogPrompt": dog_prompt,
+            "model": model,
+            "inpaintMode": "magenta",
+            "lane": "sse",
+            "safeToRequeue": False,
+        },
+    )
+    JOB_STORE.transition_job(job.id, status="running", stage="painting")
+    JOB_STORE.update_metadata(job.id, {"providerSubmissionStarted": True})
+    from merceka_core import costs as _mcosts
+
+    try:
+        with _mcosts.attribution({
+            "app": "ftb-level-editor", "sessionId": session_id,
+            "operation": "magenta_inpaint", "jobId": job.id,
+        }):
+            summary = run_magenta_inpaint(
+                session_id,
+                hitbox_list=hitbox_list,
+                dog_prompt=dog_prompt,
+                model=model,
+                magenta_override=magenta_override,
+                bg_index=bg_index,
+            )
+    except Exception as error:
+        JOB_STORE.transition_job(
+            job.id, status="failed", stage="painting",
+            error_code="magenta_failed", error_message=str(error)[:500],
+        )
+        raise
+    JOB_STORE.transition_job(job.id, status="succeeded", stage="done",
+                             result={"summaryKeys": sorted(summary)[:20]})
+    return summary
+
+
 def run_magenta_inpaint(
     session_id: str,
     *,
@@ -6366,7 +6424,7 @@ async def inpaint_magenta(
             # Single source of truth: the same sync core the durable job runs.
             summary = await loop.run_in_executor(
                 executor,
-                lambda: run_magenta_inpaint(
+                lambda: run_magenta_inpaint_durably(
                     session_id,
                     hitbox_list=hitbox_list,
                     dog_prompt=dogPrompt,
