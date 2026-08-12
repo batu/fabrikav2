@@ -2983,7 +2983,7 @@ def place_hitboxes_vlm_route(session_id: str, radius: int | None = Query(None, g
 
 
 @router.get("/sessions/{session_id}/pickup-preview")
-def pickup_preview(session_id: str):
+def pickup_preview(session_id: str, *, _lossless: bool = False):
     """The scene as the runtime shows it after ALL birds are collected:
     the painted color image with each dog's cleanup rect replaced by the
     restore background. Unlike the full clean-bg view, this exposes exactly
@@ -3130,9 +3130,16 @@ def pickup_preview(session_id: str):
             mask.close()
             n += 1
     buf = io.BytesIO()
-    out.save(buf, "JPEG", quality=88)
+    if _lossless:
+        # CR-t3 P0-1: the residue gate compares against a lossless clean bg —
+        # JPEG artifacts must not become false residue.
+        out.save(buf, "PNG")
+        media = "image/png"
+    else:
+        out.save(buf, "JPEG", quality=88)
+        media = "image/jpeg"
     out.close(); color.close()
-    return Response(content=buf.getvalue(), media_type="image/jpeg",
+    return Response(content=buf.getvalue(), media_type=media,
                     headers={"X-Cleanups-Swapped": str(n), "Cache-Control": "no-store"})
 
 
@@ -3287,7 +3294,7 @@ def _residue_analysis(session_id: str):
         clean_bytes = resolve_asset(store, snapshot["restore"]["asset"]).data
     except AssetIntegrityError as error:
         raise HTTPException(409, detail={"error": str(error), "code": "asset_integrity"}) from error
-    rendered = pickup_preview(session_id)
+    rendered = pickup_preview(session_id, _lossless=True)
     with Image.open(io.BytesIO(rendered.body)) as img:
         composite = _np.asarray(img.convert("RGB"))
     with Image.open(io.BytesIO(clean_bytes)) as img:
@@ -3347,23 +3354,45 @@ def derived_crops(session_id: str):
     if scene.shape != clean.shape:
         raise HTTPException(409, detail={"error": "scene/clean dimensions differ",
                                          "code": "restore_dimensions_mismatch"})
-    diff = derive_paint_diff(scene, clean)
     birds = snapshot["birds"]
+    dependency = derivation_dependency_hash(
+        snapshot["assets"]["scene"]["sha256"],
+        snapshot["assets"]["cleanBackground"]["sha256"],
+        birds,
+    )
+    # Materialized by dependency hash (CR-t3 P1): decode/diff/partition runs
+    # once per input state, not once per panel mount.
+    cache_path = S.session_dir(session_id) / ".previews" / f"derived-crops-{dependency.removeprefix('sha256:')[:16]}.json"
+    if cache_path.is_file():
+        try:
+            return json.loads(cache_path.read_text())
+        except (OSError, json.JSONDecodeError):
+            pass
+    diff = derive_paint_diff(scene, clean)
+    if not birds and bool(diff.mask.any()):
+        # CR-t3 P1: paint with no birds to own it is never silently empty.
+        raise HTTPException(409, detail={"error": "painted pixels exist but the level has no birds",
+                                         "code": "unowned_paint"})
+    needs_review = diff.needs_review
     crops = (
         derive_restore_regions(derive_ownership(diff.mask, birds), birds)
-        if birds else {}
+        if birds and not needs_review else {}
     )
-    return {
+    payload = {
         "crops": crops,
-        "needsReview": diff.needs_review,
+        "needsReview": needs_review,
         "diffFraction": round(diff.diff_fraction, 5),
-        "dependencyHash": derivation_dependency_hash(
-            snapshot["assets"]["scene"]["sha256"],
-            snapshot["assets"]["cleanBackground"]["sha256"],
-            birds,
-        ),
+        "dependencyHash": dependency,
         "contentRevision": canonical.pointer.content_revision if canonical.pointer else None,
     }
+    cache_path.parent.mkdir(parents=True, exist_ok=True)
+    import tempfile as _tempfile
+
+    fd, tmp_name = _tempfile.mkstemp(prefix=".derived-", suffix=".json.tmp", dir=cache_path.parent)
+    os.close(fd)
+    Path(tmp_name).write_text(json.dumps(payload))
+    os.replace(tmp_name, cache_path)
+    return payload
 
 
 class RevertSpriteRequest(BaseModel):

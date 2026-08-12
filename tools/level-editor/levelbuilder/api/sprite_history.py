@@ -97,13 +97,29 @@ def revert_bird_sprite(
         raise ContractValidationError(f"unknown birdId: {bird_id}")
     target["sprite"] = dict(prior["sprite"])
     target["cleanup"] = dict(prior["cleanup"])
-    if prior.get("activeGeneration") is not None:
-        target["activeGeneration"] = dict(prior["activeGeneration"])
-        # Generation provenance binds to the CURRENT scene; a revert keeps the
-        # sprite but must reference the scene it now lives in.
-        target["activeGeneration"]["inputSceneSha256"] = updated["assets"]["scene"]["sha256"]
+    prior_generation = prior.get("activeGeneration")
+    if prior_generation is not None:
+        # CR-t3 P0-2: provenance is never forged. A sprite generated against a
+        # DIFFERENT scene cannot claim the current one — refuse; regenerate.
+        if prior_generation.get("inputSceneSha256") != updated["assets"]["scene"]["sha256"]:
+            raise ContractValidationError(
+                f"{bird_id}'s prior sprite was generated against a different scene; "
+                "revert is only valid within the same scene — regenerate instead"
+            )
+        target["activeGeneration"] = dict(prior_generation)
     if isinstance(target.get("cleanup"), dict):
         target["cleanup"]["sourceSpriteSha256"] = target["sprite"]["asset"]["sha256"]
+        # CR-t3 P0-3: restored cleanup must still contain the CURRENT hitbox
+        # center — a later hitbox move can make old geometry erase the wrong
+        # pixels.
+        hitbox = target["hitbox"]
+        cleanup = target["cleanup"]
+        if not (cleanup["x"] <= hitbox["x"] <= cleanup["x"] + cleanup["width"]
+                and cleanup["y"] <= hitbox["y"] <= cleanup["y"] + cleanup["height"]):
+            raise ContractValidationError(
+                f"{bird_id}'s prior cleanup no longer contains the current hitbox "
+                "center; move the hitbox back or regenerate instead of reverting"
+            )
 
     # Restore the path projection from the CAS before commit verification.
     descriptor = target["sprite"]["asset"]

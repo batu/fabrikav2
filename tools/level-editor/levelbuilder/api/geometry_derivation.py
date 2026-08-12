@@ -69,12 +69,16 @@ def derive_ownership(mask: np.ndarray, birds: list[dict[str, Any]]) -> Ownership
     ys, xs = np.nonzero(mask)
     owner = np.full(mask.shape, -1, dtype=np.int32)
     if len(ys):
-        centers = np.array([[b["hitbox"]["y"], b["hitbox"]["x"]] for b in birds], dtype=np.float64)
-        # (P, B) distance matrix; argmin picks the first (stable) bird on ties.
-        dy = ys[:, None] - centers[None, :, 0]
-        dx = xs[:, None] - centers[None, :, 1]
-        nearest = (dy * dy + dx * dx).argmin(axis=1)
-        owner[ys, xs] = nearest
+        centers = np.array([[b["hitbox"]["y"], b["hitbox"]["x"]] for b in birds], dtype=np.float32)
+        # Chunked (P, B) distances: bounded memory at 2688² × 20 birds
+        # (CR-t3 P1). argmin picks the first (stable) bird on ties.
+        CHUNK = 1 << 20
+        for start in range(0, len(ys), CHUNK):
+            cy = ys[start:start + CHUNK].astype(np.float32)
+            cx = xs[start:start + CHUNK].astype(np.float32)
+            dy = cy[:, None] - centers[None, :, 0]
+            dx = cx[:, None] - centers[None, :, 1]
+            owner[ys[start:start + CHUNK], xs[start:start + CHUNK]] = (dy * dy + dx * dx).argmin(axis=1)
     return Ownership(owner=owner, bird_ids=tuple(str(b["birdId"]) for b in birds))
 
 
@@ -93,11 +97,10 @@ def derive_restore_regions(
         else:
             hitbox = bird["hitbox"]
             radius = int(hitbox.get("r", 30))
-            y0 = y1 = int(hitbox["y"])
-            x0 = x1 = int(hitbox["x"])
-            y0 -= radius; y1 += radius; x0 -= radius; x1 += radius
-        x0 = max(0, x0 - margin); y0 = max(0, y0 - margin)
-        x1 = min(width - 1, x1 + margin); y1 = min(height - 1, y1 + margin)
+            y0 = int(hitbox["y"]) - radius; y1 = int(hitbox["y"]) + radius
+            x0 = int(hitbox["x"]) - radius; x1 = int(hitbox["x"]) + radius
+        x0 = max(0, min(width - 1, x0 - margin)); y0 = max(0, min(height - 1, y0 - margin))
+        x1 = max(x0, min(width - 1, x1 + margin)); y1 = max(y0, min(height - 1, y1 + margin))
         regions[str(bird["birdId"])] = {
             "x": x0, "y": y0, "width": x1 - x0 + 1, "height": y1 - y0 + 1,
         }
@@ -116,6 +119,9 @@ def derivation_dependency_hash(scene_sha256: str, clean_sha256: str, birds: list
     """vNEXT §3: the partition depends on scene, clean bg, and the COMPLETE
     hitbox set (+ sprite geometry when present) — any change stales it all."""
     payload = {
+        "algorithm": "vnext-derivation-v1",
+        "threshold": DIFF_THRESHOLD,
+        "globalFootprintLimit": GLOBAL_FOOTPRINT_LIMIT,
         "scene": scene_sha256,
         "clean": clean_sha256,
         "birds": [

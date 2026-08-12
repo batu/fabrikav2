@@ -172,7 +172,7 @@ function PlacementPreview({
   const viewport = overlaySceneCrop(candidate, baseCrop, sourceBox);
   const width = viewport[2] - viewport[0];
   const height = viewport[3] - viewport[1];
-  const target = hitbox ? candidateTarget(candidate, hitbox) : null;
+  const target = hitbox ? { x: hitbox.x, y: hitbox.y, r: hitbox.r } : null;
   const hitboxStyle = target ? {
     left: `${(target.x - target.r - viewport[0]) / width * 100}%`,
     top: `${(target.y - target.r - viewport[1]) / height * 100}%`,
