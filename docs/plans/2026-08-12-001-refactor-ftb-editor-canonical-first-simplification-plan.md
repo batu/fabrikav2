@@ -1,6 +1,8 @@
 # FTB Editor: Canonical-First Simplification & Robustification Plan
 
-**Date:** 2026-08-12 · **Status:** PROPOSED · **Prereq reading:** today's incident chain (commits `924439a26..15402b1af`)
+**Date:** 2026-08-12 · **Status:** PROPOSED, amended per codex review (verdict: proceed with
+amendments — `docs/reports/2026-08-12-ftb-editor-codex-review/`) · **Prereq reading:** today's
+incident chain (commits `924439a26..15402b1af`)
 
 ## Why now
 
@@ -102,6 +104,45 @@ UI files as they fall out of Phases 1–2, duplicate `checksum_tree`.
 Phase 1: ~1 day. Phase 2: ~half day. Phase 4: ~half day. Phase 3: ~half day after its gate.
 Phase 5: riding along. Each phase lands green (`uv run pytest`, tsc, panel+gallery+golden-path
 smokes) and restarts the backend through `run-backend.sh`.
+
+## Amendments from codex review (binding)
+
+**A1. Phase 1 scope was understated.** Canonical-first must also cover `hydrate_session()`
+(the main `GET /sessions/{id}` payload still derives dogs/hitboxes from legacy files), the
+candidate overlay endpoint (rereads sidecars), gallery aggregation (globs sidecars for
+confirmation counts), and candidate lookup (`sprite_animation_candidate_by_id`). Ship a
+checked-in **consumer matrix** classifying every sidecar/`session.json`/`hitboxes.json` read
+as canonical-runtime / generation-input / legacy-authoring / migration / export-evaluation.
+Projection is deleted only after every canonical-runtime and generation consumer converts.
+
+**A2. Canonical asset resolver.** Snapshot validity does not prove asset validity. One
+resolver verifies path containment, existence, byte count, and sha256; used by candidates,
+readiness, asset serving, overlay, promotion, export. Regression test deletes/replaces an
+asset and asserts an integrity error, not a stale success.
+
+**A3. Phase 2 lane selection by canonical STATE, not directory existence.**
+`VALID_CURRENT` → canonical required; `MIGRATION_REQUIRED` with no canonical artifacts →
+legacy; `ORPHANED_STAGE` / `QUARANTINED_INTEGRITY` / partial footprints → fail closed. The UI
+selects the lane from the authoritative `canonicalState`, not "revision+birdId happen to
+exist."
+
+**A4. Phase 3 gates hardened.** `backfill_stable_ids` is a *recovery capability* (geometric
+identity binding), not duplicate machinery — retire it only by explicit decision, with parity
+fixtures (clean/permuted/ambiguous/partial/quarantined), a census of every authoring root
+(not just find_the_dog), and `restore_verified_*` wired into migration apply first.
+
+**A5. Ordering.** Resolver + state classifier first; `hydrate_session` overlay second; read
+surfaces third; generation consumers + lane boundary fourth; live regen/export shakedown
+fifth; only then demote projection; census then Phase 3; pruning last. Phase 4 independent
+after the Phase 1 API contract stabilizes.
+
+**A6. Contract cleanup (from the code review):** the contract currently conflates "generation
+input provenance" with "current-scene binding" (`inputSceneSha256` equality), which forces
+scene commits to rewrite history for untouched birds. Split into a provenance field (immutable
+per generation) and a scene-binding check. Also: one-active-paid-job-per-bird guard
+(nonce dedupes accidental retries but not deliberate cross-client double-spend), recenter
+under revision-bound CAS, and an explicit `completed_stale` parent job status when zero units
+committed.
 
 ## Risks
 

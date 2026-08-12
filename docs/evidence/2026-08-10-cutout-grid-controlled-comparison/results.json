@@ -1,0 +1,17 @@
+{
+  "model": "google/gemini-3.1-flash-image-preview",
+  "prompt": "flatkey-recreate-v1",
+  "sourceBirds": 112,
+  "methods": {
+    "2x2": {"calls": 39, "usd": 2.6741845, "wallSeconds": 453},
+    "3x3": {"calls": 29, "usd": 1.996912, "wallSeconds": 359}
+  },
+  "levels": [
+    {"label": "Cozy library", "source": "ad_campaigns_ad_cozy_library_bird_e654", "birds": 20, "two": "cmp_20260810_cozy_library_2x2", "three": "cmp_20260810_cozy_library_3x3"},
+    {"label": "Attic workshop", "source": "cozy_interiors_cozy_attic_workshop_bird_6acc", "birds": 20, "two": "cmp_20260810_attic_workshop_2x2", "three": "cmp_20260810_attic_workshop_3x3"},
+    {"label": "Potting shed", "source": "cozy_interiors_cozy_potting_shed_garden_bird_bd9a", "birds": 19, "two": "cmp_20260810_potting_shed_2x2", "three": "cmp_20260810_potting_shed_3x3"},
+    {"label": "Toymaker workshop", "source": "cozy_interiors_cozy_toymaker_workshop_bird_4e44", "birds": 18, "two": "cmp_20260810_toymaker_2x2", "three": "cmp_20260810_toymaker_3x3"},
+    {"label": "Agora ruins", "source": "greece_agora_ruins_garden_bird_8978", "birds": 16, "two": "cmp_20260810_agora_2x2", "three": "cmp_20260810_agora_3x3"},
+    {"label": "Harbor taverna", "source": "greece_harbor_taverna_morning_bird_3d5d", "birds": 19, "two": "cmp_20260810_harbor_2x2", "three": "cmp_20260810_harbor_3x3"}
+  ]
+}

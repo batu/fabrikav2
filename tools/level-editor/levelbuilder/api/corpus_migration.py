@@ -26,6 +26,9 @@ from .canonical_bird_contract import (
 MigrationAction = Literal["migrate", "unchanged", "quarantine", "skip_archived", "frozen_public"]
 RESTORE_FRAME_MAE_LIMIT = 5.0
 RESTORE_LOCAL_MAE_LIMIT = 15.0
+# Max fraction of the frame the cleanup masks may cover in _scene_matches_clean
+# before the comparison is meaningless (codex review 2026-08-12 finding #3).
+MASKED_SCENE_MATCH_COVERAGE_LIMIT = 0.5
 MAX_SPRITE_BIND_DISTANCE_DIAGONALS = 0.75
 MIN_SPRITE_BIND_MARGIN = 15.0
 
@@ -543,13 +546,21 @@ def _scene_matches_clean(
             width, height = scene_image.size
             scene_preview = scene_image.convert("RGB").copy()
             clean_preview = clean_image.convert("RGB")
+            masked_pixels = 0
             for x0, y0, x1, y1 in cleanup_boxes:
                 box = (
                     max(0, min(width, int(x0))), max(0, min(height, int(y0))),
                     max(0, min(width, int(x1))), max(0, min(height, int(y1))),
                 )
                 if box[2] > box[0] and box[3] > box[1]:
+                    masked_pixels += (box[2] - box[0]) * (box[3] - box[1])
                     scene_preview.paste(clean_preview.crop(box), box)
+            # Guard against laundering: oversized cleanup boxes could mask the
+            # whole frame and make ANY unrelated pair pass with MAE 0. Sum of
+            # box areas overcounts overlaps, which only makes the guard
+            # stricter — birds legitimately cover a minority of the frame.
+            if masked_pixels > MASKED_SCENE_MATCH_COVERAGE_LIMIT * width * height:
+                return False
             preview_size = (256, 256)
             return _mean_absolute_difference(
                 scene_preview.resize(preview_size), clean_preview.resize(preview_size),
@@ -896,12 +907,20 @@ def apply_level_plan(plan: LevelMigrationPlan, session_dir: Path, journal_root: 
         # earlier pass. The reader (and commit's CAS read) treat the marker's
         # presence as authoritative, so it must go before the commit: left in
         # place it keeps a healthy level quarantined forever and makes a
-        # refresh commit CAS-fail against `actual None`. If the commit still
-        # conflicts, the next planner pass re-evaluates from scratch.
-        (session_dir / ".canonical" / "quarantine.json").unlink(missing_ok=True)
-        pointer = CanonicalRevisionStore(session_dir).commit(
-            plan.snapshot, expected_content_revision=plan.expected_content_revision,
-        )
+        # refresh commit CAS-fail against `actual None`. A failed commit must
+        # not fail OPEN though — restore the exact marker bytes so whatever
+        # state the marker was guarding stays guarded.
+        marker = session_dir / ".canonical" / "quarantine.json"
+        marker_bytes = marker.read_bytes() if marker.is_file() else None
+        marker.unlink(missing_ok=True)
+        try:
+            pointer = CanonicalRevisionStore(session_dir).commit(
+                plan.snapshot, expected_content_revision=plan.expected_content_revision,
+            )
+        except BaseException:
+            if marker_bytes is not None:
+                marker.write_bytes(marker_bytes)
+            raise
         result["contentRevision"] = pointer.content_revision
     elif plan.action == "quarantine":
         root = session_dir / ".canonical"
@@ -958,8 +977,16 @@ def import_authoring_from_public(session_dir: Path, public_dir: Path) -> dict[st
             raise PublicImportError(f"bird {dog.get('id')} sprite path is not slot-shaped: {relative}")
         index, variant = int(match.group(1)), int(match.group(2))
         cleanup = sprite.get("cleanup")
-        required = all(isinstance(dog.get(key), (int, float)) for key in ("x", "y")) and isinstance(cleanup, dict)
-        if not required:
+        try:
+            geometry_ok = (
+                all(isinstance(dog.get(key), (int, float)) for key in ("x", "y"))
+                and isinstance(cleanup, dict)
+                and all(int(cleanup[key]) >= 0 or True for key in ("x", "y", "width", "height"))
+                and all(isinstance(sprite.get(key), (int, float)) for key in ("x", "y", "width", "height"))
+            )
+        except (KeyError, TypeError, ValueError):
+            geometry_ok = False
+        if not geometry_ok:
             raise PublicImportError(f"bird {dog.get('id')} is missing geometry")
         source_png = public_dir / relative
         source_sidecar = source_png.with_suffix(".json")
@@ -971,6 +998,14 @@ def import_authoring_from_public(session_dir: Path, public_dir: Path) -> dict[st
             source_sidecar = source_png.with_suffix(".json")
             if not source_png.is_file() or not source_sidecar.is_file():
                 raise PublicImportError(f"bird {dog.get('id')} is missing sprite artifacts")
+        # Parse every sidecar BEFORE any mutation: a malformed document must
+        # refuse the whole import, not abort after backgrounds were replaced.
+        try:
+            sidecar_data = json.loads(source_sidecar.read_text())
+            if not isinstance(sidecar_data, dict):
+                raise ValueError("sidecar is not an object")
+        except (OSError, json.JSONDecodeError, ValueError) as error:
+            raise PublicImportError(f"bird {dog.get('id')} sidecar is unreadable: {error}") from error
         imported.append({
             "levelDog": dog,
             "index": index,
@@ -978,6 +1013,7 @@ def import_authoring_from_public(session_dir: Path, public_dir: Path) -> dict[st
             "relative": relative,
             "sourcePng": source_png,
             "sourceSidecar": source_sidecar,
+            "sidecar": sidecar_data,
         })
     slots = [item["index"] for item in imported]
     if len(set(slots)) != len(slots):
@@ -994,11 +1030,15 @@ def import_authoring_from_public(session_dir: Path, public_dir: Path) -> dict[st
         cleanup = sprite["cleanup"]
         target_png = session_dir / item["relative"]
         target_png.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copy2(item["sourcePng"], target_png)
+        # The session-fallback source IS the target; copying a file onto
+        # itself raises SameFileError mid-import.
+        if item["sourcePng"].resolve() != target_png.resolve():
+            shutil.copy2(item["sourcePng"], target_png)
         mask = item["sourcePng"].with_name(f"sprite_mask_{item['variant']:03d}.png")
-        if mask.is_file():
-            shutil.copy2(mask, target_png.with_name(mask.name))
-        sidecar = json.loads(item["sourceSidecar"].read_text())
+        target_mask = target_png.with_name(mask.name)
+        if mask.is_file() and mask.resolve() != target_mask.resolve():
+            shutil.copy2(mask, target_mask)
+        sidecar = dict(item["sidecar"])
         # Canonical validation requires the cleanup box to contain the hitbox
         # center; some shipped packages violate it (the runtime tolerates
         # this), so expand minimally with the export gate's 20px pad.

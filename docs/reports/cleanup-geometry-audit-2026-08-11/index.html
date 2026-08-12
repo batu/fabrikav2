@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pickup cleanup geometry — 10-level audit</title>
+  <style>
+    :root { --paper:#eeeddf; --ink:#171912; --muted:#606654; --line:#aeb29f; --good:#007a4a; --warn:#a13b20; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--paper); color:var(--ink); font:16px/1.45 Georgia,serif; }
+    main { width:min(1500px,100%); margin:auto; padding:34px 24px 90px; }
+    header { max-width:1020px; margin-bottom:38px; }
+    .eyebrow,.tag,.metric { font:700 12px/1.2 ui-monospace,SFMono-Regular,monospace; letter-spacing:.08em; text-transform:uppercase; }
+    .eyebrow { color:var(--good); }
+    h1 { margin:10px 0 16px; font-size:clamp(38px,6vw,76px); line-height:.96; letter-spacing:-.045em; }
+    .summary { max-width:850px; color:var(--muted); font-size:20px; }
+    .verdict { border-left:5px solid var(--good); padding:13px 18px; background:#faf9ed; max-width:1000px; }
+    nav { display:flex; gap:8px; margin:30px 0; position:sticky; top:0; z-index:2; padding:10px 0; background:color-mix(in srgb,var(--paper) 92%,transparent); backdrop-filter:blur(10px); }
+    button { border:1px solid var(--line); background:#faf9ed; color:var(--ink); padding:9px 13px; font:700 13px ui-monospace,monospace; cursor:pointer; }
+    button[aria-pressed="true"] { background:var(--ink); color:var(--paper); border-color:var(--ink); }
+    section { margin-top:54px; }
+    section > header { border-bottom:3px solid var(--ink); padding-bottom:12px; margin-bottom:18px; }
+    h2 { margin:0 0 5px; font-size:34px; }
+    .grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:22px; }
+    figure { margin:0; min-width:0; }
+    figure a { display:block; border:1px solid var(--line); background:#12130f; overflow:hidden; }
+    img { display:block; width:100%; height:auto; transition:transform .16s ease; }
+    figure a:hover img { transform:scale(1.012); }
+    figcaption { padding:9px 2px 0; }
+    .name { display:block; font:700 13px/1.35 ui-monospace,monospace; overflow-wrap:anywhere; }
+    .metric { color:var(--muted); margin-top:4px; }
+    .tag { display:inline-block; margin-bottom:7px; }
+    .residue .tag { color:var(--warn); }
+    .clean .tag { color:var(--good); }
+    .legend { font:700 12px ui-monospace,monospace; color:var(--muted); margin-bottom:12px; }
+    .hidden { display:none; }
+    footer { margin-top:60px; padding-top:18px; border-top:1px solid var(--line); color:var(--muted); max-width:950px; }
+    @media(max-width:800px) { .grid{grid-template-columns:1fr} main{padding:24px 12px 70px} }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <p class="eyebrow">Concept test · 11 August 2026</p>
+    <h1>The runtime cleanup rule removes obvious residue without degrading clean controls.</h1>
+    <p class="summary">Ten visually reviewed lineup levels. Left is the editor's current raw cleanup rectangles. Right simulates the game's 2× footprint with close-bird Voronoi protection.</p>
+    <p class="verdict"><strong>Result:</strong> all five residue cases improve materially. The five clean controls remain visually clean; their changes are small background restorations rather than damaged neighboring birds. This supports fixing preview/runtime parity before inventing a new mask.</p>
+  </header>
+
+  <nav aria-label="Cohort filter">
+    <button type="button" data-filter="all" aria-pressed="true">All 10</button>
+    <button type="button" data-filter="residue" aria-pressed="false">Residue 5</button>
+    <button type="button" data-filter="clean" aria-pressed="false">Clean 5</button>
+  </nav>
+
+  <section class="cohort residue" data-cohort="residue">
+    <header><h2>Current residue</h2><p>Whole birds or unmistakable bird fragments remain in the current all-picked preview.</p></header>
+    <p class="legend">CURRENT EDITOR ← LEFT · RUNTIME GEOMETRY → RIGHT</p>
+    <div class="grid">
+      <figure><a href="assets/mexico_yucatan_cenote_ruins_bird_9fc3.jpg"><img src="assets/mexico_yucatan_cenote_ruins_bird_9fc3.jpg" alt="Mexico cenote current and runtime cleanup comparison"></a><figcaption><span class="tag">Residue</span><span class="name">mexico_yucatan_cenote_ruins_bird_9fc3</span><span class="metric">largest catalog delta · 2.40</span></figcaption></figure>
+      <figure><a href="assets/southeast_asia_sea_lantern_festival_canal_bird_ee43.jpg"><img src="assets/southeast_asia_sea_lantern_festival_canal_bird_ee43.jpg" alt="Lantern festival current and runtime cleanup comparison"></a><figcaption><span class="tag">Residue</span><span class="name">southeast_asia_sea_lantern_festival_canal_bird_ee43</span><span class="metric">multiple whole birds removed · 2.31</span></figcaption></figure>
+      <figure><a href="assets/uk_cotswolds_village_bird_3a43.jpg"><img src="assets/uk_cotswolds_village_bird_3a43.jpg" alt="Cotswolds current and runtime cleanup comparison"></a><figcaption><span class="tag">Residue</span><span class="name">uk_cotswolds_village_bird_3a43</span><span class="metric">multiple whole birds removed · 2.09</span></figcaption></figure>
+      <figure><a href="assets/turkey_grand_bazaar_corridor_bird_99a8.jpg"><img src="assets/turkey_grand_bazaar_corridor_bird_99a8.jpg" alt="Grand Bazaar current and runtime cleanup comparison"></a><figcaption><span class="tag">Residue</span><span class="name">turkey_grand_bazaar_corridor_bird_99a8</span><span class="metric">large white bird removed · 1.78</span></figcaption></figure>
+      <figure><a href="assets/ad_campaigns_ad_treehouse_village_bird_24d4.jpg"><img src="assets/ad_campaigns_ad_treehouse_village_bird_24d4.jpg" alt="Treehouse current and runtime cleanup comparison"></a><figcaption><span class="tag">Residue</span><span class="name">ad_campaigns_ad_treehouse_village_bird_24d4</span><span class="metric">blue and brown bird remnants removed · 1.54</span></figcaption></figure>
+    </div>
+  </section>
+
+  <section class="cohort clean" data-cohort="clean">
+    <header><h2>No visible residue</h2><p>Controls selected after crop-level visual review, not merely because their numeric deltas were low.</p></header>
+    <p class="legend">CURRENT EDITOR ← LEFT · RUNTIME GEOMETRY → RIGHT</p>
+    <div class="grid">
+      <figure><a href="assets/american_southwest_sw_mesa_campground_bird_563d.jpg"><img src="assets/american_southwest_sw_mesa_campground_bird_563d.jpg" alt="Mesa campground current and runtime cleanup comparison"></a><figcaption><span class="tag">Clean control</span><span class="name">american_southwest_sw_mesa_campground_bird_563d</span><span class="metric">no visible bird residue · 0.85</span></figcaption></figure>
+      <figure><a href="assets/greece_santorini_steps_bird_4634.jpg"><img src="assets/greece_santorini_steps_bird_4634.jpg" alt="Santorini current and runtime cleanup comparison"></a><figcaption><span class="tag">Clean control</span><span class="name">greece_santorini_steps_bird_4634</span><span class="metric">no visible bird residue · 0.91</span></figcaption></figure>
+      <figure><a href="assets/pirate_shipwreck_island_treasure_cove_camp_bird_cca3.jpg"><img src="assets/pirate_shipwreck_island_treasure_cove_camp_bird_cca3.jpg" alt="Treasure cove current and runtime cleanup comparison"></a><figcaption><span class="tag">Clean control</span><span class="name">pirate_shipwreck_island_treasure_cove_camp_bird_cca3</span><span class="metric">no visible bird residue · 0.94</span></figcaption></figure>
+      <figure><a href="assets/fairytale_forest_witches_herb_hut_bird_1a72.jpg"><img src="assets/fairytale_forest_witches_herb_hut_bird_1a72.jpg" alt="Witches herb hut current and runtime cleanup comparison"></a><figcaption><span class="tag">Clean control</span><span class="name">fairytale_forest_witches_herb_hut_bird_1a72</span><span class="metric">no visible bird residue · 0.97</span></figcaption></figure>
+      <figure><a href="assets/cozy_interiors_cozy_attic_workshop_bird_6acc.jpg"><img src="assets/cozy_interiors_cozy_attic_workshop_bird_6acc.jpg" alt="Attic workshop current and runtime cleanup comparison"></a><figcaption><span class="tag">Clean control</span><span class="name">cozy_interiors_cozy_attic_workshop_bird_6acc</span><span class="metric">no material changed-region component · 0.99</span></figcaption></figure>
+    </div>
+  </section>
+
+  <footer><strong>Scope:</strong> 49 lineup levels were rendered and ranked. These ten were then inspected at changed-region crop scale. “Post” is a deterministic simulation of the code already used by gameplay; the Portal preview endpoint has not yet been changed.</footer>
+</main>
+<script>
+  const buttons = [...document.querySelectorAll('button[data-filter]')];
+  const cohorts = [...document.querySelectorAll('[data-cohort]')];
+  for (const button of buttons) button.addEventListener('click', () => {
+    const filter = button.dataset.filter;
+    for (const item of buttons) item.setAttribute('aria-pressed', String(item === button));
+    for (const cohort of cohorts) cohort.classList.toggle('hidden', filter !== 'all' && cohort.dataset.cohort !== filter);
+  });
+</script>
+</body>
+</html>

@@ -2029,11 +2029,20 @@ def promote_canonical_sprite_artifact(
             with Image.open(scene_file) as scene_image, Image.open(painted_path) as crop_image:
                 composed = scene_image.convert("RGB")
                 composed.paste(crop_image.convert("RGB").resize((bx1 - bx0, by1 - by0)), (bx0, by0))
-                staged_scene = scene_file.with_name(f".{scene_file.name}.promote-{uuid.uuid4().hex}")
-                composed.save(staged_scene, format="PNG")
+                # Durable digest-addressed staging: if the process dies between
+                # the pointer commit and the scene replace, the committed
+                # revision's exact bytes remain recoverable here instead of
+                # the level being stranded on a scene hash that exists nowhere
+                # (codex review 2026-08-12 finding #1).
+                staging_root = session_dir(session_id) / ".canonical" / "staging"
+                staging_root.mkdir(parents=True, exist_ok=True)
+                staged_temp = staging_root / f".scene-{uuid.uuid4().hex}.png"
+                composed.save(staged_temp, format="PNG")
                 composed.close()
-            scene_bytes = staged_scene.read_bytes()
+            scene_bytes = staged_temp.read_bytes()
             scene_digest = hashlib.sha256(scene_bytes).hexdigest()
+            staged_scene = staging_root / f"scene-{scene_digest}.png"
+            os.replace(staged_temp, staged_scene)
             updated["assets"]["scene"] = {
                 "path": scene_rel,
                 "sha256": scene_digest,
@@ -2077,6 +2086,16 @@ def project_canonical_bird_compatibility(session_id: str, snapshot: dict[str, An
     already happened; the next projection converges.
     """
     try:
+        # Guard against out-of-order projection: two commits can finish A→B
+        # while their projections run B→A, leaving legacy surfaces on A with
+        # canonical at B. Only the snapshot that IS the current revision may
+        # project (codex review 2026-08-12 finding #5).
+        from levelbuilder.api.canonical_bird_contract import snapshot_revisions
+        current = canonical_session_store(session_id).read()
+        if current.pointer is None:
+            return
+        if snapshot_revisions(snapshot).content_revision != current.pointer.content_revision:
+            return
         bird = next(item for item in snapshot.get("birds", []) if item.get("birdId") == bird_id)
         slot = bird["compatibilitySlot"]
         asset_rel = bird["sprite"]["asset"]["path"]
@@ -6102,12 +6121,23 @@ def set_archived(session_id: str, archived: bool, variant: str | None = None) ->
             # Package-only level: the authoring session is gone but the card
             # still lists from the public root. The archive ledger is the only
             # persistence available — silently returning here made the archive
-            # button report success and change nothing (2026-08-12).
-            _record_archive_state(
-                session_id,
-                archived=bool(archived),
-                variants=[variant] if archived and variant is not None else [],
-            )
+            # button report success and change nothing (2026-08-12). Merge with
+            # the existing ledger entry using the same add/discard semantics as
+            # session.json so archiving variant B never drops variant A.
+            existing = _load_archive_ledger().get(session_id)
+            existing = existing if isinstance(existing, dict) else {}
+            variants = set(existing.get("archivedVariants") or [])
+            umbrella = bool(existing.get("archived", False))
+            if variant is None:
+                umbrella = bool(archived)
+                if not archived:
+                    variants = set()
+            elif archived:
+                variants.add(variant)
+            else:
+                variants.discard(variant)
+                umbrella = False
+            _record_archive_state(session_id, archived=umbrella, variants=sorted(variants))
             return
         if variant is None:
             raw["archived"] = bool(archived)

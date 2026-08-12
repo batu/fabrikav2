@@ -4290,6 +4290,23 @@ def _start_retry_failed_dogs_job_record(session_id: str, req: RetryFailedDogsJob
                     cleanup["x"] + cleanup["width"],
                     cleanup["y"] + cleanup["height"],
                 )
+            # Same containment contract as the legacy lane (which targets the
+            # sprite anchor, falling back to the hitbox): a client-supplied
+            # crop that no longer contains the bird (moved by another client,
+            # stale retry after a revision conflict) must be rejected here,
+            # before any provider spend (codex review 2026-08-12 finding #7).
+            bird = birds[bird_id]
+            hitbox = bird["hitbox"]
+            placement = bird["sprite"]["placement"]
+            target_x = round(placement["x"] + float(bird["sprite"].get("anchorX", 0.5)) * placement["width"])
+            target_y = round(placement["y"] + float(bird["sprite"].get("anchorY", 0.5)) * placement["height"])
+            x0, y0, x1, y1 = (int(value) for value in crop_box)
+            radius = int(hitbox.get("r", 30))
+            if x0 >= x1 or y0 >= y1:
+                raise HTTPException(400, detail={"error": f"Invalid crop box for bird {bird_id}"})
+            if not (x0 <= target_x - radius and x1 >= target_x + radius and
+                    y0 <= target_y - radius and y1 >= target_y + radius):
+                raise HTTPException(400, detail={"error": f"Crop box must contain bird {bird_id}'s hitbox"})
             canonical_inputs.append(capture_bird_job_input(
                 canonical.snapshot,
                 bird_id=bird_id,

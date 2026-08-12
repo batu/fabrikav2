@@ -1,0 +1,28 @@
+{
+  "grid-3x3-summary.png": {
+    "caption": "3x3 initial grid — best-safe placed — all 125 slots",
+    "meta": {
+      "materialized": "123/125",
+      "paidFlatKey": 121,
+      "fallbackRecoveries": 2,
+      "missing": 2,
+      "calls": 37,
+      "actualCostUsd": 2.3576355,
+      "runtimeSeconds": 382,
+      "bestSafePlaced": "123/123 available"
+    }
+  },
+  "grid-2x2-summary.png": {
+    "caption": "2x2 initial grid — best-safe placed — all 125 slots",
+    "meta": {
+      "materialized": "125/125",
+      "paidFlatKey": 112,
+      "fallbackRecoveries": 13,
+      "missing": 0,
+      "calls": 96,
+      "actualCostUsd": 6.1610665,
+      "runtimeSeconds": 1546,
+      "bestSafePlaced": "125/125 available"
+    }
+  }
+}
