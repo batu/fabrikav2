@@ -460,3 +460,58 @@ def test_stale_restore_refresh_replaces_restore_and_invalidates_dependent_review
     assert read.snapshot["restore"]["asset"] == read.snapshot["assets"]["cleanBackground"]
     assert "hitboxes" not in read.snapshot["reviews"]
     assert plan_legacy_level(session, public, archived=False).action == "unchanged"
+
+
+def test_import_authoring_from_public_resets_drifted_session_to_shipped_truth(tmp_path):
+    from levelbuilder.api.canonical_bird_contract import CanonicalReadState, CanonicalRevisionStore
+    from levelbuilder.api.corpus_migration import (
+        apply_level_plan,
+        import_authoring_from_public,
+        plan_legacy_level,
+    )
+
+    session, public = _legacy_level(tmp_path)
+    # Public package: consistent shipped truth with slot ids and full assets.
+    Image.new("RGB", (64, 64), "gray").save(public / "bg_00.png")
+    Image.new("RGB", (64, 64), "white").save(public / "color.png")
+    public_dog = public / "dogs" / "dog_00"
+    public_dog.mkdir(parents=True)
+    Image.new("RGBA", (16, 16), (0, 200, 0, 255)).save(public_dog / "sprite_000.png")
+    _write_json(public_dog / "sprite_000.json", {"anchorX": 0.5, "anchorY": 0.5})
+    _write_json(public / "level.json", {
+        "id": "example", "width": 64, "height": 64,
+        "dogs": [{
+            "id": "dog_00", "x": 20, "y": 20, "r": 8,
+            "sprite": {
+                "image": "levels/example/dogs/dog_00/sprite_000.png",
+                "x": 12, "y": 12, "width": 16, "height": 16,
+                "cleanup": {"x": 8, "y": 8, "width": 24, "height": 24},
+                "anchorX": 0.5, "anchorY": 0.5,
+            },
+        }],
+    })
+    # Session side drifted: orphan uuid hitbox vs orphan uuid dog.
+    _write_json(session / "hitboxes.json", [{"id": "uuid-hitbox-orphan", "x": 50, "y": 50, "r": 8}])
+    _write_json(session / "session.json", {
+        "selected_bg": 0,
+        "dogs": [{"id": "uuid-dog-orphan", "index": 0, "activeVariant": 0}],
+    })
+    assert plan_legacy_level(session, public, archived=False).action == "quarantine"
+
+    result = import_authoring_from_public(session, public)
+    assert result["birds"] == 1
+
+    plan = plan_legacy_level(session, public, archived=False)
+    assert plan.action == "migrate", plan.issues
+    apply_level_plan(plan, session, tmp_path / "journals")
+    read = CanonicalRevisionStore(session).read()
+    assert read.state is CanonicalReadState.VALID_CURRENT
+    bird = read.snapshot["birds"][0]
+    assert bird["compatibilitySlot"] == "dog_00"
+    assert bird["birdId"] != "dog_00"  # slot-shaped identities are forbidden
+    assert bird["hitbox"] == {"x": 20, "y": 20, "r": 8}
+    # Re-import mints the same deterministic identity.
+    from levelbuilder.api.corpus_migration import import_authoring_from_public as _reimport
+    _reimport(session, public)
+    rehitboxes = json.loads((session / "hitboxes.json").read_text())
+    assert rehitboxes[0]["id"] == bird["birdId"]

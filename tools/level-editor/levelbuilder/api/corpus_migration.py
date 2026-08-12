@@ -6,6 +6,7 @@ import copy
 import hashlib
 import json
 import os
+import re
 import shutil
 import uuid
 from dataclasses import dataclass
@@ -913,3 +914,141 @@ def apply_level_plan(plan: LevelMigrationPlan, session_dir: Path, journal_root: 
     temporary_journal.write_text(json.dumps(result, indent=2) + "\n")
     os.replace(temporary_journal, journal_path)
     return result
+
+
+class PublicImportError(ValueError):
+    """Raised when a public package cannot seed coherent authoring state."""
+
+
+def import_authoring_from_public(session_dir: Path, public_dir: Path) -> dict[str, Any]:
+    """Rebuild a session's authoring state from its shipped public package.
+
+    The public level.json is the one internally consistent record of a
+    shipped level (bird slot, position, radius, sprite geometry, cleanup).
+    When session-side hitboxes/dogs have drifted beyond honest identity
+    repair, this resets session authoring to the public truth: scene and
+    clean background copied from the package, hitboxes/dogs/sidecars derived
+    from level.json. The normal migration gates then re-validate the level;
+    nothing is committed here.
+    """
+    level_path = public_dir / "level.json"
+    try:
+        level = json.loads(level_path.read_text())
+    except (OSError, json.JSONDecodeError) as error:
+        raise PublicImportError(f"unreadable level.json: {error}") from error
+    dogs = level.get("dogs")
+    if not isinstance(dogs, list) or not dogs:
+        raise PublicImportError("level.json has no birds")
+    for name in ("color.png", "bg_00.png"):
+        if not (public_dir / name).is_file():
+            raise PublicImportError(f"public package is missing {name}")
+
+    marker = f"levels/{public_dir.name}/"
+    imported: list[dict[str, Any]] = []
+    for position, dog in enumerate(dogs):
+        if not isinstance(dog, dict):
+            raise PublicImportError(f"bird {position} is not an object")
+        sprite = dog.get("sprite")
+        image = sprite.get("image") if isinstance(sprite, dict) else None
+        if not isinstance(image, str):
+            raise PublicImportError(f"bird {dog.get('id')} has no sprite image")
+        relative = image.split(marker, 1)[-1] if marker in image else image
+        match = re.fullmatch(r"dogs/dog_(\d+)/sprite_(\d+)\.png", relative)
+        if match is None:
+            raise PublicImportError(f"bird {dog.get('id')} sprite path is not slot-shaped: {relative}")
+        index, variant = int(match.group(1)), int(match.group(2))
+        cleanup = sprite.get("cleanup")
+        required = all(isinstance(dog.get(key), (int, float)) for key in ("x", "y")) and isinstance(cleanup, dict)
+        if not required:
+            raise PublicImportError(f"bird {dog.get('id')} is missing geometry")
+        source_png = public_dir / relative
+        source_sidecar = source_png.with_suffix(".json")
+        if not source_png.is_file() or not source_sidecar.is_file():
+            # Some packages reference a slot whose artifacts were lost from
+            # the public tree; the session's own slot-addressed sprite is the
+            # only remaining copy. Geometry still comes from level.json.
+            source_png = session_dir / relative
+            source_sidecar = source_png.with_suffix(".json")
+            if not source_png.is_file() or not source_sidecar.is_file():
+                raise PublicImportError(f"bird {dog.get('id')} is missing sprite artifacts")
+        imported.append({
+            "levelDog": dog,
+            "index": index,
+            "variant": variant,
+            "relative": relative,
+            "sourcePng": source_png,
+            "sourceSidecar": source_sidecar,
+        })
+    slots = [item["index"] for item in imported]
+    if len(set(slots)) != len(slots):
+        raise PublicImportError("duplicate sprite slots in level.json")
+
+    # Validation passed for every bird; only now mutate the session.
+    for name in ("color.png", "bg_00.png"):
+        shutil.copy2(public_dir / name, session_dir / name)
+    hitboxes: list[dict[str, Any]] = []
+    session_dogs: list[dict[str, Any]] = []
+    for item in imported:
+        dog = item["levelDog"]
+        sprite = dog["sprite"]
+        cleanup = sprite["cleanup"]
+        target_png = session_dir / item["relative"]
+        target_png.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(item["sourcePng"], target_png)
+        mask = item["sourcePng"].with_name(f"sprite_mask_{item['variant']:03d}.png")
+        if mask.is_file():
+            shutil.copy2(mask, target_png.with_name(mask.name))
+        sidecar = json.loads(item["sourceSidecar"].read_text())
+        # Canonical validation requires the cleanup box to contain the hitbox
+        # center; some shipped packages violate it (the runtime tolerates
+        # this), so expand minimally with the export gate's 20px pad.
+        pad = 20
+        hb_x, hb_y = int(dog["x"]), int(dog["y"])
+        cleanup_box = [
+            min(int(cleanup["x"]), hb_x - pad),
+            min(int(cleanup["y"]), hb_y - pad),
+            max(int(cleanup["x"]) + int(cleanup["width"]), hb_x + pad),
+            max(int(cleanup["y"]) + int(cleanup["height"]), hb_y + pad),
+        ]
+        sidecar.update({
+            "spriteBox": [
+                int(sprite["x"]), int(sprite["y"]),
+                int(sprite["x"]) + int(sprite["width"]),
+                int(sprite["y"]) + int(sprite["height"]),
+            ],
+            "cleanupBox": cleanup_box,
+            **({"anchorX": sprite["anchorX"]} if isinstance(sprite.get("anchorX"), (int, float)) else {}),
+            **({"anchorY": sprite["anchorY"]} if isinstance(sprite.get("anchorY"), (int, float)) else {}),
+            **({"flipX": sprite["flipX"]} if isinstance(sprite.get("flipX"), bool) else {}),
+            **({"flipY": sprite["flipY"]} if isinstance(sprite.get("flipY"), bool) else {}),
+        })
+        target_sidecar = target_png.with_suffix(".json")
+        target_sidecar.write_text(json.dumps(sidecar, indent=2) + "\n")
+        # The canonical contract forbids slot-shaped birdIds, and public
+        # level.json ids ARE slots. Mint a deterministic identity from the
+        # import provenance so re-imports converge on the same ids.
+        bird_id = str(uuid.uuid5(
+            uuid.NAMESPACE_URL,
+            f"ftb:public-import:{public_dir.name}:dog_{item['index']:02d}:sprite_{item['variant']:03d}",
+        ))
+        hitboxes.append({
+            "id": bird_id,
+            "x": int(dog["x"]), "y": int(dog["y"]),
+            "r": int(dog.get("r", 30)),
+        })
+        session_dogs.append({
+            "id": bird_id,
+            "index": item["index"],
+            "activeVariant": item["variant"],
+            "status": "done",
+        })
+    (session_dir / "hitboxes.json").write_text(json.dumps(hitboxes, indent=2) + "\n")
+    session_path = session_dir / "session.json"
+    raw = _json(session_path, {})
+    raw.update({"dogs": session_dogs, "selected_bg": 0})
+    session_path.write_text(json.dumps(raw, indent=2) + "\n")
+    return {
+        "levelId": session_dir.name,
+        "birds": len(imported),
+        "source": "public-level-json",
+    }
