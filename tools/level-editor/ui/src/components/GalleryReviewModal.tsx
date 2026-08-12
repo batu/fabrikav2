@@ -756,7 +756,7 @@ export default function GalleryReviewModal({
             <span>{settingLabel}</span>
             {sceneLabel && <span style={{ color: '#666' }}>·</span>}
             {loadedMeta.entity && <><span>{loadedMeta.entity}</span><span style={{ color: '#666' }}>·</span></>}
-            <span>{state.dogs.length} dogs</span>
+            <span>{state.dogs.length} {loadedMeta.entity ? `${loadedMeta.entity}s` : 'entities'}</span>
             <span style={{ color: '#666' }}>·</span>
             <span style={{
               padding: '1px 6px', borderRadius: 3, fontSize: '0.65rem',

@@ -3989,7 +3989,7 @@ def _run_single_dog_regen(
     hb_data = _resolve_regen_hitbox(raw.get("dogs", []), hitbox_list, dog_index)
     if hb_data is None:
         bg.close()
-        raise HTTPException(404, detail={"error": f"Dog {dog_index} not found in hitboxes"})
+        raise HTTPException(404, detail={"error": f"Entity {dog_index} not found in hitboxes"})
     hb = Hitbox(x=hb_data["x"], y=hb_data["y"], radius=hb_data.get("r", hb_data.get("radius", 30)))
 
     dog_dir = S.dogs_dir(session_id) / f"dog_{dog_index:02d}"
@@ -4665,18 +4665,18 @@ def _run_single_cutout_extraction(
     )
     variant_index = dog.get("activeVariant") if dog is not None else None
     if not isinstance(variant_index, int):
-        raise HTTPException(400, detail={"error": f"Dog {dog_index} has no active painted variant"})
+        raise HTTPException(400, detail={"error": f"Entity {dog_index} has no active painted variant"})
 
     sdir = S.session_dir(session_id)
     color_path = sdir / "color.png"
     dog_dir = S.dogs_dir(session_id) / f"dog_{dog_index:02d}"
     metadata_path = dog_dir / f"sprite_{variant_index:03d}.json"
     if not color_path.is_file() or not metadata_path.is_file():
-        raise HTTPException(400, detail={"error": f"Dog {dog_index} is missing cutout source assets"})
+        raise HTTPException(400, detail={"error": f"Entity {dog_index} is missing cutout source assets"})
     metadata = json.loads(metadata_path.read_text())
     target_box = metadata.get("spriteBox")
     if not (isinstance(target_box, list) and len(target_box) == 4):
-        raise HTTPException(400, detail={"error": f"Dog {dog_index} has invalid sprite placement"})
+        raise HTTPException(400, detail={"error": f"Entity {dog_index} has invalid sprite placement"})
 
     with Image.open(color_path) as source:
         color = source.convert("RGB")
