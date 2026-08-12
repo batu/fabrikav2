@@ -92,3 +92,14 @@ def test_auto_placement_updates_canonical_geometry(app_client, isolated_session,
     # wizard now displays (or the write is refused on a VALID_CURRENT session).
     snapshot_birds = store.read().snapshot["birds"]
     assert len(snapshot_birds) == len(persisted)
+
+
+def test_sprite_only_compose_is_opt_in(monkeypatch):
+    """The sticker lane was rejected (2026-08-01) yet stayed default-ON and
+    rebuilt italy_tuscan as pasted cutouts (2026-08-12). Default must be OFF."""
+    from levelbuilder.api import inpaint
+
+    monkeypatch.delenv("FTD_SPRITE_ONLY_COMPOSE", raising=False)
+    assert inpaint._sprite_only_compose_enabled() is False
+    monkeypatch.setenv("FTD_SPRITE_ONLY_COMPOSE", "1")
+    assert inpaint._sprite_only_compose_enabled() is True

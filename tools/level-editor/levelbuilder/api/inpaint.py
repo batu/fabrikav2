@@ -5016,7 +5016,15 @@ def _run_retry_failed_dogs_job(job: JobRecord, store: JobStore) -> dict[str, Any
             failed += 1
 
     if succeeded > 0 and not cutout_only:
-        recomposite_color(session_id)
+        # Legacy epilogue only: a canonical regenerate commits its composed
+        # scene atomically inside promote — running the legacy whole-scene
+        # recomposite afterwards bypasses the canonical store and destroyed a
+        # committed scene (2026-08-12, italy_tuscan: rebuilt 21 birds as
+        # pasted cutouts because ONE bird regenerated).
+        from levelbuilder.api.canonical_bird_contract import CanonicalReadState
+        canonical_state = S.read_canonical_session(session_id).state
+        if canonical_state is not CanonicalReadState.VALID_CURRENT:
+            recomposite_color(session_id)
     if succeeded > 0 and (S.GAME_PUBLIC_LEVELS / session_id / "level.json").is_file():
         S.refresh_catalog_packages([session_id])
     result_data = {
@@ -5071,10 +5079,15 @@ def get_retry_failed_dogs_job(session_id: str, job_id: str) -> RetryFailedDogsJo
 # Sprite-only compositing (plan 2026-07-31-002 U6): the scene receives ONLY the
 # validated pickup sprite, not the whole diff-masked variant. Pickup then
 # restores pixel-identical background — pop-in impossible by construction.
-# Dogs without a usable sprite fall back to the legacy diff paste (they are
-# already repair-flagged; export refuses them). Opt out with =0.
+# REJECTED LANE — sticker-style sprite compositing was explicitly rejected by
+# the operator (2026-08-01 "adding the sprites to the level is not working",
+# 2026-08-05 "We are not going to push on the cutout composite version"), but
+# stayed default-ON and rebuilt a whole scene as pasted outlined cutouts when
+# a canonical regenerate triggered the legacy recomposite (2026-08-12,
+# italy_tuscan). Default OFF; opt back in with =1 only for archived
+# experiments.
 def _sprite_only_compose_enabled() -> bool:
-    return os.environ.get("FTD_SPRITE_ONLY_COMPOSE", "1").strip().lower() not in {"0", "false", "no"}
+    return os.environ.get("FTD_SPRITE_ONLY_COMPOSE", "0").strip().lower() in {"1", "true", "yes"}
 
 
 def _paste_pickup_sprite(
