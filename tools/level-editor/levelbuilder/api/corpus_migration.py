@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import copy
 import hashlib
 import json
 import os
@@ -13,7 +14,13 @@ from typing import Any, Literal
 
 from PIL import Image, ImageChops, ImageStat
 
-from .canonical_bird_contract import CanonicalReadState, CanonicalRevisionStore, validate_snapshot
+from .canonical_bird_contract import (
+    CanonicalReadResult,
+    CanonicalReadState,
+    CanonicalRevisionStore,
+    invalidate_reviews,
+    validate_snapshot,
+)
 
 MigrationAction = Literal["migrate", "unchanged", "quarantine", "skip_archived", "frozen_public"]
 RESTORE_FRAME_MAE_LIMIT = 5.0
@@ -29,6 +36,10 @@ class LevelMigrationPlan:
     issues: tuple[str, ...]
     snapshot: dict[str, Any] | None = None
     restore_source: str | None = None
+    # Set when the plan replaces the CURRENT canonical revision (stale-restore
+    # refresh) instead of migrating a legacy level; apply commits CAS-bound to
+    # this revision so concurrent edits are never clobbered.
+    expected_content_revision: str | None = None
 
     def summary(self) -> dict[str, Any]:
         return {
@@ -514,6 +525,38 @@ def _mean_absolute_difference(first: Image.Image, second: Image.Image) -> float:
     return sum(ImageStat.Stat(ImageChops.difference(first.convert("RGB"), second.convert("RGB"))).mean) / 3
 
 
+def _scene_matches_clean(
+    scene_path: Path,
+    clean_path: Path,
+    cleanup_boxes: list[tuple[int, int, int, int]],
+) -> bool:
+    """True when the painted scene sits on this clean background: outside the
+    birds' cleanup regions the two frames must agree within the restore frame
+    limit. Guards the stale-public-restore fallback — a clean background
+    unrelated to the scene must never be promoted to restore truth. The bird
+    regions are masked out so the check stays independent of bird count."""
+    try:
+        with Image.open(scene_path) as scene_image, Image.open(clean_path) as clean_image:
+            if scene_image.size != clean_image.size:
+                return False
+            width, height = scene_image.size
+            scene_preview = scene_image.convert("RGB").copy()
+            clean_preview = clean_image.convert("RGB")
+            for x0, y0, x1, y1 in cleanup_boxes:
+                box = (
+                    max(0, min(width, int(x0))), max(0, min(height, int(y0))),
+                    max(0, min(width, int(x1))), max(0, min(height, int(y1))),
+                )
+                if box[2] > box[0] and box[3] > box[1]:
+                    scene_preview.paste(clean_preview.crop(box), box)
+            preview_size = (256, 256)
+            return _mean_absolute_difference(
+                scene_preview.resize(preview_size), clean_preview.resize(preview_size),
+            ) <= RESTORE_FRAME_MAE_LIMIT
+    except OSError:
+        return False
+
+
 def _canonical_pixel_issues(
     session_dir: Path,
     snapshot: dict[str, Any],
@@ -558,6 +601,56 @@ def _canonical_pixel_issues(
     return issues
 
 
+_RESTORE_ONLY_ISSUE_MARKERS = ("restore_scene_mismatch:", ":restore_residue_outlier:", "restore_asset_hash_mismatch")
+
+
+def _stale_restore_refresh_plan(
+    session_dir: Path,
+    read: "CanonicalReadResult",
+    pixel_issues: list[str],
+) -> LevelMigrationPlan | None:
+    """Plan a restore refresh for a VALID canonical level whose committed
+    restore asset went stale (the level was regenerated after export). Only
+    applies when every pixel issue is restore-class and the painted scene
+    provably sits on the committed clean background; the refresh points
+    restore at the clean background and invalidates restore-dependent
+    reviews through the normal artifact-class policy."""
+    if not all(
+        any(marker in issue for marker in _RESTORE_ONLY_ISSUE_MARKERS)
+        for issue in pixel_issues
+    ):
+        return None
+    snapshot = read.snapshot
+    scene = session_dir / snapshot["assets"]["scene"]["path"]
+    clean = session_dir / snapshot["assets"]["cleanBackground"]["path"]
+    cleanup_boxes = [
+        (
+            bird["cleanup"]["x"], bird["cleanup"]["y"],
+            bird["cleanup"]["x"] + bird["cleanup"]["width"],
+            bird["cleanup"]["y"] + bird["cleanup"]["height"],
+        )
+        for bird in snapshot["birds"]
+    ]
+    if not _scene_matches_clean(scene, clean, cleanup_boxes):
+        return None
+    refreshed = copy.deepcopy(snapshot)
+    refreshed["restore"] = {
+        "asset": copy.deepcopy(snapshot["assets"]["cleanBackground"]),
+        "sourceSceneSha256": snapshot["assets"]["scene"]["sha256"],
+    }
+    refreshed = invalidate_reviews(refreshed, changed_artifacts={"restore"})
+    remaining = _canonical_pixel_issues(session_dir, refreshed)
+    if remaining:
+        return None
+    return LevelMigrationPlan(
+        session_dir.name,
+        "migrate",
+        (),
+        snapshot=refreshed,
+        expected_content_revision=read.pointer.content_revision if read.pointer else None,
+    )
+
+
 def plan_legacy_level(
     session_dir: Path | None,
     public_dir: Path | None,
@@ -573,6 +666,9 @@ def plan_legacy_level(
     if read.state is CanonicalReadState.VALID_CURRENT:
         pixel_issues = _canonical_pixel_issues(session_dir, read.snapshot)
         if pixel_issues:
+            refreshed = _stale_restore_refresh_plan(session_dir, read, pixel_issues)
+            if refreshed is not None:
+                return refreshed
             return LevelMigrationPlan(level_id, "quarantine", tuple(sorted(pixel_issues)))
         return LevelMigrationPlan(level_id, "unchanged", ())
     if read.state is not CanonicalReadState.MIGRATION_REQUIRED:
@@ -684,31 +780,55 @@ def plan_legacy_level(
     if issues:
         return LevelMigrationPlan(level_id, "quarantine", tuple(sorted(issues)))
 
-    restore_relative = restore.relative_to(session_dir).as_posix() if restore.is_relative_to(session_dir) else None
-    restore_asset = _asset(session_dir, restore) if restore_relative is not None else {
-        "path": f".canonical/imported-assets/restore{restore.suffix.lower()}",
-        "sha256": hashlib.sha256(restore.read_bytes()).hexdigest(),
-        "bytes": restore.stat().st_size,
-    }
-    snapshot = validate_snapshot({
-        "schemaVersion": 1,
-        "sessionId": level_id,
-        "assets": {"scene": scene_asset, "cleanBackground": clean_asset},
-        "restore": {"asset": restore_asset, "sourceSceneSha256": scene_asset["sha256"]},
-        "birds": birds,
-        "reviews": {},
-        "operational": {
-            "migration": {"state": "verification_required", "source": "legacy-v1"},
-            "reviewHistory": _review_history(session_dir, public_dir),
-        },
-    })
-    pixel_issues = _canonical_pixel_issues(session_dir, snapshot, restore_override=restore)
-    if pixel_issues:
-        return LevelMigrationPlan(level_id, "quarantine", tuple(sorted(pixel_issues)))
-    return LevelMigrationPlan(
-        level_id, "migrate", (), snapshot=snapshot,
-        restore_source=str(restore) if restore_relative is None else None,
-    )
+    def _restore_plan(restore_path: Path) -> LevelMigrationPlan:
+        restore_relative = (
+            restore_path.relative_to(session_dir).as_posix()
+            if restore_path.is_relative_to(session_dir) else None
+        )
+        restore_asset = _asset(session_dir, restore_path) if restore_relative is not None else {
+            "path": f".canonical/imported-assets/restore{restore_path.suffix.lower()}",
+            "sha256": hashlib.sha256(restore_path.read_bytes()).hexdigest(),
+            "bytes": restore_path.stat().st_size,
+        }
+        snapshot = validate_snapshot({
+            "schemaVersion": 1,
+            "sessionId": level_id,
+            "assets": {"scene": scene_asset, "cleanBackground": clean_asset},
+            "restore": {"asset": restore_asset, "sourceSceneSha256": scene_asset["sha256"]},
+            "birds": birds,
+            "reviews": {},
+            "operational": {
+                "migration": {"state": "verification_required", "source": "legacy-v1"},
+                "reviewHistory": _review_history(session_dir, public_dir),
+            },
+        })
+        pixel_issues = _canonical_pixel_issues(session_dir, snapshot, restore_override=restore_path)
+        if pixel_issues:
+            return LevelMigrationPlan(level_id, "quarantine", tuple(sorted(pixel_issues)))
+        return LevelMigrationPlan(
+            level_id, "migrate", (), snapshot=snapshot,
+            restore_source=str(restore_path) if restore_relative is None else None,
+        )
+
+    bird_cleanup_boxes = [
+        (
+            bird["cleanup"]["x"], bird["cleanup"]["y"],
+            bird["cleanup"]["x"] + bird["cleanup"]["width"],
+            bird["cleanup"]["y"] + bird["cleanup"]["height"],
+        )
+        for bird in birds
+    ]
+    plan = _restore_plan(restore)
+    if plan.action == "quarantine" and restore != clean and _scene_matches_clean(scene, clean, bird_cleanup_boxes):
+        # The exported package's restore (public bg_00) goes stale when the
+        # level is regenerated after export. When the painted scene provably
+        # sits on the session's clean background — restore reveals that
+        # background — the clean background is the deterministic fallback
+        # truth. The stale public package still needs a re-export to match.
+        fallback = _restore_plan(clean)
+        if fallback.action == "migrate":
+            return fallback
+    return plan
 
 
 def checksum_tree(root: Path) -> dict[str, str]:
@@ -771,7 +891,16 @@ def apply_level_plan(plan: LevelMigrationPlan, session_dir: Path, journal_root: 
             temporary = destination.with_name(f".{destination.name}.tmp-{uuid.uuid4().hex}")
             shutil.copy2(source, temporary)
             os.replace(temporary, destination)
-        pointer = CanonicalRevisionStore(session_dir).commit(plan.snapshot, expected_content_revision=None)
+        # A validated migrate plan supersedes any quarantine marker from an
+        # earlier pass. The reader (and commit's CAS read) treat the marker's
+        # presence as authoritative, so it must go before the commit: left in
+        # place it keeps a healthy level quarantined forever and makes a
+        # refresh commit CAS-fail against `actual None`. If the commit still
+        # conflicts, the next planner pass re-evaluates from scratch.
+        (session_dir / ".canonical" / "quarantine.json").unlink(missing_ok=True)
+        pointer = CanonicalRevisionStore(session_dir).commit(
+            plan.snapshot, expected_content_revision=plan.expected_content_revision,
+        )
         result["contentRevision"] = pointer.content_revision
     elif plan.action == "quarantine":
         root = session_dir / ".canonical"

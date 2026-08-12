@@ -406,3 +406,57 @@ def test_api_apply_requires_exact_preview_manifest(app_client, monkeypatch, tmp_
     card = next(item for item in app_client.get("/api/sessions").json() if item["id"] == "example")
     assert card["hitboxesBlessed"] is False
     assert card["cutoutsFinalBlessed"] is False
+
+
+def test_successful_migration_clears_stale_quarantine_marker(tmp_path):
+    from levelbuilder.api.canonical_bird_contract import CanonicalReadState, CanonicalRevisionStore
+    from levelbuilder.api.corpus_migration import apply_level_plan, plan_legacy_level
+
+    session, public = _legacy_level(tmp_path)
+    marker = session / ".canonical" / "quarantine.json"
+    marker.parent.mkdir(parents=True, exist_ok=True)
+    _write_json(marker, {"schemaVersion": 1, "issues": ["bird:cleanup_misses_hitbox"]})
+    assert CanonicalRevisionStore(session).read().state is CanonicalReadState.QUARANTINED_INTEGRITY
+
+    plan = plan_legacy_level(session, public, archived=False)
+    assert plan.action == "migrate"
+    apply_level_plan(plan, session, tmp_path / "journals")
+
+    assert not marker.exists()
+    assert CanonicalRevisionStore(session).read().state is CanonicalReadState.VALID_CURRENT
+
+
+def test_stale_restore_refresh_replaces_restore_and_invalidates_dependent_reviews(tmp_path):
+    from levelbuilder.api.canonical_bird_contract import CanonicalReadState, CanonicalRevisionStore
+    from levelbuilder.api.corpus_migration import apply_level_plan, plan_legacy_level
+
+    session, public = _legacy_level(tmp_path)
+    # Migrate once so a valid canonical revision exists (restore = public bg).
+    apply_level_plan(plan_legacy_level(session, public, archived=False), session, tmp_path / "journals")
+    store = CanonicalRevisionStore(session)
+    assert store.read().state is CanonicalReadState.VALID_CURRENT
+
+    # The level is regenerated after export: scene and clean bg move together,
+    # while the imported public restore goes stale.
+    Image.new("RGB", (64, 64), (199, 199, 199)).save(session / "color.png")
+    Image.new("RGB", (64, 64), (200, 200, 200)).save(session / "bg_00.png")
+    snapshot = store.read().snapshot
+    from levelbuilder.api.corpus_migration import _asset
+    snapshot["assets"]["scene"] = _asset(session, session / "color.png")
+    snapshot["assets"]["cleanBackground"] = _asset(session, session / "bg_00.png")
+    snapshot["restore"]["sourceSceneSha256"] = snapshot["assets"]["scene"]["sha256"]
+    for bird in snapshot["birds"]:
+        bird["activeGeneration"]["inputSceneSha256"] = snapshot["assets"]["scene"]["sha256"]
+    pointer = store.commit(snapshot, expected_content_revision=store.read().pointer.content_revision)
+
+    plan = plan_legacy_level(session, public, archived=False)
+    assert plan.action == "migrate"
+    assert plan.expected_content_revision == pointer.content_revision
+
+    # Journal from the first migration must not swallow the refresh.
+    apply_level_plan(plan, session, tmp_path / "journals2")
+    read = store.read()
+    assert read.state is CanonicalReadState.VALID_CURRENT
+    assert read.snapshot["restore"]["asset"] == read.snapshot["assets"]["cleanBackground"]
+    assert "hitboxes" not in read.snapshot["reviews"]
+    assert plan_legacy_level(session, public, archived=False).action == "unchanged"
