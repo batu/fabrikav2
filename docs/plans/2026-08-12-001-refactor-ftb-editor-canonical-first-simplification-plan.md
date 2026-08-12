@@ -456,6 +456,25 @@ Standing rule: any NEW failure class observed in production gets a ledger row (c
 closing step → proof) in the same session it's observed — the ledger is the plan's
 contract with reality.
 
+## Execution decisions (operator, 2026-08-12 night)
+
+1. **Overnight unattended run, finished by morning.** Nothing needs to keep working
+   mid-refactor; breakage during the run is accepted. Unattended rules apply: park
+   blockers with notes, never stop while unblocked work remains, no completion claims
+   below the bar.
+2. **Radius bake gates on the tap-equivalence grid test alone** — binding and absolute:
+   NO tap behavior change anywhere. Operator will review in the morning and fix what's
+   broken ("that you fux" — the record notes the confidence level).
+3. **The three unreviewed levels from the four-level pass are TEST CASES:** leave them
+   untouched during the run; after step 4 lands, attempt the previously-impossible edits
+   on them (add/remove hitboxes, save, review) as the reclamation proof of CL-3/P1.8.
+4. **R11 numbers (min tap radius, uniformity band, residue threshold): measure from the
+   corpus + golden sets and PROPOSE** — enforcement waits for operator approval; nothing
+   behavior-changing lands from measurement alone.
+5. **uk_cotswolds_3a43: regenerate through the CLI lane during execution** (the canonical
+   recipe end-to-end — doubles as the live shakedown of step 7), then republish to
+   replace the duplicate-sprite catalog package.
+
 ## Order & estimates (amended dependency order — supersedes the phase numbering)
 
 1. Canonical asset resolver + canonical-state classifier (A2, A3 foundations) — ~half day.
