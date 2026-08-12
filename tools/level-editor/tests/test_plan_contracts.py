@@ -112,3 +112,26 @@ def test_sprite_only_compose_is_opt_in(monkeypatch):
     assert inpaint._sprite_only_compose_enabled() is False
     monkeypatch.setenv("FTD_SPRITE_ONLY_COMPOSE", "1")
     assert inpaint._sprite_only_compose_enabled() is True
+
+
+def test_provider_attempt_cap_env_clamps_retries(monkeypatch):
+    """CR-2 NO-GO item: FTD_PROVIDER_ATTEMPT_CAP=1 makes every provider call
+    single-attempt — the paid-shakedown precondition, runtime-enforced."""
+    from levelbuilder.api import inpaint
+
+    calls = {"n": 0}
+
+    def flaky():
+        calls["n"] += 1
+        raise TimeoutError("provider transient")
+
+    monkeypatch.setenv("FTD_PROVIDER_ATTEMPT_CAP", "1")
+    with pytest.raises(Exception):
+        inpaint._with_retries_and_timeout(flaky)
+    assert calls["n"] == 1
+
+    monkeypatch.delenv("FTD_PROVIDER_ATTEMPT_CAP", raising=False)
+    calls["n"] = 0
+    with pytest.raises(Exception):
+        inpaint._with_retries_and_timeout(flaky)
+    assert calls["n"] == inpaint._MAX_ATTEMPTS

@@ -418,7 +418,16 @@ def _with_retries_and_timeout(
     as 'orphaned' rather than 'error'.
     """
     last_exc = None
-    for attempt in range(_MAX_ATTEMPTS):
+    # CR-2 shakedown precondition: FTD_PROVIDER_ATTEMPT_CAP clamps every
+    # provider call's attempts at runtime (paid runs set it to 1).
+    max_attempts = _MAX_ATTEMPTS
+    cap_raw = os.environ.get("FTD_PROVIDER_ATTEMPT_CAP")
+    if cap_raw:
+        try:
+            max_attempts = max(1, min(_MAX_ATTEMPTS, int(cap_raw)))
+        except ValueError:
+            pass
+    for attempt in range(max_attempts):
         if cancel_event is not None and cancel_event.is_set():
             raise OperationCancelled()
         try:
@@ -465,12 +474,12 @@ def _with_retries_and_timeout(
                 provider_permit.release()
             last_exc = TimeoutError(f"provider call timed out after {_GEMINI_CALL_TIMEOUT_S:.0f}s")
             exc = last_exc
-            if attempt + 1 >= _MAX_ATTEMPTS:
+            if attempt + 1 >= max_attempts:
                 raise last_exc
             sleep_s = _BACKOFF_BASE_S * (2 ** attempt) + random.uniform(0, 0.5)
             logger.warning(
                 "transient error on attempt %d/%d: %s — retrying in %.1fs",
-                attempt + 1, _MAX_ATTEMPTS, exc, sleep_s,
+                attempt + 1, max_attempts, exc, sleep_s,
             )
             if on_attempt is not None:
                 try:
@@ -487,12 +496,12 @@ def _with_retries_and_timeout(
             raise
         except Exception as exc:  # noqa: BLE001 — we do want broad catch
             last_exc = exc
-            if attempt + 1 >= _MAX_ATTEMPTS or not _is_transient(exc):
+            if attempt + 1 >= max_attempts or not _is_transient(exc):
                 raise
             sleep_s = _BACKOFF_BASE_S * (2 ** attempt) + random.uniform(0, 0.5)
             logger.warning(
                 "transient error on attempt %d/%d: %s — retrying in %.1fs",
-                attempt + 1, _MAX_ATTEMPTS, exc, sleep_s,
+                attempt + 1, max_attempts, exc, sleep_s,
             )
             if on_attempt is not None:
                 try:
