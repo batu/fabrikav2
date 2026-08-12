@@ -1,0 +1,186 @@
+{
+  "schemaVersion": 1,
+  "contentRevision": "sha256:37e616583c967e2246105545541d92833444ffa7601f94f6a87998caf227af31",
+  "scene": {
+    "path": "color.png",
+    "sha256": "3e29d0741bf016fe3381f4ca9c23874289e9db2bb45ed561e65abe838bfd1aec"
+  },
+  "restore": {
+    "path": "bg_00.png",
+    "sha256": "740c999c4c8d12d49e60bce0ce98b228fcf5338ff50644127017f605eea8c3a5",
+    "sourceSceneSha256": "3e29d0741bf016fe3381f4ca9c23874289e9db2bb45ed561e65abe838bfd1aec"
+  },
+  "birds": [
+    {
+      "birdId": "6451c2c1-10b9-5ca7-b636-9a956792f9c2",
+      "compatibilitySlot": "dog_00",
+      "sprite": {
+        "path": "dogs/dog_00/sprite_000.png",
+        "sha256": "0d88386bd7801c1b84e75205154112ce21e3a28902ca60473cd84e999015a69d"
+      },
+      "cleanupSourceSpriteSha256": "0d88386bd7801c1b84e75205154112ce21e3a28902ca60473cd84e999015a69d"
+    },
+    {
+      "birdId": "4eecf893-7c64-541c-8a9d-e773586bda20",
+      "compatibilitySlot": "dog_01",
+      "sprite": {
+        "path": "dogs/dog_01/sprite_000.png",
+        "sha256": "ffc5b66cbb8fb1e59b7957799a4f05652abf313c2cbceb0bd30fedcb2b495d52"
+      },
+      "cleanupSourceSpriteSha256": "ffc5b66cbb8fb1e59b7957799a4f05652abf313c2cbceb0bd30fedcb2b495d52"
+    },
+    {
+      "birdId": "cbe385e0-0b6e-5595-8c70-2b9d5bb5f393",
+      "compatibilitySlot": "dog_02",
+      "sprite": {
+        "path": "dogs/dog_02/sprite_000.png",
+        "sha256": "ae25aa974cbd18416f254127c9b4a93d2ead0bff665872d4580f2d4034072fd1"
+      },
+      "cleanupSourceSpriteSha256": "ae25aa974cbd18416f254127c9b4a93d2ead0bff665872d4580f2d4034072fd1"
+    },
+    {
+      "birdId": "bbf5975f-779a-5a76-8d3c-97608d496527",
+      "compatibilitySlot": "dog_05",
+      "sprite": {
+        "path": "dogs/dog_05/sprite_000.png",
+        "sha256": "a4e50855986d10e2628402a4b452e046baffbf1935f8c7effc99b9569cebf099"
+      },
+      "cleanupSourceSpriteSha256": "a4e50855986d10e2628402a4b452e046baffbf1935f8c7effc99b9569cebf099"
+    },
+    {
+      "birdId": "cd5833eb-3833-5d33-b6c8-121fd908b61f",
+      "compatibilitySlot": "dog_03",
+      "sprite": {
+        "path": "dogs/dog_03/sprite_000.png",
+        "sha256": "08e1007ad16efa6fb9078cc0fcc1df0c51c3d6b8bac0ec78a9dace8658d6cb5c"
+      },
+      "cleanupSourceSpriteSha256": "08e1007ad16efa6fb9078cc0fcc1df0c51c3d6b8bac0ec78a9dace8658d6cb5c"
+    },
+    {
+      "birdId": "467d4eca-586b-5f33-bce0-04398e0d7914",
+      "compatibilitySlot": "dog_09",
+      "sprite": {
+        "path": "dogs/dog_09/sprite_000.png",
+        "sha256": "f62928f9039d57c87650ce1555a000d966b44c197bbae455a90ceb013f9ae2c4"
+      },
+      "cleanupSourceSpriteSha256": "f62928f9039d57c87650ce1555a000d966b44c197bbae455a90ceb013f9ae2c4"
+    },
+    {
+      "birdId": "49beb7ba-2d33-50a8-b6a0-cda76e22e1c0",
+      "compatibilitySlot": "dog_10",
+      "sprite": {
+        "path": "dogs/dog_10/sprite_000.png",
+        "sha256": "9168f1feaee65fa92489accfff2f2a88cbc5b868fa4cdf374489fc3e9df65c6a"
+      },
+      "cleanupSourceSpriteSha256": "9168f1feaee65fa92489accfff2f2a88cbc5b868fa4cdf374489fc3e9df65c6a"
+    },
+    {
+      "birdId": "8c5e5896-fbc8-5bb5-b079-d8353c6bc4cc",
+      "compatibilitySlot": "dog_11",
+      "sprite": {
+        "path": "dogs/dog_11/sprite_000.png",
+        "sha256": "272686c146c0c2e84c8605e2f84fe448248500b34bc11e83016a752db25a667f"
+      },
+      "cleanupSourceSpriteSha256": "272686c146c0c2e84c8605e2f84fe448248500b34bc11e83016a752db25a667f"
+    },
+    {
+      "birdId": "714797fc-d127-5585-a453-89a2bd7a25e0",
+      "compatibilitySlot": "dog_13",
+      "sprite": {
+        "path": "dogs/dog_13/sprite_000.png",
+        "sha256": "8db02ec2675b74e13e39a1ea35d47040a87f580bfbfe368a64c48ca3d3e5b121"
+      },
+      "cleanupSourceSpriteSha256": "8db02ec2675b74e13e39a1ea35d47040a87f580bfbfe368a64c48ca3d3e5b121"
+    },
+    {
+      "birdId": "9d6ff10b-308b-5af8-8e6a-03e0cd2c43dd",
+      "compatibilitySlot": "dog_12",
+      "sprite": {
+        "path": "dogs/dog_12/sprite_000.png",
+        "sha256": "db907ceddf2c88e0e40cc6ccb94f51b34424e26d2a0b6737e4428b81acf457f1"
+      },
+      "cleanupSourceSpriteSha256": "db907ceddf2c88e0e40cc6ccb94f51b34424e26d2a0b6737e4428b81acf457f1"
+    },
+    {
+      "birdId": "2d964324-2d5f-50f2-af32-397484e2520d",
+      "compatibilitySlot": "dog_04",
+      "sprite": {
+        "path": "dogs/dog_04/sprite_000.png",
+        "sha256": "857b713d59002de67cfe07c25e8b8edb54947d8e34fd8d9101fba3cfcedfb181"
+      },
+      "cleanupSourceSpriteSha256": "857b713d59002de67cfe07c25e8b8edb54947d8e34fd8d9101fba3cfcedfb181"
+    },
+    {
+      "birdId": "2b56ac61-3ee0-5398-a003-7a513e2c20ba",
+      "compatibilitySlot": "dog_18",
+      "sprite": {
+        "path": "dogs/dog_18/sprite_000.png",
+        "sha256": "b6962b3d3883e0c96fb8dd4d0b9b028bb6b7dbfe72aa6f1e05d7b913780b974a"
+      },
+      "cleanupSourceSpriteSha256": "b6962b3d3883e0c96fb8dd4d0b9b028bb6b7dbfe72aa6f1e05d7b913780b974a"
+    },
+    {
+      "birdId": "9cd04ff3-0af0-5af4-91e7-c1bcd8db925e",
+      "compatibilitySlot": "dog_16",
+      "sprite": {
+        "path": "dogs/dog_16/sprite_000.png",
+        "sha256": "32848369960886b95a3ed89b7b74f651770a5d32c3cfc478967725bbd2c2833a"
+      },
+      "cleanupSourceSpriteSha256": "32848369960886b95a3ed89b7b74f651770a5d32c3cfc478967725bbd2c2833a"
+    },
+    {
+      "birdId": "a8836300-f181-53cf-aede-1022705a69df",
+      "compatibilitySlot": "dog_15",
+      "sprite": {
+        "path": "dogs/dog_15/sprite_000.png",
+        "sha256": "513af8ab9539499d0ac8685adcb065cc5751e1918e81210e9880fa716aba5598"
+      },
+      "cleanupSourceSpriteSha256": "513af8ab9539499d0ac8685adcb065cc5751e1918e81210e9880fa716aba5598"
+    },
+    {
+      "birdId": "f0de7b96-4192-5b3d-9c44-05786a270bde",
+      "compatibilitySlot": "dog_14",
+      "sprite": {
+        "path": "dogs/dog_14/sprite_000.png",
+        "sha256": "13149cb35823c80998763077e27c12853fb815979de47f8dcd9289acbccb8011"
+      },
+      "cleanupSourceSpriteSha256": "13149cb35823c80998763077e27c12853fb815979de47f8dcd9289acbccb8011"
+    },
+    {
+      "birdId": "18cd5f59-0340-5bc2-905f-a29aa969caba",
+      "compatibilitySlot": "dog_17",
+      "sprite": {
+        "path": "dogs/dog_17/sprite_000.png",
+        "sha256": "41452403b6cad1ff0aeed1f3344cd205c80c567bdebc645a5c8b868e3c9e16e6"
+      },
+      "cleanupSourceSpriteSha256": "41452403b6cad1ff0aeed1f3344cd205c80c567bdebc645a5c8b868e3c9e16e6"
+    },
+    {
+      "birdId": "bc5ba0a3-309f-5842-8911-17769db33319",
+      "compatibilitySlot": "dog_06",
+      "sprite": {
+        "path": "dogs/dog_06/sprite_000.png",
+        "sha256": "479246a1f779fd7233d9c2ea755b0ac11894c118dfb65c4f9bb2ab85f0faf7ed"
+      },
+      "cleanupSourceSpriteSha256": "479246a1f779fd7233d9c2ea755b0ac11894c118dfb65c4f9bb2ab85f0faf7ed"
+    },
+    {
+      "birdId": "aa15ed48-9781-5671-97f3-3486094b1208",
+      "compatibilitySlot": "dog_07",
+      "sprite": {
+        "path": "dogs/dog_07/sprite_000.png",
+        "sha256": "887583de2d59d17cd092ae6cb10f5baea7f1e916a2f0652d45697e6baa2fd366"
+      },
+      "cleanupSourceSpriteSha256": "887583de2d59d17cd092ae6cb10f5baea7f1e916a2f0652d45697e6baa2fd366"
+    },
+    {
+      "birdId": "63e48cd5-b3aa-5214-b65f-d4c4fbaf1ddf",
+      "compatibilitySlot": "dog_08",
+      "sprite": {
+        "path": "dogs/dog_08/sprite_000.png",
+        "sha256": "8fdd9d1fcca1848aaeb6efbaddd2267ad0f3d847ed3c66c588b13c64f5fa0811"
+      },
+      "cleanupSourceSpriteSha256": "8fdd9d1fcca1848aaeb6efbaddd2267ad0f3d847ed3c66c588b13c64f5fa0811"
+    }
+  ]
+}
