@@ -4904,7 +4904,22 @@ def _run_retry_failed_dogs_job(job: JobRecord, store: JobStore) -> dict[str, Any
             "passIndex": 0,
         })
         store.update_metadata(job.id, {"safeToRequeue": False, "providerSubmissionStarted": True})
+        # P2d.3 / R9: every provider dollar spent in this unit lands in the
+        # merceka ledger tagged with its session/bird/operation — measured
+        # per level, never estimated.
+        from merceka_core import costs as _mcosts
+
+        _bird_id_for_meta = child.metadata.get("birdId") if child is not None else None
+        _attribution = _mcosts.attribution({
+            "app": "ftb-level-editor",
+            "sessionId": session_id,
+            "birdId": _bird_id_for_meta,
+            "dogIndex": dog_index,
+            "operation": "cutout_extraction" if cutout_only else "dog_regen",
+            "jobId": job.id,
+        })
         try:
+          with _attribution:
             if cutout_only:
                 crop_box = crop_boxes.get(dog_index)
                 if crop_box is None:

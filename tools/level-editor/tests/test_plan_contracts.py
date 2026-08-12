@@ -205,3 +205,44 @@ def test_one_active_paid_job_per_bird_guard(app_client, isolated_session, monkey
     )
     assert second.status_code == 409, second.text
     assert second.json()["detail"]["code"] == "bird_job_active"
+
+
+def test_paid_unit_spend_is_session_attributed(app_client, isolated_session, monkeypatch, tmp_path):
+    """P2d.3/R9: provider cost recorded during a retry unit carries
+    session/bird/operation attribution in the merceka ledger."""
+    import json as _json
+
+    from levelbuilder.api import inpaint as I
+    from test_canonical_hitbox_cas import _canonical_session
+
+    monkeypatch.setenv("MERCEKA_COST_LEDGER", str(tmp_path / "ledger.jsonl"))
+    _store, pointer = _canonical_session(isolated_session, "attributed_spend")
+
+    def fake_extraction(session_id, dog_index, **kwargs):
+        from merceka_core import costs
+
+        costs.record(source="test-provider", model="m", usage={}, usd=0.05)
+        return {"dogIndex": dog_index, "status": "succeeded"}
+
+    monkeypatch.setattr(I, "_run_single_cutout_extraction", fake_extraction)
+    monkeypatch.setattr(I, "_run_single_dog_regen", fake_extraction)
+
+    job = I._start_retry_failed_dogs_job_record(
+        "attributed_spend",
+        I.RetryFailedDogsJobRequest(
+            birdIds=["bird_one"], prompt="bird",
+            expectedContentRevision=pointer.content_revision,
+            attemptNonce="attr-nonce-1",
+        ),
+    )
+    try:
+        I._run_retry_failed_dogs_job(I.JOB_STORE.get_job(job.id), I.JOB_STORE)
+    except Exception:
+        pass  # the stub result lacks epilogue fields; the spend already landed
+    rows = [_json.loads(line) for line in (tmp_path / "ledger.jsonl").read_text().splitlines()]
+    tagged = [r for r in rows if r.get("meta", {}).get("sessionId") == "attributed_spend"]
+    assert tagged, rows
+    meta = tagged[0]["meta"]
+    assert meta["birdId"] == "bird_one"
+    assert meta["operation"] in ("dog_regen", "cutout_extraction")
+    assert meta["app"] == "ftb-level-editor"
