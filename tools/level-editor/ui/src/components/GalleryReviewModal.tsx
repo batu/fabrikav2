@@ -260,7 +260,7 @@ export default function GalleryReviewModal({
   const [archiveBusy, setArchiveBusy] = useState(false);
   const [colorVersion, setColorVersion] = useState(0);
   const [visibilityIssues, setVisibilityIssues] = useState<VisibilityIssue[]>([]);
-  const [sceneView, setSceneView] = useState<'painted' | 'restore' | 'pickup' | 'sprites'>('painted');
+  const [sceneView, setSceneView] = useState<'painted' | 'restore' | 'pickup' | 'sprites' | 'residue'>('painted');
   const [reviewMode, setReviewMode] = useState<'placement' | 'cutouts'>('placement');
   const [showMap, setShowMap] = useState(true);
   const [loadedMeta, setLoadedMeta] = useState<{ setting?: string | null; scene?: string | null; entity?: string | null; model?: string }>({});
@@ -695,6 +695,10 @@ export default function GalleryReviewModal({
       // marks the response immutable so the browser caches it.
       return `/api/sessions/${encodeURIComponent(item.id)}/scene-previews/sprites?rev=${state.contentRevision ?? item.assetVersion ?? colorVersion}`;
     }
+    if (sceneView === 'residue') {
+      // CL-11: residue heatmap — paint the runtime leaves behind.
+      return `/api/sessions/${encodeURIComponent(item.id)}/scene-previews/residue?rev=${state.contentRevision ?? item.assetVersion ?? colorVersion}`;
+    }
     if (sceneView === 'pickup') {
       // CL-10: cached runtime post-pickup state (see sprites note).
       return `/api/sessions/${encodeURIComponent(item.id)}/scene-previews/pickup?rev=${state.contentRevision ?? item.assetVersion ?? colorVersion}`;
@@ -834,6 +838,7 @@ export default function GalleryReviewModal({
                   ['restore', '🧹 Clean bg'],
                   ['pickup', '🐦 All picked up'],
                   ['sprites', '✂️ Sprites only'],
+                  ['residue', '🔥 Residue'],
                 ] as const).map(([mode, label]) => (
                   <button
                     key={mode}
@@ -842,7 +847,7 @@ export default function GalleryReviewModal({
                     onMouseEnter={() => {
                       // CL-10: warm the cached preview on hover so the first
                       // click is an instant swap too.
-                      if ((mode === 'pickup' || mode === 'sprites') && item) {
+                      if ((mode === 'pickup' || mode === 'sprites' || mode === 'residue') && item) {
                         new window.Image().src = `/api/sessions/${encodeURIComponent(item.id)}/scene-previews/${mode}?rev=${state.contentRevision ?? item.assetVersion ?? colorVersion}`;
                       }
                     }}

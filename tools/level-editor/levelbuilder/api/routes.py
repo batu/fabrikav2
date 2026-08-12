@@ -3260,9 +3260,74 @@ def sprites_preview(session_id: str):
 _SCENE_PREVIEW_RENDERERS = {
     "pickup": lambda session_id: pickup_preview(session_id),
     "sprites": lambda session_id: sprites_preview(session_id),
+    "residue": lambda session_id: _residue_heatmap_response(session_id),
 }
 
 _SCENE_PREVIEW_MAX_LONG_EDGE = 1600  # review preview, not print resolution
+
+
+RESIDUE_GATE_LIMIT_PX = 500  # proposed default; R11 will version this number
+
+
+def _residue_analysis(session_id: str):
+    """CL-11: all-picked-up composite vs clean bg through the vNEXT residue
+    gate. Uses the same pickup renderer the operator sees (derivation-vs-
+    runtime handshake)."""
+    import numpy as _np
+
+    from .canonical_assets import AssetIntegrityError, resolve_asset
+    from .geometry_derivation import derivation_dependency_hash, residue_report
+
+    canonical = S.read_canonical_session(session_id)
+    if canonical.snapshot is None:
+        raise HTTPException(409, detail={"error": "not a canonical session", "code": "canonical_required"})
+    snapshot = canonical.snapshot
+    store = S.canonical_session_store(session_id)
+    try:
+        clean_bytes = resolve_asset(store, snapshot["restore"]["asset"]).data
+    except AssetIntegrityError as error:
+        raise HTTPException(409, detail={"error": str(error), "code": "asset_integrity"}) from error
+    rendered = pickup_preview(session_id)
+    with Image.open(io.BytesIO(rendered.body)) as img:
+        composite = _np.asarray(img.convert("RGB"))
+    with Image.open(io.BytesIO(clean_bytes)) as img:
+        clean = _np.asarray(img.convert("RGB"))
+    if composite.shape != clean.shape:
+        raise HTTPException(409, detail={"error": "composite/clean dimensions differ",
+                                         "code": "restore_dimensions_mismatch"})
+    report = residue_report(composite, clean)
+    dependency = derivation_dependency_hash(
+        snapshot["assets"]["scene"]["sha256"],
+        snapshot["restore"]["asset"]["sha256"],
+        snapshot["birds"],
+    )
+    return report, dependency
+
+
+def _residue_heatmap_response(session_id: str) -> Response:
+    import numpy as _np
+
+    report, _dependency = _residue_analysis(session_id)
+    height, width = report.heatmap.shape
+    canvas = _np.full((height, width, 3), (20, 22, 26), dtype=_np.uint8)
+    canvas[report.heatmap] = (255, 64, 64)
+    buf = io.BytesIO()
+    Image.fromarray(canvas).save(buf, "PNG")
+    return Response(content=buf.getvalue(), media_type="image/png",
+                    headers={"Cache-Control": "no-store"})
+
+
+@router.get("/sessions/{session_id}/residue")
+def residue_gate(session_id: str):
+    """CL-11 gate surface: residue pixel count + verdict + dependency hash."""
+    _validate_session_id(session_id)
+    report, dependency = _residue_analysis(session_id)
+    return {
+        "residuePixels": report.residue_pixels,
+        "gate": "pass" if report.residue_pixels <= RESIDUE_GATE_LIMIT_PX else "fail",
+        "limitPixels": RESIDUE_GATE_LIMIT_PX,
+        "dependencyHash": dependency,
+    }
 
 
 @router.get("/sessions/{session_id}/scene-previews/{view}")

@@ -93,3 +93,19 @@ def test_sprites_preview_renders_canonical_snapshot_not_stale_export(app_client,
         stale_px = rgb.getpixel((8 * rgb.width // 128, 8 * rgb.height // 96))
         assert blueness(canonical_px) > 60, canonical_px
         assert blueness(stale_px) < 60, stale_px
+
+
+def test_residue_view_reports_gate_and_serves_heatmap(app_client, isolated_session):
+    """CL-11: the residue endpoint computes pickup-composite vs clean bg,
+    reports the pixel count + gate verdict, and serves a heatmap image."""
+    store = _real_scene_session(isolated_session, "residue_view")
+    response = app_client.get("/api/sessions/residue_view/residue")
+    assert response.status_code == 200
+    body = response.json()
+    assert isinstance(body["residuePixels"], int)
+    assert body["gate"] in ("pass", "fail")
+    assert body["dependencyHash"].startswith("sha256:")
+
+    heatmap = app_client.get("/api/sessions/residue_view/scene-previews/residue")
+    assert heatmap.status_code == 200
+    assert heatmap.headers["content-type"] == "image/webp"
