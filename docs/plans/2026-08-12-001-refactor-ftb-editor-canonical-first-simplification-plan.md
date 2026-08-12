@@ -144,6 +144,47 @@ per generation) and a scene-binding check. Also: one-active-paid-job-per-bird gu
 under revision-bound CAS, and an explicit `completed_stale` parent job status when zero units
 committed.
 
+## Full-editor review findings (second pass, 2026-08-12 evening)
+
+Three further codex reviews (wizard/generation, gallery/lineup/export, job infrastructure —
+same reports directory) added 51 findings. They cluster into four classes that reshape the
+phases; the individual findings live in the reports and are not restated here.
+
+**F-A. Wizard geometry writers bypass canonical CAS entirely** (wizard #1–#3, #18–#19; also
+jobs #7). Auto-placement, both recenters, VLM placement, magenta finalize/reconcile, and
+`/select-bg` write `hitboxes.json`/`session.json` directly on `VALID_CURRENT` sessions — no
+expected revision, no snapshot commit, no review invalidation; hydration then prefers the
+legacy files. This is the same disease Phase 1 treats, from the write side. **Phase 1 gains a
+P1.6: one CAS-aware geometry mutation service used by every writer**, and `hydrate_session`
+overlays canonical (amendment A1). Byte-identical saves must not invalidate reviews (#18 —
+policy #11 applies to no-op writes too).
+
+**F-B. Publish/lineup can ship a stale revision** (gallery #1–#7). The catalog entry is not
+revision-bound to reviewed authoring; Start writes bundle files before activation succeeds;
+per-variant archive un-lineups whole sessions; human-review CAS conflicts are retried
+blind — the same unsafe pattern removed from extract today. Becomes **Phase 2b: publication
+integrity** (revision-bound catalog entries, transactional Start, no CAS-retry on human
+approvals), ordered before Phase 4.
+
+**F-C. Job store retries re-bill and transitions are unguarded** (jobs #1–#5, #8; wizard
+#7–#8, #13). Requeue erases succeeded children and re-purchases them (the failed-bird lane at
+inpaint.py:4793 is the correct model to generalize); `transition_job` is last-write-wins with
+no attempt generation; a quick restart can strand `running` jobs forever; magenta runs
+side-effectfully inside an SSE generator instead of the durable store. Becomes **Phase 2c:
+job-store hardening** (attempt generations + transition graph, succeeded-children retention on
+requeue, owner-aware recovery rerun, magenta onto the durable lane).
+
+**F-D. UI state-machine races** (wizard #4–#6, #11, #14–#17; jobs #9–#12; gallery #8, #19).
+Debounced saves not flushed before paid submissions, resume pointers droppable, SSE
+reconciliation that equates "session readable" with "generation succeeded". Folded into the
+existing phases' UI conversions; the flush-before-paid-work rule becomes robustification R5.
+
+Verified against today's incidents: F-A is the mechanism behind this morning's
+fix-hitboxes/canonical drift; the gallery blind-retry (#1) is the same pattern that ate
+review clicks. The stress battery (isolated rig, ~100 contended ops, SIGKILL mid-burst)
+confirms the *canonical CAS + guarded projection* core holds — the failures are all in the
+lanes that bypass it, which is the strongest argument for Phase 1/P1.6 being the payoff.
+
 ## Risks
 
 - P1.1 changes candidate identity/geometry sourcing — the cutout panel, animation wizard, and
