@@ -255,6 +255,41 @@ complete-cleanup + permutation convergence; unfound-bird preservation; ownership
 conservation (union == accepted diff, exclusive owners disjoint); tap-migration
 equivalence + body coverage; determinism + provenance freshness.
 
+## Obligation edges — the workflow contract (operator principle, 2026-08-12)
+
+("We have a CLI for a reason… after every magenta inpainting we automatically need to
+ensure the boxes are centered… whenever we regenerate we need to explicitly understand
+where the hitbox is… we don't want to wave away any step, and we need tests and mechanisms
+to ensure that doesn't happen.")
+
+The DAG (P1.7) gains **obligation semantics**: some edges are not staleness markers but
+mandatory auto-run successors, executed inside the same durable job as the operation that
+triggered them. An operation has not COMMITTED until its obligations are discharged; a
+level cannot reach `approved` while any obligation is pending; the export gate refuses
+artifacts whose obligation chain is incomplete (recorded in provenance: which steps ran,
+with which recipe revision).
+
+Initial obligation table (extends as steps are added — the table IS the workflow):
+- **magenta paint / repaint** → hitbox re-localization (Gemini snap / local-diff recenter
+  per recipe) → restore-partition re-derivation → diff quality gate.
+- **regenerate(bird)** → localize that bird's hitbox against the new paint → re-extract
+  its cutout → sprite placement + anchor recompute → restore-partition update.
+- **extract(bird)** → sprite placement + anchor recompute → restore-partition update.
+- **hitbox move (human)** → restore-partition re-derivation (staleness edge, not auto-run:
+  human geometry is authority, derivation follows it).
+- **any scene commit** → contact-sheet evidence artifact (R8) + count reconciliation (R10).
+
+Enforcement mechanisms, all three required:
+1. **Structural:** obligations run as stages of the triggering job — there is no API
+   through which a lane can perform the parent step without them (UI and CLI share the
+   same operation, P2d.1 parity).
+2. **Stateful:** unmet obligations are visible level state (`obligation-pending: …`),
+   blocking approval — never a silent gap discovered by eyeballing hitboxes.
+3. **Tested:** one contract test per obligation edge asserting that (a) the happy path
+   discharges it, (b) an artificially interrupted job leaves the pending marker, (c) the
+   export gate refuses the incomplete chain. New pipeline steps must ship their obligation
+   row + test in the same commit — a step without a row in the table does not exist.
+
 ## Operator change list (dictated during the 2026-08-12 four-level review pass)
 
 Small, concrete editor changes requested while reviewing; execute with the plan (most land
