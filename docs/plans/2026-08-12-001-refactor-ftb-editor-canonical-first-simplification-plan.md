@@ -215,6 +215,46 @@ Three tiers, executed during this phase, not before:
   (policy #11; the promotion sweep exists — wire `restore_verified_*` into migration apply
   so over-invalidation self-heals instead of needing an operator).
 
+## Operator change list (dictated during the 2026-08-12 four-level review pass)
+
+Small, concrete editor changes requested while reviewing; execute with the plan (most land
+naturally inside step 4's geometry service or Phase 5), each with its own commit.
+
+- **CL-1. "Clear all hitboxes" button** in the hitbox editing surface (placement view +
+  review modal). Goes through the canonical geometry service (one CAS commit, review
+  invalidation, impact preview per R6 — clearing N human-placed hitboxes is exactly the
+  operation that must show what it destroys before doing it).
+- **CL-2. Grow/shrink all hitboxes** — two buttons scaling every hitbox radius by a step
+  (±10%, min-tap-radius floor from R11 enforced, live overlay preview). One CAS commit for
+  the batch, not N; respects the uniformity band once R11 lands.
+- **CL-4. Cutout view must follow the current hitboxes** (fairy_ring_9ed2, 2026-08-12:
+  operator re-placed + confirmed hitboxes; cutout panel ignored them). `candidateTarget`
+  prefers the sprite sidecar's anchor over the live hitbox, so padding defaults, drag
+  clamps, and the Show-hitbox circle all track stale anchors after a manual hitbox pass.
+  Fix with P1 canonical-first reads: one authoritative bird position (current hitbox),
+  anchor demoted to a sprite-internal alignment detail; the Show-hitbox overlay must render
+  the actual hitbox, never a derived target. DAG (P1.7) marks crops/cutouts stale when
+  hitboxes move, which is what "doesn't respect it" actually is.
+- **CL-3. Hitbox add/remove must be legal or impossible** (italy_tuscan archived over this,
+  2026-08-12: "canonical hitbox identity set does not match the current revision"). The
+  editor offers add-by-click / remove-by-double-click, but the canonical `/hitboxes` save
+  rejects any identity-set change — only moves are persistable. Fix inside step 4's geometry
+  service: adding a hitbox creates a canonical bird (minted id, no sprite yet, DAG marks
+  cutout stale), removing one deletes the bird via the existing delete operation with an R6
+  impact preview ("removes bird + its cutout"). Until then the affordance is a trap that
+  hard-blocks levels and reads as "level broken". Same family as the removed padded-box
+  block: surfaces must not invite actions their write path forbids. Second occurrence same
+  day (fairy_ring_9ed2): the rejected save left the canvas showing the operator's local
+  hitboxes as if persisted — discovered only when the cutout view disagreed. A rejected
+  geometry save must visibly mark the canvas dirty/unsaved and re-show server truth
+  (P1.8 read-back + R2), never keep rendering unpersisted edits as reality. Third
+  escalation same session: after one rejected save the modal's local hitbox array stays
+  poisoned (minted/duplicate ids), so even pure MOVES fail thereafter ("canonical hitboxes
+  require unique birdId values") — one rejection breaks all hitbox editing for that level
+  until reload. The 2026-08-12 review pass STOPPED on this; the operator's remaining three
+  levels are presumed blocked by the same class. CL-3 + P1.8 reconciliation are therefore
+  the highest-priority items of step 4.
+
 ## Order & estimates (amended dependency order — supersedes the phase numbering)
 
 1. Canonical asset resolver + canonical-state classifier (A2, A3 foundations) — ~half day.
