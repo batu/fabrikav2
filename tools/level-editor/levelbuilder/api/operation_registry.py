@@ -37,7 +37,9 @@ PRIMARY_OPERATIONS = (
     OperationSpec("list-sprite-candidates", "sprite-candidates", "GET", "/api/sessions/{session_id}/sprite-candidates", "listSpriteCandidates"),
     OperationSpec("manual-sprite-placement", "place-sprite", "PUT", "/api/sessions/{session_id}/sprite-candidates/{candidate_id}/placement", "saveSpriteCandidatePlacement"),
     OperationSpec("auto-place-sprites", "auto-place-sprites", "POST", "/api/sessions/{session_id}/sprite-candidates/auto-placement", "autoPlaceSpriteCandidates"),
-    OperationSpec("human-confirm-sprite", "confirm-sprite", "PUT", "/api/sessions/{session_id}/sprite-candidates/{candidate_id}/human-confirmation", "saveSpriteCandidateHumanConfirmation", True),
+    # CL-16 (2026-08-13): per-bird confirmation is invisible plumbing — the
+    # endpoint stays for auto-stamping machinery, but no UI export exists.
+    OperationSpec("human-confirm-sprite", "confirm-sprite", "PUT", "/api/sessions/{session_id}/sprite-candidates/{candidate_id}/human-confirmation", None, True),
     OperationSpec("human-review-hitboxes", "bless-hitboxes", "PUT", "/api/sessions/{session_id}/hitbox-review", "setHitboxApproval", True),
     OperationSpec("human-review-final-cutouts", "bless-cutouts", "PUT", "/api/sessions/{session_id}/final-cutout-review", "setFinalCutoutApproval", True),
     OperationSpec("selected-cutout-extraction", "cutouts", "POST", "/api/sessions/{session_id}/dogs/retry-inpaint/jobs", "startRetryFailedDogsJob"),
