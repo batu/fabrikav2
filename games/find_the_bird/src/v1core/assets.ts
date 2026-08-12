@@ -160,7 +160,12 @@ export interface ManifestClient {
 function validManifest(value: unknown): value is ManifestV1 {
   if (value === null || typeof value !== 'object') return false;
   const manifest = value as Partial<ManifestV1>;
-  return manifest.version === 1 && Array.isArray(manifest.levels);
+  return (
+    manifest.version === 1
+    && Array.isArray(manifest.levels)
+    && Number.isSafeInteger(manifest.manifestRevision)
+    && (manifest.manifestRevision as number) >= 0
+  );
 }
 
 export function createManifestClient(): ManifestClient {
@@ -183,12 +188,23 @@ export function createManifestClient(): ManifestClient {
       try {
         const response = await fetch(cdnManifestUrl, { cache: 'no-cache' });
         const parsed = response.ok ? (await response.json()) as unknown : null;
-        if (validManifest(parsed)) {
+        // O1 freshness guard: a structurally valid CDN manifest may still be
+        // STALE — an origin serving an older revision than the app bundle
+        // silently reorders the whole game (observed live 2026-08-12, rev 12
+        // over a rev 13 bundle). Revisions are monotonic; never compare
+        // generatedAt — clocks are not an authority.
+        if (validManifest(parsed) && parsed.manifestRevision >= bundledFallback.manifestRevision) {
           manifest = parsed;
           usedFallback = false;
         } else {
+          if (validManifest(parsed)) {
+            console.warn(
+              `[assets] refusing stale CDN manifest rev ${parsed.manifestRevision} `
+              + `< bundled rev ${bundledFallback.manifestRevision}; using bundled`,
+            );
+          }
           manifest = manifest ?? bundledFallback;
-          usedFallback = true;
+          usedFallback = true; // a later initialize() retries the origin
         }
       } catch {
         manifest = manifest ?? bundledFallback;
