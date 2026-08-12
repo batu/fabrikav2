@@ -472,15 +472,18 @@ and the artifact that PROVES closure. A class is closed when its proof exists, n
    succeed or visibly mark the canvas dirty; a rejected save never leaves unpersisted
    edits rendered.
 5. **Eaten human reviews** (silent ghost-card failures; blind CAS-retry blessing unseen
-   revisions). Patched: ghost cards non-reviewable (afb5518ba); promotion sweep restored
-   byte-identical approvals. Closed by: P2b.3 (no CAS-retry on approvals) + R2 (no
-   silent-success writes) + P2e.3 (no-op saves preserve approvals — xfail flips). Proof:
-   those tests plus the review-preservation suite (policy #11).
+   revisions). **CLOSED 2026-08-13**: P2b.3 landed (approval conflicts demand a fresh
+   human click, UI reconciliation adopts server truth), P2e.3 xfail flipped (no-op saves
+   preserve approvals), R2 enforced by the read-back contract; plus P2b.1 catalog
+   revision binding blocks shipping unreviewed revisions (F-B#2) and P2b.2 transactional
+   Start leaves disk untouched on failure.
 6. **Job-store money bugs** (re-billing succeeded units, requeue of running jobs, stuck
-   jobs after crash). Open, pinned by strict xfails. Closed by: Phase 2c. Proof:
-   `test_background_retry_retains_succeeded_children` and
-   `test_requeue_refuses_running_jobs` flip; kill -9 batch drill in the stress rig leaves
-   no stuck or double-billable state.
+   jobs after crash). **CLOSED 2026-08-13** (branch ftb-execution-t1): both xfails
+   flipped to hard assertions; requeue refuses non-terminal jobs (crash-recovery lane
+   overrides explicitly); `test_kill9_drill_leaves_no_stuck_or_double_billable_state`
+   proves dead-heartbeat recovery: paid→orphaned_unknown, pre-provider→requeued,
+   succeeded results intact, nothing stuck. FTD_PROVIDER_ATTEMPT_CAP adds the runtime
+   attempts clamp (CR-2 precondition).
 
 Standing rule: any NEW failure class observed in production gets a ledger row (class →
 closing step → proof) in the same session it's observed — the ledger is the plan's
