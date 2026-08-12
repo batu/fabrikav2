@@ -1147,11 +1147,8 @@ def get_session(session_id: str):
     data = S.hydrate_session(session_id)
     if data is None:
         raise HTTPException(404, detail={"error": "Session not found"})
-    canonical = S.read_canonical_session(session_id)
-    data["canonicalState"] = canonical.state.value
-    if canonical.pointer is not None:
-        data["contentRevision"] = canonical.pointer.content_revision
-        data["operationalRevision"] = canonical.pointer.operational_revision
+    # canonicalState/revisions come from the single read inside hydrate — a
+    # second read here could tear against a concurrent commit (CR-item3 P0 #5).
     return data
 
 
@@ -2791,9 +2788,17 @@ def pickup_preview(session_id: str):
     level_width = level_height = 0
     canonical_scene_bytes: bytes | None = None
     canonical_restore_bytes: bytes | None = None
-    if canonical_snapshot is not None:
-        from .canonical_assets import AssetIntegrityError, resolve_asset
+    from .canonical_assets import AssetIntegrityError, LaneSelectionError, resolve_asset, select_lane
 
+    try:
+        lane = select_lane(canonical.state)
+    except LaneSelectionError as error:
+        # Quarantined/orphaned stores never fall back to raw sidecar pixels
+        # (CR-item3 P0 #4) — that would render unverified bytes as truth.
+        raise HTTPException(409, detail={
+            "error": str(error), "code": "canonical_state_blocked",
+        }) from error
+    if lane == "canonical" and canonical_snapshot is not None:
         store = S.canonical_session_store(session_id)
         try:
             canonical_scene_bytes = resolve_asset(store, canonical_snapshot["assets"]["scene"]).data

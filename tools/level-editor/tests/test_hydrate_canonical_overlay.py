@@ -58,3 +58,29 @@ def test_hydrate_reports_pending_obligations(isolated_session):
     data = S.hydrate_session("overlay_obligations")
     kinds = {o["obligation"] for o in data["pendingObligations"]}
     assert {"review:hitboxes", "review:finalCutouts"} <= kinds
+
+
+def test_hydrate_filters_stale_sidecar_dogs_and_aligns_order(isolated_session):
+    """CR-item3 P0 #1/#2: dogs not in the snapshot disappear; dogs and
+    hitboxes share presentation order so positional UI joins stay coherent."""
+    from levelbuilder.api import session as S
+
+    store, pointer = _canonical_with_stale_sidecars(isolated_session, "overlay_filter")
+    sdir = isolated_session.session_dir("overlay_filter")
+    ghost = sdir / "dogs" / "dog_07"
+    ghost.mkdir(parents=True)
+    (ghost / "variant_000.png").write_bytes(b"ghost")
+    data = S.hydrate_session("overlay_filter")
+    assert [d["id"] for d in data["dogs"]] == [h["id"] for h in data["hitboxes"]]
+    assert all(d["id"] for d in data["dogs"])
+
+
+def test_hydrate_blocks_editing_for_quarantined_sessions(isolated_session):
+    from levelbuilder.api import session as S
+    from test_canonical_hitbox_cas import _canonical_session
+
+    store, _ = _canonical_session(isolated_session, "overlay_blocked")
+    store.pointer_path.write_text("not json")
+    data = S.hydrate_session("overlay_blocked")
+    assert data["canonicalState"] == "quarantined_integrity"
+    assert data["editingBlocked"] is True

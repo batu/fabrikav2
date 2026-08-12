@@ -110,3 +110,15 @@ def test_canonical_pickup_preview_survives_missing_projection_and_rejects_tamper
     response = app_client.get(f"/api/sessions/{session_id}/pickup-preview")
     assert response.status_code == 409
     assert "integrity" in json.dumps(response.json()).lower()
+
+
+def test_pickup_preview_refuses_quarantined_sessions(app_client, isolated_session):
+    """CR-item3 P0 #4: a quarantined store never falls back to sidecar pixels."""
+    session_id = "pickup_preview_quarantined"
+    store, _ = _canonical_session(isolated_session, session_id)
+    sdir = isolated_session.session_dir(session_id)
+    Image.new("RGB", (64, 48), (200, 30, 30)).save(sdir / "color.png")
+    store.pointer_path.write_text("not json")
+    response = app_client.get(f"/api/sessions/{session_id}/pickup-preview")
+    assert response.status_code == 409
+    assert response.json()["detail"]["code"] == "canonical_state_blocked"

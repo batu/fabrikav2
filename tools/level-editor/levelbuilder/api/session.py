@@ -3151,6 +3151,12 @@ def _overlay_canonical_truth(session_id: str, payload: dict) -> dict:
 
     canonical = read_canonical_session(session_id)
     payload["canonicalState"] = canonical.state.value
+    # A partial/quarantined store must never present sidecar state as editable
+    # truth (CR-item3 P0 #3): fields stay for triage, editing is blocked.
+    payload["editingBlocked"] = canonical.state in (
+        CanonicalReadState.ORPHANED_STAGE,
+        CanonicalReadState.QUARANTINED_INTEGRITY,
+    )
     if canonical.state is not CanonicalReadState.VALID_CURRENT or canonical.snapshot is None:
         return payload
     snapshot = canonical.snapshot
@@ -3166,29 +3172,26 @@ def _overlay_canonical_truth(session_id: str, payload: dict) -> dict:
         for b in birds
     ]
     slot_index = {b["compatibilitySlot"]: b for b in birds}
-    dogs = payload.get("dogs", [])
-    seen_slots = {f"dog_{dog['index']:02d}" for dog in dogs}
-    for dog in dogs:
-        bird = slot_index.get(f"dog_{dog['index']:02d}")
-        if bird is None:
-            continue
+    by_slot = {f"dog_{dog['index']:02d}": dog for dog in payload.get("dogs", [])}
+    # The snapshot's bird set IS the dog set (CR-item3 P0 #1): sidecar dogs
+    # without a canonical bird are stale and dropped; canonical birds missing
+    # from the sidecar are synthesized. Output order == hitbox order
+    # (presentationOrder) so positional UI joins stay coherent (P0 #2).
+    dogs: list[dict[str, Any]] = []
+    for bird in birds:
+        slot = bird["compatibilitySlot"]
+        dog = by_slot.get(slot)
+        if dog is None:
+            dog = {
+                "index": int(slot.removeprefix("dog_")),
+                "id": bird["birdId"],
+                "status": "done" if (bird.get("sprite") or {}).get("asset") else "pending",
+                "activeVariant": None,
+                "promptOverride": None,
+                "variants": [],
+            }
         _overlay_bird_onto_dog(dog, bird)
-    # A canonical bird with no legacy dogs[] entry still exists — the snapshot
-    # is the identity truth, not the sidecar.
-    for slot, bird in slot_index.items():
-        if slot in seen_slots:
-            continue
-        synthesized = {
-            "index": int(slot.removeprefix("dog_")),
-            "id": bird["birdId"],
-            "status": "done" if (bird.get("sprite") or {}).get("asset") else "pending",
-            "activeVariant": None,
-            "promptOverride": None,
-            "variants": [],
-        }
-        _overlay_bird_onto_dog(synthesized, bird)
-        dogs.append(synthesized)
-    dogs.sort(key=lambda d: d["index"])
+        dogs.append(dog)
     payload["dogs"] = dogs
     return payload
 
