@@ -706,3 +706,43 @@ Ordered steps (each independently shippable — O1/O2 are ship-first hotfixes):
 Every step's device gate: observed on-phone order == canonical manifest, online AND
 offline. Sequencing vs Phases 1–5: O1/O2 are immediate hotfixes (no dependency); O3–O10
 slot after Phase 2 (they touch the same publish surfaces Phase 2 stabilizes).
+
+- **O11. Enforcement — one way, made cheaper than every other way** (Zen review,
+  2026-08-12 night: the plan described single lanes but contained no mechanism that makes
+  the other ways stop working; the plan's own author bypassed the pipeline four times in
+  one evening — manual bundled-manifest upsert, hand-regenerated webp, direct publish
+  script, inline cap raise — each "necessary", each how authority #8 is born).
+  Four layers, strongest first:
+  1. **CLI, structural:** `ftb release` owns the entire O3 transaction; the editor's
+     Start button and the CLI are the same code path (P2d.1 parity). Nothing else is
+     invocable: `publish_ftb_cdn.py` and the manual endpoints become internals or die
+     (O5). Operator and agents type the same command.
+  2. **Digest gates, loud-on-bypass:** every derived artifact (bundled-manifest,
+     levels-index while they live, packed bundle, webp derivatives) carries the canonical
+     manifest digest; `build:ios` and CI refuse on mismatch. Out-of-band edits stay
+     *possible* (it's a filesystem) but fail the next build with the exact drift named.
+     Gates live in the artifact path, not the tool path — they catch bypasses hooks miss.
+  3. **Skill, discovery:** `ftb-canonical-lane` skill states "publishing is `ftb release`;
+     there is no second lane" + the break-glass protocol; repo AGENTS.md points at it.
+  4. **Hooks, thin and optional:** PreToolUse block on raw `wrangler r2 object put` and
+     direct writes under `public/levels/` outside the CLI — only for the money-shaped
+     commands; digest gates already cover the rest.
+  **Break-glass (practicality beats purity, never silently):** `ftb release --break-glass
+  <invariant>` performs the bypass, prints exactly which invariant is suspended, and
+  writes a reconciliation marker the next gate refuses until cleared. Emergency paths
+  that don't exist get invented ad hoc and invisibly — tonight, four times.
+
+**Failure-class ledger row 7 (2026-08-12 night, third occurrence):** approve-catalog
+silently DELETES webp derivatives it does not know how to regenerate (canonical export
+rewrites the package dir PNG-only), flipping shipped packages back to 11MB PNGs — the
+package-swap trap of 08-07 and this afternoon, now with a deletion mechanism identified.
+Closed by: O-steps (one publisher owns derivative generation inside the transaction).
+Proof: contract test — approve a canonical session, assert webp derivatives exist and
+manifest entries reference them; O2's regression fixture (PNGs must not move the boundary).
+
+**Document structure note (Zen: the plan is accreting like the codebase did):** the
+runbook an executing agent follows is the 10-step amended order + O1/O2 + this
+enforcement section, nothing else; every other section (CL/R/A/F ledgers, geometry
+vNEXT, mining) is reference consulted when its step arrives. Read top-down = execute;
+read deep = context. A step that needs prose outside its own reference sections is
+underspecified and must be fixed in the plan, not improvised.
