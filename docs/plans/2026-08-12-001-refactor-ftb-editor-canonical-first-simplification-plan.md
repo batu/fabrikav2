@@ -365,6 +365,26 @@ naturally inside step 4's geometry service or Phase 5), each with its own commit
   paint; obligation chain re-derives after repaint. Shown read-only in the cutout preview;
   a manual override box appears only when the diff quality gate flags the level
   (R6-flagged, provenance-stamped). Deletes Padding mode from the cutout UI entirely.
+- **CL-13. Cutout view edits both truths.** Sprite (green handles) AND hitbox (circle)
+  draggable directly on the cutout card — same canonical commit as the map, derived
+  outline re-follows. No mode switch.
+- **CL-14. Before/after on extract with accept/revert.** Extraction already stages the
+  new sprite as a job artifact; keep the old one, show the pair, accept or revert (revert
+  = promote pointed backward). Ships with P2d manifest; degrades to ship-without if
+  hairy (operator accepted the fallback).
+- **CL-15. Worst-first triage.** Cutout cards sorted by sprite quality score
+  (pickupUsable / regeneration probability already computed by sprite_eval), quality chip
+  on each card. 24-bird scroll becomes a 5-bird triage.
+- **CL-16. One review ledger for cutouts.** Level cutout review derives from per-bird
+  confirmations: confirming the last unconfirmed bird IS the level review. Deletes the
+  separate "Mark cutouts reviewed" click and the possibility of the two records
+  disagreeing. (Lifecycle state machine P2b.4 implements the derivation.)
+- **CL-17. "Re-run stale" action.** One button discharging whatever obligations the DAG
+  reports pending for the level (subsumes "extract all unconfirmed"; bulk work is
+  otherwise automatic via obligation edges). Uses the existing per-bird concurrent queue.
+- **CL-18. Keep the hide-map 3-across scroll layout** (operator preference); it gains
+  from CL-10 instant previews, CL-12 card simplification, CL-15 ordering. No focused
+  single-bird mode.
 - **CL-3. Hitbox add/remove must be legal or impossible** (italy_tuscan archived over this,
   2026-08-12: "canonical hitbox identity set does not match the current revision"). The
   editor offers add-by-click / remove-by-double-click, but the canonical `/hitboxes` save
