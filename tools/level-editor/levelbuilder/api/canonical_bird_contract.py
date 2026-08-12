@@ -229,20 +229,28 @@ def validate_snapshot(snapshot: Any, *, validate_reviews: bool = True) -> dict[s
         _require(isinstance(bird.get("presentationOrder"), int) and bird["presentationOrder"] >= 0, f"{label}.presentationOrder is invalid")
         hitbox = bird.get("hitbox")
         _require(isinstance(hitbox, dict) and all(isinstance(hitbox.get(k), int) for k in ("x", "y", "r")) and hitbox["r"] > 0, f"{label}.hitbox is invalid")
+        # CL-3: a bird may exist pre-extraction — hitbox only, no generation,
+        # no sprite, no cleanup (the DAG reports the pending extract
+        # obligation). When present, each block is validated strictly.
         generation = bird.get("activeGeneration")
-        _require(isinstance(generation, dict) and isinstance(generation.get("generationId"), str) and bool(generation["generationId"]), f"{label}.activeGeneration is invalid")
-        _require(generation.get("inputSceneSha256") == assets["scene"]["sha256"], f"{label} generation provenance mismatch")
         sprite = bird.get("sprite")
-        _require(isinstance(sprite, dict), f"{label}.sprite is required")
-        _validate_asset(sprite.get("asset"), f"{label}.sprite.asset")
-        placement = sprite.get("placement")
-        _require(isinstance(placement, dict) and all(isinstance(placement.get(k), int) for k in ("x", "y", "width", "height")) and placement["width"] > 0 and placement["height"] > 0, f"{label}.sprite.placement is invalid")
-        _require(isinstance(sprite.get("anchorX"), (int, float)) and 0 <= sprite["anchorX"] <= 1, f"{label}.sprite.anchorX is invalid")
-        _require(isinstance(sprite.get("anchorY"), (int, float)) and 0 <= sprite["anchorY"] <= 1, f"{label}.sprite.anchorY is invalid")
-        _require(isinstance(sprite.get("flipX"), bool) and isinstance(sprite.get("flipY"), bool), f"{label}.sprite flips are invalid")
         cleanup = bird.get("cleanup")
-        _require(isinstance(cleanup, dict) and all(isinstance(cleanup.get(k), int) for k in ("x", "y", "width", "height")) and cleanup["width"] > 0 and cleanup["height"] > 0, f"{label}.cleanup is invalid")
-        _require(cleanup.get("sourceSpriteSha256") == sprite["asset"]["sha256"], f"{label} cleanup provenance mismatch")
+        if generation is not None:
+            _require(isinstance(generation, dict) and isinstance(generation.get("generationId"), str) and bool(generation["generationId"]), f"{label}.activeGeneration is invalid")
+            _require(generation.get("inputSceneSha256") == assets["scene"]["sha256"], f"{label} generation provenance mismatch")
+        if sprite is not None:
+            _require(generation is not None, f"{label}.sprite requires activeGeneration provenance")
+            _require(isinstance(sprite, dict), f"{label}.sprite is required")
+            _validate_asset(sprite.get("asset"), f"{label}.sprite.asset")
+            placement = sprite.get("placement")
+            _require(isinstance(placement, dict) and all(isinstance(placement.get(k), int) for k in ("x", "y", "width", "height")) and placement["width"] > 0 and placement["height"] > 0, f"{label}.sprite.placement is invalid")
+            _require(isinstance(sprite.get("anchorX"), (int, float)) and 0 <= sprite["anchorX"] <= 1, f"{label}.sprite.anchorX is invalid")
+            _require(isinstance(sprite.get("anchorY"), (int, float)) and 0 <= sprite["anchorY"] <= 1, f"{label}.sprite.anchorY is invalid")
+            _require(isinstance(sprite.get("flipX"), bool) and isinstance(sprite.get("flipY"), bool), f"{label}.sprite flips are invalid")
+            _require(isinstance(cleanup, dict) and all(isinstance(cleanup.get(k), int) for k in ("x", "y", "width", "height")) and cleanup["width"] > 0 and cleanup["height"] > 0, f"{label}.cleanup is invalid")
+            _require(cleanup.get("sourceSpriteSha256") == sprite["asset"]["sha256"], f"{label} cleanup provenance mismatch")
+        else:
+            _require(cleanup is None, f"{label}.cleanup requires a sprite")
 
     _require(isinstance(snapshot.get("operational", {}), dict), "operational must be an object")
     reviews = snapshot.get("reviews", {})

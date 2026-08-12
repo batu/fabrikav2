@@ -49,7 +49,7 @@ def test_requeue_refuses_running_jobs(tmp_path):
         store.requeue_job(job.id, reason="second client retry")
 
 
-@pytest.mark.xfail(strict=True, reason="F-A wizard#18: byte-identical canonical hitbox save revokes human review")
+# FLIPPED 2026-08-12 overnight (P1.6/P2e.3): no-op saves preserve approvals.
 def test_identical_hitbox_save_preserves_review(isolated_session):
     from test_canonical_hitbox_cas import _canonical_session
     from levelbuilder.api.canonical_bird_contract import bless_snapshot
@@ -70,7 +70,7 @@ def test_identical_hitbox_save_preserves_review(isolated_session):
     assert isinstance(store.read().snapshot.get("reviews", {}).get("hitboxes"), dict)
 
 
-@pytest.mark.xfail(strict=True, reason="F-A wizard#2: auto-placement writes hitboxes.json without a canonical commit")
+# FLIPPED 2026-08-12 overnight (P1.6): auto-placement commits canonically.
 def test_auto_placement_updates_canonical_geometry(app_client, isolated_session, monkeypatch):
     from levelbuilder.api import routes
     from test_canonical_hitbox_cas import _canonical_session

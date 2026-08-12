@@ -2461,6 +2461,28 @@ def _landscape_deadzones(bg_w: int, bg_h: int) -> list:
     ]
 
 
+def _persist_auto_hitboxes(session_id: str, payload: list) -> list:
+    """P1.6: auto-placement commits canonically on VALID_CURRENT sessions —
+    a machine replace_set (R7-guarded), never a raw hitboxes.json write."""
+    from .canonical_assets import select_lane
+    from .geometry_service import mutate_geometry
+
+    canonical = S.read_canonical_session(session_id)
+    lane = select_lane(canonical.state)
+    if lane == "legacy":
+        return S.save_hitboxes(session_id, payload) or payload
+    revision = canonical.pointer.content_revision if canonical.pointer else None
+    mutate_geometry(
+        session_id,
+        "replace_set",
+        hitboxes=payload,
+        expected_content_revision=revision,
+        actor="machine:auto-place",
+    )
+    snapshot = S.read_canonical_session(session_id).snapshot or {}
+    return _snapshot_hitboxes(snapshot)
+
+
 @router.post("/sessions/{session_id}/auto-hitboxes")
 def auto_place_hitboxes(session_id: str, req: AutoHitboxesRequest) -> dict[str, Any]:
     from levelbuilder.hitboxes import generate_hitboxes_grounded
@@ -2563,7 +2585,7 @@ def auto_place_hitboxes(session_id: str, req: AutoHitboxesRequest) -> dict[str, 
                 "code": "smart_hitboxes_failed",
             }) from exc
         payload = SmartHitboxes.hitbox_payload(selected)
-        persisted = S.save_hitboxes(session_id, payload) or payload
+        persisted = _persist_auto_hitboxes(session_id, payload)
         return {
             "hitboxes": persisted,
             "strategy": "smart",
@@ -2585,7 +2607,7 @@ def auto_place_hitboxes(session_id: str, req: AutoHitboxesRequest) -> dict[str, 
         forbidden=forbidden,
     )
     payload = [{"x": hb.x, "y": hb.y, "r": hb.radius} for hb in hitboxes]
-    persisted = S.save_hitboxes(session_id, payload) or payload
+    persisted = _persist_auto_hitboxes(session_id, payload)
     return {"hitboxes": persisted, "strategy": "random"}
 
 

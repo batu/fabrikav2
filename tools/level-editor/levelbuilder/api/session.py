@@ -1631,6 +1631,7 @@ def save_canonical_hitboxes_if_present(
     hitboxes: list[dict[str, Any]],
     *,
     expected_content_revision: str | None,
+    actor: str = "human:editor",
 ):
     """CAS-save canonical hitboxes, or return ``None`` for a legacy session."""
     from levelbuilder.api.canonical_bird_contract import (
@@ -1653,24 +1654,22 @@ def save_canonical_hitboxes_if_present(
 
         raise RevisionConflictError(None, current.pointer.content_revision if current.pointer else None)
 
-    incoming: dict[str, dict[str, Any]] = {}
-    for hitbox in hitboxes:
-        bird_id = hitbox.get("id") if isinstance(hitbox, dict) else None
-        if not isinstance(bird_id, str) or bird_id in incoming:
-            raise ContractValidationError("canonical hitboxes require unique birdId values")
-        incoming[bird_id] = hitbox
-    canonical_ids = {bird["birdId"] for bird in current.snapshot["birds"]}
-    if set(incoming) != canonical_ids:
-        raise ContractValidationError("canonical hitbox identity set does not match the current revision")
+    # P1.6: the geometry service is the one mutation path (no-op saves
+    # preserve approvals, R7 human authority, projected mirrors).
+    from .canonical_bird_contract import RevisionPointer
+    from .geometry_service import mutate_geometry
 
-    updated = invalidate_reviews(current.snapshot, changed_artifacts={"hitboxes"})
-    for bird in updated["birds"]:
-        hitbox = incoming[bird["birdId"]]
-        bird["hitbox"] = {key: hitbox[key] for key in ("x", "y", "r")}
-    return store.commit(
-        updated,
+    result = mutate_geometry(
+        session_id,
+        "move",
+        hitboxes=hitboxes,
         expected_content_revision=expected_content_revision,
-        expected_operational_revision=current.pointer.operational_revision if current.pointer else None,
+        actor=actor,
+    )
+    return RevisionPointer(
+        revision_file="",  # callers consume only the revision fields
+        content_revision=result.content_revision,
+        operational_revision=result.operational_revision,
     )
 
 
@@ -4521,6 +4520,34 @@ def save_hitboxes(session_id: str, hitboxes: list[dict]) -> list[dict] | None:
     """
     if is_public_package_only(session_id):
         return
+    # P1.6 chokepoint: on VALID_CURRENT sessions the sidecar is a projection —
+    # a legacy writer landing here goes through the geometry service (machine
+    # replace_set, R7-guarded), loudly, instead of clobbering canonical truth.
+    from .canonical_bird_contract import CanonicalReadState
+
+    canonical = read_canonical_session(session_id)
+    if canonical.state is CanonicalReadState.VALID_CURRENT and canonical.pointer is not None:
+        import logging
+
+        from .geometry_service import mutate_geometry
+
+        logging.getLogger(__name__).warning(
+            "save_hitboxes on canonical session %s routed through geometry service "
+            "(legacy writer should migrate to mutate_geometry)", session_id,
+        )
+        mutate_geometry(
+            session_id,
+            "replace_set",
+            hitboxes=hitboxes,
+            expected_content_revision=canonical.pointer.content_revision,
+            actor="machine:legacy-writer",
+        )
+        snapshot = read_canonical_session(session_id).snapshot or {}
+        birds = sorted(snapshot.get("birds", []), key=lambda b: b.get("presentationOrder", 0))
+        return [
+            {"id": b["birdId"], "x": b["hitbox"]["x"], "y": b["hitbox"]["y"], "r": b["hitbox"]["r"]}
+            for b in birds
+        ]
     sdir = session_dir(session_id)
     # Stable-id reconcile (A1 mint + B2 Slice-1 reconcile-by-id, spec -004 §6.3).
     # Three cases per incoming hitbox, NONE of which re-stamp an existing identity:
