@@ -3811,12 +3811,9 @@ def _run_sequence_start_job(job: JobRecord, store: JobStore) -> dict[str, Any]:
         store.update_result(job.id, {"dryRun": dry_run_response})
         store.append_event(job.id, "sequence_start.stage_complete", data={"stage": "validating"})
 
-        if req.dynamicBundle:
-            store.transition_job(job.id, status="running", stage="packaging")
-            bundle_result = _apply_sequence_bundle_projection()
-            store.update_result(job.id, {"bundle": bundle_result})
-            store.append_event(job.id, "sequence_start.stage_complete", data={"stage": "packaging"})
-
+        # P2b.2: activation IS the visibility commit — no local bundle file
+        # mutates before it succeeds. A failed Start leaves disk untouched;
+        # projection follows only after activation.
         store.transition_job(job.id, status="running", stage="publishing")
         activation_result = _bounded_activation_result(SequenceActivation.activate_sequence_draft(
             draft_revision=req.draftRevision,
@@ -3828,6 +3825,12 @@ def _run_sequence_start_job(job: JobRecord, store: JobStore) -> dict[str, Any]:
             publisher=_publisher_for_sequence_write(),
             actor=_sequence_actor_label(),
         ))
+        if req.dynamicBundle:
+            store.transition_job(job.id, status="running", stage="packaging")
+            bundle_result = _apply_sequence_bundle_projection()
+            store.update_result(job.id, {"bundle": bundle_result})
+            store.append_event(job.id, "sequence_start.stage_complete", data={"stage": "packaging"})
+
         state = _sequence_response(SequenceWorkflow.get_sequence_editor_state())
         result = {
             "dryRun": dry_run_response,
