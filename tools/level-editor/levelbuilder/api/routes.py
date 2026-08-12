@@ -3502,6 +3502,22 @@ def evidence_contact_sheet(session_id: str):
                              "X-Preview-Revision": rev16})
 
 
+@router.get("/sessions/{session_id}/experiment")
+def get_experiment_manifest(session_id: str):
+    """P2d.2/P2d.3: what this level IS (label, recipe hash, seed, model,
+    source revision) + what it COST (measured from tagged ledger rows)."""
+    _validate_session_id(session_id)
+    if not S.session_dir(session_id).exists():
+        raise HTTPException(404, detail={"error": "Session not found"})
+    from .experiment_manifest import measured_cost, read_manifest
+
+    try:
+        manifest = read_manifest(session_id)
+    except ValueError as error:
+        raise HTTPException(422, detail={"error": str(error), "code": "experiment_invalid"}) from error
+    return {"manifest": manifest, "cost": measured_cost(session_id)}
+
+
 @router.get("/sessions/{session_id}/residue")
 def residue_gate(session_id: str):
     """CL-11 gate surface: residue pixel count + verdict + dependency hash."""
