@@ -106,3 +106,91 @@ def test_stale_revision_is_typed_conflict(isolated_session):
             "geo_conflict", "move", hitboxes=[{"id": "bird_one", "x": 1, "y": 1, "r": 1}],
             expected_content_revision="sha256:" + "0" * 64, actor="human:t",
         )
+
+
+def test_replace_set_matches_by_id_and_prunes_explicitly(isolated_session):
+    """CR-1 findings 1/3: id-carrying replace_set moves matched birds, deletes
+    absent ones, adds id-less extras — never positional rebinding."""
+    from levelbuilder.api.geometry_service import mutate_geometry
+
+    store, pointer = _canonical_session(isolated_session, "geo_idset")
+    added = mutate_geometry(
+        "geo_idset", "add", hitboxes=[{"x": 200, "y": 200, "r": 20}],
+        expected_content_revision=pointer.content_revision, actor="machine:place",
+    )
+    birds = store.read().snapshot["birds"]
+    second_id = next(b["birdId"] for b in birds if b["birdId"] != "bird_one")
+
+    # Prune bird_one (absent from the set), move the second, keep identities.
+    result = mutate_geometry(
+        "geo_idset", "replace_set",
+        hitboxes=[{"id": second_id, "x": 300, "y": 300, "r": 20}],
+        expected_content_revision=added.content_revision, actor="machine:recenter",
+    )
+    remaining = store.read().snapshot["birds"]
+    assert [b["birdId"] for b in remaining] == [second_id]
+    assert remaining[0]["hitbox"]["x"] == 300
+    assert result.no_op is False
+
+
+def test_anonymous_replace_set_refuses_sprited_or_human_birds(isolated_session):
+    """CR-1 finding 1: a pure positional set may only wholesale-replace a
+    fresh (sprite-less, machine-origin) placement — otherwise it must refuse
+    rather than rebind identities."""
+    import pytest as _pytest
+
+    from levelbuilder.api.canonical_bird_contract import ContractValidationError
+    from levelbuilder.api.geometry_service import mutate_geometry
+
+    _canonical_session(isolated_session, "geo_anon")
+    from levelbuilder.api import session as S
+
+    revision = S.read_canonical_session("geo_anon").pointer.content_revision
+    with _pytest.raises(ContractValidationError, match="identity"):
+        mutate_geometry(
+            "geo_anon", "replace_set",
+            hitboxes=[{"x": 1, "y": 1, "r": 5}, {"x": 2, "y": 2, "r": 5}],
+            expected_content_revision=revision, actor="machine:auto-place",
+        )
+
+
+def test_replace_set_identical_is_noop_before_any_guard(isolated_session):
+    """CR-1 finding 2: byte-identical machine saves after human placement are
+    no-ops, not HumanAuthorityError."""
+    from levelbuilder.api.geometry_service import mutate_geometry
+
+    store, pointer = _canonical_session(isolated_session, "geo_noop_machine")
+    human = mutate_geometry(
+        "geo_noop_machine", "move", hitboxes=[{"id": "bird_one", "x": 50, "y": 60, "r": 7}],
+        expected_content_revision=pointer.content_revision, actor="human:batu",
+    )
+    result = mutate_geometry(
+        "geo_noop_machine", "replace_set",
+        hitboxes=[{"id": "bird_one", "x": 50, "y": 60, "r": 7}],
+        expected_content_revision=human.content_revision, actor="machine:magenta",
+    )
+    assert result.no_op is True
+
+
+def test_deleted_slots_are_never_reused(isolated_session):
+    """CR-1 finding 6: a deleted bird's compatibility slot is retired — a new
+    bird never inherits the old slot's on-disk sprite directory."""
+    from levelbuilder.api.geometry_service import mutate_geometry
+
+    store, pointer = _canonical_session(isolated_session, "geo_slots")
+    added = mutate_geometry(
+        "geo_slots", "add", hitboxes=[{"x": 9, "y": 9, "r": 9}],
+        expected_content_revision=pointer.content_revision, actor="human:batu",
+    )
+    new_id = next(b["birdId"] for b in store.read().snapshot["birds"] if b["birdId"] != "bird_one")
+    deleted = mutate_geometry(
+        "geo_slots", "delete", bird_ids=[new_id],
+        expected_content_revision=added.content_revision, actor="human:batu",
+    )
+    readded = mutate_geometry(
+        "geo_slots", "add", hitboxes=[{"x": 8, "y": 8, "r": 8}],
+        expected_content_revision=deleted.content_revision, actor="human:batu",
+    )
+    slots = [b["compatibilitySlot"] for b in store.read().snapshot["birds"]]
+    assert "dog_01" not in slots  # retired with the deleted bird
+    assert sorted(slots) == ["dog_00", "dog_02"]

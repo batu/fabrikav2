@@ -354,7 +354,11 @@ export default function GalleryReviewModal({
       // The 409 carries server truth; adopt it and surface the rejection.
       if (error instanceof ApiError && error.status === 409 && error.detail
           && typeof error.detail === 'object') {
-        const detail = error.detail as {
+        // FastAPI wraps the payload as {detail: {...}}; unwrap like
+        // conflictRevision does (CR-1 finding 7).
+        const outer = error.detail as Record<string, unknown>;
+        const detail = (outer.detail && typeof outer.detail === 'object'
+          ? outer.detail : outer) as {
           serverHitboxes?: Hitbox[];
           actualContentRevision?: string;
         };

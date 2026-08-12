@@ -1207,6 +1207,39 @@ def get_final_cutout_review_status(
 
 
 def get_final_cutout_review_readiness(session_id: str) -> dict[str, Any]:
+    # P1.2 (CR-1 finding 5): canonical sessions derive readiness from the
+    # snapshot — every bird has a verified sprite asset and no pending
+    # extract obligation. The legacy level.json walk serves only legacy lanes.
+    from .canonical_bird_contract import CanonicalReadState
+
+    canonical = read_canonical_session(session_id)
+    if canonical.state is CanonicalReadState.VALID_CURRENT and canonical.snapshot is not None:
+        from .artifact_dag import pending_obligations
+        from .canonical_assets import AssetIntegrityError, resolve_asset
+
+        birds = canonical.snapshot.get("birds", [])
+        store = canonical_session_store(session_id)
+        missing = 0
+        for bird in birds:
+            asset = (bird.get("sprite") or {}).get("asset")
+            if not isinstance(asset, dict):
+                missing += 1
+                continue
+            try:
+                resolve_asset(store, asset)
+            except AssetIntegrityError:
+                missing += 1
+        extract_pending = sum(
+            1 for o in pending_obligations(canonical.snapshot) if o["obligation"] == "extract"
+        )
+        missing = max(missing, extract_pending)
+        return {
+            "ready": missing == 0 and bool(birds),
+            "activeBirds": len(birds),
+            "missingCutouts": missing,
+            "missingFinalCutouts": missing,
+            "invalidPadding": 0,
+        }
     level_path = session_dir(session_id) / "level.json"
     try:
         level = json.loads(level_path.read_text())
@@ -1655,21 +1688,17 @@ def save_canonical_hitboxes_if_present(
         raise RevisionConflictError(None, current.pointer.content_revision if current.pointer else None)
 
     # P1.6: the geometry service is the one mutation path (no-op saves
-    # preserve approvals, R7 human authority, projected mirrors).
-    from .canonical_bird_contract import RevisionPointer
+    # preserve approvals, R7 human authority, projected mirrors). Returns the
+    # GeometryResult (revision fields + the committed snapshot) so responses
+    # stay revision-consistent (CR-1 finding 8).
     from .geometry_service import mutate_geometry
 
-    result = mutate_geometry(
+    return mutate_geometry(
         session_id,
         "move",
         hitboxes=hitboxes,
         expected_content_revision=expected_content_revision,
         actor=actor,
-    )
-    return RevisionPointer(
-        revision_file="",  # callers consume only the revision fields
-        content_revision=result.content_revision,
-        operational_revision=result.operational_revision,
     )
 
 
@@ -1882,17 +1911,19 @@ def delete_canonical_bird_if_present(
         raise RevisionConflictError(None, actual)
     if not any(bird["birdId"] == bird_id for bird in current.snapshot["birds"]):
         raise ContractValidationError(f"unknown birdId: {bird_id}")
-    updated = invalidate_reviews(current.snapshot, changed_artifacts={"birdSet"})
-    updated["birds"] = [bird for bird in updated["birds"] if bird["birdId"] != bird_id]
-    tombstones = updated.setdefault("operational", {}).setdefault("deletedBirdIds", [])
-    if bird_id not in tombstones:
-        tombstones.append(bird_id)
-        tombstones.sort()
-    return store.commit(
-        updated,
+    # P1.6 (CR-1 finding 9): deletion goes through the geometry service — one
+    # commit path, retired slot, projected legacy mirrors. Tombstone the id
+    # in the same commit's operational record via the service's snapshot.
+    from .geometry_service import mutate_geometry
+
+    result = mutate_geometry(
+        session_id,
+        "delete",
+        bird_ids=[bird_id],
         expected_content_revision=expected_content_revision,
-        expected_operational_revision=current.pointer.operational_revision if current.pointer else None,
+        actor="human:editor",
     )
+    return result
 
 
 def set_canonical_candidate_confirmation_if_present(

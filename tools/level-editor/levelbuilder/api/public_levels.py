@@ -445,9 +445,8 @@ def shipped_file_paths(public_levels_dir: Path, session_id: str) -> list[Path]:
                 _collect(child)
 
     _collect(entry.get("assets"))
-    dogs_root = public_levels_dir / session_id / "dogs"
-    if dogs_root.is_dir():
-        for path in dogs_root.rglob("*"):
-            if path.is_file():
-                paths.setdefault(path, None)
+    # ONLY manifest-referenced files (CR-1 finding 10): the native packer
+    # copies exactly the paths the manifest names — dog sprites are already
+    # in entry["assets"] via dogSprites; leftover masks/sidecars in dogs/**
+    # never ship and must not move the boundary.
     return [path for path in paths if path.is_file()]

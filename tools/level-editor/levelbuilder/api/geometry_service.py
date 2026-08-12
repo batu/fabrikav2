@@ -44,6 +44,7 @@ class GeometryResult:
     content_revision: str
     operational_revision: str
     no_op: bool
+    snapshot: dict[str, Any] | None = None  # the committed (or current) snapshot
 
 
 def _require_hitbox(value: dict[str, Any]) -> dict[str, int]:
@@ -65,19 +66,37 @@ def _current(session_id: str):
     return store, current
 
 
-def _next_slot(birds: list[dict[str, Any]]) -> str:
-    used = {bird["compatibilitySlot"] for bird in birds}
+def _retired_slots(snapshot: dict[str, Any]) -> set[str]:
+    retired = (snapshot.get("operational") or {}).get("retiredSlots") or []
+    return {slot for slot in retired if isinstance(slot, str)}
+
+
+def _retire_slot(snapshot: dict[str, Any], slot: str) -> None:
+    """CR-1 finding 6: a deleted bird's slot is never reused — the on-disk
+    dogs/<slot>/ directory may still hold the old sprite, and a new identity
+    must not inherit it."""
+    operational = snapshot.setdefault("operational", {})
+    retired = operational.setdefault("retiredSlots", [])
+    if slot not in retired:
+        retired.append(slot)
+
+
+def _next_slot_excluding(snapshot: dict[str, Any], extra_birds: list[dict[str, Any]] | None = None) -> str:
+    used = {bird["compatibilitySlot"] for bird in snapshot.get("birds", [])}
+    used |= {bird["compatibilitySlot"] for bird in (extra_birds or [])}
+    used |= _retired_slots(snapshot)
     index = 0
     while f"dog_{index:02d}" in used:
         index += 1
     return f"dog_{index:02d}"
 
 
-def _result(pointer, *, no_op: bool) -> GeometryResult:
+def _result(pointer, *, no_op: bool, snapshot: dict[str, Any] | None = None) -> GeometryResult:
     return GeometryResult(
         content_revision=pointer.content_revision,
         operational_revision=pointer.operational_revision,
         no_op=no_op,
+        snapshot=snapshot,
     )
 
 
@@ -130,36 +149,67 @@ def mutate_geometry(
                 )
             if all(bird["hitbox"] == incoming[bird["birdId"]] for bird in snapshot["birds"]):
                 # Byte-identical geometry: no commit, approvals intact.
-                return _result(current.pointer, no_op=True)
+                return _result(current.pointer, no_op=True, snapshot=snapshot)
             updated = invalidate_reviews(snapshot, changed_artifacts={"hitboxes"})
             for bird in updated["birds"]:
                 if bird["hitbox"] != incoming[bird["birdId"]]:
                     _guard_human(bird)
                     bird["hitbox"] = incoming[bird["birdId"]]
                     bird["geometryOrigin"] = actor
-        else:  # replace_set: machine proposes a complete positional set
+        else:
+            # replace_set is id-aware (CR-1 findings 1/3): id-carrying entries
+            # move their birds, birds absent from the set are deleted, id-less
+            # entries are added. A PURE positional set is legal only against a
+            # fresh placement (no sprites, no human geometry) — identities are
+            # never rebound by position.
+            by_id = {b["birdId"]: b for b in snapshot["birds"]}
+            carried = [h for h in hitboxes if isinstance(h, dict) and isinstance(h.get("id"), str)]
+            anonymous = [h for h in hitboxes if not (isinstance(h, dict) and isinstance(h.get("id"), str))]
+            if not carried and by_id:
+                fresh = all(
+                    not (b.get("sprite") or {}).get("asset")
+                    and not str(b.get("geometryOrigin", "")).startswith("human:")
+                    for b in snapshot["birds"]
+                )
+                if not fresh:
+                    raise ContractValidationError(
+                        "positional replace_set would rebind bird identity; "
+                        "send ids or use add/delete lifecycle operations"
+                    )
+            unknown = {h["id"] for h in carried} - set(by_id)
+            if unknown:
+                raise ContractValidationError(f"replace_set targets unknown birds: {sorted(unknown)}")
+            # No-op BEFORE any authority guard (CR-1 finding 2).
+            if not anonymous and len(carried) == len(by_id) and all(
+                by_id[h["id"]]["hitbox"] == _require_hitbox(h) for h in carried
+            ):
+                return _result(current.pointer, no_op=True, snapshot=snapshot)
             updated = invalidate_reviews(snapshot, changed_artifacts={"birdSet", "hitboxes"})
-            existing = list(updated["birds"])
-            for bird in existing:
-                _guard_human(bird)
-            proposed = [_require_hitbox(h) for h in hitboxes]
-            birds: list[dict[str, Any]] = []
-            for index, hitbox in enumerate(proposed):
-                if index < len(existing):
-                    bird = existing[index]
-                    bird["hitbox"] = hitbox
+            live_by_id = {b["birdId"]: b for b in updated["birds"]}
+            kept_ids = {h["id"] for h in carried}
+            birds = []
+            for entry in carried:
+                bird = live_by_id[entry["id"]]
+                incoming_box = _require_hitbox(entry)
+                if bird["hitbox"] != incoming_box:
+                    _guard_human(bird)
+                    bird["hitbox"] = incoming_box
                     bird["geometryOrigin"] = actor
-                    birds.append(bird)
-                else:
-                    slot = _next_slot(birds + existing)
-                    birds.append({
-                        "birdId": str(uuid.uuid4()),
-                        "compatibilitySlot": slot,
-                        "presentationOrder": index,
-                        "hitbox": hitbox,
-                        "geometryOrigin": actor,
-                        "activeGeneration": None,
-                    })
+                birds.append(bird)
+            for bird in updated["birds"]:
+                if bird["birdId"] not in kept_ids:
+                    _guard_human(bird)  # pruning human geometry needs consent too
+                    _retire_slot(updated, bird["compatibilitySlot"])
+            for hitbox in anonymous:
+                birds.append({
+                    "birdId": str(uuid.uuid4()),
+                    "compatibilitySlot": _next_slot_excluding(updated, birds),
+                    "presentationOrder": 0,
+                    "hitbox": _require_hitbox(hitbox),
+                    "geometryOrigin": actor,
+                })
+            for order, bird in enumerate(birds):
+                bird["presentationOrder"] = order
             updated["birds"] = birds
             _strip_empty_generation(updated)
     elif operation == "add":
@@ -171,7 +221,7 @@ def mutate_geometry(
             order += 1
             updated["birds"].append({
                 "birdId": str(uuid.uuid4()),
-                "compatibilitySlot": _next_slot(updated["birds"]),
+                "compatibilitySlot": _next_slot_excluding(updated),
                 "presentationOrder": order,
                 "hitbox": _require_hitbox(hitbox),
                 "geometryOrigin": actor,
@@ -188,10 +238,16 @@ def mutate_geometry(
         for bird in updated["birds"]:
             if bird["birdId"] in set(bird_ids):
                 _guard_human(bird)
+                _retire_slot(updated, bird["compatibilitySlot"])
+        tombstones = updated.setdefault("operational", {}).setdefault("deletedBirdIds", [])
+        for bird_id in bird_ids:
+            if bird_id not in tombstones:
+                tombstones.append(bird_id)
+        tombstones.sort()
         updated["birds"] = [b for b in updated["birds"] if b["birdId"] not in set(bird_ids)]
     elif operation == "clear":
         if not snapshot["birds"]:
-            return _result(current.pointer, no_op=True)
+            return _result(current.pointer, no_op=True, snapshot=snapshot)
         updated = invalidate_reviews(snapshot, changed_artifacts={"birdSet", "hitboxes"})
         for bird in updated["birds"]:
             _guard_human(bird)
@@ -209,7 +265,7 @@ def mutate_geometry(
                 bird["geometryOrigin"] = actor
                 changed = True
         if not changed:
-            return _result(current.pointer, no_op=True)
+            return _result(current.pointer, no_op=True, snapshot=snapshot)
     else:  # repair — migration/import lanes; stamped, never silent
         raise ContractValidationError("repair operations must supply hitboxes via move semantics")
 
@@ -219,7 +275,7 @@ def mutate_geometry(
         expected_operational_revision=current.pointer.operational_revision if current.pointer else None,
     )
     _project_geometry(session_id, updated)
-    return _result(pointer, no_op=False)
+    return _result(pointer, no_op=False, snapshot=updated)
 
 
 def _project_geometry(session_id: str, snapshot: dict[str, Any]) -> None:

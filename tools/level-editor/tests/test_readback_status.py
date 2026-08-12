@@ -42,3 +42,30 @@ def test_conflict_response_carries_server_truth(app_client, isolated_session):
         {"x": b["hitbox"]["x"], "y": b["hitbox"]["y"], "r": b["hitbox"]["r"], "id": b["birdId"]}
         for b in store.read().snapshot["birds"]
     ]
+
+
+def test_readiness_and_blessing_track_canonical_obligations(app_client, isolated_session):
+    """CR-1 finding 5 / P1.2: a sprite-less canonical bird blocks final-cutout
+    readiness AND the blessing endpoint refuses — no false final approval."""
+    from levelbuilder.api import session as S
+    from levelbuilder.api.geometry_service import mutate_geometry
+
+    store, pointer = _canonical_session(isolated_session, "readiness_guard")
+    added = mutate_geometry(
+        "readiness_guard", "add", hitboxes=[{"x": 5, "y": 5, "r": 5}],
+        expected_content_revision=pointer.content_revision, actor="human:batu",
+    )
+    readiness = S.get_final_cutout_review_readiness("readiness_guard")
+    assert readiness["ready"] is False
+    assert readiness.get("missingFinalCutouts", 0) >= 1
+
+    response = app_client.put(
+        "/api/sessions/readiness_guard/final-cutout-review",
+        json={
+            "approved": True,
+            "expectedContentRevision": added.content_revision,
+            "humanActor": "human:batu",
+        },
+    )
+    assert response.status_code in (409, 422)
+    assert store.read().snapshot["reviews"].get("finalCutouts") is None

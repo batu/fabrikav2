@@ -84,14 +84,20 @@ def test_auto_placement_updates_canonical_geometry(app_client, isolated_session,
     raw.update({"selected_bg": 0, "bg_width": 768, "bg_height": 1376})
     (sdir / "session.json").write_text(json.dumps(raw))
 
+    before = store.read().snapshot["birds"]
     response = app_client.post("/api/sessions/contract_autoplace/auto-hitboxes", json={"nDogs": 3})
-    assert response.status_code == 200, response.text
-    persisted = json.loads((sdir / "hitboxes.json").read_text())
 
-    # Intended: one truth — the canonical snapshot reflects the geometry the
-    # wizard now displays (or the write is refused on a VALID_CURRENT session).
-    snapshot_birds = store.read().snapshot["birds"]
-    assert len(snapshot_birds) == len(persisted)
+    # Intended: one truth — either the canonical snapshot reflects the
+    # geometry the wizard now displays, or the write is REFUSED cleanly on a
+    # VALID_CURRENT session (here: sprited bird => anonymous replace would
+    # rebind identity, so the service refuses; CR-1 finding 1).
+    if response.status_code == 200:
+        persisted = json.loads((sdir / "hitboxes.json").read_text())
+        assert len(store.read().snapshot["birds"]) == len(persisted)
+    else:
+        assert response.status_code == 422, response.text
+        assert response.json()["detail"]["code"] == "identity_refused"
+        assert store.read().snapshot["birds"] == before  # nothing mutated
 
 
 def test_sprite_only_compose_is_opt_in(monkeypatch):

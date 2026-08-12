@@ -1589,6 +1589,21 @@ def get_hitbox_review(session_id: str):
 
 @router.put("/sessions/{session_id}/final-cutout-review")
 def save_final_cutout_review(session_id: str, req: SaveGoldenReviewRequest):
+    if req.approved:
+        # CR-1 finding 5: a canonical level with pending extract obligations
+        # can never be final-blessed — completeness is checked at the gate,
+        # not trusted from a stale UI readiness flag. Legacy lanes keep their
+        # own gate order (hitboxes_not_blessed first).
+        from .canonical_bird_contract import CanonicalReadState as _CRS
+
+        if S.read_canonical_session(session_id).state is _CRS.VALID_CURRENT:
+            readiness = S.get_final_cutout_review_readiness(session_id)
+            if readiness.get("ready") is not True:
+                raise HTTPException(409, detail={
+                    "error": f"{readiness.get('missingFinalCutouts', readiness.get('missingCutouts', 0))} "
+                             "bird cutout(s) are missing or unresolved",
+                    "code": "final_cutouts_incomplete",
+                })
     try:
         canonical = S.set_canonical_final_review_if_present(
             session_id,
@@ -2273,11 +2288,11 @@ def save_hitboxes(session_id: str, req: SaveHitboxesRequest):
     except (OSError, ValueError, json.JSONDecodeError) as error:
         raise HTTPException(422, detail={"error": str(error)}) from error
     if canonical is not None:
-        # P1.8 read-back: answer with the persisted truth refetched from the
-        # store, never request-completion optimism.
+        # P1.8 read-back: one revision-consistent snapshot from the commit
+        # itself (CR-1 finding 8) — never a second read that can tear.
         from .artifact_dag import pending_obligations
 
-        snapshot = S.read_canonical_session(session_id).snapshot or {}
+        snapshot = getattr(canonical, "snapshot", None) or S.read_canonical_session(session_id).snapshot or {}
         return {
             "ok": True,
             "contentRevision": canonical.content_revision,
@@ -2494,13 +2509,20 @@ def _persist_auto_hitboxes(session_id: str, payload: list) -> list:
     if lane == "legacy":
         return S.save_hitboxes(session_id, payload) or payload
     revision = canonical.pointer.content_revision if canonical.pointer else None
-    mutate_geometry(
-        session_id,
-        "replace_set",
-        hitboxes=payload,
-        expected_content_revision=revision,
-        actor="machine:auto-place",
-    )
+    from .canonical_bird_contract import ContractValidationError as _CVE
+
+    try:
+        mutate_geometry(
+            session_id,
+            "replace_set",
+            hitboxes=payload,
+            expected_content_revision=revision,
+            actor="machine:auto-place",
+        )
+    except _CVE as error:
+        raise HTTPException(422, detail={
+            "error": str(error), "code": "identity_refused",
+        }) from error
     snapshot = S.read_canonical_session(session_id).snapshot or {}
     return _snapshot_hitboxes(snapshot)
 
