@@ -241,7 +241,7 @@ class JobWorker:
                 reason="Provider submission may have started before the worker stopped; manual review is required before retry.",
             )
         if job.metadata.get("safeToRequeue") is True:
-            return self.store.requeue_job(job.id, reason="Recovered stale pre-provider job after worker restart.")
+            return self.store.requeue_job(job.id, reason="Recovered stale pre-provider job after worker restart.", allow_stale_running=True)
         return self.store.mark_orphaned_unknown(
             job.id,
             reason="Worker stopped after claiming a paid job; manual review is required before retry.",
@@ -256,6 +256,7 @@ class JobWorker:
                 self.store.requeue_job(
                     child.id,
                     reason="Parent durable job was requeued after worker restart.",
+                    allow_stale_running=True,
                 )
             elif parent_status == "orphaned_unknown":
                 if is_terminal_status(child.status):
@@ -268,7 +269,7 @@ class JobWorker:
     def _execute_job(self, job: JobRecord) -> None:
         handler = self.handlers.get(job.kind)
         if handler is None:
-            self.store.requeue_job(job.id, reason=f"No handler registered for job kind {job.kind}")
+            self.store.requeue_job(job.id, reason=f"No handler registered for job kind {job.kind}", allow_stale_running=True)
             return
         try:
             job = self.store.update_heartbeat(job.id, owner=self.owner_id)

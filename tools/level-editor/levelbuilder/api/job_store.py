@@ -617,7 +617,7 @@ class JobStore:
     ) -> list[JobRecord]:
         return self.list_jobs(parent_job_id=parent_job_id, kind=kind, statuses=statuses)
 
-    def requeue_job(self, job_id: str, *, reason: str) -> JobRecord:
+    def requeue_job(self, job_id: str, *, reason: str, allow_stale_running: bool = False) -> JobRecord:
         now = utc_now_iso()
         with self.connect() as conn:
             conn.execute("BEGIN IMMEDIATE")
@@ -625,6 +625,15 @@ class JobStore:
             if row is None:
                 conn.execute("ROLLBACK")
                 raise KeyError(job_id)
+            if row["status"] in ("running", "queued") and not allow_stale_running:
+                # F-C jobs#2: a non-terminal job may hold a LIVE paid attempt —
+                # requeueing it would make that attempt claimable twice. Only
+                # the crash-recovery lane (which has verified heartbeat
+                # staleness + no provider submission) may override.
+                conn.execute("ROLLBACK")
+                raise ValueError(
+                    f"job {job_id} is {row['status']}; only terminal jobs can be requeued"
+                )
             metadata = clear_attempt_scoped_metadata(_json_load(row["metadata_json"]))
             metadata["safeToRequeue"] = True
             metadata["providerSubmissionStarted"] = False

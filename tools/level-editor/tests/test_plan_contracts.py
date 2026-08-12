@@ -18,7 +18,7 @@ def _job_store(tmp_path):
     return JobStore(tmp_path / "jobs.sqlite3")
 
 
-@pytest.mark.xfail(strict=True, reason="F-C jobs#3: bg retry requeues succeeded children and wipes their paid results")
+# FLIPPED 2026-08-13 (P2c.2): succeeded (paid) units survive parent retries.
 def test_background_retry_retains_succeeded_children(tmp_path):
     from levelbuilder.api import inpaint
 
@@ -39,7 +39,7 @@ def test_background_retry_retains_succeeded_children(tmp_path):
     assert refreshed.result.get("file") == "bg_00.png"
 
 
-@pytest.mark.xfail(strict=True, reason="F-C jobs#2: requeue accepts a RUNNING job, making a live paid attempt claimable twice")
+# FLIPPED 2026-08-13 (P2c.3): requeue refuses non-terminal jobs.
 def test_requeue_refuses_running_jobs(tmp_path):
     store = _job_store(tmp_path)
     job = store.create_job(kind="background_generation", session_id="s1", idempotency_key="p2")
@@ -47,6 +47,9 @@ def test_requeue_refuses_running_jobs(tmp_path):
 
     with pytest.raises(Exception):
         store.requeue_job(job.id, reason="second client retry")
+    # The crash-recovery lane (verified-stale, pre-provider) may override.
+    recovered = store.requeue_job(job.id, reason="worker restart recovery", allow_stale_running=True)
+    assert recovered.status == "queued"
 
 
 # FLIPPED 2026-08-12 overnight (P1.6/P2e.3): no-op saves preserve approvals.

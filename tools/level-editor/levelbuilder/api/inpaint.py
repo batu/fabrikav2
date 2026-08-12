@@ -2326,7 +2326,12 @@ def _prepare_background_generation_unit_jobs(
                 "safeToRequeue": True,
             },
         )
-        if child.status != "queued":
+        if child.status == "succeeded":
+            # F-C jobs#3: a succeeded unit is PAID — a parent retry must reuse
+            # its result, never requeue and re-purchase it.
+            child_jobs[index] = child
+            continue
+        if child.status not in ("queued", "running"):
             child = store.requeue_job(
                 child.id,
                 reason="Parent background generation job started a fresh attempt.",
