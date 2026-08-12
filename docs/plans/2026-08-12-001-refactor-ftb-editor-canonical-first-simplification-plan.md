@@ -365,6 +365,46 @@ naturally inside step 4's geometry service or Phase 5), each with its own commit
   levels are presumed blocked by the same class. CL-3 + P1.8 reconciliation are therefore
   the highest-priority items of step 4.
 
+## Failure-class closure ledger (2026-08-12's six classes → closing step → proof)
+
+Every class observed on 2026-08-12, the step that closes it structurally (not patches it),
+and the artifact that PROVES closure. A class is closed when its proof exists, not before.
+
+1. **Stale UI build** ("you were on yesterday's editor all day").
+   Patched: launch-time rebuild guard (31eb1084c). Closed by: Phase 4 single deploy
+   surface. Proof: dist content hash in /api/config matches served index on every start;
+   the portal serves nothing itself.
+2. **Legacy writers clobbering canonical state** (sticker recomposite; wizard auto-place /
+   recenter / select-bg divergence). Patched: sticker default off, canonical sessions skip
+   legacy recomposite (1c62879a6). Closed by: step 4 geometry mutation service (P1.6) —
+   zero direct writes to hitboxes.json/session.json on VALID_CURRENT sessions. Proof:
+   grep-level test banning `save_hitboxes`/raw writes outside the service;
+   `test_auto_placement_updates_canonical_geometry` xfail flips.
+3. **Phantom saves** ("extraction saved but I see the old version"). Patched: projection
+   layer + sweep (6eb77d7d2). Closed by: Phase 1 canonical-first reads + P1.8 read-back.
+   Proof: P1.5 contract test (API responses reflect every canonical commit);
+   projection function deleted (P1.4 exit criterion).
+4. **Blocked edits + poisoned modal** (identity-set 422; one rejection breaks all editing;
+   review pass stopped on it). Open by explicit deferral. Closed by: CL-3 (add/remove →
+   real bird create/delete) + P1.8 reconciliation on rejected saves, first items of
+   step 4. Proof: contract test — add, remove, move, save on a canonical session all
+   succeed or visibly mark the canvas dirty; a rejected save never leaves unpersisted
+   edits rendered.
+5. **Eaten human reviews** (silent ghost-card failures; blind CAS-retry blessing unseen
+   revisions). Patched: ghost cards non-reviewable (afb5518ba); promotion sweep restored
+   byte-identical approvals. Closed by: P2b.3 (no CAS-retry on approvals) + R2 (no
+   silent-success writes) + P2e.3 (no-op saves preserve approvals — xfail flips). Proof:
+   those tests plus the review-preservation suite (policy #11).
+6. **Job-store money bugs** (re-billing succeeded units, requeue of running jobs, stuck
+   jobs after crash). Open, pinned by strict xfails. Closed by: Phase 2c. Proof:
+   `test_background_retry_retains_succeeded_children` and
+   `test_requeue_refuses_running_jobs` flip; kill -9 batch drill in the stress rig leaves
+   no stuck or double-billable state.
+
+Standing rule: any NEW failure class observed in production gets a ledger row (class →
+closing step → proof) in the same session it's observed — the ledger is the plan's
+contract with reality.
+
 ## Order & estimates (amended dependency order — supersedes the phase numbering)
 
 1. Canonical asset resolver + canonical-state classifier (A2, A3 foundations) — ~half day.
