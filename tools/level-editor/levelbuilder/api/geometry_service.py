@@ -279,13 +279,40 @@ def mutate_geometry(
 
 
 def _project_geometry(session_id: str, snapshot: dict[str, Any]) -> None:
-    """Mirror committed geometry into the legacy read surfaces: hitboxes.json
-    (stamped with its source revision, FF-2) and each sprited bird's sidecar."""
+    """Mirror committed geometry into the legacy read surfaces: hitboxes.json,
+    each sprited bird's sidecar, AND legacy deletion state (merge-review F2:
+    session.json dogs[] entries and dogs/<slot>/ dirs of birds no longer in
+    the snapshot are removed/renamed so a rollback cannot resurrect ghosts)."""
     import json as _json
+    import time as _time
 
     from . import session as S
 
     sdir = S.session_dir(session_id)
+    live_ids = {b["birdId"] for b in snapshot["birds"]}
+    live_slots = {b["compatibilitySlot"] for b in snapshot["birds"]}
+    raw = S.load_session_raw(session_id)
+    if isinstance(raw, dict) and isinstance(raw.get("dogs"), list):
+        kept, removed_indices = [], []
+        for dog in raw["dogs"]:
+            dog_id = dog.get("id") if isinstance(dog, dict) else None
+            slot_live = isinstance(dog, dict) and f"dog_{dog.get('index', -1):02d}" in live_slots
+            if (dog_id and dog_id in live_ids) or (dog_id is None and slot_live):
+                kept.append(dog)
+            else:
+                if isinstance(dog, dict) and isinstance(dog.get("index"), int):
+                    removed_indices.append(dog["index"])
+        if removed_indices:
+            raw["dogs"] = kept
+            deleted = raw.setdefault("deleted_dog_indices", [])
+            for index in removed_indices:
+                if index not in deleted:
+                    deleted.append(index)
+            S.save_session(session_id, raw)
+            for index in removed_indices:
+                slot_dir = sdir / "dogs" / f"dog_{index:02d}"
+                if slot_dir.is_dir():
+                    slot_dir.rename(slot_dir.with_name(f".deleted-dog_{index:02d}-{int(_time.time())}"))
     birds = sorted(snapshot["birds"], key=lambda b: b.get("presentationOrder", 0))
     mirror = [
         {"id": b["birdId"], "x": b["hitbox"]["x"], "y": b["hitbox"]["y"], "r": b["hitbox"]["r"]}

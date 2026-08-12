@@ -194,3 +194,73 @@ def test_deleted_slots_are_never_reused(isolated_session):
     slots = [b["compatibilitySlot"] for b in store.read().snapshot["birds"]]
     assert "dog_01" not in slots  # retired with the deleted bird
     assert sorted(slots) == ["dog_00", "dog_02"]
+
+
+def test_quarantined_sessions_refuse_legacy_sidecar_writes(isolated_session):
+    """Merge-review F1: a quarantined store never falls through to the legacy
+    sidecar writer — the chokepoint fails closed, end to end."""
+    import pytest as _pytest
+
+    from levelbuilder.api import session as S
+    from levelbuilder.api.canonical_assets import LaneSelectionError
+
+    store, _ = _canonical_session(isolated_session, "geo_quarantined_write")
+    store.pointer_path.write_text("not json")
+    with _pytest.raises(LaneSelectionError):
+        S.save_hitboxes("geo_quarantined_write", [{"x": 1, "y": 1, "r": 5}])
+
+
+def test_delete_projects_legacy_removal(isolated_session):
+    """Merge-review F2: deleting a bird also removes it from the legacy
+    surfaces (session.json dogs[], dogs/<slot>/ renamed away) so a rollback
+    cannot resurrect a ghost."""
+    import json as _json
+
+    from levelbuilder.api import session as S
+    from levelbuilder.api.geometry_service import mutate_geometry
+
+    store, pointer = _canonical_session(isolated_session, "geo_ghost")
+    sdir = isolated_session.session_dir("geo_ghost")
+    slot_dir = sdir / "dogs" / "dog_00"
+    slot_dir.mkdir(parents=True, exist_ok=True)
+    (slot_dir / "variant_000.png").write_bytes(b"old-painting")
+    raw = _json.loads((sdir / "session.json").read_text())
+    raw["dogs"] = [{"index": 0, "id": "bird_one", "status": "done", "activeVariant": 0}]
+    (sdir / "session.json").write_text(_json.dumps(raw))
+
+    mutate_geometry(
+        "geo_ghost", "delete", bird_ids=["bird_one"],
+        expected_content_revision=pointer.content_revision, actor="human:batu",
+    )
+    assert not (sdir / "dogs" / "dog_00").exists()
+    raw_after = _json.loads((sdir / "session.json").read_text())
+    assert all(d.get("id") != "bird_one" for d in raw_after.get("dogs", []))
+    assert 0 in raw_after.get("deleted_dog_indices", [])
+
+
+def test_rollback_converter_removes_draft_birds(isolated_session, monkeypatch, capsys):
+    """Merge-review F3: the rollback converter deletes pre-extraction birds so
+    old validators accept every remaining snapshot."""
+    import importlib.util
+    from pathlib import Path
+
+    from levelbuilder.api import session as S
+    from levelbuilder.api.geometry_service import mutate_geometry
+
+    store, pointer = _canonical_session(isolated_session, "geo_rollback")
+    mutate_geometry(
+        "geo_rollback", "add", hitboxes=[{"x": 3, "y": 3, "r": 3}],
+        expected_content_revision=pointer.content_revision, actor="human:batu",
+    )
+    assert any(not (b.get("sprite") or {}).get("asset") for b in store.read().snapshot["birds"])
+
+    spec = importlib.util.spec_from_file_location(
+        "rollback_spriteless_birds",
+        Path(__file__).resolve().parents[1] / "scripts" / "rollback_spriteless_birds.py",
+    )
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    monkeypatch.setattr("sys.argv", ["rollback_spriteless_birds.py", "--apply"])
+    module.main()
+    birds = store.read().snapshot["birds"]
+    assert all((b.get("sprite") or {}).get("asset") for b in birds)

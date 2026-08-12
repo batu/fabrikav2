@@ -4554,10 +4554,13 @@ def save_hitboxes(session_id: str, hitboxes: list[dict]) -> list[dict] | None:
     # P1.6 chokepoint: on VALID_CURRENT sessions the sidecar is a projection —
     # a legacy writer landing here goes through the geometry service (machine
     # replace_set, R7-guarded), loudly, instead of clobbering canonical truth.
-    from .canonical_bird_contract import CanonicalReadState
+    # Fail-closed lane selection (merge-review F1): quarantined/orphaned
+    # stores raise here — they never fall through to the sidecar writer.
+    from .canonical_assets import select_lane
 
     canonical = read_canonical_session(session_id)
-    if canonical.state is CanonicalReadState.VALID_CURRENT and canonical.pointer is not None:
+    lane = select_lane(canonical.state)
+    if lane == "canonical" and canonical.pointer is not None:
         import logging
 
         from .geometry_service import mutate_geometry
