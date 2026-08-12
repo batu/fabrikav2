@@ -3157,6 +3157,9 @@ def _overlay_canonical_truth(session_id: str, payload: dict) -> dict:
     payload["contentRevision"] = canonical.pointer.content_revision
     payload["operationalRevision"] = canonical.pointer.operational_revision
 
+    from .artifact_dag import pending_obligations
+
+    payload["pendingObligations"] = pending_obligations(snapshot)
     birds = sorted(snapshot["birds"], key=lambda b: b.get("presentationOrder", 0))
     payload["hitboxes"] = [
         {"x": b["hitbox"]["x"], "y": b["hitbox"]["y"], "r": b["hitbox"]["r"], "id": b["birdId"]}

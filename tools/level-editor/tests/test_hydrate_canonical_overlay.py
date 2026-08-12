@@ -49,3 +49,12 @@ def test_hydrate_marks_quarantined_sessions_instead_of_guessing(isolated_session
     data = S.hydrate_session("overlay_quarantined")
     assert data["canonicalState"] == "quarantined_integrity"
     # Legacy fields still present for triage, but the state is unmissable.
+
+
+def test_hydrate_reports_pending_obligations(isolated_session):
+    from levelbuilder.api import session as S
+
+    _canonical_with_stale_sidecars(isolated_session, "overlay_obligations")
+    data = S.hydrate_session("overlay_obligations")
+    kinds = {o["obligation"] for o in data["pendingObligations"]}
+    assert {"review:hitboxes", "review:finalCutouts"} <= kinds
