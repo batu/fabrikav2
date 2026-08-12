@@ -375,10 +375,12 @@ naturally inside step 4's geometry service or Phase 5), each with its own commit
 - **CL-15. Worst-first triage.** Cutout cards sorted by sprite quality score
   (pickupUsable / regeneration probability already computed by sprite_eval), quality chip
   on each card. 24-bird scroll becomes a 5-bird triage.
-- **CL-16. One review ledger for cutouts.** Level cutout review derives from per-bird
-  confirmations: confirming the last unconfirmed bird IS the level review. Deletes the
-  separate "Mark cutouts reviewed" click and the possibility of the two records
-  disagreeing. (Lifecycle state machine P2b.4 implements the derivation.)
+- **CL-16 (corrected — operator: "there is no concept of individual bird
+  confirmation").** The level-scope "Mark cutouts reviewed" is the ONLY human review
+  assertion for cutouts. Remove the per-bird Confirm button from the cutout UI — it is
+  golden-dataset/eval plumbing (level review already auto-stamps per-sprite records for
+  that machinery, which keeps working invisibly). One click, one ledger, no operator-facing
+  per-bird confirmation concept.
 - **CL-17. "Re-run stale" action.** One button discharging whatever obligations the DAG
   reports pending for the level (subsumes "extract all unconfirmed"; bulk work is
   otherwise automatic via obligation edges). Uses the existing per-bird concurrent queue.
