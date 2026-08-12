@@ -71,3 +71,38 @@ def test_sequence_diagnostics_block_legacy_quarantined_and_unreviewed(monkeypatc
     ]
     assert all(item["blocking"] for item in diagnostics)
     assert sequence_workflow._artifact_integrity_diagnostics(["reviewed"]) == []
+
+
+def test_stale_catalog_revision_blocks_start(monkeypatch, tmp_path):
+    """P2b.1 (F-B#2, the ship-risk class): a catalog entry bound to an older
+    authoring revision than the currently reviewed one is a blocking
+    diagnostic — the catalog can never ship revision A while reviews bless B."""
+    from levelbuilder.api import sequence_workflow
+    from levelbuilder.api.canonical_bird_contract import CanonicalRevisionStore, bless_snapshot
+    from conftest import materialize_snapshot_assets
+
+    levels = tmp_path / "levels"
+    monkeypatch.setattr(sequence_workflow.S, "LEVELS_DIR", levels)
+    store = CanonicalRevisionStore(levels / "stale_bound")
+    snapshot = _snapshot("stale_bound")
+    materialize_snapshot_assets(levels / "stale_bound", snapshot)
+    pointer = store.commit(snapshot, expected_content_revision=None)
+    old_revision = pointer.content_revision
+    # Content changes after the catalog bound old_revision…
+    snapshot = store.read().snapshot
+    snapshot["birds"][0]["hitbox"]["x"] += 7
+    pointer = store.commit(snapshot, expected_content_revision=pointer.content_revision)
+    # …and the operator re-reviews the NEW revision.
+    for kind in ("hitboxes", "finalCutouts"):
+        snapshot = bless_snapshot(store.read().snapshot, review_kind=kind, reviewer="human:t", reviewed_at="now")
+        pointer = store.commit(snapshot, expected_content_revision=pointer.content_revision)
+
+    entries = {"stale_bound": {"id": "stale_bound", "contentRevision": old_revision}}
+    monkeypatch.setattr(sequence_workflow, "_catalog_entries_by_id", lambda: entries, raising=False)
+    diagnostics = sequence_workflow._artifact_integrity_diagnostics(["stale_bound"])
+    stale = [d for d in diagnostics if d.get("code") == "catalog_revision_stale"]
+    assert stale and stale[0]["blocking"] is True
+
+    entries["stale_bound"]["contentRevision"] = pointer.content_revision
+    diagnostics = sequence_workflow._artifact_integrity_diagnostics(["stale_bound"])
+    assert not [d for d in diagnostics if d.get("code") == "catalog_revision_stale"]
