@@ -3317,6 +3317,55 @@ def _residue_heatmap_response(session_id: str) -> Response:
                     headers={"Cache-Control": "no-store"})
 
 
+@router.get("/sessions/{session_id}/derived-crops")
+def derived_crops(session_id: str):
+    """CL-12: per-bird extraction/regen crops derived from the owned-paint
+    footprint (bbox + margin) — read-only in the UI; a manual override box is
+    offered only when needsReview is true (diff quality gate failed)."""
+    import numpy as _np
+
+    _validate_session_id(session_id)
+    from .canonical_assets import AssetIntegrityError, resolve_asset
+    from .geometry_derivation import (
+        derivation_dependency_hash, derive_ownership, derive_paint_diff, derive_restore_regions,
+    )
+
+    canonical = S.read_canonical_session(session_id)
+    if canonical.snapshot is None:
+        raise HTTPException(409, detail={"error": "not a canonical session", "code": "canonical_required"})
+    snapshot = canonical.snapshot
+    store = S.canonical_session_store(session_id)
+    try:
+        scene_bytes = resolve_asset(store, snapshot["assets"]["scene"]).data
+        clean_bytes = resolve_asset(store, snapshot["assets"]["cleanBackground"]).data
+    except AssetIntegrityError as error:
+        raise HTTPException(409, detail={"error": str(error), "code": "asset_integrity"}) from error
+    with Image.open(io.BytesIO(scene_bytes)) as img:
+        scene = _np.asarray(img.convert("RGB"))
+    with Image.open(io.BytesIO(clean_bytes)) as img:
+        clean = _np.asarray(img.convert("RGB"))
+    if scene.shape != clean.shape:
+        raise HTTPException(409, detail={"error": "scene/clean dimensions differ",
+                                         "code": "restore_dimensions_mismatch"})
+    diff = derive_paint_diff(scene, clean)
+    birds = snapshot["birds"]
+    crops = (
+        derive_restore_regions(derive_ownership(diff.mask, birds), birds)
+        if birds else {}
+    )
+    return {
+        "crops": crops,
+        "needsReview": diff.needs_review,
+        "diffFraction": round(diff.diff_fraction, 5),
+        "dependencyHash": derivation_dependency_hash(
+            snapshot["assets"]["scene"]["sha256"],
+            snapshot["assets"]["cleanBackground"]["sha256"],
+            birds,
+        ),
+        "contentRevision": canonical.pointer.content_revision if canonical.pointer else None,
+    }
+
+
 @router.get("/sessions/{session_id}/residue")
 def residue_gate(session_id: str):
     """CL-11 gate surface: residue pixel count + verdict + dependency hash."""

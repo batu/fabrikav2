@@ -326,6 +326,32 @@ export default function CutoutReviewPanel({
   const refreshAbortRef = useRef<AbortController | null>(null);
   const operationAbortsRef = useRef(new Map<string, AbortController>());
   const placementSaveRunIds = useRef(new Map<string, number>());
+  // CL-12: server-derived owned-paint crops — the read-only default. Manual
+  // padding editing survives ONLY when the diff gate flags the level.
+  const [derivedCrops, setDerivedCrops] = useState<Record<string, CropBox>>({});
+  const [cropsNeedReview, setCropsNeedReview] = useState(false);
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const response = await fetch(`/api/sessions/${encodeURIComponent(sessionId)}/derived-crops`);
+        if (!response.ok) { setDerivedCrops({}); setCropsNeedReview(true); return; }
+        const body = await response.json() as {
+          crops: Record<string, { x: number; y: number; width: number; height: number }>;
+          needsReview: boolean;
+        };
+        if (cancelled) return;
+        const boxes: Record<string, CropBox> = {};
+        for (const [birdId, c] of Object.entries(body.crops)) {
+          boxes[birdId] = [c.x, c.y, c.x + c.width, c.y + c.height];
+        }
+        setDerivedCrops(boxes);
+        setCropsNeedReview(body.needsReview);
+      } catch { setCropsNeedReview(true); }
+    })();
+    return () => { cancelled = true; };
+  }, [sessionId]);
+
   const dragRef = useRef<{ candidateId: string; mode: ControlMode; resizeHandle: ResizeHandle | null; startX: number; startY: number; box: CropBox } | null>(null);
   const draggedCandidateRef = useRef<string | null>(null);
   const placementSaveTimers = useRef(new Map<string, number>());
@@ -561,7 +587,7 @@ export default function CutoutReviewPanel({
     try {
       await waitForPlacementSaves();
       const hitbox = candidateHitbox(candidate, hitboxes);
-      const cropBox = hitbox ? (cropBoxes[candidate.id] ?? defaultCropBox(candidate, hitbox)) : undefined;
+      const cropBox = hitbox ? (cropBoxes[candidate.id] ?? (candidate.birdId ? derivedCrops[candidate.birdId] : undefined) ?? defaultCropBox(candidate, hitbox)) : undefined;
       // Distinct nonce per click: forces a fresh generation even when the
       // crop box, prompt, and model are unchanged since the last run.
       const attemptNonce = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
@@ -697,7 +723,7 @@ export default function CutoutReviewPanel({
             ? `${dogVariantUrl(sessionId, candidate.image)}?v=${assetRevision}`
             : null;
           const hitbox = candidateHitbox(candidate, hitboxes);
-          const cropBox = hitbox ? (cropBoxes[candidate.id] ?? candidate.cleanupBox ?? defaultCropBox(candidate, hitbox)) : null;
+          const cropBox = hitbox ? (cropBoxes[candidate.id] ?? (candidate.birdId ? derivedCrops[candidate.birdId] : undefined) ?? candidate.cleanupBox ?? defaultCropBox(candidate, hitbox)) : null;
           const placementBox = candidate.spriteBox
             ? (placementBoxes[candidate.id] ?? candidate.spriteBox)
             : null;
@@ -749,7 +775,9 @@ export default function CutoutReviewPanel({
                 aria-label={`Place ${candidateLabel(candidate)}`}
                 title={controlMode === 'sprite'
                   ? 'Drag to place the sprite. Drag a green corner to scale it.'
-                  : 'Drag to move the padding box. Drag an amber corner to resize it. The sprite stays put.'}
+                  : cropsNeedReview
+                  ? 'Diff gate flagged this level — adjust the amber override box manually.'
+                  : 'Crop derives from the owned paint (read-only). Drag only if the derived box is wrong.'}
                 onClick={() => {
                   if (draggedCandidateRef.current === candidate.id) {
                     draggedCandidateRef.current = null;

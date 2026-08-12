@@ -109,3 +109,35 @@ def test_residue_view_reports_gate_and_serves_heatmap(app_client, isolated_sessi
     heatmap = app_client.get("/api/sessions/residue_view/scene-previews/residue")
     assert heatmap.status_code == 200
     assert heatmap.headers["content-type"] == "image/webp"
+
+
+def test_derived_crops_come_from_owned_paint(app_client, isolated_session):
+    """CL-12: extraction/regen crops derive from the owned-paint footprint,
+    read-only; manual override is flagged only when the diff gate fails."""
+    store = _real_scene_session(isolated_session, "derived_crops")
+    # A realistic pair: scene == clean bg except one painted blob near the bird.
+    sdir = isolated_session.session_dir("derived_crops")
+    base = Image.new("RGB", (128, 96), (30, 160, 30))
+    base.save(sdir / "bg.png")
+    painted = base.copy()
+    for dx in range(24):
+        for dy in range(24):
+            painted.putpixel((8 + dx, 12 + dy), (220, 40, 40))
+    painted.save(sdir / "color.png")
+    from conftest import restamp_snapshot_assets
+    pointer = store.read().pointer
+    snapshot = store.read().snapshot
+    snapshot["birds"][0]["hitbox"] = {"x": 20, "y": 24, "r": 8}
+    restamp_snapshot_assets(sdir, snapshot)
+    store.commit(snapshot, expected_content_revision=pointer.content_revision)
+    response = app_client.get("/api/sessions/derived_crops/derived-crops")
+    assert response.status_code == 200
+    body = response.json()
+    assert body["needsReview"] is False
+    assert body["dependencyHash"].startswith("sha256:")
+    crops = body["crops"]
+    assert set(crops) == {"bird_one"}
+    crop = crops["bird_one"]
+    for key in ("x", "y", "width", "height"):
+        assert isinstance(crop[key], int)
+    assert crop["width"] > 0 and crop["height"] > 0
