@@ -72,6 +72,8 @@ def test_stale_canonical_hitbox_save_returns_409_without_writing(app_client, iso
         "expectedContentRevision": "sha256:" + "0" * 64,
         "actualContentRevision": pointer.content_revision,
         "changedArtifactClasses": ["hitboxes"],
+        # P1.8: a rejection carries server truth for client reconciliation.
+        "serverHitboxes": [{"x": 10, "y": 20, "r": 5, "id": "bird_one"}],
     }
     assert store.read().snapshot["birds"][0]["hitbox"]["x"] == 10
 
@@ -144,7 +146,8 @@ def test_legacy_hitbox_save_still_accepts_missing_revision(app_client, isolated_
         "/api/sessions/legacy_save/hitboxes",
         json={"hitboxes": [{"x": 10, "y": 20, "r": 5}]},
     )
-    assert response.status_code == 204
+    assert response.status_code == 200
+    assert response.json()["hitboxes"]  # P1.8: read-back, never a bare 204
 
 
 def test_session_read_exposes_canonical_revision(app_client, isolated_session):

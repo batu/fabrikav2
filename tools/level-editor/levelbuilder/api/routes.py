@@ -57,19 +57,36 @@ REMOTE_CONFIG_PUBLISHER_FACTORY = DisabledRemoteConfigPublisher
 JOB_STORE = JobStore()
 
 
+def _snapshot_hitboxes(snapshot: dict) -> list[dict]:
+    birds = sorted(snapshot.get("birds", []), key=lambda b: b.get("presentationOrder", 0))
+    return [
+        {"x": b["hitbox"]["x"], "y": b["hitbox"]["y"], "r": b["hitbox"]["r"], "id": b["birdId"]}
+        for b in birds
+    ]
+
+
+def _current_canonical_hitboxes(session_id: str) -> list[dict] | None:
+    snapshot = S.read_canonical_session(session_id).snapshot
+    return _snapshot_hitboxes(snapshot) if snapshot else None
+
+
 def _content_revision_conflict(
     error: RevisionConflictError,
     changed_artifact_classes: list[str],
+    *,
+    server_hitboxes: list[dict] | None = None,
 ) -> HTTPException:
-    return HTTPException(
-        409,
-        detail={
-            "code": "content_revision_conflict",
-            "expectedContentRevision": error.expected,
-            "actualContentRevision": error.actual,
-            "changedArtifactClasses": changed_artifact_classes,
-        },
-    )
+    detail = {
+        "code": "content_revision_conflict",
+        "expectedContentRevision": error.expected,
+        "actualContentRevision": error.actual,
+        "changedArtifactClasses": changed_artifact_classes,
+    }
+    if server_hitboxes is not None:
+        # P1.8: a rejection hands the client current server truth so local
+        # minted/unpersisted IDs are reconciled instead of rendered as reality.
+        detail["serverHitboxes"] = server_hitboxes
+    return HTTPException(409, detail=detail)
 
 SCALE_PRESETS = {
     "none": {
@@ -2250,17 +2267,27 @@ def save_hitboxes(session_id: str, req: SaveHitboxesRequest):
             expected_content_revision=req.expectedContentRevision,
         )
     except RevisionConflictError as error:
-        raise _content_revision_conflict(error, ["hitboxes"]) from error
+        raise _content_revision_conflict(
+            error, ["hitboxes"], server_hitboxes=_current_canonical_hitboxes(session_id),
+        ) from error
     except (OSError, ValueError, json.JSONDecodeError) as error:
         raise HTTPException(422, detail={"error": str(error)}) from error
     if canonical is not None:
+        # P1.8 read-back: answer with the persisted truth refetched from the
+        # store, never request-completion optimism.
+        from .artifact_dag import pending_obligations
+
+        snapshot = S.read_canonical_session(session_id).snapshot or {}
         return {
             "ok": True,
             "contentRevision": canonical.content_revision,
             "operationalRevision": canonical.operational_revision,
+            "hitboxes": _snapshot_hitboxes(snapshot),
+            "pendingObligations": pending_obligations(snapshot),
         }
     S.save_hitboxes(session_id, req.hitboxes)
-    return Response(status_code=204)
+    persisted = json.loads((S.session_dir(session_id) / "hitboxes.json").read_text())
+    return {"ok": True, "hitboxes": persisted}
 
 
 @router.get("/sessions/{session_id}/visibility-check")
