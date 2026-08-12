@@ -11,6 +11,7 @@ catalog-manifest exists. A crash inside validation is a refusal, not a bypass.
 from __future__ import annotations
 
 import json
+import hashlib
 from pathlib import Path
 
 
@@ -48,6 +49,62 @@ def _level_violations(level_dir: Path) -> list[str]:
     return violations
 
 
+def _artifact_provenance_violations(level_dir: Path) -> list[str]:
+    level_path = level_dir / "level.json"
+    try:
+        raw_level = json.loads(level_path.read_text())
+    except (OSError, ValueError):
+        return []
+    revision = raw_level.get("artifactRevision")
+    if revision is None:
+        return []
+    manifest_path = level_dir / "artifact-manifest.json"
+    if not manifest_path.is_file():
+        return ["provenance: canonical package is missing artifact-manifest.json"]
+    try:
+        manifest = json.loads(manifest_path.read_text())
+    except (OSError, ValueError) as error:
+        return [f"provenance: invalid artifact manifest ({error})"]
+    violations: list[str] = []
+    if manifest.get("contentRevision") != revision:
+        violations.append("provenance: level and artifact manifest revisions disagree")
+    scene = manifest.get("scene") or {}
+    restore = manifest.get("restore") or {}
+    if restore.get("sourceSceneSha256") != scene.get("sha256"):
+        violations.append("provenance: restore was not derived from this scene revision")
+    for label, descriptor in (("scene", scene), ("restore", restore)):
+        relative = Path(str(descriptor.get("path") or ""))
+        asset = level_dir / relative
+        if relative.is_absolute() or ".." in relative.parts or not asset.is_file():
+            violations.append(f"provenance: {label} asset is missing or unsafe")
+            continue
+        if hashlib.sha256(asset.read_bytes()).hexdigest() != descriptor.get("sha256"):
+            violations.append(f"provenance: {label} asset hash mismatch")
+    level_dogs = {dog.get("id"): dog for dog in raw_level.get("dogs") or [] if isinstance(dog, dict)}
+    manifest_birds = manifest.get("birds") or []
+    if len(level_dogs) != len(manifest_birds):
+        violations.append("provenance: active bird set differs from the artifact manifest")
+    slots: set[str] = set()
+    for bird in manifest_birds:
+        if not isinstance(bird, dict):
+            violations.append("provenance: malformed bird entry")
+            continue
+        bird_id = bird.get("birdId")
+        slot = bird.get("compatibilitySlot")
+        dog = level_dogs.get(bird_id)
+        if not isinstance(dog, dict) or dog.get("compatibilitySlot") != slot or slot in slots:
+            violations.append(f"provenance: identity mapping mismatch for {bird_id}")
+            continue
+        slots.add(slot)
+        sprite = bird.get("sprite") or {}
+        if bird.get("cleanupSourceSpriteSha256") != sprite.get("sha256"):
+            violations.append(f"provenance: cleanup sprite hash mismatch for {bird_id}")
+        sprite_path = level_dir / Path(str(sprite.get("path") or ""))
+        if not sprite_path.is_file() or hashlib.sha256(sprite_path.read_bytes()).hexdigest() != sprite.get("sha256"):
+            violations.append(f"provenance: sprite asset hash mismatch for {bird_id}")
+    return violations
+
+
 def _sprite_quality_violations(level_dir: Path) -> list[str]:
     """Deterministic sprite-quality axes (plan 2026-07-31-002 R9).
 
@@ -82,6 +139,8 @@ def validate_level_dir(public_root: Path, level_id: str, *, sprite_quality: bool
     """Raise ExportGateError when the freshly written package is not game-legal."""
     try:
         violations = _level_violations(public_root / level_id)
+        if not violations:
+            violations = _artifact_provenance_violations(public_root / level_id)
         if not violations and sprite_quality:
             violations = _sprite_quality_violations(public_root / level_id)
     except ExportGateError:

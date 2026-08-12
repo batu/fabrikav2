@@ -164,6 +164,7 @@ const pendingCutoutSessionListItem = {
   hitboxesBlessed: true,
   cutoutsFinalBlessed: false,
   assetVersion: 2,
+  canonicalState: 'quarantined_integrity',
 };
 
 const staleCutoutSessionListItem = {
@@ -189,6 +190,35 @@ const staleHitboxSessionListItem = {
   cutoutsFinalBlessed: false,
   cutoutsFinalBlessingStale: false,
   assetVersion: 4,
+};
+
+const backgroundOnlySessionListItem = {
+  ...sessionListItem,
+  id: 'background-only-session',
+  name: 'Background Only Session',
+  variants: ['gemini_bg_only'],
+  exported: false,
+  setting: 'hidden-background-setting',
+  model: 'hidden-background-model',
+  tags: ['hidden-background-tag'],
+  hitboxesBlessed: false,
+  cutoutsFinalBlessed: false,
+};
+
+const archivedSessionListItem = {
+  ...sessionListItem,
+  id: 'archived-session',
+  name: 'Archived Session',
+  archived: true,
+  tags: ['archived-only-tag'],
+};
+
+const mixedVariantSessionListItem = {
+  ...sessionListItem,
+  id: 'mixed-variant-session',
+  name: 'Mixed Variant Session',
+  variants: ['gemini_bg_only', 'gemini'],
+  tags: ['mixed-variant-tag'],
 };
 
 const sessionResponse = {
@@ -221,7 +251,7 @@ const lineupState = {
     updatedAt: null,
   },
   draft: {
-    levelIds: [],
+    levelIds: [archivedSessionListItem.id],
     baseLiveSequenceVersion: 'editor-default-1',
     baseCatalogRevision: 'catalog-1',
     updatedAt: null,
@@ -296,6 +326,9 @@ async function run() {
           pendingCutoutSessionListItem,
           staleCutoutSessionListItem,
           staleHitboxSessionListItem,
+          backgroundOnlySessionListItem,
+          archivedSessionListItem,
+          mixedVariantSessionListItem,
         ] });
         return;
       }
@@ -365,26 +398,34 @@ async function run() {
     await pendingCutoutCard.getByText('Cutouts need review').waitFor({ timeout: 10_000 });
     const staleCutoutCard = page.locator('[data-gallery-card-id="stale-cutout-session::gemini"]');
     await staleCutoutCard.getByText('✓ Hitboxes reviewed').waitFor({ timeout: 10_000 });
-    await staleCutoutCard.getByText('Cutout review stale').waitFor({ timeout: 10_000 });
     await staleCutoutCard.getByText('Cutouts need review').waitFor({ timeout: 10_000 });
     const staleHitboxCard = page.locator('[data-gallery-card-id="stale-hitbox-session::gemini"]');
-    await staleHitboxCard.getByText('Hitbox review stale').waitFor({ timeout: 10_000 });
     await staleHitboxCard.getByText('Hitboxes need review').waitFor({ timeout: 10_000 });
     assert(await staleHitboxCard.getByText('Cutout review stale').count() === 0, 'Hitbox-only staleness incorrectly labeled cutout snapshot stale.');
-    await staleHitboxCard.getByText('Cutouts need review').waitFor({ timeout: 10_000 });
+    assert(await staleHitboxCard.getByText('Cutouts need review').count() === 0, 'A level needing hitbox review must not also appear as needing cutout review.');
     const galleryText = await page.locator('body').innerText();
-    assert(/Hitboxes \+ cutouts reviewed\s*\(1\)/i.test(galleryText), 'Reviewed filter count is incorrect.');
+    assert(/Reviewed\s*\(2\)/i.test(galleryText), 'Reviewed filter count is incorrect.');
+    assert(galleryText.includes('Needs repair'), 'Mismatched bird artifacts must be visibly labeled as needing repair.');
     assert(/Hitboxes need review\s*\(2\)/i.test(galleryText), 'Pending hitbox filter must include stale hitboxes.');
-    assert(/Cutouts need review\s*\(3\)/i.test(galleryText), 'Pending cutout filter must include stale reviews without counting variants.');
-    assert(/Review stale\s*\(2\)/i.test(galleryText), 'Stale review filter count is incorrect.');
+    assert(/Cutouts need review\s*\(2\)/i.test(galleryText), 'Pending cutout filter must include stale cutouts without counting variants.');
+    assert(!galleryText.includes('Background Only Session'), 'Background-only sessions must not appear in Gallery.');
+    assert(!galleryText.includes('Completion:'), 'Technical completion filters must not appear in Gallery.');
+    assert(/All active\s*\(6\)/i.test(galleryText), 'All-active level count must exclude background-only and archived sessions.');
+    assert(/Lineup\s*\(0\)/i.test(galleryText), 'Lineup count must exclude archived draft entries.');
+    assert(await page.getByRole('option', { name: 'hidden-background-setting' }).count() === 0, 'Background-only settings must not leak into filters.');
+    assert(await page.getByRole('option', { name: 'hidden-background-model' }).count() === 0, 'Background-only models must not leak into filters.');
+    assert(!galleryText.includes('hidden-background-tag'), 'Background-only tags must not leak into filters.');
+    assert(!galleryText.includes('Archived Session'), 'Archived sessions must not appear in Gallery.');
+    assert(!galleryText.includes('archived-only-tag'), 'Archived tags must not leak into filters.');
+    assert(await page.locator('[data-gallery-card-id="mixed-variant-session::gemini"]').count() === 1, 'Playable card from a mixed background/playable session must remain visible.');
+    assert(await page.locator('[data-gallery-card-id="mixed-variant-session::gemini_bg_only"]').count() === 0, 'Background card from a mixed session must remain hidden.');
+    assert(/mixed-variant-tag\s*\(1\)/i.test(galleryText), 'Tag counts must count active levels, not variants.');
 
     const needsHitboxFilter = page.getByRole('checkbox', { name: /Hitboxes need review/ });
     const needsCutoutFilter = page.getByRole('checkbox', { name: /Cutouts need review/ });
-    const reviewedFilter = page.getByRole('checkbox', { name: /Hitboxes \+ cutouts reviewed/ });
-    const staleFilter = page.getByRole('checkbox', { name: /Review stale/ });
+    const reviewedFilter = page.getByRole('checkbox', { name: /^Reviewed/ });
     await needsHitboxFilter.uncheck();
     await needsCutoutFilter.uncheck();
-    await staleFilter.uncheck();
     assert(await card.count() === 1, 'Reviewed filter hid the reviewed card.');
     assert(await missingAssetCard.count() === 0, 'Reviewed filter kept an unreviewed card.');
     await needsHitboxFilter.check();
@@ -396,12 +437,8 @@ async function run() {
     await needsCutoutFilter.check();
     assert(await pendingCutoutCard.count() === 1, 'Pending-cutout filter hid a pending level.');
     assert(await staleCutoutCard.count() === 1, 'Pending-cutout filter must include stale cutouts.');
-    assert(await staleHitboxCard.count() === 1, 'Pending-cutout filter must include stale reviews.');
+    assert(await staleHitboxCard.count() === 0, 'Pending-cutout filter must exclude levels that still need hitbox review.');
     await needsCutoutFilter.uncheck();
-    await staleFilter.check();
-    assert(await staleCutoutCard.count() === 1, 'Stale-only filter hid a stale cutout review.');
-    assert(await staleHitboxCard.count() === 1, 'Stale-only filter hid a stale hitbox review.');
-    assert(await pendingCutoutCard.count() === 0, 'Stale-only filter kept a non-stale pending level.');
     await reviewedFilter.check();
     await needsHitboxFilter.check();
     await needsCutoutFilter.check();
@@ -442,7 +479,10 @@ async function run() {
     assert(await page.locator('.level-canvas').count() === 0, 'Hide map did not collapse the scene pane.');
     assert(await page.getByRole('button', { name: 'Show map' }).count() === 1, 'Collapsed scene pane cannot be restored.');
     await page.screenshot({ path: '/tmp/ftd-cutout-expanded-review.png', fullPage: true });
-    assert(await page.getByRole('button', { name: 'Regenerate selected (0)' }).isDisabled(), 'Empty focused cutout review must not submit regeneration.');
+    // Batch selection was retired; with no cutout candidates there must be no
+    // per-cutout generation actions to submit at all.
+    assert(await page.getByRole('dialog').getByRole('button', { name: 'Regenerate', exact: true }).count() === 0, 'Empty focused cutout review must not offer regeneration.');
+    assert(await page.getByRole('dialog').getByRole('button', { name: 'Extract', exact: true }).count() === 0, 'Empty focused cutout review must not offer extraction.');
     bodyText = await page.getByRole('dialog').innerText();
     for (const retiredText of [
       'Preview locally',

@@ -28,19 +28,34 @@ def catalog_snapshot_path(public_levels_dir: Path, catalog_revision: str) -> Pat
     return catalog_snapshot_dir(public_levels_dir) / f"{catalog_revision}.json"
 
 
+class FormatError(ValueError):
+    """A retained on-disk format is present but unreadable/invalid.
+
+    FF-5: missing is a legitimate state (None/empty); present-but-invalid must
+    surface loudly instead of collapsing to a default that hides corruption."""
+
+
+def _load_strict_json(path: Path, label: str):
+    try:
+        with open(path) as f:
+            return json.load(f)
+    except json.JSONDecodeError as error:
+        raise FormatError(f"{label} is present but not valid JSON: {path} ({error})") from error
+    except OSError as error:
+        raise FormatError(f"{label} is present but unreadable: {path} ({error})") from error
+
+
 def load_bundled_manifest(public_levels_dir: Path) -> dict | None:
-    """Return the current bundled-manifest.json, or None if missing/invalid."""
+    """Return the current bundled-manifest.json; None only when the file is absent."""
     manifest_path = bundled_manifest_path(public_levels_dir)
     if not manifest_path.exists():
         return None
-    try:
-        with open(manifest_path) as f:
-            data = json.load(f)
-        if not isinstance(data, dict):
-            return None
-        return data
-    except (OSError, json.JSONDecodeError):
-        return None
+    data = _load_strict_json(manifest_path, "bundled-manifest")
+    if not isinstance(data, dict):
+        raise FormatError(f"bundled-manifest must be an object, got {type(data).__name__}: {manifest_path}")
+    if data.get("version") != 1:
+        raise FormatError(f"bundled-manifest has unsupported version {data.get('version')!r}: {manifest_path}")
+    return data
 
 
 def save_bundled_manifest(public_levels_dir: Path, manifest: dict) -> None:
@@ -60,14 +75,15 @@ def save_bundled_manifest(public_levels_dir: Path, manifest: dict) -> None:
 
 
 def load_catalog_manifest(public_levels_dir: Path) -> dict | None:
-    """Return the current production catalog manifest, or None when absent."""
+    """Return the current production catalog manifest; None only when absent."""
     manifest_path = catalog_manifest_path(public_levels_dir)
     if not manifest_path.exists():
         return None
-    with open(manifest_path) as f:
-        data = json.load(f)
+    data = _load_strict_json(manifest_path, "catalog-manifest")
     if not isinstance(data, dict):
-        return None
+        raise FormatError(f"catalog-manifest must be an object, got {type(data).__name__}: {manifest_path}")
+    if data.get("version") != 1:
+        raise FormatError(f"catalog-manifest has unsupported version {data.get('version')!r}: {manifest_path}")
     return data
 
 
@@ -88,14 +104,20 @@ def save_catalog_manifest(public_levels_dir: Path, manifest: dict) -> None:
 
 
 def load_catalog_snapshot(public_levels_dir: Path, catalog_revision: str) -> dict | None:
-    """Return an immutable catalog snapshot by revision, or None when absent."""
+    """Return an immutable catalog snapshot by revision; None only when absent."""
     snapshot_path = catalog_snapshot_path(public_levels_dir, catalog_revision)
     if not snapshot_path.exists():
         return None
-    with open(snapshot_path) as f:
-        data = json.load(f)
+    data = _load_strict_json(snapshot_path, "catalog-snapshot")
     if not isinstance(data, dict):
-        return None
+        raise FormatError(f"catalog-snapshot must be an object, got {type(data).__name__}: {snapshot_path}")
+    if data.get("version") != 1 or not isinstance(data.get("levels"), list):
+        raise FormatError(f"catalog-snapshot has unsupported shape (version/levels): {snapshot_path}")
+    if data.get("catalogRevision") != catalog_revision:
+        raise FormatError(
+            f"catalog-snapshot catalogRevision {data.get('catalogRevision')!r} does not match "
+            f"its filename revision {catalog_revision!r}: {snapshot_path}"
+        )
     return data
 
 
@@ -119,16 +141,14 @@ def save_catalog_snapshot(public_levels_dir: Path, manifest: dict) -> None:
 
 
 def load_levels_index(public_levels_dir: Path) -> list[dict]:
-    """Return the current levels-index.json contents, or an empty list."""
+    """Return the current levels-index.json contents; empty only when absent."""
     index_path = levels_index_path(public_levels_dir)
     if not index_path.exists():
         return []
-    try:
-        with open(index_path) as f:
-            data = json.load(f)
-        return data if isinstance(data, list) else []
-    except (OSError, json.JSONDecodeError):
-        return []
+    data = _load_strict_json(index_path, "levels-index")
+    if not isinstance(data, list):
+        raise FormatError(f"levels-index must be a list, got {type(data).__name__}: {index_path}")
+    return data
 
 
 def save_levels_index(public_levels_dir: Path, entries: list[dict]) -> None:
@@ -400,3 +420,33 @@ def catalog_entry_has_retention(entry: dict[str, Any]) -> bool:
 
 def utc_now_iso() -> str:
     return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+
+
+def shipped_file_paths(public_levels_dir: Path, session_id: str) -> list[Path]:
+    """O2: the exact files the native packer ships for one level — the
+    manifest-referenced assets (webp preferred) plus the dogs/ sprite tree.
+    The bundle-projection budget and the packer must share this selection so
+    the boundary metric can never drift from shipped reality again
+    (2026-08-12: directory-size budgeting counted authoring PNG masters and
+    bundled 8 of 44 levels that easily fit)."""
+    entry = public_level_manifest_entry(public_levels_dir, session_id)
+    root = public_levels_dir.parent
+    paths: dict[Path, None] = {}
+
+    def _collect(value) -> None:
+        if isinstance(value, dict):
+            relative = value.get("path")
+            if isinstance(relative, str) and relative:
+                paths.setdefault(root / relative, None)
+            for child in value.values():
+                _collect(child)
+        elif isinstance(value, list):
+            for child in value:
+                _collect(child)
+
+    _collect(entry.get("assets"))
+    # ONLY manifest-referenced files (CR-1 finding 10): the native packer
+    # copies exactly the paths the manifest names — dog sprites are already
+    # in entry["assets"] via dogSprites; leftover masks/sidecars in dogs/**
+    # never ship and must not move the boundary.
+    return [path for path in paths if path.is_file()]

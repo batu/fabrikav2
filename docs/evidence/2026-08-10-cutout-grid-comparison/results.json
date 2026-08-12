@@ -1,0 +1,44 @@
+{
+  "model": "google/gemini-3.1-flash-image-preview",
+  "meter": "~/.merceka/costs.jsonl",
+  "methods": [
+    {
+      "slug": "grid-3x3",
+      "label": "3x3",
+      "materialized": 123,
+      "flatkeyCount": 121,
+      "calls": 37,
+      "usd": 2.3576355,
+      "durationSeconds": 382,
+      "failed": 2,
+      "placementAttempted": 123,
+      "placementAccepted": 123,
+      "levels": [
+        {"level": "nordic_cold_stockholm_christmas_market_bird_6af8", "materialized": 24, "flatkeyCount": 24, "fallbackAttempts": 1, "failed": 1, "calls": 5, "usd": 0.3451285, "durationSeconds": 26},
+        {"level": "alpine_meadow_snowmelt_creek_bridges_bird_5c36", "materialized": 25, "flatkeyCount": 25, "fallbackAttempts": 0, "failed": 0, "calls": 8, "usd": 0.4894470000000001, "durationSeconds": 82},
+        {"level": "ad_campaigns_ad_japanese_garden_bird_cd3d", "materialized": 24, "flatkeyCount": 24, "fallbackAttempts": 1, "failed": 1, "calls": 8, "usd": 0.549399, "durationSeconds": 87},
+        {"level": "ancient_forest_creek_autumn_pond_reeds_bird_da7e", "materialized": 25, "flatkeyCount": 25, "fallbackAttempts": 0, "failed": 0, "calls": 4, "usd": 0.276536, "durationSeconds": 35},
+        {"level": "hawaii_north_shore_surf_shack_bird_51c1", "materialized": 25, "flatkeyCount": 23, "fallbackAttempts": 2, "failed": 0, "calls": 12, "usd": 0.697125, "durationSeconds": 152}
+      ]
+    },
+    {
+      "slug": "grid-2x2",
+      "label": "2x2",
+      "materialized": 125,
+      "flatkeyCount": 112,
+      "calls": 96,
+      "usd": 6.1610665,
+      "durationSeconds": 1546,
+      "failed": 0,
+      "placementAttempted": 125,
+      "placementAccepted": 125,
+      "levels": [
+        {"level": "greece_agora_ruins_garden_bird_3084", "materialized": 25, "flatkeyCount": 22, "fallbackAttempts": 3, "failed": 0, "calls": 24, "usd": 1.6419575000000002, "durationSeconds": 377},
+        {"level": "alpine_meadow_herb_market_garden_bird_cf51", "materialized": 25, "flatkeyCount": 22, "fallbackAttempts": 3, "failed": 0, "calls": 19, "usd": 1.1627675, "durationSeconds": 472},
+        {"level": "ad_campaigns_ad_bazaar_alley_bird_3663", "materialized": 25, "flatkeyCount": 24, "fallbackAttempts": 1, "failed": 0, "calls": 15, "usd": 0.9587344999999999, "durationSeconds": 187},
+        {"level": "pirate_shipwreck_island_broken_bow_lagoon_bird_ae98", "materialized": 25, "flatkeyCount": 24, "fallbackAttempts": 1, "failed": 0, "calls": 15, "usd": 0.8957404999999999, "durationSeconds": 177},
+        {"level": "fairytale_forest_fairy_ring_picnic_bird_9ed2", "materialized": 25, "flatkeyCount": 20, "fallbackAttempts": 5, "failed": 0, "calls": 23, "usd": 1.5018665000000002, "durationSeconds": 333}
+      ]
+    }
+  ]
+}

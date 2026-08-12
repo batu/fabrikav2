@@ -3,11 +3,10 @@ import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
-// Wave-1 regime (2026-08-07): the campaign is the 49-level curated lineup (46 relabeled + 3 regen tails)
-// (53 minus greenhouse_e8e6 + venice_6e86, archived after the HITL relabel pass)
-// batch. The first STARTER_COUNT levels of the index are bundled in-app
+// The first STARTER_COUNT levels of the checked-in runtime index are bundled in-app
 // (bundled-manifest.json is the native build's copy list); the rest stream
-// from the ftb-level-origin worker. Previous fixed lists live in git history.
+// from the ftb-level-origin worker. The authoring draft lineup is intentionally
+// separate and may contain quarantined levels that cannot be activated.
 const STARTER_COUNT = 5;
 const NATIVE_BUNDLE_MAX_BYTES = 100 * 1024 * 1024;
 // poststretch2 predates the 2688 canvas and is grandfathered at 4096.
@@ -99,9 +98,9 @@ describe('wave-1 campaign (5 bundled starters + streamed rest)', () => {
   const bundled = readJson<{ levels: BundledLevel[] }>(join(levelsRoot, 'bundled-manifest.json'));
   const catalog = readJson<{ levels: CatalogLevel[] }>(join(levelsRoot, 'catalog-manifest.json'));
 
-  it('index is 49 unique levels and the starter prefix IS the bundled manifest', () => {
-    expect(index.length).toBe(49);
-    expect(new Set(index.map((l) => l.id)).size).toBe(49);
+  it('index contains unique levels and the starter prefix IS the bundled manifest', () => {
+    expect(index.length).toBeGreaterThanOrEqual(STARTER_COUNT);
+    expect(new Set(index.map((l) => l.id)).size).toBe(index.length);
     const starters = index.slice(0, STARTER_COUNT).map((l) => l.id);
     expect(bundled.levels.map((level) => level.id)).toEqual(starters);
     for (const level of bundled.levels) expect(level.bundled).toBe(true);

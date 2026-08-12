@@ -10,10 +10,10 @@
     1993
   ],
   "spriteBox": [
-    344,
-    1738,
-    602,
-    1904
+    352,
+    1641,
+    715,
+    1883
   ],
   "cleanupBox": [
     336,
@@ -21,8 +21,8 @@
     681,
     1930
   ],
-  "width": 258,
-  "height": 166,
+  "width": 363,
+  "height": 242,
   "anchorX": 0.655,
   "anchorY": 0.247,
   "technique": "flatkey-recreate-v1",
@@ -35,5 +35,12 @@
     "pickupUsable": true,
     "backgroundFallback": false,
     "templateFallback": false
+  },
+  "flipX": false,
+  "flipY": false,
+  "humanReview": {
+    "confirmed": true,
+    "confirmedAt": "2026-08-12T10:02:37.051563+00:00",
+    "source": "level-bless"
   }
 }

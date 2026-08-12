@@ -1471,7 +1471,7 @@ export class GameScene extends Phaser.Scene {
     // Achievement domain: record the accepted dog find (stable occurrence id
     // dog:<servedLevelId>:<dogId>), then drain the journaled analytics outbox.
     // Any unlock this find commits announces immediately as the top toast.
-    const dogFoundCommit = gameState.recordDogFound(this.level!.id, dog.id);
+    const dogFoundCommit = gameState.recordDogFound(this.level!.id, dog.id, dog.compatibilitySlot);
     gameState.drainAnalyticsOutbox();
     presentAchievementUnlocks(dogFoundCommit);
 

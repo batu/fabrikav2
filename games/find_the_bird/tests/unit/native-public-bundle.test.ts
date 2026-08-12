@@ -25,7 +25,7 @@ function packageDigest(assets: Array<{ role: string; hash: string; size: number;
 }
 
 describe('copyNativePublicBundle', () => {
-  it('makes native manifest and catalog metadata authoritative to the packaged bytes', () => {
+  it('preserves approved native manifest metadata for the packaged bytes', () => {
     const fixture = mkdtempSync(join(tmpdir(), 'ftd-native-public-'));
     try {
       const publicRoot = join(fixture, 'public');
@@ -67,9 +67,9 @@ describe('copyNativePublicBundle', () => {
           id: 'fallback',
           bundled: false,
           assets: {
-            levelJson: { path: 'levels/fallback/level.json', hash: 'stale-level', size: 999 },
-            colorImage: { path: 'levels/fallback/color.webp', hash: 'stale-color', size: 999 },
-            bgImages: [{ path: 'levels/fallback/bg_00.webp', hash: 'stale-bg', size: 999 }],
+            levelJson: { path: 'levels/fallback/level.json', hash: hash('level'), size: 5 },
+            colorImage: { path: 'levels/fallback/color.webp', hash: hash('fallback'), size: 8 },
+            bgImages: [{ path: 'levels/fallback/bg_00.webp', hash: hash('background'), size: 10 }],
           },
         }],
       }));
@@ -144,7 +144,7 @@ describe('copyNativePublicBundle', () => {
         levels: [{
           id: 'fallback',
           assets: {
-            levelJson: { path: 'levels/fallback/level.json', hash: 'missing', size: 1 },
+            levelJson: { path: 'levels/fallback/level.json', hash: hash('level'), size: 5 },
             colorImage: { path: 'levels/fallback/color.webp', hash: 'missing', size: 1 },
           },
         }],
@@ -152,7 +152,31 @@ describe('copyNativePublicBundle', () => {
       write(publicRoot, 'levels/fallback/level.json', 'level');
 
       expect(() => copyNativePublicBundle(publicRoot, outputRoot)).toThrow(
-        'Native public asset is missing: levels/fallback/color.webp',
+        'Native manifested asset is missing: levels/fallback/color.webp',
+      );
+    } finally {
+      rmSync(fixture, { recursive: true, force: true });
+    }
+  });
+
+  it('fails closed when a bundled asset changed after approval', () => {
+    const fixture = mkdtempSync(join(tmpdir(), 'ftd-native-public-stale-'));
+    try {
+      const publicRoot = join(fixture, 'public');
+      const outputRoot = join(fixture, 'dist');
+      write(publicRoot, 'levels/catalog-manifest.json', JSON.stringify({ levels: [{ id: 'fallback' }] }));
+      write(publicRoot, 'levels/fallback/level.json', 'changed');
+      write(publicRoot, 'levels/bundled-manifest.json', JSON.stringify({
+        levels: [{
+          id: 'fallback',
+          assets: {
+            levelJson: { path: 'levels/fallback/level.json', hash: hash('approved'), size: 8 },
+          },
+        }],
+      }));
+
+      expect(() => copyNativePublicBundle(publicRoot, outputRoot)).toThrow(
+        'Native bundled asset changed after approval: levels/fallback/level.json',
       );
     } finally {
       rmSync(fixture, { recursive: true, force: true });

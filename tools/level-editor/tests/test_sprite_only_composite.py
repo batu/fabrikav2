@@ -8,6 +8,17 @@ pixel-identical background.
 import json
 
 import pytest
+
+
+@pytest.fixture(autouse=True)
+def _enable_rejected_sprite_only_lane(monkeypatch):
+    """These tests exercise the sprite-only compose lane, which is retired
+    from production defaults (operator rejection 2026-08-01; sticker incident
+    2026-08-12) and now opt-in only."""
+    monkeypatch.setenv("FTD_SPRITE_ONLY_COMPOSE", "1")
+
+
+import pytest
 from PIL import Image
 
 from levelbuilder.api import inpaint as inp

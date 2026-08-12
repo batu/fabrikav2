@@ -9,7 +9,6 @@ store.
 from __future__ import annotations
 
 import json
-import os
 import re
 import sqlite3
 import threading
@@ -19,6 +18,8 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Iterator, Literal, Sequence
+
+from levelbuilder.settings import require_game_from_env
 
 JobStatus = Literal[
     "queued",
@@ -83,14 +84,7 @@ _SCRUB_PATTERNS: list[tuple[re.Pattern[str], str]] = [
     (re.compile(r"/Users/[A-Za-z0-9_\-./]+"), "<redacted-path>"),
 ]
 
-JOBS_DB_PATH = (
-    Path(
-        os.environ.get("LEVELBUILDER_WORKSPACE")
-        or Path(__file__).resolve().parent.parent
-    )
-    / "state"
-    / "jobs.sqlite"
-)
+JOBS_DB_PATH = require_game_from_env().workspace / "state" / "jobs.sqlite"
 _SCHEMA_LOCK = threading.Lock()
 
 

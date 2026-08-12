@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { API_ERROR_EVENT, type ApiError } from '../api/editorApi';
+import { API_ERROR_EVENT, apiErrorHint, type ApiError } from '../api/editorApi';
 
 // Extends the global WindowEventMap so addEventListener('ftd:api-error', …)
 // receives a properly-typed CustomEvent<ApiError> event. Pre-fix, the
@@ -18,6 +18,7 @@ type Toast = {
   method: string;
   url: string;
   message: string;
+  hint: string;
   detail: string;
 };
 
@@ -62,6 +63,7 @@ export default function ApiErrorToast() {
           method: err.method,
           url: err.url,
           message: err.message,
+          hint: apiErrorHint(err),
           detail: detailText,
         },
       ]);
@@ -124,6 +126,11 @@ export default function ApiErrorToast() {
           <div style={{ opacity: 0.8, marginTop: 4, wordBreak: 'break-all' }}>
             {t.method} {t.url}
           </div>
+          {t.hint && (
+            <div style={{ marginTop: 6, color: '#ffe9bd', lineHeight: 1.35 }}>
+              {t.hint}
+            </div>
+          )}
           {t.detail && (
             <div style={{ opacity: 0.7, marginTop: 4, whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
               {t.detail}

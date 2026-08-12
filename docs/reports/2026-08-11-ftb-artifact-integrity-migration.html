@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Find the Bird artifact-integrity migration — 11 August 2026</title>
+  <style>
+    :root{--paper:#f1efe8;--panel:#fbfaf5;--ink:#18201b;--muted:#667068;--line:#d2d4ca;--green:#176b46;--green2:#dcecdf;--amber:#996011;--amber2:#f3e8cf;--red:#983d35;--red2:#f2ddda;--mono:"SFMono-Regular",Consolas,monospace;--sans:Avenir,"Avenir Next",sans-serif}*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.5 var(--sans)}main{width:min(1120px,calc(100% - 32px));margin:auto;padding:34px 0 80px}header{border-top:8px solid var(--green);padding:25px 0 30px}h1{max-width:900px;margin:0 0 15px;font-size:clamp(38px,6vw,70px);line-height:.98;letter-spacing:-.045em}h2{font-size:30px;margin:0 0 18px}h3{margin:0 0 7px}.eyebrow,.tag,th,code{font-family:var(--mono)}.eyebrow{color:var(--green);font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase}.summary{max-width:850px;color:#3e4841;font-size:21px}.metrics{display:grid;grid-template-columns:repeat(5,1fr);background:var(--ink);color:white}.metric{padding:18px 15px;border-right:1px solid #435048}.metric b{display:block;color:#a9dfba;font-size:34px}.metric span{color:#c1c9c3;font:10px/1.3 var(--mono);text-transform:uppercase}section{margin-top:54px;padding-top:24px;border-top:1px solid var(--line)}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.card{background:var(--panel);border:1px solid var(--line);padding:20px}.card.safe{border-top:5px solid var(--green)}.card.risk{border-top:5px solid var(--red)}.card.hold{border-top:5px solid var(--amber)}.tag{display:inline-block;padding:4px 7px;font-size:10px;font-weight:800;text-transform:uppercase}.safe .tag{background:var(--green2);color:var(--green)}.risk .tag{background:var(--red2);color:var(--red)}.hold .tag{background:var(--amber2);color:var(--amber)}table{width:100%;border-collapse:collapse;background:var(--panel);border:1px solid var(--line)}th,td{padding:12px 14px;border-bottom:1px solid var(--line);text-align:left}th{color:var(--muted);font-size:10px;text-transform:uppercase}td:last-child{font-variant-numeric:tabular-nums}.proof{display:grid;grid-template-columns:1fr 1fr;gap:12px}.proof article{padding:20px;background:var(--panel);border:1px solid var(--line)}ul{margin:8px 0 0;padding-left:20px}details{margin-top:10px;padding:14px 16px;background:var(--panel);border:1px solid var(--line)}summary{cursor:pointer;color:var(--green);font-weight:800}.audit{overflow-wrap:anywhere;color:var(--muted);font:11px/1.6 var(--mono)}footer{margin-top:55px;padding-top:18px;border-top:1px solid var(--line);color:var(--muted);font-size:13px}@media(max-width:800px){.metrics{grid-template-columns:1fr 1fr}.grid,.proof{grid-template-columns:1fr}}@media(max-width:500px){.metrics{grid-template-columns:1fr}.metric{border-bottom:1px solid #435048}}
+  </style>
+</head>
+<body><main>
+  <header>
+    <p class="eyebrow">Artifact-integrity migration · 11 August 2026</p>
+    <h1>Twenty-three levels were provable. Sixty-six were not guessed.</h1>
+    <p class="summary">The active authoring corpus now has an explicit identity boundary: evidence-backed levels received immutable canonical revisions; ambiguous levels were quarantined while their published packages, image pixels, and lineup order stayed untouched.</p>
+  </header>
+
+  <div class="metrics" aria-label="Migration totals">
+    <div class="metric"><b>23</b><span>canonical sessions</span></div>
+    <div class="metric"><b>66</b><span>quarantined sessions</span></div>
+    <div class="metric"><b>26</b><span>archived untouched</span></div>
+    <div class="metric"><b>44</b><span>draft lineup retained</span></div>
+    <div class="metric"><b>0</b><span>existing files changed</span></div>
+  </div>
+
+  <section><h2>Decision</h2><div class="grid">
+    <article class="card safe"><span class="tag">Canonical</span><h3>One identity per bird</h3><p>Stable UUIDs now bind hitboxes, active sprite pixels, placement, cleanup geometry, and restore provenance inside one immutable revision.</p></article>
+    <article class="card risk"><span class="tag">Quarantined</span><h3>Wrong-bird evidence is visible</h3><p>Corrupt identity sets and cleanup geometry no longer fall back to array position. Authoring mutations and republish are blocked until explicit repair.</p></article>
+    <article class="card hold"><span class="tag">Live-safe</span><h3>Published play is frozen</h3><p>No public package or lineup entry was rewritten. A quarantined live level continues serving its last-known-good package.</p></article>
+  </div></section>
+
+  <section><h2>What the census found</h2><table>
+    <thead><tr><th>Issue class</th><th>Meaning</th><th>Affected levels</th></tr></thead>
+    <tbody>
+      <tr><td>Cleanup misses hitbox</td><td>The cleanup/sprite projection is spatially bound to a different target than the reviewed pickup point.</td><td>36</td></tr>
+      <tr><td>Bird ID set mismatch</td><td>Session dogs and reviewed hitboxes do not contain the same immutable IDs.</td><td>13</td></tr>
+      <tr><td>Incomplete authoring shell</td><td>Scene, clean background, hitboxes, and session dogs are absent together.</td><td>10</td></tr>
+      <tr><td>Restore pixel outlier</td><td>The restore frame or a local cleanup patch differs too far from the clean background to prove seam-free removal.</td><td>7</td></tr>
+    </tbody>
+  </table><p>The four level counts above partition the 66 quarantined sessions in the final release-gated census.</p></section>
+
+  <section><h2>Rollout and proof</h2><div class="proof">
+    <article><h3>Applied in controlled phases</h3><ul><li>1 non-lineup canary</li><li>17 remaining non-lineup deterministic levels</li><li>12 deterministic lineup levels</li><li>59 identity/geometry quarantines</li><li>7 restore-pixel outliers reclassified by the release gate</li><li>26 archived sessions skipped</li></ul></article>
+    <article><h3>Verified after apply</h3><ul><li>89 per-level journals, zero changed pre-existing files</li><li>Second 89-level apply produced identical canonical-tree hash</li><li>Old blessings retained only as historical evidence</li><li>New canonical reviews remain unset</li><li>Draft lineup remains 44 entries</li></ul></article>
+  </div>
+  <details><summary>Idempotency evidence</summary><p class="audit">Canonical tree before repeat: ab3e1da77db28077810fe812d0c967ddf4f9c62226abc5b9618700f78086ca16 · after repeat: ab3e1da77db28077810fe812d0c967ddf4f9c62226abc5b9618700f78086ca16 · identical: true</p></details>
+  <details><summary>Machine-readable evidence</summary><p class="audit">Per-level journals: games/find_the_bird/.levelbuilder/state/canonical-migration-journal/*.json · current manifest: sha256:b4c3db0dd3000147126d3c7fc528ab2453eb786c48743648055eec4b717fea45 · migration implementation: 627864d4f</p></details>
+  <details open><summary>Release blocker exposed</summary><p>The 66 quarantined authoring sessions require explicit repair or remain frozen. Portal now blocks their republish and lineup activation. The native iOS build also fails closed because the approved Hawaii starter manifest expects the 9,013-byte package while the mutable projection contains a later 9,826-byte level file. No phone install or pickup claim was made from those stale bytes.</p></details>
+  </section>
+  <footer>This migration deliberately did not repair by proximity, folder index, or array order. Those shortcuts caused the recurring wrong-bird cleanup defect in the first place.</footer>
+</main></body></html>

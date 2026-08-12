@@ -56,6 +56,20 @@ export default function DogsCanvas({ sessionId }: Props) {
   // (b) mis-fire as a stray 'add' at the just-deleted spot (final-rereview iter6).
   const deletingIdsRef = useRef<Set<string>>(new Set());
 
+  const persistHitboxes = useCallback(async (hitboxes: Hitbox[]): Promise<void> => {
+    if (!sessionId) return;
+    const current = queryClient.getQueryData<SessionResponse>(sessionQueryKey(sessionId));
+    const result = await saveHitboxes(sessionId, hitboxes, 'edit', current?.contentRevision);
+    if (!result) return;
+    queryClient.setQueryData<SessionResponse>(sessionQueryKey(sessionId), (latest) => (
+      latest ? {
+        ...latest,
+        contentRevision: result.contentRevision,
+        operationalRevision: result.operationalRevision,
+      } : latest
+    ));
+  }, [queryClient, sessionId]);
+
   const flushSave = useCallback((): Promise<void> => {
     if (saveTimerRef.current !== null) {
       clearTimeout(saveTimerRef.current);
@@ -68,12 +82,12 @@ export default function DogsCanvas({ sessionId }: Props) {
       // the move to land before refetching (otherwise the refetch reverts the
       // not-yet-saved move — rereview round-1 P2 #3). The server reconciles by id
       // so a stale id-less echo can never re-stamp a sibling.
-      const post = saveHitboxes(sessionId, hitboxes, 'edit');
+      const post = persistHitboxes(hitboxes);
       inflightSaveRef.current = post.catch(() => {});
       return post;
     }
     return Promise.resolve();
-  }, [sessionId]);
+  }, [persistHitboxes, sessionId]);
 
   // Barrier: every hitbox save is fully LANDED — both the pending-timer window
   // (flushSave) and an already-dispatched in-flight POST (ledger 054 #6, #7).
@@ -152,7 +166,16 @@ export default function DogsCanvas({ sessionId }: Props) {
         setSelectedDogId(null);
         void (async () => {
           try {
-            await deleteDogById(sessionId, dogId);
+            const deleted = await deleteDogById(sessionId, dogId, current.contentRevision);
+            if (deleted) {
+              queryClient.setQueryData<SessionResponse>(sessionQueryKey(sessionId), (latest) => (
+                latest ? {
+                  ...latest,
+                  contentRevision: deleted.contentRevision,
+                  operationalRevision: deleted.operationalRevision,
+                } : latest
+              ));
+            }
             // Only if a save was actually pending (a move would otherwise be lost
             // to the timer-cancel above). Re-save from the LIVE cache (preserves a
             // concurrent sibling move), but ALWAYS filter the deleted id out
@@ -162,7 +185,7 @@ export default function DogsCanvas({ sessionId }: Props) {
             if (hadPendingSave) {
               const live = queryClient.getQueryData<SessionResponse>(sessionQueryKey(sessionId));
               const pruned = (live?.hitboxes ?? []).filter((h) => h.id !== dogId);
-              if (pruned.length) await saveHitboxes(sessionId, pruned, 'edit');
+              if (pruned.length) await persistHitboxes(pruned);
             }
           } catch {
             // Delete FAILED — the dog still exists server-side. Re-save the
@@ -171,7 +194,7 @@ export default function DogsCanvas({ sessionId }: Props) {
             // toast is already dispatched in request(); swallowing here also
             // avoids the iter7-P3 unhandledrejection.
             if (capturedPending) {
-              await saveHitboxes(sessionId, capturedPending, 'edit').catch(() => {});
+              await persistHitboxes(capturedPending).catch(() => {});
             }
           } finally {
             deletingIdsRef.current.delete(dogId);

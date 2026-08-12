@@ -34,7 +34,10 @@ class DogSprite(BaseModel):
 class Dog(BaseModel):
     model_config = ConfigDict(extra="ignore")
 
-    id: str = Field(pattern=r"^dog_\d{2,}$")
+    id: str = Field(
+        pattern=r"^(?:dog_\d{2,}|bird_[A-Za-z0-9][A-Za-z0-9._-]*|[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12})$",
+    )
+    compatibilitySlot: str | None = Field(default=None, pattern=r"^dog_\d{2,}$")
     x: int
     y: int
     r: int = Field(ge=1)
@@ -76,6 +79,8 @@ class LevelFileV1(BaseModel):
     height: int = Field(ge=1)
     bwImage: str | None = Field(default=None, min_length=1)
     colorImage: str = Field(min_length=1)
+    artifactRevision: str | None = None
+    compatibilityAliases: dict[str, str] = Field(default_factory=dict)
     tags: list[str] = Field(default_factory=list)
     dogs: list[Dog] = Field(min_length=1)
     sections: list[Section] = Field(default_factory=list)

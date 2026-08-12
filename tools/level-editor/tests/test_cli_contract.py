@@ -56,6 +56,14 @@ def test_sessions_empty_json(run):
     assert json.loads(out) == []
 
 
+def test_integrity_audit_uses_server_inventory(run):
+    code, out = run("integrity-audit")
+    assert code == 0
+    payload = json.loads(out)
+    assert payload["counts"]["total"] == len(payload["levels"])
+    assert "byStatus" in payload["counts"]
+
+
 def test_config_verb(run):
     code, out = run("config")
     assert code == 0

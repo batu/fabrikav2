@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import type { ConfigResponse, DogState, Hitbox, LevelSection, Orientation, SessionResponse } from '../types';
 import {
+  ApiError,
   getSession,
   getFinalCutoutReviewReadiness,
   saveHitboxes,
@@ -16,6 +17,13 @@ import LevelCanvas, { type LevelCanvasAction, type LevelCanvasState } from './Le
 import CutoutReviewPanel from './CutoutReviewPanel';
 
 const PREVIEW_IMAGE_CACHE_LIMIT = 8;
+
+function conflictRevision(error: unknown): string | undefined {
+  if (!(error instanceof ApiError) || error.status !== 409 || !error.detail || typeof error.detail !== 'object') return undefined;
+  const outer = error.detail as Record<string, unknown>;
+  const detail = outer.detail && typeof outer.detail === 'object' ? outer.detail as Record<string, unknown> : outer;
+  return typeof detail.actualContentRevision === 'string' ? detail.actualContentRevision : undefined;
+}
 
 export type ReviewCardState = 'background' | 'inpainted' | 'exported';
 
@@ -90,6 +98,8 @@ interface ModalState extends LevelCanvasState {
   orientation: Orientation;
   sections: LevelSection[];
   dogs: DogState[];
+  contentRevision?: string;
+  operationalRevision?: string;
 }
 
 function initialModalState(): ModalState {
@@ -119,7 +129,8 @@ type ModalAction =
   | { type: 'SELECT_DOG'; index: number | null }
   | { type: 'SET_RADIUS'; radius: number }
   | { type: 'TOGGLE_OVERLAY' }
-  | { type: 'SET_HITBOXES'; hitboxes: Hitbox[] };
+  | { type: 'SET_HITBOXES'; hitboxes: Hitbox[] }
+  | { type: 'SET_REVISIONS'; contentRevision?: string; operationalRevision?: string };
 
 type ModalCanvasAction = Extract<
   ModalAction,
@@ -145,10 +156,14 @@ function reducer(state: ModalState, action: ModalAction): ModalState {
         dogs: s.dogs,
         dogPrompt: s.dogPrompt,
         inpaintModel: s.inpaintModel ?? '',
+        contentRevision: s.contentRevision,
+        operationalRevision: s.operationalRevision,
         selectedDogIndex: null,
         radius: s.hitboxes[0]?.r ?? state.radius,
       };
     }
+    case 'SET_REVISIONS':
+      return { ...state, contentRevision: action.contentRevision, operationalRevision: action.operationalRevision };
     case 'ADD_HITBOX':
       return { ...state, hitboxes: [...state.hitboxes, action.hitbox], selectedDogIndex: state.hitboxes.length };
     case 'MOVE_HITBOX':
@@ -328,8 +343,55 @@ export default function GalleryReviewModal({
   }, []);
 
   const persistCachedHitboxes = useCallback(async (sessionId: string, hitboxes: Hitbox[]): Promise<void> => {
-    await persistHitboxes(sessionId, hitboxes);
+    const cached = sessionCacheRef.current.get(sessionId);
+    let result;
+    try {
+      result = await persistHitboxes(sessionId, hitboxes, cached?.contentRevision);
+    } catch (error) {
+      // P1.8 reconciliation: a rejected save must not leave local
+      // minted/unpersisted hitboxes rendered as truth — one rejection used to
+      // poison every subsequent edit for the level until reload (2026-08-12).
+      // The 409 carries server truth; adopt it and surface the rejection.
+      if (error instanceof ApiError && error.status === 409 && error.detail
+          && typeof error.detail === 'object') {
+        // FastAPI wraps the payload as {detail: {...}}; unwrap like
+        // conflictRevision does (CR-1 finding 7).
+        const outer = error.detail as Record<string, unknown>;
+        const detail = (outer.detail && typeof outer.detail === 'object'
+          ? outer.detail : outer) as {
+          serverHitboxes?: Hitbox[];
+          actualContentRevision?: string;
+        };
+        if (Array.isArray(detail.serverHitboxes) && cached) {
+          sessionCacheRef.current.set(sessionId, {
+            ...cached,
+            hitboxes: detail.serverHitboxes,
+            contentRevision: detail.actualContentRevision ?? cached.contentRevision,
+          });
+          dispatchNarrow({
+            type: 'SET_REVISIONS',
+            contentRevision: detail.actualContentRevision,
+          });
+        }
+      }
+      throw error;
+    }
     updateCachedHitboxes(sessionId, hitboxes);
+    if (result) {
+      dispatchNarrow({
+        type: 'SET_REVISIONS',
+        contentRevision: result.contentRevision,
+        operationalRevision: result.operationalRevision,
+      });
+      const updated = sessionCacheRef.current.get(sessionId);
+      if (updated) {
+        sessionCacheRef.current.set(sessionId, {
+          ...updated,
+          contentRevision: result.contentRevision,
+          operationalRevision: result.operationalRevision,
+        });
+      }
+    }
     onReviewChanged(sessionId, {
       hitboxesBlessed: false,
       hitboxesBlessingStale: true,
@@ -729,6 +791,15 @@ export default function GalleryReviewModal({
               flexShrink: 0, overflowY: 'auto',
               display: 'flex', flexDirection: 'column', gap: 12,
             }}>
+              {state.contentRevision && (
+                <div
+                  data-testid="provenance-strip"
+                  title={`persisted @ ${state.contentRevision}`}
+                  style={{ fontSize: 11, color: '#8fa3b8', fontFamily: 'monospace' }}
+                >
+                  persisted @ {state.contentRevision.replace('sha256:', '').slice(0, 12)}
+                </div>
+              )}
               <div className="gallery-review-mode" role="tablist" aria-label="Focused review mode">
                 <button type="button" role="tab" aria-selected={reviewMode === 'placement'} onClick={() => setReviewMode('placement')}>Placement</button>
                 <button type="button" role="tab" aria-selected={reviewMode === 'cutouts'} onClick={() => setReviewMode('cutouts')}>Cutouts &amp; redo</button>
@@ -746,6 +817,10 @@ export default function GalleryReviewModal({
                   models={config.inpaintModels ?? config.models}
                   hitboxes={state.hitboxes}
                   dogs={state.dogs}
+                  contentRevision={state.contentRevision}
+                  onRevisionChanged={(contentRevision, operationalRevision) => dispatchNarrow({
+                    type: 'SET_REVISIONS', contentRevision, operationalRevision,
+                  })}
                   onDogComplete={handleDogComplete}
                   onCutoutsChanged={invalidateCutoutReview}
                   onPlacementPendingChanged={setCutoutPlacementPending}
@@ -841,8 +916,10 @@ export default function GalleryReviewModal({
           <button
             type="button"
             className="btn"
-            disabled={hitboxBlessBusy || cutoutBlessBusy || card === undefined}
-            title="Confirm that the current hitbox geometry has been reviewed by a human. Any later hitbox edit makes this approval stale."
+            disabled={hitboxBlessBusy || cutoutBlessBusy || card === undefined || card.session.assetBase === 'public-levels'}
+            title={card?.session.assetBase === 'public-levels'
+              ? 'Only the shipped package remains; the authoring session was deleted. Nothing here can be reviewed.'
+              : 'Confirm that the current hitbox geometry has been reviewed by a human. Any later hitbox edit makes this approval stale.'}
             onClick={async () => {
               if (!card) return;
               const approved = !card.session.hitboxesBlessed;
@@ -850,7 +927,15 @@ export default function GalleryReviewModal({
               setBlessError(null);
               try {
                 await flushPendingSave();
-                const { hitboxReview, finalCutoutReadiness } = await setHitboxApproval(card.session.id, approved);
+                const expectedContentRevision = state.contentRevision
+                  ?? sessionCacheRef.current.get(card.session.id)?.contentRevision;
+                const result = await setHitboxApproval(card.session.id, approved, expectedContentRevision);
+                const { hitboxReview, finalCutoutReadiness } = result;
+                if (result.contentRevision) dispatchNarrow({
+                  type: 'SET_REVISIONS',
+                  contentRevision: result.contentRevision,
+                  operationalRevision: result.operationalRevision,
+                });
                 onReviewChanged(card.session.id, {
                   hitboxesBlessed: hitboxReview.current,
                   hitboxesBlessingStale: hitboxReview.stale,
@@ -877,8 +962,12 @@ export default function GalleryReviewModal({
           <button
             type="button"
             className="btn"
-            disabled={cutoutBlessBusy || hitboxBlessBusy || cutoutPlacementPending || card === undefined || !card.session.hitboxesBlessed || card.session.finalCutoutReviewReady !== true}
-            title={cutoutPlacementPending
+            disabled={cutoutBlessBusy || hitboxBlessBusy || cutoutPlacementPending || card === undefined || card.session.assetBase === 'public-levels' || card.session.canonicalState === 'quarantined_integrity' || !card.session.hitboxesBlessed || card.session.finalCutoutReviewReady !== true}
+            title={card?.session.assetBase === 'public-levels'
+              ? 'Only the shipped package remains; the authoring session was deleted. Nothing here can be reviewed.'
+              : card?.session.canonicalState === 'quarantined_integrity'
+              ? 'This level has mismatched bird artifacts. Repair the bird mappings before reviewing cutouts.'
+              : cutoutPlacementPending
               ? 'Wait for the current sprite placement to finish saving.'
               : !card?.session.hitboxesBlessed
               ? 'Review the current hitboxes before marking cutouts reviewed.'
@@ -893,7 +982,28 @@ export default function GalleryReviewModal({
               setCutoutBlessBusy(true);
               setBlessError(null);
               try {
-                const { finalCutoutReview } = await setFinalCutoutApproval(card.session.id, approved);
+                await flushPendingSave();
+                const expectedContentRevision = state.contentRevision
+                  ?? sessionCacheRef.current.get(card.session.id)?.contentRevision;
+                let result;
+                try {
+                  result = await setFinalCutoutApproval(card.session.id, approved, expectedContentRevision);
+                } catch (error) {
+                  const currentRevision = conflictRevision(error);
+                  if (!currentRevision) throw error;
+                  // P2b.3: never blind-retry a human approval at a revision the
+                  // human has not seen — adopt the server revision and require
+                  // a fresh look + click.
+                  dispatchNarrow({ type: 'SET_REVISIONS', contentRevision: currentRevision });
+                  setBlessError('The level changed on the server since you loaded it — re-check the cutouts and click again.');
+                  return;
+                }
+                const { finalCutoutReview } = result;
+                if (result.contentRevision) dispatchNarrow({
+                  type: 'SET_REVISIONS',
+                  contentRevision: result.contentRevision,
+                  operationalRevision: result.operationalRevision,
+                });
                 onReviewChanged(card.session.id, {
                   cutoutsFinalBlessed: finalCutoutReview.current,
                   cutoutsFinalBlessingStale: finalCutoutReview.stale,
@@ -943,6 +1053,7 @@ export default function GalleryReviewModal({
 async function persistHitboxes(
   sessionId: string,
   hitboxes: Hitbox[],
+  expectedContentRevision?: string,
 ) {
   // Just persist hitbox coordinates \u2014 don't recomposite. A hitbox is
   // the invisible click target; dragging it should move the click
@@ -958,5 +1069,5 @@ async function persistHitboxes(
   // cache, and Catalog upload / Preview then proceeded with stale server-side
   // positions while the UI claimed the save succeeded. request() already
   // toasts; callers decide whether to abort (approve/nav) or discard (close).
-  await saveHitboxes(sessionId, hitboxes, 'edit');
+  return saveHitboxes(sessionId, hitboxes, 'edit', expectedContentRevision);
 }

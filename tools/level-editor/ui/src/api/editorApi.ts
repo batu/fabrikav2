@@ -50,6 +50,43 @@ export function apiErrorCode(err: unknown): string | null {
   return typeof nested.code === 'string' ? nested.code : null;
 }
 
+function apiErrorMessage(detail: unknown, status: number): string {
+  if (Array.isArray(detail)) {
+    const messages = detail.flatMap((item) => {
+      if (!item || typeof item !== 'object') return [];
+      const record = item as Record<string, unknown>;
+      const location = Array.isArray(record.loc) ? record.loc.slice(1).join('.') : '';
+      const message = typeof record.msg === 'string' ? record.msg : '';
+      return message ? [`${location ? `${location}: ` : ''}${message}`] : [];
+    });
+    if (messages.length > 0) return messages.join('; ');
+  }
+  if (detail && typeof detail === 'object') {
+    const outer = detail as Record<string, unknown>;
+    if (Array.isArray(outer.detail)) return apiErrorMessage(outer.detail, status);
+    const nested = outer.detail && typeof outer.detail === 'object'
+      ? outer.detail as Record<string, unknown>
+      : outer;
+    const message = nested.error ?? nested.message;
+    if (typeof message === 'string' && message.trim()) return message;
+    if (typeof outer.detail === 'string' && outer.detail.trim()) return outer.detail;
+  }
+  return `API error ${status}`;
+}
+
+export function apiErrorHint(err: ApiError): string {
+  const code = apiErrorCode(err);
+  const message = err.message.toLowerCase();
+  if (err.status === 409 && message.includes('revision')) return 'The level changed while this save was pending. Refresh the level and retry; supported editor saves retry automatically.';
+  if (message.includes('padding') || message.includes('different bird')) return 'Select Padding for the named bird, then drag the yellow box or use the Move controls until it contains that sprite.';
+  if (message.includes('quarantin') || message.includes('mapping')) return 'This is an artifact-identity problem, not a visual approval. Repair the bird mapping before final review or publishing.';
+  if (code === 'package_not_installed' || message.includes('level.json') || message.includes('public package')) return 'The reviewed package is not installed. Publish it through the Gallery bundled-catalog action before adding it to Lineup.';
+  if (err.status === 502) return 'The generation service failed upstream. Retry Extract or Regenerate for the affected bird; existing cutouts were preserved.';
+  if (err.status === 422) return 'The server rejected the submitted values. The message above names the field or geometry that must be corrected.';
+  if (err.status === 409) return 'The requested change conflicts with the level’s current state. Refresh the level and use the prerequisite named above.';
+  return '';
+}
+
 /** Options for `request()` beyond the standard RequestInit.
  *
  * `suppressToast` is the escape hatch for call sites that OWN their
@@ -105,7 +142,7 @@ async function request<T>(url: string, options?: RequestOptions): Promise<T> {
     } catch {
       detail = { error: res.statusText };
     }
-    const err = new ApiError(`API error ${res.status}`, res.status, url, method, detail);
+    const err = new ApiError(apiErrorMessage(detail, res.status), res.status, url, method, detail);
     if (!suppressToast) dispatchApiError(err);
     throw err;
   }
@@ -116,6 +153,7 @@ async function request<T>(url: string, options?: RequestOptions): Promise<T> {
 export interface SessionListItem {
   id: string;
   name: string;
+  canonicalState?: 'valid_current' | 'migration_required' | 'quarantined_integrity' | 'orphaned_stage';
   /** @deprecated Ambiguous: this field reports the *shipped* count (from
    * level.json.dogs.length) for SessionListItem, but the *intended*
    * count (session.json.n_dogs) for SessionResponse. Prefer
@@ -180,6 +218,49 @@ export interface SessionListItem {
 
 export function getConfig(): Promise<ConfigResponse> {
   return request<ConfigResponse>('/api/config');
+}
+
+export interface EditorOperation {
+  operationId: string;
+  cliVerb: string;
+  method: string | null;
+  path: string | null;
+  uiFunction: string | null;
+  humanOnly: boolean;
+}
+
+export function getEditorOperations(): Promise<{ operations: EditorOperation[] }> {
+  return request('/api/operations');
+}
+
+export function getArtifactIntegrityAudit(): Promise<Record<string, unknown>> {
+  return request('/api/artifact-integrity-audit');
+}
+
+export interface ArtifactIntegrityMigrationManifest {
+  schemaVersion: number;
+  manifestSha256: string;
+  levels: Array<{
+    levelId: string;
+    action: 'migrate' | 'unchanged' | 'quarantine' | 'skip_archived' | 'frozen_public';
+    issues: string[];
+    restoreSource: string | null;
+  }>;
+}
+
+export function getArtifactIntegrityMigration(): Promise<ArtifactIntegrityMigrationManifest> {
+  return request('/api/artifact-integrity-migration');
+}
+
+export function applyArtifactIntegrityMigration(
+  levelIds: string[],
+  expectedManifestSha256: string,
+): Promise<Record<string, unknown>> {
+  return request('/api/artifact-integrity-migration/apply', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ levelIds, expectedManifestSha256 }),
+  });
 }
 
 export interface GeometryConfigResponse {
@@ -376,8 +457,8 @@ export function getSession(sessionId: string): Promise<SessionResponse> {
 export function listSpriteCandidates(
   sessionId: string,
   options?: Pick<RequestOptions, 'signal' | 'suppressToast'>,
-): Promise<{ candidates: SpriteCandidate[] }> {
-  return request<{ candidates: SpriteCandidate[] }>(`/api/sessions/${sessionId}/sprite-candidates`, options);
+): Promise<{ candidates: SpriteCandidate[]; contentRevision?: string; operationalRevision?: string }> {
+  return request<{ candidates: SpriteCandidate[]; contentRevision?: string; operationalRevision?: string }>(`/api/sessions/${sessionId}/sprite-candidates`, options);
 }
 
 export function getCutoutExtractionPrompt(
@@ -568,11 +649,12 @@ export function saveHitboxes(
   sessionId: string,
   hitboxes: Hitbox[],
   action: string = 'edit',
-): Promise<void> {
+  expectedContentRevision?: string,
+): Promise<{ ok: boolean; contentRevision: string; operationalRevision: string } | void> {
   return request('/api/sessions/' + sessionId + '/hitboxes', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ hitboxes, action }),
+    body: JSON.stringify({ hitboxes, action, expectedContentRevision }),
   });
 }
 
@@ -581,8 +663,15 @@ export function saveHitboxes(
  * server-side with no sibling re-index, then recomposites. 404 (unknown/legacy
  * id) surfaces through the shared error toast like any other mutation.
  */
-export function deleteDogById(sessionId: string, dogId: string): Promise<void> {
-  return request('/api/sessions/' + sessionId + '/dogs/by-id/' + encodeURIComponent(dogId), {
+export function deleteDogById(
+  sessionId: string,
+  dogId: string,
+  expectedContentRevision?: string,
+): Promise<{ ok: boolean; contentRevision: string; operationalRevision: string } | void> {
+  const params = expectedContentRevision
+    ? `?expectedContentRevision=${encodeURIComponent(expectedContentRevision)}`
+    : '';
+  return request('/api/sessions/' + sessionId + '/dogs/by-id/' + encodeURIComponent(dogId) + params, {
     method: 'DELETE',
   });
 }
@@ -701,7 +790,11 @@ export function regenDogById(
 
 export interface RetryFailedDogUnitResponse {
   dogIndex: number;
+  birdId?: string | null;
+  inputContentRevision?: string | null;
   status: JobStatus;
+  stage: string;
+  disposition?: 'committed' | 'needs_review' | null;
   retryable: boolean;
   error: string | null;
   file: string | null;
@@ -713,6 +806,7 @@ export interface RetryFailedDogsJobResponse {
   status: JobStatus;
   succeeded: number;
   failed: number;
+  stale: number;
   units: RetryFailedDogUnitResponse[];
   error: string | null;
 }
@@ -824,17 +918,27 @@ export function startRetryFailedDogsJob(
   cropBoxes: Record<number, [number, number, number, number]> = {},
   cutoutOnly: boolean = false,
   options?: Pick<RequestOptions, 'signal' | 'suppressToast'>,
+  canonicalInput?: {
+    birdIds: string[];
+    cropBoxesByBirdId: Record<string, [number, number, number, number]>;
+    expectedContentRevision: string;
+  },
+  attemptNonce?: string,
 ): Promise<RetryFailedDogsJobResponse> {
   return request(`/api/sessions/${sessionId}/dogs/retry-inpaint/jobs`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      dogIndices,
+      ...(canonicalInput ? {
+        birdIds: canonicalInput.birdIds,
+        cropBoxesByBirdId: canonicalInput.cropBoxesByBirdId,
+        expectedContentRevision: canonicalInput.expectedContentRevision,
+      } : { dogIndices, cropBoxes }),
       prompt,
       padding,
-      cropBoxes,
       cutoutOnly,
       ...(inpaintModel ? { inpaintModel } : {}),
+      ...(attemptNonce ? { attemptNonce } : {}),
     }),
     ...options,
   });
@@ -896,26 +1000,35 @@ export interface ReviewStatus {
 export function setHitboxApproval(
   sessionId: string,
   approved: boolean,
+  expectedContentRevision?: string,
 ): Promise<{
   ok: boolean;
+  contentRevision?: string;
+  operationalRevision?: string;
   hitboxReview: ReviewStatus;
   finalCutoutReadiness: { ready: boolean; activeBirds: number; missingCutouts: number };
 }> {
   return request(`/api/sessions/${encodeURIComponent(sessionId)}/hitbox-review`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ approved }),
+    body: JSON.stringify({ approved, expectedContentRevision, ...(approved ? { humanActor: 'human:editor' } : {}) }),
   });
 }
 
 export function setFinalCutoutApproval(
   sessionId: string,
   approved: boolean,
-): Promise<{ ok: boolean; finalCutoutReview: ReviewStatus }> {
+  expectedContentRevision?: string,
+): Promise<{
+  ok: boolean;
+  contentRevision?: string;
+  operationalRevision?: string;
+  finalCutoutReview: ReviewStatus;
+}> {
   return request(`/api/sessions/${encodeURIComponent(sessionId)}/final-cutout-review`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ approved }),
+    body: JSON.stringify({ approved, expectedContentRevision, ...(approved ? { humanActor: 'human:editor' } : {}) }),
   });
 }
 
@@ -980,10 +1093,9 @@ export interface BundledManifest {
  *  it with catalogLevelMissing. */
 export async function publishLevelToCatalog(sessionId: string): Promise<void> {
   const requestId = `ui-${sessionId}-${Date.now()}`;
-  await request(`/api/sessions/${sessionId}/approve-catalog?requestId=${encodeURIComponent(requestId)}`, {
+  await request(`/api/sessions/${sessionId}/approve-catalog?requestId=${encodeURIComponent(requestId)}&bundled=true`, {
     method: 'POST',
   });
-  await request(`/api/sessions/${sessionId}/bundle`, { method: 'POST' });
 }
 
 export function getBundledManifest(): Promise<BundledManifest> {
@@ -1364,11 +1476,21 @@ export function saveSpriteCandidatePlacement(
   spriteBox: [number, number, number, number],
   flipX?: boolean,
   flipY?: boolean,
-): Promise<{ ok: boolean; spriteBox: [number, number, number, number] }> {
+  cleanupBox?: [number, number, number, number],
+  expectedContentRevision?: string,
+  options?: Pick<RequestOptions, 'suppressToast'>,
+): Promise<{
+  ok: boolean;
+  spriteBox: [number, number, number, number];
+  cleanupBox?: [number, number, number, number] | null;
+  contentRevision?: string;
+  operationalRevision?: string;
+}> {
   return request(`/api/sessions/${encodeURIComponent(sessionId)}/sprite-candidates/${encodeURIComponent(candidateId)}/placement`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ spriteBox, flipX, flipY }),
+    body: JSON.stringify({ spriteBox, cleanupBox, flipX, flipY, expectedContentRevision }),
+    ...options,
   });
 }
 
@@ -1376,10 +1498,26 @@ export function saveSpriteCandidateHumanConfirmation(
   sessionId: string,
   candidateId: string,
   confirmed: boolean,
-): Promise<{ ok: boolean }> {
+  expectedContentRevision?: string,
+): Promise<{
+  ok: boolean;
+  contentRevision?: string;
+  operationalRevision?: string;
+}> {
   return request(`/api/sessions/${encodeURIComponent(sessionId)}/sprite-candidates/${encodeURIComponent(candidateId)}/human-confirmation`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ confirmed }),
+    body: JSON.stringify({ confirmed, expectedContentRevision, ...(confirmed ? { humanActor: 'human:editor' } : {}) }),
+  });
+}
+
+export function autoPlaceSpriteCandidates(
+  sessionId: string,
+  includeHumanConfirmed: boolean = false,
+): Promise<{ ok: boolean; contentRevision?: string; results: unknown[] }> {
+  return request(`/api/sessions/${encodeURIComponent(sessionId)}/sprite-candidates/auto-placement`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ includeHumanConfirmed }),
   });
 }

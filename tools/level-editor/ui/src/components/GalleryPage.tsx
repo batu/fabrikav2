@@ -27,18 +27,18 @@ interface Props {
 type ModelFilter = 'all' | string;
 type CardState = ReviewCardState;
 type GallerySortMode = 'newest' | 'name' | 'dogs' | 'regeneration';
-type HumanReviewCondition = 'needs-hitbox-review' | 'needs-cutout-review' | 'reviewed';
+type HumanReviewState = 'needs-hitbox-review' | 'needs-cutout-review' | 'reviewed';
 
-const HUMAN_REVIEW_CONDITIONS: HumanReviewCondition[] = [
+const HUMAN_REVIEW_STATES: HumanReviewState[] = [
   'needs-hitbox-review',
   'needs-cutout-review',
   'reviewed',
 ];
 
-const HUMAN_REVIEW_FILTER_LABELS: Record<HumanReviewCondition, string> = {
+const HUMAN_REVIEW_FILTER_LABELS: Record<HumanReviewState, string> = {
   'needs-hitbox-review': 'Hitboxes need review',
   'needs-cutout-review': 'Cutouts need review',
-  reviewed: 'Hitboxes + cutouts reviewed',
+  reviewed: 'Reviewed',
 };
 
 const VARIANT_LABELS: Record<string, string> = {
@@ -95,21 +95,26 @@ function sortCards(cards: VariantCard[], sortMode: GallerySortMode): VariantCard
 }
 
 function humanReviewSummary(session: SessionListItem) {
+  const packageOnly = session.assetBase === 'public-levels';
   const hitboxesStale = Boolean(session.hitboxesBlessingStale);
   const cutoutsStale = Boolean(session.cutoutsFinalBlessingStale);
   const stale = hitboxesStale || cutoutsStale;
   const hitboxesReviewed = Boolean(session.hitboxesBlessed) && !hitboxesStale;
   const cutoutsReviewed = Boolean(session.cutoutsFinalBlessed) && !stale;
-  const conditions: HumanReviewCondition[] = [];
-  if (!hitboxesReviewed) conditions.push('needs-hitbox-review');
-  if (stale || (hitboxesReviewed && !cutoutsReviewed)) conditions.push('needs-cutout-review');
-  if (hitboxesReviewed && cutoutsReviewed) conditions.push('reviewed');
+  // Package-only levels have no authoring session left — review is
+  // impossible, so they must not sit in the needs-work buckets forever.
+  const state: HumanReviewState = packageOnly
+    ? 'reviewed'
+    : !hitboxesReviewed
+      ? 'needs-hitbox-review'
+      : !cutoutsReviewed
+        ? 'needs-cutout-review'
+        : 'reviewed';
   return {
-    conditions,
+    state,
+    packageOnly,
     hitboxesReviewed,
-    hitboxesStale,
     cutoutsReviewed,
-    cutoutsStale,
   };
 }
 
@@ -125,12 +130,7 @@ export default function GalleryPage({ config, onOpen }: Props) {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [search, setSearch] = useState('');
   const [lineupOnly, setLineupOnly] = useState(false);
-  const [stateFilter, setStateFilter] = useState<Record<CardState, boolean>>({
-    background: true,
-    inpainted: true,
-    exported: true,
-  });
-  const [humanReviewFilter, setHumanReviewFilter] = useState<Record<HumanReviewCondition, boolean>>({
+  const [humanReviewFilter, setHumanReviewFilter] = useState<Record<HumanReviewState, boolean>>({
     'needs-hitbox-review': true,
     'needs-cutout-review': true,
     reviewed: true,
@@ -162,11 +162,13 @@ export default function GalleryPage({ config, onOpen }: Props) {
       const variants = s.variants ?? [];
       if (variants.length === 0) continue;
       for (const v of variants) {
+        const state = variantCardState(s, v);
+        if (state === 'background') continue;
         out.push({
           id: `${s.id}::${v}`,
           session: s,
           variant: v,
-          state: variantCardState(s, v),
+          state,
           archived: isVariantArchived(s, v),
         });
       }
@@ -174,22 +176,32 @@ export default function GalleryPage({ config, onOpen }: Props) {
     return out;
   }, [sessions]);
 
+  const activeCards = useMemo(
+    () => allCards.filter((card) => !card.archived),
+    [allCards],
+  );
+  const activeSessions = useMemo(
+    () => Array.from(new Map(
+      activeCards.map((card) => [card.session.id, card.session]),
+    ).values()),
+    [activeCards],
+  );
   const settingKeys = useMemo(
-    () => Array.from(new Set(sessions.map((s) => s.setting))).sort(),
-    [sessions],
+    () => Array.from(new Set(activeSessions.map((s) => s.setting))).sort(),
+    [activeSessions],
   );
   const modelKeys = useMemo(
-    () => Array.from(new Set(sessions.map((s) => s.model).filter(Boolean) as string[])).sort(),
-    [sessions],
+    () => Array.from(new Set(activeSessions.map((s) => s.model).filter(Boolean) as string[])).sort(),
+    [activeSessions],
   );
   const tagKeys = useMemo(
-    () => Array.from(new Set(sessions.flatMap((s) => s.tags ?? []))).sort(),
-    [sessions],
+    () => Array.from(new Set(activeSessions.flatMap((s) => s.tags ?? []))).sort(),
+    [activeSessions],
   );
 
   const orderedAllCards = useMemo(
-    () => sortCards(allCards, sortMode),
-    [allCards, sortMode],
+    () => sortCards(activeCards, sortMode),
+    [activeCards, sortMode],
   );
 
   const filtered = useMemo(() => {
@@ -198,12 +210,10 @@ export default function GalleryPage({ config, onOpen }: Props) {
     const lineupSet = new Set(lineupOrder);
     return orderedAllCards
       .filter((c) => (lineupOnly ? lineupSet.has(c.session.id) : true))
-      .filter((c) => !c.archived)
       .filter((c) => (settingFilter === 'all' ? true : c.session.setting === settingFilter))
       .filter((c) => (modelFilter === 'all' ? true : c.session.model === modelFilter))
       .filter((c) => selectedTags.every((tag) => (c.session.tags ?? []).includes(tag)))
-      .filter((c) => stateFilter[c.state])
-      .filter((c) => humanReviewSummary(c.session).conditions.some((condition) => humanReviewFilter[condition]))
+      .filter((c) => humanReviewFilter[humanReviewSummary(c.session).state])
       .filter((c) => {
         if (!q) return true;
         const haystack = [
@@ -220,7 +230,7 @@ export default function GalleryPage({ config, onOpen }: Props) {
       .sort((a, b) => (lineupOnly
         ? lineupOrder.indexOf(a.session.id) - lineupOrder.indexOf(b.session.id)
         : 0));
-  }, [orderedAllCards, lineupOnly, lineupState, settingFilter, modelFilter, selectedTags, stateFilter, humanReviewFilter, search, config.settings]);
+  }, [orderedAllCards, lineupOnly, lineupState, settingFilter, modelFilter, selectedTags, humanReviewFilter, search, config.settings]);
 
   const visibilitySessionIds = useMemo(
     () => Array.from(new Set(
@@ -271,25 +281,22 @@ export default function GalleryPage({ config, onOpen }: Props) {
     return Array.from(g.entries());
   }, [filtered, groupBySetting, lineupOnly]);
 
-  const stateCounts = useMemo(() => {
-    const c: Record<CardState, number> = { background: 0, inpainted: 0, exported: 0 };
-    for (const card of allCards) c[card.state]++;
-    return c;
-  }, [allCards]);
-
   const humanReviewCounts = useMemo(() => {
-    const counts: Record<HumanReviewCondition, number> = {
+    const counts: Record<HumanReviewState, number> = {
       'needs-hitbox-review': 0,
       'needs-cutout-review': 0,
       reviewed: 0,
     };
-    const countableCards = allCards.filter((card) => !card.archived);
-    const gallerySessions = new Map(countableCards.map((card) => [card.session.id, card.session]));
-    for (const session of gallerySessions.values()) {
-      for (const condition of humanReviewSummary(session).conditions) counts[condition]++;
+    for (const session of activeSessions) {
+      counts[humanReviewSummary(session).state]++;
     }
     return counts;
-  }, [allCards]);
+  }, [activeSessions]);
+
+  const activeLevelCount = useMemo(
+    () => activeSessions.length,
+    [activeSessions],
+  );
 
   const handleCardOpen = useCallback((cardId: string) => {
     setReviewStartCardId(cardId);
@@ -375,7 +382,10 @@ export default function GalleryPage({ config, onOpen }: Props) {
     void saveLineupIds(nextIds, card.id);
   }, [lineupState, saveLineupIds]);
 
-  const selectedCount = lineupState?.draft.levelIds.length ?? 0;
+  const visibleLineupCount = useMemo(() => {
+    const activeSessionIds = new Set(activeSessions.map((session) => session.id));
+    return (lineupState?.draft.levelIds ?? []).filter((id) => activeSessionIds.has(id)).length;
+  }, [activeSessions, lineupState]);
 
   return (
     <div className="pipeline-body" style={{ padding: 16 }}>
@@ -383,7 +393,7 @@ export default function GalleryPage({ config, onOpen }: Props) {
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
           <h2 style={{ margin: 0 }}>Gallery</h2>
           <span style={{ color: '#888', fontSize: '0.85rem' }}>
-            {filtered.length} / {allCards.length} cards · {selectedCount} selected for Lineup
+            {filtered.length} / {activeCards.length} cards · {visibleLineupCount} selected for Lineup
           </span>
           <div style={{ marginLeft: 'auto', display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
             <input
@@ -425,13 +435,24 @@ export default function GalleryPage({ config, onOpen }: Props) {
               <option value="dogs">Entities high-low</option>
               <option value="regeneration">Redo candidates high-low</option>
             </select>
+            <span style={{ color: '#888', fontSize: '0.8rem' }}>Show:</span>
+            <label style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: '0.85rem', color: !lineupOnly ? '#67e8f9' : '#ccc', fontWeight: !lineupOnly ? 700 : 400 }}>
+              <input
+                type="radio"
+                name="gallery-scope"
+                checked={!lineupOnly}
+                onChange={() => setLineupOnly(false)}
+              />
+              All active ({activeLevelCount})
+            </label>
             <label style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: '0.85rem', color: lineupOnly ? '#67e8f9' : '#ccc', fontWeight: lineupOnly ? 700 : 400 }}>
               <input
-                type="checkbox"
+                type="radio"
+                name="gallery-scope"
                 checked={lineupOnly}
-                onChange={(e) => setLineupOnly(e.target.checked)}
+                onChange={() => setLineupOnly(true)}
               />
-              Lineup ({lineupState?.draft.levelIds.length ?? 0}) — in the game, in play order
+              Lineup ({visibleLineupCount})
             </label>
             <label style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: '0.85rem', color: '#ccc' }}>
               <input
@@ -445,20 +466,8 @@ export default function GalleryPage({ config, onOpen }: Props) {
           </div>
         </div>
         <div style={{ marginTop: 10, display: 'flex', gap: 14, flexWrap: 'wrap', alignItems: 'center' }}>
-          <span style={{ color: '#888', fontSize: '0.8rem' }}>Completion:</span>
-          {(['background', 'inpainted', 'exported'] as CardState[]).map((s) => (
-            <label key={s} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: '0.8rem', color: '#ccc' }}>
-              <input
-                type="checkbox"
-                checked={stateFilter[s]}
-                onChange={(e) => setStateFilter((prev) => ({ ...prev, [s]: e.target.checked }))}
-              />
-              <StateBadge state={s} />
-              <span style={{ color: '#777' }}>({stateCounts[s]})</span>
-            </label>
-          ))}
-          <span style={{ color: '#888', fontSize: '0.8rem' }}>Review:</span>
-          {HUMAN_REVIEW_CONDITIONS.map((reviewState) => (
+          <span style={{ color: '#888', fontSize: '0.8rem' }}>Needs work:</span>
+          {HUMAN_REVIEW_STATES.map((reviewState) => (
             <label key={reviewState} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: '0.8rem', color: '#ccc' }}>
               <input
                 type="checkbox"
@@ -473,7 +482,7 @@ export default function GalleryPage({ config, onOpen }: Props) {
             <>
               <span style={{ color: '#888', fontSize: '0.8rem' }}>Tags:</span>
               {tagKeys.map((tag) => {
-                const tagCount = allCards.filter((card) => (card.session.tags ?? []).includes(tag)).length;
+                const tagCount = activeSessions.filter((session) => (session.tags ?? []).includes(tag)).length;
                 const checked = selectedTags.includes(tag);
                 return (
                   <label key={tag} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: '0.8rem', color: '#ccc' }}>
@@ -547,21 +556,6 @@ export default function GalleryPage({ config, onOpen }: Props) {
   );
 }
 
-function StateBadge({ state }: { state: CardState }) {
-  const tone: Record<CardState, { bg: string; fg: string; label: string }> = {
-    background: { bg: '#2a2a44', fg: '#a8a8d8', label: 'bg only' },
-    inpainted:  { bg: '#2a4a6b', fg: '#c0dff5', label: 'inpainted' },
-    exported:   { bg: '#2a6b4e', fg: '#c5e8c5', label: 'complete' },
-  };
-  const t = tone[state];
-  return (
-    <span style={{
-      background: t.bg, color: t.fg, fontSize: '0.68rem',
-      padding: '1px 6px', borderRadius: 3, fontWeight: 600,
-    }}>{t.label}</span>
-  );
-}
-
 function HumanReviewBadge({
   children,
   tone,
@@ -595,14 +589,21 @@ function HumanReviewBadge({
 
 function HumanReviewBadges({ session }: { session: SessionListItem }) {
   const review = humanReviewSummary(session);
+  if (review.packageOnly) {
+    return (
+      <div data-review-state="package-only" style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+        <HumanReviewBadge tone="pending" title="Only the shipped package remains; the authoring session was deleted. Nothing here can be reviewed or edited.">Package only</HumanReviewBadge>
+      </div>
+    );
+  }
   return (
-    <div data-review-conditions={review.conditions.join(' ')} style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+    <div data-review-state={review.state} style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
       {review.hitboxesReviewed ? (
         <HumanReviewBadge tone="good" title="A human reviewed the current hitbox geometry.">✓ Hitboxes reviewed</HumanReviewBadge>
       ) : (
         <HumanReviewBadge tone="pending" title="A human has not reviewed the current hitbox geometry.">{HUMAN_REVIEW_FILTER_LABELS['needs-hitbox-review']}</HumanReviewBadge>
       )}
-      {review.conditions.includes('needs-cutout-review') ? (
+      {review.state === 'needs-cutout-review' ? (
         <HumanReviewBadge tone="pending" title="Current cutouts and sprite placements need human review.">{HUMAN_REVIEW_FILTER_LABELS['needs-cutout-review']}</HumanReviewBadge>
       ) : review.cutoutsReviewed ? (
         <HumanReviewBadge tone="final" title="A human reviewed the current cutout pixels and sprite placements.">★ Cutouts reviewed</HumanReviewBadge>
@@ -645,15 +646,18 @@ function GalleryCard({
   const visibilitySummaries = useMemo(() => summarizeVisibilityIssues(visibilityIssues), [visibilityIssues]);
   const blockerCount = blockingVisibilitySummaries(visibilitySummaries).length;
   const warnCount = visibilitySummaries.length;
-  const fullyReviewed = humanReviewSummary(session).conditions.includes('reviewed');
+  const fullyReviewed = humanReviewSummary(session).state === 'reviewed';
+  const quarantined = session.canonicalState === 'quarantined_integrity';
   const missingAssetReason = state !== 'background' && session.hasImage === false
     ? 'Missing composite image asset. Open in Wizard or review assets before adding this level to Lineup.'
     : state !== 'background' && session.hasThumbnail === false
       ? 'Missing preview thumbnail asset. Repair assets before adding this level to Lineup.'
       : null;
-  const selectableForLineup = !card.archived && state !== 'background' && blockerCount === 0 && missingAssetReason === null;
+  const selectableForLineup = !card.archived && !quarantined && state !== 'background' && blockerCount === 0 && missingAssetReason === null;
   const disabledReason = card.archived
     ? 'Archived cards are not selectable for Lineup.'
+    : quarantined
+      ? 'Bird mappings need repair before this level can be added or republished.'
     : missingAssetReason
       ? missingAssetReason
       : state === 'background'
@@ -758,7 +762,6 @@ function GalleryCard({
           background: 'rgba(0,0,0,0.72)', color: '#fff',
           fontSize: '0.65rem', padding: '2px 6px', borderRadius: 3, fontWeight: 600,
         }}>{VARIANT_LABELS[variant] ?? variant}</span>
-        <StateBadge state={state} />
         {selectedInLineup && (
           <span style={{
             background: 'rgba(49, 112, 72, 0.92)',
@@ -839,6 +842,9 @@ function GalleryCard({
         <div style={{ fontSize: '0.7rem', color: '#888' }}>
           {session.nDogs} dogs
         </div>
+        {quarantined && (
+          <HumanReviewBadge tone="pending" title="Artifact identity or provenance needs repair before publishing.">Needs repair</HumanReviewBadge>
+        )}
         <HumanReviewBadges session={session} />
         <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap', fontSize: '0.68rem' }}>
           {(session.regenerationCandidateCount ?? 0) > 0 && (

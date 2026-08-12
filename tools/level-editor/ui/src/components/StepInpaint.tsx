@@ -352,7 +352,16 @@ export default function StepInpaint({
       hitboxes: nextHitboxes,
       dogs: nextDogs,
     });
-    void saveHitboxes(sessionId, nextHitboxes, 'inpaint-adjust');
+    void saveHitboxes(sessionId, nextHitboxes, 'inpaint-adjust', current.contentRevision).then((result) => {
+      if (!result) return;
+      queryClient.setQueryData<SessionResponse>(sessionQueryKey(sessionId), (latest) => (
+        latest ? {
+          ...latest,
+          contentRevision: result.contentRevision,
+          operationalRevision: result.operationalRevision,
+        } : latest
+      ));
+    });
   }, [queryClient, sessionId]);
 
   const canvasState = useMemo<LevelCanvasState | null>(() => {
@@ -622,6 +631,12 @@ export default function StepInpaint({
                     models={config?.inpaintModels ?? config?.models ?? []}
                     hitboxes={hitboxes}
                     dogs={dogs}
+                    contentRevision={session.contentRevision}
+                    onRevisionChanged={(contentRevision, operationalRevision) => {
+                      queryClient.setQueryData<SessionResponse>(sessionQueryKey(sessionId), (latest) => (
+                        latest ? { ...latest, contentRevision, operationalRevision } : latest
+                      ));
+                    }}
                     onDogComplete={(dogIndex, file, variantIndex) => applyDogComplete(queryClient, sessionId, dogIndex, file, variantIndex)}
                   />
                   <DogRegenList

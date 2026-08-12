@@ -106,3 +106,43 @@ def test_recenter_fixes_far_drift(isolated_session):
     assert [m["index"] for m in result["moved"]] == [0]
     persisted = json.loads((sess.LEVELS_DIR / "recenter_far_drift_1" / "hitboxes.json").read_text())
     assert [persisted[0]["x"], persisted[0]["y"]] == [120, 120]
+
+
+def test_recenter_binds_hitboxes_by_id_across_slot_gaps(isolated_session):
+    """dog.index is the sprite SLOT, not the hitboxes array position; with a
+    gap (pruned/imported level: slots dog_00 and dog_02, two hitboxes) the
+    positional bind used to move the WRONG hitbox."""
+    sess = isolated_session
+    session_id = "recenter_slot_gap"
+    sdir = sess.LEVELS_DIR / session_id
+    sdir.mkdir(parents=True)
+    hitboxes = [
+        {"id": "bird-a", "x": 50, "y": 50, "r": 26},    # slot dog_00, on target
+        {"id": "bird-c", "x": 300, "y": 300, "r": 26},  # slot dog_02, far off
+    ]
+    (sdir / "hitboxes.json").write_text(json.dumps(hitboxes))
+    for slot, sprite in ((0, [30, 30, 70, 70]), (2, [100, 100, 140, 140])):
+        dog_dir = sdir / "dogs" / f"dog_{slot:02d}"
+        dog_dir.mkdir(parents=True)
+        (dog_dir / "variant_000.png").write_bytes(b"")
+        (dog_dir / "variant_000.box.json").write_text(json.dumps({"box": sprite}))
+        (dog_dir / "sprite_000.png").write_bytes(b"")
+        (dog_dir / "sprite_000.json").write_text(json.dumps({
+            "image": f"dogs/dog_{slot:02d}/sprite_000.png",
+            "spriteBox": sprite,
+            "cleanupBox": [sprite[0] - 5, sprite[1] - 5, sprite[2] + 5, sprite[3] + 5],
+            "width": sprite[2] - sprite[0],
+            "height": sprite[3] - sprite[1],
+        }))
+    (sdir / "session.json").write_text(json.dumps({"dogs": [
+        {"id": "bird-a", "index": 0, "activeVariant": 0},
+        {"id": "bird-c", "index": 2, "activeVariant": 0},
+    ]}))
+
+    result = sess.recenter_hitboxes_to_sprites(session_id)
+
+    persisted = json.loads((sdir / "hitboxes.json").read_text())
+    by_id = {h["id"]: h for h in persisted}
+    assert by_id["bird-a"] == {"id": "bird-a", "x": 50, "y": 50, "r": 26}  # untouched
+    assert (by_id["bird-c"]["x"], by_id["bird-c"]["y"]) == (120, 120)     # its own sprite center
+    assert len(result["moved"]) == 1

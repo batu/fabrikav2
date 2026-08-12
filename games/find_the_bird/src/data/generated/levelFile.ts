@@ -10,6 +10,8 @@ export interface LevelFileV1 {
   height: number;
   bwImage?: string;
   colorImage: string;
+  artifactRevision?: string;
+  compatibilityAliases?: Record<string, string>;
   tags?: string[];
   dogs: Dog[];
   sections?: Section[];
@@ -18,6 +20,7 @@ export interface LevelFileV1 {
 
 export interface Dog {
   id: string;
+  compatibilitySlot?: string;
   x: number;
   y: number;
   r: number;

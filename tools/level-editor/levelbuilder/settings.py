@@ -116,3 +116,15 @@ def apply_game_from_env() -> GameProfile | None:
     profile = resolve_game(name)
     profile.apply()
     return profile
+
+
+def require_game_from_env() -> GameProfile:
+    """Return one coherent active profile; storage modules must never guess."""
+    profile = apply_game_from_env()
+    if profile is None:
+        raise UnknownGameError(
+            "no level-editor game profile is configured; select a game with "
+            "--game or LEVEL_EDITOR_GAME, or set both LEVELBUILDER_WORKSPACE "
+            "and LEVELBUILDER_GAME_ROOT"
+        )
+    return profile

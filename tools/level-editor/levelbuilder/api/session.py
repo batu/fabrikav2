@@ -38,6 +38,7 @@ from levelbuilder.sections import (
     section_ranges,
 )
 from levelbuilder.prompts import SETTINGS
+from levelbuilder.settings import require_game_from_env
 from . import public_levels as PublicLevels
 from .level_schema import LevelFileV1
 
@@ -70,22 +71,16 @@ def _detect_setting(session_id: str, raw: dict | None = None) -> str:
             return key
     return "other"
 
-# Per-game workspace override: LEVELBUILDER_WORKSPACE points at a directory
-# that owns levels/, state/, and prompts_library.json for one game. Unset, the
-# builder keeps its historical FTD layout next to this module.
-WORKSPACE_ROOT = Path(
-    os.environ.get("LEVELBUILDER_WORKSPACE")
-    or Path(__file__).resolve().parent.parent
-)
+# The active game profile owns levels/, state/, prompts, and public exports.
+# Storage imports fail closed when no profile was selected; a module-relative
+# fallback once made maintenance scripts scan a convincing but wrong corpus.
+_ACTIVE_GAME = require_game_from_env()
+WORKSPACE_ROOT = _ACTIVE_GAME.workspace
 LEVELS_DIR = WORKSPACE_ROOT / "levels"
 LEVELS_DIR.mkdir(parents=True, exist_ok=True)
 
-# Game paths for export. LEVELBUILDER_GAME_ROOT points at the consuming game
-# folder (its public/levels receives exports); default is games/find_the_dog.
-GAME_ROOT = Path(
-    os.environ.get("LEVELBUILDER_GAME_ROOT")
-    or Path(__file__).resolve().parents[3]
-)
+# Game paths for export. GAME_ROOT is paired with WORKSPACE_ROOT by the profile.
+GAME_ROOT = _ACTIVE_GAME.game_root
 GAME_PUBLIC_LEVELS = GAME_ROOT / "public" / "levels"
 # Compatibility aliases for older tests/callers. Runtime helpers derive paths
 # from GAME_PUBLIC_LEVELS so monkeypatching the public root stays authoritative.
@@ -110,12 +105,36 @@ _archive_ledger_lock = threading.Lock()
 
 
 def _load_archive_ledger() -> dict[str, dict[str, Any]]:
+    """FF-9: the ledger is the archive authority — corruption must be loud,
+    never indistinguishable from an empty ledger."""
+    if not ARCHIVE_LEDGER_PATH.exists():
+        return {}
     try:
         payload = json.loads(ARCHIVE_LEDGER_PATH.read_text())
-    except (FileNotFoundError, OSError, json.JSONDecodeError):
-        return {}
+    except (OSError, json.JSONDecodeError) as error:
+        raise PublicLevels.FormatError(
+            f"archive-ledger is present but unreadable: {ARCHIVE_LEDGER_PATH} ({error})"
+        ) from error
     sessions = payload.get("sessions") if isinstance(payload, dict) else None
-    return sessions if isinstance(sessions, dict) else {}
+    if not isinstance(sessions, dict):
+        raise PublicLevels.FormatError(
+            f"archive-ledger must contain a sessions object: {ARCHIVE_LEDGER_PATH}"
+        )
+    invalid = [key for key, value in sessions.items() if not isinstance(value, dict)]
+    if invalid:
+        raise PublicLevels.FormatError(
+            f"archive-ledger has non-object session entries {invalid[:5]}: {ARCHIVE_LEDGER_PATH}"
+        )
+    return sessions
+
+
+def archived_session_ids() -> set[str]:
+    """Return persisted archived session ids without hydrating any session."""
+    return {
+        session_id
+        for session_id, state in _load_archive_ledger().items()
+        if isinstance(state, dict) and state.get("archived") is True
+    }
 
 
 def _save_archive_ledger(sessions: dict[str, dict[str, Any]]) -> None:
@@ -625,6 +644,13 @@ def sprite_animation_candidates(session_id: str) -> list[dict[str, Any]]:
     if not base.exists():
         return []
 
+    canonical = read_canonical_session(session_id)
+    canonical_slots = {
+        bird["compatibilitySlot"]: bird["birdId"]
+        for bird in (canonical.snapshot or {}).get("birds", [])
+        if isinstance(bird, dict)
+    }
+
     scene_width: int | None = None
     scene_height: int | None = None
     scene_path = session_dir(session_id) / "color.png"
@@ -643,6 +669,7 @@ def sprite_animation_candidates(session_id: str) -> list[dict[str, Any]]:
         if dog_match is None:
             continue
         dog_index = int(dog_match.group(1))
+        bird_id = canonical_slots.get(dog_folder.name)
         sprite_indices: set[int] = set()
         for child in dog_folder.iterdir():
             if meta_match := _SPRITE_META_RE.match(child.name):
@@ -687,7 +714,8 @@ def sprite_animation_candidates(session_id: str) -> list[dict[str, Any]]:
                 image_readable=image_readable,
             )
             candidate: dict[str, Any] = {
-                "id": f"dog_{dog_index:02d}:{stem}",
+                "id": f"{bird_id or f'dog_{dog_index:02d}'}:{stem}",
+                "birdId": bird_id,
                 "dogIndex": dog_index,
                 "spriteIndex": sprite_index,
                 "status": status,
@@ -944,6 +972,11 @@ def _current_hitbox_snapshot(session_id: str) -> tuple[list[dict[str, Any]], str
 
 
 def get_hitbox_review_status(session_id: str) -> dict[str, Any]:
+    canonical = read_canonical_session(session_id)
+    if canonical.state.value == "valid_current" and canonical.snapshot is not None:
+        review = canonical.snapshot.get("reviews", {}).get("hitboxes")
+        current = isinstance(review, dict)
+        return {**(review or {}), "approved": current, "current": current, "stale": False}
     review = _read_review_file(session_id, "hitbox-review.json")
     legacy = False
     if review is None:
@@ -1057,16 +1090,10 @@ def set_level_golden_review(session_id: str, approved: bool, *, source: str = "e
             except (OSError, json.JSONDecodeError):
                 current = False
                 break
-            target = _box_target(sidecar)
-            cleanup = sidecar.get("cleanupBox") or sidecar.get("spriteBox")
-            if not (
-                target is not None
-                and isinstance(cleanup, list)
-                and len(cleanup) == 4
-                and cleanup[0] <= target[0] <= cleanup[2]
-                and cleanup[1] <= target[1] <= cleanup[3]
-            ):
-                raise ValueError(f"active sprite padding targets a different bird: {dog.get('id')}")
+            # Cross-bird padding mismatches are advisory only (2026-08-12):
+            # the editor cannot resolve them, so blessing must not hard-block
+            # on them. get_final_cutout_review_readiness still reports the
+            # count for visibility.
             human_review = {"confirmed": True, "confirmedAt": now, "source": "level-bless"}
             for target_base in target_bases:
                 target_sprite = target_base / relative
@@ -1116,6 +1143,13 @@ def get_final_cutout_review_status(
     *,
     hitbox_status: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
+    canonical = read_canonical_session(session_id)
+    if canonical.state.value == "valid_current" and canonical.snapshot is not None:
+        reviews = canonical.snapshot.get("reviews", {})
+        hitbox_review = reviews.get("hitboxes")
+        final_review = reviews.get("finalCutouts")
+        current = isinstance(hitbox_review, dict) and isinstance(final_review, dict)
+        return {**(final_review or {}), "approved": current, "current": current, "stale": False}
     review = get_level_golden_review(session_id)
     approved = bool(review and (review.get("approved") is True or review.get("blessed") is True))
     if not approved:
@@ -1173,6 +1207,39 @@ def get_final_cutout_review_status(
 
 
 def get_final_cutout_review_readiness(session_id: str) -> dict[str, Any]:
+    # P1.2 (CR-1 finding 5): canonical sessions derive readiness from the
+    # snapshot — every bird has a verified sprite asset and no pending
+    # extract obligation. The legacy level.json walk serves only legacy lanes.
+    from .canonical_bird_contract import CanonicalReadState
+
+    canonical = read_canonical_session(session_id)
+    if canonical.state is CanonicalReadState.VALID_CURRENT and canonical.snapshot is not None:
+        from .artifact_dag import pending_obligations
+        from .canonical_assets import AssetIntegrityError, resolve_asset
+
+        birds = canonical.snapshot.get("birds", [])
+        store = canonical_session_store(session_id)
+        missing = 0
+        for bird in birds:
+            asset = (bird.get("sprite") or {}).get("asset")
+            if not isinstance(asset, dict):
+                missing += 1
+                continue
+            try:
+                resolve_asset(store, asset)
+            except AssetIntegrityError:
+                missing += 1
+        extract_pending = sum(
+            1 for o in pending_obligations(canonical.snapshot) if o["obligation"] == "extract"
+        )
+        missing = max(missing, extract_pending)
+        return {
+            "ready": missing == 0 and bool(birds),
+            "activeBirds": len(birds),
+            "missingCutouts": missing,
+            "missingFinalCutouts": missing,
+            "invalidPadding": 0,
+        }
     level_path = session_dir(session_id) / "level.json"
     try:
         level = json.loads(level_path.read_text())
@@ -1211,7 +1278,9 @@ def get_final_cutout_review_readiness(session_id: str) -> dict[str, Any]:
         if not padding_current:
             invalid_padding += 1
     return {
-        "ready": bool(dogs) and missing == 0 and invalid_padding == 0,
+        # invalidPadding is advisory only (2026-08-12): the editor has no way
+        # to resolve a cross-bird padding mismatch, so it must not gate review.
+        "ready": bool(dogs) and missing == 0,
         "activeBirds": len(dogs),
         "missingCutouts": missing,
         "invalidPadding": invalid_padding,
@@ -1559,8 +1628,571 @@ def session_dir(session_id: str) -> Path:
     return LEVELS_DIR / session_id
 
 
+def canonical_session_store(session_id: str):
+    """Return the canonical authoring store without consulting projections.
+
+    This deliberately does not call :func:`session_dir`: that legacy resolver
+    may select a public package. Canonical reads and writes are workspace-only.
+    """
+    from levelbuilder.api.canonical_bird_contract import CanonicalRevisionStore
+
+    return CanonicalRevisionStore(LEVELS_DIR / session_id)
+
+
+def read_canonical_session(session_id: str):
+    """Read the explicit canonical pointer state for an authoring session."""
+    return canonical_session_store(session_id).read()
+
+
+def commit_canonical_session(
+    session_id: str,
+    snapshot: dict[str, Any],
+    *,
+    expected_content_revision: str | None,
+):
+    """CAS-install one immutable authoring revision under the session flock."""
+    if snapshot.get("sessionId") != session_id:
+        raise ValueError("canonical snapshot sessionId does not match route session")
+    return canonical_session_store(session_id).commit(
+        snapshot,
+        expected_content_revision=expected_content_revision,
+    )
+
+
+def save_canonical_hitboxes_if_present(
+    session_id: str,
+    hitboxes: list[dict[str, Any]],
+    *,
+    expected_content_revision: str | None,
+    actor: str = "human:editor",
+):
+    """CAS-save canonical hitboxes, or return ``None`` for a legacy session."""
+    from levelbuilder.api.canonical_bird_contract import (
+        CanonicalReadState,
+        ContractValidationError,
+        RevisionConflictError,
+        invalidate_reviews,
+    )
+
+    store = canonical_session_store(session_id)
+    current = store.read()
+    if current.state is CanonicalReadState.MIGRATION_REQUIRED:
+        return None
+    if current.state is not CanonicalReadState.VALID_CURRENT or current.snapshot is None:
+        raise ContractValidationError(
+            f"canonical session is not writable: {current.state.value}: {current.detail or ''}".rstrip()
+        )
+    if expected_content_revision is None:
+        from levelbuilder.api.canonical_bird_contract import RevisionConflictError
+
+        raise RevisionConflictError(None, current.pointer.content_revision if current.pointer else None)
+
+    # P1.6: the geometry service is the one mutation path (no-op saves
+    # preserve approvals, R7 human authority, projected mirrors). Returns the
+    # GeometryResult (revision fields + the committed snapshot) so responses
+    # stay revision-consistent (CR-1 finding 8).
+    from .geometry_service import mutate_geometry
+
+    return mutate_geometry(
+        session_id,
+        "move",
+        hitboxes=hitboxes,
+        expected_content_revision=expected_content_revision,
+        actor=actor,
+    )
+
+
+def set_canonical_hitbox_review_if_present(
+    session_id: str,
+    approved: bool,
+    *,
+    expected_content_revision: str | None,
+    reviewer: str = "human:editor",
+):
+    """CAS-bind a human hitbox assertion, or return ``None`` for legacy."""
+    from levelbuilder.api.canonical_bird_contract import (
+        CanonicalReadState,
+        bless_snapshot,
+        ContractValidationError,
+        invalidate_reviews,
+        RevisionConflictError,
+    )
+
+    store = canonical_session_store(session_id)
+    current = store.read()
+    if current.state is CanonicalReadState.MIGRATION_REQUIRED:
+        return None
+    if current.state is not CanonicalReadState.VALID_CURRENT or current.snapshot is None:
+        raise ContractValidationError(
+            f"canonical session is not writable: {current.state.value}: {current.detail or ''}".rstrip()
+        )
+    actual = current.pointer.content_revision if current.pointer else None
+    if expected_content_revision is None:
+        raise RevisionConflictError(None, actual)
+    if approved:
+        updated = bless_snapshot(
+            current.snapshot,
+            review_kind="hitboxes",
+            reviewer=reviewer,
+            reviewed_at=now_iso(),
+        )
+    else:
+        updated = invalidate_reviews(current.snapshot, changed_artifacts={"hitboxes"})
+    return store.commit(
+        updated,
+        expected_content_revision=expected_content_revision,
+        expected_operational_revision=current.pointer.operational_revision if current.pointer else None,
+    )
+
+
+def save_canonical_sprite_geometry_if_present(
+    session_id: str,
+    bird_id: str,
+    *,
+    sprite_box: list[int] | tuple[int, int, int, int],
+    cleanup_box: list[int] | tuple[int, int, int, int] | None,
+    flip_x: bool | None,
+    flip_y: bool | None,
+    expected_content_revision: str | None,
+):
+    """CAS-save one canonical bird's sprite and cleanup geometry by birdId."""
+    from levelbuilder.api.canonical_bird_contract import (
+        CanonicalReadState,
+        ContractValidationError,
+        RevisionConflictError,
+        invalidate_reviews,
+    )
+
+    store = canonical_session_store(session_id)
+    current = store.read()
+    if current.state is CanonicalReadState.MIGRATION_REQUIRED:
+        return None
+    if current.state is not CanonicalReadState.VALID_CURRENT or current.snapshot is None:
+        raise ContractValidationError(f"canonical session is not writable: {current.state.value}")
+    actual = current.pointer.content_revision if current.pointer else None
+    if expected_content_revision is None:
+        raise RevisionConflictError(None, actual)
+    commit_revision = expected_content_revision
+    if expected_content_revision != actual:
+        base = store.snapshot_for_content_revision(expected_content_revision)
+        base_bird = next(
+            (item for item in (base or {}).get("birds", []) if item.get("birdId") == bird_id),
+            None,
+        )
+        current_bird = next(
+            (item for item in current.snapshot["birds"] if item["birdId"] == bird_id),
+            None,
+        )
+        base_context = {
+            "assets": (base or {}).get("assets"),
+            "restore": (base or {}).get("restore"),
+            "bird": base_bird,
+        }
+        current_context = {
+            "assets": current.snapshot.get("assets"),
+            "restore": current.snapshot.get("restore"),
+            "bird": current_bird,
+        }
+        if base is None or base_context != current_context:
+            raise RevisionConflictError(expected_content_revision, actual)
+        commit_revision = actual
+    if (
+        len(sprite_box) != 4
+        or sprite_box[0] < 0
+        or sprite_box[1] < 0
+        or sprite_box[2] <= sprite_box[0]
+        or sprite_box[3] <= sprite_box[1]
+    ):
+        raise ContractValidationError("spriteBox must have positive width and height")
+    if cleanup_box is not None and (
+        len(cleanup_box) != 4
+        or cleanup_box[0] < 0
+        or cleanup_box[1] < 0
+        or cleanup_box[2] <= cleanup_box[0]
+        or cleanup_box[3] <= cleanup_box[1]
+    ):
+        raise ContractValidationError("cleanupBox must have positive width and height")
+    bird = next((item for item in current.snapshot["birds"] if item["birdId"] == bird_id), None)
+    if bird is None:
+        raise ContractValidationError(f"unknown birdId: {bird_id}")
+    changed = {"spritePlacement"}
+    if flip_x is not None or flip_y is not None:
+        changed.add("spriteFlip")
+    if cleanup_box is not None:
+        changed.add("cleanup")
+    updated = invalidate_reviews(current.snapshot, changed_artifacts=changed)
+    target = next(item for item in updated["birds"] if item["birdId"] == bird_id)
+    x0, y0, x1, y1 = map(int, sprite_box)
+    target["sprite"]["placement"] = {"x": x0, "y": y0, "width": x1 - x0, "height": y1 - y0}
+    if flip_x is not None:
+        target["sprite"]["flipX"] = flip_x
+    if flip_y is not None:
+        target["sprite"]["flipY"] = flip_y
+    if cleanup_box is not None:
+        cx0, cy0, cx1, cy1 = map(int, cleanup_box)
+        target["cleanup"].update({"x": cx0, "y": cy0, "width": cx1 - cx0, "height": cy1 - cy0})
+    pointer = store.commit(
+        updated,
+        expected_content_revision=commit_revision,
+        expected_operational_revision=current.pointer.operational_revision if current.pointer else None,
+    )
+    project_canonical_bird_compatibility(session_id, updated, bird_id)
+    return pointer
+
+
+def set_canonical_final_review_if_present(
+    session_id: str,
+    approved: bool,
+    *,
+    expected_content_revision: str | None,
+    reviewer: str = "human:editor",
+):
+    """CAS-bind final review after the same revision's hitboxes are reviewed."""
+    from levelbuilder.api.canonical_bird_contract import (
+        CanonicalReadState,
+        ContractValidationError,
+        RevisionConflictError,
+        bless_snapshot,
+        invalidate_reviews,
+        review_scope_revision,
+    )
+
+    store = canonical_session_store(session_id)
+    current = store.read()
+    if current.state is CanonicalReadState.MIGRATION_REQUIRED:
+        return None
+    if current.state is not CanonicalReadState.VALID_CURRENT or current.snapshot is None:
+        raise ContractValidationError(f"canonical session is not writable: {current.state.value}")
+    actual = current.pointer.content_revision if current.pointer else None
+    if expected_content_revision is None:
+        raise RevisionConflictError(None, actual)
+    if approved:
+        hitbox_review = current.snapshot.get("reviews", {}).get("hitboxes")
+        hitbox_scope = review_scope_revision(current.snapshot, "hitboxes")
+        if not isinstance(hitbox_review, dict) or hitbox_review.get("scopeRevision") != hitbox_scope:
+            raise ContractValidationError("current hitbox review is required before final blessing")
+        updated = bless_snapshot(
+            current.snapshot,
+            review_kind="finalCutouts",
+            reviewer=reviewer,
+            reviewed_at=now_iso(),
+        )
+    else:
+        updated = invalidate_reviews(current.snapshot, changed_artifacts={"spritePlacement"})
+    return store.commit(
+        updated,
+        expected_content_revision=expected_content_revision,
+        expected_operational_revision=current.pointer.operational_revision if current.pointer else None,
+    )
+
+
+def delete_canonical_bird_if_present(
+    session_id: str,
+    bird_id: str,
+    *,
+    expected_content_revision: str | None,
+):
+    """CAS-delete one canonical bird without reusing its identity or slot."""
+    from levelbuilder.api.canonical_bird_contract import (
+        CanonicalReadState,
+        ContractValidationError,
+        RevisionConflictError,
+        invalidate_reviews,
+    )
+
+    store = canonical_session_store(session_id)
+    current = store.read()
+    if current.state is CanonicalReadState.MIGRATION_REQUIRED:
+        return None
+    if current.state is not CanonicalReadState.VALID_CURRENT or current.snapshot is None:
+        raise ContractValidationError(f"canonical session is not writable: {current.state.value}")
+    actual = current.pointer.content_revision if current.pointer else None
+    if expected_content_revision is None:
+        raise RevisionConflictError(None, actual)
+    if not any(bird["birdId"] == bird_id for bird in current.snapshot["birds"]):
+        raise ContractValidationError(f"unknown birdId: {bird_id}")
+    # P1.6 (CR-1 finding 9): deletion goes through the geometry service — one
+    # commit path, retired slot, projected legacy mirrors. Tombstone the id
+    # in the same commit's operational record via the service's snapshot.
+    from .geometry_service import mutate_geometry
+
+    result = mutate_geometry(
+        session_id,
+        "delete",
+        bird_ids=[bird_id],
+        expected_content_revision=expected_content_revision,
+        actor="human:editor",
+    )
+    return result
+
+
+def set_canonical_candidate_confirmation_if_present(
+    session_id: str,
+    bird_id: str,
+    confirmed: bool,
+    *,
+    expected_content_revision: str | None,
+    reviewer: str = "human:editor",
+):
+    """Record candidate review as operational metadata without blessing content."""
+    from levelbuilder.api.canonical_bird_contract import (
+        CanonicalReadState,
+        ContractValidationError,
+        RevisionConflictError,
+    )
+
+    store = canonical_session_store(session_id)
+    current = store.read()
+    if current.state is CanonicalReadState.MIGRATION_REQUIRED:
+        return None
+    if current.state is not CanonicalReadState.VALID_CURRENT or current.snapshot is None:
+        raise ContractValidationError(f"canonical session is not writable: {current.state.value}")
+    actual = current.pointer.content_revision if current.pointer else None
+    if expected_content_revision is None:
+        raise RevisionConflictError(None, actual)
+    bird = next((item for item in current.snapshot["birds"] if item["birdId"] == bird_id), None)
+    if bird is None:
+        raise ContractValidationError(f"unknown birdId: {bird_id}")
+    updated = json.loads(json.dumps(current.snapshot))
+    reviews = updated.setdefault("operational", {}).setdefault("candidateReviews", {})
+    reviews[bird_id] = {
+        "generationId": bird["activeGeneration"]["generationId"],
+        "confirmed": confirmed,
+        "reviewer": reviewer,
+        "reviewedAt": now_iso(),
+    }
+    pointer = store.commit(
+        updated,
+        expected_content_revision=expected_content_revision,
+        expected_operational_revision=current.pointer.operational_revision if current.pointer else None,
+    )
+    project_canonical_bird_compatibility(session_id, updated, bird_id)
+    return pointer
+
+
+def promote_canonical_sprite_artifact(
+    session_id: str,
+    *,
+    captured_input: dict[str, Any],
+    generation_id: str,
+    sprite_path: Path,
+    metadata: dict[str, Any],
+    painted_path: Path | None = None,
+    painted_box: tuple[int, int, int, int] | None = None,
+):
+    """Promote an unattached provider artifact iff its bird inputs remain current."""
+    from levelbuilder.api.canonical_bird_contract import (
+        CanonicalReadState,
+        ContractValidationError,
+        RevisionConflictError,
+        invalidate_reviews,
+    )
+    from levelbuilder.api.canonical_job_provenance import (
+        BirdJobInput,
+        verify_bird_job_input,
+    )
+
+    captured = BirdJobInput.from_dict(captured_input)
+    if captured.session_id != session_id:
+        raise ContractValidationError("job artifact session mismatch")
+    if not sprite_path.is_file():
+        raise ContractValidationError("job sprite artifact is missing")
+    if painted_path is not None and not painted_path.is_file():
+        raise ContractValidationError("job painted artifact is missing")
+    try:
+        relative_sprite = sprite_path.resolve().relative_to((LEVELS_DIR / session_id).resolve())
+    except ValueError as error:
+        raise ContractValidationError("job sprite artifact is outside the authoring session") from error
+    sprite_box = metadata.get("spriteBox")
+    cleanup_box = metadata.get("cleanupBox")
+    if not (
+        isinstance(sprite_box, list)
+        and len(sprite_box) == 4
+        and isinstance(cleanup_box, list)
+        and len(cleanup_box) == 4
+    ):
+        raise ContractValidationError("job sprite geometry is incomplete")
+
+    store = canonical_session_store(session_id)
+    for _attempt in range(3):
+        current = store.read()
+        if current.state is not CanonicalReadState.VALID_CURRENT or current.snapshot is None or current.pointer is None:
+            raise ContractValidationError(f"canonical session is not promotable: {current.state.value}")
+        verification = verify_bird_job_input(current.snapshot, captured)
+        if not verification.current:
+            return None, verification.code
+        changed_classes = {"activeGeneration", "spritePixels", "spritePlacement", "cleanup"}
+        if painted_path is not None and painted_box is not None:
+            changed_classes.add("scene")
+        updated = invalidate_reviews(current.snapshot, changed_artifacts=changed_classes)
+        bird = next(item for item in updated["birds"] if item["birdId"] == captured.bird_id)
+        sprite_digest = hashlib.sha256(sprite_path.read_bytes()).hexdigest()
+        x0, y0, x1, y1 = map(int, sprite_box)
+        cx0, cy0, cx1, cy1 = map(int, cleanup_box)
+        bird["activeGeneration"] = {
+            "generationId": generation_id,
+            "inputSceneSha256": captured.scene_sha256,
+            "inputRevision": captured.bird_input_revision,
+            **({
+                "paintedAsset": {
+                    "path": painted_path.resolve().relative_to((LEVELS_DIR / session_id).resolve()).as_posix(),
+                    "sha256": hashlib.sha256(painted_path.read_bytes()).hexdigest(),
+                    "bytes": painted_path.stat().st_size,
+                },
+            } if painted_path is not None else {}),
+        }
+        bird["sprite"] = {
+            "asset": {
+                "path": relative_sprite.as_posix(),
+                "sha256": sprite_digest,
+                "bytes": sprite_path.stat().st_size,
+            },
+            "placement": {"x": x0, "y": y0, "width": x1 - x0, "height": y1 - y0},
+            "anchorX": float(metadata.get("anchorX", 0.5)),
+            "anchorY": float(metadata.get("anchorY", 0.5)),
+            "flipX": metadata.get("flipX") is True,
+            "flipY": metadata.get("flipY") is True,
+        }
+        bird["cleanup"] = {
+            "x": cx0,
+            "y": cy0,
+            "width": cx1 - cx0,
+            "height": cy1 - cy0,
+            "sourceSpriteSha256": sprite_digest,
+        }
+        # Scene replacement (canonical regenerate): paste the painted crop
+        # into the scene inside the same CAS commit. The contract requires
+        # every bird's generation provenance and the restore provenance to
+        # reference the scene they now live in, so all of them advance to the
+        # composed scene's digest together.
+        staged_scene: Path | None = None
+        scene_file: Path | None = None
+        if painted_path is not None and painted_box is not None:
+            scene_rel = updated["assets"]["scene"]["path"]
+            scene_file = session_dir(session_id) / scene_rel
+            bx0, by0, bx1, by1 = [int(value) for value in painted_box]
+            with Image.open(scene_file) as scene_image, Image.open(painted_path) as crop_image:
+                composed = scene_image.convert("RGB")
+                composed.paste(crop_image.convert("RGB").resize((bx1 - bx0, by1 - by0)), (bx0, by0))
+                # Durable digest-addressed staging: if the process dies between
+                # the pointer commit and the scene replace, the committed
+                # revision's exact bytes remain recoverable here instead of
+                # the level being stranded on a scene hash that exists nowhere
+                # (codex review 2026-08-12 finding #1).
+                staging_root = session_dir(session_id) / ".canonical" / "staging"
+                staging_root.mkdir(parents=True, exist_ok=True)
+                staged_temp = staging_root / f".scene-{uuid.uuid4().hex}.png"
+                composed.save(staged_temp, format="PNG")
+                composed.close()
+            scene_bytes = staged_temp.read_bytes()
+            scene_digest = hashlib.sha256(scene_bytes).hexdigest()
+            staged_scene = staging_root / f"scene-{scene_digest}.png"
+            os.replace(staged_temp, staged_scene)
+            updated["assets"]["scene"] = {
+                "path": scene_rel,
+                "sha256": scene_digest,
+                "bytes": len(scene_bytes),
+            }
+            for item in updated["birds"]:
+                item["activeGeneration"]["inputSceneSha256"] = scene_digest
+            updated["restore"]["sourceSceneSha256"] = scene_digest
+        try:
+            pointer = store.commit(
+                updated,
+                expected_content_revision=current.pointer.content_revision,
+                expected_operational_revision=current.pointer.operational_revision,
+            )
+            if staged_scene is not None and scene_file is not None:
+                os.replace(staged_scene, scene_file)
+                staged_scene = None
+            project_canonical_bird_compatibility(session_id, updated, captured.bird_id)
+            return pointer, "committed"
+        except RevisionConflictError:
+            continue
+        finally:
+            if staged_scene is not None:
+                staged_scene.unlink(missing_ok=True)
+    return None, "revision_conflict"
+
+
 def dogs_dir(session_id: str) -> Path:
     return session_dir(session_id) / "dogs"
+
+
+def project_canonical_bird_compatibility(session_id: str, snapshot: dict[str, Any], bird_id: str) -> None:
+    """Mirror one canonical bird into the compatibility surfaces the editor reads.
+
+    Canonical commits are the truth, but sprite candidates, review readiness,
+    and the sprite-candidate asset endpoint all read the legacy sidecar and
+    dogs/<slot>/sprite_XXX.png files. Without this projection a committed
+    extraction or placement is invisible in the editor — the job reports
+    "saved" while the browser keeps serving the old pixels (2026-08-12).
+    Best-effort by design: a projection failure must not fail the commit that
+    already happened; the next projection converges.
+    """
+    try:
+        # Guard against out-of-order projection: two commits can finish A→B
+        # while their projections run B→A, leaving legacy surfaces on A with
+        # canonical at B. Only the snapshot that IS the current revision may
+        # project (codex review 2026-08-12 finding #5).
+        from levelbuilder.api.canonical_bird_contract import snapshot_revisions
+        current = canonical_session_store(session_id).read()
+        if current.pointer is None:
+            return
+        if snapshot_revisions(snapshot).content_revision != current.pointer.content_revision:
+            return
+        bird = next(item for item in snapshot.get("birds", []) if item.get("birdId") == bird_id)
+        slot = bird["compatibilitySlot"]
+        asset_rel = bird["sprite"]["asset"]["path"]
+        base = session_dir(session_id)
+        source = base / asset_rel
+        stem = Path(asset_rel).name
+        target = dogs_dir(session_id) / slot / stem
+        target.parent.mkdir(parents=True, exist_ok=True)
+        if source.is_file() and source.resolve() != target.resolve():
+            temporary = target.with_name(f".{target.name}.tmp")
+            shutil.copy2(source, temporary)
+            temporary.replace(target)
+            mask_name = stem.replace("sprite_", "sprite_mask_")
+            source_mask = source.with_name(mask_name)
+            if source_mask.is_file():
+                temporary_mask = target.with_name(f".{mask_name}.tmp")
+                shutil.copy2(source_mask, temporary_mask)
+                temporary_mask.replace(target.with_name(mask_name))
+        sidecar_path = target.with_suffix(".json")
+        try:
+            sidecar = json.loads(sidecar_path.read_text())
+            if not isinstance(sidecar, dict):
+                sidecar = {}
+        except (OSError, json.JSONDecodeError):
+            sidecar = {}
+        placement = bird["sprite"]["placement"]
+        cleanup = bird["cleanup"]
+        sidecar.update({
+            "image": f"dogs/{slot}/{stem}",
+            "spriteBox": [
+                placement["x"], placement["y"],
+                placement["x"] + placement["width"], placement["y"] + placement["height"],
+            ],
+            "cleanupBox": [
+                cleanup["x"], cleanup["y"],
+                cleanup["x"] + cleanup["width"], cleanup["y"] + cleanup["height"],
+            ],
+            "anchorX": bird["sprite"].get("anchorX", 0.5),
+            "anchorY": bird["sprite"].get("anchorY", 0.5),
+            "flipX": bird["sprite"].get("flipX") is True,
+            "flipY": bird["sprite"].get("flipY") is True,
+        })
+        confirmation = (snapshot.get("operational", {}).get("candidateReviews", {}) or {}).get(bird_id)
+        if isinstance(confirmation, dict) and confirmation.get("generationId") == bird.get("activeGeneration", {}).get("generationId"):
+            review = sidecar.get("humanReview") if isinstance(sidecar.get("humanReview"), dict) else {}
+            review["confirmed"] = confirmation.get("confirmed") is True
+            sidecar["humanReview"] = review
+        temporary_sidecar = sidecar_path.with_suffix(".json.tmp")
+        temporary_sidecar.write_text(json.dumps(sidecar, indent=2) + "\n")
+        temporary_sidecar.replace(sidecar_path)
+    except (KeyError, StopIteration, OSError, TypeError, ValueError):
+        return
 
 
 def clone_session(src_id: str, new_id: str, *, reset_paint: bool = False) -> dict:
@@ -2007,6 +2639,7 @@ def list_sessions(*, include_public: bool = False) -> list[dict]:
             if orientation not in ("portrait", "landscape"):
                 orientation = "landscape" if width > height else "portrait"
 
+            canonical = read_canonical_session(d.name)
             hitbox_review = get_hitbox_review_status(d.name)
             final_cutout_review = get_final_cutout_review_status(
                 d.name, hitbox_status=hitbox_review,
@@ -2016,6 +2649,7 @@ def list_sessions(*, include_public: bool = False) -> list[dict]:
                 if hitbox_review["current"]
                 else {"ready": False, "activeBirds": n_dogs, "missingCutouts": n_dogs}
             )
+            canonical_state = canonical.state.value
 
             review_sidecars = []
             for sidecar_path in d.glob("dogs/dog_*/sprite_*.json"):
@@ -2061,6 +2695,7 @@ def list_sessions(*, include_public: bool = False) -> list[dict]:
                 "tags": tags,
                 "createdAt": created_at,
                 "orientation": orientation,
+                "canonicalState": canonical_state,
                 "assetBase": asset_base,
                 "humanConfirmedBirds": human_confirmed_birds,
                 "reviewableBirds": len(review_sidecars),
@@ -2487,7 +3122,7 @@ def hydrate_session(session_id: str) -> dict | None:
         for level in bundled_manifest.get("levels") or []
     )
     catalog_entry = _catalog_level_entry(session_id)
-    return {
+    payload = {
         "id": session_id,
         "orientation": orientation,
         "style": raw.get("style", ""),
@@ -2534,6 +3169,71 @@ def hydrate_session(session_id: str) -> dict | None:
             "feather": float(mask_params.get("feather", 0.0)),
         },
     }
+    return _overlay_canonical_truth(session_id, payload)
+
+
+def _overlay_canonical_truth(session_id: str, payload: dict) -> dict:
+    """A1/P1.1: for VALID_CURRENT sessions the snapshot is the read truth —
+    hitboxes, bird identity, sprite geometry, and revision stamps come from the
+    canonical store, never from sidecars that may lag or be clobbered. Every
+    hydrate_session consumer gets this; there is no un-overlaid read path."""
+    from .canonical_bird_contract import CanonicalReadState
+
+    canonical = read_canonical_session(session_id)
+    payload["canonicalState"] = canonical.state.value
+    # A partial/quarantined store must never present sidecar state as editable
+    # truth (CR-item3 P0 #3): fields stay for triage, editing is blocked.
+    payload["editingBlocked"] = canonical.state in (
+        CanonicalReadState.ORPHANED_STAGE,
+        CanonicalReadState.QUARANTINED_INTEGRITY,
+    )
+    if canonical.state is not CanonicalReadState.VALID_CURRENT or canonical.snapshot is None:
+        return payload
+    snapshot = canonical.snapshot
+    payload["contentRevision"] = canonical.pointer.content_revision
+    payload["operationalRevision"] = canonical.pointer.operational_revision
+
+    from .artifact_dag import pending_obligations
+
+    payload["pendingObligations"] = pending_obligations(snapshot)
+    birds = sorted(snapshot["birds"], key=lambda b: b.get("presentationOrder", 0))
+    payload["hitboxes"] = [
+        {"x": b["hitbox"]["x"], "y": b["hitbox"]["y"], "r": b["hitbox"]["r"], "id": b["birdId"]}
+        for b in birds
+    ]
+    slot_index = {b["compatibilitySlot"]: b for b in birds}
+    by_slot = {f"dog_{dog['index']:02d}": dog for dog in payload.get("dogs", [])}
+    # The snapshot's bird set IS the dog set (CR-item3 P0 #1): sidecar dogs
+    # without a canonical bird are stale and dropped; canonical birds missing
+    # from the sidecar are synthesized. Output order == hitbox order
+    # (presentationOrder) so positional UI joins stay coherent (P0 #2).
+    dogs: list[dict[str, Any]] = []
+    for bird in birds:
+        slot = bird["compatibilitySlot"]
+        dog = by_slot.get(slot)
+        if dog is None:
+            dog = {
+                "index": int(slot.removeprefix("dog_")),
+                "id": bird["birdId"],
+                "status": "done" if (bird.get("sprite") or {}).get("asset") else "pending",
+                "activeVariant": None,
+                "promptOverride": None,
+                "variants": [],
+            }
+        _overlay_bird_onto_dog(dog, bird)
+        dogs.append(dog)
+    payload["dogs"] = dogs
+    return payload
+
+
+def _overlay_bird_onto_dog(dog: dict, bird: dict) -> None:
+    dog["id"] = bird["birdId"]
+    sprite = bird.get("sprite") or {}
+    placement = sprite.get("placement")
+    if isinstance(placement, dict):
+        dog["spritePlacement"] = dict(placement)
+    dog["spriteFlipX"] = bool(sprite.get("flipX", False))
+    dog["spriteFlipY"] = bool(sprite.get("flipY", False))
 
 
 def create_session(
@@ -3109,12 +3809,21 @@ def recenter_hitboxes_to_sprites(
         variant = dog.get("activeVariant")
         if not isinstance(index, int) or not isinstance(variant, int):
             continue
-        if index >= len(hitboxes):
-            continue
         sprite = _level_sprite_metadata(session_id, index, variant)
         if sprite is None:
             continue
-        hb = hitboxes[index]
+        # Bind the hitbox by stable id: dog.index is the sprite SLOT, not the
+        # hitboxes array position, and the two diverge whenever slots have
+        # gaps (pruned or imported levels). Positional fallback only for
+        # legacy sessions without ids.
+        hb = next(
+            (item for item in hitboxes if isinstance(item, dict) and item.get("id") and item.get("id") == dog.get("id")),
+            None,
+        )
+        if hb is None:
+            if dog.get("id") is not None or index >= len(hitboxes):
+                continue
+            hb = hitboxes[index]
         cx = sprite["x"] + sprite["width"] / 2
         cy = sprite["y"] + sprite["height"] / 2
         inside = (
@@ -3842,6 +4551,37 @@ def save_hitboxes(session_id: str, hitboxes: list[dict]) -> list[dict] | None:
     """
     if is_public_package_only(session_id):
         return
+    # P1.6 chokepoint: on VALID_CURRENT sessions the sidecar is a projection —
+    # a legacy writer landing here goes through the geometry service (machine
+    # replace_set, R7-guarded), loudly, instead of clobbering canonical truth.
+    # Fail-closed lane selection (merge-review F1): quarantined/orphaned
+    # stores raise here — they never fall through to the sidecar writer.
+    from .canonical_assets import select_lane
+
+    canonical = read_canonical_session(session_id)
+    lane = select_lane(canonical.state)
+    if lane == "canonical" and canonical.pointer is not None:
+        import logging
+
+        from .geometry_service import mutate_geometry
+
+        logging.getLogger(__name__).warning(
+            "save_hitboxes on canonical session %s routed through geometry service "
+            "(legacy writer should migrate to mutate_geometry)", session_id,
+        )
+        mutate_geometry(
+            session_id,
+            "replace_set",
+            hitboxes=hitboxes,
+            expected_content_revision=canonical.pointer.content_revision,
+            actor="machine:legacy-writer",
+        )
+        snapshot = read_canonical_session(session_id).snapshot or {}
+        birds = sorted(snapshot.get("birds", []), key=lambda b: b.get("presentationOrder", 0))
+        return [
+            {"id": b["birdId"], "x": b["hitbox"]["x"], "y": b["hitbox"]["y"], "r": b["hitbox"]["r"]}
+            for b in birds
+        ]
     sdir = session_dir(session_id)
     # Stable-id reconcile (A1 mint + B2 Slice-1 reconcile-by-id, spec -004 §6.3).
     # Three cases per incoming hitbox, NONE of which re-stamp an existing identity:
@@ -4429,6 +5169,28 @@ def export_to_game(
     _validate_session_id_or_raise(session_id)
     sdir = session_dir(session_id)
     public_levels_root = destination_root or GAME_PUBLIC_LEVELS
+    canonical = read_canonical_session(session_id)
+    from .canonical_bird_contract import CanonicalReadState
+
+    if canonical.state is not CanonicalReadState.MIGRATION_REQUIRED and canonical.pointer is None:
+        detail = f": {canonical.detail}" if canonical.detail else ""
+        raise LevelNotReadyError(f"canonical authoring is {canonical.state.value}{detail}")
+    if canonical.pointer is not None:
+        from .canonical_export import CanonicalExportError, export_canonical_revision
+
+        try:
+            result = export_canonical_revision(canonical_session_store(session_id), public_levels_root)
+        except CanonicalExportError as error:
+            raise LevelNotReadyError(str(error)) from error
+        if update_preview_manifest:
+            _ensure_levels_index_entry(session_id)
+            upsert_bundled_manifest_level(session_id)
+        return {
+            "levelId": session_id,
+            "path": f"public/levels/{session_id}/",
+            "variant": "canonical",
+            "contentRevision": result["contentRevision"],
+        }
     dst = public_levels_root / session_id
     color_src_name = _VARIANT_COLOR_SRC.get(variant, "color.png")
     color_src = sdir / color_src_name
@@ -5045,6 +5807,24 @@ def _cleanup_package_backup(backup: Path | None) -> None:
         shutil.rmtree(backup)
 
 
+def _retain_immutable_package_revision(session_id: str, staging_root: Path, content_revision: str) -> Path:
+    """Keep canonical package bytes addressable for catalog rollback and installed clients."""
+    revision_slug = content_revision.removeprefix("sha256:")
+    retained = GAME_PUBLIC_LEVELS / ".package-revisions" / session_id / revision_slug
+    staged = staging_root / session_id
+    if retained.exists():
+        return retained
+    retained.parent.mkdir(parents=True, exist_ok=True)
+    temporary = retained.with_name(f".{retained.name}.tmp-{uuid.uuid4().hex}")
+    try:
+        shutil.copytree(staged, temporary)
+        os.replace(temporary, retained)
+    finally:
+        if temporary.exists():
+            shutil.rmtree(temporary)
+    return retained
+
+
 def _catalog_approval_signature(
     *,
     session_id: str,
@@ -5195,6 +5975,11 @@ def approve_level_for_catalog(
                 cohort_buckets=cohort_buckets if cohort_buckets is not None else (existing_entry.get("cohortBuckets") if existing_entry else None),
             )
             entry["sourceVariant"] = export_result["variant"]
+            content_revision = export_result.get("contentRevision")
+            if isinstance(content_revision, str):
+                retained = _retain_immutable_package_revision(session_id, staging_root, content_revision)
+                entry["contentRevision"] = content_revision
+                entry["retainedPackagePath"] = retained.relative_to(GAME_PUBLIC_LEVELS).as_posix()
             existing_by_id[session_id] = _merge_existing_catalog_metadata(
                 entry,
                 existing_entry,
@@ -5474,6 +6259,26 @@ def set_archived(session_id: str, archived: bool, variant: str | None = None) ->
     with _session_lock:
         raw = load_session_raw(session_id)
         if raw is None:
+            # Package-only level: the authoring session is gone but the card
+            # still lists from the public root. The archive ledger is the only
+            # persistence available — silently returning here made the archive
+            # button report success and change nothing (2026-08-12). Merge with
+            # the existing ledger entry using the same add/discard semantics as
+            # session.json so archiving variant B never drops variant A.
+            existing = _load_archive_ledger().get(session_id)
+            existing = existing if isinstance(existing, dict) else {}
+            variants = set(existing.get("archivedVariants") or [])
+            umbrella = bool(existing.get("archived", False))
+            if variant is None:
+                umbrella = bool(archived)
+                if not archived:
+                    variants = set()
+            elif archived:
+                variants.add(variant)
+            else:
+                variants.discard(variant)
+                umbrella = False
+            _record_archive_state(session_id, archived=umbrella, variants=sorted(variants))
             return
         if variant is None:
             raw["archived"] = bool(archived)

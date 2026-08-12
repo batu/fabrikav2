@@ -3,6 +3,7 @@
 import asyncio
 import hashlib
 import json
+import shutil
 from datetime import datetime, timezone
 from pathlib import Path
 import logging
@@ -3003,6 +3004,7 @@ def _mark_crop_inpaint_unit_succeeded(
     variant_idx: int,
     pass_index: int,
     store: JobStore,
+    extra_result: dict[str, Any] | None = None,
 ) -> None:
     child = child_jobs.get(dog_index)
     if child is None:
@@ -3016,6 +3018,7 @@ def _mark_crop_inpaint_unit_succeeded(
             "file": file_name,
             "variantIndex": variant_idx,
             "passIndex": pass_index,
+            **(extra_result or {}),
         },
     )
 
@@ -3821,17 +3824,28 @@ class RegenRequest(BaseModel):
 
 
 class RetryFailedDogsJobRequest(BaseModel):
-    dogIndices: list[int] = Field(..., min_length=1, max_length=_MAX_HITBOXES)
+    dogIndices: list[int] = Field(default_factory=list, max_length=_MAX_HITBOXES)
+    birdIds: list[str] = Field(default_factory=list, max_length=_MAX_HITBOXES)
     prompt: str = Field(..., min_length=1, max_length=4000)
     inpaintModel: str | None = Field(None, max_length=200)
     padding: float = Field(2.75, ge=0.5, le=4.0)
     cropBoxes: dict[int, tuple[int, int, int, int]] = Field(default_factory=dict)
+    cropBoxesByBirdId: dict[str, tuple[int, int, int, int]] = Field(default_factory=dict)
     cutoutOnly: bool = False
+    expectedContentRevision: str | None = None
+    # Per-click client nonce. Distinct nonces force a fresh job even when all
+    # other inputs match a previously completed one; identical nonces (poll
+    # retries, resume) still dedupe onto the same job.
+    attemptNonce: str | None = Field(None, max_length=64)
 
 
 class RetryFailedDogUnitResponse(BaseModel):
     dogIndex: int
+    birdId: str | None = None
+    inputContentRevision: str | None = None
     status: str
+    stage: str
+    disposition: str | None = None
     retryable: bool
     error: str | None = None
     file: str | None = None
@@ -3843,6 +3857,7 @@ class RetryFailedDogsJobResponse(BaseModel):
     status: str
     succeeded: int = 0
     failed: int = 0
+    stale: int = 0
     units: list[RetryFailedDogUnitResponse] = Field(default_factory=list)
     error: str | None = None
 
@@ -3907,6 +3922,8 @@ def _run_single_dog_regen(
     crop_box: tuple[int, int, int, int] | None = None,
     inpaint_model: str | None,
     defer_composite: bool,
+    artifact_dir: Path | None = None,
+    captured_input: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Re-inpaint a single hitbox with a (possibly tweaked) prompt.
 
@@ -3916,12 +3933,24 @@ def _run_single_dog_regen(
     consumers (builder preview, export) see the updated scene.
     """
     _validate_session_id(session_id)
-    try:
-        S.require_hitboxes_blessed(session_id)
-    except ValueError as error:
-        raise HTTPException(
-            409, detail={"error": str(error), "code": "hitboxes_not_blessed"},
-        ) from error
+    if captured_input is not None:
+        from .canonical_job_provenance import BirdJobInput, verify_bird_job_input
+
+        current = S.read_canonical_session(session_id)
+        verification = (
+            verify_bird_job_input(current.snapshot, BirdJobInput.from_dict(captured_input))
+            if current.snapshot is not None
+            else None
+        )
+        if verification is None or not verification.current:
+            raise HTTPException(409, detail={"error": "Canonical job input changed", "code": "bird_input_changed"})
+    else:
+        try:
+            S.require_hitboxes_blessed(session_id)
+        except ValueError as error:
+            raise HTTPException(
+                409, detail={"error": str(error), "code": "hitboxes_not_blessed"},
+            ) from error
     if not (0.5 <= padding <= 4.0):
         raise HTTPException(400, detail={"error": "padding must be in [0.5, 4.0]"})
 
@@ -3950,6 +3979,7 @@ def _run_single_dog_regen(
     hb = Hitbox(x=hb_data["x"], y=hb_data["y"], radius=hb_data.get("r", hb_data.get("radius", 30)))
 
     dog_dir = S.dogs_dir(session_id) / f"dog_{dog_index:02d}"
+    output_dir = artifact_dir or dog_dir
     model = inpaint_model or raw.get("inpaint_model") or raw["model"]
     if model not in INPAINT_MODEL_IDS:
         fallback_model = next((m for m in INPAINT_MODEL_IDS if m.startswith("openai/")), None)
@@ -3985,24 +4015,37 @@ def _run_single_dog_regen(
             painted = resized
         dog_mask = _extract_dog_pixels(crop_before, painted, threshold=30)
 
-        dog_dir.mkdir(parents=True, exist_ok=True)
-        with S._session_lock:
-            variant_idx = S.get_next_variant_index(session_id, dog_index)
-        variant_path = dog_dir / f"variant_{variant_idx:03d}.png"
+        output_dir.mkdir(parents=True, exist_ok=True)
+        if artifact_dir is not None:
+            variant_idx = 0
+        else:
+            with S._session_lock:
+                variant_idx = S.get_next_variant_index(session_id, dog_index)
+        variant_path = output_dir / f"variant_{variant_idx:03d}.png"
         _atomic_save_image(painted, variant_path)
         write_generation_sidecar(
             variant_path, kind="dog_regenerate", prompt=prompt, model=model,
             params={"dogIndex": dog_index},
         )
         _save_variant_box(variant_path, box)
-        try:
-            S.require_hitboxes_blessed(session_id)
-        except ValueError as error:
-            raise HTTPException(
-                409, detail={"error": str(error), "code": "hitboxes_not_blessed"},
-            ) from error
+        if captured_input is not None:
+            current = S.read_canonical_session(session_id)
+            verification = (
+                verify_bird_job_input(current.snapshot, BirdJobInput.from_dict(captured_input))
+                if current.snapshot is not None
+                else None
+            )
+            if verification is None or not verification.current:
+                raise HTTPException(409, detail={"error": "Canonical job input changed", "code": "bird_input_changed"})
+        else:
+            try:
+                S.require_hitboxes_blessed(session_id)
+            except ValueError as error:
+                raise HTTPException(
+                    409, detail={"error": str(error), "code": "hitboxes_not_blessed"},
+                ) from error
         sprite_metadata = _save_sprite_assets(
-            dog_dir=dog_dir,
+            dog_dir=output_dir,
             variant_idx=variant_idx,
             painted=painted,
             dog_mask=dog_mask,
@@ -4013,34 +4056,39 @@ def _run_single_dog_regen(
         )
         if sprite_metadata is None:
             raise RuntimeError(f"regenerated dog {dog_index} did not yield a usable pickup sprite")
-        with S._session_lock:
+        if artifact_dir is None:
+            with S._session_lock:
             # Flip this dog's activeVariant to the just-saved index so
             # the global recompose below picks up the new paint.
-            raw_current = S.load_session_raw(session_id)
-            if raw_current is not None:
-                dogs = raw_current.setdefault("dogs", [])
-                dog_entry = next((d for d in dogs if d["index"] == dog_index), None)
-                if dog_entry is None:
+                raw_current = S.load_session_raw(session_id)
+                if raw_current is not None:
+                    dogs = raw_current.setdefault("dogs", [])
+                    dog_entry = next((d for d in dogs if d["index"] == dog_index), None)
+                    if dog_entry is None:
                     # A1: stamp a stable id on creation, identically to the other
                     # mint sites (set_active_variant / update_dog_status).
-                    dogs.append(S._new_dog_meta(
-                        session_id, dog_index, status="done", active_variant=variant_idx,
-                    ))
-                else:
-                    dog_entry["status"] = "done"
-                    dog_entry["activeVariant"] = variant_idx
-                S.save_session(session_id, raw_current)
+                        dogs.append(S._new_dog_meta(
+                            session_id, dog_index, status="done", active_variant=variant_idx,
+                        ))
+                    else:
+                        dog_entry["status"] = "done"
+                        dog_entry["activeVariant"] = variant_idx
+                    S.save_session(session_id, raw_current)
 
-        placement = _auto_place_cutout_best_safe(
-            session_id, dog_index, variant_idx,
-            painted_crop=painted,
-            painted_box=box,
+        placement = (
+            {"method": "staged", "accepted": True, "fittedBox": sprite_metadata["spriteBox"]}
+            if artifact_dir is not None
+            else _auto_place_cutout_best_safe(
+                session_id, dog_index, variant_idx,
+                painted_crop=painted,
+                painted_box=box,
+            )
         )
 
         # Full recomposite, but with the exact same raw diff-mask paste
         # used by the initial inpaint stream. Radial/feather made regen
         # and variant swaps diverge from first-pass output.
-        if not defer_composite:
+        if artifact_dir is None and not defer_composite:
             recomposite_color(session_id)
     except InpaintError as e:
         raise e
@@ -4057,13 +4105,18 @@ def _run_single_dog_regen(
             closed.add(image_id)
             image.close()
 
-    S.update_dog_status(session_id, dog_index, "done", activeVariant=variant_idx)
+    if artifact_dir is None:
+        S.update_dog_status(session_id, dog_index, "done", activeVariant=variant_idx)
 
     return {
         "variantIndex": variant_idx,
         "file": f"dogs/dog_{dog_index:02d}/variant_{variant_idx:03d}.png",
         "composited": not defer_composite,
         "placement": placement,
+        "artifactSpritePath": str(output_dir / f"sprite_{variant_idx:03d}.png") if artifact_dir is not None else None,
+        "artifactPaintedPath": str(variant_path) if artifact_dir is not None else None,
+        "paintedBox": list(box) if artifact_dir is not None else None,
+        "spriteMetadata": sprite_metadata if artifact_dir is not None else None,
     }
 
 
@@ -4194,7 +4247,90 @@ def _retry_crop_target(session_id: str, dog_index: int, hitbox: dict) -> tuple[i
 def _start_retry_failed_dogs_job_record(session_id: str, req: RetryFailedDogsJobRequest) -> JobRecord:
     _validate_session_id(session_id)
     hitbox_review: dict[str, Any] | None = None
-    if req.cutoutOnly:
+    canonical = S.read_canonical_session(session_id)
+    canonical_inputs = []
+    if canonical.snapshot is not None and canonical.pointer is not None:
+        from .canonical_bird_contract import CanonicalReadState
+        from .canonical_job_provenance import capture_bird_job_input, encode_job_inputs
+
+        if canonical.state is not CanonicalReadState.VALID_CURRENT:
+            raise HTTPException(409, detail={"code": "canonical_integrity", "error": canonical.detail})
+        if req.expectedContentRevision != canonical.pointer.content_revision:
+            raise HTTPException(409, detail={
+                "code": "content_revision_conflict",
+                "expectedContentRevision": req.expectedContentRevision,
+                "actualContentRevision": canonical.pointer.content_revision,
+                "changedArtifactClasses": ["generationInput"],
+            })
+        bird_ids = list(dict.fromkeys(req.birdIds))
+        if not bird_ids:
+            raise HTTPException(400, detail={"error": "birdIds must be non-empty for canonical sessions"})
+        if req.dogIndices:
+            raise HTTPException(400, detail={"error": "dogIndices are legacy-only; use birdIds"})
+        birds = {bird["birdId"]: bird for bird in canonical.snapshot["birds"]}
+        unknown = [bird_id for bird_id in bird_ids if bird_id not in birds]
+        if unknown:
+            raise HTTPException(404, detail={"error": f"Unknown birdId: {unknown[0]}"})
+        missing_crop = [bird_id for bird_id in bird_ids if bird_id not in req.cropBoxesByBirdId]
+        if req.cutoutOnly and missing_crop:
+            raise HTTPException(400, detail={"error": f"Cutout-only redo requires a crop box for {missing_crop[0]}"})
+        if req.cutoutOnly and "hitboxes" not in canonical.snapshot.get("reviews", {}):
+            raise HTTPException(409, detail={"error": "Bless the current hitboxes first", "code": "hitboxes_not_blessed"})
+        raw = S.ensure_session_json(session_id)
+        if raw is None:
+            raise HTTPException(404, detail={"error": "Session not found"})
+        model = req.inpaintModel or raw.get("inpaint_model") or raw["model"]
+        for bird_id in bird_ids:
+            crop_box = req.cropBoxesByBirdId.get(bird_id)
+            if crop_box is None:
+                cleanup = birds[bird_id].get("cleanup")
+                if cleanup is None:
+                    # CR-1 finding 4: a pre-extraction bird (CL-3 add) has no
+                    # cleanup yet — derive the crop from its hitbox with the
+                    # same padding contract the placement lane uses.
+                    hb = birds[bird_id]["hitbox"]
+                    pad = max(2 * int(hb.get("r", 30)), 96)
+                    crop_box = (hb["x"] - pad, hb["y"] - pad, hb["x"] + pad, hb["y"] + pad)
+                else:
+                    crop_box = (
+                        cleanup["x"],
+                        cleanup["y"],
+                        cleanup["x"] + cleanup["width"],
+                        cleanup["y"] + cleanup["height"],
+                    )
+            # Same containment contract as the legacy lane (which targets the
+            # sprite anchor, falling back to the hitbox): a client-supplied
+            # crop that no longer contains the bird (moved by another client,
+            # stale retry after a revision conflict) must be rejected here,
+            # before any provider spend (codex review 2026-08-12 finding #7).
+            bird = birds[bird_id]
+            hitbox = bird["hitbox"]
+            sprite = bird.get("sprite")
+            if sprite and isinstance(sprite.get("placement"), dict):
+                placement = sprite["placement"]
+                target_x = round(placement["x"] + float(sprite.get("anchorX", 0.5)) * placement["width"])
+                target_y = round(placement["y"] + float(sprite.get("anchorY", 0.5)) * placement["height"])
+            else:
+                # Pre-extraction bird: the hitbox IS the target (CL-4/CL-5).
+                target_x, target_y = int(hitbox["x"]), int(hitbox["y"])
+            x0, y0, x1, y1 = (int(value) for value in crop_box)
+            radius = int(hitbox.get("r", 30))
+            if x0 >= x1 or y0 >= y1:
+                raise HTTPException(400, detail={"error": f"Invalid crop box for bird {bird_id}"})
+            if not (x0 <= target_x - radius and x1 >= target_x + radius and
+                    y0 <= target_y - radius and y1 >= target_y + radius):
+                raise HTTPException(400, detail={"error": f"Crop box must contain bird {bird_id}'s hitbox"})
+            canonical_inputs.append(capture_bird_job_input(
+                canonical.snapshot,
+                bird_id=bird_id,
+                operation="cutout-extraction" if req.cutoutOnly else "regenerate",
+                crop_box=tuple(crop_box),
+                model=model,
+                prompt=req.prompt,
+            ))
+        dog_indices = [int(birds[item.bird_id]["compatibilitySlot"].removeprefix("dog_")) for item in canonical_inputs]
+        canonical_key_material = encode_job_inputs(canonical_inputs)
+    elif req.cutoutOnly:
         try:
             hitbox_review = S.require_hitboxes_blessed(session_id)
         except ValueError as error:
@@ -4204,36 +4340,45 @@ def _start_retry_failed_dogs_job_record(session_id: str, req: RetryFailedDogsJob
     raw = S.ensure_session_json(session_id)
     if raw is None:
         raise HTTPException(404, detail={"error": "Session not found"})
-    dog_indices = _normalized_retry_dog_indices(session_id, req.dogIndices)
-    unknown_crop_boxes = sorted(set(req.cropBoxes) - set(dog_indices))
+    if not canonical_inputs:
+        dog_indices = _normalized_retry_dog_indices(session_id, req.dogIndices)
+    unknown_crop_boxes = sorted(set(req.cropBoxes) - set(dog_indices)) if not canonical_inputs else []
     if unknown_crop_boxes:
         raise HTTPException(400, detail={"error": f"Crop box supplied for unselected dog: {unknown_crop_boxes[0]}"})
-    hitboxes = _load_retry_hitboxes(session_id)
-    dogs = raw.get("dogs") or []
-    for dog_index, box in req.cropBoxes.items():
-        hb = _resolve_regen_hitbox(dogs, hitboxes, dog_index)
-        if hb is None:
-            raise HTTPException(404, detail={"error": f"Dog index out of range: {dog_index}"})
-        x0, y0, x1, y1 = box
-        radius = int(hb.get("r", hb.get("radius", 30)))
-        target_x, target_y = _retry_crop_target(session_id, dog_index, hb)
-        if x0 < 0 or y0 < 0 or x1 <= x0 or y1 <= y0:
-            raise HTTPException(400, detail={"error": f"Invalid crop box for dog {dog_index}"})
-        if not (x0 <= target_x - radius and x1 >= target_x + radius and
-                y0 <= target_y - radius and y1 >= target_y + radius):
-            raise HTTPException(400, detail={"error": f"Crop box must contain dog {dog_index}'s hitbox"})
+    if req.cropBoxes and not canonical_inputs:
+        hitboxes = _load_retry_hitboxes(session_id)
+        dogs = raw.get("dogs") or []
+        for dog_index, box in req.cropBoxes.items():
+            hb = _resolve_regen_hitbox(dogs, hitboxes, dog_index)
+            if hb is None:
+                raise HTTPException(404, detail={"error": f"Dog index out of range: {dog_index}"})
+            x0, y0, x1, y1 = box
+            radius = int(hb.get("r", hb.get("radius", 30)))
+            target_x, target_y = _retry_crop_target(session_id, dog_index, hb)
+            if x0 < 0 or y0 < 0 or x1 <= x0 or y1 <= y0:
+                raise HTTPException(400, detail={"error": f"Invalid crop box for dog {dog_index}"})
+            if not (x0 <= target_x - radius and x1 >= target_x + radius and
+                    y0 <= target_y - radius and y1 >= target_y + radius):
+                raise HTTPException(400, detail={"error": f"Crop box must contain dog {dog_index}'s hitbox"})
     model = req.inpaintModel or raw.get("inpaint_model") or raw["model"]
     if req.cutoutOnly and (model not in INPAINT_MODEL_IDS or model.startswith("fal-ai/")):
         raise HTTPException(400, detail={"error": f"Invalid cutout extraction model: {model}"})
-    key = _retry_failed_dogs_idempotency_key(
-        session_id,
-        dog_indices=dog_indices,
-        prompt=req.prompt,
-        model=model,
-        padding=req.padding,
-        crop_boxes=req.cropBoxes,
-        cutout_only=req.cutoutOnly,
+    key = (
+        f"crop-inpaint-retry:{session_id}:"
+        f"{hashlib.sha256(canonical_key_material.encode('utf-8')).hexdigest()}"
+        if canonical_inputs
+        else _retry_failed_dogs_idempotency_key(
+            session_id,
+            dog_indices=dog_indices,
+            prompt=req.prompt,
+            model=model,
+            padding=req.padding,
+            crop_boxes=req.cropBoxes,
+            cutout_only=req.cutoutOnly,
+        )
     )
+    if req.attemptNonce:
+        key = f"{key}:nonce:{req.attemptNonce}"
     existing = JOB_STORE.get_job_by_idempotency_key(kind="crop_inpaint_retry", idempotency_key=key)
     if existing is not None:
         if _should_requeue_failed_generation_job(existing):
@@ -4249,9 +4394,14 @@ def _start_retry_failed_dogs_job_record(session_id: str, req: RetryFailedDogsJob
             "prompt": req.prompt,
             "model": model,
             "padding": req.padding,
-            "cropBoxes": {str(index): list(box) for index, box in req.cropBoxes.items()},
+            "cropBoxes": (
+                {str(index): list(item.crop_box) for index, item in zip(dog_indices, canonical_inputs)}
+                if canonical_inputs
+                else {str(index): list(box) for index, box in req.cropBoxes.items()}
+            ),
             "cutoutOnly": req.cutoutOnly,
             "hitboxesSha256": hitbox_review.get("currentHitboxesSha256") if hitbox_review else None,
+            "birdInputs": [item.to_dict() for item in canonical_inputs],
             "safeToRequeue": True,
         },
     )
@@ -4262,22 +4412,29 @@ def _retry_failed_dogs_job_response(job: JobRecord) -> RetryFailedDogsJobRespons
         JOB_STORE.list_child_jobs(job.id, kind=_CROP_INPAINT_UNIT_KIND),
         key=lambda child: int(child.metadata.get("dogIndex") or 0),
     )
-    units = [
-        RetryFailedDogUnitResponse(
-            dogIndex=int(child.metadata.get("dogIndex") or child.result.get("dogIndex") or 0),
+    units = []
+    for child in children:
+        result = child.result if isinstance(child.result, dict) else {}
+        bird_input = child.metadata.get("birdInput")
+        input_revision = bird_input.get("contentRevision") if isinstance(bird_input, dict) else None
+        units.append(RetryFailedDogUnitResponse(
+            dogIndex=int(child.metadata.get("dogIndex") or result.get("dogIndex") or 0),
+            birdId=child.metadata.get("birdId") if isinstance(child.metadata.get("birdId"), str) else None,
+            inputContentRevision=input_revision if isinstance(input_revision, str) else None,
             status=child.status,
+            stage=child.stage,
+            disposition=result.get("disposition") if isinstance(result.get("disposition"), str) else None,
             retryable=child.retryable,
             error=child.error_message,
-            file=child.result.get("file") if isinstance(child.result.get("file"), str) else None,
-            variantIndex=child.result.get("variantIndex") if isinstance(child.result.get("variantIndex"), int) else None,
-        )
-        for child in children
-    ]
+            file=result.get("file") if isinstance(result.get("file"), str) else None,
+            variantIndex=result.get("variantIndex") if isinstance(result.get("variantIndex"), int) else None,
+        ))
     return RetryFailedDogsJobResponse(
         jobId=job.id,
         status=job.status,
         succeeded=int(job.result.get("succeeded") or 0),
         failed=int(job.result.get("failed") or 0),
+        stale=int(job.result.get("stale") or 0),
         units=units,
         error=job.error_message,
     )
@@ -4289,14 +4446,23 @@ def _prepare_retry_failed_dog_unit_jobs(
     dog_indices: list[int],
 ) -> dict[int, JobRecord]:
     child_jobs: dict[int, JobRecord] = {}
-    for dog_index in dog_indices:
+    bird_inputs = job.metadata.get("birdInputs") or []
+    for position, dog_index in enumerate(dog_indices):
+        bird_input = bird_inputs[position] if position < len(bird_inputs) else None
+        bird_id = bird_input.get("birdId") if isinstance(bird_input, dict) else None
         child = store.create_job(
             kind=_CROP_INPAINT_UNIT_KIND,
             session_id=job.session_id,
             parent_job_id=job.id,
-            idempotency_key=f"{job.id}:dog:{dog_index}",
+            idempotency_key=(
+                f"{job.id}:bird:{bird_input['idempotencyKey']}"
+                if isinstance(bird_input, dict)
+                else f"{job.id}:dog:{dog_index}"
+            ),
             metadata={
                 "dogIndex": dog_index,
+                "birdId": bird_id,
+                "birdInput": bird_input,
                 "passIndex": 0,
                 "safeToRequeue": True,
                 "retryKind": "failed_dog",
@@ -4446,22 +4612,36 @@ def _run_single_cutout_extraction(
     crop_box: tuple[int, int, int, int],
     inpaint_model: str | None = None,
     expected_hitboxes_sha256: str | None = None,
+    artifact_dir: Path | None = None,
+    captured_input: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Extract and duplicate only the pickup sprite; scene and hitboxes stay immutable."""
-    try:
-        hitbox_review = S.require_hitboxes_blessed(session_id)
-    except ValueError as error:
-        raise HTTPException(
-            409, detail={"error": str(error), "code": "hitboxes_not_blessed"},
-        ) from error
-    if (
-        expected_hitboxes_sha256 is not None
-        and hitbox_review.get("currentHitboxesSha256") != expected_hitboxes_sha256
-    ):
-        raise HTTPException(
-            409,
-            detail={"error": "Blessed hitboxes changed after this cutout job was queued", "code": "hitboxes_changed"},
+    if captured_input is not None:
+        from .canonical_job_provenance import BirdJobInput, verify_bird_job_input
+
+        current = S.read_canonical_session(session_id)
+        verification = (
+            verify_bird_job_input(current.snapshot, BirdJobInput.from_dict(captured_input))
+            if current.snapshot is not None
+            else None
         )
+        if verification is None or not verification.current:
+            raise HTTPException(409, detail={"error": "Canonical job input changed", "code": "bird_input_changed"})
+    else:
+        try:
+            hitbox_review = S.require_hitboxes_blessed(session_id)
+        except ValueError as error:
+            raise HTTPException(
+                409, detail={"error": str(error), "code": "hitboxes_not_blessed"},
+            ) from error
+        if (
+            expected_hitboxes_sha256 is not None
+            and hitbox_review.get("currentHitboxesSha256") != expected_hitboxes_sha256
+        ):
+            raise HTTPException(
+                409,
+                detail={"error": "Blessed hitboxes changed after this cutout job was queued", "code": "hitboxes_changed"},
+            )
     raw = S.ensure_session_json(session_id)
     if raw is None:
         raise HTTPException(404, detail={"error": "Session not found"})
@@ -4519,26 +4699,40 @@ def _run_single_cutout_extraction(
     fitted_width, fitted_height = fitted.size
     placed_box = [placed_x0, placed_y0, placed_x0 + fitted_width, placed_y0 + fitted_height]
     alpha = fitted.getchannel("A")
-    try:
-        current_hitbox_review = S.require_hitboxes_blessed(session_id)
-    except ValueError as error:
-        fitted.close()
-        alpha.close()
-        raise HTTPException(
-            409, detail={"error": str(error), "code": "hitboxes_not_blessed"},
-        ) from error
-    if (
-        expected_hitboxes_sha256 is not None
-        and current_hitbox_review.get("currentHitboxesSha256") != expected_hitboxes_sha256
-    ):
-        fitted.close()
-        alpha.close()
-        raise HTTPException(
-            409,
-            detail={"error": "Blessed hitboxes changed while extracting this cutout", "code": "hitboxes_changed"},
+    if captured_input is not None:
+        current = S.read_canonical_session(session_id)
+        verification = (
+            verify_bird_job_input(current.snapshot, BirdJobInput.from_dict(captured_input))
+            if current.snapshot is not None
+            else None
         )
-    sprite_path = dog_dir / f"sprite_{variant_index:03d}.png"
-    mask_path = dog_dir / f"sprite_mask_{variant_index:03d}.png"
+        if verification is None or not verification.current:
+            fitted.close()
+            alpha.close()
+            raise HTTPException(409, detail={"error": "Canonical job input changed", "code": "bird_input_changed"})
+    else:
+        try:
+            current_hitbox_review = S.require_hitboxes_blessed(session_id)
+        except ValueError as error:
+            fitted.close()
+            alpha.close()
+            raise HTTPException(
+                409, detail={"error": str(error), "code": "hitboxes_not_blessed"},
+            ) from error
+        if (
+            expected_hitboxes_sha256 is not None
+            and current_hitbox_review.get("currentHitboxesSha256") != expected_hitboxes_sha256
+        ):
+            fitted.close()
+            alpha.close()
+            raise HTTPException(
+                409,
+                detail={"error": "Blessed hitboxes changed while extracting this cutout", "code": "hitboxes_changed"},
+            )
+    output_dir = artifact_dir or dog_dir
+    output_dir.mkdir(parents=True, exist_ok=True)
+    sprite_path = output_dir / f"sprite_{variant_index:03d}.png"
+    mask_path = output_dir / f"sprite_mask_{variant_index:03d}.png"
     _atomic_save_image(fitted, sprite_path)
     _atomic_save_image(alpha, mask_path)
     fitted.close()
@@ -4570,8 +4764,13 @@ def _run_single_cutout_extraction(
         # different image and make the review panel report a false failure.
         "quality": {"pickupUsable": True},
     }
-    _atomic_write_json(next_metadata, metadata_path)
-    placement = _auto_place_cutout_best_safe(session_id, dog_index, variant_index)
+    output_metadata_path = output_dir / f"sprite_{variant_index:03d}.json"
+    _atomic_write_json(next_metadata, output_metadata_path)
+    placement = (
+        {"method": "staged", "accepted": True, "fittedBox": placed_box}
+        if artifact_dir is not None
+        else _auto_place_cutout_best_safe(session_id, dog_index, variant_index)
+    )
     return {
         "dogIndex": dog_index,
         "variantIndex": variant_index,
@@ -4580,6 +4779,10 @@ def _run_single_cutout_extraction(
         # clients would then append a nonexistent/unchanged variant to the rail.
         "file": f"dogs/dog_{dog_index:02d}/{sprite_path.name}",
         "placement": placement,
+        "artifactSpritePath": str(sprite_path) if artifact_dir is not None else None,
+        "artifactMaskPath": str(mask_path) if artifact_dir is not None else None,
+        "artifactMetadataPath": str(output_metadata_path) if artifact_dir is not None else None,
+        "spriteMetadata": next_metadata if artifact_dir is not None else None,
     }
 
 
@@ -4598,6 +4801,7 @@ def _run_retry_failed_dogs_job(job: JobRecord, store: JobStore) -> dict[str, Any
     child_jobs = _prepare_retry_failed_dog_unit_jobs(job, store, dog_indices)
     succeeded = 0
     failed = 0
+    stale = 0
 
     for dog_index in dog_indices:
         child = child_jobs.get(dog_index)
@@ -4606,15 +4810,56 @@ def _run_retry_failed_dogs_job(job: JobRecord, store: JobStore) -> dict[str, Any
             # requeue and re-emit completion so the event stream and progress stay
             # coherent without re-billing (R3).
             prior = child.result if isinstance(child.result, dict) else {}
-            store.append_event(job.id, "dog_complete", data={
+            prior_disposition = prior.get("disposition")
+            event_type = "dog_stale" if prior_disposition == "needs_review" else "dog_complete"
+            store.append_event(job.id, event_type, data={
                 "dogIndex": dog_index,
-                "status": "done",
+                "birdId": child.metadata.get("birdId"),
+                "status": "completed_stale" if prior_disposition == "needs_review" else "done",
+                "disposition": prior_disposition,
                 "file": prior.get("file"),
                 "variantIndex": prior.get("variantIndex"),
                 "passIndex": 0,
             })
-            succeeded += 1
+            if prior_disposition == "needs_review":
+                stale += 1
+            else:
+                succeeded += 1
             continue
+        bird_input_data = child.metadata.get("birdInput") if child is not None else None
+        if isinstance(bird_input_data, dict):
+            from .canonical_job_provenance import BirdJobInput, verify_bird_job_input
+
+            current = S.read_canonical_session(session_id)
+            captured = BirdJobInput.from_dict(bird_input_data)
+            verification = (
+                verify_bird_job_input(current.snapshot, captured)
+                if current.snapshot is not None
+                else None
+            )
+            if verification is None or not verification.current:
+                code = verification.code if verification is not None else "canonical_integrity"
+                if child is not None:
+                    child_jobs[dog_index] = store.transition_job(
+                        child.id,
+                        status="succeeded",
+                        stage="completed_stale",
+                        result={
+                            "dogIndex": dog_index,
+                            "birdId": captured.bird_id,
+                            "disposition": "needs_review",
+                            "staleReason": code,
+                        },
+                    )
+                store.append_event(job.id, "dog_stale", data={
+                    "dogIndex": dog_index,
+                    "birdId": captured.bird_id,
+                    "status": "completed_stale",
+                    "disposition": "needs_review",
+                    "reason": code,
+                })
+                stale += 1
+                continue
         S.update_dog_status(session_id, dog_index, "generating")
         _mark_crop_inpaint_unit_running(child_jobs, dog_index, parent=job, store=store)
         store.append_event(job.id, "dog_start", data={
@@ -4634,6 +4879,12 @@ def _run_retry_failed_dogs_job(job: JobRecord, store: JobStore) -> dict[str, Any
                     crop_box=crop_box,
                     inpaint_model=model,
                     expected_hitboxes_sha256=metadata.get("hitboxesSha256"),
+                    artifact_dir=(
+                        S.LEVELS_DIR / session_id / ".canonical" / "job-artifacts" / job.id / str(child.metadata["birdId"])
+                        if child is not None and isinstance(child.metadata.get("birdInput"), dict)
+                        else None
+                    ),
+                    captured_input=bird_input_data if isinstance(bird_input_data, dict) else None,
                 )
             else:
                 result = _run_single_dog_regen(
@@ -4644,7 +4895,70 @@ def _run_retry_failed_dogs_job(job: JobRecord, store: JobStore) -> dict[str, Any
                     crop_box=crop_boxes.get(dog_index),
                     inpaint_model=model,
                     defer_composite=True,
+                    artifact_dir=(
+                        S.LEVELS_DIR / session_id / ".canonical" / "job-artifacts" / job.id / str(child.metadata["birdId"])
+                        if child is not None and isinstance(child.metadata.get("birdInput"), dict)
+                        else None
+                    ),
+                    captured_input=bird_input_data if isinstance(bird_input_data, dict) else None,
                 )
+            disposition = "committed"
+            promoted_revision = None
+            if isinstance(bird_input_data, dict):
+                sprite_path = Path(str(result["artifactSpritePath"]))
+                painted_artifact = Path(str(result["artifactPaintedPath"])) if result.get("artifactPaintedPath") else None
+                painted_box = (
+                    tuple(int(value) for value in result["paintedBox"])
+                    if isinstance(result.get("paintedBox"), list) and len(result["paintedBox"]) == 4
+                    else None
+                )
+                promoted, disposition = S.promote_canonical_sprite_artifact(
+                    session_id,
+                    captured_input=bird_input_data,
+                    generation_id=child.id if child is not None else job.id,
+                    sprite_path=sprite_path,
+                    painted_path=painted_artifact,
+                    painted_box=painted_box,
+                    metadata=dict(result["spriteMetadata"]),
+                )
+                if promoted is None:
+                    if child is not None:
+                        child_jobs[dog_index] = store.transition_job(
+                            child.id,
+                            status="succeeded",
+                            stage="completed_stale",
+                            result={
+                                "dogIndex": dog_index,
+                                "birdId": child.metadata.get("birdId"),
+                                "disposition": "needs_review",
+                                "staleReason": disposition,
+                                "artifactSpritePath": result.get("artifactSpritePath"),
+                            },
+                        )
+                    store.append_event(job.id, "dog_stale", data={
+                        "dogIndex": dog_index,
+                        "birdId": child.metadata.get("birdId") if child is not None else None,
+                        "status": "completed_stale",
+                        "disposition": "needs_review",
+                        "reason": disposition,
+                    })
+                    stale += 1
+                    continue
+                promoted_revision = promoted.content_revision
+                # Project the committed painting into the session variant rail
+                # so the editor's legacy surfaces (variant picker, composite
+                # tooling) see the regeneration that just changed the scene.
+                if painted_artifact is not None and painted_box is not None:
+                    with S._session_lock:
+                        rail_idx = S.get_next_variant_index(session_id, dog_index)
+                    rail_dir = S.dogs_dir(session_id) / f"dog_{dog_index:02d}"
+                    rail_dir.mkdir(parents=True, exist_ok=True)
+                    rail_path = rail_dir / f"variant_{rail_idx:03d}.png"
+                    shutil.copy2(painted_artifact, rail_path)
+                    _save_variant_box(rail_path, painted_box)
+                    S.update_dog_status(session_id, dog_index, "done", activeVariant=rail_idx)
+                    result["variantIndex"] = rail_idx
+                    result["file"] = f"dogs/dog_{dog_index:02d}/{rail_path.name}"
             variant_idx = int(result["variantIndex"])
             file_name = str(result["file"])
             _mark_crop_inpaint_unit_succeeded(
@@ -4654,6 +4968,12 @@ def _run_retry_failed_dogs_job(job: JobRecord, store: JobStore) -> dict[str, Any
                 variant_idx=variant_idx,
                 pass_index=0,
                 store=store,
+                extra_result={
+                    "birdId": child.metadata.get("birdId") if child is not None else None,
+                    "disposition": disposition,
+                    "contentRevision": promoted_revision,
+                    **({"artifactSpritePath": result.get("artifactSpritePath")} if result.get("artifactSpritePath") else {}),
+                },
             )
             store.append_event(job.id, "dog_complete", data={
                 "dogIndex": dog_index,
@@ -4663,6 +4983,33 @@ def _run_retry_failed_dogs_job(job: JobRecord, store: JobStore) -> dict[str, Any
                 "passIndex": 0,
             })
             succeeded += 1
+        except HTTPException as exc:
+            detail = exc.detail if isinstance(exc.detail, dict) else {}
+            code = str(detail.get("code") or "generation_input_changed")
+            if exc.status_code != 409:
+                raise
+            artifact_root = S.LEVELS_DIR / session_id / ".canonical" / "job-artifacts" / job.id
+            if child is not None:
+                child_jobs[dog_index] = store.transition_job(
+                    child.id,
+                    status="succeeded",
+                    stage="completed_stale",
+                    result={
+                        "dogIndex": dog_index,
+                        "birdId": child.metadata.get("birdId"),
+                        "disposition": "needs_review",
+                        "staleReason": code,
+                        "artifactRoot": str(artifact_root),
+                    },
+                )
+            store.append_event(job.id, "dog_stale", data={
+                "dogIndex": dog_index,
+                "birdId": child.metadata.get("birdId") if child is not None else None,
+                "status": "completed_stale",
+                "disposition": "needs_review",
+                "reason": code,
+            })
+            stale += 1
         except InpaintError as exc:
             error_message = _sanitized_error(exc.cause)
             S.update_dog_status(session_id, dog_index, "error")
@@ -4682,10 +5029,27 @@ def _run_retry_failed_dogs_job(job: JobRecord, store: JobStore) -> dict[str, Any
             failed += 1
 
     if succeeded > 0 and not cutout_only:
-        recomposite_color(session_id)
+        # Legacy epilogue only: a canonical regenerate commits its composed
+        # scene atomically inside promote — running the legacy whole-scene
+        # recomposite afterwards bypasses the canonical store and destroyed a
+        # committed scene (2026-08-12, italy_tuscan: rebuilt 21 birds as
+        # pasted cutouts because ONE bird regenerated).
+        from levelbuilder.api.canonical_bird_contract import CanonicalReadState
+        canonical_state = S.read_canonical_session(session_id).state
+        if canonical_state is not CanonicalReadState.VALID_CURRENT:
+            recomposite_color(session_id)
     if succeeded > 0 and (S.GAME_PUBLIC_LEVELS / session_id / "level.json").is_file():
         S.refresh_catalog_packages([session_id])
-    result_data = {"succeeded": succeeded, "failed": failed, "dogIndices": dog_indices}
+    result_data = {
+        "succeeded": succeeded,
+        "failed": failed,
+        "stale": stale,
+        "dogIndices": dog_indices,
+        "birdIds": [
+            item.get("birdId") for item in (metadata.get("birdInputs") or [])
+            if isinstance(item, dict)
+        ],
+    }
     store.update_result(job.id, result_data)
     store.append_event(job.id, "retry_failed_dogs_complete", data=result_data)
     if failed > 0:
@@ -4728,10 +5092,15 @@ def get_retry_failed_dogs_job(session_id: str, job_id: str) -> RetryFailedDogsJo
 # Sprite-only compositing (plan 2026-07-31-002 U6): the scene receives ONLY the
 # validated pickup sprite, not the whole diff-masked variant. Pickup then
 # restores pixel-identical background — pop-in impossible by construction.
-# Dogs without a usable sprite fall back to the legacy diff paste (they are
-# already repair-flagged; export refuses them). Opt out with =0.
+# REJECTED LANE — sticker-style sprite compositing was explicitly rejected by
+# the operator (2026-08-01 "adding the sprites to the level is not working",
+# 2026-08-05 "We are not going to push on the cutout composite version"), but
+# stayed default-ON and rebuilt a whole scene as pasted outlined cutouts when
+# a canonical regenerate triggered the legacy recomposite (2026-08-12,
+# italy_tuscan). Default OFF; opt back in with =1 only for archived
+# experiments.
 def _sprite_only_compose_enabled() -> bool:
-    return os.environ.get("FTD_SPRITE_ONLY_COMPOSE", "1").strip().lower() not in {"0", "false", "no"}
+    return os.environ.get("FTD_SPRITE_ONLY_COMPOSE", "0").strip().lower() in {"1", "true", "yes"}
 
 
 def _paste_pickup_sprite(

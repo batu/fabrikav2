@@ -1,4 +1,4 @@
-import { readFileSync, readdirSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
@@ -12,6 +12,7 @@ import {
 
 const gameRoot = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const levelsRoot = join(gameRoot, 'public', 'levels');
+const authoringRoot = join(gameRoot, '.levelbuilder', 'levels');
 
 interface LevelDogJson {
   id: string;
@@ -20,6 +21,16 @@ interface LevelDogJson {
   sprite?: { cleanup?: { x: number; y: number; width: number; height: number } };
 }
 interface LevelJson { width: number; height: number; dogs: LevelDogJson[] }
+
+interface CleanupFixture {
+  name: string;
+  width: number;
+  height: number;
+  target: string;
+  protected: string[];
+  sites: Array<{ id: string; x: number; y: number; cleanup: [number, number, number, number] }>;
+  polygons: number[][][];
+}
 
 function siteFor(dog: LevelDogJson): CleanupSite {
   const c = dog.sprite?.cleanup;
@@ -42,7 +53,37 @@ function shippedLevels(): Array<{ id: string; level: LevelJson }> {
     .map((id) => ({ id, level: JSON.parse(readFileSync(join(levelsRoot, id, 'level.json'), 'utf8')) as LevelJson }));
 }
 
+function quarantineReasons(levelId: string): string[] | null {
+  const marker = join(authoringRoot, levelId, '.canonical', 'quarantine.json');
+  if (!existsSync(marker)) return null;
+  const reasons = (JSON.parse(readFileSync(marker, 'utf8')) as { issues?: unknown }).issues;
+  return Array.isArray(reasons) && reasons.every((reason) => typeof reason === 'string') && reasons.length > 0
+    ? reasons : null;
+}
+
 describe('restoration cleanup geometry', () => {
+  it('matches the shared editor/runtime cleanup fixtures', () => {
+    const fixturePath = join(gameRoot, '..', '..', 'tools', 'level-editor', 'fixtures', 'cleanup_geometry_parity.json');
+    const fixtures = JSON.parse(readFileSync(fixturePath, 'utf8')) as { cases: CleanupFixture[] };
+    for (const fixture of fixtures.cases) {
+      const sites: CleanupSite[] = fixture.sites.map((site) => ({
+        id: site.id,
+        x: site.x,
+        y: site.y,
+        cleanup: {
+          left: site.cleanup[0], top: site.cleanup[1], right: site.cleanup[2], bottom: site.cleanup[3],
+        },
+      }));
+      const target = sites.find((site) => site.id === fixture.target);
+      expect(target, fixture.name).toBeDefined();
+      const protectedIds = new Set(fixture.protected);
+      const actual = cleanupPolygonsForSite(
+        target!, sites, fixture.width, fixture.height, (site) => protectedIds.has(site.id),
+      ).map((polygon) => polygon.map((point) => [point.x, point.y]));
+      expect(actual, fixture.name).toEqual(fixture.polygons);
+    }
+  });
+
   it('keeps the picked site inside its own cleared area when a neighbour contests it', () => {
     // Two birds 100px apart with heavily overlapping padded areas: the old
     // whole-rect subtraction surrendered the entire overlap and could clear
@@ -83,12 +124,13 @@ describe('restoration cleanup geometry', () => {
 
     const blocked: string[] = [];
     for (const { id, level } of levels) {
+      const quarantined = quarantineReasons(id) !== null;
       const sites = level.dogs.map(siteFor);
       for (const site of sites) {
         if (site.cleanup === null) continue;
         const polygons = cleanupPolygonsForSite(site, sites, level.width, level.height, () => true);
         const ok = polygons.some((polygon) => pointInPolygonGeo({ x: site.x, y: site.y }, polygon));
-        if (!ok) blocked.push(`${id}/${site.id}`);
+        if (!ok && !quarantined) blocked.push(`${id}/${site.id}`);
       }
     }
     expect(blocked, `birds whose cleanup is blocked by a neighbour: ${blocked.join(', ')}`).toEqual([]);
@@ -97,8 +139,9 @@ describe('restoration cleanup geometry', () => {
   it('every bird in every shipped level has sprite cleanup metadata', () => {
     const missing: string[] = [];
     for (const { id, level } of shippedLevels()) {
+      const quarantined = quarantineReasons(id) !== null;
       for (const dog of level.dogs) {
-        if (dog.sprite?.cleanup === undefined) missing.push(`${id}/${dog.id}`);
+        if (dog.sprite?.cleanup === undefined && !quarantined) missing.push(`${id}/${dog.id}`);
       }
     }
     expect(missing, `dogs missing sprite cleanup: ${missing.join(', ')}`).toEqual([]);
