@@ -123,3 +123,48 @@ def test_gallery_listing_reads_canonical_once_per_session(isolated_session, monk
     assert any(item["id"] == "listing_perf" for item in listing)
     per_session = calls["n"] / max(1, len(listing))
     assert per_session <= 1, f"{calls['n']} canonical reads for {len(listing)} sessions"
+
+
+def test_rerun_stale_queues_exactly_the_extract_obligations(app_client, isolated_session, monkeypatch):
+    """CL-17: one button discharges pending DAG obligations — batch selection
+    is DAG staleness, and the queued set is exactly the obligated birds."""
+    from levelbuilder.api import inpaint as I
+    from levelbuilder.api import routes as R
+    from levelbuilder.api.geometry_service import mutate_geometry
+
+    store, pointer = _canonical_session(isolated_session, "rerun_stale")
+    added = mutate_geometry(
+        "rerun_stale", "add", hitboxes=[{"x": 40, "y": 40, "r": 10}],
+        expected_content_revision=pointer.content_revision, actor="human:batu",
+    )
+    draft_id = next(b["birdId"] for b in store.read().snapshot["birds"] if b["birdId"] != "bird_one")
+
+    captured = {}
+
+    def fake_start(session_id, req):
+        captured["birdIds"] = list(req.birdIds)
+        captured["cutoutOnly"] = req.cutoutOnly
+        class Job:  # minimal shape for the response builder
+            id = "job_fake"
+        return Job()
+
+    monkeypatch.setattr(R, "_start_rerun_stale_job", fake_start)
+    response = app_client.post(
+        "/api/sessions/rerun_stale/rerun-stale",
+        json={"expectedContentRevision": added.content_revision, "humanActor": "human:batu"},
+    )
+    assert response.status_code == 200, response.text
+    body = response.json()
+    assert body["queuedBirdIds"] == [draft_id]
+    assert captured["birdIds"] == [draft_id]
+
+    # Nothing stale: explicit no-op, no job started.
+    captured.clear()
+    fresh = app_client.post(
+        "/api/sessions/rerun_stale/rerun-stale",
+        json={"expectedContentRevision": added.content_revision, "humanActor": "human:batu",
+              "obligations": ["extract"], "dryRun": True},
+    )
+    assert fresh.status_code == 200
+    assert fresh.json()["queuedBirdIds"] == [draft_id]  # dryRun reports, doesn't start
+    assert "birdIds" not in captured

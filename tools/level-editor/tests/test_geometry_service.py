@@ -264,3 +264,49 @@ def test_rollback_converter_removes_draft_birds(isolated_session, monkeypatch, c
     module.main()
     birds = store.read().snapshot["birds"]
     assert all((b.get("sprite") or {}).get("asset") for b in birds)
+
+
+def test_replace_set_adopts_client_minted_ids_as_adds(isolated_session):
+    """CR-t1 P0-4: the canvas add gesture sends the whole array with a
+    client-minted uuid — replace_set adopts it as a real bird add instead of
+    rejecting the identity change."""
+    import uuid as _uuid
+
+    from levelbuilder.api import session as S
+    from levelbuilder.api.geometry_service import mutate_geometry
+
+    store, pointer = _canonical_session(isolated_session, "geo_client_add")
+    minted = str(_uuid.uuid4())
+    result = mutate_geometry(
+        "geo_client_add", "replace_set",
+        hitboxes=[
+            {"id": "bird_one", "x": 10, "y": 20, "r": 5},
+            {"id": minted, "x": 70, "y": 80, "r": 22},
+        ],
+        expected_content_revision=pointer.content_revision, actor="human:editor",
+    )
+    birds = {b["birdId"]: b for b in store.read().snapshot["birds"]}
+    assert set(birds) == {"bird_one", minted}
+    assert birds[minted]["hitbox"] == {"x": 70, "y": 80, "r": 22}
+    assert "sprite" not in birds[minted]
+    assert result.no_op is False
+
+
+def test_grow_then_shrink_round_trips_for_corpus_radii(isolated_session):
+    """CR-t1 P1-5: ±10% must round-trip for realistic radii (24-60) so
+    repeated grow/shrink doesn't silently drift hitbox sizes."""
+    from levelbuilder.api.geometry_service import mutate_geometry
+
+    store, pointer = _canonical_session(isolated_session, "geo_roundtrip")
+    for start in (24, 30, 38, 42, 57, 60):
+        rev = store.read().pointer.content_revision
+        mutate_geometry("geo_roundtrip", "move",
+            hitboxes=[{"id": "bird_one", "x": 10, "y": 20, "r": start}],
+            expected_content_revision=rev, actor="human:t")
+        rev = store.read().pointer.content_revision
+        grown = mutate_geometry("geo_roundtrip", "scale", factor=1.1,
+            expected_content_revision=rev, actor="human:t")
+        shrunk = mutate_geometry("geo_roundtrip", "scale", factor=1/1.1,
+            expected_content_revision=grown.content_revision, actor="human:t")
+        final = store.read().snapshot["birds"][0]["hitbox"]["r"]
+        assert final == start, f"drift: {start} -> {final}"

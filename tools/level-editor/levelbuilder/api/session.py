@@ -1698,9 +1698,12 @@ def save_canonical_hitboxes_if_present(
     # stay revision-consistent (CR-1 finding 8).
     from .geometry_service import mutate_geometry
 
+    # replace_set, not move: the canvas sends the whole array — client-minted
+    # ids are adds, absent ids are deletes, matched ids are moves (CL-3 through
+    # one id-aware operation; CR-t1 P0-4).
     return mutate_geometry(
         session_id,
-        "move",
+        "replace_set",
         hitboxes=hitboxes,
         expected_content_revision=expected_content_revision,
         actor=actor,

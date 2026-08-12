@@ -176,19 +176,32 @@ def mutate_geometry(
                         "positional replace_set would rebind bird identity; "
                         "send ids or use add/delete lifecycle operations"
                     )
+            # Client-minted ids (canvas add gesture, CR-t1 P0-4) become real
+            # bird adds adopting the client uuid; the contract validates the
+            # id shape at commit. Known ids move; absent ids prune.
             unknown = {h["id"] for h in carried} - set(by_id)
-            if unknown:
-                raise ContractValidationError(f"replace_set targets unknown birds: {sorted(unknown)}")
             # No-op BEFORE any authority guard (CR-1 finding 2).
             if not anonymous and len(carried) == len(by_id) and all(
-                by_id[h["id"]]["hitbox"] == _require_hitbox(h) for h in carried
+                h["id"] in by_id and by_id[h["id"]]["hitbox"] == _require_hitbox(h)
+                for h in carried
             ):
                 return _result(current.pointer, no_op=True, snapshot=snapshot)
             updated = invalidate_reviews(snapshot, changed_artifacts={"birdSet", "hitboxes"})
             live_by_id = {b["birdId"]: b for b in updated["birds"]}
             kept_ids = {h["id"] for h in carried}
             birds = []
+            order_base = max((b.get("presentationOrder", 0) for b in updated["birds"]), default=-1)
             for entry in carried:
+                if entry["id"] in unknown:
+                    order_base += 1
+                    birds.append({
+                        "birdId": entry["id"],
+                        "compatibilitySlot": _next_slot_excluding(updated, birds),
+                        "presentationOrder": order_base,
+                        "hitbox": _require_hitbox(entry),
+                        "geometryOrigin": actor,
+                    })
+                    continue
                 bird = live_by_id[entry["id"]]
                 incoming_box = _require_hitbox(entry)
                 if bird["hitbox"] != incoming_box:

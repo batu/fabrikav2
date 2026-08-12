@@ -670,6 +670,19 @@ export async function runGeometryOperation(
   );
 }
 
+/** CL-17: discharge pending DAG obligations (extract) in one action. */
+export async function rerunStale(
+  sessionId: string,
+  expectedContentRevision: string,
+  dryRun = false,
+): Promise<{ ok: boolean; queuedBirdIds: string[]; jobId: string | null; dryRun: boolean }> {
+  return request(`/api/sessions/${encodeURIComponent(sessionId)}/rerun-stale`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ expectedContentRevision, humanActor: 'human:editor', dryRun }),
+  });
+}
+
 export function saveHitboxes(
   sessionId: string,
   hitboxes: Hitbox[],

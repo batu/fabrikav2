@@ -52,3 +52,44 @@ def test_preview_rerenders_on_new_revision_and_rejects_unknown_views(app_client,
     assert len({p.parent.name for p in (sdir / ".previews").rglob("*.webp")}) == 2
 
     assert app_client.get("/api/sessions/preview_revs/scene-previews/nonsense").status_code == 422
+
+
+def test_sprites_preview_renders_canonical_snapshot_not_stale_export(app_client, isolated_session):
+    """CR-t1 P0-1: a canonical session's sprites view uses the snapshot —
+    a stale exported level.json must not define sprite positions."""
+    import json as _json
+
+    store = _real_scene_session(isolated_session, "preview_sprites_truth")
+    sdir = isolated_session.session_dir("preview_sprites_truth")
+    # Stale export claiming the sprite sits elsewhere.
+    (sdir / "level.json").write_text(_json.dumps({
+        "name": "preview_sprites_truth", "width": 128, "height": 96,
+        "dogs": [{"id": "bird_one", "x": 5, "y": 5, "sprite": {
+            "image": "levels/preview_sprites_truth/sprite.png",
+            "x": 0, "y": 0, "width": 16, "height": 16,
+            "cleanup": {"x": 0, "y": 0, "width": 16, "height": 16},
+        }}],
+    }))
+    # Canonical truth: sprite placed at (100, 60).
+    pointer = store.read().pointer
+    snapshot = store.read().snapshot
+    snapshot["birds"][0]["sprite"]["placement"] = {"x": 100, "y": 60, "width": 16, "height": 16}
+    snapshot["birds"][0]["cleanup"] = {"x": 98, "y": 58, "width": 20, "height": 20,
+                                       "sourceSpriteSha256": snapshot["birds"][0]["sprite"]["asset"]["sha256"]}
+    store.commit(snapshot, expected_content_revision=pointer.content_revision)
+
+    response = app_client.get("/api/sessions/preview_sprites_truth/scene-previews/sprites")
+    assert response.status_code == 200
+    from io import BytesIO
+
+    from PIL import Image as PILImage
+    with PILImage.open(BytesIO(response.content)) as img:
+        rgb = img.convert("RGB")
+        # The blue sprite must be at the canonical position, not the stale one.
+        def blueness(px):
+            r, g, b = px
+            return b - max(r, g)
+        canonical_px = rgb.getpixel((int(107 * rgb.width / 128), int(66 * rgb.height / 96)))
+        stale_px = rgb.getpixel((8 * rgb.width // 128, 8 * rgb.height // 96))
+        assert blueness(canonical_px) > 60, canonical_px
+        assert blueness(stale_px) < 60, stale_px

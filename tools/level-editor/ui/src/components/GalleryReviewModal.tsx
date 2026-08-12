@@ -4,6 +4,7 @@ import {
   ApiError,
   getSession,
   getFinalCutoutReviewReadiness,
+  rerunStale,
   runGeometryOperation,
   saveHitboxes,
   setArchived as apiSetArchived,
@@ -1068,6 +1069,29 @@ export default function GalleryReviewModal({
             } : undefined}
           >
             {cutoutBlessBusy ? 'Saving…' : card?.session.cutoutsFinalBlessed ? '★ Cutouts reviewed' : 'Mark cutouts reviewed'}
+          </button>
+          <button
+            type="button"
+            className="btn"
+            title="CL-17: queue extraction for every bird the DAG reports stale (sprite missing). Paid — one job, only the obligated birds."
+            onClick={async () => {
+              if (!card) return;
+              const revision = state.contentRevision
+                ?? sessionCacheRef.current.get(card.session.id)?.contentRevision;
+              if (!revision) return;
+              try {
+                const preview = await rerunStale(card.session.id, revision, true);
+                if (preview.queuedBirdIds.length === 0) {
+                  setBlessError('Nothing stale — every bird has a cutout.');
+                  return;
+                }
+                if (!window.confirm(`Queue extraction for ${preview.queuedBirdIds.length} stale bird(s)? This is a paid job.`)) return;
+                const started = await rerunStale(card.session.id, revision, false);
+                setBlessError(`Queued ${started.queuedBirdIds.length} extraction(s) (job ${started.jobId ?? '?'}).`);
+              } catch { /* request() toasts */ }
+            }}
+          >
+            ↻ Re-run stale
           </button>
           {blessError && <span style={{ color: '#ff9c9c', fontSize: 12 }}>{blessError}</span>}
           <button

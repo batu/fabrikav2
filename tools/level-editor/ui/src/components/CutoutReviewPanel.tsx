@@ -326,7 +326,6 @@ export default function CutoutReviewPanel({
   const refreshAbortRef = useRef<AbortController | null>(null);
   const operationAbortsRef = useRef(new Map<string, AbortController>());
   const placementSaveRunIds = useRef(new Map<string, number>());
-  const confirmationRunIds = useRef(new Map<string, number>());
   const dragRef = useRef<{ candidateId: string; mode: ControlMode; resizeHandle: ResizeHandle | null; startX: number; startY: number; box: CropBox } | null>(null);
   const draggedCandidateRef = useRef<string | null>(null);
   const placementSaveTimers = useRef(new Map<string, number>());
@@ -541,7 +540,6 @@ export default function CutoutReviewPanel({
     placementSaveRunIds.current.clear();
     placementFlipRef.current.clear();
     placementSaveErrorRef.current = null;
-    confirmationRunIds.current.clear();
     for (const controller of operationAbortsRef.current.values()) controller.abort();
     operationAbortsRef.current.clear();
   }, [onPlacementPendingChanged, sessionId]);
@@ -690,7 +688,11 @@ export default function CutoutReviewPanel({
         <div className="cutout-review-empty">No pickup cutouts found.</div>
       )}
       <div className={`cutout-review-grid${expanded ? ' expanded' : ''}`}>
-        {candidates.map((candidate) => {
+        {/* CL-15: worst-first triage — highest regeneration probability leads,
+            so a 24-bird scroll becomes a 5-bird triage. Unscored sort last. */}
+        {[...candidates].sort((a, b) =>
+          (b.regenerationProbability ?? -1) - (a.regenerationProbability ?? -1)
+        ).map((candidate) => {
           const imageUrl = candidate.image
             ? `${dogVariantUrl(sessionId, candidate.image)}?v=${assetRevision}`
             : null;
@@ -722,6 +724,20 @@ export default function CutoutReviewPanel({
             <article key={candidate.id} className="cutout-review-card">
               <div className="cutout-review-card-top">
                 <strong>{candidateLabel(candidate)}</strong>
+                {typeof candidate.regenerationProbability === 'number' && (
+                  <span
+                    title="Regeneration probability from sprite eval — higher = worse cutout"
+                    style={{
+                      fontSize: 11, fontWeight: 700, padding: '1px 7px', borderRadius: 9,
+                      background: candidate.regenerationProbability > 0.5 ? '#4a1d1d'
+                        : candidate.regenerationProbability > 0.25 ? '#4a3a1d' : '#1d3a24',
+                      color: candidate.regenerationProbability > 0.5 ? '#ff9c9c'
+                        : candidate.regenerationProbability > 0.25 ? '#ffd28f' : '#9bf0bf',
+                    }}
+                  >
+                    {Math.round(candidate.regenerationProbability * 100)}%
+                  </span>
+                )}
                 {/* CL-16: no per-bird confirmation — "Mark cutouts reviewed"
                     is the ONLY operator-facing cutout assertion; per-sprite
                     records are auto-stamped plumbing, invisible here. */}

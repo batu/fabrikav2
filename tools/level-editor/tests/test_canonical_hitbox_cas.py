@@ -439,3 +439,29 @@ def test_concurrent_save_and_bless_cannot_approve_old_geometry(isolated_session,
     else:
         assert current["birds"][0]["hitbox"]["x"] == 10
         assert current["reviews"]["hitboxes"]["contentRevision"] == pointer.content_revision
+
+
+def test_canvas_add_and_delete_gestures_work_via_hitbox_save(app_client, isolated_session):
+    """CR-t1 P0-4 end-to-end: POST /hitboxes with a client-minted id adds the
+    bird; posting without an id deletes it. No 'identity set' rejection."""
+    import uuid as _uuid
+
+    store, pointer = _canonical_session(isolated_session, "canvas_gestures")
+    minted = str(_uuid.uuid4())
+    add = app_client.post(
+        "/api/sessions/canvas_gestures/hitboxes",
+        json={"expectedContentRevision": pointer.content_revision,
+              "hitboxes": [{"id": "bird_one", "x": 10, "y": 20, "r": 5},
+                           {"id": minted, "x": 90, "y": 90, "r": 15}]},
+    )
+    assert add.status_code == 200, add.text
+    assert {h["id"] for h in add.json()["hitboxes"]} == {"bird_one", minted}
+
+    remove = app_client.post(
+        "/api/sessions/canvas_gestures/hitboxes",
+        json={"expectedContentRevision": add.json()["contentRevision"],
+              "hitboxes": [{"id": "bird_one", "x": 10, "y": 20, "r": 5}]},
+    )
+    assert remove.status_code == 200, remove.text
+    assert [h["id"] for h in remove.json()["hitboxes"]] == ["bird_one"]
+    assert [b["birdId"] for b in store.read().snapshot["birds"]] == ["bird_one"]
