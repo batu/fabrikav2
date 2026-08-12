@@ -1,0 +1,23 @@
+{
+  "levels": 101,
+  "birds": 1913,
+  "resolvedRadius2688": {
+    "min": 57.0,
+    "p5": 72.9,
+    "median": 114.0,
+    "p95": 146.5,
+    "max": 336.0
+  },
+  "floorApplied": 42,
+  "neighborClampApplied": 507,
+  "tapEquivalenceGridFailures": 0,
+  "proposal": {
+    "minTapRadius2688": 57,
+    "uniformityBand2688": [
+      73.0,
+      147.0
+    ],
+    "residueGateLimitPx": 500,
+    "note": "bake = store the RESOLVED radius per bird (never raw \u00d72); runtime keeps only nearest-center arbitration"
+  }
+}
