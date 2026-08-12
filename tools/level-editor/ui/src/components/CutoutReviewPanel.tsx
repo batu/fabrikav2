@@ -635,16 +635,23 @@ export default function CutoutReviewPanel({
       const succeeded = unit?.status === 'succeeded' && unit.file !== null && unit.variantIndex !== null;
       if (succeeded) {
         // Extraction replaces the sprite derivative for the current painted
-        // variant. Only scene regeneration creates a selectable variant.
-        if (operation === 'regenerate') {
+        // variant. Only LEGACY scene regeneration creates a selectable
+        // variant in the session rail; canonical regeneration stages its
+        // painting as a job artifact and commits only the sprite, so the
+        // reported file/variantIndex must not touch the rail (they describe
+        // the artifact staging area, not session variants).
+        if (operation === 'regenerate' && !candidate.birdId) {
           onDogComplete(unit.dogIndex, unit.file!, unit.variantIndex!);
         }
-        const refreshedDogs = dogsRef.current.map((dog) => (
+        const refreshedDogs = candidate.birdId ? dogsRef.current : dogsRef.current.map((dog) => (
           dog.index === unit.dogIndex ? { ...dog, activeVariant: unit.variantIndex! } : dog
         ));
         await refresh(refreshedDogs);
         onCutoutsChanged?.();
         setJob({ operation, phase: 'done', message: `${noun} saved at ${new Date().toLocaleTimeString()}` });
+      } else if (unit?.disposition === 'needs_review') {
+        await refresh();
+        setJob({ operation, phase: 'failed', message: `${noun} finished but the level changed while it ran — the result was parked, run it again` });
       } else {
         await refresh();
         setJob({ operation, phase: 'failed', message: unit?.error || completed.error || `${noun} failed` });
@@ -703,6 +710,12 @@ export default function CutoutReviewPanel({
         <details className="cutout-prompt-disclosure">
           <summary>Extraction prompt</summary>
           <p>{extractionPrompt}</p>
+        </details>
+      )}
+      {sharedPrompt && (
+        <details className="cutout-prompt-disclosure">
+          <summary>Regeneration prompt</summary>
+          <p>{sharedPrompt}</p>
         </details>
       )}
 
