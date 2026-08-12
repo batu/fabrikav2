@@ -19,6 +19,7 @@ import { WorkspaceOwner } from '../domain/workspaceOwner.ts';
 describe('difficulty editor authoring surface', () => {
   let container: HTMLDivElement;
   let root: Root;
+  let workspace: EditorWorkspace;
 
   beforeEach(async () => {
     reactTestEnvironment.IS_REACT_ACT_ENVIRONMENT = true;
@@ -28,7 +29,10 @@ describe('difficulty editor authoring surface', () => {
     container = document.createElement('div');
     document.body.append(container);
     root = createRoot(container);
-    const owner = new WorkspaceOwner(() => new EditorWorkspace({ storage: null, workerFactory: () => ({ onmessage: null, onerror: null, postMessage: () => undefined, terminate: () => undefined }) }));
+    const owner = new WorkspaceOwner(() => {
+      workspace = new EditorWorkspace({ storage: null, workerFactory: () => ({ onmessage: null, onerror: null, postMessage: () => undefined, terminate: () => undefined }) });
+      return workspace;
+    });
     await act(async () => root.render(<App workspaceOwner={owner} />));
   });
 
@@ -43,6 +47,15 @@ describe('difficulty editor authoring surface', () => {
     await act(async () => element!.dispatchEvent(new MouseEvent('click', { bubbles: true })));
   };
 
+  const change = async (element: HTMLInputElement | HTMLSelectElement | null, value: string) => {
+    expect(element).not.toBeNull();
+    await act(async () => {
+      const setter = Object.getOwnPropertyDescriptor(element instanceof HTMLSelectElement ? HTMLSelectElement.prototype : HTMLInputElement.prototype, 'value')?.set;
+      setter?.call(element, value);
+      element!.dispatchEvent(new Event('change', { bubbles: true }));
+    });
+  };
+
   it('explains the journey in plain language and edits only the selected steps', async () => {
     const visibleCopy = container.textContent?.toLowerCase() ?? '';
     for (const jargon of ['spike', 'band', 'recover', 'climax', 'cycle', 'offset', 'maximum']) {
@@ -52,9 +65,31 @@ describe('difficulty editor authoring surface', () => {
     expect(container.textContent).toContain('Shape the journey');
     await click(Array.from(container.querySelectorAll('.step-chip')).find((button) => button.textContent?.includes('Blocked spaces')) ?? null);
     expect(container.textContent).toContain('Level 8');
+    const beforeTeaching = workspace.store.getSnapshot().draft.authored.onboarding;
+    await change(container.querySelector('select[aria-label="What players learn at level 8"]'), '');
+    const afterTeaching = workspace.store.getSnapshot().draft.authored.onboarding;
+    expect(afterTeaching[7]).toMatchObject({ mechanicDebut: null, spotlight: false });
+    expect(afterTeaching.filter((_, index) => index !== 7)).toEqual(beforeTeaching.filter((_, index) => index !== 7));
+    expect(container.textContent).not.toContain('Make the new idea the focus');
     await click(Array.from(container.querySelectorAll('.step-chip')).find((button) => button.textContent === '5Challenge') ?? null);
     expect(container.textContent).toContain('Step 5');
     expect(container.textContent).toContain('Create a noticeable test above the surrounding levels.');
+    const beforeCycle = workspace.store.getSnapshot().draft.authored.baseCycle;
+    await change(container.querySelector('select[aria-label="Pacing for repeating step 5"]'), 'relax');
+    await change(container.querySelector('select[aria-label="Later behavior for repeating step 5"]'), 'fixed');
+    const afterCycle = workspace.store.getSnapshot().draft.authored.baseCycle;
+    expect(afterCycle[4]).toMatchObject({ role: 'relax', progression: 'fixed' });
+    expect(afterCycle.filter((_, index) => index !== 4)).toEqual(beforeCycle.filter((_, index) => index !== 4));
+
+    const advanced = container.querySelector<HTMLDetailsElement>('.progression-block')!;
+    expect(advanced.open).toBe(false);
+    await click(advanced.querySelector('summary'));
+    expect(advanced.open).toBe(true);
+    const offsetsBefore = workspace.store.getSnapshot().draft.authored.progression.difficultyOffsets;
+    await change(container.querySelector('input[aria-label="Added difficulty for repeat 2"]'), '1.5');
+    const offsetsAfter = workspace.store.getSnapshot().draft.authored.progression.difficultyOffsets;
+    expect(offsetsAfter[1]).toBe(1.5);
+    expect(offsetsAfter.filter((_, index) => index !== 1)).toEqual(offsetsBefore.filter((_, index) => index !== 1));
   });
 
   it('shows all ranges, exact selected values, and linked occurrence context', async () => {

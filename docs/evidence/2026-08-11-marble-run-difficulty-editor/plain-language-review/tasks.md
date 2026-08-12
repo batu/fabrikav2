@@ -2,7 +2,7 @@
 
 ## Task 1 — Make Pattern understandable without generator vocabulary
 
-- Status: active
+- Status: passed
 - Goal: A designer can understand and edit the first 11 levels and the repeating journey without knowing the generator's internal terms.
 - Why now: The deployed Pattern view exposes `spike`, `band`, `recover`, `climax`, `cycle`, `offset`, and `maximum` directly.
 - User lens: Scan first; select one step; edit only that step; learn unfamiliar behavior beside the control.
@@ -17,4 +17,3 @@
 - Constraints: retain the existing editorial visual system; do not add duplicate help panels or change generation semantics.
 - Out of scope: Ranges, Boards, focused Level editor, generator model, export workflow.
 - Verification: matched screenshots, interaction checks, unit tests, typecheck, lint, production build, live Portal check.
-

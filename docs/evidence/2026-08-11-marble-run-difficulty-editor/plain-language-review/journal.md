@@ -40,3 +40,29 @@ Acceptance check: All five criteria met on the live artifact; both sequence sele
 Decision: passed and deployed.
 
 Next action: preserve this interface vocabulary in future Pattern changes.
+
+### Iteration 2
+
+Planned result: Correct the focus control so its explanation matches runtime behavior and it cannot exist without a mechanic to focus.
+
+Capture setup: Production build, Chromium at 1440 x 900, Level 8 selected, then changed from Blocked spaces to Nothing new.
+
+![Focus state removed with its mechanic](pattern-focus-fixed-1440.png)
+What to compare: Level 8 now reads Practice and the focus checkbox is absent after its mechanic is removed.
+Observation: Moving or removing a mechanic clears the associated focus state. When a mechanic is present, the help text promises emphasis and learning room rather than exclusion of other mechanics.
+Acceptance check: Truthful copy met; impossible Practice-plus-focus state removed; selected-entry isolation and advanced repeat edits covered by state assertions; 39 tests pass.
+
+Change explanation: Focus is now conditional on a mechanic debut at both the data-update and presentation boundaries. The interaction test performs real draft mutations instead of checking headings alone.
+
+Decision: passed locally.
+
+Next action: verify this exact state on the newly activated live artifact.
+
+![Focus state verified on live Portal](pattern-focus-live-fixed-1440.png)
+What to compare: The live Level 8 Practice state has no focus control, matching the reviewed production build.
+Observation: The authenticated iframe is pinned to `e31f639f5eccdf61e0777e0627a91423a4ae9cd27e23701e7cbc165d5117effa`. Selecting Blocked spaces showed the truthful focus explanation; changing it to Nothing new removed the control and flag.
+Acceptance check: Correct conditional state, truthful copy, exact live hash, and zero page errors.
+
+Decision: passed and deployed.
+
+Next action: retain the activation backup for rollback.

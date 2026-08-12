@@ -44,11 +44,15 @@ export function PatternEditor({ draft, onEdit }: PatternEditorProps): React.JSX.
     ...draft,
     authored: {
       ...draft.authored,
-      onboarding: draft.authored.onboarding.map((item, index) => ({
-        ...item,
-        mechanicDebut: index === selectedTeaching ? mechanicDebut : item.mechanicDebut === mechanicDebut ? null : item.mechanicDebut,
-        spotlight: index === selectedTeaching && mechanicDebut !== null ? true : item.spotlight,
-      })),
+      onboarding: draft.authored.onboarding.map((item, index) => {
+        const selected = index === selectedTeaching;
+        const displaced = mechanicDebut !== null && item.mechanicDebut === mechanicDebut;
+        return {
+          ...item,
+          mechanicDebut: selected ? mechanicDebut : displaced ? null : item.mechanicDebut,
+          spotlight: selected ? mechanicDebut !== null : displaced ? false : item.spotlight,
+        };
+      }),
     },
   });
   const setSlotRange = (targetRange: DifficultyRange) => onEdit({
@@ -75,7 +79,7 @@ export function PatternEditor({ draft, onEdit }: PatternEditorProps): React.JSX.
           <div className="step-editor__heading"><div><span className="eyebrow">Selected</span><h4>Level {teaching.levelId}</h4></div><span className="difficulty-summary">Difficulty {teaching.targetRange.min}–{teaching.targetRange.max}</span></div>
           <label className="field-stack"><span>What does the player learn?</span><select aria-label={`What players learn at level ${teaching.levelId}`} value={teaching.mechanicDebut ?? ''} onChange={(event) => moveMechanicDebut((event.target.value || null) as Feature | null)}><option value="">Nothing new — let them practise</option>{FEATURES.map((feature) => <option key={feature} value={feature}>{FEATURE_LABELS[feature]}</option>)}</select></label>
           <div className="field-stack"><span>How difficult can it feel?</span><RangeFields range={teaching.targetRange} label={`Level ${teaching.levelId}`} onChange={setOnboardingRange} /></div>
-          <label className="focus-check"><input type="checkbox" checked={teaching.spotlight} onChange={(event) => onEdit({ ...draft, authored: { ...draft.authored, onboarding: draft.authored.onboarding.map((item, index) => index === selectedTeaching ? { ...item, spotlight: event.target.checked } : item) } })} /><span><strong>Make the new idea the focus</strong><small>This level will avoid other mechanics that could distract from it.</small></span></label>
+          {teaching.mechanicDebut !== null && <label className="focus-check"><input type="checkbox" checked={teaching.spotlight} onChange={(event) => onEdit({ ...draft, authored: { ...draft.authored, onboarding: draft.authored.onboarding.map((item, index) => index === selectedTeaching ? { ...item, spotlight: event.target.checked } : item) } })} /><span><strong>Make the new idea the focus</strong><small>This level will make the new idea clearly visible and give the player room to learn it.</small></span></label>}
         </div>
       </section>
 
