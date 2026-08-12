@@ -3366,6 +3366,49 @@ def derived_crops(session_id: str):
     }
 
 
+class RevertSpriteRequest(BaseModel):
+    toContentRevision: str
+    expectedContentRevision: str
+    humanActor: str
+
+
+@router.get("/sessions/{session_id}/birds/{bird_id}/sprite-history")
+def bird_sprite_history(session_id: str, bird_id: str):
+    """CL-14: distinct prior sprites for this bird (newest first)."""
+    _validate_session_id(session_id)
+    from .sprite_history import sprite_history
+
+    return {"history": sprite_history(session_id, bird_id)}
+
+
+@router.post("/sessions/{session_id}/birds/{bird_id}/revert-sprite")
+def revert_sprite(session_id: str, bird_id: str, req: RevertSpriteRequest):
+    """CL-14: recommit a prior sprite (bytes from the CAS); read-back reply."""
+    _validate_session_id(session_id)
+    if not req.humanActor.startswith("human:"):
+        raise HTTPException(422, detail={"error": "humanActor must be attributable (human:*)",
+                                         "code": "human_attribution_required"})
+    from .canonical_bird_contract import ContractValidationError
+    from .sprite_history import revert_bird_sprite
+
+    try:
+        result = revert_bird_sprite(
+            session_id, bird_id,
+            to_content_revision=req.toContentRevision,
+            expected_content_revision=req.expectedContentRevision,
+            actor=req.humanActor,
+        )
+    except RevisionConflictError as error:
+        raise _content_revision_conflict(error, ["spritePixels"]) from error
+    except ContractValidationError as error:
+        raise HTTPException(422, detail={"error": str(error), "code": "revert_invalid"}) from error
+    return {
+        "ok": True,
+        "contentRevision": result.content_revision,
+        "operationalRevision": result.operational_revision,
+    }
+
+
 @router.get("/sessions/{session_id}/residue")
 def residue_gate(session_id: str):
     """CL-11 gate surface: residue pixel count + verdict + dependency hash."""

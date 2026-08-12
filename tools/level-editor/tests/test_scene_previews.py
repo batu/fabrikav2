@@ -141,3 +141,36 @@ def test_derived_crops_come_from_owned_paint(app_client, isolated_session):
     for key in ("x", "y", "width", "height"):
         assert isinstance(crop[key], int)
     assert crop["width"] > 0 and crop["height"] > 0
+
+
+def test_sprite_history_and_revert_endpoints(app_client, isolated_session):
+    import hashlib as _hashlib
+
+    from test_canonical_hitbox_cas import _canonical_session
+
+    store, pointer = _canonical_session(isolated_session, "revert_api")
+    sdir = isolated_session.session_dir("revert_api")
+    original_sha = store.read().snapshot["birds"][0]["sprite"]["asset"]["sha256"]
+    new_bytes = b"replacement-sprite"
+    (sdir / "sprite.png").write_bytes(new_bytes)
+    snapshot = store.read().snapshot
+    snapshot["birds"][0]["sprite"]["asset"] = {
+        "path": "sprite.png", "sha256": _hashlib.sha256(new_bytes).hexdigest(), "bytes": len(new_bytes),
+    }
+    snapshot["birds"][0]["cleanup"]["sourceSpriteSha256"] = snapshot["birds"][0]["sprite"]["asset"]["sha256"]
+    pointer = store.commit(snapshot, expected_content_revision=pointer.content_revision)
+
+    history = app_client.get("/api/sessions/revert_api/birds/bird_one/sprite-history")
+    assert history.status_code == 200
+    entries = history.json()["history"]
+    assert len(entries) >= 2
+    previous = next(e for e in entries if e["sha256"] == original_sha)
+
+    revert = app_client.post(
+        "/api/sessions/revert_api/birds/bird_one/revert-sprite",
+        json={"toContentRevision": previous["contentRevision"],
+              "expectedContentRevision": pointer.content_revision,
+              "humanActor": "human:batu"},
+    )
+    assert revert.status_code == 200, revert.text
+    assert store.read().snapshot["birds"][0]["sprite"]["asset"]["sha256"] == original_sha

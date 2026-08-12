@@ -800,6 +800,37 @@ export default function CutoutReviewPanel({
                     {Math.round(candidate.regenerationProbability * 100)}%
                   </span>
                 )}
+                {candidate.birdId && (
+                  <button
+                    type="button"
+                    className="btn"
+                    style={{ fontSize: 11, padding: '2px 8px' }}
+                    title="CL-14: revert this bird to its previous extraction (bytes restored from the CAS)"
+                    onClick={async () => {
+                      try {
+                        const historyResponse = await fetch(`/api/sessions/${encodeURIComponent(sessionId)}/birds/${encodeURIComponent(candidate.birdId!)}/sprite-history`);
+                        const { history } = await historyResponse.json() as { history: { sha256: string; contentRevision: string }[] };
+                        if (history.length < 2) { setLastResult('No previous extraction to revert to.'); return; }
+                        if (!window.confirm('Revert to the previous extraction for this bird?')) return;
+                        const response = await fetch(`/api/sessions/${encodeURIComponent(sessionId)}/birds/${encodeURIComponent(candidate.birdId!)}/revert-sprite`, {
+                          method: 'POST', headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ toContentRevision: history[1]!.contentRevision,
+                                                 expectedContentRevision: contentRevisionRef.current,
+                                                 humanActor: 'human:editor' }),
+                        });
+                        if (!response.ok) { setError(`Revert failed (${response.status})`); return; }
+                        const body = await response.json() as { contentRevision?: string; operationalRevision?: string };
+                        if (body.contentRevision) onRevisionChangedRef.current?.(body.contentRevision, body.operationalRevision);
+                        setLastResult('Reverted to the previous extraction.');
+                        void refresh();
+                      } catch (err) {
+                        setError(err instanceof Error ? err.message : 'Revert failed');
+                      }
+                    }}
+                  >
+                    ↩ Revert
+                  </button>
+                )}
                 {/* CL-16: no per-bird confirmation — "Mark cutouts reviewed"
                     is the ONLY operator-facing cutout assertion; per-sprite
                     records are auto-stamped plumbing, invisible here. */}

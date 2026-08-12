@@ -310,3 +310,45 @@ def test_grow_then_shrink_round_trips_for_corpus_radii(isolated_session):
             expected_content_revision=grown.content_revision, actor="human:t")
         final = store.read().snapshot["birds"][0]["hitbox"]["r"]
         assert final == start, f"drift: {start} -> {final}"
+
+
+def test_sprite_revert_restores_previous_extraction(isolated_session):
+    """CL-14: revert = promote pointed backward — the prior sprite descriptor
+    recommits from history; its bytes still live in the CAS."""
+    import hashlib as _hashlib
+
+    from levelbuilder.api import session as S
+    from levelbuilder.api.sprite_history import revert_bird_sprite, sprite_history
+
+    store, pointer = _canonical_session(isolated_session, "geo_revert")
+    sdir = isolated_session.session_dir("geo_revert")
+    original_sha = store.read().snapshot["birds"][0]["sprite"]["asset"]["sha256"]
+
+    # A new extraction lands: different bytes, committed.
+    new_bytes = b"the-new-extraction"
+    (sdir / "sprite.png").write_bytes(new_bytes)
+    snapshot = store.read().snapshot
+    sprite = snapshot["birds"][0]["sprite"]
+    sprite["asset"] = {"path": "sprite.png",
+                      "sha256": _hashlib.sha256(new_bytes).hexdigest(),
+                      "bytes": len(new_bytes)}
+    snapshot["birds"][0]["cleanup"]["sourceSpriteSha256"] = sprite["asset"]["sha256"]
+    pointer = store.commit(snapshot, expected_content_revision=pointer.content_revision)
+
+    history = sprite_history("geo_revert", "bird_one")
+    assert len(history) >= 2
+    assert history[0]["sha256"] != original_sha  # current first
+    previous = next(h for h in history if h["sha256"] == original_sha)
+
+    result = revert_bird_sprite(
+        "geo_revert", "bird_one",
+        to_content_revision=previous["contentRevision"],
+        expected_content_revision=pointer.content_revision,
+        actor="human:batu",
+    )
+    current = store.read().snapshot["birds"][0]
+    assert current["sprite"]["asset"]["sha256"] == original_sha
+    # The path projection is restored from the CAS.
+    on_disk = (sdir / current["sprite"]["asset"]["path"]).read_bytes()
+    assert _hashlib.sha256(on_disk).hexdigest() == original_sha
+    assert result.content_revision != pointer.content_revision
