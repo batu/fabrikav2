@@ -11,9 +11,9 @@
   ],
   "spriteBox": [
     1569,
-    1313,
+    1315,
     1737,
-    1464
+    1466
   ],
   "cleanupBox": [
     1568,
@@ -24,7 +24,7 @@
   "width": 168,
   "height": 151,
   "anchorX": 0.5595,
-  "anchorY": 0.596,
+  "anchorY": 0.5828,
   "technique": "flatkey-recreate-v1",
   "quality": {
     "visibleCoverage": 0.1042,
@@ -35,5 +35,7 @@
     "pickupUsable": true,
     "backgroundFallback": false,
     "templateFallback": false
-  }
+  },
+  "flipX": false,
+  "flipY": false
 }

@@ -1,0 +1,9 @@
+{
+  "kind": "dog_regenerate",
+  "prompt": "Add exactly one bird to this crop. Place exactly one bird centered on the marked target area \u2014 do not repeat the subject. Match the scene's illustration style, line weight, palette, and flat-shaded rendering, but keep the bird's silhouette and boundary readable on a phone screen. The bird may be partially occluded or contextually disguised, but must not disappear through muddy edges, low contrast, texture camouflage, or ambiguous merged shapes. Vary the bird's colors, markings, proportions, and small physical details across crops so the level does not repeat the same bird design. The bird is a charming little anthropomorphic inhabitant of this world \u2014 a character with personality going about its business. Give it something simple and specific to do with its surroundings: holding an object, using a tool, sitting at a small task, peeking at something, carrying something, watching something with interest, tending a small thing, pausing mid-task. Keep the pose clear and readable. The charm comes from the context and the expression, not from dynamic motion. Size the bird realistically relative to the scene around it \u2014 compare it to whatever human-scale objects are visible in the crop and render the bird at the physical size a real bird would be next to them. Not so small that its species is ambiguous, not so large that it dominates the crop. The bird must be fully contained within the visible frame. Keep all other elements of the image unchanged.",
+  "model": "google/gemini-3.1-flash-image-preview",
+  "params": {
+    "dogIndex": 24
+  },
+  "createdAt": "2026-08-12T10:01:29.341425+00:00"
+}

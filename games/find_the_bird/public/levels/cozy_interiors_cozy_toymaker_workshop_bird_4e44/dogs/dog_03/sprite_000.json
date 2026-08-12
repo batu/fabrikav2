@@ -11,7 +11,7 @@
   ],
   "spriteBox": [
     1084,
-    580,
+    594,
     1244,
     715
   ],
@@ -24,7 +24,7 @@
   "width": 160,
   "height": 135,
   "anchorX": 0.625,
-  "anchorY": 0.5407,
+  "anchorY": 0.4876,
   "technique": "flatkey-recreate-v1",
   "quality": {
     "visibleCoverage": 0.0914,
@@ -35,5 +35,7 @@
     "pickupUsable": true,
     "backgroundFallback": false,
     "templateFallback": false
-  }
+  },
+  "flipX": false,
+  "flipY": false
 }

@@ -11,7 +11,7 @@
   ],
   "spriteBox": [
     1137,
-    837,
+    845,
     1345,
     1002
   ],
@@ -24,7 +24,7 @@
   "width": 208,
   "height": 165,
   "anchorX": 0.5337,
-  "anchorY": 0.3939,
+  "anchorY": 0.3631,
   "technique": "flatkey-recreate-v1",
   "quality": {
     "visibleCoverage": 0.1129,
@@ -46,5 +46,7 @@
     "probability": 0.160041,
     "model": "extra-trees-depth-4-balanced",
     "mode": "review-ranking-only"
-  }
+  },
+  "flipX": false,
+  "flipY": false
 }

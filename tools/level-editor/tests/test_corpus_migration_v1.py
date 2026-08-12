@@ -515,3 +515,29 @@ def test_import_authoring_from_public_resets_drifted_session_to_shipped_truth(tm
     _reimport(session, public)
     rehitboxes = json.loads((session / "hitboxes.json").read_text())
     assert rehitboxes[0]["id"] == bird["birdId"]
+
+
+def test_canonical_commits_project_back_to_editor_sidecars(tmp_path, monkeypatch):
+    from levelbuilder.api.corpus_migration import apply_level_plan, plan_legacy_level
+    import levelbuilder.api.session as session_module
+
+    session, public = _legacy_level(tmp_path)
+    apply_level_plan(plan_legacy_level(session, public, archived=False), session, tmp_path / "journals")
+    monkeypatch.setattr(session_module, "LEVELS_DIR", session.parent)
+
+    saved = session_module.save_canonical_sprite_geometry_if_present(
+        "example",
+        BIRD_ID,
+        sprite_box=[14, 14, 30, 30],
+        cleanup_box=[6, 6, 34, 34],
+        flip_x=True,
+        flip_y=None,
+        expected_content_revision=session_module.read_canonical_session("example").pointer.content_revision,
+    )
+    assert saved is not None
+
+    # The editor reads the sidecar; a canonical commit must be visible there.
+    sidecar = json.loads((session / "dogs" / "dog_00" / "sprite_000.json").read_text())
+    assert sidecar["spriteBox"] == [14, 14, 30, 30]
+    assert sidecar["cleanupBox"] == [6, 6, 34, 34]
+    assert sidecar["flipX"] is True

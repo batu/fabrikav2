@@ -1788,11 +1788,13 @@ def save_canonical_sprite_geometry_if_present(
     if cleanup_box is not None:
         cx0, cy0, cx1, cy1 = map(int, cleanup_box)
         target["cleanup"].update({"x": cx0, "y": cy0, "width": cx1 - cx0, "height": cy1 - cy0})
-    return store.commit(
+    pointer = store.commit(
         updated,
         expected_content_revision=commit_revision,
         expected_operational_revision=current.pointer.operational_revision if current.pointer else None,
     )
+    project_canonical_bird_compatibility(session_id, updated, bird_id)
+    return pointer
 
 
 def set_canonical_final_review_if_present(
@@ -1914,11 +1916,13 @@ def set_canonical_candidate_confirmation_if_present(
         "reviewer": reviewer,
         "reviewedAt": now_iso(),
     }
-    return store.commit(
+    pointer = store.commit(
         updated,
         expected_content_revision=expected_content_revision,
         expected_operational_revision=current.pointer.operational_revision if current.pointer else None,
     )
+    project_canonical_bird_compatibility(session_id, updated, bird_id)
+    return pointer
 
 
 def promote_canonical_sprite_artifact(
@@ -2013,6 +2017,7 @@ def promote_canonical_sprite_artifact(
                 expected_content_revision=current.pointer.content_revision,
                 expected_operational_revision=current.pointer.operational_revision,
             )
+            project_canonical_bird_compatibility(session_id, updated, captured.bird_id)
             return pointer, "committed"
         except RevisionConflictError:
             continue
@@ -2021,6 +2026,72 @@ def promote_canonical_sprite_artifact(
 
 def dogs_dir(session_id: str) -> Path:
     return session_dir(session_id) / "dogs"
+
+
+def project_canonical_bird_compatibility(session_id: str, snapshot: dict[str, Any], bird_id: str) -> None:
+    """Mirror one canonical bird into the compatibility surfaces the editor reads.
+
+    Canonical commits are the truth, but sprite candidates, review readiness,
+    and the sprite-candidate asset endpoint all read the legacy sidecar and
+    dogs/<slot>/sprite_XXX.png files. Without this projection a committed
+    extraction or placement is invisible in the editor — the job reports
+    "saved" while the browser keeps serving the old pixels (2026-08-12).
+    Best-effort by design: a projection failure must not fail the commit that
+    already happened; the next projection converges.
+    """
+    try:
+        bird = next(item for item in snapshot.get("birds", []) if item.get("birdId") == bird_id)
+        slot = bird["compatibilitySlot"]
+        asset_rel = bird["sprite"]["asset"]["path"]
+        base = session_dir(session_id)
+        source = base / asset_rel
+        stem = Path(asset_rel).name
+        target = dogs_dir(session_id) / slot / stem
+        target.parent.mkdir(parents=True, exist_ok=True)
+        if source.is_file() and source.resolve() != target.resolve():
+            temporary = target.with_name(f".{target.name}.tmp")
+            shutil.copy2(source, temporary)
+            temporary.replace(target)
+            mask_name = stem.replace("sprite_", "sprite_mask_")
+            source_mask = source.with_name(mask_name)
+            if source_mask.is_file():
+                temporary_mask = target.with_name(f".{mask_name}.tmp")
+                shutil.copy2(source_mask, temporary_mask)
+                temporary_mask.replace(target.with_name(mask_name))
+        sidecar_path = target.with_suffix(".json")
+        try:
+            sidecar = json.loads(sidecar_path.read_text())
+            if not isinstance(sidecar, dict):
+                sidecar = {}
+        except (OSError, json.JSONDecodeError):
+            sidecar = {}
+        placement = bird["sprite"]["placement"]
+        cleanup = bird["cleanup"]
+        sidecar.update({
+            "image": f"dogs/{slot}/{stem}",
+            "spriteBox": [
+                placement["x"], placement["y"],
+                placement["x"] + placement["width"], placement["y"] + placement["height"],
+            ],
+            "cleanupBox": [
+                cleanup["x"], cleanup["y"],
+                cleanup["x"] + cleanup["width"], cleanup["y"] + cleanup["height"],
+            ],
+            "anchorX": bird["sprite"].get("anchorX", 0.5),
+            "anchorY": bird["sprite"].get("anchorY", 0.5),
+            "flipX": bird["sprite"].get("flipX") is True,
+            "flipY": bird["sprite"].get("flipY") is True,
+        })
+        confirmation = (snapshot.get("operational", {}).get("candidateReviews", {}) or {}).get(bird_id)
+        if isinstance(confirmation, dict) and confirmation.get("generationId") == bird.get("activeGeneration", {}).get("generationId"):
+            review = sidecar.get("humanReview") if isinstance(sidecar.get("humanReview"), dict) else {}
+            review["confirmed"] = confirmation.get("confirmed") is True
+            sidecar["humanReview"] = review
+        temporary_sidecar = sidecar_path.with_suffix(".json.tmp")
+        temporary_sidecar.write_text(json.dumps(sidecar, indent=2) + "\n")
+        temporary_sidecar.replace(sidecar_path)
+    except (KeyError, StopIteration, OSError, TypeError, ValueError):
+        return
 
 
 def clone_session(src_id: str, new_id: str, *, reset_paint: bool = False) -> dict:

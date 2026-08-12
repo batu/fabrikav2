@@ -10,9 +10,9 @@
     1118
   ],
   "spriteBox": [
-    2014,
+    2021,
     819,
-    2178,
+    2170,
     990
   ],
   "cleanupBox": [
@@ -23,7 +23,7 @@
   ],
   "width": 164,
   "height": 171,
-  "anchorX": 0.2805,
+  "anchorX": 0.2617,
   "anchorY": 0.5088,
   "technique": "flatkey-recreate-v1",
   "quality": {
@@ -46,5 +46,7 @@
     "probability": 0.155142,
     "model": "extra-trees-depth-4-balanced",
     "mode": "review-ranking-only"
-  }
+  },
+  "flipX": false,
+  "flipY": false
 }
