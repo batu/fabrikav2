@@ -642,3 +642,67 @@ invariants** (min tap radius, 2× tap acceptance, size uniformity, hint-on-scree
   sprite-eval consume candidates; sweep all three (regression rule #11).
 - P3 deletion is irreversible convenience-wise; gate hard on the find_the_dog check.
 - P4 touches the portal (separate repo/process); coordinate the cutover in one sitting.
+
+## Phase 6 — Order-pipeline unification (added 2026-08-12 evening, post-incident)
+
+**Incident:** the CDN worker served a 5-day-stale `manifest.json` (rev 12) that silently
+overrode the freshly published bundled order at every app boot — hours of on-device
+misdiagnosis. Root cause is structural: SEVEN order authorities (workflow draft,
+bundled-manifest, levels-index, R2 manifest, RC levelSequencePayload, storedSequence,
+catalog-manifest) written by TWO disagreeing publish lanes (editor
+approve-catalog/apply-bundle-projection vs `scripts/publish_ftb_cdn.py`), and
+`createManifestClient.initialize()` (src/v1core/assets.ts) accepts any parseable CDN
+manifest with **no revision comparison**. Full review:
+`docs/reports/2026-08-12-ftb-editor-codex-review/order-pipeline-simplification-review.md`
+(codex) + my pre-merge analysis in the same session; both converged independently.
+
+Second bug, same day: `routes.py::_bundle_projection` budgets by `_directory_size`
+(authoring PNGs included, ~25MB/level) while `nativePublicBundle.ts` ships webp-preferred
+(~2.3MB/level) — bundled 8 of 44 under a cap 44 easily fit. Metric and packer must share
+one file-selection function.
+
+**Target:** ONE canonical ordered manifest (`public/levels/manifest.json`, monotonic
+`releaseRevision` + `artifactDigest`), produced by ONE publisher (sequence-workflow Start
+or its CLI twin), consumed byte-identically by the native bundle and R2. `bundled` is an
+asset-inclusion flag, never an order. Rollback = publish a NEWER revision containing the
+older order; the counter never decreases.
+
+Ordered steps (each independently shippable — O1/O2 are ship-first hotfixes):
+
+- **O1. Freshness guard (app):** in `initialize()`, accept CDN manifest only when
+  `parsed.manifestRevision >= bundledFallback.manifestRevision`; harden `validManifest`
+  to require a safe-int revision; equal-revision + different digest ⇒ refuse (split-brain).
+  Never compare `generatedAt` — clocks are not an authority. Unit cases: lower refused /
+  higher wins / equal+same-digest accepted / equal+diff-digest fails closed / invalid falls
+  back.
+- **O2. Budget fix (editor):** `_bundle_projection` sums the unique files actually
+  referenced by `public_level_manifest_entry` (levelJson, colorImage, bgImages, dogSprites,
+  thumbnails, styleVariants; `seen_paths` de-dupe) — shared selection with the packer;
+  subtract measured non-level bundle overhead; single shared cap constant (today
+  `_BUNDLE_CAP_BYTES` and `NATIVE_WEB_BUNDLE_MAX_BYTES` are duplicated policy — and the
+  latter is temporarily 200MB, restore 100MB or decide). Regression fixture: big unused
+  PNGs must not move the boundary.
+- **O3. One transaction:** Start publishes assets→manifest-last to R2, verifies readback
+  (revision+digest), installs the same bytes as the app-source manifest, updates editor
+  live state only after success. Legacy files still produced during transition.
+- **O4. ManifestV2 canonical artifact;** `bundled-manifest.json` + `levels-index.json`
+  become derived (CI asserts identical revision/order), then deleted.
+- **O5. Demote `publish_ftb_cdn.py`** to a wrapper (no `--order-file`, no revision
+  allocation) — then delete.
+- **O6. Packer copies the canonical manifest unchanged,** packs only `bundled: true`
+  assets, verifies packed size against the O2 projection.
+- **O7. Runtime order = manifest only:** collapse `resolveRuntimeSequence` to
+  `defaultLevelIds`; one-time clear of `ftd_active_level_sequence_v1`.
+- **O8. Remove RC sequence activation** from Start (rollback = forward-publish). Unblocks
+  the parked FTD_REMOTE_CONFIG_* credential dependency permanently.
+- **O9. Delete compatibility artifacts + `reconcileManifestBundledAuthority` /
+  `manifestWithBundledFallbackEntries`** and the levels-index endpoints.
+- **O10. Fold runtime catalog fields into ManifestV2;** catalog-manifest becomes
+  editor-only unordered inventory (never shipped/fetched by the game); delete
+  catalog-snapshot runtime machinery (verified: snapshots are fetched only on the RC
+  path; levels-index has zero runtime consumers; storedSequence is only written from RC
+  payloads — three authorities die with RC).
+
+Every step's device gate: observed on-phone order == canonical manifest, online AND
+offline. Sequencing vs Phases 1–5: O1/O2 are immediate hotfixes (no dependency); O3–O10
+slot after Phase 2 (they touch the same publish surfaces Phase 2 stabilizes).
