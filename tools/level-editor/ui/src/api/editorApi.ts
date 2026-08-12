@@ -1082,18 +1082,6 @@ export interface LevelsIndexEntry {
   jsonPath?: string;
 }
 
-export function getLevelsIndex(): Promise<LevelsIndexEntry[]> {
-  return request<LevelsIndexEntry[]>(`/api/levels-index`);
-}
-
-export function reorderLevelsIndex(ids: string[]): Promise<{ ok: boolean; count: number; order: LevelsIndexEntry[] }> {
-  return request(`/api/levels-index`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ ids }),
-  });
-}
-
 export interface LevelAssetDescriptor {
   hash: string;
   size: number;
@@ -1529,23 +1517,6 @@ export function saveSpriteCandidatePlacement(
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ spriteBox, cleanupBox, flipX, flipY, expectedContentRevision }),
     ...options,
-  });
-}
-
-export function saveSpriteCandidateHumanConfirmation(
-  sessionId: string,
-  candidateId: string,
-  confirmed: boolean,
-  expectedContentRevision?: string,
-): Promise<{
-  ok: boolean;
-  contentRevision?: string;
-  operationalRevision?: string;
-}> {
-  return request(`/api/sessions/${encodeURIComponent(sessionId)}/sprite-candidates/${encodeURIComponent(candidateId)}/human-confirmation`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ confirmed, expectedContentRevision, ...(confirmed ? { humanActor: 'human:editor' } : {}) }),
   });
 }
 
