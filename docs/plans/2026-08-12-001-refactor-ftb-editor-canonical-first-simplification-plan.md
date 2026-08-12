@@ -133,6 +133,14 @@ every revision and gallery card; recipe changes show projected Δ$/1000 levels. 
 estimated when a meter exists.
 **P2d.4** Tests ban dog-specific copy/config inside bird recipes; experiment overrides live
 behind an explicit experiment mode that cannot silently become production.
+**P2d.5 — Recipe fields (operator, 2026-08-12 night):** (a) **variant slots** — named
+experiment variants beside the canonical default ("our default is what we have"; always
+experimenting), manifest-labeled, adoptable via the P2d.2 action; (b) **difficulty mix** —
+easy/hard bird ratio incl. the two-pass placement (generate m easy → finish → smartly add
+n−m hard avoiding existing hitboxes, 08-05 design); (c) **bird count and paint-size
+policy** — count per level and relative bird scale as recipe fields, not folklore.
+**Scale note:** target is "scale up soon" (not yet 1000); first milestone: a 50-level
+generation round on the refactored lane, gated on the step-7 shakedown passing.
 
 ## Phase 2e — Human-work authority (mining #1, #5)
 
