@@ -452,25 +452,28 @@ Every class observed on 2026-08-12, the step that closes it structurally (not pa
 and the artifact that PROVES closure. A class is closed when its proof exists, not before.
 
 1. **Stale UI build** ("you were on yesterday's editor all day").
-   Patched: launch-time rebuild guard (31eb1084c). Closed by: Phase 4 single deploy
-   surface. Proof: dist content hash in /api/config matches served index on every start;
-   the portal serves nothing itself.
-2. **Legacy writers clobbering canonical state** (sticker recomposite; wizard auto-place /
-   recenter / select-bg divergence). Patched: sticker default off, canonical sessions skip
-   legacy recomposite (1c62879a6). Closed by: step 4 geometry mutation service (P1.6) —
-   zero direct writes to hitboxes.json/session.json on VALID_CURRENT sessions. Proof:
-   grep-level test banning `save_hitboxes`/raw writes outside the service;
-   `test_auto_placement_updates_canonical_geometry` xfail flips.
-3. **Phantom saves** ("extraction saved but I see the old version"). Patched: projection
-   layer + sweep (6eb77d7d2). Closed by: Phase 1 canonical-first reads + P1.8 read-back.
-   Proof: P1.5 contract test (API responses reflect every canonical commit);
-   projection function deleted (P1.4 exit criterion).
-4. **Blocked edits + poisoned modal** (identity-set 422; one rejection breaks all editing;
-   review pass stopped on it). Open by explicit deferral. Closed by: CL-3 (add/remove →
-   real bird create/delete) + P1.8 reconciliation on rejected saves, first items of
-   step 4. Proof: contract test — add, remove, move, save on a canonical session all
-   succeed or visibly mark the canvas dirty; a rejected save never leaves unpersisted
-   edits rendered.
+   Patched: launch-time rebuild guard (31eb1084c). Full closure = Phase 4 single
+   deploy surface — **DECISION-PENDING** (portal-cutover consent ask open on
+   /s/ftb-execution 2026-08-13). Proof on closure: dist content hash in
+   /api/config matches served index; the portal serves nothing itself.
+2. **Legacy writers clobbering canonical state**. **CLOSED 2026-08-13**: P1.6
+   geometry service is the one mutation path; `S.save_hitboxes` is a fail-closed
+   chokepoint (select_lane) so no writer reaches the sidecar on VALID_CURRENT;
+   `test_auto_placement_updates_canonical_geometry` flipped to a hard assertion
+   (accepting the CR-1 identity-refusal branch as intended semantics);
+   `test_quarantined_sessions_refuse_legacy_sidecar_writes` proves the fail-closed lane.
+3. **Phantom saves**. STRUCTURALLY CLOSED (canonical-first reads + P1.8 read-back
+   landed; hydrate overlay serves snapshot truth; read-back responses on every
+   geometry mutation), with ONE open clause: projection demotion (P1.4) gates on
+   the step-7 live shakedown, itself gated on the dog_01 operator decision —
+   DECISION-PENDING, not agent-executable. Current projection call sites: 5
+   (service mirror + compat writers), all post-commit mirrors of canonical truth.
+4. **Blocked edits + poisoned modal**. **CLOSED 2026-08-13**: id-aware replace_set
+   makes canvas add/delete/move legal on canonical sessions
+   (`test_canvas_add_and_delete_gestures_work_via_hitbox_save`); 409s carry
+   serverHitboxes and the modal adopts server truth (FastAPI envelope unwrapped —
+   CR-t1 F7), so one rejection can no longer poison subsequent edits. Live
+   reclamation on the 4 protected levels remains the operator's morning proof.
 5. **Eaten human reviews** (silent ghost-card failures; blind CAS-retry blessing unseen
    revisions). **CLOSED 2026-08-13**: P2b.3 landed (approval conflicts demand a fresh
    human click, UI reconciliation adopts server truth), P2e.3 xfail flipped (no-op saves
