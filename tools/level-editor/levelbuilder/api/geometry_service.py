@@ -110,6 +110,7 @@ def mutate_geometry(
     bird_ids: list[str] | None = None,
     factor: float | None = None,
     override_human: list[str] | None = None,
+    wholesale: bool = False,
 ) -> GeometryResult:
     if operation not in OPERATIONS:
         raise ContractValidationError(f"unknown geometry operation: {operation!r}")
@@ -180,6 +181,36 @@ def mutate_geometry(
             by_id = {b["birdId"]: b for b in snapshot["birds"]}
             carried = [h for h in hitboxes if isinstance(h, dict) and isinstance(h.get("id"), str)]
             anonymous = [h for h in hitboxes if not (isinstance(h, dict) and isinstance(h.get("id"), str))]
+            if not carried and by_id and wholesale:
+                # Explicit operator-consented wholesale replacement: clear+add
+                # in ONE commit. Old identities retire (never rebound); new
+                # birds mint fresh with extract obligations.
+                updated = invalidate_reviews(snapshot, changed_artifacts={"birdSet", "hitboxes"})
+                tombstones = updated.setdefault("operational", {}).setdefault("deletedBirdIds", [])
+                for bird in updated["birds"]:
+                    _guard_human(bird)
+                    _retire_slot(updated, bird["compatibilitySlot"])
+                    if bird["birdId"] not in tombstones:
+                        tombstones.append(bird["birdId"])
+                tombstones.sort()
+                updated["birds"] = []
+                birds = []
+                for order, hitbox in enumerate(anonymous):
+                    birds.append({
+                        "birdId": str(uuid.uuid4()),
+                        "compatibilitySlot": _next_slot_excluding(updated, birds),
+                        "presentationOrder": order,
+                        "hitbox": _require_hitbox(hitbox),
+                        "geometryOrigin": actor,
+                    })
+                updated["birds"] = birds
+                pointer = store.commit(
+                    updated,
+                    expected_content_revision=expected_content_revision,
+                    expected_operational_revision=current.pointer.operational_revision if current.pointer else None,
+                )
+                _project_geometry(session_id, updated)
+                return _result(pointer, no_op=False, snapshot=updated)
             if not carried and by_id:
                 fresh = all(
                     not (b.get("sprite") or {}).get("asset")

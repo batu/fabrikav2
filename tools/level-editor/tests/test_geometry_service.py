@@ -392,3 +392,36 @@ def test_human_corrections_of_machine_geometry_record_golden_pairs(isolated_sess
     )
     rows = [_json.loads(line) for line in ledger.read_text().splitlines()]
     assert len(rows) == 1
+
+
+def test_wholesale_replace_set_is_explicit_clear_plus_add(isolated_session):
+    """Auto-place over an existing set: with wholesale consent it is
+    clear+add in ONE commit — old identities retired (never rebound), new
+    birds minted with extract obligations. Without consent it still refuses."""
+    import pytest as _pytest
+
+    from levelbuilder.api.artifact_dag import pending_obligations
+    from levelbuilder.api.canonical_bird_contract import ContractValidationError
+    from levelbuilder.api.geometry_service import mutate_geometry
+
+    store, pointer = _canonical_session(isolated_session, "geo_wholesale")
+    with _pytest.raises(ContractValidationError):
+        mutate_geometry(
+            "geo_wholesale", "replace_set",
+            hitboxes=[{"x": 5, "y": 5, "r": 9}, {"x": 60, "y": 60, "r": 9}],
+            expected_content_revision=pointer.content_revision, actor="machine:auto-place",
+        )
+    result = mutate_geometry(
+        "geo_wholesale", "replace_set",
+        hitboxes=[{"x": 5, "y": 5, "r": 9}, {"x": 60, "y": 60, "r": 9}],
+        expected_content_revision=pointer.content_revision, actor="machine:auto-place",
+        wholesale=True,
+    )
+    birds = store.read().snapshot["birds"]
+    assert len(birds) == 2
+    assert all(b["birdId"] != "bird_one" for b in birds)      # old identity retired
+    assert all("sprite" not in b for b in birds)               # fresh, pre-extraction
+    assert "dog_00" not in {b["compatibilitySlot"] for b in birds}  # slot retired
+    kinds = [o["obligation"] for o in pending_obligations(store.read().snapshot)]
+    assert kinds.count("extract") == 2
+    assert result.no_op is False

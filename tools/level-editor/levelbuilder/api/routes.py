@@ -2639,6 +2639,10 @@ def _persist_auto_hitboxes(session_id: str, payload: list) -> list:
             hitboxes=payload,
             expected_content_revision=revision,
             actor="machine:auto-place",
+            # The operator clicked and confirmed a full re-placement: explicit
+            # wholesale clear+add. Hand-placed (human-origin) hitboxes still
+            # refuse — auto-place never silently destroys hand work.
+            wholesale=True,
         )
     except _CVE as error:
         raise HTTPException(422, detail={
