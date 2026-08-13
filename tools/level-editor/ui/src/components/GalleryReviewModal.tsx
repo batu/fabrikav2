@@ -1154,6 +1154,9 @@ export default function GalleryReviewModal({
                   cutoutsFinalBlessingStale: finalCutoutReview.stale,
                   cutoutsFinalBlessedAt: finalCutoutReview.reviewedAt,
                 });
+                setStatus(approved
+                  ? '★ Cutouts marked reviewed.'
+                  : 'Cutout review removed — cutouts are unreviewed again.');
               } catch (err) {
                 setBlessError(err instanceof Error ? err.message : 'Saving cutout review failed');
               } finally {
