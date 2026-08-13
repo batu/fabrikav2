@@ -2619,6 +2619,19 @@ def _landscape_deadzones(bg_w: int, bg_h: int) -> list:
     ]
 
 
+def _current_revisions(session_id: str) -> dict:
+    """Committed revisions for response threading — clients adopt these so
+    follow-up saves carry the right expectedContentRevision (the missing
+    field behind the self-healing 409 after auto-place, 2026-08-13)."""
+    canonical = S.read_canonical_session(session_id)
+    if canonical.pointer is None:
+        return {}
+    return {
+        "contentRevision": canonical.pointer.content_revision,
+        "operationalRevision": canonical.pointer.operational_revision,
+    }
+
+
 def _persist_auto_hitboxes(session_id: str, payload: list) -> list:
     """P1.6: auto-placement commits canonically on VALID_CURRENT sessions —
     a machine replace_set (R7-guarded), never a raw hitboxes.json write."""
@@ -2764,6 +2777,7 @@ def auto_place_hitboxes(session_id: str, req: AutoHitboxesRequest) -> dict[str, 
             "hitboxes": persisted,
             "strategy": "smart",
             "placements": SmartHitboxes.metadata_payload(selected),
+            **_current_revisions(session_id),
         }
 
     # Fixed radius (not a range) so every auto-placed hitbox has the same
@@ -2782,7 +2796,7 @@ def auto_place_hitboxes(session_id: str, req: AutoHitboxesRequest) -> dict[str, 
     )
     payload = [{"x": hb.x, "y": hb.y, "r": hb.radius} for hb in hitboxes]
     persisted = _persist_auto_hitboxes(session_id, payload)
-    return {"hitboxes": persisted, "strategy": "random"}
+    return {"hitboxes": persisted, "strategy": "random", **_current_revisions(session_id)}
 
 
 # ── Per-dog ───────────────────────────────────────────────────────────────────

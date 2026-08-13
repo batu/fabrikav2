@@ -359,6 +359,11 @@ export default function GalleryReviewModal({
       dispatchNarrow({ type: 'SET_REVISIONS', contentRevision: adopted.contentRevision, operationalRevision: adopted.operationalRevision });
     }
     if (adopted.hitboxes) {
+      // Server-adopted arrays are NOT user edits: mark them loaded so the
+      // debounced save effect does not re-POST them (the re-POST carried a
+      // stale revision after auto-place and produced a scary self-healing
+      // 409 toast — twice on 2026-08-13).
+      loadedHitboxesRef.current = adopted.hitboxes;
       dispatchNarrow({ type: 'SET_HITBOXES', hitboxes: adopted.hitboxes });
     }
   }, []);
@@ -992,17 +997,17 @@ export default function GalleryReviewModal({
                 </div>
               </div>
 
-              {visibilitySummaries.length > 0 && (
+              {blockerCount > 0 && (
                 <div style={{
-                  background: blockerCount > 0 ? '#2a1111' : '#2a210d',
-                  border: `1px solid ${blockerCount > 0 ? '#7a3232' : '#7a5a1d'}`,
+                  background: '#2a1111',
+                  border: '1px solid #7a3232',
                   borderRadius: 8,
                   padding: 12,
                   color: '#ffd98a',
                   fontSize: '0.8rem',
                   }}>
                   <div style={{ fontWeight: 700, marginBottom: 6 }}>
-                    {blockerCount > 0 ? 'Hitboxes touching danger zones' : 'Mobile border warnings'}
+                    Hitboxes touching danger zones
                   </div>
                   {visibilitySummaries.slice(0, 6).map((summary) => (
                     <div key={summary.dogId} style={{ marginBottom: 3 }}>
