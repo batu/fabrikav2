@@ -81,7 +81,16 @@ export function apiErrorHint(err: ApiError): string {
   if (message.includes('padding') || message.includes('different bird')) return 'Select Padding for the named bird, then drag the yellow box or use the Move controls until it contains that sprite.';
   if (message.includes('quarantin') || message.includes('mapping')) return 'This is an artifact-identity problem, not a visual approval. Repair the bird mapping before final review or publishing.';
   if (code === 'package_not_installed' || message.includes('level.json') || message.includes('public package')) return 'The reviewed package is not installed. Publish it through the Gallery bundled-catalog action before adding it to Lineup.';
-  if (err.status === 502) return 'The generation service failed upstream. Retry Extract or Regenerate for the affected bird; existing cutouts were preserved.';
+  if (err.status === 502) {
+    // 502 means the request never completed — proxy timeout, backend restart,
+    // or an upstream provider failure. Only generation calls get generation
+    // advice; everything else gets the honest generic.
+    const isGeneration = err.url.includes('inpaint') || err.url.includes('retry')
+      || err.url.includes('generate') || err.url.includes('extract');
+    return isGeneration
+      ? 'The generation service failed upstream. Retry Extract or Regenerate for the affected bird; existing cutouts were preserved.'
+      : 'The server did not answer in time (proxy timeout or restart). The action likely did not complete — retry it once.';
+  }
   if (err.status === 422) return 'The server rejected the submitted values. The message above names the field or geometry that must be corrected.';
   if (err.status === 409) return 'The requested change conflicts with the level’s current state. Refresh the level and use the prerequisite named above.';
   return '';
