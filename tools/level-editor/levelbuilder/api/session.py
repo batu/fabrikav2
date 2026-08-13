@@ -4630,12 +4630,33 @@ def materialize_detection_sprites(
                             len(batch_crops), exc)
                 else:  # FTD_FLATKEY_GRID=1: force the single-call path
                     from levelbuilder.api.flatkey import flatkey_recreate_sprite
+
+                    # Paid-call durability (operator 2026-08-14: a client
+                    # disconnect vaporized 26 billed singles): every provider
+                    # result persists to staging the moment it returns, keyed
+                    # by the crop's content, and re-runs reuse staged results
+                    # for free.
+                    import hashlib as _hl
+                    single_staging = session_dir(session_id) / ".canonical" / "staging" / "singles"
+                    single_staging.mkdir(parents=True, exist_ok=True)
                     for index, crop in batch_crops.items():
+                        crop_key = _hl.sha256(crop.tobytes()).hexdigest()[:20]
+                        staged_path = single_staging / f"single-{index:02d}-{crop_key}.png"
+                        if staged_path.is_file():
+                            try:
+                                prebatched[index] = Image.open(staged_path).convert("RGBA")
+                                continue
+                            except OSError:
+                                pass
                         try:
                             single = flatkey_recreate_sprite(crop, model=flatkey_model, entity=entity)
                         except Exception:
                             single = None
                         if single is not None:
+                            try:
+                                single.save(staged_path)
+                            except OSError:
+                                pass
                             prebatched[index] = single
         flatkey_count = len(prebatched)
         with ThreadPoolExecutor(max_workers=max_workers) as pool:

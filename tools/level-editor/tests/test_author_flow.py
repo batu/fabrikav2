@@ -53,10 +53,11 @@ def test_full_flow_runs_every_step_in_order(monkeypatch, capsys):
     code, out = _run(monkeypatch, capsys, stub, ["author", "--template", "t1", "--force-disk"])
     assert code == 0, out
     steps = [entry["step"] for entry in json.loads(out)["trace"]]
-    # fix-hitboxes left the lane 2026-08-13 (one-path plan T1): the in-job
-    # VLM stage is the only post-paint localizer.
+    # fix-hitboxes left 2026-08-13 (T1: VLM stage is the only localizer);
+    # repair-sprites left 2026-08-14 (extraction IS the repair under
+    # detections-are-truth; its gap-reader burned an un-chosen paid model).
     assert steps == ["create", "generate-bg", "select-bg", "upscale", "auto-hitboxes",
-                     "inpaint", "hitbox-review-checkpoint", "repair-sprites", "export"]
+                     "inpaint", "hitbox-review-checkpoint", "export"]
 
 
 def test_stop_after_truncates_the_flow(monkeypatch, capsys):
@@ -163,22 +164,6 @@ def test_failure_reports_session_id_and_resume_hint(monkeypatch, capsys):
     assert "resume" in payload
     assert [entry["step"] for entry in payload["trace"]][:2] == ["create", "generate-bg"]
 
-
-def test_repair_budget_is_capped(monkeypatch, capsys):
-    """Worst case must stay bounded: gaps x passes without a cap was ~40 paid
-    regenerations on a pathological level."""
-    script = _script()
-    script["/api/sessions/auth_1/sprite-gaps"] = {
-        "missing": [{"index": i, "dogId": f"uuid-{i}"} for i in range(20)]
-    }
-    for index in range(20):
-        script[f"/api/sessions/auth_1/dogs/by-id/uuid-{index}/regen"] = {"variantIndex": 1}
-    stub = _StubClient(script)
-    code, _ = _run(monkeypatch, capsys, stub,
-                   ["author", "--template", "t1", "--max-repairs", "3",
-                    "--repair-passes", "5", "--force-disk"])
-    assert code == 0
-    assert sum("/regen" in path for _, path in stub.calls) == 3
 
 
 def test_rerun_does_not_replace_hitboxes_under_painted_art(monkeypatch, capsys):

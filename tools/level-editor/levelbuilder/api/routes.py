@@ -3111,7 +3111,9 @@ def pickup_preview(session_id: str, *, _lossless: bool = False):
                 float(bird["cleanup"]["x"] + bird["cleanup"]["width"]),
                 float(bird["cleanup"]["y"] + bird["cleanup"]["height"]),
             ),
-        ) for bird in canonical_snapshot["birds"]]
+        ) for bird in canonical_snapshot["birds"]
+            # Pre-extraction birds have no cleanup yet — nothing to restore.
+            if isinstance(bird.get("cleanup"), dict)]
     if canonical_scene_bytes is None and not color_path.exists():
         raise HTTPException(404, detail={"error": "no color.png"})
     level_path = sdir / "level.json"

@@ -4110,15 +4110,13 @@ def _run_single_dog_regen(
     output_dir = artifact_dir or dog_dir
     model = inpaint_model or raw.get("inpaint_model") or raw["model"]
     if model not in INPAINT_MODEL_IDS:
-        fallback_model = next((m for m in INPAINT_MODEL_IDS if m.startswith("openai/")), None)
-        fallback_model = fallback_model or next(iter(INPAINT_MODEL_IDS))
-        logger.warning(
-            "regen_dog: replacing invalid inpaint model %s with %s for session %s",
-            model,
-            fallback_model,
-            session_id,
-        )
-        model = fallback_model
+        # Operator 2026-08-14: NEVER silently substitute a paid model — the
+        # old openai/ fallback burned an un-chosen gpt-image-2 call during
+        # the audition run. Refuse loudly instead.
+        raise HTTPException(422, detail={
+            "error": f"Inpaint model {model!r} is not in the allowed set; refusing to substitute a different paid model",
+            "code": "invalid_inpaint_model",
+        })
 
     crop_before: Image.Image | None = None
     mask: Image.Image | None = None

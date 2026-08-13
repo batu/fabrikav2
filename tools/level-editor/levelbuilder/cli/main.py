@@ -736,9 +736,12 @@ def cmd_dogs(client: Client, args: argparse.Namespace) -> None:
 
 # fix-hitboxes left the lane 2026-08-13 (one-path plan T1): post-paint
 # localization is the in-job VLM stage; a second localizer is a second path.
+# repair-sprites left the lane 2026-08-14: under detections-are-truth,
+# extraction IS the repair; its legacy gap-reader triggered a paid regen on
+# an un-chosen model during the audition run.
 AUTHOR_STEPS = (
     "create", "generate-bg", "select-bg", "upscale", "auto-hitboxes",
-    "inpaint", "hitbox-review-checkpoint", "repair-sprites", "export",
+    "inpaint", "hitbox-review-checkpoint", "export",
 )
 
 
@@ -914,35 +917,6 @@ def cmd_author(client: Client, args: argparse.Namespace) -> None:
                         stage="hitbox-review-checkpoint",
                     )
                 note("hitbox-review-checkpoint", {"approved": True})
-            elif step == "repair-sprites":
-                budget = args.max_repairs
-                regen_failures: list[dict] = []
-                for _pass in range(args.repair_passes):
-                    gaps = client.get(f"/api/sessions/{session_id}/sprite-gaps").get("missing", [])
-                    if not gaps or budget <= 0:
-                        break
-                    session = client.get(f"/api/sessions/{session_id}")
-                    prompts = client.post("/api/actions/assemble-recipe-prompts", json=_session_recipe(session))
-                    for entry in gaps:
-                        if budget <= 0:
-                            break
-                        budget -= 1
-                        try:
-                            client.post(f"/api/sessions/{session_id}/dogs/by-id/{entry['dogId']}/regen",
-                                        json={"prompt": prompts["dogPrompt"]})
-                        except CliError as error:
-                            regen_failures.append({"index": entry["index"], "error": error.message[:120]})
-                remaining = client.get(f"/api/sessions/{session_id}/sprite-gaps").get("missing", [])
-                if remaining and args.drop_unrepairable:
-                    for entry in remaining:
-                        client.request("DELETE", f"/api/sessions/{session_id}/dogs/by-id/{entry['dogId']}")
-                    remaining = client.get(f"/api/sessions/{session_id}/sprite-gaps").get("missing", [])
-                note("repair-sprites", {
-                    "remaining": [e["index"] for e in remaining],
-                    "regenBudgetLeft": budget,
-                    "regenFailures": regen_failures,
-                })
-
             elif step == "export":
                 export_args = argparse.Namespace(**{
                     **vars(args),
