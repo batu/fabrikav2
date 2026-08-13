@@ -24,7 +24,6 @@ interface Props {
   onOpen: (sessionId: string) => void;
 }
 
-type ModelFilter = 'all' | string;
 type CardState = ReviewCardState;
 type GallerySortMode = 'newest' | 'name' | 'dogs' | 'regeneration';
 type HumanReviewState = 'needs-hitbox-review' | 'needs-cutout-review' | 'reviewed';
@@ -125,9 +124,11 @@ export default function GalleryPage({ config, onOpen }: Props) {
   const [lineupError, setLineupError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [settingFilter, setSettingFilter] = useState<string>('all');
-  const [modelFilter, setModelFilter] = useState<ModelFilter>('all');
-  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  // Operator 2026-08-13: tag chips off the cards; provenance filters as
+  // three dropdowns (background / inpaint / cutout) parsed from the tags.
+  const [bgFilter, setBgFilter] = useState<string>('all');
+  const [inpaintFilter, setInpaintFilter] = useState<string>('all');
+  const [cutoutFilter, setCutoutFilter] = useState<string>('all');
   const [search, setSearch] = useState('');
   const [lineupOnly, setLineupOnly] = useState(false);
   const [humanReviewFilter, setHumanReviewFilter] = useState<Record<HumanReviewState, boolean>>({
@@ -186,23 +187,19 @@ export default function GalleryPage({ config, onOpen }: Props) {
     ).values()),
     [activeCards],
   );
-  const settingKeys = useMemo(
-    () => Array.from(new Set(activeSessions.map((s) => s.setting))).sort(),
-    [activeSessions],
-  );
-  const modelKeys = useMemo(
-    () => Array.from(new Set(activeSessions.map((s) => s.model).filter(Boolean) as string[])).sort(),
-    [activeSessions],
-  );
-  const tagKeys = useMemo(
-    () => Array.from(new Set(activeSessions.flatMap((s) => s.tags ?? []))).sort(),
-    [activeSessions],
-  );
-
   const orderedAllCards = useMemo(
     () => sortCards(activeCards, sortMode),
     [activeCards, sortMode],
   );
+
+  const provenanceOptions = useMemo(() => {
+    const collect = (prefix: string) => Array.from(new Set(
+      activeSessions.flatMap((session) => (session.tags ?? [])
+        .filter((tag) => tag.startsWith(prefix))
+        .map((tag) => tag.slice(prefix.length))),
+    )).sort();
+    return { bg: collect('gen:'), inpaint: collect('inpaint:'), cutout: collect('cutout:') };
+  }, [activeSessions]);
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -210,9 +207,9 @@ export default function GalleryPage({ config, onOpen }: Props) {
     const lineupSet = new Set(lineupOrder);
     return orderedAllCards
       .filter((c) => (lineupOnly ? lineupSet.has(c.session.id) : true))
-      .filter((c) => (settingFilter === 'all' ? true : c.session.setting === settingFilter))
-      .filter((c) => (modelFilter === 'all' ? true : c.session.model === modelFilter))
-      .filter((c) => selectedTags.every((tag) => (c.session.tags ?? []).includes(tag)))
+      .filter((c) => (bgFilter === 'all' ? true : (c.session.tags ?? []).includes(`gen:${bgFilter}`)))
+      .filter((c) => (inpaintFilter === 'all' ? true : (c.session.tags ?? []).includes(`inpaint:${inpaintFilter}`)))
+      .filter((c) => (cutoutFilter === 'all' ? true : (c.session.tags ?? []).includes(`cutout:${cutoutFilter}`)))
       .filter((c) => humanReviewFilter[humanReviewSummary(c.session).state])
       .filter((c) => {
         if (!q) return true;
@@ -230,7 +227,7 @@ export default function GalleryPage({ config, onOpen }: Props) {
       .sort((a, b) => (lineupOnly
         ? lineupOrder.indexOf(a.session.id) - lineupOrder.indexOf(b.session.id)
         : 0));
-  }, [orderedAllCards, lineupOnly, lineupState, settingFilter, modelFilter, selectedTags, humanReviewFilter, search, config.settings]);
+  }, [orderedAllCards, lineupOnly, lineupState, bgFilter, inpaintFilter, cutoutFilter, humanReviewFilter, search, config.settings]);
 
   const visibilitySessionIds = useMemo(
     () => Array.from(new Set(
@@ -403,25 +400,25 @@ export default function GalleryPage({ config, onOpen }: Props) {
               placeholder="Search name, setting, scene, tags"
               style={{ background: '#111', border: '1px solid #333', borderRadius: 6, color: '#e0e0e0', padding: '6px 10px' }}
             />
-            <select
-              value={settingFilter}
-              onChange={(e) => setSettingFilter(e.target.value)}
-              className="inline-select"
-            >
-              <option value="all">All settings</option>
-              {settingKeys.map((k) => (
-                <option key={k} value={k}>{config.settings[k]?.label ?? k}</option>
+            <select value={bgFilter} onChange={(e) => setBgFilter(e.target.value)}
+              className="inline-select" title="Filter by background generation model (gen: tag)">
+              <option value="all">All backgrounds</option>
+              {provenanceOptions.bg.map((k) => (
+                <option key={k} value={k}>{k.replace('google/', '')}</option>
               ))}
             </select>
-            <select
-              value={modelFilter}
-              onChange={(e) => setModelFilter(e.target.value)}
-              className="inline-select"
-              title="Filter by bg-gen model at session create time."
-            >
-              <option value="all">All models (gen)</option>
-              {modelKeys.map((k) => (
-                <option key={k} value={k}>{config.models.find((m) => m.id === k)?.label ?? k}</option>
+            <select value={inpaintFilter} onChange={(e) => setInpaintFilter(e.target.value)}
+              className="inline-select" title="Filter by inpaint lane/model (inpaint: tag)">
+              <option value="all">All inpaints</option>
+              {provenanceOptions.inpaint.map((k) => (
+                <option key={k} value={k}>{k.replace('google/', '')}</option>
+              ))}
+            </select>
+            <select value={cutoutFilter} onChange={(e) => setCutoutFilter(e.target.value)}
+              className="inline-select" title="Filter by cutout technique/model (cutout: tag)">
+              <option value="all">All crops</option>
+              {provenanceOptions.cutout.map((k) => (
+                <option key={k} value={k}>{k.replace('google/', '')}</option>
               ))}
             </select>
             <select
@@ -478,30 +475,6 @@ export default function GalleryPage({ config, onOpen }: Props) {
               <span style={{ color: '#777' }}>({humanReviewCounts[reviewState]})</span>
             </label>
           ))}
-          {tagKeys.length > 0 && (
-            <>
-              <span style={{ color: '#888', fontSize: '0.8rem' }}>Tags:</span>
-              {tagKeys.map((tag) => {
-                const tagCount = activeSessions.filter((session) => (session.tags ?? []).includes(tag)).length;
-                const checked = selectedTags.includes(tag);
-                return (
-                  <label key={tag} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: '0.8rem', color: '#ccc' }}>
-                    <input
-                      type="checkbox"
-                      checked={checked}
-                      onChange={(e) => {
-                        setSelectedTags((prev) => e.target.checked
-                          ? [...prev, tag].sort()
-                          : prev.filter((item) => item !== tag));
-                      }}
-                    />
-                    {tag}
-                    <span style={{ color: '#777' }}>({tagCount})</span>
-                  </label>
-                );
-              })}
-            </>
-          )}
           <div style={{ marginLeft: 'auto', display: 'flex', gap: 8, alignItems: 'center' }}>
             {lineupError && <span style={{ fontSize: '0.8rem', color: '#ff8080' }}>{lineupError}</span>}
           </div>
@@ -775,22 +748,6 @@ function GalleryCard({
             in Lineup
           </span>
         )}
-        {(session.tags ?? []).map((tag) => (
-          <span
-            key={tag}
-            style={{
-              background: 'rgba(80, 92, 126, 0.9)',
-              color: '#d8e1ff',
-              fontSize: '0.65rem',
-              padding: '2px 6px',
-              borderRadius: 3,
-              fontWeight: 700,
-              border: '1px solid rgba(180, 195, 255, 0.25)',
-            }}
-          >
-            {tag}
-          </span>
-        ))}
         {warnCount > 0 && (
           <span
             title={blockerCount > 0 ? `${blockerCount} danger-zone hitbox issue(s)` : `${warnCount} mobile border warning(s)`}

@@ -419,7 +419,13 @@ async function run() {
     assert(!galleryText.includes('archived-only-tag'), 'Archived tags must not leak into filters.');
     assert(await page.locator('[data-gallery-card-id="mixed-variant-session::gemini"]').count() === 1, 'Playable card from a mixed background/playable session must remain visible.');
     assert(await page.locator('[data-gallery-card-id="mixed-variant-session::gemini_bg_only"]').count() === 0, 'Background card from a mixed session must remain hidden.');
-    assert(/mixed-variant-tag\s*\(1\)/i.test(galleryText), 'Tag counts must count active levels, not variants.');
+    // 2026-08-13: tag chips + checkbox row removed; provenance filters are
+    // three dropdowns (background / inpaint / cutout) parsed from tag
+    // prefixes. Un-prefixed tags no longer render anywhere.
+    assert(!galleryText.includes('mixed-variant-tag'), 'Raw tags must not render on cards or filters.');
+    assert(await page.getByRole('option', { name: 'All backgrounds' }).count() === 1, 'Background provenance dropdown missing.');
+    assert(await page.getByRole('option', { name: 'All inpaints' }).count() === 1, 'Inpaint provenance dropdown missing.');
+    assert(await page.getByRole('option', { name: 'All crops' }).count() === 1, 'Cutout provenance dropdown missing.');
 
     const needsHitboxFilter = page.getByRole('checkbox', { name: /Hitboxes need review/ });
     const needsCutoutFilter = page.getByRole('checkbox', { name: /Cutouts need review/ });
