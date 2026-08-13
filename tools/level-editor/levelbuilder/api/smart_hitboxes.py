@@ -67,7 +67,7 @@ class CandidateScoreResponse(BaseModel):
     @classmethod
     def _unwrap_string_items(cls, value):
         """The vision model sometimes returns list items as STRINGS of JSON
-        (observed live 2026-08-13, gemini-3.5-flash-lite). Unwrap them before
+        (observed live 2026-08-13 on gemini-3.6-flash structured mode). Unwrap them before
         validation instead of failing the whole placement; genuinely malformed
         strings still fail loudly downstream."""
         if isinstance(value, str):
