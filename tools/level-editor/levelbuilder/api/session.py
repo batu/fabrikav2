@@ -2050,6 +2050,73 @@ def set_canonical_candidate_confirmation_if_present(
     return pointer
 
 
+def promote_materialized_sprites_canonically(
+    session_id: str,
+    *,
+    hitboxes: list[dict],
+    materialized: list[dict],
+    model: str,
+    entity: str,
+) -> dict | None:
+    """BUG-13: land bulk-materialized sprites in the canonical snapshot.
+
+    The bulk flatkey path writes dogs/dog_XX files (legacy surface); without
+    a canonical commit the birds stay sprite-less, candidates lose their
+    birdId mapping, and placement saves fall into the exported-package path.
+    Maps each entry to its bird via the projected hitbox id and promotes it
+    through the same commit the per-bird extract uses. Legacy sessions
+    no-op; per-bird failures are collected, never raised — the legacy write
+    already happened and must stay visible."""
+    from levelbuilder.api import canonical_job_provenance as _prov
+    from levelbuilder.api.canonical_bird_contract import CanonicalReadState
+
+    canonical = read_canonical_session(session_id)
+    if canonical.state is not CanonicalReadState.VALID_CURRENT or canonical.snapshot is None:
+        return None
+    committed, skipped = 0, 0
+    failures: list[dict] = []
+    for entry in materialized:
+        index = entry.get("index")
+        if entry.get("skipped") or not isinstance(index, int):
+            skipped += 1
+            continue
+        bird_id = (hitboxes[index].get("id") if 0 <= index < len(hitboxes) else None)
+        meta_path = dogs_dir(session_id) / f"dog_{index:02d}" / "sprite_000.json"
+        sprite_path = meta_path.with_suffix(".png")
+        try:
+            if not isinstance(bird_id, str):
+                raise ValueError(f"hitbox {index} carries no bird id")
+            metadata = json.loads(meta_path.read_text())
+            sprite_box = metadata.get("spriteBox")
+            if not (isinstance(sprite_box, list) and len(sprite_box) == 4):
+                raise ValueError("sprite metadata has no spriteBox")
+            metadata.setdefault("cleanupBox", list(sprite_box))
+            # Re-read per bird: each promote commits a new revision, and the
+            # capture must bind to the revision it will be verified against.
+            snapshot = read_canonical_session(session_id).snapshot
+            captured = _prov.capture_bird_job_input(
+                snapshot,
+                bird_id=bird_id,
+                operation="bulk-flatkey-extract",
+                crop_box=tuple(int(v) for v in sprite_box),
+                model=model,
+                prompt=entity,
+            )
+            pointer, disposition = promote_canonical_sprite_artifact(
+                session_id,
+                captured_input=captured.to_dict(),
+                generation_id=f"bulk-{uuid.uuid4().hex[:12]}",
+                sprite_path=sprite_path,
+                metadata=metadata,
+            )
+            if pointer is None:
+                raise ValueError(f"promotion refused: {disposition}")
+            committed += 1
+        except Exception as error:
+            failures.append({"index": index, "birdId": str(bird_id), "error": str(error)[:200]})
+    return {"committed": committed, "skipped": skipped, "failed": failures}
+
+
 def promote_canonical_sprite_artifact(
     session_id: str,
     *,
@@ -4464,9 +4531,17 @@ def materialize_detection_sprites(
     raw["dogs"] = dogs
     save_session(session_id, raw)
     sync_active_sprite_set_to_levels(session_id, dogs, hitboxes)
+    promotions = promote_materialized_sprites_canonically(
+        session_id,
+        hitboxes=hitboxes,
+        materialized=materialized,
+        model=os.environ.get("FTD_FLATKEY_MODEL", "google/gemini-3.1-flash-image-preview"),
+        entity=str(raw.get("entity") or "bird"),
+    )
     return {
         "sessionId": session_id,
         "materialized": len(materialized),
+        "canonicalPromotions": promotions,
         "sprites": materialized,
         "failed": failed,
         # Fail-LOUD accounting (2026-08-06): a dying provider key degraded
