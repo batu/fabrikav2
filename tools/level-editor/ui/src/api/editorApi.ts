@@ -682,24 +682,26 @@ export async function runGeometryOperation(
 /** CL-17: discharge pending DAG obligations (extract) in one action. */
 export async function extractAllCutouts(
   sessionId: string,
-  hitboxes: { x: number; y: number; r: number }[],
+  _hitboxes: { x: number; y: number; r: number }[],
   force: boolean,
-): Promise<{ materialized: number; failed?: unknown; canonicalPromotions?: { committed: number; skipped: number; failed: unknown[] } }> {
-  // Mirrors the CLI materialize-hitbox-sprites verb: each hitbox IS the
-  // bird; the detection is a padded square around it (pad = 1.6r).
-  const detections = hitboxes.map((hb) => {
-    const pad = hb.r * 1.6;
-    return {
-      x: Math.round(hb.x - pad), y: Math.round(hb.y - pad),
-      width: Math.round(2 * pad), height: Math.round(2 * pad),
-      confidence: 1.0,
-    };
-  });
-  return request(`/api/sessions/${encodeURIComponent(sessionId)}/materialize-detection-sprites`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ detections, minimumConfidence: 0.5, force }),
-  });
+): Promise<{ materialized: number; canonicalPromotions?: { committed: number; skipped: number; failed: unknown[] } }> {
+  // Durable job (2026-08-14): the server derives detections from its own
+  // hitboxes and runs the extraction as a job — closing this tab can no
+  // longer orphan paid work. Poll until terminal.
+  const booked = await request<{ jobId: string }>(
+    `/api/sessions/${encodeURIComponent(sessionId)}/extract-all/jobs?force=${force ? 'true' : 'false'}`,
+    { method: 'POST' },
+  );
+  for (;;) {
+    await new Promise((resolve) => setTimeout(resolve, 4000));
+    const job = await request<{ status: string; result?: { materialized?: number; canonicalPromotions?: { committed: number; skipped: number; failed: unknown[] } }; errorMessage?: string }>(
+      `/api/jobs/${encodeURIComponent(booked.jobId)}`, { suppressToast: true },
+    );
+    if (job.status === 'succeeded') return (job.result ?? { materialized: 0 }) as { materialized: number };
+    if (job.status === 'failed' || job.status === 'failed_retryable') {
+      throw new Error(job.errorMessage || 'Extract all failed server-side');
+    }
+  }
 }
 
 export async function rerunStale(

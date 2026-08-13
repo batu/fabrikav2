@@ -2880,6 +2880,28 @@ def _start_crop_inpaint_job_record(
     )
 
 
+@router.post("/sessions/{session_id}/extract-all/jobs")
+def start_extract_all_job(session_id: str, force: bool = Query(False)):
+    """Durable Extract All: books a bulk_extract job the worker executes —
+    survives client disconnects; poll /api/jobs/{id}."""
+    _validate_session_id(session_id)
+    import uuid as _uuid
+
+    for active in JOB_STORE.list_jobs_by_status(("queued", "running")):
+        if active.kind == "bulk_extract" and active.session_id == session_id:
+            raise HTTPException(409, detail={
+                "error": f"an extract-all is already active for {session_id} ({active.id})",
+                "code": "extract_all_active", "activeJobId": active.id,
+            })
+    key = f"bulk-extract:{session_id}:{_uuid.uuid4().hex[:16]}"
+    job = JOB_STORE.create_job(
+        kind="bulk_extract", session_id=session_id,
+        idempotency_key=key, input_hash=key,
+        metadata={"force": force, "padFactor": 1.6, "safeToRequeue": True},
+    )
+    return {"jobId": job.id, "status": job.status}
+
+
 @router.post("/sessions/{session_id}/inpaint/jobs", response_model=CropInpaintJobResponse)
 def start_crop_inpaint_job(session_id: str, req: CropInpaintJobRequest) -> CropInpaintJobResponse:
     _raw, selected_bg, hitbox_list, model, hard_dog_prompt = _validate_crop_inpaint_inputs(
@@ -3795,8 +3817,39 @@ def _run_magenta_inpaint_job(job: JobRecord, store: JobStore) -> dict[str, Any]:
     return _discharge_paint_obligations(session_id, summary)
 
 
+def _run_bulk_extract_job(job: JobRecord, store: JobStore) -> dict[str, Any]:
+    """Durable Extract All: derive padded-square detections from the
+    session's hitboxes (each hitbox IS the bird — the CLI convention) and
+    run the bulk materialize inside a job, so client disconnects cannot
+    orphan paid work (26 singles were lost to a dropped sync request,
+    2026-08-14)."""
+    session_id = job.session_id
+    metadata = job.metadata or {}
+    pad_factor = float(metadata.get("padFactor") or 1.6)
+    hb_path = S.session_dir(session_id) / "hitboxes.json"
+    hitbox_list = json.loads(hb_path.read_text()) if hb_path.exists() else []
+    if not hitbox_list:
+        raise RuntimeError("extract-all requires hitboxes")
+    detections = []
+    for hb in hitbox_list:
+        r = float(hb.get("r") or hb.get("radius") or 57)
+        pad = r * pad_factor
+        detections.append({
+            "x": int(hb["x"] - pad), "y": int(hb["y"] - pad),
+            "width": int(2 * pad), "height": int(2 * pad),
+            "confidence": 1.0,
+        })
+    return S.materialize_detection_sprites(
+        session_id,
+        detections=detections,
+        minimum_confidence=0.5,
+        force=bool(metadata.get("force")),
+    )
+
+
 def register_job_handlers(worker: JobWorker) -> None:
     worker.register_handler("magenta_inpaint", _run_magenta_inpaint_job)
+    worker.register_handler("bulk_extract", _run_bulk_extract_job)
     worker.register_handler("background_generation", _run_background_generation_job)
     worker.register_handler("crop_inpaint", _run_crop_inpaint_job)
     worker.register_handler("crop_inpaint_retry", _run_retry_failed_dogs_job)

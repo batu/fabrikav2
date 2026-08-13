@@ -74,3 +74,30 @@ def test_job_worker_sets_attribution_for_every_handler(monkeypatch):
         pass  # store stub may lack methods the tail needs; ambient is captured first
     assert seen.get("ambient", {}).get("sessionId") == "sess-1"
     assert seen["ambient"].get("operation") == "probe"
+
+
+def test_bulk_extract_job_handler_derives_detections_and_materializes(monkeypatch):
+    """Durable Extract All (goal 3e): the job handler derives padded-square
+    detections from the session's hitboxes (each hitbox IS the bird) and
+    runs the bulk materialize — client disconnects can no longer orphan the
+    work (the sync request lost 26 billed singles, 2026-08-14)."""
+    from types import SimpleNamespace
+    from levelbuilder.api import inpaint as I
+    from levelbuilder.api import session as S
+
+    monkeypatch.setattr(S, "load_session_raw", lambda sid: {
+        "hitboxes_ignored": True})
+    import json as _json, pathlib, tempfile
+    tmp = pathlib.Path(tempfile.mkdtemp())
+    (tmp / "hitboxes.json").write_text(_json.dumps([{"id": "b1", "x": 100, "y": 100, "r": 50}]))
+    monkeypatch.setattr(S, "session_dir", lambda sid: tmp)
+    seen = {}
+    monkeypatch.setattr(S, "materialize_detection_sprites",
+        lambda sid, *, detections, minimum_confidence, force: seen.update(
+            {"detections": detections, "force": force}) or {"materialized": 1})
+    job = SimpleNamespace(id="j1", session_id="s1", metadata={"force": True, "padFactor": 1.6})
+    result = I._run_bulk_extract_job(job, store=None)
+    assert result == {"materialized": 1}
+    det = seen["detections"][0]
+    assert det["x"] == 20 and det["y"] == 20 and det["width"] == 160  # 100±(50*1.6)
+    assert seen["force"] is True
