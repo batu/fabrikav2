@@ -3678,6 +3678,19 @@ def _scene_dimension(session_id: str) -> int:
         return max(image.size)
 
 
+def _resync_dogs_to_hitboxes(session_id: str, hitbox_list: list) -> None:
+    """dogs[] must equal the hitbox id set EXACTLY after localization —
+    ghosts (pruned birds) removed, new birds added, survivors marked done.
+    Without the removal half, canonical adoption quarantines on
+    bird_id_set_mismatch (live gate, 2026-08-13)."""
+    hitbox_ids = {h.get("id") for h in hitbox_list if isinstance(h, dict) and h.get("id")}
+    raw = S.load_session_raw(session_id) or {}
+    kept = [d for d in (raw.get("dogs") or [])
+            if isinstance(d, dict) and d.get("id") in hitbox_ids]
+    S.update_session_field(session_id, dogs=kept)
+    _mark_session_dogs_done(session_id, hitbox_list)
+
+
 def localize_hitboxes_from_detections(session_id: str) -> dict[str, Any]:
     """T1 (one-path plan 2026-08-13): detections are truth.
 
@@ -3718,7 +3731,8 @@ def localize_hitboxes_from_detections(session_id: str) -> dict[str, Any]:
         if i in carried_ids:
             entry["id"] = carried_ids[i]
         payload.append(entry)
-    S.save_hitboxes(session_id, payload)
+    persisted = S.save_hitboxes(session_id, payload) or payload
+    _resync_dogs_to_hitboxes(session_id, persisted)
     carried = len(carried_ids)
     return {
         "detected": len(centers),

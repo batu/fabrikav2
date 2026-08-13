@@ -70,3 +70,28 @@ def test_stage_uses_the_vlm_localizer_and_stamps_vlm_snap(monkeypatch):
     summary = I._discharge_paint_obligations("sid", {})
     assert calls == ["localize", "adopt", "stamp:vlm-snap"]
     assert summary["localization"] == {"detected": 3}
+
+
+def test_localizer_resyncs_dogs_to_the_new_id_set(monkeypatch):
+    """Live gate find (2026-08-13): the localizer rewrote the hitbox id set
+    but dogs[] kept paint-time ids -> adoption quarantined on
+    bird_id_set_mismatch. The localizer owns the resync: dogs[] must equal
+    the new hitbox id set exactly — ghosts removed, new birds added."""
+    from levelbuilder.api import inpaint as I
+    from levelbuilder.api import session as S
+
+    saved = []
+    _wire(
+        monkeypatch,
+        detections=[{"x": 90, "y": 90, "width": 20, "height": 20}],
+        existing=[
+            {"id": "bird-a", "x": 100, "y": 100, "r": 57},
+            {"id": "bird-ghost", "x": 2000, "y": 2000, "r": 57},
+        ],
+        saved=saved,
+    )
+    resynced = []
+    monkeypatch.setattr(I, "_resync_dogs_to_hitboxes",
+                        lambda sid, payload: resynced.append([h.get("id") for h in payload]))
+    I.localize_hitboxes_from_detections("sid")
+    assert resynced and resynced[0] == ["bird-a"]
