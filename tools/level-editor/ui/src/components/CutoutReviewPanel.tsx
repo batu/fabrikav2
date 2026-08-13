@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { DogState, Hitbox, ModelOption, SpriteCandidate } from '../types';
 import {
+  extractAllCutouts,
   ApiError,
   dogVariantUrl,
   getCutoutExtractionPrompt,
@@ -355,6 +356,7 @@ export default function CutoutReviewPanel({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [candidateJobs, setCandidateJobs] = useState<Record<string, CandidateJobState>>({});
+  const [extractAllBusy, setExtractAllBusy] = useState(false);
   const [showHitbox, setShowHitbox] = useState(false);
   const [extractionPrompt, setExtractionPrompt] = useState<string>('');
   const [lastResult, setLastResult] = useState<string | null>(null);
@@ -749,6 +751,30 @@ export default function CutoutReviewPanel({
               {cutoutModels.map((model) => <option key={model.id} value={model.id}>{model.label}</option>)}
             </select>
           </label>
+          <button
+            type="button"
+            className="btn"
+            disabled={extractAllBusy || loading || hitboxes.length === 0}
+            title="Cut (or re-cut) pickup sprites for every hitbox — flatkey single calls, one per bird, then neural placement and canonical adoption."
+            onClick={async () => {
+              const n = hitboxes.length;
+              if (!window.confirm(`Extract cutouts for all ${n} birds? Paid: ~$${(n * 0.035).toFixed(2)} in provider calls. Existing cutouts are re-cut.`)) return;
+              setExtractAllBusy(true);
+              setError(null);
+              try {
+                const result = await extractAllCutouts(sessionId, hitboxes, true);
+                const promoted = result.canonicalPromotions?.committed ?? 0;
+                setLastResult(`Extracted ${result.materialized} cutouts (${promoted} committed canonically).`);
+                await refresh();
+              } catch (err) {
+                setError(err instanceof Error ? err.message : 'Extract all failed');
+              } finally {
+                setExtractAllBusy(false);
+              }
+            }}
+          >
+            {extractAllBusy ? 'Extracting…' : '✂ Extract all'}
+          </button>
           <button type="button" className="btn" onClick={() => void refresh()} disabled={loading}>
             Refresh
           </button>

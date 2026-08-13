@@ -680,6 +680,28 @@ export async function runGeometryOperation(
 }
 
 /** CL-17: discharge pending DAG obligations (extract) in one action. */
+export async function extractAllCutouts(
+  sessionId: string,
+  hitboxes: { x: number; y: number; r: number }[],
+  force: boolean,
+): Promise<{ materialized: number; failed?: unknown; canonicalPromotions?: { committed: number; skipped: number; failed: unknown[] } }> {
+  // Mirrors the CLI materialize-hitbox-sprites verb: each hitbox IS the
+  // bird; the detection is a padded square around it (pad = 1.6r).
+  const detections = hitboxes.map((hb) => {
+    const pad = hb.r * 1.6;
+    return {
+      x: Math.round(hb.x - pad), y: Math.round(hb.y - pad),
+      width: Math.round(2 * pad), height: Math.round(2 * pad),
+      confidence: 1.0,
+    };
+  });
+  return request(`/api/sessions/${encodeURIComponent(sessionId)}/materialize-detection-sprites`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ detections, minimumConfidence: 0.5, force }),
+  });
+}
+
 export async function rerunStale(
   sessionId: string,
   expectedContentRevision: string,
