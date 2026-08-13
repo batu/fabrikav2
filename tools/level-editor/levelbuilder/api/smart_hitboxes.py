@@ -19,7 +19,7 @@ from pathlib import Path
 from PIL import Image, ImageDraw, ImageOps
 import json
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, ValidationError, field_validator
 
 from levelbuilder.hitboxes import Rect
 
@@ -351,14 +351,37 @@ def score_candidates_with_vision(
             chunk_sheets.append((start, len(chunk), Path(f.name)))
         sheet.close()
 
+    raw_llm = LLM(
+        model_name=f"openrouter/{model}",
+        system_prompt=_score_system_prompt(entity_label, n),
+        output_schema=None,
+    )
+
     def _score_chunk(chunk_len: int, tmp_path: Path) -> list[CandidateScore]:
-        response = llm.generate_with_resource(
-            "Score the numbered candidate crops for plausible hidden-object placement. Return all ids.",
-            resource_path=tmp_path,
-            temperature=0.0,
-            max_tokens=max(1200, min(4000, chunk_len * 90)),
-        )
-        return list(response.candidates)
+        prompt = "Score the numbered candidate crops for plausible hidden-object placement. Return all ids."
+        try:
+            response = llm.generate_with_resource(
+                prompt,
+                resource_path=tmp_path,
+                temperature=0.0,
+                max_tokens=max(1200, min(4000, chunk_len * 90)),
+            )
+            return list(response.candidates)
+        except ValidationError:
+            # The structured-output mode intermittently returns an envelope
+            # instead of the schema (live 2026-08-13). Raw mode + fenced-JSON
+            # parse is reliable — retry the chunk once that way.
+            raw = raw_llm.generate_with_resource(
+                prompt + " Respond with JSON only: {\"candidates\": [{\"id\", \"score\", \"reason\"}]}.",
+                resource_path=tmp_path,
+                temperature=0.0,
+                max_tokens=max(1200, min(4000, chunk_len * 90)),
+            )
+            text = str(raw).strip()
+            if text.startswith("```"):
+                text = text.split("```")[1]
+                text = text.removeprefix("json").strip()
+            return list(CandidateScoreResponse.model_validate(json.loads(text)).candidates)
 
     scores: list[CandidateScore] = []
     last_chunk_error: Exception | None = None
