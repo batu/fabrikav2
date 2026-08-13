@@ -2077,13 +2077,24 @@ def promote_materialized_sprites_canonically(
     failures: list[dict] = []
     for entry in materialized:
         index = entry.get("index")
-        if entry.get("skipped") or not isinstance(index, int):
+        if not isinstance(index, int):
             skipped += 1
             continue
         bird_id = (hitboxes[index].get("id") if 0 <= index < len(hitboxes) else None)
         meta_path = dogs_dir(session_id) / f"dog_{index:02d}" / "sprite_000.json"
         sprite_path = meta_path.with_suffix(".png")
         try:
+            # Idempotency: a cutter-skipped entry still needs promotion when
+            # the canonical bird has never adopted this sprite (the exact
+            # split state BUG-13 names); only skip when the digest matches.
+            if isinstance(bird_id, str) and sprite_path.is_file():
+                snapshot_now = read_canonical_session(session_id).snapshot or {}
+                bird_now = next((b for b in snapshot_now.get("birds", [])
+                                 if b.get("birdId") == bird_id), None)
+                current_sha = (((bird_now or {}).get("sprite") or {}).get("asset") or {}).get("sha256")
+                if current_sha == hashlib.sha256(sprite_path.read_bytes()).hexdigest():
+                    skipped += 1
+                    continue
             if not isinstance(bird_id, str):
                 raise ValueError(f"hitbox {index} carries no bird id")
             metadata = json.loads(meta_path.read_text())
