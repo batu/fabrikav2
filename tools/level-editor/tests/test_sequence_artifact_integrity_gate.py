@@ -71,3 +71,87 @@ def test_sequence_diagnostics_block_legacy_quarantined_and_unreviewed(monkeypatc
     ]
     assert all(item["blocking"] for item in diagnostics)
     assert sequence_workflow._artifact_integrity_diagnostics(["reviewed"]) == []
+
+
+def test_stale_catalog_revision_blocks_start(monkeypatch, tmp_path):
+    """P2b.1 (F-B#2, the ship-risk class): a catalog entry bound to an older
+    authoring revision than the currently reviewed one is a blocking
+    diagnostic — the catalog can never ship revision A while reviews bless B."""
+    from levelbuilder.api import sequence_workflow
+    from levelbuilder.api.canonical_bird_contract import CanonicalRevisionStore, bless_snapshot
+    from conftest import materialize_snapshot_assets
+
+    levels = tmp_path / "levels"
+    monkeypatch.setattr(sequence_workflow.S, "LEVELS_DIR", levels)
+    store = CanonicalRevisionStore(levels / "stale_bound")
+    snapshot = _snapshot("stale_bound")
+    materialize_snapshot_assets(levels / "stale_bound", snapshot)
+    pointer = store.commit(snapshot, expected_content_revision=None)
+    old_revision = pointer.content_revision
+    # Content changes after the catalog bound old_revision…
+    snapshot = store.read().snapshot
+    snapshot["birds"][0]["hitbox"]["x"] += 7
+    pointer = store.commit(snapshot, expected_content_revision=pointer.content_revision)
+    # …and the operator re-reviews the NEW revision.
+    for kind in ("hitboxes", "finalCutouts"):
+        snapshot = bless_snapshot(store.read().snapshot, review_kind=kind, reviewer="human:t", reviewed_at="now")
+        pointer = store.commit(snapshot, expected_content_revision=pointer.content_revision)
+
+    entries = {"stale_bound": {"id": "stale_bound", "contentRevision": old_revision}}
+    monkeypatch.setattr(sequence_workflow, "_catalog_entries_by_id", lambda: entries, raising=False)
+    diagnostics = sequence_workflow._artifact_integrity_diagnostics(["stale_bound"])
+    stale = [d for d in diagnostics if d.get("code") == "catalog_revision_stale"]
+    assert stale and stale[0]["blocking"] is True
+
+    entries["stale_bound"]["contentRevision"] = pointer.content_revision
+    diagnostics = sequence_workflow._artifact_integrity_diagnostics(["stale_bound"])
+    assert not [d for d in diagnostics if d.get("code") == "catalog_revision_stale"]
+
+
+def test_start_failure_leaves_bundle_files_untouched(monkeypatch, tmp_path):
+    """P2b.2: Start is transactional — a failed activation must leave
+    bundled-manifest/levels-index exactly as they were (no disk mutation
+    before the visibility commit)."""
+    import json as _json
+
+    from levelbuilder.api import routes as R
+
+    marker = tmp_path / "bundled-manifest.json"
+    marker.write_text(_json.dumps({"version": 1, "levels": [{"id": "before"}]}))
+
+    calls = {"projected": False}
+    monkeypatch.setattr(R, "_apply_sequence_bundle_projection",
+                        lambda: calls.__setitem__("projected", True) or {"boundaryIndex": 0})
+    monkeypatch.setattr(R.SequenceWorkflow, "dry_run_sequence_draft",
+                        staticmethod(lambda **kw: {"state": {}}))
+    monkeypatch.setattr(R, "_sequence_response", lambda state: state)
+
+    class Boom(Exception):
+        pass
+
+    def failing_activation(**kwargs):
+        raise R.SequenceActivation.SequenceActivationConflict("stale") \
+            if hasattr(R.SequenceActivation, "SequenceActivationConflict") else Boom()
+
+    monkeypatch.setattr(R.SequenceActivation, "activate_sequence_draft",
+                        staticmethod(failing_activation))
+
+    class FakeStore:
+        def transition_job(self, *a, **k): pass
+        def update_result(self, *a, **k): pass
+        def append_event(self, *a, **k): pass
+
+    class FakeJob:
+        id = "job1"
+        metadata = {"request": {
+            "requestId": "req-12345678", "draftRevision": "d1",
+            "baseLiveSequenceVersion": "1", "baseCatalogRevision": "c1",
+            "changelogNote": "test", "dynamicBundle": True,
+            "destructiveWarningAcknowledged": True,
+        }}
+
+    import pytest as _pytest
+    with _pytest.raises(Exception):
+        R._run_sequence_start_job(FakeJob(), FakeStore())
+    # The projection must never have run: activation failed first.
+    assert calls["projected"] is False

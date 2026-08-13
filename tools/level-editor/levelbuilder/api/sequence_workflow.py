@@ -480,7 +480,33 @@ def _artifact_integrity_diagnostics(level_ids: list[str]) -> list[dict[str, Any]
                 level_id=level_id,
                 details={"contentRevision": revision},
             ))
+            continue
+        # P2b.1 (F-B#2): a catalog entry revision-bound to OLDER authoring than
+        # the currently reviewed revision must republish before it can ship —
+        # the catalog never serves revision A while reviews bless revision B.
+        entry = _catalog_entries_by_id().get(level_id)
+        bound = (entry or {}).get("contentRevision")
+        if isinstance(bound, str) and bound != revision:
+            diagnostics.append({
+                "code": "catalog_revision_stale",
+                "severity": "error",
+                "blocking": True,
+                "levelId": level_id,
+                "message": (
+                    f"Catalog package for {level_id} is bound to {bound[:19]}… but the "
+                    f"reviewed authoring is {revision[:19]}… — republish before Start."
+                ),
+            })
     return diagnostics
+
+
+def _catalog_entries_by_id() -> dict[str, dict[str, Any]]:
+    manifest = S.load_catalog_manifest() or {}
+    return {
+        level.get("id"): level
+        for level in manifest.get("levels") or []
+        if isinstance(level, dict) and isinstance(level.get("id"), str)
+    }
 
 
 def _row_statuses(

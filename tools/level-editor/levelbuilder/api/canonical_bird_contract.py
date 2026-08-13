@@ -430,6 +430,13 @@ class CanonicalRevisionStore:
     ) -> RevisionPointer:
         validated = validate_snapshot(snapshot)
         revisions = snapshot_revisions(validated)
+        # Cheap pre-check before touching asset bytes (perf: a stale commit
+        # must not read/hash megabytes first). The authoritative check runs
+        # again under the lock — this one only fails fast, never authorizes.
+        pre = self.read()
+        pre_actual = pre.pointer.content_revision if pre.state is CanonicalReadState.VALID_CURRENT and pre.pointer else None
+        if pre_actual != expected_content_revision:
+            raise RevisionConflictError(expected_content_revision, pre_actual)
         self.verify_and_store_assets(validated)
         self.root.mkdir(parents=True, exist_ok=True)
         self.revisions_dir.mkdir(exist_ok=True)

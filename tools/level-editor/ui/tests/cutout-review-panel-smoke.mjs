@@ -327,8 +327,11 @@ async function run() {
         throw new Error(`Missing ${label} padding movement control`);
       }
     }
-    if (await draggableOverlay.getAttribute('title') !== 'Drag to move the padding box. Drag an amber corner to resize it. The sprite stays put.') {
-      throw new Error('Padding mode did not explain its drag behavior');
+    // CL-12: the crop derives from owned paint; the hint reflects read-only
+    // default vs gate-flagged manual override.
+    const paddingTitle = await draggableOverlay.getAttribute('title');
+    if (!paddingTitle || !(paddingTitle.includes('derives from the owned paint') || paddingTitle.includes('override box manually'))) {
+      throw new Error(`Padding mode did not explain its drag behavior: ${paddingTitle}`);
     }
     const paddingLeft = firstCard.getByLabel('dog #0 · sprite 000 padding left');
     const paddingTop = firstCard.getByLabel('dog #0 · sprite 000 padding top');

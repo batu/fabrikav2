@@ -2327,6 +2327,127 @@ def get_session_recipe(session_id: str):
     }
 
 
+class GeometryOperationRequest(BaseModel):
+    operation: str
+    expectedContentRevision: str
+    humanActor: str
+    factor: float | None = None
+    birdIds: list[str] | None = None
+    hitboxes: list[dict] | None = None
+    overrideHuman: list[str] | None = None
+
+
+@router.post("/sessions/{session_id}/geometry")
+def geometry_operation(session_id: str, req: GeometryOperationRequest):
+    """CL-1/CL-2 (+ future ops): bulk geometry mutations through the one
+    service — one CAS commit, typed refusals, read-back response."""
+    _validate_session_id(session_id)
+    if not S.session_dir(session_id).exists():
+        raise HTTPException(404, detail={"error": "Session not found"})
+    if not req.humanActor.startswith("human:"):
+        raise HTTPException(422, detail={"error": "humanActor must be attributable (human:*)",
+                                         "code": "human_attribution_required"})
+    from .artifact_dag import pending_obligations
+    from .canonical_bird_contract import ContractValidationError
+    from .geometry_service import HumanAuthorityError, mutate_geometry
+
+    try:
+        result = mutate_geometry(
+            session_id,
+            req.operation,
+            expected_content_revision=req.expectedContentRevision,
+            actor=req.humanActor,
+            hitboxes=req.hitboxes,
+            bird_ids=req.birdIds,
+            factor=req.factor,
+            override_human=req.overrideHuman,
+        )
+    except RevisionConflictError as error:
+        raise _content_revision_conflict(
+            error, ["hitboxes"], server_hitboxes=_current_canonical_hitboxes(session_id),
+        ) from error
+    except HumanAuthorityError as error:
+        raise HTTPException(409, detail={"error": str(error), "code": "human_authority"}) from error
+    except ContractValidationError as error:
+        raise HTTPException(422, detail={"error": str(error), "code": "geometry_invalid"}) from error
+    snapshot = result.snapshot or S.read_canonical_session(session_id).snapshot or {}
+    return {
+        "ok": True,
+        "noOp": result.no_op,
+        "contentRevision": result.content_revision,
+        "operationalRevision": result.operational_revision,
+        "hitboxes": _snapshot_hitboxes(snapshot),
+        "pendingObligations": pending_obligations(snapshot),
+    }
+
+
+class RerunStaleRequest(BaseModel):
+    expectedContentRevision: str
+    humanActor: str
+    obligations: list[str] | None = None  # default: all dischargeable kinds
+    dryRun: bool = False
+
+
+def _start_rerun_stale_job(session_id: str, req):
+    """Indirection point (tests stub this): starts the canonical retry-inpaint
+    job that performs the extractions."""
+    from . import inpaint as I
+
+    return I._start_retry_failed_dogs_job_record(session_id, req)
+
+
+@router.post("/sessions/{session_id}/rerun-stale")
+def rerun_stale(session_id: str, req: RerunStaleRequest):
+    """CL-17: discharge pending DAG obligations in one action. Batch
+    selection is DAG staleness (pending_obligations), never confirmation
+    state. Currently dischargeable: extract (cutout-only regeneration of
+    sprite-less birds). Review obligations are human actions and are only
+    reported, never auto-run."""
+    _validate_session_id(session_id)
+    if not req.humanActor.startswith("human:"):
+        raise HTTPException(422, detail={"error": "humanActor must be attributable (human:*)",
+                                         "code": "human_attribution_required"})
+    from .artifact_dag import pending_obligations
+
+    canonical = S.read_canonical_session(session_id)
+    if canonical.snapshot is None:
+        raise HTTPException(409, detail={"error": "not a canonical session", "code": "canonical_required"})
+    actual = canonical.pointer.content_revision if canonical.pointer else None
+    if actual != req.expectedContentRevision:
+        raise HTTPException(409, detail={
+            "code": "content_revision_conflict",
+            "expectedContentRevision": req.expectedContentRevision,
+            "actualContentRevision": actual,
+        })
+    wanted = set(req.obligations or ["extract"])
+    obligations = [o for o in pending_obligations(canonical.snapshot)
+                   if o["obligation"] in wanted]
+    queued_bird_ids = [o["birdId"] for o in obligations if o.get("birdId")]
+    job_id = None
+    if queued_bird_ids and not req.dryRun:
+        import uuid as _uuid
+
+        from .inpaint import RetryFailedDogsJobRequest
+
+        raw = S.load_session_raw(session_id) or {}
+        job_request = RetryFailedDogsJobRequest(
+            birdIds=queued_bird_ids,
+            prompt=raw.get("dog_prompt") or "bird",
+            cutoutOnly=True,
+            expectedContentRevision=req.expectedContentRevision,
+            attemptNonce=f"rerun-stale-{_uuid.uuid4().hex[:16]}",
+        )
+        job = _start_rerun_stale_job(session_id, job_request)
+        job_id = getattr(job, "id", None)
+    return {
+        "ok": True,
+        "queuedBirdIds": queued_bird_ids,
+        "jobId": job_id,
+        "reportedObligations": obligations,
+        "dryRun": req.dryRun,
+    }
+
+
 @router.get("/sessions/{session_id}/visibility-check")
 def visibility_check(session_id: str):
     return _visibility_check_for_session(session_id)
@@ -2862,7 +2983,7 @@ def place_hitboxes_vlm_route(session_id: str, radius: int | None = Query(None, g
 
 
 @router.get("/sessions/{session_id}/pickup-preview")
-def pickup_preview(session_id: str):
+def pickup_preview(session_id: str, *, _lossless: bool = False):
     """The scene as the runtime shows it after ALL birds are collected:
     the painted color image with each dog's cleanup rect replaced by the
     restore background. Unlike the full clean-bg view, this exposes exactly
@@ -3009,10 +3130,67 @@ def pickup_preview(session_id: str):
             mask.close()
             n += 1
     buf = io.BytesIO()
-    out.save(buf, "JPEG", quality=88)
+    if _lossless:
+        # CR-t3 P0-1: the residue gate compares against a lossless clean bg —
+        # JPEG artifacts must not become false residue.
+        out.save(buf, "PNG")
+        media = "image/png"
+    else:
+        out.save(buf, "JPEG", quality=88)
+        media = "image/jpeg"
     out.close(); color.close()
-    return Response(content=buf.getvalue(), media_type="image/jpeg",
+    return Response(content=buf.getvalue(), media_type=media,
                     headers={"X-Cleanups-Swapped": str(n), "Cache-Control": "no-store"})
+
+
+def _sprites_preview_from_snapshot(session_id: str, snapshot: dict) -> Response:
+    """Sprites-only composite from canonical truth: verified sprite bytes at
+    their committed placements on the checkerboard."""
+    from .canonical_assets import AssetIntegrityError, resolve_asset
+
+    store = S.canonical_session_store(session_id)
+    scene = snapshot["assets"]["scene"]
+    try:
+        with Image.open(io.BytesIO(resolve_asset(store, scene).data)) as scene_img:
+            width, height = scene_img.size
+    except AssetIntegrityError as error:
+        raise HTTPException(409, detail={"error": f"canonical asset integrity failure: {error}",
+                                         "code": "asset_integrity"}) from error
+    square = max(16, width // 84)
+    out = Image.new("RGB", (width, height), (52, 52, 56))
+    tile = Image.new("RGB", (square, square), (72, 72, 78))
+    for ty in range(0, height, square):
+        for tx in range(0, width, square):
+            if (tx // square + ty // square) % 2:
+                out.paste(tile, (tx, ty))
+    n = 0
+    for bird in snapshot.get("birds", []):
+        sprite = bird.get("sprite") or {}
+        asset = sprite.get("asset")
+        placement = sprite.get("placement")
+        if not isinstance(asset, dict) or not isinstance(placement, dict):
+            continue
+        try:
+            data = resolve_asset(store, asset).data
+        except AssetIntegrityError as error:
+            raise HTTPException(409, detail={"error": f"canonical asset integrity failure: {error}",
+                                             "code": "asset_integrity"}) from error
+        with Image.open(io.BytesIO(data)) as raw:
+            spr = raw.convert("RGBA")
+            if sprite.get("flipX"):
+                spr = spr.transpose(Image.FLIP_LEFT_RIGHT)
+            if sprite.get("flipY"):
+                spr = spr.transpose(Image.FLIP_TOP_BOTTOM)
+            size = (int(placement["width"]), int(placement["height"]))
+            if spr.size != size and size[0] > 0 and size[1] > 0:
+                spr = spr.resize(size, Image.LANCZOS)
+            out.paste(spr, (int(placement["x"]), int(placement["y"])), spr)
+        n += 1
+    buf = io.BytesIO()
+    out.save(buf, "JPEG", quality=88)
+    out.close()
+    return Response(content=buf.getvalue(), media_type="image/jpeg",
+                    headers={"X-Sprites-Composited": str(n), "Cache-Control": "no-store"})
 
 
 @router.get("/sessions/{session_id}/sprites-preview")
@@ -3023,6 +3201,11 @@ def sprites_preview(session_id: str):
     hide chroma-key or rim defects behind."""
     _validate_session_id(session_id)
     sdir = S.session_dir(session_id)
+    # CR-t1 P0-1: canonical sessions render from the SNAPSHOT — a stale
+    # exported level.json must never define current sprite positions.
+    canonical = S.read_canonical_session(session_id)
+    if canonical.snapshot is not None and canonical.pointer is not None:
+        return _sprites_preview_from_snapshot(session_id, canonical.snapshot)
     level_path = sdir / "level.json"
     exported = S.GAME_PUBLIC_LEVELS / session_id / "level.json"
     lj = None
@@ -3079,6 +3262,334 @@ def sprites_preview(session_id: str):
     out.close()
     return Response(content=buf.getvalue(), media_type="image/jpeg",
                     headers={"X-Sprites-Composited": str(n), "Cache-Control": "no-store"})
+
+
+_SCENE_PREVIEW_RENDERERS = {
+    "pickup": lambda session_id: pickup_preview(session_id),
+    "sprites": lambda session_id: sprites_preview(session_id),
+    "residue": lambda session_id: _residue_heatmap_response(session_id),
+}
+
+_SCENE_PREVIEW_MAX_LONG_EDGE = 1600  # review preview, not print resolution
+
+
+RESIDUE_GATE_LIMIT_PX = 500  # proposed default; R11 will version this number
+
+
+def _residue_analysis(session_id: str):
+    """CL-11: all-picked-up composite vs clean bg through the vNEXT residue
+    gate. Uses the same pickup renderer the operator sees (derivation-vs-
+    runtime handshake)."""
+    import numpy as _np
+
+    from .canonical_assets import AssetIntegrityError, resolve_asset
+    from .geometry_derivation import derivation_dependency_hash, residue_report
+
+    canonical = S.read_canonical_session(session_id)
+    if canonical.snapshot is None:
+        raise HTTPException(409, detail={"error": "not a canonical session", "code": "canonical_required"})
+    snapshot = canonical.snapshot
+    store = S.canonical_session_store(session_id)
+    try:
+        clean_bytes = resolve_asset(store, snapshot["restore"]["asset"]).data
+    except AssetIntegrityError as error:
+        raise HTTPException(409, detail={"error": str(error), "code": "asset_integrity"}) from error
+    rendered = pickup_preview(session_id, _lossless=True)
+    with Image.open(io.BytesIO(rendered.body)) as img:
+        composite = _np.asarray(img.convert("RGB"))
+    with Image.open(io.BytesIO(clean_bytes)) as img:
+        clean = _np.asarray(img.convert("RGB"))
+    if composite.shape != clean.shape:
+        raise HTTPException(409, detail={"error": "composite/clean dimensions differ",
+                                         "code": "restore_dimensions_mismatch"})
+    report = residue_report(composite, clean)
+    dependency = derivation_dependency_hash(
+        snapshot["assets"]["scene"]["sha256"],
+        snapshot["restore"]["asset"]["sha256"],
+        snapshot["birds"],
+    )
+    return report, dependency
+
+
+def _residue_heatmap_response(session_id: str) -> Response:
+    import numpy as _np
+
+    report, _dependency = _residue_analysis(session_id)
+    height, width = report.heatmap.shape
+    canvas = _np.full((height, width, 3), (20, 22, 26), dtype=_np.uint8)
+    canvas[report.heatmap] = (255, 64, 64)
+    buf = io.BytesIO()
+    Image.fromarray(canvas).save(buf, "PNG")
+    return Response(content=buf.getvalue(), media_type="image/png",
+                    headers={"Cache-Control": "no-store"})
+
+
+@router.get("/sessions/{session_id}/derived-crops")
+def derived_crops(session_id: str):
+    """CL-12: per-bird extraction/regen crops derived from the owned-paint
+    footprint (bbox + margin) — read-only in the UI; a manual override box is
+    offered only when needsReview is true (diff quality gate failed)."""
+    import numpy as _np
+
+    _validate_session_id(session_id)
+    from .canonical_assets import AssetIntegrityError, resolve_asset
+    from .geometry_derivation import (
+        derivation_dependency_hash, derive_ownership, derive_paint_diff, derive_restore_regions,
+    )
+
+    canonical = S.read_canonical_session(session_id)
+    if canonical.snapshot is None:
+        raise HTTPException(409, detail={"error": "not a canonical session", "code": "canonical_required"})
+    snapshot = canonical.snapshot
+    store = S.canonical_session_store(session_id)
+    try:
+        scene_bytes = resolve_asset(store, snapshot["assets"]["scene"]).data
+        clean_bytes = resolve_asset(store, snapshot["assets"]["cleanBackground"]).data
+    except AssetIntegrityError as error:
+        raise HTTPException(409, detail={"error": str(error), "code": "asset_integrity"}) from error
+    with Image.open(io.BytesIO(scene_bytes)) as img:
+        scene = _np.asarray(img.convert("RGB"))
+    with Image.open(io.BytesIO(clean_bytes)) as img:
+        clean = _np.asarray(img.convert("RGB"))
+    if scene.shape != clean.shape:
+        raise HTTPException(409, detail={"error": "scene/clean dimensions differ",
+                                         "code": "restore_dimensions_mismatch"})
+    birds = snapshot["birds"]
+    dependency = derivation_dependency_hash(
+        snapshot["assets"]["scene"]["sha256"],
+        snapshot["assets"]["cleanBackground"]["sha256"],
+        birds,
+    )
+    # Materialized by dependency hash (CR-t3 P1): decode/diff/partition runs
+    # once per input state, not once per panel mount.
+    cache_path = S.session_dir(session_id) / ".previews" / f"derived-crops-{dependency.removeprefix('sha256:')[:16]}.json"
+    if cache_path.is_file():
+        try:
+            return json.loads(cache_path.read_text())
+        except (OSError, json.JSONDecodeError):
+            pass
+    diff = derive_paint_diff(scene, clean)
+    if not birds and bool(diff.mask.any()):
+        # CR-t3 P1: paint with no birds to own it is never silently empty.
+        raise HTTPException(409, detail={"error": "painted pixels exist but the level has no birds",
+                                         "code": "unowned_paint"})
+    needs_review = diff.needs_review
+    crops = (
+        derive_restore_regions(derive_ownership(diff.mask, birds), birds)
+        if birds and not needs_review else {}
+    )
+    payload = {
+        "crops": crops,
+        "needsReview": needs_review,
+        "diffFraction": round(diff.diff_fraction, 5),
+        "dependencyHash": dependency,
+        "contentRevision": canonical.pointer.content_revision if canonical.pointer else None,
+    }
+    cache_path.parent.mkdir(parents=True, exist_ok=True)
+    import tempfile as _tempfile
+
+    fd, tmp_name = _tempfile.mkstemp(prefix=".derived-", suffix=".json.tmp", dir=cache_path.parent)
+    os.close(fd)
+    Path(tmp_name).write_text(json.dumps(payload))
+    os.replace(tmp_name, cache_path)
+    return payload
+
+
+class RevertSpriteRequest(BaseModel):
+    toContentRevision: str
+    expectedContentRevision: str
+    humanActor: str
+
+
+@router.get("/sessions/{session_id}/birds/{bird_id}/sprite-history")
+def bird_sprite_history(session_id: str, bird_id: str):
+    """CL-14: distinct prior sprites for this bird (newest first)."""
+    _validate_session_id(session_id)
+    from .sprite_history import sprite_history
+
+    return {"history": sprite_history(session_id, bird_id)}
+
+
+@router.post("/sessions/{session_id}/birds/{bird_id}/revert-sprite")
+def revert_sprite(session_id: str, bird_id: str, req: RevertSpriteRequest):
+    """CL-14: recommit a prior sprite (bytes from the CAS); read-back reply."""
+    _validate_session_id(session_id)
+    if not req.humanActor.startswith("human:"):
+        raise HTTPException(422, detail={"error": "humanActor must be attributable (human:*)",
+                                         "code": "human_attribution_required"})
+    from .canonical_bird_contract import ContractValidationError
+    from .sprite_history import revert_bird_sprite
+
+    try:
+        result = revert_bird_sprite(
+            session_id, bird_id,
+            to_content_revision=req.toContentRevision,
+            expected_content_revision=req.expectedContentRevision,
+            actor=req.humanActor,
+        )
+    except RevisionConflictError as error:
+        raise _content_revision_conflict(error, ["spritePixels"]) from error
+    except ContractValidationError as error:
+        raise HTTPException(422, detail={"error": str(error), "code": "revert_invalid"}) from error
+    return {
+        "ok": True,
+        "contentRevision": result.content_revision,
+        "operationalRevision": result.operational_revision,
+    }
+
+
+@router.get("/sessions/{session_id}/evidence/contact-sheet")
+def evidence_contact_sheet(session_id: str):
+    """P2e.5 / R8: the run-evidence contact sheet — painted scene, all-picked-
+    up reconstruction, and sprites-only, side by side, revision-addressed and
+    cached like the scene previews. A sheet that fails to decode is broken
+    evidence; panels are rendered through the same verified lanes the
+    operator's toggles use (derivation-vs-runtime handshake)."""
+    import numpy as _np
+
+    _validate_session_id(session_id)
+    canonical = S.read_canonical_session(session_id)
+    if canonical.snapshot is None or canonical.pointer is None:
+        raise HTTPException(409, detail={"error": "not a canonical session", "code": "canonical_required"})
+    revision = canonical.pointer.content_revision
+    rev16 = revision.removeprefix("sha256:")[:16]
+    cache_dir = S.session_dir(session_id) / ".previews" / rev16
+    cache_path = cache_dir / "contact-sheet.webp"
+    if not cache_path.is_file():
+        from .canonical_assets import AssetIntegrityError, resolve_asset
+
+        store = S.canonical_session_store(session_id)
+        try:
+            scene_bytes = resolve_asset(store, canonical.snapshot["assets"]["scene"]).data
+        except AssetIntegrityError as error:
+            raise HTTPException(409, detail={"error": str(error), "code": "asset_integrity"}) from error
+        panels = []
+        with Image.open(io.BytesIO(scene_bytes)) as img:
+            panels.append(("painted", img.convert("RGB")))
+        pickup = pickup_preview(session_id, _lossless=True)
+        with Image.open(io.BytesIO(pickup.body)) as img:
+            panels.append(("all picked up", img.convert("RGB")))
+        sprites = sprites_preview(session_id)
+        with Image.open(io.BytesIO(sprites.body)) as img:
+            panels.append(("sprites", img.convert("RGB")))
+        # Uniform panel height, side-by-side, labeled.
+        PANEL_H = 640
+        scaled = []
+        for label, panel in panels:
+            ratio = PANEL_H / panel.height
+            scaled.append((label, panel.resize((max(1, round(panel.width * ratio)), PANEL_H), Image.LANCZOS)))
+        GAP, LABEL_H = 12, 28
+        total_w = sum(p.width for _, p in scaled) + GAP * (len(scaled) + 1)
+        sheet = Image.new("RGB", (total_w, PANEL_H + LABEL_H + GAP * 2), (16, 18, 22))
+        draw = ImageDraw.Draw(sheet)
+        x = GAP
+        for label, panel in scaled:
+            sheet.paste(panel, (x, LABEL_H + GAP))
+            draw.text((x + 4, 6), f"{label} · {rev16}", fill=(160, 200, 240))
+            x += panel.width + GAP
+        cache_dir.mkdir(parents=True, exist_ok=True)
+        import tempfile as _tempfile
+
+        fd, tmp_name = _tempfile.mkstemp(prefix=".sheet-", suffix=".webp.tmp", dir=cache_dir)
+        os.close(fd)
+        sheet.save(tmp_name, "WEBP", quality=80)
+        os.replace(tmp_name, cache_path)
+        # Image-load assertion: broken evidence must never serve.
+        with Image.open(cache_path) as verify:
+            verify.load()
+    return Response(content=cache_path.read_bytes(), media_type="image/webp",
+                    headers={"Cache-Control": "public, max-age=31536000, immutable",
+                             "X-Preview-Revision": rev16})
+
+
+@router.get("/sessions/{session_id}/experiment")
+def get_experiment_manifest(session_id: str):
+    """P2d.2/P2d.3: what this level IS (label, recipe hash, seed, model,
+    source revision) + what it COST (measured from tagged ledger rows)."""
+    _validate_session_id(session_id)
+    if not S.session_dir(session_id).exists():
+        raise HTTPException(404, detail={"error": "Session not found"})
+    from .experiment_manifest import measured_cost, read_manifest
+
+    try:
+        manifest = read_manifest(session_id)
+    except ValueError as error:
+        raise HTTPException(422, detail={"error": str(error), "code": "experiment_invalid"}) from error
+    return {"manifest": manifest, "cost": measured_cost(session_id)}
+
+
+@router.get("/sessions/{session_id}/residue")
+def residue_gate(session_id: str):
+    """CL-11 gate surface: residue pixel count + verdict + dependency hash."""
+    _validate_session_id(session_id)
+    report, dependency = _residue_analysis(session_id)
+    return {
+        "residuePixels": report.residue_pixels,
+        "gate": "pass" if report.residue_pixels <= RESIDUE_GATE_LIMIT_PX else "fail",
+        "limitPixels": RESIDUE_GATE_LIMIT_PX,
+        "dependencyHash": dependency,
+    }
+
+
+@router.get("/sessions/{session_id}/scene-previews/{view}")
+def scene_preview(session_id: str, view: str):
+    """CL-10: revision-addressed scene previews. Rendered ONCE per content
+    revision per view into .previews/<rev16>/<view>.webp, then served
+    statically with immutable caching — toggling views is an img swap.
+    The composite endpoints above remain the single source of render truth;
+    this endpoint is their cache."""
+    _validate_session_id(session_id)
+    renderer = _SCENE_PREVIEW_RENDERERS.get(view)
+    if renderer is None:
+        raise HTTPException(422, detail={
+            "error": f"unknown scene view {view!r}",
+            "views": sorted(_SCENE_PREVIEW_RENDERERS),
+        })
+    canonical = S.read_canonical_session(session_id)
+    revision = canonical.pointer.content_revision if canonical.pointer else None
+    if revision is None:
+        # Legacy sessions have no revision to address by — render live.
+        rendered = renderer(session_id)
+        return rendered
+    rev16 = revision.removeprefix("sha256:")[:16]
+    cache_dir = S.session_dir(session_id) / ".previews" / rev16
+    cache_path = cache_dir / f"{view}.webp"
+    if not cache_path.is_file():
+        rendered = renderer(session_id)
+        # Race guard (CR-t1 P0-2): the renderer rereads mutable state — if the
+        # canonical revision moved while rendering, these pixels must NOT be
+        # published under the old immutable path. Serve them uncached instead.
+        after = S.read_canonical_session(session_id)
+        after_revision = after.pointer.content_revision if after.pointer else None
+        if after_revision != revision:
+            return Response(content=rendered.body, media_type=rendered.media_type,
+                            headers={"Cache-Control": "no-store"})
+        with Image.open(io.BytesIO(rendered.body)) as img:
+            preview = img.convert("RGB")
+            long_edge = max(preview.size)
+            if long_edge > _SCENE_PREVIEW_MAX_LONG_EDGE:
+                scale = _SCENE_PREVIEW_MAX_LONG_EDGE / long_edge
+                preview = preview.resize(
+                    (round(preview.width * scale), round(preview.height * scale)),
+                    Image.LANCZOS,
+                )
+            cache_dir.mkdir(parents=True, exist_ok=True)
+            # Unique tmp per request (CR-t1 P0-3): concurrent misses must not
+            # clobber each other's staging file.
+            import tempfile as _tempfile
+
+            fd, tmp_name = _tempfile.mkstemp(prefix=f".{view}-", suffix=".webp.tmp", dir=cache_dir)
+            os.close(fd)
+            preview.save(tmp_name, "WEBP", quality=82)
+            os.replace(tmp_name, cache_path)
+    return Response(
+        content=cache_path.read_bytes(),
+        media_type="image/webp",
+        headers={
+            "Cache-Control": "public, max-age=31536000, immutable",
+            "X-Preview-Revision": rev16,
+        },
+    )
 
 
 @router.post("/sessions/{session_id}/clone")
@@ -3380,12 +3891,9 @@ def _run_sequence_start_job(job: JobRecord, store: JobStore) -> dict[str, Any]:
         store.update_result(job.id, {"dryRun": dry_run_response})
         store.append_event(job.id, "sequence_start.stage_complete", data={"stage": "validating"})
 
-        if req.dynamicBundle:
-            store.transition_job(job.id, status="running", stage="packaging")
-            bundle_result = _apply_sequence_bundle_projection()
-            store.update_result(job.id, {"bundle": bundle_result})
-            store.append_event(job.id, "sequence_start.stage_complete", data={"stage": "packaging"})
-
+        # P2b.2: activation IS the visibility commit — no local bundle file
+        # mutates before it succeeds. A failed Start leaves disk untouched;
+        # projection follows only after activation.
         store.transition_job(job.id, status="running", stage="publishing")
         activation_result = _bounded_activation_result(SequenceActivation.activate_sequence_draft(
             draft_revision=req.draftRevision,
@@ -3397,6 +3905,12 @@ def _run_sequence_start_job(job: JobRecord, store: JobStore) -> dict[str, Any]:
             publisher=_publisher_for_sequence_write(),
             actor=_sequence_actor_label(),
         ))
+        if req.dynamicBundle:
+            store.transition_job(job.id, status="running", stage="packaging")
+            bundle_result = _apply_sequence_bundle_projection()
+            store.update_result(job.id, {"bundle": bundle_result})
+            store.append_event(job.id, "sequence_start.stage_complete", data={"stage": "packaging"})
+
         state = _sequence_response(SequenceWorkflow.get_sequence_editor_state())
         result = {
             "dryRun": dry_run_response,

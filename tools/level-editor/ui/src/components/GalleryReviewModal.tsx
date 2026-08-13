@@ -4,6 +4,8 @@ import {
   ApiError,
   getSession,
   getFinalCutoutReviewReadiness,
+  rerunStale,
+  runGeometryOperation,
   saveHitboxes,
   setArchived as apiSetArchived,
   setFinalCutoutApproval,
@@ -258,7 +260,7 @@ export default function GalleryReviewModal({
   const [archiveBusy, setArchiveBusy] = useState(false);
   const [colorVersion, setColorVersion] = useState(0);
   const [visibilityIssues, setVisibilityIssues] = useState<VisibilityIssue[]>([]);
-  const [sceneView, setSceneView] = useState<'painted' | 'restore' | 'pickup' | 'sprites'>('painted');
+  const [sceneView, setSceneView] = useState<'painted' | 'restore' | 'pickup' | 'sprites' | 'residue'>('painted');
   const [reviewMode, setReviewMode] = useState<'placement' | 'cutouts'>('placement');
   const [showMap, setShowMap] = useState(true);
   const [loadedMeta, setLoadedMeta] = useState<{ setting?: string | null; scene?: string | null; entity?: string | null; model?: string }>({});
@@ -688,18 +690,21 @@ export default function GalleryReviewModal({
       return `/levels/${item.id}/bg_${bg}.png?v=${item.assetVersion ?? colorVersion}`;
     }
     if (sceneView === 'sprites') {
-      // Sprite cutouts alone on a checkerboard — chroma-key/rim defects have
-      // nowhere to hide.
-      return `/api/sessions/${encodeURIComponent(item.id)}/sprites-preview?v=${item.assetVersion ?? colorVersion}`;
+      // CL-10: revision-addressed cached preview — an img swap, not a
+      // per-click server composite. rev busts across revisions; the server
+      // marks the response immutable so the browser caches it.
+      return `/api/sessions/${encodeURIComponent(item.id)}/scene-previews/sprites?rev=${state.contentRevision ?? item.assetVersion ?? colorVersion}`;
+    }
+    if (sceneView === 'residue') {
+      // CL-11: residue heatmap — paint the runtime leaves behind.
+      return `/api/sessions/${encodeURIComponent(item.id)}/scene-previews/residue?rev=${state.contentRevision ?? item.assetVersion ?? colorVersion}`;
     }
     if (sceneView === 'pickup') {
-      // Faithful runtime post-pickup state: painted scene with ONLY each
-      // dog's cleanup rect swapped to the restore bg — the seams a player
-      // actually sees.
-      return `/api/sessions/${encodeURIComponent(item.id)}/pickup-preview?v=${item.assetVersion ?? colorVersion}`;
+      // CL-10: cached runtime post-pickup state (see sprites note).
+      return `/api/sessions/${encodeURIComponent(item.id)}/scene-previews/pickup?rev=${state.contentRevision ?? item.assetVersion ?? colorVersion}`;
     }
     return variantPreviewUrl(item, card.variant, item.assetVersion ?? colorVersion);
-  }, [item, state.sessionId, colorVersion, card, sceneView, state.selectedBgIndex]);
+  }, [item, state.sessionId, colorVersion, card, sceneView, state.selectedBgIndex, state.contentRevision]);
   if (!item) { return null; }
 
   // Strip the `{setting}_` prefix from the scene slug only when there IS
@@ -751,7 +756,7 @@ export default function GalleryReviewModal({
             <span>{settingLabel}</span>
             {sceneLabel && <span style={{ color: '#666' }}>·</span>}
             {loadedMeta.entity && <><span>{loadedMeta.entity}</span><span style={{ color: '#666' }}>·</span></>}
-            <span>{state.dogs.length} dogs</span>
+            <span>{state.dogs.length} {loadedMeta.entity ? `${loadedMeta.entity}s` : 'entities'}</span>
             <span style={{ color: '#666' }}>·</span>
             <span style={{
               padding: '1px 6px', borderRadius: 3, fontSize: '0.65rem',
@@ -833,15 +838,64 @@ export default function GalleryReviewModal({
                   ['restore', '🧹 Clean bg'],
                   ['pickup', '🐦 All picked up'],
                   ['sprites', '✂️ Sprites only'],
+                  ['residue', '🔥 Residue'],
                 ] as const).map(([mode, label]) => (
                   <button
                     key={mode}
                     type="button"
                     onClick={() => setSceneView(mode)}
+                    onMouseEnter={() => {
+                      // CL-10: warm the cached preview on hover so the first
+                      // click is an instant swap too.
+                      if ((mode === 'pickup' || mode === 'sprites' || mode === 'residue') && item) {
+                        new window.Image().src = `/api/sessions/${encodeURIComponent(item.id)}/scene-previews/${mode}?rev=${state.contentRevision ?? item.assetVersion ?? colorVersion}`;
+                      }
+                    }}
                     style={{
                       flex: 1, padding: '10px 6px', borderRadius: 8, border: '1px solid #333', cursor: 'pointer',
                       background: sceneView === mode ? '#2e5d34' : '#1a1a1a',
                       color: sceneView === mode ? '#d6ffd9' : '#ccc', fontWeight: 700, fontSize: '0.78rem',
+                    }}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+              <div style={{ display: 'flex', gap: 6 }}>
+                {/* CL-1/CL-2: bulk hitbox operations through the geometry service. */}
+                {([
+                  ['clear', '🗑 Clear all hitboxes'],
+                  ['grow', '⊕ Grow all +10%'],
+                  ['shrink', '⊖ Shrink all −10%'],
+                ] as const).map(([op, label]) => (
+                  <button
+                    key={op}
+                    type="button"
+                    className="btn"
+                    style={{ flex: 1, fontSize: '0.72rem' }}
+                    onClick={async () => {
+                      if (!card || !state.sessionId) return;
+                      const revision = state.contentRevision
+                        ?? sessionCacheRef.current.get(card.session.id)?.contentRevision;
+                      if (!revision) return;
+                      const count = state.hitboxes?.length ?? 0;
+                      if (op === 'clear' && !window.confirm(
+                        `Delete ALL ${count} hitboxes (and their birds) on this level? `
+                        + 'Cutouts become stale and reviews are invalidated.')) return;
+                      try {
+                        const body = op === 'clear'
+                          ? { operation: 'clear' as const, expectedContentRevision: revision, humanActor: 'human:editor' }
+                          : { operation: 'scale' as const, factor: op === 'grow' ? 1.1 : 1 / 1.1,
+                              expectedContentRevision: revision, humanActor: 'human:editor' };
+                        const result = await runGeometryOperation(card.session.id, body);
+                        dispatchNarrow({ type: 'SET_REVISIONS', contentRevision: result.contentRevision, operationalRevision: result.operationalRevision });
+                        dispatchNarrow({ type: 'SET_HITBOXES', hitboxes: result.hitboxes });
+                        updateCachedHitboxes(card.session.id, result.hitboxes);
+                        onReviewChanged(card.session.id, {
+                          hitboxesBlessed: false, hitboxesBlessingStale: true,
+                          cutoutsFinalBlessed: false, cutoutsFinalBlessingStale: true,
+                        });
+                      } catch { /* request() toasts */ }
                     }}
                   >
                     {label}
@@ -1020,6 +1074,29 @@ export default function GalleryReviewModal({
             } : undefined}
           >
             {cutoutBlessBusy ? 'Saving…' : card?.session.cutoutsFinalBlessed ? '★ Cutouts reviewed' : 'Mark cutouts reviewed'}
+          </button>
+          <button
+            type="button"
+            className="btn"
+            title="CL-17: queue extraction for every bird the DAG reports stale (sprite missing). Paid — one job, only the obligated birds."
+            onClick={async () => {
+              if (!card) return;
+              const revision = state.contentRevision
+                ?? sessionCacheRef.current.get(card.session.id)?.contentRevision;
+              if (!revision) return;
+              try {
+                const preview = await rerunStale(card.session.id, revision, true);
+                if (preview.queuedBirdIds.length === 0) {
+                  setBlessError('Nothing stale — every bird has a cutout.');
+                  return;
+                }
+                if (!window.confirm(`Queue extraction for ${preview.queuedBirdIds.length} stale bird(s)? This is a paid job.`)) return;
+                const started = await rerunStale(card.session.id, revision, false);
+                setBlessError(`Queued ${started.queuedBirdIds.length} extraction(s) (job ${started.jobId ?? '?'}).`);
+              } catch { /* request() toasts */ }
+            }}
+          >
+            ↻ Re-run stale
           </button>
           {blessError && <span style={{ color: '#ff9c9c', fontSize: 12 }}>{blessError}</span>}
           <button

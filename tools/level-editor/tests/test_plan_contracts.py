@@ -18,7 +18,7 @@ def _job_store(tmp_path):
     return JobStore(tmp_path / "jobs.sqlite3")
 
 
-@pytest.mark.xfail(strict=True, reason="F-C jobs#3: bg retry requeues succeeded children and wipes their paid results")
+# FLIPPED 2026-08-13 (P2c.2): succeeded (paid) units survive parent retries.
 def test_background_retry_retains_succeeded_children(tmp_path):
     from levelbuilder.api import inpaint
 
@@ -39,7 +39,7 @@ def test_background_retry_retains_succeeded_children(tmp_path):
     assert refreshed.result.get("file") == "bg_00.png"
 
 
-@pytest.mark.xfail(strict=True, reason="F-C jobs#2: requeue accepts a RUNNING job, making a live paid attempt claimable twice")
+# FLIPPED 2026-08-13 (P2c.3): requeue refuses non-terminal jobs.
 def test_requeue_refuses_running_jobs(tmp_path):
     store = _job_store(tmp_path)
     job = store.create_job(kind="background_generation", session_id="s1", idempotency_key="p2")
@@ -47,6 +47,9 @@ def test_requeue_refuses_running_jobs(tmp_path):
 
     with pytest.raises(Exception):
         store.requeue_job(job.id, reason="second client retry")
+    # The crash-recovery lane (verified-stale, pre-provider) may override.
+    recovered = store.requeue_job(job.id, reason="worker restart recovery", allow_stale_running=True)
+    assert recovered.status == "queued"
 
 
 # FLIPPED 2026-08-12 overnight (P1.6/P2e.3): no-op saves preserve approvals.
@@ -109,3 +112,183 @@ def test_sprite_only_compose_is_opt_in(monkeypatch):
     assert inpaint._sprite_only_compose_enabled() is False
     monkeypatch.setenv("FTD_SPRITE_ONLY_COMPOSE", "1")
     assert inpaint._sprite_only_compose_enabled() is True
+
+
+def test_provider_attempt_cap_env_clamps_retries(monkeypatch):
+    """CR-2 NO-GO item: FTD_PROVIDER_ATTEMPT_CAP=1 makes every provider call
+    single-attempt — the paid-shakedown precondition, runtime-enforced."""
+    from levelbuilder.api import inpaint
+
+    calls = {"n": 0}
+
+    def flaky():
+        calls["n"] += 1
+        raise TimeoutError("provider transient")
+
+    monkeypatch.setenv("FTD_PROVIDER_ATTEMPT_CAP", "1")
+    with pytest.raises(Exception):
+        inpaint._with_retries_and_timeout(flaky)
+    assert calls["n"] == 1
+
+    monkeypatch.delenv("FTD_PROVIDER_ATTEMPT_CAP", raising=False)
+    calls["n"] = 0
+    with pytest.raises(Exception):
+        inpaint._with_retries_and_timeout(flaky)
+    assert calls["n"] == inpaint._MAX_ATTEMPTS
+
+
+def test_kill9_drill_leaves_no_stuck_or_double_billable_state(tmp_path):
+    """Failure-class ledger row 6 proof: a worker dying mid-batch (kill -9
+    equivalent: running jobs with dead heartbeats) recovers with no stuck
+    jobs and no double-billable state — paid attempts become orphaned_unknown
+    (never auto-retried), pre-provider attempts requeue, succeeded units keep
+    their results."""
+    from datetime import datetime, timedelta, timezone
+
+    from levelbuilder.api.job_store import JobStore
+    from levelbuilder.api.job_worker import JobWorker
+
+    store = JobStore(tmp_path / "jobs.sqlite3")
+    stale = (datetime.now(timezone.utc) - timedelta(hours=2)).isoformat()
+
+    paid = store.create_job(kind="k", session_id="s", idempotency_key="paid-1")
+    store.transition_job(paid.id, status="running", stage="calling")
+    store.update_metadata(paid.id, {"providerSubmissionStarted": True})
+    pre = store.create_job(kind="k", session_id="s", idempotency_key="pre-1",
+                           metadata={"safeToRequeue": True})
+    store.transition_job(pre.id, status="running", stage="preparing")
+    done = store.create_job(kind="k", session_id="s", idempotency_key="done-1")
+    store.transition_job(done.id, status="running", stage="calling")
+    store.transition_job(done.id, status="succeeded", stage="done", result={"paid": True})
+
+    import sqlite3
+    with sqlite3.connect(tmp_path / "jobs.sqlite3") as conn:
+        conn.execute("UPDATE jobs SET heartbeat_at = ? WHERE status = 'running'", (stale,))
+
+    worker = JobWorker(store=store, lock_path=tmp_path / 'worker.lock')
+    worker.recover_stale_jobs()
+
+    refreshed = {j.idempotency_key: j for j in (store.get_job(paid.id), store.get_job(pre.id), store.get_job(done.id))}
+    assert refreshed["paid-1"].status == "orphaned_unknown"   # never re-billed
+    assert refreshed["pre-1"].status == "queued"              # safely requeued
+    assert refreshed["done-1"].status == "succeeded"          # result intact
+    assert refreshed["done-1"].result.get("paid") is True
+    # No job left permanently running.
+    assert not store.list_jobs_by_status(("running",))
+
+
+def test_one_active_paid_job_per_bird_guard(app_client, isolated_session, monkeypatch):
+    """A6: a second retry-inpaint job targeting a bird with an ACTIVE job is
+    refused even with a fresh attemptNonce — nonce dedupes accidental
+    retries; this guard closes deliberate cross-client double spend."""
+    from levelbuilder.api import inpaint as I
+    from test_canonical_hitbox_cas import _canonical_session
+
+    _store, pointer = _canonical_session(isolated_session, "double_spend")
+    monkeypatch.setattr(I, "get_default_job_worker", lambda: type("W", (), {
+        "register_handler": lambda *a, **k: None, "start": lambda self: None,
+    })(), raising=False)
+
+    first = app_client.post(
+        "/api/sessions/double_spend/dogs/retry-inpaint/jobs",
+        json={"birdIds": ["bird_one"], "prompt": "bird",
+              "expectedContentRevision": pointer.content_revision,
+              "attemptNonce": "nonce-aaaa"},
+    )
+    assert first.status_code == 200, first.text
+
+    second = app_client.post(
+        "/api/sessions/double_spend/dogs/retry-inpaint/jobs",
+        json={"birdIds": ["bird_one"], "prompt": "bird",
+              "expectedContentRevision": pointer.content_revision,
+              "attemptNonce": "nonce-bbbb"},
+    )
+    assert second.status_code == 409, second.text
+    assert second.json()["detail"]["code"] == "bird_job_active"
+
+
+def test_paid_unit_spend_is_session_attributed(app_client, isolated_session, monkeypatch, tmp_path):
+    """P2d.3/R9: provider cost recorded during a retry unit carries
+    session/bird/operation attribution in the merceka ledger."""
+    import json as _json
+
+    from levelbuilder.api import inpaint as I
+    from test_canonical_hitbox_cas import _canonical_session
+
+    monkeypatch.setenv("MERCEKA_COST_LEDGER", str(tmp_path / "ledger.jsonl"))
+    _store, pointer = _canonical_session(isolated_session, "attributed_spend")
+
+    def fake_extraction(session_id, dog_index, **kwargs):
+        from merceka_core import costs
+
+        costs.record(source="test-provider", model="m", usage={}, usd=0.05)
+        return {"dogIndex": dog_index, "status": "succeeded"}
+
+    monkeypatch.setattr(I, "_run_single_cutout_extraction", fake_extraction)
+    monkeypatch.setattr(I, "_run_single_dog_regen", fake_extraction)
+
+    job = I._start_retry_failed_dogs_job_record(
+        "attributed_spend",
+        I.RetryFailedDogsJobRequest(
+            birdIds=["bird_one"], prompt="bird",
+            expectedContentRevision=pointer.content_revision,
+            attemptNonce="attr-nonce-1",
+        ),
+    )
+    try:
+        I._run_retry_failed_dogs_job(I.JOB_STORE.get_job(job.id), I.JOB_STORE)
+    except Exception:
+        pass  # the stub result lacks epilogue fields; the spend already landed
+    rows = [_json.loads(line) for line in (tmp_path / "ledger.jsonl").read_text().splitlines()]
+    tagged = [r for r in rows if r.get("meta", {}).get("sessionId") == "attributed_spend"]
+    assert tagged, rows
+    meta = tagged[0]["meta"]
+    assert meta["birdId"] == "bird_one"
+    assert meta["operation"] in ("dog_regen", "cutout_extraction")
+    assert meta["app"] == "ftb-level-editor"
+
+
+def test_sse_magenta_run_leaves_a_durable_job_record(isolated_session, monkeypatch):
+    """P2c.5: the SSE magenta lane books its run in the durable job store —
+    a disconnect/crash mid-run leaves a claimed record with provider state,
+    never an untracked side effect."""
+    from levelbuilder.api import inpaint as I
+
+    isolated_session.create_session(
+        "magenta_durable", scene_prompt="s", dog_prompt="d", style="clean_old_cartoon",
+        model="m", n_options=1, n_dogs=1,
+    )
+
+    def fake_core(session_id, **kwargs):
+        return {"ok": True, "session": session_id}
+
+    monkeypatch.setattr(I, "run_magenta_inpaint", fake_core)
+    summary = I.run_magenta_inpaint_durably(
+        "magenta_durable",
+        hitbox_list=[{"x": 1, "y": 1, "r": 5}],
+        dog_prompt="d",
+        model="m",
+        magenta_override=None,
+        bg_index=0,
+    )
+    assert summary["ok"] is True
+    jobs = [j for j in I.JOB_STORE.list_jobs_by_status(("succeeded",))
+            if j.kind == "magenta_inpaint" and j.session_id == "magenta_durable"]
+    assert jobs, "no durable record for the SSE magenta run"
+    assert jobs[0].metadata.get("providerSubmissionStarted") is True
+
+
+def test_sse_lane_jobs_are_never_worker_claimable(tmp_path):
+    """Merge-review F2: the worker must not claim an sse-lane job — the SSE
+    thread owns its execution; double-claim is double-billing."""
+    from levelbuilder.api.job_store import JobStore
+
+    store = JobStore(tmp_path / "jobs.sqlite3")
+    sse = store.create_job(kind="magenta_inpaint", session_id="s",
+                           idempotency_key="sse-1", metadata={"lane": "sse"})
+    normal = store.create_job(kind="magenta_inpaint", session_id="s",
+                              idempotency_key="norm-1")
+    claimed = store.claim_next_queued_job(owner="w1", kinds=("magenta_inpaint",))
+    assert claimed is not None and claimed.id == normal.id
+    assert store.claim_next_queued_job(owner="w1", kinds=("magenta_inpaint",)) is None
+    assert store.get_job(sse.id).status == "queued"

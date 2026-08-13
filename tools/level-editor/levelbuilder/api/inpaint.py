@@ -418,7 +418,16 @@ def _with_retries_and_timeout(
     as 'orphaned' rather than 'error'.
     """
     last_exc = None
-    for attempt in range(_MAX_ATTEMPTS):
+    # CR-2 shakedown precondition: FTD_PROVIDER_ATTEMPT_CAP clamps every
+    # provider call's attempts at runtime (paid runs set it to 1).
+    max_attempts = _MAX_ATTEMPTS
+    cap_raw = os.environ.get("FTD_PROVIDER_ATTEMPT_CAP")
+    if cap_raw:
+        try:
+            max_attempts = max(1, min(_MAX_ATTEMPTS, int(cap_raw)))
+        except ValueError:
+            pass
+    for attempt in range(max_attempts):
         if cancel_event is not None and cancel_event.is_set():
             raise OperationCancelled()
         try:
@@ -465,12 +474,12 @@ def _with_retries_and_timeout(
                 provider_permit.release()
             last_exc = TimeoutError(f"provider call timed out after {_GEMINI_CALL_TIMEOUT_S:.0f}s")
             exc = last_exc
-            if attempt + 1 >= _MAX_ATTEMPTS:
+            if attempt + 1 >= max_attempts:
                 raise last_exc
             sleep_s = _BACKOFF_BASE_S * (2 ** attempt) + random.uniform(0, 0.5)
             logger.warning(
                 "transient error on attempt %d/%d: %s — retrying in %.1fs",
-                attempt + 1, _MAX_ATTEMPTS, exc, sleep_s,
+                attempt + 1, max_attempts, exc, sleep_s,
             )
             if on_attempt is not None:
                 try:
@@ -487,12 +496,12 @@ def _with_retries_and_timeout(
             raise
         except Exception as exc:  # noqa: BLE001 — we do want broad catch
             last_exc = exc
-            if attempt + 1 >= _MAX_ATTEMPTS or not _is_transient(exc):
+            if attempt + 1 >= max_attempts or not _is_transient(exc):
                 raise
             sleep_s = _BACKOFF_BASE_S * (2 ** attempt) + random.uniform(0, 0.5)
             logger.warning(
                 "transient error on attempt %d/%d: %s — retrying in %.1fs",
-                attempt + 1, _MAX_ATTEMPTS, exc, sleep_s,
+                attempt + 1, max_attempts, exc, sleep_s,
             )
             if on_attempt is not None:
                 try:
@@ -2326,7 +2335,12 @@ def _prepare_background_generation_unit_jobs(
                 "safeToRequeue": True,
             },
         )
-        if child.status != "queued":
+        if child.status == "succeeded":
+            # F-C jobs#3: a succeeded unit is PAID — a parent retry must reuse
+            # its result, never requeue and re-purchase it.
+            child_jobs[index] = child
+            continue
+        if child.status not in ("queued", "running"):
             child = store.requeue_job(
                 child.id,
                 reason="Parent background generation job started a fresh attempt.",
@@ -3975,7 +3989,7 @@ def _run_single_dog_regen(
     hb_data = _resolve_regen_hitbox(raw.get("dogs", []), hitbox_list, dog_index)
     if hb_data is None:
         bg.close()
-        raise HTTPException(404, detail={"error": f"Dog {dog_index} not found in hitboxes"})
+        raise HTTPException(404, detail={"error": f"Entity {dog_index} not found in hitboxes"})
     hb = Hitbox(x=hb_data["x"], y=hb_data["y"], radius=hb_data.get("r", hb_data.get("radius", 30)))
 
     dog_dir = S.dogs_dir(session_id) / f"dog_{dog_index:02d}"
@@ -4384,6 +4398,28 @@ def _start_retry_failed_dogs_job_record(session_id: str, req: RetryFailedDogsJob
         if _should_requeue_failed_generation_job(existing):
             return JOB_STORE.requeue_job(existing.id, reason="Retry requested through failed-dog inpaint endpoint.")
         return existing
+    # A6 one-active-paid-job guard: the nonce dedupes accidental retries onto
+    # the same job; a DIFFERENT nonce targeting a bird that already has an
+    # active job is deliberate double spend — refuse it.
+    requested_birds = {
+        item.bird_id for item in canonical_inputs
+    } if canonical_inputs else set()
+    if requested_birds:
+        for active in JOB_STORE.list_jobs_by_status(("queued", "running")):
+            if active.kind != "crop_inpaint_retry" or active.session_id != session_id:
+                continue
+            active_birds = {
+                (entry or {}).get("birdId")
+                for entry in (active.metadata.get("birdInputs") or [])
+                if isinstance(entry, dict)
+            }
+            overlap = requested_birds & active_birds
+            if overlap:
+                raise HTTPException(409, detail={
+                    "error": f"bird(s) {sorted(overlap)} already have an active paid job ({active.id})",
+                    "code": "bird_job_active",
+                    "activeJobId": active.id,
+                })
     return JOB_STORE.create_job(
         kind="crop_inpaint_retry",
         session_id=session_id,
@@ -4651,18 +4687,18 @@ def _run_single_cutout_extraction(
     )
     variant_index = dog.get("activeVariant") if dog is not None else None
     if not isinstance(variant_index, int):
-        raise HTTPException(400, detail={"error": f"Dog {dog_index} has no active painted variant"})
+        raise HTTPException(400, detail={"error": f"Entity {dog_index} has no active painted variant"})
 
     sdir = S.session_dir(session_id)
     color_path = sdir / "color.png"
     dog_dir = S.dogs_dir(session_id) / f"dog_{dog_index:02d}"
     metadata_path = dog_dir / f"sprite_{variant_index:03d}.json"
     if not color_path.is_file() or not metadata_path.is_file():
-        raise HTTPException(400, detail={"error": f"Dog {dog_index} is missing cutout source assets"})
+        raise HTTPException(400, detail={"error": f"Entity {dog_index} is missing cutout source assets"})
     metadata = json.loads(metadata_path.read_text())
     target_box = metadata.get("spriteBox")
     if not (isinstance(target_box, list) and len(target_box) == 4):
-        raise HTTPException(400, detail={"error": f"Dog {dog_index} has invalid sprite placement"})
+        raise HTTPException(400, detail={"error": f"Entity {dog_index} has invalid sprite placement"})
 
     with Image.open(color_path) as source:
         color = source.convert("RGB")
@@ -4868,7 +4904,22 @@ def _run_retry_failed_dogs_job(job: JobRecord, store: JobStore) -> dict[str, Any
             "passIndex": 0,
         })
         store.update_metadata(job.id, {"safeToRequeue": False, "providerSubmissionStarted": True})
+        # P2d.3 / R9: every provider dollar spent in this unit lands in the
+        # merceka ledger tagged with its session/bird/operation — measured
+        # per level, never estimated.
+        from merceka_core import costs as _mcosts
+
+        _bird_id_for_meta = child.metadata.get("birdId") if child is not None else None
+        _attribution = _mcosts.attribution({
+            "app": "ftb-level-editor",
+            "sessionId": session_id,
+            "birdId": _bird_id_for_meta,
+            "dogIndex": dog_index,
+            "operation": "cutout_extraction" if cutout_only else "dog_regen",
+            "jobId": job.id,
+        })
         try:
+          with _attribution:
             if cutout_only:
                 crop_box = crop_boxes.get(dog_index)
                 if crop_box is None:
@@ -6049,6 +6100,73 @@ def recenter_hitboxes_local_diff(
     return {"sessionId": session_id, "moved": moved, "total": len(hitboxes), "overlapFlags": overlap_flags, "pruned": pruned}
 
 
+def run_magenta_inpaint_durably(
+    session_id: str,
+    *,
+    hitbox_list,
+    dog_prompt: str,
+    model: str,
+    magenta_override=None,
+    bg_index=None,
+) -> dict:
+    """P2c.5: run the magenta core THROUGH the durable job store. The SSE
+    route calls this instead of the bare core, so a disconnect or crash
+    mid-run leaves a claimed record with provider-submission state (crash
+    recovery then orphans it, never re-bills silently)."""
+    import uuid as _uuid
+
+    # One active magenta run per session across BOTH lanes (mirrors A6):
+    # a second click while one runs is deliberate double spend.
+    for active in JOB_STORE.list_jobs_by_status(("queued", "running")):
+        if active.kind == "magenta_inpaint" and active.session_id == session_id:
+            raise HTTPException(409, detail={
+                "error": f"a magenta inpaint is already active for {session_id} ({active.id})",
+                "code": "magenta_job_active",
+                "activeJobId": active.id,
+            })
+    idempotency_key = f"magenta-sse:{session_id}:{_uuid.uuid4().hex[:16]}"
+    job = JOB_STORE.create_job(
+        kind="magenta_inpaint",
+        session_id=session_id,
+        idempotency_key=idempotency_key,
+        input_hash=idempotency_key,
+        metadata={
+            "selectedBg": bg_index,
+            "dogPrompt": dog_prompt,
+            "model": model,
+            "inpaintMode": "magenta",
+            "lane": "sse",
+            "safeToRequeue": False,
+        },
+    )
+    JOB_STORE.transition_job(job.id, status="running", stage="painting")
+    JOB_STORE.update_metadata(job.id, {"providerSubmissionStarted": True})
+    from merceka_core import costs as _mcosts
+
+    try:
+        with _mcosts.attribution({
+            "app": "ftb-level-editor", "sessionId": session_id,
+            "operation": "magenta_inpaint", "jobId": job.id,
+        }):
+            summary = run_magenta_inpaint(
+                session_id,
+                hitbox_list=hitbox_list,
+                dog_prompt=dog_prompt,
+                model=model,
+                magenta_override=magenta_override,
+                bg_index=bg_index,
+            )
+    except Exception as error:
+        JOB_STORE.transition_job(
+            job.id, status="failed", stage="painting",
+            error_code="magenta_failed", error_message=str(error)[:500],
+        )
+        raise
+    JOB_STORE.transition_job(job.id, status="succeeded", stage="done",
+                             result={"summaryKeys": sorted(summary)[:20]})
+    return summary
+
+
 def run_magenta_inpaint(
     session_id: str,
     *,
@@ -6315,7 +6433,7 @@ async def inpaint_magenta(
             # Single source of truth: the same sync core the durable job runs.
             summary = await loop.run_in_executor(
                 executor,
-                lambda: run_magenta_inpaint(
+                lambda: run_magenta_inpaint_durably(
                     session_id,
                     hitbox_list=hitbox_list,
                     dog_prompt=dogPrompt,

@@ -200,8 +200,6 @@ export interface SessionListItem {
   tags?: string[];
   /** Static mount that owns this session's assets. Active editor sessions use `levels`; public-package-only sessions use `public-levels`. */
   assetBase?: 'levels' | 'public-levels';
-  humanConfirmedBirds?: number;
-  reviewableBirds?: number;
   regenerationCandidateCount?: number;
   hitboxesBlessed?: boolean;
   hitboxesBlessingStale?: boolean;
@@ -645,6 +643,46 @@ export function autoPlaceHitboxes(
   });
 }
 
+export interface GeometryOperationResult {
+  ok: boolean;
+  noOp: boolean;
+  contentRevision: string;
+  operationalRevision: string;
+  hitboxes: Hitbox[];
+  pendingObligations: { obligation: string; birdId?: string; reason?: string }[];
+}
+
+/** CL-1/CL-2: bulk geometry ops (clear/scale/…) through the one service. */
+export async function runGeometryOperation(
+  sessionId: string,
+  body: {
+    operation: 'clear' | 'scale' | 'add' | 'delete';
+    expectedContentRevision: string;
+    humanActor: string;
+    factor?: number;
+    birdIds?: string[];
+    hitboxes?: Partial<Hitbox>[];
+  },
+): Promise<GeometryOperationResult> {
+  return request<GeometryOperationResult>(
+    `/api/sessions/${encodeURIComponent(sessionId)}/geometry`,
+    { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) },
+  );
+}
+
+/** CL-17: discharge pending DAG obligations (extract) in one action. */
+export async function rerunStale(
+  sessionId: string,
+  expectedContentRevision: string,
+  dryRun = false,
+): Promise<{ ok: boolean; queuedBirdIds: string[]; jobId: string | null; dryRun: boolean }> {
+  return request(`/api/sessions/${encodeURIComponent(sessionId)}/rerun-stale`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ expectedContentRevision, humanActor: 'human:editor', dryRun }),
+  });
+}
+
 export function saveHitboxes(
   sessionId: string,
   hitboxes: Hitbox[],
@@ -1042,18 +1080,6 @@ export interface LevelsIndexEntry {
   id: string;
   name?: string;
   jsonPath?: string;
-}
-
-export function getLevelsIndex(): Promise<LevelsIndexEntry[]> {
-  return request<LevelsIndexEntry[]>(`/api/levels-index`);
-}
-
-export function reorderLevelsIndex(ids: string[]): Promise<{ ok: boolean; count: number; order: LevelsIndexEntry[] }> {
-  return request(`/api/levels-index`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ ids }),
-  });
 }
 
 export interface LevelAssetDescriptor {
@@ -1491,23 +1517,6 @@ export function saveSpriteCandidatePlacement(
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ spriteBox, cleanupBox, flipX, flipY, expectedContentRevision }),
     ...options,
-  });
-}
-
-export function saveSpriteCandidateHumanConfirmation(
-  sessionId: string,
-  candidateId: string,
-  confirmed: boolean,
-  expectedContentRevision?: string,
-): Promise<{
-  ok: boolean;
-  contentRevision?: string;
-  operationalRevision?: string;
-}> {
-  return request(`/api/sessions/${encodeURIComponent(sessionId)}/sprite-candidates/${encodeURIComponent(candidateId)}/human-confirmation`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ confirmed, expectedContentRevision, ...(confirmed ? { humanActor: 'human:editor' } : {}) }),
   });
 }
 

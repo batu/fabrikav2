@@ -971,8 +971,8 @@ def _current_hitbox_snapshot(session_id: str) -> tuple[list[dict[str, Any]], str
     return hitboxes, _semantic_json_sha256(hitboxes)
 
 
-def get_hitbox_review_status(session_id: str) -> dict[str, Any]:
-    canonical = read_canonical_session(session_id)
+def get_hitbox_review_status(session_id: str, *, canonical=None) -> dict[str, Any]:
+    canonical = canonical or read_canonical_session(session_id)
     if canonical.state.value == "valid_current" and canonical.snapshot is not None:
         review = canonical.snapshot.get("reviews", {}).get("hitboxes")
         current = isinstance(review, dict)
@@ -1142,8 +1142,9 @@ def get_final_cutout_review_status(
     session_id: str,
     *,
     hitbox_status: dict[str, Any] | None = None,
+    canonical=None,
 ) -> dict[str, Any]:
-    canonical = read_canonical_session(session_id)
+    canonical = canonical or read_canonical_session(session_id)
     if canonical.state.value == "valid_current" and canonical.snapshot is not None:
         reviews = canonical.snapshot.get("reviews", {})
         hitbox_review = reviews.get("hitboxes")
@@ -1206,13 +1207,15 @@ def get_final_cutout_review_status(
     }
 
 
-def get_final_cutout_review_readiness(session_id: str) -> dict[str, Any]:
+def get_final_cutout_review_readiness(
+    session_id: str, *, canonical=None, verify_assets: bool = True,
+) -> dict[str, Any]:
     # P1.2 (CR-1 finding 5): canonical sessions derive readiness from the
     # snapshot — every bird has a verified sprite asset and no pending
     # extract obligation. The legacy level.json walk serves only legacy lanes.
     from .canonical_bird_contract import CanonicalReadState
 
-    canonical = read_canonical_session(session_id)
+    canonical = canonical or read_canonical_session(session_id)
     if canonical.state is CanonicalReadState.VALID_CURRENT and canonical.snapshot is not None:
         from .artifact_dag import pending_obligations
         from .canonical_assets import AssetIntegrityError, resolve_asset
@@ -1225,6 +1228,8 @@ def get_final_cutout_review_readiness(session_id: str) -> dict[str, Any]:
             if not isinstance(asset, dict):
                 missing += 1
                 continue
+            if not verify_assets:
+                continue  # listing path: existence-level only; the gate verifies bytes
             try:
                 resolve_asset(store, asset)
             except AssetIntegrityError:
@@ -1693,9 +1698,12 @@ def save_canonical_hitboxes_if_present(
     # stay revision-consistent (CR-1 finding 8).
     from .geometry_service import mutate_geometry
 
+    # replace_set, not move: the canvas sends the whole array — client-minted
+    # ids are adds, absent ids are deletes, matched ids are moves (CL-3 through
+    # one id-aware operation; CR-t1 P0-4).
     return mutate_geometry(
         session_id,
-        "move",
+        "replace_set",
         hitboxes=hitboxes,
         expected_content_revision=expected_content_revision,
         actor=actor,
@@ -2476,7 +2484,33 @@ def save_new_background_image(
                 pass
 
 
+def _lifecycle_for_listing(*, archived, hitbox_review, final_cutout_review, catalog_entry, in_lineup):
+    """P2b.4: one derived state + named violations per listing row."""
+    from .lifecycle import derive_lifecycle_state, lifecycle_violations
+
+    flags = {
+        "archived": bool(archived),
+        "hitboxesBlessed": bool(hitbox_review.get("current")),
+        "cutoutsFinalBlessed": bool(final_cutout_review.get("current")),
+        "catalogUploaded": catalog_entry is not None,
+        "catalogListable": bool(catalog_entry and catalog_entry.get("listable") is True),
+        "inLineup": bool(in_lineup),
+    }
+    return {"state": derive_lifecycle_state(flags), "violations": lifecycle_violations(flags)}
+
+
+def _current_draft_lineup_ids() -> frozenset[str]:
+    try:
+        from . import sequence_workflow as W
+
+        state = W.get_sequence_editor_state()
+        return frozenset((state.get("draft") or {}).get("levelIds") or [])
+    except Exception:  # noqa: BLE001 — listing must not die on workflow state issues
+        return frozenset()
+
+
 def list_sessions(*, include_public: bool = False) -> list[dict]:
+    _draft_lineup_ids = _current_draft_lineup_ids()
     """List all available sessions (levels with hitboxes, session.json, or public level packages)."""
     results = []
     seen_session_ids: set[str] = set()
@@ -2640,12 +2674,12 @@ def list_sessions(*, include_public: bool = False) -> list[dict]:
                 orientation = "landscape" if width > height else "portrait"
 
             canonical = read_canonical_session(d.name)
-            hitbox_review = get_hitbox_review_status(d.name)
+            hitbox_review = get_hitbox_review_status(d.name, canonical=canonical)
             final_cutout_review = get_final_cutout_review_status(
-                d.name, hitbox_status=hitbox_review,
+                d.name, hitbox_status=hitbox_review, canonical=canonical,
             )
             final_cutout_readiness = (
-                get_final_cutout_review_readiness(d.name)
+                get_final_cutout_review_readiness(d.name, canonical=canonical, verify_assets=False)
                 if hitbox_review["current"]
                 else {"ready": False, "activeBirds": n_dogs, "missingCutouts": n_dogs}
             )
@@ -2657,11 +2691,6 @@ def list_sessions(*, include_public: bool = False) -> list[dict]:
                     review_sidecars.append(json.loads(sidecar_path.read_text()))
                 except (OSError, json.JSONDecodeError):
                     continue
-            human_confirmed_birds = sum(
-                bool((item.get("humanReview") or {}).get("confirmed"))
-                for item in review_sidecars
-                if isinstance(item, dict)
-            )
             regeneration_candidate_count = sum(
                 bool((item.get("regenerationReview") or {}).get("candidate"))
                 and not bool((item.get("humanReview") or {}).get("confirmed"))
@@ -2696,9 +2725,12 @@ def list_sessions(*, include_public: bool = False) -> list[dict]:
                 "createdAt": created_at,
                 "orientation": orientation,
                 "canonicalState": canonical_state,
+                "lifecycleState": _lifecycle_for_listing(
+                    archived=archived, hitbox_review=hitbox_review,
+                    final_cutout_review=final_cutout_review,
+                    catalog_entry=catalog_entry, in_lineup=d.name in _draft_lineup_ids,
+                ),
                 "assetBase": asset_base,
-                "humanConfirmedBirds": human_confirmed_birds,
-                "reviewableBirds": len(review_sidecars),
                 "regenerationCandidateCount": regeneration_candidate_count,
                 "hitboxesBlessed": hitbox_review["current"],
                 "hitboxesBlessingStale": hitbox_review["stale"],
@@ -6241,6 +6273,31 @@ def _validate_session_id_or_raise(session_id: str) -> None:
         raise ValueError(f"Invalid session id: {session_id!r}")
 
 
+def _remove_from_sequence_draft(session_id: str) -> None:
+    """P2b.4: archiving a session removes it from the sequence draft in the
+    same action — an archived level can never linger in the lineup
+    ("archive should automatically unline up", 2026-08-07). Draft-only:
+    the LIVE sequence changes exclusively through Start."""
+    from . import sequence_workflow as W
+
+    try:
+        state = W.get_sequence_editor_state()
+        draft = state.get("draft") or {}
+        level_ids = list(draft.get("levelIds") or [])
+        if session_id not in level_ids:
+            return
+        W.save_sequence_draft(
+            level_ids=[level_id for level_id in level_ids if level_id != session_id],
+            base_live_sequence_version=state["liveSequence"]["sequenceVersion"],
+            base_catalog_revision=state["catalog"]["catalogRevision"],
+            draft_revision=draft["draftRevision"],
+        )
+    except Exception as error:  # noqa: BLE001 — archive must fail LOUDLY, not silently
+        raise RuntimeError(
+            f"archived {session_id} but could not remove it from the sequence draft: {error}"
+        ) from error
+
+
 def set_archived(session_id: str, archived: bool, variant: str | None = None) -> None:
     """Mark / unmark a variant as archived. Each variant card in the
     Gallery is independently archivable; the archived state lives as a
@@ -6279,6 +6336,8 @@ def set_archived(session_id: str, archived: bool, variant: str | None = None) ->
                 variants.discard(variant)
                 umbrella = False
             _record_archive_state(session_id, archived=umbrella, variants=sorted(variants))
+            if umbrella:
+                _remove_from_sequence_draft(session_id)
             return
         if variant is None:
             raw["archived"] = bool(archived)
@@ -6299,6 +6358,8 @@ def set_archived(session_id: str, archived: bool, variant: str | None = None) ->
                     raw["archived"] = False
             raw["archived_variants"] = sorted(current)
         save_session(session_id, raw)
+        if variant is None and archived:
+            _remove_from_sequence_draft(session_id)
         _record_archive_state(
             session_id,
             archived=bool(raw.get("archived", False)),

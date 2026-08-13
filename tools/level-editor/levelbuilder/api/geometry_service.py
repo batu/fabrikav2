@@ -151,11 +151,26 @@ def mutate_geometry(
                 # Byte-identical geometry: no commit, approvals intact.
                 return _result(current.pointer, no_op=True, snapshot=snapshot)
             updated = invalidate_reviews(snapshot, changed_artifacts={"hitboxes"})
+            golden_pairs: list[dict[str, Any]] = []
             for bird in updated["birds"]:
                 if bird["hitbox"] != incoming[bird["birdId"]]:
                     _guard_human(bird)
+                    if not is_machine and str(bird.get("geometryOrigin", "")).startswith("machine:"):
+                        # P2e.4: a human correcting machine placement IS the
+                        # golden signal — record it without a ritual.
+                        golden_pairs.append({
+                            "birdId": bird["birdId"],
+                            "machine": dict(bird["hitbox"]),
+                            "human": dict(incoming[bird["birdId"]]),
+                            "machineActor": bird.get("geometryOrigin"),
+                            "humanActor": actor,
+                            "sessionId": session_id,
+                            "fromContentRevision": expected_content_revision,
+                        })
                     bird["hitbox"] = incoming[bird["birdId"]]
                     bird["geometryOrigin"] = actor
+            if golden_pairs:
+                _record_golden_pairs(golden_pairs)
         else:
             # replace_set is id-aware (CR-1 findings 1/3): id-carrying entries
             # move their birds, birds absent from the set are deleted, id-less
@@ -176,19 +191,32 @@ def mutate_geometry(
                         "positional replace_set would rebind bird identity; "
                         "send ids or use add/delete lifecycle operations"
                     )
+            # Client-minted ids (canvas add gesture, CR-t1 P0-4) become real
+            # bird adds adopting the client uuid; the contract validates the
+            # id shape at commit. Known ids move; absent ids prune.
             unknown = {h["id"] for h in carried} - set(by_id)
-            if unknown:
-                raise ContractValidationError(f"replace_set targets unknown birds: {sorted(unknown)}")
             # No-op BEFORE any authority guard (CR-1 finding 2).
             if not anonymous and len(carried) == len(by_id) and all(
-                by_id[h["id"]]["hitbox"] == _require_hitbox(h) for h in carried
+                h["id"] in by_id and by_id[h["id"]]["hitbox"] == _require_hitbox(h)
+                for h in carried
             ):
                 return _result(current.pointer, no_op=True, snapshot=snapshot)
             updated = invalidate_reviews(snapshot, changed_artifacts={"birdSet", "hitboxes"})
             live_by_id = {b["birdId"]: b for b in updated["birds"]}
             kept_ids = {h["id"] for h in carried}
             birds = []
+            order_base = max((b.get("presentationOrder", 0) for b in updated["birds"]), default=-1)
             for entry in carried:
+                if entry["id"] in unknown:
+                    order_base += 1
+                    birds.append({
+                        "birdId": entry["id"],
+                        "compatibilitySlot": _next_slot_excluding(updated, birds),
+                        "presentationOrder": order_base,
+                        "hitbox": _require_hitbox(entry),
+                        "geometryOrigin": actor,
+                    })
+                    continue
                 bird = live_by_id[entry["id"]]
                 incoming_box = _require_hitbox(entry)
                 if bird["hitbox"] != incoming_box:
@@ -276,6 +304,27 @@ def mutate_geometry(
     )
     _project_geometry(session_id, updated)
     return _result(pointer, no_op=False, snapshot=updated)
+
+
+def _record_golden_pairs(pairs: list[dict[str, Any]]) -> None:
+    """P2e.4: append machine-before/human-after pairs to the golden ledger.
+    Best-effort — eval data collection must never fail the human's save —
+    but failures log loudly."""
+    import json as _json
+    import logging
+    import time as _time
+
+    from . import session as S
+
+    try:
+        path = S.WORKSPACE_ROOT / "state" / "golden-geometry-pairs.jsonl"
+        path.parent.mkdir(parents=True, exist_ok=True)
+        stamp = _time.strftime("%Y-%m-%dT%H:%M:%SZ", _time.gmtime())
+        with open(path, "a") as handle:
+            for pair in pairs:
+                handle.write(_json.dumps({**pair, "recordedAt": stamp}) + "\n")
+    except OSError:
+        logging.getLogger(__name__).exception("golden-pair recording failed")
 
 
 def _project_geometry(session_id: str, snapshot: dict[str, Any]) -> None:

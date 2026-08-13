@@ -264,3 +264,131 @@ def test_rollback_converter_removes_draft_birds(isolated_session, monkeypatch, c
     module.main()
     birds = store.read().snapshot["birds"]
     assert all((b.get("sprite") or {}).get("asset") for b in birds)
+
+
+def test_replace_set_adopts_client_minted_ids_as_adds(isolated_session):
+    """CR-t1 P0-4: the canvas add gesture sends the whole array with a
+    client-minted uuid — replace_set adopts it as a real bird add instead of
+    rejecting the identity change."""
+    import uuid as _uuid
+
+    from levelbuilder.api import session as S
+    from levelbuilder.api.geometry_service import mutate_geometry
+
+    store, pointer = _canonical_session(isolated_session, "geo_client_add")
+    minted = str(_uuid.uuid4())
+    result = mutate_geometry(
+        "geo_client_add", "replace_set",
+        hitboxes=[
+            {"id": "bird_one", "x": 10, "y": 20, "r": 5},
+            {"id": minted, "x": 70, "y": 80, "r": 22},
+        ],
+        expected_content_revision=pointer.content_revision, actor="human:editor",
+    )
+    birds = {b["birdId"]: b for b in store.read().snapshot["birds"]}
+    assert set(birds) == {"bird_one", minted}
+    assert birds[minted]["hitbox"] == {"x": 70, "y": 80, "r": 22}
+    assert "sprite" not in birds[minted]
+    assert result.no_op is False
+
+
+def test_grow_then_shrink_round_trips_for_corpus_radii(isolated_session):
+    """CR-t1 P1-5: ±10% must round-trip for realistic radii (24-60) so
+    repeated grow/shrink doesn't silently drift hitbox sizes."""
+    from levelbuilder.api.geometry_service import mutate_geometry
+
+    store, pointer = _canonical_session(isolated_session, "geo_roundtrip")
+    for start in (24, 30, 38, 42, 57, 60):
+        rev = store.read().pointer.content_revision
+        mutate_geometry("geo_roundtrip", "move",
+            hitboxes=[{"id": "bird_one", "x": 10, "y": 20, "r": start}],
+            expected_content_revision=rev, actor="human:t")
+        rev = store.read().pointer.content_revision
+        grown = mutate_geometry("geo_roundtrip", "scale", factor=1.1,
+            expected_content_revision=rev, actor="human:t")
+        shrunk = mutate_geometry("geo_roundtrip", "scale", factor=1/1.1,
+            expected_content_revision=grown.content_revision, actor="human:t")
+        final = store.read().snapshot["birds"][0]["hitbox"]["r"]
+        assert final == start, f"drift: {start} -> {final}"
+
+
+def test_sprite_revert_restores_previous_extraction(isolated_session):
+    """CL-14: revert = promote pointed backward — the prior sprite descriptor
+    recommits from history; its bytes still live in the CAS."""
+    import hashlib as _hashlib
+
+    from levelbuilder.api import session as S
+    from levelbuilder.api.sprite_history import revert_bird_sprite, sprite_history
+
+    store, pointer = _canonical_session(isolated_session, "geo_revert")
+    sdir = isolated_session.session_dir("geo_revert")
+    original_sha = store.read().snapshot["birds"][0]["sprite"]["asset"]["sha256"]
+
+    # A new extraction lands: different bytes, committed.
+    new_bytes = b"the-new-extraction"
+    (sdir / "sprite.png").write_bytes(new_bytes)
+    snapshot = store.read().snapshot
+    sprite = snapshot["birds"][0]["sprite"]
+    sprite["asset"] = {"path": "sprite.png",
+                      "sha256": _hashlib.sha256(new_bytes).hexdigest(),
+                      "bytes": len(new_bytes)}
+    snapshot["birds"][0]["cleanup"]["sourceSpriteSha256"] = sprite["asset"]["sha256"]
+    pointer = store.commit(snapshot, expected_content_revision=pointer.content_revision)
+
+    history = sprite_history("geo_revert", "bird_one")
+    assert len(history) >= 2
+    assert history[0]["sha256"] != original_sha  # current first
+    previous = next(h for h in history if h["sha256"] == original_sha)
+
+    result = revert_bird_sprite(
+        "geo_revert", "bird_one",
+        to_content_revision=previous["contentRevision"],
+        expected_content_revision=pointer.content_revision,
+        actor="human:batu",
+    )
+    current = store.read().snapshot["birds"][0]
+    assert current["sprite"]["asset"]["sha256"] == original_sha
+    # The path projection is restored from the CAS.
+    on_disk = (sdir / current["sprite"]["asset"]["path"]).read_bytes()
+    assert _hashlib.sha256(on_disk).hexdigest() == original_sha
+    assert result.content_revision != pointer.content_revision
+
+
+def test_human_corrections_of_machine_geometry_record_golden_pairs(isolated_session):
+    """P2e.4: a human moving MACHINE-placed geometry auto-records the
+    before/after pair — corrections become eval data without a ritual.
+    Human-over-human edits and no-ops record nothing."""
+    import json as _json
+
+    from levelbuilder.api import session as S
+    from levelbuilder.api.geometry_service import mutate_geometry
+
+    store, pointer = _canonical_session(isolated_session, "geo_golden")
+    machine = mutate_geometry(
+        "geo_golden", "replace_set",
+        hitboxes=[{"id": "bird_one", "x": 40, "y": 40, "r": 8}],
+        expected_content_revision=pointer.content_revision, actor="machine:auto-place",
+    )
+    corrected = mutate_geometry(
+        "geo_golden", "move",
+        hitboxes=[{"id": "bird_one", "x": 52, "y": 44, "r": 8}],
+        expected_content_revision=machine.content_revision, actor="human:batu",
+    )
+    ledger = S.WORKSPACE_ROOT / "state" / "golden-geometry-pairs.jsonl"
+    assert ledger.is_file()
+    rows = [_json.loads(line) for line in ledger.read_text().splitlines()]
+    assert len(rows) == 1
+    row = rows[0]
+    assert row["birdId"] == "bird_one"
+    assert row["machine"] == {"x": 40, "y": 40, "r": 8}
+    assert row["human"] == {"x": 52, "y": 44, "r": 8}
+    assert row["machineActor"] == "machine:auto-place"
+
+    # Human refining their own placement is not a machine correction.
+    mutate_geometry(
+        "geo_golden", "move",
+        hitboxes=[{"id": "bird_one", "x": 53, "y": 44, "r": 8}],
+        expected_content_revision=corrected.content_revision, actor="human:batu",
+    )
+    rows = [_json.loads(line) for line in ledger.read_text().splitlines()]
+    assert len(rows) == 1

@@ -7,11 +7,11 @@ import {
   getRetryFailedDogsJob,
   isAbortError,
   listSpriteCandidates,
-  saveSpriteCandidateHumanConfirmation,
   saveSpriteCandidatePlacement,
   spriteCandidateOverlayUrl,
   startRetryFailedDogsJob,
   type RetryFailedDogsJobResponse,
+  saveHitboxes,
 } from '../api/editorApi';
 
 type CropBox = [number, number, number, number];
@@ -155,6 +155,7 @@ function PlacementPreview({
   controlMode,
   hitbox,
   showHitbox,
+  onHitboxMoved,
 }: {
   sessionId: string;
   candidate: SpriteCandidate;
@@ -164,13 +165,14 @@ function PlacementPreview({
   controlMode: ControlMode;
   hitbox?: Hitbox;
   showHitbox: boolean;
+  onHitboxMoved?: (hitbox: Hitbox) => void;
 }) {
   const sourceBox = candidate.spriteBox ?? placementBox;
   const baseCrop = candidate.cleanupBox ?? sourceBox;
   const viewport = overlaySceneCrop(candidate, baseCrop, sourceBox);
   const width = viewport[2] - viewport[0];
   const height = viewport[3] - viewport[1];
-  const target = hitbox ? candidateTarget(candidate, hitbox) : null;
+  const target = hitbox ? { x: hitbox.x, y: hitbox.y, r: hitbox.r } : null;
   const hitboxStyle = target ? {
     left: `${(target.x - target.r - viewport[0]) / width * 100}%`,
     top: `${(target.y - target.r - viewport[1]) / height * 100}%`,
@@ -211,8 +213,41 @@ function PlacementPreview({
         draggable={false}
         style={{ ...spriteStyle, transform: `scale(${candidate.flipX ? -1 : 1}, ${candidate.flipY ? -1 : 1})` }}
       />
-      {showHitbox && hitboxStyle && (
-        <span className="cutout-hitbox-circle" style={hitboxStyle} aria-hidden="true" />
+      {showHitbox && hitboxStyle && target && (
+        /* CL-13: the circle edits the hitbox truth directly on the card —
+           same canonical commit as the map, no mode switch. */
+        <span
+          className="cutout-hitbox-circle"
+          style={{ ...hitboxStyle, cursor: onHitboxMoved ? 'grab' : undefined, pointerEvents: onHitboxMoved ? 'auto' : 'none' }}
+          onPointerDown={onHitboxMoved ? (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            const surface = (event.currentTarget.parentElement as HTMLElement).getBoundingClientRect();
+            const start = { x: event.clientX, y: event.clientY };
+            const origin = { x: target.x, y: target.y };
+            const el = event.currentTarget;
+            el.setPointerCapture(event.pointerId);
+            const onMove = (move: PointerEvent) => {
+              const sceneDx = (move.clientX - start.x) / surface.width * width;
+              const sceneDy = (move.clientY - start.y) / surface.height * height;
+              el.style.left = `${(origin.x + sceneDx - target.r - viewport[0]) / width * 100}%`;
+              el.style.top = `${(origin.y + sceneDy - target.r - viewport[1]) / height * 100}%`;
+            };
+            const onUp = (up: PointerEvent) => {
+              el.removeEventListener('pointermove', onMove);
+              el.removeEventListener('pointerup', onUp);
+              const sceneDx = (up.clientX - start.x) / surface.width * width;
+              const sceneDy = (up.clientY - start.y) / surface.height * height;
+              onHitboxMoved({
+                ...(hitbox as Hitbox),
+                x: Math.round(origin.x + sceneDx),
+                y: Math.round(origin.y + sceneDy),
+              });
+            };
+            el.addEventListener('pointermove', onMove);
+            el.addEventListener('pointerup', onUp);
+          } : undefined}
+        />
       )}
       {controlMode === 'sprite' && (
         <span className="cutout-placement-bounds" style={spriteStyle} aria-hidden="true">
@@ -321,14 +356,41 @@ export default function CutoutReviewPanel({
   const [placementBoxes, setPlacementBoxes] = useState<Record<string, CropBox>>({});
   const [controlModes, setControlModes] = useState<Record<string, ControlMode>>({});
   const [savingPlacement, setSavingPlacement] = useState<string | null>(null);
-  const [savingConfirmation, setSavingConfirmation] = useState<string | null>(null);
   const refreshRunId = useRef(0);
   const dogsRef = useRef(dogs);
   const currentSessionRef = useRef(sessionId);
   const refreshAbortRef = useRef<AbortController | null>(null);
   const operationAbortsRef = useRef(new Map<string, AbortController>());
   const placementSaveRunIds = useRef(new Map<string, number>());
-  const confirmationRunIds = useRef(new Map<string, number>());
+  // CL-12: server-derived owned-paint crops — the read-only default. Manual
+  // padding editing survives ONLY when the diff gate flags the level.
+  const [derivedCrops, setDerivedCrops] = useState<Record<string, CropBox>>({});
+  const [cropsNeedReview, setCropsNeedReview] = useState(false);
+  // CL-12: derived crops are READ-ONLY unless the diff gate flagged the
+  // level (needsReview) — then the manual override box unlocks.
+  const paddingLocked = !cropsNeedReview && Object.keys(derivedCrops).length > 0;
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const response = await fetch(`/api/sessions/${encodeURIComponent(sessionId)}/derived-crops`);
+        if (!response.ok) { setDerivedCrops({}); setCropsNeedReview(true); return; }
+        const body = await response.json() as {
+          crops: Record<string, { x: number; y: number; width: number; height: number }>;
+          needsReview: boolean;
+        };
+        if (cancelled) return;
+        const boxes: Record<string, CropBox> = {};
+        for (const [birdId, c] of Object.entries(body.crops)) {
+          boxes[birdId] = [c.x, c.y, c.x + c.width, c.y + c.height];
+        }
+        setDerivedCrops(boxes);
+        setCropsNeedReview(body.needsReview);
+      } catch { setCropsNeedReview(true); }
+    })();
+    return () => { cancelled = true; };
+  }, [sessionId]);
+
   const dragRef = useRef<{ candidateId: string; mode: ControlMode; resizeHandle: ResizeHandle | null; startX: number; startY: number; box: CropBox } | null>(null);
   const draggedCandidateRef = useRef<string | null>(null);
   const placementSaveTimers = useRef(new Map<string, number>());
@@ -400,38 +462,6 @@ export default function CutoutReviewPanel({
     };
   }, [refresh, sessionId]);
 
-  const toggleHumanConfirmation = useCallback(async (candidate: SpriteCandidate) => {
-    const saveSessionId = sessionId;
-    const saveRunId = (confirmationRunIds.current.get(candidate.id) ?? 0) + 1;
-    confirmationRunIds.current.set(candidate.id, saveRunId);
-    const confirmed = !candidate.humanConfirmed;
-    setSavingConfirmation(candidate.id);
-    setError(null);
-    try {
-      const saved = await saveSpriteCandidateHumanConfirmation(
-        saveSessionId,
-        candidate.id,
-        confirmed,
-        contentRevisionRef.current,
-      );
-      if (currentSessionRef.current !== saveSessionId || confirmationRunIds.current.get(candidate.id) !== saveRunId) return;
-      setCandidates((current) => current.map((item) => (
-        item.id === candidate.id ? { ...item, humanConfirmed: confirmed } : item
-      )));
-      if (saved.contentRevision) {
-        contentRevisionRef.current = saved.contentRevision;
-        onRevisionChanged?.(saved.contentRevision, saved.operationalRevision);
-      }
-      onCutoutsChanged?.();
-    } catch (err) {
-      if (currentSessionRef.current !== saveSessionId || confirmationRunIds.current.get(candidate.id) !== saveRunId) return;
-      setError(err instanceof Error ? err.message : String(err));
-    } finally {
-      if (currentSessionRef.current === saveSessionId && confirmationRunIds.current.get(candidate.id) === saveRunId) {
-        setSavingConfirmation(null);
-      }
-    }
-  }, [onCutoutsChanged, onRevisionChanged, sessionId]);
 
   const savePlacement = useCallback(async (
     candidate: SpriteCandidate,
@@ -522,6 +552,9 @@ export default function CutoutReviewPanel({
   }, []);
 
   const setCropBox = useCallback((candidate: SpriteCandidate, hitbox: Hitbox, box: CropBox) => {
+    // CL-12: the ONE mutation chokepoint for the padding/crop box — derived
+    // crops are read-only unless the diff gate flagged the level.
+    if (paddingLocked) return;
     const next = clampCropBox(candidate, hitbox, box);
     setCropBoxes((prev) => ({ ...prev, [candidate.id]: next }));
     const spriteBox = placementBoxes[candidate.id] ?? candidate.spriteBox;
@@ -533,7 +566,7 @@ export default function CutoutReviewPanel({
       placementSaveTimers.current.delete(candidate.id);
       void savePlacement(candidate, spriteBox, undefined, undefined, next);
     }, 1000));
-  }, [onPlacementPendingChanged, placementBoxes, savePlacement]);
+  }, [onPlacementPendingChanged, placementBoxes, savePlacement, paddingLocked]);
 
   const setPlacementBox = useCallback((candidate: SpriteCandidate, _hitbox: Hitbox, box: CropBox) => {
     const width = candidate.sceneWidth ?? Number.MAX_SAFE_INTEGER;
@@ -575,7 +608,6 @@ export default function CutoutReviewPanel({
     placementSaveRunIds.current.clear();
     placementFlipRef.current.clear();
     placementSaveErrorRef.current = null;
-    confirmationRunIds.current.clear();
     for (const controller of operationAbortsRef.current.values()) controller.abort();
     operationAbortsRef.current.clear();
   }, [onPlacementPendingChanged, sessionId]);
@@ -597,7 +629,7 @@ export default function CutoutReviewPanel({
     try {
       await waitForPlacementSaves();
       const hitbox = candidateHitbox(candidate, hitboxes);
-      const cropBox = hitbox ? (cropBoxes[candidate.id] ?? defaultCropBox(candidate, hitbox)) : undefined;
+      const cropBox = hitbox ? (cropBoxes[candidate.id] ?? (candidate.birdId ? derivedCrops[candidate.birdId] : undefined) ?? defaultCropBox(candidate, hitbox)) : undefined;
       // Distinct nonce per click: forces a fresh generation even when the
       // crop box, prompt, and model are unchanged since the last run.
       const attemptNonce = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
@@ -672,7 +704,6 @@ export default function CutoutReviewPanel({
     }
   }, [cropBoxes, cutoutModel, hitboxes, onCutoutsChanged, onDogComplete, onPlacementPendingChanged, refresh, sessionId, sharedPrompt, waitForPlacementSaves]);
 
-  const busy = savingConfirmation !== null;
   const runningJobCount = Object.values(candidateJobs).filter((job) => job.phase === 'running').length;
 
   return (
@@ -725,12 +756,16 @@ export default function CutoutReviewPanel({
         <div className="cutout-review-empty">No pickup cutouts found.</div>
       )}
       <div className={`cutout-review-grid${expanded ? ' expanded' : ''}`}>
-        {candidates.map((candidate) => {
+        {/* CL-15: worst-first triage — highest regeneration probability leads,
+            so a 24-bird scroll becomes a 5-bird triage. Unscored sort last. */}
+        {[...candidates].sort((a, b) =>
+          (b.regenerationProbability ?? -1) - (a.regenerationProbability ?? -1)
+        ).map((candidate) => {
           const imageUrl = candidate.image
             ? `${dogVariantUrl(sessionId, candidate.image)}?v=${assetRevision}`
             : null;
           const hitbox = candidateHitbox(candidate, hitboxes);
-          const cropBox = hitbox ? (cropBoxes[candidate.id] ?? candidate.cleanupBox ?? defaultCropBox(candidate, hitbox)) : null;
+          const cropBox = hitbox ? (cropBoxes[candidate.id] ?? (candidate.birdId ? derivedCrops[candidate.birdId] : undefined) ?? candidate.cleanupBox ?? defaultCropBox(candidate, hitbox)) : null;
           const placementBox = candidate.spriteBox
             ? (placementBoxes[candidate.id] ?? candidate.spriteBox)
             : null;
@@ -757,15 +792,54 @@ export default function CutoutReviewPanel({
             <article key={candidate.id} className="cutout-review-card">
               <div className="cutout-review-card-top">
                 <strong>{candidateLabel(candidate)}</strong>
-                <button
-                  type="button"
-                  className={`hitl-confirmation ${candidate.humanConfirmed ? 'confirmed' : ''}`}
-                  aria-pressed={candidate.humanConfirmed ?? false}
-                  disabled={busy}
-                  onClick={() => void toggleHumanConfirmation(candidate)}
-                >
-                  {savingConfirmation === candidate.id ? 'Saving…' : candidate.humanConfirmed ? 'Human confirmed' : 'Confirm'}
-                </button>
+                {typeof candidate.regenerationProbability === 'number' && (
+                  <span
+                    title="Regeneration probability from sprite eval — higher = worse cutout"
+                    style={{
+                      fontSize: 11, fontWeight: 700, padding: '1px 7px', borderRadius: 9,
+                      background: candidate.regenerationProbability > 0.5 ? '#4a1d1d'
+                        : candidate.regenerationProbability > 0.25 ? '#4a3a1d' : '#1d3a24',
+                      color: candidate.regenerationProbability > 0.5 ? '#ff9c9c'
+                        : candidate.regenerationProbability > 0.25 ? '#ffd28f' : '#9bf0bf',
+                    }}
+                  >
+                    {Math.round(candidate.regenerationProbability * 100)}%
+                  </span>
+                )}
+                {candidate.birdId && (
+                  <button
+                    type="button"
+                    className="btn"
+                    style={{ fontSize: 11, padding: '2px 8px' }}
+                    title="CL-14: revert this bird to its previous extraction (bytes restored from the CAS)"
+                    onClick={async () => {
+                      try {
+                        const historyResponse = await fetch(`/api/sessions/${encodeURIComponent(sessionId)}/birds/${encodeURIComponent(candidate.birdId!)}/sprite-history`);
+                        const { history } = await historyResponse.json() as { history: { sha256: string; contentRevision: string }[] };
+                        if (history.length < 2) { setLastResult('No previous extraction to revert to.'); return; }
+                        if (!window.confirm('Revert to the previous extraction for this bird?')) return;
+                        const response = await fetch(`/api/sessions/${encodeURIComponent(sessionId)}/birds/${encodeURIComponent(candidate.birdId!)}/revert-sprite`, {
+                          method: 'POST', headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ toContentRevision: history[1]!.contentRevision,
+                                                 expectedContentRevision: contentRevisionRef.current,
+                                                 humanActor: 'human:editor' }),
+                        });
+                        if (!response.ok) { setError(`Revert failed (${response.status})`); return; }
+                        const body = await response.json() as { contentRevision?: string; operationalRevision?: string };
+                        if (body.contentRevision) onRevisionChangedRef.current?.(body.contentRevision, body.operationalRevision);
+                        setLastResult('Reverted to the previous extraction.');
+                        void refresh();
+                      } catch (err) {
+                        setError(err instanceof Error ? err.message : 'Revert failed');
+                      }
+                    }}
+                  >
+                    ↩ Revert
+                  </button>
+                )}
+                {/* CL-16: no per-bird confirmation — "Mark cutouts reviewed"
+                    is the ONLY operator-facing cutout assertion; per-sprite
+                    records are auto-stamped plumbing, invisible here. */}
               </div>
               <button
                 type="button"
@@ -774,7 +848,9 @@ export default function CutoutReviewPanel({
                 aria-label={`Place ${candidateLabel(candidate)}`}
                 title={controlMode === 'sprite'
                   ? 'Drag to place the sprite. Drag a green corner to scale it.'
-                  : 'Drag to move the padding box. Drag an amber corner to resize it. The sprite stays put.'}
+                  : cropsNeedReview
+                  ? 'Diff gate flagged this level — adjust the amber override box manually.'
+                  : 'Crop derives from the owned paint (read-only). Drag only if the derived box is wrong.'}
                 onClick={() => {
                   if (draggedCandidateRef.current === candidate.id) {
                     draggedCandidateRef.current = null;
@@ -847,7 +923,20 @@ export default function CutoutReviewPanel({
                 }}
               >
                 {cropBox && placementBox && imageUrl ? (
-                  <PlacementPreview sessionId={sessionId} candidate={candidate} cropBox={cropBox} placementBox={placementBox} imageUrl={imageUrl} controlMode={controlMode} hitbox={hitbox} showHitbox={showHitbox} />
+                  <PlacementPreview sessionId={sessionId} candidate={candidate} cropBox={cropBox} placementBox={placementBox} imageUrl={imageUrl} controlMode={controlMode} hitbox={hitbox} showHitbox={showHitbox}
+                    onHitboxMoved={async (moved) => {
+                      // CL-13: same canonical commit path as the map save.
+                      try {
+                        const revision = contentRevisionRef.current;
+                        const next = hitboxes.map((h) => (h.id === moved.id ? moved : h));
+                        const result = await saveHitboxes(sessionId, next, 'edit', revision) as
+                          { contentRevision?: string; operationalRevision?: string } | undefined;
+                        if (result?.contentRevision) onRevisionChangedRef.current?.(result.contentRevision, result.operationalRevision);
+                        setLastResult(`Hitbox ${moved.id?.slice(0, 8) ?? ''} moved to (${moved.x}, ${moved.y}).`);
+                      } catch (err) {
+                        setError(err instanceof Error ? err.message : 'Hitbox save failed');
+                      }
+                    }} />
                 ) : (
                   <span>overlay unavailable</span>
                 )}
@@ -883,10 +972,10 @@ export default function CutoutReviewPanel({
                     ))}
                     <div className="cutout-resize-grid">
                       {controlMode === 'padding' && <>
-                        <button type="button" disabled={jobRunning} onClick={() => movePaddingBox(-10, 0)}>Move left</button>
-                        <button type="button" disabled={jobRunning} onClick={() => movePaddingBox(10, 0)}>Move right</button>
-                        <button type="button" disabled={jobRunning} onClick={() => movePaddingBox(0, -10)}>Move up</button>
-                        <button type="button" disabled={jobRunning} onClick={() => movePaddingBox(0, 10)}>Move down</button>
+                        <button type="button" disabled={jobRunning || paddingLocked} onClick={() => movePaddingBox(-10, 0)}>Move left</button>
+                        <button type="button" disabled={jobRunning || paddingLocked} onClick={() => movePaddingBox(10, 0)}>Move right</button>
+                        <button type="button" disabled={jobRunning || paddingLocked} onClick={() => movePaddingBox(0, -10)}>Move up</button>
+                        <button type="button" disabled={jobRunning || paddingLocked} onClick={() => movePaddingBox(0, 10)}>Move down</button>
                       </>}
                       <button type="button" disabled={jobRunning} onClick={() => resizeActiveBox([5, 5, -5, -5])}>Smaller</button>
                       <button type="button" disabled={jobRunning} onClick={() => resizeActiveBox([-5, -5, 5, 5])}>Larger</button>
