@@ -45,3 +45,32 @@ def test_scrub_noop_when_nothing_changed():
     clean = _scene()
     result = scrub_scene(clean.copy(), clean, hitboxes=[{"x": 25, "y": 25, "r": 8}])
     assert result.stats["revertedPixels"] == 0 and result.stats["keptComponents"] == 0
+
+
+def test_job_worker_sets_attribution_for_every_handler(monkeypatch):
+    """BUG-5 root fix: attribution lives at chokepoints, not per-wrapper —
+    the worker sets it for EVERY job so no handler can forget."""
+    from types import SimpleNamespace
+    from levelbuilder.api.job_worker import JobWorker
+    from merceka_core import costs
+
+    seen = {}
+    def handler(job, store):
+        seen["ambient"] = costs._attribution_var.get()
+        return {"ok": True}
+    worker = JobWorker.__new__(JobWorker)
+    job = SimpleNamespace(id="j1", kind="probe", session_id="sess-1", metadata={})
+    worker.store = SimpleNamespace(
+        transition_job=lambda *a, **k: None,
+        append_event=lambda *a, **k: None,
+        update_heartbeat=lambda *a, **k: job,
+        get_job=lambda *a, **k: None,
+    )
+    worker.owner_id = "test-worker"
+    worker.handlers = {"probe": handler}
+    try:
+        JobWorker._execute_job(worker, job)
+    except Exception:
+        pass  # store stub may lack methods the tail needs; ambient is captured first
+    assert seen.get("ambient", {}).get("sessionId") == "sess-1"
+    assert seen["ambient"].get("operation") == "probe"

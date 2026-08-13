@@ -108,6 +108,30 @@ logger = logging.getLogger("levelbuilder.server")
 _AUTH_TOKEN = os.environ.get("FTD_BUILDER_TOKEN", "").strip()
 
 
+_SESSION_PATH_RE = re.compile(r"^/api/sessions/([A-Za-z0-9_\-\.]+)")
+
+
+class _CostAttributionMiddleware(BaseHTTPMiddleware):
+    """BUG-5 root fix (2026-08-14): every session-scoped request carries cost
+    attribution ambiently — provider calls made anywhere in the request
+    (cutouts, scoring, detection, upscale) tag their ledger rows without any
+    per-site wrapper. Job-lane work gets the same treatment at the worker
+    dispatch chokepoint."""
+
+    async def dispatch(self, request: Request, call_next):
+        match = _SESSION_PATH_RE.match(request.url.path)
+        if match is None:
+            return await call_next(request)
+        from merceka_core import costs as _mcosts
+
+        with _mcosts.attribution({
+            "app": "ftb-level-editor",
+            "sessionId": match.group(1),
+            "operation": f"{request.method} {request.url.path.split('/', 4)[-1][:60]}",
+        }):
+            return await call_next(request)
+
+
 class _TokenAuthMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
         if not _AUTH_TOKEN:
@@ -344,6 +368,7 @@ app.add_middleware(
 # unauthenticated callers on tunneled deployments.
 app.add_middleware(_SessionRevisionMiddleware)
 app.add_middleware(_TokenAuthMiddleware)
+app.add_middleware(_CostAttributionMiddleware)
 
 # Include route modules
 app.include_router(rest_router)

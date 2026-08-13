@@ -271,9 +271,20 @@ class JobWorker:
         if handler is None:
             self.store.requeue_job(job.id, reason=f"No handler registered for job kind {job.kind}", allow_stale_running=True)
             return
+        # BUG-5 root fix (2026-08-14): cost attribution is set HERE, at the
+        # dispatch chokepoint, for EVERY job — per-handler wrappers were
+        # forgettable and mostly forgotten (0 tagged ledger rows all day).
+        from merceka_core import costs as _mcosts
+
         try:
-            job = self.store.update_heartbeat(job.id, owner=self.owner_id)
-            result = handler(job, self.store)
+            with _mcosts.attribution({
+                "app": "ftb-level-editor",
+                "sessionId": job.session_id,
+                "jobId": job.id,
+                "operation": job.kind,
+            }):
+                job = self.store.update_heartbeat(job.id, owner=self.owner_id)
+                result = handler(job, self.store)
             latest = self.store.get_job(job.id)
             if latest is not None and not is_terminal_status(latest.status):
                 self.store.transition_job(job.id, status="succeeded", stage="succeeded", result=result or latest.result)
