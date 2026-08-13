@@ -6115,6 +6115,15 @@ def run_magenta_inpaint_durably(
     recovery then orphans it, never re-bills silently)."""
     import uuid as _uuid
 
+    # One active magenta run per session across BOTH lanes (mirrors A6):
+    # a second click while one runs is deliberate double spend.
+    for active in JOB_STORE.list_jobs_by_status(("queued", "running")):
+        if active.kind == "magenta_inpaint" and active.session_id == session_id:
+            raise HTTPException(409, detail={
+                "error": f"a magenta inpaint is already active for {session_id} ({active.id})",
+                "code": "magenta_job_active",
+                "activeJobId": active.id,
+            })
     idempotency_key = f"magenta-sse:{session_id}:{_uuid.uuid4().hex[:16]}"
     job = JOB_STORE.create_job(
         kind="magenta_inpaint",

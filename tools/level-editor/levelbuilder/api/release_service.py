@@ -120,7 +120,13 @@ class ReleaseService:
             )
         revision = self._next_revision()
         manifest = {
-            "version": 2,
+            # V1-compatible bridge: today's shipped runtime accepts only
+            # version==1 + manifestRevision (assets.ts validManifest); the V2
+            # fields ride ADDITIVELY and O1's monotonicity guard keys off
+            # manifestRevision. The version flips to 2 at the O7 runtime
+            # cutover — until then one artifact serves both readers.
+            "version": 1,
+            "manifestRevision": revision,
             "releaseRevision": revision,
             "generatedAt": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
             "levels": list(request["entries"]),

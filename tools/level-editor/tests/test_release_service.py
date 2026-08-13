@@ -58,7 +58,8 @@ def test_release_orders_assets_before_manifest_and_installs_after_readback(tmp_p
     local = json.loads((tmp_path / "public" / "levels" / "manifest.json").read_text())
     remote_manifest = json.loads(remote.store["manifest.json"])
     assert local == remote_manifest                        # byte-identical artifact
-    assert local["version"] == 2
+    assert local["version"] == 1  # V1-compat bridge until the O7 runtime cutover
+    assert local["manifestRevision"] == local["releaseRevision"]
     assert local["releaseRevision"] == 1
     assert local["artifactDigest"] == result["artifactDigest"]
     assert [level["id"] for level in local["levels"]] == ["level_a", "level_b"]

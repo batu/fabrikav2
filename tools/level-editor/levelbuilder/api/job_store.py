@@ -537,6 +537,7 @@ class JobStore:
                 f"""
                 SELECT * FROM jobs
                 WHERE status = 'queued'
+                AND json_extract(metadata_json, '$.lane') IS NOT 'sse'
                 {kind_filter}
                 ORDER BY created_at ASC
                 LIMIT 1

@@ -72,7 +72,7 @@ def derive_ownership(mask: np.ndarray, birds: list[dict[str, Any]]) -> Ownership
         centers = np.array([[b["hitbox"]["y"], b["hitbox"]["x"]] for b in birds], dtype=np.float32)
         # Chunked (P, B) distances: bounded memory at 2688² × 20 birds
         # (CR-t3 P1). argmin picks the first (stable) bird on ties.
-        CHUNK = 1 << 20
+        CHUNK = max(1 << 14, (1 << 20) // max(1, len(birds)))  # bounded: ~8MB per array
         for start in range(0, len(ys), CHUNK):
             cy = ys[start:start + CHUNK].astype(np.float32)
             cx = xs[start:start + CHUNK].astype(np.float32)

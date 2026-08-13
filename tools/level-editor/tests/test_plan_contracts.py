@@ -276,3 +276,19 @@ def test_sse_magenta_run_leaves_a_durable_job_record(isolated_session, monkeypat
             if j.kind == "magenta_inpaint" and j.session_id == "magenta_durable"]
     assert jobs, "no durable record for the SSE magenta run"
     assert jobs[0].metadata.get("providerSubmissionStarted") is True
+
+
+def test_sse_lane_jobs_are_never_worker_claimable(tmp_path):
+    """Merge-review F2: the worker must not claim an sse-lane job — the SSE
+    thread owns its execution; double-claim is double-billing."""
+    from levelbuilder.api.job_store import JobStore
+
+    store = JobStore(tmp_path / "jobs.sqlite3")
+    sse = store.create_job(kind="magenta_inpaint", session_id="s",
+                           idempotency_key="sse-1", metadata={"lane": "sse"})
+    normal = store.create_job(kind="magenta_inpaint", session_id="s",
+                              idempotency_key="norm-1")
+    claimed = store.claim_next_queued_job(owner="w1", kinds=("magenta_inpaint",))
+    assert claimed is not None and claimed.id == normal.id
+    assert store.claim_next_queued_job(owner="w1", kinds=("magenta_inpaint",)) is None
+    assert store.get_job(sse.id).status == "queued"

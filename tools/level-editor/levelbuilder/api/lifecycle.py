@@ -18,7 +18,10 @@ def derive_lifecycle_state(flags: dict[str, Any]) -> str:
     if flags.get("archived") is True:
         return "archived"
     approved = bool(flags.get("hitboxesBlessed")) and bool(flags.get("cutoutsFinalBlessed"))
-    if approved and flags.get("catalogUploaded") and flags.get("catalogListable"):
+    # Publication is a FACT (the level is live in the catalog), not a
+    # readiness judgment — a published level with stale reviews stays
+    # "published" and the gap surfaces in lifecycle_violations.
+    if flags.get("catalogUploaded") and flags.get("catalogListable"):
         return "published"
     if approved and flags.get("inLineup"):
         return "lineup"

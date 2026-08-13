@@ -366,6 +366,9 @@ export default function CutoutReviewPanel({
   // padding editing survives ONLY when the diff gate flags the level.
   const [derivedCrops, setDerivedCrops] = useState<Record<string, CropBox>>({});
   const [cropsNeedReview, setCropsNeedReview] = useState(false);
+  // CL-12: derived crops are READ-ONLY unless the diff gate flagged the
+  // level (needsReview) — then the manual override box unlocks.
+  const paddingLocked = !cropsNeedReview && Object.keys(derivedCrops).length > 0;
   useEffect(() => {
     let cancelled = false;
     (async () => {
@@ -549,6 +552,9 @@ export default function CutoutReviewPanel({
   }, []);
 
   const setCropBox = useCallback((candidate: SpriteCandidate, hitbox: Hitbox, box: CropBox) => {
+    // CL-12: the ONE mutation chokepoint for the padding/crop box — derived
+    // crops are read-only unless the diff gate flagged the level.
+    if (paddingLocked) return;
     const next = clampCropBox(candidate, hitbox, box);
     setCropBoxes((prev) => ({ ...prev, [candidate.id]: next }));
     const spriteBox = placementBoxes[candidate.id] ?? candidate.spriteBox;
@@ -560,7 +566,7 @@ export default function CutoutReviewPanel({
       placementSaveTimers.current.delete(candidate.id);
       void savePlacement(candidate, spriteBox, undefined, undefined, next);
     }, 1000));
-  }, [onPlacementPendingChanged, placementBoxes, savePlacement]);
+  }, [onPlacementPendingChanged, placementBoxes, savePlacement, paddingLocked]);
 
   const setPlacementBox = useCallback((candidate: SpriteCandidate, _hitbox: Hitbox, box: CropBox) => {
     const width = candidate.sceneWidth ?? Number.MAX_SAFE_INTEGER;
@@ -966,10 +972,10 @@ export default function CutoutReviewPanel({
                     ))}
                     <div className="cutout-resize-grid">
                       {controlMode === 'padding' && <>
-                        <button type="button" disabled={jobRunning} onClick={() => movePaddingBox(-10, 0)}>Move left</button>
-                        <button type="button" disabled={jobRunning} onClick={() => movePaddingBox(10, 0)}>Move right</button>
-                        <button type="button" disabled={jobRunning} onClick={() => movePaddingBox(0, -10)}>Move up</button>
-                        <button type="button" disabled={jobRunning} onClick={() => movePaddingBox(0, 10)}>Move down</button>
+                        <button type="button" disabled={jobRunning || paddingLocked} onClick={() => movePaddingBox(-10, 0)}>Move left</button>
+                        <button type="button" disabled={jobRunning || paddingLocked} onClick={() => movePaddingBox(10, 0)}>Move right</button>
+                        <button type="button" disabled={jobRunning || paddingLocked} onClick={() => movePaddingBox(0, -10)}>Move up</button>
+                        <button type="button" disabled={jobRunning || paddingLocked} onClick={() => movePaddingBox(0, 10)}>Move down</button>
                       </>}
                       <button type="button" disabled={jobRunning} onClick={() => resizeActiveBox([5, 5, -5, -5])}>Smaller</button>
                       <button type="button" disabled={jobRunning} onClick={() => resizeActiveBox([-5, -5, 5, 5])}>Larger</button>
