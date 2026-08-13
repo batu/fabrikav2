@@ -2083,45 +2083,68 @@ def promote_materialized_sprites_canonically(
         return None
     committed, skipped = 0, 0
     failures: list[dict] = []
+    # BUG-15: dogs/dog_NN is the cutter's INDEX namespace but also the
+    # projection's SLOT namespace, and each promotion immediately projects
+    # into a slot folder — which may be a LATER position's index folder
+    # (france 2026-08-13: promoting slot dog_15 clobbered position 15, so
+    # bird dog_30 adopted bird dog_15's pixels). Stage every position's
+    # sprite bytes + metadata BEFORE the first promotion can project.
+    staging_root = session_dir(session_id) / ".canonical" / "staging"
+    staged: dict[int, tuple[Path, dict]] = {}
+    for entry in materialized:
+        index = entry.get("index")
+        if not isinstance(index, int):
+            continue
+        meta_path = dogs_dir(session_id) / f"dog_{index:02d}" / "sprite_000.json"
+        sprite_path = meta_path.with_suffix(".png")
+        # The placement fit must ALSO happen pre-staging (it rewrites the
+        # index folder's metadata) — same human-confirmed guard as below.
+        snapshot_now = read_canonical_session(session_id).snapshot or {}
+        reviews_now = ((snapshot_now.get("operational") or {}).get("candidateReviews") or {})
+        bird_id = (hitboxes[index].get("id") if 0 <= index < len(hitboxes) else None)
+        human_confirmed = bool((reviews_now.get(bird_id) or {}).get("confirmed")) if isinstance(bird_id, str) else False
+        if not human_confirmed and sprite_path.is_file():
+            try:
+                from levelbuilder.api import inpaint as _inpaint
+
+                _inpaint._auto_place_cutout_best_safe(session_id, index, 0)
+            except Exception:
+                pass
+        try:
+            metadata = json.loads(meta_path.read_text())
+        except (OSError, ValueError) as error:
+            failures.append({"index": index, "birdId": str(bird_id), "error": f"sprite metadata unreadable: {error}"[:200]})
+            continue
+        if not sprite_path.is_file():
+            failures.append({"index": index, "birdId": str(bird_id), "error": "sprite file missing"})
+            continue
+        staging_root.mkdir(parents=True, exist_ok=True)
+        staged_sprite = staging_root / f"bulk-sprite-{index:02d}.png"
+        shutil.copy2(sprite_path, staged_sprite)
+        staged[index] = (staged_sprite, metadata)
     for entry in materialized:
         index = entry.get("index")
         if not isinstance(index, int):
             skipped += 1
             continue
         bird_id = (hitboxes[index].get("id") if 0 <= index < len(hitboxes) else None)
-        meta_path = dogs_dir(session_id) / f"dog_{index:02d}" / "sprite_000.json"
-        sprite_path = meta_path.with_suffix(".png")
+        if index not in staged:
+            skipped += 1
+            continue
+        sprite_path, metadata = staged[index]
         try:
-            # Obligation edge "extract -> sprite placement + anchor recompute"
-            # (plan §Obligation edges): fit the sprite to its painted subject
-            # BEFORE canonical adoption, so every materialize — CLI or UI —
-            # ships matcher-fitted geometry structurally. Human-confirmed
-            # candidates keep their geometry (same rule as the route).
-            snapshot_now = read_canonical_session(session_id).snapshot or {}
-            reviews_now = ((snapshot_now.get("operational") or {}).get("candidateReviews") or {})
-            human_confirmed = bool((reviews_now.get(bird_id) or {}).get("confirmed")) if isinstance(bird_id, str) else False
-            if not human_confirmed and sprite_path.is_file():
-                try:
-                    from levelbuilder.api import inpaint as _inpaint
-
-                    _inpaint._auto_place_cutout_best_safe(session_id, index, 0)
-                except Exception:
-                    pass  # unsafe/failed fits keep generated geometry; adoption proceeds
             # Idempotency: a cutter-skipped entry still needs promotion when
             # the canonical bird has never adopted this sprite OR its fitted
             # geometry (the split states BUG-13 named); skip only when digest
             # AND placement both match.
-            if isinstance(bird_id, str) and sprite_path.is_file():
+            if isinstance(bird_id, str):
+                snapshot_now = read_canonical_session(session_id).snapshot or {}
                 bird_now = next((b for b in snapshot_now.get("birds", [])
                                  if b.get("birdId") == bird_id), None)
                 sprite_now = (bird_now or {}).get("sprite") or {}
                 current_sha = (sprite_now.get("asset") or {}).get("sha256")
                 placement_now = sprite_now.get("placement") or {}
-                try:
-                    meta_now = json.loads(meta_path.read_text())
-                except (OSError, ValueError):
-                    meta_now = {}
-                box_now = meta_now.get("spriteBox")
+                box_now = metadata.get("spriteBox")
                 placement_matches = (
                     isinstance(box_now, list) and len(box_now) == 4
                     and placement_now.get("x") == int(box_now[0])
@@ -2134,7 +2157,6 @@ def promote_materialized_sprites_canonically(
                     continue
             if not isinstance(bird_id, str):
                 raise ValueError(f"hitbox {index} carries no bird id")
-            metadata = json.loads(meta_path.read_text())
             sprite_box = metadata.get("spriteBox")
             if not (isinstance(sprite_box, list) and len(sprite_box) == 4):
                 raise ValueError("sprite metadata has no spriteBox")
