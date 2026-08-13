@@ -1561,11 +1561,11 @@ def save_hitbox_review(session_id: str, req: SaveGoldenReviewRequest):
                     "stale": False,
                     "contentRevision": canonical.content_revision,
                 },
-                "finalCutoutReadiness": {
-                    "ready": True,
-                    "activeBirds": len((S.read_canonical_session(session_id).snapshot or {}).get("birds", [])),
-                    "missingCutouts": 0,
-                },
+                # Hunt-C #2 (confirmed live 2026-08-13): this was hardcoded
+                # ready:True/missing:0, so the cutouts button flickered
+                # enabled until the real readiness fetch corrected it. Derive
+                # the truth like every other surface.
+                "finalCutoutReadiness": S.get_final_cutout_review_readiness(session_id),
             }
         with S._session_lock:
             review = S.set_hitbox_review(session_id, req.approved)
