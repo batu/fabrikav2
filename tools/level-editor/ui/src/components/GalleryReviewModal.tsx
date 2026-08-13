@@ -951,6 +951,14 @@ export default function GalleryReviewModal({
                           contentRevision: (response as { contentRevision?: string }).contentRevision,
                           operationalRevision: (response as { operationalRevision?: string }).operationalRevision,
                         });
+                        // A wholesale re-place invalidates reviews server-side;
+                        // the card must not keep showing a ghost green check
+                        // (live: "Bless the current hitboxes first" while the
+                        // UI showed blessed, 2026-08-13).
+                        onReviewChanged(card.session.id, {
+                          hitboxesBlessed: false, hitboxesBlessingStale: true,
+                          cutoutsFinalBlessed: false, cutoutsFinalBlessingStale: true,
+                        });
                       }
                     } catch { /* request() toasts */ }
                   }}
