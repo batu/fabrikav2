@@ -339,6 +339,30 @@ export default function GalleryReviewModal({
     });
   }, [getCachedSession]);
 
+  /** THE server-state adoption point (bug-hunt wave 2026-08-13): every
+   * successful mutation and every conflict reconciliation flows through here
+   * so the reducer and the session cache can never diverge on revision or
+   * geometry. Ad-hoc cache/reducer writes are the disease. */
+  const adoptServerState = useCallback((sessionId: string, adopted: {
+    hitboxes?: Hitbox[]; contentRevision?: string; operationalRevision?: string;
+  }): void => {
+    const cached = sessionCacheRef.current.get(sessionId);
+    if (cached) {
+      sessionCacheRef.current.set(sessionId, {
+        ...cached,
+        ...(adopted.hitboxes ? { hitboxes: adopted.hitboxes } : {}),
+        ...(adopted.contentRevision ? { contentRevision: adopted.contentRevision } : {}),
+        ...(adopted.operationalRevision ? { operationalRevision: adopted.operationalRevision } : {}),
+      });
+    }
+    if (adopted.contentRevision) {
+      dispatchNarrow({ type: 'SET_REVISIONS', contentRevision: adopted.contentRevision, operationalRevision: adopted.operationalRevision });
+    }
+    if (adopted.hitboxes) {
+      dispatchNarrow({ type: 'SET_HITBOXES', hitboxes: adopted.hitboxes });
+    }
+  }, []);
+
   const updateCachedHitboxes = useCallback((sessionId: string, hitboxes: Hitbox[]): void => {
     const cached = sessionCacheRef.current.get(sessionId);
     if (!cached) return;
@@ -365,31 +389,24 @@ export default function GalleryReviewModal({
           serverHitboxes?: Hitbox[];
           actualContentRevision?: string;
         };
-        if (Array.isArray(detail.serverHitboxes) && cached) {
-          sessionCacheRef.current.set(sessionId, {
-            ...cached,
+        if (Array.isArray(detail.serverHitboxes)) {
+          adoptServerState(sessionId, {
             hitboxes: detail.serverHitboxes,
-            contentRevision: detail.actualContentRevision ?? cached.contentRevision,
-          });
-          dispatchNarrow({
-            type: 'SET_REVISIONS',
             contentRevision: detail.actualContentRevision,
           });
         }
       }
       throw error;
     }
-    const persisted = (result as { hitboxes?: Hitbox[] } | undefined)?.hitboxes ?? hitboxes;
-    updateCachedHitboxes(sessionId, persisted);
+    const serverHitboxes = (result as { hitboxes?: Hitbox[] } | undefined)?.hitboxes;
+    // A6 (hunt A): an absent server body is NOT proof the local array
+    // persisted — adopt only what the server actually returned.
     if (result) {
-      dispatchNarrow({
-        type: 'SET_REVISIONS',
+      adoptServerState(sessionId, {
+        hitboxes: serverHitboxes,
         contentRevision: result.contentRevision,
         operationalRevision: result.operationalRevision,
       });
-      // Adopt server identities: a client-added hitbox gets its birdId here,
-      // so the NEXT save carries ids instead of being refused as positional.
-      dispatchNarrow({ type: 'SET_HITBOXES', hitboxes: persisted });
       const updated = sessionCacheRef.current.get(sessionId);
       if (updated) {
         sessionCacheRef.current.set(sessionId, {
@@ -831,6 +848,7 @@ export default function GalleryReviewModal({
                   onRevisionChanged={(contentRevision, operationalRevision) => dispatchNarrow({
                     type: 'SET_REVISIONS', contentRevision, operationalRevision,
                   })}
+                  onServerHitboxes={(serverHitboxes) => state.sessionId && adoptServerState(state.sessionId, { hitboxes: serverHitboxes })}
                   onDogComplete={handleDogComplete}
                   onCutoutsChanged={invalidateCutoutReview}
                   onPlacementPendingChanged={setCutoutPlacementPending}
@@ -893,9 +911,7 @@ export default function GalleryReviewModal({
                           : { operation: 'scale' as const, factor: op === 'grow' ? 1.1 : 1 / 1.1,
                               expectedContentRevision: revision, humanActor: 'human:editor' };
                         const result = await runGeometryOperation(card.session.id, body);
-                        dispatchNarrow({ type: 'SET_REVISIONS', contentRevision: result.contentRevision, operationalRevision: result.operationalRevision });
-                        dispatchNarrow({ type: 'SET_HITBOXES', hitboxes: result.hitboxes });
-                        updateCachedHitboxes(card.session.id, result.hitboxes);
+                        adoptServerState(card.session.id, result);
                         onReviewChanged(card.session.id, {
                           hitboxesBlessed: false, hitboxesBlessingStale: true,
                           cutoutsFinalBlessed: false, cutoutsFinalBlessingStale: true,

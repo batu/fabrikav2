@@ -34,6 +34,7 @@ interface Props {
   dogs: DogState[];
   contentRevision?: string;
   onRevisionChanged?: (contentRevision?: string, operationalRevision?: string) => void;
+  onServerHitboxes?: (hitboxes: Hitbox[]) => void;
   onDogComplete: (dogIndex: number, file: string, variantIndex: number) => void;
   onCutoutsChanged?: () => void;
   onPlacementPendingChanged?: (pending: boolean) => void;
@@ -333,6 +334,7 @@ export default function CutoutReviewPanel({
   dogs,
   contentRevision,
   onRevisionChanged,
+  onServerHitboxes,
   onDogComplete,
   onCutoutsChanged,
   onPlacementPendingChanged,
@@ -530,6 +532,20 @@ export default function CutoutReviewPanel({
     } catch (err) {
       placementSaveErrorRef.current = err instanceof Error ? err : new Error(String(err));
       if (currentSessionRef.current !== saveSessionId || placementSaveRunIds.current.get(candidate.id) !== saveRunId) return;
+      // Hunt-A P0-4: a rejected placement must not stay rendered — revert the
+      // boxes to the last server-known geometry and clear any stale
+      // "placement saved" from an earlier request (P1-7).
+      setPlacementBoxes((current) => {
+        const next = { ...current };
+        if (candidate.spriteBox) next[candidate.id] = candidate.spriteBox; else delete next[candidate.id];
+        return next;
+      });
+      setCropBoxes((current) => {
+        const next = { ...current };
+        if (candidate.cleanupBox) next[candidate.id] = candidate.cleanupBox; else delete next[candidate.id];
+        return next;
+      });
+      setLastResult(null);
       setError(err instanceof Error ? err.message : String(err));
     } finally {
       releaseSaveQueue();
@@ -930,11 +946,17 @@ export default function CutoutReviewPanel({
                         const revision = contentRevisionRef.current;
                         const next = hitboxes.map((h) => (h.id === moved.id ? moved : h));
                         const result = await saveHitboxes(sessionId, next, 'edit', revision) as
-                          { contentRevision?: string; operationalRevision?: string } | undefined;
+                          { contentRevision?: string; operationalRevision?: string; hitboxes?: Hitbox[] } | undefined;
                         if (result?.contentRevision) onRevisionChangedRef.current?.(result.contentRevision, result.operationalRevision);
-                        setLastResult(`Hitbox ${moved.id?.slice(0, 8) ?? ''} moved to (${moved.x}, ${moved.y}).`);
+                        // Hunt-A #8: report the SERVER's persisted geometry,
+                        // and hand it upward so the parent state re-keys.
+                        const persisted = result?.hitboxes?.find((h) => h.id === moved.id);
+                        if (result?.hitboxes) onServerHitboxes?.(result.hitboxes);
+                        setLastResult(persisted
+                          ? `Hitbox ${persisted.id?.slice(0, 8) ?? ''} saved at (${persisted.x}, ${persisted.y}).`
+                          : 'Hitbox save returned no read-back — refresh before further edits.');
                       } catch (err) {
-                        setError(err instanceof Error ? err.message : 'Hitbox save failed');
+                        setError(err instanceof Error ? err.message : 'Hitbox save failed — the circle may be showing unsaved geometry.');
                       }
                     }} />
                 ) : (

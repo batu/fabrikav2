@@ -59,11 +59,21 @@ export default function DogsCanvas({ sessionId }: Props) {
   const persistHitboxes = useCallback(async (hitboxes: Hitbox[]): Promise<void> => {
     if (!sessionId) return;
     const current = queryClient.getQueryData<SessionResponse>(sessionQueryKey(sessionId));
-    const result = await saveHitboxes(sessionId, hitboxes, 'edit', current?.contentRevision);
+    let result;
+    try {
+      result = await saveHitboxes(sessionId, hitboxes, 'edit', current?.contentRevision);
+    } catch (error) {
+      // Hunt-A P0-1: a rejected save must not leave optimistic geometry
+      // rendered as truth — refetch so the canvas reverts to persisted state.
+      void queryClient.invalidateQueries({ queryKey: sessionQueryKey(sessionId) });
+      throw error;
+    }
     if (!result) return;
+    const serverHitboxes = (result as { hitboxes?: Hitbox[] }).hitboxes;
     queryClient.setQueryData<SessionResponse>(sessionQueryKey(sessionId), (latest) => (
       latest ? {
         ...latest,
+        ...(serverHitboxes ? { hitboxes: serverHitboxes } : {}),
         contentRevision: result.contentRevision,
         operationalRevision: result.operationalRevision,
       } : latest
@@ -93,7 +103,12 @@ export default function DogsCanvas({ sessionId }: Props) {
   // (flushSave) and an already-dispatched in-flight POST (ledger 054 #6, #7).
   // Never rejects (in-flight is pre-swallowed; flush errors toast in request()).
   const settleSaves = useCallback(
-    (): Promise<unknown> => Promise.allSettled([inflightSaveRef.current, flushSave()]),
+    async (): Promise<boolean> => {
+      const results = await Promise.allSettled([inflightSaveRef.current, flushSave()]);
+      // Hunt-A P0-2: report whether every save actually LANDED — paid work
+      // must never proceed on coordinates the server rejected.
+      return results.every((r) => r.status === 'fulfilled');
+    },
     [flushSave],
   );
 
@@ -284,7 +299,12 @@ export default function DogsCanvas({ sessionId }: Props) {
     // firing them concurrently let the server crop at the pre-drag coordinates
     // (fresh-review P2 — ledger 054 #7). settleSaves never rejects.
     void settleSaves()
-      .then(() => regenDogById(sessionId, dogId, prompt))
+      .then((landed) => {
+        if (!landed) {
+          throw new Error('Placement save failed — fix the save before paid regeneration.');
+        }
+        return regenDogById(sessionId, dogId, prompt);
+      })
       .finally(() => {
         setRegeneratingDogIds((prev) => {
           const next = new Set(prev);

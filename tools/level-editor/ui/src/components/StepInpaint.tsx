@@ -354,13 +354,19 @@ export default function StepInpaint({
     });
     void saveHitboxes(sessionId, nextHitboxes, 'inpaint-adjust', current.contentRevision).then((result) => {
       if (!result) return;
+      const serverHitboxes = (result as { hitboxes?: typeof nextHitboxes }).hitboxes;
       queryClient.setQueryData<SessionResponse>(sessionQueryKey(sessionId), (latest) => (
         latest ? {
           ...latest,
+          ...(serverHitboxes ? { hitboxes: serverHitboxes } : {}),
           contentRevision: result.contentRevision,
           operationalRevision: result.operationalRevision,
         } : latest
       ));
+    }).catch(() => {
+      // Hunt-A P0-3: rejected geometry must not stay rendered — refetch
+      // server truth so the canvas reverts (request() already toasts).
+      void queryClient.invalidateQueries({ queryKey: sessionQueryKey(sessionId) });
     });
   }, [queryClient, sessionId]);
 

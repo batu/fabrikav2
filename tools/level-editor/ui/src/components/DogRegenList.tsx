@@ -237,14 +237,17 @@ export default function DogRegenList({
   );
 
   const handleVariantSelect = useCallback(async (dogIndex: number, variantIndex: number | null) => {
+    const previous = visibleDogs.find((d) => d.index === dogIndex)?.activeVariant ?? null;
     onActiveVariantChange(dogIndex, variantIndex);
     try {
       await apiSetActiveVariant(sessionId, dogIndex, variantIndex);
       setBgVersion((v) => v + 1);
     } catch {
-      // Best-effort; the reducer already moved the cursor.
+      // Hunt-A P0-5: a rejected selection must not stay highlighted as the
+      // active variant — roll the cursor back (request() already toasts).
+      onActiveVariantChange(dogIndex, previous);
     }
-  }, [onActiveVariantChange, sessionId]);
+  }, [onActiveVariantChange, sessionId, visibleDogs]);
 
   if (visibleDogs.length === 0) return null;
 
