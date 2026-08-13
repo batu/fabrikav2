@@ -3760,15 +3760,24 @@ def _run_magenta_inpaint_job(job: JobRecord, store: JobStore) -> dict[str, Any]:
     metadata = job.metadata or {}
     dog_prompt = metadata.get("dogPrompt") or raw.get("dog_prompt") or ""
     model = metadata.get("model") or raw.get("inpaint_model") or raw.get("model")
-    summary = run_magenta_inpaint(
-        session_id,
-        hitbox_list=hitbox_list,
-        dog_prompt=dog_prompt,
-        model=model,
-        magenta_override=str(metadata.get("magentaOverride") or ""),
-    )
-    # First live stress run (2026-08-13) proved this lane skipped the paint
-    # obligations the SSE lane ran — one stage, every lane.
+    bg_index = metadata.get("selectedBg")
+    from merceka_core import costs as _mcosts
+
+    # T2 (one-path plan): this handler is THE paint executor for every lane
+    # — SSE only differs in transport. Attribution lives here so every lane's
+    # spend carries the session (the CLI lane used to write untagged rows).
+    with _mcosts.attribution({
+        "app": "ftb-level-editor", "sessionId": session_id,
+        "operation": "magenta_inpaint", "jobId": job.id,
+    }):
+        summary = run_magenta_inpaint(
+            session_id,
+            hitbox_list=hitbox_list,
+            dog_prompt=dog_prompt,
+            model=model,
+            magenta_override=str(metadata.get("magentaOverride") or ""),
+            bg_index=bg_index,
+        )
     return _discharge_paint_obligations(session_id, summary)
 
 
@@ -6239,34 +6248,19 @@ def run_magenta_inpaint_durably(
         },
     )
     JOB_STORE.transition_job(job.id, status="running", stage="painting")
-    JOB_STORE.update_metadata(job.id, {"providerSubmissionStarted": True})
-    from merceka_core import costs as _mcosts
-
+    JOB_STORE.update_metadata(job.id, {"providerSubmissionStarted": True, "magentaOverride": magenta_override or ""})
+    # T2 (one-path plan): delegate to the ONE executor. This wrapper differs
+    # from the CLI lane only in transport (in-request streaming vs poll);
+    # carrying its own copy of the core call is how the obligation stage got
+    # skipped in the job lane on first live run.
     try:
-        with _mcosts.attribution({
-            "app": "ftb-level-editor", "sessionId": session_id,
-            "operation": "magenta_inpaint", "jobId": job.id,
-        }):
-            summary = run_magenta_inpaint(
-                session_id,
-                hitbox_list=hitbox_list,
-                dog_prompt=dog_prompt,
-                model=model,
-                magenta_override=magenta_override,
-                bg_index=bg_index,
-            )
+        summary = _run_magenta_inpaint_job(job, JOB_STORE)
     except Exception as error:
         JOB_STORE.transition_job(
             job.id, status="failed", stage="painting",
             error_code="magenta_failed", error_message=str(error)[:500],
         )
         raise
-    # Structural obligation stage (plan §Obligation edges): paint has not
-    # COMMITTED until hitboxes are re-localized against it. Runs inside the
-    # same durable job; a crash here leaves the job short of success and the
-    # pending marker visible.
-    JOB_STORE.transition_job(job.id, status="running", stage="relocalizing-hitboxes")
-    _discharge_paint_obligations(session_id, summary)
     JOB_STORE.transition_job(job.id, status="succeeded", stage="done",
                              result={"summaryKeys": sorted(summary)[:20]})
     return summary

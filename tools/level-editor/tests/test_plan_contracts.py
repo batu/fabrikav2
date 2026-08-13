@@ -263,6 +263,12 @@ def test_sse_magenta_run_leaves_a_durable_job_record(isolated_session, monkeypat
         return {"ok": True, "session": session_id}
 
     monkeypatch.setattr(I, "run_magenta_inpaint", fake_core)
+    # T2: the ONE executor reads hitboxes from the session's own files
+    # (request lists are echoes, not truth) — persist them like a real save.
+    from levelbuilder.api import session as S
+    import json as _json
+    (S.session_dir("magenta_durable") / "hitboxes.json").write_text(
+        _json.dumps([{"x": 1, "y": 1, "r": 5}]))
     summary = I.run_magenta_inpaint_durably(
         "magenta_durable",
         hitbox_list=[{"x": 1, "y": 1, "r": 5}],

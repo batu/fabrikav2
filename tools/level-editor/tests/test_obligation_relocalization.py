@@ -138,8 +138,30 @@ def test_job_lane_magenta_also_discharges_obligations(monkeypatch):
     tmp = pathlib.Path(tempfile.mkdtemp())
     (tmp / "hitboxes.json").write_text(_json.dumps([{"x": 1, "y": 2, "r": 3}]))
     monkeypatch.setattr(S, "session_dir", lambda sid: tmp)
-    job = SimpleNamespace(session_id="sid_x", metadata={})
+    job = SimpleNamespace(id="job-x", session_id="sid_x", metadata={})
     summary = I._run_magenta_inpaint_job(job, store=None)
     assert calls[0] == "paint"
     assert {"localize", "adopt", "stamp"} <= set(calls), calls
     assert summary.get("relocalization") is not None or summary.get("relocalizationFailed") is None
+
+
+def test_sse_lane_delegates_to_the_job_handler(monkeypatch):
+    """T2 (one-path plan): the job handler is THE paint executor; the SSE
+    wrapper only books the job and streams — it must not carry its own copy
+    of the core call (that copy is how the obligation stage got skipped)."""
+    from types import SimpleNamespace
+    from levelbuilder.api import inpaint as I
+
+    executed = []
+    monkeypatch.setattr(I, "_run_magenta_inpaint_job",
+                        lambda job, store: executed.append(job.id) or {"ok": True})
+    class Store:
+        def list_jobs_by_status(self, statuses): return []
+        def create_job(self, **kw): return SimpleNamespace(id="job-1", metadata=kw.get("metadata") or {})
+        def transition_job(self, jid, **kw): return None
+        def update_metadata(self, jid, meta): return None
+    monkeypatch.setattr(I, "JOB_STORE", Store())
+    summary = I.run_magenta_inpaint_durably(
+        "sid", hitbox_list=[{"x": 1, "y": 2, "r": 3}], dog_prompt="p", model="m")
+    assert executed == ["job-1"]
+    assert summary == {"ok": True}
