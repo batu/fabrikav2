@@ -714,7 +714,8 @@ export default function GalleryReviewModal({
       // Full clean background: what a pixel-perfect pipeline reveals after
       // every bird. Makes drift/warp between paint and restore obvious.
       const bg = String(Number.isInteger(state.selectedBgIndex) ? state.selectedBgIndex : 0).padStart(2, '0');
-      return `/levels/${item.id}/bg_${bg}.png?v=${item.assetVersion ?? colorVersion}`;
+      // Compressed webp (the raw ESRGAN PNG is ~11MB and took ~8s to switch).
+      return `/api/sessions/${item.id}/bg-preview/${bg}?v=${item.assetVersion ?? colorVersion}`;
     }
     if (sceneView === 'sprites') {
       // CL-10: revision-addressed cached preview — an img swap, not a
@@ -1085,11 +1086,17 @@ export default function GalleryReviewModal({
                 setHitboxBlessBusy(false);
               }
             }}
-            style={card?.session.hitboxesBlessed ? {
-              background: '#183c2c', color: '#9bf0bf', borderColor: '#38865d', fontWeight: 800,
-            } : undefined}
+            style={card?.session.hitboxesBlessed ? (
+              String((card.session as { hitboxReviewer?: string }).hitboxReviewer ?? '').includes('delegated')
+                ? { background: '#3c2f18', color: '#ffd98a', borderColor: '#86722f', fontWeight: 800 }
+                : { background: '#183c2c', color: '#9bf0bf', borderColor: '#38865d', fontWeight: 800 }
+            ) : undefined}
           >
-            {hitboxBlessBusy ? 'Saving…' : card?.session.hitboxesBlessed ? '✓ Hitboxes reviewed' : 'Mark hitboxes reviewed'}
+            {hitboxBlessBusy ? 'Saving…'
+              : card?.session.hitboxesBlessed
+                ? (String((card.session as { hitboxReviewer?: string }).hitboxReviewer ?? '').includes('delegated')
+                    ? '⚙ Auto-blessed (delegated)' : '✓ Hitboxes reviewed')
+                : 'Mark hitboxes reviewed'}
           </button>
           <button
             type="button"

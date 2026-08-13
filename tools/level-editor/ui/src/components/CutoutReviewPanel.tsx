@@ -869,7 +869,7 @@ export default function CutoutReviewPanel({
                 disabled={jobRunning}
                 aria-label={`Place ${candidateLabel(candidate)}`}
                 title={controlMode === 'sprite'
-                  ? 'Drag to place the sprite. Drag a green corner to scale it.'
+                  ? 'Drag to place the sprite. Corner-drag resizes; hold Shift for uniform scale.'
                   : 'Padding is used ONLY when regenerating this bird — set it right before a regenerate. Drag to move, corner-drag to resize.'}
                 onClick={() => {
                   if (draggedCandidateRef.current === candidate.id) {
@@ -911,25 +911,34 @@ export default function CutoutReviewPanel({
                   const dy = Math.round(dyPixels * sceneHeight / renderedHeight);
                   if (drag.mode === 'sprite') {
                     if (drag.resizeHandle) {
-                      // Uniform scale (operator request 2026-08-13): corner
-                      // drags preserve the sprite's aspect ratio, anchored at
-                      // the opposite corner — no more accidental squash.
-                      const [x0, y0, x1, y1] = drag.box;
-                      const w = x1 - x0, h = y1 - y0;
-                      const east = drag.resizeHandle.includes('e');
-                      const south = drag.resizeHandle.includes('s');
-                      const wantW = Math.max(8, w + (east ? dx : -dx));
-                      const wantH = Math.max(8, h + (south ? dy : -dy));
-                      const scale = Math.max(wantW / w, wantH / h);
-                      const newW = Math.max(8, Math.round(w * scale));
-                      const newH = Math.max(8, Math.round(h * scale));
-                      const resized: CropBox = [
-                        east ? x0 : x1 - newW,
-                        south ? y0 : y1 - newH,
-                        east ? x0 + newW : x1,
-                        south ? y0 + newH : y1,
-                      ];
-                      setPlacementBox(candidate, hitbox, resized);
+                      // Corner drags resize freely; HOLD SHIFT for uniform
+                      // aspect-preserving scale (operator 2026-08-13 v2 —
+                      // always-uniform "made it worse").
+                      if (event.shiftKey) {
+                        const [x0, y0, x1, y1] = drag.box;
+                        const w = x1 - x0, h = y1 - y0;
+                        const east = drag.resizeHandle.includes('e');
+                        const south = drag.resizeHandle.includes('s');
+                        const wantW = Math.max(8, w + (east ? dx : -dx));
+                        const wantH = Math.max(8, h + (south ? dy : -dy));
+                        const scale = Math.max(wantW / w, wantH / h);
+                        const newW = Math.max(8, Math.round(w * scale));
+                        const newH = Math.max(8, Math.round(h * scale));
+                        const resized: CropBox = [
+                          east ? x0 : x1 - newW,
+                          south ? y0 : y1 - newH,
+                          east ? x0 + newW : x1,
+                          south ? y0 + newH : y1,
+                        ];
+                        setPlacementBox(candidate, hitbox, resized);
+                      } else {
+                        const resized: CropBox = [...drag.box];
+                        if (drag.resizeHandle.includes('w')) resized[0] += dx;
+                        if (drag.resizeHandle.includes('e')) resized[2] += dx;
+                        if (drag.resizeHandle.includes('n')) resized[1] += dy;
+                        if (drag.resizeHandle.includes('s')) resized[3] += dy;
+                        setPlacementBox(candidate, hitbox, resized);
+                      }
                     } else {
                       const moved: CropBox = [drag.box[0] + dx, drag.box[1] + dy, drag.box[2] + dx, drag.box[3] + dy];
                       setPlacementBox(candidate, hitbox, moved);

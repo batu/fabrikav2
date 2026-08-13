@@ -984,6 +984,33 @@ def gallery_thumbnail(session_id: str, variant: str):
     )
 
 
+@router.get("/sessions/{session_id}/bg-preview/{bg_index}")
+def get_bg_preview(session_id: str, bg_index: int):
+    """Compressed clean-background view. The modal's clean toggle used to
+    load the raw ~11MB ESRGAN PNG (~8s switch, operator 2026-08-13); this
+    serves an mtime-cached webp like every other preview surface."""
+    _validate_session_id(session_id)
+    source = S.session_dir(session_id) / f"bg_{bg_index:02d}.png"
+    if not source.is_file():
+        raise HTTPException(404, detail={"error": "background not found"})
+    mtime = int(source.stat().st_mtime)
+    cache_dir = S.session_dir(session_id) / ".gallery_previews"
+    cache_dir.mkdir(parents=True, exist_ok=True)
+    cache_path = cache_dir / f"bg-{bg_index:02d}-{mtime}.webp"
+    if not cache_path.is_file():
+        import tempfile as _tempfile
+
+        with Image.open(source) as image:
+            fd, tmp_name = _tempfile.mkstemp(prefix=".bgp-", suffix=".webp.tmp", dir=cache_dir)
+            os.close(fd)
+            image.convert("RGB").save(tmp_name, "WEBP", quality=82)
+            os.replace(tmp_name, cache_path)
+        with Image.open(cache_path) as verify:
+            verify.load()
+    return Response(content=cache_path.read_bytes(), media_type="image/webp",
+                    headers={"Cache-Control": "public, max-age=31536000, immutable"})
+
+
 @router.get("/sessions/{session_id}/gallery-preview/{variant}")
 def gallery_preview(session_id: str, variant: str):
     """Medium cached WebP preview for the gallery review modal."""

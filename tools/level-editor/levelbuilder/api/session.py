@@ -2160,7 +2160,23 @@ def promote_materialized_sprites_canonically(
             sprite_box = metadata.get("spriteBox")
             if not (isinstance(sprite_box, list) and len(sprite_box) == 4):
                 raise ValueError("sprite metadata has no spriteBox")
-            metadata.setdefault("cleanupBox", list(sprite_box))
+            # Operator 2026-08-13 ("all picked up has a piece hanging"):
+            # cleanup must cover soft edges/halos beyond the sprite bbox —
+            # pad by 6% of the box (min 12px), clamped to the scene.
+            base_cleanup = metadata.get("cleanupBox")
+            if not (isinstance(base_cleanup, list) and len(base_cleanup) == 4):
+                base_cleanup = list(sprite_box)
+            bx0, by0, bx1, by1 = (int(v) for v in base_cleanup)
+            pad = max(12, int(round(max(bx1 - bx0, by1 - by0) * 0.06)))
+            try:
+                with Image.open(session_dir(session_id) / "color.png") as _scene:
+                    scene_w, scene_h = _scene.size
+            except OSError:
+                scene_w = scene_h = 1 << 30  # no scene: pad unclamped
+            metadata["cleanupBox"] = [
+                max(0, bx0 - pad), max(0, by0 - pad),
+                min(scene_w, bx1 + pad), min(scene_h, by1 + pad),
+            ]
             # Re-read per bird: each promote commits a new revision, and the
             # capture must bind to the revision it will be verified against.
             snapshot = read_canonical_session(session_id).snapshot
@@ -2948,6 +2964,9 @@ def list_sessions(*, include_public: bool = False) -> list[dict]:
                 "hitboxesBlessed": hitbox_review["current"],
                 "hitboxesBlessingStale": hitbox_review["stale"],
                 "hitboxesBlessedAt": hitbox_review.get("reviewedAt"),
+                # Operator 2026-08-13: a delegated (agent) bless must never
+                # render as the operator's own review — surface WHO blessed.
+                "hitboxReviewer": hitbox_review.get("reviewer"),
                 "cutoutsFinalBlessed": final_cutout_review["current"],
                 "cutoutsFinalBlessingStale": final_cutout_review["stale"],
                 "cutoutsFinalBlessedAt": final_cutout_review.get("reviewedAt"),
