@@ -1797,6 +1797,34 @@ def stamp_hitbox_localization(session_id: str, *, method: str) -> None:
             continue
 
 
+def adopt_canonical_if_ready(session_id: str) -> str | None:
+    """BUG-3 fix: adopt the canonical store for a legacy session at the paint
+    boundary, instead of waiting for a manual corpus migration.
+
+    Applies the same single-level plan the artifact-integrity migration uses:
+    `migrate` and `quarantine` plans are applied (quarantine is a loud state,
+    never a silent gap); any other plan action means the level is not ready
+    yet and nothing happens. VALID_CURRENT sessions are never re-applied.
+    Returns the applied action, or None."""
+    from levelbuilder.api import corpus_migration
+    from levelbuilder.api.canonical_bird_contract import CanonicalReadState
+
+    if read_canonical_session(session_id).state is not CanonicalReadState.MIGRATION_REQUIRED:
+        return None
+    sdir = session_dir(session_id)
+    public_dir = GAME_PUBLIC_LEVELS / session_id
+    plan = corpus_migration.plan_legacy_level(
+        sdir,
+        public_dir if public_dir.exists() else None,
+        archived=session_id in archived_session_ids(),
+    )
+    if plan.action not in ("migrate", "quarantine"):
+        return None
+    journal_root = WORKSPACE_ROOT / "state" / "canonical-migration-journal"
+    corpus_migration.apply_level_plan(plan, sdir, journal_root)
+    return plan.action
+
+
 def save_canonical_sprite_geometry_if_present(
     session_id: str,
     bird_id: str,

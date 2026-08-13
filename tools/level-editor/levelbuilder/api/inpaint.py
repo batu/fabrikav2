@@ -6183,6 +6183,17 @@ def run_magenta_inpaint_durably(
         # (stateful mechanism), so blessing still refuses until an operator
         # or rerun-stale discharges it.
         summary["relocalizationFailed"] = str(relocalize_error)[:300]
+    # BUG-3: a fresh session is legacy until here — the painted scene is the
+    # first moment a canonical snapshot can exist, so adopt it now (loud
+    # quarantine over silent gap) and stamp localization against it, which
+    # the pre-adoption recenter could not do.
+    try:
+        adopted = S.adopt_canonical_if_ready(session_id)
+        if adopted:
+            summary["canonicalAdoption"] = adopted
+        S.stamp_hitbox_localization(session_id, method="local-diff-recenter")
+    except Exception as adopt_error:
+        summary["canonicalAdoptionFailed"] = str(adopt_error)[:300]
     JOB_STORE.transition_job(job.id, status="succeeded", stage="done",
                              result={"summaryKeys": sorted(summary)[:20]})
     return summary
