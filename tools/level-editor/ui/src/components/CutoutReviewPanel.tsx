@@ -971,12 +971,32 @@ export default function CutoutReviewPanel({
                       setPlacementBox(candidate, hitbox, moved);
                     }
                   } else if (drag.resizeHandle) {
-                    const resized: CropBox = [...drag.box];
-                    if (drag.resizeHandle.includes('w')) resized[0] += dx;
-                    if (drag.resizeHandle.includes('e')) resized[2] += dx;
-                    if (drag.resizeHandle.includes('n')) resized[1] += dy;
-                    if (drag.resizeHandle.includes('s')) resized[3] += dy;
-                    setCropBox(candidate, hitbox, resized);
+                    if (event.shiftKey) {
+                      // Shift = uniform grow for padding too (operator
+                      // 2026-08-13), anchored at the opposite corner.
+                      const [x0, y0, x1, y1] = drag.box;
+                      const w = x1 - x0, h = y1 - y0;
+                      const east = drag.resizeHandle.includes('e');
+                      const south = drag.resizeHandle.includes('s');
+                      const wantW = Math.max(8, w + (east ? dx : -dx));
+                      const wantH = Math.max(8, h + (south ? dy : -dy));
+                      const scale = Math.max(wantW / w, wantH / h);
+                      const newW = Math.max(8, Math.round(w * scale));
+                      const newH = Math.max(8, Math.round(h * scale));
+                      setCropBox(candidate, hitbox, [
+                        east ? x0 : x1 - newW,
+                        south ? y0 : y1 - newH,
+                        east ? x0 + newW : x1,
+                        south ? y0 + newH : y1,
+                      ]);
+                    } else {
+                      const resized: CropBox = [...drag.box];
+                      if (drag.resizeHandle.includes('w')) resized[0] += dx;
+                      if (drag.resizeHandle.includes('e')) resized[2] += dx;
+                      if (drag.resizeHandle.includes('n')) resized[1] += dy;
+                      if (drag.resizeHandle.includes('s')) resized[3] += dy;
+                      setCropBox(candidate, hitbox, resized);
+                    }
                   } else {
                     setCropBox(candidate, hitbox, translateCropBox(candidate, hitbox, drag.box, dx, dy));
                   }

@@ -4800,19 +4800,26 @@ def _run_single_cutout_extraction(
         None,
     )
     variant_index = dog.get("activeVariant") if dog is not None else None
-    if not isinstance(variant_index, int):
-        raise HTTPException(400, detail={"error": f"Entity {dog_index} has no active painted variant"})
-
     sdir = S.session_dir(session_id)
     color_path = sdir / "color.png"
-    dog_dir = S.dogs_dir(session_id) / f"dog_{dog_index:02d}"
-    metadata_path = dog_dir / f"sprite_{variant_index:03d}.json"
-    if not color_path.is_file() or not metadata_path.is_file():
+    if not color_path.is_file():
         raise HTTPException(400, detail={"error": f"Entity {dog_index} is missing cutout source assets"})
-    metadata = json.loads(metadata_path.read_text())
-    target_box = metadata.get("spriteBox")
-    if not (isinstance(target_box, list) and len(target_box) == 4):
-        raise HTTPException(400, detail={"error": f"Entity {dog_index} has invalid sprite placement"})
+    if isinstance(variant_index, int):
+        dog_dir = S.dogs_dir(session_id) / f"dog_{dog_index:02d}"
+        metadata_path = dog_dir / f"sprite_{variant_index:03d}.json"
+        if not metadata_path.is_file():
+            raise HTTPException(400, detail={"error": f"Entity {dog_index} is missing cutout source assets"})
+        metadata = json.loads(metadata_path.read_text())
+        target_box = metadata.get("spriteBox")
+        if not (isinstance(target_box, list) and len(target_box) == 4):
+            raise HTTPException(400, detail={"error": f"Entity {dog_index} has invalid sprite placement"})
+    else:
+        # Pre-extraction bird (one-path magenta lane): no per-dog variant
+        # exists — the painted scene is the source and the placement target
+        # defaults to the crop itself; the neural fit refines it at
+        # promotion. (Was a hard 400: "Entity 31 has no active painted
+        # variant", live 2026-08-13.)
+        target_box = list(crop_box)
 
     with Image.open(color_path) as source:
         color = source.convert("RGB")

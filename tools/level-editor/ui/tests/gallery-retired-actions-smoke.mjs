@@ -480,10 +480,14 @@ async function run() {
     assert(previewRequests > 0, 'Gallery review did not request proxy preview image.');
     await page.getByRole('tab', { name: 'Cutouts & redo' }).click();
     await page.getByText('No pickup cutouts found.').waitFor({ timeout: 10_000 });
-    assert(await page.locator('.level-canvas').count() > 0, 'Focused review map was not visible initially.');
+    // 2026-08-13: Cutouts & redo auto-hides the map — collapsed is the
+    // default; Show map restores it.
+    assert(await page.locator('.level-canvas').count() === 0, 'Cutouts tab must auto-hide the map.');
+    assert(await page.getByRole('button', { name: 'Show map' }).count() === 1, 'Collapsed scene pane cannot be restored.');
+    await page.getByRole('button', { name: 'Show map' }).click();
+    assert(await page.locator('.level-canvas').count() > 0, 'Show map did not restore the scene pane.');
     await page.getByRole('button', { name: 'Hide map' }).click();
     assert(await page.locator('.level-canvas').count() === 0, 'Hide map did not collapse the scene pane.');
-    assert(await page.getByRole('button', { name: 'Show map' }).count() === 1, 'Collapsed scene pane cannot be restored.');
     await page.screenshot({ path: '/tmp/ftd-cutout-expanded-review.png', fullPage: true });
     // Batch selection was retired; with no cutout candidates there must be no
     // per-cutout generation actions to submit at all.
