@@ -4304,6 +4304,22 @@ def _neighbor_free_crop(
     return crop
 
 
+def canonical_sprite_gaps(session_id: str) -> list[dict] | None:
+    """T4: canonical sessions derive sprite gaps from the snapshot — a bird
+    without a sprite asset IS a gap. Returns None for legacy sessions (the
+    legacy level.json walk remains their reader)."""
+    from levelbuilder.api.canonical_bird_contract import CanonicalReadState
+
+    canonical = read_canonical_session(session_id)
+    if canonical.state is not CanonicalReadState.VALID_CURRENT or canonical.snapshot is None:
+        return None
+    return [
+        {"birdId": bird.get("birdId"), "slot": bird.get("compatibilitySlot")}
+        for bird in canonical.snapshot.get("birds", [])
+        if not isinstance((bird.get("sprite") or {}).get("asset"), dict)
+    ]
+
+
 def cutter_folder_indices(dogs: list[dict], hitboxes: list[dict]) -> dict[int, int]:
     """T3: hitbox array position -> the folder index the cutter must use.
 

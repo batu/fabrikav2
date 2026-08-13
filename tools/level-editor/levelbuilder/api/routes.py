@@ -3002,6 +3002,20 @@ def get_sprite_gaps(session_id: str):
     the server owns the answer because sprite metadata lives on its disk.
     """
     _validate_session_id(session_id)
+    # T4 (one-path plan): canonical sessions answer from the snapshot — the
+    # legacy walk let a status=failed bird sail through the whole lane
+    # (france, 2026-08-13).
+    canonical_gaps = S.canonical_sprite_gaps(session_id)
+    if canonical_gaps is not None:
+        return {
+            "sessionId": session_id,
+            "missing": [
+                {"index": int(str(g["slot"]).rsplit("_", 1)[-1]) if str(g.get("slot", "")).rsplit("_", 1)[-1].isdigit() else -1,
+                 "dogId": g["birdId"]}
+                for g in canonical_gaps
+            ],
+            "painted": len((S.read_canonical_session(session_id).snapshot or {}).get("birds", [])),
+        }
     raw = S.load_session_raw(session_id) or {}
     hb_path = S.session_dir(session_id) / "hitboxes.json"
     hitboxes = json.loads(hb_path.read_text()) if hb_path.exists() else []

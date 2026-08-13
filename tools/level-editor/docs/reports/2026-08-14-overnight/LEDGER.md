@@ -11,3 +11,4 @@
 - 21:53Z galley_6b76 resume PARKED: author upscale step re-attempted a done upscale (skip compared bg_w to hardcoded 4096; canonical target is 2688) → server refused source_already_upscaled. FIX #1 committed (CLI-side, no restart needed): skip compares the session's own upscaleTargetLongEdge. Test added. Galley retry queued for the next between-level gap.
 - 21:53Z scribes_workyard_5094 generating (level 1 of 22).
 - 22:0xZ T3 CORE + STAGING DELETION committed (514 green): cutter_folder_indices is the one position→folder resolver; cutter/promotion/fit all file by the bird's dog index (== slot ordinal); promotion is a single pass; BUG-15's staged-bytes workaround deleted as structurally unnecessary. Deploys at next between-level restart gap.
+- 22:01Z LEVEL 1/22 scribes_workyard_5094: PASS by eyes — 21/21 circles on birds; codex's Egyptian scene rendered fully contained (walls all sides, steles/scroll racks intact). $2.60 cumulative.

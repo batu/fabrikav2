@@ -124,3 +124,23 @@ def test_migration_plan_accepts_magenta_preextraction_birds(tmp_path):
     }))
     plan = plan_legacy_level(d, None, archived=False)
     assert plan.action == "migrate", (plan.action, plan.issues)
+
+
+def test_sprite_gaps_reads_canonical_truth(monkeypatch):
+    """T4: for canonical sessions, sprite-gaps derives from the snapshot —
+    a bird without a sprite asset IS a gap regardless of what the legacy
+    dogs[] surface claims (the legacy walk let france's failed bird slip
+    through the whole lane, 2026-08-13)."""
+    from types import SimpleNamespace
+    from levelbuilder.api import session as S
+    from levelbuilder.api.canonical_bird_contract import CanonicalReadState
+
+    snapshot = {"birds": [
+        {"birdId": "bird-a", "compatibilitySlot": "dog_10",
+         "sprite": {"asset": {"path": "x", "sha256": "s", "bytes": 1}}},
+        {"birdId": "bird-b", "compatibilitySlot": "dog_11"},   # sprite-less
+    ]}
+    monkeypatch.setattr(S, "read_canonical_session", lambda _sid: SimpleNamespace(
+        state=CanonicalReadState.VALID_CURRENT, snapshot=snapshot, pointer=object()))
+    gaps = S.canonical_sprite_gaps("sid")
+    assert gaps == [{"birdId": "bird-b", "slot": "dog_11"}]
