@@ -843,8 +843,12 @@ def cmd_author(client: Client, args: argparse.Namespace) -> None:
             elif step == "upscale":
                 session = client.get(f"/api/sessions/{session_id}")
                 bg_w = session.get("bgWidth") or session.get("bg_width") or 0
-                if bg_w and int(bg_w) >= 4096:
-                    note("upscale", {"skipped": f"background already {bg_w}px"})
+                # Skip against the SESSION's target, not a hardcoded 4096 —
+                # the canonical 2688 recipe re-attempted completed upscales
+                # on resume (overnight ledger, 2026-08-14).
+                target = int(session.get("upscaleTargetLongEdge") or 4096)
+                if bg_w and int(bg_w) >= target:
+                    note("upscale", {"skipped": f"background already {bg_w}px (target {target})"})
                 else:
                     # The route enforces the session's stored upscale policy;
                     # echo it back rather than assuming one.
