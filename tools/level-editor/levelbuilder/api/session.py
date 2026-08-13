@@ -2121,6 +2121,10 @@ def promote_materialized_sprites_canonically(
         staging_root.mkdir(parents=True, exist_ok=True)
         staged_sprite = staging_root / f"bulk-sprite-{index:02d}.png"
         shutil.copy2(sprite_path, staged_sprite)
+        mask_path = sprite_path.with_name("sprite_mask_000.png")
+        staged_mask = staging_root / f"bulk-mask-{index:02d}.png"
+        if mask_path.is_file():
+            shutil.copy2(mask_path, staged_mask)
         staged[index] = (staged_sprite, metadata)
     for entry in materialized:
         index = entry.get("index")
@@ -2152,7 +2156,10 @@ def promote_materialized_sprites_canonically(
                     and placement_now.get("width") == int(box_now[2]) - int(box_now[0])
                     and placement_now.get("height") == int(box_now[3]) - int(box_now[1])
                 )
-                if placement_matches and current_sha == hashlib.sha256(sprite_path.read_bytes()).hexdigest():
+                asset_path = str((sprite_now.get("asset") or {}).get("path") or "")
+                staging_named = "bulk-sprite" in asset_path or "/staging/" in asset_path
+                if (placement_matches and not staging_named
+                        and current_sha == hashlib.sha256(sprite_path.read_bytes()).hexdigest()):
                     skipped += 1
                     continue
             if not isinstance(bird_id, str):
@@ -2188,6 +2195,24 @@ def promote_materialized_sprites_canonically(
                 model=model,
                 prompt=entity,
             )
+            # The DURABLE home is the bird's slot folder with canonical
+            # names — never the staging path (a staging-named asset filled
+            # slot folders with bulk-sprite-*.png and blanked the cutout
+            # panel, 2026-08-13). Bytes were staged first, so writing the
+            # slot folder cannot clobber a later position's read.
+            bird_slot = next((b.get("compatibilitySlot")
+                              for b in (snapshot_now.get("birds") or [])
+                              if b.get("birdId") == bird_id), None)
+            if isinstance(bird_slot, str) and bird_slot:
+                slot_dir = dogs_dir(session_id) / bird_slot
+                slot_dir.mkdir(parents=True, exist_ok=True)
+                final_sprite = slot_dir / "sprite_000.png"
+                shutil.copy2(sprite_path, final_sprite)
+                staged_mask = sprite_path.with_name(sprite_path.name.replace("bulk-sprite-", "bulk-mask-"))
+                if staged_mask.is_file():
+                    shutil.copy2(staged_mask, slot_dir / "sprite_mask_000.png")
+                (slot_dir / "sprite_000.json").write_text(json.dumps(metadata, indent=2) + "\n")
+                sprite_path = final_sprite
             pointer, disposition = promote_canonical_sprite_artifact(
                 session_id,
                 captured_input=captured.to_dict(),
