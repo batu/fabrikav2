@@ -1080,6 +1080,12 @@ export default function GalleryReviewModal({
                     cutoutsFinalBlessingStale: true,
                   }),
                 });
+                // Both directions speak (operator 2026-08-13: "sometimes no
+                // feedback") — success was silent and the un-bless toggle
+                // doubly so.
+                setStatus(approved
+                  ? '✓ Hitboxes marked reviewed.'
+                  : 'Hitbox review removed — this level is unreviewed again.');
               } catch (err) {
                 setBlessError(err instanceof Error ? err.message : 'Saving hitbox review failed');
               } finally {
