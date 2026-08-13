@@ -5879,7 +5879,12 @@ def place_hitboxes_vlm(session_id: str, *, radius: int | None = None) -> dict:
         {"x": d["x"] + d["width"] // 2, "y": d["y"] + d["height"] // 2, "r": radius}
         for d in dets
     ]
-    persisted = S.save_hitboxes(session_id, hitboxes) or hitboxes
+    # VLM re-place is a full re-placement — same consent semantics as
+    # auto-hitboxes: canonical sessions go through the wholesale geometry
+    # commit (identities re-minted, human-origin work still refuses), legacy
+    # sessions keep the raw write.
+    from .routes import _persist_auto_hitboxes
+    persisted = _persist_auto_hitboxes(session_id, hitboxes) or hitboxes
     result = recenter_hitboxes_local_diff(session_id)
     return {"sessionId": session_id, "placed": len(persisted), "recentre": result}
 

@@ -1,0 +1,35 @@
+{"at": "09:31:12", "scene": "japan_festival_grounds", "stage": "tags-echo", "detail": "tags echoed: None"}
+{"at": "09:34:39", "scene": "japan_festival_grounds", "stage": "residue", "detail": "exit 22:  :: "}
+{"at": "09:34:39", "scene": "japan_festival_grounds", "stage": "derived-crops", "detail": "exit 22:  :: "}
+{"at": "09:34:39", "scene": "japan_festival_grounds", "stage": "preview-residue", "detail": "scene preview fetch failed"}
+{"at": "09:34:39", "scene": "italy_venice_canal_morning", "stage": "tags-echo", "detail": "tags echoed: None"}
+{"at": "09:36:42", "scene": "italy_venice_canal_morning", "stage": "residue", "detail": "exit 22:  :: "}
+{"at": "09:36:42", "scene": "italy_venice_canal_morning", "stage": "derived-crops", "detail": "exit 22:  :: "}
+{"at": "09:36:43", "scene": "italy_venice_canal_morning", "stage": "preview-residue", "detail": "scene preview fetch failed"}
+{"at": "09:36:43", "scene": "uk_london_high_street", "stage": "tags-echo", "detail": "tags echoed: None"}
+{"at": "09:41:38", "scene": "uk_london_high_street", "stage": "residue", "detail": "exit 22:  :: "}
+{"at": "09:41:38", "scene": "uk_london_high_street", "stage": "derived-crops", "detail": "exit 22:  :: "}
+{"at": "09:41:39", "scene": "uk_london_high_street", "stage": "preview-residue", "detail": "scene preview fetch failed"}
+{"at": "09:44:35", "scene": "turkey_grand_bazaar_corridor", "stage": "tags-echo", "detail": "tags echoed: None"}
+{"at":"manual","scene":"ALL","stage":"create-canonical","detail":"BUG-3 (P1): create_session never initializes .canonical — every new level is born legacy; residue/derived-crops/scene-preview surfaces 409 canonical_required until a manual artifact-integrity-migration is applied. Contradicts canonical-first design."}
+{"at":"manual","scene":"ALL","stage":"tags-projection","detail":"BUG-2 (P2): tags persist in session.json but GET /api/sessions/{id} projection drops them (also view/aspectRatio). CLI create verb has no --tags flag either (BUG-1)."}
+{"at":"manual","scene":"ALL","stage":"cost-attribution","detail":"BUG-5 (P1): 0/50 ledger rows since batch start carry meta.sessionId — P2d attribution contextvar not active in live lane; experiment measured_cost sums tagged rows only, so per-level cost reads $0."}
+{"at":"manual","scene":"ALL","stage":"residue-gate","detail":"BUG-6 (P1): pickup preview does NOT remove birds (all-picked-up composite still shows them; snapshot derived=[] — restore regions never derived); residue gate red 117k-215k px on every fresh level. Gate itself works; the composite is wrong."}
+{"at":"manual","scene":"coral_reef_shipwreck_reef_camp_bird_d61b","stage":"residue-500","detail":"BUG-7 (P2): /residue returns 500 KeyError 'cleanup' on some canonical levels (birds missing cleanup key) instead of a typed 409/422."}
+{"at":"manual","scene":"japan_festival_grounds","stage":"paint-scene-mutation","detail":"BUG-8 (P0 quality): magenta paint call mutates scene OUTSIDE bird sites — verified prop swaps (pillow pile -> rolled towels + book; shelf contents changed) + 20 connected diff components >2000px outside all cleanup rects (656k diff px total vs the canonical ~4% birds-only promise). Phase alignment is (0,0) everywhere, so the alignment export gate CANNOT catch content swaps; paint no-op gate can't either. After pickup, restore rects will reveal old props inside redecorated surroundings = visible seams. Likely includes extra hallucinated birds with no hitbox (visible in pickup preview: kiwi at drums, green bird on lantern rope, etc.) which prune-empty never removes because they have no hitbox at all."}
+{"at":"manual","scene":"ALL","stage":"paint-scene-mutation-control","detail":"BUG-8 addendum: control levels nordic_sami_589b (4.6%) and japan_river_0027 (5.6%) show the SAME outside-cleanup scene mutation — endemic to the magenta lane, not a today-only fluke. The PIPELINE.md '3.98% = birds only' premise does not hold at diff threshold 24."}
+{"at": "09:49:52", "scene": "turkey_grand_bazaar_corridor", "stage": "residue", "detail": "exit 22:  :: "}
+{"at": "09:49:52", "scene": "turkey_grand_bazaar_corridor", "stage": "derived-crops", "detail": "exit 22:  :: "}
+{"at": "09:49:52", "scene": "turkey_grand_bazaar_corridor", "stage": "preview-residue", "detail": "scene preview fetch failed"}
+{"at": "09:49:52", "scene": "mexico_dia_de_muertos_plaza", "stage": "tags-echo", "detail": "tags echoed: None"}
+{"at": "09:56:51", "scene": "mexico_dia_de_muertos_plaza", "stage": "residue", "detail": "exit 22:  :: "}
+{"at": "09:56:52", "scene": "mexico_dia_de_muertos_plaza", "stage": "derived-crops", "detail": "exit 22:  :: "}
+{"at": "09:56:52", "scene": "mexico_dia_de_muertos_plaza", "stage": "preview-residue", "detail": "scene preview fetch failed"}
+{"at": "09:56:52", "scene": "france_alsace_wine_village", "stage": "tags-echo", "detail": "tags echoed: None"}
+{"at": "10:03:05", "scene": "france_alsace_wine_village", "stage": "residue", "detail": "exit 22:  :: "}
+{"at": "10:03:05", "scene": "france_alsace_wine_village", "stage": "derived-crops", "detail": "exit 22:  :: "}
+{"at": "10:03:05", "scene": "france_alsace_wine_village", "stage": "preview-residue", "detail": "scene preview fetch failed"}
+{"at":"manual","scene":"france_alsace_wine_village","stage":"failed-bird-invisible","detail":"BUG-9 (P1): dog 8 status=failed (no active variant) passed the ENTIRE author lane silently — sprite-gaps only inspects painted dogs so the gap never surfaced, repair-sprites keyed off sprite-gaps did nothing, no step fails on dogs[].status=failed. Level completed 'green' and was only caught by migration quarantine (missing_active_variant)."}
+{"at":"manual","scene":"turkey_grand_bazaar_corridor","stage":"junk-sprites","detail":"BUG-10 (P1 quality): sprites preview shows ~4/15 non-bird cutouts (beige blobs, plank, stick). Mechanism: BUG-8 scene mutation makes the paint-diff at small detections a PROP, and the <110px free-extractor path cuts whatever the diff is with no judge gate. Interacts with BUG-8; visible in scene-previews/sprites for turkey_2dd8."}
+{"at":"manual","scene":"france_alsace_wine_village","stage":"quarantine-deadlock","detail":"BUG-11 (P1): quarantined_integrity is a wedge with no repair lane — blessing PUT 409s (canonical not writable), materialize 409s (needs blessing), and un-quarantine needs the materialized sprite. Circular. Only escape was moving .canonical aside and re-deriving from legacy files. Quarantine needs a supervised repair lane (or migration apply should re-derive instead of re-checking)."}
+{"at":"manual","scene":"france_alsace_wine_village","stage":"failed-status-lie","detail":"BUG-9 addendum: dog 8 paint had actually SUCCEEDED (valid pigeon variant on disk, box json present) — only dogs[].status said failed. The status write lied; repair = set status done + activeVariant 0, re-bless, materialize, re-migrate. Level now 15/15 canonical."}
