@@ -96,3 +96,41 @@ def test_resolve_regen_hitbox_maps_canonical_slots(monkeypatch):
     resolved = I._resolve_regen_hitbox([], hitboxes, 15, session_id="sid")
     assert resolved is hitboxes[0]
     assert I._resolve_regen_hitbox([], hitboxes, 99, session_id="sid") is None
+
+
+def test_promotion_runs_best_safe_placement_unless_human_confirmed(monkeypatch, tmp_path):
+    """Obligation edge: extract -> sprite placement runs structurally inside
+    the promotion loop; human-confirmed candidates keep their geometry."""
+    from levelbuilder.api import inpaint as I
+    from levelbuilder.api import session as S
+    from levelbuilder.api.canonical_bird_contract import CanonicalReadState
+
+    for slot in ("dog_00", "dog_01"):
+        d = tmp_path / "dogs" / slot
+        d.mkdir(parents=True)
+        (d / "sprite_000.json").write_text(json.dumps({
+            "spriteBox": [10, 10, 50, 50], "cleanupBox": [8, 8, 52, 52]}))
+        (d / "sprite_000.png").write_bytes(b"png")
+    monkeypatch.setattr(S, "session_dir", lambda _sid: tmp_path)
+    monkeypatch.setattr(S, "dogs_dir", lambda _sid: tmp_path / "dogs")
+    snapshot = {
+        "birds": [{"birdId": "bird-a"}, {"birdId": "bird-b"}],
+        "operational": {"candidateReviews": {"bird-b": {"confirmed": True}}},
+    }
+    monkeypatch.setattr(S, "read_canonical_session", lambda _sid: SimpleNamespace(
+        state=CanonicalReadState.VALID_CURRENT, snapshot=snapshot, pointer=object()))
+    fitted = []
+    monkeypatch.setattr(I, "_auto_place_cutout_best_safe",
+                        lambda sid, idx, var: fitted.append(idx))
+    monkeypatch.setattr(
+        "levelbuilder.api.canonical_job_provenance.capture_bird_job_input",
+        lambda snap, **kw: SimpleNamespace(to_dict=lambda: {}))
+    monkeypatch.setattr(S, "promote_canonical_sprite_artifact",
+                        lambda sid, **kw: (object(), "committed"))
+    result = S.promote_materialized_sprites_canonically(
+        "sid",
+        hitboxes=[{"id": "bird-a"}, {"id": "bird-b"}],
+        materialized=[{"index": 0}, {"index": 1}],
+        model="m", entity="bird")
+    assert fitted == [0]  # bird-b (index 1) is human-confirmed: no refit
+    assert result["committed"] == 2

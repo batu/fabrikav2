@@ -2092,15 +2092,44 @@ def promote_materialized_sprites_canonically(
         meta_path = dogs_dir(session_id) / f"dog_{index:02d}" / "sprite_000.json"
         sprite_path = meta_path.with_suffix(".png")
         try:
+            # Obligation edge "extract -> sprite placement + anchor recompute"
+            # (plan §Obligation edges): fit the sprite to its painted subject
+            # BEFORE canonical adoption, so every materialize — CLI or UI —
+            # ships matcher-fitted geometry structurally. Human-confirmed
+            # candidates keep their geometry (same rule as the route).
+            snapshot_now = read_canonical_session(session_id).snapshot or {}
+            reviews_now = ((snapshot_now.get("operational") or {}).get("candidateReviews") or {})
+            human_confirmed = bool((reviews_now.get(bird_id) or {}).get("confirmed")) if isinstance(bird_id, str) else False
+            if not human_confirmed and sprite_path.is_file():
+                try:
+                    from levelbuilder.api import inpaint as _inpaint
+
+                    _inpaint._auto_place_cutout_best_safe(session_id, index, 0)
+                except Exception:
+                    pass  # unsafe/failed fits keep generated geometry; adoption proceeds
             # Idempotency: a cutter-skipped entry still needs promotion when
-            # the canonical bird has never adopted this sprite (the exact
-            # split state BUG-13 names); only skip when the digest matches.
+            # the canonical bird has never adopted this sprite OR its fitted
+            # geometry (the split states BUG-13 named); skip only when digest
+            # AND placement both match.
             if isinstance(bird_id, str) and sprite_path.is_file():
-                snapshot_now = read_canonical_session(session_id).snapshot or {}
                 bird_now = next((b for b in snapshot_now.get("birds", [])
                                  if b.get("birdId") == bird_id), None)
-                current_sha = (((bird_now or {}).get("sprite") or {}).get("asset") or {}).get("sha256")
-                if current_sha == hashlib.sha256(sprite_path.read_bytes()).hexdigest():
+                sprite_now = (bird_now or {}).get("sprite") or {}
+                current_sha = (sprite_now.get("asset") or {}).get("sha256")
+                placement_now = sprite_now.get("placement") or {}
+                try:
+                    meta_now = json.loads(meta_path.read_text())
+                except (OSError, ValueError):
+                    meta_now = {}
+                box_now = meta_now.get("spriteBox")
+                placement_matches = (
+                    isinstance(box_now, list) and len(box_now) == 4
+                    and placement_now.get("x") == int(box_now[0])
+                    and placement_now.get("y") == int(box_now[1])
+                    and placement_now.get("width") == int(box_now[2]) - int(box_now[0])
+                    and placement_now.get("height") == int(box_now[3]) - int(box_now[1])
+                )
+                if placement_matches and current_sha == hashlib.sha256(sprite_path.read_bytes()).hexdigest():
                     skipped += 1
                     continue
             if not isinstance(bird_id, str):
