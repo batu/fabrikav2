@@ -3755,8 +3755,26 @@ def build_level_dict(
             entry["sprite"] = sprite_metadata_by_index[i]
         return entry
 
+    # Provenance rides IN the level payload (operator request 2026-08-13):
+    # identity and the exact prompts must survive session deletion — the
+    # shipped package is often the only artifact left.
+    raw = load_session_raw(session_id)
+    provenance = None
+    if isinstance(raw, dict):
+        provenance = {k: v for k, v in {
+            "setting": raw.get("setting"),
+            "scene": raw.get("scene"),
+            "entity": raw.get("entity"),
+            "style": raw.get("style"),
+            "scenePrompt": raw.get("scene_prompt"),
+            "entityPrompt": raw.get("dog_prompt"),
+            "bgModel": raw.get("bg_model"),
+            "inpaintModel": raw.get("inpaint_model"),
+            "tags": raw.get("tags") or None,
+        }.items() if v}
     return {
         "id": session_id,
+        **({"provenance": provenance} if provenance else {}),
         "name": f"Level {session_id} ({style or 'unknown'})",
         "width": width,
         "height": height,
