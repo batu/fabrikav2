@@ -78,3 +78,21 @@ def test_per_bird_failure_is_collected_not_raised(monkeypatch, tmp_path):
         model="m", entity="bird")
     assert result["committed"] == 0
     assert result["failed"] and "ghost" in result["failed"][0]["birdId"]
+
+
+def test_resolve_regen_hitbox_maps_canonical_slots(monkeypatch):
+    """BUG-14: after a wholesale re-place, candidates carry SLOT ordinals
+    (dog_15+) that session.json dogs[] does not contain — the resolver must
+    fall through to the canonical slot->birdId mapping instead of refusing
+    with 'missing hitbox'."""
+    from types import SimpleNamespace
+    from levelbuilder.api import inpaint as I
+    from levelbuilder.api import session as S
+
+    hitboxes = [{"id": "bird-a", "x": 1, "y": 2, "r": 3}]
+    snapshot = {"birds": [{"birdId": "bird-a", "compatibilitySlot": "dog_15"}]}
+    monkeypatch.setattr(S, "read_canonical_session", lambda _sid: SimpleNamespace(
+        snapshot=snapshot, pointer=object(), state=None))
+    resolved = I._resolve_regen_hitbox([], hitboxes, 15, session_id="sid")
+    assert resolved is hitboxes[0]
+    assert I._resolve_regen_hitbox([], hitboxes, 99, session_id="sid") is None

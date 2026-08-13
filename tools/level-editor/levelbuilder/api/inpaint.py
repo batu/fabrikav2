@@ -3876,7 +3876,7 @@ class RetryFailedDogsJobResponse(BaseModel):
     error: str | None = None
 
 
-def _resolve_regen_hitbox(dogs: list, hitbox_list: list, dog_index: int) -> dict | None:
+def _resolve_regen_hitbox(dogs: list, hitbox_list: list, dog_index: int, *, session_id: str | None = None) -> dict | None:
     """The hitbox to re-inpaint for dog_index, located by the dog's STABLE ID
     (review P1 #4) — NOT by array position. The regen-by-id route resolves an id
     to dog_index = the creation ordinal (= the dog_{NN} folder), which after a
@@ -3890,6 +3890,19 @@ def _resolve_regen_hitbox(dogs: list, hitbox_list: list, dog_index: int) -> dict
         hb = next((h for h in hitbox_list if isinstance(h, dict) and h.get("id") == dog_id), None)
         if hb is not None:
             return hb
+    if session_id is not None:
+        # BUG-14: post-wholesale candidates carry SLOT ordinals (dog_15+)
+        # absent from dogs[] — resolve slot -> birdId via the canonical
+        # snapshot before falling back to array position.
+        snapshot = S.read_canonical_session(session_id).snapshot or {}
+        slot = f"dog_{dog_index:02d}"
+        bird = next((b for b in snapshot.get("birds", [])
+                     if isinstance(b, dict) and b.get("compatibilitySlot") == slot), None)
+        if bird is not None:
+            hb = next((h for h in hitbox_list
+                       if isinstance(h, dict) and h.get("id") == bird.get("birdId")), None)
+            if hb is not None:
+                return hb
     if 0 <= dog_index < len(hitbox_list):
         return hitbox_list[dog_index]
     return None
@@ -3986,7 +3999,7 @@ def _run_single_dog_regen(
         bg = bg_src.copy()
     w, h = bg.size
 
-    hb_data = _resolve_regen_hitbox(raw.get("dogs", []), hitbox_list, dog_index)
+    hb_data = _resolve_regen_hitbox(raw.get("dogs", []), hitbox_list, dog_index, session_id=session_id)
     if hb_data is None:
         bg.close()
         raise HTTPException(404, detail={"error": f"Entity {dog_index} not found in hitboxes"})
@@ -4227,7 +4240,7 @@ def _normalized_retry_dog_indices(session_id: str, dog_indices: list[int]) -> li
         raise HTTPException(400, detail={"error": "dogIndices must be non-empty"})
     invalid = [
         index for index in normalized
-        if index < 0 or _resolve_regen_hitbox(dogs, hitboxes, index) is None
+        if index < 0 or _resolve_regen_hitbox(dogs, hitboxes, index, session_id=session_id) is None
     ]
     if invalid:
         raise HTTPException(404, detail={"error": f"Entity index out of range: {invalid[0]}"})
@@ -4363,7 +4376,7 @@ def _start_retry_failed_dogs_job_record(session_id: str, req: RetryFailedDogsJob
         hitboxes = _load_retry_hitboxes(session_id)
         dogs = raw.get("dogs") or []
         for dog_index, box in req.cropBoxes.items():
-            hb = _resolve_regen_hitbox(dogs, hitboxes, dog_index)
+            hb = _resolve_regen_hitbox(dogs, hitboxes, dog_index, session_id=session_id)
             if hb is None:
                 raise HTTPException(404, detail={"error": f"Entity index out of range: {dog_index}"})
             x0, y0, x1, y1 = box
@@ -4555,7 +4568,7 @@ def _auto_place_cutout_best_safe(
         return {"method": "best", "accepted": False, "reason": "missing sprite box"}
     hitboxes = _load_retry_hitboxes(session_id)
     dogs = raw.get("dogs") or []
-    hitbox = _resolve_regen_hitbox(dogs, hitboxes, dog_index)
+    hitbox = _resolve_regen_hitbox(dogs, hitboxes, dog_index, session_id=session_id)
     if hitbox is None:
         return {"method": "best", "accepted": False, "reason": "missing hitbox"}
 
@@ -4775,7 +4788,7 @@ def _run_single_cutout_extraction(
     alpha.close()
 
     hitboxes = _load_retry_hitboxes(session_id)
-    hb_data = _resolve_regen_hitbox(raw.get("dogs") or [], hitboxes, dog_index)
+    hb_data = _resolve_regen_hitbox(raw.get("dogs") or [], hitboxes, dog_index, session_id=session_id)
     anchor_x = 0.5
     anchor_y = 0.5
     if hb_data is not None:
