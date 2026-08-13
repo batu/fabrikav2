@@ -834,8 +834,8 @@ export default function GalleryReviewModal({
                 </div>
               )}
               <div className="gallery-review-mode" role="tablist" aria-label="Focused review mode">
-                <button type="button" role="tab" aria-selected={reviewMode === 'placement'} onClick={() => setReviewMode('placement')}>Placement</button>
-                <button type="button" role="tab" aria-selected={reviewMode === 'cutouts'} onClick={() => setReviewMode('cutouts')}>Cutouts &amp; redo</button>
+                <button type="button" role="tab" aria-selected={reviewMode === 'placement'} onClick={() => { setReviewMode('placement'); setShowMap(true); }}>Placement</button>
+                <button type="button" role="tab" aria-selected={reviewMode === 'cutouts'} onClick={() => { setReviewMode('cutouts'); setShowMap(false); }}>Cutouts &amp; redo</button>
                 {reviewMode === 'cutouts' && (
                   <button type="button" aria-pressed={!showMap} onClick={() => setShowMap((current) => !current)}>
                     {showMap ? 'Hide map' : 'Show map'}

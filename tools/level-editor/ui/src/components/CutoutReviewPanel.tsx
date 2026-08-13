@@ -357,7 +357,8 @@ export default function CutoutReviewPanel({
   const [error, setError] = useState<string | null>(null);
   const [candidateJobs, setCandidateJobs] = useState<Record<string, CandidateJobState>>({});
   const [extractAllBusy, setExtractAllBusy] = useState(false);
-  const [showHitbox, setShowHitbox] = useState(false);
+  // Hitboxes visible by default in cutout review (operator 2026-08-13).
+  const [showHitbox, setShowHitbox] = useState(true);
   const [extractionPrompt, setExtractionPrompt] = useState<string>('');
   const [lastResult, setLastResult] = useState<string | null>(null);
   const [cropBoxes, setCropBoxes] = useState<Record<string, CropBox>>({});
