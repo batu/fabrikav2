@@ -2066,15 +2066,14 @@ def promote_materialized_sprites_canonically(
     model: str,
     entity: str,
 ) -> dict | None:
-    """BUG-13: land bulk-materialized sprites in the canonical snapshot.
+    """Land bulk-materialized sprites in the canonical snapshot (BUG-13).
 
-    The bulk flatkey path writes dogs/dog_XX files (legacy surface); without
-    a canonical commit the birds stay sprite-less, candidates lose their
-    birdId mapping, and placement saves fall into the exported-package path.
-    Maps each entry to its bird via the projected hitbox id and promotes it
-    through the same commit the per-bird extract uses. Legacy sessions
-    no-op; per-bird failures are collected, never raised — the legacy write
-    already happened and must stay visible."""
+    One pass per bird: neural best-safe fit (unless human-confirmed) →
+    capture provenance → promote through the per-bird extract's commit.
+    The cutter and the compatibility projection now share ONE folder per
+    bird (cutter_folder_indices — T3), so the old staged-bytes pre-pass and
+    slot-copy are gone: the folder the cutter wrote IS the slot home.
+    Legacy sessions no-op; per-bird failures collect, never raise."""
     from levelbuilder.api import canonical_job_provenance as _prov
     from levelbuilder.api.canonical_bird_contract import CanonicalReadState
 
@@ -2083,95 +2082,41 @@ def promote_materialized_sprites_canonically(
         return None
     committed, skipped = 0, 0
     failures: list[dict] = []
-    # BUG-15: dogs/dog_NN is the cutter's INDEX namespace but also the
-    # projection's SLOT namespace, and each promotion immediately projects
-    # into a slot folder — which may be a LATER position's index folder
-    # (france 2026-08-13: promoting slot dog_15 clobbered position 15, so
-    # bird dog_30 adopted bird dog_15's pixels). Stage every position's
-    # sprite bytes + metadata BEFORE the first promotion can project.
-    staging_root = session_dir(session_id) / ".canonical" / "staging"
-    staged: dict[int, tuple[Path, dict]] = {}
     raw_for_folders = load_session_raw(session_id) or {}
     folder_index = cutter_folder_indices(raw_for_folders.get("dogs") or [], hitboxes)
     for entry in materialized:
         index = entry.get("index")
         if not isinstance(index, int):
-            continue
-        meta_path = dogs_dir(session_id) / f"dog_{folder_index.get(index, index):02d}" / "sprite_000.json"
-        sprite_path = meta_path.with_suffix(".png")
-        # The placement fit must ALSO happen pre-staging (it rewrites the
-        # index folder's metadata) — same human-confirmed guard as below.
-        snapshot_now = read_canonical_session(session_id).snapshot or {}
-        reviews_now = ((snapshot_now.get("operational") or {}).get("candidateReviews") or {})
-        bird_id = (hitboxes[index].get("id") if 0 <= index < len(hitboxes) else None)
-        human_confirmed = bool((reviews_now.get(bird_id) or {}).get("confirmed")) if isinstance(bird_id, str) else False
-        if not human_confirmed and sprite_path.is_file():
-            try:
-                from levelbuilder.api import inpaint as _inpaint
-
-                _inpaint._auto_place_cutout_best_safe(session_id, folder_index.get(index, index), 0)
-            except Exception:
-                pass
-        try:
-            metadata = json.loads(meta_path.read_text())
-        except (OSError, ValueError) as error:
-            failures.append({"index": index, "birdId": str(bird_id), "error": f"sprite metadata unreadable: {error}"[:200]})
-            continue
-        if not sprite_path.is_file():
-            failures.append({"index": index, "birdId": str(bird_id), "error": "sprite file missing"})
-            continue
-        staging_root.mkdir(parents=True, exist_ok=True)
-        staged_sprite = staging_root / f"bulk-sprite-{index:02d}.png"
-        shutil.copy2(sprite_path, staged_sprite)
-        mask_path = sprite_path.with_name("sprite_mask_000.png")
-        staged_mask = staging_root / f"bulk-mask-{index:02d}.png"
-        if mask_path.is_file():
-            shutil.copy2(mask_path, staged_mask)
-        staged[index] = (staged_sprite, metadata)
-    for entry in materialized:
-        index = entry.get("index")
-        if not isinstance(index, int):
             skipped += 1
             continue
         bird_id = (hitboxes[index].get("id") if 0 <= index < len(hitboxes) else None)
-        if index not in staged:
-            skipped += 1
-            continue
-        sprite_path, metadata = staged[index]
+        folder = dogs_dir(session_id) / f"dog_{folder_index.get(index, index):02d}"
+        meta_path = folder / "sprite_000.json"
+        sprite_path = folder / "sprite_000.png"
         try:
-            # Idempotency: a cutter-skipped entry still needs promotion when
-            # the canonical bird has never adopted this sprite OR its fitted
-            # geometry (the split states BUG-13 named); skip only when digest
-            # AND placement both match.
-            if isinstance(bird_id, str):
-                snapshot_now = read_canonical_session(session_id).snapshot or {}
-                bird_now = next((b for b in snapshot_now.get("birds", [])
-                                 if b.get("birdId") == bird_id), None)
-                sprite_now = (bird_now or {}).get("sprite") or {}
-                current_sha = (sprite_now.get("asset") or {}).get("sha256")
-                placement_now = sprite_now.get("placement") or {}
-                box_now = metadata.get("spriteBox")
-                placement_matches = (
-                    isinstance(box_now, list) and len(box_now) == 4
-                    and placement_now.get("x") == int(box_now[0])
-                    and placement_now.get("y") == int(box_now[1])
-                    and placement_now.get("width") == int(box_now[2]) - int(box_now[0])
-                    and placement_now.get("height") == int(box_now[3]) - int(box_now[1])
-                )
-                asset_path = str((sprite_now.get("asset") or {}).get("path") or "")
-                staging_named = "bulk-sprite" in asset_path or "/staging/" in asset_path
-                if (placement_matches and not staging_named
-                        and current_sha == hashlib.sha256(sprite_path.read_bytes()).hexdigest()):
-                    skipped += 1
-                    continue
             if not isinstance(bird_id, str):
                 raise ValueError(f"hitbox {index} carries no bird id")
+            snapshot_now = read_canonical_session(session_id).snapshot or {}
+            reviews_now = ((snapshot_now.get("operational") or {}).get("candidateReviews") or {})
+            human_confirmed = bool((reviews_now.get(bird_id) or {}).get("confirmed"))
+            if not human_confirmed and sprite_path.is_file():
+                try:
+                    from levelbuilder.api import inpaint as _inpaint
+
+                    _inpaint._auto_place_cutout_best_safe(session_id, folder_index.get(index, index), 0)
+                except Exception:
+                    pass  # unsafe/failed fits keep generated geometry
+            try:
+                metadata = json.loads(meta_path.read_text())
+            except (OSError, ValueError) as error:
+                failures.append({"index": index, "birdId": str(bird_id), "error": f"sprite metadata unreadable: {error}"[:200]})
+                continue
+            if not sprite_path.is_file():
+                failures.append({"index": index, "birdId": str(bird_id), "error": "sprite file missing"})
+                continue
             sprite_box = metadata.get("spriteBox")
             if not (isinstance(sprite_box, list) and len(sprite_box) == 4):
                 raise ValueError("sprite metadata has no spriteBox")
-            # Operator 2026-08-13 ("all picked up has a piece hanging"):
-            # cleanup must cover soft edges/halos beyond the sprite bbox —
-            # pad by 6% of the box (min 12px), clamped to the scene.
             base_cleanup = metadata.get("cleanupBox")
             if not (isinstance(base_cleanup, list) and len(base_cleanup) == 4):
                 base_cleanup = list(sprite_box)
@@ -2181,40 +2126,36 @@ def promote_materialized_sprites_canonically(
                 with Image.open(session_dir(session_id) / "color.png") as _scene:
                     scene_w, scene_h = _scene.size
             except OSError:
-                scene_w = scene_h = 1 << 30  # no scene: pad unclamped
+                scene_w = scene_h = 1 << 30
             metadata["cleanupBox"] = [
                 max(0, bx0 - pad), max(0, by0 - pad),
                 min(scene_w, bx1 + pad), min(scene_h, by1 + pad),
             ]
-            # Re-read per bird: each promote commits a new revision, and the
-            # capture must bind to the revision it will be verified against.
-            snapshot = read_canonical_session(session_id).snapshot
+            # Idempotency: skip only when digest AND placement both match.
+            bird_now = next((b for b in snapshot_now.get("birds", [])
+                             if b.get("birdId") == bird_id), None)
+            sprite_now = (bird_now or {}).get("sprite") or {}
+            current_sha = (sprite_now.get("asset") or {}).get("sha256")
+            placement_now = sprite_now.get("placement") or {}
+            box_now = metadata.get("spriteBox")
+            placement_matches = (
+                isinstance(box_now, list) and len(box_now) == 4
+                and placement_now.get("x") == int(box_now[0])
+                and placement_now.get("y") == int(box_now[1])
+                and placement_now.get("width") == int(box_now[2]) - int(box_now[0])
+                and placement_now.get("height") == int(box_now[3]) - int(box_now[1])
+            )
+            if placement_matches and current_sha == hashlib.sha256(sprite_path.read_bytes()).hexdigest():
+                skipped += 1
+                continue
             captured = _prov.capture_bird_job_input(
-                snapshot,
+                snapshot_now,
                 bird_id=bird_id,
                 operation="bulk-flatkey-extract",
                 crop_box=tuple(int(v) for v in sprite_box),
                 model=model,
                 prompt=entity,
             )
-            # The DURABLE home is the bird's slot folder with canonical
-            # names — never the staging path (a staging-named asset filled
-            # slot folders with bulk-sprite-*.png and blanked the cutout
-            # panel, 2026-08-13). Bytes were staged first, so writing the
-            # slot folder cannot clobber a later position's read.
-            bird_slot = next((b.get("compatibilitySlot")
-                              for b in (snapshot_now.get("birds") or [])
-                              if b.get("birdId") == bird_id), None)
-            if isinstance(bird_slot, str) and bird_slot:
-                slot_dir = dogs_dir(session_id) / bird_slot
-                slot_dir.mkdir(parents=True, exist_ok=True)
-                final_sprite = slot_dir / "sprite_000.png"
-                shutil.copy2(sprite_path, final_sprite)
-                staged_mask = sprite_path.with_name(sprite_path.name.replace("bulk-sprite-", "bulk-mask-"))
-                if staged_mask.is_file():
-                    shutil.copy2(staged_mask, slot_dir / "sprite_mask_000.png")
-                (slot_dir / "sprite_000.json").write_text(json.dumps(metadata, indent=2) + "\n")
-                sprite_path = final_sprite
             pointer, disposition = promote_canonical_sprite_artifact(
                 session_id,
                 captured_input=captured.to_dict(),
@@ -2228,7 +2169,6 @@ def promote_materialized_sprites_canonically(
         except Exception as error:
             failures.append({"index": index, "birdId": str(bird_id), "error": str(error)[:200]})
     return {"committed": committed, "skipped": skipped, "failed": failures}
-
 
 def promote_canonical_sprite_artifact(
     session_id: str,
