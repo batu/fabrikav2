@@ -381,7 +381,21 @@ def score_candidates_with_vision(
             if text.startswith("```"):
                 text = text.split("```")[1]
                 text = text.removeprefix("json").strip()
-            return list(CandidateScoreResponse.model_validate(json.loads(text)).candidates)
+            try:
+                return list(CandidateScoreResponse.model_validate(json.loads(text)).candidates)
+            except (json.JSONDecodeError, ValidationError):
+                # Last rung: the model's prose broke the JSON (unescaped quotes
+                # in reasons, live 2026-08-13). Salvage id/score pairs
+                # deterministically — reasons are log-only.
+                import re as _re
+
+                salvaged = [
+                    CandidateScore(id=int(m.group(1)), score=max(0, min(100, int(m.group(2)))), reason="salvaged")
+                    for m in _re.finditer(r'"id"\s*:\s*(\d+)\s*,\s*"score"\s*:\s*(\d+)', text)
+                ]
+                if not salvaged:
+                    raise
+                return salvaged
 
     scores: list[CandidateScore] = []
     last_chunk_error: Exception | None = None
