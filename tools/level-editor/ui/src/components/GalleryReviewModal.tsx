@@ -1191,6 +1191,13 @@ export default function GalleryReviewModal({
           </button>
           
           {blessError && <span style={{ color: '#ff9c9c', fontSize: 12 }}>{blessError}</span>}
+          {!blessError && card?.session.hitboxesBlessed && card.session.finalCutoutReviewReady !== true && (
+            /* The why must be visible, not a hover tooltip (operator
+               2026-08-13: rage-clicking a silent disabled button). */
+            <span style={{ color: '#ffd98a', fontSize: 12 }}>
+              {`${card.session.missingFinalCutouts ?? 0} cutout(s) missing — run ✂ Extract all in the Cutouts & redo tab first.`}
+            </span>
+          )}
           <button
             type="button"
             className="btn"
