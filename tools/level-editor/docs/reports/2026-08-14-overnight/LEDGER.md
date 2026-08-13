@@ -12,3 +12,4 @@
 - 21:53Z scribes_workyard_5094 generating (level 1 of 22).
 - 22:0xZ T3 CORE + STAGING DELETION committed (514 green): cutter_folder_indices is the one position→folder resolver; cutter/promotion/fit all file by the bird's dog index (== slot ordinal); promotion is a single pass; BUG-15's staged-bytes workaround deleted as structurally unnecessary. Deploys at next between-level restart gap.
 - 22:01Z LEVEL 1/22 scribes_workyard_5094: PASS by eyes — 21/21 circles on birds; codex's Egyptian scene rendered fully contained (walls all sides, steles/scroll racks intact). $2.60 cumulative.
+- 22:1xZ T4 committed (515 green): sprite-gaps derives from the snapshot on canonical sessions (a sprite-less bird IS a gap; the legacy walk that hid france's failed bird is now legacy-only). Deploys with T3 at the seam.
