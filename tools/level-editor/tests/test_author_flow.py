@@ -53,8 +53,10 @@ def test_full_flow_runs_every_step_in_order(monkeypatch, capsys):
     code, out = _run(monkeypatch, capsys, stub, ["author", "--template", "t1", "--force-disk"])
     assert code == 0, out
     steps = [entry["step"] for entry in json.loads(out)["trace"]]
+    # fix-hitboxes left the lane 2026-08-13 (one-path plan T1): the in-job
+    # VLM stage is the only post-paint localizer.
     assert steps == ["create", "generate-bg", "select-bg", "upscale", "auto-hitboxes",
-                     "inpaint", "hitbox-review-checkpoint", "repair-sprites", "fix-hitboxes", "export"]
+                     "inpaint", "hitbox-review-checkpoint", "repair-sprites", "export"]
 
 
 def test_stop_after_truncates_the_flow(monkeypatch, capsys):

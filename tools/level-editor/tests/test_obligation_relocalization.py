@@ -126,8 +126,8 @@ def test_job_lane_magenta_also_discharges_obligations(monkeypatch):
     calls = []
     monkeypatch.setattr(I, "run_magenta_inpaint",
                         lambda sid, **kw: calls.append("paint") or {"ok": True})
-    monkeypatch.setattr(I, "recenter_hitboxes_local_diff",
-                        lambda sid: calls.append("recenter") or {"moved": []})
+    monkeypatch.setattr(I, "localize_hitboxes_from_detections",
+                        lambda sid: calls.append("localize") or {"detected": 1})
     monkeypatch.setattr(S, "adopt_canonical_if_ready",
                         lambda sid: calls.append("adopt") or "migrate")
     monkeypatch.setattr(S, "stamp_hitbox_localization",
@@ -141,5 +141,5 @@ def test_job_lane_magenta_also_discharges_obligations(monkeypatch):
     job = SimpleNamespace(session_id="sid_x", metadata={})
     summary = I._run_magenta_inpaint_job(job, store=None)
     assert calls[0] == "paint"
-    assert {"recenter", "adopt", "stamp"} <= set(calls), calls
+    assert {"localize", "adopt", "stamp"} <= set(calls), calls
     assert summary.get("relocalization") is not None or summary.get("relocalizationFailed") is None

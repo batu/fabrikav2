@@ -3672,20 +3672,76 @@ def clear_extension(session_id: str) -> ExtensionStateResponse:
     return ExtensionStateResponse(extension=None)
 
 
+def _scene_dimension(session_id: str) -> int:
+    color_path = S.session_dir(session_id) / "color.png"
+    with Image.open(color_path) as image:
+        return max(image.size)
+
+
+def localize_hitboxes_from_detections(session_id: str) -> dict[str, Any]:
+    """T1 (one-path plan 2026-08-13): detections are truth.
+
+    VLM detections become the hitbox set. Existing ids persist by
+    nearest-assignment (continuity only); unmatched detections are new
+    birds; dots the model ignored are pruned. Uniform catalog radius.
+    No count opinion. An empty detection set is a loud no-op — a blind
+    VLM must never wipe a level."""
+    import numpy as _np
+    from scipy.optimize import linear_sum_assignment
+
+    detections = detect_birds_vlm(session_id)
+    if not detections:
+        return {"detected": 0, "skipped": "no_detections"}
+    radius = uniform_hitbox_radius(_scene_dimension(session_id))
+    centers = [
+        (int(d["x"] + d["width"] / 2), int(d["y"] + d["height"] / 2))
+        for d in detections
+    ]
+    existing = [h for h in _load_retry_hitboxes(session_id) if isinstance(h, dict)]
+    carried_ids: dict[int, str] = {}
+    if existing and centers:
+        cost = _np.zeros((len(centers), len(existing)))
+        for i, (cx, cy) in enumerate(centers):
+            for j, h in enumerate(existing):
+                cost[i][j] = ((cx - h.get("x", 0)) ** 2 + (cy - h.get("y", 0)) ** 2) ** 0.5
+        rows, cols = linear_sum_assignment(cost)
+        # Continuity cap: an id carries only when the detection is plausibly
+        # the SAME bird (within 4x radius). Farther pairings are coincidence —
+        # the detection is a new bird and the ignored dot prunes.
+        for i, j in zip(rows, cols):
+            identifier = existing[j].get("id")
+            if isinstance(identifier, str) and cost[i][j] <= radius * 4:
+                carried_ids[i] = identifier
+    payload = []
+    for i, (cx, cy) in enumerate(centers):
+        entry = {"x": cx, "y": cy, "r": radius}
+        if i in carried_ids:
+            entry["id"] = carried_ids[i]
+        payload.append(entry)
+    S.save_hitboxes(session_id, payload)
+    carried = len(carried_ids)
+    return {
+        "detected": len(centers),
+        "carried": carried,
+        "added": len(centers) - carried,
+        "pruned": len(existing) - carried,
+    }
+
+
 def _discharge_paint_obligations(session_id: str, summary: dict[str, Any]) -> dict[str, Any]:
     """Plan §Obligation edges, shared by EVERY magenta lane: re-localize
     hitboxes against the fresh paint, adopt the canonical store at the paint
     boundary (BUG-3), and stamp localization. Fail-soft — the paint is paid;
     a miss stays visible as pending state, never a lost job."""
     try:
-        summary["relocalization"] = recenter_hitboxes_local_diff(session_id)
-    except Exception as relocalize_error:
-        summary["relocalizationFailed"] = str(relocalize_error)[:300]
+        summary["localization"] = localize_hitboxes_from_detections(session_id)
+    except Exception as localize_error:
+        summary["localizationFailed"] = str(localize_error)[:300]
     try:
         adopted = S.adopt_canonical_if_ready(session_id)
         if adopted:
             summary["canonicalAdoption"] = adopted
-        S.stamp_hitbox_localization(session_id, method="local-diff-recenter")
+        S.stamp_hitbox_localization(session_id, method="vlm-snap")
     except Exception as adopt_error:
         summary["canonicalAdoptionFailed"] = str(adopt_error)[:300]
     return summary

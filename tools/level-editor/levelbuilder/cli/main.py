@@ -734,9 +734,11 @@ def cmd_dogs(client: Client, args: argparse.Namespace) -> None:
     _emit(args, result)
 
 
+# fix-hitboxes left the lane 2026-08-13 (one-path plan T1): post-paint
+# localization is the in-job VLM stage; a second localizer is a second path.
 AUTHOR_STEPS = (
     "create", "generate-bg", "select-bg", "upscale", "auto-hitboxes",
-    "inpaint", "hitbox-review-checkpoint", "repair-sprites", "fix-hitboxes", "export",
+    "inpaint", "hitbox-review-checkpoint", "repair-sprites", "export",
 )
 
 
@@ -940,10 +942,7 @@ def cmd_author(client: Client, args: argparse.Namespace) -> None:
                     "regenBudgetLeft": budget,
                     "regenFailures": regen_failures,
                 })
-            elif step == "fix-hitboxes":
-                moved = client.post(f"/api/sessions/{session_id}/fix-hitboxes",
-                                    params={"maxOffsetFraction": args.max_offset})
-                note("fix-hitboxes", {"moved": len(moved.get("moved", []))})
+
             elif step == "export":
                 export_args = argparse.Namespace(**{
                     **vars(args),
