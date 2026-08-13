@@ -448,11 +448,14 @@ def repair_cleanup_identity_bindings(
         for bird in sorted(plan.snapshot["birds"], key=lambda item: item["presentationOrder"]):
             dog = dict(existing_by_slot.get(bird["compatibilitySlot"], {}))
             dog.update({"id": bird["birdId"], **bird["hitbox"]})
-            sprite = dict(dog.get("sprite") or {})
-            sprite.update(bird["sprite"]["placement"])
-            sprite["cleanup"] = {key: bird["cleanup"][key] for key in ("x", "y", "width", "height")}
-            sprite.update({key: bird["sprite"][key] for key in ("anchorX", "anchorY", "flipX", "flipY")})
-            dog["sprite"] = sprite
+            # Pre-extraction birds (magenta paint, cutouts pending) have no
+            # sprite/cleanup yet — project hitbox-only; extraction fills in.
+            if isinstance(bird.get("sprite"), dict) and isinstance(bird.get("cleanup"), dict):
+                sprite = dict(dog.get("sprite") or {})
+                sprite.update(bird["sprite"]["placement"])
+                sprite["cleanup"] = {key: bird["cleanup"][key] for key in ("x", "y", "width", "height")}
+                sprite.update({key: bird["sprite"][key] for key in ("anchorX", "anchorY", "flipX", "flipY")})
+                dog["sprite"] = sprite
             dog["compatibilitySlot"] = bird["compatibilitySlot"]
             projected.append(dog)
         level["dogs"] = projected
@@ -600,7 +603,9 @@ def _canonical_pixel_issues(
             if frame_mae > RESTORE_FRAME_MAE_LIMIT:
                 issues.append(f"restore_scene_mismatch:{frame_mae:.2f}")
             for bird in snapshot["birds"]:
-                cleanup = bird["cleanup"]
+                cleanup = bird.get("cleanup")
+                if not isinstance(cleanup, dict):
+                    continue  # pre-extraction bird: no restore region yet
                 box = (
                     cleanup["x"], cleanup["y"],
                     cleanup["x"] + cleanup["width"], cleanup["y"] + cleanup["height"],
@@ -642,6 +647,7 @@ def _stale_restore_refresh_plan(
             bird["cleanup"]["y"] + bird["cleanup"]["height"],
         )
         for bird in snapshot["birds"]
+        if isinstance(bird.get("cleanup"), dict)
     ]
     if not _scene_matches_clean(scene, clean, cleanup_boxes):
         return None
@@ -736,7 +742,27 @@ def plan_legacy_level(
             issues.append(f"{bird_id}:invalid_compatibility_slot")
             continue
         if not isinstance(variant, int) or variant < 0:
-            issues.append(f"{bird_id}:missing_active_variant")
+            # Magenta pre-extraction shape (one-path lane, 2026-08-13): after
+            # a whole-scene paint, dogs are marked done with NO variant — the
+            # sprite arrives later via cutouts. The canonical contract allows
+            # sprite-less birds (the DAG carries their extract obligations),
+            # so migrate them as pre-extraction birds instead of quarantining.
+            # A dog directory on disk with this state is still corruption.
+            dog_dir = session_dir / "dogs" / f"dog_{index:02d}"
+            if dog_dir.is_dir() and any(dog_dir.glob("variant_*.png")):
+                issues.append(f"{bird_id}:missing_active_variant")
+                continue
+            x, y = int(hitbox["x"]), int(hitbox["y"])
+            birds.append({
+                "birdId": bird_id,
+                "compatibilitySlot": f"dog_{index:02d}",
+                "presentationOrder": order,
+                "hitbox": {"x": x, "y": y, "r": int(hitbox.get("r", hitbox.get("radius", 30)))},
+                "activeGeneration": {
+                    "generationId": f"magenta-preextract:{index}",
+                    "inputSceneSha256": scene_asset["sha256"],
+                },
+            })
             continue
         dog_dir = session_dir / "dogs" / f"dog_{index:02d}"
         sprite_path = dog_dir / f"sprite_{variant:03d}.png"
@@ -829,6 +855,7 @@ def plan_legacy_level(
             bird["cleanup"]["y"] + bird["cleanup"]["height"],
         )
         for bird in birds
+        if isinstance(bird.get("cleanup"), dict)
     ]
     plan = _restore_plan(restore)
     if plan.action == "quarantine" and restore != clean and _scene_matches_clean(scene, clean, bird_cleanup_boxes):

@@ -95,3 +95,32 @@ def test_localizer_resyncs_dogs_to_the_new_id_set(monkeypatch):
                         lambda sid, payload: resynced.append([h.get("id") for h in payload]))
     I.localize_hitboxes_from_detections("sid")
     assert resynced and resynced[0] == ["bird-a"]
+
+
+def test_migration_plan_accepts_magenta_preextraction_birds(tmp_path):
+    """Live gate find #2 (2026-08-13): after a magenta paint, dogs are done
+    with NO variant (sprites come from cutouts later). The planner must
+    migrate that shape as sprite-less birds — the contract allows them and
+    the DAG carries their extract obligations — not quarantine the level."""
+    import json
+    from PIL import Image
+    from levelbuilder.api.corpus_migration import plan_legacy_level
+
+    d = tmp_path / "lvl"
+    d.mkdir()
+    Image.new("RGB", (64, 64), (10, 10, 10)).save(d / "color.png")
+    Image.new("RGB", (64, 64), (20, 20, 20)).save(d / "bg_00.png")
+    Image.new("RGB", (64, 64), (10, 10, 10)).save(d / "inpainted.png")
+    (d / "hitboxes.json").write_text(json.dumps(
+        [{"id": "2a0e1562-1040-583e-aed6-54542259ad0d", "x": 30, "y": 30, "r": 10}]))
+    (d / "session.json").write_text(json.dumps({
+        "id": "lvl", "selected_bg": 0, "inpaint_mode": "magenta",
+        "dogs": [{"id": "2a0e1562-1040-583e-aed6-54542259ad0d", "index": 0, "status": "done", "activeVariant": None}],
+    }))
+    (d / "level.json").write_text(json.dumps({
+        "id": "lvl", "width": 64, "height": 64,
+        "colorImage": "color.png", "bwImage": "color.png",
+        "dogs": [{"id": "dog_00", "x": 30, "y": 30, "r": 10}],
+    }))
+    plan = plan_legacy_level(d, None, archived=False)
+    assert plan.action == "migrate", (plan.action, plan.issues)
