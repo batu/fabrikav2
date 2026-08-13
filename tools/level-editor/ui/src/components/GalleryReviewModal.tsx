@@ -1142,6 +1142,18 @@ export default function GalleryReviewModal({
                 try {
                   result = await setFinalCutoutApproval(card.session.id, approved, expectedContentRevision);
                 } catch (error) {
+                  // Server says the hitbox review lapsed (a re-cut/repair
+                  // invalidated it after this tab loaded): heal the stale
+                  // green check instead of stranding the operator at a dead
+                  // button (live, france 2026-08-13).
+                  const message = error instanceof Error ? error.message : String(error);
+                  if (message.includes('hitbox review is required')) {
+                    onReviewChanged(card.session.id, {
+                      hitboxesBlessed: false, hitboxesBlessingStale: true,
+                    });
+                    setBlessError('The hitbox review went stale on the server (sprites were re-cut since this tab loaded). Re-review hitboxes, then mark cutouts.');
+                    return;
+                  }
                   const currentRevision = conflictRevision(error);
                   if (!currentRevision) throw error;
                   // P2b.3: never blind-retry a human approval at a revision the
