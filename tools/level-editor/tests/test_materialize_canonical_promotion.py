@@ -177,3 +177,24 @@ def test_promotion_reads_all_folders_before_any_projection_clobber(monkeypatch, 
         model="m", entity="bird")
     assert result["committed"] == 2
     assert adopted_bytes[1] == b"bird-B-pixels", "position 1 adopted bird-a's projected pixels"
+
+
+def test_cutter_files_by_bird_dog_index_not_array_position(monkeypatch, tmp_path):
+    """T3 core (one-path plan): the cutter must write dogs/dog_<dogIndex> —
+    the bird's own registry index (== its compatibility slot ordinal by
+    construction) — never the hitbox ARRAY position. The position/slot
+    collision is what duplicated a bird (BUG-15) and orphaned the panel."""
+    from levelbuilder.api import session as S
+
+    dogs = [
+        {"id": "bird-a", "index": 20, "status": "done", "activeVariant": None},
+        {"id": "bird-b", "index": 21, "status": "done", "activeVariant": None},
+    ]
+    hitboxes = [
+        {"id": "bird-a", "x": 1, "y": 2, "r": 3},   # array position 0, dog index 20
+        {"id": "bird-b", "x": 4, "y": 5, "r": 3},
+    ]
+    resolved = S.cutter_folder_indices(dogs, hitboxes)
+    assert resolved == {0: 20, 1: 21}
+    # Legacy id-less hitboxes fall back to array position.
+    assert S.cutter_folder_indices([], [{"x": 1, "y": 2, "r": 3}]) == {0: 0}

@@ -2091,11 +2091,13 @@ def promote_materialized_sprites_canonically(
     # sprite bytes + metadata BEFORE the first promotion can project.
     staging_root = session_dir(session_id) / ".canonical" / "staging"
     staged: dict[int, tuple[Path, dict]] = {}
+    raw_for_folders = load_session_raw(session_id) or {}
+    folder_index = cutter_folder_indices(raw_for_folders.get("dogs") or [], hitboxes)
     for entry in materialized:
         index = entry.get("index")
         if not isinstance(index, int):
             continue
-        meta_path = dogs_dir(session_id) / f"dog_{index:02d}" / "sprite_000.json"
+        meta_path = dogs_dir(session_id) / f"dog_{folder_index.get(index, index):02d}" / "sprite_000.json"
         sprite_path = meta_path.with_suffix(".png")
         # The placement fit must ALSO happen pre-staging (it rewrites the
         # index folder's metadata) — same human-confirmed guard as below.
@@ -2107,7 +2109,7 @@ def promote_materialized_sprites_canonically(
             try:
                 from levelbuilder.api import inpaint as _inpaint
 
-                _inpaint._auto_place_cutout_best_safe(session_id, index, 0)
+                _inpaint._auto_place_cutout_best_safe(session_id, folder_index.get(index, index), 0)
             except Exception:
                 pass
         try:
@@ -4362,6 +4364,24 @@ def _neighbor_free_crop(
     return crop
 
 
+def cutter_folder_indices(dogs: list[dict], hitboxes: list[dict]) -> dict[int, int]:
+    """T3: hitbox array position -> the folder index the cutter must use.
+
+    The folder is the bird's OWN registry index (dogs[].index, which equals
+    its compatibilitySlot ordinal by construction after adoption) — never
+    the hitbox array position. Filing by array position is the namespace
+    collision that duplicated a bird (BUG-15). Legacy id-less hitboxes fall
+    back to their array position."""
+    by_id = {d.get("id"): d for d in dogs if isinstance(d, dict) and d.get("id")}
+    out: dict[int, int] = {}
+    for position, hitbox in enumerate(hitboxes):
+        identifier = hitbox.get("id") if isinstance(hitbox, dict) else None
+        dog = by_id.get(identifier) if identifier else None
+        index = dog.get("index") if isinstance(dog, dict) else None
+        out[position] = index if isinstance(index, int) else position
+    return out
+
+
 def materialize_detection_sprites(
     session_id: str,
     *,
@@ -4526,7 +4546,7 @@ def materialize_detection_sprites(
                     "detectionIndex": detection["index"],
                     "reason": "extraction_failed",
                 })
-            dog_dir = dogs_dir(session_id) / f"dog_{index:02d}"
+            dog_dir = dogs_dir(session_id) / f"dog_{folder_index[index]:02d}"
             dog_dir.mkdir(parents=True, exist_ok=True)
             variant_path = dog_dir / "variant_000.png"
             painted.save(variant_path)
@@ -4555,9 +4575,10 @@ def materialize_detection_sprites(
                 "spriteBox": metadata["spriteBox"],
             })
 
+        folder_index = cutter_folder_indices(raw.get("dogs") or [], hitboxes)
         pending = []
         for index, hitbox_data in enumerate(hitboxes):
-            meta_path = dogs_dir(session_id) / f"dog_{index:02d}" / "sprite_000.json"
+            meta_path = dogs_dir(session_id) / f"dog_{folder_index[index]:02d}" / "sprite_000.json"
             if meta_path.exists() and not force and not os.environ.get("FTD_SPRITE_FORCE"):
                 try:
                     if json.loads(meta_path.read_text()).get("technique") == "flatkey-recreate-v1":
