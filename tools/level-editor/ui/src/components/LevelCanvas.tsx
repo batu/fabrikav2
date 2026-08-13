@@ -36,7 +36,7 @@ export interface LevelCanvasState {
 export type CanvasMutation =
   | { type: 'select'; index: number; dogId: string | null }
   | { type: 'move'; index: number; dogId: string | null; x: number; y: number }
-  | { type: 'add'; hitbox: { x: number; y: number; r: number } }
+  | { type: 'add'; hitbox: { id: string; x: number; y: number; r: number } }
   | { type: 'remove'; index: number; dogId: string | null };
 
 export type LevelCanvasAction =
@@ -803,7 +803,7 @@ export default function LevelCanvas({ state, dispatch, readOnly = false, allowAd
         const idx = hitTest(x, y);
         if (idx < 0 && allowAddRemove) {
           // Empty area — place new hitbox
-          emit({ type: 'add', hitbox: { x: Math.round(x), y: Math.round(y), r: state.radius } });
+          emit({ type: 'add', hitbox: { id: crypto.randomUUID(), x: Math.round(x), y: Math.round(y), r: state.radius } });
         } else {
           // Clicked existing hitbox without dragging — select it
           emit({ type: 'select', index: idx, dogId: hitboxesRef.current[idx]?.id ?? null });
@@ -825,7 +825,7 @@ export default function LevelCanvas({ state, dispatch, readOnly = false, allowAd
       if (idx >= 0) {
         emit({ type: 'remove', index: idx, dogId: hitboxesRef.current[idx]?.id ?? null });
       } else {
-        emit({ type: 'add', hitbox: { x: Math.round(x), y: Math.round(y), r: state.radius } });
+        emit({ type: 'add', hitbox: { id: crypto.randomUUID(), x: Math.round(x), y: Math.round(y), r: state.radius } });
       }
     },
     [readOnly, allowAddRemove, canvasToImage, hitTest, state.radius, emit],

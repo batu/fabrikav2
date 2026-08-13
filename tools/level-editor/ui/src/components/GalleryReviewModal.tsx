@@ -4,6 +4,7 @@ import {
   ApiError,
   getSession,
   getFinalCutoutReviewReadiness,
+  autoPlaceHitboxes,
   rerunStale,
   runGeometryOperation,
   saveHitboxes,
@@ -378,13 +379,17 @@ export default function GalleryReviewModal({
       }
       throw error;
     }
-    updateCachedHitboxes(sessionId, hitboxes);
+    const persisted = (result as { hitboxes?: Hitbox[] } | undefined)?.hitboxes ?? hitboxes;
+    updateCachedHitboxes(sessionId, persisted);
     if (result) {
       dispatchNarrow({
         type: 'SET_REVISIONS',
         contentRevision: result.contentRevision,
         operationalRevision: result.operationalRevision,
       });
+      // Adopt server identities: a client-added hitbox gets its birdId here,
+      // so the NEXT save carries ids instead of being refused as positional.
+      dispatchNarrow({ type: 'SET_HITBOXES', hitboxes: persisted });
       const updated = sessionCacheRef.current.get(sessionId);
       if (updated) {
         sessionCacheRef.current.set(sessionId, {
@@ -902,6 +907,51 @@ export default function GalleryReviewModal({
                   </button>
                 ))}
               </div>
+              <div style={{ display: 'flex', gap: 6 }}>
+                <button
+                  type="button"
+                  className="btn"
+                  style={{ flex: 1, fontSize: '0.72rem' }}
+                  title="Smart auto-placement (vision-scored) — proposes a full hitbox set through the geometry service"
+                  onClick={async () => {
+                    if (!card) return;
+                    const count = Math.max(state.hitboxes?.length ?? 0, state.dogs?.length ?? 0) || 15;
+                    if (!window.confirm(`Auto-place ${count} hitboxes? Existing machine-placed hitboxes are replaced; your hand-placed ones are protected.`)) return;
+                    try {
+                      const response = await autoPlaceHitboxes(card.session.id, count, Date.now(), undefined, 'smart');
+                      if (response.hitboxes) {
+                        dispatchNarrow({ type: 'SET_HITBOXES', hitboxes: response.hitboxes });
+                        updateCachedHitboxes(card.session.id, response.hitboxes);
+                      }
+                    } catch { /* request() toasts */ }
+                  }}
+                >
+                  ✨ Auto-place hitboxes
+                </button>
+                <button
+                  type="button"
+                  className="btn"
+                  title="CL-17: queue extraction for every bird the DAG reports stale (sprite missing). Paid — one job, only the obligated birds."
+                  onClick={async () => {
+                    if (!card) return;
+                    const revision = state.contentRevision
+                      ?? sessionCacheRef.current.get(card.session.id)?.contentRevision;
+                    if (!revision) return;
+                    try {
+                      const preview = await rerunStale(card.session.id, revision, true);
+                      if (preview.queuedBirdIds.length === 0) {
+                        setBlessError('Nothing stale — every bird has a cutout.');
+                        return;
+                      }
+                      if (!window.confirm(`Queue extraction for ${preview.queuedBirdIds.length} stale bird(s)? This is a paid job.`)) return;
+                      const started = await rerunStale(card.session.id, revision, false);
+                      setBlessError(`Queued ${started.queuedBirdIds.length} extraction(s) (job ${started.jobId ?? '?'}).`);
+                    } catch { /* request() toasts */ }
+                  }}
+                >
+                  ↻ Re-run stale
+                </button>
+              </div>
               <div style={{ background: '#0a0a0a', border: '1px solid #222', borderRadius: 8, padding: 12 }}>
                 <div style={{ fontSize: '0.85rem', color: '#ccc', marginBottom: 6 }}>
                   Hitboxes — {state.hitboxes.length}
@@ -1075,29 +1125,7 @@ export default function GalleryReviewModal({
           >
             {cutoutBlessBusy ? 'Saving…' : card?.session.cutoutsFinalBlessed ? '★ Cutouts reviewed' : 'Mark cutouts reviewed'}
           </button>
-          <button
-            type="button"
-            className="btn"
-            title="CL-17: queue extraction for every bird the DAG reports stale (sprite missing). Paid — one job, only the obligated birds."
-            onClick={async () => {
-              if (!card) return;
-              const revision = state.contentRevision
-                ?? sessionCacheRef.current.get(card.session.id)?.contentRevision;
-              if (!revision) return;
-              try {
-                const preview = await rerunStale(card.session.id, revision, true);
-                if (preview.queuedBirdIds.length === 0) {
-                  setBlessError('Nothing stale — every bird has a cutout.');
-                  return;
-                }
-                if (!window.confirm(`Queue extraction for ${preview.queuedBirdIds.length} stale bird(s)? This is a paid job.`)) return;
-                const started = await rerunStale(card.session.id, revision, false);
-                setBlessError(`Queued ${started.queuedBirdIds.length} extraction(s) (job ${started.jobId ?? '?'}).`);
-              } catch { /* request() toasts */ }
-            }}
-          >
-            ↻ Re-run stale
-          </button>
+          
           {blessError && <span style={{ color: '#ff9c9c', fontSize: 12 }}>{blessError}</span>}
           <button
             type="button"

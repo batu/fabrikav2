@@ -31,7 +31,7 @@ DEFAULT_RECIPE: dict[str, Any] = {
     "models": {
         "background": "google/gemini-3-pro-image",
         "inpaint": "google/gemini-2.5-flash-image",
-        "placementScoring": "google/gemini-3.5-flash-lite",
+        "placementScoring": "google/gemini-3.6-flash",
         "cutout": "google/gemini-2.5-flash-image",
         "upscale": "fal-ai/esrgan",
     },

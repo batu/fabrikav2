@@ -9,6 +9,7 @@ import pytest
 
 
 def test_default_recipe_is_versioned_and_hash_stable():
+    from levelbuilder.api.smart_hitboxes import SMART_PLACEMENT_MODEL
     from levelbuilder.recipe import DEFAULT_RECIPE, recipe_hash, serialize_recipe
 
     assert DEFAULT_RECIPE["schemaVersion"] == 1
@@ -19,6 +20,7 @@ def test_default_recipe_is_versioned_and_hash_stable():
     for field in ("models", "dimensions", "placement", "inpaint", "cutout", "export",
                   "variantSlots", "difficultyMix", "birdCount", "paintSize"):
         assert field in DEFAULT_RECIPE, field
+    assert DEFAULT_RECIPE["models"]["placementScoring"] == SMART_PLACEMENT_MODEL
 
 
 def test_sessions_without_recipe_resolve_to_default():
