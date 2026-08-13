@@ -17,7 +17,9 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageOps
-from pydantic import BaseModel, Field
+import json
+
+from pydantic import BaseModel, Field, field_validator
 
 from levelbuilder.hitboxes import Rect
 
@@ -60,6 +62,27 @@ class CandidateScore(BaseModel):
 
 class CandidateScoreResponse(BaseModel):
     candidates: list[CandidateScore]
+
+    @field_validator("candidates", mode="before")
+    @classmethod
+    def _unwrap_string_items(cls, value):
+        """The vision model sometimes returns list items as STRINGS of JSON
+        (observed live 2026-08-13, gemini-3.5-flash-lite). Unwrap them before
+        validation instead of failing the whole placement; genuinely malformed
+        strings still fail loudly downstream."""
+        if isinstance(value, str):
+            value = json.loads(value)
+        if isinstance(value, list):
+            unwrapped = []
+            for item in value:
+                if isinstance(item, str):
+                    try:
+                        item = json.loads(item)
+                    except json.JSONDecodeError:
+                        pass  # leave it; pydantic names the offender
+                unwrapped.append(item)
+            return unwrapped
+        return value
 
 
 def _candidate_box(candidate: PlacementCandidate | ScoredPlacementCandidate, padding: float) -> tuple[float, float, float, float]:

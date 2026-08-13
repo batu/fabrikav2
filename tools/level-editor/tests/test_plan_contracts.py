@@ -292,3 +292,19 @@ def test_sse_lane_jobs_are_never_worker_claimable(tmp_path):
     assert claimed is not None and claimed.id == normal.id
     assert store.claim_next_queued_job(owner="w1", kinds=("magenta_inpaint",)) is None
     assert store.get_job(sse.id).status == "queued"
+
+
+def test_candidate_score_response_tolerates_string_encoded_items():
+    """Live failure 2026-08-13: the vision model returned candidates[0] as a
+    STRING of JSON instead of an object; the parser must unwrap it instead of
+    502ing the whole smart placement."""
+    from levelbuilder.api.smart_hitboxes import CandidateScoreResponse
+
+    parsed = CandidateScoreResponse.model_validate({
+        "candidates": [
+            '{"id": 1, "score": 80, "reason": "clear spot"}',
+            {"id": 2, "score": 55, "reason": "busy area"},
+        ],
+    })
+    assert [c.id for c in parsed.candidates] == [1, 2]
+    assert parsed.candidates[0].score == 80
