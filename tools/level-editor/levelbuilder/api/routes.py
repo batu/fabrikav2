@@ -2457,10 +2457,39 @@ def rerun_stale(session_id: str, req: RerunStaleRequest):
         from .inpaint import RetryFailedDogsJobRequest
 
         raw = S.load_session_raw(session_id) or {}
+        # Pre-extraction birds (VLM-added, one-path lane) have no cleanup
+        # yet — the crop defaults to the recipe square around the hitbox
+        # (2.75r, scene-clamped), same default the cutout panel shows.
+        # Without this the redo 400'd on every freshly added bird
+        # (live, japan_river 2026-08-13).
+        try:
+            with Image.open(S.session_dir(session_id) / "color.png") as _scene:
+                scene_w, scene_h = _scene.size
+        except OSError:
+            scene_w = scene_h = 1 << 30
+        crop_boxes: dict[str, list[int]] = {}
+        birds_by_id = {b["birdId"]: b for b in canonical.snapshot["birds"]}
+        for bird_id in queued_bird_ids:
+            bird = birds_by_id.get(bird_id) or {}
+            cleanup = bird.get("cleanup")
+            if isinstance(cleanup, dict):
+                crop_boxes[bird_id] = [
+                    int(cleanup["x"]), int(cleanup["y"]),
+                    int(cleanup["x"] + cleanup["width"]), int(cleanup["y"] + cleanup["height"]),
+                ]
+                continue
+            hb = bird.get("hitbox") or {}
+            half = int(round(int(hb.get("r", 57)) * 2.75))
+            x, y = int(hb.get("x", 0)), int(hb.get("y", 0))
+            crop_boxes[bird_id] = [
+                max(0, x - half), max(0, y - half),
+                min(scene_w, x + half), min(scene_h, y + half),
+            ]
         job_request = RetryFailedDogsJobRequest(
             birdIds=queued_bird_ids,
             prompt=raw.get("dog_prompt") or "bird",
             cutoutOnly=True,
+            cropBoxesByBirdId=crop_boxes,
             expectedContentRevision=req.expectedContentRevision,
             attemptNonce=f"rerun-stale-{_uuid.uuid4().hex[:16]}",
         )
