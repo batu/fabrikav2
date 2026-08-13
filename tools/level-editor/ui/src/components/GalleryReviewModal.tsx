@@ -941,8 +941,15 @@ export default function GalleryReviewModal({
                     try {
                       const response = await autoPlaceHitboxes(card.session.id, count, Date.now(), undefined, 'smart');
                       if (response.hitboxes) {
-                        dispatchNarrow({ type: 'SET_HITBOXES', hitboxes: response.hitboxes });
-                        updateCachedHitboxes(card.session.id, response.hitboxes);
+                        // THE single adoption point — marks the array as
+                        // server truth and threads the committed revision, so
+                        // no stale re-POST follows (this button was the one
+                        // caller still bypassing it, 2026-08-13).
+                        adoptServerState(card.session.id, {
+                          hitboxes: response.hitboxes,
+                          contentRevision: (response as { contentRevision?: string }).contentRevision,
+                          operationalRevision: (response as { operationalRevision?: string }).operationalRevision,
+                        });
                       }
                     } catch { /* request() toasts */ }
                   }}
