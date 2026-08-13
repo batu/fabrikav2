@@ -2528,7 +2528,7 @@ class AutoHitboxesRequest(BaseModel):
 # this distance still keeps circular hitbox centers comfortably separated.
 _AUTOPLACE_DISTANCE_MULT = 4.0
 _AUTOPLACE_CROP_PADDING = 2.75
-_AUTOPLACE_DEFAULT_RADIUS = 50
+_AUTOPLACE_DEFAULT_RADIUS = 100  # operator floor 2026-08-13
 
 
 def _portrait_deadzones(bg_w: int, bg_h: int) -> list:
@@ -2721,7 +2721,12 @@ def auto_place_hitboxes(session_id: str, req: AutoHitboxesRequest) -> dict[str, 
     else:
         # Canonical canvas-scaled default: 58 at a 4096 reference. On the
         # canonical 2688 square working canvas this lands at 38 (PIPELINE.md).
-        radius = max(24, int(round(58 * max(int(bg_w), int(bg_h)) / 4096))) if bg_w and bg_h else _AUTOPLACE_DEFAULT_RADIUS
+        # Operator floor 2026-08-13: auto-placed tap targets were landing at
+        # r=38@2688 — visibly tiny in review and thin in game even with the
+        # runtime 2x tolerance. Default is now 100 at the 2688 canonical
+        # canvas, scaled with the canvas. (Note: hitbox r also sizes the
+        # magenta paint dot, so birds paint larger too.)
+        radius = max(100, int(round(100 * max(int(bg_w), int(bg_h)) / 2688))) if bg_w and bg_h else 100
 
     if req.strategy == "smart":
         selected_bg = raw.get("selected_bg")
