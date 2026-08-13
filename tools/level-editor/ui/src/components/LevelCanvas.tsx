@@ -77,6 +77,7 @@ interface DragState {
 }
 
 const HITBOX_COLOR = 'rgba(255, 0, 255, 0.6)';
+const TAP_SQUARE_COLOR = 'rgba(0, 220, 130, 0.55)';
 const HITBOX_COLOR_SELECTED = 'rgba(0, 255, 255, 0.8)';
 const HITBOX_FILL = 'rgba(255, 0, 255, 0.1)';
 const HITBOX_FILL_SELECTED = 'rgba(0, 255, 255, 0.15)';
@@ -582,6 +583,32 @@ export default function LevelCanvas({ state, dispatch, readOnly = false, allowAd
             ctx.lineWidth = 2;
             ctx.strokeStyle = PADDED_BOX_COLOR;
             ctx.strokeRect(cx - padHalf, cy - padHalf, padHalf * 2, padHalf * 2);
+            ctx.restore();
+          }
+
+          // Runtime-truth tap square (mirrors hitboxGeometry.ts): on square
+          // levels the game accepts 2x the stored radius as a square, floored
+          // at 57@2688 and clamped so neighbors never share hit area. The
+          // magenta circle alone under-states the real target by half.
+          const levelDim = Math.max(state.bgWidth, state.bgHeight);
+          const isSquareLevel = state.bgHeight > 0
+            && state.bgWidth / state.bgHeight >= 0.95
+            && state.bgWidth / state.bgHeight <= 1.05;
+          if (isSquareLevel && levelDim > 0) {
+            const minBase = 57 * (levelDim / 2688);
+            const base = Math.max(hb.r, minBase);
+            let nearest = Number.POSITIVE_INFINITY;
+            for (const other of hitboxes) {
+              if (other === hb) continue;
+              nearest = Math.min(nearest, Math.hypot(hb.x - other.x, hb.y - other.y));
+            }
+            const effective = Math.max(Math.min(base * 2, (nearest - 4) / 2), minBase);
+            const eHalf = effective * scale;
+            ctx.save();
+            ctx.setLineDash([4, 4]);
+            ctx.lineWidth = isSelected ? 1.75 : 1;
+            ctx.strokeStyle = TAP_SQUARE_COLOR;
+            ctx.strokeRect(cx - eHalf, cy - eHalf, eHalf * 2, eHalf * 2);
             ctx.restore();
           }
 
