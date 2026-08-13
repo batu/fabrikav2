@@ -4230,7 +4230,7 @@ def _normalized_retry_dog_indices(session_id: str, dog_indices: list[int]) -> li
         if index < 0 or _resolve_regen_hitbox(dogs, hitboxes, index) is None
     ]
     if invalid:
-        raise HTTPException(404, detail={"error": f"Dog index out of range: {invalid[0]}"})
+        raise HTTPException(404, detail={"error": f"Entity index out of range: {invalid[0]}"})
     return normalized
 
 
@@ -4365,7 +4365,7 @@ def _start_retry_failed_dogs_job_record(session_id: str, req: RetryFailedDogsJob
         for dog_index, box in req.cropBoxes.items():
             hb = _resolve_regen_hitbox(dogs, hitboxes, dog_index)
             if hb is None:
-                raise HTTPException(404, detail={"error": f"Dog index out of range: {dog_index}"})
+                raise HTTPException(404, detail={"error": f"Entity index out of range: {dog_index}"})
             x0, y0, x1, y1 = box
             radius = int(hb.get("r", hb.get("radius", 30)))
             target_x, target_y = _retry_crop_target(session_id, dog_index, hb)

@@ -43,7 +43,9 @@ from levelbuilder.settings import require_game_from_env
 from . import public_levels as PublicLevels
 from .level_schema import LevelFileV1
 
-DEFAULT_FLATKEY_GRID = 2
+# 1x1 (single-call) is the operator default as of 2026-08-13: no grid regen
+# risk — placement correctness outranks the 2x2 batch discount right now.
+DEFAULT_FLATKEY_GRID = 1
 
 # Legacy Japanese-Village session ids that predate the readable-id scheme
 # (2026-04-13 shipped set). Mapped to setting='japan' for grouping.
