@@ -671,6 +671,12 @@ def sprite_animation_candidates(session_id: str) -> list[dict[str, Any]]:
             continue
         dog_index = int(dog_match.group(1))
         bird_id = canonical_slots.get(dog_folder.name)
+        # Canonical sessions: folders that are not canonical slots are
+        # retired debris (pre-wholesale index-named folders). Emitting them
+        # as candidates yields birdId-less entries whose placement saves
+        # fall into the exported-package path (BUG-13 live Errno 2).
+        if canonical_slots and bird_id is None:
+            continue
         sprite_indices: set[int] = set()
         for child in dog_folder.iterdir():
             if meta_match := _SPRITE_META_RE.match(child.name):
