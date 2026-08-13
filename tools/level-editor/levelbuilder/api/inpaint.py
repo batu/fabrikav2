@@ -6101,6 +6101,9 @@ def recenter_hitboxes_local_diff(
         pruned_ids = {p["id"] for p in pruned}
         hitboxes = [h for h in hitboxes if h.get("id") not in pruned_ids]
     S.save_hitboxes(session_id, hitboxes)
+    # Discharge the paint→re-localization obligation (plan §Obligation
+    # edges): this IS the localization step, so stamp it in the same flow.
+    S.stamp_hitbox_localization(session_id, method="local-diff-recenter")
     bg.close(); color.close()
     return {"sessionId": session_id, "moved": moved, "total": len(hitboxes), "overlapFlags": overlap_flags, "pruned": pruned}
 
@@ -6167,6 +6170,19 @@ def run_magenta_inpaint_durably(
             error_code="magenta_failed", error_message=str(error)[:500],
         )
         raise
+    # Structural obligation stage (plan §Obligation edges): paint has not
+    # COMMITTED until hitboxes are re-localized against it. Runs inside the
+    # same durable job; a crash here leaves the job short of success and the
+    # pending marker visible.
+    JOB_STORE.transition_job(job.id, status="running", stage="relocalizing-hitboxes")
+    try:
+        summary["relocalization"] = recenter_hitboxes_local_diff(session_id)
+    except Exception as relocalize_error:
+        # The paint is already paid — failing the job here would misreport
+        # the spend. Record the miss; the obligation stays pending/blocking
+        # (stateful mechanism), so blessing still refuses until an operator
+        # or rerun-stale discharges it.
+        summary["relocalizationFailed"] = str(relocalize_error)[:300]
     JOB_STORE.transition_job(job.id, status="succeeded", stage="done",
                              result={"summaryKeys": sorted(summary)[:20]})
     return summary

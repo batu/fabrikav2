@@ -43,6 +43,28 @@ def pending_obligations(snapshot: dict[str, Any]) -> list[dict[str, Any]]:
                 "reason": "bird has no cutout sprite",
             })
 
+    # Obligation edge (plan §Obligation edges): paint → hitbox re-localization.
+    # Armed by the paint/regenerate commit (pendingRelocalization) or by a
+    # localization stamp that no longer matches the scene digest; discharged
+    # by a stamp matching the current scene. Snapshots predating the
+    # mechanism (neither field) owe nothing.
+    operational = snapshot.get("operational") or {}
+    scene_sha = ((snapshot.get("assets") or {}).get("scene") or {}).get("sha256")
+    stamp = operational.get("hitboxLocalization")
+    localized = isinstance(stamp, dict) and stamp.get("sceneSha256") == scene_sha
+    armed = operational.get("pendingRelocalization") is True or (
+        isinstance(stamp, dict) and not localized
+    )
+    if scene_sha and armed and not localized:
+        obligations.append({
+            "obligation": "relocalize-hitboxes",
+            "reason": (
+                "hitboxes not re-localized against the current paint"
+                if operational.get("pendingRelocalization") is True
+                else "localization stamp predates the current scene"
+            ),
+        })
+
     reviews = snapshot.get("reviews") or {}
     for kind in REVIEW_KINDS:
         if kind not in reviews:

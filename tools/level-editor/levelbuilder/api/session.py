@@ -16,6 +16,7 @@ Field authority split:
   `sections` key.
 """
 
+import copy
 import json
 import hashlib
 import os
@@ -1738,6 +1739,16 @@ def set_canonical_hitbox_review_if_present(
     if expected_content_revision is None:
         raise RevisionConflictError(None, actual)
     if approved:
+        from .artifact_dag import pending_obligations
+
+        pending = [o for o in pending_obligations(current.snapshot)
+                   if o["obligation"] == "relocalize-hitboxes"]
+        if pending:
+            raise ContractValidationError(
+                "hitboxes have not been re-localized against the current paint; "
+                "run recenter-hitboxes-local or the VLM snap before blessing "
+                "(obligation: relocalize-hitboxes)"
+            )
         updated = bless_snapshot(
             current.snapshot,
             review_kind="hitboxes",
@@ -1751,6 +1762,39 @@ def set_canonical_hitbox_review_if_present(
         expected_content_revision=expected_content_revision,
         expected_operational_revision=current.pointer.operational_revision if current.pointer else None,
     )
+
+
+def stamp_hitbox_localization(session_id: str, *, method: str) -> None:
+    """Discharge the paint→re-localization obligation: record that hitboxes
+    were localized against the CURRENT scene digest. No-op on legacy
+    sessions. Operational-only commit (content untouched)."""
+    from levelbuilder.api.canonical_bird_contract import (
+        CanonicalReadState,
+        RevisionConflictError,
+    )
+
+    store = canonical_session_store(session_id)
+    for _ in range(3):
+        current = store.read()
+        if current.state is not CanonicalReadState.VALID_CURRENT or current.snapshot is None:
+            return
+        updated = copy.deepcopy(current.snapshot)
+        operational = updated.setdefault("operational", {})
+        operational["hitboxLocalization"] = {
+            "sceneSha256": updated["assets"]["scene"]["sha256"],
+            "method": method,
+            "at": now_iso(),
+        }
+        operational.pop("pendingRelocalization", None)
+        try:
+            store.commit(
+                updated,
+                expected_content_revision=current.pointer.content_revision if current.pointer else None,
+                expected_operational_revision=current.pointer.operational_revision if current.pointer else None,
+            )
+            return
+        except RevisionConflictError:
+            continue
 
 
 def save_canonical_sprite_geometry_if_present(
@@ -2104,6 +2148,10 @@ def promote_canonical_sprite_artifact(
             for item in updated["birds"]:
                 item["activeGeneration"]["inputSceneSha256"] = scene_digest
             updated["restore"]["sourceSceneSha256"] = scene_digest
+            # Paint changed the scene: arm the re-localization obligation
+            # (plan §Obligation edges) — blessing refuses until a recenter or
+            # VLM snap stamps localization against this new digest.
+            updated.setdefault("operational", {})["pendingRelocalization"] = True
         try:
             pointer = store.commit(
                 updated,
