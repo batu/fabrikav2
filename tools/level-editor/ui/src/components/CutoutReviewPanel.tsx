@@ -202,11 +202,15 @@ function PlacementPreview({
         alt={`${candidateLabel(candidate)} painted scene crop`}
         fallback="overlay unavailable"
       />
-      <span className="cutout-padding-box" style={paddingStyle}>
-        {controlMode === 'padding' && (['nw', 'ne', 'sw', 'se'] as const).map((handle) => (
-          <span key={handle} className={`cutout-resize-handle padding-handle handle-${handle}`} data-resize-handle={handle} />
-        ))}
-      </span>
+      {controlMode === 'padding' && (
+        /* Padding exists only for regeneration: hidden until the operator
+           clicks into Padding mode (operator request 2026-08-13). */
+        <span className="cutout-padding-box" style={paddingStyle}>
+          {(['nw', 'ne', 'sw', 'se'] as const).map((handle) => (
+            <span key={handle} className={`cutout-resize-handle padding-handle handle-${handle}`} data-resize-handle={handle} />
+          ))}
+        </span>
+      )}
       <img
         className="cutout-placement-sprite"
         src={imageUrl}
@@ -370,7 +374,6 @@ export default function CutoutReviewPanel({
   const [cropsNeedReview, setCropsNeedReview] = useState(false);
   // CL-12: derived crops are READ-ONLY unless the diff gate flagged the
   // level (needsReview) — then the manual override box unlocks.
-  const paddingLocked = !cropsNeedReview && Object.keys(derivedCrops).length > 0;
   useEffect(() => {
     let cancelled = false;
     (async () => {
@@ -568,9 +571,9 @@ export default function CutoutReviewPanel({
   }, []);
 
   const setCropBox = useCallback((candidate: SpriteCandidate, hitbox: Hitbox, box: CropBox) => {
-    // CL-12: the ONE mutation chokepoint for the padding/crop box — derived
-    // crops are read-only unless the diff gate flagged the level.
-    if (paddingLocked) return;
+    // CL-12 (amended 2026-08-13): the ONE mutation chokepoint for the
+    // padding/crop box. The old hard lock is gone — entering Padding mode IS
+    // the operator's consent; padding exists only for regeneration.
     const next = clampCropBox(candidate, hitbox, box);
     setCropBoxes((prev) => ({ ...prev, [candidate.id]: next }));
     const spriteBox = placementBoxes[candidate.id] ?? candidate.spriteBox;
@@ -582,7 +585,7 @@ export default function CutoutReviewPanel({
       placementSaveTimers.current.delete(candidate.id);
       void savePlacement(candidate, spriteBox, undefined, undefined, next);
     }, 1000));
-  }, [onPlacementPendingChanged, placementBoxes, savePlacement, paddingLocked]);
+  }, [onPlacementPendingChanged, placementBoxes, savePlacement]);
 
   const setPlacementBox = useCallback((candidate: SpriteCandidate, _hitbox: Hitbox, box: CropBox) => {
     const width = candidate.sceneWidth ?? Number.MAX_SAFE_INTEGER;
@@ -781,10 +784,13 @@ export default function CutoutReviewPanel({
             ? `${dogVariantUrl(sessionId, candidate.image)}?v=${assetRevision}`
             : null;
           const hitbox = candidateHitbox(candidate, hitboxes);
-          const cropBox = hitbox ? (cropBoxes[candidate.id] ?? (candidate.birdId ? derivedCrops[candidate.birdId] : undefined) ?? candidate.cleanupBox ?? defaultCropBox(candidate, hitbox)) : null;
           const placementBox = candidate.spriteBox
             ? (placementBoxes[candidate.id] ?? candidate.spriteBox)
             : null;
+          // Padding display default = the sprite bounding box (operator
+          // request 2026-08-13); an explicit edit wins. Regeneration keeps
+          // its wider default chain until the operator edits the padding.
+          const cropBox = hitbox ? (cropBoxes[candidate.id] ?? placementBox ?? (candidate.birdId ? derivedCrops[candidate.birdId] : undefined) ?? candidate.cleanupBox ?? defaultCropBox(candidate, hitbox)) : null;
           const controlMode = controlModes[candidate.id] ?? 'sprite';
           const job = candidateJobs[candidate.id];
           const jobRunning = job?.phase === 'running';
@@ -864,9 +870,7 @@ export default function CutoutReviewPanel({
                 aria-label={`Place ${candidateLabel(candidate)}`}
                 title={controlMode === 'sprite'
                   ? 'Drag to place the sprite. Drag a green corner to scale it.'
-                  : cropsNeedReview
-                  ? 'Diff gate flagged this level — adjust the amber override box manually.'
-                  : 'Crop derives from the owned paint (read-only). Drag only if the derived box is wrong.'}
+                  : 'Padding is used ONLY when regenerating this bird — set it right before a regenerate. Drag to move, corner-drag to resize.'}
                 onClick={() => {
                   if (draggedCandidateRef.current === candidate.id) {
                     draggedCandidateRef.current = null;
@@ -907,11 +911,24 @@ export default function CutoutReviewPanel({
                   const dy = Math.round(dyPixels * sceneHeight / renderedHeight);
                   if (drag.mode === 'sprite') {
                     if (drag.resizeHandle) {
-                      const resized: CropBox = [...drag.box];
-                      if (drag.resizeHandle.includes('w')) resized[0] += dx;
-                      if (drag.resizeHandle.includes('e')) resized[2] += dx;
-                      if (drag.resizeHandle.includes('n')) resized[1] += dy;
-                      if (drag.resizeHandle.includes('s')) resized[3] += dy;
+                      // Uniform scale (operator request 2026-08-13): corner
+                      // drags preserve the sprite's aspect ratio, anchored at
+                      // the opposite corner — no more accidental squash.
+                      const [x0, y0, x1, y1] = drag.box;
+                      const w = x1 - x0, h = y1 - y0;
+                      const east = drag.resizeHandle.includes('e');
+                      const south = drag.resizeHandle.includes('s');
+                      const wantW = Math.max(8, w + (east ? dx : -dx));
+                      const wantH = Math.max(8, h + (south ? dy : -dy));
+                      const scale = Math.max(wantW / w, wantH / h);
+                      const newW = Math.max(8, Math.round(w * scale));
+                      const newH = Math.max(8, Math.round(h * scale));
+                      const resized: CropBox = [
+                        east ? x0 : x1 - newW,
+                        south ? y0 : y1 - newH,
+                        east ? x0 + newW : x1,
+                        south ? y0 + newH : y1,
+                      ];
                       setPlacementBox(candidate, hitbox, resized);
                     } else {
                       const moved: CropBox = [drag.box[0] + dx, drag.box[1] + dy, drag.box[2] + dx, drag.box[3] + dy];
@@ -994,10 +1011,10 @@ export default function CutoutReviewPanel({
                     ))}
                     <div className="cutout-resize-grid">
                       {controlMode === 'padding' && <>
-                        <button type="button" disabled={jobRunning || paddingLocked} onClick={() => movePaddingBox(-10, 0)}>Move left</button>
-                        <button type="button" disabled={jobRunning || paddingLocked} onClick={() => movePaddingBox(10, 0)}>Move right</button>
-                        <button type="button" disabled={jobRunning || paddingLocked} onClick={() => movePaddingBox(0, -10)}>Move up</button>
-                        <button type="button" disabled={jobRunning || paddingLocked} onClick={() => movePaddingBox(0, 10)}>Move down</button>
+                        <button type="button" disabled={jobRunning} onClick={() => movePaddingBox(-10, 0)}>Move left</button>
+                        <button type="button" disabled={jobRunning} onClick={() => movePaddingBox(10, 0)}>Move right</button>
+                        <button type="button" disabled={jobRunning} onClick={() => movePaddingBox(0, -10)}>Move up</button>
+                        <button type="button" disabled={jobRunning} onClick={() => movePaddingBox(0, 10)}>Move down</button>
                       </>}
                       <button type="button" disabled={jobRunning} onClick={() => resizeActiveBox([5, 5, -5, -5])}>Smaller</button>
                       <button type="button" disabled={jobRunning} onClick={() => resizeActiveBox([-5, -5, 5, 5])}>Larger</button>

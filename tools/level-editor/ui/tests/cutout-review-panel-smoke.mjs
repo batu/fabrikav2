@@ -327,10 +327,10 @@ async function run() {
         throw new Error(`Missing ${label} padding movement control`);
       }
     }
-    // CL-12: the crop derives from owned paint; the hint reflects read-only
-    // default vs gate-flagged manual override.
+    // CL-12 amended 2026-08-13: padding is regeneration-only, editable by
+    // entering Padding mode; the hint states that purpose.
     const paddingTitle = await draggableOverlay.getAttribute('title');
-    if (!paddingTitle || !(paddingTitle.includes('derives from the owned paint') || paddingTitle.includes('override box manually'))) {
+    if (!paddingTitle || !paddingTitle.includes('ONLY when regenerating')) {
       throw new Error(`Padding mode did not explain its drag behavior: ${paddingTitle}`);
     }
     const paddingLeft = firstCard.getByLabel('dog #0 · sprite 000 padding left');
@@ -342,25 +342,36 @@ async function run() {
     const paddingRightBefore = Number(await paddingRight.inputValue());
     const paddingBottomBefore = Number(await paddingBottom.inputValue());
     const overlayRequestsBeforePaddingDrag = overlayRequests;
-    const paddingDragBounds = await draggableOverlay.boundingBox();
-    if (!paddingDragBounds) throw new Error('Missing padding drag bounds');
-    await page.mouse.move(paddingDragBounds.x + paddingDragBounds.width / 2, paddingDragBounds.y + paddingDragBounds.height / 2);
+    // 2026-08-13: padding now DEFAULTS to the sprite bounding box (tight
+    // around the bird disc), so a pure translate has no slack — the intended
+    // gesture is corner-resize outward before a regenerate.
+    const seHandle = firstCard.locator('.padding-handle.handle-se').first();
+    const seBounds = await seHandle.boundingBox();
+    if (!seBounds) throw new Error('Missing padding se resize handle');
+    await page.mouse.move(seBounds.x + seBounds.width / 2, seBounds.y + seBounds.height / 2);
     await page.mouse.down();
-    await page.mouse.move(paddingDragBounds.x + paddingDragBounds.width / 2 + 100, paddingDragBounds.y + paddingDragBounds.height / 2);
+    await page.mouse.move(seBounds.x + seBounds.width / 2 + 80, seBounds.y + seBounds.height / 2 + 80);
     await page.mouse.up();
-    if (Number(await paddingLeft.inputValue()) <= paddingLeftBefore) {
-      throw new Error('Dragging in Padding mode did not move the padding box');
+    if (Number(await paddingRight.inputValue()) <= paddingRightBefore) {
+      throw new Error('Corner-dragging in Padding mode did not grow the padding box');
     }
-    const paddingWidthBefore = paddingRightBefore - paddingLeftBefore;
-    const paddingHeightBefore = paddingBottomBefore - paddingTopBefore;
-    await controls.getByRole('button', { name: 'Move right', exact: true }).click();
-    if (Number(await paddingLeft.inputValue()) <= paddingLeftBefore) {
-      throw new Error('Move right did not translate the padding box');
+    if (process.env.SMOKE_SHOT_DIR) {
+      await page.screenshot({ path: process.env.SMOKE_SHOT_DIR + '/panel-padding-mode.png' });
+    }
+    // Translation slack exists only where the grown box exceeds the disc:
+    // after the se-grow, moving LEFT keeps the disc contained; assert the
+    // translate preserves the grown size.
+    const grownLeft = Number(await paddingLeft.inputValue());
+    const grownWidth = Number(await paddingRight.inputValue()) - grownLeft;
+    const grownHeight = Number(await paddingBottom.inputValue()) - Number(await paddingTop.inputValue());
+    await controls.getByRole('button', { name: 'Move left', exact: true }).click();
+    if (Number(await paddingLeft.inputValue()) >= grownLeft) {
+      throw new Error('Move left did not translate the padding box');
     }
     const paddingWidthAfter = Number(await paddingRight.inputValue()) - Number(await paddingLeft.inputValue());
     const paddingHeightAfter = Number(await paddingBottom.inputValue()) - Number(await paddingTop.inputValue());
-    if (paddingWidthAfter !== paddingWidthBefore || paddingHeightAfter !== paddingHeightBefore) {
-      throw new Error(`Dragging the padding box resized it: ${JSON.stringify({ paddingWidthBefore, paddingWidthAfter, paddingHeightBefore, paddingHeightAfter })}`);
+    if (paddingWidthAfter !== grownWidth || paddingHeightAfter !== grownHeight) {
+      throw new Error(`Translating the padding box resized it: ${JSON.stringify({ grownWidth, paddingWidthAfter, grownHeight, paddingHeightAfter })}`);
     }
     if (overlayRequests !== overlayRequestsBeforePaddingDrag) {
       throw new Error('Padding drag should update client-side without requesting a new overlay');
