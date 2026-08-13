@@ -3672,6 +3672,25 @@ def clear_extension(session_id: str) -> ExtensionStateResponse:
     return ExtensionStateResponse(extension=None)
 
 
+def _discharge_paint_obligations(session_id: str, summary: dict[str, Any]) -> dict[str, Any]:
+    """Plan §Obligation edges, shared by EVERY magenta lane: re-localize
+    hitboxes against the fresh paint, adopt the canonical store at the paint
+    boundary (BUG-3), and stamp localization. Fail-soft — the paint is paid;
+    a miss stays visible as pending state, never a lost job."""
+    try:
+        summary["relocalization"] = recenter_hitboxes_local_diff(session_id)
+    except Exception as relocalize_error:
+        summary["relocalizationFailed"] = str(relocalize_error)[:300]
+    try:
+        adopted = S.adopt_canonical_if_ready(session_id)
+        if adopted:
+            summary["canonicalAdoption"] = adopted
+        S.stamp_hitbox_localization(session_id, method="local-diff-recenter")
+    except Exception as adopt_error:
+        summary["canonicalAdoptionFailed"] = str(adopt_error)[:300]
+    return summary
+
+
 def _run_magenta_inpaint_job(job: JobRecord, store: JobStore) -> dict[str, Any]:
     """Durable wrapper over run_magenta_inpaint: reads its inputs from the
     session's own files, so a queued job survives restarts with no request
@@ -3685,13 +3704,16 @@ def _run_magenta_inpaint_job(job: JobRecord, store: JobStore) -> dict[str, Any]:
     metadata = job.metadata or {}
     dog_prompt = metadata.get("dogPrompt") or raw.get("dog_prompt") or ""
     model = metadata.get("model") or raw.get("inpaint_model") or raw.get("model")
-    return run_magenta_inpaint(
+    summary = run_magenta_inpaint(
         session_id,
         hitbox_list=hitbox_list,
         dog_prompt=dog_prompt,
         model=model,
         magenta_override=str(metadata.get("magentaOverride") or ""),
     )
+    # First live stress run (2026-08-13) proved this lane skipped the paint
+    # obligations the SSE lane ran — one stage, every lane.
+    return _discharge_paint_obligations(session_id, summary)
 
 
 def register_job_handlers(worker: JobWorker) -> None:
@@ -6188,25 +6210,7 @@ def run_magenta_inpaint_durably(
     # same durable job; a crash here leaves the job short of success and the
     # pending marker visible.
     JOB_STORE.transition_job(job.id, status="running", stage="relocalizing-hitboxes")
-    try:
-        summary["relocalization"] = recenter_hitboxes_local_diff(session_id)
-    except Exception as relocalize_error:
-        # The paint is already paid — failing the job here would misreport
-        # the spend. Record the miss; the obligation stays pending/blocking
-        # (stateful mechanism), so blessing still refuses until an operator
-        # or rerun-stale discharges it.
-        summary["relocalizationFailed"] = str(relocalize_error)[:300]
-    # BUG-3: a fresh session is legacy until here — the painted scene is the
-    # first moment a canonical snapshot can exist, so adopt it now (loud
-    # quarantine over silent gap) and stamp localization against it, which
-    # the pre-adoption recenter could not do.
-    try:
-        adopted = S.adopt_canonical_if_ready(session_id)
-        if adopted:
-            summary["canonicalAdoption"] = adopted
-        S.stamp_hitbox_localization(session_id, method="local-diff-recenter")
-    except Exception as adopt_error:
-        summary["canonicalAdoptionFailed"] = str(adopt_error)[:300]
+    _discharge_paint_obligations(session_id, summary)
     JOB_STORE.transition_job(job.id, status="succeeded", stage="done",
                              result={"summaryKeys": sorted(summary)[:20]})
     return summary

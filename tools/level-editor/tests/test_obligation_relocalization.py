@@ -113,3 +113,33 @@ def test_stamp_helper_discharges_via_store(tmp_path, monkeypatch):
     stamp = current["operational"]["hitboxLocalization"]
     assert stamp["sceneSha256"] == current["assets"]["scene"]["sha256"]
     assert current["operational"].get("pendingRelocalization") is not True
+
+
+def test_job_lane_magenta_also_discharges_obligations(monkeypatch):
+    """The paint obligations (recenter + canonical adoption + stamp) must run
+    in EVERY magenta lane — the CLI job path skipped them on first live run
+    (walled_gardens stress test, 2026-08-13: level left migration_required)."""
+    from types import SimpleNamespace
+    from levelbuilder.api import inpaint as I
+    from levelbuilder.api import session as S
+
+    calls = []
+    monkeypatch.setattr(I, "run_magenta_inpaint",
+                        lambda sid, **kw: calls.append("paint") or {"ok": True})
+    monkeypatch.setattr(I, "recenter_hitboxes_local_diff",
+                        lambda sid: calls.append("recenter") or {"moved": []})
+    monkeypatch.setattr(S, "adopt_canonical_if_ready",
+                        lambda sid: calls.append("adopt") or "migrate")
+    monkeypatch.setattr(S, "stamp_hitbox_localization",
+                        lambda sid, method: calls.append("stamp"))
+    monkeypatch.setattr(S, "load_session_raw", lambda sid: {"dog_prompt": "p", "inpaint_model": "m"})
+    monkeypatch.setattr(S, "session_dir", lambda sid, __p=S.session_dir: __p(sid))
+    import json as _json, pathlib, tempfile
+    tmp = pathlib.Path(tempfile.mkdtemp())
+    (tmp / "hitboxes.json").write_text(_json.dumps([{"x": 1, "y": 2, "r": 3}]))
+    monkeypatch.setattr(S, "session_dir", lambda sid: tmp)
+    job = SimpleNamespace(session_id="sid_x", metadata={})
+    summary = I._run_magenta_inpaint_job(job, store=None)
+    assert calls[0] == "paint"
+    assert {"recenter", "adopt", "stamp"} <= set(calls), calls
+    assert summary.get("relocalization") is not None or summary.get("relocalizationFailed") is None
