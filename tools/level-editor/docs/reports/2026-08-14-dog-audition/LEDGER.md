@@ -40,3 +40,5 @@
   constraint, not the request.
 - Operator order: finish ramp tiers 40/45/50 then FULL STOP for discussion.
   Worker queues drained; finisher armed.
+- hawaii_rainforest_waterfall d25: ~22 painted, 22/22 PASS. Discrimination:
+  cat on swing NOT detected; stone pug statue NOT detected. Both correct.
