@@ -488,7 +488,32 @@ export default function GalleryReviewModal({
     setColorVersion((v) => v + 1);
   }, []);
 
-  // Load session on (setting / id change)
+  /** Server-authoritative revalidation (operator ruling 2026-08-14): fetch
+   * current server state and adopt it — UNLESS the user has unsaved local
+   * edits, which the write path will rebase instead. Returns quietly on
+   * failure; the stale-write 409 path remains the backstop. */
+  const revalidateSession = useCallback(async (sessionId: string): Promise<void> => {
+    try {
+      const fresh = await getSession(sessionId);
+      sessionCacheRef.current.set(sessionId, fresh);
+      const dirty = state.sessionId === sessionId
+        && state.hitboxes !== loadedHitboxesRef.current;
+      if (dirty) return;
+      const cachedRevision = state.sessionId === sessionId ? state.contentRevision : undefined;
+      if (fresh.contentRevision && fresh.contentRevision !== cachedRevision) {
+        adoptServerState(sessionId, {
+          hitboxes: fresh.hitboxes,
+          contentRevision: fresh.contentRevision,
+          operationalRevision: fresh.operationalRevision,
+        });
+      }
+    } catch {
+      // Revalidation is best-effort; the next write self-heals on 409.
+    }
+  }, [adoptServerState, state.sessionId, state.hitboxes, state.contentRevision]);
+
+  // Load session on (setting / id change): cache paints instantly, but the
+  // server is authoritative — always revalidate after the cached paint.
   useEffect(() => {
     if (!item) return;
     let cancelled = false;
@@ -498,6 +523,11 @@ export default function GalleryReviewModal({
     if (cached) {
       applySession(cached);
       setLoading(false);
+      void getSession(item.id).then((fresh) => {
+        if (cancelled) return;
+        sessionCacheRef.current.set(item.id, fresh);
+        if (fresh.contentRevision !== cached.contentRevision) applySession(fresh);
+      }).catch(() => undefined);
       return () => { cancelled = true; };
     }
     getCachedSession(item.id)
@@ -509,6 +539,21 @@ export default function GalleryReviewModal({
       .finally(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
   }, [applySession, getCachedSession, item]);
+
+  // While a level is open: poll its revision every 10s and refetch on window
+  // focus, adopting server truth when it moved. No push channel exists, so
+  // this is how an open tab tracks a pipeline that finishes the level.
+  useEffect(() => {
+    if (!state.sessionId) return;
+    const sid = state.sessionId;
+    const tick = () => { void revalidateSession(sid); };
+    const interval = window.setInterval(tick, 10_000);
+    window.addEventListener('focus', tick);
+    return () => {
+      window.clearInterval(interval);
+      window.removeEventListener('focus', tick);
+    };
+  }, [state.sessionId, revalidateSession]);
 
   useEffect(() => {
     for (const neighbor of adjacentNavigableCards(items, currentCardId)) {
