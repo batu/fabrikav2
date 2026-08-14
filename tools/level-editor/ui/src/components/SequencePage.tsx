@@ -23,6 +23,7 @@ import {
   type SequenceRowStatus,
   type SequenceWorkflowState,
 } from '../api/editorApi';
+import { applyBundleProjection } from '../api/editorApi';
 import { dropPositionFromPoint, insertionNeighbors, moveId, type DropPosition } from '../lib/reorder';
 
 /** Start activation 422s carry structured blocking diagnostics the server
@@ -676,6 +677,26 @@ export default function SequencePage() {
     void persistDraft(state, draftIds);
   }, [conflict, draftIds, dryRunning, persistDraft, saving, starting, state]);
 
+  // starterPrefixMismatch self-heal (operator, 2026-08-14 "for fucks sake"):
+  // the diagnostic only ever means the bundled manifest predates the draft —
+  // re-applying the bundle projection re-derives the starter set from the
+  // current draft, which is always what the operator meant.
+  const starterHealRef = useRef(false);
+  useEffect(() => {
+    if (state === null || starterHealRef.current || saving || starting) return;
+    const mismatch = state.validation.blockingDiagnostics.some((d) => d.code === 'starterPrefixMismatch');
+    if (!mismatch) return;
+    starterHealRef.current = true;
+    void (async () => {
+      try {
+        await applyBundleProjection();
+        const fresh = await getSequenceWorkflow();
+        await persistDraft(fresh, fresh.draft.levelIds);
+        starterHealRef.current = false;
+      } catch { /* surfaces via normal error paths on the next action */ }
+    })();
+  }, [state, saving, starting, persistDraft]);
+
   // Self-heal a stale draft base on load: re-save the SAME ids against the
   // fresh catalog revision so sequenceDraftCatalogStale never asks the human
   // to press Reload (operator, 2026-08-14).
@@ -883,10 +904,6 @@ export default function SequencePage() {
       <div className="sequence-hero">
         <div>
           <p className="sequence-eyebrow">Lineup</p>
-          <h2>Choose the level order players get in the game</h2>
-          <p>
-            Gallery selects the completed levels. Lineup orders and validates them, then Start updates the playable game.
-          </p>
         </div>
         <div className="sequence-hero-actions">
           <button className="btn" onClick={refresh} disabled={workflowBusy}>Reload</button>
@@ -931,31 +948,6 @@ export default function SequencePage() {
       )}
 
       <DiagnosticList title="Blocking validation" diagnostics={blockingDiagnostics} />
-      <DiagnosticList title="Warnings" diagnostics={warnings} />
-
-      <section className={`sequence-panel sequence-size-panel ${buildArtifactStoreOverLimit ? 'sequence-size-panel-over' : ''}`}>
-        <div>
-          <h3>Build size check</h3>
-          {buildSizeError ? (
-            <p className="sequence-muted">{buildSizeError}</p>
-          ) : buildArtifact ? (
-            <p className="sequence-muted">
-              {buildArtifactIsRelease ? 'Release' : buildArtifactIsDebug && !buildArtifactBudgetApplies ? 'Non-shipping' : 'Build'} {buildArtifactKind}: <strong>{formatBytes(buildArtifact.sizeBytes)}</strong>
-              {buildArtifactBudgetApplies ? ` of ${formatBytes(buildSize?.limitBytes ?? null)} max` : ' · not used for the 200 MB store budget'}
-              {' '}· {buildArtifact.path} · {formatUnixSeconds(buildArtifact.modifiedAt)}
-            </p>
-          ) : (
-            <p className="sequence-muted">No APK/AAB build artifact found yet.</p>
-          )}
-        </div>
-        <div className="sequence-size-facts">
-          <span className={chipClass(buildBudgetChip.kind)}>
-            {buildBudgetChip.label}
-          </span>
-          <span className={chipClass('muted')}>Bundled levels {formatBytes(buildSize?.levelAssetsSizeBytes ?? null)}</span>
-          <button className="btn" onClick={refreshBuildSize}>Refresh size</button>
-        </div>
-      </section>
 
       {state.validation.copyFixPrompt && (
         <section className="sequence-panel sequence-panel-warning">
