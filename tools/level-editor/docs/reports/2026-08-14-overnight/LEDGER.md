@@ -1,3 +1,37 @@
+# Overnight Run 2026-08-14 — SUMMARY (written 06:2xZ)
+
+**Outcome: 100 active levels, all real, all eyes-verdicted. $45.11 metered of $60 cap.**
+
+- 22 new levels completed end-to-end on the one-path lane (22 distinct settings), each with
+  delegated amber bless, unique canonical sprites, and an evidence overlay I looked at.
+  Contact sheet: `contact-sheet.png`. Every level PASS; 4 initially-undetected birds
+  (captains owl, coral wren, hydroponics nuthatch, uk-pier gull) got hitboxes + cutouts.
+- **Incident of the night**: seam restart killed one PID, a sibling held the worker flock →
+  workerless backend → 21 authors timed out as husks (~4.5h lost, $0 wasted). Root-fixed
+  twice over: full-sweep pkill discipline AND worker lock acquisition now retries in the
+  background. A second drain-race variant also fixed.
+- **Codex review**: 0 P0 / 7 P1 — all seven fixed, tested, deployed (extract-all
+  double-charge guard + booking-sha guard + dedupe key, dog-registry slot identity,
+  thread-pool cost attribution, stamp gating, portrait resume).
+- **Registry corruption repaired**: 3 levels had duplicate sprites from the pre-fix window
+  (operator-visible on captains_cabin); realigned + force re-materialized ≈ free. All 100
+  levels now: 0 dupes, 0 spriteless.
+- **Operator session (live)**: isometric enforcement (view text + scene prose + prompt
+  LIBRARY versions — the library was shadowing code), nordic redo (village fixed, coastal
+  horizon stays by operator ruling), finished-level redos cancelled by ruling, human bless
+  now discharges relocalization, server-authoritative UI (revalidate + poll + focus),
+  409 self-heal, A-key unbound from archive, Show-archived toggle, crop-box check now
+  validates the hitbox, two pre-extraction bugs fixed live (venice 500).
+- **BUG-8 scrub**: built, tested, OFF, demo evidence ready (`scrub-demo-before-after.png`).
+  **Scale variance**: paint-time, median 1.46×; options (a) prompt guidance A/B
+  (b) runtime pickup normalization (c) accept. **Golden dataset**: cozy_attic frozen hash
+  broken by operator's Aug-12 sprite edit — re-freeze is a governed-data decision.
+
+**Morning queue for Batu**: scrub enable? · scale option a/b/c? · golden re-freeze? ·
+review amber blessings in gallery · residue gate stance.
+
+---
+
 # Overnight Ledger — 2026-08-14 (FTB → 100 levels + consolidation)
 
 (Morning summary goes here at close.)
