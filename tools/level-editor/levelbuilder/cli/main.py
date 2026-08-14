@@ -62,7 +62,10 @@ class Client:
         # Sync endpoints legitimately run minutes (smart hitbox vision scoring,
         # 4x lanczos upscale of a 4K canvas); 60s produced spurious
         # transport_error failures mid-author.
-        self._http = httpx.Client(base_url=base_url, headers=headers, timeout=600.0)
+        # 1800s: a 40-dog materialize legitimately exceeds 600s (two CLI
+        # timeouts on completed server work, 2026-08-14) — the read timeout
+        # must outlast the largest sync operation, not the median.
+        self._http = httpx.Client(base_url=base_url, headers=headers, timeout=httpx.Timeout(1800.0, connect=10.0))
         self.base_url = base_url
         self.last_session_revision: str | None = None
 
