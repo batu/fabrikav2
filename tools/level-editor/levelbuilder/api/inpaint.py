@@ -460,7 +460,11 @@ def _with_retries_and_timeout(
             # here: we don't want to block on the submit-site when the
             # provider wedges — fut.cancel() + move on is the point.
             try:
-                fut = _ensure_timeout_executor().submit(_held_call)
+                # copy_context: cost attribution lives in a ContextVar and
+                # does not cross into pool threads on its own — untagged
+                # ledger rows otherwise (codex P1, 2026-08-14).
+                import contextvars as _cv
+                fut = _ensure_timeout_executor().submit(_cv.copy_context().run, _held_call)
             except BaseException:
                 provider_permit.release()  # _held_call never ran
                 raise
@@ -3769,10 +3773,17 @@ def _discharge_paint_obligations(session_id: str, summary: dict[str, Any]) -> di
     hitboxes against the fresh paint, adopt the canonical store at the paint
     boundary (BUG-3), and stamp localization. Fail-soft — the paint is paid;
     a miss stays visible as pending state, never a lost job."""
+    localized = False
     try:
         summary["localization"] = localize_hitboxes_from_detections(session_id)
+        localized = not summary["localization"].get("skipped")
     except Exception as localize_error:
         summary["localizationFailed"] = str(localize_error)[:300]
+    if not localized:
+        # Adopting or stamping here would clear pendingRelocalization and
+        # let stale hitboxes proceed toward blessing; the obligation must
+        # stay armed until a detection pass actually lands.
+        return summary
     try:
         adopted = S.adopt_canonical_if_ready(session_id)
         if adopted:

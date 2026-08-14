@@ -165,3 +165,28 @@ def test_sse_lane_delegates_to_the_job_handler(monkeypatch):
         "sid", hitbox_list=[{"x": 1, "y": 2, "r": 3}], dog_prompt="p", model="m")
     assert executed == ["job-1"]
     assert summary == {"ok": True}
+
+
+def test_failed_localization_does_not_stamp(monkeypatch):
+    """Codex P1 (2026-08-14): a localization error or an empty detection set
+    must NOT adopt or stamp — stamping clears pendingRelocalization and lets
+    stale hitboxes proceed toward blessing."""
+    from levelbuilder.api import inpaint as I
+    from levelbuilder.api import session as S
+
+    calls = []
+    monkeypatch.setattr(S, "adopt_canonical_if_ready",
+                        lambda sid: calls.append("adopt"))
+    monkeypatch.setattr(S, "stamp_hitbox_localization",
+                        lambda sid, method: calls.append("stamp"))
+
+    monkeypatch.setattr(I, "localize_hitboxes_from_detections",
+                        lambda sid: (_ for _ in ()).throw(RuntimeError("vlm down")))
+    summary = I._discharge_paint_obligations("sid_x", {})
+    assert "localizationFailed" in summary
+    assert calls == [], f"stamped after a failed localization: {calls}"
+
+    monkeypatch.setattr(I, "localize_hitboxes_from_detections",
+                        lambda sid: {"detected": 0, "skipped": "no_detections"})
+    summary = I._discharge_paint_obligations("sid_x", {})
+    assert calls == [], f"stamped after an empty detection set: {calls}"

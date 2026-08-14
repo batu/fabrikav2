@@ -202,3 +202,23 @@ def test_resume_skips_upscale_when_target_already_met(monkeypatch, capsys):
                      ["author", "--session-id", "auth_1", "--stop-after", "upscale", "--force-disk"])
     assert code == 0, out
     assert not any("upscale-bg/jobs" in path for _, path in stub.calls), "re-attempted a completed upscale"
+
+
+def test_resume_skips_upscale_for_portrait_long_edge(monkeypatch, capsys):
+    """Codex P1 (2026-08-14): the skip compared only bgWidth to the long-edge
+    target, so a completed portrait upscale (e.g. 1512x2688) was re-attempted
+    and the server refused source_already_upscaled, aborting resume."""
+    script = _script()
+    script["GET /api/sessions/auth_1"] = {
+        "nDogs": 20, "hitboxes": [], "selectedBgIndex": 1,
+        "backgrounds": ["bg_00.png", "bg_01.png"],
+        "bgWidth": 1512, "bgHeight": 2688,
+        "upscaleTargetLongEdge": 2688, "upscaleModel": "fal-ai/esrgan",
+        "dogs": [], "setting": "japan", "scene": "japan_morning_market",
+        "entity": "bird", "view": "isometric_close_20", "style": "bold_cardboard",
+    }
+    stub = _StubClient(script)
+    code, out = _run(monkeypatch, capsys, stub,
+                     ["author", "--session-id", "auth_1", "--stop-after", "upscale", "--force-disk"])
+    assert code == 0, out
+    assert not any("upscale-bg/jobs" in path for _, path in stub.calls), "re-attempted a completed portrait upscale"

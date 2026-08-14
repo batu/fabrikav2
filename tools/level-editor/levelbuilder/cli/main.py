@@ -842,13 +842,16 @@ def cmd_author(client: Client, args: argparse.Namespace) -> None:
                     note("select-bg", {"index": args.bg_index})
             elif step == "upscale":
                 session = client.get(f"/api/sessions/{session_id}")
-                bg_w = session.get("bgWidth") or session.get("bg_width") or 0
+                bg_w = int(session.get("bgWidth") or session.get("bg_width") or 0)
+                bg_h = int(session.get("bgHeight") or session.get("bg_height") or 0)
+                long_edge = max(bg_w, bg_h)
                 # Skip against the SESSION's target, not a hardcoded 4096 —
                 # the canonical 2688 recipe re-attempted completed upscales
-                # on resume (overnight ledger, 2026-08-14).
+                # on resume (overnight ledger, 2026-08-14). The target is a
+                # LONG-edge target, so portrait sessions compare bgHeight.
                 target = int(session.get("upscaleTargetLongEdge") or 4096)
-                if bg_w and int(bg_w) >= target:
-                    note("upscale", {"skipped": f"background already {bg_w}px (target {target})"})
+                if long_edge and long_edge >= target:
+                    note("upscale", {"skipped": f"background already {long_edge}px (target {target})"})
                 else:
                     # The route enforces the session's stored upscale policy;
                     # echo it back rather than assuming one.

@@ -346,9 +346,12 @@ def flatkey_recreate_sprites_batch(
         # of 2 makes rung wall time ≈ the slower call, not the sum. Results
         # are collected in submit order, so output stays deterministic.
         from concurrent.futures import ThreadPoolExecutor
+        import contextvars as _cv
         failed: list[int] = []
+        # copy_context per submit: cost attribution is a ContextVar and must
+        # follow the paid call into the pool thread (codex P1, 2026-08-14).
         with ThreadPoolExecutor(max_workers=2) as pool:
-            for future in [pool.submit(_run_chunk, chunk, n) for chunk in chunks]:
+            for future in [pool.submit(_cv.copy_context().run, _run_chunk, chunk, n) for chunk in chunks]:
                 for idx, cut in future.result():
                     if cut is None:
                         failed.append(idx)
