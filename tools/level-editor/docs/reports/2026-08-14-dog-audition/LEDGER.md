@@ -28,3 +28,6 @@
   long) — finisher scheduled; count saturation again (35→25).
 - 40/45 tiers initially blocked by nDogs le=40 validation — cap raised to 60,
   deployed, both levels requeued.
+- hawaii_waikiki d35 (finisher): 26 painted / 25 detected, PASS w/flag (one
+  dachshund at the coconut stand undetected — decoy). Density curve so far:
+  req 25→23, 30→19, 35→26 — paint saturates near low-20s regardless of ask.
