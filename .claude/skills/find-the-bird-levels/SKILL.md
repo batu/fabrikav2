@@ -1,6 +1,6 @@
 ---
 name: find-the-bird-levels
-description: Author, review, and ship Find The Bird levels through the canonical level-editor pipeline (magenta native-resolution paint). Use when creating levels, fixing hitboxes or cutouts, debugging pickup artifacts, or verifying placement quality.
+description: Author, review, and SHIP hidden-object levels (Find The Bird / Find The Dog) through the canonical level-editor pipeline — one-path magenta lane, lineup, Remote Config publish, device build. Use when creating levels, fixing hitboxes/cutouts, publishing the sequence, building to the phone, or switching games.
 ---
 
 # Find The Bird — Level Creation
@@ -40,9 +40,11 @@ bash run-backend.sh          # backend on 127.0.0.1:5196; sources ~/dev/appletol
 uv run level-editor create --setting <s> --scene <sc> --entity bird \
     --style clean_old_cartoon --view <v> --aspect-ratio 1:1 --count 16
 
-# 2. Generate through hitbox placement, then STOP for human review
+# 2. Author to inpaint — the paint job ITSELF runs VLM localization,
+#    canonical adoption, and the localization stamp (one-path lane 2026-08-13;
+#    fix-hitboxes and repair-sprites are REMOVED from the lane)
 uv run level-editor author --session-id <sid> --start-from generate-bg \
-    --stop-after fix-hitboxes --inpaint-mode magenta --strategy smart
+    --stop-after inpaint --inpaint-mode magenta --strategy smart
 
 # 3. HITL GATE — Batu reviews hitboxes in the editor BEFORE cutout spend
 #    (gallery review modal; cutouts are billed, hitbox edits are free)
@@ -54,7 +56,10 @@ uv run level-editor recenter-hitboxes-local <sid> --prune-empty
 # 5. Approve (editor or `approve` verb); export runs the fail-closed gates
 ```
 
-**Run `place-hitboxes-vlm` after author, before the HITL gate** —
+**Localization now runs inside the paint job** (detections are truth: VLM
+boxes → nearest-assignment id continuity → uniform radius; empty detection
+sets are loud no-ops and do NOT stamp). Manual `place-hitboxes-vlm` remains
+for re-runs. Historical context —
 `uv run level-editor place-hitboxes-vlm <sid>` (gemini boxes + diff snap;
 golden-set score R .978 / P .978). The author lane's `fix-hitboxes: moved 0`
 does NOT mean aligned: the paint model renders birds *near* the dots, not on
@@ -144,3 +149,86 @@ count-16 session); the VLM pass + `--prune-empty` reconcile to actual birds.
 - Level workspace (untracked session data):
   `games/find_the_bird/.levelbuilder/levels/<sid>/`
 - Reports: `portal report --stream find-the-bird-reskin-0728` (share `/s/`)
+
+
+## Reviews and blessing (rulings 2026-08-14)
+
+- Delegated actors (`human:batu-delegated:*`) bless via the normal pair:
+  PUT hitbox-review at current contentRevision, then PUT final-cutout-review.
+  They render amber ⚙ and are GATED (pendingRelocalization refuses them).
+- A DIRECT human bless is the authority: it discharges pendingRelocalization
+  (stamped `human-review`), and a human final-cutout bless FORCE-blesses
+  hitboxes in the same commit. Never make the human climb the ladder.
+- Operator-initiated cutout redos SKIP the semantic judge (it is
+  nondeterministic — scored one identical sprite 0.94 then 0.12 in an hour);
+  deterministic gates still run. The automated lane keeps the judge.
+- 409s in the UI self-heal (drag saves rebase+retry; blessings adopt the
+  revision and ask one more click). The modal is server-authoritative:
+  revalidates on open, polls revision every 10s.
+
+## Shipping (lineup → live game → phone)
+
+The catalog manifest derives from the lineup; Start is the only writer.
+Full recipe proven 2026-08-14 (five convergence cycles, do not rediscover):
+
+1. **Publish env (all four, backend restart to apply)**:
+   `FTD_REMOTE_CONFIG_PROJECT_ID=hidden-object-base`,
+   `FTD_REMOTE_CONFIG_QUOTA_PROJECT_ID=hidden-object-base` (user-cred OAuth
+   403s without it), `FTD_REMOTE_CONFIG_OAUTH_TOKEN=$(gcloud auth
+   print-access-token)` (~1h TTL), `FTD_BUILDER_TOKEN=<secret>` (publish
+   refuses on an un-gated backend BY DESIGN — the gate 401s the open editor
+   tab, so keep the publish window short and restart open after).
+2. **Start body**: base revisions from a FRESH workflow GET after any draft
+   PUT (reusing pre-save revisions = "changed by another editor").
+3. **Bundle math**: native cap 200MB = levels + ~38MB non-level public +
+   ~6MB manifests. Projection budget = cap − measured non-level public −
+   18MB margin (measured, not guessed). Scene derivatives are WebP
+   **native-resolution q95** (operator pick; lossless was 7.9MB/scene = 9
+   levels total). The canonical exporter writes them — if a package has no
+   color.webp it ships PNG and blows the cap (the package-swap trap, closed
+   in code 2026-08-14).
+4. **Removing a level**: archive → remove from draft (auto via lineup UI) →
+   apply-bundle-projection (re-derives the starter set; the UI self-heals
+   starterPrefixMismatch this way) → Start. RC updates player progression
+   immediately; stale bundled bytes linger until the next device build.
+5. **Device build** (SPM project, no workspace):
+   `security unlock-keychain -p "$MAC_PASSWORD" ...` then
+   `xcodebuild -project App.xcodeproj -scheme App -destination id=<udid>
+   -allowProvisioningUpdates -authenticationKeyPath
+   ~/.private_keys/AuthKey_52LFXZKXD4.p8 -authenticationKeyID 52LFXZKXD4
+   -authenticationKeyIssuerID e26454d9-98b5-4d49-9f03-b731eca022f3
+   DEVELOPMENT_TEAM=42L77JAX72 CODE_SIGN_STYLE=Automatic build`, install via
+   `xcrun devicectl device install app`. Personal-cert team YU2AJP5RGS does
+   NOT sign this app; 42L77JAX72 does. `npm run build:ios` FIRST (bakes the
+   bundle; the vite plugin enforces the 200MB gate) then `npm run ios:sync`.
+
+## Multi-game (Find The Dog etc.)
+
+One tool, many games. `LEVEL_EDITOR_GAME=<game>` or the header dropdown
+(POST /api/switch-game → writes `tools/level-editor/.selected-game` →
+exec-restarts the backend, ~20s; run-backend.sh reads the file, default
+find_the_bird). Standing up a new game = `games/<name>/public/levels` +
+`.levelbuilder/` (+ optionally copy `prompts_library.json`); entity default
+comes from config (`game.defaultEntity`). Scene prose is entity-agnostic —
+all settings work for any entity. The GAME RUNTIME is separate work: the
+old find_the_dog folder is v1-format and cannot read these packages.
+
+## Restart discipline (two incidents, one night)
+
+- Restarts are `pkill -f levelbuilder.api.server` + WAIT FOR ZERO SURVIVORS
+  before starting one new instance. Single-PID kills left a sibling holding
+  the worker flock → workerless backend → every author timed out at 900s.
+- The worker now retries lock acquisition in the background
+  (`JobWorker.start(retry_interval=…)`) and runs up to 3 jobs concurrently;
+  a graceful-shutdown drain holding the lock resolves itself.
+- Long-running drivers (batch runners, watchers) run `nohup … & disown` —
+  harness-tracked background tasks get reaped mid-run.
+
+## Artifacts for the operator
+
+- Reports go to `portal report --stream <stream>`; share the `/s/<stream>`
+  link (report posts have no /p/ URL). Portal serves uploaded HTML inside a
+  SCRIPT-BLOCKING sandbox — interactive pages must be CSS-only (radio-toggle
+  flip pattern works; JS buttons die silently).
+- Evidence overlays: draw hitbox circles on color.png, eyeball EVERY one
+  before calling a level done; keep a timestamped ledger of verdicts.
