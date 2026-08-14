@@ -37,3 +37,4 @@
 - 04:5xZ LEVEL wagon_court (circus_service_compounds) DONE: 18 birds, eyes-on PASS with flag — two circles on ambiguous round brown objects on the boardwalk (feather-textured, likely curled birds; possibly sacks). Batu judges.
 - 04:5xZ automaton_assembly hard-park diagnosed: its upscale job was orphaned_unknown from the 03:13 crash (money guard refuses auto-retry). Manual review: bg still 1024, no provider artifact → esrgan retry costs cents. Requeued the job, session re-appended to the runner queue. Old orphans (6, other sessions from Jul 29–Aug 12) left untouched.
 - 05:1xZ LEVEL coral_bommie_garden (coral_reef) DONE: 19 birds, eyes-on PASS with 2 flags — center wren (goggles) painted but undetected (decoy); circled hummingbird is magenta-tinted (possible magenta residue on-sprite, worth operator eyes; residue gate remains RED/advisory).
+- 05:2xZ LEVEL montmartre_cafe_terrace (france) DONE: 19 birds, eyes-on PASS (19/19, no misses).
