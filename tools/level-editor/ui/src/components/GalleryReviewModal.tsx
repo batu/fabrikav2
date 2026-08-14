@@ -672,18 +672,14 @@ export default function GalleryReviewModal({
     const handler = (e: KeyboardEvent) => {
       const tag = (e.target as HTMLElement | null)?.tagName;
       if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
-      const mutatingShortcutPressed = ['a', 'A'].includes(e.key);
-      if (archiveBusy && mutatingShortcutPressed) {
-        e.preventDefault();
-        return;
-      }
+      // 'A' deliberately NOT bound to archive: a stray keypress soft-deleted
+      // a finished level (operator, 2026-08-14). Archive is button-only.
       if (e.key === 'ArrowLeft') { e.preventDefault(); handlePrev(); }
       else if (e.key === 'ArrowRight') { e.preventDefault(); handleNext(); }
       else if (e.key === 'Escape') {
         e.preventDefault();
         void handleClose();
       }
-      else if (e.key === 'a' || e.key === 'A') { e.preventDefault(); void handleArchiveToggle(); }
       else if (e.key === 'w' || e.key === 'W') {
         e.preventDefault();
         handleOpenWizard();

@@ -4527,14 +4527,12 @@ def _start_retry_failed_dogs_job_record(session_id: str, req: RetryFailedDogsJob
             # before any provider spend (codex review 2026-08-12 finding #7).
             bird = birds[bird_id]
             hitbox = bird["hitbox"]
-            sprite = bird.get("sprite")
-            if sprite and isinstance(sprite.get("placement"), dict):
-                placement = sprite["placement"]
-                target_x = round(placement["x"] + float(sprite.get("anchorX", 0.5)) * placement["width"])
-                target_y = round(placement["y"] + float(sprite.get("anchorY", 0.5)) * placement["height"])
-            else:
-                # Pre-extraction bird: the hitbox IS the target (CL-4/CL-5).
-                target_x, target_y = int(hitbox["x"]), int(hitbox["y"])
+            # The HITBOX is the containment target — it is what the UI draws
+            # and what the error names. Validating against the derived sprite
+            # anchor rejected correct crops whenever a stale/mis-promoted
+            # placement pointed elsewhere (operator hit this live,
+            # 2026-08-14: "it fucking does").
+            target_x, target_y = int(hitbox["x"]), int(hitbox["y"])
             x0, y0, x1, y1 = (int(value) for value in crop_box)
             radius = int(hitbox.get("r", 30))
             if x0 >= x1 or y0 >= y1:

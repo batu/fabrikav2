@@ -130,6 +130,7 @@ export default function GalleryPage({ config, onOpen }: Props) {
   const [cutoutFilter, setCutoutFilter] = useState<string>('all');
   const [search, setSearch] = useState('');
   const [lineupOnly, setLineupOnly] = useState(false);
+  const [showArchived, setShowArchived] = useState(false);
   const [humanReviewFilter, setHumanReviewFilter] = useState<Record<HumanReviewState, boolean>>({
     'needs-hitbox-review': true,
     'needs-cutout-review': true,
@@ -177,8 +178,8 @@ export default function GalleryPage({ config, onOpen }: Props) {
   }, [sessions]);
 
   const activeCards = useMemo(
-    () => allCards.filter((card) => !card.archived),
-    [allCards],
+    () => (showArchived ? allCards : allCards.filter((card) => !card.archived)),
+    [allCards, showArchived],
   );
   const activeSessions = useMemo(
     () => Array.from(new Map(
@@ -449,6 +450,14 @@ export default function GalleryPage({ config, onOpen }: Props) {
                 onChange={() => setLineupOnly(true)}
               />
               Lineup ({visibleLineupCount})
+            </label>
+            <label style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: '0.85rem', color: showArchived ? '#f0a860' : '#ccc', fontWeight: showArchived ? 700 : 400 }}>
+              <input
+                type="checkbox"
+                checked={showArchived}
+                onChange={(e) => setShowArchived(e.target.checked)}
+              />
+              Show archived
             </label>
             <label style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: '0.85rem', color: '#ccc' }}>
               <input
