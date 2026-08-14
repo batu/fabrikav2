@@ -358,7 +358,7 @@ class CreateSessionRequest(BaseModel):
     model: str | None = Field(None, max_length=200)
     bgModel: str | None = Field(None, max_length=200)
     inpaintModel: str | None = Field(None, max_length=200)
-    nDogs: int = Field(..., ge=1, le=40)
+    nDogs: int = Field(..., ge=1, le=60)  # 60: density-ramp experiment (operator, 2026-08-14)
     oneShot: bool = False
     aspectRatio: str = "9:16"
     imageSize: str = "1K"
@@ -2623,7 +2623,7 @@ class AutoHitboxesRequest(BaseModel):
     model to score numbered candidate crops before deterministic selection.
     The seed is derived from the session id, optionally mixed with `nonce`.
     """
-    nDogs: int = Field(..., ge=1, le=40)
+    nDogs: int = Field(..., ge=1, le=60)  # 60: density-ramp experiment (operator, 2026-08-14)
     nonce: int | None = None
     # None -> canvas-scaled canonical default (58 at a 4096 reference, so 38
     # on the canonical 2688 square working canvas). Explicit values win.
@@ -3761,7 +3761,7 @@ def recenter_hitboxes_local(session_id: str, radiusScale: float = Query(1.0, ge=
 
 
 @router.post("/sessions/{session_id}/finalize-magenta-hitboxes")
-def finalize_magenta_hitboxes(session_id: str, topN: int = Query(0, ge=0, le=40)):
+def finalize_magenta_hitboxes(session_id: str, topN: int = Query(0, ge=0, le=60)):
     """Deterministic magenta finalization: diff-detect painted subjects,
     reconcile hitboxes one-to-one onto them, materialize detection sprites.
     `topN` caps detections to the N largest (defaults to the hitbox count)."""

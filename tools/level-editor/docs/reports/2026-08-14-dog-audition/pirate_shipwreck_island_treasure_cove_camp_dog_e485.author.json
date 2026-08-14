@@ -1,0 +1,4 @@
+[author] generate-bg: {"skipped": "session already has backgrounds (use --redo)"}
+[author] select-bg: {"skipped": "selection already 0"}
+[author] upscale: {"skipped": "background already 2688px (target 2688)"}
+{"error": {"code": "http_422", "stage": "POST /api/sessions/pirate_shipwreck_island_treasure_cove_camp_dog_e485/auto-hitboxes", "message": "{\"detail\": [{\"type\": \"less_than_equal\", \"loc\": [\"body\", \"nDogs\"], \"msg\": \"Input should be less than or equal to 40\", \"input\": 45, \"ctx\": {\"le\": 40}}]}"}, "sessionId": "pirate_shipwreck_island_treasure_cove_camp_dog_e485", "trace": [{"step": "generate-bg", "detail": {"skipped": "session already has backgrounds (use --redo)"}}, {"step": "select-bg", "detail": {"skipped": "selection already 0"}}, {"step": "upscale", "detail": {"skipped": "background already 2688px (target 2688)"}}], "resume": "level-editor author --session-id pirate_shipwreck_island_treasure_cove_camp_dog_e485 --start-from <step>"}

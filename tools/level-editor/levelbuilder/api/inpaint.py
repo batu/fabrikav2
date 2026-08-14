@@ -4499,8 +4499,9 @@ def _start_retry_failed_dogs_job_record(session_id: str, req: RetryFailedDogsJob
         missing_crop = [bird_id for bird_id in bird_ids if bird_id not in req.cropBoxesByBirdId]
         if req.cutoutOnly and missing_crop:
             raise HTTPException(400, detail={"error": f"Cutout-only redo requires a crop box for {missing_crop[0]}"})
-        if req.cutoutOnly and "hitboxes" not in canonical.snapshot.get("reviews", {}):
-            raise HTTPException(409, detail={"error": "Bless the current hitboxes first", "code": "hitboxes_not_blessed"})
+        # Operator ruling 2026-08-14 ("if I want to extract, then extract"):
+        # extraction is operator-initiated and needs no blessing prerequisite.
+        # Review currency is asserted at export, not at extraction time.
         raw = S.ensure_session_json(session_id)
         if raw is None:
             raise HTTPException(404, detail={"error": "Session not found"})
