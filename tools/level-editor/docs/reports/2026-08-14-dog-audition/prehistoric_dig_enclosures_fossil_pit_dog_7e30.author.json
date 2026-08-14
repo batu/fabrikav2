@@ -2,3 +2,48 @@
 [author] select-bg: {"skipped": "selection already 0"}
 [author] upscale: {"skipped": "background already 2688px (target 2688)"}
 [author] auto-hitboxes: {"placed": 20, "radius": null}
+[author] inpaint: {"colorFile": "color.png", "hitboxes": 20, "localization": {"added": 6, "carried": 11, "detected": 17, "pruned": 9}, "overlayFile": "magenta_overlay.png"}
+{
+  "sessionId": "prehistoric_dig_enclosures_fossil_pit_dog_7e30",
+  "trace": [
+    {
+      "step": "generate-bg",
+      "detail": {
+        "skipped": "session already has backgrounds (use --redo)"
+      }
+    },
+    {
+      "step": "select-bg",
+      "detail": {
+        "skipped": "selection already 0"
+      }
+    },
+    {
+      "step": "upscale",
+      "detail": {
+        "skipped": "background already 2688px (target 2688)"
+      }
+    },
+    {
+      "step": "auto-hitboxes",
+      "detail": {
+        "placed": 20,
+        "radius": null
+      }
+    },
+    {
+      "step": "inpaint",
+      "detail": {
+        "colorFile": "color.png",
+        "hitboxes": 20,
+        "localization": {
+          "added": 6,
+          "carried": 11,
+          "detected": 17,
+          "pruned": 9
+        },
+        "overlayFile": "magenta_overlay.png"
+      }
+    }
+  ]
+}
