@@ -10,3 +10,5 @@
   placement centered). Operator, mid-run: "hitbox placement look real good."
 - fossil_pit_dog_7e30: 17 dogs, eyes-on PASS (17/17; includes a very small
   chihuahua center-pit — detection handles small dogs).
+- kelp_gallery_dog_e175: 22 dogs, eyes-on PASS (22/22; includes a scuba
+  schnauzer INSIDE the tank, detected through glass).
