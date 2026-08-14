@@ -4128,7 +4128,7 @@ def _level_bundle_budget_bytes() -> int:
             other += entry.stat().st_size
         elif entry.is_dir():
             other += sum(f.stat().st_size for f in entry.rglob("*") if f.is_file())
-    return max(50 * 1024 * 1024, _BUNDLE_CAP_BYTES - other - 5 * 1024 * 1024)
+    return max(50 * 1024 * 1024, _BUNDLE_CAP_BYTES - other - 15 * 1024 * 1024)
 
 
 def _bundle_projection() -> dict:
