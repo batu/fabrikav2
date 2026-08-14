@@ -4915,6 +4915,7 @@ def _run_single_cutout_extraction(
         # format and 500'd a re-extraction (operator, venice, 2026-08-14).
         target_box = list(crop_box)
         variant_index = 0
+        metadata = {}  # no prior sprite metadata exists to inherit
 
     with Image.open(color_path) as source:
         color = source.convert("RGB")
