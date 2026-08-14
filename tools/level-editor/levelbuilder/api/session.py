@@ -4350,11 +4350,27 @@ def cutter_folder_indices(dogs: list[dict], hitboxes: list[dict]) -> dict[int, i
     back to their array position."""
     by_id = {d.get("id"): d for d in dogs if isinstance(d, dict) and d.get("id")}
     out: dict[int, int] = {}
+    unknown_positions: list[int] = []
     for position, hitbox in enumerate(hitboxes):
         identifier = hitbox.get("id") if isinstance(hitbox, dict) else None
         dog = by_id.get(identifier) if identifier else None
         index = dog.get("index") if isinstance(dog, dict) else None
-        out[position] = index if isinstance(index, int) else position
+        if isinstance(index, int):
+            out[position] = index
+        else:
+            unknown_positions.append(position)
+    # Unknown ids (VLM-added birds) get FRESH folders above every claimed
+    # slot. A bare position fallback collided with existing slot ordinals —
+    # two birds shared one folder and promoted identical sprites (firehouse,
+    # live 2026-08-14).
+    claimed = set(out.values()) | {
+        d.get("index") for d in dogs
+        if isinstance(d, dict) and isinstance(d.get("index"), int)
+    }
+    next_free = max(claimed, default=-1) + 1
+    for position in unknown_positions:
+        out[position] = next_free
+        next_free += 1
     return out
 
 

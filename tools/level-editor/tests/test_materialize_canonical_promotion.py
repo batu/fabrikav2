@@ -222,3 +222,25 @@ def test_dog_registry_rebuild_preserves_slot_identity_after_deletion():
     assert [d["index"] for d in dogs] == [2, 0], "slot ordinals must survive reorder"
     assert dogs[0]["status"] == "done" and dogs[0]["promptOverride"] == "c"
     assert dogs[1]["status"] == "failed" and dogs[1]["promptOverride"] == "a"
+
+
+def test_cutter_folder_indices_never_collide_for_new_birds():
+    """Firehouse live corruption (2026-08-14, operator-visible): a VLM-added
+    bird (id unknown to the registry) fell back to its ARRAY POSITION as its
+    folder — colliding with an existing bird whose slot ordinal equals that
+    position. Two birds then shared one folder and promoted identical
+    sprites. Unknown ids must get fresh folders above every claimed slot."""
+    from levelbuilder.api.session import cutter_folder_indices
+
+    dogs = [{"id": "keep-A", "index": 0}, {"id": "keep-B", "index": 1}]
+    hitboxes = [
+        {"id": "new-1", "x": 1, "y": 1, "r": 5},   # position 0 — collides with keep-A's slot
+        {"id": "keep-A", "x": 2, "y": 2, "r": 5},
+        {"id": "new-2", "x": 3, "y": 3, "r": 5},
+        {"id": "keep-B", "x": 4, "y": 4, "r": 5},
+    ]
+    out = cutter_folder_indices(dogs, hitboxes)
+    assert out[1] == 0 and out[3] == 1, "existing birds keep their slots"
+    values = list(out.values())
+    assert len(values) == len(set(values)), f"folder collision: {out}"
+    assert out[0] >= 2 and out[2] >= 2, f"new birds must get fresh slots: {out}"
