@@ -33,3 +33,27 @@ def test_flat_ok_defers_two_components_to_the_judge():
     assert ok, "bird + held item (two components) must defer to the judge"
     ok, reason = flat_ok(*make([(5, 5, 30, 30), (40, 5, 65, 30), (70, 5, 95, 30)]))
     assert not ok and "components" in reason, "3+ components still hard-fail"
+
+
+def test_operator_cutout_redo_skips_semantic_judge(monkeypatch):
+    """The codex judge scored the SAME perfect sprite 0.94 then 0.12 within
+    an hour (wagon bird-6, 2026-08-14) — nondeterministic misfires blocked
+    10 operator redo attempts. Operator ruling: human action doesn't need
+    gates — the operator reviews the sprite visually. Deterministic gates
+    still run; run_judge=False only skips the semantic judge."""
+    from PIL import Image
+    import levelbuilder.api.flatkey as F
+
+    calls = {"judge": 0}
+    monkeypatch.setattr(F, "judge_gate", lambda *a, **k: calls.__setitem__("judge", calls["judge"] + 1) or False)
+    flat = Image.new("RGB", (64, 64), (255, 0, 255))
+    for x in range(20, 44):
+        for y in range(20, 44):
+            flat.putpixel((x, y), (120, 90, 60))
+    monkeypatch.setattr(F, "edit_image", lambda *a, **k: flat, raising=False)
+    import merceka_core.image as MI
+    monkeypatch.setattr(MI, "edit_image", lambda *a, **k: flat)
+
+    out = F.flatkey_recreate_sprite(flat, model="m", entity="bird", run_judge=False)
+    assert out is not None, "sprite must pass without the judge"
+    assert calls["judge"] == 0, "judge must not run when run_judge=False"

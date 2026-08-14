@@ -203,6 +203,7 @@ def flatkey_recreate_sprite(
     attempts: int = 2,
     entity: str = "bird",
     prompt_template: str | None = None,
+    run_judge: bool = True,
 ) -> Image.Image | None:
     """Painted bird crop -> RGBA sprite via magenta recreate + chroma key.
     Returns None when every attempt fails the purity gates (caller falls
@@ -223,7 +224,7 @@ def flatkey_recreate_sprite(
         if bbox is None:
             continue
         cutout = cutout.crop(bbox)
-        if not judge_gate(cutout, painted_crop, entity=entity):
+        if run_judge and not judge_gate(cutout, painted_crop, entity=entity):
             continue
         return cutout
     return None

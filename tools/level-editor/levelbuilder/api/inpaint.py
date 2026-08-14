@@ -4937,8 +4937,14 @@ def _run_single_cutout_extraction(
     model = inpaint_model or os.environ.get("FTD_FLATKEY_MODEL", "google/gemini-3.1-flash-image-preview")
     entity = str(raw.get("entity") or "bird")
     try:
+        # Operator ruling 2026-08-14 ("human action doesn't need gates"):
+        # this path only runs for operator-initiated redos, and the operator
+        # reviews the sprite visually. The nondeterministic semantic judge
+        # scored one perfect sprite 0.94 then 0.12 within an hour and
+        # blocked ten redo attempts. Deterministic gates still apply.
         recreated = flatkey_recreate_sprite(
-            painted_crop, model=model, entity=entity, prompt_template=extraction_prompt)
+            painted_crop, model=model, entity=entity,
+            prompt_template=extraction_prompt, run_judge=False)
     finally:
         painted_crop.close()
     if recreated is None:
