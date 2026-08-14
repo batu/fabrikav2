@@ -3029,8 +3029,8 @@ label {
 }
 
 .sequence-list {
-  max-height: 680px;
-  overflow: auto;
+  /* Page-level scrolling like the Gallery (operator, 2026-08-14) — the
+     lineup grid must never be its own scroll container. */
   padding: 2px 4px 4px 2px;
 }
 
