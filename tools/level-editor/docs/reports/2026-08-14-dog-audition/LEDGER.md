@@ -49,3 +49,11 @@
 - pirate_treasure_cove d45: ~17 painted, 17/17 PASS (dachshund in treasure
   chest). DECISIVE: 45-ask on open beach < 25-asks in dense interiors —
   scene capacity dominates the request outright.
+- japan_night_harbor d50: ~21 painted, 21/21 PASS (shrine shiba, night boats).
+
+## RAMP FINDING (final)
+req→painted: 25→23, 30→19, 35→26, 40→27, 45→17, 50→21. The request is
+almost inert; SCENE CAPACITY decides (dense interiors ≈ mid-20s, open/water
+≈ high-teens). Detection quality flat at ~100% across all densities
+(1 decoy / 131 dogs). To reach 30+: change the SCENE (zoom-out axis) —
+handed off to the difficulty ladder (see 2026-08-14-difficulty-ladder/).
