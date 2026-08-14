@@ -202,6 +202,7 @@ def flatkey_recreate_sprite(
     model: str,
     attempts: int = 2,
     entity: str = "bird",
+    prompt_template: str | None = None,
 ) -> Image.Image | None:
     """Painted bird crop -> RGBA sprite via magenta recreate + chroma key.
     Returns None when every attempt fails the purity gates (caller falls
@@ -209,7 +210,10 @@ def flatkey_recreate_sprite(
     from merceka_core.image import edit_image
 
     for _ in range(attempts):
-        flat = edit_image(painted_crop.convert("RGB"), FLAT_PROMPT_TEMPLATE.format(entity=entity), model=model)
+        # replace() not format(): an operator-supplied override may contain
+        # braces that are not placeholders.
+        template = prompt_template or FLAT_PROMPT_TEMPLATE
+        flat = edit_image(painted_crop.convert("RGB"), template.replace("{entity}", entity), model=model)
         cutout = strip_flat_rim(chroma_key(flat.convert("RGB")))
         ok, _reason = flat_ok(flat, cutout)
         if not ok:

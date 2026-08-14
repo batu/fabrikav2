@@ -360,6 +360,10 @@ export default function CutoutReviewPanel({
   // Hitboxes visible by default in cutout review (operator 2026-08-13).
   const [showHitbox, setShowHitbox] = useState(true);
   const [extractionPrompt, setExtractionPrompt] = useState<string>('');
+  const [defaultExtractionPrompt, setDefaultExtractionPrompt] = useState<string>('');
+  // Run-scoped regen-prompt draft: empty means "use the server default".
+  // Neither field is persisted anywhere — they live for this focused run.
+  const [regenPromptDraft, setRegenPromptDraft] = useState<string>('');
   const [lastResult, setLastResult] = useState<string | null>(null);
   const [cropBoxes, setCropBoxes] = useState<Record<string, CropBox>>({});
   const [placementBoxes, setPlacementBoxes] = useState<Record<string, CropBox>>({});
@@ -457,13 +461,15 @@ export default function CutoutReviewPanel({
     setControlModes({});
     setCandidateJobs({});
     setExtractionPrompt('');
+    setDefaultExtractionPrompt('');
+    setRegenPromptDraft('');
     setLastResult(null);
     setError(null);
     void refresh();
     const promptController = new AbortController();
     void getCutoutExtractionPrompt(sessionId, { signal: promptController.signal, suppressToast: true })
-      .then((result) => setExtractionPrompt(result.prompt))
-      .catch((err) => { if (!isAbortError(err)) setExtractionPrompt(''); });
+      .then((result) => { setExtractionPrompt(result.prompt); setDefaultExtractionPrompt(result.prompt); })
+      .catch((err) => { if (!isAbortError(err)) { setExtractionPrompt(''); setDefaultExtractionPrompt(''); } });
     return () => {
       promptController.abort();
       refreshAbortRef.current?.abort();
@@ -655,10 +661,15 @@ export default function CutoutReviewPanel({
       // Distinct nonce per click: forces a fresh generation even when the
       // crop box, prompt, and model are unchanged since the last run.
       const attemptNonce = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+      const effectiveRegenPrompt = regenPromptDraft.trim() || sharedPrompt;
+      const extractionOverride =
+        extractionPrompt.trim() && extractionPrompt.trim() !== defaultExtractionPrompt.trim()
+          ? extractionPrompt.trim()
+          : undefined;
       const start = (revision?: string) => startRetryFailedDogsJob(
         runSessionId,
         [candidate.dogIndex],
-        sharedPrompt,
+        effectiveRegenPrompt,
         2.75,
         cutoutModel,
         cropBox ? { [candidate.dogIndex]: cropBox } : {},
@@ -672,6 +683,7 @@ export default function CutoutReviewPanel({
             }
           : undefined,
         attemptNonce,
+        extractionOverride,
       );
       let started;
       try {
@@ -724,7 +736,7 @@ export default function CutoutReviewPanel({
         onPlacementPendingChanged?.(false);
       }
     }
-  }, [cropBoxes, cutoutModel, hitboxes, onCutoutsChanged, onDogComplete, onPlacementPendingChanged, refresh, sessionId, sharedPrompt, waitForPlacementSaves]);
+  }, [cropBoxes, cutoutModel, extractionPrompt, defaultExtractionPrompt, regenPromptDraft, hitboxes, onCutoutsChanged, onDogComplete, onPlacementPendingChanged, refresh, sessionId, sharedPrompt, waitForPlacementSaves]);
 
   const runningJobCount = Object.values(candidateJobs).filter((job) => job.phase === 'running').length;
 
@@ -782,16 +794,42 @@ export default function CutoutReviewPanel({
         </div>
       </div>
 
-      {extractionPrompt && (
+      {defaultExtractionPrompt && (
         <details className="cutout-prompt-disclosure">
-          <summary>Extraction prompt</summary>
-          <p>{extractionPrompt}</p>
+          <summary>
+            Extraction prompt{extractionPrompt.trim() !== defaultExtractionPrompt.trim() ? ' (edited — this run only)' : ''}
+          </summary>
+          <textarea
+            value={extractionPrompt}
+            onChange={(e) => setExtractionPrompt(e.target.value)}
+            rows={6}
+            style={{ width: '100%', background: '#111', color: '#ddd', border: '1px solid #333', borderRadius: 6, padding: 8, fontSize: '0.8rem' }}
+          />
+          {extractionPrompt.trim() !== defaultExtractionPrompt.trim() && (
+            <button type="button" className="btn" style={{ marginTop: 4 }}
+              onClick={() => setExtractionPrompt(defaultExtractionPrompt)}>
+              Reset to default
+            </button>
+          )}
         </details>
       )}
       {sharedPrompt && (
         <details className="cutout-prompt-disclosure">
-          <summary>Regeneration prompt</summary>
-          <p>{sharedPrompt}</p>
+          <summary>
+            Regeneration prompt{regenPromptDraft.trim() ? ' (edited — this run only)' : ''}
+          </summary>
+          <textarea
+            value={regenPromptDraft || sharedPrompt}
+            onChange={(e) => setRegenPromptDraft(e.target.value)}
+            rows={6}
+            style={{ width: '100%', background: '#111', color: '#ddd', border: '1px solid #333', borderRadius: 6, padding: 8, fontSize: '0.8rem' }}
+          />
+          {regenPromptDraft.trim() && (
+            <button type="button" className="btn" style={{ marginTop: 4 }}
+              onClick={() => setRegenPromptDraft('')}>
+              Reset to default
+            </button>
+          )}
         </details>
       )}
 

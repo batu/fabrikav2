@@ -995,6 +995,7 @@ export function startRetryFailedDogsJob(
     expectedContentRevision: string;
   },
   attemptNonce?: string,
+  extractionPromptOverride?: string,
 ): Promise<RetryFailedDogsJobResponse> {
   return request(`/api/sessions/${sessionId}/dogs/retry-inpaint/jobs`, {
     method: 'POST',
@@ -1010,6 +1011,7 @@ export function startRetryFailedDogsJob(
       cutoutOnly,
       ...(inpaintModel ? { inpaintModel } : {}),
       ...(attemptNonce ? { attemptNonce } : {}),
+      ...(extractionPromptOverride ? { extractionPromptOverride } : {}),
     }),
     ...options,
   });

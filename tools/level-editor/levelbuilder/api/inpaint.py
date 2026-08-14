@@ -4038,6 +4038,9 @@ class RetryFailedDogsJobRequest(BaseModel):
     dogIndices: list[int] = Field(default_factory=list, max_length=_MAX_HITBOXES)
     birdIds: list[str] = Field(default_factory=list, max_length=_MAX_HITBOXES)
     prompt: str = Field(..., min_length=1, max_length=4000)
+    # Run-scoped extraction-prompt override (operator, 2026-08-14): lives in
+    # the job record only — never persisted to session or prompt library.
+    extractionPromptOverride: str | None = Field(None, max_length=4000)
     inpaintModel: str | None = Field(None, max_length=200)
     padding: float = Field(2.75, ge=0.5, le=4.0)
     cropBoxes: dict[int, tuple[int, int, int, int]] = Field(default_factory=dict)
@@ -4642,6 +4645,7 @@ def _start_retry_failed_dogs_job_record(session_id: str, req: RetryFailedDogsJob
                 else {str(index): list(box) for index, box in req.cropBoxes.items()}
             ),
             "cutoutOnly": req.cutoutOnly,
+            "extractionPromptOverride": req.extractionPromptOverride,
             "hitboxesSha256": hitbox_review.get("currentHitboxesSha256") if hitbox_review else None,
             "birdInputs": [item.to_dict() for item in canonical_inputs],
             "safeToRequeue": True,
@@ -4856,6 +4860,7 @@ def _run_single_cutout_extraction(
     expected_hitboxes_sha256: str | None = None,
     artifact_dir: Path | None = None,
     captured_input: dict[str, Any] | None = None,
+    extraction_prompt: str | None = None,
 ) -> dict[str, Any]:
     """Extract and duplicate only the pickup sprite; scene and hitboxes stay immutable."""
     if captured_input is not None:
@@ -4932,7 +4937,8 @@ def _run_single_cutout_extraction(
     model = inpaint_model or os.environ.get("FTD_FLATKEY_MODEL", "google/gemini-3.1-flash-image-preview")
     entity = str(raw.get("entity") or "bird")
     try:
-        recreated = flatkey_recreate_sprite(painted_crop, model=model, entity=entity)
+        recreated = flatkey_recreate_sprite(
+            painted_crop, model=model, entity=entity, prompt_template=extraction_prompt)
     finally:
         painted_crop.close()
     if recreated is None:
@@ -5146,6 +5152,7 @@ def _run_retry_failed_dogs_job(job: JobRecord, store: JobStore) -> dict[str, Any
                     dog_index,
                     crop_box=crop_box,
                     inpaint_model=model,
+                    extraction_prompt=metadata.get("extractionPromptOverride"),
                     expected_hitboxes_sha256=metadata.get("hitboxesSha256"),
                     artifact_dir=(
                         S.LEVELS_DIR / session_id / ".canonical" / "job-artifacts" / job.id / str(child.metadata["birdId"])
