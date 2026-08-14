@@ -179,7 +179,7 @@ def export_canonical_revision(
         # levels total, rejected.
         for stem in ("color", "bg_00"):
             with _Image.open(staging / f"{stem}.png") as img:
-                img.convert("RGB").save(staging / f"{stem}.webp", format="WEBP", quality=90, method=6)
+                img.convert("RGB").save(staging / f"{stem}.webp", format="WEBP", quality=95, method=6)
         (staging / "level.json").write_text(json.dumps(level, indent=2) + "\n")
         (staging / "artifact-manifest.json").write_text(json.dumps(_artifact_manifest(snapshot), indent=2) + "\n")
 
