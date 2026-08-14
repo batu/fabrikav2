@@ -4128,7 +4128,10 @@ def _level_bundle_budget_bytes() -> int:
             other += entry.stat().st_size
         elif entry.is_dir():
             other += sum(f.stat().st_size for f in entry.rglob("*") if f.is_file())
-    return max(50 * 1024 * 1024, _BUNDLE_CAP_BYTES - other - 15 * 1024 * 1024)
+    # 18MB: measured, not guessed — a 15MB margin built 201.7MB against the
+    # 200MB native gate (2026-08-14); the extra 3MB covers manifest rewrite
+    # growth and per-level rounding drift observed across four real builds.
+    return max(50 * 1024 * 1024, _BUNDLE_CAP_BYTES - other - 18 * 1024 * 1024)
 
 
 def _bundle_projection() -> dict:
