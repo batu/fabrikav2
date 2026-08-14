@@ -4114,6 +4114,23 @@ def get_sequence_workflow():
 _BUNDLE_CAP_BYTES = 200 * 1024 * 1024  # C1 dynamic-under-200MB policy (Batu, 2026-06-10)
 
 
+def _level_bundle_budget_bytes() -> int:
+    """The native web bundle carries public/* BESIDES levels (ui, audio,
+    fonts — ~38MB, 2026-08-14). The level budget is the 200MB native limit
+    minus those measured bytes minus a 5MB safety margin; projecting against
+    the raw cap shipped a 212MB bundle the native gate refused."""
+    other = 0
+    public_root = S.GAME_PUBLIC_LEVELS.parent
+    for entry in public_root.iterdir():
+        if entry.name == "levels" or entry.name.startswith("levels_archive"):
+            continue
+        if entry.is_file():
+            other += entry.stat().st_size
+        elif entry.is_dir():
+            other += sum(f.stat().st_size for f in entry.rglob("*") if f.is_file())
+    return max(50 * 1024 * 1024, _BUNDLE_CAP_BYTES - other - 5 * 1024 * 1024)
+
+
 def _bundle_projection() -> dict:
     """Derive the dynamic bundle boundary from the CURRENT sequence draft order:
     cumulative shipped-package size (public/levels/<id>) up to the 200MB cap is
@@ -4123,6 +4140,7 @@ def _bundle_projection() -> dict:
     state = SequenceWorkflow.get_sequence_editor_state()
     level_ids = list(state["draft"]["levelIds"])
     levels: list[dict] = []
+    cap_bytes = _level_bundle_budget_bytes()
     cumulative = 0
     boundary_index = 0
     seen_paths: set = set()
@@ -4141,7 +4159,7 @@ def _bundle_projection() -> dict:
                 seen_paths.add(path)
                 size += path.stat().st_size
         bundled = False
-        if exported and cumulative + size <= _BUNDLE_CAP_BYTES and boundary_index == len(levels):
+        if exported and cumulative + size <= cap_bytes and boundary_index == len(levels):
             # contiguous prefix only: the first non-fitting (or unexported)
             # level closes the bundle — the game streams everything after it.
             cumulative += size
@@ -4155,7 +4173,7 @@ def _bundle_projection() -> dict:
             "bundled": bundled,
         })
     return {
-        "capBytes": _BUNDLE_CAP_BYTES,
+        "capBytes": cap_bytes,
         "boundaryIndex": boundary_index,
         "bundledBytes": cumulative,
         "levels": levels,
