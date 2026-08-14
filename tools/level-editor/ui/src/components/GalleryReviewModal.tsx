@@ -395,13 +395,31 @@ export default function GalleryReviewModal({
           actualContentRevision?: string;
         };
         if (Array.isArray(detail.serverHitboxes)) {
+          // Rebase-and-retry (operator hit this live, 2026-08-14: the lane
+          // finished the level after the tab loaded, so the user's first
+          // drag 409'd and was lost). A drag is not an approval — replaying
+          // the user's positions onto current server truth is safe. Ids the
+          // server no longer has are dropped; server-only ids are kept.
+          const serverById = new Map(detail.serverHitboxes.map((h) => [h.id, h]));
+          const rebased = detail.serverHitboxes.map((server) => {
+            const local = hitboxes.find((h) => h.id === server.id);
+            return local ? { ...server, x: local.x, y: local.y, r: local.r } : server;
+          });
           adoptServerState(sessionId, {
             hitboxes: detail.serverHitboxes,
             contentRevision: detail.actualContentRevision,
           });
+          if (detail.actualContentRevision && hitboxes.some((h) => serverById.has(h.id))) {
+            result = await persistHitboxes(sessionId, rebased, detail.actualContentRevision);
+          } else {
+            throw error;
+          }
+        } else {
+          throw error;
         }
+      } else {
+        throw error;
       }
-      throw error;
     }
     const serverHitboxes = (result as { hitboxes?: Hitbox[] } | undefined)?.hitboxes;
     // A6 (hunt A): an absent server body is NOT proof the local array
@@ -1091,6 +1109,16 @@ export default function GalleryReviewModal({
                   ? '✓ Hitboxes marked reviewed.'
                   : 'Hitbox review removed — this level is unreviewed again.');
               } catch (err) {
+                // Same P2b.3 contract as the cutout bless: adopt the server
+                // revision but never blind-retry a human approval — the
+                // human re-checks at the revision they can now see.
+                const currentRevision = conflictRevision(err);
+                if (currentRevision) {
+                  dispatchNarrow({ type: 'SET_REVISIONS', contentRevision: currentRevision });
+                  setBlessError('The level changed on the server since this tab loaded it (the pipeline finished it). Your view is refreshed — check the hitboxes and click again.');
+                  setHitboxBlessBusy(false);
+                  return;
+                }
                 setBlessError(err instanceof Error ? err.message : 'Saving hitbox review failed');
               } finally {
                 setHitboxBlessBusy(false);
