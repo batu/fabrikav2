@@ -1972,10 +1972,27 @@ def set_canonical_final_review_if_present(
     if approved:
         hitbox_review = current.snapshot.get("reviews", {}).get("hitboxes")
         hitbox_scope = review_scope_revision(current.snapshot, "hitboxes")
-        if not isinstance(hitbox_review, dict) or hitbox_review.get("scopeRevision") != hitbox_scope:
-            raise ContractValidationError("current hitbox review is required before final blessing")
+        hitboxes_current = (
+            isinstance(hitbox_review, dict) and hitbox_review.get("scopeRevision") == hitbox_scope
+        )
+        snapshot_to_bless = current.snapshot
+        if not hitboxes_current:
+            # Operator ruling 2026-08-14 ("when I press mark cutouts it means
+            # the hitboxes are also by definition blessed — force it, not
+            # gate it"): a direct human approving final cutouts has seen the
+            # hitboxes; bless them in the same commit. Delegated/automated
+            # actors keep the gate.
+            direct_human = reviewer.startswith("human:") and "-delegated" not in reviewer
+            if not direct_human:
+                raise ContractValidationError("current hitbox review is required before final blessing")
+            snapshot_to_bless = bless_snapshot(
+                current.snapshot,
+                review_kind="hitboxes",
+                reviewer=reviewer,
+                reviewed_at=now_iso(),
+            )
         updated = bless_snapshot(
-            current.snapshot,
+            snapshot_to_bless,
             review_kind="finalCutouts",
             reviewer=reviewer,
             reviewed_at=now_iso(),

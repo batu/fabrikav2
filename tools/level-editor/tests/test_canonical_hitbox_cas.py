@@ -199,11 +199,14 @@ def test_canonical_final_bless_requires_current_hitbox_assertion(isolated_sessio
     from levelbuilder.api.canonical_bird_contract import ContractValidationError
 
     store, pointer = _canonical_session(isolated_session, "canonical_final_bless")
+    # Operator ruling 2026-08-14: a DIRECT human final bless force-blesses
+    # hitboxes instead of gating — only delegated/automated actors refuse.
     with pytest.raises(ContractValidationError, match="hitbox review"):
         isolated_session.set_canonical_final_review_if_present(
             "canonical_final_bless",
             True,
             expected_content_revision=pointer.content_revision,
+            reviewer="human:batu-delegated:overnight",
         )
 
     hitbox_pointer = isolated_session.set_canonical_hitbox_review_if_present(

@@ -222,3 +222,32 @@ def test_failed_localization_does_not_stamp(monkeypatch):
                         lambda sid: {"detected": 0, "skipped": "no_detections"})
     summary = I._discharge_paint_obligations("sid_x", {})
     assert calls == [], f"stamped after an empty detection set: {calls}"
+
+
+def test_direct_human_final_bless_forces_hitbox_bless(tmp_path, monkeypatch):
+    """Operator ruling 2026-08-14: 'when I press mark cutouts it means the
+    hitboxes are also by definition blessed — force it, not gate it.' A
+    direct human final-cutout approval blesses hitboxes in the same commit
+    when their review is missing/stale. Delegated actors stay gated."""
+    from levelbuilder.api import session as S
+    from levelbuilder.api.canonical_bird_contract import ContractValidationError
+    import pytest
+
+    store = _store(tmp_path)
+    monkeypatch.setattr(S, "canonical_session_store", lambda _sid: store)
+
+    with pytest.raises(ContractValidationError, match="hitbox review is required"):
+        S.set_canonical_final_review_if_present(
+            "case", True,
+            expected_content_revision=store.read().pointer.content_revision,
+            reviewer="human:batu-delegated:overnight",
+        )
+
+    S.set_canonical_final_review_if_present(
+        "case", True,
+        expected_content_revision=store.read().pointer.content_revision,
+        reviewer="human:editor",
+    )
+    snap = store.read().snapshot
+    assert (snap.get("reviews") or {}).get("finalCutouts"), "final bless missing"
+    assert (snap.get("reviews") or {}).get("hitboxes"), "hitboxes were not force-blessed"
