@@ -31,3 +31,5 @@
 - hawaii_waikiki d35 (finisher): 26 painted / 25 detected, PASS w/flag (one
   dachshund at the coconut stand undetected — decoy). Density curve so far:
   req 25→23, 30→19, 35→26 — paint saturates near low-20s regardless of ask.
+- below_decks_galley d25: 24 painted, 24/24 PASS (dachshund in the fireplace).
+  25-tier is reliably near-target.
