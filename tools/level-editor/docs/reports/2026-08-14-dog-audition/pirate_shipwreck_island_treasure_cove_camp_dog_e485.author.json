@@ -1,3 +1,51 @@
 [author] generate-bg: {"skipped": "session already has backgrounds (use --redo)"}
 [author] select-bg: {"skipped": "selection already 0"}
 [author] upscale: {"skipped": "background already 2688px (target 2688)"}
+warning: session revision unchanged after mutation — another actor may have raced this write
+[author] auto-hitboxes: {"placed": 45, "radius": 30}
+[author] inpaint: {"canonicalAdoption": "migrate", "colorFile": "color.png", "hitboxes": 45, "localization": {"added": 3, "carried": 13, "detected": 16, "pruned": 32}, "overlayFi
+{
+  "sessionId": "pirate_shipwreck_island_treasure_cove_camp_dog_e485",
+  "trace": [
+    {
+      "step": "generate-bg",
+      "detail": {
+        "skipped": "session already has backgrounds (use --redo)"
+      }
+    },
+    {
+      "step": "select-bg",
+      "detail": {
+        "skipped": "selection already 0"
+      }
+    },
+    {
+      "step": "upscale",
+      "detail": {
+        "skipped": "background already 2688px (target 2688)"
+      }
+    },
+    {
+      "step": "auto-hitboxes",
+      "detail": {
+        "placed": 45,
+        "radius": 30
+      }
+    },
+    {
+      "step": "inpaint",
+      "detail": {
+        "canonicalAdoption": "migrate",
+        "colorFile": "color.png",
+        "hitboxes": 45,
+        "localization": {
+          "added": 3,
+          "carried": 13,
+          "detected": 16,
+          "pruned": 32
+        },
+        "overlayFile": "magenta_overlay.png"
+      }
+    }
+  ]
+}

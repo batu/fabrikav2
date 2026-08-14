@@ -42,3 +42,7 @@
   Worker queues drained; finisher armed.
 - hawaii_rainforest_waterfall d25: ~22 painted, 22/22 PASS. Discrimination:
   cat on swing NOT detected; stone pug statue NOT detected. Both correct.
+- nordic_bergen_harbor d40 (finisher): 27 painted, 27/27 PASS (cat ignored;
+  raincoat boat dog detected). Curve: 25→23, 30→19, 35→26, 40→27 —
+  sublinear; close-view ceiling ≈ mid-high 20s. CLI timeout root-fixed
+  (600→1800s) after two abandoned-but-completed materializes.
