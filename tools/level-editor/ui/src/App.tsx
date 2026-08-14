@@ -1,7 +1,7 @@
 import { useEffect, useCallback, useRef, useState, type ReactNode } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import type { ConfigResponse, HiddennessLevel, Orientation, SessionResponse } from './types';
-import { getConfig, getGenerationStatus, getSession } from './api/editorApi';
+import { getConfig, getGenerationStatus, getSession, switchGame } from './api/editorApi';
 import { sessionQueryKey, useSessionQuery } from './api/useSessionQuery';
 import { useBgStream } from './api/useBgStream';
 import { useInpaintStream } from './api/useInpaintStream';
@@ -88,7 +88,43 @@ export default function App() {
   const queryClient = useQueryClient();
   const [config, setConfig] = useState<ConfigResponse | null>(null);
   const gameTitle = config?.game?.label ? `${config.game.label} - Level Editor` : 'Level Editor';
+  const [switchingGame, setSwitchingGame] = useState<string | null>(null);
+  const handleGameSwitch = useCallback(async (target: string) => {
+    if (!target || target === config?.game?.name) return;
+    setSwitchingGame(target);
+    try {
+      await switchGame(target);
+    } catch {
+      // The restart races the response; a dropped connection here is normal.
+    }
+    // Poll until the backend answers as the new game, then reload the UI.
+    const poll = async () => {
+      try {
+        const next = await getConfig();
+        if (next.game?.name === target) { window.location.reload(); return; }
+      } catch { /* backend mid-restart */ }
+      setTimeout(poll, 1500);
+    };
+    setTimeout(poll, 2500);
+  }, [config?.game?.name]);
+  const gameSwitcher = (config?.game?.availableGames?.length ?? 0) > 1 ? (
+    <select
+      value={config?.game?.name}
+      onChange={(e) => { void handleGameSwitch(e.target.value); }}
+      title="Switch which game this editor authors (restarts the backend, ~20s)"
+      style={{ marginLeft: 10, background: '#222', color: '#ddd', border: '1px solid #444', borderRadius: 6, padding: '4px 8px', fontSize: 13 }}
+    >
+      {config?.game?.availableGames?.map((g) => (
+        <option key={g} value={g}>{g.replace(/_/g, ' ')}</option>
+      ))}
+    </select>
+  ) : null;
   useEffect(() => { document.title = gameTitle; }, [gameTitle]);
+  const switchOverlay = switchingGame ? (
+    <div style={{ position: 'fixed', inset: 0, background: '#000c', zIndex: 999, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 18 }}>
+      Switching to {switchingGame.replace(/_/g, ' ')}… backend is restarting (~20s)
+    </div>
+  ) : null;
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
   const [orientation, setOrientation] = useState<Orientation>('portrait');
   const [configSummary, setConfigSummary] = useState('');
@@ -265,6 +301,9 @@ export default function App() {
   useEffect(() => {
     getConfig().then((nextConfig) => {
       setConfig(nextConfig);
+      // Per-game default entity (dog for find_the_dog, bird for find_the_bird)
+      // seeds the create flow when nothing is selected yet.
+      setEntity((current) => current ?? nextConfig.game?.defaultEntity ?? null);
       setInpaintModel((current) => resolveInpaintModel(nextConfig, current));
       setUpscaleModel((current) => (
         nextConfig.upscaleModels?.some((model) => model.id === current)
@@ -448,7 +487,7 @@ export default function App() {
       <div className="app">
         <div className="pipeline">
           <div className="pipeline-header">
-            <h1>{gameTitle}</h1>
+            <h1>{gameTitle}</h1>{gameSwitcher}
             <TabNav active="gallery" />
           </div>
           <GalleryPage config={config} onOpen={handleLoadLevel} />
@@ -460,7 +499,7 @@ export default function App() {
       <div className="app">
         <div className="pipeline">
           <div className="pipeline-header">
-            <h1>{gameTitle}</h1>
+            <h1>{gameTitle}</h1>{gameSwitcher}
             <TabNav active="animations" />
           </div>
           <AnimationLibraryPage />
@@ -472,7 +511,7 @@ export default function App() {
       <div className="app">
         <div className="pipeline">
           <div className="pipeline-header">
-            <h1>{gameTitle}</h1>
+            <h1>{gameTitle}</h1>{gameSwitcher}
             <TabNav active="lineup" />
           </div>
           <SequencePage />
@@ -484,7 +523,7 @@ export default function App() {
       <div className="app">
         <div className="pipeline">
           <div className="pipeline-header">
-            <h1>{gameTitle}</h1>
+            <h1>{gameTitle}</h1>{gameSwitcher}
             <div style={{ marginLeft: 'auto' }}>
               <TabNav active="prompts" />
             </div>
@@ -498,7 +537,7 @@ export default function App() {
     <div className="app">
       <div className="pipeline">
         <div className="pipeline-header">
-          <h1>{gameTitle}</h1>
+          <h1>{gameTitle}</h1>{gameSwitcher}
           {currentSessionId && (
             <span className="pipeline-session">#{currentSessionId}</span>
           )}
@@ -651,6 +690,7 @@ export default function App() {
 
   return (
     <>
+      {switchOverlay}
       {body}
       <ApiErrorToast />
     </>

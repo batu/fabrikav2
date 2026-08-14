@@ -821,12 +821,52 @@ def apply_artifact_integrity_migration(body: ApplyArtifactIntegrityMigrationRequ
     return {"manifestSha256": manifest["manifestSha256"], "results": results}
 
 
+class SwitchGameRequest(BaseModel):
+    game: str = Field(..., min_length=1, max_length=80)
+
+
+@router.post("/switch-game")
+def switch_game(req: SwitchGameRequest):
+    """Persist the selected game and exec-restart the backend into it.
+
+    One backend, one port, one URL (operator, 2026-08-14): the profile is
+    process-global by design, so switching games IS a restart. The exec
+    happens after the response flushes; the UI polls /api/config until the
+    new game answers, then reloads."""
+    from levelbuilder.settings import available_games as _available_games
+
+    games = _available_games()
+    if req.game not in games:
+        raise HTTPException(400, detail={"error": f"unknown game {req.game!r}; available: {games}"})
+    import os as _os
+    import sys as _sys
+    import threading as _threading
+    from pathlib import Path as _Path
+
+    tool_root = _Path(__file__).resolve().parents[2]
+    (tool_root / ".selected-game").write_text(req.game + "\n")
+
+    def _restart():
+        import time as _time
+        _time.sleep(0.7)  # let the response flush
+        script = tool_root / "run-backend.sh"
+        _os.execv("/bin/bash", ["bash", str(script)])
+
+    _threading.Thread(target=_restart, daemon=True).start()
+    return {"ok": True, "switchingTo": req.game}
+
+
 @router.get("/config")
 def get_config():
+    from levelbuilder.settings import available_games as _available_games
+
+    _DEFAULT_ENTITY = {"find_the_dog": "dog", "find_the_bird": "bird"}
     return {
         "game": {
             "name": S.GAME_ROOT.name,
             "label": S.GAME_ROOT.name.replace("_", " ").title(),
+            "defaultEntity": _DEFAULT_ENTITY.get(S.GAME_ROOT.name, "bird"),
+            "availableGames": [g for g in _available_games() if g in _DEFAULT_ENTITY],
         },
         "templates": _load_templates_for_config(),
         "views": {

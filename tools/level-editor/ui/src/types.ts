@@ -157,7 +157,7 @@ export interface RecipeTemplate {
 }
 
 export interface ConfigResponse {
-  game?: { name: string; label: string };
+  game?: { name: string; label: string; defaultEntity?: string; availableGames?: string[] };
   templates?: RecipeTemplate[];
   views: Record<string, string>;      // key → description (e.g. "isometric" → "Isometric 45-degree...")
   styles: Record<string, string>;     // key → description

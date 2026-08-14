@@ -23,4 +23,7 @@ fi
 echo "Building editor UI (stale-dist guard)..."
 npm --prefix ui run build
 
-exec uv run python -m levelbuilder.api.server --game find_the_bird --port 5196
+# Game selection persists across restarts so the UI switcher survives the
+# exec cycle (operator, 2026-08-14). Default stays find_the_bird.
+SELECTED_GAME=$(cat "$(dirname "$0")/.selected-game" 2>/dev/null || echo find_the_bird)
+exec uv run python -m levelbuilder.api.server --game "$SELECTED_GAME" --port 5196

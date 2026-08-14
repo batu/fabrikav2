@@ -227,6 +227,15 @@ export function getConfig(): Promise<ConfigResponse> {
   return request<ConfigResponse>('/api/config');
 }
 
+/** Switch the backend's active game profile (exec-restarts the server). */
+export function switchGame(game: string): Promise<{ ok: boolean; switchingTo: string }> {
+  return request('/api/switch-game', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ game }),
+  });
+}
+
 export interface EditorOperation {
   operationId: string;
   cliVerb: string;
