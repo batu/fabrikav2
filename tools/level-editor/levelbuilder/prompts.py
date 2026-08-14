@@ -1394,6 +1394,27 @@ SETTINGS = {
             ),
         },
     },
+    # ── Spyfall-inspired reference settings (operator, 2026-08-14) ─────────
+    # Registered for reference only: NO scenes yet, deliberately inactive —
+    # "keep them in settings for reference, don't activate". Dropped from the
+    # source list by operator choice: cat show, retirement home, zoo.
+    "police_station": {"label": "Police Station", "scenes": {}},
+    "supermarket": {"label": "Supermarket", "scenes": {}},
+    "hospital_ward": {"label": "Hospital Ward", "scenes": {}},
+    "school_classroom": {"label": "School Classroom", "scenes": {}},
+    "bank": {"label": "Bank", "scenes": {}},
+    "casino_floor": {"label": "Casino Floor", "scenes": {}},
+    "day_spa": {"label": "Day Spa", "scenes": {}},
+    "hotel_lobby": {"label": "Hotel Lobby", "scenes": {}},
+    "movie_studio_backlot": {"label": "Movie Studio Backlot", "scenes": {}},
+    "submarine_interior": {"label": "Submarine Interior", "scenes": {}},
+    "polar_station": {"label": "Polar Station", "scenes": {}},
+    "amusement_park": {"label": "Amusement Park", "scenes": {}},
+    "construction_site": {"label": "Construction Site", "scenes": {}},
+    "jail": {"label": "Jail", "scenes": {}},
+    "race_track_paddock": {"label": "Race Track Paddock", "scenes": {}},
+    "harbor_docks": {"label": "Harbor Docks", "scenes": {}},
+    "jazz_club": {"label": "Jazz Club", "scenes": {}},
 }
 
 # Flat view — scene_key → scene_prompt. Derived from SETTINGS so a single
