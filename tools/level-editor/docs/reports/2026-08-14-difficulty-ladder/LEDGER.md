@@ -14,3 +14,21 @@ vs 17-21 typical) without any readability loss at phone size. Detection is
 NOT yet the limiting factor — headroom exists for the hiding axis.
 WATCH: japan_river rendered as a dark-void floating diorama rather than
 full-bleed; framing drift to monitor, not yet a defect.
+
+## T2 — size axis: T1 wide view + dogs one notch smaller
+cenote_ruins 23 · mardin_stone_terrace 14 · tuscan_hill_village 30 ·
+enchanted_stream 28 · pirate_palm_root 25.
+VERDICT: PASS on difficulty (smaller dogs read as small props; two of my
+own thumbnail reads were wrong and needed zooming — that IS the difficulty
+working), but the tier exposed two things bigger than the tweak:
+1. **Scene archetype dominates capacity.** Same tier, same 30 ask: dense
+   multi-level village 30, forest-with-stream 28, sparse stone terrace 14.
+   A 2x swing from scene choice alone — larger than any prompt delta so far.
+2. **DEFECT FOUND — magenta residue.** pirate_palm_root shipped the lane's
+   magenta placement rings visible in the artwork (64,296 px; healthy
+   levels measure 0) while passing every other check: 25 detected,
+   canonical clean, no dupes. New deterministic detector +
+   test + batch gate landed (levelbuilder/api/magenta_residue.py). Sweep of
+   all 29 painted dog levels: 1 defective, now flagged for repaint.
+FLAG: mardin has one likely false positive (a cat in a window arch claimed
+as a dog) — first of the run; operator's eyes needed.
