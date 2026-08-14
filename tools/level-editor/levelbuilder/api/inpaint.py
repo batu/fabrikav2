@@ -6049,7 +6049,7 @@ def detect_birds_vlm(session_id: str, *, model: str = "gemini-3.6-flash") -> lis
             "model": f"google/{model}",
             "messages": [{"role": "user", "content": [
                 {"type": "image_url", "image_url": {"url": "data:image/png;base64," + _b64.b64encode(buf.getvalue()).decode()}},
-                {"type": "text", "text": "Detect every bird in this illustrated hidden-object scene. Return STRICT JSON: an array of objects {\"box_2d\": [ymin,xmin,ymax,xmax]} with coordinates in 0-1000 normalized space. No prose."},
+                {"type": "text", "text": f"Detect every {entity} in this illustrated hidden-object scene. Return STRICT JSON: an array of objects {{\"box_2d\": [ymin,xmin,ymax,xmax]}} with coordinates in 0-1000 normalized space. No prose."},
             ]}],
             "usage": {"include": True},
         }

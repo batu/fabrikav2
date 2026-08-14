@@ -144,3 +144,14 @@ def test_sprite_gaps_reads_canonical_truth(monkeypatch):
         state=CanonicalReadState.VALID_CURRENT, snapshot=snapshot, pointer=object()))
     gaps = S.canonical_sprite_gaps("sid")
     assert gaps == [{"birdId": "bird-b", "slot": "dog_11"}]
+
+
+def test_detection_ladder_has_no_hardcoded_bird():
+    """Dog audition finding (2026-08-14): the structured rung used the
+    session entity but the raw-retry fallback hardcoded 'Detect every bird',
+    so dog scenes fell back to a bird query and returned zero detections."""
+    import inspect
+    from levelbuilder.api import inpaint as I
+
+    src = inspect.getsource(I.detect_birds_vlm)
+    assert "every bird " not in src, "hardcoded bird prompt in detection ladder"
