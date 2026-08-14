@@ -46,3 +46,6 @@
   raincoat boat dog detected). Curve: 25→23, 30→19, 35→26, 40→27 —
   sublinear; close-view ceiling ≈ mid-high 20s. CLI timeout root-fixed
   (600→1800s) after two abandoned-but-completed materializes.
+- pirate_treasure_cove d45: ~17 painted, 17/17 PASS (dachshund in treasure
+  chest). DECISIVE: 45-ask on open beach < 25-asks in dense interiors —
+  scene capacity dominates the request outright.
