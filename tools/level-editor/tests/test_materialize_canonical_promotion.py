@@ -244,3 +244,17 @@ def test_cutter_folder_indices_never_collide_for_new_birds():
     values = list(out.values())
     assert len(values) == len(set(values)), f"folder collision: {out}"
     assert out[0] >= 2 and out[2] >= 2, f"new birds must get fresh slots: {out}"
+
+
+def test_promotion_skip_requires_consistent_asset_record():
+    """Export-gate failures 2026-08-14 ('sprite byte size does not match its
+    revision'): the idempotency skip compared the sha to the CUTTER's file
+    but never checked that the snapshot's recorded path/bytes agree — birds
+    pointing at another slot's overwritten file skipped forever. The skip
+    condition must include record path + byte-size consistency."""
+    import inspect
+    from levelbuilder.api import session as S
+
+    src = inspect.getsource(S.promote_materialized_sprites_canonically)
+    guard = src.split("Idempotency:", 1)[1].split("captured = ", 1)[0]
+    assert "expected_rel" in guard and "bytes" in guard, guard

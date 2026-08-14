@@ -2182,7 +2182,18 @@ def promote_materialized_sprites_canonically(
                 and placement_now.get("width") == int(box_now[2]) - int(box_now[0])
                 and placement_now.get("height") == int(box_now[3]) - int(box_now[1])
             )
-            if placement_matches and current_sha == hashlib.sha256(sprite_path.read_bytes()).hexdigest():
+            # The record must also POINT at this sprite with the right size:
+            # a stale record aimed at another slot's overwritten file passed
+            # the sha check forever while the export gate refused the level
+            # ("sprite byte size does not match its revision", 2026-08-14).
+            expected_rel = f"dogs/dog_{folder_index.get(index, index):02d}/{sprite_path.name}"
+            asset_now = sprite_now.get("asset") or {}
+            record_consistent = (
+                asset_now.get("path") == expected_rel
+                and asset_now.get("bytes") == sprite_path.stat().st_size
+            )
+            if (placement_matches and record_consistent
+                    and current_sha == hashlib.sha256(sprite_path.read_bytes()).hexdigest()):
                 skipped += 1
                 continue
             captured = _prov.capture_bird_job_input(
