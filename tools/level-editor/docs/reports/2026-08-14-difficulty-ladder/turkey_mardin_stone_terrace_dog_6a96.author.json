@@ -1,0 +1,67 @@
+[author] generate-bg: {"status": "succeeded"}
+[author] select-bg: {"skipped": "selection already 0"}
+[author] upscale: {"background": {"file": "bg_01.png", "generationTime": 9.9, "height": 2688, "index": 1, "kind": "upscaled", "sourceHeight": 1024, "sourceImageHash": "7b2b95a9e4
+warning: session revision unchanged after mutation — another actor may have raced this write
+[author] auto-hitboxes: {"placed": 30, "radius": 30}
+[author] inpaint: {"canonicalAdoption": "migrate", "colorFile": "color.png", "hitboxes": 30, "localization": {"added": 2, "carried": 11, "detected": 13, "pruned": 19}, "overlayFi
+{
+  "sessionId": "turkey_mardin_stone_terrace_dog_6a96",
+  "trace": [
+    {
+      "step": "generate-bg",
+      "detail": {
+        "status": "succeeded"
+      }
+    },
+    {
+      "step": "select-bg",
+      "detail": {
+        "skipped": "selection already 0"
+      }
+    },
+    {
+      "step": "upscale",
+      "detail": {
+        "background": {
+          "file": "bg_01.png",
+          "generationTime": 9.9,
+          "height": 2688,
+          "index": 1,
+          "kind": "upscaled",
+          "sourceHeight": 1024,
+          "sourceImageHash": "7b2b95a9e4f702ffc76bf88a262081bb37d2bbd4db05598113b8f3b30dd0b59d",
+          "sourceIndex": 0,
+          "sourceWidth": 1024,
+          "targetLongEdge": 2688,
+          "upscaleModel": "fal-ai/esrgan",
+          "upscaleScale": 2.625,
+          "width": 2688
+        },
+        "sections": [],
+        "selectedBgIndex": 1
+      }
+    },
+    {
+      "step": "auto-hitboxes",
+      "detail": {
+        "placed": 30,
+        "radius": 30
+      }
+    },
+    {
+      "step": "inpaint",
+      "detail": {
+        "canonicalAdoption": "migrate",
+        "colorFile": "color.png",
+        "hitboxes": 30,
+        "localization": {
+          "added": 2,
+          "carried": 11,
+          "detected": 13,
+          "pruned": 19
+        },
+        "overlayFile": "magenta_overlay.png"
+      }
+    }
+  ]
+}

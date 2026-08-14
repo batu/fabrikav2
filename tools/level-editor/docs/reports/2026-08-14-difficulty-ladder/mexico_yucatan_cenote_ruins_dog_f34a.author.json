@@ -1,0 +1,67 @@
+[author] generate-bg: {"status": "succeeded"}
+[author] select-bg: {"skipped": "selection already 0"}
+[author] upscale: {"background": {"file": "bg_01.png", "generationTime": 16.5, "height": 2688, "index": 1, "kind": "upscaled", "sourceHeight": 1024, "sourceImageHash": "96c25bf78
+warning: session revision unchanged after mutation — another actor may have raced this write
+[author] auto-hitboxes: {"placed": 30, "radius": 30}
+[author] inpaint: {"canonicalAdoption": "migrate", "colorFile": "color.png", "hitboxes": 30, "localization": {"added": 9, "carried": 14, "detected": 23, "pruned": 16}, "overlayFi
+{
+  "sessionId": "mexico_yucatan_cenote_ruins_dog_f34a",
+  "trace": [
+    {
+      "step": "generate-bg",
+      "detail": {
+        "status": "succeeded"
+      }
+    },
+    {
+      "step": "select-bg",
+      "detail": {
+        "skipped": "selection already 0"
+      }
+    },
+    {
+      "step": "upscale",
+      "detail": {
+        "background": {
+          "file": "bg_01.png",
+          "generationTime": 16.5,
+          "height": 2688,
+          "index": 1,
+          "kind": "upscaled",
+          "sourceHeight": 1024,
+          "sourceImageHash": "96c25bf782ad2d60c1c6d14031987ea3bea6ee0c8b9631c9808365feae357180",
+          "sourceIndex": 0,
+          "sourceWidth": 1024,
+          "targetLongEdge": 2688,
+          "upscaleModel": "fal-ai/esrgan",
+          "upscaleScale": 2.625,
+          "width": 2688
+        },
+        "sections": [],
+        "selectedBgIndex": 1
+      }
+    },
+    {
+      "step": "auto-hitboxes",
+      "detail": {
+        "placed": 30,
+        "radius": 30
+      }
+    },
+    {
+      "step": "inpaint",
+      "detail": {
+        "canonicalAdoption": "migrate",
+        "colorFile": "color.png",
+        "hitboxes": 30,
+        "localization": {
+          "added": 9,
+          "carried": 14,
+          "detected": 23,
+          "pruned": 16
+        },
+        "overlayFile": "magenta_overlay.png"
+      }
+    }
+  ]
+}

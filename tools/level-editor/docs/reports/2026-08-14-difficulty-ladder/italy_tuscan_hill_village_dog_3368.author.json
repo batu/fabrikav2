@@ -1,0 +1,67 @@
+[author] generate-bg: {"status": "succeeded"}
+[author] select-bg: {"skipped": "selection already 0"}
+[author] upscale: {"background": {"file": "bg_01.png", "generationTime": 22.5, "height": 2688, "index": 1, "kind": "upscaled", "sourceHeight": 1024, "sourceImageHash": "3d9f9fff3
+warning: session revision unchanged after mutation — another actor may have raced this write
+[author] auto-hitboxes: {"placed": 30, "radius": 30}
+[author] inpaint: {"canonicalAdoption": "migrate", "colorFile": "color.png", "hitboxes": 30, "localization": {"added": 5, "carried": 23, "detected": 28, "pruned": 7}, "overlayFil
+{
+  "sessionId": "italy_tuscan_hill_village_dog_3368",
+  "trace": [
+    {
+      "step": "generate-bg",
+      "detail": {
+        "status": "succeeded"
+      }
+    },
+    {
+      "step": "select-bg",
+      "detail": {
+        "skipped": "selection already 0"
+      }
+    },
+    {
+      "step": "upscale",
+      "detail": {
+        "background": {
+          "file": "bg_01.png",
+          "generationTime": 22.5,
+          "height": 2688,
+          "index": 1,
+          "kind": "upscaled",
+          "sourceHeight": 1024,
+          "sourceImageHash": "3d9f9fff3739a05cf8331a4c23923f2ddfff9360abd54dd9734f6b7d6ab145fd",
+          "sourceIndex": 0,
+          "sourceWidth": 1024,
+          "targetLongEdge": 2688,
+          "upscaleModel": "fal-ai/esrgan",
+          "upscaleScale": 2.625,
+          "width": 2688
+        },
+        "sections": [],
+        "selectedBgIndex": 1
+      }
+    },
+    {
+      "step": "auto-hitboxes",
+      "detail": {
+        "placed": 30,
+        "radius": 30
+      }
+    },
+    {
+      "step": "inpaint",
+      "detail": {
+        "canonicalAdoption": "migrate",
+        "colorFile": "color.png",
+        "hitboxes": 30,
+        "localization": {
+          "added": 5,
+          "carried": 23,
+          "detected": 28,
+          "pruned": 7
+        },
+        "overlayFile": "magenta_overlay.png"
+      }
+    }
+  ]
+}

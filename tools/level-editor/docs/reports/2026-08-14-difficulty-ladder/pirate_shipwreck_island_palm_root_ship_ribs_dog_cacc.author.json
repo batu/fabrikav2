@@ -1,0 +1,67 @@
+[author] generate-bg: {"status": "succeeded"}
+[author] select-bg: {"skipped": "selection already 0"}
+[author] upscale: {"background": {"file": "bg_01.png", "generationTime": 16.2, "height": 2688, "index": 1, "kind": "upscaled", "sourceHeight": 1024, "sourceImageHash": "30b650f82
+warning: session revision unchanged after mutation — another actor may have raced this write
+[author] auto-hitboxes: {"placed": 30, "radius": 30}
+[author] inpaint: {"canonicalAdoption": "migrate", "colorFile": "color.png", "hitboxes": 30, "localization": {"added": 4, "carried": 18, "detected": 22, "pruned": 12}, "overlayFi
+{
+  "sessionId": "pirate_shipwreck_island_palm_root_ship_ribs_dog_cacc",
+  "trace": [
+    {
+      "step": "generate-bg",
+      "detail": {
+        "status": "succeeded"
+      }
+    },
+    {
+      "step": "select-bg",
+      "detail": {
+        "skipped": "selection already 0"
+      }
+    },
+    {
+      "step": "upscale",
+      "detail": {
+        "background": {
+          "file": "bg_01.png",
+          "generationTime": 16.2,
+          "height": 2688,
+          "index": 1,
+          "kind": "upscaled",
+          "sourceHeight": 1024,
+          "sourceImageHash": "30b650f82ae6dcaa9729f4e52914d8949c62c57db1c157dce5702b54ccbea479",
+          "sourceIndex": 0,
+          "sourceWidth": 1024,
+          "targetLongEdge": 2688,
+          "upscaleModel": "fal-ai/esrgan",
+          "upscaleScale": 2.625,
+          "width": 2688
+        },
+        "sections": [],
+        "selectedBgIndex": 1
+      }
+    },
+    {
+      "step": "auto-hitboxes",
+      "detail": {
+        "placed": 30,
+        "radius": 30
+      }
+    },
+    {
+      "step": "inpaint",
+      "detail": {
+        "canonicalAdoption": "migrate",
+        "colorFile": "color.png",
+        "hitboxes": 30,
+        "localization": {
+          "added": 4,
+          "carried": 18,
+          "detected": 22,
+          "pruned": 12
+        },
+        "overlayFile": "magenta_overlay.png"
+      }
+    }
+  ]
+}

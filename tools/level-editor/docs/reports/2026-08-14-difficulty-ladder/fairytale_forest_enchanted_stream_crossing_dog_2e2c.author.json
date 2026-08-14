@@ -1,0 +1,67 @@
+[author] generate-bg: {"status": "succeeded"}
+[author] select-bg: {"skipped": "selection already 0"}
+[author] upscale: {"background": {"file": "bg_01.png", "generationTime": 17.4, "height": 2688, "index": 1, "kind": "upscaled", "sourceHeight": 1024, "sourceImageHash": "12e015477
+warning: session revision unchanged after mutation — another actor may have raced this write
+[author] auto-hitboxes: {"placed": 30, "radius": 30}
+[author] inpaint: {"canonicalAdoption": "migrate", "colorFile": "color.png", "hitboxes": 30, "localization": {"added": 14, "carried": 14, "detected": 28, "pruned": 16}, "overlayF
+{
+  "sessionId": "fairytale_forest_enchanted_stream_crossing_dog_2e2c",
+  "trace": [
+    {
+      "step": "generate-bg",
+      "detail": {
+        "status": "succeeded"
+      }
+    },
+    {
+      "step": "select-bg",
+      "detail": {
+        "skipped": "selection already 0"
+      }
+    },
+    {
+      "step": "upscale",
+      "detail": {
+        "background": {
+          "file": "bg_01.png",
+          "generationTime": 17.4,
+          "height": 2688,
+          "index": 1,
+          "kind": "upscaled",
+          "sourceHeight": 1024,
+          "sourceImageHash": "12e0154774acc6c9545312f845011892af13c97366d8118fc95e267daad9db5e",
+          "sourceIndex": 0,
+          "sourceWidth": 1024,
+          "targetLongEdge": 2688,
+          "upscaleModel": "fal-ai/esrgan",
+          "upscaleScale": 2.625,
+          "width": 2688
+        },
+        "sections": [],
+        "selectedBgIndex": 1
+      }
+    },
+    {
+      "step": "auto-hitboxes",
+      "detail": {
+        "placed": 30,
+        "radius": 30
+      }
+    },
+    {
+      "step": "inpaint",
+      "detail": {
+        "canonicalAdoption": "migrate",
+        "colorFile": "color.png",
+        "hitboxes": 30,
+        "localization": {
+          "added": 14,
+          "carried": 14,
+          "detected": 28,
+          "pruned": 16
+        },
+        "overlayFile": "magenta_overlay.png"
+      }
+    }
+  ]
+}
