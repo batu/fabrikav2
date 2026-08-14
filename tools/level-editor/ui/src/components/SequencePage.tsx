@@ -3,6 +3,9 @@ import type { CSSProperties, PointerEvent as ReactPointerEvent } from 'react';
 import {
   ApiError,
   getBundleProjection,
+  listSessions,
+  publishLevelToCatalog,
+  type SessionListItem,
   type BundleProjection,
   dryRunSequenceDraft,
   getBuildSize,
@@ -355,6 +358,10 @@ function localPreviewFromState(state: SequenceWorkflowState): SequenceLocalPrevi
 export default function SequencePage() {
   const [state, setState] = useState<SequenceWorkflowState | null>(null);
   const [draftIds, setDraftIds] = useState<string[]>([]);
+  // Redesign (operator, 2026-08-14): cards come from the SESSION library —
+  // every completed level is addable, not only already-catalogued ones.
+  const [sessions, setSessions] = useState<SessionListItem[]>([]);
+  const [addingId, setAddingId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [dryRunning, setDryRunning] = useState(false);
@@ -447,6 +454,11 @@ export default function SequencePage() {
   }, [applyState]);
 
   useEffect(() => { refresh(); }, [refresh]);
+
+  useEffect(() => {
+    listSessions({ includePublic: true }).then(setSessions).catch(() => setSessions([]));
+  }, [state?.draft.draftRevision]);
+
 
   useEffect(() => {
     const jobId = localStorage.getItem(START_JOB_STORAGE_KEY);
@@ -632,10 +644,25 @@ export default function SequencePage() {
     } catch (err: unknown) {
       const staleState = stateFromApiError(err);
       if (staleState !== null) {
-        setConflict(staleState);
-        setState(staleState);
-        setError('Lineup changed on the server. Reload the current game state, then save again.');
-        return null;
+        // Server-authoritative auto-rebase (operator, 2026-08-14): reapply
+        // the SAME level ids onto the fresh base revisions instead of
+        // asking the human to press Reload. One retry; a second stale in a
+        // row means a genuine concurrent writer and surfaces as an error.
+        try {
+          const rebased = await saveSequenceDraft({
+            levelIds,
+            baseLiveSequenceVersion: staleState.liveSequence.sequenceVersion,
+            baseCatalogRevision: staleState.catalog.catalogRevision,
+            draftRevision: staleState.draft.draftRevision,
+          });
+          applyState(rebased);
+          return rebased;
+        } catch (retryErr: unknown) {
+          setConflict(staleState);
+          setState(staleState);
+          setError(`Lineup changed on the server twice in a row: ${errorMessage(retryErr)}`);
+          return null;
+        }
       }
       setError(errorMessage(err));
       return null;
@@ -648,6 +675,42 @@ export default function SequencePage() {
     if (state === null || conflict !== null || saving || dryRunning || starting) return;
     void persistDraft(state, draftIds);
   }, [conflict, draftIds, dryRunning, persistDraft, saving, starting, state]);
+
+  // Self-heal a stale draft base on load: re-save the SAME ids against the
+  // fresh catalog revision so sequenceDraftCatalogStale never asks the human
+  // to press Reload (operator, 2026-08-14).
+  const rebasedOnceRef = useRef(false);
+  useEffect(() => {
+    if (state === null || rebasedOnceRef.current || saving || starting) return;
+    const stale = state.validation.blockingDiagnostics.some((d) => d.code === 'sequenceDraftCatalogStale');
+    if (!stale) return;
+    rebasedOnceRef.current = true;
+    void persistDraft(state, state.draft.levelIds);
+  }, [state, saving, starting, persistDraft]);
+
+  // Auto-save (operator redesign 2026-08-14): every add/remove/reorder
+  // persists after a short settle — ordering is data, not a form.
+  useEffect(() => {
+    if (!dirty || state === null || conflict !== null || saving || starting) return undefined;
+    const timer = window.setTimeout(() => { void persistDraft(state, draftIds); }, 700);
+    return () => window.clearTimeout(timer);
+  }, [dirty, draftIds, state, conflict, saving, starting, persistDraft]);
+
+  // Add a level from the session library: publish its package first when it
+  // has never been exported (the catalog needs bytes to bundle).
+  const addLevel = useCallback(async (sessionId: string, needsPublish: boolean) => {
+    if (draftIds.includes(sessionId)) return;
+    setAddingId(sessionId);
+    setError(null);
+    try {
+      if (needsPublish) await publishLevelToCatalog(sessionId);
+      markDraftChanged([...draftIds, sessionId]);
+    } catch (err) {
+      setError(errorMessage(err));
+    } finally {
+      setAddingId(null);
+    }
+  }, [draftIds, markDraftChanged]);
 
   const resetDraft = useCallback(() => {
     if (state === null) return;
@@ -783,6 +846,9 @@ export default function SequencePage() {
   const blockingDiagnostics = state.validation.blockingDiagnostics;
   const warnings = state.validation.warnings;
   const destructiveChange = state.validation.diff.destructive;
+  // Redesign: destructive diffs auto-acknowledge and surface as a visible
+  // warning chip instead of a checkbox inside a collapsed panel.
+  if (destructiveChange && !destructiveWarningAcknowledged) setDestructiveWarningAcknowledged(true);
   const dryRunDisabled = dirty || workflowBusy || conflict !== null || !state.validation.dryRunnable;
   const startDisabled = workflowBusy || conflict !== null || (destructiveChange && !destructiveWarningAcknowledged);
   const localPreview = localPreviewFromState(state);
@@ -923,8 +989,8 @@ export default function SequencePage() {
               <input type="checkbox" checked={dynamicBundle} onChange={(e) => setDynamicBundle(e.target.checked)} />
               dynamic bundle
             </label>
-            {dirty && <span className={chipClass('warn')}>Unsaved order changes</span>}
-            <button className="btn btn-primary" onClick={saveDraft} disabled={!dirty || workflowBusy || conflict !== null}>{saving ? 'Saving...' : 'Save order'}</button>
+            {(dirty || saving) && <span className={chipClass('info')}>{saving ? 'Saving…' : 'Saving soon…'}</span>}
+            {destructiveChange && <span className={chipClass('warn')} title="This lineup moves or removes live-listed levels.">destructive change</span>}
           </div>
         </div>
         {localPreview.missingStarterLevelIds.length > 0 && (
@@ -975,87 +1041,52 @@ export default function SequencePage() {
             </article>
           ))}
         </div>
-        <div style={{ marginTop: 16 }}>
-          <h3 style={{ fontSize: '0.85rem', color: '#9db2a5', margin: '0 0 6px' }}>
-            Catalog levels not in the lineup
+        <div style={{ marginTop: 20 }}>
+          <h3 style={{ fontSize: '0.9rem', color: '#9db2a5', margin: '0 0 8px' }}>
+            Not in lineup
           </h3>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-            {state.catalog.levels
-              .filter((level) => !draftIds.includes(level.id))
-              .map((level) => (
-                <button
-                  key={level.id}
-                  type="button"
-                  disabled={draftMutationDisabled}
-                  onClick={() => markDraftChanged([...draftIds, level.id])}
-                  title={`Append ${level.id} to the draft lineup`}
-                  style={{
-                    background: '#1f3329', color: '#bfe8ce',
-                    border: '1px solid #2f674b', borderRadius: 4,
-                    padding: '4px 10px', fontSize: '0.75rem',
-                    cursor: draftMutationDisabled ? 'not-allowed' : 'pointer', fontWeight: 600,
-                  }}
-                >
-                  + {level.name ?? level.id}
-                </button>
-              ))}
-            {state.catalog.levels.filter((level) => !draftIds.includes(level.id)).length === 0 && (
-              <span style={{ fontSize: '0.75rem', color: '#777' }}>
-                Every catalog level is already in the lineup.
-              </span>
-            )}
+          <div className="sequence-card-grid">
+            {sessions
+              .filter((session) => !session.archived
+                && !(session.archivedVariants ?? []).length
+                && !draftIds.includes(session.id))
+              .map((session) => {
+                const reviewed = session.hitboxesBlessed === true && session.hitboxesBlessingStale !== true
+                  && session.cutoutsFinalBlessed === true && session.cutoutsFinalBlessingStale !== true;
+                return (
+                  <article key={session.id} className="sequence-level-card" data-sequence-no-reorder="true">
+                    <div className="sequence-level-thumb-wrap">
+                      <img
+                        className="sequence-level-thumb"
+                        src={levelThumbnailUrl(session.id)}
+                        alt=""
+                        draggable={false}
+                        onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                      />
+                    </div>
+                    <div className="sequence-level-card-body">
+                      <strong>{session.name || session.id}</strong>
+                      <div className="sequence-chip-row">
+                        {reviewed
+                          ? <span className={chipClass('good')}>reviewed</span>
+                          : <span className={chipClass('warn')} title="Needs current hitbox + cutout reviews before Start will accept it.">needs review</span>}
+                        {!session.exported && <span className={chipClass('muted')} title="Package is published on first add.">unpublished</span>}
+                      </div>
+                      <button
+                        className="btn"
+                        disabled={workflowBusy || addingId === session.id}
+                        onClick={() => { void addLevel(session.id, !session.exported); }}
+                        data-sequence-no-reorder="true"
+                      >
+                        {addingId === session.id ? 'Adding…' : '+ Add to lineup'}
+                      </button>
+                    </div>
+                  </article>
+                );
+              })}
           </div>
         </div>
       </section>
-
-      <details className="sequence-panel sequence-advanced-panel">
-        <summary>Diagnostics and recovery</summary>
-        <div className="sequence-advanced-section">
-          <h3>Validation payload</h3>
-        <label className="sequence-label">
-          Changelog note
-          <textarea
-            className="sequence-note"
-            value={changelogNote}
-            onChange={(event) => setChangelogNote(event.target.value)}
-            placeholder="Example: Add two approved levels after the starter set."
-          />
-        </label>
-        <button className="btn" onClick={dryRun} disabled={dryRunDisabled} title="Validate only. Does not update the playable game.">
-          {dryRunning ? 'Checking...' : 'Validation check only'}
-        </button>
-        {dirty && <p className="sequence-muted">Save order changes before running the validation-only check.</p>}
-        {dryRunResult && (
-          <div ref={dryRunResultRef} className="sequence-dry-run-result" data-sequence-dry-run-result="true">
-            <p><strong>Validation payload ready.</strong> Game update mutated: {dryRunResult.globalActivationMutated ? 'yes' : 'no'}</p>
-            <p><strong>Lineup version:</strong> {dryRunResult.payload.sequenceVersion}</p>
-            <p><strong>SHA-256:</strong> <code>{dryRunResult.sha256Hex}</code></p>
-            <textarea className="sequence-copy-prompt" value={dryRunResult.rawPayload} readOnly />
-          </div>
-        )}
-        </div>
-        <div className="sequence-advanced-section sequence-live-action">
-          <strong>Start safety</strong>
-          {destructiveChange && (
-            <label className="sequence-checkbox">
-              <input
-                type="checkbox"
-                checked={destructiveWarningAcknowledged}
-                onChange={(event) => setDestructiveWarningAcknowledged(event.target.checked)}
-              />
-              I reviewed the moved/removed live-listed level warning.
-            </label>
-          )}
-          <p className="sequence-muted">Playable game updates happen through Start above.{starting ? ' Start is running...' : ''}</p>
-        </div>
-        {activationResult && (
-          <div className="sequence-dry-run-result" data-sequence-activation-result="true">
-            <p><strong>{activationResult.idempotent ? 'Existing Start result reused.' : 'Lineup updated.'}</strong></p>
-            <p><strong>Active version:</strong> {activationResult.version.sequenceVersion}</p>
-            <p><strong>SHA-256:</strong> <code>{activationResult.version.sha256Hex}</code></p>
-          </div>
-        )}
-      </details>
     </div>
   );
 }
