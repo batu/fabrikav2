@@ -84,13 +84,45 @@ def test_bless_refuses_while_relocalization_pending(tmp_path, monkeypatch):
     monkeypatch.setattr(S, "canonical_session_store", lambda _sid: store)
     import pytest
 
+    # Operator ruling 2026-08-14 ("human action doesn't need gates"): the
+    # gate protects AUTOMATED blessings — delegated actors still refuse.
     with pytest.raises(ContractValidationError, match="re-localiz"):
         S.set_canonical_hitbox_review_if_present(
             "relocalize_case",
             True,
             expected_content_revision=store.read().pointer.content_revision,
-            reviewer="human:test",
+            reviewer="human:batu-delegated:overnight",
         )
+
+
+def test_direct_human_bless_discharges_relocalization(tmp_path, monkeypatch):
+    """Operator ruling 2026-08-14: a real human blessing hitboxes IS the
+    localization authority — their eyes on the current paint beat any stamp.
+    The bless must succeed and discharge the obligation in the same commit.
+    Delegated actors (human:*-delegated:*) still hit the gate."""
+    from levelbuilder.api import session as S
+    from levelbuilder.api.artifact_dag import pending_obligations
+
+    store = _store(tmp_path)
+    snapshot = dict(store.read().snapshot)
+    snapshot.setdefault("operational", {})["pendingRelocalization"] = True
+    pointer = store.read().pointer
+    store.commit(
+        snapshot,
+        expected_content_revision=pointer.content_revision,
+        expected_operational_revision=pointer.operational_revision,
+    )
+    monkeypatch.setattr(S, "canonical_session_store", lambda _sid: store)
+    S.set_canonical_hitbox_review_if_present(
+        "relocalize_case",
+        True,
+        expected_content_revision=store.read().pointer.content_revision,
+        reviewer="human:editor",
+    )
+    after = store.read().snapshot
+    assert not [o for o in pending_obligations(after)
+                if o["obligation"] == "relocalize-hitboxes"], "obligation survived a human bless"
+    assert (after.get("operational") or {}).get("hitboxLocalization", {}).get("method") == "human-review"
 
 
 def test_stamp_helper_discharges_via_store(tmp_path, monkeypatch):

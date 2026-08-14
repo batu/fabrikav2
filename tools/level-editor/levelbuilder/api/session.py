@@ -1751,14 +1751,29 @@ def set_canonical_hitbox_review_if_present(
 
         pending = [o for o in pending_obligations(current.snapshot)
                    if o["obligation"] == "relocalize-hitboxes"]
-        if pending:
+        # Operator ruling 2026-08-14 ("human action doesn't need gates"): a
+        # direct human reviewing the current paint IS the localization
+        # authority — their bless discharges the obligation. The gate keeps
+        # refusing automated/delegated actors, which bless without looking.
+        direct_human = reviewer.startswith("human:") and "-delegated" not in reviewer
+        if pending and not direct_human:
             raise ContractValidationError(
                 "hitboxes have not been re-localized against the current paint; "
                 "run recenter-hitboxes-local or the VLM snap before blessing "
                 "(obligation: relocalize-hitboxes)"
             )
+        snapshot_to_bless = current.snapshot
+        if pending:
+            snapshot_to_bless = copy.deepcopy(current.snapshot)
+            operational = snapshot_to_bless.setdefault("operational", {})
+            operational["hitboxLocalization"] = {
+                "sceneSha256": snapshot_to_bless["assets"]["scene"]["sha256"],
+                "method": "human-review",
+                "at": now_iso(),
+            }
+            operational.pop("pendingRelocalization", None)
         updated = bless_snapshot(
-            current.snapshot,
+            snapshot_to_bless,
             review_kind="hitboxes",
             reviewer=reviewer,
             reviewed_at=now_iso(),
