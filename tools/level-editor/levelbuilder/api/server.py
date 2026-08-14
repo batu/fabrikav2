@@ -275,7 +275,7 @@ async def lifespan(app: FastAPI):
     job_worker = get_default_job_worker()
     register_rest_job_handlers(job_worker)
     register_inpaint_job_handlers(job_worker)
-    job_worker.start()
+    job_worker.start(retry_interval=5.0)
     yield
     job_worker.stop()
     # Shutdown: drain the inpaint thread pool so in-flight Gemini jobs have

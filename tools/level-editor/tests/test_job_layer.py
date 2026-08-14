@@ -134,3 +134,30 @@ def test_idempotency_key_returns_existing_job(store: JobStore) -> None:
     first = store.create_job(kind="crop_inpaint", session_id="sess_f", idempotency_key="req-1")
     second = store.create_job(kind="crop_inpaint", session_id="sess_f", idempotency_key="req-1")
     assert first.id == second.id
+
+
+def test_worker_start_retries_until_lock_frees(tmp_path):
+    """Seam #2 incident (2026-08-14): uvicorn graceful shutdown drains
+    in-flight requests while holding the worker flock, so a restarting
+    backend's single acquire attempt lost and the new process ran WORKERLESS
+    — every author then timed out at 'still queued after 900s'. start must
+    keep retrying in the background until the old owner exits."""
+    import time
+    from levelbuilder.api.job_worker import JobWorker, WorkerOwnershipLock
+
+    lock_path = tmp_path / "jobs.worker.lock"
+    old_owner = WorkerOwnershipLock(lock_path)
+    assert old_owner.acquire()
+
+    worker = JobWorker(handlers={}, lock_path=lock_path)
+    try:
+        assert worker.start(retry_interval=0.05) is False  # not yet — but armed
+        time.sleep(0.2)
+        assert worker.is_running() is False, "claimed while the old owner still held the flock"
+        old_owner.release()
+        deadline = time.time() + 5
+        while time.time() < deadline and not worker.is_running():
+            time.sleep(0.05)
+        assert worker.is_running() is True, "never claimed after the old owner released"
+    finally:
+        worker.stop()

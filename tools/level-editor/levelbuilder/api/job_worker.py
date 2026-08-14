@@ -121,17 +121,44 @@ class JobWorker:
     def register_handler(self, kind: str, handler: JobHandler) -> None:
         self.handlers[kind] = handler
 
-    def start(self) -> bool:
-        if self._thread is not None and self._thread.is_alive():
+    def is_running(self) -> bool:
+        return self._thread is not None and self._thread.is_alive()
+
+    def start(self, retry_interval: float | None = None) -> bool:
+        """Claim ownership and run. With retry_interval, a lost claim arms a
+        background retrier instead of giving up — a restarting sibling holds
+        the flock while uvicorn drains in-flight requests, and a single
+        attempt left the new process permanently workerless (seam #2
+        incident, 2026-08-14)."""
+        if self.is_running():
             return True
         if not self._ownership_lock.acquire():
             logger.warning("durable job worker not started; another owner holds %s", self.lock_path)
+            if retry_interval is not None:
+                self._stop_event.clear()
+                self._retry_thread = threading.Thread(
+                    target=self._retry_start, args=(retry_interval,),
+                    name="ftd-job-worker-claim", daemon=True,
+                )
+                self._retry_thread.start()
             return False
         self.recover_stale_jobs()
         self._stop_event.clear()
         self._thread = threading.Thread(target=self.run_forever, name="ftd-job-worker", daemon=True)
         self._thread.start()
         return True
+
+    def _retry_start(self, interval: float) -> None:
+        while not self._stop_event.is_set():
+            if self._ownership_lock.acquire():
+                logger.info("durable job worker claimed %s after retry", self.lock_path)
+                self.recover_stale_jobs()
+                self._thread = threading.Thread(
+                    target=self.run_forever, name="ftd-job-worker", daemon=True
+                )
+                self._thread.start()
+                return
+            self._stop_event.wait(interval)
 
     def stop(self) -> None:
         self._stop_event.set()
