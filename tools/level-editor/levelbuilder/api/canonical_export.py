@@ -167,6 +167,18 @@ def export_canonical_revision(
             output = staging / "dogs" / bird["compatibilitySlot"] / "sprite_000.png"
             output.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(sprite_sources[bird["birdId"]], output)
+        # Bundle derivatives ship with the package (2560/q70 webp for scene +
+        # restore bg), matching the legacy exporter. Canonical exports missed
+        # them, so 33 packages shipped PNG-only and the native bundle blew
+        # its 200MB cap at 42 levels (2026-08-14).
+        from PIL import Image as _Image
+
+        for stem in ("color", "bg_00"):
+            with _Image.open(staging / f"{stem}.png") as img:
+                im = img.convert("RGB")
+                if im.width > 2560:
+                    im = im.resize((2560, int(im.height * 2560 / im.width)), _Image.LANCZOS)
+                im.save(staging / f"{stem}.webp", format="WEBP", quality=70, method=6)
         (staging / "level.json").write_text(json.dumps(level, indent=2) + "\n")
         (staging / "artifact-manifest.json").write_text(json.dumps(_artifact_manifest(snapshot), indent=2) + "\n")
 
