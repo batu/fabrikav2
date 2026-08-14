@@ -33,3 +33,5 @@
   req 25→23, 30→19, 35→26 — paint saturates near low-20s regardless of ask.
 - below_decks_galley d25: 24 painted, 24/24 PASS (dachshund in the fireplace).
   25-tier is reliably near-target.
+- clockwork_automaton_assembly d25: ~21 painted, 21/21 PASS (robot + mech
+  elephant correctly NOT detected as dogs; pug in lab coat is).
