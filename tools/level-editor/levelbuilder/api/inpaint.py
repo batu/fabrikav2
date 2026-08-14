@@ -4910,8 +4910,11 @@ def _run_single_cutout_extraction(
         # exists — the painted scene is the source and the placement target
         # defaults to the crop itself; the neural fit refines it at
         # promotion. (Was a hard 400: "Entity 31 has no active painted
-        # variant", live 2026-08-13.)
+        # variant", live 2026-08-13.) Its outputs are the bird's FIRST
+        # sprite files — a None variant index reached the output-path
+        # format and 500'd a re-extraction (operator, venice, 2026-08-14).
         target_box = list(crop_box)
+        variant_index = 0
 
     with Image.open(color_path) as source:
         color = source.convert("RGB")

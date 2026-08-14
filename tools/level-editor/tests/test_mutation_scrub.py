@@ -154,3 +154,15 @@ def test_bulk_extract_refuses_when_hitboxes_changed_since_booking(monkeypatch):
                                     "hitboxesSha": "0" * 64})
     with pytest.raises(RuntimeError, match="changed since booking"):
         I._run_bulk_extract_job(job, store=None)
+
+
+def test_single_extraction_pre_extraction_bird_gets_variant_zero():
+    """Operator hit a 500 re-extracting in venice (2026-08-14): a
+    pre-extraction bird has activeVariant=None, which reached the output
+    filename format ('sprite_{None:03d}'). The fallback must pin variant 0."""
+    import inspect
+    from levelbuilder.api import inpaint as I
+
+    src = inspect.getsource(I._run_single_cutout_extraction)
+    fallback = src.split("Pre-extraction bird", 1)[1].split("expected_hitboxes", 1)[0]
+    assert "variant_index = 0" in fallback
