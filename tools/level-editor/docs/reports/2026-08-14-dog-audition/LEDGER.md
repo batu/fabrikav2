@@ -18,3 +18,13 @@
   Batu's explicit go ("I didn't give the green light for the big run").
   Stopped at his message; ~$3-4 unauthorized spend, 2-4 usable levels kept +
   flagged. Rule memorialized: operator sees gate evidence, operator says go.
+
+## Batch (66 levels, density ramp) — authorized "set a goal and get to work"
+- greece_harbor_taverna d30: ~19 painted, 19/19 circled PASS (poodle swimming
+  in harbor detected). FINDING: paint saturates below high requests.
+- france_provence_lavender d25: ~23 painted, all circled PASS. Paint model
+  added a literal BIRD as decor (untappable; detector correctly ignored it).
+- hawaii_waikiki d35: 25 painted; CLI materialize timeout (35-dog cutouts are
+  long) — finisher scheduled; count saturation again (35→25).
+- 40/45 tiers initially blocked by nDogs le=40 validation — cap raised to 60,
+  deployed, both levels requeued.

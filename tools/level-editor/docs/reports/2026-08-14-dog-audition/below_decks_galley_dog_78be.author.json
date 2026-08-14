@@ -3,3 +3,49 @@
 [author] upscale: {"skipped": "background already 2688px (target 2688)"}
 warning: session revision unchanged after mutation — another actor may have raced this write
 [author] auto-hitboxes: {"placed": 25, "radius": 30}
+[author] inpaint: {"canonicalAdoption": "migrate", "colorFile": "color.png", "hitboxes": 25, "localization": {"added": 11, "carried": 13, "detected": 24, "pruned": 12}, "overlayF
+{
+  "sessionId": "below_decks_galley_dog_78be",
+  "trace": [
+    {
+      "step": "generate-bg",
+      "detail": {
+        "skipped": "session already has backgrounds (use --redo)"
+      }
+    },
+    {
+      "step": "select-bg",
+      "detail": {
+        "skipped": "selection already 0"
+      }
+    },
+    {
+      "step": "upscale",
+      "detail": {
+        "skipped": "background already 2688px (target 2688)"
+      }
+    },
+    {
+      "step": "auto-hitboxes",
+      "detail": {
+        "placed": 25,
+        "radius": 30
+      }
+    },
+    {
+      "step": "inpaint",
+      "detail": {
+        "canonicalAdoption": "migrate",
+        "colorFile": "color.png",
+        "hitboxes": 25,
+        "localization": {
+          "added": 11,
+          "carried": 13,
+          "detected": 24,
+          "pruned": 12
+        },
+        "overlayFile": "magenta_overlay.png"
+      }
+    }
+  ]
+}
