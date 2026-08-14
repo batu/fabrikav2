@@ -2704,7 +2704,7 @@ async def generate_backgrounds(request: Request, session_id: str):
 
 # ── Inpainting (SSE) ─────────────────────────────────────────────────────────
 
-_MAX_HITBOXES = 40  # matches AutoHitboxesRequest.nDogs upper bound
+_MAX_HITBOXES = 60  # matches AutoHitboxesRequest.nDogs upper bound (raised for the density-ramp experiment, 2026-08-14)
 
 
 
