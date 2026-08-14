@@ -20,14 +20,23 @@ def test_no_fabrika_imports() -> None:
     assert not offenders, "forbidden fabrika imports:\n" + "\n".join(offenders)
 
 
-def test_remote_config_publisher_disabled() -> None:
+def test_remote_config_publisher_disabled(monkeypatch) -> None:
+    """Env-driven selection (2026-08-14): without FTD_REMOTE_CONFIG_* env the
+    factory yields the Disabled publisher (fork-safe, publish raises); with
+    project id + token it yields the Environment REST publisher."""
     from levelbuilder.api import routes
     from levelbuilder.api.remote_config_publisher import (
         DisabledRemoteConfigPublisher,
+        EnvironmentRemoteConfigPublisher,
         RemoteConfigPublishUnavailable,
     )
 
-    assert routes.REMOTE_CONFIG_PUBLISHER_FACTORY is DisabledRemoteConfigPublisher
+    monkeypatch.delenv("FTD_REMOTE_CONFIG_PROJECT_ID", raising=False)
+    monkeypatch.delenv("FTD_REMOTE_CONFIG_OAUTH_TOKEN", raising=False)
+    assert isinstance(routes.REMOTE_CONFIG_PUBLISHER_FACTORY(), DisabledRemoteConfigPublisher)
+    monkeypatch.setenv("FTD_REMOTE_CONFIG_PROJECT_ID", "proj")
+    monkeypatch.setenv("FTD_REMOTE_CONFIG_OAUTH_TOKEN", "tok")
+    assert isinstance(routes.REMOTE_CONFIG_PUBLISHER_FACTORY(), EnvironmentRemoteConfigPublisher)
     publisher = DisabledRemoteConfigPublisher()
     assert publisher.status()["mode"] == "disabled"
     try:

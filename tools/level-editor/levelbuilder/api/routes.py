@@ -50,10 +50,23 @@ from .cleanup_geometry import CleanupSite, Rect, cleanup_polygons_for_site
 from .corpus_migration import apply_level_plan, plan_corpus, plan_manifest
 from .job_store import JobArtifact, JobEvent, JobRecord, JobStore, is_failed_terminal_status
 from .job_worker import JobWorker, RetryableJobError, TerminalJobError, get_default_job_worker
-from .remote_config_publisher import DisabledRemoteConfigPublisher
+from .remote_config_publisher import DisabledRemoteConfigPublisher, EnvironmentRemoteConfigPublisher
 from .layer_provider import LAYER_MODEL_OPTIONS, is_layer_model, layer_configured
 
-REMOTE_CONFIG_PUBLISHER_FACTORY = DisabledRemoteConfigPublisher
+
+def _select_remote_config_publisher():
+    """Environment-driven publisher selection: FTD_REMOTE_CONFIG_PROJECT_ID +
+    FTD_REMOTE_CONFIG_OAUTH_TOKEN enable the Firebase REST publisher; absent,
+    Start fails loudly at the publish step as before (2026-08-14 — the
+    factory was hardcoded Disabled, so a configured environment was
+    silently ignored)."""
+    publisher = EnvironmentRemoteConfigPublisher()
+    if publisher.status().get("configured") is True:
+        return publisher
+    return DisabledRemoteConfigPublisher()
+
+
+REMOTE_CONFIG_PUBLISHER_FACTORY = _select_remote_config_publisher
 JOB_STORE = JobStore()
 
 
