@@ -173,12 +173,13 @@ def export_canonical_revision(
         # its 200MB cap at 42 levels (2026-08-14).
         from PIL import Image as _Image
 
+        # Native resolution, q90 (operator, 2026-08-14: "no downscaling,
+        # increase quality, we can go up in MB some"). ~1.3MB/scene vs 0.6
+        # at the old 2560/q70; lossless measured 7.9MB/scene = 9 bundled
+        # levels total, rejected.
         for stem in ("color", "bg_00"):
             with _Image.open(staging / f"{stem}.png") as img:
-                im = img.convert("RGB")
-                if im.width > 2560:
-                    im = im.resize((2560, int(im.height * 2560 / im.width)), _Image.LANCZOS)
-                im.save(staging / f"{stem}.webp", format="WEBP", quality=70, method=6)
+                img.convert("RGB").save(staging / f"{stem}.webp", format="WEBP", quality=90, method=6)
         (staging / "level.json").write_text(json.dumps(level, indent=2) + "\n")
         (staging / "artifact-manifest.json").write_text(json.dumps(_artifact_manifest(snapshot), indent=2) + "\n")
 
