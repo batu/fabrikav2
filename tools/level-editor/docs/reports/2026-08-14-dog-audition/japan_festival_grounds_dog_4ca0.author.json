@@ -1,3 +1,51 @@
 [author] generate-bg: {"skipped": "session already has backgrounds (use --redo)"}
 [author] select-bg: {"skipped": "selection already 0"}
 [author] upscale: {"skipped": "background already 2688px (target 2688)"}
+warning: session revision unchanged after mutation — another actor may have raced this write
+[author] auto-hitboxes: {"placed": 25, "radius": 30}
+[author] inpaint: {"canonicalAdoption": "migrate", "colorFile": "color.png", "hitboxes": 25, "localization": {"added": 5, "carried": 16, "detected": 21, "pruned": 9}, "overlayFil
+{
+  "sessionId": "japan_festival_grounds_dog_4ca0",
+  "trace": [
+    {
+      "step": "generate-bg",
+      "detail": {
+        "skipped": "session already has backgrounds (use --redo)"
+      }
+    },
+    {
+      "step": "select-bg",
+      "detail": {
+        "skipped": "selection already 0"
+      }
+    },
+    {
+      "step": "upscale",
+      "detail": {
+        "skipped": "background already 2688px (target 2688)"
+      }
+    },
+    {
+      "step": "auto-hitboxes",
+      "detail": {
+        "placed": 25,
+        "radius": 30
+      }
+    },
+    {
+      "step": "inpaint",
+      "detail": {
+        "canonicalAdoption": "migrate",
+        "colorFile": "color.png",
+        "hitboxes": 25,
+        "localization": {
+          "added": 5,
+          "carried": 16,
+          "detected": 21,
+          "pruned": 9
+        },
+        "overlayFile": "magenta_overlay.png"
+      }
+    }
+  ]
+}

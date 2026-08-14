@@ -35,3 +35,8 @@
   25-tier is reliably near-target.
 - clockwork_automaton_assembly d25: ~21 painted, 21/21 PASS (robot + mech
   elephant correctly NOT detected as dogs; pug in lab coat is).
+- grand_interiors_reading_room d25: ~15 painted, 15/15 PASS — desk-heavy
+  scene capped paint well below the ask; scene capacity is the binding
+  constraint, not the request.
+- Operator order: finish ramp tiers 40/45/50 then FULL STOP for discussion.
+  Worker queues drained; finisher armed.
