@@ -1,11 +1,11 @@
 [author] generate-bg: {"status": "succeeded"}
 [author] select-bg: {"skipped": "selection already 0"}
-[author] upscale: {"background": {"file": "bg_01.png", "generationTime": 19.8, "height": 2688, "index": 1, "kind": "upscaled", "sourceHeight": 1024, "sourceImageHash": "9ccdd069d
+[author] upscale: {"background": {"file": "bg_01.png", "generationTime": 10.2, "height": 2688, "index": 1, "kind": "upscaled", "sourceHeight": 1024, "sourceImageHash": "32ac4d0e4
 warning: session revision unchanged after mutation — another actor may have raced this write
 [author] auto-hitboxes: {"placed": 30, "radius": 30}
-[author] inpaint: {"canonicalAdoption": "migrate", "colorFile": "color.png", "hitboxes": 30, "localization": {"added": 7, "carried": 16, "detected": 23, "pruned": 14}, "overlayFi
+[author] inpaint: {"canonicalAdoption": "migrate", "colorFile": "color.png", "hitboxes": 30, "localization": {"added": 4, "carried": 17, "detected": 21, "pruned": 13}, "overlayFi
 {
-  "sessionId": "uk_cotswolds_village_dog_cdad",
+  "sessionId": "hawaii_volcano_national_park_dog_2908",
   "trace": [
     {
       "step": "generate-bg",
@@ -24,12 +24,12 @@ warning: session revision unchanged after mutation — another actor may have ra
       "detail": {
         "background": {
           "file": "bg_01.png",
-          "generationTime": 19.8,
+          "generationTime": 10.2,
           "height": 2688,
           "index": 1,
           "kind": "upscaled",
           "sourceHeight": 1024,
-          "sourceImageHash": "9ccdd069dbefc60ae73278b35184ec004f9b7a879cf4898140a4b62963655380",
+          "sourceImageHash": "32ac4d0e4df7470e1c68d8e2ae5a45341d1fa7e2541e751b0a36c024b099e71e",
           "sourceIndex": 0,
           "sourceWidth": 1024,
           "targetLongEdge": 2688,
@@ -55,10 +55,10 @@ warning: session revision unchanged after mutation — another actor may have ra
         "colorFile": "color.png",
         "hitboxes": 30,
         "localization": {
-          "added": 7,
-          "carried": 16,
-          "detected": 23,
-          "pruned": 14
+          "added": 4,
+          "carried": 17,
+          "detected": 21,
+          "pruned": 13
         },
         "overlayFile": "magenta_overlay.png"
       }

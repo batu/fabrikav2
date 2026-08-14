@@ -1,3 +1,67 @@
 [author] generate-bg: {"status": "succeeded"}
 [author] select-bg: {"skipped": "selection already 0"}
 [author] upscale: {"background": {"file": "bg_01.png", "generationTime": 13.5, "height": 2688, "index": 1, "kind": "upscaled", "sourceHeight": 1024, "sourceImageHash": "069b1bc7a
+warning: session revision unchanged after mutation — another actor may have raced this write
+[author] auto-hitboxes: {"placed": 30, "radius": 30}
+[author] inpaint: {"canonicalAdoption": "migrate", "colorFile": "color.png", "hitboxes": 30, "localization": {"added": 6, "carried": 17, "detected": 23, "pruned": 13}, "overlayFi
+{
+  "sessionId": "japan_river_bridge_district_dog_2f4b",
+  "trace": [
+    {
+      "step": "generate-bg",
+      "detail": {
+        "status": "succeeded"
+      }
+    },
+    {
+      "step": "select-bg",
+      "detail": {
+        "skipped": "selection already 0"
+      }
+    },
+    {
+      "step": "upscale",
+      "detail": {
+        "background": {
+          "file": "bg_01.png",
+          "generationTime": 13.5,
+          "height": 2688,
+          "index": 1,
+          "kind": "upscaled",
+          "sourceHeight": 1024,
+          "sourceImageHash": "069b1bc7abd6a6d504cbe575ca1bfb3179b262fad135760246875c91e242c57f",
+          "sourceIndex": 0,
+          "sourceWidth": 1024,
+          "targetLongEdge": 2688,
+          "upscaleModel": "fal-ai/esrgan",
+          "upscaleScale": 2.625,
+          "width": 2688
+        },
+        "sections": [],
+        "selectedBgIndex": 1
+      }
+    },
+    {
+      "step": "auto-hitboxes",
+      "detail": {
+        "placed": 30,
+        "radius": 30
+      }
+    },
+    {
+      "step": "inpaint",
+      "detail": {
+        "canonicalAdoption": "migrate",
+        "colorFile": "color.png",
+        "hitboxes": 30,
+        "localization": {
+          "added": 6,
+          "carried": 17,
+          "detected": 23,
+          "pruned": 13
+        },
+        "overlayFile": "magenta_overlay.png"
+      }
+    }
+  ]
+}
