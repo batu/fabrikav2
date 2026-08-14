@@ -3,9 +3,9 @@
 [author] upscale: {"skipped": "background already 2688px (target 2688)"}
 warning: session revision unchanged after mutation — another actor may have raced this write
 [author] auto-hitboxes: {"placed": 20, "radius": null}
-[author] inpaint: {"canonicalAdoption": "migrate", "colorFile": "color.png", "hitboxes": 20, "localization": {"added": 5, "carried": 11, "detected": 16, "pruned": 9}, "overlayFil
+[author] inpaint: {"canonicalAdoption": "migrate", "colorFile": "color.png", "hitboxes": 20, "localization": {"added": 7, "carried": 13, "detected": 20, "pruned": 7}, "overlayFil
 {
-  "sessionId": "walled_gardens_cloister_herbarium_dog_151e",
+  "sessionId": "greece_santorini_steps_dog_e9d4",
   "trace": [
     {
       "step": "generate-bg",
@@ -39,10 +39,10 @@ warning: session revision unchanged after mutation — another actor may have ra
         "colorFile": "color.png",
         "hitboxes": 20,
         "localization": {
-          "added": 5,
-          "carried": 11,
-          "detected": 16,
-          "pruned": 9
+          "added": 7,
+          "carried": 13,
+          "detected": 20,
+          "pruned": 7
         },
         "overlayFile": "magenta_overlay.png"
       }

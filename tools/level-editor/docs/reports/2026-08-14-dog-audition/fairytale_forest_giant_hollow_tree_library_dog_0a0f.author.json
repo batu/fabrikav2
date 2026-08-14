@@ -2,10 +2,10 @@
 [author] select-bg: {"skipped": "selection already 0"}
 [author] upscale: {"skipped": "background already 2688px (target 2688)"}
 warning: session revision unchanged after mutation — another actor may have raced this write
-[author] auto-hitboxes: {"placed": 20, "radius": null}
-[author] inpaint: {"canonicalAdoption": "migrate", "colorFile": "color.png", "hitboxes": 20, "localization": {"added": 5, "carried": 11, "detected": 16, "pruned": 9}, "overlayFil
+[author] auto-hitboxes: {"placed": 20, "radius": 30}
+[author] inpaint: {"canonicalAdoption": "migrate", "colorFile": "color.png", "hitboxes": 20, "localization": {"added": 6, "carried": 11, "detected": 17, "pruned": 9}, "overlayFil
 {
-  "sessionId": "walled_gardens_cloister_herbarium_dog_151e",
+  "sessionId": "fairytale_forest_giant_hollow_tree_library_dog_0a0f",
   "trace": [
     {
       "step": "generate-bg",
@@ -29,7 +29,7 @@ warning: session revision unchanged after mutation — another actor may have ra
       "step": "auto-hitboxes",
       "detail": {
         "placed": 20,
-        "radius": null
+        "radius": 30
       }
     },
     {
@@ -39,9 +39,9 @@ warning: session revision unchanged after mutation — another actor may have ra
         "colorFile": "color.png",
         "hitboxes": 20,
         "localization": {
-          "added": 5,
+          "added": 6,
           "carried": 11,
-          "detected": 16,
+          "detected": 17,
           "pruned": 9
         },
         "overlayFile": "magenta_overlay.png"

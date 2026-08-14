@@ -3,9 +3,9 @@
 [author] upscale: {"skipped": "background already 2688px (target 2688)"}
 warning: session revision unchanged after mutation — another actor may have raced this write
 [author] auto-hitboxes: {"placed": 20, "radius": null}
-[author] inpaint: {"canonicalAdoption": "migrate", "colorFile": "color.png", "hitboxes": 20, "localization": {"added": 5, "carried": 11, "detected": 16, "pruned": 9}, "overlayFil
+[author] inpaint: {"canonicalAdoption": "migrate", "colorFile": "color.png", "hitboxes": 20, "localization": {"added": 1, "carried": 14, "detected": 15, "pruned": 6}, "overlayFil
 {
-  "sessionId": "walled_gardens_cloister_herbarium_dog_151e",
+  "sessionId": "hawaii_rainforest_waterfall_dog_57a3",
   "trace": [
     {
       "step": "generate-bg",
@@ -39,10 +39,10 @@ warning: session revision unchanged after mutation — another actor may have ra
         "colorFile": "color.png",
         "hitboxes": 20,
         "localization": {
-          "added": 5,
-          "carried": 11,
-          "detected": 16,
-          "pruned": 9
+          "added": 1,
+          "carried": 14,
+          "detected": 15,
+          "pruned": 6
         },
         "overlayFile": "magenta_overlay.png"
       }
