@@ -39,3 +39,11 @@
 - 05:1xZ LEVEL coral_bommie_garden (coral_reef) DONE: 19 birds, eyes-on PASS with 2 flags — center wren (goggles) painted but undetected (decoy); circled hummingbird is magenta-tinted (possible magenta residue on-sprite, worth operator eyes; residue gate remains RED/advisory).
 - 05:2xZ LEVEL montmartre_cafe_terrace (france) DONE: 19 birds, eyes-on PASS (19/19, no misses).
 - 05:3xZ LEVEL opera_backstage (grand_interiors) DONE: 21 birds, eyes-on PASS (21/21, no misses).
+- 05:0xZ OPERATOR SESSION (Batu awake, directing live):
+  - Isometric drift called out (great_hall, montmartre). Root cause chain: isometric_close_20 view text literally permitted "mild perspective"; scene prose demanded overhead structure (roof trusses, canopies); AND the prompt library shadowed code defaults — code edits alone were inert. Fixed all three: hardened view (axonometric, no vanishing points, open-top cutaway), ~20 scenes rewritten camera-neutral, new versions pushed into the prompt library and verified served.
+  - Census of all queued bgs by eye: nordic = hard fail (aerial vista); automaton/uk_pier/crystal_grotto borderline-keep; rest compliant. nordic + great_hall + montmartre queued as full redos on hardened prompts.
+  - Operator ruling: direct human bless discharges relocalization obligation (method=human-review); delegated actors still gated. Deployed.
+  - Concurrency 3x ordered: worker now claims up to 3 jobs in parallel threads (tested); 3 lane workers running.
+  - captains_cabin duplicate birds (user-visible): P1#1 damage from the pre-fix window. Audit: kelp 6 / captains 11 / galley 6 dupes + slot drift on scribes/opera. Repair = registry realign to canonical slots + force re-materialize (staged singles ≈ free). Kelp + captains verified clean (0 dupes); galley/scribes/opera re-running after a restart-window blip.
+  - Crop-box "must contain hitbox" rejection: check targeted the derived sprite anchor, not the hitbox the UI draws — stale/mis-promoted placements rejected correct crops. Now validates the hitbox. Deployed.
+  - Gallery: A key unbound from archive (stray keypress soft-deleted a level), Show-archived toggle added, captains_cabin unarchived.
