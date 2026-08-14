@@ -194,3 +194,31 @@ def test_cutter_files_by_bird_dog_index_not_array_position(monkeypatch, tmp_path
     assert resolved == {0: 20, 1: 21}
     # Legacy id-less hitboxes fall back to array position.
     assert S.cutter_folder_indices([], [{"x": 1, "y": 2, "r": 3}]) == {0: 0}
+
+
+def test_dog_registry_rebuild_preserves_slot_identity_after_deletion():
+    """Codex P1 (2026-08-14): the post-materialize dogs[] rebuild keyed
+    existing dogs by hitbox ARRAY POSITION and stamped position as index.
+    After a deletion/reorder, bird C (slot 2, folder dog_02) sitting at
+    position 0 was rebuilt as index 0 — promotion then read dog_00 and
+    adopted another bird's pixels. Rebuild must key by stable bird id and
+    preserve each bird's slot ordinal."""
+    from levelbuilder.api.session import rebuild_dog_registry
+
+    existing = [
+        {"id": "bird-A", "index": 0, "promptOverride": "a"},
+        {"id": "bird-B", "index": 1},
+        {"id": "bird-C", "index": 2, "promptOverride": "c"},
+    ]
+    # B deleted; order now [C, A]
+    hitboxes = [{"id": "bird-C", "x": 1, "y": 1, "r": 5},
+                {"id": "bird-A", "x": 9, "y": 9, "r": 5}]
+    folder_index = {0: 2, 1: 0}  # position -> slot, from cutter_folder_indices
+    dogs = rebuild_dog_registry(
+        hitboxes=hitboxes, existing_dogs=existing,
+        folder_index=folder_index, succeeded_positions={0},
+    )
+    assert [d["id"] for d in dogs] == ["bird-C", "bird-A"]
+    assert [d["index"] for d in dogs] == [2, 0], "slot ordinals must survive reorder"
+    assert dogs[0]["status"] == "done" and dogs[0]["promptOverride"] == "c"
+    assert dogs[1]["status"] == "failed" and dogs[1]["promptOverride"] == "a"

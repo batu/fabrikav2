@@ -2889,7 +2889,10 @@ def start_extract_all_job(session_id: str, force: bool = Query(False)):
     """Durable Extract All: books a bulk_extract job the worker executes —
     survives client disconnects; poll /api/jobs/{id}."""
     _validate_session_id(session_id)
+    import hashlib as _hashlib
     import uuid as _uuid
+
+    from .job_store import is_terminal_status as _is_terminal
 
     for active in JOB_STORE.list_jobs_by_status(("queued", "running")):
         if active.kind == "bulk_extract" and active.session_id == session_id:
@@ -2897,12 +2900,27 @@ def start_extract_all_job(session_id: str, force: bool = Query(False)):
                 "error": f"an extract-all is already active for {session_id} ({active.id})",
                 "code": "extract_all_active", "activeJobId": active.id,
             })
-    key = f"bulk-extract:{session_id}:{_uuid.uuid4().hex[:16]}"
+    hb_path = S.session_dir(session_id) / "hitboxes.json"
+    if not hb_path.exists():
+        raise HTTPException(400, detail={"error": "extract-all requires hitboxes"})
+    hb_sha = _hashlib.sha256(hb_path.read_bytes()).hexdigest()
+    # Deterministic key: concurrent double-bookings (double-click, tab retry)
+    # collapse to ONE job via the DB unique index on (kind, idempotency_key).
+    # An intentional re-run over a terminal twin gets a nonce suffix.
+    key = f"bulk-extract:{session_id}:{hb_sha[:16]}:{int(force)}"
+    metadata = {"force": force, "padFactor": 1.6, "safeToRequeue": True, "hitboxesSha": hb_sha}
     job = JOB_STORE.create_job(
         kind="bulk_extract", session_id=session_id,
         idempotency_key=key, input_hash=key,
-        metadata={"force": force, "padFactor": 1.6, "safeToRequeue": True},
+        metadata=metadata,
     )
+    if _is_terminal(job.status):
+        key = f"{key}:{_uuid.uuid4().hex[:8]}"
+        job = JOB_STORE.create_job(
+            kind="bulk_extract", session_id=session_id,
+            idempotency_key=key, input_hash=key,
+            metadata=metadata,
+        )
     return {"jobId": job.id, "status": job.status}
 
 
@@ -3841,6 +3859,20 @@ def _run_bulk_extract_job(job: JobRecord, store: JobStore) -> dict[str, Any]:
     hitbox_list = json.loads(hb_path.read_text()) if hb_path.exists() else []
     if not hitbox_list:
         raise RuntimeError("extract-all requires hitboxes")
+    booked_sha = metadata.get("hitboxesSha")
+    if booked_sha:
+        import hashlib as _hashlib
+
+        current_sha = _hashlib.sha256(hb_path.read_bytes()).hexdigest()
+        if current_sha != booked_sha:
+            # Old detections paired with edited/reordered birds would promote
+            # wrong sprites canonically — abort before any spend; re-book.
+            raise RuntimeError(
+                f"hitboxes changed since booking for {session_id}; re-book extract-all"
+            )
+    if store is not None:
+        # A crash from here on must NOT auto-replay: the calls below are paid.
+        store.update_metadata(job.id, {"safeToRequeue": False, "providerSubmissionStarted": True})
     detections = []
     for hb in hitbox_list:
         r = float(hb.get("r") or hb.get("radius") or 57)

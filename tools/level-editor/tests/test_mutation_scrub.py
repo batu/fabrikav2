@@ -101,3 +101,56 @@ def test_bulk_extract_job_handler_derives_detections_and_materializes(monkeypatc
     det = seen["detections"][0]
     assert det["x"] == 20 and det["y"] == 20 and det["width"] == 160  # 100±(50*1.6)
     assert seen["force"] is True
+
+
+def test_bulk_extract_flips_requeue_safety_before_spending(monkeypatch):
+    """Codex P1 (2026-08-14): a crash after provider submission must not be
+    classified pre-provider and silently replayed — that duplicates paid
+    calls. The handler flips safeToRequeue/providerSubmissionStarted through
+    the store BEFORE the first paid call."""
+    from types import SimpleNamespace
+    from levelbuilder.api import inpaint as I
+    from levelbuilder.api import session as S
+    import hashlib, json as _json, pathlib, tempfile
+
+    tmp = pathlib.Path(tempfile.mkdtemp())
+    hb = [{"id": "b1", "x": 100, "y": 100, "r": 50}]
+    (tmp / "hitboxes.json").write_text(_json.dumps(hb))
+    monkeypatch.setattr(S, "session_dir", lambda sid: tmp)
+    order = []
+
+    class _Store:
+        def update_metadata(self, job_id, patch):
+            order.append(("meta", dict(patch)))
+
+    monkeypatch.setattr(S, "materialize_detection_sprites",
+        lambda sid, **kw: order.append(("spend", None)) or {"materialized": 1})
+    sha = hashlib.sha256((tmp / "hitboxes.json").read_bytes()).hexdigest()
+    job = SimpleNamespace(id="j1", session_id="s1",
+                          metadata={"force": False, "padFactor": 1.6, "hitboxesSha": sha})
+    I._run_bulk_extract_job(job, store=_Store())
+    assert order and order[0][0] == "meta", f"spend happened before the safety flip: {order}"
+    assert order[0][1].get("safeToRequeue") is False
+    assert order[0][1].get("providerSubmissionStarted") is True
+
+
+def test_bulk_extract_refuses_when_hitboxes_changed_since_booking(monkeypatch):
+    """Codex P1 (2026-08-14): hitbox edits between booking and execution must
+    abort BEFORE spend — otherwise old detections pair with new/reordered
+    birds and wrong sprites get canonically promoted."""
+    from types import SimpleNamespace
+    import pytest
+    from levelbuilder.api import inpaint as I
+    from levelbuilder.api import session as S
+    import json as _json, pathlib, tempfile
+
+    tmp = pathlib.Path(tempfile.mkdtemp())
+    (tmp / "hitboxes.json").write_text(_json.dumps([{"id": "b1", "x": 1, "y": 2, "r": 3}]))
+    monkeypatch.setattr(S, "session_dir", lambda sid: tmp)
+    monkeypatch.setattr(S, "materialize_detection_sprites",
+        lambda sid, **kw: pytest.fail("spent despite stale booking"))
+    job = SimpleNamespace(id="j1", session_id="s1",
+                          metadata={"force": False, "padFactor": 1.6,
+                                    "hitboxesSha": "0" * 64})
+    with pytest.raises(RuntimeError, match="changed since booking"):
+        I._run_bulk_extract_job(job, store=None)

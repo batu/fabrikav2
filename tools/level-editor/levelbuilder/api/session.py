@@ -2065,6 +2065,7 @@ def promote_materialized_sprites_canonically(
     materialized: list[dict],
     model: str,
     entity: str,
+    folder_index: dict[int, int] | None = None,
 ) -> dict | None:
     """Land bulk-materialized sprites in the canonical snapshot (BUG-13).
 
@@ -2082,8 +2083,12 @@ def promote_materialized_sprites_canonically(
         return None
     committed, skipped = 0, 0
     failures: list[dict] = []
-    raw_for_folders = load_session_raw(session_id) or {}
-    folder_index = cutter_folder_indices(raw_for_folders.get("dogs") or [], hitboxes)
+    if folder_index is None:
+        # Fallback derivation; callers that held the mapping while the cutter
+        # wrote should pass it — a concurrent registry rewrite between cut
+        # and promotion would otherwise re-derive a different one.
+        raw_for_folders = load_session_raw(session_id) or {}
+        folder_index = cutter_folder_indices(raw_for_folders.get("dogs") or [], hitboxes)
     for entry in materialized:
         index = entry.get("index")
         if not isinstance(index, int):
@@ -4338,6 +4343,41 @@ def cutter_folder_indices(dogs: list[dict], hitboxes: list[dict]) -> dict[int, i
     return out
 
 
+def rebuild_dog_registry(
+    *,
+    hitboxes: list[dict],
+    existing_dogs: list[dict],
+    folder_index: dict[int, int],
+    succeeded_positions: set[int],
+) -> list[dict]:
+    """Post-materialize dogs[] rebuild, keyed by stable bird id.
+
+    Each bird keeps its slot ordinal (dogs[].index — the folder the cutter
+    wrote). Keying by hitbox array position mixed records after a deletion or
+    reorder and re-stamped positions as indices, so promotion read another
+    bird's folder (codex P1, 2026-08-14)."""
+    by_id = {d.get("id"): d for d in existing_dogs if isinstance(d, dict) and d.get("id")}
+    by_index = {
+        d.get("index"): d for d in existing_dogs
+        if isinstance(d, dict) and isinstance(d.get("index"), int)
+    }
+    dogs = []
+    for position, hitbox in enumerate(hitboxes):
+        hb_id = hitbox.get("id") if isinstance(hitbox, dict) else None
+        slot = folder_index.get(position, position)
+        existing = (by_id.get(hb_id) if hb_id else None) or by_index.get(slot) or {}
+        succeeded = position in succeeded_positions
+        dogs.append({
+            **existing,
+            "index": slot,
+            "id": hb_id or existing.get("id") or f"dog_{slot:02d}",
+            "status": "done" if succeeded else "failed",
+            "activeVariant": 0 if succeeded else existing.get("activeVariant"),
+            "promptOverride": existing.get("promptOverride"),
+        })
+    return dogs
+
+
 def materialize_detection_sprites(
     session_id: str,
     *,
@@ -4409,11 +4449,6 @@ def materialize_detection_sprites(
         for row, column in zip(rows.tolist(), columns.tolist(), strict=True)
     }
     raw = load_session_raw(session_id) or {}
-    existing_dogs = {
-        dog.get("index"): dog
-        for dog in raw.get("dogs") or []
-        if isinstance(dog, dict) and isinstance(dog.get("index"), int)
-    }
     materialized: list[dict] = []
     failed: list[dict] = []
     with Image.open(color_path) as source:
@@ -4647,17 +4682,12 @@ def materialize_detection_sprites(
             clean_bg.close()
 
     succeeded_indices = {entry["index"] for entry in materialized}
-    dogs = []
-    for index, hitbox in enumerate(hitboxes):
-        existing = existing_dogs.get(index) or {}
-        dogs.append({
-            **existing,
-            "index": index,
-            "id": hitbox.get("id") or existing.get("id") or f"dog_{index:02d}",
-            "status": "done" if index in succeeded_indices else "failed",
-            "activeVariant": 0 if index in succeeded_indices else existing.get("activeVariant"),
-            "promptOverride": existing.get("promptOverride"),
-        })
+    dogs = rebuild_dog_registry(
+        hitboxes=hitboxes,
+        existing_dogs=raw.get("dogs") or [],
+        folder_index=folder_index,
+        succeeded_positions=succeeded_indices,
+    )
     raw["dogs"] = dogs
     save_session(session_id, raw)
     sync_active_sprite_set_to_levels(session_id, dogs, hitboxes)
@@ -4667,6 +4697,7 @@ def materialize_detection_sprites(
         materialized=materialized,
         model=os.environ.get("FTD_FLATKEY_MODEL", "google/gemini-3.1-flash-image-preview"),
         entity=str(raw.get("entity") or "bird"),
+        folder_index=folder_index,
     )
     return {
         "sessionId": session_id,
