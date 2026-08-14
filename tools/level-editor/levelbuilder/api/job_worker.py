@@ -56,6 +56,9 @@ class WorkerConfig:
     poll_interval_seconds: float = 0.25
     stale_after_seconds: float = 60.0
     shutdown_join_seconds: float = 5.0
+    # Parallel job execution (operator order 2026-08-14, "3x"). Provider
+    # rate limits stay enforced by the per-provider permits inside handlers.
+    concurrency: int = 3
 
 
 class WorkerOwnershipLock:
@@ -117,6 +120,8 @@ class JobWorker:
         self._ownership_lock = WorkerOwnershipLock(self.lock_path)
         self._stop_event = threading.Event()
         self._thread: threading.Thread | None = None
+        self._inflight: dict[str, threading.Thread] = {}
+        self._inflight_lock = threading.Lock()
 
     def register_handler(self, kind: str, handler: JobHandler) -> None:
         self.handlers[kind] = handler
@@ -184,11 +189,29 @@ class JobWorker:
 
     def run_once(self) -> bool:
         supported_kinds = tuple(self.handlers.keys())
-        job = self.store.claim_next_queued_job(owner=self.owner_id, kinds=supported_kinds)
-        if job is None:
-            return False
-        self._execute_job(job)
-        return True
+        with self._inflight_lock:
+            capacity = max(1, int(self.config.concurrency)) - len(self._inflight)
+        claimed_any = False
+        for _ in range(capacity):
+            job = self.store.claim_next_queued_job(owner=self.owner_id, kinds=supported_kinds)
+            if job is None:
+                break
+            claimed_any = True
+            thread = threading.Thread(
+                target=self._execute_and_untrack, args=(job,),
+                name=f"ftd-job-{job.id[:8]}", daemon=True,
+            )
+            with self._inflight_lock:
+                self._inflight[job.id] = thread
+            thread.start()
+        return claimed_any
+
+    def _execute_and_untrack(self, job: JobRecord) -> None:
+        try:
+            self._execute_job(job)
+        finally:
+            with self._inflight_lock:
+                self._inflight.pop(job.id, None)
 
     def recover_stale_jobs(self) -> list[JobRecord]:
         recovered: list[JobRecord] = []

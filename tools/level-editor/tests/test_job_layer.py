@@ -161,3 +161,38 @@ def test_worker_start_retries_until_lock_frees(tmp_path):
         assert worker.is_running() is True, "never claimed after the old owner released"
     finally:
         worker.stop()
+
+
+def test_worker_executes_jobs_concurrently(tmp_path):
+    """Operator order 2026-08-14 ('run them with at least some concurrency
+    3x'): the worker must execute up to config.concurrency jobs in parallel
+    instead of one synchronous job per loop tick."""
+    import threading, time
+    from levelbuilder.api.job_store import JobStore
+    from levelbuilder.api.job_worker import JobWorker, WorkerConfig
+
+    store = JobStore(db_path=tmp_path / "jobs.sqlite")
+    gate = threading.Barrier(3, timeout=10)
+
+    def handler(job, s):
+        gate.wait()  # only passes if 3 jobs run at once
+        return {"ok": True}
+
+    worker = JobWorker(
+        store=store, handlers={"probe": handler},
+        lock_path=tmp_path / "w.lock",
+        config=WorkerConfig(concurrency=3, poll_interval_seconds=0.05),
+    )
+    for i in range(3):
+        store.create_job(kind="probe", session_id=f"s{i}")
+    assert worker.start() is True
+    try:
+        deadline = time.time() + 10
+        while time.time() < deadline:
+            statuses = [j.status for j in store.list_jobs_by_status(("succeeded",))]
+            if len(statuses) == 3:
+                break
+            time.sleep(0.1)
+        assert len(store.list_jobs_by_status(("succeeded",))) == 3, "3 jobs did not complete concurrently"
+    finally:
+        worker.stop()
