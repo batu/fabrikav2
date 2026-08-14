@@ -24,7 +24,7 @@ interface Props {
 }
 
 type CardState = ReviewCardState;
-type GallerySortMode = 'newest' | 'name' | 'dogs' | 'regeneration';
+type GallerySortMode = 'newest' | 'name' | 'dogs' | 'regeneration' | 'lineup';
 type HumanReviewState = 'needs-hitbox-review' | 'needs-cutout-review' | 'reviewed';
 
 const HUMAN_REVIEW_STATES: HumanReviewState[] = [
@@ -75,8 +75,15 @@ function isVariantArchived(session: SessionListItem, variant: string): boolean {
   return (session.archivedVariants ?? []).includes(variant);
 }
 
-function sortCards(cards: VariantCard[], sortMode: GallerySortMode): VariantCard[] {
+function sortCards(cards: VariantCard[], sortMode: GallerySortMode, lineupOrder?: Map<string, number>): VariantCard[] {
   return cards.slice().sort((a, b) => {
+    if (sortMode === 'lineup') {
+      // Game order: the position players get each level. Cards outside the
+      // lineup sink to the end (newest first among themselves).
+      const pa = lineupOrder?.get(a.session.id) ?? Number.MAX_SAFE_INTEGER;
+      const pb = lineupOrder?.get(b.session.id) ?? Number.MAX_SAFE_INTEGER;
+      if (pa !== pb) return pa - pb;
+    }
     if (sortMode === 'name') {
       const nameDelta = a.session.name.localeCompare(b.session.name);
       if (nameDelta !== 0) return nameDelta;
@@ -188,8 +195,9 @@ export default function GalleryPage({ config, onOpen }: Props) {
     [activeCards],
   );
   const orderedAllCards = useMemo(
-    () => sortCards(activeCards, sortMode),
-    [activeCards, sortMode],
+    () => sortCards(activeCards, sortMode,
+      new Map((lineupState?.draft.levelIds ?? []).map((id, i) => [id, i]))),
+    [activeCards, sortMode, lineupState],
   );
 
   const provenanceOptions = useMemo(() => {
@@ -431,6 +439,7 @@ export default function GalleryPage({ config, onOpen }: Props) {
               <option value="name">Name A-Z</option>
               <option value="dogs">Entities high-low</option>
               <option value="regeneration">Redo candidates high-low</option>
+              <option value="lineup">Game order (lineup)</option>
             </select>
             <span style={{ color: '#888', fontSize: '0.8rem' }}>Show:</span>
             <label style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: '0.85rem', color: !lineupOnly ? '#67e8f9' : '#ccc', fontWeight: !lineupOnly ? 700 : 400 }}>
