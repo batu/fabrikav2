@@ -1,0 +1,73 @@
+{
+  "_comment": "Difficulty-ladder tier definitions. Re-derived 2026-08-15 after a session teardown wiped the scratchpad copy; now lives in git so it cannot evaporate again. Ask is 30 dogs on every tier; ONLY the listed delta varies. view SAME_AS_Tn means: reuse that tier's view text verbatim.",
+  "t1": {
+    "axis": "map",
+    "desc": "wide view baseline: ~30 placements, 6-8 clusters",
+    "status": "COMPLETE — mean 23.0, PASS",
+    "view": "ISOMETRIC axonometric game-map view, elevated three-quarter camera roughly 35 degrees down from horizontal, pulled back enough to support about 30 hidden target placements. Parallel projection: receding edges stay parallel, NO vanishing points, NO horizon line, NO eye-level view, NO foreshortening; objects of equal real size stay equal drawn size anywhere in frame. Enclosed architecture is an open-top cutaway: low-to-mid walls at frame edges, no ceilings or roof structure visible. Arrange approximately 30 plausible hiding pockets across 6 to 8 connected prop clusters with visible breathing room, clear travel paths, and readable object boundaries at phone size. No wide-angle distortion, no depth of field, no tiny distance-scaled clutter.",
+    "dog": ""
+  },
+  "t2": {
+    "axis": "size",
+    "desc": "t1 + dogs one notch smaller",
+    "status": "COMPLETE — mean 22.8, PASS (magenta defect found)",
+    "view": "SAME_AS_T1",
+    "dog": " Paint each dog slightly smaller than furniture-scale props — compact, about the size of a small prop, never dominating its cluster."
+  },
+  "t3": {
+    "axis": "hide",
+    "desc": "t2 + half the dogs peeking from behind props",
+    "status": "sessions created, never painted (teardown)",
+    "view": "SAME_AS_T1",
+    "dog": " Paint each dog slightly smaller than furniture-scale props. Hide about half of the dogs partially behind props: peeking around crates, under tables, behind plants — at least a quarter of the body occluded, but head always visible."
+  },
+  "t4": {
+    "axis": "hide",
+    "desc": "t2 + ALL dogs at least one-third occluded",
+    "status": "pending",
+    "view": "SAME_AS_T1",
+    "dog": " Paint each dog slightly smaller than furniture-scale props. Hide EVERY dog partially: each dog at least one-third occluded by scenery — behind props, inside containers, under furniture — with the head or face still visible."
+  },
+  "t5": {
+    "axis": "hide",
+    "desc": "t4 + deep occlusion (head-or-tail-only for many)",
+    "status": "pending",
+    "view": "SAME_AS_T1",
+    "dog": " Paint each dog slightly smaller than furniture-scale props. Hide EVERY dog: at least one-third occluded, and for about half of them show only a head, a tail, or paws emerging from behind scenery — deeply tucked into the scene."
+  },
+  "t6": {
+    "axis": "map",
+    "desc": "farther camera: ~40 pockets, props smaller",
+    "status": "pending",
+    "view": "ISOMETRIC axonometric game-map view, elevated three-quarter camera roughly 35 degrees down from horizontal, pulled back to a wide layout supporting about 40 hidden target placements. Parallel projection: receding edges stay parallel, NO vanishing points, NO horizon line, NO eye-level view, NO foreshortening. Enclosed architecture is an open-top cutaway. Arrange approximately 40 plausible hiding pockets across 8 to 10 connected prop clusters; props are moderately smaller than close-view framing but every ordinary object stays individually recognizable at phone size. No wide-angle distortion, no depth of field.",
+    "dog": ""
+  },
+  "t7": {
+    "axis": "map+hide",
+    "desc": "t6 + all dogs partially hidden",
+    "status": "pending",
+    "view": "SAME_AS_T6",
+    "dog": " Hide EVERY dog partially: each at least one-third occluded by scenery with the head or face visible."
+  },
+  "t8": {
+    "axis": "map+size+hide",
+    "desc": "t6 + smaller dogs + peeking",
+    "status": "pending",
+    "view": "SAME_AS_T6",
+    "dog": " Paint each dog compact and small relative to nearby props. Hide about half of the dogs peeking from behind scenery, at least a quarter occluded, head visible."
+  },
+  "t9": {
+    "axis": "hide",
+    "desc": "tone-matched hiding among similar-colored props",
+    "status": "pending — strong prior: three of the hardest finds so far happened by accident this way",
+    "view": "SAME_AS_T1",
+    "dog": " Place each dog among props of a similar color tone to its coat — brown dogs near wood and baskets, grey dogs near stone and metal, pale dogs near linens — partially tucked behind or between those props so coat and surroundings blend at a glance, head visible."
+  },
+  "t10": {
+    "axis": "confirmation",
+    "desc": "best-performing combo from t1-t9, run x5",
+    "status": "pending — defined after t9 verdict",
+    "view": "TBD",
+    "dog": "TBD"
+  }
+}
