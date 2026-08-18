@@ -1,5 +1,5 @@
 import crypto from 'node:crypto';
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -39,6 +39,7 @@ export function executeIosRelease(request, deps) {
   validateReleaseEnvironment(request.env);
   assertPhysicalIosDevice(request.device);
   const buildId = deriveReleaseBuildId(request.attestation.manifestDigest, request.attestation.sourceSha);
+  deps.verifySource(request);
   deps.buildWeb(request);
   deps.syncNative(request);
   deps.applyNative(request);
@@ -53,6 +54,7 @@ export function executeIosRelease(request, deps) {
   const captured = deps.captureAttestation(request);
   verifyExactInstall({ expected: { ...request.attestation, bundleId: request.bundleId, version: request.version }, installed: captured.installedApplication, evidence: captured });
   if (!captured.path || !captured.gameplayState) throw new Error('physical release evidence path and gameplay state are required');
+  deps.verifySource(request);
   const receiptAttestation = {
     manifest_sha256: request.attestation.manifestDigest,
     source_revision: request.attestation.sourceSha,
@@ -69,7 +71,7 @@ export function executeIosRelease(request, deps) {
     device: { udid: request.device.udid, physical: true },
     attestation: receiptAttestation,
     installed: { bundle_id: installedApp.bundleId, version: installedApp.version, build_id: installedApp.buildId },
-    captured: { bundle_id: captured.installedApplication.bundleId, version: captured.installedApplication.version, build_id: captured.installedApplication.buildId, evidence_path: captured.path, gameplay_state: captured.gameplayState },
+    captured: { bundle_id: captured.installedApplication.bundleId, version: captured.installedApplication.version, build_id: captured.installedApplication.buildId, evidence_path: captured.path, evidence_sha256: captured.sha256, gameplay_state: captured.gameplayState },
     launch: { succeeded: launch?.launched === true },
     evidence: { lane: captured.lane, physical: captured.physical, paths: [captured.path] },
   });
@@ -106,12 +108,20 @@ function walk(root) {
 
 function truthy(value) { return /^(1|true|yes|on)$/i.test(String(value || '').trim()); }
 
-export function defaultDependencies({ execImpl = execFileSync } = {}) {
+export function defaultDependencies({ execImpl = execFileSync, spawnImpl = spawnSync } = {}) {
   const run = (file, args, options = {}) => execImpl(file, args, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], maxBuffer: 64 * 1024 * 1024, ...options });
   const repoRoot = (request) => path.resolve(request.gameDir, '..', '..');
   const query = (request) => {
-    const output = run('xcrun', ['devicectl', 'device', 'info', 'apps', '--device', request.device.udid, '--json-output', '-']);
-    const json = JSON.parse(output);
+    const temporary = fs.mkdtempSync(path.join(request.temporaryDirectory || '/tmp', 'ftd-release-device-'));
+    fs.chmodSync(temporary, 0o700);
+    const output = path.join(temporary, 'apps.json');
+    let json;
+    try {
+      run('xcrun', ['devicectl', 'device', 'info', 'apps', '--device', request.device.udid, '--columns', '*', '--json-output', output]);
+      json = JSON.parse(fs.readFileSync(output, 'utf8'));
+    } finally {
+      fs.rmSync(temporary, { recursive: true, force: true });
+    }
     const candidates = collectObjects(json);
     const app = candidates.find((value) => [value.bundleIdentifier, value.bundleId].includes(request.bundleId));
     if (!app) throw new Error('installed application was not returned by devicectl');
@@ -121,11 +131,24 @@ export function defaultDependencies({ execImpl = execFileSync } = {}) {
       buildId: String(app.bundleVersion || app.buildVersion || app.CFBundleVersion || ''),
     };
   };
+  const childEnv = (request) => Object.fromEntries(Object.entries({
+    ...request.env,
+    PATH: process.env.PATH,
+    HOME: process.env.HOME,
+    TMPDIR: process.env.TMPDIR,
+    DEVELOPER_DIR: process.env.DEVELOPER_DIR,
+    LANG: 'C', LC_ALL: 'C',
+  }).filter(([, value]) => value !== undefined));
   return {
-    buildWeb(request) { run('npm', ['run', 'build:ios'], { cwd: request.gameDir, env: { ...request.env, PATH: process.env.PATH } }); },
+    verifySource(request) {
+      const root = repoRoot(request);
+      if (run('git', ['rev-parse', 'HEAD'], { cwd: root, env: childEnv(request) }).trim() !== request.attestation.sourceSha) throw new Error('release source revision changed after approval');
+      if (run('git', ['status', '--porcelain'], { cwd: root, env: childEnv(request) }).trim()) throw new Error('release source worktree is dirty');
+    },
+    buildWeb(request) { run('npm', ['run', 'build:ios'], { cwd: request.gameDir, env: childEnv(request) }); },
     syncNative(request) {
-      if (!fs.existsSync(path.join(request.gameDir, 'ios'))) run('npx', ['cap', 'add', 'ios'], { cwd: request.gameDir, env: { ...request.env, PATH: process.env.PATH } });
-      run('npx', ['cap', 'sync', 'ios'], { cwd: request.gameDir, env: { ...request.env, PATH: process.env.PATH } });
+      if (!fs.existsSync(path.join(request.gameDir, 'ios'))) run('npx', ['cap', 'add', 'ios'], { cwd: request.gameDir, env: childEnv(request) });
+      run('npx', ['cap', 'sync', 'ios'], { cwd: request.gameDir, env: childEnv(request) });
     },
     applyNative(request) { run('node', ['tools/native-shell/apply.mjs', '--game', path.basename(request.gameDir)], { cwd: repoRoot(request), env: { ...request.env, PATH: process.env.PATH } }); },
     validateNative(request) { run('node', ['tools/native-shell/validate.mjs', '--game', path.basename(request.gameDir)], { cwd: repoRoot(request), env: { ...request.env, PATH: process.env.PATH } }); },
@@ -141,17 +164,36 @@ export function defaultDependencies({ execImpl = execFileSync } = {}) {
       const project = path.join(request.gameDir, 'ios', 'App', 'App.xcodeproj');
       const settings = request.developmentTeam ? ['-allowProvisioningUpdates', `DEVELOPMENT_TEAM=${request.developmentTeam}`] : [];
       run('xcodebuild', ['-project', project, '-scheme', 'App', '-configuration', 'Release', '-destination', `id=${request.device.udid}`, '-derivedDataPath', derived, 'build', ...settings]);
-      return { appPath: path.join(derived, 'Build', 'Products', 'Release-iphoneos', 'App.app'), signingIdentity: request.signingIdentity || 'xcode-managed' };
+      const appPath = path.join(derived, 'Build', 'Products', 'Release-iphoneos', 'App.app');
+      return { appPath, signingIdentity: inspectSignedIosApp(appPath, { expectedTeam: request.developmentTeam, spawnImpl }) };
     },
     uninstallApp(request) { run('xcrun', ['devicectl', 'device', 'uninstall', 'app', '--device', request.device.udid, request.bundleId]); },
     installApp(request) { run('xcrun', ['devicectl', 'device', 'install', 'app', '--device', request.device.udid, request.appPath]); },
     launchApp(request) { run('xcrun', ['devicectl', 'device', 'process', 'launch', '--terminate-existing', '--device', request.device.udid, request.bundleId]); return { launched: true }; },
     queryInstalledApp: query,
     captureAttestation(request) {
+      if (!request.evidencePath) throw new Error('release evidence path is required');
+      fs.mkdirSync(path.dirname(request.evidencePath), { recursive: true, mode: 0o700 });
+      run('idevicescreenshot', ['-u', request.device.udid, request.evidencePath]);
+      if (!fs.existsSync(request.evidencePath) || fs.statSync(request.evidencePath).size <= 0) throw new Error('physical release screenshot was not captured');
       const app = query(request);
-      return { installedApplication: app, lane: 'release', physical: true, path: request.evidencePath, gameplayState: request.gameplayState };
+      const sha256 = crypto.createHash('sha256').update(fs.readFileSync(request.evidencePath)).digest('hex');
+      return { installedApplication: app, lane: 'release', physical: true, path: request.evidencePath, sha256, gameplayState: 'post_launch_device_capture' };
     },
   };
+}
+
+export function inspectSignedIosApp(appPath, { expectedTeam, spawnImpl = spawnSync } = {}) {
+  const verify = spawnImpl('codesign', ['--verify', '--deep', '--strict', appPath], { encoding: 'utf8' });
+  if (verify.status !== 0) throw new Error('signed application failed codesign verification');
+  const details = spawnImpl('codesign', ['-d', '--verbose=4', appPath], { encoding: 'utf8' });
+  if (details.status !== 0) throw new Error('signed application identity could not be read');
+  const text = `${details.stdout || ''}\n${details.stderr || ''}`;
+  const authority = /^Authority=(.+)$/m.exec(text)?.[1]?.trim();
+  const team = /^TeamIdentifier=(.+)$/m.exec(text)?.[1]?.trim();
+  if (!authority || !team) throw new Error('signed application has no authority or team identifier');
+  if (expectedTeam && team !== expectedTeam) throw new Error('signed application team does not match the approved team');
+  return `${authority} [${team}]`;
 }
 
 function collectObjects(value) {

@@ -1,6 +1,8 @@
 import type {
   AdMobError,
   AdMobInitializationOptions,
+  AdmobConsentInfo,
+  AdmobConsentRequestOptions,
   AdMobRewardItem,
   AdOptions,
   BannerAdOptions,
@@ -48,6 +50,9 @@ export interface AdMobAdapter {
   isNativePlatform: () => Promise<boolean>;
   getPlatform: () => Promise<RuntimePlatform>;
   initialize: (options: AdMobInitializationOptions) => Promise<void>;
+  requestConsentInfo: (options?: AdmobConsentRequestOptions) => Promise<AdmobConsentInfo>;
+  showConsentForm: () => Promise<AdmobConsentInfo>;
+  showPrivacyOptionsForm: () => Promise<void>;
   prepareInterstitial: (options: AdOptions) => Promise<void>;
   showInterstitial: () => Promise<void>;
   showBanner: (options: BannerAdOptions) => Promise<void>;
@@ -73,6 +78,18 @@ export const createDefaultAdMobAdapter = (): AdMobAdapter => ({
   initialize: async (options: AdMobInitializationOptions): Promise<void> => {
     const { AdMob } = await import('@capacitor-community/admob');
     await AdMob.initialize(options);
+  },
+  requestConsentInfo: async (options) => {
+    const { AdMob } = await import('@capacitor-community/admob');
+    return AdMob.requestConsentInfo(options);
+  },
+  showConsentForm: async () => {
+    const { AdMob } = await import('@capacitor-community/admob');
+    return AdMob.showConsentForm();
+  },
+  showPrivacyOptionsForm: async () => {
+    const { AdMob } = await import('@capacitor-community/admob');
+    await AdMob.showPrivacyOptionsForm();
   },
   prepareInterstitial: async (options: AdOptions): Promise<void> => {
     const { AdMob } = await import('@capacitor-community/admob');
@@ -310,6 +327,17 @@ export class AdMobProvider implements AdProvider {
       };
 
       try {
+        let consent = await this.adapter.requestConsentInfo({
+          testDeviceIdentifiers: this.config.isTesting ? this.config.testingDevices : [],
+          tagForUnderAgeOfConsent: true,
+        });
+        if (!consent.canRequestAds && consent.isConsentFormAvailable) {
+          consent = await this.adapter.showConsentForm();
+        }
+        if (!consent.canRequestAds) {
+          this.log('AdMob initialization blocked until consent permits ad requests');
+          return;
+        }
         this.log('initializing AdMob', {
           initializeForTesting: initializeOptions.initializeForTesting,
           testingDeviceCount: initializeOptions.testingDevices?.length ?? 0,
@@ -671,9 +699,15 @@ export class AdMobProvider implements AdProvider {
     }
   }
 
-  /** AdMob has no privacy-options entry point; parity no-op returns false. */
   async showPrivacyOptions(): Promise<boolean> {
-    return false;
+    if (!this.config.enabled || this.disposed) return false;
+    try {
+      await this.adapter.showPrivacyOptionsForm();
+      return true;
+    } catch (err: unknown) {
+      this.warn('privacy options failed', err);
+      return false;
+    }
   }
 
   /**
