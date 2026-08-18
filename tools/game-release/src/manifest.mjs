@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
+import crypto from 'node:crypto';
 
 import { validateEnvironment as validateGameEnvironment } from '../../game-env/src/validate.mjs';
 import { getGamePolicy } from '../../game-env/src/policies.mjs';
@@ -29,22 +30,11 @@ function safeEnvironmentResult(result) {
 }
 
 export function buildReleaseManifest(options, dependencies = {}) {
-  const { repoRoot, game, expectedSourceRevision } = options;
-  if (!repoRoot || !GAME_NAME.test(game ?? '')) throw new Error('valid repoRoot and game are required');
-  if (!REVISION.test(expectedSourceRevision ?? '')) throw new Error('expected source revision must be a full SHA');
+  const identity = readReleaseIdentity(options);
+  const { repoRoot, game } = options;
   const root = path.resolve(repoRoot);
-  const sourceRevision = git(root, ['rev-parse', 'HEAD']);
-  if (sourceRevision !== expectedSourceRevision) throw new Error('source revision does not match approved revision');
-  if (git(root, ['status', '--porcelain'])) throw new Error('release source worktree is dirty');
 
   const gameRoot = path.join(root, 'games', game);
-  const shellPath = path.join(gameRoot, 'native-resources', 'ios', 'shell-manifest.json');
-  const shell = JSON.parse(fs.readFileSync(shellPath, 'utf8'));
-  const bundleId = shell?.ios?.bundleId;
-  if (typeof bundleId !== 'string' || !bundleId || bundleId === shell.capacitorAppId || /(?:^|\.)dev(?:\.|$)/.test(bundleId)) {
-    throw new Error('production bundle ID resolves to a development identity');
-  }
-
   const validateEnvironment = dependencies.validateEnvironment ?? ((args) =>
     validateGameEnvironment({ ...args, policy: getGamePolicy(game), environment: {} }));
   const environment = safeEnvironmentResult(validateEnvironment({ gameRoot, mode: 'ios' }));
@@ -56,15 +46,40 @@ export function buildReleaseManifest(options, dependencies = {}) {
 
   return {
     ok: true,
-    game,
-    platform: 'ios',
-    bundleId,
-    sourceRevision,
+    game: identity.game,
+    platform: identity.platform,
+    bundleId: identity.bundleId,
+    sourceRevision: identity.sourceRevision,
     environment,
     nativeShell: {
       ok: true,
       generatedPresent: nativeResult.generatedPresent === true,
       skAdNetworkCount: nativeResult.skAdNetworkCount ?? 0,
     },
+  };
+}
+
+export function readReleaseIdentity(options) {
+  const { repoRoot, game, expectedSourceRevision } = options;
+  if (!repoRoot || !GAME_NAME.test(game ?? '')) throw new Error('valid repoRoot and game are required');
+  if (!REVISION.test(expectedSourceRevision ?? '')) throw new Error('expected source revision must be a full SHA');
+  const root = path.resolve(repoRoot);
+  const sourceRevision = git(root, ['rev-parse', 'HEAD']);
+  if (sourceRevision !== expectedSourceRevision) throw new Error('source revision does not match approved revision');
+  if (git(root, ['status', '--porcelain'])) throw new Error('release source worktree is dirty');
+
+  const gameRoot = path.join(root, 'games', game);
+  const shellPath = path.join(gameRoot, 'native-resources', 'ios', 'shell-manifest.json');
+  const shellBytes = fs.readFileSync(shellPath);
+  const shell = JSON.parse(shellBytes.toString('utf8'));
+  const bundleId = shell?.ios?.bundleId;
+  const displayName = shell?.ios?.displayName;
+  if (!Number.isInteger(shell?.schemaVersion) || shell.schemaVersion <= 0 || shell?.game !== game || typeof displayName !== 'string' || !displayName.trim()) {
+    throw new Error('production native recipe identity is invalid');
+  }
+  if (typeof bundleId !== 'string' || !bundleId || bundleId === shell.capacitorAppId || /(?:^|\.)dev(?:\.|$)/.test(bundleId)) throw new Error('production bundle ID resolves to a development identity');
+  return {
+    ok: true, game, name: displayName.trim(), platform: 'ios', bundleId, sourceRevision,
+    nativeRecipe: { schemaVersion: shell.schemaVersion, sha256: crypto.createHash('sha256').update(shellBytes).digest('hex') },
   };
 }

@@ -4,7 +4,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 
-import { defaultDependencies, deriveReleaseBuildId, executeIosRelease, inspectBundle, inspectSignedIosApp, reviewReceiptPayload, validateReleaseEnvironment, verifyExactInstall, verifyReviewedGameplayEvidence } from '../src/ios-release.mjs';
+import { captureIosReleaseCandidate, defaultDependencies, deriveReleaseBuildId, executeIosRelease, finalizeIosReleaseCandidate, inspectBundle, inspectSignedIosApp, reviewReceiptPayload, validateReleaseEnvironment, verifyExactInstall, verifyReviewedGameplayEvidence } from '../src/ios-release.mjs';
 
 const attestation = { manifestDigest: 'a'.repeat(64), sourceSha: 'b'.repeat(40) };
 const buildId = deriveReleaseBuildId(attestation.manifestDigest, attestation.sourceSha);
@@ -27,6 +27,52 @@ function attachReviewReceipt(evidence, privateKey) {
 }
 
 describe('iOS exact release lane', () => {
+  it('stages an installed candidate without gameplay review, then finalizes it without rebuilding', () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'ios-release-staged-'));
+    const app = path.join(root, 'App.app'); fs.mkdirSync(app); fs.writeFileSync(path.join(app, 'payload.bin'), 'release');
+    const diagnostic = path.join(root, 'post-launch.png'); fs.writeFileSync(diagnostic, 'diagnostic');
+    const durableApp = path.join(root, 'release-candidates', 'candidate-1', 'App.app'); fs.mkdirSync(path.dirname(durableApp), { recursive: true }); fs.cpSync(app, durableApp, { recursive: true });
+    const proof = path.join(root, 'gameplay.png'); fs.writeFileSync(proof, 'reviewed-gameplay');
+    const proofSha = crypto.createHash('sha256').update('reviewed-gameplay').digest('hex');
+    let candidateBuildId = ''; const captureCalls = [];
+    const request = { gameDir: root, bundleId: 'com.example.dog', version: '1.2.3', device: { udid: 'PHONE', platform: 'iOS' }, attestation, env: {}, maxBundleBytes: 1024 };
+    const staged = captureIosReleaseCandidate(request, {
+      verifySource: () => captureCalls.push('verify-source'), buildWeb: () => captureCalls.push('build'), syncNative: () => captureCalls.push('sync'),
+      applyNative: () => captureCalls.push('apply'), validateNative: () => captureCalls.push('validate'),
+      buildSignedApp: () => (captureCalls.push('signed-build'), { appPath: app, signingIdentity: 'Apple Development: Example [TEAM]' }),
+      stageSignedApp: () => (captureCalls.push('stage-app'), durableApp),
+      stampAttestation(value) { candidateBuildId = value.buildId; captureCalls.push('stamp'); }, uninstallApp: () => captureCalls.push('uninstall'),
+      installApp: () => captureCalls.push('install'), launchApp: () => (captureCalls.push('launch'), { launched: true }),
+      queryInstalledApp: () => ({ bundleId: request.bundleId, version: request.version, buildId: candidateBuildId }),
+      captureAttestation: () => ({ installedApplication: { bundleId: request.bundleId, version: request.version, buildId: candidateBuildId }, lane: 'release', physical: true, path: diagnostic, sha256: crypto.createHash('sha256').update('diagnostic').digest('hex'), gameplayState: 'post_launch_device_capture' }),
+    });
+    expect(staged.kind).toBe('staged_ios_release_candidate');
+    expect(staged).not.toHaveProperty('captured');
+    expect(staged.diagnostic_capture.state).toBe('post_launch_device_capture');
+    expect(captureCalls).toEqual(['verify-source', 'build', 'sync', 'apply', 'validate', 'signed-build', 'stamp', 'signed-build', 'stage-app', 'uninstall', 'install', 'launch', 'verify-source']);
+
+    const reviewKeys = crypto.generateKeyPairSync('ed25519');
+    request.gameplayEvidence = { deviceUdid: 'PHONE', bundleId: request.bundleId, version: request.version, buildId: candidateBuildId, path: proof, sha256: proofSha, state: 'level' };
+    attachReviewReceipt(request.gameplayEvidence, reviewKeys.privateKey);
+    const finalizeCalls = [];
+    const exact = finalizeIosReleaseCandidate(request, staged, {
+      verifySource: () => finalizeCalls.push('verify-source'), inspectStagedApp: () => (finalizeCalls.push('codesign'), staged.build.signing_identity),
+      queryInstalledApp: () => (finalizeCalls.push('query-installed'), { bundleId: request.bundleId, version: request.version, buildId: candidateBuildId }),
+      loadReviewAuthorityPublicKey: () => reviewKeys.publicKey,
+    });
+    expect(finalizeCalls).toEqual(['verify-source', 'codesign', 'query-installed', 'verify-source']);
+    expect(exact.kind).toBe('exact_release_candidate');
+    expect(exact.attestation).toEqual(staged.attestation);
+    expect(exact.local_app_ref).toBe(staged.local_app_ref);
+    expect(exact.captured.review_receipt.boundary).toBe('authenticated_gameplay_review');
+  });
+
+  it('rejects a staged receipt whose payload binding was changed', () => {
+    const request = { gameDir: '/tmp/game', bundleId: 'com.example.dog', version: '1.2.3', device: { udid: 'PHONE', platform: 'iOS' }, attestation, env: {} };
+    const staged = { kind: 'staged_ios_release_candidate', boundary: 'staged_ios_release_candidate', status: 'passed', manifest_sha256: attestation.manifestDigest, source_revision: attestation.sourceSha, bundle_id: request.bundleId, version: request.version, device: { udid: 'PHONE', physical: true }, attestation: { manifest_sha256: attestation.manifestDigest, source_revision: attestation.sourceSha, artifact_payload_sha256: 'c'.repeat(64), build_id: '1.2.3' }, installed: { bundle_id: request.bundleId, version: request.version, build_id: '1.2.3' }, artifact: { sha256: 'd'.repeat(64), size_bytes: 1, contaminated_entries: [] }, build: { platform: 'ios', harness_enabled: false, insitu_tour: false, simulator: false, browser: false, signing_identity: 'A [T]' }, launch: { succeeded: true }, diagnostic_capture: { evidence_path: '/tmp/evidence.png', evidence_sha256: 'e'.repeat(64), state: 'post_launch_device_capture' }, local_app_ref: 'file-ref:/tmp/App.app' };
+    expect(() => finalizeIosReleaseCandidate(request, staged, {})).toThrow(/staged release candidate/i);
+  });
+
   it('refuses harness and insitu flags', () => {
     expect(() => validateReleaseEnvironment({ VITE_ENABLE_TEST_HARNESS: 'true' })).toThrow(/harness/i);
     expect(() => validateReleaseEnvironment({ VITE_INSITU_TOUR: 'allstates' })).toThrow(/insitu/i);

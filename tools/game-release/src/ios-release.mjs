@@ -7,6 +7,7 @@ import { assertPhysicalIosDevice } from '../../verify-device/src/devices.mjs';
 import { redactReleaseReceipt } from '../../verify-device/src/summary.mjs';
 
 const FORBIDDEN = [/3940256099942544/, /applovin/i, /VITE_ENABLE_TEST_HARNESS/, /VITE_INSITU_TOUR/];
+const SHA256 = /^[a-f0-9]{64}$/;
 
 export function validateReleaseEnvironment(env = {}) {
   if (truthy(env.VITE_ENABLE_TEST_HARNESS)) throw new Error('release mode refuses the test harness');
@@ -85,6 +86,98 @@ export function executeIosRelease(request, deps) {
     launch: { succeeded: launch?.launched === true },
     evidence: { lane: captured.lane, physical: captured.physical, paths: [captured.path] },
   });
+}
+
+export function captureIosReleaseCandidate(request, deps) {
+  deps ??= defaultDependencies();
+  validateRequest(request); validateReleaseEnvironment(request.env); assertPhysicalIosDevice(request.device);
+  deps.verifySource(request); deps.buildWeb(request); deps.syncNative(request); deps.applyNative(request); deps.validateNative(request);
+  const provisional = deps.buildSignedApp(request);
+  const payload = inspectBundle(provisional.appPath, request.maxBundleBytes, { payloadOnly: true });
+  const buildId = deriveReleaseBuildId(request.attestation.manifestDigest, request.attestation.sourceSha, payload.sha256);
+  deps.stampAttestation({ ...request.attestation, buildId }, request);
+  const built = deps.buildSignedApp(request);
+  const finalPayload = inspectBundle(built.appPath, request.maxBundleBytes, { payloadOnly: true });
+  if (finalPayload.sha256 !== payload.sha256) throw new Error('final signed application payload changed after build ID binding');
+  const artifact = inspectBundle(built.appPath, request.maxBundleBytes);
+  const stagedAppPath = deps.stageSignedApp(built.appPath, request);
+  const stagedPayload = inspectBundle(stagedAppPath, request.maxBundleBytes, { payloadOnly: true });
+  const stagedArtifact = inspectBundle(stagedAppPath, request.maxBundleBytes);
+  if (stagedPayload.sha256 !== payload.sha256 || stagedArtifact.sha256 !== artifact.sha256 || stagedArtifact.sizeBytes !== artifact.sizeBytes) throw new Error('durable staged application does not match signed build');
+  deps.uninstallApp(request); deps.installApp({ ...request, appPath: stagedAppPath });
+  const launch = deps.launchApp(request); const installed = deps.queryInstalledApp(request); const captured = deps.captureAttestation(request);
+  const expected = { ...request.attestation, artifactPayloadSha256: payload.sha256, bundleId: request.bundleId, version: request.version };
+  verifyExactInstall({ expected, installed, evidence: captured });
+  verifyExactInstall({ expected, installed: captured.installedApplication, evidence: captured });
+  if (launch?.launched !== true || !captured.path || !captured.sha256) throw new Error('physical post-launch diagnostic capture is required');
+  deps.verifySource(request);
+  return redactReleaseReceipt({
+    kind: 'staged_ios_release_candidate', boundary: 'staged_ios_release_candidate', status: 'passed',
+    manifest_sha256: request.attestation.manifestDigest, source_revision: request.attestation.sourceSha,
+    bundle_id: request.bundleId, version: request.version,
+    artifact: { sha256: artifact.sha256, size_bytes: artifact.sizeBytes, contaminated_entries: [] },
+    build: { platform: 'ios', harness_enabled: false, insitu_tour: false, simulator: false, browser: false, signing_identity: built.signingIdentity },
+    device: { udid: request.device.udid, physical: true },
+    attestation: { manifest_sha256: request.attestation.manifestDigest, source_revision: request.attestation.sourceSha, artifact_payload_sha256: payload.sha256, build_id: buildId },
+    installed: { bundle_id: installed.bundleId, version: installed.version, build_id: installed.buildId },
+    diagnostic_capture: { evidence_path: captured.path, evidence_sha256: captured.sha256, state: captured.gameplayState },
+    launch: { succeeded: launch?.launched === true }, local_app_ref: `file-ref:${stagedAppPath}`,
+  });
+}
+
+export function finalizeIosReleaseCandidate(request, staged, deps) {
+  deps ??= defaultDependencies();
+  validateRequest(request); validateReleaseEnvironment(request.env); assertPhysicalIosDevice(request.device);
+  validateStaged(staged, request); deps.verifySource(request);
+  const appPath = staged.local_app_ref.slice('file-ref:'.length);
+  const payload = inspectBundle(appPath, request.maxBundleBytes, { payloadOnly: true });
+  const artifact = inspectBundle(appPath, request.maxBundleBytes);
+  if (payload.sha256 !== staged.attestation.artifact_payload_sha256 || artifact.sha256 !== staged.artifact.sha256 || artifact.sizeBytes !== staged.artifact.size_bytes) throw new Error('staged release artifact changed before finalization');
+  const signingIdentity = deps.inspectStagedApp(appPath, request);
+  if (signingIdentity !== staged.build.signing_identity) throw new Error('staged release signing identity changed');
+  const installed = deps.queryInstalledApp(request);
+  verifyExactInstall({ expected: { ...request.attestation, artifactPayloadSha256: payload.sha256, bundleId: request.bundleId, version: request.version }, installed, evidence: { lane: 'release', physical: true } });
+  const gameplay = verifyReviewedGameplayEvidence(request.gameplayEvidence, { deviceUdid: request.device.udid, bundleId: request.bundleId, version: request.version, buildId: staged.attestation.build_id }, deps.loadReviewAuthorityPublicKey());
+  deps.verifySource(request);
+  return redactReleaseReceipt({
+    kind: 'exact_release_candidate', manifest_sha256: request.attestation.manifestDigest, source_revision: request.attestation.sourceSha,
+    bundle_id: request.bundleId, version: request.version, artifact: staged.artifact, build: staged.build, device: staged.device,
+    attestation: staged.attestation, installed: { bundle_id: installed.bundleId, version: installed.version, build_id: installed.buildId },
+    captured: { bundle_id: gameplay.bundleId, version: gameplay.version, build_id: gameplay.buildId, evidence_path: gameplay.path, evidence_sha256: gameplay.sha256, gameplay_state: gameplay.state, reviewed_by: gameplay.reviewReceipt.reviewed_by, review_receipt: gameplay.reviewReceipt },
+    launch: { succeeded: staged.launch?.succeeded === true }, evidence: { lane: 'release', physical: true },
+    local_app_ref: staged.local_app_ref,
+  });
+}
+
+function validateStaged(staged, request) {
+  const expectedBuildId = deriveReleaseBuildId(request.attestation.manifestDigest, request.attestation.sourceSha, staged?.attestation?.artifact_payload_sha256);
+  const appPath = typeof staged?.local_app_ref === 'string' ? path.resolve(staged.local_app_ref.slice('file-ref:'.length)) : '';
+  const candidateRoot = typeof staged?.diagnostic_capture?.evidence_path === 'string'
+    ? path.join(path.dirname(path.resolve(staged.diagnostic_capture.evidence_path)), 'release-candidates') : '';
+  const relativeApp = candidateRoot ? path.relative(candidateRoot, appPath) : '..';
+  const safeLocalApp = relativeApp && relativeApp !== '..' && !relativeApp.startsWith(`..${path.sep}`) && !path.isAbsolute(relativeApp)
+    && appPath.endsWith('.app') && fs.existsSync(appPath) && fs.lstatSync(appPath).isDirectory() && !fs.lstatSync(appPath).isSymbolicLink();
+  const identityMatches = staged?.kind === 'staged_ios_release_candidate'
+    && staged.boundary === 'staged_ios_release_candidate' && staged.status === 'passed'
+    && staged.manifest_sha256 === request.attestation.manifestDigest && staged.source_revision === request.attestation.sourceSha
+    && staged.bundle_id === request.bundleId && staged.version === request.version
+    && staged.device?.udid === request.device.udid && staged.device?.physical === true
+    && staged.attestation?.manifest_sha256 === request.attestation.manifestDigest
+    && staged.attestation?.source_revision === request.attestation.sourceSha
+    && staged.attestation?.build_id === expectedBuildId
+    && staged.installed?.bundle_id === request.bundleId && staged.installed?.version === request.version
+    && staged.installed?.build_id === expectedBuildId
+    && staged.launch?.succeeded === true
+    && typeof staged.diagnostic_capture?.evidence_path === 'string' && staged.diagnostic_capture.evidence_path.length > 0
+    && SHA256.test(staged.diagnostic_capture?.evidence_sha256 || '')
+    && staged.diagnostic_capture?.state === 'post_launch_device_capture'
+    && SHA256.test(staged.artifact?.sha256 || '') && Number.isInteger(staged.artifact?.size_bytes) && staged.artifact.size_bytes > 0
+    && Array.isArray(staged.artifact?.contaminated_entries) && staged.artifact.contaminated_entries.length === 0
+    && typeof staged.build?.signing_identity === 'string' && staged.build.signing_identity.length > 0
+    && staged.build?.platform === 'ios' && staged.build.harness_enabled === false && staged.build.insitu_tour === false
+    && staged.build.simulator === false && staged.build.browser === false
+    && staged.local_app_ref?.startsWith('file-ref:/') && safeLocalApp;
+  if (!identityMatches) throw new Error('staged release candidate does not match approved release');
 }
 
 function validateRequest(request) {
@@ -206,6 +299,15 @@ export function defaultDependencies({ execImpl = execFileSync, spawnImpl = spawn
     LANG: 'C', LC_ALL: 'C',
   }).filter(([, value]) => value !== undefined));
   return {
+    stageSignedApp(appPath, request) {
+      if (!request.evidencePath) throw new Error('release evidence path is required for durable candidate storage');
+      const candidateRoot = path.join(path.dirname(path.resolve(request.evidencePath)), 'release-candidates', crypto.randomUUID());
+      fs.mkdirSync(candidateRoot, { recursive: true, mode: 0o700 });
+      const stagedAppPath = path.join(candidateRoot, path.basename(appPath));
+      fs.cpSync(appPath, stagedAppPath, { recursive: true, dereference: false, errorOnExist: true, force: false, preserveTimestamps: true });
+      return stagedAppPath;
+    },
+    inspectStagedApp(appPath, request) { return inspectSignedIosApp(appPath, { expectedTeam: request.developmentTeam, spawnImpl }); },
     loadReviewAuthorityPublicKey() {
       const file = process.env.BASEGAMELAB_REVIEW_AUTHORITY_PUBLIC_KEY_PATH;
       if (!file || !path.isAbsolute(file)) throw new Error('review authority public key path is not configured');
