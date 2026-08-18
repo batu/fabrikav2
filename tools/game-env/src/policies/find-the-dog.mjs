@@ -30,9 +30,6 @@ export const FIND_THE_DOG_ENV_KEYS = Object.freeze([
   'VITE_ADJUST_EVENT_REWARDED_WATCHED_TOKEN',
   'VITE_ADJUST_VERBOSE_LOGGING',
   'VITE_AD_PROVIDER',
-  'VITE_APPLOVIN_IOS_ENABLED',
-  'VITE_APPLOVIN_IOS_SDK_KEY',
-  'VITE_APPLOVIN_IOS_GENERAL_AUDIENCE_ONLY',
   'VITE_APPLOVIN_ANDROID_ENABLED',
   'VITE_APPLOVIN_ANDROID_SDK_KEY',
   'VITE_APPLOVIN_ANDROID_GENERAL_AUDIENCE_ONLY',
@@ -41,15 +38,16 @@ export const FIND_THE_DOG_ENV_KEYS = Object.freeze([
   'VITE_APPLOVIN_CONSENT_FLOW_ENABLED',
   'VITE_APPLOVIN_GDPR_TERMS_ALERT_ENABLED',
   'VITE_APPLOVIN_VERBOSE_LOGGING',
-  'VITE_APPLOVIN_IOS_BANNER_ID',
-  'VITE_APPLOVIN_IOS_INTERSTITIAL_ID',
-  'VITE_APPLOVIN_IOS_REWARDED_ID',
   'VITE_APPLOVIN_ANDROID_BANNER_ID',
   'VITE_APPLOVIN_ANDROID_INTERSTITIAL_ID',
   'VITE_APPLOVIN_ANDROID_REWARDED_ID',
   'VITE_ADMOB_IOS_BANNER_ID',
   'VITE_ADMOB_IOS_INTERSTITIAL_ID',
   'VITE_ADMOB_IOS_REWARDED_ID',
+  'VITE_ADMOB_IOS_ENABLED',
+  'VITE_ADMOB_IOS_APP_ID',
+  'VITE_ADMOB_IOS_TEST_MODE',
+  'VITE_ADMOB_IOS_TEST_DEVICE_IDS',
   'VITE_ADMOB_ANDROID_BANNER_ID',
   'VITE_ADMOB_ANDROID_INTERSTITIAL_ID',
   'VITE_ADMOB_ANDROID_REWARDED_ID',
@@ -74,7 +72,8 @@ function intentKeys(mode) {
     keys.push(
       'VITE_GAMEANALYTICS_IOS_ENABLED',
       'VITE_ADJUST_IOS_ENABLED',
-      'VITE_APPLOVIN_IOS_ENABLED',
+      'VITE_ADMOB_IOS_ENABLED',
+      'VITE_ADMOB_IOS_TEST_MODE',
     );
   } else {
     keys.push('VITE_APPLOVIN_ANDROID_ENABLED');
@@ -117,8 +116,20 @@ function validateConditional({ values, mode, booleanValue, requireValue, invalid
     }
   }
 
-  const prefix = mode === 'ios' ? 'VITE_APPLOVIN_IOS' : 'VITE_APPLOVIN_ANDROID';
-  if (booleanValue(values.get(`${prefix}_ENABLED`)) === true) {
+  if (mode === 'ios' && booleanValue(values.get('VITE_ADMOB_IOS_ENABLED')) === true) {
+    for (const key of [
+      'VITE_ADMOB_IOS_APP_ID',
+      'VITE_ADMOB_IOS_BANNER_ID',
+      'VITE_ADMOB_IOS_INTERSTITIAL_ID',
+      'VITE_ADMOB_IOS_REWARDED_ID',
+    ]) requireValue(key);
+    if (booleanValue(values.get('VITE_ADMOB_IOS_TEST_MODE')) === true) {
+      requireValue('VITE_ADMOB_IOS_TEST_DEVICE_IDS');
+    }
+  }
+
+  const prefix = 'VITE_APPLOVIN_ANDROID';
+  if (mode === 'android' && booleanValue(values.get(`${prefix}_ENABLED`)) === true) {
     requireValue(`${prefix}_SDK_KEY`);
     if (booleanValue(values.get(`${prefix}_GENERAL_AUDIENCE_ONLY`)) !== true) {
       invalidKeys.push(`${prefix}_GENERAL_AUDIENCE_ONLY`);
@@ -134,8 +145,9 @@ function validateChoice(values, key, allowed, invalidKeys) {
 
 function configureMissingDryRunCase(values, mode) {
   if (mode === 'ios') {
-    values.set('VITE_GAMEANALYTICS_IOS_ENABLED', 'true');
-    return 'VITE_GAMEANALYTICS_IOS_SECRET_KEY';
+    values.set('VITE_ADMOB_IOS_ENABLED', 'true');
+    values.set('VITE_ADMOB_IOS_TEST_MODE', 'false');
+    return 'VITE_ADMOB_IOS_APP_ID';
   }
   values.set('VITE_APPLOVIN_ANDROID_ENABLED', 'true');
   values.set('VITE_APPLOVIN_ANDROID_GENERAL_AUDIENCE_ONLY', 'true');
