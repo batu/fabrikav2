@@ -5,8 +5,8 @@ import {
   type SdkEnvironments,
 } from '@fabrikav2/sdk';
 import {
+  AdMobProvider,
   AppLovinMaxProvider,
-  createAdProvider,
   defaultAdProviderFactories,
   type AdProvider as SdkAdProvider,
   type AdProviderFactories,
@@ -38,6 +38,7 @@ import {
 import { setMusicPausedForAd } from '../audio/AudioManager';
 import { gameState } from '../core/GameState';
 import { readAppLovinConfigForPlatform } from '../ads/AppLovinConfig';
+import { readAdMobIosConfig } from '../ads/AdMobConfig';
 import { configureAdService } from '../ads/Service';
 import {
   analytics,
@@ -122,34 +123,28 @@ export function createSdkContext(deps: CreateSdkContextDependencies = {}): GameS
   const logger = deps.logger ?? console;
 
   let analyticsFacade: Analytics<FtdEvent> | null = null;
-  const appLovinConfig: SdkAppLovinConfigResult = readAppLovinConfigForPlatform(
-    platform === 'ios' ? 'ios' : 'android',
-    env,
-  );
+  const appLovinConfig: SdkAppLovinConfigResult = readAppLovinConfigForPlatform('android', env);
+  const adMobConfig = readAdMobIosConfig(env);
   const lifecycle = {
     onFullScreenAdStarted: (): void => setMusicPausedForAd(true),
     onFullScreenAdFinished: (): void => setMusicPausedForAd(false),
   };
-  const baseFactories = deps.adProviderFactories;
-  const adFactories: AdProviderFactories | undefined = baseFactories === undefined
-    ? {
-        // FTD ships AppLovin MAX only. The shared selector falls back to AdMob
-        // on Android whenever AppLovin was not requested, so answer that slot
-        // with the disabled provider instead of throwing — a throw here escapes
-        // bootstrap and hangs the app on the splash screen.
-        createAdMobProvider: () => defaultAdProviderFactories.createDisabledProvider(
-          'FTD does not compose AdMob',
-        ),
-        createAppLovinMaxProvider: (config) => new AppLovinMaxProvider(config, {
+  const ads = platform === 'ios'
+    ? adMobConfig.enabled
+      ? deps.adProviderFactories?.createAdMobProvider(lifecycle) ?? new AdMobProvider(adMobConfig.config, { lifecycle })
+      : defaultAdProviderFactories.createDisabledProvider(`AdMob unavailable: ${adMobConfig.reason}`)
+    : platform === 'android' && appLovinConfig.enabled
+      ? deps.adProviderFactories?.createAppLovinMaxProvider(appLovinConfig.config, lifecycle) ?? new AppLovinMaxProvider(appLovinConfig.config, {
           lifecycle,
           onAdRevenuePaid: (event): void => {
             analyticsFacade?.track('ad_revenue_paid', { ...event });
           },
-        }),
-        createDisabledProvider: defaultAdProviderFactories.createDisabledProvider,
-      }
-    : baseFactories;
-  const ads = createAdProvider(platform, appLovinConfig, adFactories, lifecycle);
+        })
+      : defaultAdProviderFactories.createDisabledProvider(
+          platform === 'android' && 'reason' in appLovinConfig
+            ? `AppLovin unavailable: ${appLovinConfig.reason}`
+            : `ads disabled on ${platform}`,
+        );
 
   const adjustConfig = readAdjustIosConfig(env, buildEnv === 'production');
   const resolvedAdjustConfig = adjustConfig.enabled

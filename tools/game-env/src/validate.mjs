@@ -117,6 +117,7 @@ function syntheticFixture(policy) {
     key.endsWith('_ENABLED') ||
     key.endsWith('_LOGGING') ||
     key.endsWith('_ONLY') ||
+    key.endsWith('_TEST_MODE') ||
     key === 'VITE_FTD_DISABLE_REMOTE_CONFIG' ||
     key === 'VITE_APPLOVIN_HAS_USER_CONSENT' ||
     key === 'VITE_APPLOVIN_DO_NOT_SELL' ||

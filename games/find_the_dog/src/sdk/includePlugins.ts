@@ -1,3 +1,5 @@
+import { adMobIosConfigPresent } from '../ads/AdMobConfig';
+
 // Capacitor loads every included native plugin at WebView start. The
 // @capacitor-firebase/analytics pod runs FirebaseApp.configure() unconditionally
 // in its native load() (node_modules/@capacitor-firebase/analytics/ios/Plugin/
@@ -38,6 +40,9 @@ export function firebaseConfigPresentInEnv(env: EnvLike): boolean {
  * pod that crashes at +[FIRApp configure]. */
 export function computeIncludePlugins(env: EnvLike): string[] {
   const plugins = [...ALWAYS_INCLUDED_PLUGINS];
+  if (adMobIosConfigPresent(env)) {
+    plugins.push('@capacitor-community/admob');
+  }
   if (firebaseConfigPresentInEnv(env)) {
     plugins.push('@capacitor-firebase/analytics');
   }

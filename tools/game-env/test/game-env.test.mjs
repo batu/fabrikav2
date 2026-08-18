@@ -79,7 +79,8 @@ describe('environment validation', () => {
     expect(result.ok).toBe(false);
     expect(result.invalidKeys).toContain('VITE_GAMEANALYTICS_IOS_ENABLED');
     expect(result.invalidKeys).toContain('VITE_ADJUST_IOS_ENABLED');
-    expect(result.invalidKeys).toContain('VITE_APPLOVIN_IOS_ENABLED');
+    expect(result.invalidKeys).toContain('VITE_ADMOB_IOS_ENABLED');
+    expect(result.invalidKeys).toContain('VITE_ADMOB_IOS_TEST_MODE');
     expect(result.invalidKeys).toContain('VITE_CDN_ENABLED');
   });
 
@@ -90,7 +91,8 @@ describe('environment validation', () => {
       'VITE_GAMEANALYTICS_IOS_ENABLED=true',
       'VITE_GAMEANALYTICS_IOS_GAME_KEY=synthetic-game-key',
       'VITE_ADJUST_IOS_ENABLED=false',
-      'VITE_APPLOVIN_IOS_ENABLED=false',
+      'VITE_ADMOB_IOS_ENABLED=false',
+      'VITE_ADMOB_IOS_TEST_MODE=false',
       'VITE_CDN_ENABLED=false',
       '',
     ].join('\n'));
@@ -108,7 +110,8 @@ describe('environment validation', () => {
       'VITE_FTD_DISABLE_REMOTE_CONFIG=false',
       'VITE_GAMEANALYTICS_IOS_ENABLED=false',
       'VITE_ADJUST_IOS_ENABLED=false',
-      'VITE_APPLOVIN_IOS_ENABLED=false',
+      'VITE_ADMOB_IOS_ENABLED=false',
+      'VITE_ADMOB_IOS_TEST_MODE=false',
       'VITE_CDN_ENABLED=false',
       '',
     ].join('\n'));
@@ -122,7 +125,8 @@ describe('environment validation', () => {
       'VITE_FTD_DISABLE_REMOTE_CONFIG=false',
       'VITE_GAMEANALYTICS_IOS_ENABLED=false',
       'VITE_ADJUST_IOS_ENABLED=false',
-      'VITE_APPLOVIN_IOS_ENABLED=false',
+      'VITE_ADMOB_IOS_ENABLED=false',
+      'VITE_ADMOB_IOS_TEST_MODE=false',
       'VITE_CDN_ENABLED=false',
       'VITE_INSITU_TOUR=allstates',
       '',
@@ -141,9 +145,13 @@ describe('environment validation', () => {
     },
     {
       mode: 'ios',
-      enabled: 'VITE_APPLOVIN_IOS_ENABLED',
-      required: ['VITE_APPLOVIN_IOS_SDK_KEY'],
-      invalid: ['VITE_APPLOVIN_IOS_GENERAL_AUDIENCE_ONLY'],
+      enabled: 'VITE_ADMOB_IOS_ENABLED',
+      required: [
+        'VITE_ADMOB_IOS_APP_ID',
+        'VITE_ADMOB_IOS_BANNER_ID',
+        'VITE_ADMOB_IOS_INTERSTITIAL_ID',
+        'VITE_ADMOB_IOS_REWARDED_ID',
+      ],
     },
     {
       mode: 'android',
@@ -158,7 +166,8 @@ describe('environment validation', () => {
       VITE_CDN_ENABLED: 'false',
       VITE_GAMEANALYTICS_IOS_ENABLED: 'false',
       VITE_ADJUST_IOS_ENABLED: 'false',
-      VITE_APPLOVIN_IOS_ENABLED: 'false',
+      VITE_ADMOB_IOS_ENABLED: 'false',
+      VITE_ADMOB_IOS_TEST_MODE: 'false',
       VITE_APPLOVIN_ANDROID_ENABLED: 'false',
       [enabled]: 'true',
     };
@@ -178,7 +187,8 @@ describe('environment validation', () => {
       'VITE_GAMEANALYTICS_IOS_GAME_KEY=__SET_IN_LOCAL_ENV__',
       'VITE_GAMEANALYTICS_IOS_SECRET_KEY=synthetic-secret',
       'VITE_ADJUST_IOS_ENABLED=false',
-      'VITE_APPLOVIN_IOS_ENABLED=false',
+      'VITE_ADMOB_IOS_ENABLED=false',
+      'VITE_ADMOB_IOS_TEST_MODE=false',
       'VITE_CDN_ENABLED=false',
       '',
     ].join('\n'));
@@ -195,7 +205,8 @@ describe('environment validation', () => {
       'VITE_FTD_DISABLE_REMOTE_CONFIG=false',
       'VITE_GAMEANALYTICS_IOS_ENABLED=false',
       'VITE_ADJUST_IOS_ENABLED=false',
-      'VITE_APPLOVIN_IOS_ENABLED=false',
+      'VITE_ADMOB_IOS_ENABLED=false',
+      'VITE_ADMOB_IOS_TEST_MODE=false',
       'VITE_CDN_ENABLED=false',
       'VITE_FTD_SUPPORT_URL=',
       '',
@@ -208,7 +219,8 @@ describe('environment validation', () => {
       'VITE_FTD_DISABLE_REMOTE_CONFIG=false',
       'VITE_GAMEANALYTICS_IOS_ENABLED=false',
       'VITE_ADJUST_IOS_ENABLED=false',
-      'VITE_APPLOVIN_IOS_ENABLED=false',
+      'VITE_ADMOB_IOS_ENABLED=false',
+      'VITE_ADMOB_IOS_TEST_MODE=false',
       'VITE_CDN_ENABLED=false',
       '# intentional-blank: use the runtime fallback',
       'VITE_FTD_SUPPORT_URL=',
@@ -362,7 +374,8 @@ describe('validator CLI', () => {
         VITE_GAMEANALYTICS_IOS_ENABLED: 'true',
         VITE_GAMEANALYTICS_IOS_GAME_KEY: canary,
         VITE_ADJUST_IOS_ENABLED: 'false',
-        VITE_APPLOVIN_IOS_ENABLED: 'false',
+        VITE_ADMOB_IOS_ENABLED: 'false',
+        VITE_ADMOB_IOS_TEST_MODE: 'false',
         VITE_CDN_ENABLED: 'false',
       },
     );
