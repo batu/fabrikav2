@@ -1,5 +1,11 @@
 import { describe, it, expect } from 'vitest';
-import { parseDeviceList, pickDevice } from '../src/devices.mjs';
+import { assertPhysicalIosDevice, parseDeviceList, pickDevice } from '../src/devices.mjs';
+
+it('accepts only physical iOS release devices', () => {
+  expect(assertPhysicalIosDevice({ udid: 'PHONE', platform: 'iOS', name: 'iPhone' }).udid).toBe('PHONE');
+  expect(() => assertPhysicalIosDevice({ udid: 'SIM', platform: 'iOS', name: 'iPhone Simulator' })).toThrow(/simulator/i);
+  expect(() => assertPhysicalIosDevice({ udid: 'WEB', platform: 'browser' })).toThrow(/physical/i);
+});
 
 // Shaped like `xcrun devicectl list devices --json-output`.
 function dev({

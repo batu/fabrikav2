@@ -65,3 +65,13 @@ export function pickDevice(devices, preferredUdid) {
   const d = devices[0];
   return { device: d, reason: `auto-selected the only connected device ${d.name} (${d.udid})` };
 }
+
+export function assertPhysicalIosDevice(device) {
+  if (!device?.udid || !/^iOS$/i.test(device.platform || '')) {
+    throw new Error('exact release verification requires a physical iOS device');
+  }
+  if (/simulator/i.test(`${device.name || ''} ${device.platform || ''}`)) {
+    throw new Error('simulator evidence cannot satisfy exact release verification');
+  }
+  return device;
+}
