@@ -14,7 +14,7 @@ function signedGameplayEvidence(overrides = {}) {
   const evidence = {
     deviceUdid: 'PHONE', bundleId: 'com.example.dog', version: '1.2.3', buildId: overrides.buildId || buildId,
     path: overrides.path, sha256: overrides.sha256, state: 'level',
-    reviewReceipt: { boundary: 'authenticated_gameplay_review', receipt_id: 'review-123', reviewed_by: 'operator', reviewed_at: '2026-08-18T12:00:00.000Z', verdict: 'pass', evidence_sha256: overrides.sha256 },
+    reviewReceipt: { boundary: 'authenticated_gameplay_review', receipt_id: 'review-123', reviewed_by: 'operator', reviewed_at: '2026-08-18T12:00:00.000Z', verdict: 'passed', evidence_sha256: overrides.sha256 },
     ...overrides,
   };
   evidence.reviewReceipt.server_signature = crypto.sign(null, Buffer.from(reviewReceiptPayload(evidence)), privateKey).toString('base64');
@@ -22,7 +22,7 @@ function signedGameplayEvidence(overrides = {}) {
 }
 
 function attachReviewReceipt(evidence, privateKey) {
-  evidence.reviewReceipt = { boundary: 'authenticated_gameplay_review', receipt_id: 'review-123', reviewed_by: 'operator', reviewed_at: '2026-08-18T12:00:00.000Z', verdict: 'pass', evidence_sha256: evidence.sha256 };
+  evidence.reviewReceipt = { boundary: 'authenticated_gameplay_review', receipt_id: 'review-123', reviewed_by: 'operator', reviewed_at: '2026-08-18T12:00:00.000Z', verdict: 'passed', evidence_sha256: evidence.sha256 };
   evidence.reviewReceipt.server_signature = crypto.sign(null, Buffer.from(reviewReceiptPayload(evidence)), privateKey).toString('base64');
 }
 
@@ -82,7 +82,7 @@ describe('iOS exact release lane', () => {
     const proof = path.join(root, 'proof.png'); fs.writeFileSync(proof, 'proof');
     const sha256 = crypto.createHash('sha256').update('proof').digest('hex');
     const { evidence, publicKey } = signedGameplayEvidence({ path: proof, sha256 });
-    expect(verifyReviewedGameplayEvidence(evidence, { deviceUdid: 'PHONE', bundleId: 'com.example.dog', version: '1.2.3', buildId }, publicKey).reviewReceipt.verdict).toBe('pass');
+    expect(verifyReviewedGameplayEvidence(evidence, { deviceUdid: 'PHONE', bundleId: 'com.example.dog', version: '1.2.3', buildId }, publicKey).reviewReceipt.verdict).toBe('passed');
     expect(() => verifyReviewedGameplayEvidence({ ...evidence, state: 'menu' }, { deviceUdid: 'PHONE', bundleId: 'com.example.dog', version: '1.2.3', buildId }, publicKey)).toThrow(/signature/i);
     expect(() => verifyReviewedGameplayEvidence({ ...evidence, reviewReceipt: { ...evidence.reviewReceipt, server_signature: 'Zm9yZ2Vk' } }, { deviceUdid: 'PHONE', bundleId: 'com.example.dog', version: '1.2.3', buildId }, publicKey)).toThrow(/signature/i);
   });

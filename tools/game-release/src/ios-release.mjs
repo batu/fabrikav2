@@ -149,7 +149,7 @@ export function reviewReceiptPayload(evidence) {
 export function verifyReviewedGameplayEvidence(evidence, expected, authorityPublicKey) {
   const receipt = evidence?.reviewReceipt;
   if (!receipt || receipt.boundary !== 'authenticated_gameplay_review' || !receipt.receipt_id || !receipt.reviewed_by) throw new Error('authenticated gameplay review receipt is required');
-  if (receipt.verdict !== 'pass' || !/^\d{4}-\d{2}-\d{2}T/.test(receipt.reviewed_at || '') || !Number.isFinite(Date.parse(receipt.reviewed_at))) throw new Error('gameplay review verdict or timestamp is invalid');
+  if (receipt.verdict !== 'passed' || !/^\d{4}-\d{2}-\d{2}T/.test(receipt.reviewed_at || '') || !Number.isFinite(Date.parse(receipt.reviewed_at))) throw new Error('gameplay review verdict or timestamp is invalid');
   if (evidence.deviceUdid !== expected.deviceUdid || evidence.bundleId !== expected.bundleId || evidence.version !== expected.version || evidence.buildId !== expected.buildId) throw new Error('reviewed gameplay evidence identity does not match the installed candidate');
   if (!evidence.path || !fs.existsSync(evidence.path) || fs.statSync(evidence.path).size <= 0) throw new Error('reviewed gameplay evidence artifact is missing');
   const sha256 = crypto.createHash('sha256').update(fs.readFileSync(evidence.path)).digest('hex');
