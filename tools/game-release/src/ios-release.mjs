@@ -61,7 +61,7 @@ export function executeIosRelease(request, deps) {
   if (!captured.path || !captured.gameplayState) throw new Error('physical release evidence path and gameplay state are required');
   const gameplay = verifyReviewedGameplayEvidence(request.gameplayEvidence, {
     deviceUdid: request.device.udid, bundleId: request.bundleId, version: request.version, buildId,
-  });
+  }, deps.loadReviewAuthorityPublicKey());
   deps.verifySource(request);
   const receiptAttestation = {
     manifest_sha256: request.attestation.manifestDigest,
@@ -80,7 +80,7 @@ export function executeIosRelease(request, deps) {
     device: { udid: request.device.udid, physical: true },
     attestation: receiptAttestation,
     installed: { bundle_id: installedApp.bundleId, version: installedApp.version, build_id: installedApp.buildId },
-    captured: { bundle_id: gameplay.bundleId, version: gameplay.version, build_id: gameplay.buildId, evidence_path: gameplay.path, evidence_sha256: gameplay.sha256, gameplay_state: gameplay.state, reviewed_by: gameplay.reviewer },
+    captured: { bundle_id: gameplay.bundleId, version: gameplay.version, build_id: gameplay.buildId, evidence_path: gameplay.path, evidence_sha256: gameplay.sha256, gameplay_state: gameplay.state, reviewed_by: gameplay.reviewReceipt.reviewed_by, review_receipt: gameplay.reviewReceipt },
     post_launch_capture: { evidence_path: captured.path, evidence_sha256: captured.sha256, state: captured.gameplayState },
     launch: { succeeded: launch?.launched === true },
     evidence: { lane: captured.lane, physical: captured.physical, paths: [captured.path] },
@@ -94,29 +94,74 @@ function validateRequest(request) {
   }
 }
 
-function inspectBundle(appPath, maxBytes = 250 * 1024 * 1024, { payloadOnly = false } = {}) {
+export function inspectBundle(appPath, maxBytes = 250 * 1024 * 1024, { payloadOnly = false, execImpl = execFileSync } = {}) {
   const hash = crypto.createHash('sha256');
   let size = 0;
   for (const entry of walk(appPath)) {
     const { file, type } = entry;
     const relative = path.relative(appPath, file);
-    if (payloadOnly && (relative.startsWith('_CodeSignature/') || relative === 'embedded.mobileprovision' || relative === 'Info.plist')) continue;
-    const content = type === 'symlink' ? Buffer.from(fs.readlinkSync(file)) : fs.readFileSync(file);
-    size += content.length;
-    hash.update(type); hash.update('\0'); hash.update(relative); hash.update('\0'); hash.update(content);
-    if (FORBIDDEN.some((pattern) => pattern.test(relative) || pattern.test(content.toString('utf8')))) throw new Error(`release bundle is catalog-contaminated: ${relative}`);
+    if (payloadOnly && (relative.startsWith('_CodeSignature/') || relative === 'embedded.mobileprovision')) continue;
+    const rawContent = type === 'symlink' ? Buffer.from(fs.readlinkSync(file)) : fs.readFileSync(file);
+    const hashContent = payloadOnly && relative === 'Info.plist' ? canonicalInfoPlist(file, execImpl) : rawContent;
+    size += rawContent.length;
+    hash.update(type); hash.update('\0'); hash.update(relative); hash.update('\0'); hash.update(hashContent);
+    if (FORBIDDEN.some((pattern) => pattern.test(relative) || pattern.test(rawContent.toString('utf8')))) throw new Error(`release bundle is catalog-contaminated: ${relative}`);
   }
   if (size > maxBytes) throw new Error(`release bundle is oversized (${size} > ${maxBytes})`);
   return { path: appPath, sha256: hash.digest('hex'), sizeBytes: size };
 }
 
-export function verifyReviewedGameplayEvidence(evidence, expected) {
-  if (!evidence || evidence.reviewed !== true || !evidence.reviewer) throw new Error('independently reviewed gameplay evidence is required');
+function canonicalInfoPlist(file, execImpl) {
+  let parsed;
+  try {
+    const json = execImpl('/usr/bin/plutil', ['-convert', 'json', '-o', '-', file], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
+    parsed = JSON.parse(json);
+  } catch {
+    throw new Error('release Info.plist could not be canonicalized');
+  }
+  delete parsed.CFBundleVersion;
+  return Buffer.from(canonicalJson(parsed));
+}
+
+function canonicalJson(value) {
+  if (Array.isArray(value)) return `[${value.map(canonicalJson).join(',')}]`;
+  if (value && typeof value === 'object') return `{${Object.keys(value).sort().map((key) => `${JSON.stringify(key)}:${canonicalJson(value[key])}`).join(',')}}`;
+  return JSON.stringify(value);
+}
+
+export function reviewReceiptPayload(evidence) {
+  const receipt = evidence?.reviewReceipt || {};
+  return canonicalJson({
+    boundary: receipt.boundary,
+    receipt_id: receipt.receipt_id,
+    reviewed_by: receipt.reviewed_by,
+    reviewed_at: receipt.reviewed_at,
+    verdict: receipt.verdict,
+    evidence_sha256: receipt.evidence_sha256,
+    device_udid: evidence?.deviceUdid,
+    bundle_id: evidence?.bundleId,
+    version: evidence?.version,
+    build_id: evidence?.buildId,
+    gameplay_state: evidence?.state,
+  });
+}
+
+export function verifyReviewedGameplayEvidence(evidence, expected, authorityPublicKey) {
+  const receipt = evidence?.reviewReceipt;
+  if (!receipt || receipt.boundary !== 'authenticated_gameplay_review' || !receipt.receipt_id || !receipt.reviewed_by) throw new Error('authenticated gameplay review receipt is required');
+  if (receipt.verdict !== 'pass' || !/^\d{4}-\d{2}-\d{2}T/.test(receipt.reviewed_at || '') || !Number.isFinite(Date.parse(receipt.reviewed_at))) throw new Error('gameplay review verdict or timestamp is invalid');
   if (evidence.deviceUdid !== expected.deviceUdid || evidence.bundleId !== expected.bundleId || evidence.version !== expected.version || evidence.buildId !== expected.buildId) throw new Error('reviewed gameplay evidence identity does not match the installed candidate');
   if (!evidence.path || !fs.existsSync(evidence.path) || fs.statSync(evidence.path).size <= 0) throw new Error('reviewed gameplay evidence artifact is missing');
   const sha256 = crypto.createHash('sha256').update(fs.readFileSync(evidence.path)).digest('hex');
-  if (sha256 !== evidence.sha256 || !evidence.state) throw new Error('reviewed gameplay evidence digest or state is invalid');
-  return { ...evidence, sha256 };
+  if (sha256 !== evidence.sha256 || sha256 !== receipt.evidence_sha256 || !evidence.state) throw new Error('reviewed gameplay evidence digest or state is invalid');
+  let valid = false;
+  try {
+    const key = authorityPublicKey?.type === 'public' ? authorityPublicKey : crypto.createPublicKey(authorityPublicKey);
+    const signature = /^[A-Za-z0-9+/]{86}==$/.test(receipt.server_signature || '') ? Buffer.from(receipt.server_signature, 'base64') : Buffer.alloc(0);
+    valid = key.asymmetricKeyType === 'ed25519' && signature.length === 64 && crypto.verify(null, Buffer.from(reviewReceiptPayload(evidence)), key, signature);
+  } catch {}
+  if (!valid) throw new Error('gameplay review receipt signature is invalid');
+  return { ...evidence, sha256, reviewReceipt: { ...receipt } };
 }
 
 function walk(root) {
@@ -161,6 +206,13 @@ export function defaultDependencies({ execImpl = execFileSync, spawnImpl = spawn
     LANG: 'C', LC_ALL: 'C',
   }).filter(([, value]) => value !== undefined));
   return {
+    loadReviewAuthorityPublicKey() {
+      const file = process.env.BASEGAMELAB_REVIEW_AUTHORITY_PUBLIC_KEY_PATH;
+      if (!file || !path.isAbsolute(file)) throw new Error('review authority public key path is not configured');
+      const stat = fs.statSync(file);
+      if (!stat.isFile() || (stat.mode & 0o022) !== 0) throw new Error('review authority public key must be a non-writable regular file');
+      return fs.readFileSync(file, 'utf8');
+    },
     verifySource(request) {
       const root = repoRoot(request);
       if (run('git', ['rev-parse', 'HEAD'], { cwd: root, env: childEnv(request) }).trim() !== request.attestation.sourceSha) throw new Error('release source revision changed after approval');
