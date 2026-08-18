@@ -1,4 +1,5 @@
 import fs from 'node:fs';
+import crypto from 'node:crypto';
 import os from 'node:os';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
@@ -49,13 +50,18 @@ describe('iOS exact release lane', () => {
   it('fails closed when source becomes dirty before receipt emission', () => {
     const root = fs.mkdtempSync(path.join(os.tmpdir(), 'ios-release-source-'));
     const app = path.join(root, 'App.app'); fs.mkdirSync(app); fs.writeFileSync(path.join(app, 'x'), 'x');
+    const proof = path.join(root, 'proof.png'); fs.writeFileSync(proof, 'proof');
+    const proofSha = crypto.createHash('sha256').update('proof').digest('hex');
     let checks = 0;
-    expect(() => executeIosRelease({ gameDir: root, bundleId: 'com.example.dog', version: '1', device: { udid: 'P', platform: 'iOS' }, attestation, env: {} }, {
+    let candidateBuildId = '';
+    const request = { gameDir: root, bundleId: 'com.example.dog', version: '1', device: { udid: 'P', platform: 'iOS' }, attestation, env: {} };
+    request.gameplayEvidence = { reviewed: true, reviewer: 'operator', deviceUdid: 'P', bundleId: 'com.example.dog', version: '1', get buildId() { return candidateBuildId; }, path: proof, sha256: proofSha, state: 'level' };
+    expect(() => executeIosRelease(request, {
       verifySource() { checks += 1; if (checks === 2) throw new Error('release source worktree is dirty'); },
-      buildWeb() {}, syncNative() {}, applyNative() {}, validateNative() {}, stampAttestation() {},
+      buildWeb() {}, syncNative() {}, applyNative() {}, validateNative() {}, stampAttestation(value) { candidateBuildId = value.buildId; },
       buildSignedApp: () => ({ appPath: app, signingIdentity: 'A [T]' }), uninstallApp() {}, installApp() {}, launchApp: () => ({ launched: true }),
-      queryInstalledApp: () => ({ bundleId: 'com.example.dog', version: '1', buildId }),
-      captureAttestation: () => ({ installedApplication: { bundleId: 'com.example.dog', version: '1', buildId }, lane: 'release', physical: true, path: '/evidence/device.png', sha256: 'c'.repeat(64), gameplayState: 'post_launch_device_capture' }),
+      queryInstalledApp: () => ({ bundleId: 'com.example.dog', version: '1', buildId: candidateBuildId }),
+      captureAttestation: () => ({ installedApplication: { bundleId: 'com.example.dog', version: '1', buildId: candidateBuildId }, lane: 'release', physical: true, path: '/evidence/device.png', sha256: 'c'.repeat(64), gameplayState: 'post_launch_device_capture' }),
     })).toThrow(/dirty/);
     expect(checks).toBe(2);
   });
@@ -65,20 +71,24 @@ describe('iOS exact release lane', () => {
     const app = path.join(root, 'App.app');
     fs.mkdirSync(app);
     fs.writeFileSync(path.join(app, 'payload.bin'), 'release');
+    const gameplayPath = path.join(root, 'gameplay.png'); fs.writeFileSync(gameplayPath, 'reviewed-gameplay');
+    const gameplaySha = crypto.createHash('sha256').update('reviewed-gameplay').digest('hex');
     const calls = [];
+    let actualBuildId = '';
     const result = executeIosRelease({
       gameDir: root, bundleId: 'com.example.dog', version: '1.2.3', device: { udid: 'PHONE', name: 'iPhone', platform: 'iOS' },
       attestation, env: {}, maxBundleBytes: 1024,
+      gameplayEvidence: { reviewed: true, reviewer: 'operator', deviceUdid: 'PHONE', bundleId: 'com.example.dog', version: '1.2.3', get buildId() { return actualBuildId; }, path: gameplayPath, sha256: gameplaySha, state: 'level' },
     }, {
       verifySource: () => calls.push('verify-source'), buildWeb: () => calls.push('build-web'), syncNative: () => calls.push('sync'), applyNative: () => calls.push('apply'),
-      validateNative: () => calls.push('validate'), stampAttestation: () => calls.push('stamp'),
+      validateNative: () => calls.push('validate'), stampAttestation: (value) => { actualBuildId = value.buildId; calls.push('stamp'); },
       buildSignedApp: () => (calls.push('signed-build'), { appPath: app, signingIdentity: 'Apple Development: REDACTED' }),
       uninstallApp: () => calls.push('uninstall'), installApp: () => calls.push('install'), launchApp: () => (calls.push('launch'), { launched: true }),
-      queryInstalledApp: () => ({ bundleId: 'com.example.dog', version: '1.2.3', buildId }),
-      captureAttestation: () => ({ installedApplication: { bundleId: 'com.example.dog', version: '1.2.3', buildId }, lane: 'release', physical: true, path: '/evidence/device.png', sha256: 'c'.repeat(64), gameplayState: 'post_launch_device_capture' }),
+      queryInstalledApp: () => ({ bundleId: 'com.example.dog', version: '1.2.3', buildId: actualBuildId }),
+      captureAttestation: () => ({ installedApplication: { bundleId: 'com.example.dog', version: '1.2.3', buildId: actualBuildId }, lane: 'release', physical: true, path: '/evidence/device.png', sha256: 'c'.repeat(64), gameplayState: 'post_launch_device_capture' }),
     });
-    expect(calls).toEqual(['verify-source', 'build-web', 'sync', 'apply', 'validate', 'stamp', 'signed-build', 'uninstall', 'install', 'launch', 'verify-source']);
-    expect(Object.keys(result).sort()).toEqual(['artifact', 'attestation', 'build', 'bundle_id', 'captured', 'device', 'evidence', 'installed', 'kind', 'launch', 'manifest_sha256', 'source_revision', 'version']);
+    expect(calls).toEqual(['verify-source', 'build-web', 'sync', 'apply', 'validate', 'signed-build', 'stamp', 'signed-build', 'uninstall', 'install', 'launch', 'verify-source']);
+    expect(Object.keys(result).sort()).toEqual(['artifact', 'attestation', 'build', 'bundle_id', 'captured', 'device', 'evidence', 'installed', 'kind', 'launch', 'manifest_sha256', 'post_launch_capture', 'source_revision', 'version']);
     expect(result.kind).toBe('exact_release_candidate');
     expect(result.manifest_sha256).toBe(attestation.manifestDigest);
     expect(result.source_revision).toBe(attestation.sourceSha);
@@ -88,9 +98,10 @@ describe('iOS exact release lane', () => {
     expect(result.build).toEqual({ platform: 'ios', harness_enabled: false, insitu_tour: false, simulator: false, browser: false, signing_identity: 'Apple Development: REDACTED' });
     expect(result.device.udid).toBe('PHONE');
     expect(result.device.physical).toBe(true);
-    expect(result.attestation).toEqual({ manifest_sha256: attestation.manifestDigest, source_revision: attestation.sourceSha, build_id: buildId });
-    expect(result.installed).toEqual({ bundle_id: 'com.example.dog', version: '1.2.3', build_id: buildId });
-    expect(result.captured).toEqual({ bundle_id: 'com.example.dog', version: '1.2.3', build_id: buildId, evidence_path: '/evidence/device.png', evidence_sha256: 'c'.repeat(64), gameplay_state: 'post_launch_device_capture' });
+    expect(result.attestation).toEqual({ manifest_sha256: attestation.manifestDigest, source_revision: attestation.sourceSha, artifact_payload_sha256: expect.stringMatching(/^[a-f0-9]{64}$/), build_id: actualBuildId });
+    expect(result.installed).toEqual({ bundle_id: 'com.example.dog', version: '1.2.3', build_id: actualBuildId });
+    expect(result.post_launch_capture).toEqual({ evidence_path: '/evidence/device.png', evidence_sha256: 'c'.repeat(64), state: 'post_launch_device_capture' });
+    expect(result.captured).toEqual({ bundle_id: 'com.example.dog', version: '1.2.3', build_id: actualBuildId, evidence_path: gameplayPath, evidence_sha256: gameplaySha, gameplay_state: 'level', reviewed_by: 'operator' });
     expect(result.launch).toEqual({ succeeded: true });
     expect(JSON.stringify(result)).not.toContain('payload.bin');
   });

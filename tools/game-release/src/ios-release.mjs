@@ -13,9 +13,10 @@ export function validateReleaseEnvironment(env = {}) {
   if (env.VITE_INSITU_TOUR && String(env.VITE_INSITU_TOUR).trim()) throw new Error('release mode refuses the insitu tour');
 }
 
-export function deriveReleaseBuildId(manifestDigest, sourceSha) {
+export function deriveReleaseBuildId(manifestDigest, sourceSha, artifactPayloadSha256 = '0'.repeat(64)) {
   if (!/^[a-f0-9]{64}$/.test(manifestDigest || '') || !/^[a-f0-9]{40}$/.test(sourceSha || '')) throw new Error('cannot derive build ID from invalid release identity');
-  let value = BigInt(`0x${crypto.createHash('sha256').update(`${manifestDigest}:${sourceSha}`).digest('hex').slice(0, 16)}`);
+  if (!/^[a-f0-9]{64}$/.test(artifactPayloadSha256)) throw new Error('cannot derive build ID from invalid artifact payload digest');
+  let value = BigInt(`0x${crypto.createHash('sha256').update(`${manifestDigest}:${sourceSha}:${artifactPayloadSha256}`).digest('hex').slice(0, 16)}`);
   const major = Number(value % 9999n) + 1;
   value /= 9999n;
   const minor = Number(value % 100n);
@@ -26,7 +27,7 @@ export function deriveReleaseBuildId(manifestDigest, sourceSha) {
 
 export function verifyExactInstall({ expected, installed, evidence }) {
   if (evidence?.lane !== 'release' || evidence?.physical !== true) throw new Error('exact verification requires physical harness-free release evidence');
-  const expectedBuildId = deriveReleaseBuildId(expected.manifestDigest, expected.sourceSha);
+  const expectedBuildId = deriveReleaseBuildId(expected.manifestDigest, expected.sourceSha, expected.artifactPayloadSha256);
   if (installed?.bundleId !== expected.bundleId || installed?.version !== expected.version || installed?.buildId !== expectedBuildId) {
     throw new Error('installed release identity does not match the approved artifact attestation');
   }
@@ -38,26 +39,34 @@ export function executeIosRelease(request, deps) {
   validateRequest(request);
   validateReleaseEnvironment(request.env);
   assertPhysicalIosDevice(request.device);
-  const buildId = deriveReleaseBuildId(request.attestation.manifestDigest, request.attestation.sourceSha);
   deps.verifySource(request);
   deps.buildWeb(request);
   deps.syncNative(request);
   deps.applyNative(request);
   deps.validateNative(request);
+  const provisional = deps.buildSignedApp(request);
+  const payload = inspectBundle(provisional.appPath, request.maxBundleBytes, { payloadOnly: true });
+  const buildId = deriveReleaseBuildId(request.attestation.manifestDigest, request.attestation.sourceSha, payload.sha256);
   deps.stampAttestation({ ...request.attestation, buildId }, request);
   const built = deps.buildSignedApp(request);
+  const finalPayload = inspectBundle(built.appPath, request.maxBundleBytes, { payloadOnly: true });
+  if (finalPayload.sha256 !== payload.sha256) throw new Error('final signed application payload changed after build ID binding');
   const artifact = inspectBundle(built.appPath, request.maxBundleBytes);
   deps.uninstallApp(request);
   deps.installApp({ ...request, appPath: built.appPath });
   const launch = deps.launchApp(request);
   const installedApp = deps.queryInstalledApp(request);
   const captured = deps.captureAttestation(request);
-  verifyExactInstall({ expected: { ...request.attestation, bundleId: request.bundleId, version: request.version }, installed: captured.installedApplication, evidence: captured });
+  verifyExactInstall({ expected: { ...request.attestation, artifactPayloadSha256: payload.sha256, bundleId: request.bundleId, version: request.version }, installed: captured.installedApplication, evidence: captured });
   if (!captured.path || !captured.gameplayState) throw new Error('physical release evidence path and gameplay state are required');
+  const gameplay = verifyReviewedGameplayEvidence(request.gameplayEvidence, {
+    deviceUdid: request.device.udid, bundleId: request.bundleId, version: request.version, buildId,
+  });
   deps.verifySource(request);
   const receiptAttestation = {
     manifest_sha256: request.attestation.manifestDigest,
     source_revision: request.attestation.sourceSha,
+    artifact_payload_sha256: payload.sha256,
     build_id: buildId,
   };
   return redactReleaseReceipt({
@@ -71,7 +80,8 @@ export function executeIosRelease(request, deps) {
     device: { udid: request.device.udid, physical: true },
     attestation: receiptAttestation,
     installed: { bundle_id: installedApp.bundleId, version: installedApp.version, build_id: installedApp.buildId },
-    captured: { bundle_id: captured.installedApplication.bundleId, version: captured.installedApplication.version, build_id: captured.installedApplication.buildId, evidence_path: captured.path, evidence_sha256: captured.sha256, gameplay_state: captured.gameplayState },
+    captured: { bundle_id: gameplay.bundleId, version: gameplay.version, build_id: gameplay.buildId, evidence_path: gameplay.path, evidence_sha256: gameplay.sha256, gameplay_state: gameplay.state, reviewed_by: gameplay.reviewer },
+    post_launch_capture: { evidence_path: captured.path, evidence_sha256: captured.sha256, state: captured.gameplayState },
     launch: { succeeded: launch?.launched === true },
     evidence: { lane: captured.lane, physical: captured.physical, paths: [captured.path] },
   });
@@ -84,25 +94,36 @@ function validateRequest(request) {
   }
 }
 
-function inspectBundle(appPath, maxBytes = 250 * 1024 * 1024) {
+function inspectBundle(appPath, maxBytes = 250 * 1024 * 1024, { payloadOnly = false } = {}) {
   const hash = crypto.createHash('sha256');
   let size = 0;
-  for (const file of walk(appPath)) {
+  for (const entry of walk(appPath)) {
+    const { file, type } = entry;
     const relative = path.relative(appPath, file);
-    const content = fs.readFileSync(file);
+    if (payloadOnly && (relative.startsWith('_CodeSignature/') || relative === 'embedded.mobileprovision' || relative === 'Info.plist')) continue;
+    const content = type === 'symlink' ? Buffer.from(fs.readlinkSync(file)) : fs.readFileSync(file);
     size += content.length;
-    hash.update(relative); hash.update('\0'); hash.update(content);
+    hash.update(type); hash.update('\0'); hash.update(relative); hash.update('\0'); hash.update(content);
     if (FORBIDDEN.some((pattern) => pattern.test(relative) || pattern.test(content.toString('utf8')))) throw new Error(`release bundle is catalog-contaminated: ${relative}`);
   }
   if (size > maxBytes) throw new Error(`release bundle is oversized (${size} > ${maxBytes})`);
   return { path: appPath, sha256: hash.digest('hex'), sizeBytes: size };
 }
 
+export function verifyReviewedGameplayEvidence(evidence, expected) {
+  if (!evidence || evidence.reviewed !== true || !evidence.reviewer) throw new Error('independently reviewed gameplay evidence is required');
+  if (evidence.deviceUdid !== expected.deviceUdid || evidence.bundleId !== expected.bundleId || evidence.version !== expected.version || evidence.buildId !== expected.buildId) throw new Error('reviewed gameplay evidence identity does not match the installed candidate');
+  if (!evidence.path || !fs.existsSync(evidence.path) || fs.statSync(evidence.path).size <= 0) throw new Error('reviewed gameplay evidence artifact is missing');
+  const sha256 = crypto.createHash('sha256').update(fs.readFileSync(evidence.path)).digest('hex');
+  if (sha256 !== evidence.sha256 || !evidence.state) throw new Error('reviewed gameplay evidence digest or state is invalid');
+  return { ...evidence, sha256 };
+}
+
 function walk(root) {
   if (!fs.existsSync(root)) throw new Error(`signed app bundle is missing: ${root}`);
   return fs.readdirSync(root, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name)).flatMap((entry) => {
     const file = path.join(root, entry.name);
-    return entry.isDirectory() ? walk(file) : entry.isFile() ? [file] : [];
+    return entry.isDirectory() ? walk(file) : entry.isFile() ? [{ file, type: 'file' }] : entry.isSymbolicLink() ? [{ file, type: 'symlink' }] : [];
   });
 }
 
