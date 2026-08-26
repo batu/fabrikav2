@@ -4,7 +4,7 @@ import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { describe, expect, it } from 'vitest';
 
-import { copyNativePublicBundle } from '../../build/nativePublicBundle';
+import { copyNativePublicBundle } from '../../src/build/nativePublicBundle';
 
 function write(root: string, relativePath: string, value: string): void {
   const target = join(root, relativePath);

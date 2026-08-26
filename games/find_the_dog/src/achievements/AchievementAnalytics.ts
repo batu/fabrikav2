@@ -47,7 +47,7 @@ export interface AchievementReconciliationAnomalyPayload extends AchievementAnal
 }
 
 /** Typed discovery/view contracts owned by the achievement domain. */
-export interface AchievementViewedPayload extends AchievementAnalyticsBase {}
+export type AchievementViewedPayload = AchievementAnalyticsBase;
 
 export interface AchievementPageViewedPayload {
   readonly event_id: string;
