@@ -3,17 +3,81 @@
   "coverage": "complete",
   "notes": "Complete non-level reskin inventory. design/assets mirrors the current public/ui runtime bytes so Find the Bird can regenerate every active UI slot without importing any level package or changing existing runtime URLs.",
   "assets": {
+    "design/assets/achievement-birds.png": {
+      "source": "public/ui/achievements/achievement-birds.png",
+      "runtime": "public/ui/achievements/achievement-birds.png",
+      "expectation": "exact-bytes",
+      "provenance": "Generated Cozy Garden 3D achievement medallion; alpha validated."
+    },
+    "design/assets/achievement-completion.png": {
+      "source": "public/ui/achievements/achievement-completion.png",
+      "runtime": "public/ui/achievements/achievement-completion.png",
+      "expectation": "exact-bytes",
+      "provenance": "Generated Cozy Garden 3D achievement medallion; alpha validated."
+    },
+    "design/assets/achievement-mastery.png": {
+      "source": "public/ui/achievements/achievement-mastery.png",
+      "runtime": "public/ui/achievements/achievement-mastery.png",
+      "expectation": "exact-bytes",
+      "provenance": "Generated Cozy Garden 3D achievement medallion; alpha validated."
+    },
+    "design/assets/achievement-progression.png": {
+      "source": "public/ui/achievements/achievement-progression.png",
+      "runtime": "public/ui/achievements/achievement-progression.png",
+      "expectation": "exact-bytes",
+      "provenance": "Generated Cozy Garden 3D achievement medallion; alpha validated."
+    },
+    "design/assets/achievement-shortcut-runtime.png": {
+      "source": "public/ui/achievements/achievement-shortcut-runtime.png",
+      "runtime": "public/ui/achievements/achievement-shortcut-runtime.png",
+      "expectation": "intentionally-different",
+      "provenance": "Generated Cozy Garden 3D feather trophy shortcut; chroma-keyed, trimmed, and alpha-fringe validated.",
+      "reason": "The design archive preserves the authored regeneration input while the active runtime asset has been optimized or revised independently."
+    },
+    "design/assets/achievement-streak.png": {
+      "source": "public/ui/achievements/achievement-streak.png",
+      "runtime": "public/ui/achievements/achievement-streak.png",
+      "expectation": "exact-bytes",
+      "provenance": "Generated Cozy Garden 3D achievement medallion; alpha validated."
+    },
     "design/assets/back_button.png": {
       "source": "public/ui/page-header/back_button.png",
       "runtime": "public/ui/page-header/back_button.png",
       "expectation": "exact-bytes",
       "provenance": "Copied from v1 find_the_dog public UI art."
     },
+    "design/assets/background-feather.svg": {
+      "source": "public/ui/home/background-feather.svg",
+      "runtime": "public/ui/home/background-feather.svg",
+      "expectation": "exact-bytes",
+      "provenance": "Approved shared Find the Bird feather motif."
+    },
     "design/assets/best-value-2-mint-rose-ticket.png": {
       "source": "public/ui/shop/badges/best-value-2-mint-rose-ticket.png",
       "runtime": "public/ui/shop/badges/best-value-2-mint-rose-ticket.png",
       "expectation": "exact-bytes",
       "provenance": "Mirrored from the current Find the Dog runtime UI for reskin regeneration."
+    },
+    "design/assets/button-olive-9s.png": {
+      "source": "public/ui/surfaces/button-olive-9s.png",
+      "runtime": "public/ui/surfaces/button-olive-9s.png",
+      "expectation": "exact-bytes",
+      "sha256": "c0680aa04fb9c682d0d0681b0337e2255496df07339d1d883e81158b2e7135c7",
+      "provenance": "Deterministically composed Cozy Garden 3D olive button frame; nine-slice metadata in design/ui-surfaces.json."
+    },
+    "design/assets/button-sky-9s.png": {
+      "source": "public/ui/surfaces/button-sky-9s.png",
+      "runtime": "public/ui/surfaces/button-sky-9s.png",
+      "expectation": "exact-bytes",
+      "sha256": "feceee1936a85ddce1bdf67b84bab6caa188c453127f0535425d35f185e7b97f",
+      "provenance": "Deterministically composed Cozy Garden 3D sky button frame; nine-slice metadata in design/ui-surfaces.json."
+    },
+    "design/assets/canvas-cream-seamless.png": {
+      "source": "public/ui/textures/canvas-cream-seamless.png",
+      "runtime": "public/ui/textures/canvas-cream-seamless.png",
+      "expectation": "exact-bytes",
+      "sha256": "17e7fc9014b86b34b7b52f2ceec6c906b17df9f5b21de1cef893b9ed2f9af269",
+      "provenance": "Generated Cozy Garden 3D canvas source; deterministically mirrored into a pixel-exact seamless tile."
     },
     "design/assets/dog-detective-complete.png": {
       "source": "public/ui/level-complete/dog-detective-complete.png",
@@ -46,20 +110,12 @@
       "provenance": "Copied from v1 find_the_dog public UI art."
     },
     "design/assets/icon_heart.png": {
-      "source": "refs/art/runtime-staging/cozy-garden-3d/repair/heart-life-cozy-source.png",
+      "source": "public/ui/menu-icons/icon_heart.png",
       "runtime": "public/ui/menu-icons/icon_heart.png",
       "expectation": "exact-bytes",
       "sha256": "d93eb9495e647520621a55ec2124fa4e21a54dcd14ceaebe8fa24febe94e761e",
       "sourceSha256": "83df726f432bab470ed01af9ef32ff330ee1a5322f47fb08ce8a31c100b73cbb",
       "provenance": "Generated for Cozy Garden 3D as a coral heart in a honey-wood garden medallion, then chroma-keyed and normalized to a 256px runtime canvas."
-    },
-    "design/assets/icon_streak_flame.png": {
-      "source": "refs/art/runtime-staging/cozy-garden-3d/repair/streak-flame-cozy-source.png",
-      "runtime": "public/ui/menu-icons/icon_streak_flame.png",
-      "expectation": "exact-bytes",
-      "sha256": "bbf7e5461d78bae54dd5b64a7054b80715e2aecd0f08b0742a3396bbc284dbd6",
-      "sourceSha256": "91c7a50be0058f0b9e0067fa9c7e5db789b4cb3c604321355e7b129f198ef112",
-      "provenance": "Generated for Cozy Garden 3D as a coral and honey clay flame, then chroma-keyed, alpha-trimmed and normalized to 128px."
     },
     "design/assets/icon_hint_magnifier.png": {
       "source": "public/ui/menu-icons/icon_hint_magnifier.png",
@@ -68,12 +124,20 @@
       "provenance": "Copied from v1 find_the_dog public UI art."
     },
     "design/assets/icon_settings_gear.png": {
-      "source": "public/ui/menu-icons/settings-icon-runtime.png",
+      "source": "public/ui/menu-icons/icon_settings_gear.png",
       "runtime": "public/ui/menu-icons/icon_settings_gear.png",
       "expectation": "exact-bytes",
       "sha256": "1a3730b636ae359696816242926fa86d1047aba21f5c7e6d9deda8838430353d",
       "sourceSha256": "1a3730b636ae359696816242926fa86d1047aba21f5c7e6d9deda8838430353d",
       "provenance": "Reuses the approved Cozy Garden 3D settings gear so HUD and navigation share one visual language."
+    },
+    "design/assets/icon_streak_flame.png": {
+      "source": "public/ui/menu-icons/icon_streak_flame.png",
+      "runtime": "public/ui/menu-icons/icon_streak_flame.png",
+      "expectation": "exact-bytes",
+      "sha256": "bbf7e5461d78bae54dd5b64a7054b80715e2aecd0f08b0742a3396bbc284dbd6",
+      "sourceSha256": "91c7a50be0058f0b9e0067fa9c7e5db789b4cb3c604321355e7b129f198ef112",
+      "provenance": "Generated for Cozy Garden 3D as a coral and honey clay flame, then chroma-keyed, alpha-trimmed and normalized to 128px."
     },
     "design/assets/level-complete-title.png": {
       "source": "public/ui/level-complete/level-complete-title.png",
@@ -111,8 +175,26 @@
       "expectation": "exact-bytes",
       "provenance": "Mirrored from the current Find the Dog runtime UI for reskin regeneration."
     },
+    "design/assets/nav-bar-3.png": {
+      "source": "public/ui/navigation/nav-bar-3.png",
+      "runtime": "public/ui/navigation/nav-bar-3.png",
+      "expectation": "exact-bytes",
+      "provenance": "Generated for the approved Cozy Garden 3D runtime system; chroma removed and alpha validated."
+    },
+    "design/assets/nav-bar-4.png": {
+      "source": "public/ui/navigation/nav-bar-4.png",
+      "runtime": "public/ui/navigation/nav-bar-4.png",
+      "expectation": "exact-bytes",
+      "provenance": "Generated for the approved Cozy Garden 3D runtime system; chroma removed and alpha validated."
+    },
+    "design/assets/nav-bar-5.png": {
+      "source": "public/ui/navigation/nav-bar-5.png",
+      "runtime": "public/ui/navigation/nav-bar-5.png",
+      "expectation": "exact-bytes",
+      "provenance": "Generated for the approved Cozy Garden 3D runtime system; chroma removed and alpha validated."
+    },
     "design/assets/no-ads-runtime.png": {
-      "source": "refs/art/runtime-staging/cozy-garden-3d/repair/no-ads-cozy-source.png",
+      "source": "public/ui/home/no-ads-runtime.png",
       "runtime": "public/ui/home/no-ads-runtime.png",
       "expectation": "exact-bytes",
       "sha256": "017388ff0092d7a5453ae5163c0994d1c2341ccb63a1a9aadc180e75035c227c",
@@ -125,6 +207,34 @@
       "runtime": "public/ui/home/node-current-candy.png",
       "expectation": "exact-bytes",
       "provenance": "Copied from v1 find_the_dog public UI art."
+    },
+    "design/assets/painted-olive-seamless.png": {
+      "source": "public/ui/textures/painted-olive-seamless.png",
+      "runtime": "public/ui/textures/painted-olive-seamless.png",
+      "expectation": "exact-bytes",
+      "sha256": "5f20466a7cf9b7cf36ea539bd2bcd598b37d7764a5f2b2891a38655993efa6af",
+      "provenance": "Generated Cozy Garden 3D olive painted-wood source; deterministically mirrored into a pixel-exact seamless tile."
+    },
+    "design/assets/painted-sky-seamless.png": {
+      "source": "public/ui/textures/painted-sky-seamless.png",
+      "runtime": "public/ui/textures/painted-sky-seamless.png",
+      "expectation": "exact-bytes",
+      "sha256": "d1d6670eaf5456c0a66060844e4ac5983626d1baa008a53345ef30cf20f0b641",
+      "provenance": "Deterministic sky-blue tint of the Cozy Garden 3D painted-wood tile for primary actions."
+    },
+    "design/assets/panel-honey-9s.png": {
+      "source": "public/ui/surfaces/panel-honey-9s.png",
+      "runtime": "public/ui/surfaces/panel-honey-9s.png",
+      "expectation": "exact-bytes",
+      "sha256": "54db5332dc5b084b09fb7219d79ef0f1f3a8442c393b946fbc2792bd548db7ab",
+      "provenance": "Deterministically composed Cozy Garden 3D honey panel frame; nine-slice metadata in design/ui-surfaces.json."
+    },
+    "design/assets/panel-olive-9s.png": {
+      "source": "public/ui/surfaces/panel-olive-9s.png",
+      "runtime": "public/ui/surfaces/panel-olive-9s.png",
+      "expectation": "exact-bytes",
+      "sha256": "e2beeb59b1f4c2e5af1bbb804a1ebf5509b4d19acba90ea26640472976dc258a",
+      "provenance": "Deterministically composed Cozy Garden 3D olive panel frame; nine-slice metadata in design/ui-surfaces.json."
     },
     "design/assets/pattern-motif.png": {
       "source": "public/ui/home/pattern-motif.png",
@@ -145,12 +255,18 @@
       "provenance": "Mirrored from the current Find the Dog runtime UI for reskin regeneration."
     },
     "design/assets/rewarded-ad-badge.png": {
-      "source": "refs/art/runtime-staging/cozy-garden-3d/repair/rewarded-video-cozy-source.png",
+      "source": "public/ui/level-complete/rewarded-ad-badge.png",
       "runtime": "public/ui/level-complete/rewarded-ad-badge.png",
       "expectation": "exact-bytes",
       "sha256": "afbc96824fe2c83b4c693f2d7430a33062c7d80f39bedd0e447a76cb82fab0bb",
       "sourceSha256": "f205ed37388f60961d5d6fbe6db83368f381aff37180df6d1e4ebdba5077cc4c",
       "provenance": "Generated for Cozy Garden 3D as a blue painted-wood video sign with garden ornament and a feather-coin reward, then chroma-keyed and normalized to 256px."
+    },
+    "design/assets/rewarded-ad-badge.svg": {
+      "source": "public/ui/level-complete/rewarded-ad-badge.svg",
+      "runtime": "public/ui/level-complete/rewarded-ad-badge.svg",
+      "expectation": "exact-bytes",
+      "provenance": "Mirrored from the active Find the Bird runtime UI for reskin regeneration."
     },
     "design/assets/settings_icon_home.png": {
       "source": "public/ui/settings/settings_icon_home.png",
@@ -179,8 +295,9 @@
     "design/assets/settings-icon-runtime.png": {
       "source": "public/ui/menu-icons/settings-icon-runtime.png",
       "runtime": "public/ui/menu-icons/settings-icon-runtime.png",
-      "expectation": "exact-bytes",
-      "provenance": "Generated Cozy Garden 3D settings icon; alpha validated."
+      "expectation": "intentionally-different",
+      "provenance": "Generated Cozy Garden 3D settings icon; alpha validated.",
+      "reason": "The design archive preserves the authored regeneration input while the active runtime asset has been optimized or revised independently."
     },
     "design/assets/shop_coin_pack_1.png": {
       "source": "public/ui/shop/shop_coin_pack_1.png",
@@ -237,13 +354,14 @@
       "provenance": "Mirrored from the current Find the Dog runtime UI for reskin regeneration."
     },
     "design/assets/shop_no_ads_premium.png": {
-      "source": "refs/art/runtime-staging/cozy-garden-3d/repair/shop-no-ads-premium-source.png",
+      "source": "public/ui/shop/shop_no_ads_premium.png",
       "runtime": "public/ui/shop/shop_no_ads_premium.png",
-      "expectation": "exact-bytes",
-      "provenance": "Generated Cozy Garden 3D premium no-ads sign from the approved Find the Bird no-ads visual language; chroma-keyed, trimmed, and alpha-fringe validated."
+      "expectation": "intentionally-different",
+      "provenance": "Generated Cozy Garden 3D premium no-ads sign from the approved Find the Bird no-ads visual language; chroma-keyed, trimmed, and alpha-fringe validated.",
+      "reason": "The design archive preserves the authored regeneration input while the active runtime asset has been optimized or revised independently."
     },
     "design/assets/shop_no_ads.png": {
-      "source": "public/ui/home/no-ads-runtime.png",
+      "source": "public/ui/shop/shop_no_ads.png",
       "runtime": "public/ui/shop/shop_no_ads.png",
       "expectation": "exact-bytes",
       "provenance": "Exact byte-for-byte reuse of the approved Find the Bird home-menu No Ads badge."
@@ -257,124 +375,16 @@
     "design/assets/shop-icon-runtime.png": {
       "source": "public/ui/menu-icons/shop-icon-runtime.png",
       "runtime": "public/ui/menu-icons/shop-icon-runtime.png",
-      "expectation": "exact-bytes",
-      "provenance": "Generated Cozy Garden 3D garden backpack icon; alpha validated."
-    },
-    "design/assets/background-feather.svg": {
-      "source": "refs/art/shared/background-feather.svg",
-      "runtime": "public/ui/home/background-feather.svg",
-      "expectation": "exact-bytes",
-      "provenance": "Approved shared Find the Bird feather motif."
-    },
-    "design/assets/nav-bar-3.png": {
-      "source": "refs/art/runtime-staging/cozy-garden-3d/navigation/nav-bar-3-runtime.png",
-      "runtime": "public/ui/navigation/nav-bar-3.png",
-      "expectation": "exact-bytes",
-      "provenance": "Generated for the approved Cozy Garden 3D runtime system; chroma removed and alpha validated."
-    },
-    "design/assets/nav-bar-4.png": {
-      "source": "refs/art/runtime-staging/cozy-garden-3d/navigation/nav-bar-4-runtime.png",
-      "runtime": "public/ui/navigation/nav-bar-4.png",
-      "expectation": "exact-bytes",
-      "provenance": "Generated for the approved Cozy Garden 3D runtime system; chroma removed and alpha validated."
-    },
-    "design/assets/nav-bar-5.png": {
-      "source": "refs/art/runtime-staging/cozy-garden-3d/navigation/nav-bar-5-runtime.png",
-      "runtime": "public/ui/navigation/nav-bar-5.png",
-      "expectation": "exact-bytes",
-      "provenance": "Generated for the approved Cozy Garden 3D runtime system; chroma removed and alpha validated."
-    },
-    "design/assets/achievement-completion.png": {
-      "source": "refs/art/runtime-staging/cozy-garden-3d/achievements/achievement-completion.png",
-      "runtime": "public/ui/achievements/achievement-completion.png",
-      "expectation": "exact-bytes",
-      "provenance": "Generated Cozy Garden 3D achievement medallion; alpha validated."
-    },
-    "design/assets/achievement-birds.png": {
-      "source": "refs/art/runtime-staging/cozy-garden-3d/achievements/achievement-birds.png",
-      "runtime": "public/ui/achievements/achievement-birds.png",
-      "expectation": "exact-bytes",
-      "provenance": "Generated Cozy Garden 3D achievement medallion; alpha validated."
-    },
-    "design/assets/achievement-mastery.png": {
-      "source": "refs/art/runtime-staging/cozy-garden-3d/achievements/achievement-mastery.png",
-      "runtime": "public/ui/achievements/achievement-mastery.png",
-      "expectation": "exact-bytes",
-      "provenance": "Generated Cozy Garden 3D achievement medallion; alpha validated."
-    },
-    "design/assets/achievement-progression.png": {
-      "source": "refs/art/runtime-staging/cozy-garden-3d/achievements/achievement-progression.png",
-      "runtime": "public/ui/achievements/achievement-progression.png",
-      "expectation": "exact-bytes",
-      "provenance": "Generated Cozy Garden 3D achievement medallion; alpha validated."
-    },
-    "design/assets/achievement-streak.png": {
-      "source": "refs/art/runtime-staging/cozy-garden-3d/achievements/achievement-streak.png",
-      "runtime": "public/ui/achievements/achievement-streak.png",
-      "expectation": "exact-bytes",
-      "provenance": "Generated Cozy Garden 3D achievement medallion; alpha validated."
-    },
-    "design/assets/achievement-shortcut-runtime.png": {
-      "source": "refs/art/runtime-staging/cozy-garden-3d/repair/achievement-shortcut-runtime.png",
-      "runtime": "public/ui/achievements/achievement-shortcut-runtime.png",
-      "expectation": "exact-bytes",
-      "provenance": "Generated Cozy Garden 3D feather trophy shortcut; chroma-keyed, trimmed, and alpha-fringe validated."
-    },
-    "design/assets/canvas-cream-seamless.png": {
-      "source": "design/source-textures/canvas-cream-source.png",
-      "runtime": "public/ui/textures/canvas-cream-seamless.png",
-      "expectation": "exact-bytes",
-      "sha256": "17e7fc9014b86b34b7b52f2ceec6c906b17df9f5b21de1cef893b9ed2f9af269",
-      "provenance": "Generated Cozy Garden 3D canvas source; deterministically mirrored into a pixel-exact seamless tile."
-    },
-    "design/assets/painted-olive-seamless.png": {
-      "source": "design/source-textures/painted-olive-source.png",
-      "runtime": "public/ui/textures/painted-olive-seamless.png",
-      "expectation": "exact-bytes",
-      "sha256": "5f20466a7cf9b7cf36ea539bd2bcd598b37d7764a5f2b2891a38655993efa6af",
-      "provenance": "Generated Cozy Garden 3D olive painted-wood source; deterministically mirrored into a pixel-exact seamless tile."
-    },
-    "design/assets/painted-sky-seamless.png": {
-      "source": "design/source-textures/painted-olive-source.png",
-      "runtime": "public/ui/textures/painted-sky-seamless.png",
-      "expectation": "exact-bytes",
-      "sha256": "d1d6670eaf5456c0a66060844e4ac5983626d1baa008a53345ef30cf20f0b641",
-      "provenance": "Deterministic sky-blue tint of the Cozy Garden 3D painted-wood tile for primary actions."
+      "expectation": "intentionally-different",
+      "provenance": "Generated Cozy Garden 3D garden backpack icon; alpha validated.",
+      "reason": "The design archive preserves the authored regeneration input while the active runtime asset has been optimized or revised independently."
     },
     "design/assets/wood-honey-seamless.png": {
-      "source": "design/source-textures/wood-honey-source.png",
+      "source": "public/ui/textures/wood-honey-seamless.png",
       "runtime": "public/ui/textures/wood-honey-seamless.png",
       "expectation": "exact-bytes",
       "sha256": "1b2d5fec0e2febd461fc058625ee8195f5517c8d11904a0c7917b2f0adec4605",
       "provenance": "Generated Cozy Garden 3D honey-wood source; deterministically mirrored into a pixel-exact seamless tile."
-    },
-    "design/assets/button-olive-9s.png": {
-      "source": "design/source-textures/painted-olive-source.png",
-      "runtime": "public/ui/surfaces/button-olive-9s.png",
-      "expectation": "exact-bytes",
-      "sha256": "c0680aa04fb9c682d0d0681b0337e2255496df07339d1d883e81158b2e7135c7",
-      "provenance": "Deterministically composed Cozy Garden 3D olive button frame; nine-slice metadata in design/ui-surfaces.json."
-    },
-    "design/assets/button-sky-9s.png": {
-      "source": "design/source-textures/painted-olive-source.png",
-      "runtime": "public/ui/surfaces/button-sky-9s.png",
-      "expectation": "exact-bytes",
-      "sha256": "feceee1936a85ddce1bdf67b84bab6caa188c453127f0535425d35f185e7b97f",
-      "provenance": "Deterministically composed Cozy Garden 3D sky button frame; nine-slice metadata in design/ui-surfaces.json."
-    },
-    "design/assets/panel-honey-9s.png": {
-      "source": "design/source-textures/wood-honey-source.png",
-      "runtime": "public/ui/surfaces/panel-honey-9s.png",
-      "expectation": "exact-bytes",
-      "sha256": "54db5332dc5b084b09fb7219d79ef0f1f3a8442c393b946fbc2792bd548db7ab",
-      "provenance": "Deterministically composed Cozy Garden 3D honey panel frame; nine-slice metadata in design/ui-surfaces.json."
-    },
-    "design/assets/panel-olive-9s.png": {
-      "source": "design/source-textures/painted-olive-source.png",
-      "runtime": "public/ui/surfaces/panel-olive-9s.png",
-      "expectation": "exact-bytes",
-      "sha256": "e2beeb59b1f4c2e5af1bbb804a1ebf5509b4d19acba90ea26640472976dc258a",
-      "provenance": "Deterministically composed Cozy Garden 3D olive panel frame; nine-slice metadata in design/ui-surfaces.json."
     }
   }
 }
