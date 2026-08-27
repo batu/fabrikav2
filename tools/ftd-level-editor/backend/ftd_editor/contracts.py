@@ -65,7 +65,15 @@ def build_contract_app(root: Path):
 
 def openapi_document() -> dict[str, Any]:
     with tempfile.TemporaryDirectory(prefix="ftd-contract-") as directory:
-        return build_contract_app(Path(directory)).openapi()
+        document = build_contract_app(Path(directory)).openapi()
+    # Python 3.14 renamed HTTP 422's reason phrase to "Unprocessable Content".
+    # Pin the wire document so contract generation is independent of the host runtime.
+    for operations in document.get("paths", {}).values():
+        for operation in operations.values():
+            response = operation.get("responses", {}).get("422")
+            if response and response.get("description") == "Unprocessable Content":
+                response["description"] = "Unprocessable Entity"
+    return document
 
 
 def openapi_bytes(document: dict[str, Any] | None = None) -> bytes:

@@ -17,7 +17,7 @@ const RUNTIME_SHA256 = Object.freeze({
   'games/find_the_dog/src/ads/AdMobConfig.ts': 'a697502fae1bc9ed6a37f5e511b5210f2aba8a5c74d58a1ce6c8f64954d1e923',
   'configs/vite.base.ts': '0bc2142b5becd7c1cd0d5f6c78a6d83c8a02677ddaed20972646499309406e58',
   'tools/game-release/src/portal-executor.mjs': '233f55ca6443f33a37ba782ac681bf23a178272ae4fd0ef8a26ccd6f2dd9e0e0',
-  'tools/game-release/src/ios-release.mjs': 'f35bb4c65096e5921f484314b0682e71026113057e711601d66e0455bea94c3c',
+  'tools/game-release/src/ios-release.mjs': 'c1a7ff2283d121be383940f5d7100d1536e258357d1008884e003b20386aeb6d',
   'tools/game-release/src/manifest.mjs': '618ca664a49df83170580920a0268a4a9ecc22bf1a1e01491bb23d0c94d9d782',
   'tools/game-env/src/env.mjs': '4b4324cc2f368c7a7a0ab369778d63a9b75e6ba963a306a59fbbe402ae77e9fc',
   'tools/game-env/src/policies.mjs': 'c57ae66c34f4013c8bf1830ae6e436749fc806000ce7ee134b37fc3b1f6131ef',

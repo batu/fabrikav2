@@ -99,6 +99,38 @@ describe('iOS exact release lane', () => {
     expect(deps.queryInstalledApp({ bundleId: 'com.example.dog', device: { udid: 'PHONE' } })).toEqual({ bundleId: 'com.example.dog', version: '1.2.3', buildId });
   });
 
+  it('passes the requested marketing version to Xcode', () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'ios-release-build-'));
+    const app = path.join(root, 'ios', 'App', 'release-build', 'Build', 'Products', 'Release-iphoneos', 'App.app');
+    fs.mkdirSync(app, { recursive: true });
+    const calls = [];
+    const deps = defaultDependencies({
+      execImpl: (file, args) => { calls.push([file, args]); return ''; },
+      spawnImpl: (_file, args) => args[0] === '--verify'
+        ? { status: 0, stdout: '', stderr: '' }
+        : { status: 0, stdout: '', stderr: 'Authority=Apple Development: Example\nTeamIdentifier=TEAM123\n' },
+    });
+
+    deps.buildSignedApp({ gameDir: root, version: '1.2.3', device: { udid: 'PHONE' }, developmentTeam: 'TEAM123' });
+
+    expect(calls[0][0]).toBe('xcodebuild');
+    expect(calls[0][1]).toContain('MARKETING_VERSION=1.2.3');
+  });
+
+  it('treats uninstalling from a clean device as a no-op', () => {
+    const calls = [];
+    const deps = defaultDependencies({ execImpl: (file, args) => {
+      calls.push([file, args]);
+      if (args.includes('--json-output')) fs.writeFileSync(args.at(-1), JSON.stringify({ result: { apps: [] } }));
+      return '';
+    } });
+
+    deps.uninstallApp({ bundleId: 'com.example.dog', device: { udid: 'PHONE' } });
+
+    expect(calls).toHaveLength(1);
+    expect(calls[0][1]).toContain('info');
+  });
+
   it('verifies and reads signing authority from the actual app', () => {
     const calls = [];
     const identity = inspectSignedIosApp('/tmp/App.app', { expectedTeam: 'TEAM123', spawnImpl: (_file, args) => {

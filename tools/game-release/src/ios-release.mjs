@@ -270,7 +270,7 @@ function truthy(value) { return /^(1|true|yes|on)$/i.test(String(value || '').tr
 export function defaultDependencies({ execImpl = execFileSync, spawnImpl = spawnSync } = {}) {
   const run = (file, args, options = {}) => execImpl(file, args, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], maxBuffer: 64 * 1024 * 1024, ...options });
   const repoRoot = (request) => path.resolve(request.gameDir, '..', '..');
-  const query = (request) => {
+  const query = (request, { required = true } = {}) => {
     const temporary = fs.mkdtempSync(path.join(request.temporaryDirectory || '/tmp', 'ftd-release-device-'));
     fs.chmodSync(temporary, 0o700);
     const output = path.join(temporary, 'apps.json');
@@ -283,7 +283,10 @@ export function defaultDependencies({ execImpl = execFileSync, spawnImpl = spawn
     }
     const candidates = collectObjects(json);
     const app = candidates.find((value) => [value.bundleIdentifier, value.bundleId].includes(request.bundleId));
-    if (!app) throw new Error('installed application was not returned by devicectl');
+    if (!app) {
+      if (required) throw new Error('installed application was not returned by devicectl');
+      return null;
+    }
     return {
       bundleId: app.bundleIdentifier || app.bundleId,
       version: app.version || app.marketingVersion || app.CFBundleShortVersionString,
@@ -337,12 +340,15 @@ export function defaultDependencies({ execImpl = execFileSync, spawnImpl = spawn
     buildSignedApp(request) {
       const derived = path.join(request.gameDir, 'ios', 'App', 'release-build');
       const project = path.join(request.gameDir, 'ios', 'App', 'App.xcodeproj');
-      const settings = request.developmentTeam ? ['-allowProvisioningUpdates', `DEVELOPMENT_TEAM=${request.developmentTeam}`] : [];
+      const settings = [`MARKETING_VERSION=${request.version}`];
+      if (request.developmentTeam) settings.push('-allowProvisioningUpdates', `DEVELOPMENT_TEAM=${request.developmentTeam}`);
       run('xcodebuild', ['-project', project, '-scheme', 'App', '-configuration', 'Release', '-destination', `id=${request.device.udid}`, '-derivedDataPath', derived, 'build', ...settings]);
       const appPath = path.join(derived, 'Build', 'Products', 'Release-iphoneos', 'App.app');
       return { appPath, signingIdentity: inspectSignedIosApp(appPath, { expectedTeam: request.developmentTeam, spawnImpl }) };
     },
-    uninstallApp(request) { run('xcrun', ['devicectl', 'device', 'uninstall', 'app', '--device', request.device.udid, request.bundleId]); },
+    uninstallApp(request) {
+      if (query(request, { required: false })) run('xcrun', ['devicectl', 'device', 'uninstall', 'app', '--device', request.device.udid, request.bundleId]);
+    },
     installApp(request) { run('xcrun', ['devicectl', 'device', 'install', 'app', '--device', request.device.udid, request.appPath]); },
     launchApp(request) { run('xcrun', ['devicectl', 'device', 'process', 'launch', '--terminate-existing', '--device', request.device.udid, request.bundleId]); return { launched: true }; },
     queryInstalledApp: query,
