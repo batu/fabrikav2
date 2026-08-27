@@ -34,7 +34,7 @@ Unknown values throw during composition. An explicitly selected but unavailable 
 - Find the Dog's existing iOS AdMob migration (`3e25191db`) was reconciled onto this branch. iOS now composes AdMob through validated game-specific configuration while Android retains the shared selector.
 - Find the Bird now has the equivalent switchable iOS AdMob package, configuration reader, native recipe, privacy declaration, SKAdNetwork catalog, plugin gate, and tests. Its iOS-mode web bundle builds successfully.
 - Native-shell generation now omits AdMob package/app-ID/catalog wiring when `VITE_ADMOB_IOS_ENABLED` is false, preserving the provider-disabled shell path.
-- Physical-device ad serving remains unverified because no production Find-game AdMob records/IDs exist and account-side approval is incomplete.
+- Both Find games now have canonical iOS AdMob apps and banner/interstitial/rewarded units. All six formats were physically verified on Batu's iPhone using Google's sample inventory; see `docs/evidence/2026-08-27-find-games-admob-device-smoke/evidence.md`.
 
 ### Analytics and acquisition measurement
 
@@ -77,27 +77,22 @@ The focused tests cover:
 - A second independent review after the fix found no actionable regressions; focused SDK tests and both game typechecks passed in that review lane.
 - Find the Bird's native AdMob pass received two additional independent reviews. The first found a provider-disabled native-shell regression; the shell recipe was made conditional and regression-tested. The follow-up found no actionable regressions.
 
-## Blockers and decisions for Batu
+## Final account state and remaining gates (2026-08-27)
 
-1. Choose Meta measurement: attribution-provider forwarding or direct Meta App Events, not both.
-2. Decide whether to adopt/reconcile the separate Find the Dog AdMob migration (`3e25191db`) with this provider-selection branch.
-3. Provision a real native AdMob lane for Find the Bird before calling Android AdMob operational.
-4. Wait for AdMob account acceptance before expecting production ad revenue.
-5. Verify Google Ads, Meta Business, Apple Ads, Adjust, and AppsFlyer account access directly; code presence is not account readiness.
+Completed:
 
-## Direct AdMob API check (2026-08-27)
+- Find the Dog and Find the Bird each have one linked iOS AdMob app and exactly one canonical banner, interstitial, and rewarded unit. Guarded API diagnose readback reports `storefront_verified=true`, no missing units, and no extras for both games.
+- Public IDs are committed in per-game manifests. Capacitor native registration now reads the same committed defaults as runtime composition.
+- `https://basegamelab.com/app-ads.txt` serves the exact publisher authorization over HTTP 200 as `text/plain`.
+- Find the Bird 1.0 is public in Turkey. The released binary predates this AdMob work, so a subsequent App Store build is required for revenue.
+- Meta measurement decision is attribution-provider forwarding; direct Meta App Events stays disabled to prevent duplicate conversion events.
 
-- Dedicated AdMob OAuth access succeeded (`HTTP 200`) and returned one account.
-- The account contains one Android app record: **Block Blast Extreme**, unlinked, `ACTION_REQUIRED`.
-- The account contains two Block Blast ad units (banner and interstitial).
-- There are no Find the Dog or Find the Bird AdMob app records or ad units.
-- The API does not expose enough payment/profile review state to call account acceptance complete. App approval, account/payment verification, and production serving are separate checks.
+Hard gates requiring account access or explicit approval:
 
-Required account-side sequence:
+1. **App Store release:** archive/upload/submission and release are external actions. Prepare the next Find the Bird build from this branch only after deciding how to integrate it with current `main`; the attempted rebase encountered broad provider/config conflicts and was safely aborted.
+2. **IAP/RevenueCat:** production product status, prices, entitlements, and offering mappings remain unverified because no usable App Store Connect issuer or RevenueCat administrative credential was available in this checkout/session.
+3. **Apple Ads:** account/campaign creation and any budget are unverified external mutations. Create a paused campaign only after exact campaign, storefront, budget, and attribution settings are presented and approved.
+4. **Google Ads API:** the cached grant belongs to a retired OAuth client and refresh returns `invalid_client`. Rotate the exposed client and complete fresh `adwords` authorization only after explicit credential-rotation approval; do not submit the re-review form without approval.
+5. **AdMob review:** API inventory is converged, but the API does not expose the console's app-ads.txt crawl/review badge. Production serving readiness requires authoritative console readback after Google's recrawl.
 
-1. Resolve the existing Block Blast `ACTION_REQUIRED` notice in the AdMob console; do not infer its cause from the API enum.
-2. Create/link a Find the Dog iOS app record to App Store id `6772100729`, then create banner/interstitial/rewarded units.
-3. Do not link Find the Bird until its public release is explicitly authorized and the listing is public; its current App Store state is pending developer release.
-4. Put resulting public app/unit IDs only in untracked release environment files, then run native build, sync, and physical-device test-ad verification before production serving.
-
-No email was sent. No campaign was created or funded. No game was released, deployed, merged, or pushed.
+No email was sent. No campaign was created or funded. No store build was uploaded or submitted. No credential was rotated.
