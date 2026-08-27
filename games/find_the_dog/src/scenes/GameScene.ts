@@ -48,9 +48,11 @@ import type { Point } from '../utils/voronoi';
 import { SectionController } from './SectionController';
 import { PinchZoom, PINCH } from './PinchZoom';
 import { MicroAnimationLayer, type MicroAnimationSnapshot } from '../effects/MicroAnimationLayer';
+import { buildLevelPrewarmTargets } from './LevelPrewarm';
 import {
   FALLBACK_RUNTIME_TEXTURE_LONG_EDGE,
-  resolveRuntimeTextureLongEdge,
+  resolveDerivedTextureDimensions,
+  resolvePlatformRuntimeTextureLongEdge,
   selectRuntimeColorImageUrl,
 } from './RuntimeTexturePolicy';
 
@@ -496,28 +498,14 @@ export class GameScene extends Phaser.Scene {
     textures: Phaser.Textures.TextureManager,
     level: LevelData,
     isStale: () => boolean,
+    restorationMode: boolean,
   ): Promise<void> {
     const runtimeTextureLongEdge = GameScene.resolveRuntimeTextureLongEdge(textures.game.renderer);
-    const targets: Array<{ key: string; url: string }> = [{
-      key: 'color',
-      url: selectRuntimeColorImageUrl(
-        level.colorImage,
-        level.width,
-        level.height,
-        runtimeTextureLongEdge,
-      ),
-    }];
-    for (let i = 0; i < (level.bgImageUrls?.length ?? 0); i++) {
-      targets.push({ key: `bg_${i}`, url: level.bgImageUrls![i] });
-    }
-    const spriteKeys: string[] = [];
-    for (const dog of level.dogs) {
-      const spriteUrl = dog.sprite?.image;
-      if (spriteUrl === undefined) continue;
-      const key = `dog_sprite_${level.id}_${dog.id}`;
-      spriteKeys.push(key);
-      targets.push({ key, url: spriteUrl });
-    }
+    const { targets, spriteKeys } = buildLevelPrewarmTargets(
+      level,
+      runtimeTextureLongEdge,
+      restorationMode,
+    );
 
     // Warming a different level than the one currently resident: evict its
     // textures first. `'color'`/`bg_i` are shared keys (addImage throws on a
@@ -3085,7 +3073,7 @@ export class GameScene extends Phaser.Scene {
     this.refreshCanvasTexture(textureKey);
   }
 
-  /** Generate grayscale texture from the capped color texture at logical level size. */
+  /** Generate grayscale texture from the capped color texture without expanding it again. */
   private generateGrayscaleTexture(): void {
     if (this.textures.exists('bw_generated')) return;
 
@@ -3094,9 +3082,10 @@ export class GameScene extends Phaser.Scene {
 
     const sourceWidth = Number((source as { width?: number }).width);
     const sourceHeight = Number((source as { height?: number }).height);
+    const dimensions = resolveDerivedTextureDimensions(sourceWidth, sourceHeight);
     const canvas = document.createElement('canvas');
-    canvas.width = this.level?.width ?? sourceWidth;
-    canvas.height = this.level?.height ?? sourceHeight;
+    canvas.width = dimensions.width;
+    canvas.height = dimensions.height;
 
     // Desaturate at capped source resolution, then scale up — avoids a
     // multi-megapixel getImageData pass on 4K logical level dimensions.
@@ -3466,9 +3455,11 @@ export class GameScene extends Phaser.Scene {
   }
 
   private static resolveRuntimeTextureLongEdge(renderer: Phaser.Renderer.Canvas.CanvasRenderer | Phaser.Renderer.WebGL.WebGLRenderer): number {
-    if ((renderer as { type?: number }).type !== Phaser.WEBGL) return resolveRuntimeTextureLongEdge(null);
-    const gl = (renderer as Phaser.Renderer.WebGL.WebGLRenderer).gl;
-    return resolveRuntimeTextureLongEdge(Number(gl?.getParameter(gl.MAX_TEXTURE_SIZE)));
+    const gl = (renderer as { type?: number }).type === Phaser.WEBGL
+      ? (renderer as Phaser.Renderer.WebGL.WebGLRenderer).gl
+      : null;
+    const maxTextureSize = gl ? Number(gl.getParameter(gl.MAX_TEXTURE_SIZE)) : null;
+    return resolvePlatformRuntimeTextureLongEdge(maxTextureSize, Capacitor.getPlatform());
   }
 
   private getRuntimeTextureSnapshot(
