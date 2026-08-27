@@ -48,6 +48,7 @@ import type { Point } from '../utils/voronoi';
 import { SectionController } from './SectionController';
 import { PinchZoom, PINCH } from './PinchZoom';
 import { MicroAnimationLayer, type MicroAnimationSnapshot } from '../effects/MicroAnimationLayer';
+import { buildLevelPrewarmTargets } from './LevelPrewarm';
 import {
   FALLBACK_RUNTIME_TEXTURE_LONG_EDGE,
   resolveRuntimeTextureLongEdge,
@@ -496,28 +497,14 @@ export class GameScene extends Phaser.Scene {
     textures: Phaser.Textures.TextureManager,
     level: LevelData,
     isStale: () => boolean,
+    restorationMode: boolean,
   ): Promise<void> {
     const runtimeTextureLongEdge = GameScene.resolveRuntimeTextureLongEdge(textures.game.renderer);
-    const targets: Array<{ key: string; url: string }> = [{
-      key: 'color',
-      url: selectRuntimeColorImageUrl(
-        level.colorImage,
-        level.width,
-        level.height,
-        runtimeTextureLongEdge,
-      ),
-    }];
-    for (let i = 0; i < (level.bgImageUrls?.length ?? 0); i++) {
-      targets.push({ key: `bg_${i}`, url: level.bgImageUrls![i] });
-    }
-    const spriteKeys: string[] = [];
-    for (const dog of level.dogs) {
-      const spriteUrl = dog.sprite?.image;
-      if (spriteUrl === undefined) continue;
-      const key = `dog_sprite_${level.id}_${dog.id}`;
-      spriteKeys.push(key);
-      targets.push({ key, url: spriteUrl });
-    }
+    const { targets, spriteKeys } = buildLevelPrewarmTargets(
+      level,
+      runtimeTextureLongEdge,
+      restorationMode,
+    );
 
     // Warming a different level than the one currently resident: evict its
     // textures first. `'color'`/`bg_i` are shared keys (addImage throws on a
