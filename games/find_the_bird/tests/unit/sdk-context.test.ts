@@ -87,12 +87,15 @@ describe('FTD SdkContext composition matrix', () => {
     expect(gameanalytics).not.toHaveBeenCalled();
   });
 
-  it('fails closed instead of falling back to sample IDs when AdMob config is incomplete', () => {
+  it('fails closed instead of falling back when an environment override is malformed', () => {
     const context = createSdkContext({
       buildEnv: 'production',
       platform: 'ios',
       isNativePlatform: true,
-      env: { VITE_ADMOB_IOS_ENABLED: 'true' },
+      env: {
+        VITE_ADMOB_IOS_ENABLED: 'true',
+        VITE_ADMOB_IOS_BANNER_ID: 'not-an-ad-unit-id',
+      },
     });
     expect(context.selection.ads).toBe('disabled');
   });
