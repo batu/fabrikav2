@@ -2,7 +2,7 @@
 
 Date: 2026-08-27
 Device: Batu’s physical iPhone 12 (`00008101-000410EC3EF9001E`)
-Revision: `9572737bf`
+Revision: `f34c38ab3` plus this evidence update
 
 ## Safety controls
 
@@ -15,8 +15,10 @@ Revision: `9572737bf`
 
 - Find the Bird banner: **PASS**. The installed native app entered gameplay and visibly rendered Google's banner with both “Test mode” and “Test ad” labels. Evidence: `find-the-bird-test-banner.png`.
 - Find the Dog banner: **PASS after fix**. The first smoke command incorrectly forced `VITE_CDN_ENABLED=false`, producing bright-green missing-asset geometry (`find-the-dog-device-failure.png`). After correcting that setup, native diagnostics exposed the actual ad defect: Capacitor selected the AdMob JS provider, but `capacitor.config.json` omitted `@capacitor-community/admob`, causing `"AdMob" plugin is not implemented on ios`. The sync-time allowlist read only shell env while runtime used committed public defaults. The allowlist now consumes the same committed defaults. A clean sync/build/install visibly rendered Google's “Test mode” / “Test ad” banner (`find-the-dog-test-banner.png`).
-- Interstitial: **UNVERIFIED** for both games.
-- Rewarded: **UNVERIFIED** for both games.
+- Find the Dog interstitial: **PASS**. Google's full-screen sample creative visibly showed “Test mode” and “This is an interstitial test ad.” Evidence: `find-the-dog-test-interstitial.png`.
+- Find the Dog rewarded: **PASS**. Google's rewarded sample creative visibly showed “Test mode” and a reward countdown. Evidence: `find-the-dog-test-rewarded.png`.
+- Find the Bird interstitial: **PASS**. Google's full-screen sample creative visibly showed “Test mode” and “This is an interstitial test ad.” Evidence: `find-the-bird-test-interstitial.png`.
+- Find the Bird rewarded: **PASS**. Google's rewarded sample creative visibly showed “Test mode” and a reward countdown. Evidence: `find-the-bird-test-rewarded.png`.
 
 ## Adjacent canonical-lane result
 
