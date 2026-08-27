@@ -14,16 +14,32 @@ const GOOGLE_SAMPLE_PUBLISHER = '3940256099942544';
 const APP_ID = /^ca-app-pub-(\d{16})~(\d{10})$/;
 const UNIT_ID = /^ca-app-pub-(\d{16})\/(\d{10})$/;
 
+export interface AdMobIosPublicConfig {
+  readonly enabled: boolean;
+  readonly appId: string;
+  readonly adUnits: {
+    readonly banner: string;
+    readonly interstitial: string;
+    readonly rewarded: string;
+  };
+}
+
 export type AdMobIosConfigResult =
   | { enabled: true; appId: string; config: AdConfig }
   | { enabled: false; reason: string; missingKeys: string[]; invalidKeys: string[] };
 
-export function readAdMobIosConfig(env: Env): AdMobIosConfigResult {
-  if (!parseBooleanEnv(env.VITE_ADMOB_IOS_ENABLED, false)) {
+export function readAdMobIosConfig(env: Env, publicConfig?: AdMobIosPublicConfig): AdMobIosConfigResult {
+  if (!parseBooleanEnv(env.VITE_ADMOB_IOS_ENABLED, publicConfig?.enabled ?? false)) {
     return { enabled: false, reason: 'VITE_ADMOB_IOS_ENABLED is not true', missingKeys: [], invalidKeys: [] };
   }
 
-  const values = Object.fromEntries(REQUIRED_KEYS.map((key) => [key, envString(env[key])])) as
+  const defaults: Record<(typeof REQUIRED_KEYS)[number], string | null> = {
+    VITE_ADMOB_IOS_APP_ID: envString(publicConfig?.appId),
+    VITE_ADMOB_IOS_BANNER_ID: envString(publicConfig?.adUnits.banner),
+    VITE_ADMOB_IOS_INTERSTITIAL_ID: envString(publicConfig?.adUnits.interstitial),
+    VITE_ADMOB_IOS_REWARDED_ID: envString(publicConfig?.adUnits.rewarded),
+  };
+  const values = Object.fromEntries(REQUIRED_KEYS.map((key) => [key, envString(env[key]) ?? defaults[key]])) as
     Record<(typeof REQUIRED_KEYS)[number], string | null>;
   const missingKeys: string[] = REQUIRED_KEYS.filter((key) => values[key] === null);
   const testMode = parseBooleanEnv(env.VITE_ADMOB_IOS_TEST_MODE, false);

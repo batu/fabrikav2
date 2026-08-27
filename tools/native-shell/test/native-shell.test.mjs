@@ -159,6 +159,21 @@ describe('native shell transforms', () => {
     expect(resolveRuntimeAdMobManifest(configured, { VITE_ADMOB_IOS_ENABLED: 'true' })).toBe(configured);
   });
 
+  it('uses committed AdMob enablement when no environment override exists', () => {
+    const configured = manifest();
+    configured.ios.adMobEnabledEnv = 'VITE_ADMOB_IOS_ENABLED';
+    configured.ios.adMobApplicationIdEnv = 'VITE_ADMOB_IOS_APP_ID';
+    configured.ios.localPackages.push({
+      name: 'CapacitorCommunityAdmob',
+      path: '../../../../../node_modules/@capacitor-community/admob',
+      product: 'CapacitorCommunityAdmob',
+    });
+
+    expect(resolveRuntimeAdMobManifest(configured, {}, { enabled: true })).toBe(configured);
+    expect(resolveRuntimeAdMobManifest(configured, {}, { enabled: false }).ios.adMobApplicationIdEnv).toBeNull();
+    expect(resolveRuntimeAdMobManifest(configured, { VITE_ADMOB_IOS_ENABLED: 'false' }, { enabled: true }).ios.adMobApplicationIdEnv).toBeNull();
+  });
+
   it('removes tracking and ad-network declarations for a provider-free shell', () => {
     const tracked = patchInfoPlist(plist(), manifest(), catalog());
     const providerFree = manifest();

@@ -40,6 +40,7 @@ import {
   readAttributionProviderChoice,
   selectAttributionProvider,
 } from '@fabrikav2/sdk/attribution';
+import adMobPublicConfig from '../../config/admob.public.json';
 import { setMusicPausedForAd } from '../audio/AudioManager';
 import { gameState } from '../core/GameState';
 import { readAppLovinConfigForPlatform } from '../ads/AppLovinConfig';
@@ -129,7 +130,7 @@ export function createSdkContext(deps: CreateSdkContextDependencies = {}): GameS
 
   let analyticsFacade: Analytics<FtdEvent> | null = null;
   const appLovinConfig: SdkAppLovinConfigResult = readAppLovinConfigForPlatform('android', env);
-  const adMobConfig = readAdMobIosConfig(env);
+  const adMobConfig = readAdMobIosConfig(env, adMobPublicConfig);
   const lifecycle = {
     onFullScreenAdStarted: (): void => setMusicPausedForAd(true),
     onFullScreenAdFinished: (): void => setMusicPausedForAd(false),

@@ -16,6 +16,35 @@ describe('readAdMobIosConfig', () => {
     expect(readAdMobIosConfig({})).toMatchObject({ enabled: false, missingKeys: [] });
   });
 
+  it('uses committed public identifiers as production defaults', () => {
+    const config = readAdMobIosConfig({}, {
+      enabled: true,
+      appId: complete.VITE_ADMOB_IOS_APP_ID,
+      adUnits: {
+        banner: complete.VITE_ADMOB_IOS_BANNER_ID,
+        interstitial: complete.VITE_ADMOB_IOS_INTERSTITIAL_ID,
+        rewarded: complete.VITE_ADMOB_IOS_REWARDED_ID,
+      },
+    });
+    expect(config).toMatchObject({
+      enabled: true,
+      appId: complete.VITE_ADMOB_IOS_APP_ID,
+      config: { iosRewardedAdUnitId: complete.VITE_ADMOB_IOS_REWARDED_ID },
+    });
+  });
+
+  it('allows an explicit environment disable over committed defaults', () => {
+    expect(readAdMobIosConfig({ VITE_ADMOB_IOS_ENABLED: 'false' }, {
+      enabled: true,
+      appId: complete.VITE_ADMOB_IOS_APP_ID,
+      adUnits: {
+        banner: complete.VITE_ADMOB_IOS_BANNER_ID,
+        interstitial: complete.VITE_ADMOB_IOS_INTERSTITIAL_ID,
+        rewarded: complete.VITE_ADMOB_IOS_REWARDED_ID,
+      },
+    })).toMatchObject({ enabled: false });
+  });
+
   it('accepts complete production identifiers without sample defaults', () => {
     expect(readAdMobIosConfig(complete)).toEqual({
       enabled: true,
