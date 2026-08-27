@@ -34,6 +34,21 @@ function makeGameRoot() {
   return root;
 }
 
+function runCliWithoutLocalOverrides(args, environment = {}) {
+  const root = makeGameRoot();
+  const fixtureTools = path.join(root, 'tools/game-env');
+  const fixtureGame = path.join(root, 'games/find_the_dog');
+  fs.mkdirSync(path.dirname(fixtureTools), { recursive: true });
+  fs.mkdirSync(fixtureGame, { recursive: true });
+  fs.cpSync(path.join(repoRoot, 'tools/game-env'), fixtureTools, { recursive: true });
+  fs.copyFileSync(path.join(repoRoot, 'games/find_the_dog/.env.example'), path.join(fixtureGame, '.env.example'));
+  return spawnSync(process.execPath, [path.join(fixtureTools, 'validate.mjs'), ...args], {
+    cwd: fixtureGame,
+    encoding: 'utf8',
+    env: environment,
+  });
+}
+
 function write(root, name, contents) {
   fs.writeFileSync(path.join(root, name), contents);
 }
@@ -367,7 +382,7 @@ describe('validator CLI', () => {
 
   it('fails normal iOS validation loudly without printing ambient values', () => {
     const canary = 'ambient-canary-do-not-print';
-    const result = runCli(
+    const result = runCliWithoutLocalOverrides(
       ['--game', 'find_the_dog', '--mode', 'ios'],
       {
         VITE_FTD_DISABLE_REMOTE_CONFIG: 'false',

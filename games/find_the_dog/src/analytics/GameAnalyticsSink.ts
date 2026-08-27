@@ -23,6 +23,7 @@ export interface GameAnalyticsSdk {
     configureAvailableResourceCurrencies(values: string[]): void;
     configureAvailableResourceItemTypes(values: string[]): void;
     initialize(gameKey: string, secretKey: string): void;
+    isSdkReady?(needsInitialized: boolean, warn?: boolean): boolean;
     addProgressionEvent(status: number, p1: string, p2?: string, p3?: string, score?: number, fields?: Record<string, unknown>): void;
     addDesignEvent(eventId: string, value?: number, fields?: Record<string, unknown>): void;
     addResourceEvent(flow: number, currency: string, amount: number, category: string, itemId: string, fields?: Record<string, unknown>): void;
@@ -59,20 +60,21 @@ export function createGameAnalyticsSink(
     if (sdk !== null || disabled) return Promise.resolve();
     if (initPromise !== null) return initPromise;
     initPromise = loader()
-      .then((module): void => {
+      .then(async (module): Promise<void> => {
         const loaded = unwrapSdk(module);
         loaded.GameAnalytics.setEnabledInfoLog(config.verboseLogging);
         loaded.GameAnalytics.setEnabledVerboseLog(config.verboseLogging);
         loaded.GameAnalytics.configureAvailableResourceCurrencies([...GAMEANALYTICS_RESOURCE_CURRENCIES]);
         loaded.GameAnalytics.configureAvailableResourceItemTypes([...GAMEANALYTICS_RESOURCE_ITEM_TYPES]);
         loaded.GameAnalytics.initialize(config.gameKey, config.secretKey);
+        await waitForSdkReady(loaded.GameAnalytics);
         sdk = loaded;
         for (const event of queue.splice(0)) dispatch(loaded, event);
       })
       .catch((error: unknown): void => {
         disabled = true;
         queue.length = 0;
-        logger.warn('[analytics:gameanalytics] initialization failed', error);
+        logger.warn(`[analytics:gameanalytics] initialization failed: ${errorMessage(error)}`);
       });
     return initPromise;
   }
@@ -94,10 +96,23 @@ export function createGameAnalyticsSink(
   };
 }
 
+async function waitForSdkReady(api: GameAnalyticsSdk['GameAnalytics']): Promise<void> {
+  if (api.isSdkReady === undefined) return;
+  const deadline = Date.now() + 10_000;
+  while (!api.isSdkReady(true, false)) {
+    if (Date.now() >= deadline) throw new Error('GameAnalytics SDK did not become ready within 10 seconds');
+    await new Promise((resolve) => setTimeout(resolve, 50));
+  }
+}
+
+function errorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
+}
+
 function unwrapSdk(module: unknown): GameAnalyticsSdk {
   const record = isRecord(module) ? module : {};
   const candidate = isRecord(record.default) ? record.default : record;
-  if (!isRecord(candidate.GameAnalytics)) {
+  if (!isRecord(candidate.GameAnalytics) && typeof candidate.GameAnalytics !== 'function') {
     throw new Error('GameAnalytics JavaScript SDK did not expose GameAnalytics');
   }
   return candidate as unknown as GameAnalyticsSdk;
