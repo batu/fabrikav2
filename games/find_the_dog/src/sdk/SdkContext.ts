@@ -5,7 +5,6 @@ import {
   type SdkEnvironments,
 } from '@fabrikav2/sdk';
 import {
-  AdMobProvider,
   AppLovinMaxProvider,
   defaultAdProviderFactories,
   type AdProvider as SdkAdProvider,
@@ -130,9 +129,7 @@ export function createSdkContext(deps: CreateSdkContextDependencies = {}): GameS
     onFullScreenAdFinished: (): void => setMusicPausedForAd(false),
   };
   const ads = platform === 'ios'
-    ? adMobConfig.enabled
-      ? deps.adProviderFactories?.createAdMobProvider(lifecycle) ?? new AdMobProvider(adMobConfig.config, { lifecycle })
-      : defaultAdProviderFactories.createDisabledProvider(`AdMob unavailable: ${adMobConfig.reason}`)
+    ? defaultAdProviderFactories.createDisabledProvider(`AdMob unavailable: ${adMobConfig.reason}`)
     : platform === 'android' && appLovinConfig.enabled
       ? deps.adProviderFactories?.createAppLovinMaxProvider(appLovinConfig.config, lifecycle) ?? new AppLovinMaxProvider(appLovinConfig.config, {
           lifecycle,

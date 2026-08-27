@@ -161,12 +161,8 @@ describe('environment validation', () => {
     {
       mode: 'ios',
       enabled: 'VITE_ADMOB_IOS_ENABLED',
-      required: [
-        'VITE_ADMOB_IOS_APP_ID',
-        'VITE_ADMOB_IOS_BANNER_ID',
-        'VITE_ADMOB_IOS_INTERSTITIAL_ID',
-        'VITE_ADMOB_IOS_REWARDED_ID',
-      ],
+      required: [],
+      invalid: ['VITE_ADMOB_IOS_ENABLED'],
     },
     {
       mode: 'android',

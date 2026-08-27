@@ -99,15 +99,7 @@ function validateConditional({ values, mode, booleanValue, requireValue, invalid
   }
 
   if (mode === 'ios' && booleanValue(values.get('VITE_ADMOB_IOS_ENABLED')) === true) {
-    for (const key of [
-      'VITE_ADMOB_IOS_APP_ID',
-      'VITE_ADMOB_IOS_BANNER_ID',
-      'VITE_ADMOB_IOS_INTERSTITIAL_ID',
-      'VITE_ADMOB_IOS_REWARDED_ID',
-    ]) requireValue(key);
-    if (booleanValue(values.get('VITE_ADMOB_IOS_TEST_MODE')) === true) {
-      requireValue('VITE_ADMOB_IOS_TEST_DEVICE_IDS');
-    }
+    invalidKeys.push('VITE_ADMOB_IOS_ENABLED');
   }
 
   const prefix = 'VITE_APPLOVIN_ANDROID';
@@ -121,9 +113,8 @@ function validateConditional({ values, mode, booleanValue, requireValue, invalid
 
 function configureMissingDryRunCase(values, mode) {
   if (mode === 'ios') {
-    values.set('VITE_ADMOB_IOS_ENABLED', 'true');
-    values.set('VITE_ADMOB_IOS_TEST_MODE', 'false');
-    return 'VITE_ADMOB_IOS_APP_ID';
+    values.set('VITE_GAMEANALYTICS_IOS_ENABLED', 'true');
+    return 'VITE_GAMEANALYTICS_IOS_SECRET_KEY';
   }
   values.set('VITE_APPLOVIN_ANDROID_ENABLED', 'true');
   values.set('VITE_APPLOVIN_ANDROID_GENERAL_AUDIENCE_ONLY', 'true');

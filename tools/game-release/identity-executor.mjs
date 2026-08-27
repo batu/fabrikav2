@@ -14,7 +14,7 @@ const IDENTITY_GRAPH = Object.freeze({
   'tools/game-release/src/manifest.mjs': '618ca664a49df83170580920a0268a4a9ecc22bf1a1e01491bb23d0c94d9d782',
   'tools/game-env/src/env.mjs': '4b4324cc2f368c7a7a0ab369778d63a9b75e6ba963a306a59fbbe402ae77e9fc',
   'tools/game-env/src/policies.mjs': 'c57ae66c34f4013c8bf1830ae6e436749fc806000ce7ee134b37fc3b1f6131ef',
-  'tools/game-env/src/policies/find-the-dog.mjs': 'ba081672d7456449c1d9afb323e9a81804ae51437a590b4b54b57a0dabb88319',
+  'tools/game-env/src/policies/find-the-dog.mjs': '9a4068a7771155c60f62df7b9b82d08fd1d3381e7c189799ccf2b9ce78642e3b',
   'tools/game-env/src/validate.mjs': 'e1d9733c038b353cd85915bc8c95e2f633123773b40be686ea1e24f03046b31c',
   'tools/native-shell/src/native-shell.mjs': '09247c88a76b8a17ae52e9280979d39b1465d35126270d96833e6ffe5ec9980d',
   'games/find_the_dog/native-resources/ios/shell-manifest.json': '28890f3b53a5cef9d19b98c7d3946214c5f603b0b13b943dc8980b0e9ffc06d1',

@@ -21,16 +21,11 @@ describe('capacitor includePlugins allowlist', () => {
     ]);
   });
 
-  it('includes AdMob only for complete enabled iOS configuration', () => {
-    expect(computeIncludePlugins({ VITE_ADMOB_IOS_ENABLED: 'true' })).not.toContain('@capacitor-community/admob');
+  it('never includes AdMob in the ad-free iOS shell', () => {
     expect(computeIncludePlugins({
       VITE_ADMOB_IOS_ENABLED: 'true',
       VITE_ADMOB_IOS_APP_ID: 'ca-app-pub-1234567890123456~1234567890',
-      VITE_ADMOB_IOS_BANNER_ID: 'ca-app-pub-1234567890123456/1111111111',
-      VITE_ADMOB_IOS_INTERSTITIAL_ID: 'ca-app-pub-1234567890123456/2222222222',
-      VITE_ADMOB_IOS_REWARDED_ID: 'ca-app-pub-1234567890123456/3333333333',
-      VITE_ADMOB_IOS_TEST_MODE: 'false',
-    })).toContain('@capacitor-community/admob');
+    })).not.toContain('@capacitor-community/admob');
   });
 
   it('excludes @capacitor-firebase/analytics when Firebase config is absent', () => {

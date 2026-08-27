@@ -41,7 +41,7 @@ describe('FTD SdkContext composition matrix', () => {
     expect(gameanalytics).not.toHaveBeenCalled();
   });
 
-  it('selects every configured native iOS adapter without eagerly loading plugins', () => {
+  it('selects configured native iOS adapters while keeping ads disabled', () => {
     const firebase = vi.fn();
     const revenuecat = vi.fn();
     const gameanalytics = vi.fn();
@@ -74,7 +74,7 @@ describe('FTD SdkContext composition matrix', () => {
 
     expect(context.selection.iap).toBe('revenuecat');
     expect(context.selection.remoteConfig).toBe('firebase');
-    expect(context.selection.ads).toBe('admob');
+    expect(context.selection.ads).toBe('disabled');
     expect(context.selection.attribution).toBe('adjust-ios');
     expect(context.selection.analyticsSinks).toEqual([
       'ring-buffer',
