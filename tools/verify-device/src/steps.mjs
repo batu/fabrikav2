@@ -313,6 +313,27 @@ export function buildAndInstallApp(
   return appBundleId;
 }
 
+export function uninstallIosApp({ deviceUdid, bundleId, shImpl = sh }) {
+  shImpl('xcrun', ['devicectl', 'device', 'uninstall', 'app', '--device', deviceUdid, bundleId]);
+}
+
+export function installIosApp({ deviceUdid, appPath, shImpl = sh }) {
+  shImpl('xcrun', ['devicectl', 'device', 'install', 'app', '--device', deviceUdid, appPath]);
+}
+
+export function launchIosApp({ deviceUdid, bundleId, shImpl = sh }) {
+  shImpl('xcrun', ['devicectl', 'device', 'process', 'launch', '--terminate-existing', '--device', deviceUdid, bundleId]);
+  return { launched: true, bundleId };
+}
+
+export function buildSignedIosApp({ gameDir, deviceUdid, developmentTeam = process.env.DEVELOPMENT_TEAM, shImpl = sh }) {
+  const project = path.join(gameDir, 'ios', 'App', 'App.xcodeproj');
+  const derived = path.join(gameDir, 'ios', 'App', 'release-build');
+  const settings = developmentTeam ? ['-allowProvisioningUpdates', `DEVELOPMENT_TEAM=${developmentTeam}`] : [];
+  shImpl('xcodebuild', ['-project', project, '-scheme', 'App', '-configuration', 'Release', '-destination', `id=${deviceUdid}`, '-derivedDataPath', derived, 'build', ...settings]);
+  return { appPath: path.join(derived, 'Build', 'Products', 'Release-iphoneos', 'App.app'), signingIdentity: developmentTeam || 'xcode-managed' };
+}
+
 /**
  * Step 3: generate + run the XCUITest runner against the device, export xcresult.
  * @returns {{exportDir:string, testError:Error|null}} exported attachments plus

@@ -39,6 +39,22 @@ test("Play Now starts the current level from a real menu tap", async ({ page }) 
   );
 });
 
+test("remote gameplay policy defaults every player to Classic reveal", async ({ page }) => {
+  await page.addInitScript(() => {
+    window.localStorage.setItem("ftd_settings", JSON.stringify({ gameMode: "restoration" }));
+  });
+  await page.goto("/");
+  await expect(page.locator("#home-play-now")).toBeVisible({ timeout: 30000 });
+  await page.locator("#home-play-now").click({ force: true });
+
+  await expect.poll(async () => page.evaluate(() => {
+    const game = (window as unknown as {
+      __FIND_DOG_GAME__?: { scene?: { getScene?: (key: string) => { getIsRestoration?: () => boolean } } };
+    }).__FIND_DOG_GAME__;
+    return game?.scene?.getScene?.("GameScene")?.getIsRestoration?.();
+  }), { timeout: 30000 }).toBe(false);
+});
+
 test.describe("home menu polish regressions", () => {
   test.use({
     viewport: { width: 390, height: 844 },

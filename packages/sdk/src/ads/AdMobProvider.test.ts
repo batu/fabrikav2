@@ -41,6 +41,9 @@ const makeAdapter = (overrides: Partial<AdMobAdapter> = {}): FakeAdapter => {
     isNativePlatform: vi.fn(async (): Promise<boolean> => true),
     getPlatform: vi.fn(async (): Promise<'android' | 'ios' | 'web'> => 'android'),
     initialize: vi.fn(async (): Promise<void> => {}),
+    requestConsentInfo: vi.fn(async () => ({ status: 'OBTAINED' as never, canRequestAds: true, privacyOptionsRequirementStatus: 'NOT_REQUIRED' as never })),
+    showConsentForm: vi.fn(async () => ({ status: 'OBTAINED' as never, canRequestAds: true, privacyOptionsRequirementStatus: 'NOT_REQUIRED' as never })),
+    showPrivacyOptionsForm: vi.fn(async (): Promise<void> => {}),
     prepareInterstitial: vi.fn(async (): Promise<void> => {}),
     showInterstitial: vi.fn(async (): Promise<void> => {
       emit(InterstitialAdPluginEvents.Dismissed);
@@ -108,6 +111,28 @@ beforeEach(() => {
   scheduledRetries = [];
   vi.spyOn(console, 'info').mockImplementation((): void => {});
   vi.spyOn(console, 'warn').mockImplementation((): void => {});
+});
+
+describe('UMP consent', () => {
+  it('presents a required form before initializing and exposes privacy options', async () => {
+    const adapter = makeAdapter({
+      requestConsentInfo: vi.fn(async () => ({ status: 'REQUIRED' as never, isConsentFormAvailable: true, canRequestAds: false, privacyOptionsRequirementStatus: 'REQUIRED' as never })),
+      showConsentForm: vi.fn(async () => ({ status: 'OBTAINED' as never, canRequestAds: true, privacyOptionsRequirementStatus: 'REQUIRED' as never })),
+    });
+    const provider = new AdMobProvider(config, { adapter, scheduleRetry });
+    await provider.init();
+    expect(adapter.showConsentForm).toHaveBeenCalledOnce();
+    expect(adapter.initialize).toHaveBeenCalledOnce();
+    await expect(provider.showPrivacyOptions()).resolves.toBe(true);
+    expect(adapter.showPrivacyOptionsForm).toHaveBeenCalledOnce();
+  });
+
+  it('does not initialize when UMP still forbids ad requests', async () => {
+    const adapter = makeAdapter({ requestConsentInfo: vi.fn(async () => ({ status: 'REQUIRED' as never, isConsentFormAvailable: false, canRequestAds: false, privacyOptionsRequirementStatus: 'REQUIRED' as never })) });
+    const provider = new AdMobProvider(config, { adapter, scheduleRetry });
+    await provider.init();
+    expect(adapter.initialize).not.toHaveBeenCalled();
+  });
 });
 afterEach(() => {
   vi.restoreAllMocks();

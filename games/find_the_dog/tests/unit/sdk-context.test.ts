@@ -41,7 +41,7 @@ describe('FTD SdkContext composition matrix', () => {
     expect(gameanalytics).not.toHaveBeenCalled();
   });
 
-  it('selects every configured native iOS adapter without eagerly loading plugins', () => {
+  it('selects configured native iOS adapters while keeping ads disabled', () => {
     const firebase = vi.fn();
     const revenuecat = vi.fn();
     const gameanalytics = vi.fn();
@@ -74,7 +74,7 @@ describe('FTD SdkContext composition matrix', () => {
 
     expect(context.selection.iap).toBe('revenuecat');
     expect(context.selection.remoteConfig).toBe('firebase');
-    expect(context.selection.ads).toBe('admob');
+    expect(context.selection.ads).toBe('disabled');
     expect(context.selection.attribution).toBe('adjust-ios');
     expect(context.selection.analyticsSinks).toEqual([
       'ring-buffer',
@@ -87,15 +87,12 @@ describe('FTD SdkContext composition matrix', () => {
     expect(gameanalytics).not.toHaveBeenCalled();
   });
 
-  it('fails closed instead of falling back when an environment override is malformed', () => {
+  it('fails closed instead of falling back to sample IDs when AdMob config is incomplete', () => {
     const context = createSdkContext({
       buildEnv: 'production',
       platform: 'ios',
       isNativePlatform: true,
-      env: {
-        VITE_ADMOB_IOS_ENABLED: 'true',
-        VITE_ADMOB_IOS_BANNER_ID: 'not-an-ad-unit-id',
-      },
+      env: { VITE_ADMOB_IOS_ENABLED: 'true' },
     });
     expect(context.selection.ads).toBe('disabled');
   });
@@ -184,28 +181,6 @@ describe('FTD SdkContext composition matrix', () => {
     const context = createSdkContext({ buildEnv: 'development', platform: 'web', env: {} });
     for (const eventName of gameConfig.analyticsEvents) context.analytics.track(eventName);
     expect(context.analyticsRing.drain().map((event) => event.name)).toEqual(gameConfig.analyticsEvents);
-  });
-
-  it('fails closed for an uncomposed ad provider, honors attribution disable, and rejects typos', () => {
-    const context = createSdkContext({
-      buildEnv: 'production',
-      platform: 'ios',
-      isNativePlatform: false,
-      env: {
-        VITE_AD_PROVIDER: 'admob',
-        VITE_ATTRIBUTION_PROVIDER: 'disabled',
-        VITE_ADJUST_IOS_ENABLED: 'true',
-        VITE_ADJUST_IOS_APP_TOKEN: 'a'.repeat(12),
-      },
-    });
-
-    expect(context.selection.ads).toBe('disabled');
-    expect(context.selection.attribution).toBe('disabled');
-    expect(() => createSdkContext({
-      buildEnv: 'production',
-      platform: 'ios',
-      env: { VITE_AD_PROVIDER: 'ad-mob' },
-    })).toThrow('Invalid configuration choice');
   });
 
   it('enables the owned mirror only when URL and public key are both valid', () => {

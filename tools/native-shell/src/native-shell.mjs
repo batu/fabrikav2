@@ -455,36 +455,10 @@ function loadContext(repoRoot, game) {
   const catalogPath = manifest.ios.skAdNetworkCatalog ? path.join(recipeDir, manifest.ios.skAdNetworkCatalog) : null;
   if (catalogPath) requireFile(catalogPath, 'SKAdNetwork catalog');
   const ids = catalogPath ? (readJson(catalogPath).skadnetwork_ids?.map((entry) => entry.skadnetwork_id) ?? []) : [];
-  const publicConfigPath = manifest.ios.adMobPublicConfig ? path.join(recipeDir, manifest.ios.adMobPublicConfig) : null;
-  if (publicConfigPath) requireFile(publicConfigPath, 'AdMob public config');
-  const publicConfig = publicConfigPath ? readJson(publicConfigPath) : null;
-  const runtimeManifest = resolveRuntimeAdMobManifest(manifest, process.env, publicConfig);
-  const adMobEnabled = runtimeManifest === manifest;
-  const runtimeIds = adMobEnabled ? ids : [];
-  const adMobApplicationId = runtimeManifest.ios.adMobApplicationIdEnv
-    ? process.env[runtimeManifest.ios.adMobApplicationIdEnv]?.trim() || publicConfig?.appId?.trim()
+  const adMobApplicationId = manifest.ios.adMobApplicationIdEnv
+    ? process.env[manifest.ios.adMobApplicationIdEnv]?.trim()
     : undefined;
-  return { gameDir, recipeDir, manifest, ids, runtimeManifest, runtimeIds, adMobApplicationId };
-}
-
-export function resolveRuntimeAdMobManifest(manifest, environment = {}, publicConfig = null) {
-  const configured = manifest.ios.adMobEnabledEnv === undefined
-    ? null
-    : environment[manifest.ios.adMobEnabledEnv]?.trim().toLowerCase();
-  const enabled = configured == null || configured === ''
-    ? (publicConfig?.enabled ?? manifest.ios.adMobEnabledEnv === undefined)
-    : ['true', '1', 'yes', 'on'].includes(configured);
-  if (enabled) return manifest;
-  return {
-    ...manifest,
-    ios: {
-      ...manifest.ios,
-      localPackages: manifest.ios.localPackages.filter((pkg) => pkg.name !== 'CapacitorCommunityAdmob'),
-      adMobApplicationIdEnv: null,
-      skAdNetworkCatalog: null,
-      skAdNetworkExpectedCount: null,
-    },
-  };
+  return { gameDir, recipeDir, manifest, ids, adMobApplicationId };
 }
 
 function validateCatalog(ids, manifest, issues) {
@@ -507,9 +481,7 @@ function validateManifest(manifest, issues) {
   for (const [name, value] of requiredStrings) if (typeof value !== 'string' || !value.trim()) issues.push(`shell manifest ${name} must be a non-empty string`);
   if (manifest.ios?.trackingUsageDescription != null && (typeof manifest.ios.trackingUsageDescription !== 'string' || !manifest.ios.trackingUsageDescription.trim())) issues.push('shell manifest ios.trackingUsageDescription must be null or a non-empty string');
   if (manifest.ios?.skAdNetworkExpectedCount != null && (!Number.isInteger(manifest.ios.skAdNetworkExpectedCount) || manifest.ios.skAdNetworkExpectedCount < 1)) issues.push('shell manifest ios.skAdNetworkExpectedCount must be a positive integer');
-  if (manifest.ios?.adMobEnabledEnv != null && !/^VITE_[A-Z0-9_]+$/.test(manifest.ios.adMobEnabledEnv)) issues.push('shell manifest ios.adMobEnabledEnv must be a VITE_ environment key');
   if (manifest.ios?.adMobApplicationIdEnv != null && !/^VITE_[A-Z0-9_]+$/.test(manifest.ios.adMobApplicationIdEnv)) issues.push('shell manifest ios.adMobApplicationIdEnv must be a VITE_ environment key');
-  if (manifest.ios?.adMobPublicConfig != null && (typeof manifest.ios.adMobPublicConfig !== 'string' || !/^\.\.\/\.\.\/config\/[a-zA-Z0-9._-]+\.json$/.test(manifest.ios.adMobPublicConfig))) issues.push('shell manifest ios.adMobPublicConfig must be a safe game config JSON path');
   const localPackages = manifest.ios?.localPackages ?? [];
   const remotePackages = manifest.ios?.remotePackages ?? [];
   const names = [...localPackages, ...remotePackages].map((pkg) => pkg.name);
@@ -637,11 +609,8 @@ function validateFirebaseIdentity(gameDir, manifest, { allowMissingFirebase }, i
 }
 
 export function validateGeneratedShell({ repoRoot, game, allowMissingFirebase = true }) {
-  const context = loadContext(repoRoot, game);
-  const { gameDir, recipeDir, adMobApplicationId } = context;
-  const issues = collectRecipeIssues(gameDir, recipeDir, context.manifest, context.ids);
-  const manifest = context.runtimeManifest;
-  const ids = context.runtimeIds;
+  const { gameDir, recipeDir, manifest, ids, adMobApplicationId } = loadContext(repoRoot, game);
+  const issues = collectRecipeIssues(gameDir, recipeDir, manifest, ids);
   const iosRoot = path.join(gameDir, 'ios', 'App');
   const usesFirebase = manifest.ios.localPackages.some((pkg) => pkg.name === 'CapacitorFirebaseAnalytics');
   if (usesFirebase) validateFirebaseIdentity(gameDir, manifest, { allowMissingFirebase }, issues);
@@ -741,11 +710,8 @@ function copyRecipeApp(recipeDir, iosRoot, changed) {
 }
 
 export function applyNativeShell({ repoRoot, game }) {
-  const context = loadContext(repoRoot, game);
-  const { gameDir, recipeDir, adMobApplicationId } = context;
-  const recipeIssues = collectRecipeIssues(gameDir, recipeDir, context.manifest, context.ids);
-  const manifest = context.runtimeManifest;
-  const ids = context.runtimeIds;
+  const { gameDir, recipeDir, manifest, ids, adMobApplicationId } = loadContext(repoRoot, game);
+  const recipeIssues = collectRecipeIssues(gameDir, recipeDir, manifest, ids);
   if (recipeIssues.length) throw new Error(`invalid native recipe:\n- ${recipeIssues.join('\n- ')}`);
   if (manifest.ios.adMobApplicationIdEnv && !ADMOB_APP_ID.test(adMobApplicationId ?? '')) throw new Error('AdMob application ID is missing or malformed');
   if (ADMOB_APP_ID.exec(adMobApplicationId ?? '')?.[1] === GOOGLE_SAMPLE_PUBLISHER) throw new Error('AdMob application ID must not use Google sample inventory');

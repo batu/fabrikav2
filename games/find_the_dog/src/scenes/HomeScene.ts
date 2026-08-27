@@ -19,6 +19,8 @@ import type { GameSceneData } from './GameScene';
 import { GameScene } from './GameScene';
 import { FTD_UI_THEME } from '../ui/ftdTheme';
 import { HOME_NO_ADS_BADGE_SRC } from '../ui/iconPreload';
+import { remoteConfigService } from '../config/RemoteConfigService';
+import { resolveGameplayMode } from '../config/gameplayModePolicy';
 
 function triggerNavBounce(btn: HTMLButtonElement): void {
   btn.classList.remove('home-nav-btn--tapped');
@@ -360,7 +362,16 @@ export class HomeScene extends Phaser.Scene {
     if (this.isShuttingDown || !this.sys.isActive() || this.navigationGeneration !== generation) return;
     if (this.prewarm !== null && this.prewarm.levelId === entry.id) return;
     const token = { stale: false };
-    const promise = GameScene.prewarmLevel(this.textures, levelData, () => token.stale);
+    const restorationMode = resolveGameplayMode(
+      remoteConfigService.value('gameplayModePolicy'),
+      gameState.settings.gameMode,
+    ) === 'restoration';
+    const promise = GameScene.prewarmLevel(
+      this.textures,
+      levelData,
+      () => token.stale,
+      restorationMode,
+    );
     this.prewarm = { levelId: entry.id, token, promise };
     await promise;
   }

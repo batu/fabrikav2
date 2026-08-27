@@ -34,6 +34,21 @@ function makeGameRoot() {
   return root;
 }
 
+function runCliWithoutLocalOverrides(args, environment = {}) {
+  const root = makeGameRoot();
+  const fixtureTools = path.join(root, 'tools/game-env');
+  const fixtureGame = path.join(root, 'games/find_the_dog');
+  fs.mkdirSync(path.dirname(fixtureTools), { recursive: true });
+  fs.mkdirSync(fixtureGame, { recursive: true });
+  fs.cpSync(path.join(repoRoot, 'tools/game-env'), fixtureTools, { recursive: true });
+  fs.copyFileSync(path.join(repoRoot, 'games/find_the_dog/.env.example'), path.join(fixtureGame, '.env.example'));
+  return spawnSync(process.execPath, [path.join(fixtureTools, 'validate.mjs'), ...args], {
+    cwd: fixtureGame,
+    encoding: 'utf8',
+    env: environment,
+  });
+}
+
 function write(root, name, contents) {
   fs.writeFileSync(path.join(root, name), contents);
 }
@@ -119,36 +134,6 @@ describe('environment validation', () => {
     expect(validateEnvironment({ gameRoot: root, mode: 'ios', policy, environment: {} }).ok).toBe(true);
   });
 
-  it('rejects invalid provider choices and incomplete AppsFlyer configuration', () => {
-    const root = makeGameRoot();
-    const base = {
-      VITE_FTD_DISABLE_REMOTE_CONFIG: 'false',
-      VITE_GAMEANALYTICS_IOS_ENABLED: 'false',
-      VITE_ADJUST_IOS_ENABLED: 'false',
-      VITE_APPLOVIN_IOS_ENABLED: 'false',
-      VITE_CDN_ENABLED: 'false',
-    };
-
-    const invalidChoice = validateEnvironment({
-      gameRoot: root,
-      mode: 'ios',
-      policy,
-      environment: { ...base, VITE_AD_PROVIDER: 'ad-mob' },
-    });
-    expect(invalidChoice.invalidKeys).toContain('VITE_AD_PROVIDER');
-
-    const incompleteAppsFlyer = validateEnvironment({
-      gameRoot: root,
-      mode: 'ios',
-      policy,
-      environment: { ...base, VITE_APPSFLYER_ENABLED: 'true' },
-    });
-    expect(incompleteAppsFlyer.missingKeys).toEqual([
-      'VITE_APPSFLYER_APPLE_APP_ID',
-      'VITE_APPSFLYER_DEV_KEY',
-    ]);
-  });
-
   it('rejects a persisted VITE_INSITU_TOUR value (capture flags are shell-env only)', () => {
     const root = makeGameRoot();
     write(root, '.env.ios.local', [
@@ -176,12 +161,8 @@ describe('environment validation', () => {
     {
       mode: 'ios',
       enabled: 'VITE_ADMOB_IOS_ENABLED',
-      required: [
-        'VITE_ADMOB_IOS_APP_ID',
-        'VITE_ADMOB_IOS_BANNER_ID',
-        'VITE_ADMOB_IOS_INTERSTITIAL_ID',
-        'VITE_ADMOB_IOS_REWARDED_ID',
-      ],
+      required: [],
+      invalid: ['VITE_ADMOB_IOS_ENABLED'],
     },
     {
       mode: 'android',
@@ -302,13 +283,13 @@ describe('environment validation', () => {
 });
 
 describe('canonical template', () => {
-  it('contains the exact 65-key placeholder-only contract with one comment per assignment', () => {
+  it('contains the exact 59-key placeholder-only contract with one comment per assignment', () => {
     const templatePath = path.join(repoRoot, 'games/find_the_dog/.env.example');
     const result = validateTemplate(templatePath, policy);
 
     expect(result.ok).toBe(true);
     expect(result.keys).toEqual([...FIND_THE_DOG_ENV_KEYS].sort());
-    expect(result.keys).toHaveLength(65);
+    expect(result.keys).toHaveLength(59);
   });
 
   it('rejects duplicate assignments even when the final key set is exact', () => {
@@ -397,7 +378,7 @@ describe('validator CLI', () => {
 
   it('fails normal iOS validation loudly without printing ambient values', () => {
     const canary = 'ambient-canary-do-not-print';
-    const result = runCli(
+    const result = runCliWithoutLocalOverrides(
       ['--game', 'find_the_dog', '--mode', 'ios'],
       {
         VITE_FTD_DISABLE_REMOTE_CONFIG: 'false',

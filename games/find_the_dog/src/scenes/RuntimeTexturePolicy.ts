@@ -8,6 +8,26 @@ export function resolveRuntimeTextureLongEdge(maxTextureSize: number | null): nu
   return Math.floor(maxTextureSize!);
 }
 
+export function resolvePlatformRuntimeTextureLongEdge(
+  maxTextureSize: number | null,
+  platform: string,
+): number {
+  const capability = resolveRuntimeTextureLongEdge(maxTextureSize);
+  return platform === 'ios'
+    ? Math.min(capability, FALLBACK_RUNTIME_TEXTURE_LONG_EDGE)
+    : capability;
+}
+
+export function resolveDerivedTextureDimensions(
+  sourceWidth: number,
+  sourceHeight: number,
+): { width: number; height: number } {
+  return {
+    width: Math.max(1, Math.round(sourceWidth)),
+    height: Math.max(1, Math.round(sourceHeight)),
+  };
+}
+
 /** Prefer the bundled source-resolution tier only when it can add real detail. */
 export function selectRuntimeColorImageUrl(
   fallbackUrl: string,

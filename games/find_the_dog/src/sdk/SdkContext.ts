@@ -4,13 +4,9 @@ import {
   type SdkBuildEnv,
   type SdkEnvironments,
 } from '@fabrikav2/sdk';
-import { envString } from '@fabrikav2/sdk/config-env';
 import {
-  AdMobProvider,
   AppLovinMaxProvider,
-  createAdProvider,
   defaultAdProviderFactories,
-  readAdProviderChoice,
   type AdProvider as SdkAdProvider,
   type AdProviderFactories,
   type AppLovinConfigResult as SdkAppLovinConfigResult,
@@ -36,11 +32,8 @@ import {
 } from '@fabrikav2/sdk/iap';
 import {
   AttributionService as SdkAttributionService,
-  readAppsFlyerConfig,
-  readAttributionProviderChoice,
-  selectAttributionProvider,
+  createAttributionProvider,
 } from '@fabrikav2/sdk/attribution';
-import adMobPublicConfig from '../../config/admob.public.json';
 import { setMusicPausedForAd } from '../audio/AudioManager';
 import { gameState } from '../core/GameState';
 import { readAppLovinConfigForPlatform } from '../ads/AppLovinConfig';
@@ -130,41 +123,31 @@ export function createSdkContext(deps: CreateSdkContextDependencies = {}): GameS
 
   let analyticsFacade: Analytics<FtdEvent> | null = null;
   const appLovinConfig: SdkAppLovinConfigResult = readAppLovinConfigForPlatform('android', env);
-  const adMobConfig = readAdMobIosConfig(env, adMobPublicConfig);
+  const adMobConfig = readAdMobIosConfig(env);
   const lifecycle = {
     onFullScreenAdStarted: (): void => setMusicPausedForAd(true),
     onFullScreenAdFinished: (): void => setMusicPausedForAd(false),
   };
-  const baseFactories = deps.adProviderFactories;
-  const adFactories: AdProviderFactories = baseFactories ?? {
-    createAdMobProvider: platform === 'ios'
-      ? (adLifecycle) => isNativePlatform && adMobConfig.enabled
-        ? new AdMobProvider(adMobConfig.config, { lifecycle: adLifecycle })
-        : defaultAdProviderFactories.createDisabledProvider(`AdMob unavailable: ${adMobConfig.enabled ? 'not running on a native platform' : adMobConfig.reason}`)
-      : defaultAdProviderFactories.createAdMobProvider,
-    createAppLovinMaxProvider: (config, adLifecycle) => new AppLovinMaxProvider(config, {
-      lifecycle: adLifecycle,
-      onAdRevenuePaid: (event): void => {
-        analyticsFacade?.track('ad_revenue_paid', { ...event });
-      },
-    }),
-    createDisabledProvider: defaultAdProviderFactories.createDisabledProvider,
-  };
-  const configuredAdChoice = readAdProviderChoice(env.VITE_AD_PROVIDER);
-  const adChoice = configuredAdChoice === 'auto' && platform === 'ios' ? 'admob' : configuredAdChoice;
-  const ads = createAdProvider(platform, appLovinConfig, adFactories, lifecycle, adChoice);
+  const ads = platform === 'ios'
+    ? defaultAdProviderFactories.createDisabledProvider(`AdMob unavailable: ${adMobConfig.reason}`)
+    : platform === 'android' && appLovinConfig.enabled
+      ? deps.adProviderFactories?.createAppLovinMaxProvider(appLovinConfig.config, lifecycle) ?? new AppLovinMaxProvider(appLovinConfig.config, {
+          lifecycle,
+          onAdRevenuePaid: (event): void => {
+            analyticsFacade?.track('ad_revenue_paid', { ...event });
+          },
+        })
+      : defaultAdProviderFactories.createDisabledProvider(
+          platform === 'android' && 'reason' in appLovinConfig
+            ? `AppLovin unavailable: ${appLovinConfig.reason}`
+            : `ads disabled on ${platform}`,
+        );
 
   const adjustConfig = readAdjustIosConfig(env, buildEnv === 'production');
   const resolvedAdjustConfig = adjustConfig.enabled
     ? { ...adjustConfig, config: { ...adjustConfig.config, environment: environments.adjust } }
     : adjustConfig;
-  const attributionChoice = readAttributionProviderChoice(env.VITE_ATTRIBUTION_PROVIDER);
-  const attributionProvider = selectAttributionProvider({
-    platform,
-    preferred: attributionChoice,
-    adjustConfig: resolvedAdjustConfig,
-    appsFlyerConfig: readAppsFlyerConfig(platform, env, buildEnv === 'production'),
-  });
+  const attributionProvider = createAttributionProvider(platform, resolvedAdjustConfig);
   const attributionService = new SdkAttributionService(attributionProvider);
 
   const sinks: AnalyticsSink[] = [];
@@ -314,6 +297,12 @@ function firebaseConfigPresent(env: Env): boolean {
   return envString(env.VITE_FIREBASE_API_KEY) !== null
     && envString(env.VITE_FIREBASE_PROJECT_ID) !== null
     && envString(env.VITE_FIREBASE_APP_ID) !== null;
+}
+
+function envString(value: string | boolean | undefined): string | null {
+  if (typeof value !== 'string') return null;
+  const trimmed = value.trim();
+  return trimmed.length > 0 ? trimmed : null;
 }
 
 function createLazyFirebaseTransport(loader: FirebaseAnalyticsLoader): FirebaseTransport {

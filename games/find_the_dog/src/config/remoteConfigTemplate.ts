@@ -45,6 +45,7 @@ const TEMPLATE_GROUPS: readonly RemoteConfigTemplateGroup[] = [
       'rewardProgressGoal',
       'rewardHintsAmount',
       'gameplayInitialHints',
+      'gameplayModePolicy',
       'ratePromptEnabledDefault',
     ],
   },
