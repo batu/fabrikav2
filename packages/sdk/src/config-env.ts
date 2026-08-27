@@ -27,3 +27,18 @@ export function parseBooleanEnv(value: string | boolean | undefined, defaultValu
   if (['false', '0', 'no', 'off'].includes(normalized)) return false;
   return defaultValue;
 }
+
+/** Parse a closed provider/config choice without silently accepting typos. */
+export function parseChoiceEnv<const Choice extends string>(
+  value: string | boolean | undefined,
+  choices: readonly Choice[],
+  defaultValue: Choice,
+): Choice {
+  const normalized = envString(value)?.toLowerCase() ?? null;
+  if (normalized === null) return defaultValue;
+  const choice = choices.find((candidate) => candidate === normalized);
+  if (choice === undefined) {
+    throw new Error(`Invalid configuration choice "${normalized}"; expected one of: ${choices.join(', ')}`);
+  }
+  return choice;
+}

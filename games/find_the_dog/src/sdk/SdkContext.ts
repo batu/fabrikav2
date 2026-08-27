@@ -4,10 +4,12 @@ import {
   type SdkBuildEnv,
   type SdkEnvironments,
 } from '@fabrikav2/sdk';
+import { envString } from '@fabrikav2/sdk/config-env';
 import {
   AppLovinMaxProvider,
   createAdProvider,
   defaultAdProviderFactories,
+  readAdProviderChoice,
   type AdProvider as SdkAdProvider,
   type AdProviderFactories,
   type AppLovinConfigResult as SdkAppLovinConfigResult,
@@ -33,7 +35,9 @@ import {
 } from '@fabrikav2/sdk/iap';
 import {
   AttributionService as SdkAttributionService,
-  createAttributionProvider,
+  readAppsFlyerConfig,
+  readAttributionProviderChoice,
+  selectAttributionProvider,
 } from '@fabrikav2/sdk/attribution';
 import { setMusicPausedForAd } from '../audio/AudioManager';
 import { gameState } from '../core/GameState';
@@ -149,13 +153,20 @@ export function createSdkContext(deps: CreateSdkContextDependencies = {}): GameS
         createDisabledProvider: defaultAdProviderFactories.createDisabledProvider,
       }
     : baseFactories;
-  const ads = createAdProvider(platform, appLovinConfig, adFactories, lifecycle);
+  const adChoice = readAdProviderChoice(env.VITE_AD_PROVIDER);
+  const ads = createAdProvider(platform, appLovinConfig, adFactories, lifecycle, adChoice);
 
   const adjustConfig = readAdjustIosConfig(env, buildEnv === 'production');
   const resolvedAdjustConfig = adjustConfig.enabled
     ? { ...adjustConfig, config: { ...adjustConfig.config, environment: environments.adjust } }
     : adjustConfig;
-  const attributionProvider = createAttributionProvider(platform, resolvedAdjustConfig);
+  const attributionChoice = readAttributionProviderChoice(env.VITE_ATTRIBUTION_PROVIDER);
+  const attributionProvider = selectAttributionProvider({
+    platform,
+    preferred: attributionChoice,
+    adjustConfig: resolvedAdjustConfig,
+    appsFlyerConfig: readAppsFlyerConfig(platform, env, buildEnv === 'production'),
+  });
   const attributionService = new SdkAttributionService(attributionProvider);
 
   const sinks: AnalyticsSink[] = [];
@@ -305,12 +316,6 @@ function firebaseConfigPresent(env: Env): boolean {
   return envString(env.VITE_FIREBASE_API_KEY) !== null
     && envString(env.VITE_FIREBASE_PROJECT_ID) !== null
     && envString(env.VITE_FIREBASE_APP_ID) !== null;
-}
-
-function envString(value: string | boolean | undefined): string | null {
-  if (typeof value !== 'string') return null;
-  const trimmed = value.trim();
-  return trimmed.length > 0 ? trimmed : null;
 }
 
 function createLazyFirebaseTransport(loader: FirebaseAnalyticsLoader): FirebaseTransport {

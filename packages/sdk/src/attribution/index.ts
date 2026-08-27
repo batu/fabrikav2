@@ -22,7 +22,9 @@ export {
   type AdjustPrivacyConfig,
 } from './AdjustConfig.ts';
 export {
+  ATTRIBUTION_PROVIDER_CHOICES,
   createAttributionProvider,
+  readAttributionProviderChoice,
   selectAttributionProvider,
   AttributionService,
   type AttributionProviderChoice,

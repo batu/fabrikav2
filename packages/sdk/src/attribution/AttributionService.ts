@@ -9,6 +9,7 @@ import type {
   AttributionProvider,
 } from './AttributionProvider.ts';
 import { DisabledAttributionProvider } from './DisabledAttributionProvider.ts';
+import { parseChoiceEnv } from '../config-env.ts';
 import { withTimeout } from '../with-timeout.ts';
 
 const STARTUP_GATE_TIMEOUT_MS = 5_000;
@@ -51,7 +52,15 @@ export function createAttributionProvider(
   return factories.createAdjustProvider(adjustConfig.config);
 }
 
-export type AttributionProviderChoice = 'appsflyer' | 'adjust' | 'disabled';
+export const ATTRIBUTION_PROVIDER_CHOICES = ['auto', 'appsflyer', 'adjust', 'disabled'] as const;
+export type AttributionProviderChoice = Exclude<(typeof ATTRIBUTION_PROVIDER_CHOICES)[number], 'auto'>;
+
+export function readAttributionProviderChoice(
+  value: string | boolean | undefined,
+): AttributionProviderChoice | null {
+  const choice = parseChoiceEnv(value, ATTRIBUTION_PROVIDER_CHOICES, 'auto');
+  return choice === 'auto' ? null : choice;
+}
 
 export interface SelectAttributionProviderOptions {
   platform?: string;

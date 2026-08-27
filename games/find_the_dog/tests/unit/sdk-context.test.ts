@@ -170,6 +170,28 @@ describe('FTD SdkContext composition matrix', () => {
     expect(context.analyticsRing.drain().map((event) => event.name)).toEqual(gameConfig.analyticsEvents);
   });
 
+  it('fails closed for an uncomposed ad provider, honors attribution disable, and rejects typos', () => {
+    const context = createSdkContext({
+      buildEnv: 'production',
+      platform: 'ios',
+      isNativePlatform: false,
+      env: {
+        VITE_AD_PROVIDER: 'admob',
+        VITE_ATTRIBUTION_PROVIDER: 'disabled',
+        VITE_ADJUST_IOS_ENABLED: 'true',
+        VITE_ADJUST_IOS_APP_TOKEN: 'a'.repeat(12),
+      },
+    });
+
+    expect(context.selection.ads).toBe('disabled');
+    expect(context.selection.attribution).toBe('disabled');
+    expect(() => createSdkContext({
+      buildEnv: 'production',
+      platform: 'ios',
+      env: { VITE_AD_PROVIDER: 'ad-mob' },
+    })).toThrow('Invalid configuration choice');
+  });
+
   it('enables the owned mirror only when URL and public key are both valid', () => {
     const enabled = createSdkContext({
       buildEnv: 'development',
