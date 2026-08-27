@@ -596,12 +596,13 @@ function validateRecipeSources(recipeDir, manifest, issues) {
   }
   const privacy = read(manifest.ios.privacyManifest);
   const hasTrackingProviders = hasAppLovin || hasAdjust || hasAdMob;
+  const privacyTracking = /<key>NSPrivacyTracking<\/key>\s*<true\/>/.test(privacy);
   const privacySnippets = hasTrackingProviders
-    ? ['<key>NSPrivacyTracking</key>', '<true/>', 'NSPrivacyCollectedDataTypeAdvertisingData']
+    ? ['<key>NSPrivacyTracking</key>', 'NSPrivacyCollectedDataTypeAdvertisingData']
     : ['<key>NSPrivacyTracking</key>', '<false/>', '<key>NSPrivacyCollectedDataTypes</key>'];
-  if (hasAppLovin) privacySnippets.push('<string>applovin.com</string>');
-  if (hasAdjust) privacySnippets.push('<string>adjust.com</string>');
-  if (hasAdMob) privacySnippets.push('<string>googleads.g.doubleclick.net</string>');
+  if (privacyTracking && hasAppLovin) privacySnippets.push('<string>applovin.com</string>');
+  if (privacyTracking && hasAdjust) privacySnippets.push('<string>adjust.com</string>');
+  if (privacyTracking && hasAdMob) privacySnippets.push('<string>googleads.g.doubleclick.net</string>');
   for (const snippet of privacySnippets) if (!privacy.includes(snippet)) issues.push(`PrivacyInfo.xcprivacy is missing ${snippet}`);
   if (!hasTrackingProviders && /NSPrivacyCollectedDataType(?:UserID|PurchaseHistory|ProductInteraction|AdvertisingData)/.test(privacy)) issues.push('provider-free PrivacyInfo.xcprivacy declares collected data');
   const joined = [appDelegate, bridge, appLovin, adjust, privacy].join('\n');

@@ -343,6 +343,10 @@ describe('Find the Dog manifest contract', () => {
     expect(actualManifest.ios.localPackages.find((pkg) => pkg.name === 'CapacitorFirebaseAnalytics').traits).toEqual(['AnalyticsWithoutAdIdSupport']);
     expect(actualManifest.ios.adMobEnabledEnv).toBe('VITE_ADMOB_IOS_ENABLED');
     expect(actualManifest.ios.adMobApplicationIdEnv).toBe('VITE_ADMOB_IOS_APP_ID');
+    expect(actualManifest.ios.trackingUsageDescription).toBeNull();
+    const privacy = fs.readFileSync(new URL('App/PrivacyInfo.xcprivacy', recipeDir), 'utf8');
+    expect(privacy).toMatch(/<key>NSPrivacyTracking<\/key>\s*<false\/>/);
+    expect(privacy).not.toContain('NSPrivacyTrackingDomains');
     expect(actualCatalog.skadnetwork_ids.map((entry) => entry.skadnetwork_id)).toEqual(['cstr6suwn9.skadnetwork']);
   });
 });
