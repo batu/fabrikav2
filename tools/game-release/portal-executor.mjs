@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+#!/opt/homebrew/Cellar/node/26.7.0/bin/node
 import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -7,12 +7,12 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 // This is deliberately explicit. Adding a runtime import or invoked release
 // tool requires updating this graph and its mutation tests before approval.
 const RUNTIME_SHA256 = Object.freeze({
-  'package.json': 'febe3097edc153479c17fc13ff23bbff95e86f67b82a900016176b86532a7f3d',
-  'package-lock.json': '5a95898a294cd8e404c1985d65ccde71534f7d09474b431a90dc81d760c9670e',
+  'package.json': '715fa51c8326e562b2daa1a8fa742d3857ec19035a5e58bcee6a1de5edf3865c',
+  'package-lock.json': '8d5474908988d4bdcda218e69767d4a29a48a2ee80946ef27e09d9c2e512db02',
   'games/find_the_dog/package.json': '5db7e032354cee02ec34723e27e8bce0e17b76d1dc14c39991246cbca8c5a4f5',
   'games/find_the_dog/capacitor.config.ts': '3d1dd574b8a532f27cdc4a8a0f41f52dfa8293a53f328171dbdf64a03aaf9aed',
-  'games/find_the_dog/vite.config.ts': 'c4652ddaf48b7964273cdd6a8a7c5992ca7af3d97da5b01c94751255242aa8e9',
-  'games/find_the_dog/build/nativePublicBundle.ts': '001912bc5165d5d03bdeb376e018f1a7d74ba92afce2c4b059b9276ad706f26a',
+  'games/find_the_dog/vite.config.ts': '5c751c242d3b57882758ff5dea461203f0bbacc71819b13d756d92fa84ccecd0',
+  'games/find_the_dog/src/build/nativePublicBundle.ts': '001912bc5165d5d03bdeb376e018f1a7d74ba92afce2c4b059b9276ad706f26a',
   'games/find_the_dog/src/sdk/includePlugins.ts': '118b03507344115f7aed36ac6cc248d9530c3e79cb549d8005f5f93a6a353107',
   'games/find_the_dog/src/ads/AdMobConfig.ts': '124c69bfafc292e028b37d3092941ce3b39b3a7a5d386d3032731f6fa15bfdc4',
   'configs/vite.base.ts': '0bc2142b5becd7c1cd0d5f6c78a6d83c8a02677ddaed20972646499309406e58',
@@ -32,8 +32,8 @@ const RUNTIME_SHA256 = Object.freeze({
   'tools/verify-device/src/summary.mjs': 'a27e8eb2f378b25352b570157c5ea66977ded05fa0184e2edb5352b0d9de38cc',
 });
 const NODE_IDENTITY = Object.freeze({
-  executable: '/opt/homebrew/Cellar/node/26.3.0/bin/node',
-  sha256: '56694c81b093cc8da273fa017cf91765b3653e5f64f16727976ffaa87b2b6b31',
+  executable: '/opt/homebrew/Cellar/node/26.7.0/bin/node',
+  sha256: '1ef99ea25fe70c9b67e7efe768ef8ee22148d3cabc703db6131b57aeb617d040',
 });
 
 function sha256(file) {

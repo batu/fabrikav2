@@ -1,4 +1,4 @@
-#!/opt/homebrew/Cellar/node/26.3.0/bin/node
+#!/opt/homebrew/Cellar/node/26.7.0/bin/node
 import crypto from 'node:crypto';
 import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
@@ -6,8 +6,8 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const NODE = Object.freeze({
-  path: '/opt/homebrew/Cellar/node/26.3.0/bin/node',
-  sha256: '56694c81b093cc8da273fa017cf91765b3653e5f64f16727976ffaa87b2b6b31',
+  path: '/opt/homebrew/Cellar/node/26.7.0/bin/node',
+  sha256: '1ef99ea25fe70c9b67e7efe768ef8ee22148d3cabc703db6131b57aeb617d040',
 });
 const IDENTITY_GRAPH = Object.freeze({
   'tools/game-release/cli.mjs': '5a5d1e8b4d21636a1112b57d64ab6e61df3c301aae1be5367390a7a4cd21ad18',
@@ -17,7 +17,7 @@ const IDENTITY_GRAPH = Object.freeze({
   'tools/game-env/src/policies/find-the-dog.mjs': 'ba081672d7456449c1d9afb323e9a81804ae51437a590b4b54b57a0dabb88319',
   'tools/game-env/src/validate.mjs': 'e1d9733c038b353cd85915bc8c95e2f633123773b40be686ea1e24f03046b31c',
   'tools/native-shell/src/native-shell.mjs': '09247c88a76b8a17ae52e9280979d39b1465d35126270d96833e6ffe5ec9980d',
-  'games/find_the_dog/native-resources/ios/shell-manifest.json': '2dd1d07848b0c7ee2a856bd2ec40eb84a0dcfc9693332bb4c976d9655830b6a6',
+  'games/find_the_dog/native-resources/ios/shell-manifest.json': '28890f3b53a5cef9d19b98c7d3946214c5f603b0b13b943dc8980b0e9ffc06d1',
 });
 const SUCCESS_KEYS = ['bundleId', 'game', 'name', 'nativeRecipe', 'ok', 'platform', 'sourceRevision'];
 

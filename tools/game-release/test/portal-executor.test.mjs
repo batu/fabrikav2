@@ -10,7 +10,7 @@ const sourceRevision = 'a'.repeat(40);
 const manifestSha = 'b'.repeat(64);
 const runtimeGraph = [
   'package.json', 'package-lock.json', 'games/find_the_dog/package.json', 'games/find_the_dog/capacitor.config.ts',
-  'games/find_the_dog/vite.config.ts', 'games/find_the_dog/build/nativePublicBundle.ts', 'configs/vite.base.ts',
+  'games/find_the_dog/vite.config.ts', 'games/find_the_dog/src/build/nativePublicBundle.ts', 'configs/vite.base.ts',
   'games/find_the_dog/src/sdk/includePlugins.ts', 'games/find_the_dog/src/ads/AdMobConfig.ts',
   'tools/game-release/src/portal-executor.mjs', 'tools/game-release/src/ios-release.mjs', 'tools/game-release/src/manifest.mjs',
   'tools/game-env/src/env.mjs', 'tools/game-env/src/policies.mjs', 'tools/game-env/src/policies/find-the-dog.mjs', 'tools/game-env/src/validate.mjs',
@@ -133,7 +133,7 @@ describe('Portal release executable adapter', () => {
 
   it('rejects an otherwise identical Node executable from an unapproved path before parsing', () => {
     const root = fs.mkdtempSync(path.join(os.tmpdir(), 'portal-node-identity-'));
-    const wrapper = fs.readFileSync(path.resolve('tools/game-release/portal-executor.mjs'), 'utf8').replace("executable: '/opt/homebrew/Cellar/node/26.3.0/bin/node'", "executable: '/unapproved/node'");
+    const wrapper = fs.readFileSync(path.resolve('tools/game-release/portal-executor.mjs'), 'utf8').replace("executable: '/opt/homebrew/Cellar/node/26.7.0/bin/node'", "executable: '/unapproved/node'");
     const copiedWrapper = path.join(root, 'portal-executor.mjs'); fs.writeFileSync(copiedWrapper, wrapper);
     const result = spawnSync(process.execPath, [copiedWrapper], { input: '{malformed-json', encoding: 'utf8' });
     expect(result.status).toBe(0);
