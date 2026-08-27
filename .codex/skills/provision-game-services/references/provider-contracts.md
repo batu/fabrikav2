@@ -57,11 +57,17 @@ relying on an endpoint or scope.
 
 ## AdMob
 
+Read [admob.md](admob.md) before operating on AdMob.
+
 - Match AdMob account, app, platform, and store/app identity before creating ad
-  units.
+  units. Store linking is irreversible.
 - Reconcile banner, interstitial, and rewarded placements by exact format and
-  placement identity.
-- Keep the app ID distinct from ad-unit IDs.
+  stable canonical name. Create missing canonical units under one approved
+  convergence operation; never delete or disable extras automatically.
+- Keep the app ID distinct from ad-unit IDs. Both are public runtime identifiers
+  and belong in committed reproducible configuration.
+- Keep OAuth client secrets, refresh tokens, access tokens, payment data, and
+  test-device IDs outside Git and command output.
 - Device verification must use registered test traffic or provider-supported
   test mode. Never click production ads or use production impressions as test
   evidence.

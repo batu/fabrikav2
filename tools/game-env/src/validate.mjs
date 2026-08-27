@@ -124,6 +124,10 @@ function syntheticFixture(policy) {
     key === 'VITE_APPLOVIN_GDPR_TERMS_ALERT_ENABLED')) {
     values.set(key, 'false');
   }
+  // Closed provider choices need valid synthetic values rather than the
+  // generic placeholder used for opaque credentials.
+  values.set('VITE_AD_PROVIDER', 'auto');
+  values.set('VITE_ATTRIBUTION_PROVIDER', 'auto');
   // Capture-tour script is shell-env-only; a persisted value is invalid by
   // policy, so the all-keys synthetic fixture must leave it unset.
   values.set('VITE_INSITU_TOUR', '');
@@ -173,7 +177,7 @@ export function validateTemplate(templatePath, policy) {
   const keys = [...parsed.values.keys()].sort();
   const expected = [...policy.canonicalKeys].sort();
   const assignmentsAreSafe = parsed.assignments.every(({ value }) =>
-    /^(?:true|false|__[-A-Z0-9_]+__|https:\/\/example\.invalid(?:\/.*)?)$/.test(value),
+    /^(?:auto|true|false|__[-A-Z0-9_]+__|https:\/\/example\.invalid(?:\/.*)?)$/.test(value),
   );
   const oneCommentPerAssignment = parsed.assignments.every(({ hasPurposeComment }) => hasPurposeComment);
   return {

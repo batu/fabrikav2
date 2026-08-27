@@ -59,9 +59,12 @@ export {
 } from './DeathAdCoordinator.ts';
 
 export {
+  AD_PROVIDER_CHOICES,
   createAdProvider,
   createOwnedAdProvider,
+  readAdProviderChoice,
   defaultAdProviderFactories,
+  type AdProviderChoice,
   type AdProviderFactories,
   type OwnedAdProvider,
   type OwnedAdProviderDeps,

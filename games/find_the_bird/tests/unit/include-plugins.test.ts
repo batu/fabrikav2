@@ -5,6 +5,16 @@ import {
   firebaseConfigPresentInEnv,
 } from '../../src/sdk/includePlugins';
 
+const publicAdMobConfig = {
+  enabled: true,
+  appId: 'ca-app-pub-1234567890123456~1234567890',
+  adUnits: {
+    banner: 'ca-app-pub-1234567890123456/1111111111',
+    interstitial: 'ca-app-pub-1234567890123456/2222222222',
+    rewarded: 'ca-app-pub-1234567890123456/3333333333',
+  },
+};
+
 const completeFirebaseEnv = {
   VITE_FIREBASE_API_KEY: 'firebase-api-key',
   VITE_FIREBASE_PROJECT_ID: 'firebase-project-id',
@@ -19,6 +29,22 @@ describe('capacitor includePlugins allowlist', () => {
       '@capacitor/local-notifications',
       '@revenuecat/purchases-capacitor',
     ]);
+  });
+
+  it('includes AdMob only for complete enabled iOS configuration', () => {
+    expect(computeIncludePlugins({ VITE_ADMOB_IOS_ENABLED: 'true' })).not.toContain('@capacitor-community/admob');
+    expect(computeIncludePlugins({
+      VITE_ADMOB_IOS_ENABLED: 'true',
+      VITE_ADMOB_IOS_APP_ID: 'ca-app-pub-1234567890123456~1234567890',
+      VITE_ADMOB_IOS_BANNER_ID: 'ca-app-pub-1234567890123456/1111111111',
+      VITE_ADMOB_IOS_INTERSTITIAL_ID: 'ca-app-pub-1234567890123456/2222222222',
+      VITE_ADMOB_IOS_REWARDED_ID: 'ca-app-pub-1234567890123456/3333333333',
+      VITE_ADMOB_IOS_TEST_MODE: 'false',
+    })).toContain('@capacitor-community/admob');
+  });
+
+  it('includes AdMob from committed public defaults when sync-time env is absent', () => {
+    expect(computeIncludePlugins({}, publicAdMobConfig)).toContain('@capacitor-community/admob');
   });
 
   it('excludes @capacitor-firebase/analytics when Firebase config is absent', () => {

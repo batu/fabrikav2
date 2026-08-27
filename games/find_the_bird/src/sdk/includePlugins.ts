@@ -1,3 +1,5 @@
+import { adMobIosConfigPresent, type AdMobIosPublicConfig } from '../ads/AdMobConfig';
+
 // Capacitor loads every included native plugin at WebView start. The
 // @capacitor-firebase/analytics pod runs FirebaseApp.configure() unconditionally
 // in its native load() (node_modules/@capacitor-firebase/analytics/ios/Plugin/
@@ -11,8 +13,6 @@
 // matches what the bundle actually ships. Bundling GoogleService-Info.plist when
 // config IS present is FTD-PARITY-2's apply-ios-firebase tool's job, not this one.
 
-import { envString } from '@fabrikav2/sdk/config-env';
-
 /** Plugins always safe to load — no config-dependent native call at boot. */
 export const ALWAYS_INCLUDED_PLUGINS: readonly string[] = [
   '@capacitor/app',
@@ -23,19 +23,26 @@ export const ALWAYS_INCLUDED_PLUGINS: readonly string[] = [
 
 type EnvLike = Record<string, string | boolean | undefined>;
 
+function present(value: string | boolean | undefined): boolean {
+  return typeof value === 'string' && value.trim().length > 0;
+}
+
 /** True when API_KEY, PROJECT_ID, and APP_ID are all present — mirrors V1
  * firebaseOptions() completeness and the SdkContext JS gate. */
 export function firebaseConfigPresentInEnv(env: EnvLike): boolean {
-  return envString(env.VITE_FIREBASE_API_KEY) !== null
-    && envString(env.VITE_FIREBASE_PROJECT_ID) !== null
-    && envString(env.VITE_FIREBASE_APP_ID) !== null;
+  return present(env.VITE_FIREBASE_API_KEY)
+    && present(env.VITE_FIREBASE_PROJECT_ID)
+    && present(env.VITE_FIREBASE_APP_ID);
 }
 
 /** Compute the native plugin allowlist. Firebase analytics is included ONLY when
  * the Firebase env config is complete, so a config-less build never bundles the
  * pod that crashes at +[FIRApp configure]. */
-export function computeIncludePlugins(env: EnvLike): string[] {
+export function computeIncludePlugins(env: EnvLike, adMobPublicConfig?: AdMobIosPublicConfig): string[] {
   const plugins = [...ALWAYS_INCLUDED_PLUGINS];
+  if (adMobIosConfigPresent(env, adMobPublicConfig)) {
+    plugins.push('@capacitor-community/admob');
+  }
   if (firebaseConfigPresentInEnv(env)) {
     plugins.push('@capacitor-firebase/analytics');
   }

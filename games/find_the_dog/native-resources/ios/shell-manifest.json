@@ -8,7 +8,7 @@
     "swiftToolsVersion": "6.1",
     "deploymentTarget": "15",
     "targetedDeviceFamily": "1",
-    "trackingUsageDescription": "We use your permission to show more relevant ads and measure ad performance across apps and websites.",
+    "trackingUsageDescription": null,
     "localPackages": [
       {
         "name": "CapacitorApp",
@@ -37,6 +37,11 @@
         "name": "RevenuecatPurchasesCapacitor",
         "path": "../../../../../node_modules/@revenuecat/purchases-capacitor",
         "product": "RevenuecatPurchasesCapacitor"
+      },
+      {
+        "name": "CapacitorCommunityAdmob",
+        "path": "../../../../../node_modules/@capacitor-community/admob",
+        "product": "CapacitorCommunityAdmob"
       }
     ],
     "remotePackages": [
@@ -64,6 +69,11 @@
       "FindTheDogBridgeViewController.swift",
       "AdjustAttributionPlugin.swift"
     ],
-    "privacyManifest": "PrivacyInfo.xcprivacy"
+    "privacyManifest": "PrivacyInfo.xcprivacy",
+    "adMobEnabledEnv": "VITE_ADMOB_IOS_ENABLED",
+    "adMobApplicationIdEnv": "VITE_ADMOB_IOS_APP_ID",
+    "adMobPublicConfig": "../../config/admob.public.json",
+    "skAdNetworkCatalog": "admob-skadnetwork-ids.json",
+    "skAdNetworkExpectedCount": 1
   }
 }

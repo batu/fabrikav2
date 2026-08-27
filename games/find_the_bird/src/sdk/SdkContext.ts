@@ -6,9 +6,11 @@ import {
 } from '@fabrikav2/sdk';
 import { envString } from '@fabrikav2/sdk/config-env';
 import {
+  AdMobProvider,
   AppLovinMaxProvider,
   createAdProvider,
   defaultAdProviderFactories,
+  readAdProviderChoice,
   type AdProvider as SdkAdProvider,
   type AdProviderFactories,
   type AppLovinConfigResult as SdkAppLovinConfigResult,
@@ -34,11 +36,15 @@ import {
 } from '@fabrikav2/sdk/iap';
 import {
   AttributionService as SdkAttributionService,
-  createAttributionProvider,
+  readAppsFlyerConfig,
+  readAttributionProviderChoice,
+  selectAttributionProvider,
 } from '@fabrikav2/sdk/attribution';
+import adMobPublicConfig from '../../config/admob.public.json';
 import { setMusicPausedForAd } from '../audio/AudioManager';
 import { gameState } from '../core/GameState';
 import { readAppLovinConfigForPlatform } from '../ads/AppLovinConfig';
+import { readAdMobIosConfig } from '../ads/AdMobConfig';
 import { configureAdService } from '../ads/Service';
 import {
   analytics,
@@ -124,34 +130,42 @@ export function createSdkContext(deps: CreateSdkContextDependencies = {}): GameS
   const logger = deps.logger ?? console;
 
   let analyticsFacade: Analytics<FtdEvent> | null = null;
-  const appLovinConfig: SdkAppLovinConfigResult = readAppLovinConfigForPlatform(
-    platform === 'ios' ? 'ios' : 'android',
-    env,
-  );
+  const appLovinConfig: SdkAppLovinConfigResult = readAppLovinConfigForPlatform('android', env);
+  const adMobConfig = readAdMobIosConfig(env, adMobPublicConfig);
   const lifecycle = {
     onFullScreenAdStarted: (): void => setMusicPausedForAd(true),
     onFullScreenAdFinished: (): void => setMusicPausedForAd(false),
   };
   const baseFactories = deps.adProviderFactories;
-  const adFactories: AdProviderFactories | undefined = baseFactories === undefined
-    ? {
-        createAdMobProvider: defaultAdProviderFactories.createAdMobProvider,
-        createAppLovinMaxProvider: (config) => new AppLovinMaxProvider(config, {
-          lifecycle,
-          onAdRevenuePaid: (event): void => {
-            analyticsFacade?.track('ad_revenue_paid', { ...event });
-          },
-        }),
-        createDisabledProvider: defaultAdProviderFactories.createDisabledProvider,
-      }
-    : baseFactories;
-  const ads = createAdProvider(platform, appLovinConfig, adFactories, lifecycle);
+  const adFactories: AdProviderFactories = baseFactories ?? {
+    createAdMobProvider: platform === 'ios'
+      ? (adLifecycle) => isNativePlatform && adMobConfig.enabled
+        ? new AdMobProvider(adMobConfig.config, { lifecycle: adLifecycle })
+        : defaultAdProviderFactories.createDisabledProvider(`AdMob unavailable: ${adMobConfig.enabled ? 'not running on a native platform' : adMobConfig.reason}`)
+      : defaultAdProviderFactories.createAdMobProvider,
+    createAppLovinMaxProvider: (config, adLifecycle) => new AppLovinMaxProvider(config, {
+      lifecycle: adLifecycle,
+      onAdRevenuePaid: (event): void => {
+        analyticsFacade?.track('ad_revenue_paid', { ...event });
+      },
+    }),
+    createDisabledProvider: defaultAdProviderFactories.createDisabledProvider,
+  };
+  const configuredAdChoice = readAdProviderChoice(env.VITE_AD_PROVIDER);
+  const adChoice = configuredAdChoice === 'auto' && platform === 'ios' ? 'admob' : configuredAdChoice;
+  const ads = createAdProvider(platform, appLovinConfig, adFactories, lifecycle, adChoice);
 
   const adjustConfig = readAdjustIosConfig(env, buildEnv === 'production');
   const resolvedAdjustConfig = adjustConfig.enabled
     ? { ...adjustConfig, config: { ...adjustConfig.config, environment: environments.adjust } }
     : adjustConfig;
-  const attributionProvider = createAttributionProvider(platform, resolvedAdjustConfig);
+  const attributionChoice = readAttributionProviderChoice(env.VITE_ATTRIBUTION_PROVIDER);
+  const attributionProvider = selectAttributionProvider({
+    platform,
+    preferred: attributionChoice,
+    adjustConfig: resolvedAdjustConfig,
+    appsFlyerConfig: readAppsFlyerConfig(platform, env, buildEnv === 'production'),
+  });
   const attributionService = new SdkAttributionService(attributionProvider);
 
   const sinks: AnalyticsSink[] = [];

@@ -57,9 +57,12 @@ describe('FTD SdkContext composition matrix', () => {
         VITE_ADJUST_IOS_ENABLED: 'true',
         VITE_ADJUST_IOS_APP_TOKEN: 'a'.repeat(12),
         VITE_ADJUST_IOS_ENVIRONMENT: 'production',
-        VITE_APPLOVIN_IOS_ENABLED: 'true',
-        VITE_APPLOVIN_IOS_GENERAL_AUDIENCE_ONLY: 'true',
-        VITE_APPLOVIN_IOS_SDK_KEY: 'public-applovin-sdk-key',
+        VITE_ADMOB_IOS_ENABLED: 'true',
+        VITE_ADMOB_IOS_APP_ID: 'ca-app-pub-1234567890123456~1234567890',
+        VITE_ADMOB_IOS_BANNER_ID: 'ca-app-pub-1234567890123456/1111111111',
+        VITE_ADMOB_IOS_INTERSTITIAL_ID: 'ca-app-pub-1234567890123456/2222222222',
+        VITE_ADMOB_IOS_REWARDED_ID: 'ca-app-pub-1234567890123456/3333333333',
+        VITE_ADMOB_IOS_TEST_MODE: 'false',
         VITE_FIREBASE_API_KEY: 'firebase-api-key',
         VITE_FIREBASE_PROJECT_ID: 'firebase-project-id',
         VITE_FIREBASE_APP_ID: 'firebase-app-id',
@@ -71,7 +74,7 @@ describe('FTD SdkContext composition matrix', () => {
 
     expect(context.selection.iap).toBe('revenuecat');
     expect(context.selection.remoteConfig).toBe('firebase');
-    expect(context.selection.ads).toBe('applovin-max');
+    expect(context.selection.ads).toBe('admob');
     expect(context.selection.attribution).toBe('adjust-ios');
     expect(context.selection.analyticsSinks).toEqual([
       'ring-buffer',
@@ -82,6 +85,19 @@ describe('FTD SdkContext composition matrix', () => {
     expect(firebase).not.toHaveBeenCalled();
     expect(revenuecat).not.toHaveBeenCalled();
     expect(gameanalytics).not.toHaveBeenCalled();
+  });
+
+  it('fails closed instead of falling back when an environment override is malformed', () => {
+    const context = createSdkContext({
+      buildEnv: 'production',
+      platform: 'ios',
+      isNativePlatform: true,
+      env: {
+        VITE_ADMOB_IOS_ENABLED: 'true',
+        VITE_ADMOB_IOS_BANNER_ID: 'not-an-ad-unit-id',
+      },
+    });
+    expect(context.selection.ads).toBe('disabled');
   });
 
   it('composes the shared AdMob provider for native Android without AppLovin config', () => {
@@ -180,6 +196,33 @@ describe('FTD SdkContext composition matrix', () => {
     const context = createSdkContext({ buildEnv: 'development', platform: 'web', env: {} });
     for (const eventName of gameConfig.analyticsEvents) context.analytics.track(eventName);
     expect(context.analyticsRing.drain().map((event) => event.name)).toEqual(gameConfig.analyticsEvents);
+  });
+
+  it('honors explicit ad and attribution choices and rejects provider typos', () => {
+    const context = createSdkContext({
+      buildEnv: 'production',
+      platform: 'ios',
+      isNativePlatform: true,
+      env: {
+        VITE_AD_PROVIDER: 'admob',
+        VITE_ADMOB_IOS_ENABLED: 'true',
+        VITE_ADMOB_IOS_APP_ID: 'ca-app-pub-1234567890123456~1234567890',
+        VITE_ADMOB_IOS_BANNER_ID: 'ca-app-pub-1234567890123456/1111111111',
+        VITE_ADMOB_IOS_INTERSTITIAL_ID: 'ca-app-pub-1234567890123456/2222222222',
+        VITE_ADMOB_IOS_REWARDED_ID: 'ca-app-pub-1234567890123456/3333333333',
+        VITE_ATTRIBUTION_PROVIDER: 'disabled',
+        VITE_ADJUST_IOS_ENABLED: 'true',
+        VITE_ADJUST_IOS_APP_TOKEN: 'a'.repeat(12),
+      },
+    });
+
+    expect(context.selection.ads).toBe('admob');
+    expect(context.selection.attribution).toBe('disabled');
+    expect(() => createSdkContext({
+      buildEnv: 'production',
+      platform: 'ios',
+      env: { VITE_ATTRIBUTION_PROVIDER: 'adjusted' },
+    })).toThrow('Invalid configuration choice');
   });
 
   it('enables the owned mirror only when URL and public key are both valid', () => {

@@ -111,7 +111,7 @@ function main() {
   const policy = getGamePolicy(game);
 
   const template = validateTemplate(path.join(gameRoot, '.env.example'), policy);
-  if (!template.ok) throw new Error(`games/${game}/.env.example does not match the canonical 57-key contract`);
+  if (!template.ok) throw new Error(`games/${game}/.env.example does not match the canonical environment contract`);
 
   if (args.dryRun) {
     const result = runDryRun({ mode: args.mode, policy });

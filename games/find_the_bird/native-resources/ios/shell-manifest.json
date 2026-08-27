@@ -26,9 +26,22 @@
         "product": "CapacitorLocalNotifications"
       },
       {
+        "name": "CapacitorFirebaseAnalytics",
+        "path": "../../../../../node_modules/@capacitor-firebase/analytics",
+        "product": "CapacitorFirebaseAnalytics",
+        "traits": [
+          "AnalyticsWithoutAdIdSupport"
+        ]
+      },
+      {
         "name": "RevenuecatPurchasesCapacitor",
         "path": "../../../../../node_modules/@revenuecat/purchases-capacitor",
         "product": "RevenuecatPurchasesCapacitor"
+      },
+      {
+        "name": "CapacitorCommunityAdmob",
+        "path": "../../../../../node_modules/@capacitor-community/admob",
+        "product": "CapacitorCommunityAdmob"
       }
     ],
     "remotePackages": [
@@ -41,12 +54,26 @@
           "Capacitor",
           "Cordova"
         ]
+      },
+      {
+        "name": "AdjustSdk",
+        "url": "https://github.com/adjust/ios_sdk",
+        "requirement": "from",
+        "version": "5.6.2",
+        "products": [
+          "AdjustSdk"
+        ]
       }
     ],
     "swiftSources": [
-      "FindTheDogBridgeViewController.swift"
+      "FindTheDogBridgeViewController.swift",
+      "AdjustAttributionPlugin.swift"
     ],
     "privacyManifest": "PrivacyInfo.xcprivacy",
-    "skAdNetworkCatalog": null
+    "adMobEnabledEnv": "VITE_ADMOB_IOS_ENABLED",
+    "adMobApplicationIdEnv": "VITE_ADMOB_IOS_APP_ID",
+    "adMobPublicConfig": "../../config/admob.public.json",
+    "skAdNetworkCatalog": "admob-skadnetwork-ids.json",
+    "skAdNetworkExpectedCount": 1
   }
 }

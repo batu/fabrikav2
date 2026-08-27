@@ -25,7 +25,7 @@ export interface AdMobIosPublicConfig {
 }
 
 export type AdMobIosConfigResult =
-  | { enabled: true; appId: string; config: AdConfig; reason?: undefined }
+  | { enabled: true; appId: string; config: AdConfig }
   | { enabled: false; reason: string; missingKeys: string[]; invalidKeys: string[] };
 
 export function readAdMobIosConfig(env: Env, publicConfig?: AdMobIosPublicConfig): AdMobIosConfigResult {

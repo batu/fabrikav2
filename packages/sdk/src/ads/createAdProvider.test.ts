@@ -96,6 +96,41 @@ describe('createAdProvider', (): void => {
     expect(provider.providerName).toBe('applovin-max');
   });
 
+  it('honors an explicit AdMob choice on either native platform', (): void => {
+    for (const platform of ['ios', 'android'] as const) {
+      const factories = makeFactories();
+      const provider = createAdProvider(
+        platform,
+        disabledConfig(platform, false),
+        factories,
+        {},
+        'admob',
+      );
+      expect(provider.providerName).toBe('admob');
+      expect(factories.createAdMobProvider).toHaveBeenCalledTimes(1);
+    }
+  });
+
+  it('fails closed when explicitly selected AppLovin is unavailable', (): void => {
+    const factories = makeFactories();
+    const provider = createAdProvider(
+      'ios',
+      disabledConfig('ios', false),
+      factories,
+      {},
+      'applovin-max',
+    );
+    expect(provider.providerName).toBe('disabled');
+    expect(factories.createAdMobProvider).not.toHaveBeenCalled();
+  });
+
+  it('honors an explicit disabled choice even when a provider is configured', (): void => {
+    const factories = makeFactories();
+    const provider = createAdProvider('ios', enabledConfig('ios'), factories, {}, 'disabled');
+    expect(provider.providerName).toBe('disabled');
+    expect(factories.createAppLovinMaxProvider).not.toHaveBeenCalled();
+  });
+
   it('disables ads on web / unknown platforms', (): void => {
     const factories = makeFactories();
     const provider = createAdProvider('web', disabledConfig('ios', false), factories);
@@ -111,20 +146,22 @@ describe('createAdProvider', (): void => {
 });
 
 describe('createOwnedAdProvider', (): void => {
-  it('selects the same provider as createAdProvider for every platform/config', (): void => {
-    const cases: Array<[string, AppLovinConfigResult, string]> = [
-      ['ios', enabledConfig('ios'), 'applovin-max'],
-      ['ios', disabledConfig('ios', true), 'disabled'],
-      ['android', enabledConfig('android'), 'applovin-max'],
-      ['android', disabledConfig('android', true), 'disabled'],
-      ['android', disabledConfig('android', false), 'admob'],
-      ['web', disabledConfig('ios', false), 'disabled'],
+  it('selects the same provider as createAdProvider for auto and explicit choices', (): void => {
+    const cases: Array<[string, AppLovinConfigResult, 'auto' | 'admob' | 'applovin-max' | 'disabled', string]> = [
+      ['ios', enabledConfig('ios'), 'auto', 'applovin-max'],
+      ['ios', disabledConfig('ios', true), 'auto', 'disabled'],
+      ['android', enabledConfig('android'), 'auto', 'applovin-max'],
+      ['android', disabledConfig('android', true), 'auto', 'disabled'],
+      ['android', disabledConfig('android', false), 'auto', 'admob'],
+      ['ios', disabledConfig('ios', false), 'admob', 'admob'],
+      ['android', disabledConfig('android', false), 'applovin-max', 'disabled'],
+      ['android', enabledConfig('android'), 'disabled', 'disabled'],
+      ['web', disabledConfig('ios', false), 'admob', 'disabled'],
     ];
-    for (const [platform, cfg, expected] of cases) {
-      const owned = createOwnedAdProvider(platform, cfg);
+    for (const [platform, cfg, preferred, expected] of cases) {
+      const owned = createOwnedAdProvider(platform, cfg, {}, {}, preferred);
       expect(owned.provider.providerName).toBe(expected);
-      // parity with the legacy factory-based selection
-      expect(createAdProvider(platform, cfg).providerName).toBe(expected);
+      expect(createAdProvider(platform, cfg, undefined, {}, preferred).providerName).toBe(expected);
     }
   });
 

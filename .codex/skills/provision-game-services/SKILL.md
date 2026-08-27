@@ -21,7 +21,9 @@ release verification as separate workflows.
    or `blocked`. Discovery is read-only: do not write Keychain entries, local
    environment files, or provider settings during discovery.
 5. Read [references/provider-contracts.md](references/provider-contracts.md)
-   for provider-specific identity and credential boundaries.
+   for provider-specific identity and credential boundaries. For AdMob, also
+   read [references/admob.md](references/admob.md) and use the guarded helper
+   instead of assembling OAuth or mutation requests in shell history.
 
 ## Provision safely
 
@@ -43,12 +45,31 @@ External account creation, provider object creation, credential rotation, and
 production configuration changes are mutations. Require explicit authorization
 unless the current request already authorizes that exact action.
 
+## Provision AdMob end to end
+
+1. Run the AdMob helper in `diagnose` mode first. It refreshes its own token,
+   verifies storefront identity, inventories the exact account, and emits only
+   redacted counts and proposed actions.
+2. Present the account, game, platform, store identity, app create/reuse action,
+   missing canonical units, and destination public manifest. Linking a store
+   identity is irreversible; require approval for that exact plan.
+3. Run `apply` with `--confirm-link` equal to the approved store ID. The helper
+   converges banner, interstitial, and rewarded units by stable names, reads
+   every mutation back, and stops on ambiguity.
+4. Commit AdMob app IDs and ad-unit IDs. They are public runtime identifiers,
+   not secrets. Keep OAuth client secrets, refresh tokens, access tokens,
+   payment details, and test-device IDs outside Git.
+5. Rerun `diagnose`; a converged result proposes no creation. Then validate the
+   native build and load registered test ads on a physical device.
+
 ## Materialize credentials
 
 1. Prefer stable Keychain or protected-file references when the repository has
    a materializer. Otherwise use the narrow deterministic helper in this skill.
-2. Put iOS values in the repository's authoritative mode-local file (normally
-   `.env.ios.local`), not whichever `.env` filename is most convenient.
+2. Put secret or operator-sensitive iOS values in the repository's authoritative
+   mode-local file (normally `.env.ios.local`), not whichever `.env` filename is
+   most convenient. Public provider identifiers such as AdMob app and ad-unit
+   IDs belong in the game's committed public provider manifest.
 3. Keep input credential files and the destination owner-only (`0600`), regular,
    and non-symlinked. Never pass credential values in argv, shell history, logs,
    patches, receipts, screenshots, or chat.

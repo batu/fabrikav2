@@ -3,6 +3,7 @@ import { AdMobProvider } from './AdMobProvider.ts';
 import { AppLovinMaxProvider } from './AppLovinMaxProvider.ts';
 import type { AppLovinConfig, AppLovinConfigResult } from './AppLovinConfig.ts';
 import { DisabledAdProvider } from './DisabledAdProvider.ts';
+import { parseChoiceEnv } from '../config-env.ts';
 
 /**
  * Discriminated selection result. Both `createAdProvider` and
@@ -14,7 +15,37 @@ type AdProviderSelection =
   | { kind: 'applovin'; config: AppLovinConfig }
   | { kind: 'disabled'; reason: string };
 
-function selectAdProvider(platform: string, appLovinConfig: AppLovinConfigResult): AdProviderSelection {
+export const AD_PROVIDER_CHOICES = ['auto', 'admob', 'applovin-max', 'disabled'] as const;
+export type AdProviderChoice = (typeof AD_PROVIDER_CHOICES)[number];
+
+export function readAdProviderChoice(value: string | boolean | undefined): AdProviderChoice {
+  return parseChoiceEnv(value, AD_PROVIDER_CHOICES, 'auto');
+}
+
+function selectAdProvider(
+  platform: string,
+  appLovinConfig: AppLovinConfigResult,
+  preferred: AdProviderChoice,
+): AdProviderSelection {
+  if (preferred === 'disabled') {
+    return { kind: 'disabled', reason: 'ads disabled by explicit configuration' };
+  }
+
+  if (platform !== 'ios' && platform !== 'android') {
+    return { kind: 'disabled', reason: `ads disabled on ${platform || 'web'} platform` };
+  }
+
+  if (preferred === 'admob') return { kind: 'admob' };
+
+  if (preferred === 'applovin-max') {
+    if (appLovinConfig.platform !== platform) {
+      return { kind: 'disabled', reason: `${platform} AppLovin MAX unavailable: received ${appLovinConfig.platform} config` };
+    }
+    return appLovinConfig.enabled
+      ? { kind: 'applovin', config: appLovinConfig.config }
+      : { kind: 'disabled', reason: `${platform} AppLovin MAX unavailable: ${appLovinConfig.reason}` };
+  }
+
   if (platform === 'ios') {
     if (appLovinConfig.platform !== 'ios') {
       return { kind: 'disabled', reason: `iOS AppLovin MAX unavailable: received ${appLovinConfig.platform} config` };
@@ -25,23 +56,19 @@ function selectAdProvider(platform: string, appLovinConfig: AppLovinConfigResult
     return { kind: 'disabled', reason: `iOS AppLovin MAX unavailable: ${appLovinConfig.reason}` };
   }
 
-  if (platform === 'android') {
-    if (appLovinConfig.platform !== 'android' && appLovinConfig.requested) {
-      return {
-        kind: 'disabled',
-        reason: `Android AppLovin MAX unavailable: received ${appLovinConfig.platform} config`,
-      };
-    }
-    if (appLovinConfig.enabled) {
-      return { kind: 'applovin', config: appLovinConfig.config };
-    }
-    if (appLovinConfig.requested) {
-      return { kind: 'disabled', reason: `Android AppLovin MAX unavailable: ${appLovinConfig.reason}` };
-    }
-    return { kind: 'admob' };
+  if (appLovinConfig.platform !== 'android' && appLovinConfig.requested) {
+    return {
+      kind: 'disabled',
+      reason: `Android AppLovin MAX unavailable: received ${appLovinConfig.platform} config`,
+    };
   }
-
-  return { kind: 'disabled', reason: `ads disabled on ${platform || 'web'} platform` };
+  if (appLovinConfig.enabled) {
+    return { kind: 'applovin', config: appLovinConfig.config };
+  }
+  if (appLovinConfig.requested) {
+    return { kind: 'disabled', reason: `Android AppLovin MAX unavailable: ${appLovinConfig.reason}` };
+  }
+  return { kind: 'admob' };
 }
 
 /**
@@ -77,8 +104,9 @@ export function createAdProvider(
   appLovinConfig: AppLovinConfigResult,
   factories: AdProviderFactories = defaultAdProviderFactories,
   lifecycle: FullScreenAdLifecycle = {},
+  preferred: AdProviderChoice = 'auto',
 ): AdProvider {
-  const selection = selectAdProvider(platform, appLovinConfig);
+  const selection = selectAdProvider(platform, appLovinConfig, preferred);
   switch (selection.kind) {
     case 'admob':
       return factories.createAdMobProvider(lifecycle);
@@ -125,8 +153,9 @@ export function createOwnedAdProvider(
   appLovinConfig: AppLovinConfigResult,
   deps: OwnedAdProviderDeps = {},
   lifecycle: FullScreenAdLifecycle = {},
+  preferred: AdProviderChoice = 'auto',
 ): OwnedAdProvider {
-  const selection = selectAdProvider(platform, appLovinConfig);
+  const selection = selectAdProvider(platform, appLovinConfig, preferred);
   switch (selection.kind) {
     case 'admob': {
       const provider = new AdMobProvider(undefined, {
