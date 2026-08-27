@@ -287,18 +287,16 @@ describe('native shell integration', () => {
 });
 
 describe('Find the Dog manifest contract', () => {
-  it('pins the approved identities, package graph, versions, and 152-entry catalog', () => {
+  it('pins the approved ad-free iOS package graph', () => {
     const recipeDir = new URL('../../../games/find_the_dog/native-resources/ios/', import.meta.url);
     const actualManifest = JSON.parse(fs.readFileSync(new URL('shell-manifest.json', recipeDir), 'utf8'));
-    const actualCatalog = JSON.parse(fs.readFileSync(new URL('applovin-skadnetwork-ids.json', recipeDir), 'utf8'));
+    const privacyManifest = fs.readFileSync(new URL('App/PrivacyInfo.xcprivacy', recipeDir), 'utf8');
     expect(actualManifest.capacitorAppId).toBe('com.basegamelab.find_the_dog.dev');
     expect(actualManifest.ios.bundleId).toBe('com.baseardahan.hiddenobj');
     expect(actualManifest.ios.swiftToolsVersion).toBe('6.1');
     expect(actualManifest.ios.deploymentTarget).toBe('15');
     expect(Object.fromEntries(actualManifest.ios.remotePackages.map((pkg) => [pkg.name, pkg.version]))).toEqual({
       'capacitor-swift-pm': '8.4.1',
-      AppLovinSDK: '13.6.2',
-      GoogleUserMessagingPlatform: '3.1.0',
       AdjustSdk: '5.6.2',
     });
     expect(actualManifest.ios.localPackages.map((pkg) => pkg.name)).toEqual([
@@ -309,7 +307,8 @@ describe('Find the Dog manifest contract', () => {
       'RevenuecatPurchasesCapacitor',
     ]);
     expect(actualManifest.ios.localPackages.find((pkg) => pkg.name === 'CapacitorFirebaseAnalytics').traits).toEqual(['AnalyticsWithoutAdIdSupport']);
-    expect(actualCatalog.skadnetwork_ids).toHaveLength(152);
-    expect(new Set(actualCatalog.skadnetwork_ids.map((entry) => entry.skadnetwork_id)).size).toBe(152);
+    expect(actualManifest.ios.adMobApplicationIdEnv).toBeUndefined();
+    expect(actualManifest.ios.skAdNetworkCatalog).toBeUndefined();
+    expect(privacyManifest).not.toContain('googleads.g.doubleclick.net');
   });
 });

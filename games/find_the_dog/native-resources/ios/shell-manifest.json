@@ -51,24 +51,6 @@
         ]
       },
       {
-        "name": "AppLovinSDK",
-        "url": "https://github.com/AppLovin/AppLovin-MAX-Swift-Package.git",
-        "requirement": "from",
-        "version": "13.6.2",
-        "products": [
-          "AppLovinSDK"
-        ]
-      },
-      {
-        "name": "GoogleUserMessagingPlatform",
-        "url": "https://github.com/googleads/swift-package-manager-google-user-messaging-platform.git",
-        "requirement": "from",
-        "version": "3.1.0",
-        "products": [
-          "GoogleUserMessagingPlatform"
-        ]
-      },
-      {
         "name": "AdjustSdk",
         "url": "https://github.com/adjust/ios_sdk",
         "requirement": "from",
@@ -79,11 +61,9 @@
       }
     ],
     "swiftSources": [
-      "AppLovinMaxPlugin.swift",
       "FindTheDogBridgeViewController.swift",
       "AdjustAttributionPlugin.swift"
     ],
-    "privacyManifest": "PrivacyInfo.xcprivacy",
-    "skAdNetworkCatalog": "applovin-skadnetwork-ids.json"
+    "privacyManifest": "PrivacyInfo.xcprivacy"
   }
 }

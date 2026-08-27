@@ -39,6 +39,18 @@ declare module '@capacitor-community/admob' {
     maxAdContentRating?: MaxAdContentRating;
   }
 
+  export interface AdmobConsentRequestOptions {
+    testDeviceIdentifiers?: string[];
+    tagForUnderAgeOfConsent?: boolean;
+  }
+
+  export interface AdmobConsentInfo {
+    status: string;
+    isConsentFormAvailable?: boolean;
+    canRequestAds: boolean;
+    privacyOptionsRequirementStatus: string;
+  }
+
   export interface AdMobRewardItem {
     type: string;
     amount: number;
@@ -96,6 +108,9 @@ declare module '@capacitor-community/admob' {
 
   export const AdMob: {
     initialize: (options: AdMobInitializationOptions) => Promise<void>;
+    requestConsentInfo: (options?: AdmobConsentRequestOptions) => Promise<AdmobConsentInfo>;
+    showConsentForm: () => Promise<AdmobConsentInfo>;
+    showPrivacyOptionsForm: () => Promise<void>;
     prepareInterstitial: (options: AdOptions) => Promise<void>;
     showInterstitial: () => Promise<void>;
     showBanner: (options: BannerAdOptions) => Promise<void>;

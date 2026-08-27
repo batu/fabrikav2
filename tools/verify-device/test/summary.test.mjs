@@ -10,9 +10,14 @@ import {
   formatUngatedCaptureWarnings,
   loadRunSummary,
   normalizeSummary,
+  redactReleaseReceipt,
   ungatedCaptureStates,
   writeSummaryJson,
 } from '../src/summary.mjs';
+
+it('redacts secret-shaped release receipt fields recursively', () => {
+  expect(redactReleaseReceipt({ ok: true, nested: { apiKey: 'fixture-secret', buildId: '42' } })).toEqual({ ok: true, nested: { apiKey: '[REDACTED]', buildId: '42' } });
+});
 
 let tmpDirs = [];
 

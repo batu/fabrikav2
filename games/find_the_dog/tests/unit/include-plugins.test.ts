@@ -21,6 +21,13 @@ describe('capacitor includePlugins allowlist', () => {
     ]);
   });
 
+  it('never includes AdMob in the ad-free iOS shell', () => {
+    expect(computeIncludePlugins({
+      VITE_ADMOB_IOS_ENABLED: 'true',
+      VITE_ADMOB_IOS_APP_ID: 'ca-app-pub-1234567890123456~1234567890',
+    })).not.toContain('@capacitor-community/admob');
+  });
+
   it('excludes @capacitor-firebase/analytics when Firebase config is absent', () => {
     const plugins = computeIncludePlugins({});
     expect(plugins).not.toContain('@capacitor-firebase/analytics');

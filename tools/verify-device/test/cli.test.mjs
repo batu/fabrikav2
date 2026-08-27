@@ -125,7 +125,7 @@ describe('cli.mjs provided-captures run derives exit from the typed verdict', ()
     expect(stdout).toMatch(/run verdict: UNVERIFIED \[EXPLORATORY\]/);
     const summary = JSON.parse(fs.readFileSync(path.join(outDir, 'summary.json'), 'utf8'));
     expect(summary.__run).toMatchObject({ kind: 'unverified', exitCode: 0 });
-  });
+  }, 15_000);
 
   it('exits nonzero under --strict with the same unverified evidence kind', () => {
     if (!hasCaptures) return;

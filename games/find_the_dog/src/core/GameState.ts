@@ -274,8 +274,8 @@ export interface GameSettings {
   tutorialEnabled: boolean;
   /**
    * Classic vs Restoration. See {@link GameMode} for semantics.
-   * Restoration is the player-facing default; Classic remains available
-   * for targeted diagnostics and tests.
+   * Restoration remains the saved player preference default. The deployment
+   * gameplay-mode policy may override it for every level load.
    */
   gameMode: GameMode;
 }

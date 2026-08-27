@@ -39,12 +39,21 @@ describe('FTD remote-config schema parity', () => {
         expect(field.validate?.(-1 as never)).toBe(false);
         expect(field.validate?.(1.5 as never)).toBe(false);
       } else if (definition.type === 'string') {
-        expect(field.validate?.('value' as never)).toBe(true);
+        const validValue = definition.key === 'gameplayModePolicy' ? 'classic' : 'value';
+        expect(field.validate?.(validValue as never)).toBe(true);
         expect(field.validate?.('   ' as never)).toBe(false);
       } else {
         expect(field.validate).toBeUndefined();
       }
     }
+  });
+
+  it('rejects unknown gameplay mode policies', () => {
+    const field = ftdRemoteConfigSchema.gameplayModePolicy;
+    expect(field.validate?.('classic')).toBe(true);
+    expect(field.validate?.('restoration')).toBe(true);
+    expect(field.validate?.('player')).toBe(true);
+    expect(field.validate?.('surprise-me' as never)).toBe(false);
   });
 });
 
@@ -99,6 +108,7 @@ describe('FTD shared remote-config compatibility service', () => {
         reward_progress_goal: '8',
         reward_hints_amount: '-2',
         gameplay_initial_hints: 'not-a-number',
+        gameplay_mode_policy: 'player',
         no_ads_visible: 'false',
         no_ads_product_id: '   ',
       })),
@@ -110,12 +120,14 @@ describe('FTD shared remote-config compatibility service', () => {
     expect(service.value('rewardProgressGoal')).toBe(8);
     expect(service.value('rewardHintsAmount')).toBe(REMOTE_CONFIG_DEFAULTS.rewardHintsAmount);
     expect(service.value('gameplayInitialHints')).toBe(REMOTE_CONFIG_DEFAULTS.gameplayInitialHints);
+    expect(service.value('gameplayModePolicy')).toBe('player');
     expect(service.value('noAdsVisible')).toBe(false);
     expect(service.value('noAdsProductId')).toBe(REMOTE_CONFIG_DEFAULTS.noAdsProductId);
     expect(service.snapshot().sources).toMatchObject({
       rewardProgressGoal: 'remote',
       rewardHintsAmount: 'default',
       gameplayInitialHints: 'default',
+      gameplayModePolicy: 'remote',
       noAdsVisible: 'remote',
       noAdsProductId: 'default',
     });

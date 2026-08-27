@@ -31,6 +31,7 @@ import {
   showSceneTransitionCover,
 } from '../ui/SceneTransitionCover';
 import { remoteConfigService } from '../config/RemoteConfigService';
+import { resolveGameplayMode } from '../config/gameplayModePolicy';
 import { buildFailContinueOffers, type FailContinueOfferSet, type FailContinueOption } from '../shop/FailContinueOffers';
 import { iapService } from '../shop/IapService';
 import { buildShopCatalog } from '../shop/ProductCatalog';
@@ -398,7 +399,11 @@ export class GameScene extends Phaser.Scene {
    * sprite metadata is a broken level, not a request to switch cleanup paths.
    */
   private isRestorationMode(): boolean {
-    if (gameState.settings.gameMode !== 'restoration') return false;
+    const mode = resolveGameplayMode(
+      remoteConfigService.value('gameplayModePolicy'),
+      gameState.settings.gameMode,
+    );
+    if (mode !== 'restoration') return false;
     const level = this.level;
     if (!level) return false;
     this.assertRestorationLevelReady(level);

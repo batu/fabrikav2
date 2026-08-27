@@ -34,6 +34,21 @@ function makeGameRoot() {
   return root;
 }
 
+function runCliWithoutLocalOverrides(args, environment = {}) {
+  const root = makeGameRoot();
+  const fixtureTools = path.join(root, 'tools/game-env');
+  const fixtureGame = path.join(root, 'games/find_the_dog');
+  fs.mkdirSync(path.dirname(fixtureTools), { recursive: true });
+  fs.mkdirSync(fixtureGame, { recursive: true });
+  fs.cpSync(path.join(repoRoot, 'tools/game-env'), fixtureTools, { recursive: true });
+  fs.copyFileSync(path.join(repoRoot, 'games/find_the_dog/.env.example'), path.join(fixtureGame, '.env.example'));
+  return spawnSync(process.execPath, [path.join(fixtureTools, 'validate.mjs'), ...args], {
+    cwd: fixtureGame,
+    encoding: 'utf8',
+    env: environment,
+  });
+}
+
 function write(root, name, contents) {
   fs.writeFileSync(path.join(root, name), contents);
 }
@@ -79,7 +94,8 @@ describe('environment validation', () => {
     expect(result.ok).toBe(false);
     expect(result.invalidKeys).toContain('VITE_GAMEANALYTICS_IOS_ENABLED');
     expect(result.invalidKeys).toContain('VITE_ADJUST_IOS_ENABLED');
-    expect(result.invalidKeys).toContain('VITE_APPLOVIN_IOS_ENABLED');
+    expect(result.invalidKeys).toContain('VITE_ADMOB_IOS_ENABLED');
+    expect(result.invalidKeys).toContain('VITE_ADMOB_IOS_TEST_MODE');
     expect(result.invalidKeys).toContain('VITE_CDN_ENABLED');
   });
 
@@ -90,7 +106,8 @@ describe('environment validation', () => {
       'VITE_GAMEANALYTICS_IOS_ENABLED=true',
       'VITE_GAMEANALYTICS_IOS_GAME_KEY=synthetic-game-key',
       'VITE_ADJUST_IOS_ENABLED=false',
-      'VITE_APPLOVIN_IOS_ENABLED=false',
+      'VITE_ADMOB_IOS_ENABLED=false',
+      'VITE_ADMOB_IOS_TEST_MODE=false',
       'VITE_CDN_ENABLED=false',
       '',
     ].join('\n'));
@@ -108,7 +125,8 @@ describe('environment validation', () => {
       'VITE_FTD_DISABLE_REMOTE_CONFIG=false',
       'VITE_GAMEANALYTICS_IOS_ENABLED=false',
       'VITE_ADJUST_IOS_ENABLED=false',
-      'VITE_APPLOVIN_IOS_ENABLED=false',
+      'VITE_ADMOB_IOS_ENABLED=false',
+      'VITE_ADMOB_IOS_TEST_MODE=false',
       'VITE_CDN_ENABLED=false',
       '',
     ].join('\n'));
@@ -122,7 +140,8 @@ describe('environment validation', () => {
       'VITE_FTD_DISABLE_REMOTE_CONFIG=false',
       'VITE_GAMEANALYTICS_IOS_ENABLED=false',
       'VITE_ADJUST_IOS_ENABLED=false',
-      'VITE_APPLOVIN_IOS_ENABLED=false',
+      'VITE_ADMOB_IOS_ENABLED=false',
+      'VITE_ADMOB_IOS_TEST_MODE=false',
       'VITE_CDN_ENABLED=false',
       'VITE_INSITU_TOUR=allstates',
       '',
@@ -141,9 +160,9 @@ describe('environment validation', () => {
     },
     {
       mode: 'ios',
-      enabled: 'VITE_APPLOVIN_IOS_ENABLED',
-      required: ['VITE_APPLOVIN_IOS_SDK_KEY'],
-      invalid: ['VITE_APPLOVIN_IOS_GENERAL_AUDIENCE_ONLY'],
+      enabled: 'VITE_ADMOB_IOS_ENABLED',
+      required: [],
+      invalid: ['VITE_ADMOB_IOS_ENABLED'],
     },
     {
       mode: 'android',
@@ -158,7 +177,8 @@ describe('environment validation', () => {
       VITE_CDN_ENABLED: 'false',
       VITE_GAMEANALYTICS_IOS_ENABLED: 'false',
       VITE_ADJUST_IOS_ENABLED: 'false',
-      VITE_APPLOVIN_IOS_ENABLED: 'false',
+      VITE_ADMOB_IOS_ENABLED: 'false',
+      VITE_ADMOB_IOS_TEST_MODE: 'false',
       VITE_APPLOVIN_ANDROID_ENABLED: 'false',
       [enabled]: 'true',
     };
@@ -178,7 +198,8 @@ describe('environment validation', () => {
       'VITE_GAMEANALYTICS_IOS_GAME_KEY=__SET_IN_LOCAL_ENV__',
       'VITE_GAMEANALYTICS_IOS_SECRET_KEY=synthetic-secret',
       'VITE_ADJUST_IOS_ENABLED=false',
-      'VITE_APPLOVIN_IOS_ENABLED=false',
+      'VITE_ADMOB_IOS_ENABLED=false',
+      'VITE_ADMOB_IOS_TEST_MODE=false',
       'VITE_CDN_ENABLED=false',
       '',
     ].join('\n'));
@@ -195,7 +216,8 @@ describe('environment validation', () => {
       'VITE_FTD_DISABLE_REMOTE_CONFIG=false',
       'VITE_GAMEANALYTICS_IOS_ENABLED=false',
       'VITE_ADJUST_IOS_ENABLED=false',
-      'VITE_APPLOVIN_IOS_ENABLED=false',
+      'VITE_ADMOB_IOS_ENABLED=false',
+      'VITE_ADMOB_IOS_TEST_MODE=false',
       'VITE_CDN_ENABLED=false',
       'VITE_FTD_SUPPORT_URL=',
       '',
@@ -208,7 +230,8 @@ describe('environment validation', () => {
       'VITE_FTD_DISABLE_REMOTE_CONFIG=false',
       'VITE_GAMEANALYTICS_IOS_ENABLED=false',
       'VITE_ADJUST_IOS_ENABLED=false',
-      'VITE_APPLOVIN_IOS_ENABLED=false',
+      'VITE_ADMOB_IOS_ENABLED=false',
+      'VITE_ADMOB_IOS_TEST_MODE=false',
       'VITE_CDN_ENABLED=false',
       '# intentional-blank: use the runtime fallback',
       'VITE_FTD_SUPPORT_URL=',
@@ -355,14 +378,15 @@ describe('validator CLI', () => {
 
   it('fails normal iOS validation loudly without printing ambient values', () => {
     const canary = 'ambient-canary-do-not-print';
-    const result = runCli(
+    const result = runCliWithoutLocalOverrides(
       ['--game', 'find_the_dog', '--mode', 'ios'],
       {
         VITE_FTD_DISABLE_REMOTE_CONFIG: 'false',
         VITE_GAMEANALYTICS_IOS_ENABLED: 'true',
         VITE_GAMEANALYTICS_IOS_GAME_KEY: canary,
         VITE_ADJUST_IOS_ENABLED: 'false',
-        VITE_APPLOVIN_IOS_ENABLED: 'false',
+        VITE_ADMOB_IOS_ENABLED: 'false',
+        VITE_ADMOB_IOS_TEST_MODE: 'false',
         VITE_CDN_ENABLED: 'false',
       },
     );
