@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import {
+  resolveDerivedTextureDimensions,
   resolvePlatformRuntimeTextureLongEdge,
   resolveRuntimeTextureLongEdge,
   selectRuntimeColorImageUrl,
@@ -23,6 +24,10 @@ describe('resolveRuntimeTextureLongEdge', () => {
     expect(resolvePlatformRuntimeTextureLongEdge(16_384, 'ios')).toBe(2560);
     expect(resolvePlatformRuntimeTextureLongEdge(8192, 'android')).toBe(8192);
     expect(resolvePlatformRuntimeTextureLongEdge(8192, 'web')).toBe(8192);
+  });
+
+  it('keeps derived textures at capped source dimensions instead of logical level size', () => {
+    expect(resolveDerivedTextureDimensions(1170, 2560)).toEqual({ width: 1170, height: 2560 });
   });
 });
 

@@ -51,6 +51,7 @@ import { MicroAnimationLayer, type MicroAnimationSnapshot } from '../effects/Mic
 import { buildLevelPrewarmTargets } from './LevelPrewarm';
 import {
   FALLBACK_RUNTIME_TEXTURE_LONG_EDGE,
+  resolveDerivedTextureDimensions,
   resolvePlatformRuntimeTextureLongEdge,
   selectRuntimeColorImageUrl,
 } from './RuntimeTexturePolicy';
@@ -3072,7 +3073,7 @@ export class GameScene extends Phaser.Scene {
     this.refreshCanvasTexture(textureKey);
   }
 
-  /** Generate grayscale texture from the capped color texture at logical level size. */
+  /** Generate grayscale texture from the capped color texture without expanding it again. */
   private generateGrayscaleTexture(): void {
     if (this.textures.exists('bw_generated')) return;
 
@@ -3081,9 +3082,10 @@ export class GameScene extends Phaser.Scene {
 
     const sourceWidth = Number((source as { width?: number }).width);
     const sourceHeight = Number((source as { height?: number }).height);
+    const dimensions = resolveDerivedTextureDimensions(sourceWidth, sourceHeight);
     const canvas = document.createElement('canvas');
-    canvas.width = this.level?.width ?? sourceWidth;
-    canvas.height = this.level?.height ?? sourceHeight;
+    canvas.width = dimensions.width;
+    canvas.height = dimensions.height;
 
     // Desaturate at capped source resolution, then scale up — avoids a
     // multi-megapixel getImageData pass on 4K logical level dimensions.

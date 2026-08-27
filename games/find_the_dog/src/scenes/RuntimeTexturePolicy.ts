@@ -18,6 +18,16 @@ export function resolvePlatformRuntimeTextureLongEdge(
     : capability;
 }
 
+export function resolveDerivedTextureDimensions(
+  sourceWidth: number,
+  sourceHeight: number,
+): { width: number; height: number } {
+  return {
+    width: Math.max(1, Math.round(sourceWidth)),
+    height: Math.max(1, Math.round(sourceHeight)),
+  };
+}
+
 /** Prefer the bundled source-resolution tier only when it can add real detail. */
 export function selectRuntimeColorImageUrl(
   fallbackUrl: string,
