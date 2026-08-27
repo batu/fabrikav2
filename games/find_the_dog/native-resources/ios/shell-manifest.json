@@ -37,11 +37,6 @@
         "name": "RevenuecatPurchasesCapacitor",
         "path": "../../../../../node_modules/@revenuecat/purchases-capacitor",
         "product": "RevenuecatPurchasesCapacitor"
-      },
-      {
-        "name": "CapacitorCommunityAdmob",
-        "path": "../../../../../node_modules/@capacitor-community/admob",
-        "product": "CapacitorCommunityAdmob"
       }
     ],
     "remotePackages": [
@@ -69,9 +64,6 @@
       "FindTheDogBridgeViewController.swift",
       "AdjustAttributionPlugin.swift"
     ],
-    "privacyManifest": "PrivacyInfo.xcprivacy",
-    "adMobApplicationIdEnv": "VITE_ADMOB_IOS_APP_ID",
-    "skAdNetworkCatalog": "admob-skadnetwork-ids.json",
-    "skAdNetworkExpectedCount": 1
+    "privacyManifest": "PrivacyInfo.xcprivacy"
   }
 }
