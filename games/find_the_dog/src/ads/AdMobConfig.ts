@@ -81,8 +81,8 @@ export function readAdMobIosConfig(env: Env, publicConfig?: AdMobIosPublicConfig
   };
 }
 
-export function adMobIosConfigPresent(env: Env): boolean {
-  return readAdMobIosConfig(env).enabled;
+export function adMobIosConfigPresent(env: Env, publicConfig?: AdMobIosPublicConfig): boolean {
+  return readAdMobIosConfig(env, publicConfig).enabled;
 }
 
 function csv(value: string | null): string[] {
