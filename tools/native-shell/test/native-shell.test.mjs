@@ -8,6 +8,7 @@ import {
   patchPbxproj,
   patchStoryboard,
   renderPackageSwift,
+  resolveRuntimeAdMobManifest,
   validateGeneratedShell,
 } from '../src/native-shell.mjs';
 
@@ -139,6 +140,38 @@ describe('native shell transforms', () => {
     expect(once).toContain('<key>GOOGLE_ANALYTICS_IDFV_COLLECTION_ENABLED</key>\n\t<false/>');
     expect(once).toContain('<string>UIInterfaceOrientationPortrait</string>');
     expect(once).not.toContain('Landscape');
+  });
+
+  it('omits native AdMob wiring when its explicit enable flag is off', () => {
+    const configured = manifest();
+    configured.ios.adMobEnabledEnv = 'VITE_ADMOB_IOS_ENABLED';
+    configured.ios.adMobApplicationIdEnv = 'VITE_ADMOB_IOS_APP_ID';
+    configured.ios.localPackages.push({
+      name: 'CapacitorCommunityAdmob',
+      path: '../../../../../node_modules/@capacitor-community/admob',
+      product: 'CapacitorCommunityAdmob',
+    });
+
+    const disabled = resolveRuntimeAdMobManifest(configured, { VITE_ADMOB_IOS_ENABLED: 'false' });
+    expect(disabled.ios.localPackages.map((pkg) => pkg.name)).not.toContain('CapacitorCommunityAdmob');
+    expect(disabled.ios.adMobApplicationIdEnv).toBeNull();
+    expect(disabled.ios.skAdNetworkCatalog).toBeNull();
+    expect(resolveRuntimeAdMobManifest(configured, { VITE_ADMOB_IOS_ENABLED: 'true' })).toBe(configured);
+  });
+
+  it('uses committed AdMob enablement when no environment override exists', () => {
+    const configured = manifest();
+    configured.ios.adMobEnabledEnv = 'VITE_ADMOB_IOS_ENABLED';
+    configured.ios.adMobApplicationIdEnv = 'VITE_ADMOB_IOS_APP_ID';
+    configured.ios.localPackages.push({
+      name: 'CapacitorCommunityAdmob',
+      path: '../../../../../node_modules/@capacitor-community/admob',
+      product: 'CapacitorCommunityAdmob',
+    });
+
+    expect(resolveRuntimeAdMobManifest(configured, {}, { enabled: true })).toBe(configured);
+    expect(resolveRuntimeAdMobManifest(configured, {}, { enabled: false }).ios.adMobApplicationIdEnv).toBeNull();
+    expect(resolveRuntimeAdMobManifest(configured, { VITE_ADMOB_IOS_ENABLED: 'false' }, { enabled: true }).ios.adMobApplicationIdEnv).toBeNull();
   });
 
   it('removes tracking and ad-network declarations for a provider-free shell', () => {
@@ -287,10 +320,10 @@ describe('native shell integration', () => {
 });
 
 describe('Find the Dog manifest contract', () => {
-  it('pins the approved ad-free iOS package graph', () => {
+  it('pins the approved identities, AdMob package graph, and catalog', () => {
     const recipeDir = new URL('../../../games/find_the_dog/native-resources/ios/', import.meta.url);
     const actualManifest = JSON.parse(fs.readFileSync(new URL('shell-manifest.json', recipeDir), 'utf8'));
-    const privacyManifest = fs.readFileSync(new URL('App/PrivacyInfo.xcprivacy', recipeDir), 'utf8');
+    const actualCatalog = JSON.parse(fs.readFileSync(new URL('admob-skadnetwork-ids.json', recipeDir), 'utf8'));
     expect(actualManifest.capacitorAppId).toBe('com.basegamelab.find_the_dog.dev');
     expect(actualManifest.ios.bundleId).toBe('com.baseardahan.hiddenobj');
     expect(actualManifest.ios.swiftToolsVersion).toBe('6.1');
@@ -305,10 +338,11 @@ describe('Find the Dog manifest contract', () => {
       'CapacitorLocalNotifications',
       'CapacitorFirebaseAnalytics',
       'RevenuecatPurchasesCapacitor',
+      'CapacitorCommunityAdmob',
     ]);
     expect(actualManifest.ios.localPackages.find((pkg) => pkg.name === 'CapacitorFirebaseAnalytics').traits).toEqual(['AnalyticsWithoutAdIdSupport']);
-    expect(actualManifest.ios.adMobApplicationIdEnv).toBeUndefined();
-    expect(actualManifest.ios.skAdNetworkCatalog).toBeUndefined();
-    expect(privacyManifest).not.toContain('googleads.g.doubleclick.net');
+    expect(actualManifest.ios.adMobEnabledEnv).toBe('VITE_ADMOB_IOS_ENABLED');
+    expect(actualManifest.ios.adMobApplicationIdEnv).toBe('VITE_ADMOB_IOS_APP_ID');
+    expect(actualCatalog.skadnetwork_ids.map((entry) => entry.skadnetwork_id)).toEqual(['cstr6suwn9.skadnetwork']);
   });
 });
