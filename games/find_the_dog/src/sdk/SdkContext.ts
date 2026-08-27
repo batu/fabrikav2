@@ -138,9 +138,9 @@ export function createSdkContext(deps: CreateSdkContextDependencies = {}): GameS
   const baseFactories = deps.adProviderFactories;
   const adFactories: AdProviderFactories = baseFactories ?? {
     createAdMobProvider: platform === 'ios'
-      ? (adLifecycle) => adMobConfig.enabled
+      ? (adLifecycle) => isNativePlatform && adMobConfig.enabled
         ? new AdMobProvider(adMobConfig.config, { lifecycle: adLifecycle })
-        : defaultAdProviderFactories.createDisabledProvider(`AdMob unavailable: ${adMobConfig.reason}`)
+        : defaultAdProviderFactories.createDisabledProvider(`AdMob unavailable: ${adMobConfig.enabled ? 'not running on a native platform' : adMobConfig.reason}`)
       : defaultAdProviderFactories.createAdMobProvider,
     createAppLovinMaxProvider: (config, adLifecycle) => new AppLovinMaxProvider(config, {
       lifecycle: adLifecycle,

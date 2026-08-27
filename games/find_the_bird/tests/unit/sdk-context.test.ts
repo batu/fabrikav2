@@ -199,7 +199,7 @@ describe('FTD SdkContext composition matrix', () => {
     const context = createSdkContext({
       buildEnv: 'production',
       platform: 'ios',
-      isNativePlatform: false,
+      isNativePlatform: true,
       env: {
         VITE_AD_PROVIDER: 'admob',
         VITE_ADMOB_IOS_ENABLED: 'true',
