@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import {
+  resolvePlatformRuntimeTextureLongEdge,
   resolveRuntimeTextureLongEdge,
   selectRuntimeColorImageUrl,
 } from '../../src/scenes/RuntimeTexturePolicy';
@@ -16,6 +17,12 @@ describe('resolveRuntimeTextureLongEdge', () => {
     expect(resolveRuntimeTextureLongEdge(null)).toBe(2560);
     expect(resolveRuntimeTextureLongEdge(Number.NaN)).toBe(2560);
     expect(resolveRuntimeTextureLongEdge(0)).toBe(2560);
+  });
+
+  it('uses the memory-safe runtime tier on iOS instead of the GPU allocation ceiling', () => {
+    expect(resolvePlatformRuntimeTextureLongEdge(16_384, 'ios')).toBe(2560);
+    expect(resolvePlatformRuntimeTextureLongEdge(8192, 'android')).toBe(8192);
+    expect(resolvePlatformRuntimeTextureLongEdge(8192, 'web')).toBe(8192);
   });
 });
 

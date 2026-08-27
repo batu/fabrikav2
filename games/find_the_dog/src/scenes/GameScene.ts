@@ -51,7 +51,7 @@ import { MicroAnimationLayer, type MicroAnimationSnapshot } from '../effects/Mic
 import { buildLevelPrewarmTargets } from './LevelPrewarm';
 import {
   FALLBACK_RUNTIME_TEXTURE_LONG_EDGE,
-  resolveRuntimeTextureLongEdge,
+  resolvePlatformRuntimeTextureLongEdge,
   selectRuntimeColorImageUrl,
 } from './RuntimeTexturePolicy';
 
@@ -3453,9 +3453,11 @@ export class GameScene extends Phaser.Scene {
   }
 
   private static resolveRuntimeTextureLongEdge(renderer: Phaser.Renderer.Canvas.CanvasRenderer | Phaser.Renderer.WebGL.WebGLRenderer): number {
-    if ((renderer as { type?: number }).type !== Phaser.WEBGL) return resolveRuntimeTextureLongEdge(null);
-    const gl = (renderer as Phaser.Renderer.WebGL.WebGLRenderer).gl;
-    return resolveRuntimeTextureLongEdge(Number(gl?.getParameter(gl.MAX_TEXTURE_SIZE)));
+    const gl = (renderer as { type?: number }).type === Phaser.WEBGL
+      ? (renderer as Phaser.Renderer.WebGL.WebGLRenderer).gl
+      : null;
+    const maxTextureSize = gl ? Number(gl.getParameter(gl.MAX_TEXTURE_SIZE)) : null;
+    return resolvePlatformRuntimeTextureLongEdge(maxTextureSize, Capacitor.getPlatform());
   }
 
   private getRuntimeTextureSnapshot(
