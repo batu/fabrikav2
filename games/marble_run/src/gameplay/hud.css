@@ -40,7 +40,7 @@
   z-index: 0;
   pointer-events: none;
   opacity: 0.28;
-  background-image: url('/v1/ui/marble-shadow-tile.png');
+  background-image: url('../../public/v1/ui/marble-shadow-tile.png');
   background-size: 320px 320px;
   transform: translate3d(-74px, -74px, 0);
   will-change: transform;

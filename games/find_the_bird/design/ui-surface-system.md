@@ -14,7 +14,7 @@ into dozens of one-off bitmaps.
   primary actions.
 
 The three authored source paintings are retained in `design/source-textures/`.
-`scripts/build_ui_surfaces.py` converts them into exact 256 px seamless tiles.
+`../../tools/find-the-bird-assets/build_ui_surfaces.py` converts them into exact 256 px seamless tiles.
 The mirroring construction makes opposite edges pixel-identical rather than
 trusting a model's claim that an image is tileable.
 

@@ -14,7 +14,7 @@ from pathlib import Path
 from PIL import Image, ImageChops, ImageDraw, ImageEnhance, ImageOps, ImageStat
 
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2] / "games" / "find_the_bird"
 SOURCE_DIR = ROOT / "design" / "source-textures"
 TEXTURE_DIR = ROOT / "public" / "ui" / "textures"
 SURFACE_DIR = ROOT / "public" / "ui" / "surfaces"

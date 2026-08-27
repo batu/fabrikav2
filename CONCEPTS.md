@@ -44,6 +44,24 @@ The save-backed record of unlocked and completed content plus earned resources t
 
 An Active Attempt may read Durable Progression when it begins. During normal play, only an accepted, previously unrewarded completion may advance it; explicit setup tools may seed or reset it. Result presentation and outcome events retain the Active Attempt identity even when that completion has already advanced Durable Progression.
 
+## Marble Run difficulty authoring
+
+### Base Cycle
+
+The authored 19-slot difficulty pattern that repeats after Marble Run's 11-level onboarding sequence. Each slot defines a level role and its intended difficulty contribution before later-cycle progression is applied.
+
+### Cycle Progression
+
+The authored rules that change Base Cycle values on each repetition, producing the journey's long-term difficulty curve without requiring designers to edit every generated level individually.
+
+### Difficulty Draft
+
+The editable state derived from the current shipped baseline. It may regenerate previews and receive level-specific exceptions, but it has no runtime authority until it becomes an Export Candidate and is migrated separately.
+
+### Export Candidate
+
+A complete, versioned JSON snapshot of a valid Difficulty Draft, including journey rules and level exceptions. Creating one is an explicit confirmation step and does not mutate game data, publish a build, or change the shipped baseline.
+
 ## Relationships
 
 The Shell Presentation Contract defines the identities and compatibility rules that a Published Revision claims to satisfy. A Projection Revision names its source Published Revision and binds the generated artifacts that runtime consumers may select.

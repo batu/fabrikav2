@@ -1,7 +1,8 @@
 /// <reference types="vite/client" />
-/// <reference path="../../../packages/sdk/src/ads/capacitor-admob-shims.d.ts" />
-/// <reference path="../../../packages/sdk/src/haptics/capacitor-shims.d.ts" />
+import '../../../packages/sdk/src/ads/capacitor-admob-shims.d.ts';
+import '../../../packages/sdk/src/haptics/capacitor-shims.d.ts';
 
+declare global {
 interface ImportMetaEnv {
   readonly VITE_ENABLE_TEST_HARNESS?: string;
   readonly VITE_SDK_VERIFIER_AUTOMOUNT?: string;
@@ -49,4 +50,5 @@ interface ImportMetaEnv {
   readonly VITE_FIREBASE_API_KEY?: string;
   readonly VITE_FIREBASE_PROJECT_ID?: string;
   readonly VITE_FIREBASE_APP_ID?: string;
+}
 }

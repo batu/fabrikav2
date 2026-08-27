@@ -1,0 +1,4 @@
+interface:
+  display_name: "Provision Game Services"
+  short_description: "Provision game providers and materialize credentials safely"
+  default_prompt: "Provision or adopt the required game service records, verify their exact identity, and materialize credentials without exposing secrets."

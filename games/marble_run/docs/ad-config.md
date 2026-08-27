@@ -125,7 +125,7 @@ So Remote Config is now owned by **our** project, `marble-run-basegamelab`
 Both apps are registered under `com.basegamelab.marblerun`. Consequences:
 
 - **Remote Config**: ours, publishable by us. `firebase deploy --only remoteconfig`
-  from `games/marble_run/` (see `firebase.json`).
+  from `games/marble_run/` with `--config native-resources/firebase.json`.
 - **Android analytics**: now lands in our project —
   `native-resources/android-config/app/google-services.json` is overlaid onto
   `android/app/` by `sync-native-resources.mjs`, and `app/build.gradle` applies
@@ -192,7 +192,7 @@ Details and capture hashes: `evidence/2026-07-23-sdk-integration-evidence.md`.
 
 First TestFlight build containing the working ad units. Built from main
 (`588af816`) in a clean worktree with no local `.env` — the ids came from the
-tracked `.env.production`, and were verified inside the archived `App.app`
+the release environment, and were verified inside the archived `App.app`
 (`bootstrap-Dt9ckLNd.js`) before upload. Version 1.0 (3), uploaded via
 `xcodebuild -exportArchive` with the same ExportOptions as build 2.
 

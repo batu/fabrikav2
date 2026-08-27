@@ -1,9 +1,10 @@
 /// <reference types="vite/client" />
-/// <reference path="../../../packages/sdk/src/ads/capacitor-admob-shims.d.ts" />
-/// <reference path="../../../packages/sdk/src/haptics/capacitor-shims.d.ts" />
+import '../../../packages/sdk/src/ads/capacitor-admob-shims.d.ts';
+import '../../../packages/sdk/src/haptics/capacitor-shims.d.ts';
 
+declare global {
 /** Build provenance stamped by configs/vite.base.ts (undefined under vitest). */
-declare const __BUILD_INFO__:
+const __BUILD_INFO__:
   | { sha: string; dirty: boolean; version: string; builtAt: string }
   | undefined;
 
@@ -56,4 +57,5 @@ interface ImportMetaEnv {
   readonly VITE_FIREBASE_STORAGE_BUCKET?: string;
   readonly VITE_FIREBASE_MESSAGING_SENDER_ID?: string;
   readonly VITE_FIREBASE_APP_ID?: string;
+}
 }
