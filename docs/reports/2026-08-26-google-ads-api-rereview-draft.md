@@ -9,7 +9,16 @@ Source assessment: `/Users/base/dev/appletolye/personal_site/docs/reports/2026-0
 2. If no usable resubmit action exists, use Google's official **Contact Google Ads API Compliance** form and select **Rejection**.
 3. Do not create another developer token as a workaround.
 
-The account's API Center state, MCC ID, API contact email, submitted URL, application answers, and requested access level remain unverified. Those fields must be inspected before submission; inventing them would be efficient only in the sense that fiction is quick.
+Known application identity from the original successful submission:
+
+- MCC: `232-701-7574`
+- API contact: `baseardahan@gmail.com`
+- Primary site: `https://basegamelab.com/`
+- Tool page: `https://basegamelab.com/ads-operations/`
+- Requested level: Basic Access
+- Scope: App campaigns; campaign creation, campaign management, and reporting; internal first-party use only
+
+The current API Center status, submitted URL fields, and rejection case state remain unverified. The cached Google Ads OAuth grant belongs to a retired/rotated OAuth client and cannot refresh (`invalid_client`); the current client has AdMob scopes but needs a fresh `adwords` authorization before API access can be probed.
 
 ## Details to verify before submission
 
@@ -31,6 +40,10 @@ The account's API Center state, MCC ID, API contact email, submitted URL, applic
 > Application-specific privacy and terms pages are available at https://basegamelab.com/google-ads-api/privacy and https://basegamelab.com/google-ads-api/terms. A first-party product page is available at https://basegamelab.com/find-the-bird.
 >
 > The relevant pages are publicly accessible without authentication. Please perform a fresh review of the URLs and application information. We are available to provide additional implementation or demo evidence if requested.
+
+## Credential incident
+
+While inspecting oauth2l cache metadata, one diagnostic command printed OAuth client-secret values into the private agent-session tool output. No secret was committed, added to an artifact, or sent externally. Batu was notified on Telegram. The affected OAuth client must be rotated/deleted after explicit approval; until then, treat it as exposed.
 
 ## Submission gate
 
