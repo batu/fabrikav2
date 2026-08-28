@@ -50,6 +50,14 @@ export function readAppsFlyerConfig(
 
   const devKey = envString(appsFlyerEnv.VITE_APPSFLYER_DEV_KEY);
   const appleAppId = envString(appsFlyerEnv.VITE_APPSFLYER_APPLE_APP_ID);
+  const sharingPartners = readSharingPartners(appsFlyerEnv.VITE_APPSFLYER_SHARING_PARTNERS);
+  if (sharingPartners.length > 0) {
+    return {
+      enabled: false,
+      reason: 'partner allowlisting is unsupported by the AppsFlyer iOS SDK; keep deny-all and activate reviewed partners in the dashboard',
+      missingKeys: [],
+    };
+  }
 
   const missingKeys: string[] = [];
   if (devKey === null) missingKeys.push('VITE_APPSFLYER_DEV_KEY');
@@ -77,7 +85,7 @@ export function readAppsFlyerConfig(
       devKey: requiredValue(devKey),
       appleAppId: platform === 'ios' ? appleAppId : null,
       debugLogging: !isProductionBuild && parseBooleanEnv(appsFlyerEnv.VITE_APPSFLYER_DEBUG_LOGGING, false),
-      sharingPartners: readSharingPartners(appsFlyerEnv.VITE_APPSFLYER_SHARING_PARTNERS),
+      sharingPartners: [],
     },
   };
 }

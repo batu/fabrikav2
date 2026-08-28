@@ -70,6 +70,11 @@ describe('readAppsFlyerConfig', (): void => {
     expect(android).toMatchObject({ enabled: false, missingKeys: ['VITE_APPSFLYER_DEV_KEY'] });
   });
 
+  it('fails closed when a partner allowlist is requested', (): void => {
+    const result = readAppsFlyerConfig('ios', { ...enabledEnv, VITE_APPSFLYER_SHARING_PARTNERS: 'meta' }, false);
+    expect(result).toMatchObject({ enabled: false, reason: expect.stringContaining('unsupported') });
+  });
+
   it('rejects a non-numeric apple app id', (): void => {
     const result = readAppsFlyerConfig(
       'ios',
