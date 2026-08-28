@@ -86,7 +86,7 @@ Partner dashboard configuration may be prepared but remains disabled until the a
 - **KTD6 — One event projection authority.** Add an allowlisted AppsFlyer event mapper in `packages/sdk`; game analytics remains rich internally, while acquisition gets only bounded conversion/value events.
 - **KTD7 — Revenue after verification.** Purchase revenue originates after RevenueCat-backed entitlement verification, not at button tap or payment-sheet display. Ad revenue originates from the native paid-impression callback. Deduplication lives at the shared adapter boundary.
 - **KTD8 — No anonymous fallback to standard SDK.** If the strict package or privacy setup is unavailable, attribution is disabled and the release gate fails.
-- **KTD9 — Firebase project ownership.** Reuse `hidden-object-base` for Find the Dog only after exact duplicate-app reconciliation. Create a dedicated Find The Bird Firebase project/app if no exact app exists. Do not place both games into an unrelated project merely because credentials are available.
+- **KTD9 — Firebase project ownership.** Use dedicated Base Game Lab projects: `find-the-bird-basegamelab` and `find-the-dog-basegamelab`. Treat Playwill-owned `hidden-object-base` as deprecated external legacy infrastructure; no new Find release may reference it. Do not delete the legacy project or its historical data without its owners and separate destructive authorization.
 - **KTD10 — Evidence before partner activation.** Device and backend readback evidence is part of implementation, not deferred release QA.
 
 **Product Contract preservation:** created directly from the user's approved scope; no upstream brainstorm document.
@@ -98,9 +98,11 @@ Current authenticated state, to be rechecked at execution time:
 - AppsFlyer dashboard is authenticated as the Base Game Lab Growth role account. Both iOS apps exist: `id6796698146` and `id6772100729`.
 - AppsFlyer developer key is stored owner-only at `~/.config/base-game-lab/appsflyer-dev-key`; never print or commit it.
 - Firebase CLI and gcloud are authenticated as the existing Google administrator account, not yet the new Workspace identity.
-- Visible Firebase projects include `hidden-object-base` with two iOS app records named Find the Dog and no visible Find The Bird project. Duplicate FTD records must be reconciled by exact bundle/config readback before choosing one.
+- Dedicated Base Game Lab Firebase projects now exist: `find-the-bird-basegamelab` for `com.basegamelab.findthebird` and `find-the-dog-basegamelab` for `com.baseardahan.hiddenobj`.
+- Exact protected plists are stored owner-only under `~/.config/base-game-lab/firebase/<game>/GoogleService-Info.plist`; values must never be printed or committed.
+- `hidden-object-base` is owned by Playwill accounts. It is soft-deprecated: retain historical data externally, but fail validation if its project ID appears in any new Find release configuration.
 - The active Firebase CLI credential is owner-only in the standard configstore. Do not copy it into the repo.
-- If Workspace ownership is required, invite `batu@basegamelab.com` through Firebase/Google Cloud IAM and verify access before removing the legacy administrator. Do not create duplicate projects to avoid an access migration.
+- `batu@basegamelab.com` has Firebase Admin on both new projects. Project Owner invitation/transfer remains a later IAM task; keep the legacy Google administrator until that transfer is verified.
 
 ## High-Level Design
 
@@ -155,7 +157,7 @@ flowchart LR
 
 **Files:** ignored owner files under each game's established native-resource materialization lane; `.env.example` documentation; provisioning scripts/tests only if the existing `provision-game-services` or native-shell lane lacks exact Firebase support.
 
-**Approach:** reuse or extend existing provisioning infrastructure; do not hand-copy into tracked source. Reconcile FTD duplicates, select the canonical exact-bundle app, create FTB project/app only if absent, download each plist to owner-only storage, and materialize at sync time. Validate `BUNDLE_ID`, `GOOGLE_APP_ID`, `PROJECT_ID`, and file mode before use.
+**Approach:** reuse or extend existing provisioning infrastructure; do not hand-copy into tracked source. Materialize the already-created dedicated Base Game Lab app configs from owner-only storage at sync time. Validate `BUNDLE_ID`, `GOOGLE_APP_ID`, expected canonical `PROJECT_ID`, and file mode before use. Explicitly reject deprecated `hidden-object-base` configuration.
 
 **Test scenarios:** exact app passes; wrong bundle/project fails before build; missing file is allowed for web/dev but blocks Crashlytics-required release; credential values never enter logs or receipts.
 
