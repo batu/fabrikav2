@@ -25,18 +25,9 @@ describe('readAppsFlyerConfig', (): void => {
     });
   });
 
-  it('enables Android with dev key alone and no apple app id', (): void => {
-    const result = readAppsFlyerConfig(
-      'android',
-      { VITE_APPSFLYER_ENABLED: 'true', VITE_APPSFLYER_DEV_KEY: DEV_KEY },
-      false,
-    );
-
-    expect(result.enabled).toBe(true);
-    if (result.enabled) {
-      expect(result.config.appleAppId).toBeNull();
-      expect(result.config.sharingPartners).toEqual([]);
-    }
+  it('fails closed on Android until a native bridge exists', (): void => {
+    const result = readAppsFlyerConfig('android', { VITE_APPSFLYER_ENABLED: 'true', VITE_APPSFLYER_DEV_KEY: DEV_KEY }, false);
+    expect(result).toMatchObject({ enabled: false, reason: expect.stringContaining('iOS bridge unavailable') });
   });
 
   it('disables when the enable flag is absent', (): void => {
@@ -49,8 +40,8 @@ describe('readAppsFlyerConfig', (): void => {
     const web = readAppsFlyerConfig('web', enabledEnv, false);
     const blank = readAppsFlyerConfig('', enabledEnv, false);
 
-    expect(web).toMatchObject({ enabled: false, reason: 'AppsFlyer disabled on web platform' });
-    expect(blank).toMatchObject({ enabled: false, reason: 'AppsFlyer disabled on web platform' });
+    expect(web).toMatchObject({ enabled: false, reason: 'AppsFlyer iOS bridge unavailable on web platform' });
+    expect(blank).toMatchObject({ enabled: false, reason: 'AppsFlyer iOS bridge unavailable on web platform' });
   });
 
   it('names missing keys per platform', (): void => {
@@ -67,7 +58,7 @@ describe('readAppsFlyerConfig', (): void => {
       missingKeys: ['VITE_APPSFLYER_DEV_KEY', 'VITE_APPSFLYER_APPLE_APP_ID'],
     });
     expect(iosNoAppId).toMatchObject({ enabled: false, missingKeys: ['VITE_APPSFLYER_APPLE_APP_ID'] });
-    expect(android).toMatchObject({ enabled: false, missingKeys: ['VITE_APPSFLYER_DEV_KEY'] });
+    expect(android).toMatchObject({ enabled: false, reason: expect.stringContaining('iOS bridge unavailable'), missingKeys: [] });
   });
 
   it('fails closed when a partner allowlist is requested', (): void => {

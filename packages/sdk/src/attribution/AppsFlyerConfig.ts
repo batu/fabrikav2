@@ -40,10 +40,10 @@ export function readAppsFlyerConfig(
     };
   }
 
-  if (platform !== 'ios' && platform !== 'android') {
+  if (platform !== 'ios') {
     return {
       enabled: false,
-      reason: `AppsFlyer disabled on ${platform || 'web'} platform`,
+      reason: `AppsFlyer iOS bridge unavailable on ${platform || 'web'} platform`,
       missingKeys: [],
     };
   }
