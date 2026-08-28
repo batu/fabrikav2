@@ -8,8 +8,8 @@ describe('AppsFlyer analytics projection', () => {
   it('projects tutorial and selected progression milestones once', async () => {
     const forward = vi.fn(async (_event: unknown) => true); const keys = new Set<string>();
     const sink = createAppsFlyerAnalyticsProjection({ forward, dedupe: { has: (k) => keys.has(k), add: (k) => { keys.add(k); } }, storage: memory() });
-    sink.emit(event('level_complete', { level_id: 'level-1' })); sink.emit(event('level_complete', { level_id: 'level-1' }));
-    sink.emit(event('level_complete', { level_id: 'level-2' })); sink.emit(event('level_complete', { level_id: 'level-5' }));
+    sink.emit(event('level_complete', { sequence_slot: 1, level_id: 'hashed-scene-a1' })); sink.emit(event('level_complete', { sequence_slot: 1, level_id: 'hashed-scene-a1' }));
+    sink.emit(event('level_complete', { sequence_slot: 2, level_id: 'hashed-scene-b2' })); sink.emit(event('level_complete', { sequence_slot: 5, level_id: 'hashed-scene-c3' }));
     await Promise.resolve();
     expect(forward.mock.calls.map(([value]) => value)).toEqual([
       { type: 'tutorial_completed', tutorialId: 'intro' },

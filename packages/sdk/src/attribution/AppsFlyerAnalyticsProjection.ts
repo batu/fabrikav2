@@ -17,7 +17,7 @@ export function createAppsFlyerAnalyticsProjection(options: {
     name: 'appsflyer-projection',
     emit(event: AnalyticsEvent): void {
       if (event.name === 'level_complete') {
-        const level = numericLevel(event.params.level_id);
+        const level = progressionLevel(event.params);
         if (level === null) return;
         if (level === 1) forwardOnce(options, inFlight, 'tutorial:intro', { type: 'tutorial_completed', tutorialId: 'intro' });
         if (PROGRESSION_MILESTONES.has(level)) forwardOnce(options, inFlight, `progression:${level}`, { type: 'progression_milestone', level });
@@ -40,11 +40,12 @@ function forwardOnce(options: { forward: (event: AppsFlyerCanonicalEvent) => Pro
   }).finally(() => { inFlight.delete(key); });
 }
 
-function numericLevel(value: unknown): number | null {
-  const match = String(value ?? '').match(/\d+/);
-  if (match === null) return null;
-  const level = Number(match[0]);
-  return Number.isSafeInteger(level) && level > 0 ? level : null;
+function progressionLevel(params: Readonly<Record<string, unknown>>): number | null {
+  const sequenceSlot = Number(params.sequence_slot);
+  if (Number.isSafeInteger(sequenceSlot) && sequenceSlot > 0) return sequenceSlot;
+  const zeroBasedIndex = Number(params.level_index);
+  if (Number.isSafeInteger(zeroBasedIndex) && zeroBasedIndex >= 0) return zeroBasedIndex + 1;
+  return null;
 }
 
 function readFirstSeen(storage: Pick<Storage, 'getItem' | 'setItem'>, now: number): number {
