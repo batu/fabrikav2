@@ -1,7 +1,4 @@
-import type {
-  AppsFlyerAttributionPlugin,
-  AppsFlyerTrackEventOptions,
-} from './AppsFlyerAttributionPlugin.ts';
+import type { AppsFlyerAttributionPlugin } from './AppsFlyerAttributionPlugin.ts';
 import { AppsFlyerAttribution } from './AppsFlyerAttributionPlugin.ts';
 import type { AppsFlyerConfig } from './AppsFlyerConfig.ts';
 import { redactAppsFlyerKey } from './AppsFlyerConfig.ts';
@@ -86,24 +83,23 @@ export class AppsFlyerAttributionProvider implements AttributionProvider {
   }
 
   async track<P extends AttributionParamBag<P>>(eventName: AttributionEventName, params?: P): Promise<void> {
-    await this.init();
-    if (!this.initialized || this.permanentlyDisabled) return;
+    await this.trackConfirmed(eventName, serializeParams(params ?? {}));
+  }
 
+  async trackConfirmed(eventName: string, eventValues: Record<string, string>): Promise<boolean> {
+    await this.init();
+    if (!this.initialized || this.permanentlyDisabled) return false;
     try {
-      const options: AppsFlyerTrackEventOptions = {
-        eventName,
-        eventValues: serializeParams(params ?? {}),
-      };
       const result = await withTimeout(
-        this.plugin.trackEvent(options),
+        this.plugin.trackEvent({ eventName, eventValues }),
         this.timeoutMs.track,
         `AppsFlyer event track: ${eventName}`,
       );
-      if (result.tracked !== true) {
-        this.log(`event not tracked by native bridge: ${eventName}`);
-      }
+      if (result.tracked !== true) this.log(`event not tracked by native bridge: ${eventName}`);
+      return result.tracked === true;
     } catch (err: unknown) {
       this.warn(`event track failed: ${eventName}`, err);
+      return false;
     }
   }
 

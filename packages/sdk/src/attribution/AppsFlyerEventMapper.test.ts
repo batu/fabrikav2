@@ -12,8 +12,11 @@ describe('AppsFlyerEventMapper', () => {
   it('validates and deduplicates revenue by class and stable id', () => {
     const mapper = new AppsFlyerEventMapper();
     const purchase = { type: 'purchase_verified', revenue: 2.99, currency: 'USD', productId: 'coins', transactionId: 'same' } as const;
-    expect(mapper.map(purchase)?.eventName).toBe('af_purchase');
+    const mappedPurchase = mapper.map(purchase);
+    expect(mappedPurchase?.eventName).toBe('af_purchase');
     expect(mapper.map(purchase)).toBeNull();
+    mapper.settle(mappedPurchase!, false);
+    expect(mapper.map(purchase)?.eventName).toBe('af_purchase');
     expect(mapper.map({ type: 'ad_revenue', revenue: 0.01, currency: 'USD', format: 'rewarded', placement: 'level_end', impressionId: 'same' })?.eventName).toBe('af_ad_revenue');
     expect(mapper.map({ ...purchase, transactionId: 'bad', currency: 'usd' })).toBeNull();
     expect(mapper.map({ ...purchase, transactionId: 'nan', revenue: Number.NaN })).toBeNull();

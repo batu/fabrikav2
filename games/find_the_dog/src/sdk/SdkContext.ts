@@ -31,6 +31,7 @@ import {
 } from '@fabrikav2/sdk/iap';
 import {
   AppsFlyerEventMapper,
+  createAppsFlyerAnalyticsProjection,
   createLocalStorageDedupeStore,
   AttributionService as SdkAttributionService,
   readAppsFlyerConfig,
@@ -121,7 +122,7 @@ export function createSdkContext(deps: CreateSdkContextDependencies = {}): GameS
   const logger = deps.logger ?? console;
 
   let analyticsFacade: Analytics<FtdEvent> | null = null;
-  let forwardAcquisitionValueEvent: (event: Parameters<AppsFlyerEventMapper['map']>[0]) => void = () => undefined;
+  let forwardAcquisitionValueEvent: (event: Parameters<AppsFlyerEventMapper['map']>[0]) => Promise<boolean> = async () => false;
   const appLovinConfig: SdkAppLovinConfigResult = readAppLovinConfigForPlatform('android', env);
   const adMobConfig = readAdMobIosConfig(env);
   const lifecycle = {
@@ -162,16 +163,27 @@ export function createSdkContext(deps: CreateSdkContextDependencies = {}): GameS
     appsFlyerConfig: readAppsFlyerConfig(platform, env, buildEnv === 'production'),
   });
   const attributionService = new SdkAttributionService(attributionProvider);
-  const appsFlyerMapper = new AppsFlyerEventMapper(createLocalStorageDedupeStore(window.localStorage));
-  forwardAcquisitionValueEvent = (event): void => {
+  const appsFlyerDedupe = createLocalStorageDedupeStore(window.localStorage);
+  const appsFlyerMapper = new AppsFlyerEventMapper(appsFlyerDedupe);
+  forwardAcquisitionValueEvent = async (event): Promise<boolean> => {
     const mapped = appsFlyerMapper.map(event);
-    if (mapped !== null) void attributionService.trackMapped(mapped);
+    if (mapped === null) return false;
+    const delivered = await attributionService.trackMapped(mapped);
+    appsFlyerMapper.settle(mapped, delivered);
+    return delivered;
   };
 
   const sinks: AnalyticsSink[] = [];
   if (buildEnv === 'development') sinks.push(createConsoleSink());
   const ring = createRingBufferSink();
   sinks.push(ring);
+  if (attributionProvider.providerName === 'appsflyer') {
+    sinks.push(createAppsFlyerAnalyticsProjection({
+      forward: forwardAcquisitionValueEvent,
+      dedupe: appsFlyerDedupe,
+      storage: window.localStorage,
+    }));
+  }
 
 
   let ownedMirror: OwnedMirrorSink | null = null;

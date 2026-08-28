@@ -5,7 +5,7 @@ export type AppsFlyerCanonicalEvent =
   | { type: 'ad_revenue'; revenue: number; currency: string; format: string; placement: string; impressionId: string }
   | { type: 'retention_milestone'; day: 1 | 3 | 7 | 14 | 30 };
 
-export interface AppsFlyerMappedEvent { eventName: string; eventValues: Record<string, string> }
+export interface AppsFlyerMappedEvent { eventName: string; eventValues: Record<string, string>; readonly dedupeKey?: string }
 export interface DedupeStore { has(key: string): boolean; add(key: string): void }
 
 export function createLocalStorageDedupeStore(storage: Pick<Storage, 'getItem' | 'setItem'>, key = 'appsflyer-value-event-dedupe'): DedupeStore {
@@ -55,8 +55,14 @@ export class AppsFlyerEventMapper {
     if (Object.values(values).some((value) => !bounded(value))) return null;
     const key = `${kind}:${id}`;
     if (this.seen.has(key) || this.durable?.has(key)) return null;
-    this.seen.add(key); this.durable?.add(key);
-    return mapped(kind === 'purchase' ? 'af_purchase' : 'af_ad_revenue', { ...values, af_revenue: revenue, af_currency: currency });
+    this.seen.add(key);
+    return { ...mapped(kind === 'purchase' ? 'af_purchase' : 'af_ad_revenue', { ...values, af_revenue: revenue, af_currency: currency }), dedupeKey: key };
+  }
+
+  settle(event: AppsFlyerMappedEvent, delivered: boolean): void {
+    if (event.dedupeKey === undefined) return;
+    if (delivered) this.durable?.add(event.dedupeKey);
+    else this.seen.delete(event.dedupeKey);
   }
 }
 

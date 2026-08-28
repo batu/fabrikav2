@@ -157,10 +157,10 @@ export class AttributionService {
     return this.trackAfterStartupGate('rewardedWatched', params);
   }
 
-  async trackMapped(event: AppsFlyerMappedEvent): Promise<void> {
+  async trackMapped(event: AppsFlyerMappedEvent): Promise<boolean> {
     await this.startupGate;
-    const track = this.provider.track as (eventName: string, params: Record<string, string>) => Promise<void>;
-    return track.call(this.provider, event.eventName, event.eventValues);
+    if (this.provider.trackConfirmed === undefined) return false;
+    return this.provider.trackConfirmed(event.eventName, event.eventValues);
   }
 
   private async trackAfterStartupGate<P extends AttributionParamBag<P>>(

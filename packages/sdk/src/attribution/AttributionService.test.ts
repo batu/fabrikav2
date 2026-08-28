@@ -115,9 +115,10 @@ describe('createAttributionProvider', (): void => {
 describe('AttributionService', (): void => {
   it('dispatches mapper-produced value events through the service gate', async () => {
     const provider = makeProvider('appsflyer');
+    provider.trackConfirmed = vi.fn(async () => true);
     const service = new AttributionService(provider);
-    await service.trackMapped({ eventName: 'af_purchase', eventValues: { af_revenue: '1.99', af_currency: 'USD', transaction_id: 'tx-1' } });
-    expect(provider.track).toHaveBeenCalledWith('af_purchase', { af_revenue: '1.99', af_currency: 'USD', transaction_id: 'tx-1' });
+    expect(await service.trackMapped({ eventName: 'af_purchase', eventValues: { af_revenue: '1.99', af_currency: 'USD', transaction_id: 'tx-1' } })).toBe(true);
+    expect(provider.trackConfirmed).toHaveBeenCalledWith('af_purchase', { af_revenue: '1.99', af_currency: 'USD', transaction_id: 'tx-1' });
   });
   it('runs a disabled provider reason exactly once across init and track calls', async (): Promise<void> => {
     const logger = {
