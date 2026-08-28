@@ -26,12 +26,9 @@
         "product": "CapacitorLocalNotifications"
       },
       {
-        "name": "CapacitorFirebaseAnalytics",
-        "path": "../../../../../node_modules/@capacitor-firebase/analytics",
-        "product": "CapacitorFirebaseAnalytics",
-        "traits": [
-          "AnalyticsWithoutAdIdSupport"
-        ]
+        "name": "CapacitorFirebaseCrashlytics",
+        "path": "../../../../../node_modules/@capacitor-firebase/crashlytics",
+        "product": "CapacitorFirebaseCrashlytics"
       },
       {
         "name": "RevenuecatPurchasesCapacitor",
@@ -74,6 +71,7 @@
     "adMobApplicationIdEnv": "VITE_ADMOB_IOS_APP_ID",
     "adMobPublicConfig": "../../config/admob.public.json",
     "skAdNetworkCatalog": "admob-skadnetwork-ids.json",
-    "skAdNetworkExpectedCount": 1
+    "skAdNetworkExpectedCount": 1,
+    "crashlyticsSymbolUpload": true
   }
 }

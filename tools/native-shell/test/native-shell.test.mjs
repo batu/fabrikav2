@@ -320,7 +320,7 @@ describe('native shell integration', () => {
 });
 
 describe('Find the Dog manifest contract', () => {
-  it('pins the approved identities, AdMob package graph, and catalog', () => {
+  it('pins the approved identities, Crashlytics-only Firebase graph, AdMob, and catalog', () => {
     const recipeDir = new URL('../../../games/find_the_dog/native-resources/ios/', import.meta.url);
     const actualManifest = JSON.parse(fs.readFileSync(new URL('shell-manifest.json', recipeDir), 'utf8'));
     const actualCatalog = JSON.parse(fs.readFileSync(new URL('admob-skadnetwork-ids.json', recipeDir), 'utf8'));
@@ -336,11 +336,12 @@ describe('Find the Dog manifest contract', () => {
       'CapacitorApp',
       'CapacitorHaptics',
       'CapacitorLocalNotifications',
-      'CapacitorFirebaseAnalytics',
+      'CapacitorFirebaseCrashlytics',
       'RevenuecatPurchasesCapacitor',
       'CapacitorCommunityAdmob',
     ]);
-    expect(actualManifest.ios.localPackages.find((pkg) => pkg.name === 'CapacitorFirebaseAnalytics').traits).toEqual(['AnalyticsWithoutAdIdSupport']);
+    expect(actualManifest.ios.localPackages.some((pkg) => pkg.name === 'CapacitorFirebaseAnalytics')).toBe(false);
+    expect(actualManifest.ios.crashlyticsSymbolUpload).toBe(true);
     expect(actualManifest.ios.adMobEnabledEnv).toBe('VITE_ADMOB_IOS_ENABLED');
     expect(actualManifest.ios.adMobApplicationIdEnv).toBe('VITE_ADMOB_IOS_APP_ID');
     expect(actualManifest.ios.trackingUsageDescription).toBeNull();

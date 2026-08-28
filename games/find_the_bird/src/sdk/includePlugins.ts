@@ -1,11 +1,10 @@
 import { adMobIosConfigPresent, type AdMobIosPublicConfig } from '../ads/AdMobConfig';
 
 // Capacitor loads every included native plugin at WebView start. The
-// @capacitor-firebase/analytics pod runs FirebaseApp.configure() unconditionally
-// in its native load() (node_modules/@capacitor-firebase/analytics/ios/Plugin/
-// FirebaseAnalytics.swift), which throws an NSException at boot when the build
-// ships no Firebase config. Gating the JS sink is not enough — the pod must be
-// excluded from the native build entirely. capacitor.config.ts is TS executed by
+// Firebase native plugins configure FirebaseApp during native startup and can
+// abort when GoogleService-Info.plist is absent. Gating JavaScript is not
+// enough: each Firebase plugin must be explicitly selected for the native build.
+// Find releases permit Crashlytics only; Firebase Analytics is never selected. capacitor.config.ts is TS executed by
 // the Capacitor CLI, so it can read process.env at sync time to compute an
 // explicit includePlugins allowlist.
 //
@@ -35,16 +34,15 @@ export function firebaseConfigPresentInEnv(env: EnvLike): boolean {
     && present(env.VITE_FIREBASE_APP_ID);
 }
 
-/** Compute the native plugin allowlist. Firebase analytics is included ONLY when
- * the Firebase env config is complete, so a config-less build never bundles the
- * pod that crashes at +[FIRApp configure]. */
+/** Compute the native plugin allowlist. Crashlytics requires both explicit
+ * enablement and complete Firebase config. Analytics is deliberately absent. */
 export function computeIncludePlugins(env: EnvLike, adMobPublicConfig?: AdMobIosPublicConfig): string[] {
   const plugins = [...ALWAYS_INCLUDED_PLUGINS];
   if (adMobIosConfigPresent(env, adMobPublicConfig)) {
     plugins.push('@capacitor-community/admob');
   }
-  if (firebaseConfigPresentInEnv(env)) {
-    plugins.push('@capacitor-firebase/analytics');
+  if (env.VITE_FIREBASE_CRASHLYTICS_ENABLED === 'true' && firebaseConfigPresentInEnv(env)) {
+    plugins.push('@capacitor-firebase/crashlytics');
   }
   return plugins;
 }

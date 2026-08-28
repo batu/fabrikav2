@@ -28,22 +28,28 @@ describe('capacitor includePlugins allowlist', () => {
     })).not.toContain('@capacitor-community/admob');
   });
 
-  it('excludes @capacitor-firebase/analytics when Firebase config is absent', () => {
-    const plugins = computeIncludePlugins({});
-    expect(plugins).not.toContain('@capacitor-firebase/analytics');
-    expect(plugins).toEqual([...ALWAYS_INCLUDED_PLUGINS]);
+  it('never includes Firebase Analytics, even when legacy Firebase env is complete', () => {
+    expect(computeIncludePlugins(completeFirebaseEnv)).not.toContain('@capacitor-firebase/analytics');
   });
 
-  it('excludes @capacitor-firebase/analytics when Firebase config is partial', () => {
+  it('includes Crashlytics only when explicitly enabled and Firebase config is complete', () => {
+    expect(computeIncludePlugins(completeFirebaseEnv)).not.toContain('@capacitor-firebase/crashlytics');
     expect(computeIncludePlugins({
+      ...completeFirebaseEnv,
+      VITE_FIREBASE_CRASHLYTICS_ENABLED: 'true',
+    })).toContain('@capacitor-firebase/crashlytics');
+  });
+
+  it('excludes Crashlytics for partial config or explicit disablement', () => {
+    expect(computeIncludePlugins({
+      VITE_FIREBASE_CRASHLYTICS_ENABLED: 'true',
       VITE_FIREBASE_API_KEY: 'firebase-api-key',
       VITE_FIREBASE_PROJECT_ID: 'firebase-project-id',
-    })).not.toContain('@capacitor-firebase/analytics');
-  });
-
-  it('includes @capacitor-firebase/analytics only when Firebase config is complete', () => {
-    const plugins = computeIncludePlugins(completeFirebaseEnv);
-    expect(plugins).toContain('@capacitor-firebase/analytics');
+    })).not.toContain('@capacitor-firebase/crashlytics');
+    expect(computeIncludePlugins({
+      ...completeFirebaseEnv,
+      VITE_FIREBASE_CRASHLYTICS_ENABLED: 'false',
+    })).not.toContain('@capacitor-firebase/crashlytics');
   });
 
   it('treats blank/whitespace env values as absent', () => {

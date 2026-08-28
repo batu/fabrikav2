@@ -6,6 +6,10 @@ Implement `docs/plans/2026-08-28-001-feat-ftb-appsflyer-crashlytics-plan.md` end
 
 Use Find The Bird as the primary physical-device proof for reusable AppsFlyer attribution and Firebase Crashlytics components, then adopt the same components in Find the Dog without game-local provider forks.
 
+## Active milestone
+
+Execute U1–U6 now: separate Crashlytics from Analytics, validate protected Firebase identities, link AppsFlyer Strict behind deny-all privacy controls, add the canonical value-event mapper, prove Find The Bird composition, then enforce Find the Dog parity.
+
 ## Hard constraints
 
 - AppsFlyer Strict/no-IDFA SDK only; child-directed non-tracking posture remains intact.
