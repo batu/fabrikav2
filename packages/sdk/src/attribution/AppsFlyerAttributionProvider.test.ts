@@ -7,7 +7,7 @@ const config: AppsFlyerConfig = {
   devKey: 'fZvuk792H9hJQKmaTwuXxA',
   appleAppId: '6793860059',
   debugLogging: false,
-  attWaitSeconds: 60,
+  sharingPartners: [],
 };
 
 function makePlugin(overrides: Partial<AppsFlyerAttributionPlugin> = {}): AppsFlyerAttributionPlugin {
@@ -34,7 +34,7 @@ describe('AppsFlyerAttributionProvider', (): void => {
       devKey: config.devKey,
       appleAppId: config.appleAppId,
       debugLogging: false,
-      attWaitSeconds: 60,
+      sharingPartners: [],
     });
   });
 

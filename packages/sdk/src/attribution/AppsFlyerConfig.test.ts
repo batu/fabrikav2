@@ -20,7 +20,7 @@ describe('readAppsFlyerConfig', (): void => {
         devKey: DEV_KEY,
         appleAppId: APPLE_APP_ID,
         debugLogging: false,
-        attWaitSeconds: 60,
+        sharingPartners: [],
       },
     });
   });
@@ -35,7 +35,7 @@ describe('readAppsFlyerConfig', (): void => {
     expect(result.enabled).toBe(true);
     if (result.enabled) {
       expect(result.config.appleAppId).toBeNull();
-      expect(result.config.attWaitSeconds).toBe(0);
+      expect(result.config.sharingPartners).toEqual([]);
     }
   });
 

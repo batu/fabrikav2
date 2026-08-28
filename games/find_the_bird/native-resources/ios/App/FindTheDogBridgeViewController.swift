@@ -4,6 +4,7 @@ import Capacitor
 public class FindTheDogBridgeViewController: CAPBridgeViewController {
     public override func capacitorDidLoad() {
         bridge?.webView?.scrollView.contentInsetAdjustmentBehavior = .never
-        bridge?.registerPluginInstance(AdjustAttributionPlugin())
+        bridge?.
+        registerPluginInstance(AppsFlyerAttributionPlugin())
     }
 }

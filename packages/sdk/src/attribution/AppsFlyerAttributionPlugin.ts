@@ -5,8 +5,8 @@ export interface AppsFlyerInitializeOptions {
   /** Numeric App Store id; required on iOS, ignored on Android. */
   appleAppId: string | null;
   debugLogging: boolean;
-  /** iOS: seconds to wait for ATT resolution before starting; 0 disables the wait. */
-  attWaitSeconds: number;
+  /** Explicit partner allowlist. Empty means deny all. Applied before start. */
+  sharingPartners: readonly string[];
 }
 
 export interface AppsFlyerBooleanResult {

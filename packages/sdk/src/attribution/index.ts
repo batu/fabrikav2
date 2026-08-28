@@ -45,6 +45,8 @@ export {
   AppsFlyerAttributionProvider,
   type AppsFlyerAttributionProviderOptions,
 } from './AppsFlyerAttributionProvider.ts';
+export { AppsFlyerEventMapper, type AppsFlyerCanonicalEvent, type AppsFlyerMappedEvent, type DedupeStore } from './AppsFlyerEventMapper.ts';
+
 export {
   readAppsFlyerConfig,
   redactAppsFlyerKey,

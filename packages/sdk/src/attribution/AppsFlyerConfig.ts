@@ -4,7 +4,8 @@ export interface AppsFlyerConfig {
   devKey: string;
   appleAppId: string | null;
   debugLogging: boolean;
-  attWaitSeconds: number;
+  /** Explicit partner allowlist. Empty is the fail-closed deny-all policy. */
+  sharingPartners: readonly string[];
 }
 
 export type AppsFlyerConfigResult =
@@ -25,9 +26,6 @@ interface AppsFlyerImportMetaEnv extends AppsFlyerEnv {
 }
 
 const env = ((import.meta as unknown as { env?: AppsFlyerImportMetaEnv }).env ?? {}) as AppsFlyerImportMetaEnv;
-
-/** iOS waits this long for ATT resolution before AppsFlyer starts (SDK default idiom). */
-const DEFAULT_ATT_WAIT_SECONDS = 60;
 
 export function readAppsFlyerConfig(
   platform: string,
@@ -79,7 +77,7 @@ export function readAppsFlyerConfig(
       devKey: requiredValue(devKey),
       appleAppId: platform === 'ios' ? appleAppId : null,
       debugLogging: !isProductionBuild && parseBooleanEnv(appsFlyerEnv.VITE_APPSFLYER_DEBUG_LOGGING, false),
-      attWaitSeconds: platform === 'ios' ? DEFAULT_ATT_WAIT_SECONDS : 0,
+      sharingPartners: readSharingPartners(appsFlyerEnv.VITE_APPSFLYER_SHARING_PARTNERS),
     },
   };
 }
@@ -91,6 +89,12 @@ export function redactAppsFlyerKey(value: string): string {
 
 function productionDefault(appsFlyerEnv: AppsFlyerEnv): boolean {
   return typeof appsFlyerEnv.PROD === 'boolean' ? appsFlyerEnv.PROD : true;
+}
+
+function readSharingPartners(value: string | boolean | undefined): readonly string[] {
+  const raw = envString(value);
+  if (raw === null) return [];
+  return [...new Set(raw.split(',').map((partner) => partner.trim()).filter(Boolean))];
 }
 
 function isNumericAppId(value: string): boolean {

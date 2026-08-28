@@ -95,6 +95,7 @@ function manifest() {
     capacitorAppId: 'com.basegamelab.find_the_dog.dev',
     ios: {
       bundleId: 'com.baseardahan.hiddenobj',
+      firebaseProjectId: 'find-the-dog-basegamelab',
       displayName: 'Find the Dog',
       swiftToolsVersion: '6.1',
       deploymentTarget: '15',
@@ -311,7 +312,7 @@ describe('native shell integration', () => {
     expect(validateGeneratedShell({ repoRoot, game: 'find_the_dog', allowMissingFirebase: true }).issues).toEqual([]);
     expect(validateGeneratedShell({ repoRoot, game: 'find_the_dog', allowMissingFirebase: false }).issues).toContainEqual(expect.stringMatching(/GoogleService-Info\.plist is missing/));
 
-    fs.writeFileSync(path.join(iosAppDir, 'App', 'GoogleService-Info.plist'), '<plist><dict><key>BUNDLE_ID</key><string>com.baseardahan.hiddenobj</string></dict></plist>');
+    fs.writeFileSync(path.join(iosAppDir, 'App', 'GoogleService-Info.plist'), '<plist><dict><key>BUNDLE_ID</key><string>com.baseardahan.hiddenobj</string><key>PROJECT_ID</key><string>find-the-dog-basegamelab</string><key>GOOGLE_APP_ID</key><string>1:123:ios:abcdef</string></dict></plist>');
     const firebaseApply = applyNativeShell({ repoRoot, game: 'find_the_dog' });
     expect(firebaseApply.changed).toContain('App.xcodeproj/project.pbxproj');
     expect(validateGeneratedShell({ repoRoot, game: 'find_the_dog', allowMissingFirebase: false }).issues).toEqual([]);
@@ -330,7 +331,7 @@ describe('Find the Dog manifest contract', () => {
     expect(actualManifest.ios.deploymentTarget).toBe('15');
     expect(Object.fromEntries(actualManifest.ios.remotePackages.map((pkg) => [pkg.name, pkg.version]))).toEqual({
       'capacitor-swift-pm': '8.4.1',
-      AdjustSdk: '5.6.2',
+      'AppsFlyerFramework-Strict': '6.17.5',
     });
     expect(actualManifest.ios.localPackages.map((pkg) => pkg.name)).toEqual([
       'CapacitorApp',
@@ -342,6 +343,13 @@ describe('Find the Dog manifest contract', () => {
     ]);
     expect(actualManifest.ios.localPackages.some((pkg) => pkg.name === 'CapacitorFirebaseAnalytics')).toBe(false);
     expect(actualManifest.ios.crashlyticsSymbolUpload).toBe(true);
+    expect(actualManifest.ios.firebaseProjectId).toBe('find-the-dog-basegamelab');
+    expect(actualManifest.ios.swiftSources).toContain('AppsFlyerAttributionPlugin.swift');
+    expect(actualManifest.ios.swiftSources).not.toContain('AdjustAttributionPlugin.swift');
+    expect(actualManifest.ios.remotePackages[1]).toMatchObject({
+      url: 'https://github.com/AppsFlyerSDK/AppsFlyerFramework-Strict',
+      products: ['AppsFlyerLib-Strict'],
+    });
     expect(actualManifest.ios.adMobEnabledEnv).toBe('VITE_ADMOB_IOS_ENABLED');
     expect(actualManifest.ios.adMobApplicationIdEnv).toBe('VITE_ADMOB_IOS_APP_ID');
     expect(actualManifest.ios.trackingUsageDescription).toBeNull();

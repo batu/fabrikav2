@@ -56,14 +56,14 @@ export class AppsFlyerAttributionProvider implements AttributionProvider {
           devKey: redactAppsFlyerKey(this.config.devKey),
           appleAppId: this.config.appleAppId,
           debugLogging: this.config.debugLogging,
-          attWaitSeconds: this.config.attWaitSeconds,
+          sharingPartners: [...this.config.sharingPartners],
         });
         const result = await withTimeout(
           this.plugin.initialize({
             devKey: this.config.devKey,
             appleAppId: this.config.appleAppId,
             debugLogging: this.config.debugLogging,
-            attWaitSeconds: this.config.attWaitSeconds,
+            sharingPartners: [...this.config.sharingPartners],
           }),
           this.timeoutMs.init,
           'AppsFlyer initialization',

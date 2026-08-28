@@ -334,7 +334,7 @@ function ensureBuildSettings(content, manifest) {
 export function patchPbxproj(content, manifest, { googleServicePresent = false } = {}) {
   const desiredSources = new Set(nativeFilesFor(manifest).flatMap((file) => [file.buildId, file.refId]));
   const staleSourceIds = Object.values(nativeFileIds).flatMap((file) => [file.buildId, file.refId]).filter((id) => !desiredSources.has(id));
-  const hasTrackingProviders = manifest.ios.swiftSources.some((name) => ['AppLovinMaxPlugin.swift', 'AdjustAttributionPlugin.swift', 'AppsFlyerAttributionPlugin.swift', 'MetaEventsPlugin.swift'].includes(name));
+  const hasTrackingProviders = manifest.ios.swiftSources.some((name) => ['AppLovinMaxPlugin.swift', 'AdjustAttributionPlugin.swift', 'MetaEventsPlugin.swift'].includes(name));
   let next = removeWiring(content, staleSourceIds);
   if (!hasTrackingProviders) next = removeWiring(next, frameworks.flatMap(([, buildId, refId]) => [buildId, refId]));
   for (const file of nativeFilesFor(manifest)) next = wireSource(next, file);
@@ -605,7 +605,16 @@ function validateRecipeSources(recipeDir, manifest, issues) {
   if (privacyTracking && hasAdMob) privacySnippets.push('<string>googleads.g.doubleclick.net</string>');
   for (const snippet of privacySnippets) if (!privacy.includes(snippet)) issues.push(`PrivacyInfo.xcprivacy is missing ${snippet}`);
   if (!hasTrackingProviders && /NSPrivacyCollectedDataType(?:UserID|PurchaseHistory|ProductInteraction|AdvertisingData)/.test(privacy)) issues.push('provider-free PrivacyInfo.xcprivacy declares collected data');
-  const joined = [appDelegate, bridge, appLovin, adjust, privacy].join('\n');
+  const hasAppsFlyer = manifest.ios.swiftSources.includes('AppsFlyerAttributionPlugin.swift');
+  const appsFlyer = hasAppsFlyer ? read('AppsFlyerAttributionPlugin.swift') : '';
+  if (hasAppsFlyer) {
+    for (const snippet of ['import AppsFlyerLib', 'setSharingFilterForPartners', '["all"]', 'sdk.start()', 'CAPPluginMethod(name: "getStatus"']) {
+      if (!appsFlyer.includes(snippet)) issues.push(`AppsFlyerAttributionPlugin.swift is missing ${snippet}`);
+    }
+    if (appsFlyer.indexOf('setSharingFilterForPartners') > appsFlyer.indexOf('sdk.start()')) issues.push('AppsFlyer sharing policy must be applied before start');
+    for (const forbidden of ['waitForATTUserAuthorization', 'AdSupport', 'requestTrackingAuthorization']) if (appsFlyer.includes(forbidden)) issues.push(`AppsFlyerAttributionPlugin.swift contains forbidden tracking source: ${forbidden}`);
+  }
+  const joined = [appDelegate, bridge, appLovin, adjust, appsFlyer, privacy].join('\n');
   const secretPatterns = [
     /VITE_ADJUST_IOS_APP_TOKEN\s*=\s*[a-z0-9]{12}/i,
     /VITE_ADJUST_EVENT_[A-Z_]+_TOKEN\s*=\s*[a-z0-9]{6,}/i,
@@ -626,8 +635,14 @@ function validateFirebaseIdentity(gameDir, manifest, { allowMissingFirebase }, i
     if (!allowMissingFirebase) issues.push(`${FIREBASE_PLIST} is missing (pass --allow-missing to permit the gitignored owner file)`);
   } else {
     const content = fs.readFileSync(iosPlist, 'utf8');
-    const bundle = /<key>BUNDLE_ID<\/key>\s*<string>([^<]+)<\/string>/.exec(content)?.[1];
+    const value = (key) => new RegExp(`<key>${key}<\\/key>\\s*<string>([^<]+)<\\/string>`).exec(content)?.[1];
+    const bundle = value('BUNDLE_ID');
+    const project = value('PROJECT_ID');
+    const appId = value('GOOGLE_APP_ID');
     if (bundle !== manifest.ios.bundleId) issues.push(`${FIREBASE_PLIST} BUNDLE_ID is ${bundle ?? '(missing)'}, expected ${manifest.ios.bundleId}`);
+    if (project !== manifest.ios.firebaseProjectId) issues.push(`${FIREBASE_PLIST} PROJECT_ID is ${project ?? '(missing)'}, expected ${manifest.ios.firebaseProjectId}`);
+    if (project === 'hidden-object-base') issues.push(`${FIREBASE_PLIST} references deprecated project hidden-object-base`);
+    if (!appId || !/^1:\d+:ios:[A-Za-z0-9]+$/.test(appId)) issues.push(`${FIREBASE_PLIST} GOOGLE_APP_ID is missing or malformed`);
   }
   const androidJson = path.join(gameDir, 'android', 'app', 'google-services.json');
   if (fs.existsSync(androidJson)) {
@@ -644,7 +659,7 @@ export function validateGeneratedShell({ repoRoot, game, allowMissingFirebase = 
   const manifest = context.runtimeManifest;
   const ids = context.runtimeIds;
   const iosRoot = path.join(gameDir, 'ios', 'App');
-  const usesFirebase = manifest.ios.localPackages.some((pkg) => pkg.name === 'CapacitorFirebaseAnalytics');
+  const usesFirebase = manifest.ios.localPackages.some((pkg) => ['CapacitorFirebaseAnalytics', 'CapacitorFirebaseCrashlytics'].includes(pkg.name));
   if (usesFirebase) validateFirebaseIdentity(gameDir, manifest, { allowMissingFirebase }, issues);
   if (!fs.existsSync(iosRoot)) return { issues, generatedPresent: false, skAdNetworkCount: ids.length };
   const required = {
@@ -680,7 +695,7 @@ export function validateGeneratedShell({ repoRoot, game, allowMissingFirebase = 
   for (const file of nativeFilesFor(manifest)) if (sourceWiringState(project, file.name) !== 'wired') issues.push(`${file.name} is not fully wired into App Sources`);
   const privacyFile = privacyFileFor(manifest);
   if (resourceWiringState(project, privacyFile.name) !== 'wired') issues.push(`${privacyFile.name} is not fully wired into App Resources`);
-  const hasTrackingProviders = manifest.ios.swiftSources.some((name) => ['AppLovinMaxPlugin.swift', 'AdjustAttributionPlugin.swift', 'AppsFlyerAttributionPlugin.swift', 'MetaEventsPlugin.swift'].includes(name));
+  const hasTrackingProviders = manifest.ios.swiftSources.some((name) => ['AppLovinMaxPlugin.swift', 'AdjustAttributionPlugin.swift', 'MetaEventsPlugin.swift'].includes(name));
   for (const [name] of frameworks) {
     const state = frameworkWiringState(project, name);
     if (hasTrackingProviders && state !== 'wired') issues.push(`${name} is not fully weak-linked`);
@@ -760,7 +775,7 @@ export function applyNativeShell({ repoRoot, game }) {
   };
   for (const [label, file] of Object.entries(files)) requireFile(file, label);
   const firebaseIssues = [];
-  if (manifest.ios.localPackages.some((pkg) => pkg.name === 'CapacitorFirebaseAnalytics')) {
+  if (manifest.ios.localPackages.some((pkg) => ['CapacitorFirebaseAnalytics', 'CapacitorFirebaseCrashlytics'].includes(pkg.name))) {
     validateFirebaseIdentity(gameDir, manifest, { allowMissingFirebase: true }, firebaseIssues);
   }
   if (firebaseIssues.length) throw new Error(`invalid native Firebase configuration:\n- ${firebaseIssues.join('\n- ')}`);

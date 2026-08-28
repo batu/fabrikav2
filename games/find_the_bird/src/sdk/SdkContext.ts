@@ -18,12 +18,10 @@ import {
 import {
   createAnalytics,
   createConsoleSink,
-  createFirebaseSink,
   createOwnedMirrorSink,
   createRingBufferSink,
   type Analytics,
   type AnalyticsSink,
-  type FirebaseTransport,
   type MirrorTransport,
   type OwnedMirrorSink,
   type RingBufferSink,
@@ -74,14 +72,8 @@ import {
   type FindTheDogIapComposition,
 } from '../shop/IapService';
 import { buildShopCatalog } from '../shop/ProductCatalog';
-import { firebaseConfigPresentInEnv } from './includePlugins';
 
 type Env = Record<string, string | boolean | undefined>;
-type FirebaseAnalyticsLoader = () => Promise<{
-  FirebaseAnalytics: {
-    logEvent(options: { name: string; params: Record<string, string | number> }): Promise<void>;
-  };
-}>;
 type RevenueCatLoader = () => Promise<unknown>;
 
 export interface SdkProviderSelection {
@@ -111,7 +103,8 @@ export interface CreateSdkContextDependencies {
   readonly isNativePlatform?: boolean;
   readonly env?: Env;
   readonly resolveEnvironments?: (buildEnv: SdkBuildEnv) => SdkEnvironments;
-  readonly firebaseAnalyticsLoader?: FirebaseAnalyticsLoader;
+  /** Deprecated test seam; Firebase Analytics is intentionally never composed. */
+  readonly firebaseAnalyticsLoader?: () => Promise<unknown>;
   readonly revenueCatLoader?: RevenueCatLoader;
   readonly gameAnalyticsLoader?: GameAnalyticsSdkLoader;
   readonly mirrorTransport?: MirrorTransport;
@@ -173,14 +166,6 @@ export function createSdkContext(deps: CreateSdkContextDependencies = {}): GameS
   const ring = createRingBufferSink();
   sinks.push(ring);
 
-  // Native Firebase (@capacitor-firebase/analytics) aborts at +[FIRApp configure]
-  // when the build ships no Firebase config. Mirror V1 firebaseOptions(): only
-  // construct the sink on native iOS when API_KEY+PROJECT_ID+APP_ID are all present.
-  if (platform === 'ios' && isNativePlatform && firebaseConfigPresentInEnv(env)) {
-    sinks.push(createFirebaseSink(createLazyFirebaseTransport(
-      deps.firebaseAnalyticsLoader ?? (() => import('@capacitor-firebase/analytics')),
-    )));
-  }
 
   let ownedMirror: OwnedMirrorSink | null = null;
   let ownedMirrorDisabledReason = 'owned analytics mirror is not configured';
@@ -306,17 +291,6 @@ export function getSdkContext(): GameSdkContext {
 
 function normalizePlatform(value: string): 'android' | 'ios' | 'web' {
   return value === 'ios' || value === 'android' ? value : 'web';
-}
-
-function createLazyFirebaseTransport(loader: FirebaseAnalyticsLoader): FirebaseTransport {
-  let load: ReturnType<FirebaseAnalyticsLoader> | null = null;
-  return {
-    async logEvent(name, params): Promise<void> {
-      load ??= loader();
-      const { FirebaseAnalytics } = await load;
-      await FirebaseAnalytics.logEvent({ name, params: { ...params } });
-    },
-  };
 }
 
 async function fetchMirrorTransport(request: Parameters<MirrorTransport>[0]): Promise<{ ok: boolean; status: number }> {
