@@ -5,7 +5,6 @@ import { redactAppsFlyerKey } from './AppsFlyerConfig.ts';
 import type {
   AttributionEventName,
   AttributionParamBag,
-  AttributionParams,
   AttributionProvider,
 } from './AttributionProvider.ts';
 import { isTimeoutError, withTimeout } from '../with-timeout.ts';
@@ -82,8 +81,11 @@ export class AppsFlyerAttributionProvider implements AttributionProvider {
     }
   }
 
-  async track<P extends AttributionParamBag<P>>(eventName: AttributionEventName, params?: P): Promise<void> {
-    await this.trackConfirmed(eventName, serializeParams(params ?? {}));
+  async track<P extends AttributionParamBag<P>>(eventName: AttributionEventName, _params?: P): Promise<void> {
+    // Legacy Adjust-shaped events are intentionally not forwarded to AppsFlyer.
+    // Only trackConfirmed(), reachable through the canonical mapper, crosses
+    // the native boundary.
+    this.log(`legacy event ignored by AppsFlyer projection: ${eventName}`);
   }
 
   async trackConfirmed(eventName: string, eventValues: Record<string, string>): Promise<boolean> {
@@ -112,11 +114,3 @@ export class AppsFlyerAttributionProvider implements AttributionProvider {
   }
 }
 
-function serializeParams(params: AttributionParams): Record<string, string> {
-  const serialized: Record<string, string> = {};
-  for (const [key, value] of Object.entries(params)) {
-    if (value === null || value === undefined) continue;
-    serialized[key] = String(value);
-  }
-  return serialized;
-}

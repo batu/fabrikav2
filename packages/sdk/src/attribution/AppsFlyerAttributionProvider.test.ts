@@ -48,16 +48,15 @@ describe('AppsFlyerAttributionProvider', (): void => {
     expect(logged).not.toContain(config.devKey);
   });
 
-  it('tracks events with stringified params after init', async (): Promise<void> => {
+  it('drops legacy raw events and sends only mapper-confirmed events', async (): Promise<void> => {
     const plugin = makePlugin();
     const provider = new AppsFlyerAttributionProvider(config, { plugin, logger: silentLogger });
 
-    await provider.track('levelComplete', { level: 3, perfect: true, skipped: null });
+    await provider.track('levelComplete', { level_name: 'private free form' });
+    expect(plugin.trackEvent).not.toHaveBeenCalled();
 
-    expect(plugin.trackEvent).toHaveBeenCalledWith({
-      eventName: 'levelComplete',
-      eventValues: { level: '3', perfect: 'true' },
-    });
+    await expect(provider.trackConfirmed('af_level_achieved', { af_level: '3' })).resolves.toBe(true);
+    expect(plugin.trackEvent).toHaveBeenCalledWith({ eventName: 'af_level_achieved', eventValues: { af_level: '3' } });
   });
 
   it('permanently disables on non-timeout init failure and stops calling native', async (): Promise<void> => {
@@ -75,7 +74,7 @@ describe('AppsFlyerAttributionProvider', (): void => {
     expect(plugin.trackEvent).not.toHaveBeenCalled();
   });
 
-  it('swallows track failures without throwing', async (): Promise<void> => {
+  it('reports mapped track failures without throwing', async (): Promise<void> => {
     const plugin = makePlugin({
       trackEvent: vi.fn(async () => {
         throw new Error('native down');
@@ -83,7 +82,7 @@ describe('AppsFlyerAttributionProvider', (): void => {
     });
     const provider = new AppsFlyerAttributionProvider(config, { plugin, logger: silentLogger });
 
-    await expect(provider.track('rewardedWatched')).resolves.toBeUndefined();
+    await expect(provider.trackConfirmed('af_ad_revenue', { af_revenue: '1' })).resolves.toBe(false);
   });
 
   it('does not initialize when init resolves uninitialized', async (): Promise<void> => {
