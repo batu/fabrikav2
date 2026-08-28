@@ -25,6 +25,7 @@ export const ALLOWED_DIRS = new Set([
   'src',
   'design',
   'content',
+  'config',
   'public',
   'tests',
   'native-resources',
