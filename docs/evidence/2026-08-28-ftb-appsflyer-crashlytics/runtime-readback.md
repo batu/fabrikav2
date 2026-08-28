@@ -22,15 +22,14 @@ The repaired canonical marker tour captured all six requested states with live-d
 
 ## AppsFlyer
 
-Physical-device console evidence proves:
+1. A bounded test-only native diagnostic displayed `UIDevice.identifierForVendor` on the physical iPhone without logging or committing it. The diagnostic was removed from both source and generated native shell immediately after private readback.
+2. The IDFV was registered through **Settings → Test Devices** using AppsFlyer's supported iOS `IDFV` device type; the durable evidence intentionally omits the identifier.
+3. After propagation, authenticated **SDK Integration Tests → Live events** was armed for app `id6796698146` and the registered iPhone.
+4. The dashboard was cleared, the latest branch build was freshly installed, and its canonical all-states tour emitted exactly the approved in-app events `retention_milestone`, `af_tutorial_completion`, and `af_level_achieved`, plus SDK launch rows.
+5. The selected level event contains only `af_level: 1`. Raw legacy names `appOpen`, `levelStart`, `levelComplete`, and `levelFailed` are absent from the clean run.
+6. Dashboard General metadata reports SDK `6.18.1`, ATT status `-999`, and test device type `IDFV`. Device identifiers and AppsFlyer UID are excluded from committed evidence.
 
-- the selected provider initialized through `AppsFlyerAttribution`;
-- the key remained redacted in logs;
-- the native bridge returned `initialized: true`;
-- `trackEvent` returned `tracked: true` for the app-open path;
-- sharing partners remained the empty deny-all allowlist.
-
-Authenticated AppsFlyer browser automation reached **Settings → SDK Integration Tests → Live events** for app `id6796698146`. The account has no registered test device, and the Live events workflow cannot start without one. The inspected dashboard state is `appsflyer-live-events-no-test-device.png`. Registering a persistent device identifier solely to satisfy this test would contradict the strict child-directed posture unless the provider supplies an approved non-tracking test-device mechanism. Therefore authoritative AppsFlyer backend receipt remains an external provider-console blocker, not an untried browser path.
+Inspected, privacy-cropped dashboard captures are under `appsflyer-live-events/approved-events.png` and `appsflyer-live-events/level-details.png`. This is authoritative AppsFlyer backend receipt for the physical Strict/no-ATT build.
 
 ## Strict/AdMob linkage
 

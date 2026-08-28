@@ -15,6 +15,7 @@ Branch: `feat/ftb-appsflyer-crashlytics`
 - Canonical FTB device tour now captures all six states with non-blind markers; inspected win, fail, and settings artifacts.
 - FTD composes the same AppsFlyer mapper, RevenueCat callback, AdMob callback, and provider-selection path.
 - AppsFlyer Strict binary has no AdSupport/ATT dependency. Final-app AdSupport/ATT linkage is attributable to approved AdMob; no ATT usage copy, tracking declaration, tracking domains, authorization call, or physical-device prompt exists.
+- The physical iPhone was registered privately as an AppsFlyer IDFV test device using the provider-supported Strict/no-ATT path. Authenticated Live Events received `retention_milestone`, `af_tutorial_completion`, and `af_level_achieved`; the clean run contains no raw legacy gameplay event names.
 
 ## Gates preserved
 
@@ -24,6 +25,6 @@ Branch: `feat/ftb-appsflyer-crashlytics`
 - App Store submission/release: not performed.
 - Production game release: not performed.
 
-## Remaining external blocker
+## Merge readiness
 
-Authenticated AppsFlyer browser automation exhausted the SDK Integration Tests → Live events path. The account has no registered test device, so the test cannot start. The Strict SDK intentionally supplies no IDFA, and no approved non-tracking AppsFlyer test-device registration mechanism is available in the account. Native initialization and event acceptance are proven, but authoritative backend event receipt is not. The PR must remain draft and unmerged until the provider/account supplies an approved test-device path or equivalent backend readback.
+All requested implementation, privacy, physical-device, Crashlytics symbolication, and AppsFlyer backend-receipt gates are directly proven. The PR may be marked ready once final review passes and may merge normally when required CI checks pass and the merge remains conflict-free.
