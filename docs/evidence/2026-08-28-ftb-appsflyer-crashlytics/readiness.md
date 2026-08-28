@@ -5,27 +5,25 @@ Branch: `feat/ftb-appsflyer-crashlytics`
 
 ## Verified
 
-- Dedicated Firebase app identities read back from Firebase CLI for both exact bundles.
-- Owner Firebase plists are mode `0600`, ignored, and validated for bundle, project, and app identity.
-- Both iOS native shells deterministically select `AppsFlyerFramework-Strict` / `AppsFlyerLib-Strict` and Crashlytics; Adjust and Firebase Analytics products are absent from the manifest graph.
-- AppsFlyer partner sharing defaults to deny-all and is applied before `start()`.
-- Both physical-device Debug builds compile and sign on the iPhone 12 target.
-- Find The Bird was installed and launched through the canonical harness. The inspected device capture is `device-ftb/raw-captures/menu.png`.
-- Find The Dog was installed and launched on the same physical iPhone 12.
+- Dedicated exact-bundle Firebase identities and mode-0600 owner plists for both games.
+- AppsFlyer Strict and Crashlytics-only native graphs; Adjust and Firebase Analytics absent.
+- Deny-all partner sharing applied before AppsFlyer start.
+- Shared typed event projection with bounded durable dedupe.
+- RevenueCat revenue is emitted only after a successful verified purchase result with product, ISO currency, numeric revenue, and transaction identity.
+- AdMob paid-impression callbacks supply format, placement, ISO currency, numeric revenue, and impression identity; mapper dedupe prevents repeats.
+- Physical iPhone 12 Release crash, successful dSYM upload, authenticated Firebase issue receipt, and symbolicated developer-owned app frames.
+- Canonical FTB device tour now captures all six states with non-blind markers; inspected win, fail, and settings artifacts.
+- FTD composes the same AppsFlyer mapper, RevenueCat callback, AdMob callback, and provider-selection path.
+- AppsFlyer Strict binary has no AdSupport/ATT dependency. Final-app AdSupport/ATT linkage is attributable to approved AdMob; no ATT usage copy, tracking declaration, tracking domains, authorization call, or physical-device prompt exists.
 
-## Release gates preserved
+## Gates preserved
 
 - AppsFlyer partner allowlist: empty.
-- Meta/Google/Apple partner forwarding: not enabled.
-- Campaign delivery/spend: not enabled.
+- Meta/Google/Apple partner forwarding: disabled.
+- Campaign delivery/spend: disabled.
 - App Store submission/release: not performed.
 - Production game release: not performed.
 
-## External blockers
+## Remaining external blocker
 
-- The AppsFlyer account exposes no repository/API readback credential suitable for authoritative event-receipt verification. The owner-only developer key is an SDK key, not a management/reporting API token. Backend event receipt remains unverified.
-- The existing game verifier UI does not mount the shared deliberate-crash action. No controlled Crashlytics crash was triggered, so Firebase issue receipt and symbolication remain unverified.
-- `otool -L` shows `AdSupport` and `AppTrackingTransparency` in both final app binaries through the existing AdMob dependency graph. The strict AppsFlyer product is selected, but the plan's whole-binary no-AdSupport gate is not met.
-- The canonical FTB harness installed and captured the live app, but its marker-driven state tour failed and produced blind captures. The inspected menu capture proves launch/render only, not the complete requested runtime sequence.
-
-These blockers keep partner activation and merge closed.
+Authenticated AppsFlyer browser automation exhausted the SDK Integration Tests → Live events path. The account has no registered test device, so the test cannot start. The Strict SDK intentionally supplies no IDFA, and no approved non-tracking AppsFlyer test-device registration mechanism is available in the account. Native initialization and event acceptance are proven, but authoritative backend event receipt is not. The PR must remain draft and unmerged until the provider/account supplies an approved test-device path or equivalent backend readback.

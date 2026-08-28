@@ -176,6 +176,10 @@ if (typeof window !== 'undefined') {
       void maybeRunInsituTour(harness, {
         snapshotMatchesState: snapshotMatchesFindTheDogDriveState,
         states: tourStates,
+        // Long inactive timers are throttled by physical WKWebView after the
+        // level transition. Four seconds still gives XCUITest ample capture
+        // time while keeping the marker tour moving.
+        dwellMs: 1_500,
       }).catch((err: unknown): void => {
         console.warn('[insituTour] failed while running FTD tour', err);
       });

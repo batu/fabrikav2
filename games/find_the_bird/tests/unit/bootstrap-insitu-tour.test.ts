@@ -54,7 +54,7 @@ describe("find_the_dog bootstrap insitu tour wiring", () => {
     const assignWindowBindings = vi.fn(() => vi.fn());
     const maybeRunInsituTour = vi.fn(() => Promise.resolve());
     const createFindTheDogHarness = vi.fn(() => harness);
-    const FIND_THE_DOG_TOUR_STATES = ["menu", "level", "settings", "pause", "win", "fail", "achievements", "shop", "win-achievement"];
+    const FIND_THE_DOG_TOUR_STATES = ["menu", "level", "settings", "win", "fail", "pause", "achievements", "shop", "win-achievement"];
     const snapshotMatchesFindTheDogDriveState = vi.fn();
     const Game = vi.fn(function MockPhaserGame() {
       return game;
@@ -164,6 +164,7 @@ describe("find_the_dog bootstrap insitu tour wiring", () => {
       expect(maybeRunInsituTour).toHaveBeenCalledWith(harness, {
         snapshotMatchesState: snapshotMatchesFindTheDogDriveState,
         states: FIND_THE_DOG_TOUR_STATES,
+        dwellMs: 1_500,
       });
       expect(document.body.textContent).not.toContain("next ▸");
       expect(document.body.children).toHaveLength(3);
