@@ -163,6 +163,18 @@ describe('FTD SdkContext composition matrix', () => {
     expect(context.analyticsRing.drain().map((event) => event.name)).toEqual(gameConfig.analyticsEvents);
   });
 
+  it('selects strict AppsFlyer from the shared config matrix', () => {
+    const context = createSdkContext({
+      buildEnv: 'production', platform: 'ios', isNativePlatform: true,
+      env: {
+        VITE_ATTRIBUTION_PROVIDER: 'appsflyer', VITE_APPSFLYER_ENABLED: 'true',
+        VITE_APPSFLYER_DEV_KEY: 'owner-key-for-test', VITE_APPSFLYER_APPLE_APP_ID: '6772100729',
+      },
+    });
+    expect(context.selection.attribution).toBe('appsflyer');
+    expect(context.selection.analyticsSinks).not.toContain('firebase');
+  });
+
   it('enables the owned mirror only when URL and public key are both valid', () => {
     const enabled = createSdkContext({
       buildEnv: 'development',
