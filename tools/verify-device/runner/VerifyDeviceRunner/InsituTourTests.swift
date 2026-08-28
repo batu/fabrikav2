@@ -35,7 +35,7 @@ final class InsituTourTests: XCTestCase {
     /// Canonical states, tour order. The tour label is `tourstate:<state>`; the
     /// attachment name keeps a "<n>-<state>" order prefix so the CLI's
     /// states.mjs maps it back to the same canonical vocab as the reference lane.
-    private let states = ["menu", "level", "settings", "pause", "win", "fail"]
+    private let states = ["menu", "level", "settings", "win", "fail", "pause"]
 
     private func shot(_ name: String) {
         let attachment = XCTAttachment(screenshot: XCUIScreen.main.screenshot())

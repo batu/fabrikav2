@@ -26,12 +26,9 @@
         "product": "CapacitorLocalNotifications"
       },
       {
-        "name": "CapacitorFirebaseAnalytics",
-        "path": "../../../../../node_modules/@capacitor-firebase/analytics",
-        "product": "CapacitorFirebaseAnalytics",
-        "traits": [
-          "AnalyticsWithoutAdIdSupport"
-        ]
+        "name": "CapacitorFirebaseCrashlytics",
+        "path": "../../../../../node_modules/@capacitor-firebase/crashlytics",
+        "product": "CapacitorFirebaseCrashlytics"
       },
       {
         "name": "RevenuecatPurchasesCapacitor",
@@ -56,24 +53,26 @@
         ]
       },
       {
-        "name": "AdjustSdk",
-        "url": "https://github.com/adjust/ios_sdk",
+        "name": "AppsFlyerFramework-Strict",
+        "url": "https://github.com/AppsFlyerSDK/AppsFlyerFramework-Strict",
         "requirement": "from",
-        "version": "5.6.2",
+        "version": "6.17.5",
         "products": [
-          "AdjustSdk"
+          "AppsFlyerLib-Strict"
         ]
       }
     ],
     "swiftSources": [
       "FindTheDogBridgeViewController.swift",
-      "AdjustAttributionPlugin.swift"
+      "AppsFlyerAttributionPlugin.swift"
     ],
     "privacyManifest": "PrivacyInfo.xcprivacy",
     "adMobEnabledEnv": "VITE_ADMOB_IOS_ENABLED",
     "adMobApplicationIdEnv": "VITE_ADMOB_IOS_APP_ID",
     "adMobPublicConfig": "../../config/admob.public.json",
     "skAdNetworkCatalog": "admob-skadnetwork-ids.json",
-    "skAdNetworkExpectedCount": 1
+    "skAdNetworkExpectedCount": 1,
+    "crashlyticsSymbolUpload": true,
+    "firebaseProjectId": "find-the-bird-basegamelab"
   }
 }

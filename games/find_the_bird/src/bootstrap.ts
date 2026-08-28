@@ -35,6 +35,18 @@ installAudioUnlock();
 installButtonVoiceEffects();
 preloadIcons();
 
+// Verification controls are compiled only into explicit harness/dev builds.
+// Store builds cannot mount or trigger the deliberate-crash path.
+if (TEST_HARNESS_ENABLED && String(import.meta.env.VITE_SDK_VERIFIER_AUTOMOUNT) === 'true') {
+  void import('./devtools/SdkVerifierMount').then(({ toggleSdkVerifierPane }) => toggleSdkVerifierPane());
+  if (String(import.meta.env.VITE_SDK_VERIFIER_AUTOCRASH) === 'true') {
+    void import('./devtools/SdkVerifierMount').then(async ({ runControlledCrash }): Promise<void> => {
+      await new Promise((resolve) => window.setTimeout(resolve, 8_000));
+      await runControlledCrash(`find_bird_controlled_crash_${new Date().toISOString()}`);
+    });
+  }
+}
+
 const game: Phaser.Game = new Phaser.Game(GameConfig);
 initHUD();
 // Install the single suspend/resume authority (Capacitor pause/resume +
@@ -164,6 +176,10 @@ if (typeof window !== 'undefined') {
       void maybeRunInsituTour(harness, {
         snapshotMatchesState: snapshotMatchesFindTheDogDriveState,
         states: tourStates,
+        // Long inactive timers are throttled by physical WKWebView after the
+        // level transition. Four seconds still gives XCUITest ample capture
+        // time while keeping the marker tour moving.
+        dwellMs: 1_500,
       }).catch((err: unknown): void => {
         console.warn('[insituTour] failed while running FTD tour', err);
       });

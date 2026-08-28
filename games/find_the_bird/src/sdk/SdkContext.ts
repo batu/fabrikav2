@@ -18,12 +18,10 @@ import {
 import {
   createAnalytics,
   createConsoleSink,
-  createFirebaseSink,
   createOwnedMirrorSink,
   createRingBufferSink,
   type Analytics,
   type AnalyticsSink,
-  type FirebaseTransport,
   type MirrorTransport,
   type OwnedMirrorSink,
   type RingBufferSink,
@@ -35,6 +33,9 @@ import {
   type RevenueCatPurchasesPlugin,
 } from '@fabrikav2/sdk/iap';
 import {
+  AppsFlyerEventMapper,
+  createAppsFlyerAnalyticsProjection,
+  createLocalStorageDedupeStore,
   AttributionService as SdkAttributionService,
   readAppsFlyerConfig,
   readAttributionProviderChoice,
@@ -74,14 +75,8 @@ import {
   type FindTheDogIapComposition,
 } from '../shop/IapService';
 import { buildShopCatalog } from '../shop/ProductCatalog';
-import { firebaseConfigPresentInEnv } from './includePlugins';
 
 type Env = Record<string, string | boolean | undefined>;
-type FirebaseAnalyticsLoader = () => Promise<{
-  FirebaseAnalytics: {
-    logEvent(options: { name: string; params: Record<string, string | number> }): Promise<void>;
-  };
-}>;
 type RevenueCatLoader = () => Promise<unknown>;
 
 export interface SdkProviderSelection {
@@ -111,7 +106,8 @@ export interface CreateSdkContextDependencies {
   readonly isNativePlatform?: boolean;
   readonly env?: Env;
   readonly resolveEnvironments?: (buildEnv: SdkBuildEnv) => SdkEnvironments;
-  readonly firebaseAnalyticsLoader?: FirebaseAnalyticsLoader;
+  /** Deprecated test seam; Firebase Analytics is intentionally never composed. */
+  readonly firebaseAnalyticsLoader?: () => Promise<unknown>;
   readonly revenueCatLoader?: RevenueCatLoader;
   readonly gameAnalyticsLoader?: GameAnalyticsSdkLoader;
   readonly mirrorTransport?: MirrorTransport;
@@ -130,6 +126,7 @@ export function createSdkContext(deps: CreateSdkContextDependencies = {}): GameS
   const logger = deps.logger ?? console;
 
   let analyticsFacade: Analytics<FtdEvent> | null = null;
+  let forwardAcquisitionValueEvent: (event: Parameters<AppsFlyerEventMapper['map']>[0]) => Promise<boolean> = async () => false;
   const appLovinConfig: SdkAppLovinConfigResult = readAppLovinConfigForPlatform('android', env);
   const adMobConfig = readAdMobIosConfig(env, adMobPublicConfig);
   const lifecycle = {
@@ -140,7 +137,13 @@ export function createSdkContext(deps: CreateSdkContextDependencies = {}): GameS
   const adFactories: AdProviderFactories = baseFactories ?? {
     createAdMobProvider: platform === 'ios'
       ? (adLifecycle) => isNativePlatform && adMobConfig.enabled
-        ? new AdMobProvider(adMobConfig.config, { lifecycle: adLifecycle })
+        ? new AdMobProvider(adMobConfig.config, {
+            lifecycle: adLifecycle,
+            onAdRevenuePaid: (event) => forwardAcquisitionValueEvent({
+              type: 'ad_revenue', revenue: event.revenue, currency: event.currency,
+              format: event.format, placement: event.placement, impressionId: event.impressionId,
+            }),
+          })
         : defaultAdProviderFactories.createDisabledProvider(`AdMob unavailable: ${adMobConfig.enabled ? 'not running on a native platform' : adMobConfig.reason}`)
       : defaultAdProviderFactories.createAdMobProvider,
     createAppLovinMaxProvider: (config, adLifecycle) => new AppLovinMaxProvider(config, {
@@ -167,20 +170,28 @@ export function createSdkContext(deps: CreateSdkContextDependencies = {}): GameS
     appsFlyerConfig: readAppsFlyerConfig(platform, env, buildEnv === 'production'),
   });
   const attributionService = new SdkAttributionService(attributionProvider);
+  const appsFlyerDedupe = createLocalStorageDedupeStore(window.localStorage);
+  const appsFlyerMapper = new AppsFlyerEventMapper(appsFlyerDedupe);
+  forwardAcquisitionValueEvent = async (event): Promise<boolean> => {
+    const mapped = appsFlyerMapper.map(event);
+    if (mapped === null) return false;
+    const delivered = await attributionService.trackMapped(mapped);
+    appsFlyerMapper.settle(mapped, delivered);
+    return delivered;
+  };
 
   const sinks: AnalyticsSink[] = [];
   if (buildEnv === 'development') sinks.push(createConsoleSink());
   const ring = createRingBufferSink();
   sinks.push(ring);
-
-  // Native Firebase (@capacitor-firebase/analytics) aborts at +[FIRApp configure]
-  // when the build ships no Firebase config. Mirror V1 firebaseOptions(): only
-  // construct the sink on native iOS when API_KEY+PROJECT_ID+APP_ID are all present.
-  if (platform === 'ios' && isNativePlatform && firebaseConfigPresentInEnv(env)) {
-    sinks.push(createFirebaseSink(createLazyFirebaseTransport(
-      deps.firebaseAnalyticsLoader ?? (() => import('@capacitor-firebase/analytics')),
-    )));
+  if (attributionProvider.providerName === 'appsflyer') {
+    sinks.push(createAppsFlyerAnalyticsProjection({
+      forward: forwardAcquisitionValueEvent,
+      dedupe: appsFlyerDedupe,
+      storage: window.localStorage,
+    }));
   }
+
 
   let ownedMirror: OwnedMirrorSink | null = null;
   let ownedMirrorDisabledReason = 'owned analytics mirror is not configured';
@@ -221,6 +232,7 @@ export function createSdkContext(deps: CreateSdkContextDependencies = {}): GameS
     purchaseProvider = new RevenueCatProvider({
       plugin: createLazyRevenueCatPlugin(deps.revenueCatLoader ?? (() => import('@revenuecat/purchases-capacitor'))),
       catalogProducts,
+      onVerifiedPurchase: (event) => forwardAcquisitionValueEvent({ type: 'purchase_verified', ...event }),
     });
     iapSelection = 'revenuecat';
   } else {
@@ -306,17 +318,6 @@ export function getSdkContext(): GameSdkContext {
 
 function normalizePlatform(value: string): 'android' | 'ios' | 'web' {
   return value === 'ios' || value === 'android' ? value : 'web';
-}
-
-function createLazyFirebaseTransport(loader: FirebaseAnalyticsLoader): FirebaseTransport {
-  let load: ReturnType<FirebaseAnalyticsLoader> | null = null;
-  return {
-    async logEvent(name, params): Promise<void> {
-      load ??= loader();
-      const { FirebaseAnalytics } = await load;
-      await FirebaseAnalytics.logEvent({ name, params: { ...params } });
-    },
-  };
 }
 
 async function fetchMirrorTransport(request: Parameters<MirrorTransport>[0]): Promise<{ ok: boolean; status: number }> {

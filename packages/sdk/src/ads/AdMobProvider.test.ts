@@ -5,9 +5,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 // itself is injected as a fake, so the real plugin is never reached; this mock
 // only satisfies the enum imports.
 vi.mock('@capacitor-community/admob', () => ({
-  BannerAdPluginEvents: { Loaded: 'bannerLoaded', FailedToLoad: 'bannerFailed', AdImpression: 'bannerImpression' },
-  InterstitialAdPluginEvents: { FailedToLoad: 'intFailed', Dismissed: 'intDismissed', FailedToShow: 'intFailedShow' },
-  RewardAdPluginEvents: { FailedToLoad: 'rewFailed', Dismissed: 'rewDismissed', FailedToShow: 'rewFailedShow' },
+  BannerAdPluginEvents: { Loaded: 'bannerLoaded', FailedToLoad: 'bannerFailed', AdImpression: 'bannerImpression', AdPaid: 'bannerAdPaid' },
+  InterstitialAdPluginEvents: { FailedToLoad: 'intFailed', Dismissed: 'intDismissed', FailedToShow: 'intFailedShow', AdImpression: 'intPaid' },
+  RewardAdPluginEvents: { FailedToLoad: 'rewFailed', Dismissed: 'rewDismissed', FailedToShow: 'rewFailedShow', AdImpression: 'rewPaid' },
   MaxAdContentRating: { General: 'General' },
   BannerAdSize: { ADAPTIVE_BANNER: 'ADAPTIVE_BANNER' },
   BannerAdPosition: { BOTTOM_CENTER: 'BOTTOM_CENTER' },
@@ -139,6 +139,14 @@ afterEach(() => {
 });
 
 describe('AdMobProvider lifecycle', (): void => {
+  it('forwards paid impressions with normalized required fields', async () => {
+    const adapter = makeAdapter();
+    const paid = vi.fn();
+    const provider = new AdMobProvider(config, { adapter, onAdRevenuePaid: paid });
+    await provider.init();
+    adapter.__emit('bannerAdPaid', { valueMicros: 12500, currencyCode: 'USD', precision: 3, networkName: 'Google', impressionId: 'imp-1' });
+    expect(paid).toHaveBeenCalledWith({ revenue: 0.0125, currency: 'USD', format: 'banner', placement: 'banner', impressionId: 'imp-1', precision: '3', networkName: 'Google' });
+  });
   it('initializes exactly once across repeated init() calls', async (): Promise<void> => {
     const adapter = makeAdapter();
     const provider = new AdMobProvider(config, { adapter, now, scheduleRetry });

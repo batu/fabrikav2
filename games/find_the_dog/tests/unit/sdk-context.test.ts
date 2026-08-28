@@ -41,7 +41,7 @@ describe('FTD SdkContext composition matrix', () => {
     expect(gameanalytics).not.toHaveBeenCalled();
   });
 
-  it('selects configured native iOS adapters while keeping ads disabled', () => {
+  it('selects configured native iOS adapters including AdMob', () => {
     const firebase = vi.fn();
     const revenuecat = vi.fn();
     const gameanalytics = vi.fn();
@@ -74,13 +74,9 @@ describe('FTD SdkContext composition matrix', () => {
 
     expect(context.selection.iap).toBe('revenuecat');
     expect(context.selection.remoteConfig).toBe('firebase');
-    expect(context.selection.ads).toBe('disabled');
+    expect(context.selection.ads).toBe('admob');
     expect(context.selection.attribution).toBe('adjust-ios');
-    expect(context.selection.analyticsSinks).toEqual([
-      'ring-buffer',
-      'firebase',
-      'gameanalytics',
-    ]);
+    expect(context.selection.analyticsSinks).toEqual(['ring-buffer', 'gameanalytics']);
     expect(context.environments.adjust).toBe('production');
     expect(firebase).not.toHaveBeenCalled();
     expect(revenuecat).not.toHaveBeenCalled();
@@ -97,29 +93,13 @@ describe('FTD SdkContext composition matrix', () => {
     expect(context.selection.ads).toBe('disabled');
   });
 
-  it('forwards iOS events through the lazy Firebase transport', async () => {
-    const logEvent = vi.fn(async () => undefined);
-    const loader = vi.fn(async () => ({ FirebaseAnalytics: { logEvent } }));
-    const context = createSdkContext({
-      buildEnv: 'development',
-      platform: 'ios',
-      isNativePlatform: true,
-      env: {
-        VITE_FIREBASE_API_KEY: 'firebase-api-key',
-        VITE_FIREBASE_PROJECT_ID: 'firebase-project-id',
-        VITE_FIREBASE_APP_ID: 'firebase-app-id',
-      },
-      firebaseAnalyticsLoader: loader,
-    });
-
-    expect(context.selection.analyticsSinks).toContain('firebase');
+  it('keeps Firebase Analytics absent even with complete Firebase config', async () => {
+    const loader = vi.fn();
+    const context = createSdkContext({ buildEnv: 'development', platform: 'ios', isNativePlatform: true, env: { VITE_FIREBASE_API_KEY: 'configured', VITE_FIREBASE_PROJECT_ID: 'configured', VITE_FIREBASE_APP_ID: 'configured' }, firebaseAnalyticsLoader: loader });
+    expect(context.selection.analyticsSinks).not.toContain('firebase');
     context.analytics.track('dog_found', { dog_index: 0, no_ads: false });
-    await vi.waitFor(() => expect(logEvent).toHaveBeenCalled());
-    expect(loader).toHaveBeenCalledTimes(1);
-    expect(logEvent).toHaveBeenCalledWith(expect.objectContaining({
-      name: 'dog_found',
-      params: expect.objectContaining({ dog_index: 0, no_ads: 'false' }),
-    }));
+    await Promise.resolve();
+    expect(loader).not.toHaveBeenCalled();
   });
 
   it('omits the Firebase sink and never touches the plugin when config is absent on native iOS', async () => {
@@ -181,6 +161,18 @@ describe('FTD SdkContext composition matrix', () => {
     const context = createSdkContext({ buildEnv: 'development', platform: 'web', env: {} });
     for (const eventName of gameConfig.analyticsEvents) context.analytics.track(eventName);
     expect(context.analyticsRing.drain().map((event) => event.name)).toEqual(gameConfig.analyticsEvents);
+  });
+
+  it('selects strict AppsFlyer from the shared config matrix', () => {
+    const context = createSdkContext({
+      buildEnv: 'production', platform: 'ios', isNativePlatform: true,
+      env: {
+        VITE_ATTRIBUTION_PROVIDER: 'appsflyer', VITE_APPSFLYER_ENABLED: 'true',
+        VITE_APPSFLYER_DEV_KEY: 'owner-key-for-test', VITE_APPSFLYER_APPLE_APP_ID: '6772100729',
+      },
+    });
+    expect(context.selection.attribution).toBe('appsflyer');
+    expect(context.selection.analyticsSinks).not.toContain('firebase');
   });
 
   it('enables the owned mirror only when URL and public key are both valid', () => {
