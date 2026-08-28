@@ -32,7 +32,24 @@ import {
 
 type RuntimePlatform = SupportedAdPlatform | 'web';
 type AdEventName = BannerAdPluginEvents | InterstitialAdPluginEvents | RewardAdPluginEvents;
-type AdEventInfo = AdMobError | { adUnitId: string } | AdMobRewardItem | undefined;
+interface AdMobRevenueData {
+  adUnitId: string;
+  valueMicros: number;
+  currencyCode: string;
+  precision: number;
+  networkName: string;
+  impressionId: string;
+}
+type AdEventInfo = AdMobError | { adUnitId: string } | AdMobRewardItem | AdMobRevenueData | undefined;
+export interface AdMobPaidImpression {
+  revenue: number;
+  currency: string;
+  format: 'banner' | 'interstitial' | 'rewarded';
+  placement: string;
+  impressionId: string;
+  precision: string;
+  networkName: string;
+}
 type AdEventListener = (info: AdEventInfo) => void;
 type ListenerHandle = { remove: () => Promise<void> };
 type FullScreenAdDismissalWaiter = {
@@ -160,6 +177,7 @@ export interface AdMobProviderOptions {
    * composition root supplies this from `App.addListener('resume', ...)`.
    */
   addAppResumeListener?: (onResume: () => void) => Promise<ListenerHandle>;
+  onAdRevenuePaid?: (event: AdMobPaidImpression) => void;
 }
 
 /**
@@ -169,6 +187,10 @@ export interface AdMobProviderOptions {
  * the injectable `AdMobAdapter` seam. Every method swallows its errors —
  * gameplay is never blocked by an ad failure.
  */
+function isRevenueData(info: AdEventInfo): info is AdMobRevenueData {
+  return typeof info === 'object' && info !== null && 'valueMicros' in info && 'currencyCode' in info && 'impressionId' in info;
+}
+
 export class AdMobProvider implements AdProvider {
   readonly providerName = 'admob';
   private readonly adapter: AdMobAdapter;
@@ -176,6 +198,7 @@ export class AdMobProvider implements AdProvider {
   private readonly now: () => number;
   private readonly scheduleRetry: (fn: () => void, delayMs: number) => CancelRetry;
   private readonly addAppResumeListener?: (onResume: () => void) => Promise<ListenerHandle>;
+  private readonly onAdRevenuePaid?: (event: AdMobPaidImpression) => void;
   private initialized = false;
   private interstitialLoaded = false;
   private rewardedLoaded = false;
@@ -216,6 +239,7 @@ export class AdMobProvider implements AdProvider {
         return (): void => clearTimeout(id);
       });
     this.addAppResumeListener = options.addAppResumeListener;
+    this.onAdRevenuePaid = options.onAdRevenuePaid;
   }
 
   private log(message: string, details?: Record<string, unknown>): void {
@@ -245,6 +269,24 @@ export class AdMobProvider implements AdProvider {
     };
   }
 
+  private forwardPaidImpression(info: AdEventInfo, format: AdMobPaidImpression['format'], placement: string, generation: number): void {
+    if (this.disposed || this.generation !== generation || this.onAdRevenuePaid === undefined || !isRevenueData(info)) return;
+    if (!Number.isFinite(info.valueMicros) || info.valueMicros <= 0 || !/^[A-Z]{3}$/.test(info.currencyCode) || !info.impressionId) return;
+    try {
+      this.onAdRevenuePaid({
+        revenue: info.valueMicros / 1_000_000,
+        currency: info.currencyCode,
+        format,
+        placement,
+        impressionId: info.impressionId,
+        precision: String(info.precision),
+        networkName: info.networkName ?? '',
+      });
+    } catch (err: unknown) {
+      this.warn('paid impression listener failed', err);
+    }
+  }
+
   private async registerEventListeners(generation: number): Promise<void> {
     if (this.listenersRegistered) return;
     this.listenersRegistered = true;
@@ -266,6 +308,15 @@ export class AdMobProvider implements AdProvider {
         this.adapter.addListener(BannerAdPluginEvents.AdImpression, (): void => {
           if (this.disposed || this.generation !== generation) return;
           this.log('banner impression recorded');
+        }),
+        this.adapter.addListener('bannerAdPaid' as AdEventName, (info: AdEventInfo): void => {
+          this.forwardPaidImpression(info, 'banner', 'banner', generation);
+        }),
+        this.adapter.addListener('interstitialAdImpression' as AdEventName, (info: AdEventInfo): void => {
+          this.forwardPaidImpression(info, 'interstitial', 'interstitial', generation);
+        }),
+        this.adapter.addListener('onRewardedVideoAdImpression' as AdEventName, (info: AdEventInfo): void => {
+          this.forwardPaidImpression(info, 'rewarded', 'rewarded', generation);
         }),
         this.adapter.addListener(InterstitialAdPluginEvents.FailedToLoad, (info: AdEventInfo): void => {
           if (this.disposed || this.generation !== generation) return;

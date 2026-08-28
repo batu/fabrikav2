@@ -2,6 +2,7 @@ import { Capacitor } from '@capacitor/core';
 import { AdjustAttributionProvider } from './AdjustAttributionProvider.ts';
 import { readAdjustIosConfig, type AdjustConfigResult } from './AdjustConfig.ts';
 import { AppsFlyerAttributionProvider } from './AppsFlyerAttributionProvider.ts';
+import type { AppsFlyerMappedEvent } from './AppsFlyerEventMapper.ts';
 import { readAppsFlyerConfig, type AppsFlyerConfig, type AppsFlyerConfigResult } from './AppsFlyerConfig.ts';
 import type {
   AttributionEventName,
@@ -154,6 +155,12 @@ export class AttributionService {
 
   rewardedWatched<P extends AttributionParamBag<P>>(params: P): Promise<void> {
     return this.trackAfterStartupGate('rewardedWatched', params);
+  }
+
+  async trackMapped(event: AppsFlyerMappedEvent): Promise<void> {
+    await this.startupGate;
+    const track = this.provider.track as (eventName: string, params: Record<string, string>) => Promise<void>;
+    return track.call(this.provider, event.eventName, event.eventValues);
   }
 
   private async trackAfterStartupGate<P extends AttributionParamBag<P>>(

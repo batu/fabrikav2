@@ -8,6 +8,22 @@ export type AppsFlyerCanonicalEvent =
 export interface AppsFlyerMappedEvent { eventName: string; eventValues: Record<string, string> }
 export interface DedupeStore { has(key: string): boolean; add(key: string): void }
 
+export function createLocalStorageDedupeStore(storage: Pick<Storage, 'getItem' | 'setItem'>, key = 'appsflyer-value-event-dedupe'): DedupeStore {
+  const read = (): Set<string> => {
+    try {
+      const parsed = JSON.parse(storage.getItem(key) ?? '[]');
+      return new Set(Array.isArray(parsed) ? parsed.filter((value): value is string => typeof value === 'string').slice(-500) : []);
+    } catch { return new Set(); }
+  };
+  return {
+    has: (value) => read().has(value),
+    add: (value) => {
+      const values = read(); values.add(value);
+      try { storage.setItem(key, JSON.stringify([...values].slice(-500))); } catch { /* fail open for gameplay; in-memory dedupe remains */ }
+    },
+  };
+}
+
 export class AppsFlyerEventMapper {
   private readonly seen = new Set<string>();
   constructor(private readonly durable?: DedupeStore) {}

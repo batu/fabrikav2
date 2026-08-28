@@ -33,6 +33,8 @@ import {
   type RevenueCatPurchasesPlugin,
 } from '@fabrikav2/sdk/iap';
 import {
+  AppsFlyerEventMapper,
+  createLocalStorageDedupeStore,
   AttributionService as SdkAttributionService,
   readAppsFlyerConfig,
   readAttributionProviderChoice,
@@ -123,6 +125,7 @@ export function createSdkContext(deps: CreateSdkContextDependencies = {}): GameS
   const logger = deps.logger ?? console;
 
   let analyticsFacade: Analytics<FtdEvent> | null = null;
+  let forwardAcquisitionValueEvent: (event: Parameters<AppsFlyerEventMapper['map']>[0]) => void = () => undefined;
   const appLovinConfig: SdkAppLovinConfigResult = readAppLovinConfigForPlatform('android', env);
   const adMobConfig = readAdMobIosConfig(env, adMobPublicConfig);
   const lifecycle = {
@@ -133,7 +136,13 @@ export function createSdkContext(deps: CreateSdkContextDependencies = {}): GameS
   const adFactories: AdProviderFactories = baseFactories ?? {
     createAdMobProvider: platform === 'ios'
       ? (adLifecycle) => isNativePlatform && adMobConfig.enabled
-        ? new AdMobProvider(adMobConfig.config, { lifecycle: adLifecycle })
+        ? new AdMobProvider(adMobConfig.config, {
+            lifecycle: adLifecycle,
+            onAdRevenuePaid: (event) => forwardAcquisitionValueEvent({
+              type: 'ad_revenue', revenue: event.revenue, currency: event.currency,
+              format: event.format, placement: event.placement, impressionId: event.impressionId,
+            }),
+          })
         : defaultAdProviderFactories.createDisabledProvider(`AdMob unavailable: ${adMobConfig.enabled ? 'not running on a native platform' : adMobConfig.reason}`)
       : defaultAdProviderFactories.createAdMobProvider,
     createAppLovinMaxProvider: (config, adLifecycle) => new AppLovinMaxProvider(config, {
@@ -160,6 +169,11 @@ export function createSdkContext(deps: CreateSdkContextDependencies = {}): GameS
     appsFlyerConfig: readAppsFlyerConfig(platform, env, buildEnv === 'production'),
   });
   const attributionService = new SdkAttributionService(attributionProvider);
+  const appsFlyerMapper = new AppsFlyerEventMapper(createLocalStorageDedupeStore(window.localStorage));
+  forwardAcquisitionValueEvent = (event): void => {
+    const mapped = appsFlyerMapper.map(event);
+    if (mapped !== null) void attributionService.trackMapped(mapped);
+  };
 
   const sinks: AnalyticsSink[] = [];
   if (buildEnv === 'development') sinks.push(createConsoleSink());
@@ -206,6 +220,7 @@ export function createSdkContext(deps: CreateSdkContextDependencies = {}): GameS
     purchaseProvider = new RevenueCatProvider({
       plugin: createLazyRevenueCatPlugin(deps.revenueCatLoader ?? (() => import('@revenuecat/purchases-capacitor'))),
       catalogProducts,
+      onVerifiedPurchase: (event) => forwardAcquisitionValueEvent({ type: 'purchase_verified', ...event }),
     });
     iapSelection = 'revenuecat';
   } else {

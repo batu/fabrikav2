@@ -35,6 +35,18 @@ installAudioUnlock();
 installButtonVoiceEffects();
 preloadIcons();
 
+// Verification controls are compiled only into explicit harness/dev builds.
+// Store builds cannot mount or trigger the deliberate-crash path.
+if (TEST_HARNESS_ENABLED && String(import.meta.env.VITE_SDK_VERIFIER_AUTOMOUNT) === 'true') {
+  void import('./devtools/SdkVerifierMount').then(({ toggleSdkVerifierPane }) => toggleSdkVerifierPane());
+  if (String(import.meta.env.VITE_SDK_VERIFIER_AUTOCRASH) === 'true') {
+    void import('./devtools/SdkVerifierMount').then(async ({ runControlledCrash }): Promise<void> => {
+      await new Promise((resolve) => window.setTimeout(resolve, 8_000));
+      await runControlledCrash(`find_bird_controlled_crash_${new Date().toISOString()}`);
+    });
+  }
+}
+
 const game: Phaser.Game = new Phaser.Game(GameConfig);
 initHUD();
 // Install the single suspend/resume authority (Capacitor pause/resume +

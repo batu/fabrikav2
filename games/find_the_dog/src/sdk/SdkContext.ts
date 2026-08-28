@@ -5,6 +5,7 @@ import {
   type SdkEnvironments,
 } from '@fabrikav2/sdk';
 import {
+  AdMobProvider,
   AppLovinMaxProvider,
   defaultAdProviderFactories,
   type AdProvider as SdkAdProvider,
@@ -29,8 +30,12 @@ import {
   type RevenueCatPurchasesPlugin,
 } from '@fabrikav2/sdk/iap';
 import {
+  AppsFlyerEventMapper,
+  createLocalStorageDedupeStore,
   AttributionService as SdkAttributionService,
-  createAttributionProvider,
+  readAppsFlyerConfig,
+  readAttributionProviderChoice,
+  selectAttributionProvider,
 } from '@fabrikav2/sdk/attribution';
 import { setMusicPausedForAd } from '../audio/AudioManager';
 import { gameState } from '../core/GameState';
@@ -116,6 +121,7 @@ export function createSdkContext(deps: CreateSdkContextDependencies = {}): GameS
   const logger = deps.logger ?? console;
 
   let analyticsFacade: Analytics<FtdEvent> | null = null;
+  let forwardAcquisitionValueEvent: (event: Parameters<AppsFlyerEventMapper['map']>[0]) => void = () => undefined;
   const appLovinConfig: SdkAppLovinConfigResult = readAppLovinConfigForPlatform('android', env);
   const adMobConfig = readAdMobIosConfig(env);
   const lifecycle = {
@@ -123,7 +129,15 @@ export function createSdkContext(deps: CreateSdkContextDependencies = {}): GameS
     onFullScreenAdFinished: (): void => setMusicPausedForAd(false),
   };
   const ads = platform === 'ios'
-    ? defaultAdProviderFactories.createDisabledProvider(`AdMob unavailable: ${adMobConfig.reason}`)
+    ? isNativePlatform && adMobConfig.enabled
+      ? new AdMobProvider(adMobConfig.config, {
+          lifecycle,
+          onAdRevenuePaid: (event) => forwardAcquisitionValueEvent({
+            type: 'ad_revenue', revenue: event.revenue, currency: event.currency,
+            format: event.format, placement: event.placement, impressionId: event.impressionId,
+          }),
+        })
+      : defaultAdProviderFactories.createDisabledProvider(`AdMob unavailable: ${adMobConfig.enabled ? 'not running on a native platform' : adMobConfig.reason}`)
     : platform === 'android' && appLovinConfig.enabled
       ? deps.adProviderFactories?.createAppLovinMaxProvider(appLovinConfig.config, lifecycle) ?? new AppLovinMaxProvider(appLovinConfig.config, {
           lifecycle,
@@ -141,8 +155,18 @@ export function createSdkContext(deps: CreateSdkContextDependencies = {}): GameS
   const resolvedAdjustConfig = adjustConfig.enabled
     ? { ...adjustConfig, config: { ...adjustConfig.config, environment: environments.adjust } }
     : adjustConfig;
-  const attributionProvider = createAttributionProvider(platform, resolvedAdjustConfig);
+  const attributionProvider = selectAttributionProvider({
+    platform,
+    preferred: readAttributionProviderChoice(env.VITE_ATTRIBUTION_PROVIDER),
+    adjustConfig: resolvedAdjustConfig,
+    appsFlyerConfig: readAppsFlyerConfig(platform, env, buildEnv === 'production'),
+  });
   const attributionService = new SdkAttributionService(attributionProvider);
+  const appsFlyerMapper = new AppsFlyerEventMapper(createLocalStorageDedupeStore(window.localStorage));
+  forwardAcquisitionValueEvent = (event): void => {
+    const mapped = appsFlyerMapper.map(event);
+    if (mapped !== null) void attributionService.trackMapped(mapped);
+  };
 
   const sinks: AnalyticsSink[] = [];
   if (buildEnv === 'development') sinks.push(createConsoleSink());
@@ -189,6 +213,7 @@ export function createSdkContext(deps: CreateSdkContextDependencies = {}): GameS
     purchaseProvider = new RevenueCatProvider({
       plugin: createLazyRevenueCatPlugin(deps.revenueCatLoader ?? (() => import('@revenuecat/purchases-capacitor'))),
       catalogProducts,
+      onVerifiedPurchase: (event) => forwardAcquisitionValueEvent({ type: 'purchase_verified', ...event }),
     });
     iapSelection = 'revenuecat';
   } else {

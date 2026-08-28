@@ -65,6 +65,7 @@ export interface RevenueCatProviderOptions<TPayload> {
   plugin: RevenueCatPurchasesPlugin;
   /** The catalog — needed to build display fallbacks and route sandbox aliases. */
   catalogProducts: () => CatalogProduct<TPayload>[];
+  onVerifiedPurchase?: (event: { productId: string; revenue: number; currency: string; transactionId: string }) => void;
 }
 
 /** RevenueCat's non-subscription product category value. */
@@ -147,6 +148,10 @@ export class RevenueCatProvider<TPayload = unknown> implements PurchaseProvider 
       throw new Error(`RevenueCatProvider: no store product for '${productId}'`);
     }
     const result = await this.options.plugin.purchaseStoreProduct({ product });
+    const transactionId = result.transaction.transactionIdentifier ?? result.transaction.purchaseToken;
+    if (transactionId !== null && product.price > 0 && /^[A-Z]{3}$/.test(product.currencyCode)) {
+      this.options.onVerifiedPurchase?.({ productId: result.productIdentifier, revenue: product.price, currency: product.currencyCode, transactionId });
+    }
     return {
       productIdentifier: result.productIdentifier,
       transactionId: result.transaction.transactionIdentifier,
