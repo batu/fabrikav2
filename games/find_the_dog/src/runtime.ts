@@ -2,7 +2,7 @@ import Phaser from 'phaser';
 import type { FirstOpenStorageDurability } from '@fabrikav2/sdk/analytics';
 import { assignWindowBindings, maybeRunInsituTour } from '@fabrikav2/testkit/testing';
 import { GameConfig } from './core/GameConfig';
-import { TEST_HARNESS_ENABLED } from './core/Constants';
+
 import { gameState } from './core/GameState';
 import { initHUD } from './ui/HUD';
 import { analytics } from './analytics/AnalyticsService';
@@ -153,7 +153,10 @@ if (typeof window !== 'undefined') {
     });
   }
 
-  if (TEST_HARNESS_ENABLED) {
+  // Keep the gate in this module so Vite can fold it at build time. Importing
+  // the exported constant prevents Rollup from proving the branch unreachable
+  // and leaves the TestHarness chunk inside otherwise harness-free store builds.
+  if (import.meta.env.DEV || import.meta.env.VITE_ENABLE_TEST_HARNESS === 'true') {
     void Promise.all([
       import('./testing/TestHarness'),
       import('./audio/AmbientManager'),
