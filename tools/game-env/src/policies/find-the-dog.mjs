@@ -89,6 +89,15 @@ function validateConditional({ values, mode, booleanValue, requireValue, invalid
   validateChoice(values, 'VITE_AD_PROVIDER', ['auto', 'admob', 'applovin-max', 'disabled'], invalidKeys);
   validateChoice(values, 'VITE_ATTRIBUTION_PROVIDER', ['auto', 'appsflyer', 'adjust', 'disabled'], invalidKeys);
 
+  if (mode === 'ios') {
+    const key = 'VITE_REVENUECAT_IOS_API_KEY';
+    requireValue(key);
+    const value = values.get(key);
+    if (typeof value === 'string' && value.trim() !== '' && !/^appl_[A-Za-z0-9]{27}$/.test(value)) {
+      invalidKeys.push(key);
+    }
+  }
+
   if (booleanValue(values.get('VITE_APPSFLYER_ENABLED')) === true) {
     requireValue('VITE_APPSFLYER_DEV_KEY');
     if (mode === 'ios') {

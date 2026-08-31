@@ -4,7 +4,7 @@ import {
   type SdkBuildEnv,
   type SdkEnvironments,
 } from '@fabrikav2/sdk';
-import { envString } from '@fabrikav2/sdk/config-env';
+import { envString, isRevenueCatIosPublicKey } from '@fabrikav2/sdk/config-env';
 import {
   AdMobProvider,
   AppLovinMaxProvider,
@@ -43,6 +43,7 @@ import {
 } from '@fabrikav2/sdk/attribution';
 import adMobPublicConfig from '../../config/admob.public.json';
 import { setMusicPausedForAd } from '../audio/AudioManager';
+import { bootstrapStorage, type BootstrapStorage } from '../platform/bootstrapStorage';
 import { gameState } from '../core/GameState';
 import { readAppLovinConfigForPlatform } from '../ads/AppLovinConfig';
 import { readAdMobIosConfig } from '../ads/AdMobConfig';
@@ -98,6 +99,7 @@ export interface GameSdkContext {
   readonly remoteConfig: RemoteConfigService;
   readonly selection: SdkProviderSelection;
   readonly ownedMirrorStats: () => OwnedAnalyticsMirrorStats;
+  readonly storage: BootstrapStorage;
 }
 
 export interface CreateSdkContextDependencies {
@@ -112,6 +114,7 @@ export interface CreateSdkContextDependencies {
   readonly gameAnalyticsLoader?: GameAnalyticsSdkLoader;
   readonly mirrorTransport?: MirrorTransport;
   readonly adProviderFactories?: AdProviderFactories;
+  readonly storage?: BootstrapStorage;
   readonly logger?: Pick<Console, 'warn'>;
 }
 
@@ -123,6 +126,7 @@ export function createSdkContext(deps: CreateSdkContextDependencies = {}): GameS
   const environments = (deps.resolveEnvironments ?? resolveSdkEnvironments)(buildEnv);
   const platform = normalizePlatform(deps.platform ?? Capacitor.getPlatform());
   const isNativePlatform = deps.isNativePlatform ?? Capacitor.isNativePlatform();
+  const storage = deps.storage ?? bootstrapStorage;
   const logger = deps.logger ?? console;
 
   let analyticsFacade: Analytics<FtdEvent> | null = null;
@@ -170,7 +174,7 @@ export function createSdkContext(deps: CreateSdkContextDependencies = {}): GameS
     appsFlyerConfig: readAppsFlyerConfig(platform, env, buildEnv === 'production'),
   });
   const attributionService = new SdkAttributionService(attributionProvider);
-  const appsFlyerDedupe = createLocalStorageDedupeStore(window.localStorage);
+  const appsFlyerDedupe = createLocalStorageDedupeStore(storage);
   const appsFlyerMapper = new AppsFlyerEventMapper(appsFlyerDedupe);
   forwardAcquisitionValueEvent = async (event): Promise<boolean> => {
     const mapped = appsFlyerMapper.map(event);
@@ -188,7 +192,7 @@ export function createSdkContext(deps: CreateSdkContextDependencies = {}): GameS
     sinks.push(createAppsFlyerAnalyticsProjection({
       forward: forwardAcquisitionValueEvent,
       dedupe: appsFlyerDedupe,
-      storage: window.localStorage,
+      storage,
     }));
   }
 
@@ -201,7 +205,7 @@ export function createSdkContext(deps: CreateSdkContextDependencies = {}): GameS
       url: mirrorConfig.config.endpointUrl,
       publicClientKey: mirrorConfig.config.publicClientKey,
       transport: deps.mirrorTransport ?? fetchMirrorTransport,
-      gameId: 'find_the_dog',
+      gameId: 'find_the_bird',
       env: environments.analytics,
       batchSize: mirrorConfig.config.flushBatchSize,
       maxAttempts: mirrorConfig.config.maxAttempts,
@@ -221,11 +225,18 @@ export function createSdkContext(deps: CreateSdkContextDependencies = {}): GameS
     env: environments.analytics,
     sessionId: createFtdSessionId(),
     sinks,
-    globalParams: { game: 'find_the_dog', platform, build: buildStamp() },
+    globalParams: { game: 'find_the_bird', platform, build: buildStamp() },
   });
 
   const catalogProducts = () => buildShopCatalog().products.map(ftdCatalogProduct);
-  const revenueCatKey = envString(env.VITE_REVENUECAT_IOS_API_KEY);
+  const rawRevenueCatKey = typeof env.VITE_REVENUECAT_IOS_API_KEY === 'string' ? env.VITE_REVENUECAT_IOS_API_KEY : null;
+  const revenueCatKey = envString(rawRevenueCatKey ?? undefined);
+  if (platform === 'ios' && isNativePlatform && revenueCatKey !== null && !isRevenueCatIosPublicKey(rawRevenueCatKey)) {
+    throw new Error('Native iOS requires a valid RevenueCat iOS public key (appl_ plus 27 alphanumeric characters)');
+  }
+  if (buildEnv === 'production' && platform === 'ios' && isNativePlatform && revenueCatKey === null) {
+    throw new Error('Production native iOS requires owner-controlled VITE_REVENUECAT_IOS_API_KEY');
+  }
   let purchaseProvider: PurchaseProvider;
   let iapSelection: SdkProviderSelection['iap'] = 'fake';
   if (platform === 'ios' && isNativePlatform && revenueCatKey !== null) {
@@ -289,6 +300,7 @@ export function createSdkContext(deps: CreateSdkContextDependencies = {}): GameS
       remoteConfig: firebaseRemoteProvider === undefined ? 'static' : 'firebase',
     },
     ownedMirrorStats,
+    storage,
   };
 }
 
@@ -305,6 +317,8 @@ export function installSdkContext(context: GameSdkContext): GameSdkContext {
     attribution,
     providerName: () => context.ads.providerName,
     ownedMirrorStats: context.ownedMirrorStats,
+    storage: context.storage,
+    storageDurability: context.storage.durability,
   });
   // Drain any achievement analytics recovered from a prior session's outbox now
   // that the real sinks are composed (load() never dispatches — KTD6/correction 1).

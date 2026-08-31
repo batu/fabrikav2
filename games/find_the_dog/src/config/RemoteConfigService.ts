@@ -12,6 +12,7 @@ import {
   type RemoteConfigValues,
   type RemoteConfigValueKey,
 } from './remoteConfigSchema';
+import { bootstrapStorage } from '../platform/bootstrapStorage';
 
 export type RemoteConfigServiceState = 'local-only' | 'fetching' | 'ready' | 'fetch-failed';
 export type RemoteConfigValueSource = 'default' | 'remote' | 'local';
@@ -41,11 +42,12 @@ export interface RemoteConfigProviderMetadata {
 function readLocalTestOverrides(): Partial<RemoteConfigValues> {
   if (typeof window === 'undefined' || typeof document === 'undefined') return {};
   if (import.meta.env.DEV !== true) return {};
-  const storage = window.localStorage;
-  if (storage === undefined) return {};
-  const raw = storage.getItem('ftd_remote_config_test_overrides');
-  if (raw === null) return {};
-  return JSON.parse(raw) as Partial<RemoteConfigValues>;
+  try {
+    const raw = bootstrapStorage.getItem('ftd_remote_config_test_overrides');
+    return raw === null ? {} : JSON.parse(raw) as Partial<RemoteConfigValues>;
+  } catch {
+    return {};
+  }
 }
 
 export class RemoteConfigService {

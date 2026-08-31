@@ -51,7 +51,7 @@ describe('FTD SdkContext composition matrix', () => {
       isNativePlatform: true,
       env: {
         PROD: true,
-        VITE_REVENUECAT_IOS_API_KEY: 'appl_live_public_key',
+        VITE_REVENUECAT_IOS_API_KEY: 'appl_A1b2C3d4E5f6G7h8I9j0K1l2M3n',
         VITE_GAMEANALYTICS_IOS_GAME_KEY: 'g'.repeat(32),
         VITE_GAMEANALYTICS_IOS_SECRET_KEY: 's'.repeat(40),
         VITE_ADJUST_IOS_ENABLED: 'true',
@@ -91,6 +91,7 @@ describe('FTD SdkContext composition matrix', () => {
       env: {
         VITE_ADMOB_IOS_ENABLED: 'true',
         VITE_ADMOB_IOS_BANNER_ID: 'not-an-ad-unit-id',
+        VITE_REVENUECAT_IOS_API_KEY: 'appl_A1b2C3d4E5f6G7h8I9j0K1l2M3n',
       },
     });
     expect(context.selection.ads).toBe('disabled');
@@ -193,6 +194,7 @@ describe('FTD SdkContext composition matrix', () => {
         VITE_ATTRIBUTION_PROVIDER: 'disabled',
         VITE_ADJUST_IOS_ENABLED: 'true',
         VITE_ADJUST_IOS_APP_TOKEN: 'a'.repeat(12),
+        VITE_REVENUECAT_IOS_API_KEY: 'appl_A1b2C3d4E5f6G7h8I9j0K1l2M3n',
       },
     });
 
@@ -203,6 +205,31 @@ describe('FTD SdkContext composition matrix', () => {
       platform: 'ios',
       env: { VITE_ATTRIBUTION_PROVIDER: 'adjusted' },
     })).toThrow('Invalid configuration choice');
+  });
+
+  it('uses the bird identity in analytics events and owned mirror batches', async () => {
+    const mirrorTransport = vi.fn(async (_request: { body: string }) => ({ ok: true, status: 200 }));
+    const context = createSdkContext({
+      buildEnv: 'development',
+      platform: 'web',
+      env: {
+        VITE_FTD_OWNED_ANALYTICS_MIRROR_URL: 'https://analytics.example.com/ingest',
+        VITE_FTD_OWNED_ANALYTICS_MIRROR_PUBLIC_CLIENT_KEY: 'public_client_key_1234',
+      },
+      mirrorTransport,
+      storage: {
+        durability: 'durable',
+        getItem: () => null,
+        setItem: () => {},
+      },
+    });
+
+    context.analytics.track('app_open');
+    expect(context.analyticsRing.drain()[0]?.params.game).toBe('find_the_bird');
+    await context.analytics.flush();
+    const request = mirrorTransport.mock.calls[0]?.[0];
+    expect(request).toBeDefined();
+    expect(JSON.parse(request!.body).game_id).toBe('find_the_bird');
   });
 
   it('enables the owned mirror only when URL and public key are both valid', () => {

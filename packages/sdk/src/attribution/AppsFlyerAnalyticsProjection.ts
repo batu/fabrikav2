@@ -24,8 +24,9 @@ export function createAppsFlyerAnalyticsProjection(options: {
         return;
       }
       if (event.name === 'app_open') {
-        const firstSeen = readFirstSeen(options.storage, now());
-        const day = Math.floor((now() - firstSeen) / 86_400_000) + 1;
+        const openedAt = now();
+        const firstSeen = readFirstSeen(options.storage, openedAt);
+        const day = Math.floor((openedAt - firstSeen) / 86_400_000);
         if (RETENTION_DAYS.has(day)) forwardOnce(options, inFlight, `retention:${day}`, { type: 'retention_milestone', day: day as 1 | 3 | 7 | 14 | 30 });
       }
     },

@@ -51,7 +51,7 @@ describe('FTD SdkContext composition matrix', () => {
       isNativePlatform: true,
       env: {
         PROD: true,
-        VITE_REVENUECAT_IOS_API_KEY: 'appl_live_public_key',
+        VITE_REVENUECAT_IOS_API_KEY: 'appl_A1b2C3d4E5f6G7h8I9j0K1l2M3n',
         VITE_GAMEANALYTICS_IOS_GAME_KEY: 'g'.repeat(32),
         VITE_GAMEANALYTICS_IOS_SECRET_KEY: 's'.repeat(40),
         VITE_ADJUST_IOS_ENABLED: 'true',
@@ -88,7 +88,10 @@ describe('FTD SdkContext composition matrix', () => {
       buildEnv: 'production',
       platform: 'ios',
       isNativePlatform: true,
-      env: { VITE_ADMOB_IOS_ENABLED: 'true' },
+      env: {
+        VITE_ADMOB_IOS_ENABLED: 'true',
+        VITE_REVENUECAT_IOS_API_KEY: 'appl_A1b2C3d4E5f6G7h8I9j0K1l2M3n',
+      },
     });
     expect(context.selection.ads).toBe('disabled');
   });
@@ -169,6 +172,7 @@ describe('FTD SdkContext composition matrix', () => {
       env: {
         VITE_ATTRIBUTION_PROVIDER: 'appsflyer', VITE_APPSFLYER_ENABLED: 'true',
         VITE_APPSFLYER_DEV_KEY: 'owner-key-for-test', VITE_APPSFLYER_APPLE_APP_ID: '6772100729',
+        VITE_REVENUECAT_IOS_API_KEY: 'appl_A1b2C3d4E5f6G7h8I9j0K1l2M3n',
       },
     });
     expect(context.selection.attribution).toBe('appsflyer');
