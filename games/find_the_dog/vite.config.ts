@@ -48,7 +48,9 @@ function injectIosEnvironment(root: string): void {
   for (const [key, value] of readEnvFile(path.join(root, '.env.ios.local')).values) {
     if (!canonicalEnvironmentKeys.has(key) || !keyAppliesToMode(key, 'ios')) continue;
     injectedEnvironment.set(key, process.env[key]);
-    process.env[key] = value;
+    // Explicit launcher values own one-off lanes such as verify-device's
+    // harness build; the protected file supplies only missing defaults.
+    if (process.env[key] === undefined) process.env[key] = value;
   }
 }
 
