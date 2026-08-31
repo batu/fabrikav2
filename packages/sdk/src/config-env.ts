@@ -9,6 +9,11 @@ export function envString(value: string | boolean | undefined): string | null {
   return trimmed.length > 0 ? trimmed : null;
 }
 
+/** RevenueCat production iOS public key (observed owner-console shape). */
+export function isRevenueCatIosPublicKey(value: string | null | undefined): value is string {
+  return typeof value === 'string' && /^appl_[A-Za-z0-9]{27}$/.test(value);
+}
+
 export function requiredValue(
   value: string | null,
   diagnostic = 'Config value was read after missing-key validation.',

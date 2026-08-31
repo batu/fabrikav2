@@ -17,11 +17,27 @@ describe('AppsFlyer analytics projection', () => {
       { type: 'progression_milestone', level: 5 },
     ]);
   });
-  it('projects bounded retention days from first seen time', async () => {
+  it('emits D1 only after a genuine next-day return and never duplicates it', async () => {
     const forward = vi.fn(async (_event: unknown) => true); const storage = memory(); const keys = new Set<string>(); let now = 1_000;
     const sink = createAppsFlyerAnalyticsProjection({ forward, dedupe: { has: (k) => keys.has(k), add: (k) => { keys.add(k); } }, storage, now: () => now });
-    sink.emit(event('app_open')); await Promise.resolve(); now += 2 * 86_400_000; sink.emit(event('app_open')); await Promise.resolve();
-    expect(forward).toHaveBeenNthCalledWith(1, { type: 'retention_milestone', day: 1 });
-    expect(forward).toHaveBeenNthCalledWith(2, { type: 'retention_milestone', day: 3 });
+
+    sink.emit(event('app_open')); await Promise.resolve();
+    now += 86_400_000 - 1; sink.emit(event('app_open')); await Promise.resolve();
+    expect(forward).not.toHaveBeenCalled();
+
+    now += 1; sink.emit(event('app_open')); sink.emit(event('app_open')); await Promise.resolve();
+    expect(forward).toHaveBeenCalledTimes(1);
+    expect(forward).toHaveBeenCalledWith({ type: 'retention_milestone', day: 1 });
+  });
+
+  it('uses exact elapsed-day boundaries for later retention milestones', async () => {
+    const forward = vi.fn(async (_event: unknown) => true); const storage = memory(); const keys = new Set<string>(); let now = 1_000;
+    const sink = createAppsFlyerAnalyticsProjection({ forward, dedupe: { has: (k) => keys.has(k), add: (k) => { keys.add(k); } }, storage, now: () => now });
+
+    sink.emit(event('app_open')); await Promise.resolve();
+    now += 3 * 86_400_000 - 1; sink.emit(event('app_open')); await Promise.resolve();
+    expect(forward).not.toHaveBeenCalled();
+    now += 1; sink.emit(event('app_open')); await Promise.resolve();
+    expect(forward).toHaveBeenCalledWith({ type: 'retention_milestone', day: 3 });
   });
 });

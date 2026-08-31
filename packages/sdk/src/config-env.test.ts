@@ -1,5 +1,22 @@
 import { describe, expect, it } from 'vitest';
-import { parseChoiceEnv } from './config-env.ts';
+import { isRevenueCatIosPublicKey, parseChoiceEnv } from './config-env.ts';
+
+describe('isRevenueCatIosPublicKey', () => {
+  it('accepts only the observed production iOS public key shape', () => {
+    expect(isRevenueCatIosPublicKey(`appl_${'A1b2C3d4E5f6G7h8I9j0K1l2M3n'}`)).toBe(true);
+  });
+
+  it.each([
+    '__SET_IN_LOCAL_ENV__',
+    'test_abcdefghijklmnopqrstuvwxyz0',
+    'goog_abcdefghijklmnopqrstuvwxyz0',
+    ` appl_${'a'.repeat(27)}`,
+    `appl_${'a'.repeat(26)}`,
+    `appl_${'a'.repeat(26)}-`,
+  ])('rejects placeholder, test, wrong-prefix, whitespace, or malformed key: %s', (value) => {
+    expect(isRevenueCatIosPublicKey(value)).toBe(false);
+  });
+});
 
 describe('parseChoiceEnv', (): void => {
   const choices = ['auto', 'enabled', 'disabled'] as const;

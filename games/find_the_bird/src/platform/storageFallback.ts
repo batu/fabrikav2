@@ -11,6 +11,7 @@
  */
 
 import { localStorageOrNull } from './localStorage';
+import type { FirstOpenStorageDurability } from '@fabrikav2/sdk/analytics';
 
 function createMemoryStorage(): Storage {
   const entries = new Map<string, string>();
@@ -49,9 +50,9 @@ function storageIsUsable(): boolean {
   }
 }
 
-function installStorageFallback(): void {
-  if (typeof window === 'undefined') return;
-  if (storageIsUsable()) return;
+function installStorageFallback(): FirstOpenStorageDurability {
+  if (typeof window === 'undefined') return 'volatile';
+  if (storageIsUsable()) return 'durable';
   try {
     const memoryStorage = createMemoryStorage();
     Object.defineProperty(window, 'localStorage', {
@@ -62,8 +63,8 @@ function installStorageFallback(): void {
     // Callers that guard storage access still work if the property cannot be
     // replaced; unguarded reads will surface the original platform error.
   }
+  return 'volatile';
 }
 
-installStorageFallback();
-
-export {};
+/** Durability of the storage selected for this runtime launch. */
+export const runtimeStorageDurability = installStorageFallback();

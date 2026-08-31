@@ -1,3 +1,4 @@
+import fs from 'node:fs';
 import path from 'node:path';
 
 import { readEnvFile } from './env.mjs';
@@ -6,6 +7,24 @@ export const SUPPORTED_MODES = Object.freeze(['ios', 'android']);
 const MODES = new Set(SUPPORTED_MODES);
 const TRUE_VALUES = new Set(['true', '1', 'yes', 'on']);
 const FALSE_VALUES = new Set(['false', '0', 'no', 'off']);
+const FORBIDDEN_FIND_RELEASE_RESIDUE = /playwill(?:\.io)?|basegames\.net|hidden-object-base/i;
+const ACTIVE_ROOT_FILES = new Set([
+  '.env.example',
+  'capacitor.config.ts',
+  'game.config.ts',
+  'index.html',
+  'package.json',
+  'vite.config.ts',
+]);
+// These are the textual roots consumed by the Vite/native build or copied into
+// the shipped bundle. Historical/test/native generated trees stay excluded.
+const ACTIVE_DIRECTORIES = new Set(['config', 'design', 'native-resources', 'public', 'src']);
+const HISTORICAL_DIRECTORY_NAMES = new Set(['__snapshots__', 'docs', 'test', 'tests']);
+const TEXT_FILE_EXTENSIONS = new Set([
+  '.cjs', '.css', '.cts', '.html', '.js', '.json', '.jsx', '.md', '.mjs', '.mts',
+  '.plist', '.svg', '.swift', '.toml', '.ts', '.tsx', '.txt', '.webmanifest',
+  '.xcprivacy', '.xml', '.yaml', '.yml',
+]);
 
 function sorted(values) {
   return [...new Set(values)].sort();
@@ -38,6 +57,10 @@ function validateResolvedValues({ values, mode, policy, placeholders = new Map()
 
   policy.validateConditional({ values, mode, booleanValue, requireValue, invalidKeys });
 
+  for (const [key, value] of values) {
+    if (FORBIDDEN_FIND_RELEASE_RESIDUE.test(value)) invalidKeys.push(key);
+  }
+
   return {
     missingKeys: sorted(missingKeys),
     invalidKeys: sorted(invalidKeys),
@@ -57,6 +80,38 @@ function findEmptyOverrideKeys(baseValues, overrideAssignments, requiredKeys = [
 
 function readTemplateValues(gameRoot) {
   return readEnvFile(path.join(gameRoot, '.env.example')).values;
+}
+
+function findActiveResidueFiles(gameRoot) {
+  const candidates = [];
+  for (const fileName of ACTIVE_ROOT_FILES) candidates.push(path.join(gameRoot, fileName));
+  for (const directory of ACTIVE_DIRECTORIES) {
+    const root = path.join(gameRoot, directory);
+    if (!fs.existsSync(root)) continue;
+    const pending = [root];
+    while (pending.length > 0) {
+      const current = pending.pop();
+      for (const entry of fs.readdirSync(current, { withFileTypes: true })) {
+        const entryPath = path.join(current, entry.name);
+        if (entry.isDirectory()) {
+          const isHistoricalDirectory = directory !== 'public' && HISTORICAL_DIRECTORY_NAMES.has(entry.name);
+          if (!isHistoricalDirectory) pending.push(entryPath);
+        } else if (
+          TEXT_FILE_EXTENSIONS.has(path.extname(entry.name)) &&
+          (directory === 'public' || !/\.(?:spec|test)\.[cm]?[jt]s$/.test(entry.name))
+        ) {
+          candidates.push(entryPath);
+        }
+      }
+    }
+  }
+
+  return sorted(candidates.flatMap((filePath) => {
+    if (!fs.existsSync(filePath) || !fs.statSync(filePath).isFile()) return [];
+    return FORBIDDEN_FIND_RELEASE_RESIDUE.test(fs.readFileSync(filePath, 'utf8'))
+      ? [path.relative(gameRoot, filePath)]
+      : [];
+  }));
 }
 
 export function validateEnvironment({ gameRoot, mode, policy, environment = process.env }) {
@@ -100,14 +155,17 @@ export function validateEnvironment({ gameRoot, mode, policy, environment = proc
     policy,
     placeholders: readTemplateValues(gameRoot),
   });
+  const residueFiles = findActiveResidueFiles(gameRoot);
   return {
     ok:
       emptyOverrideKeys.length === 0 &&
       resolved.missingKeys.length === 0 &&
-      resolved.invalidKeys.length === 0,
+      resolved.invalidKeys.length === 0 &&
+      residueFiles.length === 0,
     mode,
     ...resolved,
     emptyOverrideKeys,
+    residueFiles,
   };
 }
 
@@ -128,6 +186,7 @@ function syntheticFixture(policy) {
   // generic placeholder used for opaque credentials.
   values.set('VITE_AD_PROVIDER', 'auto');
   values.set('VITE_ATTRIBUTION_PROVIDER', 'auto');
+  values.set('VITE_REVENUECAT_IOS_API_KEY', 'appl_A1b2C3d4E5f6G7h8I9j0K1l2M3n');
   // Capture-tour script is shell-env-only; a persisted value is invalid by
   // policy, so the all-keys synthetic fixture must leave it unset.
   values.set('VITE_INSITU_TOUR', '');
