@@ -3,16 +3,22 @@ dependencies {
 }
 
 android {
-    defaultConfig { applicationId 'com.basegamelab.findthedog'; versionCode 1; versionName '1.0.4' }
+    defaultConfig {
+        applicationId 'com.basegamelab.findthedog'
+        versionCode Integer.parseInt(System.getenv('PLAY_VERSION_CODE') ?: '1')
+        versionName System.getenv('PLAY_VERSION_NAME') ?: '1.0.4'
+        manifestPlaceholders.admobApplicationId = System.getenv('VITE_ADMOB_ANDROID_APP_ID') ?: ''
+    }
     signingConfigs {
         release {
             def keyFile = System.getenv('PLAY_UPLOAD_KEYSTORE_PATH')
             def keyAliasValue = System.getenv('PLAY_UPLOAD_KEY_ALIAS')
             def keyPasswordValue = System.getenv('PLAY_UPLOAD_KEY_PASSWORD')
             def storePasswordValue = System.getenv('PLAY_UPLOAD_STORE_PASSWORD')
-            if (!keyFile || !keyAliasValue || !keyPasswordValue || !storePasswordValue) throw new GradleException('Play upload signing environment is incomplete')
-            storeFile file(keyFile); keyAlias keyAliasValue; keyPassword keyPasswordValue; storePassword storePasswordValue
+            if (keyFile && keyAliasValue && keyPasswordValue && storePasswordValue) {
+                storeFile file(keyFile); keyAlias keyAliasValue; keyPassword keyPasswordValue; storePassword storePasswordValue
+            }
         }
     }
-    buildTypes { release { signingConfig signingConfigs.release; debuggable false } }
+    buildTypes { release { if (System.getenv('PLAY_UPLOAD_KEYSTORE_PATH')) signingConfig signingConfigs.release; debuggable false } }
 }

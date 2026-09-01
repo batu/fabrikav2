@@ -41,7 +41,7 @@ export function computeIncludePlugins(env: EnvLike, adMobPublicConfig?: AdMobIos
   if (adMobIosConfigPresent(env, adMobPublicConfig) || readAdMobConfig('android', env).enabled) {
     plugins.push('@capacitor-community/admob');
   }
-  if (env.VITE_FIREBASE_CRASHLYTICS_ENABLED === 'true' && firebaseConfigPresentInEnv(env)) {
+  if (env.VITE_FIREBASE_CRASHLYTICS_ENABLED === 'true' && (firebaseConfigPresentInEnv(env) || present(env.FIREBASE_ANDROID_CONFIG_PATH))) {
     plugins.push('@capacitor-firebase/crashlytics');
   }
   return plugins;

@@ -50,6 +50,11 @@ describe('capacitor includePlugins allowlist', () => {
     })).toContain('@capacitor-firebase/crashlytics');
   });
 
+  it('includes Crashlytics for an Android config materialization seam', () => {
+    expect(computeIncludePlugins({ VITE_FIREBASE_CRASHLYTICS_ENABLED: 'true', FIREBASE_ANDROID_CONFIG_PATH: '/protected/google-services.json' }))
+      .toContain('@capacitor-firebase/crashlytics');
+  });
+
   it('excludes Crashlytics for partial config or explicit disablement', () => {
     expect(computeIncludePlugins({
       VITE_FIREBASE_CRASHLYTICS_ENABLED: 'true',
