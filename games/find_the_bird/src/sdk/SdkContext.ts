@@ -229,7 +229,8 @@ export function createSdkContext(deps: CreateSdkContextDependencies = {}): GameS
   });
 
   const catalogProducts = () => buildShopCatalog().products.map(ftdCatalogProduct);
-  const rawRevenueCatKey = typeof env.VITE_REVENUECAT_IOS_API_KEY === 'string' ? env.VITE_REVENUECAT_IOS_API_KEY : null;
+  const revenueCatEnvName = platform === 'android' ? 'VITE_REVENUECAT_ANDROID_API_KEY' : 'VITE_REVENUECAT_IOS_API_KEY';
+  const rawRevenueCatKey = typeof env[revenueCatEnvName] === 'string' ? env[revenueCatEnvName] : null;
   const revenueCatKey = envString(rawRevenueCatKey ?? undefined);
   if (platform === 'ios' && isNativePlatform && revenueCatKey !== null && !isRevenueCatIosPublicKey(rawRevenueCatKey)) {
     throw new Error('Native iOS requires a valid RevenueCat iOS public key (appl_ plus 27 alphanumeric characters)');
@@ -237,9 +238,15 @@ export function createSdkContext(deps: CreateSdkContextDependencies = {}): GameS
   if (buildEnv === 'production' && platform === 'ios' && isNativePlatform && revenueCatKey === null) {
     throw new Error('Production native iOS requires owner-controlled VITE_REVENUECAT_IOS_API_KEY');
   }
+  if (platform === 'android' && isNativePlatform && revenueCatKey !== null && !isRevenueCatAndroidPublicKey(rawRevenueCatKey)) {
+    throw new Error('Native Android requires a valid RevenueCat Android public key (goog_ plus 28 alphanumeric characters)');
+  }
+  if (buildEnv === 'production' && platform === 'android' && isNativePlatform && revenueCatKey === null) {
+    throw new Error('Production native Android requires owner-controlled VITE_REVENUECAT_ANDROID_API_KEY');
+  }
   let purchaseProvider: PurchaseProvider;
   let iapSelection: SdkProviderSelection['iap'] = 'fake';
-  if (platform === 'ios' && isNativePlatform && revenueCatKey !== null) {
+  if ((platform === 'ios' || platform === 'android') && isNativePlatform && revenueCatKey !== null) {
     purchaseProvider = new RevenueCatProvider({
       plugin: createLazyRevenueCatPlugin(deps.revenueCatLoader ?? (() => import('@revenuecat/purchases-capacitor'))),
       catalogProducts,
@@ -247,8 +254,8 @@ export function createSdkContext(deps: CreateSdkContextDependencies = {}): GameS
     });
     iapSelection = 'revenuecat';
   } else {
-    if (platform === 'ios' && isNativePlatform && revenueCatKey === null) {
-      logger.warn('[iap] RELEASE BLOCKER: native iOS is using FakePurchaseProvider because VITE_REVENUECAT_IOS_API_KEY is absent');
+    if ((platform === 'ios' || platform === 'android') && isNativePlatform && revenueCatKey === null) {
+      logger.warn(`[iap] RELEASE BLOCKER: native ${platform} is using FakePurchaseProvider because ${revenueCatEnvName} is absent`);
     }
     purchaseProvider = new FakePurchaseProvider({
       products: buildShopCatalog().products.map(ftdDefaultStoreProduct),
@@ -258,8 +265,8 @@ export function createSdkContext(deps: CreateSdkContextDependencies = {}): GameS
   const iapComposition: FindTheDogIapComposition = {
     // Preserve the current seeded fake web service as ready while still selecting
     // the provider from the real production matrix.
-    isNativePlatform: () => iapSelection === 'fake' ? true : isNativePlatform,
-    platform: () => iapSelection === 'fake' ? 'ios' : platform,
+    isNativePlatform: () => isNativePlatform,
+    platform: () => platform,
     apiKey: () => apiKey,
     provider: () => purchaseProvider,
   };
@@ -344,6 +351,10 @@ async function fetchMirrorTransport(request: Parameters<MirrorTransport>[0]): Pr
     body: request.body,
   });
   return { ok: response.ok, status: response.status };
+}
+
+function isRevenueCatAndroidPublicKey(value: string | null | undefined): value is string {
+  return typeof value === 'string' && /^goog_[A-Za-z0-9]{28}$/.test(value);
 }
 
 function createLazyRevenueCatPlugin(loader: RevenueCatLoader): RevenueCatPurchasesPlugin {
