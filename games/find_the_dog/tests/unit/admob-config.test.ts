@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { readAdMobIosConfig } from '../../src/ads/AdMobConfig';
+import { readAdMobConfig, readAdMobIosConfig } from '../../src/ads/AdMobConfig';
 
 const complete = {
   VITE_ADMOB_IOS_ENABLED: 'true',
@@ -88,5 +88,21 @@ describe('readAdMobIosConfig', () => {
       VITE_ADMOB_IOS_TEST_MODE: 'true',
       VITE_ADMOB_IOS_TEST_DEVICE_IDS: 'device-a, device-b',
     })).toMatchObject({ enabled: true, config: { isTesting: true, testingDevices: ['device-a', 'device-b'] } });
+  });
+});
+
+describe('readAdMobConfig Android', () => {
+  it('consumes the protected Android variables without falling back to samples', () => {
+    const config = readAdMobConfig('android', {
+      VITE_ADMOB_ANDROID_ENABLED: 'true',
+      VITE_ADMOB_ANDROID_APP_ID: 'ca-app-pub-1234567890123456~4444444444',
+      VITE_ADMOB_ANDROID_BANNER_ID: 'ca-app-pub-1234567890123456/5555555555',
+      VITE_ADMOB_ANDROID_INTERSTITIAL_ID: 'ca-app-pub-1234567890123456/6666666666',
+      VITE_ADMOB_ANDROID_REWARDED_ID: 'ca-app-pub-1234567890123456/7777777777',
+    });
+    expect(config).toMatchObject({
+      enabled: true,
+      config: { androidRewardedAdUnitId: 'ca-app-pub-1234567890123456/7777777777', iosRewardedAdUnitId: '' },
+    });
   });
 });

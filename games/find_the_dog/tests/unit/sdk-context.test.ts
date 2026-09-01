@@ -219,4 +219,18 @@ describe('FTD SdkContext composition matrix', () => {
     expect(missingKey.selection.analyticsSinks).not.toContain('owned-mirror');
     expect(missingKey.ownedMirrorStats().disabledReason).toContain('missing');
   });
+  it('selects Base Game Lab AdMob for configured native Android', () => {
+    const context = createSdkContext({
+      buildEnv: 'production', platform: 'android', isNativePlatform: true,
+      env: {
+        VITE_REVENUECAT_ANDROID_API_KEY: `goog_${'a'.repeat(28)}`,
+        VITE_ADMOB_ANDROID_ENABLED: 'true',
+        VITE_ADMOB_ANDROID_APP_ID: 'ca-app-pub-1234567890123456~4444444444',
+        VITE_ADMOB_ANDROID_BANNER_ID: 'ca-app-pub-1234567890123456/5555555555',
+        VITE_ADMOB_ANDROID_INTERSTITIAL_ID: 'ca-app-pub-1234567890123456/6666666666',
+        VITE_ADMOB_ANDROID_REWARDED_ID: 'ca-app-pub-1234567890123456/7777777777',
+      },
+    });
+    expect(context.selection.ads).toBe('admob');
+  });
 });

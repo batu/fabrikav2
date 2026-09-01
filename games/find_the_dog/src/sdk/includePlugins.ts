@@ -1,4 +1,4 @@
-import { adMobIosConfigPresent, type AdMobIosPublicConfig } from '../ads/AdMobConfig';
+import { adMobIosConfigPresent, readAdMobConfig, type AdMobIosPublicConfig } from '../ads/AdMobConfig';
 
 // Capacitor loads every included native plugin at WebView start. The
 // Firebase native plugins configure FirebaseApp during native startup and can
@@ -38,7 +38,7 @@ export function firebaseConfigPresentInEnv(env: EnvLike): boolean {
  * enablement and complete Firebase config. Analytics is deliberately absent. */
 export function computeIncludePlugins(env: EnvLike, adMobPublicConfig?: AdMobIosPublicConfig): string[] {
   const plugins = [...ALWAYS_INCLUDED_PLUGINS];
-  if (adMobIosConfigPresent(env, adMobPublicConfig)) {
+  if (adMobIosConfigPresent(env, adMobPublicConfig) || readAdMobConfig('android', env).enabled) {
     plugins.push('@capacitor-community/admob');
   }
   if (env.VITE_FIREBASE_CRASHLYTICS_ENABLED === 'true' && firebaseConfigPresentInEnv(env)) {

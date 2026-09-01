@@ -28,6 +28,16 @@ describe('capacitor includePlugins allowlist', () => {
     })).not.toContain('@capacitor-community/admob');
   });
 
+  it('includes AdMob for complete Android configuration', () => {
+    expect(computeIncludePlugins({
+      VITE_ADMOB_ANDROID_ENABLED: 'true',
+      VITE_ADMOB_ANDROID_APP_ID: 'ca-app-pub-1234567890123456~1234567890',
+      VITE_ADMOB_ANDROID_BANNER_ID: 'ca-app-pub-1234567890123456/1111111111',
+      VITE_ADMOB_ANDROID_INTERSTITIAL_ID: 'ca-app-pub-1234567890123456/2222222222',
+      VITE_ADMOB_ANDROID_REWARDED_ID: 'ca-app-pub-1234567890123456/3333333333',
+    })).toContain('@capacitor-community/admob');
+  });
+
   it('never includes Firebase Analytics, even when legacy Firebase env is complete', () => {
     expect(computeIncludePlugins(completeFirebaseEnv)).not.toContain('@capacitor-firebase/analytics');
   });

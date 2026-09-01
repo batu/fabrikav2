@@ -7,13 +7,9 @@ import {
 import { envString, isRevenueCatIosPublicKey } from '@fabrikav2/sdk/config-env';
 import {
   AdMobProvider,
-  AppLovinMaxProvider,
-  createAdProvider,
   defaultAdProviderFactories,
-  readAdProviderChoice,
   type AdProvider as SdkAdProvider,
   type AdProviderFactories,
-  type AppLovinConfigResult as SdkAppLovinConfigResult,
 } from '@fabrikav2/sdk/ads';
 import {
   createAnalytics,
@@ -45,8 +41,7 @@ import adMobPublicConfig from '../../config/admob.public.json';
 import { setMusicPausedForAd } from '../audio/AudioManager';
 import { bootstrapStorage, type BootstrapStorage } from '../platform/bootstrapStorage';
 import { gameState } from '../core/GameState';
-import { readAppLovinConfigForPlatform } from '../ads/AppLovinConfig';
-import { readAdMobIosConfig } from '../ads/AdMobConfig';
+import { readAdMobConfig } from '../ads/AdMobConfig';
 import { configureAdService } from '../ads/Service';
 import {
   analytics,
@@ -131,36 +126,22 @@ export function createSdkContext(deps: CreateSdkContextDependencies = {}): GameS
 
   let analyticsFacade: Analytics<FtdEvent> | null = null;
   let forwardAcquisitionValueEvent: (event: Parameters<AppsFlyerEventMapper['map']>[0]) => Promise<boolean> = async () => false;
-  const appLovinConfig: SdkAppLovinConfigResult = readAppLovinConfigForPlatform('android', env);
-  const adMobConfig = readAdMobIosConfig(env, adMobPublicConfig);
+  const adMobConfig = readAdMobConfig(platform === 'android' ? 'android' : 'ios', env, platform === 'ios' ? adMobPublicConfig : undefined);
   const lifecycle = {
     onFullScreenAdStarted: (): void => setMusicPausedForAd(true),
     onFullScreenAdFinished: (): void => setMusicPausedForAd(false),
   };
-  const baseFactories = deps.adProviderFactories;
-  const adFactories: AdProviderFactories = baseFactories ?? {
-    createAdMobProvider: platform === 'ios'
-      ? (adLifecycle) => isNativePlatform && adMobConfig.enabled
-        ? new AdMobProvider(adMobConfig.config, {
-            lifecycle: adLifecycle,
-            onAdRevenuePaid: (event) => forwardAcquisitionValueEvent({
-              type: 'ad_revenue', revenue: event.revenue, currency: event.currency,
-              format: event.format, placement: event.placement, impressionId: event.impressionId,
-            }),
-          })
-        : defaultAdProviderFactories.createDisabledProvider(`AdMob unavailable: ${adMobConfig.enabled ? 'not running on a native platform' : adMobConfig.reason}`)
-      : defaultAdProviderFactories.createAdMobProvider,
-    createAppLovinMaxProvider: (config, adLifecycle) => new AppLovinMaxProvider(config, {
-      lifecycle: adLifecycle,
-      onAdRevenuePaid: (event): void => {
-        analyticsFacade?.track('ad_revenue_paid', { ...event });
-      },
-    }),
-    createDisabledProvider: defaultAdProviderFactories.createDisabledProvider,
-  };
-  const configuredAdChoice = readAdProviderChoice(env.VITE_AD_PROVIDER);
-  const adChoice = configuredAdChoice === 'auto' && platform === 'ios' ? 'admob' : configuredAdChoice;
-  const ads = createAdProvider(platform, appLovinConfig, adFactories, lifecycle, adChoice);
+  const ads = platform === 'ios' || platform === 'android'
+    ? isNativePlatform && adMobConfig.enabled
+      ? new AdMobProvider(adMobConfig.config, {
+          lifecycle,
+          onAdRevenuePaid: (event) => forwardAcquisitionValueEvent({
+            type: 'ad_revenue', revenue: event.revenue, currency: event.currency,
+            format: event.format, placement: event.placement, impressionId: event.impressionId,
+          }),
+        })
+      : defaultAdProviderFactories.createDisabledProvider(`AdMob unavailable: ${adMobConfig.enabled ? 'not running on a native platform' : adMobConfig.reason}`)
+    : defaultAdProviderFactories.createDisabledProvider(`ads disabled on ${platform}`);
 
   const adjustConfig = readAdjustIosConfig(env, buildEnv === 'production');
   const resolvedAdjustConfig = adjustConfig.enabled

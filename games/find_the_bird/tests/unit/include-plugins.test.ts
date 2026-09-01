@@ -43,6 +43,16 @@ describe('capacitor includePlugins allowlist', () => {
     })).toContain('@capacitor-community/admob');
   });
 
+  it('includes AdMob for complete Android configuration', () => {
+    expect(computeIncludePlugins({
+      VITE_ADMOB_ANDROID_ENABLED: 'true',
+      VITE_ADMOB_ANDROID_APP_ID: 'ca-app-pub-1234567890123456~1234567890',
+      VITE_ADMOB_ANDROID_BANNER_ID: 'ca-app-pub-1234567890123456/1111111111',
+      VITE_ADMOB_ANDROID_INTERSTITIAL_ID: 'ca-app-pub-1234567890123456/2222222222',
+      VITE_ADMOB_ANDROID_REWARDED_ID: 'ca-app-pub-1234567890123456/3333333333',
+    })).toContain('@capacitor-community/admob');
+  });
+
   it('includes AdMob from committed public defaults when sync-time env is absent', () => {
     expect(computeIncludePlugins({}, publicAdMobConfig)).toContain('@capacitor-community/admob');
   });
