@@ -498,23 +498,28 @@ describe('canonical template', () => {
 });
 
 describe('Vite mode configuration', () => {
-  it('force-loads iOS values, restores them for later modes, and exposes only canonical prefixes', () => {
+  it('preserves launcher overrides, fills missing iOS defaults, restores later modes, and exposes only canonical prefixes', () => {
     const root = makeGameRoot();
     const key = 'VITE_REVENUECAT_IOS_API_KEY';
+    const missingKey = 'VITE_GAMEANALYTICS_IOS_GAME_KEY';
     const unknownKey = 'VITE_UNKNOWN_BUILD_OVERRIDE';
     const previous = process.env[key];
+    const previousMissing = process.env[missingKey];
     const previousUnknown = process.env[unknownKey];
     process.env[key] = 'ambient-value';
+    delete process.env[missingKey];
     process.env[unknownKey] = 'ambient-unknown';
     write(root, '.env.ios.local', [
       `export ${key}="ios-local-value"`,
+      `${missingKey}=ios-local-default`,
       `${unknownKey}=ios-local-unknown`,
       '',
     ].join('\n'));
 
     try {
       const ios = resolveFindTheDogViteConfig('ios', root);
-      expect(process.env[key]).toBe('ios-local-value');
+      expect(process.env[key]).toBe('ambient-value');
+      expect(process.env[missingKey]).toBe('ios-local-default');
       expect(process.env[unknownKey]).toBe('ambient-unknown');
       expect(ios.publicDir).toBe(false);
       expect(ios.plugins?.some((plugin) => plugin && plugin.name === 'ftd-native-public-bundle')).toBe(true);
@@ -525,6 +530,7 @@ describe('Vite mode configuration', () => {
 
       const android = resolveFindTheDogViteConfig('android', root);
       expect(process.env[key]).toBe('ambient-value');
+      expect(process.env[missingKey]).toBeUndefined();
       expect(android.publicDir).toBe(false);
       expect(android.plugins?.some((plugin) => plugin && plugin.name === 'ftd-native-public-bundle')).toBe(true);
       expect(android.envPrefix).toContain('VITE_REVENUECAT_ANDROID_API_KEY');
@@ -542,6 +548,8 @@ describe('Vite mode configuration', () => {
       resolveFindTheDogViteConfig('android', root);
       if (previous === undefined) delete process.env[key];
       else process.env[key] = previous;
+      if (previousMissing === undefined) delete process.env[missingKey];
+      else process.env[missingKey] = previousMissing;
       if (previousUnknown === undefined) delete process.env[unknownKey];
       else process.env[unknownKey] = previousUnknown;
     }
