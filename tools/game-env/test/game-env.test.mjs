@@ -240,6 +240,28 @@ describe('environment validation', () => {
     expect(JSON.stringify(result)).not.toContain(value);
   });
 
+  it('rejects any noncanonical Firebase project even when it is not the known legacy ID', () => {
+    const root = makeGameRoot();
+    const result = validateEnvironment({
+      gameRoot: root,
+      mode: 'ios',
+      policy,
+      environment: {
+        VITE_FTD_DISABLE_REMOTE_CONFIG: 'false',
+        VITE_FIREBASE_PROJECT_ID: 'other-owned-project',
+        VITE_GAMEANALYTICS_IOS_ENABLED: 'false',
+        VITE_ADJUST_IOS_ENABLED: 'false',
+        VITE_ADMOB_IOS_ENABLED: 'false',
+        VITE_ADMOB_IOS_TEST_MODE: 'false',
+        VITE_REVENUECAT_IOS_API_KEY: 'appl_A1b2C3d4E5f6G7h8I9j0K1l2M3n',
+        VITE_CDN_ENABLED: 'false',
+      },
+    });
+
+    expect(result.ok).toBe(false);
+    expect(result.invalidKeys).toContain('VITE_FIREBASE_PROJECT_ID');
+  });
+
   it('rejects external-stack residue in active runtime and store metadata files', () => {
     const root = makeGameRoot();
     const sourceDir = path.join(root, 'src/platform');

@@ -70,6 +70,8 @@ export const FIND_THE_DOG_ENV_KEYS = Object.freeze([
   'VITE_FTD_OWNED_ANALYTICS_MIRROR_PUBLIC_CLIENT_KEY',
 ]);
 
+const EXPECTED_FIREBASE_PROJECT_ID = 'find-the-dog-basegamelab';
+
 function intentKeys(mode) {
   const keys = ['VITE_FTD_DISABLE_REMOTE_CONFIG', 'VITE_CDN_ENABLED'];
   if (mode === 'ios') {
@@ -88,6 +90,11 @@ function intentKeys(mode) {
 function validateConditional({ values, mode, booleanValue, requireValue, invalidKeys }) {
   validateChoice(values, 'VITE_AD_PROVIDER', ['auto', 'admob', 'applovin-max', 'disabled'], invalidKeys);
   validateChoice(values, 'VITE_ATTRIBUTION_PROVIDER', ['auto', 'appsflyer', 'adjust', 'disabled'], invalidKeys);
+
+  const firebaseProjectId = values.get('VITE_FIREBASE_PROJECT_ID');
+  if (firebaseProjectId && firebaseProjectId.trim() !== EXPECTED_FIREBASE_PROJECT_ID) {
+    invalidKeys.push('VITE_FIREBASE_PROJECT_ID');
+  }
 
   if (mode === 'ios') {
     const key = 'VITE_REVENUECAT_IOS_API_KEY';
@@ -156,6 +163,10 @@ function validateChoice(values, key, allowed, invalidKeys) {
   if (!allowed.includes(value.trim().toLowerCase())) invalidKeys.push(key);
 }
 
+function configureSyntheticFixture(values) {
+  values.set('VITE_FIREBASE_PROJECT_ID', EXPECTED_FIREBASE_PROJECT_ID);
+}
+
 function configureMissingDryRunCase(values, mode) {
   if (mode === 'ios') {
     values.set('VITE_ADMOB_IOS_ENABLED', 'true');
@@ -171,5 +182,6 @@ export const FIND_THE_DOG_POLICY = Object.freeze({
   canonicalKeys: FIND_THE_DOG_ENV_KEYS,
   intentKeys,
   validateConditional,
+  configureSyntheticFixture,
   configureMissingDryRunCase,
 });

@@ -66,6 +66,7 @@ describe('FTD SdkContext composition matrix', () => {
         VITE_FIREBASE_API_KEY: 'firebase-api-key',
         VITE_FIREBASE_PROJECT_ID: 'firebase-project-id',
         VITE_FIREBASE_APP_ID: 'firebase-app-id',
+        VITE_FTD_DISABLE_REMOTE_CONFIG: 'false',
       },
       firebaseAnalyticsLoader: firebase,
       revenueCatLoader: revenuecat,
@@ -81,6 +82,24 @@ describe('FTD SdkContext composition matrix', () => {
     expect(firebase).not.toHaveBeenCalled();
     expect(revenuecat).not.toHaveBeenCalled();
     expect(gameanalytics).not.toHaveBeenCalled();
+  });
+
+  it('uses static defaults when native Remote Config is explicitly disabled', () => {
+    const context = createSdkContext({
+      buildEnv: 'production',
+      platform: 'ios',
+      isNativePlatform: true,
+      env: {
+        VITE_REVENUECAT_IOS_API_KEY: 'appl_A1b2C3d4E5f6G7h8I9j0K1l2M3n',
+        VITE_FIREBASE_API_KEY: 'firebase-api-key',
+        VITE_FIREBASE_PROJECT_ID: 'firebase-project-id',
+        VITE_FIREBASE_APP_ID: 'firebase-app-id',
+        VITE_FTD_DISABLE_REMOTE_CONFIG: 'true',
+      },
+    });
+
+    expect(context.selection.remoteConfig).toBe('static');
+    expect(context.remoteConfig.snapshot().state).toBe('local-only');
   });
 
   it('fails closed instead of falling back to sample IDs when AdMob config is incomplete', () => {

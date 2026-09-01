@@ -4,7 +4,7 @@ import {
   type SdkBuildEnv,
   type SdkEnvironments,
 } from '@fabrikav2/sdk';
-import { isRevenueCatIosPublicKey } from '@fabrikav2/sdk/config-env';
+import { isRevenueCatIosPublicKey, parseBooleanEnv } from '@fabrikav2/sdk/config-env';
 import {
   AdMobProvider,
   AppLovinMaxProvider,
@@ -258,7 +258,8 @@ export function createSdkContext(deps: CreateSdkContextDependencies = {}): GameS
     provider: () => purchaseProvider,
   };
 
-  const firebaseRemoteProvider = platform === 'ios' && isNativePlatform
+  const remoteConfigDisabled = parseBooleanEnv(env.VITE_FTD_DISABLE_REMOTE_CONFIG, false);
+  const firebaseRemoteProvider = platform === 'ios' && isNativePlatform && !remoteConfigDisabled
     ? createFirebaseRemoteConfigProvider()
     : undefined;
   const remoteConfig = createFtdRemoteConfigService(firebaseRemoteProvider, firebaseRemoteProvider);
