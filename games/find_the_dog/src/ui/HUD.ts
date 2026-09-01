@@ -1,3 +1,4 @@
+import { Capacitor } from '@capacitor/core';
 import { gameState } from '../core/GameState';
 import { GAMEPLAY } from '../core/Constants';
 import { playUITap, playHint, setMusicEnabled, setSoundEffectsEnabled } from '../audio/AudioManager';
@@ -1373,6 +1374,10 @@ const TOAST_FADE_MS = 250;
 
 /** Track + dismiss the currently-visible toast so stacked calls replace it. */
 let activeToast: { el: HTMLElement; timers: ReturnType<typeof setTimeout>[] } | null = null;
+type ConnectivityState = 'unknown' | 'online' | 'offline';
+let connectivityState: ConnectivityState = 'unknown';
+let onlineConnectivityListener: (() => void) | null = null;
+let offlineConnectivityListener: (() => void) | null = null;
 
 /**
  * Show a small, time-boxed text toast in the HUD. Replaces any
@@ -1415,22 +1420,39 @@ function showToast(message: string): void {
 }
 
 /**
- * Wire online/offline listeners + sync the indicator icon with
- * navigator.onLine. Called once from initHUD.
+ * Wire transition-based online/offline listeners. WKWebView can report a
+ * false initial navigator.onLine value while native networking is healthy, so
+ * startup stays neutral and only a real offline event reveals the indicator.
  */
-function initConnectivityIndicator(): void {
-  const syncIcon = (): void => {
+export function initConnectivityIndicator(isNativePlatform = Capacitor.isNativePlatform()): void {
+  const render = (): void => {
     const icon = document.getElementById('offline-indicator');
-    icon?.classList.toggle('hidden', navigator.onLine);
+    icon?.classList.toggle('hidden', connectivityState !== 'offline');
   };
-  syncIcon();
+  if (connectivityState === 'unknown' && !isNativePlatform) {
+    connectivityState = navigator.onLine ? 'online' : 'offline';
+  }
+  render();
+  if (onlineConnectivityListener !== null || offlineConnectivityListener !== null) return;
 
-  window.addEventListener('online', (): void => {
-    syncIcon();
+  onlineConnectivityListener = (): void => {
+    connectivityState = 'online';
+    render();
     showToast('Back online');
-  });
-  window.addEventListener('offline', (): void => {
-    syncIcon();
+  };
+  offlineConnectivityListener = (): void => {
+    connectivityState = 'offline';
+    render();
     showToast('Offline — playing cached levels');
-  });
+  };
+  window.addEventListener('online', onlineConnectivityListener);
+  window.addEventListener('offline', offlineConnectivityListener);
+}
+
+export function resetConnectivityIndicatorForTest(): void {
+  if (onlineConnectivityListener !== null) window.removeEventListener('online', onlineConnectivityListener);
+  if (offlineConnectivityListener !== null) window.removeEventListener('offline', offlineConnectivityListener);
+  connectivityState = 'unknown';
+  onlineConnectivityListener = null;
+  offlineConnectivityListener = null;
 }
