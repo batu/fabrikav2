@@ -1,6 +1,6 @@
 import { Capacitor } from '@capacitor/core';
 
-export const ANDROID_STORE_URL = 'https://play.google.com/store/apps/details?id=com.utolye.findthedog';
+export const ANDROID_STORE_URL = 'https://play.google.com/store/apps/details?id=com.basegamelab.findthedog';
 export const DEFAULT_IOS_STORE_URL: string | null = null;
 
 export type StorePlatform = 'android' | 'ios' | 'web';

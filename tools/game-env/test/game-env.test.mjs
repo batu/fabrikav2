@@ -193,6 +193,7 @@ describe('environment validation', () => {
       VITE_APPLOVIN_IOS_ENABLED: 'false',
       VITE_REVENUECAT_IOS_API_KEY: 'appl_A1b2C3d4E5f6G7h8I9j0K1l2M3n',
       VITE_CDN_ENABLED: 'false',
+      VITE_REVENUECAT_ANDROID_API_KEY: `goog_${'a'.repeat(28)}`,
     };
 
     const invalidChoice = validateEnvironment({
@@ -379,9 +380,13 @@ describe('environment validation', () => {
     },
     {
       mode: 'android',
-      enabled: 'VITE_APPLOVIN_ANDROID_ENABLED',
-      required: ['VITE_APPLOVIN_ANDROID_SDK_KEY'],
-      invalid: ['VITE_APPLOVIN_ANDROID_GENERAL_AUDIENCE_ONLY'],
+      enabled: 'VITE_ADMOB_ANDROID_ENABLED',
+      required: [
+        'VITE_ADMOB_ANDROID_APP_ID',
+        'VITE_ADMOB_ANDROID_BANNER_ID',
+        'VITE_ADMOB_ANDROID_INTERSTITIAL_ID',
+        'VITE_ADMOB_ANDROID_REWARDED_ID',
+      ],
     },
   ])('requires enabled-provider configuration for $mode $enabled', ({ mode, enabled, required, invalid = [] }) => {
     const root = makeGameRoot();
@@ -393,6 +398,7 @@ describe('environment validation', () => {
       VITE_ADMOB_IOS_ENABLED: 'false',
       VITE_ADMOB_IOS_TEST_MODE: 'false',
       VITE_REVENUECAT_IOS_API_KEY: 'appl_A1b2C3d4E5f6G7h8I9j0K1l2M3n',
+      VITE_REVENUECAT_ANDROID_API_KEY: `goog_${'a'.repeat(28)}`,
       VITE_APPLOVIN_ANDROID_ENABLED: 'false',
       [enabled]: 'true',
     };
@@ -463,6 +469,7 @@ describe('environment validation', () => {
     write(root, '.env.android.local', [
       'VITE_FTD_DISABLE_REMOTE_CONFIG=false',
       'VITE_APPLOVIN_ANDROID_ENABLED=false',
+      'VITE_ADMOB_ANDROID_ENABLED=false',
       'VITE_CDN_ENABLED=',
       '',
     ].join('\n'));
@@ -471,7 +478,7 @@ describe('environment validation', () => {
       gameRoot: root,
       mode: 'android',
       policy,
-      environment: { VITE_CDN_ENABLED: 'false' },
+      environment: { VITE_CDN_ENABLED: 'false', VITE_REVENUECAT_ANDROID_API_KEY: `goog_${'a'.repeat(28)}` },
     });
 
     expect(result.ok).toBe(true);
@@ -500,13 +507,13 @@ describe('environment validation', () => {
 });
 
 describe('canonical template', () => {
-  it('contains the exact 69-key placeholder-only contract with one comment per assignment', () => {
+  it('contains the exact 71-key placeholder-only contract with one comment per assignment', () => {
     const templatePath = path.join(repoRoot, 'games/find_the_dog/.env.example');
     const result = validateTemplate(templatePath, policy);
 
     expect(result.ok).toBe(true);
     expect(result.keys).toEqual([...FIND_THE_DOG_ENV_KEYS].sort());
-    expect(result.keys).toHaveLength(69);
+    expect(result.keys).toHaveLength(71);
   });
 
   it('rejects duplicate assignments even when the final key set is exact', () => {

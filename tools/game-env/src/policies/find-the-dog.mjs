@@ -53,6 +53,8 @@ export const FIND_THE_DOG_ENV_KEYS = Object.freeze([
   'VITE_ADMOB_IOS_TEST_MODE',
   'VITE_ADMOB_IOS_TEST_DEVICE_IDS',
   'VITE_ADMOB_ANDROID_BANNER_ID',
+  'VITE_ADMOB_ANDROID_ENABLED',
+  'VITE_ADMOB_ANDROID_APP_ID',
   'VITE_ADMOB_ANDROID_INTERSTITIAL_ID',
   'VITE_ADMOB_ANDROID_REWARDED_ID',
   'VITE_PRIVACY_POLICY_URL',
@@ -82,7 +84,7 @@ function intentKeys(mode) {
       'VITE_ADMOB_IOS_TEST_MODE',
     );
   } else {
-    keys.push('VITE_APPLOVIN_ANDROID_ENABLED');
+    keys.push('VITE_ADMOB_ANDROID_ENABLED');
   }
   return keys;
 }
@@ -103,6 +105,12 @@ function validateConditional({ values, mode, booleanValue, requireValue, invalid
     if (typeof value === 'string' && value.trim() !== '' && !/^appl_[A-Za-z0-9]{27}$/.test(value)) {
       invalidKeys.push(key);
     }
+  }
+  if (mode === 'android') {
+    const key = 'VITE_REVENUECAT_ANDROID_API_KEY';
+    requireValue(key);
+    const value = values.get(key);
+    if (typeof value === 'string' && value.trim() !== '' && !/^goog_[A-Za-z0-9]{28}$/.test(value)) invalidKeys.push(key);
   }
 
   if (booleanValue(values.get('VITE_APPSFLYER_ENABLED')) === true) {
@@ -148,12 +156,8 @@ function validateConditional({ values, mode, booleanValue, requireValue, invalid
     }
   }
 
-  const prefix = 'VITE_APPLOVIN_ANDROID';
-  if (mode === 'android' && booleanValue(values.get(`${prefix}_ENABLED`)) === true) {
-    requireValue(`${prefix}_SDK_KEY`);
-    if (booleanValue(values.get(`${prefix}_GENERAL_AUDIENCE_ONLY`)) !== true) {
-      invalidKeys.push(`${prefix}_GENERAL_AUDIENCE_ONLY`);
-    }
+  if (mode === 'android' && booleanValue(values.get('VITE_ADMOB_ANDROID_ENABLED')) === true) {
+    for (const key of ['VITE_ADMOB_ANDROID_APP_ID', 'VITE_ADMOB_ANDROID_BANNER_ID', 'VITE_ADMOB_ANDROID_INTERSTITIAL_ID', 'VITE_ADMOB_ANDROID_REWARDED_ID']) requireValue(key);
   }
 }
 
@@ -165,6 +169,7 @@ function validateChoice(values, key, allowed, invalidKeys) {
 
 function configureSyntheticFixture(values) {
   values.set('VITE_FIREBASE_PROJECT_ID', EXPECTED_FIREBASE_PROJECT_ID);
+  values.set('VITE_REVENUECAT_ANDROID_API_KEY', `goog_${'a'.repeat(28)}`);
 }
 
 function configureMissingDryRunCase(values, mode) {
@@ -173,9 +178,9 @@ function configureMissingDryRunCase(values, mode) {
     values.set('VITE_ADMOB_IOS_TEST_MODE', 'false');
     return 'VITE_ADMOB_IOS_APP_ID';
   }
-  values.set('VITE_APPLOVIN_ANDROID_ENABLED', 'true');
-  values.set('VITE_APPLOVIN_ANDROID_GENERAL_AUDIENCE_ONLY', 'true');
-  return 'VITE_APPLOVIN_ANDROID_SDK_KEY';
+  values.set('VITE_REVENUECAT_ANDROID_API_KEY', `goog_${'a'.repeat(28)}`);
+  values.set('VITE_ADMOB_ANDROID_ENABLED', 'true');
+  return 'VITE_ADMOB_ANDROID_APP_ID';
 }
 
 export const FIND_THE_DOG_POLICY = Object.freeze({

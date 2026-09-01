@@ -325,7 +325,7 @@ describe('Find the Dog manifest contract', () => {
     const recipeDir = new URL('../../../games/find_the_dog/native-resources/ios/', import.meta.url);
     const actualManifest = JSON.parse(fs.readFileSync(new URL('shell-manifest.json', recipeDir), 'utf8'));
     const actualCatalog = JSON.parse(fs.readFileSync(new URL('admob-skadnetwork-ids.json', recipeDir), 'utf8'));
-    expect(actualManifest.capacitorAppId).toBe('com.basegamelab.find_the_dog.dev');
+    expect(actualManifest.capacitorAppId).toBe('com.basegamelab.findthedog');
     expect(actualManifest.ios.bundleId).toBe('com.baseardahan.hiddenobj');
     expect(actualManifest.ios.swiftToolsVersion).toBe('6.1');
     expect(actualManifest.ios.deploymentTarget).toBe('15');

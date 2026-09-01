@@ -1,0 +1,18 @@
+dependencies {
+    implementation 'com.appsflyer:af-android-sdk:6.17.3'
+}
+
+android {
+    defaultConfig { applicationId 'com.basegamelab.findthedog'; versionCode 1; versionName '1.0.4' }
+    signingConfigs {
+        release {
+            def keyFile = System.getenv('PLAY_UPLOAD_KEYSTORE_PATH')
+            def keyAliasValue = System.getenv('PLAY_UPLOAD_KEY_ALIAS')
+            def keyPasswordValue = System.getenv('PLAY_UPLOAD_KEY_PASSWORD')
+            def storePasswordValue = System.getenv('PLAY_UPLOAD_STORE_PASSWORD')
+            if (!keyFile || !keyAliasValue || !keyPasswordValue || !storePasswordValue) throw new GradleException('Play upload signing environment is incomplete')
+            storeFile file(keyFile); keyAlias keyAliasValue; keyPassword keyPasswordValue; storePassword storePasswordValue
+        }
+    }
+    buildTypes { release { signingConfig signingConfigs.release; debuggable false } }
+}
