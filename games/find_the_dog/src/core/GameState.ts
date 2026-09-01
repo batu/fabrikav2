@@ -27,6 +27,7 @@ import {
   type AchievementViewEventRequest,
 } from '../achievements/AchievementAnalytics';
 import { analytics } from '../analytics/AnalyticsService';
+import { ACHIEVEMENTS_ENABLED } from '../achievements/feature';
 
 const STORAGE_KEYS = {
   HINTS: 'ftd_hints',
@@ -551,6 +552,7 @@ function isEmptyCommittedDelta(delta: CommittedAchievementDelta): boolean {
 }
 
 export class GameState {
+  private readonly achievementsEnabled: boolean;
   lives: number = GAMEPLAY.LIVES_PER_LEVEL;
   currentLevelIndex: number = 0;
   foundDogIds: Set<string> = new Set();
@@ -646,7 +648,8 @@ export class GameState {
     return this._rateDeclined;
   }
 
-  constructor() {
+  constructor(options: { achievementsEnabled?: boolean } = {}) {
+    this.achievementsEnabled = options.achievementsEnabled ?? ACHIEVEMENTS_ENABLED;
     this.load();
     this.rolloverRewardedIfNeeded();
   }
@@ -1260,6 +1263,7 @@ export class GameState {
    * throws propagate to the caller, which reports achievementCommitError.
    */
   applyAchievementFact(fact: AchievementFact): CommittedAchievementDelta {
+    if (!this.achievementsEnabled) return emptyCommittedDelta(fact.occurrenceId);
     if (!this._achievementPersistenceReady) {
       throw new Error('achievement persistence is unavailable');
     }
@@ -1401,6 +1405,7 @@ export class GameState {
    * from load().
    */
   drainAnalyticsOutbox(): void {
+    if (!this.achievementsEnabled) return;
     if (!this._achievementPersistenceReady) return;
     const record = this._achievementRecord;
     if (record.analyticsOutbox.length === 0) return;
@@ -1590,10 +1595,9 @@ export class GameState {
         // was removed when we moved to a single color.png per level.)
       }
 
-      // --- Achievement domain (card ACH-1) ---
-      // Progression reconciliation: repair progression from the durable
-      // completionProgressAfter snapshot if a checkpoint-0a→0pre tear left the
-      // progression keys stale under a true completionStatsRegistered flag.
+      // Completion progress recovery is not an achievement feature: it repairs
+      // a torn level-completion checkpoint and must run even while the
+      // achievement journal remains dormant.
       const activeTx = this._activeCompletionTransaction;
       if (activeTx !== null && activeTx.completionStatsRegistered && activeTx.completionProgressAfter !== undefined) {
         const snap = activeTx.completionProgressAfter;
@@ -1604,6 +1608,9 @@ export class GameState {
         this.persistCompletionProgress();
       }
 
+      if (!this.achievementsEnabled) return;
+
+      // --- Achievement domain (card ACH-1) ---
       const parsedRecord = parseAchievementRecord(localStorage.getItem(STORAGE_KEYS.ACHIEVEMENTS));
       const derivable = { totalCompletions: this._totalLevelsCompleted, streakDays: this.currentStreakDays() };
       if (parsedRecord === null) {

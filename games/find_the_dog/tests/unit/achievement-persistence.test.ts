@@ -142,6 +142,57 @@ afterEach(() => {
   Reflect.deleteProperty(globalThis as object, 'localStorage');
 });
 
+describe('production achievement disablement', () => {
+  it('repairs non-achievement completion progress before leaving the achievement journal dormant', () => {
+    const enabled = new GameState();
+    throwAlwaysOnKey(K.BEST_TIMES);
+    const first = enabled.beginLevelCompletionTransaction(completionInput());
+    expect(first.transaction.completionProgressAfter).toEqual({
+      bestTimes: { 'lvl-a': 20 },
+      streakDays: 1,
+      streakLastDate: expect.any(String),
+      totalLevelsCompleted: 1,
+    });
+    vi.restoreAllMocks();
+    const durableJournal = localStorage.getItem(K.ACHIEVEMENTS);
+
+    new GameState({ achievementsEnabled: false });
+
+    expect(JSON.parse(localStorage.getItem(K.BEST_TIMES)!)).toEqual({ 'lvl-a': 20 });
+    expect(localStorage.getItem(K.STREAK_DAYS)).toBe('1');
+    expect(localStorage.getItem(K.TOTAL_COMPLETIONS)).toBe('1');
+    expect(localStorage.getItem(K.ACHIEVEMENTS)).toBe(durableJournal);
+  });
+
+  it('leaves pending rewards and analytics journal untouched', () => {
+    writeTornState({
+      coins: '0',
+      before: { coins: 0, hints: 3 },
+      after: { coins: 25, hints: 3, counters: { coinsGranted: 25 } },
+    });
+    const seeded = JSON.parse(localStorage.getItem(K.ACHIEVEMENTS)!) as Record<string, unknown>;
+    seeded.analyticsOutbox = [{ name: 'achievement_unlocked', payload: { event_id: 'seeded' } }];
+    const durableJournal = JSON.stringify(seeded);
+    localStorage.setItem(K.ACHIEVEMENTS, durableJournal);
+
+    const gs = new GameState({ achievementsEnabled: false });
+    const dispatch = vi.spyOn(analytics, 'dispatchAchievementEvent');
+    gs.drainAnalyticsOutbox();
+
+    expect(gs.coinBalance).toBe(0);
+    expect(gs.hintsRemaining).toBe(3);
+    expect(localStorage.getItem(K.ACHIEVEMENTS)).toBe(durableJournal);
+    expect(dispatch).not.toHaveBeenCalled();
+    expect(gs.applyAchievementFact(completionFact('disabled-occurrence'))).toEqual({
+      occurrenceId: 'disabled-occurrence',
+      progressChanges: [],
+      newlyUnlocked: [],
+      masteredLevelIdsAdded: [],
+      rewards: [],
+    });
+  });
+});
+
 describe('happy path completion (AC2/AC6)', () => {
   it('grants base + achievement reward once and persists (first_completion 25 + first_best 20)', () => {
     const gs = new GameState();
