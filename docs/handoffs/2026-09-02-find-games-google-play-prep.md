@@ -1,7 +1,7 @@
 # Find games Google Play closed-test source preparation
 
-Date: 2026-09-02  
-Branch: `feat/find-games-google-play`  
+Date: 2026-09-02
+Branch: `feat/find-games-google-play`
 Worktree: `/Users/base/dev/appletolye/fabrikav2/.worktrees/find-games-google-play`
 
 ## Status
