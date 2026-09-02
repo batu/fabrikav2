@@ -9,6 +9,10 @@
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
+import {
+  prepareValidatedIosWebBuildEnvironment,
+  runValidatedIosWebBuild,
+} from './src/install-web-build.mjs';
 
 function arg(name, fallback = undefined) {
   const index = process.argv.indexOf(`--${name}`);
@@ -35,17 +39,12 @@ function run(label, file, args, opts = {}) {
 }
 
 // 1. web build with the real env (env file injected for vite's mode loading)
-const env = { ...process.env };
-if (fs.existsSync(envFile)) {
-  const local = path.join(gameDir, '.env.ios.local');
-  fs.copyFileSync(envFile, local);
-  process.on('exit', () => fs.rmSync(local, { force: true }));
-  for (const line of fs.readFileSync(envFile, 'utf8').split('\n')) {
-    const m = /^([A-Z0-9_]+)=(.*)$/.exec(line.trim());
-    if (m) env[m[1]] = m[2];
-  }
+const preparedBuild = prepareValidatedIosWebBuildEnvironment({ gameDir, envFile });
+const env = preparedBuild.environment;
+if (preparedBuild.copied) {
+  process.on('exit', () => fs.rmSync(preparedBuild.localEnvFile, { force: true }));
 }
-run('vite build --mode ios', 'npx', ['vite', 'build', '--mode', 'ios'], { env });
+runValidatedIosWebBuild({ run, repoRoot, game, env });
 
 // 2. HEAD vs bundle provenance — the gate that makes stale installs impossible
 const head = run('git rev-parse', 'git', ['rev-parse', '--short=10', 'HEAD']).trim();

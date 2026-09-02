@@ -22,6 +22,14 @@ export interface OwnedAnalyticsMirrorConfigResult {
 
 type ViteEnv = Record<string, string | boolean | undefined>;
 
+export interface OwnedMirrorIdentityPolicy {
+  readonly approvedEndpointUrls: readonly string[];
+}
+
+const PRODUCTION_OWNED_MIRROR_IDENTITY_POLICY: OwnedMirrorIdentityPolicy = {
+  approvedEndpointUrls: [],
+};
+
 const DEFAULT_FLUSH_BATCH_SIZE = 10;
 const DEFAULT_MAX_QUEUE_ITEMS = 100;
 const DEFAULT_MAX_QUEUE_BYTES = 96_000;
@@ -33,12 +41,18 @@ const DEFAULT_MAX_BACKOFF_MS = 5_000;
 const DEFAULT_RETRYABLE_STATUSES = [408, 425, 429, 500, 502, 503, 504] as const;
 
 export function readOwnedAnalyticsMirrorConfigFromImportMetaEnv(): OwnedAnalyticsMirrorConfigResult {
-  return readOwnedAnalyticsMirrorConfig((import.meta as unknown as { env?: ViteEnv }).env ?? {});
+  const env = (import.meta as unknown as { env?: ViteEnv & { PROD?: boolean } }).env ?? {};
+  return readOwnedAnalyticsMirrorConfig(env, env.PROD === true);
 }
 
-export function readOwnedAnalyticsMirrorConfig(env: ViteEnv): OwnedAnalyticsMirrorConfigResult {
+export function readOwnedAnalyticsMirrorConfig(
+  env: ViteEnv,
+  isProductionBuild: boolean = false,
+  identityPolicy: OwnedMirrorIdentityPolicy = PRODUCTION_OWNED_MIRROR_IDENTITY_POLICY,
+): OwnedAnalyticsMirrorConfigResult {
   const endpointUrl = envString(env.VITE_FTD_OWNED_ANALYTICS_MIRROR_URL);
   const publicClientKey = envString(env.VITE_FTD_OWNED_ANALYTICS_MIRROR_PUBLIC_CLIENT_KEY);
+  const endpointApproved = endpointUrl !== null && identityPolicy.approvedEndpointUrls.includes(endpointUrl);
   const missingKeys: string[] = [];
   const invalidKeys: string[] = [];
 
@@ -58,10 +72,17 @@ export function readOwnedAnalyticsMirrorConfig(env: ViteEnv): OwnedAnalyticsMirr
   if (publicClientKey !== null && publicClientKey.length < 16) {
     invalidKeys.push('VITE_FTD_OWNED_ANALYTICS_MIRROR_PUBLIC_CLIENT_KEY');
   }
+  if (isProductionBuild && endpointUrl !== null && !endpointApproved) {
+    invalidKeys.push('VITE_FTD_OWNED_ANALYTICS_MIRROR_URL');
+  }
 
   if (missingKeys.length > 0 || invalidKeys.length > 0 || endpointUrl === null || publicClientKey === null) {
     return {
-      config: disabledConfig(configIssueReason(missingKeys, invalidKeys)),
+      config: disabledConfig(
+        isProductionBuild && endpointUrl !== null && !endpointApproved
+          ? 'owned analytics mirror endpoint is not approved for find_the_dog'
+          : configIssueReason(missingKeys, invalidKeys),
+      ),
       missingKeys,
       invalidKeys,
     };

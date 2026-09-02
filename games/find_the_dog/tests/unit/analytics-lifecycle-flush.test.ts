@@ -1,5 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { analytics } from '../../src/analytics/AnalyticsService';
+import { AnalyticsService } from '../../src/analytics/AnalyticsService';
+import { createAnalytics, type AnalyticsSink } from '@fabrikav2/sdk/analytics';
 import { resetGameLifecycleForTest, setLifecycleForTest } from '../../src/platform/gameLifecycle';
 
 interface SdkSeam {
@@ -43,6 +45,28 @@ afterEach(() => {
 });
 
 describe('analytics lifecycle flush (session_end loss fix)', () => {
+  it('background flush reaches every buffering sink', async () => {
+    const firstFlush = vi.fn(async () => undefined);
+    const secondFlush = vi.fn(async () => undefined);
+    const sinks: AnalyticsSink[] = [
+      { name: 'first-buffer', emit: vi.fn(), flush: firstFlush },
+      { name: 'second-buffer', emit: vi.fn(), flush: secondFlush },
+    ];
+    const service = new AnalyticsService({
+      sdk: createAnalytics({ env: 'test', sessionId: 'session', sinks }),
+      storage: memoryStorage(),
+      storageDurability: 'durable',
+      firstOpenLocks: locks,
+    });
+
+    await service.init();
+    setLifecycleForTest('inactive');
+    await vi.waitFor(() => {
+      expect(firstFlush).toHaveBeenCalledTimes(1);
+      expect(secondFlush).toHaveBeenCalledTimes(1);
+    });
+  });
+
   it('marks first_open exactly once for the install profile', async () => {
     const sessionStart = vi.spyOn(sdk(), 'sessionStart');
 

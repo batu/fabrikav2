@@ -1,4 +1,4 @@
-import type { AnalyticsSink } from '../analytics/sink.ts';
+import type { AnalyticsSink, AnalyticsSinkDiagnostics } from '../analytics/sink.ts';
 import type { AnalyticsEvent } from '../analytics/contract.ts';
 import type { AppsFlyerCanonicalEvent, DedupeStore } from './AppsFlyerEventMapper.ts';
 
@@ -13,31 +13,55 @@ export function createAppsFlyerAnalyticsProjection(options: {
 }): AnalyticsSink {
   const now = options.now ?? Date.now;
   const inFlight = new Set<string>();
+  const metrics = { sent: 0, dropped: 0 };
   return {
     name: 'appsflyer-projection',
     emit(event: AnalyticsEvent): void {
       if (event.name === 'level_complete') {
         const level = progressionLevel(event.params);
         if (level === null) return;
-        if (level === 1) forwardOnce(options, inFlight, 'tutorial:intro', { type: 'tutorial_completed', tutorialId: 'intro' });
-        if (PROGRESSION_MILESTONES.has(level)) forwardOnce(options, inFlight, `progression:${level}`, { type: 'progression_milestone', level });
+        if (level === 1) forwardOnce(options, inFlight, metrics, 'tutorial:intro', { type: 'tutorial_completed', tutorialId: 'intro' });
+        if (PROGRESSION_MILESTONES.has(level)) forwardOnce(options, inFlight, metrics, `progression:${level}`, { type: 'progression_milestone', level });
         return;
       }
       if (event.name === 'app_open') {
         const openedAt = now();
         const firstSeen = readFirstSeen(options.storage, openedAt);
         const day = Math.floor((openedAt - firstSeen) / 86_400_000);
-        if (RETENTION_DAYS.has(day)) forwardOnce(options, inFlight, `retention:${day}`, { type: 'retention_milestone', day: day as 1 | 3 | 7 | 14 | 30 });
+        if (RETENTION_DAYS.has(day)) forwardOnce(options, inFlight, metrics, `retention:${day}`, { type: 'retention_milestone', day: day as 1 | 3 | 7 | 14 | 30 });
       }
+    },
+    diagnostics(): AnalyticsSinkDiagnostics {
+      return {
+        queued: inFlight.size,
+        sent: metrics.sent,
+        retried: 0,
+        dropped: metrics.dropped,
+        initializationFailure: null,
+        lastSuccessfulFlushAt: null,
+      };
     },
   };
 }
 
-function forwardOnce(options: { forward: (event: AppsFlyerCanonicalEvent) => Promise<boolean>; dedupe: DedupeStore }, inFlight: Set<string>, key: string, event: AppsFlyerCanonicalEvent): void {
+function forwardOnce(
+  options: { forward: (event: AppsFlyerCanonicalEvent) => Promise<boolean>; dedupe: DedupeStore },
+  inFlight: Set<string>,
+  metrics: { sent: number; dropped: number },
+  key: string,
+  event: AppsFlyerCanonicalEvent,
+): void {
   if (options.dedupe.has(key) || inFlight.has(key)) return;
   inFlight.add(key);
   void options.forward(event).then((delivered) => {
-    if (delivered) options.dedupe.add(key);
+    if (delivered) {
+      options.dedupe.add(key);
+      metrics.sent += 1;
+    } else {
+      metrics.dropped += 1;
+    }
+  }, () => {
+    metrics.dropped += 1;
   }).finally(() => { inFlight.delete(key); });
 }
 
