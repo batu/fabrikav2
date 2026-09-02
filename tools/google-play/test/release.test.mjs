@@ -1,8 +1,22 @@
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import { spawnSync } from 'node:child_process';
 import { afterEach, describe, expect, it } from 'vitest';
-import { inspectBundleManifest, materializeFirebaseConfig, normalizeSha256, resolveReleaseIdentity, validateRecipe } from '../src/release.mjs';
+import {
+  applyCrashlyticsGradle,
+  inspectBundleManifest,
+  materializeFirebaseConfig,
+  normalizeSha256,
+  patchCrashlyticsAppGradle,
+  patchCrashlyticsRootGradle,
+  resolveReleaseIdentity,
+  validateGeneratedAndroidProject,
+  validateRecipe,
+} from '../src/release.mjs';
+
+const toolRoot = path.resolve(import.meta.dirname, '..');
+const repoRoot = path.resolve(toolRoot, '..', '..');
 
 const roots = [];
 afterEach(() => roots.splice(0).forEach((root) => fs.rmSync(root, { recursive: true, force: true })));
@@ -11,6 +25,32 @@ function root() {
   const value = fs.mkdtempSync(path.join(os.tmpdir(), 'google-play-release-'));
   roots.push(value);
   return value;
+}
+
+function productionEnv(overrides = {}) {
+  return {
+    PLAY_VERSION_CODE: '7',
+    PLAY_VERSION_NAME: '1.2.3',
+    VITE_REVENUECAT_ANDROID_API_KEY: `goog_${'a'.repeat(28)}`,
+    VITE_APPSFLYER_ENABLED: 'true',
+    VITE_APPSFLYER_DEV_KEY: 'owner-key-for-test',
+    VITE_ATTRIBUTION_PROVIDER: 'appsflyer',
+    VITE_ADMOB_ANDROID_ENABLED: 'true',
+    VITE_ADMOB_ANDROID_APP_ID: 'ca-app-pub-1234567890123456~4444444444',
+    VITE_ADMOB_ANDROID_BANNER_ID: 'ca-app-pub-1234567890123456/5555555555',
+    VITE_ADMOB_ANDROID_INTERSTITIAL_ID: 'ca-app-pub-1234567890123456/6666666666',
+    VITE_ADMOB_ANDROID_REWARDED_ID: 'ca-app-pub-1234567890123456/7777777777',
+    VITE_ADMOB_ANDROID_TEST_MODE: 'false',
+    VITE_ADMOB_ANDROID_TEST_DEVICE_IDS: '',
+    VITE_FIREBASE_CRASHLYTICS_ENABLED: 'false',
+    VITE_META_ENABLED: 'false',
+    PLAY_UPLOAD_KEYSTORE_PATH: '/protected/upload.jks',
+    PLAY_UPLOAD_KEY_ALIAS: 'upload-alias',
+    PLAY_UPLOAD_KEY_PASSWORD: 'protected-password',
+    PLAY_UPLOAD_STORE_PASSWORD: 'protected-password',
+    PLAY_UPLOAD_CERT_SHA256: 'AB'.repeat(32),
+    ...overrides,
+  };
 }
 
 describe('Google Play release gates', () => {
@@ -58,6 +98,87 @@ describe('Google Play release gates', () => {
     expect(() => resolveReleaseIdentity({ PLAY_VERSION_CODE: '', PLAY_VERSION_NAME: '' }, { packageId: 'com.basegamelab.findthebird' })).toThrow(/PLAY_VERSION_CODE/);
     expect(resolveReleaseIdentity({ PLAY_VERSION_CODE: '2', PLAY_VERSION_NAME: '1.2.1' }, { packageId: 'com.basegamelab.findthebird' }))
       .toEqual({ packageId: 'com.basegamelab.findthebird', versionCode: 2, versionName: '1.2.1' });
+  });
+
+  it('requires AppsFlyer to be the selected attribution provider', () => {
+    const issues = validateRecipe({
+      packageId: 'com.basegamelab.findthebird', versionCode: 7, versionName: '1.2.3',
+      env: productionEnv({ VITE_ATTRIBUTION_PROVIDER: 'auto' }),
+      files: new Set(['AppsFlyerAttributionPlugin.java', 'AndroidManifest.xml']),
+    });
+    expect(issues).toContain('VITE_ATTRIBUTION_PROVIDER must equal appsflyer for production Android');
+  });
+
+  it.each([
+    ['VITE_ADMOB_ANDROID_TEST_MODE', 'true'],
+    ['VITE_ADMOB_ANDROID_TEST_DEVICE_IDS', 'device-a'],
+    ['VITE_ENABLE_TEST_HARNESS', 'true'],
+    ['VITE_SDK_VERIFIER_AUTOMOUNT', 'true'],
+    ['VITE_SDK_VERIFIER_AUTOCRASH', 'true'],
+    ['VITE_INSITU_TOUR', 'allstates'],
+    ['VITE_INSITU_TOUR_STATE', 'win'],
+    ['VITE_FTD_FAST_E2E_UI', 'true'],
+    ['VITE_FTD_FORCE_CANVAS', 'true'],
+    ['VITE_FTD_SIM_AUTOPLAY', 'true'],
+    ['FTB_DEV_SHELL_URL', 'http://127.0.0.1:5173'],
+  ])('rejects production leakage through %s', (key, value) => {
+    const issues = validateRecipe({
+      packageId: 'com.basegamelab.findthedog', versionCode: 7, versionName: '1.2.3',
+      env: productionEnv({ [key]: value }),
+      files: new Set(['AppsFlyerAttributionPlugin.java', 'AndroidManifest.xml']),
+    });
+    expect(issues.join('\n')).toMatch(new RegExp(key));
+  });
+
+  it('patches both generated Gradle files with the Crashlytics plugin idempotently', () => {
+    const rootGradle = `buildscript {\n  dependencies {\n    classpath 'com.google.gms:google-services:4.4.4'\n  }\n}`;
+    const appGradle = `try {\n    if (file('google-services.json').text) {\n        apply plugin: 'com.google.gms.google-services'\n    }\n}`;
+    const patchedRoot = patchCrashlyticsRootGradle(rootGradle);
+    const patchedApp = patchCrashlyticsAppGradle(appGradle);
+    expect(patchedRoot).toContain("classpath 'com.google.firebase:firebase-crashlytics-gradle:3.0.7'");
+    expect(patchedApp).toContain("apply plugin: 'com.google.firebase.crashlytics'");
+    expect(patchCrashlyticsRootGradle(patchedRoot)).toBe(patchedRoot);
+    expect(patchCrashlyticsAppGradle(patchedApp)).toBe(patchedApp);
+  });
+
+  it('applies Crashlytics configuration to generated Gradle files', () => {
+    const dir = root();
+    fs.mkdirSync(path.join(dir, 'app'), { recursive: true });
+    fs.writeFileSync(path.join(dir, 'build.gradle'), "buildscript { dependencies {\n classpath 'com.google.gms:google-services:4.4.4'\n} }");
+    fs.writeFileSync(path.join(dir, 'app', 'build.gradle'), "try {\n  apply plugin: 'com.google.gms.google-services'\n}");
+    applyCrashlyticsGradle(dir);
+    expect(fs.readFileSync(path.join(dir, 'build.gradle'), 'utf8')).toContain('firebase-crashlytics-gradle:3.0.7');
+    expect(fs.readFileSync(path.join(dir, 'app', 'build.gradle'), 'utf8')).toContain('com.google.firebase.crashlytics');
+  });
+
+  it('requires generated Android files and verifies applied bridges and plugins', () => {
+    const dir = root();
+    expect(validateGeneratedAndroidProject({ androidDir: dir, packageId: 'com.basegamelab.findthebird', crashlyticsEnabled: false }).join('\n'))
+      .toMatch(/generated Android project/);
+    fs.writeFileSync(path.join(dir, 'settings.gradle'), '');
+    expect(validateGeneratedAndroidProject({ androidDir: dir, packageId: 'com.basegamelab.findthebird', crashlyticsEnabled: true }).join('\n'))
+      .toMatch(/find-game-providers[\s\S]*AppsFlyerAttributionPlugin[\s\S]*Crashlytics classpath/);
+  });
+
+  it('runs the source-recipe CLI from the real npm workspace CWD', () => {
+    const result = spawnSync(process.execPath, [path.join(toolRoot, 'cli.mjs'), 'validate-source', '--game=find_the_bird'], {
+      cwd: path.join(repoRoot, 'games', 'find_the_bird'),
+      env: { ...process.env, ...productionEnv() },
+      encoding: 'utf8',
+    });
+    expect(result.status, result.stderr).toBe(0);
+    expect(result.stdout).toContain('Validated find_the_bird Android source recipe');
+  });
+
+  it('does not let android:validate pass without a generated project', () => {
+    const result = spawnSync(process.execPath, [path.join(toolRoot, 'cli.mjs'), 'validate', '--game=find_the_dog'], {
+      cwd: path.join(repoRoot, 'games', 'find_the_dog'),
+      env: { ...process.env, ...productionEnv() },
+      encoding: 'utf8',
+    });
+    expect(result.status).toBe(1);
+    expect(result.stderr).toMatch(/generated Android project is absent/);
+    expect(result.stderr).not.toMatch(/games\/find_the_dog\/games\/find_the_dog/);
   });
 
   it('normalizes and validates protected upload certificate fingerprints', () => {

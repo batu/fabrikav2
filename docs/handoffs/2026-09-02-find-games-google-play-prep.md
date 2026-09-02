@@ -19,8 +19,9 @@ Production package identities are:
 - Android ads select the bundled Capacitor AdMob provider from `VITE_ADMOB_ANDROID_*`. The environment and Google Play validators require complete, non-sample app/banner/interstitial/rewarded IDs. AppLovin is not selected on Android. iOS AdMob behavior remains intact.
 - AppsFlyer configuration now permits Android, remains deny-all for direct partner sharing, and uses game-specific native Java bridges adapted from Marble Run. Each generated `MainActivity` registers `AppsFlyerAttributionPlugin`. Direct Meta events remain off and no Meta native plugin was added.
 - Each game has a committed Android overlay with exact package resources, protected version/signing seams, AppsFlyer dependency, AdMob manifest metadata, launcher density assets, and adaptive icons generated from its approved iOS app icon.
-- `FIREBASE_ANDROID_CONFIG_PATH` materializes `google-services.json` only after exact package validation. Crashlytics is included when explicitly enabled and this Android materialization seam is present. Missing or mismatched config fails closed.
-- Durable `android:add`, `android:sync`, `android:validate`, and `android:release` scripts now exist for both games. The release lane requires protected version, provider, signing, and signer-certificate inputs.
+- `FIREBASE_ANDROID_CONFIG_PATH` materializes `google-services.json` only after exact package validation. When Crashlytics is enabled, the apply lane also adds the required root Gradle classpath and app Gradle plugin from the installed `@capacitor-firebase/crashlytics` setup. Missing, mismatched, or unapplied configuration fails closed.
+- Durable `android:add`, `android:sync`, `android:validate-source`, `android:validate`, and `android:release` scripts now exist for both games. `android:validate-source` checks the committed recipe before generation; `android:validate` requires and inspects the generated/applied project. The release lane requires protected version, provider, signing, and signer-certificate inputs.
+- Production validation requires AppsFlyer as the selected attribution provider and rejects Android AdMob test mode/device IDs plus test-harness, verifier-autocrash, tour, simulation, and dev-shell leakage.
 - Exact-AAB inspection verifies strict JAR signing, the expected upload-certificate SHA-256, package, versionCode, versionName, and non-debuggable manifest state through bundletool.
 - Find the Dog stale Play URL and `.dev` Capacitor identity were replaced. Find the Bird Play metadata now uses its own package.
 
@@ -30,10 +31,10 @@ Passing:
 
 ```sh
 npm run test:unit -w @fabrikav2/find_the_dog
-# 41 files, 282 tests
+# 41 files, 283 tests
 
 npm run test:unit -w @fabrikav2/find_the_bird -- --exclude tests/unit/five-square-campaign.test.ts --exclude tests/unit/restoration-cleanup-geometry.test.ts
-# 60 files, 344 tests
+# 60 files, 345 tests
 
 npm run test:unit -w @fabrikav2/sdk
 # 38 files, 337 tests
@@ -42,7 +43,7 @@ npm run test:unit -w @fabrikav2/native-shell
 # 1 file, 12 tests
 
 npx vitest run --root tools/google-play test/release.test.mjs
-# 1 file, 6 tests
+# 1 file, 23 tests
 
 npx vitest run --root tools/game-env test/game-env.test.mjs
 # 1 file, 39 tests
@@ -64,6 +65,10 @@ TDD red evidence observed before implementation:
 - AdMob-selected release validation accepted overlays with no Android manifest wiring.
 - Crashlytics did not include from the protected Android Firebase materialization seam.
 - Production provider/version/signer gates did not exist.
+- The Google Play CLI doubled `games/<game>` when npm launched it from a workspace CWD.
+- `android:validate` could pass from committed overlay filenames without any generated Android project.
+- Crashlytics selection copied Firebase configuration but did not apply its required Gradle classpath/plugin.
+- AppsFlyer selection, Android test-ad settings, and test/dev leakage were not fully gated.
 
 ## Sparse-worktree blockers observed
 
@@ -75,6 +80,8 @@ ENOENT: games/find_the_bird/public/levels/bundled-manifest.json
 ```
 
 The unfiltered Find the Bird unit run also has exactly three sparse-content failures: `five-square-campaign.test.ts` cannot open `public/levels/levels-index.json`, and two restoration cleanup tests cannot scan `public/levels`. These are content-absence failures, not changed provider/release behavior.
+
+A final unconfigured rerun on 2026-09-02 stopped earlier, as intended, at the absent owner value `VITE_FIREBASE_PROJECT_ID` in each ignored `.env.android.local`. No substitute project ID was invented. The earlier sparse-content result used explicit synthetic validator fixtures and remains diagnostic only.
 
 ## Exact release commands
 
@@ -117,10 +124,12 @@ unset FIREBASE_ANDROID_CONFIG_PATH
 After restoring the sparse production content, run one game at a time:
 
 ```sh
+npm run android:validate-source -w @fabrikav2/find_the_dog
 npm run android:add -w @fabrikav2/find_the_dog
 npm run android:validate -w @fabrikav2/find_the_dog
 npm run android:release -w @fabrikav2/find_the_dog
 
+npm run android:validate-source -w @fabrikav2/find_the_bird
 npm run android:add -w @fabrikav2/find_the_bird
 npm run android:validate -w @fabrikav2/find_the_bird
 npm run android:release -w @fabrikav2/find_the_bird
