@@ -239,6 +239,7 @@ export function createSdkContext(deps: CreateSdkContextDependencies = {}): GameS
   }
 
   const analyticsBuild = buildStamp();
+  const analyticsVersion = analyticsBuild?.split('+', 1)[0] ?? null;
   analyticsFacade = createAnalytics<FtdEvent>({
     env: environments.analytics,
     sessionId: createFtdSessionId(),
@@ -247,7 +248,7 @@ export function createSdkContext(deps: CreateSdkContextDependencies = {}): GameS
       game: 'find_the_dog',
       platform,
       build: analyticsBuild,
-      app_version: analyticsBuild?.split('+', 1)[0],
+      app_version: analyticsVersion,
     },
   });
 
@@ -329,13 +330,12 @@ export function createSdkContext(deps: CreateSdkContextDependencies = {}): GameS
         sinkDiagnostics[sink.name] = sink.diagnostics();
       }
     }
-    const build = buildStamp();
     return {
       game: 'find_the_dog',
       environment: environments.analytics,
       platform,
-      build,
-      version: build?.split('+', 1)[0] ?? null,
+      build: analyticsBuild,
+      version: analyticsVersion,
       selectedSinks: [...selection.analyticsSinks],
       providers: {
         attribution: selection.attribution,
