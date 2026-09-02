@@ -85,7 +85,7 @@ class Scene extends Phaser.Scene {
 
   /** World y at the top of the viewport for the current camera scroll. */
   private viewTop(): number {
-    return this.cameraY + ARENA.campLineY + 70 - this.viewH;
+    return this.cameraY + ARENA.campLineY + 44 - this.viewH;
   }
 
   preload(): void {
@@ -113,13 +113,14 @@ class Scene extends Phaser.Scene {
       seed = (seed * 9301 + 49297) % 233280;
       return seed / 233280;
     };
-    const count = 5;
+    const count = 8;
     for (let i = 0; i < count; i += 1) {
       const name = available[Math.floor(rnd() * available.length)] ?? available[0];
       if (!name) continue;
-      const edge = rnd() < 0.5;
-      const x = edge ? (rnd() < 0.5 ? 18 + rnd() * 40 : ARENA.width - 18 - rnd() * 40) : 40 + rnd() * (ARENA.width - 80);
-      const y = fieldTop + 150 + rnd() * (ARENA.height - 260);
+      // Alternate sides so both flanks are dressed; keep the fighting lanes and the camp clear.
+      const left = i % 2 === 0;
+      const x = left ? 52 + rnd() * 50 : ARENA.width - 24 - rnd() * 60;
+      const y = fieldTop + 90 + rnd() * (ARENA.height - 240);
       const size = 30 + rnd() * 22;
       this.add
         .image(x, y, `prop-${name}`)
@@ -293,7 +294,7 @@ class Scene extends Phaser.Scene {
     const existing = this.visuals.get(unit.id);
     if (existing) return existing;
     const p = this.palette;
-    const height = UNIT_HEIGHT * unit.scale;
+    const height = UNIT_HEIGHT * unit.scale * (unit.side === "party" ? 1.18 : 1);
     const sprite = this.add.image(0, 0, this.textureFor(unit.kind)).setOrigin(0.5, 1);
     const scale = height / sprite.height;
     sprite.setScale(scale);
@@ -321,8 +322,8 @@ class Scene extends Phaser.Scene {
     };
     this.visuals.set(unit.id, visual);
     // Spawn pop.
-    root.setScale(0.2);
-    this.tweens.add({ targets: root, scale: 1, duration: 260, ease: "Back.out" });
+    root.setScale(0.55);
+    this.tweens.add({ targets: root, scale: 1, duration: 200, ease: "Back.out" });
     if (unit.side === "enemy") this.dust.explode(6, unit.pos.x, unit.pos.y);
     return visual;
   }
@@ -633,18 +634,18 @@ class Scene extends Phaser.Scene {
         break;
       }
       case "stageStart":
-        if (event.stage > 1) {
-          const campY = ARENA.campLineY - (event.stage - 1) * ARENA.advanceDistance;
-          this.drawLedge(campY);
-          this.dressField(campY - ARENA.campLineY, event.stage - 1);
-        }
         break;
       case "stageClear":
         this.banner(copy["battle.stageClear"], p("gold"));
         this.sfx?.play("stageClear");
         break;
-      case "advance":
+      case "advance": {
+        // Dress the next camp before the party arrives so the run-forward lands on a drawn ledge.
+        const nextStage = (this.controller.battleView()?.stage ?? 1) + 1;
+        this.drawLedge(event.toCampY);
+        this.dressField(event.toCampY - ARENA.campLineY, nextStage - 1);
         break;
+      }
       case "levelWin":
         this.cameras.main.flash(260, 255, 243, 214);
         break;

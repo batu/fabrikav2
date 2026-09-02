@@ -1,0 +1,311 @@
+{
+  "consensus": [
+    "spacing",
+    "layout",
+    "background"
+  ],
+  "defects": [
+    {
+      "defect": "The 78px empty wood-background gap is much larger than the otherwise tight, rhythmic section spacing.",
+      "direction": "Raise the nav bar or lower/rebalance the preceding content to match the 20\u201330px gaps used above.",
+      "region": "fid-36-home, gap between Play button and bottom nav",
+      "severity": "major"
+    },
+    {
+      "defect": "Vertical rhythm is uneven: ~20px gap above Play button but ~90px of bare background between Play and the nav bar",
+      "direction": "Equalize gaps between map panel \u2192 Play button \u2192 nav bar, or center the Play button in its own band",
+      "region": "gap between Play button and bottom nav bar, y\u22481255-1340",
+      "severity": "major"
+    },
+    {
+      "defect": "Map panel content is sparse and asymmetric \u2014 a single node column down the center with scattered decor props, leaving large empty wood areas that read as unfinished",
+      "direction": "Populate a readable winding path with several level nodes and balanced decor, or shorten the panel so it does not read as empty filler",
+      "region": "level map panel, y\u2248745-1135",
+      "severity": "major"
+    },
+    {
+      "defect": "A visible brown strip remains below the framed navigation bar, weakening its anchored bottom-bar treatment.",
+      "direction": "Extend or bottom-anchor the nav frame so it finishes flush with the screen edge or a deliberate safe-area inset.",
+      "region": "fid-36-home, bottom edge below nav bar",
+      "severity": "minor"
+    },
+    {
+      "defect": "Gap below the Play button to the framed nav bar (~90px) is noticeably larger than the gaps between title/scene/map panels (~25-35px), leaving a band of empty background that reads slightly unfinished",
+      "direction": "Tighten the Play-button-to-nav gap or redistribute margins so the vertical spacing rhythm is consistent down the screen",
+      "region": "vertical rhythm between Play button and bottom nav bar",
+      "severity": "minor"
+    },
+    {
+      "defect": "Margin above the title (~55px) is larger than the margin between the title and the hero scene panel (~20px), making the title sit slightly low relative to an even rhythm",
+      "direction": "Equalize the space above and below the title lettering",
+      "region": "between framed top bar and Mage Master title",
+      "severity": "minor"
+    },
+    {
+      "defect": "Bastion/Ember/Sage name pills sit unevenly spaced and overlap the scene bottom edge asymmetrically; Sage's pill nearly touches the right frame",
+      "direction": "Distribute the three pills at equal intervals with equal inset from the panel edges",
+      "region": "hero scene name labels, y\u2248689",
+      "severity": "minor"
+    },
+    {
+      "defect": "The four resource chips have unequal widths (energy chip much wider than gem chip), so the row lacks the sibling consistency of the framed bar",
+      "direction": "Normalize chip widths, or right-align values so chips read as a consistent set",
+      "region": "top resource bar chips, y\u2248150",
+      "severity": "minor"
+    },
+    {
+      "defect": "Hero scene panel uses a thin rounded frame while the map panel uses a thick jeweled frame, and their left/right insets differ slightly",
+      "direction": "Match panel frame treatment and horizontal insets so both panels share one edge axis",
+      "region": "hero scene panel vs. map panel, x\u224822-702",
+      "severity": "minor"
+    },
+    {
+      "defect": "The purple energy flare accent is biased to the upper-right of the lettering, making the title decoration read slightly asymmetric against the centered text",
+      "direction": "Balance the flare accents symmetrically around the title or center the flare on the lettering axis",
+      "region": "purple flare behind title lettering",
+      "severity": "minor"
+    },
+    {
+      "defect": "The large empty plank areas make the level map feel sparse and slightly unfinished relative to the richly populated hero panel.",
+      "direction": "Add restrained route, node, or ambient map detail while preserving the current readable level-one focus.",
+      "region": "fid-36-home, level map panel",
+      "severity": "minor"
+    },
+    {
+      "defect": "Flat diagonal-stripe brown background is visible in wide bands above the title and below the Play button, reading as unfinished space",
+      "direction": "Add subtle vignette/decor or tighten spacing so bare background bands are minimized",
+      "region": "empty background bands, y\u2248230-390 and y\u22481260-1340",
+      "severity": "minor"
+    }
+  ],
+  "participated": [
+    "codex/gpt-5.6-terra",
+    "anthropic/claude-fable-5",
+    "anthropic/claude-opus-5"
+  ],
+  "per_model": {
+    "anthropic/claude-fable-5": {
+      "defects": [
+        {
+          "defect": "Gap below the Play button to the framed nav bar (~90px) is noticeably larger than the gaps between title/scene/map panels (~25-35px), leaving a band of empty background that reads slightly unfinished",
+          "direction": "Tighten the Play-button-to-nav gap or redistribute margins so the vertical spacing rhythm is consistent down the screen",
+          "key": "spacing",
+          "region": "vertical rhythm between Play button and bottom nav bar",
+          "severity": "minor"
+        },
+        {
+          "defect": "Margin above the title (~55px) is larger than the margin between the title and the hero scene panel (~20px), making the title sit slightly low relative to an even rhythm",
+          "direction": "Equalize the space above and below the title lettering",
+          "key": "spacing",
+          "region": "between framed top bar and Mage Master title",
+          "severity": "minor"
+        },
+        {
+          "defect": "The purple energy flare accent is biased to the upper-right of the lettering, making the title decoration read slightly asymmetric against the centered text",
+          "direction": "Balance the flare accents symmetrically around the title or center the flare on the lettering axis",
+          "key": "layout",
+          "region": "purple flare behind title lettering",
+          "severity": "minor"
+        }
+      ],
+      "model": "claude-fable-5",
+      "recurring_checks": [
+        {
+          "evidence": "fid-36-home: Mage Master title art at ~(360,300) composites transparently over the striped brown background",
+          "id": "banner-transparency",
+          "pass": true
+        },
+        {
+          "evidence": "fid-36-home: all elements (currency icons ~y150, nav icons ~y1400, map props) are drawn art assets, no font-glyph stand-ins",
+          "id": "asset-identity",
+          "pass": true
+        },
+        {
+          "evidence": "fid-36-home: '1' in circular level badge at ~(360,1040) and '\u26a11' pill on Play button at ~(495,1215) are visually centered",
+          "id": "glyph-centering",
+          "pass": true
+        },
+        {
+          "evidence": "fid-36-home: 'Play \u00b7 Level 1' text and energy pill sit inside the gold button at ~(360,1215); Bastion/Ember/Sage chips at ~y690 contain their labels",
+          "id": "content-containment",
+          "pass": true
+        },
+        {
+          "evidence": "fid-36-home: four nav cells Home/Rift/Mages/Settings at ~y1400 are equal width and height",
+          "id": "sibling-size-consistency",
+          "pass": true
+        }
+      ],
+      "score": 91.0
+    },
+    "anthropic/claude-opus-5": {
+      "defects": [
+        {
+          "defect": "Map panel content is sparse and asymmetric \u2014 a single node column down the center with scattered decor props, leaving large empty wood areas that read as unfinished",
+          "direction": "Populate a readable winding path with several level nodes and balanced decor, or shorten the panel so it does not read as empty filler",
+          "key": "layout",
+          "region": "level map panel, y\u2248745-1135",
+          "severity": "major"
+        },
+        {
+          "defect": "Vertical rhythm is uneven: ~20px gap above Play button but ~90px of bare background between Play and the nav bar",
+          "direction": "Equalize gaps between map panel \u2192 Play button \u2192 nav bar, or center the Play button in its own band",
+          "key": "spacing",
+          "region": "gap between Play button and bottom nav bar, y\u22481255-1340",
+          "severity": "major"
+        },
+        {
+          "defect": "The four resource chips have unequal widths (energy chip much wider than gem chip), so the row lacks the sibling consistency of the framed bar",
+          "direction": "Normalize chip widths, or right-align values so chips read as a consistent set",
+          "key": "sizing",
+          "region": "top resource bar chips, y\u2248150",
+          "severity": "minor"
+        },
+        {
+          "defect": "Bastion/Ember/Sage name pills sit unevenly spaced and overlap the scene bottom edge asymmetrically; Sage's pill nearly touches the right frame",
+          "direction": "Distribute the three pills at equal intervals with equal inset from the panel edges",
+          "key": "spacing",
+          "region": "hero scene name labels, y\u2248689",
+          "severity": "minor"
+        },
+        {
+          "defect": "Hero scene panel uses a thin rounded frame while the map panel uses a thick jeweled frame, and their left/right insets differ slightly",
+          "direction": "Match panel frame treatment and horizontal insets so both panels share one edge axis",
+          "key": "sizing",
+          "region": "hero scene panel vs. map panel, x\u224822-702",
+          "severity": "minor"
+        },
+        {
+          "defect": "Flat diagonal-stripe brown background is visible in wide bands above the title and below the Play button, reading as unfinished space",
+          "direction": "Add subtle vignette/decor or tighten spacing so bare background bands are minimized",
+          "key": "background",
+          "region": "empty background bands, y\u2248230-390 and y\u22481260-1340",
+          "severity": "minor"
+        }
+      ],
+      "model": "claude-opus-5",
+      "recurring_checks": [
+        {
+          "evidence": "fid-36-home: title 'Mage Master' lettering and purple burst composite over background at y\u2248300 with no opaque box",
+          "id": "banner-transparency",
+          "pass": true
+        },
+        {
+          "evidence": "fid-36-home: nav icons and map props are painted art, not font glyphs, at y\u22481400",
+          "id": "asset-identity",
+          "pass": true
+        },
+        {
+          "evidence": "fid-36-home: '1' in circular level node centered at (360,1046); bolt glyph centered in cost pill at (485,1219)",
+          "id": "glyph-centering",
+          "pass": true
+        },
+        {
+          "evidence": "fid-36-home: 'Play \u00b7 Level 1' text and cost pill stay inside button bounds y\u22481175-1250",
+          "id": "content-containment",
+          "pass": true
+        },
+        {
+          "evidence": "fid-36-home: top bar chips unequal widths \u2014 energy chip x\u224848-232 vs gem chip x\u2248550-694",
+          "id": "sibling-size-consistency",
+          "pass": false
+        }
+      ],
+      "score": 78.0
+    },
+    "codex/gpt-5.6-terra": {
+      "defects": [
+        {
+          "defect": "The 78px empty wood-background gap is much larger than the otherwise tight, rhythmic section spacing.",
+          "direction": "Raise the nav bar or lower/rebalance the preceding content to match the 20\u201330px gaps used above.",
+          "key": "spacing",
+          "region": "fid-36-home, gap between Play button and bottom nav",
+          "severity": "major"
+        },
+        {
+          "defect": "The large empty plank areas make the level map feel sparse and slightly unfinished relative to the richly populated hero panel.",
+          "direction": "Add restrained route, node, or ambient map detail while preserving the current readable level-one focus.",
+          "key": "background",
+          "region": "fid-36-home, level map panel",
+          "severity": "minor"
+        },
+        {
+          "defect": "A visible brown strip remains below the framed navigation bar, weakening its anchored bottom-bar treatment.",
+          "direction": "Extend or bottom-anchor the nav frame so it finishes flush with the screen edge or a deliberate safe-area inset.",
+          "key": "spacing",
+          "region": "fid-36-home, bottom edge below nav bar",
+          "severity": "minor"
+        }
+      ],
+      "model": "gpt-5.6-terra",
+      "recurring_checks": [
+        {
+          "evidence": "fid-36-home: title and Play button artwork composite cleanly over the wood background around x28\u2013695, y238\u20131265.",
+          "id": "banner-transparency",
+          "pass": true
+        },
+        {
+          "evidence": "fid-36-home: title, hero characters, resource icons, map objects, and navigation icons use coherent illustrated assets.",
+          "id": "asset-identity",
+          "pass": true
+        },
+        {
+          "evidence": "fid-36-home: lightning glyph is visually centered inside the dark energy-cost pill near x489, y1219.",
+          "id": "glyph-centering",
+          "pass": true
+        },
+        {
+          "evidence": "fid-36-home: Play label and energy-cost pill remain inside the gold button at x31\u2013693, y1169\u20131265.",
+          "id": "content-containment",
+          "pass": true
+        },
+        {
+          "evidence": "fid-36-home: four bottom navigation cells are consistently sized across x6\u2013718, y1345\u20131504.",
+          "id": "sibling-size-consistency",
+          "pass": true
+        }
+      ],
+      "score": 86.0
+    },
+    "google/gemini-3.6-flash": {
+      "model": "google/gemini-3.6-flash",
+      "reason": "HTTP 402",
+      "skipped": true
+    }
+  },
+  "recurring_checks": [
+    {
+      "evidence": "fid-36-home: title and Play button artwork composite cleanly over the wood background around x28\u2013695, y238\u20131265.",
+      "id": "banner-transparency",
+      "pass": true
+    },
+    {
+      "evidence": "fid-36-home: title, hero characters, resource icons, map objects, and navigation icons use coherent illustrated assets.",
+      "id": "asset-identity",
+      "pass": true
+    },
+    {
+      "evidence": "fid-36-home: lightning glyph is visually centered inside the dark energy-cost pill near x489, y1219.",
+      "id": "glyph-centering",
+      "pass": true
+    },
+    {
+      "evidence": "fid-36-home: Play label and energy-cost pill remain inside the gold button at x31\u2013693, y1169\u20131265.",
+      "id": "content-containment",
+      "pass": true
+    },
+    {
+      "evidence": "fid-36-home: top bar chips unequal widths \u2014 energy chip x\u224848-232 vs gem chip x\u2248550-694",
+      "id": "sibling-size-consistency",
+      "pass": false
+    }
+  ],
+  "score": 86.0,
+  "skipped": [
+    {
+      "judge": "google/gemini-3.6-flash",
+      "reason": "HTTP 402"
+    }
+  ],
+  "verdict": "pass"
+}

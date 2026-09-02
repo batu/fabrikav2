@@ -157,8 +157,13 @@ export function mountMageMasterScreen(opts: MageMasterScreenOptions): MageMaster
   };
   applyFrames();
   const toaster: ToasterHandle = mountToaster({ mountInto: root, id: "mm-toaster" });
-  // Warm the modal chrome so the first pause/result card never paints unskinned.
-  for (const url of [assetUrls.panel, assetUrls.ribbon.win, assetUrls.ribbon.fail, assetUrls.ribbon.neutral, assetUrls.button.primary, assetUrls.button.secondary]) {
+  // Warm the chrome art so the first paint of any framed surface is never unskinned.
+  const warmUrls = [assetUrls.panel, assetUrls.ribbon.win, assetUrls.ribbon.fail, assetUrls.ribbon.neutral, assetUrls.button.primary, assetUrls.button.secondary,
+    frame("panel"), frame("button"), frame("button-dark"), frame("portrait"), scene("home"), scene("rift"),
+    lettering("title"), lettering("victory"), lettering("defeat"), lettering("summoned"), lettering("welcome"),
+    nodeArt("current"), nodeArt("locked"), nodeArt("completed")];
+  for (const url of warmUrls) {
+    if (!url) continue;
     const warm = new Image();
     warm.src = url;
   }
@@ -242,8 +247,8 @@ export function mountMageMasterScreen(opts: MageMasterScreenOptions): MageMaster
     const ladder = el("section", "mm-home__ladder");
     ladder.setAttribute("aria-label", copy["menu.progression"]);
     // Map dressing on the flanks so the board reads as a camp map, not an empty plank.
-    for (const [prop, cls] of [["tent", "mm-home__deco mm-home__deco--tent"], ["campfire", "mm-home__deco mm-home__deco--fire"], ["rock-sand", "mm-home__deco mm-home__deco--rock"], ["cactus", "mm-home__deco mm-home__deco--cactus"]] as const) {
-      const url = propSprite(prop as "tent" | "campfire");
+    for (const [prop, cls] of [["tent", "mm-home__deco mm-home__deco--tent"], ["campfire", "mm-home__deco mm-home__deco--fire"], ["rock-sand", "mm-home__deco mm-home__deco--rock"], ["cactus", "mm-home__deco mm-home__deco--cactus"], ["bones", "mm-home__deco mm-home__deco--bones"], ["grass", "mm-home__deco mm-home__deco--grass"]] as const) {
+      const url = propSprite(prop);
       if (url) ladder.append(img(url, cls));
     }
     const current = snap.unlockedLevel;
@@ -311,9 +316,11 @@ export function mountMageMasterScreen(opts: MageMasterScreenOptions): MageMaster
     head.append(tierBadge);
     const stage = el("section", "mm-rift__stage");
     const stageInner = el("div", "mm-rift__inner");
-    if (scene("rift")) stageInner.classList.add("mm-rift__inner--scene");
+    const art = el("div", "mm-rift__art");
+    if (scene("rift")) art.classList.add("mm-rift__art--scene");
     const portal = img(riftPortal(), "mm-rift__portal");
-    stageInner.append(portal, el("p", "mm-rift__blurb", copy["rift.blurb"]));
+    art.append(portal);
+    stageInner.append(art, el("p", "mm-rift__blurb", copy["rift.blurb"]));
     stage.append(stageInner);
 
     const pullBtn = buildButtonElement({
@@ -577,6 +584,7 @@ export function mountMageMasterScreen(opts: MageMasterScreenOptions): MageMaster
       bar.value.textContent = `${Math.max(0, Math.round(unit.hp))} / ${unit.maxHp}`;
       bar.card.classList.toggle("mm-hud__mage--dead", !unit.alive);
       bar.card.classList.toggle("mm-hud__mage--low", unit.alive && ratio < 0.3);
+      bar.fill.dataset.mmHp = ratio >= 0.6 ? "high" : ratio >= 0.3 ? "mid" : "low";
     }
     const stageLabel = live.get("battle-stage");
     if (stageLabel) {
@@ -838,7 +846,7 @@ export function mountMageMasterScreen(opts: MageMasterScreenOptions): MageMaster
   const refreshLive = (snap: MageMasterSnapshot): void => {
     live.get("pill-energy")!.textContent = `${snap.energy}/${ENERGY.cap}`;
     const energySub = live.get("pill-energy-sub");
-    if (energySub) energySub.textContent = snap.energy >= ENERGY.cap ? "" : formatTime(snap.energyNextIn);
+    if (energySub) energySub.textContent = snap.energy >= ENERGY.cap ? "" : `· ${formatTime(snap.energyNextIn)}`;
     live.get("pill-gold")!.textContent = String(snap.gold);
     live.get("pill-crystal")!.textContent = String(snap.crystals);
     live.get("pill-gem")!.textContent = String(snap.gems);

@@ -1,0 +1,324 @@
+{
+  "consensus": [
+    "text-content",
+    "spacing",
+    "layout"
+  ],
+  "defects": [
+    {
+      "defect": "The countdown reads as \u201c9... 39s,\u201d appearing truncated and ambiguous.",
+      "direction": "Use a single fully legible countdown string fitted within the pill.",
+      "region": "fid-31-home, left timer chip in top bar (x40\u2013193, y124\u2013180)",
+      "severity": "major"
+    },
+    {
+      "defect": "Energy value is truncated to '9\u2026' with the '39s' timer crowding it, so the actual count is illegible",
+      "direction": "Widen the energy pill or shrink/reflow the value+timer so the full energy count renders without ellipsis",
+      "region": "top resource bar, leftmost energy pill",
+      "severity": "major"
+    },
+    {
+      "defect": "Energy value is truncated to '9\u2026' with a cramped '39s' timer squeezed against the pill's right edge; the chip content overflows its allotted width",
+      "direction": "Widen the energy pill or shrink/stack the value+timer so the full count (e.g. '9/10') and regen timer fit inside with even padding, matching the other three pills",
+      "region": "top resource bar, first (energy) pill, ~x=90-185 y=150",
+      "severity": "major"
+    },
+    {
+      "defect": "Level map panel reads as unfinished: four scattered decor props on a large empty wood grid with faint stray divider marks, no clear node path beyond the single '1' medallion",
+      "direction": "Either populate the grid with a legible level-node path (locked/unlocked nodes) or shrink the panel height so empty wood does not dominate; remove the stray thin divider ticks at the panel edges",
+      "region": "map panel interior, empty wooden cells around x=210 and x=520, y=780-1120",
+      "severity": "major"
+    },
+    {
+      "defect": "Hero labels are plain unframed white text sitting directly on the illustration with no plate or chip, unlike the framed treatment used everywhere else",
+      "direction": "Give each name a small dark pill/ribbon plate with the same gold-frame language as the rest of the UI",
+      "region": "hero name plates 'Bastion' / 'Ember' / 'Sage', y=690",
+      "severity": "minor"
+    },
+    {
+      "defect": "This vertical gap is substantially larger than the cadence between the preceding main sections.",
+      "direction": "Reduce the gap or redistribute the main stack to create a more consistent rhythm.",
+      "region": "fid-31-home, gap between Play button and bottom nav (y1268\u20131345)",
+      "severity": "minor"
+    },
+    {
+      "defect": "Gap below the Play button is noticeably larger than the margins between title, scene and map panels, leaving a band of empty striped background",
+      "direction": "Tighten the Play-to-nav gap or redistribute vertical margins so the stack reads evenly spaced like Kingdom Rush home screens",
+      "region": "vertical rhythm between Play button and bottom nav bar",
+      "severity": "minor"
+    },
+    {
+      "defect": "Margin between the framed top bar and the 'Mage Master' title is larger than the title-to-scene margin",
+      "direction": "Reduce the top-bar-to-title gap slightly for consistent margins down the screen",
+      "region": "top bar to title gap",
+      "severity": "minor"
+    },
+    {
+      "defect": "Gaps between stacked sections are uneven; the Play button floats in a large empty band above the nav bar",
+      "direction": "Normalize inter-section spacing and tighten the Play-to-nav gap so the stack reads as an even rhythm",
+      "region": "vertical rhythm: title\u2192scene (~20px) vs scene\u2192map (~25px) vs map\u2192Play (~45px) vs Play\u2192nav (~90px)",
+      "severity": "minor"
+    },
+    {
+      "defect": "Framed top bar spans nearly the full screen width (edge margin ~8px) while title, scene, map panel and Play button sit on a much wider ~28px inset, so the frames do not share one margin",
+      "direction": "Pull the top bar and bottom nav frames to the same left/right inset as the scene and map panels for a consistent vertical gutter",
+      "region": "top status bar vs. rest of screen, x=8-717 y=85-215",
+      "severity": "minor"
+    },
+    {
+      "defect": "The middle row of the map grid is empty except for the center lock, so those cells read as unfinished placeholders",
+      "direction": "Add small prop/decoration sprites or upcoming-node hints in the empty middle cells to match the decorated corners",
+      "region": "level map panel, middle-left and middle-right cells",
+      "severity": "minor"
+    },
+    {
+      "defect": "Sage at the right is cut by the panel edge/cliff and the three heroes are unevenly weighted (dense camp on the left, empty valley center-right)",
+      "direction": "Rebalance hero placement so all three sit fully inside the panel with comparable visual weight",
+      "region": "hero scene panel, characters at x=140 / x=360 / x=580",
+      "severity": "minor"
+    },
+    {
+      "defect": "'Play \u00b7 Level 1' plus the energy cost chip is not optically centered \u2014 the text block sits left of the button's center axis because the cost chip is appended inline",
+      "direction": "Center the combined label+chip group, or pin the cost chip to the right edge and center the text on the button axis",
+      "region": "Play button label, x=190-540 y=1219",
+      "severity": "minor"
+    }
+  ],
+  "participated": [
+    "codex/gpt-5.6-terra",
+    "anthropic/claude-fable-5",
+    "anthropic/claude-opus-5"
+  ],
+  "per_model": {
+    "anthropic/claude-fable-5": {
+      "defects": [
+        {
+          "defect": "Energy value is truncated to '9\u2026' with the '39s' timer crowding it, so the actual count is illegible",
+          "direction": "Widen the energy pill or shrink/reflow the value+timer so the full energy count renders without ellipsis",
+          "key": "text-content",
+          "region": "top resource bar, leftmost energy pill",
+          "severity": "major"
+        },
+        {
+          "defect": "Gap below the Play button is noticeably larger than the margins between title, scene and map panels, leaving a band of empty striped background",
+          "direction": "Tighten the Play-to-nav gap or redistribute vertical margins so the stack reads evenly spaced like Kingdom Rush home screens",
+          "key": "spacing",
+          "region": "vertical rhythm between Play button and bottom nav bar",
+          "severity": "minor"
+        },
+        {
+          "defect": "The middle row of the map grid is empty except for the center lock, so those cells read as unfinished placeholders",
+          "direction": "Add small prop/decoration sprites or upcoming-node hints in the empty middle cells to match the decorated corners",
+          "key": "layout",
+          "region": "level map panel, middle-left and middle-right cells",
+          "severity": "minor"
+        },
+        {
+          "defect": "Margin between the framed top bar and the 'Mage Master' title is larger than the title-to-scene margin",
+          "direction": "Reduce the top-bar-to-title gap slightly for consistent margins down the screen",
+          "key": "spacing",
+          "region": "top bar to title gap",
+          "severity": "minor"
+        }
+      ],
+      "model": "claude-fable-5",
+      "recurring_checks": [
+        {
+          "evidence": "fid-31-home: name chips (Bastion/Ember/Sage, ~y690) and title composite transparently over background",
+          "id": "banner-transparency",
+          "pass": true
+        },
+        {
+          "evidence": "fid-31-home: all icons and scene art are illustrated assets, no font-glyph stand-ins (top bar ~y150, nav ~y1410)",
+          "id": "asset-identity",
+          "pass": true
+        },
+        {
+          "evidence": "fid-31-home: '1' in gold level medallion (~360,1040) and energy chip '1' in Play button (~495,1218) are centered",
+          "id": "glyph-centering",
+          "pass": true
+        },
+        {
+          "evidence": "fid-31-home: truncated '9\u202639s' text stays inside energy pill bounds (~115,150); no element leaks its container",
+          "id": "content-containment",
+          "pass": true
+        },
+        {
+          "evidence": "fid-31-home: four top-bar resource pills (~y150) and four nav cells (~y1420) are equal-sized within their rows",
+          "id": "sibling-size-consistency",
+          "pass": true
+        }
+      ],
+      "score": 86.0
+    },
+    "anthropic/claude-opus-5": {
+      "defects": [
+        {
+          "defect": "Energy value is truncated to '9\u2026' with a cramped '39s' timer squeezed against the pill's right edge; the chip content overflows its allotted width",
+          "direction": "Widen the energy pill or shrink/stack the value+timer so the full count (e.g. '9/10') and regen timer fit inside with even padding, matching the other three pills",
+          "key": "text-content",
+          "region": "top resource bar, first (energy) pill, ~x=90-185 y=150",
+          "severity": "major"
+        },
+        {
+          "defect": "Level map panel reads as unfinished: four scattered decor props on a large empty wood grid with faint stray divider marks, no clear node path beyond the single '1' medallion",
+          "direction": "Either populate the grid with a legible level-node path (locked/unlocked nodes) or shrink the panel height so empty wood does not dominate; remove the stray thin divider ticks at the panel edges",
+          "key": "spacing",
+          "region": "map panel interior, empty wooden cells around x=210 and x=520, y=780-1120",
+          "severity": "major"
+        },
+        {
+          "defect": "Framed top bar spans nearly the full screen width (edge margin ~8px) while title, scene, map panel and Play button sit on a much wider ~28px inset, so the frames do not share one margin",
+          "direction": "Pull the top bar and bottom nav frames to the same left/right inset as the scene and map panels for a consistent vertical gutter",
+          "key": "sizing",
+          "region": "top status bar vs. rest of screen, x=8-717 y=85-215",
+          "severity": "minor"
+        },
+        {
+          "defect": "Gaps between stacked sections are uneven; the Play button floats in a large empty band above the nav bar",
+          "direction": "Normalize inter-section spacing and tighten the Play-to-nav gap so the stack reads as an even rhythm",
+          "key": "spacing",
+          "region": "vertical rhythm: title\u2192scene (~20px) vs scene\u2192map (~25px) vs map\u2192Play (~45px) vs Play\u2192nav (~90px)",
+          "severity": "minor"
+        },
+        {
+          "defect": "Hero labels are plain unframed white text sitting directly on the illustration with no plate or chip, unlike the framed treatment used everywhere else",
+          "direction": "Give each name a small dark pill/ribbon plate with the same gold-frame language as the rest of the UI",
+          "key": "typography",
+          "region": "hero name plates 'Bastion' / 'Ember' / 'Sage', y=690",
+          "severity": "minor"
+        },
+        {
+          "defect": "Sage at the right is cut by the panel edge/cliff and the three heroes are unevenly weighted (dense camp on the left, empty valley center-right)",
+          "direction": "Rebalance hero placement so all three sit fully inside the panel with comparable visual weight",
+          "key": "layout",
+          "region": "hero scene panel, characters at x=140 / x=360 / x=580",
+          "severity": "minor"
+        },
+        {
+          "defect": "'Play \u00b7 Level 1' plus the energy cost chip is not optically centered \u2014 the text block sits left of the button's center axis because the cost chip is appended inline",
+          "direction": "Center the combined label+chip group, or pin the cost chip to the right edge and center the text on the button axis",
+          "key": "layout",
+          "region": "Play button label, x=190-540 y=1219",
+          "severity": "minor"
+        }
+      ],
+      "model": "claude-opus-5",
+      "recurring_checks": [
+        {
+          "evidence": "fid-31-home: 'Mage Master' title lettering and purple glow composite over the brown background with no opaque box (x=115-620, y=240-380)",
+          "id": "banner-transparency",
+          "pass": true
+        },
+        {
+          "evidence": "fid-31-home: nav icons (house, rift portal, wizard hat, gear) and map props are painted art, no font-glyph stand-ins (y=1360-1420)",
+          "id": "asset-identity",
+          "pass": true
+        },
+        {
+          "evidence": "fid-31-home: '1' inside circular level medallion is centered at ~(360,1045); lightning glyph centered in cost chip at (485,1219)",
+          "id": "glyph-centering",
+          "pass": true
+        },
+        {
+          "evidence": "fid-31-home: energy pill text '9\u2026 39s' clipped/overflowing at right edge of pill, ~(150-185, 150)",
+          "id": "content-containment",
+          "pass": false
+        },
+        {
+          "evidence": "fid-31-home: top bar pills unequal \u2014 energy pill ~x=40-190 vs gold ~x=200-355 vs gem ~x=365-520 vs diamond ~x=530-690, energy chip narrower and its content clipped",
+          "id": "sibling-size-consistency",
+          "pass": false
+        }
+      ],
+      "score": 78.0
+    },
+    "codex/gpt-5.6-terra": {
+      "defects": [
+        {
+          "defect": "The countdown reads as \u201c9... 39s,\u201d appearing truncated and ambiguous.",
+          "direction": "Use a single fully legible countdown string fitted within the pill.",
+          "key": "text-content",
+          "region": "fid-31-home, left timer chip in top bar (x40\u2013193, y124\u2013180)",
+          "severity": "major"
+        },
+        {
+          "defect": "This vertical gap is substantially larger than the cadence between the preceding main sections.",
+          "direction": "Reduce the gap or redistribute the main stack to create a more consistent rhythm.",
+          "key": "spacing",
+          "region": "fid-31-home, gap between Play button and bottom nav (y1268\u20131345)",
+          "severity": "minor"
+        }
+      ],
+      "model": "gpt-5.6-terra",
+      "recurring_checks": [
+        {
+          "evidence": "fid-31-home: hero labels at y675 composite as intentional pills; no opaque sprite-banner box is visible.",
+          "id": "banner-transparency",
+          "pass": true
+        },
+        {
+          "evidence": "fid-31-home: illustrated heroes, crystals, map props, and gold UI frames are visually cohesive.",
+          "id": "asset-identity",
+          "pass": true
+        },
+        {
+          "evidence": "fid-31-home: lightning glyph in the Play cost circle around x480, y1219 is centered.",
+          "id": "glyph-centering",
+          "pass": true
+        },
+        {
+          "evidence": "fid-31-home: labels, currency counts, and Play cost remain inside their chips and buttons.",
+          "id": "content-containment",
+          "pass": true
+        },
+        {
+          "evidence": "fid-31-home: four bottom-nav cells and top resource pills maintain a consistent row treatment.",
+          "id": "sibling-size-consistency",
+          "pass": true
+        }
+      ],
+      "score": 91.0
+    },
+    "google/gemini-3.6-flash": {
+      "model": "google/gemini-3.6-flash",
+      "reason": "HTTP 402",
+      "skipped": true
+    }
+  },
+  "recurring_checks": [
+    {
+      "evidence": "fid-31-home: hero labels at y675 composite as intentional pills; no opaque sprite-banner box is visible.",
+      "id": "banner-transparency",
+      "pass": true
+    },
+    {
+      "evidence": "fid-31-home: illustrated heroes, crystals, map props, and gold UI frames are visually cohesive.",
+      "id": "asset-identity",
+      "pass": true
+    },
+    {
+      "evidence": "fid-31-home: lightning glyph in the Play cost circle around x480, y1219 is centered.",
+      "id": "glyph-centering",
+      "pass": true
+    },
+    {
+      "evidence": "fid-31-home: energy pill text '9\u2026 39s' clipped/overflowing at right edge of pill, ~(150-185, 150)",
+      "id": "content-containment",
+      "pass": false
+    },
+    {
+      "evidence": "fid-31-home: top bar pills unequal \u2014 energy pill ~x=40-190 vs gold ~x=200-355 vs gem ~x=365-520 vs diamond ~x=530-690, energy chip narrower and its content clipped",
+      "id": "sibling-size-consistency",
+      "pass": false
+    }
+  ],
+  "score": 86.0,
+  "skipped": [
+    {
+      "judge": "google/gemini-3.6-flash",
+      "reason": "HTTP 402"
+    }
+  ],
+  "verdict": "pass"
+}

@@ -1,0 +1,404 @@
+{
+  "consensus": [
+    "sizing",
+    "spacing",
+    "layout",
+    "text-content",
+    "missing-element"
+  ],
+  "defects": [
+    {
+      "defect": "A wide flat dark-brown band spans the full width under the arena, reading as an empty letterbox strip between the sand and the HUD",
+      "direction": "Either extend the painted sand/ledge art down to the HUD or dress the band as a foreground ledge with texture, so no empty gutter remains",
+      "region": "arena bottom, below camp ledge (y\u22481100-1210)",
+      "severity": "blocker"
+    },
+    {
+      "defect": "Energy value is truncated to '9\u2026' with a small '55s' timer crammed beside it inside the pill",
+      "direction": "Widen the chip or shrink the type so the full energy value and timer fit without ellipsis",
+      "region": "resource bar, first chip (x\u224895-175, y\u2248150)",
+      "severity": "major"
+    },
+    {
+      "defect": "The timer value is visibly truncated as \u201c9... 55s,\u201d reducing readability.",
+      "direction": "Show a complete, concise timer value within the chip.",
+      "region": "top-left timer resource chip",
+      "severity": "major"
+    },
+    {
+      "defect": "Energy value is truncated to '9\u2026' with an ellipsis beside the 55s timer, so the actual count is unreadable",
+      "direction": "Widen the energy chip or shrink the value/timer typography so the full number renders without truncation",
+      "region": "top resource banner, left energy chip",
+      "severity": "major"
+    },
+    {
+      "defect": "Goblins render notably larger than the player mages, and the ranged mage at (x\u2248555,y\u22481000) is smaller still, so scale is inconsistent across the field",
+      "direction": "Normalize sprite scale across units, with only intentional depth-based scaling",
+      "region": "arena, mage vs goblin sprites",
+      "severity": "major"
+    },
+    {
+      "defect": "Speed chip / title / pause strip uses a flat cream bar with no wood-frame treatment, clashing with the ornate wooden resource bar above and HUD below",
+      "direction": "Restyle the top strip with the same carved wood/gold-corner frame language as the rest of the chrome",
+      "region": "top strip (y\u2248220-310)",
+      "severity": "major"
+    },
+    {
+      "defect": "No damage numbers, attack effects or targeting feedback anywhere; the battle reads as static",
+      "direction": "Add floating damage numbers and hit/cast VFX so combat readability matches the spec",
+      "region": "arena, all mages",
+      "severity": "major"
+    },
+    {
+      "defect": "The two goblins overlap each other heavily and a third partial sprite is occluded behind them; a stray brown prop pokes out at x\u2248500,y\u2248345",
+      "direction": "Spread the advancing goblins into a readable formation with clear silhouettes and no sprite clipping behind props",
+      "region": "arena top-right, goblin cluster (x\u2248360-510, y\u2248330-490)",
+      "severity": "major"
+    },
+    {
+      "defect": "Stage track is a bare thin line with three plain nodes hugging the very screen edge; the top diamond node is half cut off at x\u224825",
+      "direction": "Inset the track from the edge and give nodes framed/painted treatment consistent with the art style; keep all nodes fully on-screen",
+      "region": "left stage track (x\u224810-45, y\u2248390-1110)",
+      "severity": "major"
+    },
+    {
+      "defect": "A large empty sand corridor separates the active battle cluster from the camp ledge.",
+      "direction": "Tighten the encounter spacing or add restrained arena dressing to connect the playfield.",
+      "region": "lower-middle arena",
+      "severity": "minor"
+    },
+    {
+      "defect": "A wide empty brown strip separates the arena's camp ledge from the mage cards, reading as dead letterbox space",
+      "direction": "Tighten the gap or dress the strip (ground texture, ledge shadow) so arena and HUD feel connected",
+      "region": "brown band between camp ledge and HUD cards (~y1150-1230)",
+      "severity": "minor"
+    },
+    {
+      "defect": "Name text runs to the card's inner frame edge and HP bar/HP text are left-aligned inconsistently vs the other two cards' spacing",
+      "direction": "Equalize inner padding and align name, HP bar and gear tiles identically across the three cards",
+      "region": "HUD card 1 'Bastion' (x\u224830-230, y\u22481240-1450)",
+      "severity": "minor"
+    },
+    {
+      "defect": "The overlapping goblins and melee heroes merge several silhouettes and weapon details.",
+      "direction": "Increase separation slightly so each advancing unit reads immediately.",
+      "region": "central combat cluster",
+      "severity": "minor"
+    },
+    {
+      "defect": "The three goblins overlap heavily into one clump and read slightly larger than the hero mages, muddying sprite readability",
+      "direction": "Spread goblin spacing along the advance path and match their scale closer to the heroes",
+      "region": "goblin pack at top of arena (~x300-500, y330-470)",
+      "severity": "minor"
+    },
+    {
+      "defect": "No damage numbers are visible even though mages are mid-attack, so combat feedback readability cannot be established",
+      "direction": "Surface floating damage numbers with outlined text over the engagement",
+      "region": "arena combat area",
+      "severity": "minor"
+    },
+    {
+      "defect": "The broad unadorned dark-brown band creates a visually dead gap before the hero cards.",
+      "direction": "Reduce its height or add subtle camp/environment detail while preserving HUD separation.",
+      "region": "bottom camp ledge above HUD",
+      "severity": "minor"
+    },
+    {
+      "defect": "Faint translucent grey rings/ghost circles float near the goblins and the dwarf's projectile, reading as debug hitboxes or unfinished VFX",
+      "direction": "Remove the placeholder circles or replace them with finished impact/projectile VFX",
+      "region": "arena upper-middle, around goblins and melee mages (~x330-530, y360-530)",
+      "severity": "minor"
+    },
+    {
+      "defect": "HP bars are flat red at full health, implying critical HP despite 1050/1060, 580/580, 760/760",
+      "direction": "Use a green-to-red gradient keyed to remaining HP, with a framed bar trough",
+      "region": "all three HP bars (y\u22481335)",
+      "severity": "minor"
+    },
+    {
+      "defect": "Large empty sand expanse with sparse repeated tuft stamps and only two cacti/skull clusters; dressing reads unfinished and tiled",
+      "direction": "Add varied props, path/terrain shading and vignette so the arena reads as a painted finished environment",
+      "region": "arena mid-field (y\u2248600-1050)",
+      "severity": "minor"
+    }
+  ],
+  "participated": [
+    "codex/gpt-5.6-terra",
+    "anthropic/claude-fable-5",
+    "anthropic/claude-opus-5"
+  ],
+  "per_model": {
+    "anthropic/claude-fable-5": {
+      "defects": [
+        {
+          "defect": "Energy value is truncated to '9\u2026' with an ellipsis beside the 55s timer, so the actual count is unreadable",
+          "direction": "Widen the energy chip or shrink the value/timer typography so the full number renders without truncation",
+          "key": "text-content",
+          "region": "top resource banner, left energy chip",
+          "severity": "major"
+        },
+        {
+          "defect": "Faint translucent grey rings/ghost circles float near the goblins and the dwarf's projectile, reading as debug hitboxes or unfinished VFX",
+          "direction": "Remove the placeholder circles or replace them with finished impact/projectile VFX",
+          "key": "extra-element",
+          "region": "arena upper-middle, around goblins and melee mages (~x330-530, y360-530)",
+          "severity": "minor"
+        },
+        {
+          "defect": "No damage numbers are visible even though mages are mid-attack, so combat feedback readability cannot be established",
+          "direction": "Surface floating damage numbers with outlined text over the engagement",
+          "key": "missing-element",
+          "region": "arena combat area",
+          "severity": "minor"
+        },
+        {
+          "defect": "The three goblins overlap heavily into one clump and read slightly larger than the hero mages, muddying sprite readability",
+          "direction": "Spread goblin spacing along the advance path and match their scale closer to the heroes",
+          "key": "sizing",
+          "region": "goblin pack at top of arena (~x300-500, y330-470)",
+          "severity": "minor"
+        },
+        {
+          "defect": "A wide empty brown strip separates the arena's camp ledge from the mage cards, reading as dead letterbox space",
+          "direction": "Tighten the gap or dress the strip (ground texture, ledge shadow) so arena and HUD feel connected",
+          "key": "spacing",
+          "region": "brown band between camp ledge and HUD cards (~y1150-1230)",
+          "severity": "minor"
+        }
+      ],
+      "model": "claude-fable-5",
+      "recurring_checks": [
+        {
+          "evidence": "fid-29-battle: top resource banner (~y95-205) is an intentional framed wood bar; no opaque box behind a sprite ribbon",
+          "id": "banner-transparency",
+          "pass": true
+        },
+        {
+          "evidence": "fid-29-battle: mages, goblins, props, and gear icons (~y1380-1470 tiles) are all drawn art, no font glyphs standing in",
+          "id": "asset-identity",
+          "pass": true
+        },
+        {
+          "evidence": "fid-29-battle: pause glyph centered in rounded button (~x660,y265); '1x' centered in speed chip (~x60,y262)",
+          "id": "glyph-centering",
+          "pass": true
+        },
+        {
+          "evidence": "fid-29-battle: chip texts and card labels stay inside bounds; energy chip (~x60-180,y150) truncates rather than leaks",
+          "id": "content-containment",
+          "pass": true
+        },
+        {
+          "evidence": "fid-29-battle: three HUD mage cards (~y1250-1500) and their paired gear tiles are equal-sized",
+          "id": "sibling-size-consistency",
+          "pass": true
+        }
+      ],
+      "score": 82.0
+    },
+    "anthropic/claude-opus-5": {
+      "defects": [
+        {
+          "defect": "A wide flat dark-brown band spans the full width under the arena, reading as an empty letterbox strip between the sand and the HUD",
+          "direction": "Either extend the painted sand/ledge art down to the HUD or dress the band as a foreground ledge with texture, so no empty gutter remains",
+          "key": "layout",
+          "region": "arena bottom, below camp ledge (y\u22481100-1210)",
+          "severity": "blocker"
+        },
+        {
+          "defect": "Speed chip / title / pause strip uses a flat cream bar with no wood-frame treatment, clashing with the ornate wooden resource bar above and HUD below",
+          "direction": "Restyle the top strip with the same carved wood/gold-corner frame language as the rest of the chrome",
+          "key": "missing-element",
+          "region": "top strip (y\u2248220-310)",
+          "severity": "major"
+        },
+        {
+          "defect": "The two goblins overlap each other heavily and a third partial sprite is occluded behind them; a stray brown prop pokes out at x\u2248500,y\u2248345",
+          "direction": "Spread the advancing goblins into a readable formation with clear silhouettes and no sprite clipping behind props",
+          "key": "layout",
+          "region": "arena top-right, goblin cluster (x\u2248360-510, y\u2248330-490)",
+          "severity": "major"
+        },
+        {
+          "defect": "Stage track is a bare thin line with three plain nodes hugging the very screen edge; the top diamond node is half cut off at x\u224825",
+          "direction": "Inset the track from the edge and give nodes framed/painted treatment consistent with the art style; keep all nodes fully on-screen",
+          "key": "layout",
+          "region": "left stage track (x\u224810-45, y\u2248390-1110)",
+          "severity": "major"
+        },
+        {
+          "defect": "Energy value is truncated to '9\u2026' with a small '55s' timer crammed beside it inside the pill",
+          "direction": "Widen the chip or shrink the type so the full energy value and timer fit without ellipsis",
+          "key": "typography",
+          "region": "resource bar, first chip (x\u224895-175, y\u2248150)",
+          "severity": "major"
+        },
+        {
+          "defect": "No damage numbers, attack effects or targeting feedback anywhere; the battle reads as static",
+          "direction": "Add floating damage numbers and hit/cast VFX so combat readability matches the spec",
+          "key": "missing-element",
+          "region": "arena, all mages",
+          "severity": "major"
+        },
+        {
+          "defect": "Goblins render notably larger than the player mages, and the ranged mage at (x\u2248555,y\u22481000) is smaller still, so scale is inconsistent across the field",
+          "direction": "Normalize sprite scale across units, with only intentional depth-based scaling",
+          "key": "sizing",
+          "region": "arena, mage vs goblin sprites",
+          "severity": "major"
+        },
+        {
+          "defect": "Name text runs to the card's inner frame edge and HP bar/HP text are left-aligned inconsistently vs the other two cards' spacing",
+          "direction": "Equalize inner padding and align name, HP bar and gear tiles identically across the three cards",
+          "key": "spacing",
+          "region": "HUD card 1 'Bastion' (x\u224830-230, y\u22481240-1450)",
+          "severity": "minor"
+        },
+        {
+          "defect": "HP bars are flat red at full health, implying critical HP despite 1050/1060, 580/580, 760/760",
+          "direction": "Use a green-to-red gradient keyed to remaining HP, with a framed bar trough",
+          "key": "color",
+          "region": "all three HP bars (y\u22481335)",
+          "severity": "minor"
+        },
+        {
+          "defect": "Large empty sand expanse with sparse repeated tuft stamps and only two cacti/skull clusters; dressing reads unfinished and tiled",
+          "direction": "Add varied props, path/terrain shading and vignette so the arena reads as a painted finished environment",
+          "key": "background",
+          "region": "arena mid-field (y\u2248600-1050)",
+          "severity": "minor"
+        }
+      ],
+      "model": "claude-opus-5",
+      "recurring_checks": [
+        {
+          "evidence": "fid-29-battle: no sprite banner/ribbon present; wooden bars are intended chrome (y\u2248100-200)",
+          "id": "banner-transparency",
+          "pass": true
+        },
+        {
+          "evidence": "fid-29-battle: HUD gear tiles at (x\u224895,y\u22481420) and (x\u2248400,y\u22481420) reuse flat inventory icons unlike the framed sprite art elsewhere; partial unidentified brown prop at (x\u2248500,y\u2248350)",
+          "id": "asset-identity",
+          "pass": false
+        },
+        {
+          "evidence": "fid-29-battle: pause glyph centered in rounded button at (x\u2248665,y\u2248258); '1x' centered in speed chip at (x\u224875,y\u2248265)",
+          "id": "glyph-centering",
+          "pass": true
+        },
+        {
+          "evidence": "fid-29-battle: energy chip text clipped to '9\u2026' at (x\u2248110,y\u2248150); 'Bastion' name reaches card frame edge at (x\u2248205,y\u22481300)",
+          "id": "content-containment",
+          "pass": false
+        },
+        {
+          "evidence": "fid-29-battle: three HUD cards equal width (x\u224830-230, 260-460, 485-690, y\u22481240-1450)",
+          "id": "sibling-size-consistency",
+          "pass": true
+        }
+      ],
+      "score": 62.0
+    },
+    "codex/gpt-5.6-terra": {
+      "defects": [
+        {
+          "defect": "The timer value is visibly truncated as \u201c9... 55s,\u201d reducing readability.",
+          "direction": "Show a complete, concise timer value within the chip.",
+          "key": "text-content",
+          "region": "top-left timer resource chip",
+          "severity": "major"
+        },
+        {
+          "defect": "A large empty sand corridor separates the active battle cluster from the camp ledge.",
+          "direction": "Tighten the encounter spacing or add restrained arena dressing to connect the playfield.",
+          "key": "spacing",
+          "region": "lower-middle arena",
+          "severity": "minor"
+        },
+        {
+          "defect": "The broad unadorned dark-brown band creates a visually dead gap before the hero cards.",
+          "direction": "Reduce its height or add subtle camp/environment detail while preserving HUD separation.",
+          "key": "layout",
+          "region": "bottom camp ledge above HUD",
+          "severity": "minor"
+        },
+        {
+          "defect": "The overlapping goblins and melee heroes merge several silhouettes and weapon details.",
+          "direction": "Increase separation slightly so each advancing unit reads immediately.",
+          "key": "sizing",
+          "region": "central combat cluster",
+          "severity": "minor"
+        }
+      ],
+      "model": "gpt-5.6-terra",
+      "recurring_checks": [
+        {
+          "evidence": "fid-29-battle speed ribbon at x24-134, y239-289 composites cleanly over the title strip.",
+          "id": "banner-transparency",
+          "pass": true
+        },
+        {
+          "evidence": "fid-29-battle character, gear, prop, and ornate HUD art share a consistent illustrated fantasy asset set.",
+          "id": "asset-identity",
+          "pass": true
+        },
+        {
+          "evidence": "fid-29-battle pause bars are visually centered in the round button near x662, y265.",
+          "id": "glyph-centering",
+          "pass": true
+        },
+        {
+          "evidence": "fid-29-battle visible chip and card text remain within their frames; timer is internally truncated rather than overflowing.",
+          "id": "content-containment",
+          "pass": true
+        },
+        {
+          "evidence": "fid-29-battle Bastion, Ember, and Sage HUD cards use matched frame dimensions at y1251-1491.",
+          "id": "sibling-size-consistency",
+          "pass": true
+        }
+      ],
+      "score": 86.0
+    },
+    "google/gemini-3.6-flash": {
+      "model": "google/gemini-3.6-flash",
+      "reason": "HTTP 402",
+      "skipped": true
+    }
+  },
+  "recurring_checks": [
+    {
+      "evidence": "fid-29-battle speed ribbon at x24-134, y239-289 composites cleanly over the title strip.",
+      "id": "banner-transparency",
+      "pass": true
+    },
+    {
+      "evidence": "fid-29-battle: HUD gear tiles at (x\u224895,y\u22481420) and (x\u2248400,y\u22481420) reuse flat inventory icons unlike the framed sprite art elsewhere; partial unidentified brown prop at (x\u2248500,y\u2248350)",
+      "id": "asset-identity",
+      "pass": false
+    },
+    {
+      "evidence": "fid-29-battle pause bars are visually centered in the round button near x662, y265.",
+      "id": "glyph-centering",
+      "pass": true
+    },
+    {
+      "evidence": "fid-29-battle: energy chip text clipped to '9\u2026' at (x\u2248110,y\u2248150); 'Bastion' name reaches card frame edge at (x\u2248205,y\u22481300)",
+      "id": "content-containment",
+      "pass": false
+    },
+    {
+      "evidence": "fid-29-battle Bastion, Ember, and Sage HUD cards use matched frame dimensions at y1251-1491.",
+      "id": "sibling-size-consistency",
+      "pass": true
+    }
+  ],
+  "score": 82.0,
+  "skipped": [
+    {
+      "judge": "google/gemini-3.6-flash",
+      "reason": "HTTP 402"
+    }
+  ],
+  "verdict": "fail"
+}

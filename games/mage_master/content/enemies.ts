@@ -49,7 +49,7 @@ export const ENEMIES: readonly EnemyDefinition[] = [
     boss: false,
     base: grunt({}),
     reach: 30,
-    scale: 1,
+    scale: 0.88,
     drops: { gold: 3, crystalChance: 0.25, crystals: 1 },
   },
   {
@@ -59,7 +59,7 @@ export const ENEMIES: readonly EnemyDefinition[] = [
     boss: false,
     base: grunt({ hp: 80, atk: 18, def: 2, atkSpeed: 0.8, moveSpeed: 55 }),
     reach: 210,
-    scale: 0.95,
+    scale: 0.84,
     drops: { gold: 4, crystalChance: 0.3, crystals: 1 },
   },
   {
@@ -79,7 +79,7 @@ export const ENEMIES: readonly EnemyDefinition[] = [
     boss: false,
     base: grunt({ hp: 100, atk: 20, def: 4, atkSpeed: 1.4, moveSpeed: 110, dodge: 0.08 }),
     reach: 30,
-    scale: 1,
+    scale: 0.92,
     drops: { gold: 4, crystalChance: 0.25, crystals: 1 },
   },
   {
@@ -99,7 +99,7 @@ export const ENEMIES: readonly EnemyDefinition[] = [
     boss: false,
     base: grunt({ hp: 160, atk: 12, def: 8, atkSpeed: 0.6, moveSpeed: 40 }),
     reach: 28,
-    scale: 0.9,
+    scale: 0.82,
     drops: { gold: 5, crystalChance: 0.3, crystals: 1 },
   },
   {

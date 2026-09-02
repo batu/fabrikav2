@@ -1519,3 +1519,236 @@ body {
 .mm-root--framed .mm-hud__mage {
   gap: 2px;
 }
+
+/* HUD cards: portrait ring beside a stacked name + HP; cards inset from the edges. */
+.mm-root--framed .mm-hud {
+  padding: 8px 12px 6px;
+  gap: 6px;
+}
+
+.mm-hud__head {
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+}
+
+.mm-hud__name {
+  font-size: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.mm-hud__portrait {
+  width: 30px;
+  height: 30px;
+}
+
+/* Home rhythm: the map panel absorbs the free height so Play sits close to the nav. */
+.mm-root--framed .mm-home__ladder {
+  max-height: 330px;
+}
+
+.mm-root--framed .mm-home__play {
+  margin-bottom: 4px;
+}
+
+/* Equal resource chips. */
+.mm-pill {
+  flex: 1 1 0;
+}
+
+/* Energy chip needs room for value + timer. */
+.mm-pill--energy {
+  flex: 1.55 1 0;
+}
+
+.mm-pill--energy .mm-pill__value {
+  overflow: visible;
+}
+
+/* Battle top strip framed in wood like the rest of the chrome. */
+.mm-root--framed .mm-battle__top {
+  height: 64px;
+  border: 12px solid transparent;
+  border-image: var(--mm-frame-panel) 64 fill / 12px / 0 round;
+  background: none;
+}
+
+.mm-root--framed .mm-battle__title {
+  color: var(--fab-mm-cream);
+  text-shadow: 0 2px 0 var(--fab-mm-ink);
+}
+
+.mm-root--framed .mm-battle__stage {
+  color: var(--fab-mm-cream-dim);
+}
+
+.mm-root--framed .mm-battle__top .mm-icon-btn {
+  top: -4px;
+}
+
+.mm-root--framed .mm-battle__top .mm-icon-btn--speed {
+  left: 2px;
+}
+
+.mm-root--framed .mm-battle__top .mm-icon-btn:not(.mm-icon-btn--speed) {
+  right: 2px;
+}
+
+/* Map panel: a dotted trail behind the rail and framed name chips. */
+.mm-root--framed .mm-home__ladder .fab-levelmap-path::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 0;
+  border-left: 3px dotted rgba(232, 184, 74, 0.35);
+  transform: translateX(-50%);
+  z-index: 0;
+  pointer-events: none;
+}
+
+.mm-party__name {
+  border: 1px solid rgba(232, 184, 74, 0.55);
+}
+
+.mm-root--framed .mm-home__ladder {
+  max-height: 360px;
+}
+
+.mm-home__deco--bones {
+  left: 30px;
+  top: 46%;
+  width: 40px;
+  height: 40px;
+}
+
+.mm-home__deco--grass {
+  right: 30px;
+  top: 44%;
+  width: 40px;
+  height: 40px;
+}
+
+/* Rift: portal art in its own block; copy and Summon on the wood below it. */
+.mm-rift__art {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  min-height: 190px;
+  border-radius: 12px;
+  box-sizing: border-box;
+}
+
+.mm-rift__art--scene {
+  background-color: var(--fab-mm-hp-track);
+  background-image: var(--mm-scene-rift);
+  background-size: cover;
+  background-position: center 42%;
+  box-shadow: inset 0 0 40px rgba(20, 10, 30, 0.7);
+}
+
+.mm-rift__inner--scene,
+.mm-rift__inner {
+  background: none;
+  box-shadow: none;
+}
+
+.mm-rift__inner .mm-rift__blurb {
+  margin: 4px 8px 0;
+  padding: 0;
+  background: none;
+  color: var(--fab-mm-cream-dim);
+  text-shadow: none;
+}
+
+/* HUD HP bar reads health, not alarm. */
+.mm-hud__fill[data-mm-hp="high"] {
+  background: var(--fab-mm-success);
+}
+
+.mm-hud__fill[data-mm-hp="mid"] {
+  background: var(--fab-mm-gold);
+}
+
+/* Stage track: inset with a dark backing strip. */
+.mm-track {
+  left: 12px;
+  padding: 6px 0;
+  box-sizing: content-box;
+}
+
+.mm-track::before {
+  content: "";
+  position: absolute;
+  left: -13px;
+  right: -13px;
+  top: -10px;
+  bottom: -10px;
+  border-radius: 14px;
+  background: rgba(58, 36, 16, 0.28);
+  z-index: -1;
+}
+
+/* Home: the map panel fills the remaining height so Play sits near the nav. */
+.mm-root--framed .mm-home__ladder {
+  max-height: none;
+}
+
+.mm-pill__sub {
+  font-size: 11px;
+  align-self: center;
+}
+
+.mm-track {
+  left: 20px;
+}
+
+.mm-root--framed .mm-home__play {
+  margin-bottom: 0;
+}
+
+.mm-root--framed .mm-home__ladder {
+  flex: 1 1 auto;
+}
+
+.mm-root {
+  background: var(--fab-mm-ledge-edge);
+}
+
+.mm-pill__sub {
+  font-size: 12px;
+  color: var(--fab-mm-cream);
+  opacity: 0.8;
+}
+
+
+/* Battle strip controls sit inside the frame; pause uses the dark plate like the speed chip. */
+.mm-root--framed .mm-battle__top .mm-icon-btn {
+  top: 0;
+  width: 44px;
+  height: 40px;
+  border: 12px solid transparent;
+  border-image: var(--mm-frame-button-dark) 30 fill / 12px / 0 stretch;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  padding: 0;
+}
+
+.mm-root--framed .mm-battle__top .mm-icon-btn:not(.mm-icon-btn--speed) {
+  right: 8px;
+}
+
+.mm-root--framed .mm-battle__top .mm-icon-btn--speed {
+  left: 8px;
+  width: 58px;
+}
+
+.mm-root--framed .mm-battle__top .mm-icon-btn__icon {
+  width: 22px;
+  height: 22px;
+}

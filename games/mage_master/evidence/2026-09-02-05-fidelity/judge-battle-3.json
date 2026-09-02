@@ -1,0 +1,483 @@
+{
+  "consensus": [
+    "layout",
+    "missing-element",
+    "background",
+    "extra-element",
+    "sizing",
+    "other"
+  ],
+  "defects": [
+    {
+      "defect": "No goblins or any enemies advancing from the top; the mages face an empty field, so the screen reads as idle, not battle",
+      "direction": "Spawn goblin sprites entering from the top of the arena and advancing toward the mages",
+      "region": "upper arena field",
+      "severity": "blocker"
+    },
+    {
+      "defect": "No goblins/enemies advancing from the top; the battle screen shows only the three mages standing idle with nothing to fight and no damage numbers",
+      "direction": "Spawn an enemy wave descending from the top of the arena with floating damage numbers so the screen reads as an active battle",
+      "region": "arena, upper two-thirds (y\u2248300-1100)",
+      "severity": "blocker"
+    },
+    {
+      "defect": "Arena is a flat tiled sand texture with only scattered pebble/tuft speckles; no painted props filling the width, no camp ledge, no depth or horizon \u2014 reads as an unfinished placeholder field, not a painted environment",
+      "direction": "Dress the arena with painted props (rocks, banners, tents, fence, foliage) across the full width plus a camp ledge on the right and a horizon/ground-shading gradient",
+      "region": "whole arena (y\u2248300-1215)",
+      "severity": "blocker"
+    },
+    {
+      "defect": "The three mage cards are flush against the screen edges \u2014 the left card's outer frame is cropped and the right card's frame is clipped, with no outer margin",
+      "direction": "Inset the card row with equal left/right margins so each card's gold frame is fully visible",
+      "region": "HUD cards, left and right edges x\u22480-20 and x\u2248700-725",
+      "severity": "major"
+    },
+    {
+      "defect": "Sprite scale is inconsistent \u2014 the dwarf (center) is markedly larger and higher-detail than the two robed mages, and all three are small relative to the arena, leaving large empty sand",
+      "direction": "Normalize character sprite heights and increase overall sprite scale so the trio occupies the arena's stage band",
+      "region": "mage sprites, y\u2248690-920",
+      "severity": "major"
+    },
+    {
+      "defect": "Portrait rings contain tiny full-body sprites shrunk to thumbnail size rather than framed portrait busts; Ember's and Sage's portraits are near-identical grey blobs and do not match their arena sprites",
+      "direction": "Use cropped bust portraits matching each hero's arena sprite, scaled to fill the ring",
+      "region": "HUD card portraits, y\u22481270-1330",
+      "severity": "major"
+    },
+    {
+      "defect": "Hero names overrun their cards \u2014 'Bastion' and 'Ember' overlap/extend past the portrait ring and the card's inner panel edge",
+      "direction": "Constrain names to the panel width with truncation or smaller type, offset clear of the portrait ring",
+      "region": "HUD card name labels, y\u22481295-1320",
+      "severity": "major"
+    },
+    {
+      "defect": "No goblins or other enemies are advancing from the top.",
+      "direction": "Add a readable enemy wave entering from the upper arena.",
+      "region": "arena upper half",
+      "severity": "major"
+    },
+    {
+      "defect": "No damage numbers or combat feedback anywhere despite the spec calling for readable damage numbers",
+      "direction": "Render floating damage numbers over combat targets with outline/contrast against the sand",
+      "region": "arena, around mage sprites",
+      "severity": "major"
+    },
+    {
+      "defect": "All three mages sit in a static central cluster; the melee/ranged role staging is unclear.",
+      "direction": "Stage the two melee mages forward toward enemies and keep the ranged mage visibly positioned at the camp ledge.",
+      "region": "mage formation",
+      "severity": "major"
+    },
+    {
+      "defect": "Mages sit mid-arena in a loose diagonal with no formation logic; the two melee mages are not advanced toward any enemy line and the ranged mage holds no visible camp ledge",
+      "direction": "Anchor the ranged mage on a defined camp ledge at the bottom/right and push the two melee mages forward toward the enemy approach lane",
+      "region": "mage row, y\u2248690-920",
+      "severity": "major"
+    },
+    {
+      "defect": "A circular element (likely a stage-track node or hero sprite) is clipped by the top edge of the HUD panel, leaving a stray half-shape",
+      "direction": "Raise the arena content or lower its safe area so nothing intersects the HUD panel edge",
+      "region": "behind HUD, x\u2248195-240, y\u22481215-1240",
+      "severity": "major"
+    },
+    {
+      "defect": "A second full resource banner (energy/gold/gems/diamonds) sits above the battle top strip; spec calls for a top strip with only speed chip, level/stage title and pause",
+      "direction": "Remove or collapse the resource banner during battle so the top strip is speed chip + title + pause only",
+      "region": "top currency bar, y\u224885-205",
+      "severity": "major"
+    },
+    {
+      "defect": "The title strip is a flat pale beige rectangle with no frame, clashing with the ornate dark-wood/gold framing used by the banner above and HUD below",
+      "direction": "Restyle the strip with the same carved wood + gold-trim frame language as the rest of the chrome",
+      "region": "top strip band, y\u2248215-300",
+      "severity": "major"
+    },
+    {
+      "defect": "Full-health HP bars are rendered solid red, reading as critical damage; they also have no frame or fill gradient",
+      "direction": "Use a green-to-red gradient keyed to HP fraction, framed in the card's gold trim",
+      "region": "HP bars on all three cards, y\u22481340-1360",
+      "severity": "major"
+    },
+    {
+      "defect": "The sand field is very sparse and lacks the props and camp ledge needed to read as a finished battle environment.",
+      "direction": "Add varied rocks, ruins, vegetation, and a distinct camp/ledge for the ranged mage.",
+      "region": "arena",
+      "severity": "major"
+    },
+    {
+      "defect": "Arena dressing is only repeated small pebble/grass scatter plus one rock pile bottom-right; no camp ledge for the ranged mage to hold, so the environment reads unfinished",
+      "direction": "Add larger width-filling props (camp ledge/tents, rock formations, bones, path texture variation) and a visible camp structure near the ranged mage",
+      "region": "full arena",
+      "severity": "major"
+    },
+    {
+      "defect": "A tall flat brown band of dead space sits under the HUD cards, letterboxing the bottom of the screen",
+      "direction": "Extend the HUD frame to the safe-area bottom or reduce the band to a thin trim",
+      "region": "below HUD, y\u22481460-1568",
+      "severity": "minor"
+    },
+    {
+      "defect": "The 1x speed chip's ornamental frame is flush against / slightly cut by the left screen edge",
+      "direction": "Inset the speed chip so its full ornament renders with edge margin matching the pause button's right inset",
+      "region": "top-left speed chip",
+      "severity": "minor"
+    },
+    {
+      "defect": "Partial dark shapes appear clipped at the arena/HUD boundary.",
+      "direction": "Remove or fully reveal the clipped arena props before the HUD begins.",
+      "region": "arena lower edge above HUD",
+      "severity": "minor"
+    },
+    {
+      "defect": "The two melee mages are not advancing toward enemies; all three stand in a loose static cluster mid-field",
+      "direction": "Position/animate the two melee mages moving up-field toward the enemy spawn while Sage holds back near the camp",
+      "region": "mage group, mid arena",
+      "severity": "minor"
+    },
+    {
+      "defect": "The stage track is a thin bare line with mismatched node styles (diamond, small ring, large ring, plain dot) and runs off the bottom without a terminus or labels",
+      "direction": "Give the track a consistent framed rail, uniform node art with a distinct current-node highlight, and a defined start/end cap",
+      "region": "stage track, left edge x\u224810-50",
+      "severity": "minor"
+    },
+    {
+      "defect": "Gear tiles use plain grey rounded squares with mismatched icon styles and inconsistent icon padding, breaking the gold-frame HUD language",
+      "direction": "Frame gear tiles in the same gold/wood trim and normalize icon size and padding across all six tiles",
+      "region": "gear tiles on all HUD cards, y\u22481385-1445",
+      "severity": "minor"
+    },
+    {
+      "defect": "A partial brown decorative curve is clipped by the HUD boundary at the arena's bottom edge",
+      "direction": "Move the prop fully into the arena or cull sprites that intersect the HUD seam",
+      "region": "bottom arena edge, center-left",
+      "severity": "minor"
+    },
+    {
+      "defect": "A floating gold-bar pickup sits half-cut by the HUD edge with no shadow or ground contact",
+      "direction": "Move the pickup fully inside the arena bounds and add a ground shadow",
+      "region": "bottom-right arena, x\u2248600-680, y\u22481150-1200",
+      "severity": "minor"
+    }
+  ],
+  "participated": [
+    "codex/gpt-5.6-terra",
+    "anthropic/claude-fable-5",
+    "anthropic/claude-opus-5"
+  ],
+  "per_model": {
+    "anthropic/claude-fable-5": {
+      "defects": [
+        {
+          "defect": "No goblins or any enemies advancing from the top; the mages face an empty field, so the screen reads as idle, not battle",
+          "direction": "Spawn goblin sprites entering from the top of the arena and advancing toward the mages",
+          "key": "missing-element",
+          "region": "upper arena field",
+          "severity": "blocker"
+        },
+        {
+          "defect": "No damage numbers or combat feedback anywhere despite the spec calling for readable damage numbers",
+          "direction": "Render floating damage numbers over combat targets with outline/contrast against the sand",
+          "key": "missing-element",
+          "region": "arena, around mage sprites",
+          "severity": "major"
+        },
+        {
+          "defect": "Arena dressing is only repeated small pebble/grass scatter plus one rock pile bottom-right; no camp ledge for the ranged mage to hold, so the environment reads unfinished",
+          "direction": "Add larger width-filling props (camp ledge/tents, rock formations, bones, path texture variation) and a visible camp structure near the ranged mage",
+          "key": "background",
+          "region": "full arena",
+          "severity": "major"
+        },
+        {
+          "defect": "The two melee mages are not advancing toward enemies; all three stand in a loose static cluster mid-field",
+          "direction": "Position/animate the two melee mages moving up-field toward the enemy spawn while Sage holds back near the camp",
+          "key": "layout",
+          "region": "mage group, mid arena",
+          "severity": "minor"
+        },
+        {
+          "defect": "A partial brown decorative curve is clipped by the HUD boundary at the arena's bottom edge",
+          "direction": "Move the prop fully into the arena or cull sprites that intersect the HUD seam",
+          "key": "extra-element",
+          "region": "bottom arena edge, center-left",
+          "severity": "minor"
+        },
+        {
+          "defect": "The 1x speed chip's ornamental frame is flush against / slightly cut by the left screen edge",
+          "direction": "Inset the speed chip so its full ornament renders with edge margin matching the pause button's right inset",
+          "key": "sizing",
+          "region": "top-left speed chip",
+          "severity": "minor"
+        }
+      ],
+      "model": "claude-fable-5",
+      "recurring_checks": [
+        {
+          "evidence": "fid-28-battle: resource banner frame at ~(10-715, 95-200) composites cleanly over the brown header, no stray opaque box",
+          "id": "banner-transparency",
+          "pass": true
+        },
+        {
+          "evidence": "fid-28-battle: mage sprites (~340,760), currency icons and gear tiles all use painted art, no font-glyph stand-ins",
+          "id": "asset-identity",
+          "pass": true
+        },
+        {
+          "evidence": "fid-28-battle: pause glyph centered in circular button at ~(660,265); 1x centered in speed chip at ~(45,265)",
+          "id": "glyph-centering",
+          "pass": true
+        },
+        {
+          "evidence": "fid-28-battle: names Bastion/Ember/Sage and HP text 1060/1060 etc. stay inside card bounds at ~(30-700, 1270-1470)",
+          "id": "content-containment",
+          "pass": true
+        },
+        {
+          "evidence": "fid-28-battle: three HUD cards at y\u22481250-1490 are equal width/height; paired gear tiles within each card match size",
+          "id": "sibling-size-consistency",
+          "pass": true
+        }
+      ],
+      "score": 64.0
+    },
+    "anthropic/claude-opus-5": {
+      "defects": [
+        {
+          "defect": "No goblins/enemies advancing from the top; the battle screen shows only the three mages standing idle with nothing to fight and no damage numbers",
+          "direction": "Spawn an enemy wave descending from the top of the arena with floating damage numbers so the screen reads as an active battle",
+          "key": "missing-element",
+          "region": "arena, upper two-thirds (y\u2248300-1100)",
+          "severity": "blocker"
+        },
+        {
+          "defect": "Arena is a flat tiled sand texture with only scattered pebble/tuft speckles; no painted props filling the width, no camp ledge, no depth or horizon \u2014 reads as an unfinished placeholder field, not a painted environment",
+          "direction": "Dress the arena with painted props (rocks, banners, tents, fence, foliage) across the full width plus a camp ledge on the right and a horizon/ground-shading gradient",
+          "key": "background",
+          "region": "whole arena (y\u2248300-1215)",
+          "severity": "blocker"
+        },
+        {
+          "defect": "Mages sit mid-arena in a loose diagonal with no formation logic; the two melee mages are not advanced toward any enemy line and the ranged mage holds no visible camp ledge",
+          "direction": "Anchor the ranged mage on a defined camp ledge at the bottom/right and push the two melee mages forward toward the enemy approach lane",
+          "key": "layout",
+          "region": "mage row, y\u2248690-920",
+          "severity": "major"
+        },
+        {
+          "defect": "Sprite scale is inconsistent \u2014 the dwarf (center) is markedly larger and higher-detail than the two robed mages, and all three are small relative to the arena, leaving large empty sand",
+          "direction": "Normalize character sprite heights and increase overall sprite scale so the trio occupies the arena's stage band",
+          "key": "sizing",
+          "region": "mage sprites, y\u2248690-920",
+          "severity": "major"
+        },
+        {
+          "defect": "Portrait rings contain tiny full-body sprites shrunk to thumbnail size rather than framed portrait busts; Ember's and Sage's portraits are near-identical grey blobs and do not match their arena sprites",
+          "direction": "Use cropped bust portraits matching each hero's arena sprite, scaled to fill the ring",
+          "key": "other",
+          "region": "HUD card portraits, y\u22481270-1330",
+          "severity": "major"
+        },
+        {
+          "defect": "A second full resource banner (energy/gold/gems/diamonds) sits above the battle top strip; spec calls for a top strip with only speed chip, level/stage title and pause",
+          "direction": "Remove or collapse the resource banner during battle so the top strip is speed chip + title + pause only",
+          "key": "extra-element",
+          "region": "top currency bar, y\u224885-205",
+          "severity": "major"
+        },
+        {
+          "defect": "The title strip is a flat pale beige rectangle with no frame, clashing with the ornate dark-wood/gold framing used by the banner above and HUD below",
+          "direction": "Restyle the strip with the same carved wood + gold-trim frame language as the rest of the chrome",
+          "key": "color",
+          "region": "top strip band, y\u2248215-300",
+          "severity": "major"
+        },
+        {
+          "defect": "The three mage cards are flush against the screen edges \u2014 the left card's outer frame is cropped and the right card's frame is clipped, with no outer margin",
+          "direction": "Inset the card row with equal left/right margins so each card's gold frame is fully visible",
+          "key": "spacing",
+          "region": "HUD cards, left and right edges x\u22480-20 and x\u2248700-725",
+          "severity": "major"
+        },
+        {
+          "defect": "Hero names overrun their cards \u2014 'Bastion' and 'Ember' overlap/extend past the portrait ring and the card's inner panel edge",
+          "direction": "Constrain names to the panel width with truncation or smaller type, offset clear of the portrait ring",
+          "key": "other",
+          "region": "HUD card name labels, y\u22481295-1320",
+          "severity": "major"
+        },
+        {
+          "defect": "Full-health HP bars are rendered solid red, reading as critical damage; they also have no frame or fill gradient",
+          "direction": "Use a green-to-red gradient keyed to HP fraction, framed in the card's gold trim",
+          "key": "color",
+          "region": "HP bars on all three cards, y\u22481340-1360",
+          "severity": "major"
+        },
+        {
+          "defect": "A circular element (likely a stage-track node or hero sprite) is clipped by the top edge of the HUD panel, leaving a stray half-shape",
+          "direction": "Raise the arena content or lower its safe area so nothing intersects the HUD panel edge",
+          "key": "layout",
+          "region": "behind HUD, x\u2248195-240, y\u22481215-1240",
+          "severity": "major"
+        },
+        {
+          "defect": "The stage track is a thin bare line with mismatched node styles (diamond, small ring, large ring, plain dot) and runs off the bottom without a terminus or labels",
+          "direction": "Give the track a consistent framed rail, uniform node art with a distinct current-node highlight, and a defined start/end cap",
+          "key": "layout",
+          "region": "stage track, left edge x\u224810-50",
+          "severity": "minor"
+        },
+        {
+          "defect": "A floating gold-bar pickup sits half-cut by the HUD edge with no shadow or ground contact",
+          "direction": "Move the pickup fully inside the arena bounds and add a ground shadow",
+          "key": "extra-element",
+          "region": "bottom-right arena, x\u2248600-680, y\u22481150-1200",
+          "severity": "minor"
+        },
+        {
+          "defect": "Gear tiles use plain grey rounded squares with mismatched icon styles and inconsistent icon padding, breaking the gold-frame HUD language",
+          "direction": "Frame gear tiles in the same gold/wood trim and normalize icon size and padding across all six tiles",
+          "key": "iconography",
+          "region": "gear tiles on all HUD cards, y\u22481385-1445",
+          "severity": "minor"
+        },
+        {
+          "defect": "A tall flat brown band of dead space sits under the HUD cards, letterboxing the bottom of the screen",
+          "direction": "Extend the HUD frame to the safe-area bottom or reduce the band to a thin trim",
+          "key": "spacing",
+          "region": "below HUD, y\u22481460-1568",
+          "severity": "minor"
+        }
+      ],
+      "model": "claude-opus-5",
+      "recurring_checks": [
+        {
+          "evidence": "fid-28-battle: no sprite banner/ribbon present in arena; top bars are intentional chrome panels (y\u224885-300)",
+          "id": "banner-transparency",
+          "pass": true
+        },
+        {
+          "evidence": "fid-28-battle: HUD portrait rings at (95,1300)/(310,1300)/(540,1300) show shrunken full-body sprites, Ember and Sage nearly identical grey figures",
+          "id": "asset-identity",
+          "pass": false
+        },
+        {
+          "evidence": "fid-28-battle: pause glyph centered in rounded button at (665,262); '1x' centered in speed chip at (75,265)",
+          "id": "glyph-centering",
+          "pass": true
+        },
+        {
+          "evidence": "fid-28-battle: 'Bastion' text at (160,1307) overlaps portrait ring and runs to the card's inner panel edge",
+          "id": "content-containment",
+          "pass": false
+        },
+        {
+          "evidence": "fid-28-battle: HUD card row y\u22481250-1460 \u2014 left card clipped at x\u22480 and right card clipped at x\u2248725, so the three cards are not equal-width on screen",
+          "id": "sibling-size-consistency",
+          "pass": false
+        }
+      ],
+      "score": 52.0
+    },
+    "codex/gpt-5.6-terra": {
+      "defects": [
+        {
+          "defect": "No goblins or other enemies are advancing from the top.",
+          "direction": "Add a readable enemy wave entering from the upper arena.",
+          "key": "missing-element",
+          "region": "arena upper half",
+          "severity": "major"
+        },
+        {
+          "defect": "The sand field is very sparse and lacks the props and camp ledge needed to read as a finished battle environment.",
+          "direction": "Add varied rocks, ruins, vegetation, and a distinct camp/ledge for the ranged mage.",
+          "key": "background",
+          "region": "arena",
+          "severity": "major"
+        },
+        {
+          "defect": "All three mages sit in a static central cluster; the melee/ranged role staging is unclear.",
+          "direction": "Stage the two melee mages forward toward enemies and keep the ranged mage visibly positioned at the camp ledge.",
+          "key": "layout",
+          "region": "mage formation",
+          "severity": "major"
+        },
+        {
+          "defect": "Partial dark shapes appear clipped at the arena/HUD boundary.",
+          "direction": "Remove or fully reveal the clipped arena props before the HUD begins.",
+          "key": "other",
+          "region": "arena lower edge above HUD",
+          "severity": "minor"
+        }
+      ],
+      "model": "gpt-5.6-terra",
+      "recurring_checks": [
+        {
+          "evidence": "fid-28-battle speed badge at upper-left around 25,240 composites cleanly.",
+          "id": "banner-transparency",
+          "pass": true
+        },
+        {
+          "evidence": "fid-28-battle character sprites and framed HUD art appear purpose-built.",
+          "id": "asset-identity",
+          "pass": true
+        },
+        {
+          "evidence": "fid-28-battle pause glyph is centered in the button near 662,265.",
+          "id": "glyph-centering",
+          "pass": true
+        },
+        {
+          "evidence": "fid-28-battle card names, HP values, and gear icons remain inside the three bottom cards.",
+          "id": "content-containment",
+          "pass": true
+        },
+        {
+          "evidence": "fid-28-battle three bottom mage cards are visually equal-sized across x=22-705.",
+          "id": "sibling-size-consistency",
+          "pass": true
+        }
+      ],
+      "score": 72.0
+    },
+    "google/gemini-3.6-flash": {
+      "model": "google/gemini-3.6-flash",
+      "reason": "HTTP 402",
+      "skipped": true
+    }
+  },
+  "recurring_checks": [
+    {
+      "evidence": "fid-28-battle speed badge at upper-left around 25,240 composites cleanly.",
+      "id": "banner-transparency",
+      "pass": true
+    },
+    {
+      "evidence": "fid-28-battle: HUD portrait rings at (95,1300)/(310,1300)/(540,1300) show shrunken full-body sprites, Ember and Sage nearly identical grey figures",
+      "id": "asset-identity",
+      "pass": false
+    },
+    {
+      "evidence": "fid-28-battle pause glyph is centered in the button near 662,265.",
+      "id": "glyph-centering",
+      "pass": true
+    },
+    {
+      "evidence": "fid-28-battle: 'Bastion' text at (160,1307) overlaps portrait ring and runs to the card's inner panel edge",
+      "id": "content-containment",
+      "pass": false
+    },
+    {
+      "evidence": "fid-28-battle: HUD card row y\u22481250-1460 \u2014 left card clipped at x\u22480 and right card clipped at x\u2248725, so the three cards are not equal-width on screen",
+      "id": "sibling-size-consistency",
+      "pass": false
+    }
+  ],
+  "score": 64.0,
+  "skipped": [
+    {
+      "judge": "google/gemini-3.6-flash",
+      "reason": "HTTP 402"
+    }
+  ],
+  "verdict": "fail"
+}

@@ -1,0 +1,377 @@
+{
+  "consensus": [
+    "spacing",
+    "text-content",
+    "missing-element",
+    "sizing"
+  ],
+  "defects": [
+    {
+      "defect": "Energy chip shows overlapping garbled strings '9/10' and 'a042s' stacked on top of each other, unreadable, and the chip is much wider than its siblings",
+      "direction": "Render a single value (e.g. '9/10') plus a separate refill timer laid out side by side, and size the chip to match the coin/gem chips",
+      "region": "top bar, energy chip (~x=60-250, y=150)",
+      "severity": "blocker"
+    },
+    {
+      "defect": "'Play \u00b7 Level 1' is bare unframed text floating on the background with no button plate, shadow or frame \u2014 the primary CTA reads as a label, not a tappable premium button",
+      "direction": "Give Play a large framed wood/gold button plate with beveled border matching the panel/nav framing, centered on the same axis as the title and map",
+      "region": "Play button, ~x=190-540, y=1226",
+      "severity": "blocker"
+    },
+    {
+      "defect": "The energy count/countdown text appears overlapped or malformed, making the status value difficult to read.",
+      "direction": "Separate the energy amount and timer into readable, baseline-aligned text groups with clear icon spacing.",
+      "region": "fid-39-home, top-left energy/status pill (x45-237, y123-179)",
+      "severity": "major"
+    },
+    {
+      "defect": "Energy value renders as garbled overlapping text \u2014 '9/10' collides with a gray debug-looking string '?a042s' inside the pill",
+      "direction": "Show a single clean energy readout (e.g. '9/10'); remove the stray overlay string and reflow the pill to fit",
+      "region": "top bar, left energy pill (~x45-235, y130-175)",
+      "severity": "major"
+    },
+    {
+      "defect": "Vertical rhythm becomes loose below the hero panel: map content, Play control, and bottom navigation are separated by large uneven dead zones.",
+      "direction": "Tighten and regularize the vertical gaps, treating the map and Play action as one clearly grouped section.",
+      "region": "fid-39-home, scene-to-map-to-Play stack (y720-1340)",
+      "severity": "major"
+    },
+    {
+      "defect": "The level map is a collection of floating sprites and nodes on bare wood rather than a defined, framed map panel; the large empty field reads unfinished.",
+      "direction": "Place the landmarks and progression spine inside a bounded illustrated/map card with intentional background detail and padding.",
+      "region": "fid-39-home, level progression area (x80-650, y760-1125)",
+      "severity": "major"
+    },
+    {
+      "defect": "'Play \u00b7 Level 1' is bare text floating on the background with no framed button chrome, unlike the framed Play buttons of Kingdom Rush-style references",
+      "direction": "Wrap the Play label and energy-cost chip in a proper framed/raised button aligned on the central axis",
+      "region": "Play row (~y1195-1250)",
+      "severity": "major"
+    },
+    {
+      "defect": "Level path (locks, level-1 medallion) and decorations sit directly on the background with no map panel frame, so the region reads unfinished versus the framed scene panel above",
+      "direction": "Frame the map region in a panel matching the hero scene panel treatment, or visually anchor the path and props to a distinct map surface",
+      "region": "level map area (~y760-1120)",
+      "severity": "major"
+    },
+    {
+      "defect": "Decorative props (rocks, bones, campfire, tent, plant, cactus) are scattered as loose unframed sprites on flat brown with no ground, path or panel, so the map area reads as unfinished placeholder",
+      "direction": "Put the map on a framed panel with a painted terrain background so props sit in a scene rather than floating",
+      "region": "level map area, y\u2248760-1120",
+      "severity": "major"
+    },
+    {
+      "defect": "Background is a flat brown diagonal-stripe fill with large empty regions above the nav bar (y\u22481250-1330) and around the title, giving an unfinished, low-polish feel",
+      "direction": "Add depth/illustrated backdrop and tighten vertical rhythm so no dead band remains above the nav bar",
+      "region": "full screen behind title and map",
+      "severity": "major"
+    },
+    {
+      "defect": "Large sparsely used gap around the Play row leaves an empty band that reads unfinished compared to the dense upper half",
+      "direction": "Tighten vertical margins or enlarge the Play button so the lower third feels intentionally composed",
+      "region": "band between map and nav bar (~y1120-1330)",
+      "severity": "minor"
+    },
+    {
+      "defect": "Inconsistent vertical gaps: title-to-panel and panel-to-map are tight while map-to-Play and Play-to-nav are large and uneven",
+      "direction": "Normalize inter-section margins to a single spacing scale",
+      "region": "between hero panel bottom (y\u2248715) and map top (y\u2248770), vs map bottom (y\u22481120) to Play (y\u22481226)",
+      "severity": "minor"
+    },
+    {
+      "defect": "Left energy pill is noticeably wider than the three sibling currency pills, exaggerated by the garbled text inside it",
+      "direction": "Equalize pill widths (or use one consistent auto-width rhythm) once the energy text is fixed",
+      "region": "top bar resource pills",
+      "severity": "minor"
+    },
+    {
+      "defect": "Hero sprites differ noticeably in rendered height (Bastion ~135px, Ember ~120px, Sage ~110px) and sit on different baselines within equal cells",
+      "direction": "Normalize hero sprite scale and align feet to a common baseline",
+      "region": "hero panel, three hero cells y\u2248500-700",
+      "severity": "minor"
+    },
+    {
+      "defect": "The level node column is centered but the flanking prop clusters are asymmetric (left cluster of 3 at x\u2248130, right cluster of 3 at x\u2248580 with different vertical offsets), pulling optical center off-axis",
+      "direction": "Balance left/right prop masses or offset them deliberately so the composition still reads centered on the Play/title axis",
+      "region": "level map column, x\u2248362 vs screen center x\u2248362",
+      "severity": "minor"
+    },
+    {
+      "defect": "Label is muted gray-brown on brown background, noticeably lower contrast than other UI text",
+      "direction": "Raise contrast (light cream or gold lettering with dark outline consistent with the title/nav styling)",
+      "region": "'Play \u00b7 Level 1' label",
+      "severity": "minor"
+    },
+    {
+      "defect": "Large flat cream void above the heroes inside the panel with no art or header, reading as empty space",
+      "direction": "Add a panel header/label or reduce panel height so the interior is filled",
+      "region": "hero panel interior, y\u2248400-715",
+      "severity": "minor"
+    }
+  ],
+  "participated": [
+    "codex/gpt-5.6-terra",
+    "anthropic/claude-fable-5",
+    "anthropic/claude-opus-5"
+  ],
+  "per_model": {
+    "anthropic/claude-fable-5": {
+      "defects": [
+        {
+          "defect": "Energy value renders as garbled overlapping text \u2014 '9/10' collides with a gray debug-looking string '?a042s' inside the pill",
+          "direction": "Show a single clean energy readout (e.g. '9/10'); remove the stray overlay string and reflow the pill to fit",
+          "key": "text-content",
+          "region": "top bar, left energy pill (~x45-235, y130-175)",
+          "severity": "major"
+        },
+        {
+          "defect": "'Play \u00b7 Level 1' is bare text floating on the background with no framed button chrome, unlike the framed Play buttons of Kingdom Rush-style references",
+          "direction": "Wrap the Play label and energy-cost chip in a proper framed/raised button aligned on the central axis",
+          "key": "missing-element",
+          "region": "Play row (~y1195-1250)",
+          "severity": "major"
+        },
+        {
+          "defect": "Level path (locks, level-1 medallion) and decorations sit directly on the background with no map panel frame, so the region reads unfinished versus the framed scene panel above",
+          "direction": "Frame the map region in a panel matching the hero scene panel treatment, or visually anchor the path and props to a distinct map surface",
+          "key": "missing-element",
+          "region": "level map area (~y760-1120)",
+          "severity": "major"
+        },
+        {
+          "defect": "Label is muted gray-brown on brown background, noticeably lower contrast than other UI text",
+          "direction": "Raise contrast (light cream or gold lettering with dark outline consistent with the title/nav styling)",
+          "key": "color",
+          "region": "'Play \u00b7 Level 1' label",
+          "severity": "minor"
+        },
+        {
+          "defect": "Large sparsely used gap around the Play row leaves an empty band that reads unfinished compared to the dense upper half",
+          "direction": "Tighten vertical margins or enlarge the Play button so the lower third feels intentionally composed",
+          "key": "spacing",
+          "region": "band between map and nav bar (~y1120-1330)",
+          "severity": "minor"
+        },
+        {
+          "defect": "Left energy pill is noticeably wider than the three sibling currency pills, exaggerated by the garbled text inside it",
+          "direction": "Equalize pill widths (or use one consistent auto-width rhythm) once the energy text is fixed",
+          "key": "sizing",
+          "region": "top bar resource pills",
+          "severity": "minor"
+        }
+      ],
+      "model": "claude-fable-5",
+      "recurring_checks": [
+        {
+          "evidence": "fid-39-home: 'Mage Master' title art at ~y230-390 composites transparently over the striped brown background",
+          "id": "banner-transparency",
+          "pass": true
+        },
+        {
+          "evidence": "fid-39-home: hero sprites, map props, and nav icons (~y500-1450) are all real art assets, no font-glyph stand-ins",
+          "id": "asset-identity",
+          "pass": true
+        },
+        {
+          "evidence": "fid-39-home: '1' in the gold level medallion at ~(362,1055) is visually centered; lock glyphs at ~(362,790/910) centered",
+          "id": "glyph-centering",
+          "pass": true
+        },
+        {
+          "evidence": "fid-39-home: garbled '9/10'/' ?a042s' text overlaps itself and crowds the left energy pill bounds at ~(60-230, 150)",
+          "id": "content-containment",
+          "pass": false
+        },
+        {
+          "evidence": "fid-39-home: left energy pill (~190px wide) larger than the three ~135px sibling pills in the top bar row at ~y150",
+          "id": "sibling-size-consistency",
+          "pass": false
+        }
+      ],
+      "score": 64.0
+    },
+    "anthropic/claude-opus-5": {
+      "defects": [
+        {
+          "defect": "Energy chip shows overlapping garbled strings '9/10' and 'a042s' stacked on top of each other, unreadable, and the chip is much wider than its siblings",
+          "direction": "Render a single value (e.g. '9/10') plus a separate refill timer laid out side by side, and size the chip to match the coin/gem chips",
+          "key": "text-content",
+          "region": "top bar, energy chip (~x=60-250, y=150)",
+          "severity": "blocker"
+        },
+        {
+          "defect": "'Play \u00b7 Level 1' is bare unframed text floating on the background with no button plate, shadow or frame \u2014 the primary CTA reads as a label, not a tappable premium button",
+          "direction": "Give Play a large framed wood/gold button plate with beveled border matching the panel/nav framing, centered on the same axis as the title and map",
+          "key": "other",
+          "region": "Play button, ~x=190-540, y=1226",
+          "severity": "blocker"
+        },
+        {
+          "defect": "Decorative props (rocks, bones, campfire, tent, plant, cactus) are scattered as loose unframed sprites on flat brown with no ground, path or panel, so the map area reads as unfinished placeholder",
+          "direction": "Put the map on a framed panel with a painted terrain background so props sit in a scene rather than floating",
+          "key": "layout",
+          "region": "level map area, y\u2248760-1120",
+          "severity": "major"
+        },
+        {
+          "defect": "Background is a flat brown diagonal-stripe fill with large empty regions above the nav bar (y\u22481250-1330) and around the title, giving an unfinished, low-polish feel",
+          "direction": "Add depth/illustrated backdrop and tighten vertical rhythm so no dead band remains above the nav bar",
+          "key": "background",
+          "region": "full screen behind title and map",
+          "severity": "major"
+        },
+        {
+          "defect": "The level node column is centered but the flanking prop clusters are asymmetric (left cluster of 3 at x\u2248130, right cluster of 3 at x\u2248580 with different vertical offsets), pulling optical center off-axis",
+          "direction": "Balance left/right prop masses or offset them deliberately so the composition still reads centered on the Play/title axis",
+          "key": "layout",
+          "region": "level map column, x\u2248362 vs screen center x\u2248362",
+          "severity": "minor"
+        },
+        {
+          "defect": "Inconsistent vertical gaps: title-to-panel and panel-to-map are tight while map-to-Play and Play-to-nav are large and uneven",
+          "direction": "Normalize inter-section margins to a single spacing scale",
+          "key": "spacing",
+          "region": "between hero panel bottom (y\u2248715) and map top (y\u2248770), vs map bottom (y\u22481120) to Play (y\u22481226)",
+          "severity": "minor"
+        },
+        {
+          "defect": "Hero sprites differ noticeably in rendered height (Bastion ~135px, Ember ~120px, Sage ~110px) and sit on different baselines within equal cells",
+          "direction": "Normalize hero sprite scale and align feet to a common baseline",
+          "key": "sizing",
+          "region": "hero panel, three hero cells y\u2248500-700",
+          "severity": "minor"
+        },
+        {
+          "defect": "Large flat cream void above the heroes inside the panel with no art or header, reading as empty space",
+          "direction": "Add a panel header/label or reduce panel height so the interior is filled",
+          "key": "background",
+          "region": "hero panel interior, y\u2248400-715",
+          "severity": "minor"
+        }
+      ],
+      "model": "claude-opus-5",
+      "recurring_checks": [
+        {
+          "evidence": "fid-39-home: title 'Mage Master' purple burst and name pills (Bastion x\u2248142,y\u2248689) composite without opaque boxes",
+          "id": "banner-transparency",
+          "pass": true
+        },
+        {
+          "evidence": "fid-39-home: nav icons (house x\u2248115,y\u22481400; rift x\u2248279; hat x\u2248445; gear x\u2248609) are painted art, not glyph stand-ins",
+          "id": "asset-identity",
+          "pass": true
+        },
+        {
+          "evidence": "fid-39-home: '1' in circular level node at x\u2248362,y\u22481047 is visually centered",
+          "id": "glyph-centering",
+          "pass": true
+        },
+        {
+          "evidence": "fid-39-home: energy chip text '9/10'/'a042s' overruns and collides inside pill at x\u224895-250,y\u2248150",
+          "id": "content-containment",
+          "pass": false
+        },
+        {
+          "evidence": "fid-39-home: top-bar chip row \u2014 energy chip spans x\u224845-385 (~340px) vs coin/crystal/gem chips ~130px each at y\u2248150",
+          "id": "sibling-size-consistency",
+          "pass": false
+        }
+      ],
+      "score": 58.0
+    },
+    "codex/gpt-5.6-terra": {
+      "defects": [
+        {
+          "defect": "The level map is a collection of floating sprites and nodes on bare wood rather than a defined, framed map panel; the large empty field reads unfinished.",
+          "direction": "Place the landmarks and progression spine inside a bounded illustrated/map card with intentional background detail and padding.",
+          "key": "missing-element",
+          "region": "fid-39-home, level progression area (x80-650, y760-1125)",
+          "severity": "major"
+        },
+        {
+          "defect": "Vertical rhythm becomes loose below the hero panel: map content, Play control, and bottom navigation are separated by large uneven dead zones.",
+          "direction": "Tighten and regularize the vertical gaps, treating the map and Play action as one clearly grouped section.",
+          "key": "spacing",
+          "region": "fid-39-home, scene-to-map-to-Play stack (y720-1340)",
+          "severity": "major"
+        },
+        {
+          "defect": "The energy count/countdown text appears overlapped or malformed, making the status value difficult to read.",
+          "direction": "Separate the energy amount and timer into readable, baseline-aligned text groups with clear icon spacing.",
+          "key": "typography",
+          "region": "fid-39-home, top-left energy/status pill (x45-237, y123-179)",
+          "severity": "major"
+        }
+      ],
+      "model": "gpt-5.6-terra",
+      "recurring_checks": [
+        {
+          "evidence": "fid-39-home: Mage Master title at x105-621, y233-376 composites directly over the wood background.",
+          "id": "banner-transparency",
+          "pass": true
+        },
+        {
+          "evidence": "fid-39-home: hero sprites and bottom navigation icons are bespoke illustrated assets, not substitute text glyphs.",
+          "id": "asset-identity",
+          "pass": true
+        },
+        {
+          "evidence": "fid-39-home: Level 1 numeral is visually centered in the circular node around x363, y1046.",
+          "id": "glyph-centering",
+          "pass": true
+        },
+        {
+          "evidence": "fid-39-home: resource text and icons remain within their top-bar pills, including the left pill x44-237.",
+          "id": "content-containment",
+          "pass": true
+        },
+        {
+          "evidence": "fid-39-home: the three hero slots are evenly distributed across the scene panel around x140, x362, and x586.",
+          "id": "sibling-size-consistency",
+          "pass": true
+        }
+      ],
+      "score": 71.0
+    },
+    "google/gemini-3.6-flash": {
+      "model": "google/gemini-3.6-flash",
+      "reason": "HTTP 402",
+      "skipped": true
+    }
+  },
+  "recurring_checks": [
+    {
+      "evidence": "fid-39-home: Mage Master title at x105-621, y233-376 composites directly over the wood background.",
+      "id": "banner-transparency",
+      "pass": true
+    },
+    {
+      "evidence": "fid-39-home: hero sprites and bottom navigation icons are bespoke illustrated assets, not substitute text glyphs.",
+      "id": "asset-identity",
+      "pass": true
+    },
+    {
+      "evidence": "fid-39-home: Level 1 numeral is visually centered in the circular node around x363, y1046.",
+      "id": "glyph-centering",
+      "pass": true
+    },
+    {
+      "evidence": "fid-39-home: garbled '9/10'/' ?a042s' text overlaps itself and crowds the left energy pill bounds at ~(60-230, 150)",
+      "id": "content-containment",
+      "pass": false
+    },
+    {
+      "evidence": "fid-39-home: left energy pill (~190px wide) larger than the three ~135px sibling pills in the top bar row at ~y150",
+      "id": "sibling-size-consistency",
+      "pass": false
+    }
+  ],
+  "score": 64.0,
+  "skipped": [
+    {
+      "judge": "google/gemini-3.6-flash",
+      "reason": "HTTP 402"
+    }
+  ],
+  "verdict": "fail"
+}

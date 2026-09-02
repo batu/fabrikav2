@@ -1,0 +1,337 @@
+{
+  "consensus": [
+    "spacing",
+    "layout",
+    "sizing"
+  ],
+  "defects": [
+    {
+      "defect": "The large empty brown gap makes the primary action and navigation feel disconnected.",
+      "direction": "Reduce the gap or extend the level section so the vertical rhythm matches the tighter upper-stack spacing.",
+      "region": "between Play button and bottom navigation",
+      "severity": "major"
+    },
+    {
+      "defect": "Vertical rhythm is inconsistent \u2014 top bar\u2192title gap (~30px) and title\u2192scene gap (~25px) are tight while scene\u2192map (~25px), map\u2192Play (~40px) and Play\u2192nav (~75px) differ noticeably; the Play button floats in a large empty band above the nav bar",
+      "direction": "Normalize inter-section gaps to a single spacing unit and reduce the dead space between Play and the nav bar so the stack reads as evenly spaced",
+      "region": "map panel bottom edge to Play button, y\u22481140-1180; and Play button to nav bar, y\u22481265-1340",
+      "severity": "major"
+    },
+    {
+      "defect": "Map panel is a mostly empty dark wooden slab: the level path is a short vertical strip in the center with two locked nodes and only node '2' unlocked, while the four corners hold unrelated decorative props (crates, tent, campfire, cactus) floating with no baseline \u2014 the area reads as unfinished placeholder rather than a designed level map",
+      "direction": "Extend the path into a winding route that uses the panel width, add more level nodes with varied placement, and anchor decor to the path/terrain instead of parking one prop per corner",
+      "region": "level map panel, center (x\u2248340, y\u2248760-1140)",
+      "severity": "major"
+    },
+    {
+      "defect": "Character name labels are plain drop-shadowed text sitting directly on the artwork with no plate or chip; 'Bastion' and 'Sage' land on busy light areas and lose legibility, and 'Bastion' is not centered under its character",
+      "direction": "Give each name a semi-transparent pill/banner backing and center it under the corresponding character",
+      "region": "hero scene name plates 'Bastion' / 'Ember' / 'Sage', y\u2248680-705",
+      "severity": "minor"
+    },
+    {
+      "defect": "Top and bottom framed bars sit near the screen edges while the scene, map, and Play button are substantially inset.",
+      "direction": "Use a more deliberate shared margin system, or visually justify the full-bleed bars with stronger hierarchy.",
+      "region": "outer horizontal margins",
+      "severity": "minor"
+    },
+    {
+      "defect": "vertical gap below the Play button (~90px) is noticeably larger than the consistent margins used between top bar, title, scene, map and button, leaving a plain background strip",
+      "direction": "tighten the Play-button-to-nav margin toward the same rhythm as the other inter-panel gaps, or enlarge the map panel slightly to absorb the slack",
+      "region": "between Play button and bottom nav bar",
+      "severity": "minor"
+    },
+    {
+      "defect": "cells adjacent to the decorated corners (gold ore, tent, campfire, cactus) are bare dark wood, so the map interior reads a touch sparse/unfinished off the center path",
+      "direction": "add small low-contrast props or plank texture variation in the empty cells to fill the grid without competing with the level nodes",
+      "region": "level map panel interior, middle cells of top and bottom rows",
+      "severity": "minor"
+    },
+    {
+      "defect": "The four resource chips are unequal widths (energy chip \u2248180px vs crystal \u2248150px) and their icon-to-number spacing varies, so the row reads ragged inside the frame",
+      "direction": "Equalize chip widths and use one consistent icon/value gap across all four resources",
+      "region": "top resource bar chips, y\u2248120-180",
+      "severity": "minor"
+    },
+    {
+      "defect": "The Settings cell appears narrower than the other navigation cells.",
+      "direction": "Make all four navigation cells equal width and keep their icons and labels centered in each cell.",
+      "region": "bottom navigation row",
+      "severity": "minor"
+    },
+    {
+      "defect": "Play button width (\u2248640px) is narrower than the hero scene and map panels (\u2248678px), so the left/right edges of the vertical stack do not align to one common margin",
+      "direction": "Match the Play button's horizontal insets to the scene/map panel margins so all stacked elements share one gutter",
+      "region": "Play button vs. panels above, x\u224840-680 vs x\u224822-700",
+      "severity": "minor"
+    },
+    {
+      "defect": "the purple lightning/sparkle accents around 'Mage Master' are weighted toward the upper-right, making the title decoration slightly asymmetric",
+      "direction": "balance the accent effects left/right around the lettering's vertical axis",
+      "region": "title lettering, purple energy accents",
+      "severity": "minor"
+    },
+    {
+      "defect": "the hero scene is a plain rounded rectangle while the top bar, level map and nav bar all carry the ornate gold frame, so it reads slightly less anchored than its framed siblings",
+      "direction": "add a matching thin gold/wood frame or border treatment to the scene panel for consistency with the other framed panels",
+      "region": "hero scene panel, middle-upper screen",
+      "severity": "minor"
+    },
+    {
+      "defect": "'Mage Master' lettering plus its purple glow sits slightly right of the screen's vertical axis (glyph block spans \u2248x115-620, center \u2248368 vs screen center 353) and the purple flame burst behind it is left-heavy relative to the words",
+      "direction": "Center the full title lockup (letters plus glow/burst) on the 353px axis shared by the panels and Play button",
+      "region": "title lettering, y\u2248240-380",
+      "severity": "minor"
+    },
+    {
+      "defect": "The flat diagonal-stripe brown backdrop is visible in large uninterrupted bands around the Play button and beside the title, reading as unfinished filler",
+      "direction": "Add subtle depth (vignette, texture, or framing ornament) or tighten the stack so the raw backdrop is not the dominant element in those bands",
+      "region": "full-screen backdrop, notably y\u22481265-1340 and y\u2248220-240",
+      "severity": "minor"
+    }
+  ],
+  "participated": [
+    "codex/gpt-5.6-terra",
+    "anthropic/claude-fable-5",
+    "anthropic/claude-opus-5"
+  ],
+  "per_model": {
+    "anthropic/claude-fable-5": {
+      "defects": [
+        {
+          "defect": "vertical gap below the Play button (~90px) is noticeably larger than the consistent margins used between top bar, title, scene, map and button, leaving a plain background strip",
+          "direction": "tighten the Play-button-to-nav margin toward the same rhythm as the other inter-panel gaps, or enlarge the map panel slightly to absorb the slack",
+          "key": "spacing",
+          "region": "between Play button and bottom nav bar",
+          "severity": "minor"
+        },
+        {
+          "defect": "the hero scene is a plain rounded rectangle while the top bar, level map and nav bar all carry the ornate gold frame, so it reads slightly less anchored than its framed siblings",
+          "direction": "add a matching thin gold/wood frame or border treatment to the scene panel for consistency with the other framed panels",
+          "key": "layout",
+          "region": "hero scene panel, middle-upper screen",
+          "severity": "minor"
+        },
+        {
+          "defect": "cells adjacent to the decorated corners (gold ore, tent, campfire, cactus) are bare dark wood, so the map interior reads a touch sparse/unfinished off the center path",
+          "direction": "add small low-contrast props or plank texture variation in the empty cells to fill the grid without competing with the level nodes",
+          "key": "spacing",
+          "region": "level map panel interior, middle cells of top and bottom rows",
+          "severity": "minor"
+        },
+        {
+          "defect": "the purple lightning/sparkle accents around 'Mage Master' are weighted toward the upper-right, making the title decoration slightly asymmetric",
+          "direction": "balance the accent effects left/right around the lettering's vertical axis",
+          "key": "other",
+          "region": "title lettering, purple energy accents",
+          "severity": "minor"
+        }
+      ],
+      "model": "claude-fable-5",
+      "recurring_checks": [
+        {
+          "evidence": "fid-27-relaunch: 'Mage Master' title art composites transparently over the brown background at ~(360,300); no opaque box",
+          "id": "banner-transparency",
+          "pass": true
+        },
+        {
+          "evidence": "fid-27-relaunch: resource icons, nav icons and map props at top bar (~y150) and map panel (~y800-1080) are drawn art assets, no font-glyph stand-ins",
+          "id": "asset-identity",
+          "pass": true
+        },
+        {
+          "evidence": "fid-27-relaunch: '2' in gold medallion at ~(360,1050) and lock glyphs in circles at ~(360,780)/(360,915) are visually centered",
+          "id": "glyph-centering",
+          "pass": true
+        },
+        {
+          "evidence": "fid-27-relaunch: 'Play \u00b7 Level 2 \u26a11' text and energy chip sit fully inside the gold pill at ~(360,1225); name chips Bastion/Ember/Sage contained at ~y690",
+          "id": "content-containment",
+          "pass": true
+        },
+        {
+          "evidence": "fid-27-relaunch: four resource pills in top bar (~y150) and four nav cells (Home/Rift/Mages/Settings, ~y1420) are equal-sized within their rows",
+          "id": "sibling-size-consistency",
+          "pass": true
+        }
+      ],
+      "score": 90.0
+    },
+    "anthropic/claude-opus-5": {
+      "defects": [
+        {
+          "defect": "Map panel is a mostly empty dark wooden slab: the level path is a short vertical strip in the center with two locked nodes and only node '2' unlocked, while the four corners hold unrelated decorative props (crates, tent, campfire, cactus) floating with no baseline \u2014 the area reads as unfinished placeholder rather than a designed level map",
+          "direction": "Extend the path into a winding route that uses the panel width, add more level nodes with varied placement, and anchor decor to the path/terrain instead of parking one prop per corner",
+          "key": "layout",
+          "region": "level map panel, center (x\u2248340, y\u2248760-1140)",
+          "severity": "major"
+        },
+        {
+          "defect": "Vertical rhythm is inconsistent \u2014 top bar\u2192title gap (~30px) and title\u2192scene gap (~25px) are tight while scene\u2192map (~25px), map\u2192Play (~40px) and Play\u2192nav (~75px) differ noticeably; the Play button floats in a large empty band above the nav bar",
+          "direction": "Normalize inter-section gaps to a single spacing unit and reduce the dead space between Play and the nav bar so the stack reads as evenly spaced",
+          "key": "spacing",
+          "region": "map panel bottom edge to Play button, y\u22481140-1180; and Play button to nav bar, y\u22481265-1340",
+          "severity": "major"
+        },
+        {
+          "defect": "Play button width (\u2248640px) is narrower than the hero scene and map panels (\u2248678px), so the left/right edges of the vertical stack do not align to one common margin",
+          "direction": "Match the Play button's horizontal insets to the scene/map panel margins so all stacked elements share one gutter",
+          "key": "sizing",
+          "region": "Play button vs. panels above, x\u224840-680 vs x\u224822-700",
+          "severity": "minor"
+        },
+        {
+          "defect": "'Mage Master' lettering plus its purple glow sits slightly right of the screen's vertical axis (glyph block spans \u2248x115-620, center \u2248368 vs screen center 353) and the purple flame burst behind it is left-heavy relative to the words",
+          "direction": "Center the full title lockup (letters plus glow/burst) on the 353px axis shared by the panels and Play button",
+          "key": "layout",
+          "region": "title lettering, y\u2248240-380",
+          "severity": "minor"
+        },
+        {
+          "defect": "Character name labels are plain drop-shadowed text sitting directly on the artwork with no plate or chip; 'Bastion' and 'Sage' land on busy light areas and lose legibility, and 'Bastion' is not centered under its character",
+          "direction": "Give each name a semi-transparent pill/banner backing and center it under the corresponding character",
+          "key": "typography",
+          "region": "hero scene name plates 'Bastion' / 'Ember' / 'Sage', y\u2248680-705",
+          "severity": "minor"
+        },
+        {
+          "defect": "The four resource chips are unequal widths (energy chip \u2248180px vs crystal \u2248150px) and their icon-to-number spacing varies, so the row reads ragged inside the frame",
+          "direction": "Equalize chip widths and use one consistent icon/value gap across all four resources",
+          "key": "spacing",
+          "region": "top resource bar chips, y\u2248120-180",
+          "severity": "minor"
+        },
+        {
+          "defect": "The flat diagonal-stripe brown backdrop is visible in large uninterrupted bands around the Play button and beside the title, reading as unfinished filler",
+          "direction": "Add subtle depth (vignette, texture, or framing ornament) or tighten the stack so the raw backdrop is not the dominant element in those bands",
+          "key": "background",
+          "region": "full-screen backdrop, notably y\u22481265-1340 and y\u2248220-240",
+          "severity": "minor"
+        }
+      ],
+      "model": "claude-opus-5",
+      "recurring_checks": [
+        {
+          "evidence": "fid-27-relaunch: hero name labels 'Ember' (x\u2248325-400, y\u2248690) render as text over scene art with no opaque box",
+          "id": "banner-transparency",
+          "pass": true
+        },
+        {
+          "evidence": "fid-27-relaunch: nav icons (home x\u2248115, rift x\u2248278, hat x\u2248445, gear x\u2248610, y\u22481390) are painted art, not font glyphs",
+          "id": "asset-identity",
+          "pass": true
+        },
+        {
+          "evidence": "fid-27-relaunch: '2' in circular level node centered at x\u2248353, y\u22481050 within the gold ring",
+          "id": "glyph-centering",
+          "pass": true
+        },
+        {
+          "evidence": "fid-27-relaunch: 'Play \u00b7 Level 2' plus energy chip stay inside the gold pill bounds (x\u224840-680, y\u22481180-1265)",
+          "id": "content-containment",
+          "pass": true
+        },
+        {
+          "evidence": "fid-27-relaunch: top-bar resource chips unequal \u2014 energy chip x\u224845-215 (~170px) vs crystal chip x\u2248390-540 (~150px), y\u2248150",
+          "id": "sibling-size-consistency",
+          "pass": false
+        }
+      ],
+      "score": 78.0
+    },
+    "codex/gpt-5.6-terra": {
+      "defects": [
+        {
+          "defect": "The large empty brown gap makes the primary action and navigation feel disconnected.",
+          "direction": "Reduce the gap or extend the level section so the vertical rhythm matches the tighter upper-stack spacing.",
+          "key": "spacing",
+          "region": "between Play button and bottom navigation",
+          "severity": "major"
+        },
+        {
+          "defect": "Top and bottom framed bars sit near the screen edges while the scene, map, and Play button are substantially inset.",
+          "direction": "Use a more deliberate shared margin system, or visually justify the full-bleed bars with stronger hierarchy.",
+          "key": "spacing",
+          "region": "outer horizontal margins",
+          "severity": "minor"
+        },
+        {
+          "defect": "The Settings cell appears narrower than the other navigation cells.",
+          "direction": "Make all four navigation cells equal width and keep their icons and labels centered in each cell.",
+          "key": "sizing",
+          "region": "bottom navigation row",
+          "severity": "minor"
+        }
+      ],
+      "model": "gpt-5.6-terra",
+      "recurring_checks": [
+        {
+          "evidence": "fid-27-relaunch: illustrated title and labels composite cleanly over their backgrounds, x94-631 y232-372.",
+          "id": "banner-transparency",
+          "pass": true
+        },
+        {
+          "evidence": "fid-27-relaunch: cohesive fantasy title, hero scene, map, and icon assets, x25-704 y395-1143.",
+          "id": "asset-identity",
+          "pass": true
+        },
+        {
+          "evidence": "fid-27-relaunch: level 2 numeral and lightning-cost glyph are centered in their circular/pill controls, x337-389 y1003-1095 and x454-515 y1205-1250.",
+          "id": "glyph-centering",
+          "pass": true
+        },
+        {
+          "evidence": "fid-27-relaunch: character labels and Play Level 2 text stay within their chips/buttons, x94-663 y675-1252.",
+          "id": "content-containment",
+          "pass": true
+        },
+        {
+          "evidence": "fid-27-relaunch: bottom nav cells vary visibly, especially the narrower Settings cell at x548-697 y1360-1481.",
+          "id": "sibling-size-consistency",
+          "pass": false
+        }
+      ],
+      "score": 88.0
+    },
+    "google/gemini-3.6-flash": {
+      "model": "google/gemini-3.6-flash",
+      "reason": "HTTP 402",
+      "skipped": true
+    }
+  },
+  "recurring_checks": [
+    {
+      "evidence": "fid-27-relaunch: illustrated title and labels composite cleanly over their backgrounds, x94-631 y232-372.",
+      "id": "banner-transparency",
+      "pass": true
+    },
+    {
+      "evidence": "fid-27-relaunch: cohesive fantasy title, hero scene, map, and icon assets, x25-704 y395-1143.",
+      "id": "asset-identity",
+      "pass": true
+    },
+    {
+      "evidence": "fid-27-relaunch: level 2 numeral and lightning-cost glyph are centered in their circular/pill controls, x337-389 y1003-1095 and x454-515 y1205-1250.",
+      "id": "glyph-centering",
+      "pass": true
+    },
+    {
+      "evidence": "fid-27-relaunch: character labels and Play Level 2 text stay within their chips/buttons, x94-663 y675-1252.",
+      "id": "content-containment",
+      "pass": true
+    },
+    {
+      "evidence": "fid-27-relaunch: bottom nav cells vary visibly, especially the narrower Settings cell at x548-697 y1360-1481.",
+      "id": "sibling-size-consistency",
+      "pass": false
+    }
+  ],
+  "score": 88.0,
+  "skipped": [
+    {
+      "judge": "google/gemini-3.6-flash",
+      "reason": "HTTP 402"
+    }
+  ],
+  "verdict": "pass"
+}

@@ -1,0 +1,389 @@
+{
+  "consensus": [
+    "layout",
+    "spacing",
+    "background"
+  ],
+  "defects": [
+    {
+      "defect": "The ranged mage (Sage) is drawn at a noticeably larger scale and different art weight than the melee mages and the goblins, breaking the depth/scale rule (further back should not be bigger)",
+      "direction": "Match the ranged mage's sprite scale to the melee mages, slightly smaller given her deeper camp-ledge position",
+      "region": "arena, ranged mage ~(500-600, 990-1105) vs melee mages ~(370-530, 615-770)",
+      "severity": "major"
+    },
+    {
+      "defect": "The advancing goblins overlap into a dense stack, weakening individual enemy silhouettes and the battle read.",
+      "direction": "Spread the goblins slightly across the upper arena with clearer depth separation.",
+      "region": "upper-center combat cluster",
+      "severity": "major"
+    },
+    {
+      "defect": "The red enemy HP bar floats detached to the right of the goblin cluster instead of anchoring above a specific unit",
+      "direction": "Center the HP bar directly above its owning goblin and keep it tracking that sprite",
+      "region": "enemy HP bar right of goblin pack, ~(505,510)",
+      "severity": "major"
+    },
+    {
+      "defect": "The two melee mages overlap almost completely \u2014 the red-haired mage's body is occluded by the dwarf sprite, reading as one tangled blob rather than two distinct advancing units",
+      "direction": "Separate the melee mages horizontally by at least one sprite width and give each its own footprint shadow so both silhouettes read",
+      "region": "arena, mage cluster ~(360-520, 610-770)",
+      "severity": "major"
+    },
+    {
+      "defect": "The stage track is a thin bare line pinned to the extreme left edge with nodes partly cropped by the screen edge and no framed rail or stage labels",
+      "direction": "Inset the track from the edge, thicken/frame the rail and give nodes consistent inner icons so no node is clipped",
+      "region": "left stage track, x\u224810-45, y\u2248450-1110",
+      "severity": "major"
+    },
+    {
+      "defect": "The bottom half of the arena is nearly empty sand \u2014 props (cacti, skulls, rocks) all cluster in the upper half, so the environment does not read as a finished dressed field",
+      "direction": "Distribute props across the full arena height, adding mid/foreground dressing near the camp ledge so density is even",
+      "region": "arena lower third, y\u2248870-1130 across full width",
+      "severity": "major"
+    },
+    {
+      "defect": "The red \u201c13\u201d overlaps character art and its dark outline reduces immediate readability.",
+      "direction": "Move it into clearer negative space and increase contrast against the sprites.",
+      "region": "damage number above Bastion, around x495 y625",
+      "severity": "minor"
+    },
+    {
+      "defect": "All three HP bars are rendered fully red at 100% fill, so a full-health bar looks like a critical-damage state and carries no fill/track contrast",
+      "direction": "Use a green/gold fill on a dark inset track with a visible frame so fill level is legible",
+      "region": "HUD cards, HP bars y\u22481325-1350",
+      "severity": "minor"
+    },
+    {
+      "defect": "A large uninterrupted sand area separates the combat from Sage and the camp, making the arena feel a little sparse.",
+      "direction": "Add subtle terrain variation or a few low-contrast props while preserving combat clarity.",
+      "region": "center and lower arena",
+      "severity": "minor"
+    },
+    {
+      "defect": "The two melee mages overlap each other heavily, with Ember's punching arm reading as merged into the dwarf's body",
+      "direction": "Offset the two melee mages vertically/horizontally so each silhouette stays readable during the engagement",
+      "region": "mid-arena melee engagement, ~(360-530, 610-780)",
+      "severity": "minor"
+    },
+    {
+      "defect": "The speed chip and pause button are not vertically centered against the Level/Stage title block and the pause button's brown plate sits flush with the frame's inner edge",
+      "direction": "Center both controls on the title block's vertical midpoint and add equal inner padding from the frame border",
+      "region": "top strip, speed chip 1x ~(35-130, 240-295) and pause ~(610-700, 230-300)",
+      "severity": "minor"
+    },
+    {
+      "defect": "HP numerals sit flush to the card's left inner border and are unframed plain text, unlike the rest of the framed HUD styling",
+      "direction": "Center the numerals over the bar or pad them off the frame edge, matching the card's ornamented style",
+      "region": "HUD cards, HP numerals y\u22481360 (e.g. '1047 / 1060')",
+      "severity": "minor"
+    },
+    {
+      "defect": "The ranged mage stands slightly above the camp ledge on open sand rather than holding the ledge line",
+      "direction": "Move Sage down to stand on or just above the brown camp ledge near the tent/campfire",
+      "region": "ranged mage Sage, ~(555,1050)",
+      "severity": "minor"
+    },
+    {
+      "defect": "The damage number sits behind/overlapped by the goblin and mage sprites and shares the same dark-red tone as nearby art, hurting readability",
+      "direction": "Draw damage numbers above all sprites with a light outline/shadow and a small rise offset",
+      "region": "damage number '13' ~(475-520, 610-640)",
+      "severity": "minor"
+    },
+    {
+      "defect": "All three HP bars render the same salmon-red at full/near-full health, muting the at-a-glance health read",
+      "direction": "Use a green-to-red gradient or state-based tint so full HP reads healthy and distinct from damaged",
+      "region": "HUD cards, HP bars, ~(60-660, 1330)",
+      "severity": "minor"
+    },
+    {
+      "defect": "Stage track nodes are visually mixed (diamond top, hollow circles, one filled) without a clear current-stage marker matching 'Stage 2/4'",
+      "direction": "Style the track so completed, current, and upcoming stage nodes are clearly differentiated and count matches 4 stages",
+      "region": "left stage track, x\u224830, y 460-1100",
+      "severity": "minor"
+    },
+    {
+      "defect": "The goblin group HP bar is a bare rounded rect detached from the group, floating to the right of the goblins with no frame or anchor",
+      "direction": "Center the bar over the goblin group and frame it to match the HUD's wooden/gold styling",
+      "region": "enemy HP bar ~(460-550, 500-520)",
+      "severity": "minor"
+    },
+    {
+      "defect": "The camp ledge is a flat unlit brown band holding only a tent and campfire, with a hard seam against the sand and unused empty middle",
+      "direction": "Add texture/props and soften the sand-to-ledge transition so the camp reads as painted ground",
+      "region": "camp ledge strip, y\u22481130-1210",
+      "severity": "minor"
+    }
+  ],
+  "participated": [
+    "codex/gpt-5.6-terra",
+    "anthropic/claude-fable-5",
+    "anthropic/claude-opus-5"
+  ],
+  "per_model": {
+    "anthropic/claude-fable-5": {
+      "defects": [
+        {
+          "defect": "The red enemy HP bar floats detached to the right of the goblin cluster instead of anchoring above a specific unit",
+          "direction": "Center the HP bar directly above its owning goblin and keep it tracking that sprite",
+          "key": "layout",
+          "region": "enemy HP bar right of goblin pack, ~(505,510)",
+          "severity": "major"
+        },
+        {
+          "defect": "The two melee mages overlap each other heavily, with Ember's punching arm reading as merged into the dwarf's body",
+          "direction": "Offset the two melee mages vertically/horizontally so each silhouette stays readable during the engagement",
+          "key": "spacing",
+          "region": "mid-arena melee engagement, ~(360-530, 610-780)",
+          "severity": "minor"
+        },
+        {
+          "defect": "The ranged mage stands slightly above the camp ledge on open sand rather than holding the ledge line",
+          "direction": "Move Sage down to stand on or just above the brown camp ledge near the tent/campfire",
+          "key": "layout",
+          "region": "ranged mage Sage, ~(555,1050)",
+          "severity": "minor"
+        },
+        {
+          "defect": "All three HP bars render the same salmon-red at full/near-full health, muting the at-a-glance health read",
+          "direction": "Use a green-to-red gradient or state-based tint so full HP reads healthy and distinct from damaged",
+          "key": "color",
+          "region": "HUD cards, HP bars, ~(60-660, 1330)",
+          "severity": "minor"
+        },
+        {
+          "defect": "Stage track nodes are visually mixed (diamond top, hollow circles, one filled) without a clear current-stage marker matching 'Stage 2/4'",
+          "direction": "Style the track so completed, current, and upcoming stage nodes are clearly differentiated and count matches 4 stages",
+          "key": "background",
+          "region": "left stage track, x\u224830, y 460-1100",
+          "severity": "minor"
+        }
+      ],
+      "model": "claude-fable-5",
+      "recurring_checks": [
+        {
+          "evidence": "fid-32-battle: level title panel ~(360,290) and resource bar ~(360,150) composite cleanly with framed art, no opaque stand-in box",
+          "id": "banner-transparency",
+          "pass": true
+        },
+        {
+          "evidence": "fid-32-battle: sprites, gear icons and props ~(85-640,1420) are painted art assets; no font glyph standing in for art",
+          "id": "asset-identity",
+          "pass": true
+        },
+        {
+          "evidence": "fid-32-battle: pause 'II' in circular button ~(655,268) and '1x' chip ~(65,268) are visually centered",
+          "id": "glyph-centering",
+          "pass": true
+        },
+        {
+          "evidence": "fid-32-battle: '9/10 55s' energy chip ~(140,150) and card names/HP text stay inside their pill and card bounds",
+          "id": "content-containment",
+          "pass": true
+        },
+        {
+          "evidence": "fid-32-battle: three HUD mage cards ~(140/360/580,1360) and paired gear tiles per card are equal-sized",
+          "id": "sibling-size-consistency",
+          "pass": true
+        }
+      ],
+      "score": 88.0
+    },
+    "anthropic/claude-opus-5": {
+      "defects": [
+        {
+          "defect": "The two melee mages overlap almost completely \u2014 the red-haired mage's body is occluded by the dwarf sprite, reading as one tangled blob rather than two distinct advancing units",
+          "direction": "Separate the melee mages horizontally by at least one sprite width and give each its own footprint shadow so both silhouettes read",
+          "key": "layout",
+          "region": "arena, mage cluster ~(360-520, 610-770)",
+          "severity": "major"
+        },
+        {
+          "defect": "The ranged mage (Sage) is drawn at a noticeably larger scale and different art weight than the melee mages and the goblins, breaking the depth/scale rule (further back should not be bigger)",
+          "direction": "Match the ranged mage's sprite scale to the melee mages, slightly smaller given her deeper camp-ledge position",
+          "key": "sizing",
+          "region": "arena, ranged mage ~(500-600, 990-1105) vs melee mages ~(370-530, 615-770)",
+          "severity": "major"
+        },
+        {
+          "defect": "The bottom half of the arena is nearly empty sand \u2014 props (cacti, skulls, rocks) all cluster in the upper half, so the environment does not read as a finished dressed field",
+          "direction": "Distribute props across the full arena height, adding mid/foreground dressing near the camp ledge so density is even",
+          "key": "background",
+          "region": "arena lower third, y\u2248870-1130 across full width",
+          "severity": "major"
+        },
+        {
+          "defect": "The stage track is a thin bare line pinned to the extreme left edge with nodes partly cropped by the screen edge and no framed rail or stage labels",
+          "direction": "Inset the track from the edge, thicken/frame the rail and give nodes consistent inner icons so no node is clipped",
+          "key": "layout",
+          "region": "left stage track, x\u224810-45, y\u2248450-1110",
+          "severity": "major"
+        },
+        {
+          "defect": "The speed chip and pause button are not vertically centered against the Level/Stage title block and the pause button's brown plate sits flush with the frame's inner edge",
+          "direction": "Center both controls on the title block's vertical midpoint and add equal inner padding from the frame border",
+          "key": "spacing",
+          "region": "top strip, speed chip 1x ~(35-130, 240-295) and pause ~(610-700, 230-300)",
+          "severity": "minor"
+        },
+        {
+          "defect": "All three HP bars are rendered fully red at 100% fill, so a full-health bar looks like a critical-damage state and carries no fill/track contrast",
+          "direction": "Use a green/gold fill on a dark inset track with a visible frame so fill level is legible",
+          "key": "text-content",
+          "region": "HUD cards, HP bars y\u22481325-1350",
+          "severity": "minor"
+        },
+        {
+          "defect": "HP numerals sit flush to the card's left inner border and are unframed plain text, unlike the rest of the framed HUD styling",
+          "direction": "Center the numerals over the bar or pad them off the frame edge, matching the card's ornamented style",
+          "key": "spacing",
+          "region": "HUD cards, HP numerals y\u22481360 (e.g. '1047 / 1060')",
+          "severity": "minor"
+        },
+        {
+          "defect": "The damage number sits behind/overlapped by the goblin and mage sprites and shares the same dark-red tone as nearby art, hurting readability",
+          "direction": "Draw damage numbers above all sprites with a light outline/shadow and a small rise offset",
+          "key": "layout",
+          "region": "damage number '13' ~(475-520, 610-640)",
+          "severity": "minor"
+        },
+        {
+          "defect": "The goblin group HP bar is a bare rounded rect detached from the group, floating to the right of the goblins with no frame or anchor",
+          "direction": "Center the bar over the goblin group and frame it to match the HUD's wooden/gold styling",
+          "key": "background",
+          "region": "enemy HP bar ~(460-550, 500-520)",
+          "severity": "minor"
+        },
+        {
+          "defect": "The camp ledge is a flat unlit brown band holding only a tent and campfire, with a hard seam against the sand and unused empty middle",
+          "direction": "Add texture/props and soften the sand-to-ledge transition so the camp reads as painted ground",
+          "key": "background",
+          "region": "camp ledge strip, y\u22481130-1210",
+          "severity": "minor"
+        }
+      ],
+      "model": "claude-opus-5",
+      "recurring_checks": [
+        {
+          "evidence": "fid-32-battle: title plate (360,285) and speed chip (80,267) composite on the wooden frame with no opaque stray box",
+          "id": "banner-transparency",
+          "pass": true
+        },
+        {
+          "evidence": "fid-32-battle: Sage sprite at (545,1050) uses a different art scale/style than the Bastion/Ember sprites at (420,690)",
+          "id": "asset-identity",
+          "pass": false
+        },
+        {
+          "evidence": "fid-32-battle: pause glyph centered in circular button at (653,265)",
+          "id": "glyph-centering",
+          "pass": true
+        },
+        {
+          "evidence": "fid-32-battle: resource chip text '9/10 55s' stays inside pill bounds (55-215,150)",
+          "id": "content-containment",
+          "pass": true
+        },
+        {
+          "evidence": "fid-32-battle: HUD cards equal, but top resource pills differ in width \u2014 energy pill (40-230,150) vs coin pill (245-390,150)",
+          "id": "sibling-size-consistency",
+          "pass": false
+        }
+      ],
+      "score": 68.0
+    },
+    "codex/gpt-5.6-terra": {
+      "defects": [
+        {
+          "defect": "The advancing goblins overlap into a dense stack, weakening individual enemy silhouettes and the battle read.",
+          "direction": "Spread the goblins slightly across the upper arena with clearer depth separation.",
+          "key": "layout",
+          "region": "upper-center combat cluster",
+          "severity": "major"
+        },
+        {
+          "defect": "A large uninterrupted sand area separates the combat from Sage and the camp, making the arena feel a little sparse.",
+          "direction": "Add subtle terrain variation or a few low-contrast props while preserving combat clarity.",
+          "key": "spacing",
+          "region": "center and lower arena",
+          "severity": "minor"
+        },
+        {
+          "defect": "The red \u201c13\u201d overlaps character art and its dark outline reduces immediate readability.",
+          "direction": "Move it into clearer negative space and increase contrast against the sprites.",
+          "key": "typography",
+          "region": "damage number above Bastion, around x495 y625",
+          "severity": "minor"
+        }
+      ],
+      "model": "gpt-5.6-terra",
+      "recurring_checks": [
+        {
+          "evidence": "fid-32-battle: framed top chips and HUD panels composite cleanly with no opaque sprite-banner boxes.",
+          "id": "banner-transparency",
+          "pass": true
+        },
+        {
+          "evidence": "fid-32-battle: goblins, mages, arena props, frames, and gear icons share a coherent painted fantasy asset set.",
+          "id": "asset-identity",
+          "pass": true
+        },
+        {
+          "evidence": "fid-32-battle: pause glyph is visually centered in the circular button at x665 y267.",
+          "id": "glyph-centering",
+          "pass": true
+        },
+        {
+          "evidence": "fid-32-battle: card names, HP values, counters, and equipment icons remain within their framed bounds.",
+          "id": "content-containment",
+          "pass": true
+        },
+        {
+          "evidence": "fid-32-battle: Bastion, Ember, and Sage HUD cards at the bottom are consistently sized and aligned.",
+          "id": "sibling-size-consistency",
+          "pass": true
+        }
+      ],
+      "score": 90.0
+    },
+    "google/gemini-3.6-flash": {
+      "model": "google/gemini-3.6-flash",
+      "reason": "HTTP 402",
+      "skipped": true
+    }
+  },
+  "recurring_checks": [
+    {
+      "evidence": "fid-32-battle: framed top chips and HUD panels composite cleanly with no opaque sprite-banner boxes.",
+      "id": "banner-transparency",
+      "pass": true
+    },
+    {
+      "evidence": "fid-32-battle: Sage sprite at (545,1050) uses a different art scale/style than the Bastion/Ember sprites at (420,690)",
+      "id": "asset-identity",
+      "pass": false
+    },
+    {
+      "evidence": "fid-32-battle: pause glyph is visually centered in the circular button at x665 y267.",
+      "id": "glyph-centering",
+      "pass": true
+    },
+    {
+      "evidence": "fid-32-battle: card names, HP values, counters, and equipment icons remain within their framed bounds.",
+      "id": "content-containment",
+      "pass": true
+    },
+    {
+      "evidence": "fid-32-battle: HUD cards equal, but top resource pills differ in width \u2014 energy pill (40-230,150) vs coin pill (245-390,150)",
+      "id": "sibling-size-consistency",
+      "pass": false
+    }
+  ],
+  "score": 88.0,
+  "skipped": [
+    {
+      "judge": "google/gemini-3.6-flash",
+      "reason": "HTTP 402"
+    }
+  ],
+  "verdict": "pass"
+}

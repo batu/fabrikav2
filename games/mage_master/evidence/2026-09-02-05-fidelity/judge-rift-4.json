@@ -1,0 +1,284 @@
+{
+  "consensus": [
+    "sizing",
+    "spacing"
+  ],
+  "defects": [
+    {
+      "defect": "Pull odds panel header ('Pull odds / Now / Next') is cut off by the tab bar with almost no scroll affordance; only a sliver of the panel shows and its own frame top is clipped against the nav",
+      "direction": "Add bottom content inset equal to the tab bar height so the third panel's header row is fully visible above the nav, or reduce the vertical size of the portal panel",
+      "region": "odds panel at bottom, y\u22481290-1345",
+      "severity": "major"
+    },
+    {
+      "defect": "Timer '46s' is crammed against '9/10' with no separator and sits at a noticeably different baseline/size than the value",
+      "direction": "Give the timer its own spacing and align its baseline/optical center with the value text",
+      "region": "energy chip '46s', x\u2248180 y\u2248152",
+      "severity": "minor"
+    },
+    {
+      "defect": "Title and tier badge are not optically baseline-aligned; the badge center sits slightly below the title's cap-height center and the title's left margin (x\u224832) is tighter than the badge's right margin (x\u2248694)",
+      "direction": "Center-align badge to title block and equalize left/right screen margins",
+      "region": "title 'Summon Rift' vs 'Rift tier 1' badge, y\u2248245-290",
+      "severity": "minor"
+    },
+    {
+      "defect": "The 'Pull odds / Now / Next' header row is sliced mid-glyph exactly at the tab bar edge, reading as overlap rather than a clean fold",
+      "direction": "Nudge default scroll position or panel top margin so the fold cuts at the panel frame, not through header text",
+      "region": "Pull odds panel header (~y1340) behind tab bar",
+      "severity": "minor"
+    },
+    {
+      "defect": "Vertical rhythm inside the portal panel is uneven \u2014 gap below the Summon button is larger than the gap above it and than the art-to-caption gap",
+      "direction": "Even out the internal padding so the caption, button, and panel edge use one consistent spacing scale",
+      "region": "portal panel bottom vs Summon button, y\u2248915-995",
+      "severity": "minor"
+    },
+    {
+      "defect": "Sibling cells have visibly uneven widths, creating asymmetric spacing across otherwise grid-like rows.",
+      "direction": "Use equal-width navigation cells and harmonize resource-card widths where possible.",
+      "region": "bottom navigation and top resource row",
+      "severity": "minor"
+    },
+    {
+      "defect": "Energy pill (9/10 46s) is noticeably wider than the gold, crystal, and gem pills, so the row reads unevenly",
+      "direction": "Equalize pill widths or tighten the energy pill's inner text so all four resource pills match",
+      "region": "top resource bar (~y150)",
+      "severity": "minor"
+    },
+    {
+      "defect": "Top HUD chips are unequal widths \u2014 the energy chip (9/10 46s) is far wider than the gold/crystal/gem chips, making the row uneven",
+      "direction": "Equalize chip widths (flex-1 or fixed min width) so all four resource pills are the same size",
+      "region": "resource bar chips, y\u2248130-175",
+      "severity": "minor"
+    },
+    {
+      "defect": "Upgrade ribbon banner spans nearly the full panel width while the Summon button in the panel above is inset, so the two primary panels' action widths disagree",
+      "direction": "Match the ribbon's horizontal inset to the Summon button inset for consistent panel margins",
+      "region": "upgrade panel, Upgrade banner y\u22481090-1150",
+      "severity": "minor"
+    },
+    {
+      "defect": "Settings gear is a flat black/cream glyph while Home, Rift, and Mages tabs use detailed painted art icons",
+      "direction": "Replace the gear with a painted gear asset matching the color depth and outline style of the other tab icons",
+      "region": "bottom tab bar, Settings tab (~x608, y1405)",
+      "severity": "minor"
+    }
+  ],
+  "participated": [
+    "codex/gpt-5.6-terra",
+    "anthropic/claude-fable-5",
+    "anthropic/claude-opus-5"
+  ],
+  "per_model": {
+    "anthropic/claude-fable-5": {
+      "defects": [
+        {
+          "defect": "Settings gear is a flat black/cream glyph while Home, Rift, and Mages tabs use detailed painted art icons",
+          "direction": "Replace the gear with a painted gear asset matching the color depth and outline style of the other tab icons",
+          "key": "iconography",
+          "region": "bottom tab bar, Settings tab (~x608, y1405)",
+          "severity": "minor"
+        },
+        {
+          "defect": "Energy pill (9/10 46s) is noticeably wider than the gold, crystal, and gem pills, so the row reads unevenly",
+          "direction": "Equalize pill widths or tighten the energy pill's inner text so all four resource pills match",
+          "key": "sizing",
+          "region": "top resource bar (~y150)",
+          "severity": "minor"
+        },
+        {
+          "defect": "The 'Pull odds / Now / Next' header row is sliced mid-glyph exactly at the tab bar edge, reading as overlap rather than a clean fold",
+          "direction": "Nudge default scroll position or panel top margin so the fold cuts at the panel frame, not through header text",
+          "key": "spacing",
+          "region": "Pull odds panel header (~y1340) behind tab bar",
+          "severity": "minor"
+        }
+      ],
+      "model": "claude-fable-5",
+      "recurring_checks": [
+        {
+          "evidence": "fid-37-rift: no sprite banner/ribbon present; 'Rift tier 1' badge (~x618, y265) composites cleanly over the striped background",
+          "id": "banner-transparency",
+          "pass": true
+        },
+        {
+          "evidence": "fid-37-rift: Settings tab gear (~x608, y1405) is a flat monochrome glyph unlike the painted Home/Rift/Mages icons",
+          "id": "asset-identity",
+          "pass": false
+        },
+        {
+          "evidence": "fid-37-rift: '10' cost chip with crystal icon (~x455, y884) is vertically centered in the Summon pill",
+          "id": "glyph-centering",
+          "pass": true
+        },
+        {
+          "evidence": "fid-37-rift: 'Rift tier 1' badge, resource pills (~y150), and tab labels all stay inside their pill/panel bounds",
+          "id": "content-containment",
+          "pass": true
+        },
+        {
+          "evidence": "fid-37-rift: energy pill (~x30-235, y150) is wider than the three sibling resource pills to its right",
+          "id": "sibling-size-consistency",
+          "pass": false
+        }
+      ],
+      "score": 87.0
+    },
+    "anthropic/claude-opus-5": {
+      "defects": [
+        {
+          "defect": "Pull odds panel header ('Pull odds / Now / Next') is cut off by the tab bar with almost no scroll affordance; only a sliver of the panel shows and its own frame top is clipped against the nav",
+          "direction": "Add bottom content inset equal to the tab bar height so the third panel's header row is fully visible above the nav, or reduce the vertical size of the portal panel",
+          "key": "spacing",
+          "region": "odds panel at bottom, y\u22481290-1345",
+          "severity": "major"
+        },
+        {
+          "defect": "Top HUD chips are unequal widths \u2014 the energy chip (9/10 46s) is far wider than the gold/crystal/gem chips, making the row uneven",
+          "direction": "Equalize chip widths (flex-1 or fixed min width) so all four resource pills are the same size",
+          "key": "sizing",
+          "region": "resource bar chips, y\u2248130-175",
+          "severity": "minor"
+        },
+        {
+          "defect": "Timer '46s' is crammed against '9/10' with no separator and sits at a noticeably different baseline/size than the value",
+          "direction": "Give the timer its own spacing and align its baseline/optical center with the value text",
+          "key": "typography",
+          "region": "energy chip '46s', x\u2248180 y\u2248152",
+          "severity": "minor"
+        },
+        {
+          "defect": "Vertical rhythm inside the portal panel is uneven \u2014 gap below the Summon button is larger than the gap above it and than the art-to-caption gap",
+          "direction": "Even out the internal padding so the caption, button, and panel edge use one consistent spacing scale",
+          "key": "spacing",
+          "region": "portal panel bottom vs Summon button, y\u2248915-995",
+          "severity": "minor"
+        },
+        {
+          "defect": "Upgrade ribbon banner spans nearly the full panel width while the Summon button in the panel above is inset, so the two primary panels' action widths disagree",
+          "direction": "Match the ribbon's horizontal inset to the Summon button inset for consistent panel margins",
+          "key": "layout",
+          "region": "upgrade panel, Upgrade banner y\u22481090-1150",
+          "severity": "minor"
+        },
+        {
+          "defect": "Title and tier badge are not optically baseline-aligned; the badge center sits slightly below the title's cap-height center and the title's left margin (x\u224832) is tighter than the badge's right margin (x\u2248694)",
+          "direction": "Center-align badge to title block and equalize left/right screen margins",
+          "key": "typography",
+          "region": "title 'Summon Rift' vs 'Rift tier 1' badge, y\u2248245-290",
+          "severity": "minor"
+        }
+      ],
+      "model": "claude-opus-5",
+      "recurring_checks": [
+        {
+          "evidence": "fid-37-rift: Upgrade ribbon at (360,1119) composites over wood plank texture with no opaque box",
+          "id": "banner-transparency",
+          "pass": true
+        },
+        {
+          "evidence": "fid-37-rift: portal art (360,530), tab icons (115/280/445/610,1410) all use painted sprites, no font-glyph stand-ins",
+          "id": "asset-identity",
+          "pass": true
+        },
+        {
+          "evidence": "fid-37-rift: crystal+cost pill inside Summon button at (455,884) is vertically centered",
+          "id": "glyph-centering",
+          "pass": true
+        },
+        {
+          "evidence": "fid-37-rift: 'Pull odds'/'Now'/'Next' text at y\u22481340 is cut by the tab bar and escapes its panel frame",
+          "id": "content-containment",
+          "pass": false
+        },
+        {
+          "evidence": "fid-37-rift: HUD chips at y\u2248152 \u2014 energy chip ~190px wide vs gold chip ~130px wide",
+          "id": "sibling-size-consistency",
+          "pass": false
+        }
+      ],
+      "score": 82.0
+    },
+    "codex/gpt-5.6-terra": {
+      "defects": [
+        {
+          "defect": "Sibling cells have visibly uneven widths, creating asymmetric spacing across otherwise grid-like rows.",
+          "direction": "Use equal-width navigation cells and harmonize resource-card widths where possible.",
+          "key": "sizing",
+          "region": "bottom navigation and top resource row",
+          "severity": "minor"
+        }
+      ],
+      "model": "gpt-5.6-terra",
+      "recurring_checks": [
+        {
+          "evidence": "fid-37-rift: framed Upgrade ribbon at approximately x79-645, y1080 composites cleanly.",
+          "id": "banner-transparency",
+          "pass": true
+        },
+        {
+          "evidence": "fid-37-rift: portal, crystal, frame, and navigation art use a cohesive illustrated asset set.",
+          "id": "asset-identity",
+          "pass": true
+        },
+        {
+          "evidence": "fid-37-rift: bottom navigation icons and labels are visually centered within their cells around y1415.",
+          "id": "glyph-centering",
+          "pass": true
+        },
+        {
+          "evidence": "fid-37-rift: Summon label and crystal cost remain inside the gold button at x81-645, y836-928.",
+          "id": "content-containment",
+          "pass": true
+        },
+        {
+          "evidence": "fid-37-rift: bottom navigation cell widths vary noticeably at y1344-1500; top resource cards also vary at y125-181.",
+          "id": "sibling-size-consistency",
+          "pass": false
+        }
+      ],
+      "score": 95.0
+    },
+    "google/gemini-3.6-flash": {
+      "model": "google/gemini-3.6-flash",
+      "reason": "HTTP 402",
+      "skipped": true
+    }
+  },
+  "recurring_checks": [
+    {
+      "evidence": "fid-37-rift: framed Upgrade ribbon at approximately x79-645, y1080 composites cleanly.",
+      "id": "banner-transparency",
+      "pass": true
+    },
+    {
+      "evidence": "fid-37-rift: Settings tab gear (~x608, y1405) is a flat monochrome glyph unlike the painted Home/Rift/Mages icons",
+      "id": "asset-identity",
+      "pass": false
+    },
+    {
+      "evidence": "fid-37-rift: bottom navigation icons and labels are visually centered within their cells around y1415.",
+      "id": "glyph-centering",
+      "pass": true
+    },
+    {
+      "evidence": "fid-37-rift: 'Pull odds'/'Now'/'Next' text at y\u22481340 is cut by the tab bar and escapes its panel frame",
+      "id": "content-containment",
+      "pass": false
+    },
+    {
+      "evidence": "fid-37-rift: bottom navigation cell widths vary noticeably at y1344-1500; top resource cards also vary at y125-181.",
+      "id": "sibling-size-consistency",
+      "pass": false
+    }
+  ],
+  "score": 87.0,
+  "skipped": [
+    {
+      "judge": "google/gemini-3.6-flash",
+      "reason": "HTTP 402"
+    }
+  ],
+  "verdict": "pass"
+}

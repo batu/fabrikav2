@@ -41,6 +41,6 @@ export const ARENA = {
   advanceDistance: 560,
   advanceSeconds: 1.2,
   /** Soft separation between living units so clusters stay readable. */
-  separation: 26,
+  separation: 34,
   separationStrength: 3.5,
 } as const;

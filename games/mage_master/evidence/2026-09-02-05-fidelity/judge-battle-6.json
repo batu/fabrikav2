@@ -1,0 +1,377 @@
+{
+  "consensus": [
+    "missing-element",
+    "spacing",
+    "layout",
+    "sizing"
+  ],
+  "defects": [
+    {
+      "defect": "Large empty sand expanse in the middle and right of the arena; props (rocks, skulls, cactus) are clustered on the left edge, so dressing does not fill the width and the environment reads unfinished",
+      "direction": "Distribute props evenly across the arena width and add mid-field dressing to balance the left-heavy clustering",
+      "region": "Arena mid-field, ~(0-725, 500-760) and (350-725, 380-720)",
+      "severity": "major"
+    },
+    {
+      "defect": "A miniature goblin sprite is rendered at a fraction of the other goblins' scale, breaking sprite-scale consistency",
+      "direction": "Render all goblins at the same scale as the two large goblins, or remove the stray tiny sprite",
+      "region": "top-left arena edge, ~(95,410)",
+      "severity": "major"
+    },
+    {
+      "defect": "A pink-flower cactus prop is drawn on top of the Ember mage's head, reading as an accidental overlap rather than intentional dressing; sprite depth sorting is wrong",
+      "direction": "Sort props behind/away from unit sprites or move the prop out of the mage's footprint so no decoration overlaps a character",
+      "region": "Ember mage sprite, ~(240-340, 780-960) \u2014 flower/cactus prop overlapping his head",
+      "severity": "major"
+    },
+    {
+      "defect": "The ranged mage is isolated far from the other two, near the bottom-right edge, with no camp ledge anchoring; the trio does not read as a formation, and the two melee mages are not advancing toward the goblins in any legible way",
+      "direction": "Place the ranged mage on the camp ledge near the tent on the left and stage the melee mages forward as a coherent front line",
+      "region": "Sage mage, ~(500-600, 980-1120), lower-right near campfire",
+      "severity": "major"
+    },
+    {
+      "defect": "The stage track is clipped at the screen's left edge \u2014 nodes are half cut off and the rail sits partly outside the safe area; it also floats over the sand with no frame or background plate",
+      "direction": "Inset the track ~16-24px from the left edge and give it a framed rail so nodes are fully visible",
+      "region": "Stage track, left edge x\u22480-40, y\u2248460-1100",
+      "severity": "major"
+    },
+    {
+      "defect": "A flowering-cactus prop overlaps the melee mage sprite, reading as clutter stuck to the character",
+      "direction": "Move arena props out of hero walk paths or draw heroes above props so sprites read cleanly",
+      "region": "behind Ember's head, ~(255,800)",
+      "severity": "major"
+    },
+    {
+      "defect": "Name labels are left-aligned against the portrait ring with inconsistent trailing space, and each uses a different saturated color with no shared outline treatment",
+      "direction": "Unify name styling with consistent outline and consistent left inset across all three cards",
+      "region": "HUD card names, y\u22481290-1310",
+      "severity": "minor"
+    },
+    {
+      "defect": "The large empty gap between the advancing goblins and frontline heroes makes the encounter feel slightly disconnected.",
+      "direction": "Bring the active combatants closer or add subtle combat/dressing elements through the center.",
+      "region": "fid-35-battle central sand arena",
+      "severity": "minor"
+    },
+    {
+      "defect": "Large empty sand band between the goblin line and the hero group with only sparse pebble scatter",
+      "direction": "Tighten the engagement distance or add mid-density dressing so the arena reads as a finished environment",
+      "region": "arena center band, y\u2248500-750",
+      "severity": "minor"
+    },
+    {
+      "defect": "HP bars are full-width solid green slabs with no frame or fill/track distinction, and sit tight against the name row; they read as flat blocks rather than framed bars",
+      "direction": "Add a dark track and border to each HP bar and increase vertical breathing room from the name",
+      "region": "HUD cards, HP bars y\u22481330-1350",
+      "severity": "minor"
+    },
+    {
+      "defect": "The speed chip and pause button are different shapes and visual weights, and the pause button's brown plate is misaligned \u2014 it overhangs the wooden frame's right/top border",
+      "direction": "Match the two controls' size and inset, and keep the pause plate inside the frame border",
+      "region": "Top strip, speed chip '1x' at ~(40-125, 240-295) vs pause at ~(610-700, 230-300)",
+      "severity": "minor"
+    },
+    {
+      "defect": "No visible damage numbers or hit feedback, so combat readability is not demonstrated.",
+      "direction": "Add brief, high-contrast damage/heal numbers and impact effects near the active melee exchange.",
+      "region": "fid-35-battle arena center",
+      "severity": "minor"
+    },
+    {
+      "defect": "No damage numbers or combat contact visible; melee mages are far from the goblins, so battle readability can't be assessed and the scene reads static",
+      "direction": "Show mages engaging enemies with legible floating damage numbers per the spec",
+      "region": "arena midfield",
+      "severity": "minor"
+    },
+    {
+      "defect": "No damage numbers or combat feedback present, so readability of damage text cannot read as designed",
+      "direction": "Show floating damage numbers with outline/shadow over the sand",
+      "region": "Whole arena",
+      "severity": "minor"
+    },
+    {
+      "defect": "Both large goblins are clipped by the header frame \u2014 heads/raised arms cut off at the arena's top edge",
+      "direction": "Spawn goblins fully below the framed header, or clip them with a soft arena edge instead of a hard frame cut",
+      "region": "top of arena, both goblins ~(180,380) and ~(590,380)",
+      "severity": "minor"
+    },
+    {
+      "defect": "Both goblins are clipped by the top edge of the arena where the HUD frame ends; their weapons cut through the frame boundary",
+      "direction": "Spawn enemies a few dozen px lower so full sprites clear the top strip",
+      "region": "Goblins, top of arena y\u2248370-460",
+      "severity": "minor"
+    },
+    {
+      "defect": "Flat brown band between the arena ledge and the HUD reads as unpainted letterbox filler",
+      "direction": "Paint the camp ledge with texture/props so the band reads as ground, not empty fill",
+      "region": "Below arena, y\u22481130-1230 brown band",
+      "severity": "minor"
+    }
+  ],
+  "participated": [
+    "codex/gpt-5.6-terra",
+    "anthropic/claude-fable-5",
+    "anthropic/claude-opus-5"
+  ],
+  "per_model": {
+    "anthropic/claude-fable-5": {
+      "defects": [
+        {
+          "defect": "A miniature goblin sprite is rendered at a fraction of the other goblins' scale, breaking sprite-scale consistency",
+          "direction": "Render all goblins at the same scale as the two large goblins, or remove the stray tiny sprite",
+          "key": "sizing",
+          "region": "top-left arena edge, ~(95,410)",
+          "severity": "major"
+        },
+        {
+          "defect": "A flowering-cactus prop overlaps the melee mage sprite, reading as clutter stuck to the character",
+          "direction": "Move arena props out of hero walk paths or draw heroes above props so sprites read cleanly",
+          "key": "extra-element",
+          "region": "behind Ember's head, ~(255,800)",
+          "severity": "major"
+        },
+        {
+          "defect": "Both large goblins are clipped by the header frame \u2014 heads/raised arms cut off at the arena's top edge",
+          "direction": "Spawn goblins fully below the framed header, or clip them with a soft arena edge instead of a hard frame cut",
+          "key": "layout",
+          "region": "top of arena, both goblins ~(180,380) and ~(590,380)",
+          "severity": "minor"
+        },
+        {
+          "defect": "No damage numbers or combat contact visible; melee mages are far from the goblins, so battle readability can't be assessed and the scene reads static",
+          "direction": "Show mages engaging enemies with legible floating damage numbers per the spec",
+          "key": "missing-element",
+          "region": "arena midfield",
+          "severity": "minor"
+        },
+        {
+          "defect": "Large empty sand band between the goblin line and the hero group with only sparse pebble scatter",
+          "direction": "Tighten the engagement distance or add mid-density dressing so the arena reads as a finished environment",
+          "key": "spacing",
+          "region": "arena center band, y\u2248500-750",
+          "severity": "minor"
+        }
+      ],
+      "model": "claude-fable-5",
+      "recurring_checks": [
+        {
+          "evidence": "fid-35-battle: no sprite banner/ribbon present; framed wood panels at top ~(360,290) composite as intended",
+          "id": "banner-transparency",
+          "pass": true
+        },
+        {
+          "evidence": "fid-35-battle: all HUD icons, gear tiles ~(85,1410) and character sprites are drawn art, no font-glyph stand-ins",
+          "id": "asset-identity",
+          "pass": true
+        },
+        {
+          "evidence": "fid-35-battle: pause '||' glyph centered in rounded button ~(655,270); '1x' centered in speed chip ~(70,270)",
+          "id": "glyph-centering",
+          "pass": true
+        },
+        {
+          "evidence": "fid-35-battle: names, HP text and gear icons stay inside card/tile bounds across all three HUD cards ~(360,1350)",
+          "id": "content-containment",
+          "pass": true
+        },
+        {
+          "evidence": "fid-35-battle: three HUD cards ~(120/360/600,1360) and their gear tiles are equal-sized",
+          "id": "sibling-size-consistency",
+          "pass": true
+        }
+      ],
+      "score": 80.0
+    },
+    "anthropic/claude-opus-5": {
+      "defects": [
+        {
+          "defect": "A pink-flower cactus prop is drawn on top of the Ember mage's head, reading as an accidental overlap rather than intentional dressing; sprite depth sorting is wrong",
+          "direction": "Sort props behind/away from unit sprites or move the prop out of the mage's footprint so no decoration overlaps a character",
+          "key": "layout",
+          "region": "Ember mage sprite, ~(240-340, 780-960) \u2014 flower/cactus prop overlapping his head",
+          "severity": "major"
+        },
+        {
+          "defect": "The ranged mage is isolated far from the other two, near the bottom-right edge, with no camp ledge anchoring; the trio does not read as a formation, and the two melee mages are not advancing toward the goblins in any legible way",
+          "direction": "Place the ranged mage on the camp ledge near the tent on the left and stage the melee mages forward as a coherent front line",
+          "key": "layout",
+          "region": "Sage mage, ~(500-600, 980-1120), lower-right near campfire",
+          "severity": "major"
+        },
+        {
+          "defect": "Large empty sand expanse in the middle and right of the arena; props (rocks, skulls, cactus) are clustered on the left edge, so dressing does not fill the width and the environment reads unfinished",
+          "direction": "Distribute props evenly across the arena width and add mid-field dressing to balance the left-heavy clustering",
+          "key": "spacing",
+          "region": "Arena mid-field, ~(0-725, 500-760) and (350-725, 380-720)",
+          "severity": "major"
+        },
+        {
+          "defect": "The stage track is clipped at the screen's left edge \u2014 nodes are half cut off and the rail sits partly outside the safe area; it also floats over the sand with no frame or background plate",
+          "direction": "Inset the track ~16-24px from the left edge and give it a framed rail so nodes are fully visible",
+          "key": "layout",
+          "region": "Stage track, left edge x\u22480-40, y\u2248460-1100",
+          "severity": "major"
+        },
+        {
+          "defect": "Both goblins are clipped by the top edge of the arena where the HUD frame ends; their weapons cut through the frame boundary",
+          "direction": "Spawn enemies a few dozen px lower so full sprites clear the top strip",
+          "key": "layout",
+          "region": "Goblins, top of arena y\u2248370-460",
+          "severity": "minor"
+        },
+        {
+          "defect": "The speed chip and pause button are different shapes and visual weights, and the pause button's brown plate is misaligned \u2014 it overhangs the wooden frame's right/top border",
+          "direction": "Match the two controls' size and inset, and keep the pause plate inside the frame border",
+          "key": "sizing",
+          "region": "Top strip, speed chip '1x' at ~(40-125, 240-295) vs pause at ~(610-700, 230-300)",
+          "severity": "minor"
+        },
+        {
+          "defect": "HP bars are full-width solid green slabs with no frame or fill/track distinction, and sit tight against the name row; they read as flat blocks rather than framed bars",
+          "direction": "Add a dark track and border to each HP bar and increase vertical breathing room from the name",
+          "key": "spacing",
+          "region": "HUD cards, HP bars y\u22481330-1350",
+          "severity": "minor"
+        },
+        {
+          "defect": "Flat brown band between the arena ledge and the HUD reads as unpainted letterbox filler",
+          "direction": "Paint the camp ledge with texture/props so the band reads as ground, not empty fill",
+          "key": "background",
+          "region": "Below arena, y\u22481130-1230 brown band",
+          "severity": "minor"
+        },
+        {
+          "defect": "No damage numbers or combat feedback present, so readability of damage text cannot read as designed",
+          "direction": "Show floating damage numbers with outline/shadow over the sand",
+          "key": "missing-element",
+          "region": "Whole arena",
+          "severity": "minor"
+        },
+        {
+          "defect": "Name labels are left-aligned against the portrait ring with inconsistent trailing space, and each uses a different saturated color with no shared outline treatment",
+          "direction": "Unify name styling with consistent outline and consistent left inset across all three cards",
+          "key": "typography",
+          "region": "HUD card names, y\u22481290-1310",
+          "severity": "minor"
+        }
+      ],
+      "model": "claude-opus-5",
+      "recurring_checks": [
+        {
+          "evidence": "fid-35-battle: pause button brown plate at (610-700, 228-302) is an opaque box overhanging the top-strip wood frame",
+          "id": "banner-transparency",
+          "pass": false
+        },
+        {
+          "evidence": "fid-35-battle: gear tiles (85,1420), (315,1420), (545,1420) use painted item art, not glyph stand-ins",
+          "id": "asset-identity",
+          "pass": true
+        },
+        {
+          "evidence": "fid-35-battle: pause '||' glyph centered in circular button at (655,266)",
+          "id": "glyph-centering",
+          "pass": true
+        },
+        {
+          "evidence": "fid-35-battle: '9/10 55s' chip at (55-225,148) crowds its pill's right edge; stage track nodes at x\u224822 clip past the left screen bound",
+          "id": "content-containment",
+          "pass": false
+        },
+        {
+          "evidence": "fid-35-battle: three HUD cards at y\u22481250-1465 are equal width (~228px) and equal height",
+          "id": "sibling-size-consistency",
+          "pass": true
+        }
+      ],
+      "score": 66.0
+    },
+    "codex/gpt-5.6-terra": {
+      "defects": [
+        {
+          "defect": "No visible damage numbers or hit feedback, so combat readability is not demonstrated.",
+          "direction": "Add brief, high-contrast damage/heal numbers and impact effects near the active melee exchange.",
+          "key": "missing-element",
+          "region": "fid-35-battle arena center",
+          "severity": "minor"
+        },
+        {
+          "defect": "The large empty gap between the advancing goblins and frontline heroes makes the encounter feel slightly disconnected.",
+          "direction": "Bring the active combatants closer or add subtle combat/dressing elements through the center.",
+          "key": "spacing",
+          "region": "fid-35-battle central sand arena",
+          "severity": "minor"
+        }
+      ],
+      "model": "gpt-5.6-terra",
+      "recurring_checks": [
+        {
+          "evidence": "fid-35-battle: title and HUD frames are intentionally opaque wooden UI, with no unintended banner box visible.",
+          "id": "banner-transparency",
+          "pass": true
+        },
+        {
+          "evidence": "fid-35-battle: heroes, goblins, props, portraits, and UI share a consistent illustrated fantasy asset style.",
+          "id": "asset-identity",
+          "pass": true
+        },
+        {
+          "evidence": "fid-35-battle: pause glyph is visually centered in the circular button at upper right.",
+          "id": "glyph-centering",
+          "pass": true
+        },
+        {
+          "evidence": "fid-35-battle: title, resource labels, card names, HP values, and gear icons remain within their frames.",
+          "id": "content-containment",
+          "pass": true
+        },
+        {
+          "evidence": "fid-35-battle: the three bottom mage cards and their gear-tile pairs are consistently sized and aligned.",
+          "id": "sibling-size-consistency",
+          "pass": true
+        }
+      ],
+      "score": 91.0
+    },
+    "google/gemini-3.6-flash": {
+      "model": "google/gemini-3.6-flash",
+      "reason": "HTTP 402",
+      "skipped": true
+    }
+  },
+  "recurring_checks": [
+    {
+      "evidence": "fid-35-battle: pause button brown plate at (610-700, 228-302) is an opaque box overhanging the top-strip wood frame",
+      "id": "banner-transparency",
+      "pass": false
+    },
+    {
+      "evidence": "fid-35-battle: heroes, goblins, props, portraits, and UI share a consistent illustrated fantasy asset style.",
+      "id": "asset-identity",
+      "pass": true
+    },
+    {
+      "evidence": "fid-35-battle: pause glyph is visually centered in the circular button at upper right.",
+      "id": "glyph-centering",
+      "pass": true
+    },
+    {
+      "evidence": "fid-35-battle: '9/10 55s' chip at (55-225,148) crowds its pill's right edge; stage track nodes at x\u224822 clip past the left screen bound",
+      "id": "content-containment",
+      "pass": false
+    },
+    {
+      "evidence": "fid-35-battle: the three bottom mage cards and their gear-tile pairs are consistently sized and aligned.",
+      "id": "sibling-size-consistency",
+      "pass": true
+    }
+  ],
+  "score": 80.0,
+  "skipped": [
+    {
+      "judge": "google/gemini-3.6-flash",
+      "reason": "HTTP 402"
+    }
+  ],
+  "verdict": "fail"
+}
