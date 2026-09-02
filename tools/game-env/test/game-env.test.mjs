@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { afterEach, describe, expect, it } from 'vitest';
 
@@ -12,6 +13,7 @@ import {
   validateTemplate,
 } from '../src/validate.mjs';
 import { getGamePolicy } from '../src/policies.mjs';
+import { createFindTheBirdPolicy } from '../src/policies/find-the-bird.mjs';
 import { createFindTheDogPolicy, FIND_THE_DOG_ENV_KEYS } from '../src/policies/find-the-dog.mjs';
 import { resolveFindTheDogViteConfig } from '../../../games/find_the_dog/vite.config.ts';
 
@@ -20,7 +22,8 @@ const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..'
 const cliPath = path.join(repoRoot, 'tools/game-env/validate.mjs');
 const productionPolicy = getGamePolicy('find_the_dog');
 const policy = createFindTheDogPolicy({
-  approvedGameAnalyticsGameKeys: ['a'.repeat(32)],
+  approvedGameAnalyticsGameKeyFingerprints: [createHash('sha256').update('a'.repeat(32)).digest('hex')],
+  approvedGameAnalyticsSecretKeyFingerprints: [createHash('sha256').update('b'.repeat(40)).digest('hex')],
   approvedOwnedMirrorEndpointUrls: ['https://example.invalid/analytics'],
 });
 
@@ -91,6 +94,63 @@ describe('dotenv parsing and loading', () => {
 });
 
 describe('environment validation', () => {
+  it('uses a separate Find the Bird release identity policy', () => {
+    const birdPolicy = createFindTheBirdPolicy({
+      approvedGameAnalyticsGameKeyFingerprints: ['synthetic-game-fingerprint'],
+      approvedGameAnalyticsSecretKeyFingerprints: ['synthetic-secret-fingerprint'],
+    });
+
+    expect(getGamePolicy('find_the_bird')).not.toBe(getGamePolicy('find_the_dog'));
+    expect(birdPolicy.releaseIdentity).toEqual({
+      firebaseProjectId: 'find-the-bird-basegamelab',
+      gameAnalyticsGameId: 'find_the_bird',
+      appsFlyerAppleAppId: '6796698146',
+    });
+  });
+
+  it('pins both GameAnalytics credentials by SHA-256 fingerprint without exposing values', () => {
+    const root = makeGameRoot();
+    const gameKey = 'a'.repeat(32);
+    const secretKey = 'b'.repeat(40);
+    const fingerprint = (value) => createHash('sha256').update(value).digest('hex');
+    const fingerprintPolicy = createFindTheDogPolicy({
+      approvedGameAnalyticsGameKeyFingerprints: [fingerprint(gameKey)],
+      approvedGameAnalyticsSecretKeyFingerprints: [fingerprint(secretKey)],
+    });
+    const environment = {
+      VITE_FTD_DISABLE_REMOTE_CONFIG: 'false',
+      VITE_FIREBASE_PROJECT_ID: 'find-the-dog-basegamelab',
+      VITE_GAMEANALYTICS_IOS_ENABLED: 'true',
+      VITE_GAMEANALYTICS_IOS_GAME_ID: 'find_the_dog',
+      VITE_GAMEANALYTICS_IOS_GAME_KEY: gameKey,
+      VITE_GAMEANALYTICS_IOS_SECRET_KEY: secretKey,
+      VITE_ADJUST_IOS_ENABLED: 'false',
+      VITE_ADMOB_IOS_ENABLED: 'false',
+      VITE_ADMOB_IOS_TEST_MODE: 'false',
+      VITE_REVENUECAT_IOS_API_KEY: 'appl_A1b2C3d4E5f6G7h8I9j0K1l2M3n',
+      VITE_ATTRIBUTION_PROVIDER: 'appsflyer',
+      VITE_APPSFLYER_ENABLED: 'true',
+      VITE_APPSFLYER_DEV_KEY: 'A1b2C3d4E5f6G7h8I9j0',
+      VITE_APPSFLYER_APPLE_APP_ID: '6772100729',
+      VITE_CDN_ENABLED: 'false',
+    };
+
+    expect(validateEnvironment({ gameRoot: root, mode: 'ios', policy: fingerprintPolicy, environment }).ok).toBe(true);
+    for (const [key, value] of [
+      ['VITE_GAMEANALYTICS_IOS_GAME_KEY', 'c'.repeat(32)],
+      ['VITE_GAMEANALYTICS_IOS_SECRET_KEY', 'd'.repeat(40)],
+    ]) {
+      const result = validateEnvironment({
+        gameRoot: root,
+        mode: 'ios',
+        policy: fingerprintPolicy,
+        environment: { ...environment, [key]: value },
+      });
+      expect(result.invalidKeys).toContain(key);
+      expect(JSON.stringify(result)).not.toContain(value);
+    }
+  });
+
   it('requires explicit mode-relevant provider intent flags', () => {
     const root = makeGameRoot();
     const result = validateEnvironment({ gameRoot: root, mode: 'ios', policy, environment: {} });
@@ -228,7 +288,8 @@ describe('environment validation', () => {
       gameRoot: root,
       mode: 'ios',
       policy: createFindTheDogPolicy({
-        approvedGameAnalyticsGameKeys: ['a'.repeat(32)],
+        approvedGameAnalyticsGameKeyFingerprints: [createHash('sha256').update('a'.repeat(32)).digest('hex')],
+        approvedGameAnalyticsSecretKeyFingerprints: [createHash('sha256').update('b'.repeat(40)).digest('hex')],
         approvedOwnedMirrorEndpointUrls: ['https://example.invalid/analytics'],
       }),
       environment,
@@ -758,6 +819,15 @@ describe('environment validation', () => {
 });
 
 describe('canonical template', () => {
+  it('keeps each Find game template aligned with its separate policy', () => {
+    for (const game of ['find_the_dog', 'find_the_bird']) {
+      expect(validateTemplate(
+        path.join(repoRoot, `games/${game}/.env.example`),
+        getGamePolicy(game),
+      ).ok, game).toBe(true);
+    }
+  });
+
   it('contains the exact 72-key placeholder-only contract with one comment per assignment', () => {
     const templatePath = path.join(repoRoot, 'games/find_the_dog/.env.example');
     const result = validateTemplate(templatePath, policy);
