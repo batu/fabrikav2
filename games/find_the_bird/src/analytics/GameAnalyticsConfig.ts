@@ -31,6 +31,20 @@ export function readGameAnalyticsIosConfig(
   env: GameAnalyticsEnv,
   isProductionBuild: boolean = false,
 ): GameAnalyticsConfigResult {
+  if (!parseBooleanEnv(env.VITE_GAMEANALYTICS_IOS_ENABLED, false)) {
+    return {
+      enabled: false,
+      reason: 'GameAnalytics iOS is disabled',
+      missingKeys: [],
+    };
+  }
+  if (envString(env.VITE_GAMEANALYTICS_IOS_GAME_ID) !== 'find_the_bird') {
+    return {
+      enabled: false,
+      reason: 'VITE_GAMEANALYTICS_IOS_GAME_ID must be find_the_bird',
+      missingKeys: [],
+    };
+  }
   const values = {
     VITE_GAMEANALYTICS_IOS_GAME_KEY: envString(env.VITE_GAMEANALYTICS_IOS_GAME_KEY),
     VITE_GAMEANALYTICS_IOS_SECRET_KEY: envString(env.VITE_GAMEANALYTICS_IOS_SECRET_KEY),
@@ -53,7 +67,7 @@ export function readGameAnalyticsIosConfig(
   ))) {
     return {
       enabled: false,
-      reason: 'VITE_GAMEANALYTICS_IOS_GAME_KEY must be 32 characters',
+      reason: 'VITE_GAMEANALYTICS_IOS_GAME_KEY must be 32 hexadecimal characters',
       missingKeys: [],
     };
   }
@@ -64,7 +78,7 @@ export function readGameAnalyticsIosConfig(
   ))) {
     return {
       enabled: false,
-      reason: 'VITE_GAMEANALYTICS_IOS_SECRET_KEY must be 40 characters',
+      reason: 'VITE_GAMEANALYTICS_IOS_SECRET_KEY must be 40 hexadecimal characters',
       missingKeys: [],
     };
   }
@@ -90,9 +104,9 @@ export function redactGameAnalyticsKey(value: string): string {
 }
 
 function isGameAnalyticsGameKey(value: string): boolean {
-  return value.length === 32;
+  return /^[a-f0-9]{32}$/i.test(value);
 }
 
 function isGameAnalyticsSecretKey(value: string): boolean {
-  return value.length === 40;
+  return /^[a-f0-9]{40}$/i.test(value);
 }

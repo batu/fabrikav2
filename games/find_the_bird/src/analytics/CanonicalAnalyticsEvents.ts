@@ -48,6 +48,7 @@ const levelAttributionFields = [
 
 const economyFields = ['flow_type', 'currency', 'amount', 'item_type', 'item_id', 'product_id', 'no_ads', 'hints', 'coins', 'continue_level', 'level_id'] as const;
 const adRevenueFields = ['ad_type', 'placement', 'provider', 'currency', 'precision', 'network_name'] as const;
+const runtimeIdentityFields = ['app_version', 'build', 'platform', 'game', 'environment', 'cohort_bucket'] as const;
 
 export const canonicalAnalyticsEvents = [
   {
@@ -654,13 +655,16 @@ export const forbiddenAnalyticsIdentifierKeys = [
 
 const canonicalAnalyticsEventDefinitions: readonly CanonicalAnalyticsEventDefinition[] = canonicalAnalyticsEvents;
 
-export const gameAnalyticsAllowedCustomFieldKeys = uniqueStrings(canonicalAnalyticsEventDefinitions.flatMap((event) => [...(event.allowedGameAnalyticsCustomFields ?? [])]));
+export const gameAnalyticsAllowedCustomFieldKeys = uniqueStrings([
+  ...runtimeIdentityFields,
+  ...canonicalAnalyticsEventDefinitions.flatMap((event) => [...(event.allowedGameAnalyticsCustomFields ?? [])]),
+]);
 
 const gameAnalyticsAllowedCustomFieldKeySet = new Set(gameAnalyticsAllowedCustomFieldKeys.map(normalizeAnalyticsFieldKey));
 const gameAnalyticsAllowedCustomFieldKeySetsByEventId = new Map(
   canonicalAnalyticsEventDefinitions.map((event) => [
     event.id,
-    new Set((event.allowedGameAnalyticsCustomFields ?? []).map(normalizeAnalyticsFieldKey)),
+    new Set([...runtimeIdentityFields, ...(event.allowedGameAnalyticsCustomFields ?? [])].map(normalizeAnalyticsFieldKey)),
   ]),
 );
 const forbiddenAnalyticsIdentifierKeySet = new Set(forbiddenAnalyticsIdentifierKeys.map(normalizeAnalyticsFieldKey));

@@ -99,8 +99,34 @@ export interface GameSdkContext {
   readonly remoteConfig: RemoteConfigService;
   readonly selection: SdkProviderSelection;
   readonly ownedMirrorStats: () => OwnedAnalyticsMirrorStats;
+  readonly analyticsDiagnostics: () => FtbAnalyticsDiagnostics;
   readonly storage: BootstrapStorage;
 }
+
+export interface FtbAnalyticsDiagnostics {
+  readonly game: 'find_the_bird';
+  readonly environment: SdkEnvironments['analytics'];
+  readonly platform: 'android' | 'ios' | 'web';
+  readonly build: string | null;
+  readonly appVersion: string | null;
+  readonly selectedSinks: readonly string[];
+  readonly gameAnalytics: { readonly enabled: boolean; readonly reason: string | null };
+  readonly sinks: Readonly<Record<string, FtbAnalyticsSinkDiagnostics>>;
+}
+
+export interface FtbAnalyticsSinkDiagnostics {
+  readonly queued: number;
+  readonly sent: number;
+  readonly retried: number;
+  readonly dropped: number;
+  readonly initializationFailure: string | null;
+  readonly lastSuccessfulFlushAt: string | null;
+  readonly flushAttempts?: number;
+}
+
+type DiagnosticAnalyticsSink = AnalyticsSink & {
+  diagnostics?: () => FtbAnalyticsSinkDiagnostics;
+};
 
 export interface CreateSdkContextDependencies {
   readonly buildEnv?: SdkBuildEnv;
@@ -184,7 +210,7 @@ export function createSdkContext(deps: CreateSdkContextDependencies = {}): GameS
     return delivered;
   };
 
-  const sinks: AnalyticsSink[] = [];
+  const sinks: DiagnosticAnalyticsSink[] = [];
   if (buildEnv === 'development') sinks.push(createConsoleSink());
   const ring = createRingBufferSink();
   sinks.push(ring);
@@ -217,15 +243,24 @@ export function createSdkContext(deps: CreateSdkContextDependencies = {}): GameS
   }
 
   const gaConfig = readGameAnalyticsIosConfig(env, buildEnv === 'production');
-  if (platform === 'ios' && gaConfig.enabled) {
+  const gameAnalyticsEnabled = platform === 'ios' && gaConfig.enabled;
+  if (gameAnalyticsEnabled && gaConfig.enabled) {
     sinks.push(createGameAnalyticsSink(gaConfig.config, { loader: deps.gameAnalyticsLoader, logger }));
   }
 
+  const analyticsBuild = buildStamp();
+  const analyticsAppVersion = analyticsBuild?.split('+', 1)[0] ?? null;
   analyticsFacade = createAnalytics<FtdEvent>({
     env: environments.analytics,
     sessionId: createFtdSessionId(),
     sinks,
-    globalParams: { game: 'find_the_bird', platform, build: buildStamp() },
+    globalParams: {
+      game: 'find_the_bird',
+      platform,
+      build: analyticsBuild,
+      app_version: analyticsAppVersion,
+      environment: environments.analytics,
+    },
   });
 
   const catalogProducts = () => buildShopCatalog().products.map(ftdCatalogProduct);
@@ -283,6 +318,30 @@ export function createSdkContext(deps: CreateSdkContextDependencies = {}): GameS
     };
   };
 
+  const analyticsDiagnostics = (): FtbAnalyticsDiagnostics => {
+    const sinkDiagnostics: Record<string, FtbAnalyticsSinkDiagnostics> = {};
+    for (const sink of sinks) {
+      if (sink.diagnostics !== undefined) sinkDiagnostics[sink.name] = sink.diagnostics();
+    }
+    return {
+      game: 'find_the_bird',
+      environment: environments.analytics,
+      platform,
+      build: analyticsBuild,
+      appVersion: analyticsAppVersion,
+      selectedSinks: sinks.map((sink) => sink.name),
+      gameAnalytics: {
+        enabled: gameAnalyticsEnabled,
+        reason: gameAnalyticsEnabled
+          ? null
+          : platform !== 'ios'
+            ? `GameAnalytics is unavailable on ${platform}`
+            : gaConfig.enabled ? null : gaConfig.reason,
+      },
+      sinks: sinkDiagnostics,
+    };
+  };
+
   return {
     environments,
     analytics: analyticsFacade,
@@ -300,6 +359,7 @@ export function createSdkContext(deps: CreateSdkContextDependencies = {}): GameS
       remoteConfig: firebaseRemoteProvider === undefined ? 'static' : 'firebase',
     },
     ownedMirrorStats,
+    analyticsDiagnostics,
     storage,
   };
 }
