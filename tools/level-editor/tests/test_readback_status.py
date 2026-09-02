@@ -64,7 +64,8 @@ def test_readiness_and_blessing_track_canonical_obligations(app_client, isolated
         json={
             "approved": True,
             "expectedContentRevision": added.content_revision,
-            "humanActor": "human:batu",
+            "humanActor": "human:editor",
+            "reviewSource": "editor-ui",
         },
     )
     assert response.status_code in (409, 422)

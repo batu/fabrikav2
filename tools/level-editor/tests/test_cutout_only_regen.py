@@ -399,7 +399,8 @@ def test_final_cutout_blessing_requires_current_hitbox_blessing(app_client, isol
     ]))
 
     response = app_client.put(
-        f"/api/sessions/{session_id}/final-cutout-review", json={"approved": True, "humanActor": "human:test"},
+        f"/api/sessions/{session_id}/final-cutout-review",
+        json={"approved": True, "humanActor": "human:editor", "reviewSource": "editor-ui"},
     )
     assert response.status_code == 409
     assert response.json()["detail"]["code"] == "hitboxes_not_blessed"

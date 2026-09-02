@@ -3,7 +3,10 @@
 import argparse
 from pathlib import Path
 
+import pytest
+
 from levelbuilder.cli.main import (
+    CliError,
     WIZARD_OPERATIONS,
     build_parser,
     cmd_auto_place_sprites,
@@ -62,6 +65,14 @@ def test_primary_operation_contracts_match_routes_and_ui_exports(app_client) -> 
     ]
     assert not missing_routes, f"registered operations missing FastAPI routes: {missing_routes}"
     assert not missing_ui, f"registered operations missing UI API exports: {missing_ui}"
+
+
+def test_ui_cutout_approval_declares_manual_editor_source() -> None:
+    ui_source = (Path(__file__).parents[1] / "ui" / "src" / "api" / "editorApi.ts").read_text()
+    function_source = ui_source.split("export function setFinalCutoutApproval(", 1)[1].split(
+        "export function getFinalCutoutReviewReadiness(", 1,
+    )[0]
+    assert "humanActor: 'human:editor', reviewSource: 'editor-ui'" in function_source
 
 
 class _Client:
@@ -128,14 +139,18 @@ def test_integrity_migration_cli_uses_shared_api(capsys) -> None:
     ]
 
 
-def test_two_stage_review_cli_uses_shared_api(capsys) -> None:
+def test_cutout_approval_is_editor_ui_only_but_cli_can_remove_it(capsys) -> None:
     client = _Client()
 
     cmd_bless_hitboxes(client, argparse.Namespace(
         session_id="level-a", approved=True, human_confirmed_by="batu", json=True,
     ))
+    with pytest.raises(CliError, match="editor UI"):
+        cmd_bless_cutouts(client, argparse.Namespace(
+            session_id="level-a", approved=True, human_confirmed_by="batu", json=True,
+        ))
     cmd_bless_cutouts(client, argparse.Namespace(
-        session_id="level-a", approved=True, human_confirmed_by="batu", json=True,
+        session_id="level-a", approved=False, human_confirmed_by=None, json=True,
     ))
 
     assert client.calls == [
@@ -145,7 +160,7 @@ def test_two_stage_review_cli_uses_shared_api(capsys) -> None:
         }),
         ("GET", "/api/sessions/level-a", None),
         ("PUT", "/api/sessions/level-a/final-cutout-review", {
-            "approved": True, "expectedContentRevision": "sha256:current", "humanActor": "human:batu",
+            "approved": False, "expectedContentRevision": "sha256:current",
         }),
     ]
     assert capsys.readouterr().out.count('"ok": true') == 2

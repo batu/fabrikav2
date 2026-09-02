@@ -591,6 +591,7 @@ class SaveGoldenReviewRequest(BaseModel):
     approved: bool
     expectedContentRevision: str | None = None
     humanActor: str | None = None
+    reviewSource: Literal["editor-ui"] | None = None
 
 
 def _human_actor(approved: bool, value: str | None) -> str:
@@ -1669,6 +1670,17 @@ def get_hitbox_review(session_id: str):
 
 @router.put("/sessions/{session_id}/final-cutout-review")
 def save_final_cutout_review(session_id: str, req: SaveGoldenReviewRequest):
+    if req.approved and (
+        req.reviewSource != "editor-ui" or req.humanActor != "human:editor"
+    ):
+        # Final cutout approval is a manual operator assertion. Automation may
+        # prepare and inspect evidence, but it cannot convert that work into a
+        # human-review badge. Keep revocation available to every client so a
+        # false or stale assertion can always be removed.
+        raise HTTPException(403, detail={
+            "code": "manual_cutout_review_required",
+            "error": "Final cutout approval must be made manually in the editor UI.",
+        })
     if req.approved:
         # CR-1 finding 5: a canonical level with pending extract obligations
         # can never be final-blessed — completeness is checked at the gate,

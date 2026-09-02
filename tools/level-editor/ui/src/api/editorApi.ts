@@ -1110,7 +1110,11 @@ export function setFinalCutoutApproval(
   return request(`/api/sessions/${encodeURIComponent(sessionId)}/final-cutout-review`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ approved, expectedContentRevision, ...(approved ? { humanActor: 'human:editor' } : {}) }),
+    body: JSON.stringify({
+      approved,
+      expectedContentRevision,
+      ...(approved ? { humanActor: 'human:editor', reviewSource: 'editor-ui' } : {}),
+    }),
   });
 }
 

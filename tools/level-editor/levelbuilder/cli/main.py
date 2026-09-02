@@ -1568,6 +1568,12 @@ def cmd_bless_hitboxes(client: Client, args: argparse.Namespace) -> None:
 
 def cmd_bless_cutouts(client: Client, args: argparse.Namespace) -> None:
     approved = _requested_approval(args)
+    if approved:
+        raise CliError(
+            "manual_cutout_review_required",
+            "Final cutout approval must be made manually in the editor UI; the CLI may only remove approval with --undo.",
+            stage="human-review",
+        )
     actor = _human_actor_argument(args, approved)
     revision = client.get(f"/api/sessions/{args.session_id}").get("contentRevision")
     _emit(args, client.request(

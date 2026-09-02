@@ -335,11 +335,43 @@ def test_canonical_final_bless_route_uses_revision_cas(app_client, isolated_sess
 
     response = app_client.put(
         "/api/sessions/canonical_final_route/final-cutout-review",
-        json={"approved": True, "expectedContentRevision": hitbox_pointer.content_revision, "humanActor": "human:test"},
+        json={
+            "approved": True,
+            "expectedContentRevision": hitbox_pointer.content_revision,
+            "humanActor": "human:editor",
+            "reviewSource": "editor-ui",
+        },
     )
 
     assert response.status_code == 200, response.text
     assert response.json()["finalCutoutReview"]["current"] is True
+
+
+def test_canonical_final_bless_rejects_agent_or_delegated_attribution(app_client, isolated_session):
+    store, pointer = _canonical_session(isolated_session, "canonical_final_human_only")
+    hitbox_pointer = isolated_session.set_canonical_hitbox_review_if_present(
+        "canonical_final_human_only",
+        True,
+        expected_content_revision=pointer.content_revision,
+    )
+
+    for actor, review_source in (
+        ("human:editor", None),
+        ("human:batu-delegated:ladder", "editor-ui"),
+        ("human:Codex eyes-on 2026-08-16", "editor-ui"),
+    ):
+        response = app_client.put(
+            "/api/sessions/canonical_final_human_only/final-cutout-review",
+            json={
+                "approved": True,
+                "expectedContentRevision": hitbox_pointer.content_revision,
+                "humanActor": actor,
+                **({"reviewSource": review_source} if review_source else {}),
+            },
+        )
+        assert response.status_code == 403, response.text
+        assert response.json()["detail"]["code"] == "manual_cutout_review_required"
+        assert store.read().snapshot["reviews"].get("finalCutouts") is None
 
 
 def test_canonical_delete_is_by_bird_id_and_revision_checked(app_client, isolated_session):
