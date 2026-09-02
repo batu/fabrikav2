@@ -1,41 +1,22 @@
 {
   "id": "greece_agora_ruins_garden_bird_8978",
-  "name": "Level greece_agora_ruins_garden_bird_8978",
+  "name": "Level greece_agora_ruins_garden_bird_8978 (clean_old_cartoon)",
   "width": 2688,
   "height": 2688,
+  "bwImage": "levels/greece_agora_ruins_garden_bird_8978/bw.png",
   "colorImage": "levels/greece_agora_ruins_garden_bird_8978/color.png",
-  "artifactRevision": "sha256:0c424369820ec19b72075b8fc46191868779d85cdc333e967b101dd909a067ec",
-  "compatibilityAliases": {
-    "dog_00": "59d4796b-eddf-56c5-8abe-8afbe3909020",
-    "dog_01": "b09c4513-f5ca-569a-90a3-7d786bd4de7f",
-    "dog_02": "76e5ce84-db85-5771-a627-4b8ad340e3ae",
-    "dog_03": "2a040e11-5833-5844-9269-91dedb4f9319",
-    "dog_04": "40ee2b6a-0163-50cd-a07b-b3a18832c842",
-    "dog_05": "7a3c8ad1-2885-5808-a214-408cad9796a1",
-    "dog_06": "e2472fe2-4af6-50a9-b473-e982c5dd0b3f",
-    "dog_07": "e88b8a70-7f60-5fb1-bebc-642e5681168d",
-    "dog_08": "dc5284e7-80a2-58a7-abf9-ee714d55bbfd",
-    "dog_09": "8a7e0a07-ba16-5d01-b3ed-2e8df6c2d2d1",
-    "dog_10": "a4aad6d4-1273-5c26-b5fc-0d8b638968eb",
-    "dog_11": "051bc81b-cc41-5e5b-a829-ffdc6aa83d64",
-    "dog_12": "cba44727-aecd-5ade-869b-bd1e672cd345",
-    "dog_13": "7155142d-de4a-5b35-926d-f0b7321d81db",
-    "dog_14": "6f3d2222-1169-5be7-a07d-64ec00a95901",
-    "dog_15": "5bb17c6c-b3b6-5a60-97fc-69b6324913ac"
-  },
   "dogs": [
     {
-      "id": "59d4796b-eddf-56c5-8abe-8afbe3909020",
-      "compatibilitySlot": "dog_00",
+      "id": "dog_00",
       "x": 485,
       "y": 674,
       "r": 57,
       "sprite": {
         "image": "levels/greece_agora_ruins_garden_bird_8978/dogs/dog_00/sprite_000.png",
-        "height": 113,
-        "width": 192,
         "x": 408,
-        "y": 623,
+        "y": 587,
+        "width": 192,
+        "height": 149,
         "cleanup": {
           "x": 312,
           "y": 501,
@@ -43,47 +24,41 @@
           "height": 345
         },
         "anchorX": 0.401,
-        "anchorY": 0.4513,
-        "flipX": false,
-        "flipY": false
+        "anchorY": 0.5839
       }
     },
     {
-      "id": "b09c4513-f5ca-569a-90a3-7d786bd4de7f",
-      "compatibilitySlot": "dog_01",
+      "id": "dog_01",
       "x": 854,
       "y": 893,
       "r": 57,
       "sprite": {
         "image": "levels/greece_agora_ruins_garden_bird_8978/dogs/dog_01/sprite_000.png",
-        "height": 133,
-        "width": 159,
-        "x": 766,
+        "x": 753,
         "y": 815,
+        "width": 185,
+        "height": 133,
         "cleanup": {
           "x": 681,
           "y": 758,
           "width": 345,
           "height": 298
         },
-        "anchorX": 0.5535,
-        "anchorY": 0.5865,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.5459,
+        "anchorY": 0.5865
       }
     },
     {
-      "id": "76e5ce84-db85-5771-a627-4b8ad340e3ae",
-      "compatibilitySlot": "dog_02",
+      "id": "dog_02",
       "x": 1327,
       "y": 887,
       "r": 57,
       "sprite": {
         "image": "levels/greece_agora_ruins_garden_bird_8978/dogs/dog_02/sprite_000.png",
-        "height": 149,
-        "width": 272,
         "x": 1206,
-        "y": 808,
+        "y": 784,
+        "width": 272,
+        "height": 173,
         "cleanup": {
           "x": 1154,
           "y": 714,
@@ -91,23 +66,20 @@
           "height": 345
         },
         "anchorX": 0.4449,
-        "anchorY": 0.5302,
-        "flipX": false,
-        "flipY": false
+        "anchorY": 0.5954
       }
     },
     {
-      "id": "2a040e11-5833-5844-9269-91dedb4f9319",
-      "compatibilitySlot": "dog_03",
+      "id": "dog_03",
       "x": 2112,
       "y": 803,
       "r": 57,
       "sprite": {
         "image": "levels/greece_agora_ruins_garden_bird_8978/dogs/dog_03/sprite_000.png",
-        "height": 192,
-        "width": 230,
         "x": 2034,
-        "y": 718,
+        "y": 714,
+        "width": 230,
+        "height": 196,
         "cleanup": {
           "x": 1928,
           "y": 669,
@@ -115,23 +87,20 @@
           "height": 345
         },
         "anchorX": 0.3391,
-        "anchorY": 0.4427,
-        "flipX": false,
-        "flipY": false
+        "anchorY": 0.4541
       }
     },
     {
-      "id": "40ee2b6a-0163-50cd-a07b-b3a18832c842",
-      "compatibilitySlot": "dog_04",
+      "id": "dog_04",
       "x": 731,
       "y": 1221,
       "r": 57,
       "sprite": {
         "image": "levels/greece_agora_ruins_garden_bird_8978/dogs/dog_04/sprite_000.png",
-        "height": 156,
-        "width": 196,
         "x": 591,
-        "y": 1128,
+        "y": 1122,
+        "width": 196,
+        "height": 162,
         "cleanup": {
           "x": 558,
           "y": 1058,
@@ -139,71 +108,62 @@
           "height": 335
         },
         "anchorX": 0.7143,
-        "anchorY": 0.5962,
-        "flipX": false,
-        "flipY": false
+        "anchorY": 0.6111
       }
     },
     {
-      "id": "7a3c8ad1-2885-5808-a214-408cad9796a1",
-      "compatibilitySlot": "dog_05",
+      "id": "dog_05",
       "x": 1614,
       "y": 1064,
       "r": 57,
       "sprite": {
         "image": "levels/greece_agora_ruins_garden_bird_8978/dogs/dog_05/sprite_000.png",
-        "height": 186,
-        "width": 144,
-        "x": 1534,
+        "x": 1517,
         "y": 968,
+        "width": 178,
+        "height": 186,
         "cleanup": {
           "x": 1471,
           "y": 891,
           "width": 315,
           "height": 290
         },
-        "anchorX": 0.5556,
-        "anchorY": 0.5161,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.5449,
+        "anchorY": 0.5161
       }
     },
     {
-      "id": "e2472fe2-4af6-50a9-b473-e982c5dd0b3f",
-      "compatibilitySlot": "dog_06",
+      "id": "dog_06",
       "x": 1269,
       "y": 1232,
       "r": 57,
       "sprite": {
         "image": "levels/greece_agora_ruins_garden_bird_8978/dogs/dog_06/sprite_000.png",
-        "height": 170,
-        "width": 198,
-        "x": 1189,
+        "x": 1178,
         "y": 1149,
+        "width": 220,
+        "height": 170,
         "cleanup": {
           "x": 1096,
           "y": 1059,
           "width": 345,
           "height": 292
         },
-        "anchorX": 0.404,
-        "anchorY": 0.4882,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.4136,
+        "anchorY": 0.4882
       }
     },
     {
-      "id": "e88b8a70-7f60-5fb1-bebc-642e5681168d",
-      "compatibilitySlot": "dog_07",
+      "id": "dog_07",
       "x": 1058,
       "y": 1473,
       "r": 57,
       "sprite": {
         "image": "levels/greece_agora_ruins_garden_bird_8978/dogs/dog_07/sprite_000.png",
-        "height": 212,
-        "width": 186,
         "x": 988,
-        "y": 1353,
+        "y": 1350,
+        "width": 186,
+        "height": 215,
         "cleanup": {
           "x": 895,
           "y": 1353,
@@ -211,95 +171,83 @@
           "height": 279
         },
         "anchorX": 0.3763,
-        "anchorY": 0.566,
-        "flipX": false,
-        "flipY": false
+        "anchorY": 0.5721
       }
     },
     {
-      "id": "dc5284e7-80a2-58a7-abf9-ee714d55bbfd",
-      "compatibilitySlot": "dog_08",
+      "id": "dog_08",
       "x": 798,
       "y": 1818,
       "r": 57,
       "sprite": {
         "image": "levels/greece_agora_ruins_garden_bird_8978/dogs/dog_08/sprite_000.png",
-        "height": 163,
-        "width": 208,
-        "x": 699,
+        "x": 690,
         "y": 1734,
+        "width": 226,
+        "height": 163,
         "cleanup": {
           "x": 636,
           "y": 1670,
           "width": 328,
           "height": 300
         },
-        "anchorX": 0.476,
-        "anchorY": 0.5153,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.4779,
+        "anchorY": 0.5153
       }
     },
     {
-      "id": "8a7e0a07-ba16-5d01-b3ed-2e8df6c2d2d1",
-      "compatibilitySlot": "dog_09",
+      "id": "dog_09",
       "x": 499,
       "y": 2142,
       "r": 57,
       "sprite": {
         "image": "levels/greece_agora_ruins_garden_bird_8978/dogs/dog_09/sprite_000.png",
-        "height": 266,
-        "width": 245,
-        "x": 380,
+        "x": 353,
         "y": 2000,
+        "width": 300,
+        "height": 266,
         "cleanup": {
           "x": 326,
           "y": 1981,
           "width": 345,
           "height": 333
         },
-        "anchorX": 0.4857,
-        "anchorY": 0.5338,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.4867,
+        "anchorY": 0.5338
       }
     },
     {
-      "id": "a4aad6d4-1273-5c26-b5fc-0d8b638968eb",
-      "compatibilitySlot": "dog_10",
+      "id": "dog_10",
       "x": 1143,
       "y": 2294,
       "r": 57,
       "sprite": {
         "image": "levels/greece_agora_ruins_garden_bird_8978/dogs/dog_10/sprite_000.png",
-        "height": 221,
-        "width": 202,
-        "x": 1045,
+        "x": 1043,
         "y": 2213,
+        "width": 207,
+        "height": 221,
         "cleanup": {
           "x": 942,
           "y": 2153,
           "width": 345,
           "height": 345
         },
-        "anchorX": 0.4851,
-        "anchorY": 0.3665,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.4831,
+        "anchorY": 0.3665
       }
     },
     {
-      "id": "051bc81b-cc41-5e5b-a829-ffdc6aa83d64",
-      "compatibilitySlot": "dog_11",
+      "id": "dog_11",
       "x": 1333,
       "y": 1704,
       "r": 57,
       "sprite": {
         "image": "levels/greece_agora_ruins_garden_bird_8978/dogs/dog_11/sprite_000.png",
-        "height": 154,
-        "width": 261,
         "x": 1180,
-        "y": 1640,
+        "y": 1596,
+        "width": 261,
+        "height": 198,
         "cleanup": {
           "x": 1196,
           "y": 1531,
@@ -307,23 +255,20 @@
           "height": 345
         },
         "anchorX": 0.5862,
-        "anchorY": 0.4156,
-        "flipX": false,
-        "flipY": false
+        "anchorY": 0.5455
       }
     },
     {
-      "id": "cba44727-aecd-5ade-869b-bd1e672cd345",
-      "compatibilitySlot": "dog_12",
+      "id": "dog_12",
       "x": 1672,
       "y": 1347,
       "r": 57,
       "sprite": {
         "image": "levels/greece_agora_ruins_garden_bird_8978/dogs/dog_12/sprite_000.png",
-        "height": 105,
-        "width": 93,
         "x": 1640,
-        "y": 1313,
+        "y": 1294,
+        "width": 93,
+        "height": 124,
         "cleanup": {
           "x": 1515,
           "y": 1190,
@@ -331,23 +276,22 @@
           "height": 314
         },
         "anchorX": 0.3441,
-        "anchorY": 0.3238,
+        "anchorY": 0.4274,
         "flipX": false,
         "flipY": false
       }
     },
     {
-      "id": "7155142d-de4a-5b35-926d-f0b7321d81db",
-      "compatibilitySlot": "dog_13",
+      "id": "dog_13",
       "x": 2109,
       "y": 1879,
       "r": 57,
       "sprite": {
         "image": "levels/greece_agora_ruins_garden_bird_8978/dogs/dog_13/sprite_000.png",
-        "height": 144,
-        "width": 191,
         "x": 2028,
-        "y": 1833,
+        "y": 1829,
+        "width": 191,
+        "height": 148,
         "cleanup": {
           "x": 1936,
           "y": 1706,
@@ -355,68 +299,50 @@
           "height": 345
         },
         "anchorX": 0.4241,
-        "anchorY": 0.3194,
-        "flipX": false,
-        "flipY": false
+        "anchorY": 0.3378
       }
     },
     {
-      "id": "6f3d2222-1169-5be7-a07d-64ec00a95901",
-      "compatibilitySlot": "dog_14",
+      "id": "dog_14",
       "x": 1624,
       "y": 2038,
       "r": 57,
       "sprite": {
         "image": "levels/greece_agora_ruins_garden_bird_8978/dogs/dog_14/sprite_000.png",
-        "height": 217,
-        "width": 184,
-        "x": 1552,
+        "x": 1523,
         "y": 1946,
+        "width": 243,
+        "height": 217,
         "cleanup": {
           "x": 1476,
           "y": 1890,
           "width": 345,
           "height": 345
         },
-        "anchorX": 0.3913,
-        "anchorY": 0.424,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.4156,
+        "anchorY": 0.424
       }
     },
     {
-      "id": "5bb17c6c-b3b6-5a60-97fc-69b6324913ac",
-      "compatibilitySlot": "dog_15",
+      "id": "dog_15",
       "x": 2236,
       "y": 2345,
       "r": 57,
       "sprite": {
         "image": "levels/greece_agora_ruins_garden_bird_8978/dogs/dog_15/sprite_000.png",
-        "height": 192,
-        "width": 236,
-        "x": 2120,
+        "x": 2112,
         "y": 2239,
+        "width": 252,
+        "height": 192,
         "cleanup": {
           "x": 2063,
           "y": 2187,
           "width": 345,
           "height": 305
         },
-        "anchorX": 0.4915,
-        "anchorY": 0.5521,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.4921,
+        "anchorY": 0.5521
       }
     }
-  ],
-  "provenance": {
-    "setting": "greece",
-    "scene": "greece_agora_ruins_garden",
-    "entity": "bird",
-    "style": "clean_old_cartoon",
-    "scenePrompt": "[Purpose]\nCreate a full-bleed mobile-game background for Find the Bird.\n\n[Short Description]\nA sunken ancient agora garden sprawling through broken colonnades arranged as an organic isometric hidden-object scene.\n\n[Scene] A sunken ancient agora garden sprawling through broken colonnades \u2014 a main gravel walk between fallen column drums, a side path through an oleander bed, a restored stoa corner with a low museum bench under its roof. The entire ground surface is consistent raked gravel, cracked marble paving, and low herb ground-cover throughout \u2014 every area the viewer can see the ground, it reads as gravel, marble, or planting with no untextured blank areas. Broken columns of varying heights crowd the site unevenly, some still paired with architraves, others reduced to drums scattered like stepping stones. Capitals and plinths at different heights, some overlapping, some freestanding. One massive marble capital lies tipped at an unexpected angle in the oleander bed. Scattered throughout without pattern: archaeologist's string grids on pegs, wooden site wheelbarrows, brushes and trowels on a cloth, crate-mounted pot shards, a shade canopy on poles, watering cans among herbs, stone benches, a sundial plinth, rope barriers on low posts, potted laurels, a stacked-stone boundary wall, clay replica urns, a site notebook table, lantern posts, stray fig saplings in cracks. Dense clusters around the stoa corner and dig tables, sparser breathing room across the open marble floor. Asymmetric, organic layout \u2014 like ruins the garden is slowly reclaiming.\n\n[View] Moderately elevated three-quarter game-map view with a close, readable mobile-game camera: roughly 35 degrees down from horizontal, with only enough scene visible to support about 20 hidden bird placements. Do not use an extreme aerial, distant establishing, miniature-diorama, or whole-city view. Large scene anchors should occupy substantial frame area, and ordinary props must remain individually recognizable at phone size. Use controlled hidden-object density: arrange approximately 20 plausible hiding pockets across 4 to 6 connected prop clusters, with visible breathing room, clear travel paths between clusters, and readable object boundaries for phone-screen scanning. Use mild perspective or near-isometric construction consistently, without wide-angle distortion, dramatic foreshortening, depth of field, or tiny distance-scaled clutter.\n\n[Style] Vintage hand-drawn cartoon background adapted for a modern mobile puzzle game. Rounded old-cartoon shapes, cheerful simplified silhouettes, thick confident ink outlines, flat poster-like color fills, and soft hand-painted background texture. Use broad readable color masses and minimal internal linework so the scene stays clear on a phone screen. Charming and slightly nostalgic, clean and polished for mobile, with less visual noise, fewer texture marks, and no dense rendering.\n\n[Gameplay Composition]\nDesign this as a production hidden-object background where birds will be added later. Create many plausible hiding pockets on walkable/contact surfaces or open gaps beside props, plants, rocks, furniture, railings, crates, planters, benches, roots, tools, shelves, stalls, boats, carts, market goods, or other readable foreground objects. Near props is ideal; inside solid objects, on blank walls, on roofs, floating over water, or on decorative vertical faces is not useful. Use theme-specific spatial logic such as rings, islands, terraces, nested rooms, clearings, bridges, piers, shelves, courtyards, side alleys, garden pockets, or clustered market zones. Keep open pockets between prop clusters so hitboxes can sit near objects without excessive overlap.\n\n[Constraints]\nDo not depict any bird; every bird is added during the later gameplay pass. No people, no live animals, no insects, no mascots, no readable text, no logos, no watermarks. Signs, chalkboards, labels, plaques, and boards named in the scene may appear but must show only illegible marks, squiggles, or blank surfaces \u2014 never legible words or letters. Market food and fishing props are allowed when the scene calls for them. Avoid huge blank walls, roof-dominated compositions, large featureless empty lawns, empty sand, empty floors, long straight roads, and noisy micro-texture camouflage. Every visible ground, floor, or water-edge region should read as a clear material appropriate to the scene; no untextured blank areas.",
-    "entityPrompt": "Add exactly one bird to this crop. Place exactly one bird centered on the marked target area \u2014 do not repeat the subject. Match the scene's illustration style, line weight, palette, and flat-shaded rendering, but keep the bird's silhouette and boundary readable on a phone screen. The bird may be partially occluded or contextually disguised, but must not disappear through muddy edges, low contrast, texture camouflage, or ambiguous merged shapes. Vary the bird's colors, markings, proportions, and small physical details across crops so the level does not repeat the same bird design. The bird is a charming little anthropomorphic inhabitant of this world \u2014 a character with personality going about its business. Give it something simple and specific to do with its surroundings: holding an object, using a tool, sitting at a small task, peeking at something, carrying something, watching something with interest, tending a small thing, pausing mid-task. Keep the pose clear and readable. The charm comes from the context and the expression, not from dynamic motion. Size the bird realistically relative to the scene around it \u2014 compare it to whatever human-scale objects are visible in the crop and render the bird at the physical size a real bird would be next to them. Not so small that its species is ambiguous, not so large that it dominates the crop. The bird must be fully contained within the visible frame. Keep all other elements of the image unchanged.",
-    "bgModel": "google/gemini-3.1-flash-image-preview",
-    "inpaintModel": "google/gemini-3.1-flash-image-preview"
-  }
+  ]
 }

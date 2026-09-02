@@ -1,622 +1,493 @@
 {
   "id": "alpine_meadow_goat_pasture_terraces_bird_6dff",
-  "name": "Level alpine_meadow_goat_pasture_terraces_bird_6dff",
+  "name": "Level alpine_meadow_goat_pasture_terraces_bird_6dff (clean_old_cartoon)",
   "width": 4096,
   "height": 4096,
+  "bwImage": "levels/alpine_meadow_goat_pasture_terraces_bird_6dff/bw.png",
   "colorImage": "levels/alpine_meadow_goat_pasture_terraces_bird_6dff/color.png",
-  "artifactRevision": "sha256:e1f2906482a7719b959c81f037191f8af15f5c77078cf1d0100b356cbc303698",
-  "compatibilityAliases": {
-    "dog_00": "b13e72ce-b8ed-5bed-a6b9-4cefd15578c1",
-    "dog_01": "f9fc311a-e6ab-5a9a-a936-7d11d9a9b038",
-    "dog_02": "ef41721a-7572-5d49-93a3-bf9e3b432d14",
-    "dog_03": "0ef3bc3f-27ca-5775-a4d2-f0b8b42250e4",
-    "dog_04": "3dea9d99-e516-56b8-b41e-f848e747114c",
-    "dog_05": "dd9442a1-3b4d-5afd-afbc-79b1ec5cec14",
-    "dog_06": "a1efb0c2-ce9a-5dbc-88df-d803e26f3ad8",
-    "dog_07": "4db88856-4f08-5451-9ee2-48a204ef4957",
-    "dog_08": "c64bb552-5c9f-513e-bacc-b741255a70ab",
-    "dog_09": "101e7cc8-e3f6-51bc-b350-e6eb56e2357a",
-    "dog_10": "f20923ad-5ff6-5958-860d-317cee6addd7",
-    "dog_11": "17926849-7b37-5192-b6c1-a8e03e93b44c",
-    "dog_12": "91f8b80b-9c7d-5e0e-8aca-8999fe5e2b10",
-    "dog_13": "0b317fdf-c1cd-5c4a-b121-ce550b34f322",
-    "dog_14": "e8300a8c-8d0c-5a1d-bce7-f31b471c5306",
-    "dog_15": "4b702976-3b07-5cbe-9126-9be1b12e5aea",
-    "dog_16": "639ef00e-4bb6-586a-8ffa-cbad5cde524c",
-    "dog_17": "1efdd5bc-c789-56a1-8131-01b19a7d3f7a",
-    "dog_18": "d7d22661-9683-59ef-a0d4-840c0fe19a98",
-    "dog_19": "df212e9c-190c-527f-8390-9ec2c1238ff4",
-    "dog_20": "18218c29-37bc-5a71-8d77-fdc160eff825",
-    "dog_21": "cb43c499-780e-5a87-96f3-7196bb0917d6",
-    "dog_22": "97254307-6704-5336-a33a-1e5cc2a99a8a",
-    "dog_23": "fc4cdb90-89fd-52bc-8dfc-4d2a8c8db0c7"
-  },
   "dogs": [
     {
-      "id": "b13e72ce-b8ed-5bed-a6b9-4cefd15578c1",
-      "compatibilitySlot": "dog_00",
-      "x": 778,
-      "y": 841,
+      "id": "dog_00",
+      "x": 498,
+      "y": 1194,
       "r": 87,
       "sprite": {
         "image": "levels/alpine_meadow_goat_pasture_terraces_bird_6dff/dogs/dog_00/sprite_000.png",
-        "height": 217,
-        "width": 231,
-        "x": 645,
-        "y": 706,
+        "x": 365,
+        "y": 1051,
+        "width": 274,
+        "height": 258,
         "cleanup": {
-          "x": 583,
-          "y": 700,
-          "width": 417,
-          "height": 300
+          "x": 275,
+          "y": 971,
+          "width": 445,
+          "height": 445
         },
-        "anchorX": 0.4353,
-        "anchorY": 0.64,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.4854,
+        "anchorY": 0.5543
       }
     },
     {
-      "id": "f9fc311a-e6ab-5a9a-a936-7d11d9a9b038",
-      "compatibilitySlot": "dog_01",
-      "x": 1005,
-      "y": 1211,
+      "id": "dog_01",
+      "x": 1017,
+      "y": 1064,
       "r": 87,
       "sprite": {
         "image": "levels/alpine_meadow_goat_pasture_terraces_bird_6dff/dogs/dog_01/sprite_000.png",
-        "height": 240,
-        "width": 286,
-        "x": 854,
-        "y": 1107,
+        "x": 914,
+        "y": 1021,
+        "width": 311,
+        "height": 253,
         "cleanup": {
-          "x": 849,
-          "y": 1100,
-          "width": 301,
-          "height": 320
+          "x": 811,
+          "y": 870,
+          "width": 443,
+          "height": 399
         },
-        "anchorX": 0.624,
-        "anchorY": 0.3889,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.3312,
+        "anchorY": 0.17
       }
     },
     {
-      "id": "ef41721a-7572-5d49-93a3-bf9e3b432d14",
-      "compatibilitySlot": "dog_02",
-      "x": 1557,
-      "y": 1158,
+      "id": "dog_02",
+      "x": 1064,
+      "y": 1477,
       "r": 87,
       "sprite": {
         "image": "levels/alpine_meadow_goat_pasture_terraces_bird_6dff/dogs/dog_02/sprite_000.png",
-        "height": 253,
-        "width": 326,
-        "x": 1413,
-        "y": 978,
+        "x": 878,
+        "y": 1289,
+        "width": 300,
+        "height": 302,
         "cleanup": {
-          "x": 1426,
-          "y": 1139,
-          "width": 260,
-          "height": 219
+          "x": 845,
+          "y": 1278,
+          "width": 407,
+          "height": 385
         },
-        "anchorX": 0.4643,
-        "anchorY": 0.3175,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.62,
+        "anchorY": 0.6225
       }
     },
     {
-      "id": "0ef3bc3f-27ca-5775-a4d2-f0b8b42250e4",
-      "compatibilitySlot": "dog_03",
-      "x": 2071,
-      "y": 1288,
+      "id": "dog_03",
+      "x": 1503,
+      "y": 1604,
       "r": 87,
       "sprite": {
         "image": "levels/alpine_meadow_goat_pasture_terraces_bird_6dff/dogs/dog_03/sprite_000.png",
-        "height": 262,
-        "width": 232,
-        "x": 1929,
-        "y": 1127,
+        "x": 1378,
+        "y": 1413,
+        "width": 288,
+        "height": 259,
         "cleanup": {
-          "x": 1971,
-          "y": 1242,
-          "width": 198,
-          "height": 246
+          "x": 1271,
+          "y": 1371,
+          "width": 419,
+          "height": 445
         },
-        "anchorX": 0.6526,
-        "anchorY": 0.5798,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.434,
+        "anchorY": 0.7375
       }
     },
     {
-      "id": "3dea9d99-e516-56b8-b41e-f848e747114c",
-      "compatibilitySlot": "dog_04",
-      "x": 2551,
-      "y": 987,
+      "id": "dog_04",
+      "x": 1920,
+      "y": 1282,
       "r": 87,
       "sprite": {
         "image": "levels/alpine_meadow_goat_pasture_terraces_bird_6dff/dogs/dog_04/sprite_000.png",
-        "height": 262,
-        "width": 295,
-        "x": 2404,
-        "y": 795,
+        "x": 1806,
+        "y": 1169,
+        "width": 243,
+        "height": 224,
         "cleanup": {
-          "x": 2398,
-          "y": 917,
-          "width": 303,
-          "height": 270
+          "x": 1710,
+          "y": 1042,
+          "width": 395,
+          "height": 441
         },
-        "anchorX": 0.4983,
-        "anchorY": 0.7328,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.4691,
+        "anchorY": 0.5045
       }
     },
     {
-      "id": "dd9442a1-3b4d-5afd-afbc-79b1ec5cec14",
-      "compatibilitySlot": "dog_05",
-      "x": 3037,
-      "y": 940,
+      "id": "dog_05",
+      "x": 2292,
+      "y": 980,
       "r": 87,
       "sprite": {
         "image": "levels/alpine_meadow_goat_pasture_terraces_bird_6dff/dogs/dog_05/sprite_000.png",
-        "height": 242,
-        "width": 366,
-        "x": 2862,
-        "y": 816,
+        "x": 2118,
+        "y": 802,
+        "width": 350,
+        "height": 286,
         "cleanup": {
-          "x": 2849,
-          "y": 889,
-          "width": 374,
-          "height": 250
+          "x": 2107,
+          "y": 769,
+          "width": 392,
+          "height": 417
         },
-        "anchorX": 0.4781,
-        "anchorY": 0.5124,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.4971,
+        "anchorY": 0.6224
       }
     },
     {
-      "id": "a1efb0c2-ce9a-5dbc-88df-d803e26f3ad8",
-      "compatibilitySlot": "dog_06",
-      "x": 3414,
-      "y": 1183,
+      "id": "dog_06",
+      "x": 3037,
+      "y": 1107,
       "r": 87,
       "sprite": {
         "image": "levels/alpine_meadow_goat_pasture_terraces_bird_6dff/dogs/dog_06/sprite_000.png",
-        "height": 285,
-        "width": 310,
-        "x": 3272,
-        "y": 1029,
+        "x": 2943,
+        "y": 911,
+        "width": 207,
+        "height": 288,
         "cleanup": {
-          "x": 3254,
-          "y": 1090,
-          "width": 318,
-          "height": 293
+          "x": 2820,
+          "y": 853,
+          "width": 445,
+          "height": 445
         },
-        "anchorX": 0.4581,
-        "anchorY": 0.5404,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.4541,
+        "anchorY": 0.6806
       }
     },
     {
-      "id": "4db88856-4f08-5451-9ee2-48a204ef4957",
-      "compatibilitySlot": "dog_07",
-      "x": 2884,
-      "y": 1395,
+      "id": "dog_07",
+      "x": 3664,
+      "y": 1286,
       "r": 87,
       "sprite": {
         "image": "levels/alpine_meadow_goat_pasture_terraces_bird_6dff/dogs/dog_07/sprite_000.png",
-        "height": 248,
-        "width": 249,
-        "x": 2747,
-        "y": 1249,
+        "x": 3531,
+        "y": 1164,
+        "width": 288,
+        "height": 279,
         "cleanup": {
-          "x": 2754,
-          "y": 1338,
-          "width": 257,
-          "height": 256
+          "x": 3448,
+          "y": 1065,
+          "width": 445,
+          "height": 445
         },
-        "anchorX": 0.5502,
-        "anchorY": 0.5887,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.4618,
+        "anchorY": 0.4373
       }
     },
     {
-      "id": "c64bb552-5c9f-513e-bacc-b741255a70ab",
-      "compatibilitySlot": "dog_08",
-      "x": 2989,
-      "y": 1793,
+      "id": "dog_08",
+      "x": 1880,
+      "y": 1686,
       "r": 87,
       "sprite": {
         "image": "levels/alpine_meadow_goat_pasture_terraces_bird_6dff/dogs/dog_08/sprite_000.png",
-        "height": 265,
-        "width": 315,
-        "x": 2801,
-        "y": 1676,
+        "x": 1812,
+        "y": 1530,
+        "width": 231,
+        "height": 317,
         "cleanup": {
-          "x": 2860,
-          "y": 1770,
-          "width": 255,
-          "height": 223
+          "x": 1692,
+          "y": 1485,
+          "width": 418,
+          "height": 437
         },
-        "anchorX": 0.5951,
-        "anchorY": 0.4419,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.2944,
+        "anchorY": 0.4921
       }
     },
     {
-      "id": "101e7cc8-e3f6-51bc-b350-e6eb56e2357a",
-      "compatibilitySlot": "dog_09",
-      "x": 1644,
-      "y": 2076,
+      "id": "dog_09",
+      "x": 1436,
+      "y": 2137,
       "r": 87,
       "sprite": {
         "image": "levels/alpine_meadow_goat_pasture_terraces_bird_6dff/dogs/dog_09/sprite_000.png",
-        "height": 298,
-        "width": 329,
-        "x": 1460,
-        "y": 1907,
+        "x": 1319,
+        "y": 1991,
+        "width": 315,
+        "height": 283,
         "cleanup": {
-          "x": 1515,
-          "y": 2032,
-          "width": 257,
-          "height": 244
+          "x": 1224,
+          "y": 1914,
+          "width": 445,
+          "height": 445
         },
-        "anchorX": 0.494,
-        "anchorY": 0.5593,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.3714,
+        "anchorY": 0.5159
       }
     },
     {
-      "id": "f20923ad-5ff6-5958-860d-317cee6addd7",
-      "compatibilitySlot": "dog_10",
-      "x": 2377,
-      "y": 2233,
+      "id": "dog_10",
+      "x": 2105,
+      "y": 2133,
       "r": 87,
       "sprite": {
         "image": "levels/alpine_meadow_goat_pasture_terraces_bird_6dff/dogs/dog_10/sprite_000.png",
-        "height": 269,
-        "width": 299,
-        "x": 2290,
-        "y": 2068,
+        "x": 1973,
+        "y": 1962,
+        "width": 362,
+        "height": 227,
         "cleanup": {
-          "x": 2251,
-          "y": 2226,
-          "width": 249,
-          "height": 207
+          "x": 1884,
+          "y": 1928,
+          "width": 365,
+          "height": 396
         },
-        "anchorX": 0.2863,
-        "anchorY": 0.4673,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.3646,
+        "anchorY": 0.7533
       }
     },
     {
-      "id": "17926849-7b37-5192-b6c1-a8e03e93b44c",
-      "compatibilitySlot": "dog_11",
-      "x": 3423,
-      "y": 2023,
+      "id": "dog_11",
+      "x": 2396,
+      "y": 2292,
       "r": 87,
       "sprite": {
         "image": "levels/alpine_meadow_goat_pasture_terraces_bird_6dff/dogs/dog_11/sprite_000.png",
-        "height": 289,
-        "width": 269,
-        "x": 3284,
-        "y": 1866,
+        "x": 2253,
+        "y": 2094,
+        "width": 273,
+        "height": 237,
         "cleanup": {
-          "x": 3305,
-          "y": 1989,
-          "width": 234,
-          "height": 234
+          "x": 2251,
+          "y": 2061,
+          "width": 347,
+          "height": 413
         },
-        "anchorX": 0.4599,
-        "anchorY": 0.4979,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.5238,
+        "anchorY": 0.8354
       }
     },
     {
-      "id": "91f8b80b-9c7d-5e0e-8aca-8999fe5e2b10",
-      "compatibilitySlot": "dog_12",
-      "x": 814,
-      "y": 2666,
+      "id": "dog_12",
+      "x": 2781,
+      "y": 2073,
       "r": 87,
       "sprite": {
         "image": "levels/alpine_meadow_goat_pasture_terraces_bird_6dff/dogs/dog_12/sprite_000.png",
-        "height": 230,
-        "width": 234,
-        "x": 707,
-        "y": 2554,
+        "x": 2656,
+        "y": 1876,
+        "width": 361,
+        "height": 296,
         "cleanup": {
-          "x": 714,
-          "y": 2566,
-          "width": 200,
-          "height": 200
+          "x": 2598,
+          "y": 1842,
+          "width": 413,
+          "height": 417
         },
-        "anchorX": 0.5365,
-        "anchorY": 0.3958,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.3463,
+        "anchorY": 0.6655
       }
     },
     {
-      "id": "0b317fdf-c1cd-5c4a-b121-ce550b34f322",
-      "compatibilitySlot": "dog_13",
-      "x": 1219,
-      "y": 2643,
+      "id": "dog_13",
+      "x": 644,
+      "y": 2811,
       "r": 87,
       "sprite": {
         "image": "levels/alpine_meadow_goat_pasture_terraces_bird_6dff/dogs/dog_13/sprite_000.png",
-        "height": 262,
-        "width": 303,
-        "x": 1088,
-        "y": 2507,
+        "x": 541,
+        "y": 2682,
+        "width": 317,
+        "height": 275,
         "cleanup": {
-          "x": 1088,
-          "y": 2629,
-          "width": 259,
-          "height": 214
+          "x": 481,
+          "y": 2628,
+          "width": 377,
+          "height": 372
         },
-        "anchorX": 0.4821,
-        "anchorY": 0.2039,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.3249,
+        "anchorY": 0.4691
       }
     },
     {
-      "id": "e8300a8c-8d0c-5a1d-bce7-f31b471c5306",
-      "compatibilitySlot": "dog_14",
-      "x": 795,
-      "y": 3036,
+      "id": "dog_14",
+      "x": 305,
+      "y": 3297,
       "r": 87,
       "sprite": {
         "image": "levels/alpine_meadow_goat_pasture_terraces_bird_6dff/dogs/dog_14/sprite_000.png",
-        "height": 289,
-        "width": 340,
-        "x": 585,
-        "y": 2861,
+        "x": 147,
+        "y": 3203,
+        "width": 288,
+        "height": 144,
         "cleanup": {
-          "x": 657,
-          "y": 2989,
-          "width": 273,
-          "height": 247
+          "x": 79,
+          "y": 3054,
+          "width": 445,
+          "height": 445
         },
-        "anchorX": 0.234,
-        "anchorY": 0.3431,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.5486,
+        "anchorY": 0.6528
       }
     },
     {
-      "id": "4b702976-3b07-5cbe-9126-9be1b12e5aea",
-      "compatibilitySlot": "dog_15",
-      "x": 1731,
-      "y": 2630,
+      "id": "dog_15",
+      "x": 854,
+      "y": 3413,
       "r": 87,
       "sprite": {
         "image": "levels/alpine_meadow_goat_pasture_terraces_bird_6dff/dogs/dog_15/sprite_000.png",
-        "height": 312,
-        "width": 467,
-        "x": 1457,
-        "y": 2452,
+        "x": 776,
+        "y": 3300,
+        "width": 288,
+        "height": 261,
         "cleanup": {
-          "x": 1542,
-          "y": 2570,
-          "width": 375,
-          "height": 260
+          "x": 659,
+          "y": 3211,
+          "width": 445,
+          "height": 409
         },
-        "anchorX": 0.3678,
-        "anchorY": 0.3056,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.2708,
+        "anchorY": 0.433
       }
     },
     {
-      "id": "639ef00e-4bb6-586a-8ffa-cbad5cde524c",
-      "compatibilitySlot": "dog_16",
-      "x": 2036,
-      "y": 2774,
+      "id": "dog_16",
+      "x": 1682,
+      "y": 2689,
       "r": 87,
       "sprite": {
         "image": "levels/alpine_meadow_goat_pasture_terraces_bird_6dff/dogs/dog_16/sprite_000.png",
-        "height": 197,
-        "width": 324,
-        "x": 1916,
-        "y": 2695,
+        "x": 1596,
+        "y": 2539,
+        "width": 183,
+        "height": 180,
         "cleanup": {
-          "x": 1834,
-          "y": 2727,
-          "width": 402,
-          "height": 247
+          "x": 1450,
+          "y": 2473,
+          "width": 445,
+          "height": 400
         },
-        "anchorX": 0.3704,
-        "anchorY": 0.401,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.4699,
+        "anchorY": 0.8333
       }
     },
     {
-      "id": "1efdd5bc-c789-56a1-8131-01b19a7d3f7a",
-      "compatibilitySlot": "dog_17",
-      "x": 1047,
-      "y": 3390,
+      "id": "dog_17",
+      "x": 1526,
+      "y": 3234,
       "r": 87,
       "sprite": {
         "image": "levels/alpine_meadow_goat_pasture_terraces_bird_6dff/dogs/dog_17/sprite_000.png",
-        "height": 202,
-        "width": 333,
-        "x": 882,
-        "y": 3288,
+        "x": 1441,
+        "y": 3164,
+        "width": 165,
+        "height": 209,
         "cleanup": {
-          "x": 845,
-          "y": 3343,
-          "width": 402,
-          "height": 247
+          "x": 1326,
+          "y": 3053,
+          "width": 437,
+          "height": 421
         },
-        "anchorX": 0.4955,
-        "anchorY": 0.505,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.5152,
+        "anchorY": 0.3349
       }
     },
     {
-      "id": "d7d22661-9683-59ef-a0d4-840c0fe19a98",
-      "compatibilitySlot": "dog_18",
-      "x": 1481,
-      "y": 3613,
+      "id": "dog_18",
+      "x": 2246,
+      "y": 3226,
       "r": 87,
       "sprite": {
         "image": "levels/alpine_meadow_goat_pasture_terraces_bird_6dff/dogs/dog_18/sprite_000.png",
-        "height": 259,
-        "width": 362,
-        "x": 1250,
-        "y": 3466,
+        "x": 2152,
+        "y": 3056,
+        "width": 166,
+        "height": 185,
         "cleanup": {
-          "x": 1279,
-          "y": 3523,
+          "x": 2006,
+          "y": 3016,
           "width": 402,
-          "height": 290
+          "height": 380
         },
-        "anchorX": 0.6381,
-        "anchorY": 0.5676,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.5663,
+        "anchorY": 0.9189
       }
     },
     {
-      "id": "df212e9c-190c-527f-8390-9ec2c1238ff4",
-      "compatibilitySlot": "dog_19",
-      "x": 2060,
-      "y": 3327,
+      "id": "dog_19",
+      "x": 2572,
+      "y": 3137,
       "r": 87,
       "sprite": {
         "image": "levels/alpine_meadow_goat_pasture_terraces_bird_6dff/dogs/dog_19/sprite_000.png",
-        "height": 270,
-        "width": 258,
-        "x": 1881,
-        "y": 3113,
+        "x": 2456,
+        "y": 2915,
+        "width": 218,
+        "height": 300,
         "cleanup": {
-          "x": 1880,
-          "y": 3100,
-          "width": 340,
-          "height": 314
+          "x": 2410,
+          "y": 2877,
+          "width": 384,
+          "height": 445
         },
-        "anchorX": 0.4013,
-        "anchorY": 0.5359,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.5321,
+        "anchorY": 0.74
       }
     },
     {
-      "id": "18218c29-37bc-5a71-8d77-fdc160eff825",
-      "compatibilitySlot": "dog_20",
-      "x": 2887,
-      "y": 2690,
+      "id": "dog_20",
+      "x": 2878,
+      "y": 2595,
       "r": 87,
       "sprite": {
         "image": "levels/alpine_meadow_goat_pasture_terraces_bird_6dff/dogs/dog_20/sprite_000.png",
-        "height": 221,
-        "width": 285,
-        "x": 2725,
-        "y": 2586,
+        "x": 2825,
+        "y": 2564,
+        "width": 171,
+        "height": 172,
         "cleanup": {
-          "x": 2763,
-          "y": 2595,
-          "width": 249,
-          "height": 189
+          "x": 2672,
+          "y": 2407,
+          "width": 445,
+          "height": 418
         },
-        "anchorX": 0.7469,
-        "anchorY": 0.4475,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.3099,
+        "anchorY": 0.1802
       }
     },
     {
-      "id": "cb43c499-780e-5a87-96f3-7196bb0917d6",
-      "compatibilitySlot": "dog_21",
-      "x": 3281,
-      "y": 2678,
+      "id": "dog_21",
+      "x": 3383,
+      "y": 2520,
       "r": 87,
       "sprite": {
         "image": "levels/alpine_meadow_goat_pasture_terraces_bird_6dff/dogs/dog_21/sprite_000.png",
-        "height": 279,
-        "width": 373,
-        "x": 3141,
-        "y": 2529,
+        "x": 3227,
+        "y": 2445,
+        "width": 223,
+        "height": 223,
         "cleanup": {
-          "x": 3132,
-          "y": 2654,
-          "width": 295,
-          "height": 224
+          "x": 3143,
+          "y": 2308,
+          "width": 445,
+          "height": 445
         },
-        "anchorX": 0.3624,
-        "anchorY": 0.3148,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.6996,
+        "anchorY": 0.3363
       }
     },
     {
-      "id": "97254307-6704-5336-a33a-1e5cc2a99a8a",
-      "compatibilitySlot": "dog_22",
-      "x": 2955,
-      "y": 3063,
+      "id": "dog_22",
+      "x": 3804,
+      "y": 2611,
       "r": 87,
       "sprite": {
         "image": "levels/alpine_meadow_goat_pasture_terraces_bird_6dff/dogs/dog_22/sprite_000.png",
-        "height": 464,
-        "width": 263,
-        "x": 2837,
-        "y": 2889,
+        "x": 3728,
+        "y": 2540,
+        "width": 177,
+        "height": 145,
         "cleanup": {
-          "x": 2844,
-          "y": 2889,
-          "width": 219,
-          "height": 374
+          "x": 3594,
+          "y": 2393,
+          "width": 432,
+          "height": 445
         },
-        "anchorX": 0.7583,
-        "anchorY": 0.6148,
-        "flipX": false,
-        "flipY": false
-      }
-    },
-    {
-      "id": "fc4cdb90-89fd-52bc-8dfc-4d2a8c8db0c7",
-      "compatibilitySlot": "dog_23",
-      "x": 3344,
-      "y": 3163,
-      "r": 87,
-      "sprite": {
-        "image": "levels/alpine_meadow_goat_pasture_terraces_bird_6dff/dogs/dog_23/sprite_000.png",
-        "height": 282,
-        "width": 256,
-        "x": 3215,
-        "y": 3013,
-        "cleanup": {
-          "x": 3240,
-          "y": 3128,
-          "width": 205,
-          "height": 235
-        },
-        "anchorX": 0.4772,
-        "anchorY": 0.5022,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.4294,
+        "anchorY": 0.4897
       }
     }
-  ],
-  "provenance": {
-    "setting": "alpine_meadow",
-    "scene": "alpine_meadow_goat_pasture_terraces",
-    "entity": "bird",
-    "style": "clean_old_cartoon",
-    "scenePrompt": "[Purpose]\nCreate a full-bleed portrait mobile-game background for Find the Bird.\n\n[Short Description]\nTerraced goat pastures stepping down an alpine slope arranged as an organic isometric hidden-object scene.\n\n[Scene] Terraced goat pastures stepping down an alpine slope \u2014 a main run of stone-walled terraces, a zigzag path branching between them, a spring-fed water channel trailing along the lowest wall. The slope has consistent materials throughout \u2014 each visible region renders as the material it should be, cropped green turf on the terraces, dry-stone walls between levels, gravel on the path, clear water in the channel, with no untextured blank areas. Goat sheds and hay shelters of varying sizes sit unevenly across the terraces, some tucked against walls, others freestanding. Plank roofs at different heights, some overlapping, some alone. A weathered wooden stile crosses the highest wall at an unexpected angle. Scattered throughout without pattern: salt-lick stones, feed troughs, a stack of fence posts, coiled wire, wooden gates ajar, a bell on a post, milk cans in a carry frame, a bench under a lone pine, watering cans, a mineral tub, hay piles, a rope-and-pulley hay lift, hoof-trimming stand, stone cairns, a shepherd's crook against a shed. Dense clusters around the sheds, sparser breathing room across the open terraces. Asymmetric, organic layout \u2014 like pastures fitted to the mountain one wall at a time.\n\n[View] Moderately elevated three-quarter game-map view with a close, readable mobile-game camera: roughly 35 degrees down from horizontal, with only enough scene visible to support about 20 hidden bird placements. Do not use an extreme aerial, distant establishing, miniature-diorama, or whole-city view. Large scene anchors should occupy substantial frame area, and ordinary props must remain individually recognizable at phone size. Use controlled hidden-object density: arrange approximately 20 plausible hiding pockets across 4 to 6 connected prop clusters, with visible breathing room, clear travel paths between clusters, and readable object boundaries for phone-screen scanning. Use mild perspective or near-isometric construction consistently, without wide-angle distortion, dramatic foreshortening, depth of field, or tiny distance-scaled clutter.\n\n[Style] Vintage hand-drawn cartoon background adapted for a modern mobile puzzle game. Rounded old-cartoon shapes, cheerful simplified silhouettes, thick confident ink outlines, flat poster-like color fills, and soft hand-painted background texture. Use broad readable color masses and minimal internal linework so the scene stays clear on a phone screen. Charming and slightly nostalgic, clean and polished for mobile, with less visual noise, fewer texture marks, and no dense rendering.\n\n[Gameplay Composition]\nDesign this as a production hidden-object background where birds will be added later. Create many plausible hiding pockets on walkable/contact surfaces or open gaps beside props, plants, rocks, furniture, railings, crates, planters, benches, roots, tools, shelves, stalls, boats, carts, market goods, or other readable foreground objects. Near props is ideal; inside solid objects, on blank walls, on roofs, floating over water, or on decorative vertical faces is not useful. Use theme-specific spatial logic such as rings, islands, terraces, nested rooms, clearings, bridges, piers, shelves, courtyards, side alleys, garden pockets, or clustered market zones. Keep open pockets between prop clusters so hitboxes can sit near objects without excessive overlap.\n\n[Constraints]\nDo not depict any bird; every bird is added during the later gameplay pass. No people, no live animals, no insects, no mascots, no readable text, no logos, no watermarks. Market food and fishing props are allowed when the scene calls for them. Avoid huge blank walls, roof-dominated compositions, empty lawns, empty sand, empty floors, long straight roads, and noisy micro-texture camouflage. Every visible ground, floor, or water-edge region should read as a clear material appropriate to the scene; no untextured blank areas.",
-    "entityPrompt": "Add exactly one bird to this crop. Place exactly one bird centered on the marked target area \u2014 do not repeat the subject. Match the scene's illustration style, line weight, palette, and flat-shaded rendering, but keep the bird's silhouette and boundary readable on a phone screen. The bird may be partially occluded or contextually disguised, but must not disappear through muddy edges, low contrast, texture camouflage, or ambiguous merged shapes. Vary the bird's colors, markings, proportions, and small physical details across crops so the level does not repeat the same bird design. The bird is a charming little anthropomorphic inhabitant of this world \u2014 a character with personality going about its business. Give it something simple and specific to do with its surroundings: holding an object, using a tool, sitting at a small task, peeking at something, carrying something, watching something with interest, tending a small thing, pausing mid-task. Keep the pose clear and readable. The charm comes from the context and the expression, not from dynamic motion. Size the bird realistically relative to the scene around it \u2014 compare it to whatever human-scale objects are visible in the crop and render the bird at the physical size a real bird would be next to them. Not so small that its species is ambiguous, not so large that it dominates the crop. The bird must be fully contained within the visible frame. Keep all other elements of the image unchanged.",
-    "bgModel": "google/gemini-3.1-flash-image-preview",
-    "inpaintModel": "google/gemini-3.1-flash-image-preview"
-  }
+  ]
 }

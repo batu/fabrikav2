@@ -1,92 +1,66 @@
 {
   "id": "greece_harbor_taverna_morning_bird_3d5d",
-  "name": "Level greece_harbor_taverna_morning_bird_3d5d",
+  "name": "Level greece_harbor_taverna_morning_bird_3d5d (clean_old_cartoon)",
   "width": 2688,
   "height": 2688,
+  "bwImage": "levels/greece_harbor_taverna_morning_bird_3d5d/bw.png",
   "colorImage": "levels/greece_harbor_taverna_morning_bird_3d5d/color.png",
-  "artifactRevision": "sha256:c7bac638120a5ff9e59847062bf53709346fe8ecc888583f67e801eb615479f0",
-  "compatibilityAliases": {
-    "dog_00": "cc83e203-9173-569d-b39d-25fc53e67492",
-    "dog_01": "83dd67a0-36a3-5177-bd9b-b69ae6fd1cd5",
-    "dog_02": "8bb553fe-b567-5a0b-8c19-079a902d5888",
-    "dog_03": "d6718996-447a-58ce-baaa-2723fe9d02e3",
-    "dog_04": "88c0b7e5-c4cb-5ade-af66-a177e3697993",
-    "dog_05": "85ded8f4-d6fb-5f45-bcda-3208ae1f814b",
-    "dog_06": "57cbefe5-691c-52ed-a797-476a6209435d",
-    "dog_07": "c8f75034-57bb-5111-a4b6-5294b635094a",
-    "dog_08": "4f85244b-70c4-56c6-8f66-d788c3b8eb7c",
-    "dog_09": "2a8739cd-cbef-5587-af30-676c0edde98d",
-    "dog_10": "61e0a214-b6fc-5ae5-8bec-d3bdf549a5c1",
-    "dog_11": "1f6b803e-b3ac-5802-921c-82535fd7d378",
-    "dog_12": "bec7d9c7-8f58-5adf-b115-a4a381319f18",
-    "dog_13": "cc1c983f-555b-58ae-a3de-8aff450defd4",
-    "dog_14": "89e22d77-3ac6-5f1b-9e69-e69ac21badcb",
-    "dog_15": "db751e39-f1af-5194-a6c8-d8d520417e6c",
-    "dog_16": "2075d0f2-dea6-58be-a364-ea9b1a8375be",
-    "dog_17": "f26233c6-2124-5f77-a662-0a41dcf94319",
-    "dog_18": "d2358b75-9066-5b47-ba6f-64a41bbc75f2"
-  },
   "dogs": [
     {
-      "id": "cc83e203-9173-569d-b39d-25fc53e67492",
-      "compatibilitySlot": "dog_00",
+      "id": "dog_00",
       "x": 793,
       "y": 621,
       "r": 57,
       "sprite": {
         "image": "levels/greece_harbor_taverna_morning_bird_3d5d/dogs/dog_00/sprite_000.png",
-        "height": 171,
-        "width": 249,
-        "x": 684,
+        "x": 683,
         "y": 520,
+        "width": 251,
+        "height": 171,
         "cleanup": {
           "x": 665,
           "y": 448,
           "width": 300,
           "height": 304
         },
-        "anchorX": 0.4378,
+        "anchorX": 0.4382,
         "anchorY": 0.5906,
         "flipX": false,
         "flipY": false
       }
     },
     {
-      "id": "83dd67a0-36a3-5177-bd9b-b69ae6fd1cd5",
-      "compatibilitySlot": "dog_01",
+      "id": "dog_01",
       "x": 1365,
       "y": 628,
       "r": 57,
       "sprite": {
         "image": "levels/greece_harbor_taverna_morning_bird_3d5d/dogs/dog_01/sprite_000.png",
-        "height": 114,
-        "width": 126,
-        "x": 1321,
+        "x": 1303,
         "y": 587,
+        "width": 163,
+        "height": 114,
         "cleanup": {
           "x": 1185,
           "y": 405,
           "width": 345,
           "height": 295
         },
-        "anchorX": 0.3492,
-        "anchorY": 0.3596,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.3804,
+        "anchorY": 0.3596
       }
     },
     {
-      "id": "8bb553fe-b567-5a0b-8c19-079a902d5888",
-      "compatibilitySlot": "dog_02",
+      "id": "dog_02",
       "x": 895,
       "y": 810,
       "r": 57,
       "sprite": {
         "image": "levels/greece_harbor_taverna_morning_bird_3d5d/dogs/dog_02/sprite_000.png",
-        "height": 86,
-        "width": 164,
         "x": 806,
-        "y": 775,
+        "y": 763,
+        "width": 164,
+        "height": 98,
         "cleanup": {
           "x": 738,
           "y": 653,
@@ -94,47 +68,41 @@
           "height": 314
         },
         "anchorX": 0.5427,
-        "anchorY": 0.407,
-        "flipX": false,
-        "flipY": false
+        "anchorY": 0.4796
       }
     },
     {
-      "id": "d6718996-447a-58ce-baaa-2723fe9d02e3",
-      "compatibilitySlot": "dog_03",
+      "id": "dog_03",
       "x": 1229,
       "y": 936,
       "r": 57,
       "sprite": {
         "image": "levels/greece_harbor_taverna_morning_bird_3d5d/dogs/dog_03/sprite_000.png",
-        "height": 254,
-        "width": 149,
-        "x": 1151,
+        "x": 1148,
         "y": 863,
+        "width": 156,
+        "height": 254,
         "cleanup": {
           "x": 1073,
           "y": 763,
           "width": 247,
           "height": 345
         },
-        "anchorX": 0.5235,
-        "anchorY": 0.2874,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.5192,
+        "anchorY": 0.2874
       }
     },
     {
-      "id": "88c0b7e5-c4cb-5ade-af66-a177e3697993",
-      "compatibilitySlot": "dog_04",
+      "id": "dog_04",
       "x": 1438,
       "y": 785,
       "r": 57,
       "sprite": {
         "image": "levels/greece_harbor_taverna_morning_bird_3d5d/dogs/dog_04/sprite_000.png",
-        "height": 93,
-        "width": 116,
         "x": 1358,
-        "y": 774,
+        "y": 724,
+        "width": 116,
+        "height": 143,
         "cleanup": {
           "x": 1322,
           "y": 702,
@@ -142,95 +110,87 @@
           "height": 289
         },
         "anchorX": 0.6897,
-        "anchorY": 0.1183,
-        "flipX": false,
-        "flipY": false
+        "anchorY": 0.4266
       }
     },
     {
-      "id": "85ded8f4-d6fb-5f45-bcda-3208ae1f814b",
-      "compatibilitySlot": "dog_05",
+      "id": "dog_05",
       "x": 1937,
       "y": 536,
       "r": 57,
       "sprite": {
         "image": "levels/greece_harbor_taverna_morning_bird_3d5d/dogs/dog_05/sprite_000.png",
-        "height": 160,
-        "width": 182,
-        "x": 1839,
+        "x": 1825,
         "y": 453,
+        "width": 211,
+        "height": 160,
         "cleanup": {
           "x": 1764,
           "y": 406,
           "width": 314,
           "height": 276
         },
-        "anchorX": 0.5385,
-        "anchorY": 0.5188,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.5308,
+        "anchorY": 0.5188
       }
     },
     {
-      "id": "57cbefe5-691c-52ed-a797-476a6209435d",
-      "compatibilitySlot": "dog_06",
+      "id": "dog_06",
       "x": 2143,
       "y": 720,
       "r": 57,
       "sprite": {
         "image": "levels/greece_harbor_taverna_morning_bird_3d5d/dogs/dog_06/sprite_000.png",
-        "height": 127,
-        "width": 173,
-        "x": 2076,
+        "x": 2070,
         "y": 659,
+        "width": 185,
+        "height": 127,
         "cleanup": {
           "x": 1986,
           "y": 563,
           "width": 314,
           "height": 314
         },
-        "anchorX": 0.3873,
+        "anchorX": 0.3946,
         "anchorY": 0.4803,
         "flipX": false,
         "flipY": false
       }
     },
     {
-      "id": "c8f75034-57bb-5111-a4b6-5294b635094a",
-      "compatibilitySlot": "dog_07",
+      "id": "dog_07",
       "x": 539,
       "y": 816,
       "r": 57,
       "sprite": {
         "image": "levels/greece_harbor_taverna_morning_bird_3d5d/dogs/dog_07/sprite_000.png",
-        "height": 156,
-        "width": 211,
-        "x": 438,
+        "x": 423,
         "y": 752,
+        "width": 241,
+        "height": 156,
         "cleanup": {
-          "x": 399,
-          "y": 689,
-          "width": 314,
-          "height": 314
+          "x": 366,
+          "y": 643,
+          "width": 297,
+          "height": 345
         },
-        "anchorX": 0.4787,
+        "anchorX": 0.4813,
         "anchorY": 0.4103,
         "flipX": false,
         "flipY": false
       }
     },
     {
-      "id": "4f85244b-70c4-56c6-8f66-d788c3b8eb7c",
-      "compatibilitySlot": "dog_08",
+      "id": "dog_08",
       "x": 463,
       "y": 1545,
       "r": 57,
       "sprite": {
         "image": "levels/greece_harbor_taverna_morning_bird_3d5d/dogs/dog_08/sprite_000.png",
-        "height": 217,
-        "width": 221,
         "x": 327,
-        "y": 1435,
+        "y": 1434,
+        "width": 221,
+        "height": 218,
         "cleanup": {
           "x": 306,
           "y": 1388,
@@ -238,71 +198,62 @@
           "height": 314
         },
         "anchorX": 0.6154,
-        "anchorY": 0.5069,
-        "flipX": false,
-        "flipY": false
+        "anchorY": 0.5092
       }
     },
     {
-      "id": "2a8739cd-cbef-5587-af30-676c0edde98d",
-      "compatibilitySlot": "dog_09",
+      "id": "dog_09",
       "x": 1707,
       "y": 1350,
       "r": 57,
       "sprite": {
         "image": "levels/greece_harbor_taverna_morning_bird_3d5d/dogs/dog_09/sprite_000.png",
-        "height": 231,
-        "width": 167,
-        "x": 1642,
+        "x": 1640,
         "y": 1231,
+        "width": 171,
+        "height": 231,
         "cleanup": {
           "x": 1534,
           "y": 1177,
           "width": 345,
           "height": 345
         },
-        "anchorX": 0.3892,
-        "anchorY": 0.5152,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.3918,
+        "anchorY": 0.5152
       }
     },
     {
-      "id": "61e0a214-b6fc-5ae5-8bec-d3bdf549a5c1",
-      "compatibilitySlot": "dog_10",
+      "id": "dog_10",
       "x": 1031,
       "y": 1707,
       "r": 57,
       "sprite": {
         "image": "levels/greece_harbor_taverna_morning_bird_3d5d/dogs/dog_10/sprite_000.png",
-        "height": 124,
-        "width": 159,
-        "x": 954,
+        "x": 938,
         "y": 1637,
+        "width": 192,
+        "height": 124,
         "cleanup": {
           "x": 858,
           "y": 1534,
           "width": 311,
           "height": 309
         },
-        "anchorX": 0.4843,
-        "anchorY": 0.5645,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.4844,
+        "anchorY": 0.5645
       }
     },
     {
-      "id": "1f6b803e-b3ac-5802-921c-82535fd7d378",
-      "compatibilitySlot": "dog_11",
+      "id": "dog_11",
       "x": 1310,
       "y": 1834,
       "r": 57,
       "sprite": {
         "image": "levels/greece_harbor_taverna_morning_bird_3d5d/dogs/dog_11/sprite_000.png",
-        "height": 168,
-        "width": 189,
         "x": 1228,
-        "y": 1771,
+        "y": 1760,
+        "width": 189,
+        "height": 179,
         "cleanup": {
           "x": 1171,
           "y": 1661,
@@ -310,95 +261,83 @@
           "height": 343
         },
         "anchorX": 0.4339,
-        "anchorY": 0.375,
-        "flipX": false,
-        "flipY": false
+        "anchorY": 0.4134
       }
     },
     {
-      "id": "bec7d9c7-8f58-5adf-b115-a4a381319f18",
-      "compatibilitySlot": "dog_12",
+      "id": "dog_12",
       "x": 1602,
       "y": 2044,
       "r": 57,
       "sprite": {
         "image": "levels/greece_harbor_taverna_morning_bird_3d5d/dogs/dog_12/sprite_000.png",
-        "height": 138,
-        "width": 187,
-        "x": 1512,
+        "x": 1508,
         "y": 1986,
+        "width": 195,
+        "height": 138,
         "cleanup": {
           "x": 1457,
           "y": 1871,
           "width": 226,
           "height": 328
         },
-        "anchorX": 0.4813,
-        "anchorY": 0.4203,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.4821,
+        "anchorY": 0.4203
       }
     },
     {
-      "id": "cc1c983f-555b-58ae-a3de-8aff450defd4",
-      "compatibilitySlot": "dog_13",
+      "id": "dog_13",
       "x": 1706,
       "y": 1901,
       "r": 57,
       "sprite": {
         "image": "levels/greece_harbor_taverna_morning_bird_3d5d/dogs/dog_13/sprite_000.png",
-        "height": 142,
-        "width": 169,
-        "x": 1642,
+        "x": 1640,
         "y": 1857,
+        "width": 173,
+        "height": 142,
         "cleanup": {
           "x": 1685,
           "y": 1714,
           "width": 250,
           "height": 298
         },
-        "anchorX": 0.3787,
-        "anchorY": 0.3099,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.3815,
+        "anchorY": 0.3099
       }
     },
     {
-      "id": "89e22d77-3ac6-5f1b-9e69-e69ac21badcb",
-      "compatibilitySlot": "dog_14",
+      "id": "dog_14",
       "x": 1924,
       "y": 2140,
       "r": 57,
       "sprite": {
         "image": "levels/greece_harbor_taverna_morning_bird_3d5d/dogs/dog_14/sprite_000.png",
-        "height": 140,
-        "width": 147,
-        "x": 1873,
+        "x": 1853,
         "y": 2080,
+        "width": 187,
+        "height": 140,
         "cleanup": {
           "x": 1784,
           "y": 2014,
           "width": 312,
           "height": 298
         },
-        "anchorX": 0.3469,
-        "anchorY": 0.4286,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.3797,
+        "anchorY": 0.4286
       }
     },
     {
-      "id": "db751e39-f1af-5194-a6c8-d8d520417e6c",
-      "compatibilitySlot": "dog_15",
+      "id": "dog_15",
       "x": 1675,
       "y": 2356,
       "r": 57,
       "sprite": {
         "image": "levels/greece_harbor_taverna_morning_bird_3d5d/dogs/dog_15/sprite_000.png",
-        "height": 141,
-        "width": 180,
         "x": 1575,
-        "y": 2299,
+        "y": 2272,
+        "width": 180,
+        "height": 168,
         "cleanup": {
           "x": 1470,
           "y": 2201,
@@ -406,23 +345,22 @@
           "height": 319
         },
         "anchorX": 0.5556,
-        "anchorY": 0.4043,
+        "anchorY": 0.5,
         "flipX": false,
         "flipY": false
       }
     },
     {
-      "id": "2075d0f2-dea6-58be-a364-ea9b1a8375be",
-      "compatibilitySlot": "dog_16",
+      "id": "dog_16",
       "x": 577,
       "y": 1928,
       "r": 57,
       "sprite": {
         "image": "levels/greece_harbor_taverna_morning_bird_3d5d/dogs/dog_16/sprite_000.png",
-        "height": 154,
-        "width": 202,
         "x": 471,
-        "y": 1838,
+        "y": 1831,
+        "width": 202,
+        "height": 161,
         "cleanup": {
           "x": 404,
           "y": 1755,
@@ -430,68 +368,56 @@
           "height": 345
         },
         "anchorX": 0.5248,
-        "anchorY": 0.5844,
+        "anchorY": 0.6025,
         "flipX": false,
         "flipY": false
       }
     },
     {
-      "id": "f26233c6-2124-5f77-a662-0a41dcf94319",
-      "compatibilitySlot": "dog_17",
+      "id": "dog_17",
       "x": 974,
       "y": 1981,
       "r": 57,
       "sprite": {
         "image": "levels/greece_harbor_taverna_morning_bird_3d5d/dogs/dog_17/sprite_000.png",
-        "height": 197,
-        "width": 157,
-        "x": 898,
+        "x": 871,
         "y": 1879,
+        "width": 212,
+        "height": 197,
         "cleanup": {
           "x": 801,
           "y": 1845,
           "width": 345,
           "height": 308
         },
-        "anchorX": 0.4841,
+        "anchorX": 0.4858,
         "anchorY": 0.5178,
         "flipX": false,
         "flipY": false
       }
     },
     {
-      "id": "d2358b75-9066-5b47-ba6f-64a41bbc75f2",
-      "compatibilitySlot": "dog_18",
+      "id": "dog_18",
       "x": 1065,
       "y": 2335,
       "r": 57,
       "sprite": {
         "image": "levels/greece_harbor_taverna_morning_bird_3d5d/dogs/dog_18/sprite_000.png",
-        "height": 170,
-        "width": 130,
-        "x": 1030,
+        "x": 1010,
         "y": 2221,
+        "width": 170,
+        "height": 170,
         "cleanup": {
           "x": 892,
           "y": 2168,
           "width": 345,
           "height": 339
         },
-        "anchorX": 0.2692,
+        "anchorX": 0.3235,
         "anchorY": 0.6706,
         "flipX": false,
         "flipY": false
       }
     }
-  ],
-  "provenance": {
-    "setting": "greece",
-    "scene": "greece_harbor_taverna_morning",
-    "entity": "bird",
-    "style": "clean_old_cartoon",
-    "scenePrompt": "[Purpose]\nCreate a full-bleed mobile-game background for Find the Bird.\n\n[Short Description]\nA small Greek island harbor sprawling around a curved quay arranged as an organic isometric hidden-object scene.\n\n[Scene] A small Greek island harbor sprawling around a curved quay \u2014 a main waterfront walk lined with taverna tables, a mole arm reaching into turquoise water with moored caiques, a side alley climbing between white houses. The entire ground surface is consistent large worn flagstones on the quay, weathered planks on the mole, and clear shallow harbor water throughout \u2014 every area the viewer can see the ground, it reads as stone, plank, or water with no untextured blank areas. Wooden fishing caiques of varying sizes crowd unevenly along the mole, some rafted together, others moored alone. Masts and awning frames at different heights, some overlapping, some freestanding. One beached blue rowboat sits tipped at an unexpected angle on the quay corner. Scattered throughout without pattern: stacked fish crates, coiled mooring ropes, folded nets on rails, taverna chairs in blue paint, checked tablecloths, hanging squid-drying lines left empty, buoys in nets, oil lanterns, anchor chains, baskets of sponges, a hand cart, clay pitchers on tables, market umbrellas, lobster pots, a mounted ship's wheel by a door. Dense clusters around the taverna spill and mole root, sparser breathing room mid-quay. Asymmetric, organic layout \u2014 like a harbor that grew boat by boat.\n\n[View] Moderately elevated three-quarter game-map view with a close, readable mobile-game camera: roughly 35 degrees down from horizontal, with only enough scene visible to support about 20 hidden bird placements. Do not use an extreme aerial, distant establishing, miniature-diorama, or whole-city view. Large scene anchors should occupy substantial frame area, and ordinary props must remain individually recognizable at phone size. Use controlled hidden-object density: arrange approximately 20 plausible hiding pockets across 4 to 6 connected prop clusters, with visible breathing room, clear travel paths between clusters, and readable object boundaries for phone-screen scanning. Use mild perspective or near-isometric construction consistently, without wide-angle distortion, dramatic foreshortening, depth of field, or tiny distance-scaled clutter.\n\n[Style] Vintage hand-drawn cartoon background adapted for a modern mobile puzzle game. Rounded old-cartoon shapes, cheerful simplified silhouettes, thick confident ink outlines, flat poster-like color fills, and soft hand-painted background texture. Use broad readable color masses and minimal internal linework so the scene stays clear on a phone screen. Charming and slightly nostalgic, clean and polished for mobile, with less visual noise, fewer texture marks, and no dense rendering.\n\n[Gameplay Composition]\nDesign this as a production hidden-object background where birds will be added later. Create many plausible hiding pockets on walkable/contact surfaces or open gaps beside props, plants, rocks, furniture, railings, crates, planters, benches, roots, tools, shelves, stalls, boats, carts, market goods, or other readable foreground objects. Near props is ideal; inside solid objects, on blank walls, on roofs, floating over water, or on decorative vertical faces is not useful. Use theme-specific spatial logic such as rings, islands, terraces, nested rooms, clearings, bridges, piers, shelves, courtyards, side alleys, garden pockets, or clustered market zones. Keep open pockets between prop clusters so hitboxes can sit near objects without excessive overlap.\n\n[Constraints]\nDo not depict any bird; every bird is added during the later gameplay pass. No people, no live animals, no insects, no mascots, no readable text, no logos, no watermarks. Signs, chalkboards, labels, plaques, and boards named in the scene may appear but must show only illegible marks, squiggles, or blank surfaces \u2014 never legible words or letters. Market food and fishing props are allowed when the scene calls for them. Avoid huge blank walls, roof-dominated compositions, large featureless empty lawns, empty sand, empty floors, long straight roads, and noisy micro-texture camouflage. Every visible ground, floor, or water-edge region should read as a clear material appropriate to the scene; no untextured blank areas.",
-    "entityPrompt": "Add exactly one bird to this crop. Place exactly one bird centered on the marked target area \u2014 do not repeat the subject. Match the scene's illustration style, line weight, palette, and flat-shaded rendering, but keep the bird's silhouette and boundary readable on a phone screen. The bird may be partially occluded or contextually disguised, but must not disappear through muddy edges, low contrast, texture camouflage, or ambiguous merged shapes. Vary the bird's colors, markings, proportions, and small physical details across crops so the level does not repeat the same bird design. The bird is a charming little anthropomorphic inhabitant of this world \u2014 a character with personality going about its business. Give it something simple and specific to do with its surroundings: holding an object, using a tool, sitting at a small task, peeking at something, carrying something, watching something with interest, tending a small thing, pausing mid-task. Keep the pose clear and readable. The charm comes from the context and the expression, not from dynamic motion. Size the bird realistically relative to the scene around it \u2014 compare it to whatever human-scale objects are visible in the crop and render the bird at the physical size a real bird would be next to them. Not so small that its species is ambiguous, not so large that it dominates the crop. The bird must be fully contained within the visible frame. Keep all other elements of the image unchanged.",
-    "bgModel": "google/gemini-3.1-flash-image-preview",
-    "inpaintModel": "google/gemini-3.1-flash-image-preview"
-  }
+  ]
 }

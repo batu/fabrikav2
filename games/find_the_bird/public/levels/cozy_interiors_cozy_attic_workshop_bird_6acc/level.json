@@ -1,69 +1,43 @@
 {
   "id": "cozy_interiors_cozy_attic_workshop_bird_6acc",
-  "name": "Level cozy_interiors_cozy_attic_workshop_bird_6acc",
+  "name": "Level cozy_interiors_cozy_attic_workshop_bird_6acc (clean_old_cartoon)",
   "width": 2688,
   "height": 2688,
+  "bwImage": "levels/cozy_interiors_cozy_attic_workshop_bird_6acc/bw.png",
   "colorImage": "levels/cozy_interiors_cozy_attic_workshop_bird_6acc/color.png",
-  "artifactRevision": "sha256:cdf30a214a83597115cf645af428f4da04e6066b735dd5d6dd198e5d769e0bb1",
-  "compatibilityAliases": {
-    "dog_00": "b966a319-7dbc-5f48-9336-acfadd777e3f",
-    "dog_01": "f9bfde76-3d05-58ad-a664-ab4fe40297c8",
-    "dog_02": "56ceeaa6-b265-5549-a528-19fd01ff0296",
-    "dog_03": "46f08df4-c0d0-51b3-b7f5-52551aaadde3",
-    "dog_04": "a93437a2-3d02-5dbc-8280-441ca36a306a",
-    "dog_05": "642158f2-9269-574e-aa30-5d5636dfb3f6",
-    "dog_06": "8ffe370a-7c8f-5e11-8fe8-9ba0cb16ad8d",
-    "dog_07": "c8ae5904-34c4-513f-bd5b-8dc621f9623c",
-    "dog_08": "ee7f8b15-74ac-5904-9c49-25780a738e06",
-    "dog_09": "ff3c32bc-b239-5152-90a5-8b80d8290d1e",
-    "dog_10": "609c2a7d-0acf-56cf-baad-85f3113d0b6e",
-    "dog_11": "c6d2cd75-14d9-5c78-af4a-a27f04801b78",
-    "dog_12": "1748184f-a30c-546a-a59a-ef15f1286f7b",
-    "dog_13": "03cb5139-3183-5acb-a76e-a66686ad5f6f",
-    "dog_14": "ccd2ba62-32b2-5f5c-aa99-ee353b4dcd5c",
-    "dog_15": "ad0e77cf-6c3d-5187-8b9e-c399fe536262",
-    "dog_16": "a0301e17-f1d6-5b57-b310-0ae57945c0f8",
-    "dog_17": "37adf79e-b84c-519e-bb12-645d6574f7d6",
-    "dog_18": "77cf62ab-011a-5c2a-913b-da14a3dbeb09",
-    "dog_19": "2dc106e2-2a42-5751-aba2-b19ad4194aba"
-  },
   "dogs": [
     {
-      "id": "b966a319-7dbc-5f48-9336-acfadd777e3f",
-      "compatibilitySlot": "dog_00",
+      "id": "dog_00",
       "x": 1948,
       "y": 579,
       "r": 57,
       "sprite": {
         "image": "levels/cozy_interiors_cozy_attic_workshop_bird_6acc/dogs/dog_00/sprite_000.png",
-        "height": 172,
-        "width": 142,
-        "x": 1874,
+        "x": 1859,
         "y": 493,
+        "width": 173,
+        "height": 172,
         "cleanup": {
           "x": 1790,
           "y": 425,
           "width": 325,
           "height": 299
         },
-        "anchorX": 0.5211,
-        "anchorY": 0.5,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.5145,
+        "anchorY": 0.5
       }
     },
     {
-      "id": "f9bfde76-3d05-58ad-a664-ab4fe40297c8",
-      "compatibilitySlot": "dog_01",
+      "id": "dog_01",
       "x": 747,
       "y": 630,
       "r": 57,
       "sprite": {
         "image": "levels/cozy_interiors_cozy_attic_workshop_bird_6acc/dogs/dog_01/sprite_000.png",
-        "height": 188,
-        "width": 231,
         "x": 639,
-        "y": 583,
+        "y": 520,
+        "width": 231,
+        "height": 251,
         "cleanup": {
           "x": 574,
           "y": 457,
@@ -71,71 +45,62 @@
           "height": 307
         },
         "anchorX": 0.4675,
-        "anchorY": 0.25,
-        "flipX": false,
-        "flipY": false
+        "anchorY": 0.4382
       }
     },
     {
-      "id": "56ceeaa6-b265-5549-a528-19fd01ff0296",
-      "compatibilitySlot": "dog_02",
+      "id": "dog_02",
       "x": 631,
       "y": 900,
       "r": 57,
       "sprite": {
         "image": "levels/cozy_interiors_cozy_attic_workshop_bird_6acc/dogs/dog_02/sprite_000.png",
-        "height": 197,
-        "width": 194,
-        "x": 506,
+        "x": 476,
         "y": 805,
+        "width": 254,
+        "height": 197,
         "cleanup": {
           "x": 458,
           "y": 766,
           "width": 345,
           "height": 289
         },
-        "anchorX": 0.6443,
-        "anchorY": 0.4822,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.6102,
+        "anchorY": 0.4822
       }
     },
     {
-      "id": "46f08df4-c0d0-51b3-b7f5-52551aaadde3",
-      "compatibilitySlot": "dog_03",
+      "id": "dog_03",
       "x": 1185,
       "y": 726,
       "r": 57,
       "sprite": {
         "image": "levels/cozy_interiors_cozy_attic_workshop_bird_6acc/dogs/dog_03/sprite_000.png",
-        "height": 176,
-        "width": 157,
-        "x": 1091,
+        "x": 1087,
         "y": 620,
+        "width": 166,
+        "height": 176,
         "cleanup": {
           "x": 969,
           "y": 556,
           "width": 333,
           "height": 283
         },
-        "anchorX": 0.5987,
-        "anchorY": 0.6023,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.5904,
+        "anchorY": 0.6023
       }
     },
     {
-      "id": "a93437a2-3d02-5dbc-8280-441ca36a306a",
-      "compatibilitySlot": "dog_04",
+      "id": "dog_04",
       "x": 1248,
       "y": 902,
       "r": 57,
       "sprite": {
         "image": "levels/cozy_interiors_cozy_attic_workshop_bird_6acc/dogs/dog_04/sprite_000.png",
-        "height": 157,
-        "width": 208,
         "x": 1137,
-        "y": 845,
+        "y": 837,
+        "width": 208,
+        "height": 165,
         "cleanup": {
           "x": 1040,
           "y": 841,
@@ -143,23 +108,20 @@
           "height": 287
         },
         "anchorX": 0.5337,
-        "anchorY": 0.3631,
-        "flipX": false,
-        "flipY": false
+        "anchorY": 0.3939
       }
     },
     {
-      "id": "642158f2-9269-574e-aa30-5d5636dfb3f6",
-      "compatibilitySlot": "dog_05",
+      "id": "dog_05",
       "x": 700,
       "y": 1191,
       "r": 57,
       "sprite": {
         "image": "levels/cozy_interiors_cozy_attic_workshop_bird_6acc/dogs/dog_05/sprite_000.png",
-        "height": 184,
-        "width": 234,
         "x": 622,
         "y": 1104,
+        "width": 234,
+        "height": 184,
         "cleanup": {
           "x": 591,
           "y": 1061,
@@ -167,47 +129,41 @@
           "height": 345
         },
         "anchorX": 0.3333,
-        "anchorY": 0.4728,
-        "flipX": false,
-        "flipY": false
+        "anchorY": 0.4728
       }
     },
     {
-      "id": "8ffe370a-7c8f-5e11-8fe8-9ba0cb16ad8d",
-      "compatibilitySlot": "dog_06",
+      "id": "dog_06",
       "x": 458,
       "y": 1674,
       "r": 57,
       "sprite": {
         "image": "levels/cozy_interiors_cozy_attic_workshop_bird_6acc/dogs/dog_06/sprite_000.png",
-        "height": 176,
-        "width": 175,
-        "x": 383,
+        "x": 347,
         "y": 1566,
+        "width": 248,
+        "height": 176,
         "cleanup": {
           "x": 285,
           "y": 1522,
           "width": 325,
           "height": 317
         },
-        "anchorX": 0.4286,
-        "anchorY": 0.6136,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.4476,
+        "anchorY": 0.6136
       }
     },
     {
-      "id": "c8ae5904-34c4-513f-bd5b-8dc621f9623c",
-      "compatibilitySlot": "dog_07",
+      "id": "dog_07",
       "x": 765,
       "y": 1825,
       "r": 57,
       "sprite": {
         "image": "levels/cozy_interiors_cozy_attic_workshop_bird_6acc/dogs/dog_07/sprite_000.png",
-        "height": 285,
-        "width": 305,
         "x": 664,
-        "y": 1634,
+        "y": 1629,
+        "width": 305,
+        "height": 290,
         "cleanup": {
           "x": 612,
           "y": 1724,
@@ -215,47 +171,41 @@
           "height": 262
         },
         "anchorX": 0.3311,
-        "anchorY": 0.6702,
-        "flipX": false,
-        "flipY": false
+        "anchorY": 0.6759
       }
     },
     {
-      "id": "ee7f8b15-74ac-5904-9c49-25780a738e06",
-      "compatibilitySlot": "dog_08",
+      "id": "dog_08",
       "x": 564,
       "y": 2149,
       "r": 57,
       "sprite": {
         "image": "levels/cozy_interiors_cozy_attic_workshop_bird_6acc/dogs/dog_08/sprite_000.png",
-        "height": 204,
-        "width": 170,
-        "x": 480,
+        "x": 458,
         "y": 2035,
+        "width": 215,
+        "height": 204,
         "cleanup": {
           "x": 391,
           "y": 1988,
           "width": 345,
           "height": 330
         },
-        "anchorX": 0.4941,
-        "anchorY": 0.5588,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.493,
+        "anchorY": 0.5588
       }
     },
     {
-      "id": "ff3c32bc-b239-5152-90a5-8b80d8290d1e",
-      "compatibilitySlot": "dog_09",
+      "id": "dog_09",
       "x": 1024,
       "y": 2005,
       "r": 57,
       "sprite": {
         "image": "levels/cozy_interiors_cozy_attic_workshop_bird_6acc/dogs/dog_09/sprite_000.png",
-        "height": 171,
-        "width": 274,
         "x": 873,
-        "y": 1943,
+        "y": 1877,
+        "width": 274,
+        "height": 237,
         "cleanup": {
           "x": 895,
           "y": 1832,
@@ -263,71 +213,62 @@
           "height": 324
         },
         "anchorX": 0.5511,
-        "anchorY": 0.3626,
-        "flipX": false,
-        "flipY": false
+        "anchorY": 0.5401
       }
     },
     {
-      "id": "609c2a7d-0acf-56cf-baad-85f3113d0b6e",
-      "compatibilitySlot": "dog_10",
+      "id": "dog_10",
       "x": 926,
       "y": 2310,
       "r": 57,
       "sprite": {
         "image": "levels/cozy_interiors_cozy_attic_workshop_bird_6acc/dogs/dog_10/sprite_000.png",
-        "height": 226,
-        "width": 203,
-        "x": 836,
+        "x": 802,
         "y": 2183,
+        "width": 272,
+        "height": 226,
         "cleanup": {
           "x": 753,
           "y": 2158,
           "width": 345,
           "height": 304
         },
-        "anchorX": 0.4433,
-        "anchorY": 0.5619,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.4559,
+        "anchorY": 0.5619
       }
     },
     {
-      "id": "c6d2cd75-14d9-5c78-af4a-a27f04801b78",
-      "compatibilitySlot": "dog_11",
+      "id": "dog_11",
       "x": 969,
       "y": 1615,
       "r": 57,
       "sprite": {
         "image": "levels/cozy_interiors_cozy_attic_workshop_bird_6acc/dogs/dog_11/sprite_000.png",
-        "height": 212,
-        "width": 204,
-        "x": 824,
+        "x": 819,
         "y": 1499,
+        "width": 214,
+        "height": 212,
         "cleanup": {
           "x": 768,
           "y": 1449,
           "width": 345,
           "height": 273
         },
-        "anchorX": 0.7108,
-        "anchorY": 0.5472,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.7009,
+        "anchorY": 0.5472
       }
     },
     {
-      "id": "1748184f-a30c-546a-a59a-ef15f1286f7b",
-      "compatibilitySlot": "dog_12",
+      "id": "dog_12",
       "x": 1416,
       "y": 1417,
       "r": 57,
       "sprite": {
         "image": "levels/cozy_interiors_cozy_attic_workshop_bird_6acc/dogs/dog_12/sprite_000.png",
-        "height": 199,
-        "width": 223,
         "x": 1313,
-        "y": 1334,
+        "y": 1320,
+        "width": 223,
+        "height": 213,
         "cleanup": {
           "x": 1256,
           "y": 1244,
@@ -335,23 +276,20 @@
           "height": 270
         },
         "anchorX": 0.4619,
-        "anchorY": 0.4171,
-        "flipX": false,
-        "flipY": false
+        "anchorY": 0.4554
       }
     },
     {
-      "id": "03cb5139-3183-5acb-a76e-a66686ad5f6f",
-      "compatibilitySlot": "dog_13",
+      "id": "dog_13",
       "x": 1571,
       "y": 1613,
       "r": 57,
       "sprite": {
         "image": "levels/cozy_interiors_cozy_attic_workshop_bird_6acc/dogs/dog_13/sprite_000.png",
-        "height": 174,
-        "width": 202,
         "x": 1485,
-        "y": 1517,
+        "y": 1506,
+        "width": 202,
+        "height": 185,
         "cleanup": {
           "x": 1398,
           "y": 1516,
@@ -359,47 +297,41 @@
           "height": 224
         },
         "anchorX": 0.4257,
-        "anchorY": 0.5517,
-        "flipX": false,
-        "flipY": false
+        "anchorY": 0.5784
       }
     },
     {
-      "id": "ccd2ba62-32b2-5f5c-aa99-ee353b4dcd5c",
-      "compatibilitySlot": "dog_14",
+      "id": "dog_14",
       "x": 1842,
       "y": 1425,
       "r": 57,
       "sprite": {
         "image": "levels/cozy_interiors_cozy_attic_workshop_bird_6acc/dogs/dog_14/sprite_000.png",
-        "height": 201,
-        "width": 208,
-        "x": 1757,
+        "x": 1745,
         "y": 1331,
+        "width": 232,
+        "height": 201,
         "cleanup": {
-          "x": 1732,
-          "y": 1391,
-          "width": 232,
-          "height": 201
+          "x": 1707,
+          "y": 1252,
+          "width": 307,
+          "height": 345
         },
-        "anchorX": 0.4087,
-        "anchorY": 0.4677,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.4181,
+        "anchorY": 0.4677
       }
     },
     {
-      "id": "ad0e77cf-6c3d-5187-8b9e-c399fe536262",
-      "compatibilitySlot": "dog_15",
+      "id": "dog_15",
       "x": 1414,
       "y": 1870,
       "r": 57,
       "sprite": {
         "image": "levels/cozy_interiors_cozy_attic_workshop_bird_6acc/dogs/dog_15/sprite_000.png",
-        "height": 187,
-        "width": 257,
         "x": 1274,
-        "y": 1779,
+        "y": 1770,
+        "width": 257,
+        "height": 196,
         "cleanup": {
           "x": 1241,
           "y": 1744,
@@ -407,23 +339,20 @@
           "height": 256
         },
         "anchorX": 0.5447,
-        "anchorY": 0.4866,
-        "flipX": false,
-        "flipY": false
+        "anchorY": 0.5102
       }
     },
     {
-      "id": "a0301e17-f1d6-5b57-b310-0ae57945c0f8",
-      "compatibilitySlot": "dog_16",
+      "id": "dog_16",
       "x": 1339,
       "y": 2218,
       "r": 57,
       "sprite": {
         "image": "levels/cozy_interiors_cozy_attic_workshop_bird_6acc/dogs/dog_16/sprite_000.png",
-        "height": 227,
-        "width": 237,
         "x": 1224,
-        "y": 2102,
+        "y": 2082,
+        "width": 237,
+        "height": 247,
         "cleanup": {
           "x": 1182,
           "y": 2056,
@@ -431,47 +360,41 @@
           "height": 345
         },
         "anchorX": 0.4852,
-        "anchorY": 0.511,
-        "flipX": false,
-        "flipY": false
+        "anchorY": 0.5506
       }
     },
     {
-      "id": "37adf79e-b84c-519e-bb12-645d6574f7d6",
-      "compatibilitySlot": "dog_17",
+      "id": "dog_17",
       "x": 1465,
       "y": 2133,
       "r": 57,
       "sprite": {
         "image": "levels/cozy_interiors_cozy_attic_workshop_bird_6acc/dogs/dog_17/sprite_000.png",
-        "height": 228,
-        "width": 167,
-        "x": 1416,
+        "x": 1380,
         "y": 2024,
+        "width": 240,
+        "height": 228,
         "cleanup": {
-          "x": 1371,
-          "y": 2044,
-          "width": 180,
-          "height": 168
+          "x": 1403,
+          "y": 2002,
+          "width": 158,
+          "height": 285
         },
-        "anchorX": 0.2934,
-        "anchorY": 0.4781,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.3542,
+        "anchorY": 0.4781
       }
     },
     {
-      "id": "77cf62ab-011a-5c2a-913b-da14a3dbeb09",
-      "compatibilitySlot": "dog_18",
+      "id": "dog_18",
       "x": 1682,
       "y": 2034,
       "r": 57,
       "sprite": {
         "image": "levels/cozy_interiors_cozy_attic_workshop_bird_6acc/dogs/dog_18/sprite_000.png",
-        "height": 169,
-        "width": 202,
         "x": 1581,
-        "y": 1948,
+        "y": 1916,
+        "width": 202,
+        "height": 201,
         "cleanup": {
           "x": 1561,
           "y": 1862,
@@ -479,23 +402,20 @@
           "height": 313
         },
         "anchorX": 0.5,
-        "anchorY": 0.5089,
-        "flipX": false,
-        "flipY": false
+        "anchorY": 0.5871
       }
     },
     {
-      "id": "2dc106e2-2a42-5751-aba2-b19ad4194aba",
-      "compatibilitySlot": "dog_19",
+      "id": "dog_19",
       "x": 1997,
       "y": 2248,
       "r": 57,
       "sprite": {
         "image": "levels/cozy_interiors_cozy_attic_workshop_bird_6acc/dogs/dog_19/sprite_000.png",
-        "height": 159,
-        "width": 224,
         "x": 1884,
-        "y": 2185,
+        "y": 2165,
+        "width": 224,
+        "height": 179,
         "cleanup": {
           "x": 1840,
           "y": 2075,
@@ -503,20 +423,8 @@
           "height": 345
         },
         "anchorX": 0.5045,
-        "anchorY": 0.3962,
-        "flipX": false,
-        "flipY": false
+        "anchorY": 0.4637
       }
     }
-  ],
-  "provenance": {
-    "setting": "cozy_interiors",
-    "scene": "cozy_attic_workshop",
-    "entity": "bird",
-    "style": "clean_old_cartoon",
-    "scenePrompt": "[Purpose]\nCreate a full-bleed mobile-game background for Find the Bird.\n\n[Short Description]\nA timber-framed attic workshop sprawling under sloped rafters arranged as an organic isometric hidden-object scene.\n\n[Scene] A timber-framed attic workshop sprawling under sloped rafters \u2014 a main workbench wall beneath the dormer window, a side alcove of shelf-stacked crates, a rug-covered reading corner around a squat iron stove. The entire ground surface is consistent wide worn floorboards, one braided rug, and a paint-spattered canvas drop cloth throughout \u2014 every area the viewer can see the ground, it reads as board, rug, or cloth with no untextured blank areas. Storage crates and cabinets of varying sizes crowd the alcove unevenly, some stacked to the rafters, others standing alone half-open. Rafter ties and hanging tools at different heights, some overlapping, some freestanding. A wooden glider-kite prototype hangs from the ridge beam at an unexpected angle, mid-repair. Scattered throughout without pattern: hand planes, coiled measuring tapes, jars of buttons and screws, a kettle on the stove, model boats, paint pots, an oil lamp, curled blueprints, a stool with a sweater draped over it, sawdust piles, clamps on rails, a birdhouse-in-progress, spools of wire, a tin of biscuits, a magnifying lamp on an arm. Dense clusters around the workbench, sparser breathing room by the stove corner. Asymmetric, organic layout \u2014 like a maker's room arranged by habit, not plan.\n\n[View] Moderately elevated three-quarter game-map view with a close, readable mobile-game camera: roughly 35 degrees down from horizontal, with only enough scene visible to support about 20 hidden bird placements. Do not use an extreme aerial, distant establishing, miniature-diorama, or whole-city view. Large scene anchors should occupy substantial frame area, and ordinary props must remain individually recognizable at phone size. Use controlled hidden-object density: arrange approximately 20 plausible hiding pockets across 4 to 6 connected prop clusters, with visible breathing room, clear travel paths between clusters, and readable object boundaries for phone-screen scanning. Use mild perspective or near-isometric construction consistently, without wide-angle distortion, dramatic foreshortening, depth of field, or tiny distance-scaled clutter.\n\n[Style] Vintage hand-drawn cartoon background adapted for a modern mobile puzzle game. Rounded old-cartoon shapes, cheerful simplified silhouettes, thick confident ink outlines, flat poster-like color fills, and soft hand-painted background texture. Use broad readable color masses and minimal internal linework so the scene stays clear on a phone screen. Charming and slightly nostalgic, clean and polished for mobile, with less visual noise, fewer texture marks, and no dense rendering.\n\n[Gameplay Composition]\nDesign this as a production hidden-object background where birds will be added later. Create many plausible hiding pockets on walkable/contact surfaces or open gaps beside props, plants, rocks, furniture, railings, crates, planters, benches, roots, tools, shelves, stalls, boats, carts, market goods, or other readable foreground objects. Near props is ideal; inside solid objects, on blank walls, on roofs, floating over water, or on decorative vertical faces is not useful. Use theme-specific spatial logic such as rings, islands, terraces, nested rooms, clearings, bridges, piers, shelves, courtyards, side alleys, garden pockets, or clustered market zones. Keep open pockets between prop clusters so hitboxes can sit near objects without excessive overlap.\n\n[Constraints]\nDo not depict any bird; every bird is added during the later gameplay pass. No people, no live animals, no insects, no mascots, no readable text, no logos, no watermarks. Signs, chalkboards, labels, plaques, and boards named in the scene may appear but must show only illegible marks, squiggles, or blank surfaces \u2014 never legible words or letters. Market food and fishing props are allowed when the scene calls for them. Avoid huge blank walls, roof-dominated compositions, large featureless empty lawns, empty sand, empty floors, long straight roads, and noisy micro-texture camouflage. Every visible ground, floor, or water-edge region should read as a clear material appropriate to the scene; no untextured blank areas.",
-    "entityPrompt": "Add exactly one bird to this crop. Place exactly one bird centered on the marked target area \u2014 do not repeat the subject. Match the scene's illustration style, line weight, palette, and flat-shaded rendering, but keep the bird's silhouette and boundary readable on a phone screen. The bird may be partially occluded or contextually disguised, but must not disappear through muddy edges, low contrast, texture camouflage, or ambiguous merged shapes. Vary the bird's colors, markings, proportions, and small physical details across crops so the level does not repeat the same bird design. The bird is a charming little anthropomorphic inhabitant of this world \u2014 a character with personality going about its business. Give it something simple and specific to do with its surroundings: holding an object, using a tool, sitting at a small task, peeking at something, carrying something, watching something with interest, tending a small thing, pausing mid-task. Keep the pose clear and readable. The charm comes from the context and the expression, not from dynamic motion. Size the bird realistically relative to the scene around it \u2014 compare it to whatever human-scale objects are visible in the crop and render the bird at the physical size a real bird would be next to them. Not so small that its species is ambiguous, not so large that it dominates the crop. The bird must be fully contained within the visible frame. Keep all other elements of the image unchanged.",
-    "bgModel": "google/gemini-3.1-flash-image-preview",
-    "inpaintModel": "google/gemini-3.1-flash-image-preview"
-  }
+  ]
 }

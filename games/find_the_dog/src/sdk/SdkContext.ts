@@ -4,9 +4,10 @@ import {
   type SdkBuildEnv,
   type SdkEnvironments,
 } from '@fabrikav2/sdk';
+import { isRevenueCatIosPublicKey } from '@fabrikav2/sdk/config-env';
 import {
+  AdMobProvider,
   AppLovinMaxProvider,
-  createAdProvider,
   defaultAdProviderFactories,
   type AdProvider as SdkAdProvider,
   type AdProviderFactories,
@@ -15,12 +16,10 @@ import {
 import {
   createAnalytics,
   createConsoleSink,
-  createFirebaseSink,
   createOwnedMirrorSink,
   createRingBufferSink,
   type Analytics,
   type AnalyticsSink,
-  type FirebaseTransport,
   type MirrorTransport,
   type OwnedMirrorSink,
   type RingBufferSink,
@@ -32,12 +31,19 @@ import {
   type RevenueCatPurchasesPlugin,
 } from '@fabrikav2/sdk/iap';
 import {
+  AppsFlyerEventMapper,
+  createAppsFlyerAnalyticsProjection,
+  createLocalStorageDedupeStore,
   AttributionService as SdkAttributionService,
-  createAttributionProvider,
+  readAppsFlyerConfig,
+  readAttributionProviderChoice,
+  selectAttributionProvider,
 } from '@fabrikav2/sdk/attribution';
 import { setMusicPausedForAd } from '../audio/AudioManager';
+import { bootstrapStorage, type BootstrapStorage } from '../platform/bootstrapStorage';
 import { gameState } from '../core/GameState';
 import { readAppLovinConfigForPlatform } from '../ads/AppLovinConfig';
+import { readAdMobIosConfig } from '../ads/AdMobConfig';
 import { configureAdService } from '../ads/Service';
 import {
   analytics,
@@ -69,11 +75,6 @@ import {
 import { buildShopCatalog } from '../shop/ProductCatalog';
 
 type Env = Record<string, string | boolean | undefined>;
-type FirebaseAnalyticsLoader = () => Promise<{
-  FirebaseAnalytics: {
-    logEvent(options: { name: string; params: Record<string, string | number> }): Promise<void>;
-  };
-}>;
 type RevenueCatLoader = () => Promise<unknown>;
 
 export interface SdkProviderSelection {
@@ -95,6 +96,7 @@ export interface GameSdkContext {
   readonly remoteConfig: RemoteConfigService;
   readonly selection: SdkProviderSelection;
   readonly ownedMirrorStats: () => OwnedAnalyticsMirrorStats;
+  readonly storage: BootstrapStorage;
 }
 
 export interface CreateSdkContextDependencies {
@@ -103,11 +105,13 @@ export interface CreateSdkContextDependencies {
   readonly isNativePlatform?: boolean;
   readonly env?: Env;
   readonly resolveEnvironments?: (buildEnv: SdkBuildEnv) => SdkEnvironments;
-  readonly firebaseAnalyticsLoader?: FirebaseAnalyticsLoader;
+  /** Deprecated test seam; Firebase Analytics is intentionally never composed. */
+  readonly firebaseAnalyticsLoader?: () => Promise<unknown>;
   readonly revenueCatLoader?: RevenueCatLoader;
   readonly gameAnalyticsLoader?: GameAnalyticsSdkLoader;
   readonly mirrorTransport?: MirrorTransport;
   readonly adProviderFactories?: AdProviderFactories;
+  readonly storage?: BootstrapStorage;
   readonly logger?: Pick<Console, 'warn'>;
 }
 
@@ -119,58 +123,73 @@ export function createSdkContext(deps: CreateSdkContextDependencies = {}): GameS
   const environments = (deps.resolveEnvironments ?? resolveSdkEnvironments)(buildEnv);
   const platform = normalizePlatform(deps.platform ?? Capacitor.getPlatform());
   const isNativePlatform = deps.isNativePlatform ?? Capacitor.isNativePlatform();
+  const storage = deps.storage ?? bootstrapStorage;
   const logger = deps.logger ?? console;
 
   let analyticsFacade: Analytics<FtdEvent> | null = null;
-  const appLovinConfig: SdkAppLovinConfigResult = readAppLovinConfigForPlatform(
-    platform === 'ios' ? 'ios' : 'android',
-    env,
-  );
+  let forwardAcquisitionValueEvent: (event: Parameters<AppsFlyerEventMapper['map']>[0]) => Promise<boolean> = async () => false;
+  const appLovinConfig: SdkAppLovinConfigResult = readAppLovinConfigForPlatform('android', env);
+  const adMobConfig = readAdMobIosConfig(env);
   const lifecycle = {
     onFullScreenAdStarted: (): void => setMusicPausedForAd(true),
     onFullScreenAdFinished: (): void => setMusicPausedForAd(false),
   };
-  const baseFactories = deps.adProviderFactories;
-  const adFactories: AdProviderFactories | undefined = baseFactories === undefined
-    ? {
-        // FTD ships AppLovin MAX only. The shared selector falls back to AdMob
-        // on Android whenever AppLovin was not requested, so answer that slot
-        // with the disabled provider instead of throwing — a throw here escapes
-        // bootstrap and hangs the app on the splash screen.
-        createAdMobProvider: () => defaultAdProviderFactories.createDisabledProvider(
-          'FTD does not compose AdMob',
-        ),
-        createAppLovinMaxProvider: (config) => new AppLovinMaxProvider(config, {
+  const ads = platform === 'ios'
+    ? isNativePlatform && adMobConfig.enabled
+      ? new AdMobProvider(adMobConfig.config, {
+          lifecycle,
+          onAdRevenuePaid: (event) => forwardAcquisitionValueEvent({
+            type: 'ad_revenue', revenue: event.revenue, currency: event.currency,
+            format: event.format, placement: event.placement, impressionId: event.impressionId,
+          }),
+        })
+      : defaultAdProviderFactories.createDisabledProvider(`AdMob unavailable: ${adMobConfig.enabled ? 'not running on a native platform' : adMobConfig.reason}`)
+    : platform === 'android' && appLovinConfig.enabled
+      ? deps.adProviderFactories?.createAppLovinMaxProvider(appLovinConfig.config, lifecycle) ?? new AppLovinMaxProvider(appLovinConfig.config, {
           lifecycle,
           onAdRevenuePaid: (event): void => {
             analyticsFacade?.track('ad_revenue_paid', { ...event });
           },
-        }),
-        createDisabledProvider: defaultAdProviderFactories.createDisabledProvider,
-      }
-    : baseFactories;
-  const ads = createAdProvider(platform, appLovinConfig, adFactories, lifecycle);
+        })
+      : defaultAdProviderFactories.createDisabledProvider(
+          platform === 'android' && 'reason' in appLovinConfig
+            ? `AppLovin unavailable: ${appLovinConfig.reason}`
+            : `ads disabled on ${platform}`,
+        );
 
   const adjustConfig = readAdjustIosConfig(env, buildEnv === 'production');
   const resolvedAdjustConfig = adjustConfig.enabled
     ? { ...adjustConfig, config: { ...adjustConfig.config, environment: environments.adjust } }
     : adjustConfig;
-  const attributionProvider = createAttributionProvider(platform, resolvedAdjustConfig);
+  const attributionProvider = selectAttributionProvider({
+    platform,
+    preferred: readAttributionProviderChoice(env.VITE_ATTRIBUTION_PROVIDER),
+    adjustConfig: resolvedAdjustConfig,
+    appsFlyerConfig: readAppsFlyerConfig(platform, env, buildEnv === 'production'),
+  });
   const attributionService = new SdkAttributionService(attributionProvider);
+  const appsFlyerDedupe = createLocalStorageDedupeStore(storage);
+  const appsFlyerMapper = new AppsFlyerEventMapper(appsFlyerDedupe);
+  forwardAcquisitionValueEvent = async (event): Promise<boolean> => {
+    const mapped = appsFlyerMapper.map(event);
+    if (mapped === null) return false;
+    const delivered = await attributionService.trackMapped(mapped);
+    appsFlyerMapper.settle(mapped, delivered);
+    return delivered;
+  };
 
   const sinks: AnalyticsSink[] = [];
   if (buildEnv === 'development') sinks.push(createConsoleSink());
   const ring = createRingBufferSink();
   sinks.push(ring);
-
-  // Native Firebase (@capacitor-firebase/analytics) aborts at +[FIRApp configure]
-  // when the build ships no Firebase config. Mirror V1 firebaseOptions(): only
-  // construct the sink on native iOS when API_KEY+PROJECT_ID+APP_ID are all present.
-  if (platform === 'ios' && isNativePlatform && firebaseConfigPresent(env)) {
-    sinks.push(createFirebaseSink(createLazyFirebaseTransport(
-      deps.firebaseAnalyticsLoader ?? (() => import('@capacitor-firebase/analytics')),
-    )));
+  if (attributionProvider.providerName === 'appsflyer') {
+    sinks.push(createAppsFlyerAnalyticsProjection({
+      forward: forwardAcquisitionValueEvent,
+      dedupe: appsFlyerDedupe,
+      storage,
+    }));
   }
+
 
   let ownedMirror: OwnedMirrorSink | null = null;
   let ownedMirrorDisabledReason = 'owned analytics mirror is not configured';
@@ -204,13 +223,21 @@ export function createSdkContext(deps: CreateSdkContextDependencies = {}): GameS
   });
 
   const catalogProducts = () => buildShopCatalog().products.map(ftdCatalogProduct);
-  const revenueCatKey = envString(env.VITE_REVENUECAT_IOS_API_KEY);
+  const rawRevenueCatKey = typeof env.VITE_REVENUECAT_IOS_API_KEY === 'string' ? env.VITE_REVENUECAT_IOS_API_KEY : null;
+  const revenueCatKey = envString(rawRevenueCatKey ?? undefined);
+  if (platform === 'ios' && isNativePlatform && revenueCatKey !== null && !isRevenueCatIosPublicKey(rawRevenueCatKey)) {
+    throw new Error('Native iOS requires a valid RevenueCat iOS public key (appl_ plus 27 alphanumeric characters)');
+  }
+  if (buildEnv === 'production' && platform === 'ios' && isNativePlatform && revenueCatKey === null) {
+    throw new Error('Production native iOS requires owner-controlled VITE_REVENUECAT_IOS_API_KEY');
+  }
   let purchaseProvider: PurchaseProvider;
   let iapSelection: SdkProviderSelection['iap'] = 'fake';
   if (platform === 'ios' && isNativePlatform && revenueCatKey !== null) {
     purchaseProvider = new RevenueCatProvider({
       plugin: createLazyRevenueCatPlugin(deps.revenueCatLoader ?? (() => import('@revenuecat/purchases-capacitor'))),
       catalogProducts,
+      onVerifiedPurchase: (event) => forwardAcquisitionValueEvent({ type: 'purchase_verified', ...event }),
     });
     iapSelection = 'revenuecat';
   } else {
@@ -267,6 +294,7 @@ export function createSdkContext(deps: CreateSdkContextDependencies = {}): GameS
       remoteConfig: firebaseRemoteProvider === undefined ? 'static' : 'firebase',
     },
     ownedMirrorStats,
+    storage,
   };
 }
 
@@ -283,6 +311,8 @@ export function installSdkContext(context: GameSdkContext): GameSdkContext {
     attribution,
     providerName: () => context.ads.providerName,
     ownedMirrorStats: context.ownedMirrorStats,
+    storage: context.storage,
+    storageDurability: context.storage.durability,
   });
   // Drain any achievement analytics recovered from a prior session's outbox now
   // that the real sinks are composed (load() never dispatches — KTD6/correction 1).
@@ -298,30 +328,10 @@ function normalizePlatform(value: string): 'android' | 'ios' | 'web' {
   return value === 'ios' || value === 'android' ? value : 'web';
 }
 
-/** Mirrors V1 firebaseOptions() completeness: the native Firebase SDK requires
- * API_KEY, PROJECT_ID, and APP_ID to configure. Absent any of them, the app must
- * make zero native Firebase touches. */
-function firebaseConfigPresent(env: Env): boolean {
-  return envString(env.VITE_FIREBASE_API_KEY) !== null
-    && envString(env.VITE_FIREBASE_PROJECT_ID) !== null
-    && envString(env.VITE_FIREBASE_APP_ID) !== null;
-}
-
 function envString(value: string | boolean | undefined): string | null {
   if (typeof value !== 'string') return null;
   const trimmed = value.trim();
   return trimmed.length > 0 ? trimmed : null;
-}
-
-function createLazyFirebaseTransport(loader: FirebaseAnalyticsLoader): FirebaseTransport {
-  let load: ReturnType<FirebaseAnalyticsLoader> | null = null;
-  return {
-    async logEvent(name, params): Promise<void> {
-      load ??= loader();
-      const { FirebaseAnalytics } = await load;
-      await FirebaseAnalytics.logEvent({ name, params: { ...params } });
-    },
-  };
 }
 
 async function fetchMirrorTransport(request: Parameters<MirrorTransport>[0]): Promise<{ ok: boolean; status: number }> {

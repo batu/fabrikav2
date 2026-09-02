@@ -8,14 +8,14 @@ const projection = vi.hoisted(() => ({ x: 100, y: 200 }));
 vi.mock("../../src/three/Stage", () => ({
   Stage: class {
     world = { add: vi.fn(), remove: vi.fn() };
-    renderer = { domElement: { setPointerCapture: vi.fn() } };
+    renderer = { domElement: { setPointerCapture: vi.fn() }, forceContextLoss: vi.fn() };
     setViewOffsetYRatio() {}
     setDebugCamera() {}
     frameBoard() {}
     markShadowsDirty() {}
     render() {}
     dispose() {}
-    pickObject() { return null; }
+    pickObject(_x: number, _y: number, objects: unknown[]) { return objects[0] ?? null; }
     pointerToWorld() { return null; }
     worldToClient() { return { ...projection }; }
   },
@@ -23,6 +23,7 @@ vi.mock("../../src/three/Stage", () => ({
 
 interface MockBoardScene {
   disposed: boolean;
+  routePreviewVisible: boolean;
 }
 
 const boardHolder = vi.hoisted(() => ({ last: null as MockBoardScene | null }));
@@ -30,20 +31,23 @@ const boardHolder = vi.hoisted(() => ({ last: null as MockBoardScene | null }));
 vi.mock("../../src/three/BoardScene", () => {
   class MockBoardSceneImpl {
     disposed = false;
+    routePreviewVisible = false;
+    private readonly engine: { allMarbles(): { id: number; cell: Cell }[] };
     private readonly cb: {
       onAbsorbed: (c: unknown) => void;
       onBlockedImpact: (c: unknown) => void;
     };
-    constructor(_engine: unknown, cb: MockBoardSceneImpl["cb"]) {
+    constructor(engine: MockBoardSceneImpl["engine"], cb: MockBoardSceneImpl["cb"]) {
+      this.engine = engine;
       this.cb = cb;
       boardHolder.last = this;
     }
     boardSize() { return { w: 5, d: 5 }; }
     refreshGateLiveness() {}
-    marbleMeshes() { return []; }
-    cellOfMarble() { return null; }
+    marbleMeshes() { return this.engine.allMarbles().map(({ id }) => ({ userData: { marbleId: id } })); }
+    cellOfMarble(id: number) { return this.engine.allMarbles().find((marble) => marble.id === id)?.cell ?? null; }
     worldPositionOfMarble() { return {}; }
-    clearRoutePreview() {}
+    clearRoutePreview() { this.routePreviewVisible = false; }
     isBlockedMarbleAnimating() { return false; }
     // Drive the controller's outcome callbacks the way the real animated board
     // does when a change finishes.
@@ -51,10 +55,10 @@ vi.mock("../../src/three/BoardScene", () => {
       if (change.kind === "rolled") this.cb.onAbsorbed(change);
       else this.cb.onBlockedImpact(change);
     }
-    showRoutePreview() {}
-    showBlockedRoutePreview() {}
+    showRoutePreview() { this.routePreviewVisible = true; }
+    showBlockedRoutePreview() { this.routePreviewVisible = true; }
     pulseHint() {}
-    hasRoutePreview() { return false; }
+    hasRoutePreview() { return this.routePreviewVisible; }
     breakCompletedColor() {}
     dispose() { this.disposed = true; }
     tick() {}
@@ -139,6 +143,32 @@ describe("GameplayController", () => {
       LEVELS[0].cells.join("").replace(/[^RBGYPO]/g, "").length,
     );
     expect(boardHolder.last).not.toBeNull();
+  });
+
+  it("starts an injected LevelDef while the runtime id wrapper still selects committed LEVELS", () => {
+    const injected = { ...LEVELS[0], id: 46, hearts: 2 };
+    const frozen = structuredClone(injected);
+    controller = new GameplayController(container, makeHooks());
+    controller.startLevelDefinition(injected);
+    expect(controller.snapshot().levelId).toBe(46);
+    expect(controller.engineRef()!.totalHearts()).toBe(2);
+    expect(controller.engineRef()!.remainingCount()).toBe(LEVELS[0].cells.join("").replace(/[^RBGYPO]/g, "").length);
+    expect(injected).toEqual(frozen);
+
+    controller.startLevel(46);
+    expect(controller.engineRef()!.remainingCount()).toBe(LEVELS[45]!.cells.join("").replace(/[^RBGYPO]/g, "").length);
+  });
+
+  it("keeps long-press route preview active on injected board geometry", () => {
+    const injected = { ...LEVELS[0], id: 46 };
+    controller = new GameplayController(container, makeHooks());
+    controller.startLevelDefinition(injected);
+    vi.advanceTimersByTime(10_000);
+    const canvas = container.querySelector<HTMLCanvasElement>(".mr-three-canvas")!;
+    canvas.dispatchEvent(new PointerEvent("pointerdown", { pointerId: 7, clientX: 100, clientY: 200 }));
+    vi.advanceTimersByTime(1_300);
+    expect(boardHolder.last?.routePreviewVisible).toBe(true);
+    expect(controller.snapshot().routePreviewVisible).toBe(true);
   });
 
   it("applies the engine change and plays the absorb cue on a routable tap", () => {
@@ -256,6 +286,7 @@ describe("GameplayController", () => {
     const board = boardHolder.last!;
     controller.dispose();
     expect(board.disposed).toBe(true);
+    expect(controller.stage.renderer.forceContextLoss).toHaveBeenCalledTimes(1);
     expect(controller.engineRef()).toBeNull();
     expect(container.querySelector(".mr-three-canvas")).toBeNull();
     controller = null;

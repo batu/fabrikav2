@@ -1,572 +1,472 @@
 {
   "id": "railway_roundhouse_garden_rail_museum_bird_1bc3",
-  "name": "Level railway_roundhouse_garden_rail_museum_bird_1bc3",
+  "name": "Level railway_roundhouse_garden_rail_museum_bird_1bc3 (clean_old_cartoon)",
   "width": 2688,
   "height": 2688,
+  "bwImage": "levels/railway_roundhouse_garden_rail_museum_bird_1bc3/bw.png",
   "colorImage": "levels/railway_roundhouse_garden_rail_museum_bird_1bc3/color.png",
-  "artifactRevision": "sha256:02201642871c3552004f98f5679955df92f88271651850e95cf9d53b6bc72450",
-  "compatibilityAliases": {
-    "dog_00": "75d8a1be-d65a-5619-a839-bce7224148ba",
-    "dog_01": "8474cd16-a1eb-5ec3-9aab-74f342245923",
-    "dog_06": "5e73d462-ce5f-59b1-b25d-e6a7855cc91c",
-    "dog_07": "63d639d4-aeeb-504e-b27d-869ebfa5005f",
-    "dog_08": "b841b66f-55c3-579b-bd1c-3352e3f420da",
-    "dog_09": "20db385d-8cd9-525d-b27c-89fe7774fb9e",
-    "dog_02": "cbb1a4a3-dd52-5369-a1e7-0a7028b171f3",
-    "dog_03": "ae638906-a422-5a87-a50e-76fa6d6ee26e",
-    "dog_04": "7d3f50f4-59c7-5f69-b724-85e8e7fc66aa",
-    "dog_05": "b24521e3-dd7e-529a-b9f2-6d706a85a0bf",
-    "dog_10": "50f7d665-3593-52f8-af72-8b84d02555c3",
-    "dog_13": "95e08817-b599-50ac-aacd-61686b54550c",
-    "dog_12": "775206ae-8d80-5435-99e8-a296eac96d79",
-    "dog_11": "55f219ff-5aa5-5455-bcc8-2d5d922afa57",
-    "dog_14": "15b50b6e-b629-55c5-bc0b-449ab8db5c3e",
-    "dog_15": "6df60dcd-b615-526e-8b51-092e266c29fc",
-    "dog_16": "e205a073-68d8-576a-bf6e-84185b9029ad",
-    "dog_18": "7e340609-69d5-5cdf-9f20-f20661298255",
-    "dog_17": "853a781c-9ddf-5976-868f-b18df5479777",
-    "dog_21": "d29ae197-77c5-5eed-9e0f-52979e568d5c",
-    "dog_20": "2a08fc57-c94b-5ce6-b6dc-cbc695914ff0",
-    "dog_19": "d3269225-953c-5c56-b767-31271200f773"
-  },
   "dogs": [
     {
-      "id": "75d8a1be-d65a-5619-a839-bce7224148ba",
-      "compatibilitySlot": "dog_00",
-      "x": 1445,
-      "y": 668,
+      "id": "dog_00",
+      "x": 1422,
+      "y": 660,
       "r": 57,
       "sprite": {
         "image": "levels/railway_roundhouse_garden_rail_museum_bird_1bc3/dogs/dog_00/sprite_000.png",
-        "height": 152,
-        "width": 200,
         "x": 1308,
         "y": 589,
+        "width": 200,
+        "height": 152,
         "cleanup": {
-          "x": 1259,
-          "y": 508,
-          "width": 321,
-          "height": 259
+          "x": 1288,
+          "y": 497,
+          "width": 300,
+          "height": 270
         },
-        "anchorX": 0.685,
-        "anchorY": 0.5197,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.57,
+        "anchorY": 0.4671
       }
     },
     {
-      "id": "8474cd16-a1eb-5ec3-9aab-74f342245923",
-      "compatibilitySlot": "dog_01",
-      "x": 942,
-      "y": 734,
+      "id": "dog_01",
+      "x": 931,
+      "y": 728,
       "r": 57,
       "sprite": {
         "image": "levels/railway_roundhouse_garden_rail_museum_bird_1bc3/dogs/dog_01/sprite_000.png",
-        "height": 117,
-        "width": 180,
         "x": 827,
         "y": 683,
+        "width": 180,
+        "height": 117,
         "cleanup": {
-          "x": 758,
-          "y": 558,
+          "x": 735,
+          "y": 549,
           "width": 345,
-          "height": 261
+          "height": 291
         },
-        "anchorX": 0.6389,
-        "anchorY": 0.4359,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.5778,
+        "anchorY": 0.3846
       }
     },
     {
-      "id": "5e73d462-ce5f-59b1-b25d-e6a7855cc91c",
-      "compatibilitySlot": "dog_06",
-      "x": 1013,
-      "y": 981,
-      "r": 57,
-      "sprite": {
-        "image": "levels/railway_roundhouse_garden_rail_museum_bird_1bc3/dogs/dog_06/sprite_000.png",
-        "height": 152,
-        "width": 186,
-        "x": 958,
-        "y": 914,
-        "cleanup": {
-          "x": 864,
-          "y": 863,
-          "width": 293,
-          "height": 247
-        },
-        "anchorX": 1.0,
-        "anchorY": 0.6642,
-        "flipX": true,
-        "flipY": false
-      }
-    },
-    {
-      "id": "63d639d4-aeeb-504e-b27d-869ebfa5005f",
-      "compatibilitySlot": "dog_07",
-      "x": 474,
-      "y": 1091,
-      "r": 57,
-      "sprite": {
-        "image": "levels/railway_roundhouse_garden_rail_museum_bird_1bc3/dogs/dog_07/sprite_000.png",
-        "height": 130,
-        "width": 181,
-        "x": 360,
-        "y": 1025,
-        "cleanup": {
-          "x": 352,
-          "y": 1010,
-          "width": 255,
-          "height": 311
-        },
-        "anchorX": 0.4806,
-        "anchorY": 0.0,
-        "flipX": false,
-        "flipY": false
-      }
-    },
-    {
-      "id": "b841b66f-55c3-579b-bd1c-3352e3f420da",
-      "compatibilitySlot": "dog_08",
-      "x": 875,
-      "y": 1169,
-      "r": 57,
-      "sprite": {
-        "image": "levels/railway_roundhouse_garden_rail_museum_bird_1bc3/dogs/dog_08/sprite_000.png",
-        "height": 142,
-        "width": 159,
-        "x": 772,
-        "y": 1125,
-        "cleanup": {
-          "x": 704,
-          "y": 1091,
-          "width": 281,
-          "height": 237
-        },
-        "anchorX": 0.405,
-        "anchorY": 0.7456,
-        "flipX": false,
-        "flipY": false
-      }
-    },
-    {
-      "id": "20db385d-8cd9-525d-b27c-89fe7774fb9e",
-      "compatibilitySlot": "dog_09",
-      "x": 659,
-      "y": 1348,
-      "r": 57,
-      "sprite": {
-        "image": "levels/railway_roundhouse_garden_rail_museum_bird_1bc3/dogs/dog_09/sprite_000.png",
-        "height": 164,
-        "width": 156,
-        "x": 575,
-        "y": 1280,
-        "cleanup": {
-          "x": 534,
-          "y": 1209,
-          "width": 251,
-          "height": 277
-        },
-        "anchorX": 0.5385,
-        "anchorY": 0.4146,
-        "flipX": false,
-        "flipY": false
-      }
-    },
-    {
-      "id": "cbb1a4a3-dd52-5369-a1e7-0a7028b171f3",
-      "compatibilitySlot": "dog_02",
+      "id": "dog_02",
       "x": 1717,
       "y": 894,
       "r": 57,
       "sprite": {
         "image": "levels/railway_roundhouse_garden_rail_museum_bird_1bc3/dogs/dog_02/sprite_000.png",
-        "height": 147,
-        "width": 227,
         "x": 1600,
         "y": 821,
+        "width": 227,
+        "height": 147,
         "cleanup": {
-          "x": 1544,
-          "y": 781,
-          "width": 345,
-          "height": 227
+          "x": 1590,
+          "y": 721,
+          "width": 285,
+          "height": 288
         },
         "anchorX": 0.5154,
-        "anchorY": 0.4966,
-        "flipX": false,
-        "flipY": false
+        "anchorY": 0.4966
       }
     },
     {
-      "id": "ae638906-a422-5a87-a50e-76fa6d6ee26e",
-      "compatibilitySlot": "dog_03",
+      "id": "dog_03",
       "x": 2049,
       "y": 953,
       "r": 57,
       "sprite": {
         "image": "levels/railway_roundhouse_garden_rail_museum_bird_1bc3/dogs/dog_03/sprite_000.png",
-        "height": 175,
-        "width": 162,
         "x": 1976,
         "y": 852,
+        "width": 162,
+        "height": 175,
         "cleanup": {
-          "x": 1878,
-          "y": 816,
-          "width": 342,
-          "height": 274
+          "x": 1929,
+          "y": 804,
+          "width": 255,
+          "height": 311
         },
         "anchorX": 0.4506,
-        "anchorY": 0.5771,
-        "flipX": false,
-        "flipY": false
+        "anchorY": 0.5771
       }
     },
     {
-      "id": "7d3f50f4-59c7-5f69-b724-85e8e7fc66aa",
-      "compatibilitySlot": "dog_04",
-      "x": 1668,
-      "y": 1132,
+      "id": "dog_04",
+      "x": 1666,
+      "y": 1136,
       "r": 57,
       "sprite": {
         "image": "levels/railway_roundhouse_garden_rail_museum_bird_1bc3/dogs/dog_04/sprite_000.png",
-        "height": 140,
-        "width": 185,
         "x": 1579,
         "y": 1071,
+        "width": 185,
+        "height": 140,
         "cleanup": {
-          "x": 1557,
-          "y": 1008,
-          "width": 219,
-          "height": 256
+          "x": 1544,
+          "y": 1016,
+          "width": 262,
+          "height": 248
         },
         "anchorX": 0.4703,
-        "anchorY": 0.4643,
-        "flipX": false,
-        "flipY": false
+        "anchorY": 0.4643
       }
     },
     {
-      "id": "b24521e3-dd7e-529a-b9f2-6d706a85a0bf",
-      "compatibilitySlot": "dog_05",
-      "x": 1426,
-      "y": 1187,
+      "id": "dog_05",
+      "x": 1402,
+      "y": 1199,
       "r": 57,
       "sprite": {
         "image": "levels/railway_roundhouse_garden_rail_museum_bird_1bc3/dogs/dog_05/sprite_000.png",
-        "height": 138,
-        "width": 190,
         "x": 1329,
         "y": 1136,
+        "width": 190,
+        "height": 138,
         "cleanup": {
-          "x": 1280,
-          "y": 1073,
-          "width": 243,
-          "height": 252
+          "x": 1293,
+          "y": 1026,
+          "width": 249,
+          "height": 283
         },
         "anchorX": 0.3842,
-        "anchorY": 0.4565,
-        "flipX": false,
-        "flipY": false
+        "anchorY": 0.4565
       }
     },
     {
-      "id": "50f7d665-3593-52f8-af72-8b84d02555c3",
-      "compatibilitySlot": "dog_10",
-      "x": 1134,
-      "y": 1401,
+      "id": "dog_06",
+      "x": 1010,
+      "y": 987,
+      "r": 57,
+      "sprite": {
+        "image": "levels/railway_roundhouse_garden_rail_museum_bird_1bc3/dogs/dog_06/sprite_000.png",
+        "x": 865,
+        "y": 896,
+        "width": 145,
+        "height": 137,
+        "cleanup": {
+          "x": 794,
+          "y": 844,
+          "width": 345,
+          "height": 230
+        },
+        "anchorX": 1.0,
+        "anchorY": 0.6642
+      }
+    },
+    {
+      "id": "dog_07",
+      "x": 476,
+      "y": 1085,
+      "r": 57,
+      "sprite": {
+        "image": "levels/railway_roundhouse_garden_rail_museum_bird_1bc3/dogs/dog_07/sprite_000.png",
+        "x": 445,
+        "y": 1153,
+        "width": 129,
+        "height": 109,
+        "cleanup": {
+          "x": 307,
+          "y": 972,
+          "width": 345,
+          "height": 273
+        },
+        "anchorX": 0.2713,
+        "anchorY": 0.1101
+      }
+    },
+    {
+      "id": "dog_08",
+      "x": 844,
+      "y": 1210,
+      "r": 57,
+      "sprite": {
+        "image": "levels/railway_roundhouse_garden_rail_museum_bird_1bc3/dogs/dog_08/sprite_000.png",
+        "x": 795,
+        "y": 1125,
+        "width": 121,
+        "height": 114,
+        "cleanup": {
+          "x": 758,
+          "y": 1076,
+          "width": 249,
+          "height": 270
+        },
+        "anchorX": 0.405,
+        "anchorY": 0.7456
+      }
+    },
+    {
+      "id": "dog_09",
+      "x": 659,
+      "y": 1348,
+      "r": 57,
+      "sprite": {
+        "image": "levels/railway_roundhouse_garden_rail_museum_bird_1bc3/dogs/dog_09/sprite_000.png",
+        "x": 575,
+        "y": 1280,
+        "width": 156,
+        "height": 164,
+        "cleanup": {
+          "x": 523,
+          "y": 1247,
+          "width": 233,
+          "height": 251
+        },
+        "anchorX": 0.5385,
+        "anchorY": 0.4146
+      }
+    },
+    {
+      "id": "dog_10",
+      "x": 1133,
+      "y": 1402,
       "r": 57,
       "sprite": {
         "image": "levels/railway_roundhouse_garden_rail_museum_bird_1bc3/dogs/dog_10/sprite_000.png",
-        "height": 176,
-        "width": 200,
-        "x": 1029,
-        "y": 1319,
+        "x": 987,
+        "y": 1301,
+        "width": 250,
+        "height": 204,
         "cleanup": {
-          "x": 1005,
-          "y": 1276,
-          "width": 285,
-          "height": 250
+          "x": 1008,
+          "y": 1229,
+          "width": 283,
+          "height": 298
         },
-        "anchorX": 0.588,
-        "anchorY": 0.4902,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.584,
+        "anchorY": 0.4951
       }
     },
     {
-      "id": "95e08817-b599-50ac-aacd-61686b54550c",
-      "compatibilitySlot": "dog_13",
-      "x": 1688,
-      "y": 1326,
-      "r": 57,
-      "sprite": {
-        "image": "levels/railway_roundhouse_garden_rail_museum_bird_1bc3/dogs/dog_13/sprite_000.png",
-        "height": 139,
-        "width": 181,
-        "x": 1589,
-        "y": 1268,
-        "cleanup": {
-          "x": 1551,
-          "y": 1178,
-          "width": 295,
-          "height": 297
-        },
-        "anchorX": 0.6311,
-        "anchorY": 0.4974,
-        "flipX": false,
-        "flipY": false
-      }
-    },
-    {
-      "id": "775206ae-8d80-5435-99e8-a296eac96d79",
-      "compatibilitySlot": "dog_12",
-      "x": 1517,
-      "y": 1442,
-      "r": 57,
-      "sprite": {
-        "image": "levels/railway_roundhouse_garden_rail_museum_bird_1bc3/dogs/dog_12/sprite_000.png",
-        "height": 156,
-        "width": 194,
-        "x": 1430,
-        "y": 1378,
-        "cleanup": {
-          "x": 1398,
-          "y": 1314,
-          "width": 203,
-          "height": 306
-        },
-        "anchorX": 0.4444,
-        "anchorY": 0.4176,
-        "flipX": false,
-        "flipY": false
-      }
-    },
-    {
-      "id": "55f219ff-5aa5-5455-bcc8-2d5d922afa57",
-      "compatibilitySlot": "dog_11",
+      "id": "dog_11",
       "x": 1277,
-      "y": 1654,
+      "y": 1655,
       "r": 57,
       "sprite": {
         "image": "levels/railway_roundhouse_garden_rail_museum_bird_1bc3/dogs/dog_11/sprite_000.png",
-        "height": 163,
-        "width": 179,
-        "x": 1175,
-        "y": 1580,
+        "x": 1143,
+        "y": 1565,
+        "width": 232,
+        "height": 207,
         "cleanup": {
-          "x": 1147,
-          "y": 1534,
-          "width": 261,
-          "height": 242
+          "x": 1104,
+          "y": 1529,
+          "width": 289,
+          "height": 298
         },
         "anchorX": 0.5776,
-        "anchorY": 0.4348,
-        "flipX": false,
-        "flipY": false
+        "anchorY": 0.4348
       }
     },
     {
-      "id": "15b50b6e-b629-55c5-bc0b-449ab8db5c3e",
-      "compatibilitySlot": "dog_14",
-      "x": 646,
-      "y": 1754,
+      "id": "dog_12",
+      "x": 1511,
+      "y": 1436,
+      "r": 57,
+      "sprite": {
+        "image": "levels/railway_roundhouse_garden_rail_museum_bird_1bc3/dogs/dog_12/sprite_000.png",
+        "x": 1400,
+        "y": 1362,
+        "width": 261,
+        "height": 182,
+        "cleanup": {
+          "x": 1395,
+          "y": 1311,
+          "width": 200,
+          "height": 297
+        },
+        "anchorX": 0.4253,
+        "anchorY": 0.4066
+      }
+    },
+    {
+      "id": "dog_13",
+      "x": 1699,
+      "y": 1327,
+      "r": 57,
+      "sprite": {
+        "image": "levels/railway_roundhouse_garden_rail_museum_bird_1bc3/dogs/dog_13/sprite_000.png",
+        "x": 1558,
+        "y": 1240,
+        "width": 244,
+        "height": 195,
+        "cleanup": {
+          "x": 1597,
+          "y": 1266,
+          "width": 256,
+          "height": 247
+        },
+        "anchorX": 0.5779,
+        "anchorY": 0.4462
+      }
+    },
+    {
+      "id": "dog_14",
+      "x": 660,
+      "y": 1753,
       "r": 57,
       "sprite": {
         "image": "levels/railway_roundhouse_garden_rail_museum_bird_1bc3/dogs/dog_14/sprite_000.png",
-        "height": 213,
-        "width": 197,
         "x": 560,
         "y": 1639,
+        "width": 196,
+        "height": 213,
         "cleanup": {
-          "x": 478,
-          "y": 1563,
-          "width": 233,
+          "x": 464,
+          "y": 1565,
+          "width": 241,
           "height": 345
         },
-        "anchorX": 0.4365,
-        "anchorY": 0.5399,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.5102,
+        "anchorY": 0.5352
       }
     },
     {
-      "id": "6df60dcd-b615-526e-8b51-092e266c29fc",
-      "compatibilitySlot": "dog_15",
-      "x": 778,
-      "y": 1698,
+      "id": "dog_15",
+      "x": 809,
+      "y": 1682,
       "r": 57,
       "sprite": {
         "image": "levels/railway_roundhouse_garden_rail_museum_bird_1bc3/dogs/dog_15/sprite_000.png",
-        "height": 219,
-        "width": 269,
-        "x": 624,
+        "x": 616,
         "y": 1625,
+        "width": 287,
+        "height": 219,
         "cleanup": {
-          "x": 621,
-          "y": 1541,
-          "width": 314,
-          "height": 314
+          "x": 707,
+          "y": 1525,
+          "width": 250,
+          "height": 345
         },
-        "anchorX": 0.5725,
-        "anchorY": 0.3333,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.6725,
+        "anchorY": 0.2603
       }
     },
     {
-      "id": "e205a073-68d8-576a-bf6e-84185b9029ad",
-      "compatibilitySlot": "dog_16",
+      "id": "dog_16",
       "x": 577,
       "y": 2053,
       "r": 57,
       "sprite": {
         "image": "levels/railway_roundhouse_garden_rail_museum_bird_1bc3/dogs/dog_16/sprite_000.png",
-        "height": 168,
-        "width": 193,
-        "x": 469,
-        "y": 1966,
+        "x": 427,
+        "y": 1956,
+        "width": 243,
+        "height": 194,
         "cleanup": {
           "x": 427,
           "y": 1923,
           "width": 284,
           "height": 251
         },
-        "anchorX": 0.5761,
-        "anchorY": 0.5773,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.6173,
+        "anchorY": 0.5
       }
     },
     {
-      "id": "7e340609-69d5-5cdf-9f20-f20661298255",
-      "compatibilitySlot": "dog_18",
+      "id": "dog_17",
+      "x": 1011,
+      "y": 2104,
+      "r": 57,
+      "sprite": {
+        "image": "levels/railway_roundhouse_garden_rail_museum_bird_1bc3/dogs/dog_17/sprite_000.png",
+        "x": 885,
+        "y": 2013,
+        "width": 257,
+        "height": 188,
+        "cleanup": {
+          "x": 838,
+          "y": 1931,
+          "width": 345,
+          "height": 302
+        },
+        "anchorX": 0.4903,
+        "anchorY": 0.484
+      }
+    },
+    {
+      "id": "dog_18",
       "x": 988,
       "y": 2365,
       "r": 57,
       "sprite": {
         "image": "levels/railway_roundhouse_garden_rail_museum_bird_1bc3/dogs/dog_18/sprite_000.png",
-        "height": 152,
-        "width": 224,
         "x": 880,
         "y": 2289,
+        "width": 224,
+        "height": 152,
         "cleanup": {
           "x": 815,
-          "y": 2213,
-          "width": 345,
-          "height": 304
+          "y": 2236,
+          "width": 342,
+          "height": 277
         },
         "anchorX": 0.4821,
-        "anchorY": 0.5,
-        "flipX": false,
-        "flipY": false
+        "anchorY": 0.5
       }
     },
     {
-      "id": "853a781c-9ddf-5976-868f-b18df5479777",
-      "compatibilitySlot": "dog_17",
-      "x": 999,
-      "y": 2101,
+      "id": "dog_19",
+      "x": 1676,
+      "y": 2213,
       "r": 57,
       "sprite": {
-        "image": "levels/railway_roundhouse_garden_rail_museum_bird_1bc3/dogs/dog_17/sprite_000.png",
-        "height": 188,
-        "width": 257,
-        "x": 885,
-        "y": 2013,
+        "image": "levels/railway_roundhouse_garden_rail_museum_bird_1bc3/dogs/dog_19/sprite_000.png",
+        "x": 1571,
+        "y": 2052,
+        "width": 275,
+        "height": 202,
         "cleanup": {
-          "x": 840,
-          "y": 1964,
-          "width": 342,
-          "height": 279
-        },
-        "anchorX": 0.4903,
-        "anchorY": 0.484,
-        "flipX": false,
-        "flipY": false
-      }
-    },
-    {
-      "id": "d29ae197-77c5-5eed-9e0f-52979e568d5c",
-      "compatibilitySlot": "dog_21",
-      "x": 1871,
-      "y": 1605,
-      "r": 57,
-      "sprite": {
-        "image": "levels/railway_roundhouse_garden_rail_museum_bird_1bc3/dogs/dog_21/sprite_000.png",
-        "height": 168,
-        "width": 218,
-        "x": 1747,
-        "y": 1508,
-        "cleanup": {
-          "x": 1697,
-          "y": 1429,
+          "x": 1503,
+          "y": 2040,
           "width": 345,
-          "height": 340
+          "height": 345
         },
-        "anchorX": 0.5642,
-        "anchorY": 0.5417,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.3818,
+        "anchorY": 0.797
       }
     },
     {
-      "id": "2a08fc57-c94b-5ce6-b6dc-cbc695914ff0",
-      "compatibilitySlot": "dog_20",
-      "x": 1712,
+      "id": "dog_20",
+      "x": 1717,
       "y": 1894,
       "r": 57,
       "sprite": {
         "image": "levels/railway_roundhouse_garden_rail_museum_bird_1bc3/dogs/dog_20/sprite_000.png",
-        "height": 143,
-        "width": 241,
         "x": 1595,
         "y": 1826,
+        "width": 241,
+        "height": 143,
         "cleanup": {
-          "x": 1541,
-          "y": 1748,
+          "x": 1537,
+          "y": 1752,
           "width": 345,
-          "height": 280
+          "height": 271
         },
-        "anchorX": 0.4855,
-        "anchorY": 0.4755,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.5062,
+        "anchorY": 0.4755
       }
     },
     {
-      "id": "d3269225-953c-5c56-b767-31271200f773",
-      "compatibilitySlot": "dog_19",
-      "x": 1678,
-      "y": 2205,
+      "id": "dog_21",
+      "x": 1870,
+      "y": 1599,
       "r": 57,
       "sprite": {
-        "image": "levels/railway_roundhouse_garden_rail_museum_bird_1bc3/dogs/dog_19/sprite_000.png",
-        "height": 230,
-        "width": 296,
-        "x": 1568,
-        "y": 2026,
+        "image": "levels/railway_roundhouse_garden_rail_museum_bird_1bc3/dogs/dog_21/sprite_000.png",
+        "x": 1747,
+        "y": 1508,
+        "width": 218,
+        "height": 168,
         "cleanup": {
-          "x": 1503,
-          "y": 2093,
+          "x": 1708,
+          "y": 1515,
           "width": 345,
-          "height": 239
+          "height": 235
         },
-        "anchorX": 0.3927,
-        "anchorY": 0.7871,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.5642,
+        "anchorY": 0.5417
       }
     }
-  ],
-  "provenance": {
-    "setting": "railway_roundhouse",
-    "scene": "railway_roundhouse_garden_rail_museum",
-    "entity": "bird",
-    "style": "clean_old_cartoon",
-    "scenePrompt": "[Purpose]\nCreate a full-bleed mobile-game background for Find the Bird.\n\n[Short Description]\nA garden rail museum sprawling through hedged grounds arranged as an organic isometric hidden-object scene.\n\n[Scene] A garden rail museum sprawling through hedged grounds \u2014 a main lawn with exhibited engines, a side gravel path branching between flowerbeds, a miniature-railway strip looping off around a pond. The entire ground surface is consistent lawn, gravel path, and narrow-gauge track throughout \u2014 every area the viewer can see the ground, it reads as mown grass, raked gravel, or tiny rails in ballast with no untextured blank areas. Retired locomotives of varying sizes sit unevenly across the lawns, some clustered nose-to-tail on display track, others standing alone on plinths. Boiler tops and cab roofs at different heights, some overlapping the hedges, some freestanding. A signal gantry spans the main path at an unexpected angle, repurposed as a rose arch. Scattered throughout without pattern: brass nameplates on posts, a ticket kiosk with striped awning, picnic benches, a miniature steam engine pulling empty carriages, flower planters made from wheelbarrows,signal levers in a glass case, a water crane dribbling into a barrel, painted milestones, a bandstand, vintage station signs on the hedge, watering cans, a wheelbarrow of coal for the miniature line, topiary shaped like an engine, lamp posts from five different stations, a guard's van serving as a tea shop, croquet hoops on the lawn. Dense clusters around the exhibited engines, sparser breathing room along the pond loop. Asymmetric, organic layout \u2014 like a museum assembled by volunteers who each loved a different railway.\n\n[View] Moderately elevated three-quarter game-map view with a close, readable mobile-game camera: roughly 35 degrees down from horizontal, with only enough scene visible to support about 20 hidden bird placements. Do not use an extreme aerial, distant establishing, miniature-diorama, or whole-city view. Large scene anchors should occupy substantial frame area, and ordinary props must remain individually recognizable at phone size. Use controlled hidden-object density: arrange approximately 20 plausible hiding pockets across 4 to 6 connected prop clusters, with visible breathing room, clear travel paths between clusters, and readable object boundaries for phone-screen scanning. Use mild perspective or near-isometric construction consistently, without wide-angle distortion, dramatic foreshortening, depth of field, or tiny distance-scaled clutter.\n\n[Style] Vintage hand-drawn cartoon background adapted for a modern mobile puzzle game. Rounded old-cartoon shapes, cheerful simplified silhouettes, thick confident ink outlines, flat poster-like color fills, and soft hand-painted background texture. Use broad readable color masses and minimal internal linework so the scene stays clear on a phone screen. Charming and slightly nostalgic, clean and polished for mobile, with less visual noise, fewer texture marks, and no dense rendering.\n\n[Gameplay Composition]\nDesign this as a production hidden-object background where birds will be added later. Create many plausible hiding pockets on walkable/contact surfaces or open gaps beside props, plants, rocks, furniture, railings, crates, planters, benches, roots, tools, shelves, stalls, boats, carts, market goods, or other readable foreground objects. Near props is ideal; inside solid objects, on blank walls, on roofs, floating over water, or on decorative vertical faces is not useful. Use theme-specific spatial logic such as rings, islands, terraces, nested rooms, clearings, bridges, piers, shelves, courtyards, side alleys, garden pockets, or clustered market zones. Keep open pockets between prop clusters so hitboxes can sit near objects without excessive overlap.\n\n[Constraints]\nDo not depict any bird; every bird is added during the later gameplay pass. No people, no live animals, no insects, no mascots, no readable text, no logos, no watermarks. Signs, chalkboards, labels, plaques, and boards named in the scene may appear but must show only illegible marks, squiggles, or blank surfaces \u2014 never legible words or letters. Market food and fishing props are allowed when the scene calls for them. Avoid huge blank walls, roof-dominated compositions, large featureless empty lawns, empty sand, empty floors, long straight roads, and noisy micro-texture camouflage. Every visible ground, floor, or water-edge region should read as a clear material appropriate to the scene; no untextured blank areas.",
-    "entityPrompt": "Add exactly one bird to this crop. Place exactly one bird centered on the marked target area \u2014 do not repeat the subject. Match the scene's illustration style, line weight, palette, and flat-shaded rendering, but keep the bird's silhouette and boundary readable on a phone screen. The bird may be partially occluded or contextually disguised, but must not disappear through muddy edges, low contrast, texture camouflage, or ambiguous merged shapes. Vary the bird's colors, markings, proportions, and small physical details across crops so the level does not repeat the same bird design. The bird is a charming little anthropomorphic inhabitant of this world \u2014 a character with personality going about its business. Give it something simple and specific to do with its surroundings: holding an object, using a tool, sitting at a small task, peeking at something, carrying something, watching something with interest, tending a small thing, pausing mid-task. Keep the pose clear and readable. The charm comes from the context and the expression, not from dynamic motion. Size the bird realistically relative to the scene around it \u2014 compare it to whatever human-scale objects are visible in the crop and render the bird at the physical size a real bird would be next to them. Not so small that its species is ambiguous, not so large that it dominates the crop. The bird must be fully contained within the visible frame. Keep all other elements of the image unchanged.",
-    "bgModel": "google/gemini-3.1-flash-image-preview",
-    "inpaintModel": "google/gemini-3.1-flash-image-preview"
-  }
+  ]
 }

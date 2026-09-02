@@ -1,9 +1,10 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-const EXPECTED_SKAD_COUNT = 152;
 const GAME_NAME = /^[a-z0-9_]+$/;
 const SKAD_ID = /^[a-z0-9]{10}\.skadnetwork$/;
+const ADMOB_APP_ID = /^ca-app-pub-(\d{16})~\d{10}$/;
+const GOOGLE_SAMPLE_PUBLISHER = '3940256099942544';
 const FIREBASE_PLIST = 'GoogleService-Info.plist';
 
 // Stable PBX identity for the Crashlytics dSYM upload phase. Crashlytics hides
@@ -333,7 +334,7 @@ function ensureBuildSettings(content, manifest) {
 export function patchPbxproj(content, manifest, { googleServicePresent = false } = {}) {
   const desiredSources = new Set(nativeFilesFor(manifest).flatMap((file) => [file.buildId, file.refId]));
   const staleSourceIds = Object.values(nativeFileIds).flatMap((file) => [file.buildId, file.refId]).filter((id) => !desiredSources.has(id));
-  const hasTrackingProviders = manifest.ios.swiftSources.some((name) => ['AppLovinMaxPlugin.swift', 'AdjustAttributionPlugin.swift', 'AppsFlyerAttributionPlugin.swift', 'MetaEventsPlugin.swift'].includes(name));
+  const hasTrackingProviders = manifest.ios.swiftSources.some((name) => ['AppLovinMaxPlugin.swift', 'AdjustAttributionPlugin.swift', 'MetaEventsPlugin.swift'].includes(name));
   let next = removeWiring(content, staleSourceIds);
   if (!hasTrackingProviders) next = removeWiring(next, frameworks.flatMap(([, buildId, refId]) => [buildId, refId]));
   for (const file of nativeFilesFor(manifest)) next = wireSource(next, file);
@@ -370,10 +371,11 @@ function removePlistEntry(content, key) {
   return content.replace(pattern, '');
 }
 
-export function patchInfoPlist(content, manifest, skAdIds) {
+export function patchInfoPlist(content, manifest, skAdIds, { adMobApplicationId } = {}) {
   const usesAdNetworks = Boolean(manifest.ios.skAdNetworkCatalog);
-  if (usesAdNetworks && (skAdIds.length !== EXPECTED_SKAD_COUNT || new Set(skAdIds).size !== EXPECTED_SKAD_COUNT)) {
-    throw new Error(`SKAdNetwork catalog must contain exactly ${EXPECTED_SKAD_COUNT} unique identifiers`);
+  const expectedCount = manifest.ios.skAdNetworkExpectedCount ?? 152;
+  if (usesAdNetworks && (skAdIds.length !== expectedCount || new Set(skAdIds).size !== expectedCount)) {
+    throw new Error(`SKAdNetwork catalog must contain exactly ${expectedCount} unique identifiers`);
   }
   if (!usesAdNetworks && skAdIds.length) throw new Error('provider-free shell cannot contain SKAdNetwork identifiers');
   let next = content;
@@ -383,6 +385,9 @@ export function patchInfoPlist(content, manifest, skAdIds) {
     : removePlistEntry(next, 'NSUserTrackingUsageDescription');
   next = replacePlistEntry(next, 'ITSAppUsesNonExemptEncryption', '<false/>');
   next = replacePlistEntry(next, 'GOOGLE_ANALYTICS_IDFV_COLLECTION_ENABLED', '<false/>');
+  next = manifest.ios.adMobApplicationIdEnv
+    ? replacePlistEntry(next, 'GADApplicationIdentifier', `<string>${adMobApplicationId}</string>`)
+    : removePlistEntry(next, 'GADApplicationIdentifier');
   const portrait = '<array>\n\t\t<string>UIInterfaceOrientationPortrait</string>\n\t</array>';
   next = replacePlistEntry(next, 'UISupportedInterfaceOrientations', portrait);
   next = replacePlistEntry(next, 'UISupportedInterfaceOrientations~ipad', portrait);
@@ -450,12 +455,42 @@ function loadContext(repoRoot, game) {
   const catalogPath = manifest.ios.skAdNetworkCatalog ? path.join(recipeDir, manifest.ios.skAdNetworkCatalog) : null;
   if (catalogPath) requireFile(catalogPath, 'SKAdNetwork catalog');
   const ids = catalogPath ? (readJson(catalogPath).skadnetwork_ids?.map((entry) => entry.skadnetwork_id) ?? []) : [];
-  return { gameDir, recipeDir, manifest, ids };
+  const publicConfigPath = manifest.ios.adMobPublicConfig ? path.join(recipeDir, manifest.ios.adMobPublicConfig) : null;
+  if (publicConfigPath) requireFile(publicConfigPath, 'AdMob public config');
+  const publicConfig = publicConfigPath ? readJson(publicConfigPath) : null;
+  const runtimeManifest = resolveRuntimeAdMobManifest(manifest, process.env, publicConfig);
+  const adMobEnabled = runtimeManifest === manifest;
+  const runtimeIds = adMobEnabled ? ids : [];
+  const adMobApplicationId = runtimeManifest.ios.adMobApplicationIdEnv
+    ? process.env[runtimeManifest.ios.adMobApplicationIdEnv]?.trim() || publicConfig?.appId?.trim()
+    : undefined;
+  return { gameDir, recipeDir, manifest, ids, runtimeManifest, runtimeIds, adMobApplicationId };
 }
 
-function validateCatalog(ids, issues) {
+export function resolveRuntimeAdMobManifest(manifest, environment = {}, publicConfig = null) {
+  const configured = manifest.ios.adMobEnabledEnv === undefined
+    ? null
+    : environment[manifest.ios.adMobEnabledEnv]?.trim().toLowerCase();
+  const enabled = configured == null || configured === ''
+    ? (publicConfig?.enabled ?? manifest.ios.adMobEnabledEnv === undefined)
+    : ['true', '1', 'yes', 'on'].includes(configured);
+  if (enabled) return manifest;
+  return {
+    ...manifest,
+    ios: {
+      ...manifest.ios,
+      localPackages: manifest.ios.localPackages.filter((pkg) => pkg.name !== 'CapacitorCommunityAdmob'),
+      adMobApplicationIdEnv: null,
+      skAdNetworkCatalog: null,
+      skAdNetworkExpectedCount: null,
+    },
+  };
+}
+
+function validateCatalog(ids, manifest, issues) {
   if (ids.length === 0) return;
-  if (ids.length !== EXPECTED_SKAD_COUNT) issues.push(`SKAdNetwork catalog has ${ids.length} entries, expected ${EXPECTED_SKAD_COUNT}`);
+  const expectedCount = manifest.ios.skAdNetworkExpectedCount ?? 152;
+  if (ids.length !== expectedCount) issues.push(`SKAdNetwork catalog has ${ids.length} entries, expected ${expectedCount}`);
   if (new Set(ids).size !== ids.length) issues.push('SKAdNetwork catalog contains duplicates');
   const malformed = ids.filter((id) => !SKAD_ID.test(id));
   if (malformed.length) issues.push(`SKAdNetwork catalog contains malformed identifiers: ${malformed.join(', ')}`);
@@ -471,6 +506,10 @@ function validateManifest(manifest, issues) {
   ];
   for (const [name, value] of requiredStrings) if (typeof value !== 'string' || !value.trim()) issues.push(`shell manifest ${name} must be a non-empty string`);
   if (manifest.ios?.trackingUsageDescription != null && (typeof manifest.ios.trackingUsageDescription !== 'string' || !manifest.ios.trackingUsageDescription.trim())) issues.push('shell manifest ios.trackingUsageDescription must be null or a non-empty string');
+  if (manifest.ios?.skAdNetworkExpectedCount != null && (!Number.isInteger(manifest.ios.skAdNetworkExpectedCount) || manifest.ios.skAdNetworkExpectedCount < 1)) issues.push('shell manifest ios.skAdNetworkExpectedCount must be a positive integer');
+  if (manifest.ios?.adMobEnabledEnv != null && !/^VITE_[A-Z0-9_]+$/.test(manifest.ios.adMobEnabledEnv)) issues.push('shell manifest ios.adMobEnabledEnv must be a VITE_ environment key');
+  if (manifest.ios?.adMobApplicationIdEnv != null && !/^VITE_[A-Z0-9_]+$/.test(manifest.ios.adMobApplicationIdEnv)) issues.push('shell manifest ios.adMobApplicationIdEnv must be a VITE_ environment key');
+  if (manifest.ios?.adMobPublicConfig != null && (typeof manifest.ios.adMobPublicConfig !== 'string' || !/^\.\.\/\.\.\/config\/[a-zA-Z0-9._-]+\.json$/.test(manifest.ios.adMobPublicConfig))) issues.push('shell manifest ios.adMobPublicConfig must be a safe game config JSON path');
   const localPackages = manifest.ios?.localPackages ?? [];
   const remotePackages = manifest.ios?.remotePackages ?? [];
   const names = [...localPackages, ...remotePackages].map((pkg) => pkg.name);
@@ -536,6 +575,7 @@ function validateRecipeSources(recipeDir, manifest, issues) {
   for (const forbidden of ['destroyBanner', 'removeFromSuperview', 'bannerAdView = nil', 'showCMPForExistingUser(from:']) if (appLovin.includes(forbidden)) issues.push(`AppLovinMaxPlugin.swift contains forbidden persistent-banner/consent source: ${forbidden}`);
   }
   const hasAdjust = manifest.ios.swiftSources.includes('AdjustAttributionPlugin.swift');
+  const hasAdMob = manifest.ios.localPackages.some((pkg) => pkg.product === 'CapacitorCommunityAdmob');
   const adjust = hasAdjust ? read('AdjustAttributionPlugin.swift') : '';
   if (hasAdjust) {
   for (const snippet of [
@@ -555,15 +595,26 @@ function validateRecipeSources(recipeDir, manifest, issues) {
   for (const forbidden of ['getBool("disableIdfaReading")', 'getBool("disableAppTrackingTransparencyUsage")', 'call.getString("eventToken")']) if (adjust.includes(forbidden)) issues.push(`AdjustAttributionPlugin.swift exposes unsafe bridge input: ${forbidden}`);
   }
   const privacy = read(manifest.ios.privacyManifest);
-  const hasTrackingProviders = hasAppLovin || hasAdjust;
+  const hasTrackingProviders = hasAppLovin || hasAdjust || hasAdMob;
+  const privacyTracking = /<key>NSPrivacyTracking<\/key>\s*<true\/>/.test(privacy);
   const privacySnippets = hasTrackingProviders
-    ? ['<key>NSPrivacyTracking</key>', '<true/>', 'NSPrivacyCollectedDataTypeAdvertisingData']
+    ? ['<key>NSPrivacyTracking</key>', 'NSPrivacyCollectedDataTypeAdvertisingData']
     : ['<key>NSPrivacyTracking</key>', '<false/>', '<key>NSPrivacyCollectedDataTypes</key>'];
-  if (hasAppLovin) privacySnippets.push('<string>applovin.com</string>');
-  if (hasAdjust) privacySnippets.push('<string>adjust.com</string>');
+  if (privacyTracking && hasAppLovin) privacySnippets.push('<string>applovin.com</string>');
+  if (privacyTracking && hasAdjust) privacySnippets.push('<string>adjust.com</string>');
+  if (privacyTracking && hasAdMob) privacySnippets.push('<string>googleads.g.doubleclick.net</string>');
   for (const snippet of privacySnippets) if (!privacy.includes(snippet)) issues.push(`PrivacyInfo.xcprivacy is missing ${snippet}`);
   if (!hasTrackingProviders && /NSPrivacyCollectedDataType(?:UserID|PurchaseHistory|ProductInteraction|AdvertisingData)/.test(privacy)) issues.push('provider-free PrivacyInfo.xcprivacy declares collected data');
-  const joined = [appDelegate, bridge, appLovin, adjust, privacy].join('\n');
+  const hasAppsFlyer = manifest.ios.swiftSources.includes('AppsFlyerAttributionPlugin.swift');
+  const appsFlyer = hasAppsFlyer ? read('AppsFlyerAttributionPlugin.swift') : '';
+  if (hasAppsFlyer) {
+    for (const snippet of ['import AppsFlyerLib', 'setSharingFilterForPartners', '["all"]', 'sdk.start()', 'CAPPluginMethod(name: "getStatus"']) {
+      if (!appsFlyer.includes(snippet)) issues.push(`AppsFlyerAttributionPlugin.swift is missing ${snippet}`);
+    }
+    if (appsFlyer.indexOf('setSharingFilterForPartners') > appsFlyer.indexOf('sdk.start()')) issues.push('AppsFlyer sharing policy must be applied before start');
+    for (const forbidden of ['waitForATTUserAuthorization', 'AdSupport', 'requestTrackingAuthorization']) if (appsFlyer.includes(forbidden)) issues.push(`AppsFlyerAttributionPlugin.swift contains forbidden tracking source: ${forbidden}`);
+  }
+  const joined = [appDelegate, bridge, appLovin, adjust, appsFlyer, privacy].join('\n');
   const secretPatterns = [
     /VITE_ADJUST_IOS_APP_TOKEN\s*=\s*[a-z0-9]{12}/i,
     /VITE_ADJUST_EVENT_[A-Z_]+_TOKEN\s*=\s*[a-z0-9]{6,}/i,
@@ -575,7 +626,7 @@ function validateRecipeSources(recipeDir, manifest, issues) {
 function validatePackage(content, manifest, issues) {
   const expected = renderPackageSwift(manifest);
   if (content !== expected) issues.push('CapApp-SPM/Package.swift does not match the exact shell manifest graph');
-  for (const legacy of ['Admob', 'CapacitorFilesystem', 'CapacitorPreferences', 'CapacitorShare']) if (content.includes(legacy)) issues.push(`Package.swift contains legacy product ${legacy}`);
+  for (const legacy of ['.product(name: "Admob"', 'CapacitorFilesystem', 'CapacitorPreferences', 'CapacitorShare']) if (content.includes(legacy)) issues.push(`Package.swift contains legacy product ${legacy}`);
 }
 
 function validateFirebaseIdentity(gameDir, manifest, { allowMissingFirebase }, issues) {
@@ -584,8 +635,14 @@ function validateFirebaseIdentity(gameDir, manifest, { allowMissingFirebase }, i
     if (!allowMissingFirebase) issues.push(`${FIREBASE_PLIST} is missing (pass --allow-missing to permit the gitignored owner file)`);
   } else {
     const content = fs.readFileSync(iosPlist, 'utf8');
-    const bundle = /<key>BUNDLE_ID<\/key>\s*<string>([^<]+)<\/string>/.exec(content)?.[1];
+    const value = (key) => new RegExp(`<key>${key}<\\/key>\\s*<string>([^<]+)<\\/string>`).exec(content)?.[1];
+    const bundle = value('BUNDLE_ID');
+    const project = value('PROJECT_ID');
+    const appId = value('GOOGLE_APP_ID');
     if (bundle !== manifest.ios.bundleId) issues.push(`${FIREBASE_PLIST} BUNDLE_ID is ${bundle ?? '(missing)'}, expected ${manifest.ios.bundleId}`);
+    if (project !== manifest.ios.firebaseProjectId) issues.push(`${FIREBASE_PLIST} PROJECT_ID is ${project ?? '(missing)'}, expected ${manifest.ios.firebaseProjectId}`);
+    if (project === 'hidden-object-base') issues.push(`${FIREBASE_PLIST} references deprecated project hidden-object-base`);
+    if (!appId || !/^1:\d+:ios:[A-Za-z0-9]+$/.test(appId)) issues.push(`${FIREBASE_PLIST} GOOGLE_APP_ID is missing or malformed`);
   }
   const androidJson = path.join(gameDir, 'android', 'app', 'google-services.json');
   if (fs.existsSync(androidJson)) {
@@ -596,10 +653,13 @@ function validateFirebaseIdentity(gameDir, manifest, { allowMissingFirebase }, i
 }
 
 export function validateGeneratedShell({ repoRoot, game, allowMissingFirebase = true }) {
-  const { gameDir, recipeDir, manifest, ids } = loadContext(repoRoot, game);
-  const issues = collectRecipeIssues(gameDir, recipeDir, manifest, ids);
+  const context = loadContext(repoRoot, game);
+  const { gameDir, recipeDir, adMobApplicationId } = context;
+  const issues = collectRecipeIssues(gameDir, recipeDir, context.manifest, context.ids);
+  const manifest = context.runtimeManifest;
+  const ids = context.runtimeIds;
   const iosRoot = path.join(gameDir, 'ios', 'App');
-  const usesFirebase = manifest.ios.localPackages.some((pkg) => pkg.name === 'CapacitorFirebaseAnalytics');
+  const usesFirebase = manifest.ios.localPackages.some((pkg) => ['CapacitorFirebaseAnalytics', 'CapacitorFirebaseCrashlytics'].includes(pkg.name));
   if (usesFirebase) validateFirebaseIdentity(gameDir, manifest, { allowMissingFirebase }, issues);
   if (!fs.existsSync(iosRoot)) return { issues, generatedPresent: false, skAdNetworkCount: ids.length };
   const required = {
@@ -614,6 +674,9 @@ export function validateGeneratedShell({ repoRoot, game, allowMissingFirebase = 
   const plistIds = [...plist.matchAll(/<key>SKAdNetworkIdentifier<\/key>\s*<string>([^<]+)<\/string>/g)].map((match) => match[1]);
   if (plistIds.length !== ids.length || new Set(plistIds).size !== ids.length || [...plistIds].sort().join('\n') !== [...ids].sort().join('\n')) issues.push('Info.plist SKAdNetworkItems must equal the configured catalog exactly');
   if (!manifest.ios.trackingUsageDescription && plist.includes('NSUserTrackingUsageDescription')) issues.push('provider-free Info.plist contains NSUserTrackingUsageDescription');
+  if (manifest.ios.adMobApplicationIdEnv && !ADMOB_APP_ID.test(adMobApplicationId ?? '')) issues.push('AdMob application ID is missing or malformed');
+  if (ADMOB_APP_ID.exec(adMobApplicationId ?? '')?.[1] === GOOGLE_SAMPLE_PUBLISHER) issues.push('AdMob application ID must not use Google sample inventory');
+  if (manifest.ios.adMobApplicationIdEnv && !plist.includes(`<key>GADApplicationIdentifier</key>\n\t<string>${adMobApplicationId}</string>`)) issues.push('Info.plist AdMob application ID does not match the configured environment');
   for (const snippet of ['<key>ITSAppUsesNonExemptEncryption</key>\n\t<false/>', '<key>GOOGLE_ANALYTICS_IDFV_COLLECTION_ENABLED</key>\n\t<false/>', '<string>UIInterfaceOrientationPortrait</string>']) if (!plist.includes(snippet)) issues.push(`Info.plist is missing ${snippet}`);
   if (plist.includes('UIInterfaceOrientationLandscape')) issues.push('Info.plist contains a landscape orientation');
   const project = fs.readFileSync(required.project, 'utf8');
@@ -632,7 +695,7 @@ export function validateGeneratedShell({ repoRoot, game, allowMissingFirebase = 
   for (const file of nativeFilesFor(manifest)) if (sourceWiringState(project, file.name) !== 'wired') issues.push(`${file.name} is not fully wired into App Sources`);
   const privacyFile = privacyFileFor(manifest);
   if (resourceWiringState(project, privacyFile.name) !== 'wired') issues.push(`${privacyFile.name} is not fully wired into App Resources`);
-  const hasTrackingProviders = manifest.ios.swiftSources.some((name) => ['AppLovinMaxPlugin.swift', 'AdjustAttributionPlugin.swift', 'AppsFlyerAttributionPlugin.swift', 'MetaEventsPlugin.swift'].includes(name));
+  const hasTrackingProviders = manifest.ios.swiftSources.some((name) => ['AppLovinMaxPlugin.swift', 'AdjustAttributionPlugin.swift', 'MetaEventsPlugin.swift'].includes(name));
   for (const [name] of frameworks) {
     const state = frameworkWiringState(project, name);
     if (hasTrackingProviders && state !== 'wired') issues.push(`${name} is not fully weak-linked`);
@@ -658,7 +721,7 @@ export function validateGeneratedShell({ repoRoot, game, allowMissingFirebase = 
 function collectRecipeIssues(gameDir, recipeDir, manifest, ids) {
   const issues = [];
   validateManifest(manifest, issues);
-  validateCatalog(ids, issues);
+  validateCatalog(ids, manifest, issues);
   validateRecipeSources(recipeDir, manifest, issues);
   if (manifest.game === 'find_the_dog' && manifest.capacitorAppId !== 'com.basegamelab.find_the_dog.dev') issues.push('Capacitor/Android identity drifted from com.basegamelab.find_the_dog.dev');
   const capacitorConfig = path.join(gameDir, 'capacitor.config.ts');
@@ -694,9 +757,14 @@ function copyRecipeApp(recipeDir, iosRoot, changed) {
 }
 
 export function applyNativeShell({ repoRoot, game }) {
-  const { gameDir, recipeDir, manifest, ids } = loadContext(repoRoot, game);
-  const recipeIssues = collectRecipeIssues(gameDir, recipeDir, manifest, ids);
+  const context = loadContext(repoRoot, game);
+  const { gameDir, recipeDir, adMobApplicationId } = context;
+  const recipeIssues = collectRecipeIssues(gameDir, recipeDir, context.manifest, context.ids);
+  const manifest = context.runtimeManifest;
+  const ids = context.runtimeIds;
   if (recipeIssues.length) throw new Error(`invalid native recipe:\n- ${recipeIssues.join('\n- ')}`);
+  if (manifest.ios.adMobApplicationIdEnv && !ADMOB_APP_ID.test(adMobApplicationId ?? '')) throw new Error('AdMob application ID is missing or malformed');
+  if (ADMOB_APP_ID.exec(adMobApplicationId ?? '')?.[1] === GOOGLE_SAMPLE_PUBLISHER) throw new Error('AdMob application ID must not use Google sample inventory');
   const iosRoot = path.join(gameDir, 'ios', 'App');
   requireFile(iosRoot, 'generated iOS App root (run cap sync ios first)');
   const files = {
@@ -707,7 +775,7 @@ export function applyNativeShell({ repoRoot, game }) {
   };
   for (const [label, file] of Object.entries(files)) requireFile(file, label);
   const firebaseIssues = [];
-  if (manifest.ios.localPackages.some((pkg) => pkg.name === 'CapacitorFirebaseAnalytics')) {
+  if (manifest.ios.localPackages.some((pkg) => ['CapacitorFirebaseAnalytics', 'CapacitorFirebaseCrashlytics'].includes(pkg.name))) {
     validateFirebaseIdentity(gameDir, manifest, { allowMissingFirebase: true }, firebaseIssues);
   }
   if (firebaseIssues.length) throw new Error(`invalid native Firebase configuration:\n- ${firebaseIssues.join('\n- ')}`);
@@ -717,6 +785,13 @@ export function applyNativeShell({ repoRoot, game }) {
     || fs.existsSync(path.join(recipeDir, 'App', FIREBASE_PLIST));
   const changed = [];
   copyRecipeApp(recipeDir, iosRoot, changed);
+  for (const obsolete of ['AppLovinMaxPlugin.swift']) {
+    if (manifest.ios.swiftSources.includes(obsolete)) continue;
+    const target = path.join(iosRoot, 'App', obsolete);
+    if (!fs.existsSync(target)) continue;
+    fs.unlinkSync(target);
+    changed.push(`removed App/${obsolete}`);
+  }
   const originals = {
     plist: fs.readFileSync(files.plist, 'utf8'),
     storyboard: fs.readFileSync(files.storyboard, 'utf8'),
@@ -724,7 +799,7 @@ export function applyNativeShell({ repoRoot, game }) {
     packageSwift: fs.readFileSync(files.packageSwift, 'utf8'),
   };
   const outputs = {
-    plist: patchInfoPlist(originals.plist, manifest, ids),
+    plist: patchInfoPlist(originals.plist, manifest, ids, { adMobApplicationId }),
     storyboard: patchStoryboard(originals.storyboard, manifest),
     project: patchPbxproj(originals.project, manifest, { googleServicePresent }),
     packageSwift: renderPackageSwift(manifest),

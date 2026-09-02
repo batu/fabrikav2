@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { ALLOWED_FILES, lintStructure } from '../src/structure.js';
+import { ALLOWED_DIRS, ALLOWED_FILES, lintStructure } from '../src/structure.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const fixture = (name) => join(here, 'fixtures', 'structure', name);
@@ -11,6 +11,7 @@ describe('structure', () => {
     const { violations } = lintStructure(fixture('pass'));
     expect(violations).toEqual([]);
     expect(ALLOWED_FILES.has('.env.example')).toBe(true);
+    expect(ALLOWED_DIRS.has('config')).toBe(true);
   });
 
   it('fails on the three banned top-level entries, each with a redirect home', () => {

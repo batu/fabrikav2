@@ -22,7 +22,9 @@ export {
   type AdjustPrivacyConfig,
 } from './AdjustConfig.ts';
 export {
+  ATTRIBUTION_PROVIDER_CHOICES,
   createAttributionProvider,
+  readAttributionProviderChoice,
   selectAttributionProvider,
   AttributionService,
   type AttributionProviderChoice,
@@ -43,6 +45,9 @@ export {
   AppsFlyerAttributionProvider,
   type AppsFlyerAttributionProviderOptions,
 } from './AppsFlyerAttributionProvider.ts';
+export { createAppsFlyerAnalyticsProjection } from './AppsFlyerAnalyticsProjection.ts';
+export { AppsFlyerEventMapper, createLocalStorageDedupeStore, type AppsFlyerCanonicalEvent, type AppsFlyerMappedEvent, type DedupeStore } from './AppsFlyerEventMapper.ts';
+
 export {
   readAppsFlyerConfig,
   redactAppsFlyerKey,

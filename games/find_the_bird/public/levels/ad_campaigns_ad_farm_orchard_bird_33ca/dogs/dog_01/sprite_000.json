@@ -1,0 +1,45 @@
+{
+  "version": 1,
+  "image": "dogs/dog_01/sprite_000.png",
+  "mask": "dogs/dog_01/sprite_mask_000.png",
+  "sourceVariant": "dogs/dog_01/variant_000.png",
+  "sourceBox": [
+    2050,
+    327,
+    2476,
+    753
+  ],
+  "spriteBox": [
+    2212,
+    479,
+    2429,
+    647
+  ],
+  "cleanupBox": [
+    2261,
+    405,
+    2411,
+    689
+  ],
+  "width": 217,
+  "height": 168,
+  "anchorX": 0.3825,
+  "anchorY": 0.3631,
+  "technique": "flatkey-recreate-v1",
+  "quality": {
+    "visibleCoverage": 0.0746,
+    "strongCoverage": 0.072,
+    "bboxCoverage": 0.1794,
+    "edgeTouches": 0,
+    "fullCropLike": false,
+    "pickupUsable": true,
+    "backgroundFallback": false,
+    "templateFallback": false
+  },
+  "regenerationReview": {
+    "candidate": true,
+    "probability": 0.587103,
+    "model": "extra-trees-depth-4-balanced",
+    "mode": "review-ranking-only"
+  }
+}

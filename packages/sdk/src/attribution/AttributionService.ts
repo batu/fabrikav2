@@ -2,6 +2,7 @@ import { Capacitor } from '@capacitor/core';
 import { AdjustAttributionProvider } from './AdjustAttributionProvider.ts';
 import { readAdjustIosConfig, type AdjustConfigResult } from './AdjustConfig.ts';
 import { AppsFlyerAttributionProvider } from './AppsFlyerAttributionProvider.ts';
+import type { AppsFlyerMappedEvent } from './AppsFlyerEventMapper.ts';
 import { readAppsFlyerConfig, type AppsFlyerConfig, type AppsFlyerConfigResult } from './AppsFlyerConfig.ts';
 import type {
   AttributionEventName,
@@ -9,6 +10,7 @@ import type {
   AttributionProvider,
 } from './AttributionProvider.ts';
 import { DisabledAttributionProvider } from './DisabledAttributionProvider.ts';
+import { parseChoiceEnv } from '../config-env.ts';
 import { withTimeout } from '../with-timeout.ts';
 
 const STARTUP_GATE_TIMEOUT_MS = 5_000;
@@ -51,7 +53,15 @@ export function createAttributionProvider(
   return factories.createAdjustProvider(adjustConfig.config);
 }
 
-export type AttributionProviderChoice = 'appsflyer' | 'adjust' | 'disabled';
+export const ATTRIBUTION_PROVIDER_CHOICES = ['auto', 'appsflyer', 'adjust', 'disabled'] as const;
+export type AttributionProviderChoice = Exclude<(typeof ATTRIBUTION_PROVIDER_CHOICES)[number], 'auto'>;
+
+export function readAttributionProviderChoice(
+  value: string | boolean | undefined,
+): AttributionProviderChoice | null {
+  const choice = parseChoiceEnv(value, ATTRIBUTION_PROVIDER_CHOICES, 'auto');
+  return choice === 'auto' ? null : choice;
+}
 
 export interface SelectAttributionProviderOptions {
   platform?: string;
@@ -145,6 +155,12 @@ export class AttributionService {
 
   rewardedWatched<P extends AttributionParamBag<P>>(params: P): Promise<void> {
     return this.trackAfterStartupGate('rewardedWatched', params);
+  }
+
+  async trackMapped(event: AppsFlyerMappedEvent): Promise<boolean> {
+    await this.startupGate;
+    if (this.provider.trackConfirmed === undefined) return false;
+    return this.provider.trackConfirmed(event.eventName, event.eventValues);
   }
 
   private async trackAfterStartupGate<P extends AttributionParamBag<P>>(

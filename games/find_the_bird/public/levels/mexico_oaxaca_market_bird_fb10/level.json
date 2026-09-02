@@ -1,597 +1,493 @@
 {
   "id": "mexico_oaxaca_market_bird_fb10",
-  "name": "Level mexico_oaxaca_market_bird_fb10",
+  "name": "Level mexico_oaxaca_market_bird_fb10 (clean_old_cartoon)",
   "width": 2688,
   "height": 2688,
+  "bwImage": "levels/mexico_oaxaca_market_bird_fb10/bw.png",
   "colorImage": "levels/mexico_oaxaca_market_bird_fb10/color.png",
-  "artifactRevision": "sha256:589f4f5b7e6a2b798c768292f4ef2fb6ca6d8e7966b72b3502e63d08778f2b67",
-  "compatibilityAliases": {
-    "dog_00": "dab736e2-08b0-5dd0-a9ce-8a40a056cd9b",
-    "dog_01": "abb4c8ed-f49a-565b-9527-be8b33197ef3",
-    "dog_02": "faf8b468-09b4-53a7-b3af-017cd2390ae0",
-    "dog_03": "dac01571-f3e9-5f93-a0d7-95b5bf1ca87b",
-    "dog_04": "dbce3cfa-8361-5bae-96bb-49baa06508ae",
-    "dog_05": "1d252f02-353a-552c-a946-8a90e303a0b3",
-    "dog_07": "a2eeae96-52f2-541a-b289-4a49be196684",
-    "dog_06": "7553a3bb-a0a6-5b48-99b6-66d5f9866489",
-    "dog_08": "66606e3d-6fae-5eb0-9645-85c02e39ca27",
-    "dog_09": "d7d5392d-0014-5781-b54e-3dc587325d20",
-    "dog_11": "13722b33-4163-57b2-95fc-1a7f279498d0",
-    "dog_12": "2f261fbd-0829-55ef-bd03-9ed5c571604a",
-    "dog_10": "81c23e80-ebea-5465-b332-fb363d28de85",
-    "dog_13": "5e10310b-0197-5804-8d9c-b5cf51588fce",
-    "dog_14": "73a67ba9-4566-5982-92ab-b91856ee2b07",
-    "dog_15": "03e8c89a-6369-5e4d-9bf4-0101a2321963",
-    "dog_16": "b6674405-b148-5fe4-8fac-4f94ec397f8f",
-    "dog_17": "3d05c650-9a92-5f9e-8813-d9d2c350644f",
-    "dog_21": "f6624412-2249-54c3-9b56-94fe712a8ecb",
-    "dog_22": "6e92e199-018d-594d-bea6-52ac2930b97f",
-    "dog_20": "415ee78e-dd57-5d54-8c00-eff137a2b610",
-    "dog_18": "e961b79c-2d58-5dfc-8993-bce49eb1bf56",
-    "dog_19": "74c443ac-c232-524c-bcfc-247ca07f6e28"
-  },
   "dogs": [
     {
-      "id": "dab736e2-08b0-5dd0-a9ce-8a40a056cd9b",
-      "compatibilitySlot": "dog_00",
-      "x": 593,
-      "y": 710,
+      "id": "dog_00",
+      "x": 597,
+      "y": 715,
       "r": 57,
       "sprite": {
         "image": "levels/mexico_oaxaca_market_bird_fb10/dogs/dog_00/sprite_000.png",
-        "height": 227,
-        "width": 289,
-        "x": 487,
-        "y": 589,
+        "x": 507,
+        "y": 625,
+        "width": 233,
+        "height": 191,
         "cleanup": {
-          "x": 507,
-          "y": 625,
-          "width": 233,
-          "height": 191
+          "x": 424,
+          "y": 542,
+          "width": 345,
+          "height": 341
         },
-        "anchorX": 0.3691,
-        "anchorY": 0.445,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.3863,
+        "anchorY": 0.4712
       }
     },
     {
-      "id": "abb4c8ed-f49a-565b-9527-be8b33197ef3",
-      "compatibilitySlot": "dog_01",
-      "x": 474,
-      "y": 1072,
+      "id": "dog_01",
+      "x": 438,
+      "y": 1076,
       "r": 57,
       "sprite": {
         "image": "levels/mexico_oaxaca_market_bird_fb10/dogs/dog_01/sprite_000.png",
-        "height": 170,
-        "width": 236,
-        "x": 323,
-        "y": 989,
+        "x": 367,
+        "y": 996,
+        "width": 182,
+        "height": 133,
         "cleanup": {
-          "x": 367,
-          "y": 996,
-          "width": 182,
-          "height": 133
+          "x": 315,
+          "y": 903,
+          "width": 345,
+          "height": 345
         },
-        "anchorX": 0.5879,
-        "anchorY": 0.5714,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.3901,
+        "anchorY": 0.6015
       }
     },
     {
-      "id": "faf8b468-09b4-53a7-b3af-017cd2390ae0",
-      "compatibilitySlot": "dog_02",
+      "id": "dog_02",
       "x": 1186,
       "y": 557,
       "r": 57,
       "sprite": {
         "image": "levels/mexico_oaxaca_market_bird_fb10/dogs/dog_02/sprite_000.png",
-        "height": 128,
-        "width": 157,
-        "x": 1108,
-        "y": 495,
+        "x": 1128,
+        "y": 513,
+        "width": 117,
+        "height": 95,
         "cleanup": {
-          "x": 1128,
-          "y": 513,
-          "width": 117,
-          "height": 95
+          "x": 1057,
+          "y": 446,
+          "width": 286,
+          "height": 243
         },
         "anchorX": 0.4957,
-        "anchorY": 0.4632,
-        "flipX": false,
-        "flipY": false
+        "anchorY": 0.4632
       }
     },
     {
-      "id": "dac01571-f3e9-5f93-a0d7-95b5bf1ca87b",
-      "compatibilitySlot": "dog_03",
-      "x": 1663,
-      "y": 643,
+      "id": "dog_03",
+      "x": 1632,
+      "y": 660,
       "r": 57,
       "sprite": {
         "image": "levels/mexico_oaxaca_market_bird_fb10/dogs/dog_03/sprite_000.png",
-        "height": 205,
-        "width": 147,
-        "x": 1584,
-        "y": 549,
+        "x": 1609,
+        "y": 562,
+        "width": 112,
+        "height": 153,
         "cleanup": {
-          "x": 1589,
-          "y": 580,
-          "width": 112,
-          "height": 153
+          "x": 1491,
+          "y": 421,
+          "width": 345,
+          "height": 326
         },
-        "anchorX": 0.6607,
-        "anchorY": 0.4118,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.2054,
+        "anchorY": 0.6405
       }
     },
     {
-      "id": "dbce3cfa-8361-5bae-96bb-49baa06508ae",
-      "compatibilitySlot": "dog_04",
-      "x": 2108,
-      "y": 665,
+      "id": "dog_04",
+      "x": 2076,
+      "y": 671,
       "r": 57,
       "sprite": {
         "image": "levels/mexico_oaxaca_market_bird_fb10/dogs/dog_04/sprite_000.png",
-        "height": 124,
-        "width": 124,
-        "x": 2033,
-        "y": 608,
+        "x": 2022,
+        "y": 592,
+        "width": 148,
+        "height": 140,
         "cleanup": {
-          "x": 2022,
-          "y": 592,
-          "width": 148,
-          "height": 140
+          "x": 1988,
+          "y": 504,
+          "width": 320,
+          "height": 238
         },
-        "anchorX": 0.5811,
-        "anchorY": 0.5214,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.3649,
+        "anchorY": 0.5643
       }
     },
     {
-      "id": "1d252f02-353a-552c-a946-8a90e303a0b3",
-      "compatibilitySlot": "dog_05",
-      "x": 2238,
-      "y": 816,
+      "id": "dog_05",
+      "x": 2219,
+      "y": 833,
       "r": 57,
       "sprite": {
         "image": "levels/mexico_oaxaca_market_bird_fb10/dogs/dog_05/sprite_000.png",
-        "height": 118,
-        "width": 156,
-        "x": 2173,
-        "y": 770,
+        "x": 2183,
+        "y": 782,
+        "width": 118,
+        "height": 88,
         "cleanup": {
-          "x": 2183,
-          "y": 782,
-          "width": 118,
-          "height": 88
+          "x": 2066,
+          "y": 744,
+          "width": 343,
+          "height": 210
         },
-        "anchorX": 0.4661,
-        "anchorY": 0.3864,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.3051,
+        "anchorY": 0.5795
       }
     },
     {
-      "id": "a2eeae96-52f2-541a-b289-4a49be196684",
-      "compatibilitySlot": "dog_07",
-      "x": 1868,
-      "y": 982,
-      "r": 57,
-      "sprite": {
-        "image": "levels/mexico_oaxaca_market_bird_fb10/dogs/dog_07/sprite_000.png",
-        "height": 149,
-        "width": 186,
-        "x": 1748,
-        "y": 918,
-        "cleanup": {
-          "x": 1748,
-          "y": 918,
-          "width": 186,
-          "height": 149
-        },
-        "anchorX": 0.6774,
-        "anchorY": 0.443,
-        "flipX": false,
-        "flipY": false
-      }
-    },
-    {
-      "id": "7553a3bb-a0a6-5b48-99b6-66d5f9866489",
-      "compatibilitySlot": "dog_06",
-      "x": 1511,
-      "y": 948,
+      "id": "dog_06",
+      "x": 1544,
+      "y": 928,
       "r": 57,
       "sprite": {
         "image": "levels/mexico_oaxaca_market_bird_fb10/dogs/dog_06/sprite_000.png",
-        "height": 193,
-        "width": 198,
-        "x": 1418,
-        "y": 841,
+        "x": 1344,
+        "y": 931,
+        "width": 154,
+        "height": 138,
         "cleanup": {
-          "x": 1419,
-          "y": 946,
-          "width": 154,
-          "height": 158
+          "x": 1325,
+          "y": 796,
+          "width": 235,
+          "height": 326
         },
-        "anchorX": 0.5065,
-        "anchorY": 0.058,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.9935,
+        "anchorY": 0.3116
       }
     },
     {
-      "id": "66606e3d-6fae-5eb0-9645-85c02e39ca27",
-      "compatibilitySlot": "dog_08",
-      "x": 1674,
-      "y": 1069,
+      "id": "dog_07",
+      "x": 1874,
+      "y": 984,
+      "r": 57,
+      "sprite": {
+        "image": "levels/mexico_oaxaca_market_bird_fb10/dogs/dog_07/sprite_000.png",
+        "x": 1748,
+        "y": 918,
+        "width": 186,
+        "height": 149,
+        "cleanup": {
+          "x": 1721,
+          "y": 835,
+          "width": 339,
+          "height": 308
+        },
+        "anchorX": 0.6774,
+        "anchorY": 0.443
+      }
+    },
+    {
+      "id": "dog_08",
+      "x": 1670,
+      "y": 1058,
       "r": 57,
       "sprite": {
         "image": "levels/mexico_oaxaca_market_bird_fb10/dogs/dog_08/sprite_000.png",
-        "height": 107,
-        "width": 115,
-        "x": 1631,
-        "y": 1004,
+        "x": 1420,
+        "y": 848,
+        "width": 185,
+        "height": 166,
         "cleanup": {
-          "x": 1617,
-          "y": 1001,
-          "width": 135,
-          "height": 130
+          "x": 1508,
+          "y": 854,
+          "width": 208,
+          "height": 290
         },
-        "anchorX": 0.7042,
-        "anchorY": 0.6582,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.773,
+        "anchorY": 0.9518
       }
     },
     {
-      "id": "d7d5392d-0014-5781-b54e-3dc587325d20",
-      "compatibilitySlot": "dog_09",
+      "id": "dog_09",
       "x": 1808,
       "y": 1276,
       "r": 57,
       "sprite": {
         "image": "levels/mexico_oaxaca_market_bird_fb10/dogs/dog_09/sprite_000.png",
-        "height": 162,
-        "width": 235,
         "x": 1701,
         "y": 1177,
+        "width": 235,
+        "height": 162,
         "cleanup": {
-          "x": 1701,
-          "y": 1177,
-          "width": 235,
-          "height": 162
+          "x": 1670,
+          "y": 1146,
+          "width": 310,
+          "height": 255
         },
         "anchorX": 0.4553,
-        "anchorY": 0.6111,
-        "flipX": false,
-        "flipY": false
+        "anchorY": 0.6111
       }
     },
     {
-      "id": "13722b33-4163-57b2-95fc-1a7f279498d0",
-      "compatibilitySlot": "dog_11",
-      "x": 1225,
-      "y": 1357,
-      "r": 57,
-      "sprite": {
-        "image": "levels/mexico_oaxaca_market_bird_fb10/dogs/dog_11/sprite_000.png",
-        "height": 234,
-        "width": 213,
-        "x": 1133,
-        "y": 1221,
-        "cleanup": {
-          "x": 1139,
-          "y": 1323,
-          "width": 213,
-          "height": 234
-        },
-        "anchorX": 0.3615,
-        "anchorY": 0.9957,
-        "flipX": false,
-        "flipY": false
-      }
-    },
-    {
-      "id": "2f261fbd-0829-55ef-bd03-9ed5c571604a",
-      "compatibilitySlot": "dog_12",
-      "x": 1216,
-      "y": 1556,
-      "r": 57,
-      "sprite": {
-        "image": "levels/mexico_oaxaca_market_bird_fb10/dogs/dog_12/sprite_000.png",
-        "height": 233,
-        "width": 263,
-        "x": 1092,
-        "y": 1447,
-        "cleanup": {
-          "x": 1109,
-          "y": 1473,
-          "width": 219,
-          "height": 207
-        },
-        "anchorX": 0.4886,
-        "anchorY": 0.3671,
-        "flipX": false,
-        "flipY": false
-      }
-    },
-    {
-      "id": "81c23e80-ebea-5465-b332-fb363d28de85",
-      "compatibilitySlot": "dog_10",
-      "x": 781,
-      "y": 1508,
+      "id": "dog_10",
+      "x": 759,
+      "y": 1419,
       "r": 57,
       "sprite": {
         "image": "levels/mexico_oaxaca_market_bird_fb10/dogs/dog_10/sprite_000.png",
-        "height": 172,
-        "width": 137,
-        "x": 659,
-        "y": 1385,
+        "x": 588,
+        "y": 1376,
+        "width": 230,
+        "height": 197,
         "cleanup": {
-          "x": 602,
-          "y": 1262,
-          "width": 314,
-          "height": 314
+          "x": 618,
+          "y": 1356,
+          "width": 345,
+          "height": 338
         },
-        "anchorX": 0.9194,
-        "anchorY": 0.6701,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.7435,
+        "anchorY": 0.2183
       }
     },
     {
-      "id": "5e10310b-0197-5804-8d9c-b5cf51588fce",
-      "compatibilitySlot": "dog_13",
-      "x": 682,
-      "y": 1846,
+      "id": "dog_11",
+      "x": 1231,
+      "y": 1342,
+      "r": 57,
+      "sprite": {
+        "image": "levels/mexico_oaxaca_market_bird_fb10/dogs/dog_11/sprite_000.png",
+        "x": 1130,
+        "y": 1215,
+        "width": 224,
+        "height": 246,
+        "cleanup": {
+          "x": 1047,
+          "y": 1207,
+          "width": 345,
+          "height": 259
+        },
+        "anchorX": 0.4509,
+        "anchorY": 0.5163
+      }
+    },
+    {
+      "id": "dog_12",
+      "x": 1216,
+      "y": 1549,
+      "r": 57,
+      "sprite": {
+        "image": "levels/mexico_oaxaca_market_bird_fb10/dogs/dog_12/sprite_000.png",
+        "x": 1109,
+        "y": 1473,
+        "width": 219,
+        "height": 207,
+        "cleanup": {
+          "x": 1043,
+          "y": 1468,
+          "width": 310,
+          "height": 253
+        },
+        "anchorX": 0.4886,
+        "anchorY": 0.3671
+      }
+    },
+    {
+      "id": "dog_13",
+      "x": 698,
+      "y": 1818,
       "r": 57,
       "sprite": {
         "image": "levels/mexico_oaxaca_market_bird_fb10/dogs/dog_13/sprite_000.png",
-        "height": 281,
-        "width": 270,
-        "x": 574,
-        "y": 1678,
+        "x": 602,
+        "y": 1719,
+        "width": 228,
+        "height": 222,
         "cleanup": {
-          "x": 602,
-          "y": 1719,
-          "width": 228,
-          "height": 222
+          "x": 493,
+          "y": 1696,
+          "width": 278,
+          "height": 337
         },
-        "anchorX": 0.3509,
-        "anchorY": 0.5721,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.4211,
+        "anchorY": 0.4459
       }
     },
     {
-      "id": "73a67ba9-4566-5982-92ab-b91856ee2b07",
-      "compatibilitySlot": "dog_14",
-      "x": 882,
-      "y": 1969,
+      "id": "dog_14",
+      "x": 878,
+      "y": 1967,
       "r": 57,
       "sprite": {
         "image": "levels/mexico_oaxaca_market_bird_fb10/dogs/dog_14/sprite_000.png",
-        "height": 207,
-        "width": 211,
-        "x": 793,
-        "y": 1870,
+        "x": 807,
+        "y": 1903,
+        "width": 172,
+        "height": 161,
         "cleanup": {
-          "x": 807,
-          "y": 1903,
-          "width": 172,
-          "height": 161
+          "x": 773,
+          "y": 1794,
+          "width": 277,
+          "height": 345
         },
-        "anchorX": 0.436,
-        "anchorY": 0.4099,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.4128,
+        "anchorY": 0.3975
       }
     },
     {
-      "id": "03e8c89a-6369-5e4d-9bf4-0101a2321963",
-      "compatibilitySlot": "dog_15",
-      "x": 1275,
+      "id": "dog_15",
+      "x": 1276,
       "y": 1973,
       "r": 57,
       "sprite": {
         "image": "levels/mexico_oaxaca_market_bird_fb10/dogs/dog_15/sprite_000.png",
-        "height": 194,
-        "width": 206,
         "x": 1139,
         "y": 1863,
+        "width": 206,
+        "height": 194,
         "cleanup": {
-          "x": 1139,
-          "y": 1863,
-          "width": 206,
-          "height": 194
+          "x": 1103,
+          "y": 1800,
+          "width": 280,
+          "height": 316
         },
-        "anchorX": 0.6602,
-        "anchorY": 0.567,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.665,
+        "anchorY": 0.567
       }
     },
     {
-      "id": "b6674405-b148-5fe4-8fac-4f94ec397f8f",
-      "compatibilitySlot": "dog_16",
-      "x": 1447,
-      "y": 1824,
+      "id": "dog_16",
+      "x": 1454,
+      "y": 1818,
       "r": 57,
       "sprite": {
         "image": "levels/mexico_oaxaca_market_bird_fb10/dogs/dog_16/sprite_000.png",
-        "height": 248,
-        "width": 251,
-        "x": 1332,
-        "y": 1755,
+        "x": 1357,
+        "y": 1770,
+        "width": 186,
+        "height": 177,
         "cleanup": {
-          "x": 1358,
-          "y": 1771,
-          "width": 186,
-          "height": 177
+          "x": 1385,
+          "y": 1606,
+          "width": 223,
+          "height": 331
         },
-        "anchorX": 0.4785,
-        "anchorY": 0.2994,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.5215,
+        "anchorY": 0.2712
       }
     },
     {
-      "id": "3d05c650-9a92-5f9e-8813-d9d2c350644f",
-      "compatibilitySlot": "dog_17",
-      "x": 1730,
-      "y": 1951,
+      "id": "dog_17",
+      "x": 1725,
+      "y": 1929,
       "r": 57,
       "sprite": {
         "image": "levels/mexico_oaxaca_market_bird_fb10/dogs/dog_17/sprite_000.png",
-        "height": 210,
+        "x": 1655,
+        "y": 1844,
         "width": 204,
-        "x": 1656,
-        "y": 1845,
+        "height": 210,
         "cleanup": {
-          "x": 1656,
-          "y": 1845,
-          "width": 204,
-          "height": 210
+          "x": 1610,
+          "y": 1781,
+          "width": 287,
+          "height": 345
         },
-        "anchorX": 0.3627,
-        "anchorY": 0.5048,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.3431,
+        "anchorY": 0.4048
       }
     },
     {
-      "id": "f6624412-2249-54c3-9b56-94fe712a8ecb",
-      "compatibilitySlot": "dog_21",
-      "x": 501,
-      "y": 2299,
-      "r": 57,
-      "sprite": {
-        "image": "levels/mexico_oaxaca_market_bird_fb10/dogs/dog_21/sprite_000.png",
-        "height": 225,
-        "width": 275,
-        "x": 336,
-        "y": 2163,
-        "cleanup": {
-          "x": 336,
-          "y": 2163,
-          "width": 275,
-          "height": 225
-        },
-        "anchorX": 0.5964,
-        "anchorY": 0.6,
-        "flipX": false,
-        "flipY": false
-      }
-    },
-    {
-      "id": "6e92e199-018d-594d-bea6-52ac2930b97f",
-      "compatibilitySlot": "dog_22",
-      "x": 654,
-      "y": 2336,
-      "r": 57,
-      "sprite": {
-        "image": "levels/mexico_oaxaca_market_bird_fb10/dogs/dog_22/sprite_000.png",
-        "height": 183,
-        "width": 215,
-        "x": 522,
-        "y": 2239,
-        "cleanup": {
-          "x": 522,
-          "y": 2239,
-          "width": 215,
-          "height": 183
-        },
-        "anchorX": 0.5349,
-        "anchorY": 0.5301,
-        "flipX": false,
-        "flipY": false
-      }
-    },
-    {
-      "id": "415ee78e-dd57-5d54-8c00-eff137a2b610",
-      "compatibilitySlot": "dog_20",
-      "x": 1108,
-      "y": 2282,
-      "r": 57,
-      "sprite": {
-        "image": "levels/mexico_oaxaca_market_bird_fb10/dogs/dog_20/sprite_000.png",
-        "height": 155,
-        "width": 137,
-        "x": 1041,
-        "y": 2209,
-        "cleanup": {
-          "x": 1041,
-          "y": 2209,
-          "width": 137,
-          "height": 155
-        },
-        "anchorX": 0.4891,
-        "anchorY": 0.471,
-        "flipX": false,
-        "flipY": false
-      }
-    },
-    {
-      "id": "e961b79c-2d58-5dfc-8993-bce49eb1bf56",
-      "compatibilitySlot": "dog_18",
-      "x": 2230,
+      "id": "dog_18",
+      "x": 2231,
       "y": 1512,
       "r": 57,
       "sprite": {
         "image": "levels/mexico_oaxaca_market_bird_fb10/dogs/dog_18/sprite_000.png",
-        "height": 188,
-        "width": 215,
         "x": 2130,
         "y": 1398,
+        "width": 215,
+        "height": 188,
         "cleanup": {
-          "x": 2130,
-          "y": 1398,
-          "width": 215,
-          "height": 188
+          "x": 2058,
+          "y": 1356,
+          "width": 338,
+          "height": 297
         },
         "anchorX": 0.4698,
-        "anchorY": 0.6064,
-        "flipX": false,
-        "flipY": false
+        "anchorY": 0.6064
       }
     },
     {
-      "id": "74c443ac-c232-524c-bcfc-247ca07f6e28",
-      "compatibilitySlot": "dog_19",
-      "x": 2239,
-      "y": 1950,
+      "id": "dog_19",
+      "x": 2243,
+      "y": 1942,
       "r": 57,
       "sprite": {
         "image": "levels/mexico_oaxaca_market_bird_fb10/dogs/dog_19/sprite_000.png",
-        "height": 196,
-        "width": 201,
         "x": 2096,
         "y": 1845,
+        "width": 201,
+        "height": 196,
         "cleanup": {
-          "x": 2096,
-          "y": 1845,
-          "width": 201,
-          "height": 196
+          "x": 2133,
+          "y": 1798,
+          "width": 271,
+          "height": 327
         },
         "anchorX": 0.7313,
-        "anchorY": 0.4949,
-        "flipX": false,
-        "flipY": false
+        "anchorY": 0.4949
+      }
+    },
+    {
+      "id": "dog_20",
+      "x": 1106,
+      "y": 2282,
+      "r": 57,
+      "sprite": {
+        "image": "levels/mexico_oaxaca_market_bird_fb10/dogs/dog_20/sprite_000.png",
+        "x": 1041,
+        "y": 2209,
+        "width": 137,
+        "height": 154,
+        "cleanup": {
+          "x": 933,
+          "y": 2159,
+          "width": 296,
+          "height": 254
+        },
+        "anchorX": 0.4745,
+        "anchorY": 0.474
+      }
+    },
+    {
+      "id": "dog_21",
+      "x": 500,
+      "y": 2298,
+      "r": 57,
+      "sprite": {
+        "image": "levels/mexico_oaxaca_market_bird_fb10/dogs/dog_21/sprite_000.png",
+        "x": 336,
+        "y": 2163,
+        "width": 275,
+        "height": 225,
+        "cleanup": {
+          "x": 317,
+          "y": 2118,
+          "width": 250,
+          "height": 345
+        },
+        "anchorX": 0.5964,
+        "anchorY": 0.6
+      }
+    },
+    {
+      "id": "dog_22",
+      "x": 637,
+      "y": 2336,
+      "r": 57,
+      "sprite": {
+        "image": "levels/mexico_oaxaca_market_bird_fb10/dogs/dog_22/sprite_000.png",
+        "x": 522,
+        "y": 2239,
+        "width": 215,
+        "height": 183,
+        "cleanup": {
+          "x": 569,
+          "y": 2164,
+          "width": 247,
+          "height": 345
+        },
+        "anchorX": 0.5349,
+        "anchorY": 0.5301
       }
     }
-  ],
-  "provenance": {
-    "setting": "mexico",
-    "scene": "mexico_oaxaca_market",
-    "entity": "bird",
-    "style": "clean_old_cartoon",
-    "scenePrompt": "[Purpose]\nCreate a full-bleed mobile-game background for Find the Bird.\n\n[Short Description]\nAn Oaxacan covered market sprawling across multiple connected sections arranged as an organic isometric hidden-object scene.\n\n[Scene] An Oaxacan covered market sprawling across multiple connected sections \u2014 a main central aisle of stalls, a side row branching off under a corrugated roof, a craft corner tucked between stalls. The entire ground surface is consistent worn stone paving throughout \u2014 every area the viewer can see the ground, it reads as old flagstones with no untextured blank areas. Market stalls of varying sizes crowd unevenly along the aisles, some clustered tightly under shared awnings, others standing alone with gaps. Tin and fabric roofs at different heights, some overlapping, some freestanding. A tinsel-streamer garland runs at an unexpected angle across the aisle overhead. Scattered throughout without pattern: hanging strings of dried chiles in every red and brown shade, baskets of heirloom corn and cacao beans, stacked clay comals and black pottery, folded rebozos and textiles in jewel tones, painted alebrijes on a high shelf, a molinillo in a wooden bowl, sunlight cutting through gaps in the roof, woven palm mats, piles of spices in open sacks, crates of tomatillos, bundled cinnamon bark, painted tin candelabras, stacked tortilla presses, hanging tin milagros, a scale on a counter, woven shopping bags, dried marigold heads. Dense clusters around the chile stall, sparser breathing room at the craft corner. Asymmetric, organic layout \u2014 like a market that grew stall by stall across centuries of market days.\n\n[View] Moderately elevated three-quarter game-map view with a close, readable mobile-game camera: roughly 35 degrees down from horizontal, with only enough scene visible to support about 20 hidden bird placements. Do not use an extreme aerial, distant establishing, miniature-diorama, or whole-city view. Large scene anchors should occupy substantial frame area, and ordinary props must remain individually recognizable at phone size. Use controlled hidden-object density: arrange approximately 20 plausible hiding pockets across 4 to 6 connected prop clusters, with visible breathing room, clear travel paths between clusters, and readable object boundaries for phone-screen scanning. Use mild perspective or near-isometric construction consistently, without wide-angle distortion, dramatic foreshortening, depth of field, or tiny distance-scaled clutter.\n\n[Style] Vintage hand-drawn cartoon background adapted for a modern mobile puzzle game. Rounded old-cartoon shapes, cheerful simplified silhouettes, thick confident ink outlines, flat poster-like color fills, and soft hand-painted background texture. Use broad readable color masses and minimal internal linework so the scene stays clear on a phone screen. Charming and slightly nostalgic, clean and polished for mobile, with less visual noise, fewer texture marks, and no dense rendering.\n\n[Gameplay Composition]\nDesign this as a production hidden-object background where birds will be added later. Create many plausible hiding pockets on walkable/contact surfaces or open gaps beside props, plants, rocks, furniture, railings, crates, planters, benches, roots, tools, shelves, stalls, boats, carts, market goods, or other readable foreground objects. Near props is ideal; inside solid objects, on blank walls, on roofs, floating over water, or on decorative vertical faces is not useful. Use theme-specific spatial logic such as rings, islands, terraces, nested rooms, clearings, bridges, piers, shelves, courtyards, side alleys, garden pockets, or clustered market zones. Keep open pockets between prop clusters so hitboxes can sit near objects without excessive overlap.\n\n[Constraints]\nDo not depict any bird; every bird is added during the later gameplay pass. No people, no live animals, no insects, no mascots, no readable text, no logos, no watermarks. Signs, chalkboards, labels, plaques, and boards named in the scene may appear but must show only illegible marks, squiggles, or blank surfaces \u2014 never legible words or letters. Market food and fishing props are allowed when the scene calls for them. Avoid huge blank walls, roof-dominated compositions, large featureless empty lawns, empty sand, empty floors, long straight roads, and noisy micro-texture camouflage. Every visible ground, floor, or water-edge region should read as a clear material appropriate to the scene; no untextured blank areas.",
-    "entityPrompt": "Add exactly one bird to this crop. Place exactly one bird centered on the marked target area \u2014 do not repeat the subject. Match the scene's illustration style, line weight, palette, and flat-shaded rendering, but keep the bird's silhouette and boundary readable on a phone screen. The bird may be partially occluded or contextually disguised, but must not disappear through muddy edges, low contrast, texture camouflage, or ambiguous merged shapes. Vary the bird's colors, markings, proportions, and small physical details across crops so the level does not repeat the same bird design. The bird is a charming little anthropomorphic inhabitant of this world \u2014 a character with personality going about its business. Give it something simple and specific to do with its surroundings: holding an object, using a tool, sitting at a small task, peeking at something, carrying something, watching something with interest, tending a small thing, pausing mid-task. Keep the pose clear and readable. The charm comes from the context and the expression, not from dynamic motion. Size the bird realistically relative to the scene around it \u2014 compare it to whatever human-scale objects are visible in the crop and render the bird at the physical size a real bird would be next to them. Not so small that its species is ambiguous, not so large that it dominates the crop. The bird must be fully contained within the visible frame. Keep all other elements of the image unchanged.",
-    "bgModel": "google/gemini-3.1-flash-image-preview",
-    "inpaintModel": "google/gemini-3.1-flash-image-preview"
-  }
+  ]
 }

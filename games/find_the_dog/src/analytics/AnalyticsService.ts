@@ -1,6 +1,9 @@
 import {
   createAnalytics,
   createConsoleSink,
+  claimFirstOpen,
+  type FirstOpenLockManager,
+  type FirstOpenStorageDurability,
   type Analytics,
   type AnalyticsParamValue,
 } from '@fabrikav2/sdk/analytics';
@@ -9,6 +12,8 @@ import { registerLifecycleHooks } from '../platform/gameLifecycle';
 import { adService } from '../ads/Service';
 import type { PurchaseUnfulfilledOutcome } from '../shop/PurchaseFulfillment';
 import type { AnalyticsLevelAttribution } from './AnalyticsEventContract';
+import { bootstrapStorage } from '../platform/bootstrapStorage';
+import { EXISTING_FIND_THE_DOG_STATE_KEYS } from './installState';
 import type {
   AchievementPageViewedPayload,
   AchievementProgressPayload,
@@ -211,10 +216,16 @@ export interface AnalyticsServiceComposition {
   readonly attribution?: typeof attribution;
   readonly providerName?: () => string;
   readonly ownedMirrorStats?: () => OwnedAnalyticsMirrorStats;
+  readonly storage?: Pick<Storage, 'getItem' | 'setItem'>;
+  readonly storageDurability?: FirstOpenStorageDurability;
+  readonly firstOpenLocks?: FirstOpenLockManager | null;
 }
 
 export class AnalyticsService {
   private sdk: Analytics<FtdEvent>;
+  private storage: Pick<Storage, 'getItem' | 'setItem'>;
+  private storageDurability: FirstOpenStorageDurability;
+  private firstOpenLocks: FirstOpenLockManager | null | undefined;
   private attributionPort: typeof attribution = attribution;
   private providerNamePort: () => string = () => adService.providerName;
   private ownedMirrorStatsPort: () => OwnedAnalyticsMirrorStats = () => ({
@@ -227,6 +238,9 @@ export class AnalyticsService {
   private cohortBucket: number | null = null;
 
   constructor(composition?: AnalyticsServiceComposition) {
+    this.storage = composition?.storage ?? bootstrapStorage;
+    this.storageDurability = composition?.storageDurability ?? bootstrapStorage.durability;
+    this.firstOpenLocks = composition?.firstOpenLocks;
     this.sdk = composition?.sdk ?? createAnalytics<FtdEvent>({
       env: import.meta.env.PROD ? 'production' : 'development',
       sessionId: createFtdSessionId(),
@@ -241,25 +255,50 @@ export class AnalyticsService {
     this.attributionPort = composition.attribution ?? attribution;
     this.providerNamePort = composition.providerName ?? (() => adService.providerName);
     this.ownedMirrorStatsPort = composition.ownedMirrorStats ?? this.ownedMirrorStatsPort;
+    this.storage = composition.storage ?? this.storage;
+    this.storageDurability = composition.storageDurability ?? this.storageDurability;
+    if (composition.firstOpenLocks !== undefined) this.firstOpenLocks = composition.firstOpenLocks;
   }
 
-  async init(): Promise<void> {
-    this.sdk.sessionStart({ first_open: false });
-    // 33% of UA-test sessions never delivered a session end: nothing flushed
-    // analytics when the app backgrounded, and a killed WKWebView never fires
-    // beforeunload. Flush every buffering sink the moment we suspend — the
-    // background grace window is the last reliable execution slot.
+  async init(options: {
+    hadExistingStateAtBootstrap?: boolean;
+    storageDurability?: FirstOpenStorageDurability;
+  } = {}): Promise<void> {
+    let initializing = true;
+    let suspendedDuringInit = false;
+    const suspend = (): void => {
+      if (initializing) {
+        suspendedDuringInit = true;
+        return;
+      }
+      this.flushForSuspend();
+    };
+    // Register before the asynchronous atomic claim. A suspend arriving while
+    // IndexedDB/Web Locks is pending is replayed immediately after session_start.
     registerLifecycleHooks('analytics-flush', {
-      onSuspend: (): void => {
-        this.sdk.track('app_background');
-        this.sdk.sessionEnd();
-        void this.sdk.flush();
-      },
+      onSuspend: suspend,
       onResume: (): void => {
         this.sdk.track('app_foreground');
         this.sdk.sessionStart({ first_open: false });
       },
     });
+    const firstOpen = await claimFirstOpen({
+      storage: this.storage,
+      storageDurability: options.storageDurability ?? this.storageDurability,
+      profile: 'find_the_dog',
+      existingStateKeys: EXISTING_FIND_THE_DOG_STATE_KEYS,
+      hadExistingStateAtBootstrap: options.hadExistingStateAtBootstrap,
+      locks: this.firstOpenLocks,
+    });
+    this.sdk.sessionStart({ first_open: firstOpen });
+    initializing = false;
+    if (suspendedDuringInit) this.flushForSuspend();
+  }
+
+  private flushForSuspend(): void {
+    this.sdk.track('app_background');
+    this.sdk.sessionEnd();
+    void this.sdk.flush();
   }
 
   setCohortBucket(bucket: number): void {

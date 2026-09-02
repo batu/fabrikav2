@@ -1,37 +1,22 @@
 {
   "id": "hawaii_waikiki_beach_market_bird_dee6",
-  "name": "Level hawaii_waikiki_beach_market_bird_dee6",
+  "name": "Level hawaii_waikiki_beach_market_bird_dee6 (clean_old_cartoon)",
   "width": 2688,
   "height": 2688,
+  "bwImage": "levels/hawaii_waikiki_beach_market_bird_dee6/bw.png",
   "colorImage": "levels/hawaii_waikiki_beach_market_bird_dee6/color.png",
-  "artifactRevision": "sha256:3c1dac4b99b7dac08500cfb6aac0ddea888ca5228509ef384c2491ebedfb9429",
-  "compatibilityAliases": {
-    "dog_00": "602efbac-d4b1-59dd-974b-e2e630443de1",
-    "dog_01": "a19ed008-eb0e-5234-afa3-a30969bd51ba",
-    "dog_02": "f514890b-0a2a-5615-ac9f-e32f6ca7399f",
-    "dog_03": "ab9c38ae-148f-5c56-a492-29289bac3ecc",
-    "dog_04": "bf00213d-99b8-5537-a7e4-2d0d02d638b1",
-    "dog_05": "e65b89ab-6a05-5a46-8360-db10136b78be",
-    "dog_06": "307ca64d-8451-5559-aefb-f17499021757",
-    "dog_07": "2d520e9f-83b9-5cb4-a90f-dca0a2b5e5b6",
-    "dog_08": "e889695d-f8f0-544d-9832-27dd33bc8004",
-    "dog_09": "1b7731cf-e048-502a-87d9-0e568335c774",
-    "dog_10": "59396262-dc93-5720-94f6-3f3766c978c2",
-    "dog_11": "5a369164-d22b-5d59-8e80-4fdab2eeb91d"
-  },
   "dogs": [
     {
-      "id": "602efbac-d4b1-59dd-974b-e2e630443de1",
-      "compatibilitySlot": "dog_00",
+      "id": "dog_00",
       "x": 894,
       "y": 731,
       "r": 57,
       "sprite": {
         "image": "levels/hawaii_waikiki_beach_market_bird_dee6/dogs/dog_00/sprite_000.png",
-        "height": 184,
-        "width": 227,
-        "x": 798,
-        "y": 658,
+        "x": 817,
+        "y": 670,
+        "width": 165,
+        "height": 139,
         "cleanup": {
           "x": 721,
           "y": 558,
@@ -39,23 +24,20 @@
           "height": 335
         },
         "anchorX": 0.4667,
-        "anchorY": 0.4388,
-        "flipX": false,
-        "flipY": false
+        "anchorY": 0.4388
       }
     },
     {
-      "id": "a19ed008-eb0e-5234-afa3-a30969bd51ba",
-      "compatibilitySlot": "dog_01",
+      "id": "dog_01",
       "x": 1066,
       "y": 1058,
       "r": 57,
       "sprite": {
         "image": "levels/hawaii_waikiki_beach_market_bird_dee6/dogs/dog_01/sprite_000.png",
-        "height": 224,
-        "width": 135,
-        "x": 1004,
-        "y": 931,
+        "x": 1022,
+        "y": 957,
+        "width": 104,
+        "height": 162,
         "cleanup": {
           "x": 899,
           "y": 895,
@@ -63,47 +45,41 @@
           "height": 321
         },
         "anchorX": 0.4231,
-        "anchorY": 0.6235,
-        "flipX": false,
-        "flipY": false
+        "anchorY": 0.6235
       }
     },
     {
-      "id": "f514890b-0a2a-5615-ac9f-e32f6ca7399f",
-      "compatibilitySlot": "dog_02",
+      "id": "dog_02",
       "x": 1568,
       "y": 1177,
       "r": 57,
       "sprite": {
         "image": "levels/hawaii_waikiki_beach_market_bird_dee6/dogs/dog_02/sprite_000.png",
+        "x": 1485,
+        "y": 1069,
+        "width": 200,
         "height": 237,
-        "width": 176,
-        "x": 1514,
-        "y": 1053,
         "cleanup": {
-          "x": 1411,
-          "y": 1020,
-          "width": 314,
-          "height": 314
+          "x": 1395,
+          "y": 1004,
+          "width": 345,
+          "height": 345
         },
-        "anchorX": 0.4034,
-        "anchorY": 0.4557,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.415,
+        "anchorY": 0.4557
       }
     },
     {
-      "id": "ab9c38ae-148f-5c56-a492-29289bac3ecc",
-      "compatibilitySlot": "dog_03",
+      "id": "dog_03",
       "x": 2087,
       "y": 1426,
       "r": 57,
       "sprite": {
         "image": "levels/hawaii_waikiki_beach_market_bird_dee6/dogs/dog_03/sprite_000.png",
-        "height": 190,
-        "width": 217,
-        "x": 1968,
-        "y": 1331,
+        "x": 2001,
+        "y": 1368,
+        "width": 153,
+        "height": 140,
         "cleanup": {
           "x": 1922,
           "y": 1253,
@@ -111,47 +87,41 @@
           "height": 321
         },
         "anchorX": 0.5621,
-        "anchorY": 0.4143,
-        "flipX": false,
-        "flipY": false
+        "anchorY": 0.4143
       }
     },
     {
-      "id": "bf00213d-99b8-5537-a7e4-2d0d02d638b1",
-      "compatibilitySlot": "dog_04",
-      "x": 912,
-      "y": 1767,
+      "id": "dog_04",
+      "x": 900,
+      "y": 1764,
       "r": 57,
       "sprite": {
         "image": "levels/hawaii_waikiki_beach_market_bird_dee6/dogs/dog_04/sprite_000.png",
-        "height": 149,
-        "width": 193,
-        "x": 820,
-        "y": 1710,
+        "x": 825,
+        "y": 1651,
+        "width": 239,
+        "height": 271,
         "cleanup": {
-          "x": 743,
-          "y": 1607,
-          "width": 314,
-          "height": 314
+          "x": 751,
+          "y": 1591,
+          "width": 321,
+          "height": 345
         },
         "anchorX": 0.3138,
-        "anchorY": 0.164,
-        "flipX": false,
-        "flipY": false
+        "anchorY": 0.417
       }
     },
     {
-      "id": "e65b89ab-6a05-5a46-8360-db10136b78be",
-      "compatibilitySlot": "dog_05",
+      "id": "dog_05",
       "x": 625,
       "y": 1903,
       "r": 57,
       "sprite": {
         "image": "levels/hawaii_waikiki_beach_market_bird_dee6/dogs/dog_05/sprite_000.png",
-        "height": 229,
-        "width": 208,
         "x": 524,
         "y": 1792,
+        "width": 208,
+        "height": 229,
         "cleanup": {
           "x": 452,
           "y": 1730,
@@ -159,47 +129,41 @@
           "height": 345
         },
         "anchorX": 0.4856,
-        "anchorY": 0.4847,
-        "flipX": false,
-        "flipY": false
+        "anchorY": 0.4847
       }
     },
     {
-      "id": "307ca64d-8451-5559-aefb-f17499021757",
-      "compatibilitySlot": "dog_06",
+      "id": "dog_06",
       "x": 885,
       "y": 2076,
       "r": 57,
       "sprite": {
         "image": "levels/hawaii_waikiki_beach_market_bird_dee6/dogs/dog_06/sprite_000.png",
-        "height": 208,
-        "width": 214,
-        "x": 795,
-        "y": 1980,
+        "x": 753,
+        "y": 1944,
+        "width": 262,
+        "height": 262,
         "cleanup": {
-          "x": 776,
-          "y": 1974,
-          "width": 227,
-          "height": 198
+          "x": 751,
+          "y": 1937,
+          "width": 306,
+          "height": 289
         },
-        "anchorX": 0.6308,
-        "anchorY": 0.6346,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.5038,
+        "anchorY": 0.5038
       }
     },
     {
-      "id": "2d520e9f-83b9-5cb4-a90f-dca0a2b5e5b6",
-      "compatibilitySlot": "dog_07",
+      "id": "dog_07",
       "x": 1237,
       "y": 2210,
       "r": 57,
       "sprite": {
         "image": "levels/hawaii_waikiki_beach_market_bird_dee6/dogs/dog_07/sprite_000.png",
-        "height": 174,
-        "width": 148,
-        "x": 1142,
-        "y": 2122,
+        "x": 1121,
+        "y": 2060,
+        "width": 169,
+        "height": 212,
         "cleanup": {
           "x": 1100,
           "y": 2078,
@@ -207,47 +171,41 @@
           "height": 276
         },
         "anchorX": 0.6864,
-        "anchorY": 0.7075,
-        "flipX": false,
-        "flipY": false
+        "anchorY": 0.7075
       }
     },
     {
-      "id": "e889695d-f8f0-544d-9832-27dd33bc8004",
-      "compatibilitySlot": "dog_08",
+      "id": "dog_08",
       "x": 1335,
       "y": 2247,
       "r": 57,
       "sprite": {
         "image": "levels/hawaii_waikiki_beach_market_bird_dee6/dogs/dog_08/sprite_000.png",
-        "height": 186,
-        "width": 139,
-        "x": 1278,
-        "y": 2151,
+        "x": 1153,
+        "y": 2121,
+        "width": 250,
+        "height": 216,
         "cleanup": {
-          "x": 1278,
-          "y": 2095,
+          "x": 1287,
+          "y": 2094,
           "width": 179,
           "height": 320
         },
-        "anchorX": 0.8142,
-        "anchorY": 0.5833,
-        "flipX": true,
-        "flipY": false
+        "anchorX": 0.728,
+        "anchorY": 0.5833
       }
     },
     {
-      "id": "1b7731cf-e048-502a-87d9-0e568335c774",
-      "compatibilitySlot": "dog_09",
+      "id": "dog_09",
       "x": 1600,
       "y": 2172,
       "r": 57,
       "sprite": {
         "image": "levels/hawaii_waikiki_beach_market_bird_dee6/dogs/dog_09/sprite_000.png",
-        "height": 165,
-        "width": 187,
         "x": 1461,
         "y": 2069,
+        "width": 187,
+        "height": 165,
         "cleanup": {
           "x": 1468,
           "y": 1999,
@@ -255,23 +213,20 @@
           "height": 341
         },
         "anchorX": 0.7433,
-        "anchorY": 0.6242,
-        "flipX": false,
-        "flipY": false
+        "anchorY": 0.6242
       }
     },
     {
-      "id": "59396262-dc93-5720-94f6-3f3766c978c2",
-      "compatibilitySlot": "dog_10",
+      "id": "dog_10",
       "x": 1976,
       "y": 2205,
       "r": 57,
       "sprite": {
         "image": "levels/hawaii_waikiki_beach_market_bird_dee6/dogs/dog_10/sprite_000.png",
-        "height": 189,
-        "width": 264,
         "x": 1856,
         "y": 2103,
+        "width": 264,
+        "height": 189,
         "cleanup": {
           "x": 1803,
           "y": 2071,
@@ -279,23 +234,20 @@
           "height": 306
         },
         "anchorX": 0.4545,
-        "anchorY": 0.5397,
-        "flipX": false,
-        "flipY": false
+        "anchorY": 0.5397
       }
     },
     {
-      "id": "5a369164-d22b-5d59-8e80-4fdab2eeb91d",
-      "compatibilitySlot": "dog_11",
+      "id": "dog_11",
       "x": 2250,
       "y": 1940,
       "r": 57,
       "sprite": {
         "image": "levels/hawaii_waikiki_beach_market_bird_dee6/dogs/dog_11/sprite_000.png",
-        "height": 196,
-        "width": 177,
         "x": 2190,
         "y": 1848,
+        "width": 177,
+        "height": 196,
         "cleanup": {
           "x": 2114,
           "y": 1767,
@@ -303,20 +255,8 @@
           "height": 311
         },
         "anchorX": 0.339,
-        "anchorY": 0.4694,
-        "flipX": false,
-        "flipY": false
+        "anchorY": 0.4694
       }
     }
-  ],
-  "provenance": {
-    "setting": "hawaii",
-    "scene": "hawaii_waikiki_beach_market",
-    "entity": "bird",
-    "style": "clean_old_cartoon",
-    "scenePrompt": "[Purpose]\nCreate a full-bleed mobile-game background for Find the Bird.\n\n[Short Description]\nA Waikiki beachfront market sprawling along the shoreline arranged as an organic isometric hidden-object scene.\n\n[Scene] A Waikiki beachfront market sprawling along the shoreline \u2014 a main promenade of palm-thatched stalls, a side boardwalk branching toward the surf racks, a sand-strip merging with the beach at one edge. The market has consistent materials throughout \u2014 each visible region renders as the material it should be, fine pale sand on the boardwalks' edges, wooden decking on the boardwalks, turquoise water glimpsed between stalls, with no untextured blank areas. Palm-thatched stalls of varying sizes crowd unevenly along the promenade, some clustered tightly under shared roof-beams, others standing alone with gaps. Thatched roofs at different heights, some overlapping, some freestanding. A tall tiki torch pole leans at an unexpected angle near the sand. Scattered throughout without pattern: shave-ice stands, leis hung on racks, surfboards leaning in racks, coconut drinks on counters, printed aloha shirts on hangers, woven baskets of pineapples and mangoes, striped umbrellas, sandy boardwalks, carved wooden signs, hibiscus blooms tucked in rails, racks of flip-flops, stacked coconuts, ukuleles on a rack, painted boogie boards, a conch-shell display, ice-filled buckets, a painted longboard leaned on a post. Dense clusters around the food stalls, sparser breathing room toward the sand. Asymmetric, organic layout \u2014 like a beach market grown stall by stall across decades of tourist seasons.\n\n[View] Moderately elevated three-quarter game-map view with a close, readable mobile-game camera: roughly 35 degrees down from horizontal, with only enough scene visible to support about 20 hidden bird placements. Do not use an extreme aerial, distant establishing, miniature-diorama, or whole-city view. Large scene anchors should occupy substantial frame area, and ordinary props must remain individually recognizable at phone size. Use controlled hidden-object density: arrange approximately 20 plausible hiding pockets across 4 to 6 connected prop clusters, with visible breathing room, clear travel paths between clusters, and readable object boundaries for phone-screen scanning. Use mild perspective or near-isometric construction consistently, without wide-angle distortion, dramatic foreshortening, depth of field, or tiny distance-scaled clutter.\n\n[Style] Vintage hand-drawn cartoon background adapted for a modern mobile puzzle game. Rounded old-cartoon shapes, cheerful simplified silhouettes, thick confident ink outlines, flat poster-like color fills, and soft hand-painted background texture. Use broad readable color masses and minimal internal linework so the scene stays clear on a phone screen. Charming and slightly nostalgic, clean and polished for mobile, with less visual noise, fewer texture marks, and no dense rendering.\n\n[Gameplay Composition]\nDesign this as a production hidden-object background where birds will be added later. Create many plausible hiding pockets on walkable/contact surfaces or open gaps beside props, plants, rocks, furniture, railings, crates, planters, benches, roots, tools, shelves, stalls, boats, carts, market goods, or other readable foreground objects. Near props is ideal; inside solid objects, on blank walls, on roofs, floating over water, or on decorative vertical faces is not useful. Use theme-specific spatial logic such as rings, islands, terraces, nested rooms, clearings, bridges, piers, shelves, courtyards, side alleys, garden pockets, or clustered market zones. Keep open pockets between prop clusters so hitboxes can sit near objects without excessive overlap.\n\n[Constraints]\nDo not depict any bird; every bird is added during the later gameplay pass. No people, no live animals, no insects, no mascots, no readable text, no logos, no watermarks. Signs, chalkboards, labels, plaques, and boards named in the scene may appear but must show only illegible marks, squiggles, or blank surfaces \u2014 never legible words or letters. Market food and fishing props are allowed when the scene calls for them. Avoid huge blank walls, roof-dominated compositions, large featureless empty lawns, empty sand, empty floors, long straight roads, and noisy micro-texture camouflage. Every visible ground, floor, or water-edge region should read as a clear material appropriate to the scene; no untextured blank areas.",
-    "entityPrompt": "Add exactly one bird to this crop. Place exactly one bird centered on the marked target area \u2014 do not repeat the subject. Match the scene's illustration style, line weight, palette, and flat-shaded rendering, but keep the bird's silhouette and boundary readable on a phone screen. The bird may be partially occluded or contextually disguised, but must not disappear through muddy edges, low contrast, texture camouflage, or ambiguous merged shapes. Vary the bird's colors, markings, proportions, and small physical details across crops so the level does not repeat the same bird design. The bird is a charming little anthropomorphic inhabitant of this world \u2014 a character with personality going about its business. Give it something simple and specific to do with its surroundings: holding an object, using a tool, sitting at a small task, peeking at something, carrying something, watching something with interest, tending a small thing, pausing mid-task. Keep the pose clear and readable. The charm comes from the context and the expression, not from dynamic motion. Size the bird realistically relative to the scene around it \u2014 compare it to whatever human-scale objects are visible in the crop and render the bird at the physical size a real bird would be next to them. Not so small that its species is ambiguous, not so large that it dominates the crop. The bird must be fully contained within the visible frame. Keep all other elements of the image unchanged.",
-    "bgModel": "google/gemini-3.1-flash-image-preview",
-    "inpaintModel": "google/gemini-3.1-flash-image-preview"
-  }
+  ]
 }

@@ -1,6 +1,8 @@
 import { describe, expect, it, vi } from 'vitest';
 import { createSdkContext } from '../../src/sdk/SdkContext';
 
+const REVENUECAT_IOS_PUBLIC_KEY = `appl_${'A1b2C3d4E5f6G7h8I9j0K1l2M3n'}`;
+
 describe('FTD IAP provider selection', () => {
   it('uses seeded Fake on web and configured RevenueCat on native iOS', async () => {
     const webLoader = vi.fn();
@@ -30,7 +32,7 @@ describe('FTD IAP provider selection', () => {
       buildEnv: 'development',
       platform: 'ios',
       isNativePlatform: true,
-      env: { VITE_REVENUECAT_IOS_API_KEY: 'test_ftd_key' },
+      env: { VITE_REVENUECAT_IOS_API_KEY: REVENUECAT_IOS_PUBLIC_KEY },
       revenueCatLoader: nativeLoader,
     });
     const provider = await native.iapComposition.provider();
@@ -38,19 +40,32 @@ describe('FTD IAP provider selection', () => {
 
     expect(native.selection.iap).toBe('revenuecat');
     expect(nativeLoader).toHaveBeenCalledTimes(1);
-    expect(configure).toHaveBeenCalledWith({ apiKey: 'test_ftd_key' });
+    expect(configure).toHaveBeenCalledWith({ apiKey: REVENUECAT_IOS_PUBLIC_KEY });
   });
 
-  it('falls back to Fake and emits a release-blocker diagnostic when native key is absent', () => {
-    const warn = vi.fn();
-    const context = createSdkContext({
+  it('rejects production native iOS when the owner-controlled RevenueCat key is absent', () => {
+    expect(() => createSdkContext({
       buildEnv: 'production',
       platform: 'ios',
       isNativePlatform: true,
       env: {},
-      logger: { warn },
-    });
-    expect(context.selection.iap).toBe('fake');
-    expect(warn).toHaveBeenCalledWith(expect.stringContaining('RELEASE BLOCKER'));
+    })).toThrow('VITE_REVENUECAT_IOS_API_KEY');
   });
+
+  it.each([
+    'test_placeholder_key',
+    '__SET_IN_LOCAL_ENV__',
+    'appl_bad-key',
+    ` appl_${'a'.repeat(27)}`,
+  ])(
+    'rejects malformed RevenueCat key at runtime: %s',
+    (apiKey) => {
+      expect(() => createSdkContext({
+        buildEnv: 'production',
+        platform: 'ios',
+        isNativePlatform: true,
+        env: { VITE_REVENUECAT_IOS_API_KEY: apiKey },
+      })).toThrow('valid RevenueCat iOS public key');
+    },
+  );
 });

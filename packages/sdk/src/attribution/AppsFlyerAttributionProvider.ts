@@ -1,14 +1,10 @@
-import type {
-  AppsFlyerAttributionPlugin,
-  AppsFlyerTrackEventOptions,
-} from './AppsFlyerAttributionPlugin.ts';
+import type { AppsFlyerAttributionPlugin } from './AppsFlyerAttributionPlugin.ts';
 import { AppsFlyerAttribution } from './AppsFlyerAttributionPlugin.ts';
 import type { AppsFlyerConfig } from './AppsFlyerConfig.ts';
 import { redactAppsFlyerKey } from './AppsFlyerConfig.ts';
 import type {
   AttributionEventName,
   AttributionParamBag,
-  AttributionParams,
   AttributionProvider,
 } from './AttributionProvider.ts';
 import { isTimeoutError, withTimeout } from '../with-timeout.ts';
@@ -56,14 +52,14 @@ export class AppsFlyerAttributionProvider implements AttributionProvider {
           devKey: redactAppsFlyerKey(this.config.devKey),
           appleAppId: this.config.appleAppId,
           debugLogging: this.config.debugLogging,
-          attWaitSeconds: this.config.attWaitSeconds,
+          sharingPartners: [...this.config.sharingPartners],
         });
         const result = await withTimeout(
           this.plugin.initialize({
             devKey: this.config.devKey,
             appleAppId: this.config.appleAppId,
             debugLogging: this.config.debugLogging,
-            attWaitSeconds: this.config.attWaitSeconds,
+            sharingPartners: [...this.config.sharingPartners],
           }),
           this.timeoutMs.init,
           'AppsFlyer initialization',
@@ -85,25 +81,27 @@ export class AppsFlyerAttributionProvider implements AttributionProvider {
     }
   }
 
-  async track<P extends AttributionParamBag<P>>(eventName: AttributionEventName, params?: P): Promise<void> {
-    await this.init();
-    if (!this.initialized || this.permanentlyDisabled) return;
+  async track<P extends AttributionParamBag<P>>(eventName: AttributionEventName, _params?: P): Promise<void> {
+    // Legacy Adjust-shaped events are intentionally not forwarded to AppsFlyer.
+    // Only trackConfirmed(), reachable through the canonical mapper, crosses
+    // the native boundary.
+    this.log(`legacy event ignored by AppsFlyer projection: ${eventName}`);
+  }
 
+  async trackConfirmed(eventName: string, eventValues: Record<string, string>): Promise<boolean> {
+    await this.init();
+    if (!this.initialized || this.permanentlyDisabled) return false;
     try {
-      const options: AppsFlyerTrackEventOptions = {
-        eventName,
-        eventValues: serializeParams(params ?? {}),
-      };
       const result = await withTimeout(
-        this.plugin.trackEvent(options),
+        this.plugin.trackEvent({ eventName, eventValues }),
         this.timeoutMs.track,
         `AppsFlyer event track: ${eventName}`,
       );
-      if (result.tracked !== true) {
-        this.log(`event not tracked by native bridge: ${eventName}`);
-      }
+      if (result.tracked !== true) this.log(`event not tracked by native bridge: ${eventName}`);
+      return result.tracked === true;
     } catch (err: unknown) {
       this.warn(`event track failed: ${eventName}`, err);
+      return false;
     }
   }
 
@@ -116,11 +114,3 @@ export class AppsFlyerAttributionProvider implements AttributionProvider {
   }
 }
 
-function serializeParams(params: AttributionParams): Record<string, string> {
-  const serialized: Record<string, string> = {};
-  for (const [key, value] of Object.entries(params)) {
-    if (value === null || value === undefined) continue;
-    serialized[key] = String(value);
-  }
-  return serialized;
-}

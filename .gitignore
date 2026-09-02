@@ -5,7 +5,6 @@ dist/
 .env.*
 !games/*/.env.example
 # Client-side publishable ids only (ship inside the app bundle; no server secrets).
-!games/*/.env.production
 .DS_Store
 .twf/
 

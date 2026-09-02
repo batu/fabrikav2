@@ -4,7 +4,8 @@ export interface AppsFlyerConfig {
   devKey: string;
   appleAppId: string | null;
   debugLogging: boolean;
-  attWaitSeconds: number;
+  /** Explicit partner allowlist. Empty is the fail-closed deny-all policy. */
+  sharingPartners: readonly string[];
 }
 
 export type AppsFlyerConfigResult =
@@ -26,9 +27,6 @@ interface AppsFlyerImportMetaEnv extends AppsFlyerEnv {
 
 const env = ((import.meta as unknown as { env?: AppsFlyerImportMetaEnv }).env ?? {}) as AppsFlyerImportMetaEnv;
 
-/** iOS waits this long for ATT resolution before AppsFlyer starts (SDK default idiom). */
-const DEFAULT_ATT_WAIT_SECONDS = 60;
-
 export function readAppsFlyerConfig(
   platform: string,
   appsFlyerEnv: AppsFlyerEnv = env,
@@ -42,16 +40,24 @@ export function readAppsFlyerConfig(
     };
   }
 
-  if (platform !== 'ios' && platform !== 'android') {
+  if (platform !== 'ios') {
     return {
       enabled: false,
-      reason: `AppsFlyer disabled on ${platform || 'web'} platform`,
+      reason: `AppsFlyer iOS bridge unavailable on ${platform || 'web'} platform`,
       missingKeys: [],
     };
   }
 
   const devKey = envString(appsFlyerEnv.VITE_APPSFLYER_DEV_KEY);
   const appleAppId = envString(appsFlyerEnv.VITE_APPSFLYER_APPLE_APP_ID);
+  const sharingPartners = readSharingPartners(appsFlyerEnv.VITE_APPSFLYER_SHARING_PARTNERS);
+  if (sharingPartners.length > 0) {
+    return {
+      enabled: false,
+      reason: 'partner allowlisting is unsupported by the AppsFlyer iOS SDK; keep deny-all and activate reviewed partners in the dashboard',
+      missingKeys: [],
+    };
+  }
 
   const missingKeys: string[] = [];
   if (devKey === null) missingKeys.push('VITE_APPSFLYER_DEV_KEY');
@@ -79,7 +85,7 @@ export function readAppsFlyerConfig(
       devKey: requiredValue(devKey),
       appleAppId: platform === 'ios' ? appleAppId : null,
       debugLogging: !isProductionBuild && parseBooleanEnv(appsFlyerEnv.VITE_APPSFLYER_DEBUG_LOGGING, false),
-      attWaitSeconds: platform === 'ios' ? DEFAULT_ATT_WAIT_SECONDS : 0,
+      sharingPartners: [],
     },
   };
 }
@@ -91,6 +97,12 @@ export function redactAppsFlyerKey(value: string): string {
 
 function productionDefault(appsFlyerEnv: AppsFlyerEnv): boolean {
   return typeof appsFlyerEnv.PROD === 'boolean' ? appsFlyerEnv.PROD : true;
+}
+
+function readSharingPartners(value: string | boolean | undefined): readonly string[] {
+  const raw = envString(value);
+  if (raw === null) return [];
+  return [...new Set(raw.split(',').map((partner) => partner.trim()).filter(Boolean))];
 }
 
 function isNumericAppId(value: string): boolean {

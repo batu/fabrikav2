@@ -1,67 +1,45 @@
 {
   "id": "american_southwest_sw_canyon_river_camp_bird_6221",
-  "name": "Level american_southwest_sw_canyon_river_camp_bird_6221",
+  "name": "Level american_southwest_sw_canyon_river_camp_bird_6221 (clean_old_cartoon)",
   "width": 2688,
   "height": 2688,
+  "bwImage": "levels/american_southwest_sw_canyon_river_camp_bird_6221/bw.png",
   "colorImage": "levels/american_southwest_sw_canyon_river_camp_bird_6221/color.png",
-  "artifactRevision": "sha256:caf95777ee86d2eed35cc3c4670ed2d115ec99cc17763e5f95fe75f4f9df38b6",
-  "compatibilityAliases": {
-    "dog_00": "929013a5-766b-584a-adc7-d8ed39fba7c9",
-    "dog_01": "441706b8-e6e1-5430-b430-8aa83315a7d3",
-    "dog_02": "a487685a-ddf9-568b-908a-e60653d747af",
-    "dog_03": "f4c6b2b3-6de6-570e-9812-64ff45aff4e1",
-    "dog_04": "f959567f-03d9-59b8-9039-88caf189f540",
-    "dog_05": "b3b8b280-e00f-5679-954a-9c0e6a2dc375",
-    "dog_06": "20f2eab7-91bc-535e-8a4b-197e123afb2b",
-    "dog_07": "b2aaf9bc-5ec1-595a-b66d-9288e4acfec2",
-    "dog_08": "35122b0c-07a8-5bff-afa0-d749939d61ed",
-    "dog_09": "feb3443a-a114-5ee0-812c-a0a6b0fee913",
-    "dog_10": "b52da564-b73e-5e64-b6b2-8260cd11df0e",
-    "dog_11": "27b2b218-97d5-5d0b-a75a-621f6932327a",
-    "dog_12": "1036b686-35e3-5ecd-bdd5-3294a2f7959d",
-    "dog_13": "37de6fe5-12a4-562c-ba07-044eaf5551d6",
-    "dog_14": "09d088fd-5ad2-5cbd-b2ab-db8d9f144e0f",
-    "dog_15": "d98c3c31-37af-581d-ba2b-7dac4fab39d6",
-    "dog_16": "04725912-0cda-50e6-a907-2da8d2798ef8",
-    "dog_17": "2e1021fa-12d5-5f80-8690-d547e9edae8e"
-  },
   "dogs": [
     {
-      "id": "929013a5-766b-584a-adc7-d8ed39fba7c9",
-      "compatibilitySlot": "dog_00",
+      "id": "dog_00",
       "x": 1980,
       "y": 550,
       "r": 57,
       "sprite": {
         "image": "levels/american_southwest_sw_canyon_river_camp_bird_6221/dogs/dog_00/sprite_000.png",
-        "height": 106,
-        "width": 159,
-        "x": 1899,
-        "y": 489,
+        "x": 1895,
+        "y": 483,
+        "width": 169,
+        "height": 116,
         "cleanup": {
           "x": 1849,
           "y": 429,
           "width": 275,
           "height": 285
         },
-        "anchorX": 0.5094,
-        "anchorY": 0.5755,
+        "anchorX": 0.503,
+        "anchorY": 0.5776,
         "flipX": true,
         "flipY": false
       }
     },
     {
-      "id": "441706b8-e6e1-5430-b430-8aa83315a7d3",
-      "compatibilitySlot": "dog_01",
+      "id": "dog_01",
       "x": 959,
       "y": 668,
       "r": 57,
       "sprite": {
         "image": "levels/american_southwest_sw_canyon_river_camp_bird_6221/dogs/dog_01/sprite_000.png",
-        "height": 145,
-        "width": 196,
         "x": 862,
         "y": 589,
+        "width": 196,
+        "height": 145,
         "cleanup": {
           "x": 808,
           "y": 495,
@@ -69,23 +47,20 @@
           "height": 345
         },
         "anchorX": 0.4949,
-        "anchorY": 0.5448,
-        "flipX": false,
-        "flipY": false
+        "anchorY": 0.5448
       }
     },
     {
-      "id": "a487685a-ddf9-568b-908a-e60653d747af",
-      "compatibilitySlot": "dog_02",
+      "id": "dog_02",
       "x": 445,
       "y": 828,
       "r": 57,
       "sprite": {
         "image": "levels/american_southwest_sw_canyon_river_camp_bird_6221/dogs/dog_02/sprite_000.png",
-        "height": 130,
-        "width": 183,
         "x": 389,
-        "y": 780,
+        "y": 778,
+        "width": 183,
+        "height": 130,
         "cleanup": {
           "x": 293,
           "y": 674,
@@ -93,47 +68,43 @@
           "height": 297
         },
         "anchorX": 0.306,
-        "anchorY": 0.3692,
+        "anchorY": 0.3846,
         "flipX": false,
         "flipY": false
       }
     },
     {
-      "id": "f4c6b2b3-6de6-570e-9812-64ff45aff4e1",
-      "compatibilitySlot": "dog_03",
+      "id": "dog_03",
       "x": 823,
       "y": 1028,
       "r": 57,
       "sprite": {
         "image": "levels/american_southwest_sw_canyon_river_camp_bird_6221/dogs/dog_03/sprite_000.png",
-        "height": 117,
-        "width": 139,
         "x": 743,
-        "y": 958,
+        "y": 954,
+        "width": 160,
+        "height": 122,
         "cleanup": {
-          "x": 647,
-          "y": 902,
-          "width": 305,
-          "height": 243
+          "x": 666,
+          "y": 871,
+          "width": 314,
+          "height": 314
         },
-        "anchorX": 0.5755,
-        "anchorY": 0.5983,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.5,
+        "anchorY": 0.6066
       }
     },
     {
-      "id": "f959567f-03d9-59b8-9039-88caf189f540",
-      "compatibilitySlot": "dog_04",
+      "id": "dog_04",
       "x": 776,
       "y": 1284,
       "r": 57,
       "sprite": {
         "image": "levels/american_southwest_sw_canyon_river_camp_bird_6221/dogs/dog_04/sprite_000.png",
-        "height": 211,
-        "width": 227,
         "x": 653,
         "y": 1167,
+        "width": 227,
+        "height": 211,
         "cleanup": {
           "x": 650,
           "y": 1160,
@@ -141,23 +112,20 @@
           "height": 247
         },
         "anchorX": 0.5419,
-        "anchorY": 0.5545,
-        "flipX": false,
-        "flipY": false
+        "anchorY": 0.5545
       }
     },
     {
-      "id": "b3b8b280-e00f-5679-954a-9c0e6a2dc375",
-      "compatibilitySlot": "dog_05",
+      "id": "dog_05",
       "x": 1733,
       "y": 1234,
       "r": 57,
       "sprite": {
         "image": "levels/american_southwest_sw_canyon_river_camp_bird_6221/dogs/dog_05/sprite_000.png",
-        "height": 131,
-        "width": 148,
         "x": 1680,
         "y": 1158,
+        "width": 148,
+        "height": 131,
         "cleanup": {
           "x": 1560,
           "y": 1061,
@@ -165,47 +133,41 @@
           "height": 345
         },
         "anchorX": 0.3581,
-        "anchorY": 0.5802,
-        "flipX": false,
-        "flipY": false
+        "anchorY": 0.5802
       }
     },
     {
-      "id": "20f2eab7-91bc-535e-8a4b-197e123afb2b",
-      "compatibilitySlot": "dog_06",
+      "id": "dog_06",
       "x": 1143,
       "y": 1549,
       "r": 57,
       "sprite": {
         "image": "levels/american_southwest_sw_canyon_river_camp_bird_6221/dogs/dog_06/sprite_000.png",
-        "height": 219,
-        "width": 127,
-        "x": 1097,
-        "y": 1450,
+        "x": 1076,
+        "y": 1453,
+        "width": 157,
+        "height": 229,
         "cleanup": {
-          "x": 981,
-          "y": 1431,
-          "width": 307,
-          "height": 257
+          "x": 986,
+          "y": 1392,
+          "width": 314,
+          "height": 314
         },
-        "anchorX": 0.3622,
-        "anchorY": 0.4521,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.4268,
+        "anchorY": 0.4192
       }
     },
     {
-      "id": "b2aaf9bc-5ec1-595a-b66d-9288e4acfec2",
-      "compatibilitySlot": "dog_07",
+      "id": "dog_07",
       "x": 522,
       "y": 1534,
       "r": 57,
       "sprite": {
         "image": "levels/american_southwest_sw_canyon_river_camp_bird_6221/dogs/dog_07/sprite_000.png",
-        "height": 163,
-        "width": 190,
         "x": 401,
         "y": 1461,
+        "width": 190,
+        "height": 163,
         "cleanup": {
           "x": 349,
           "y": 1361,
@@ -213,71 +175,66 @@
           "height": 345
         },
         "anchorX": 0.6368,
-        "anchorY": 0.4479,
-        "flipX": false,
-        "flipY": false
+        "anchorY": 0.4479
       }
     },
     {
-      "id": "35122b0c-07a8-5bff-afa0-d749939d61ed",
-      "compatibilitySlot": "dog_08",
+      "id": "dog_08",
       "x": 1861,
       "y": 1580,
       "r": 57,
       "sprite": {
         "image": "levels/american_southwest_sw_canyon_river_camp_bird_6221/dogs/dog_08/sprite_000.png",
-        "height": 126,
-        "width": 162,
-        "x": 1755,
+        "x": 1750,
         "y": 1491,
+        "width": 172,
+        "height": 136,
         "cleanup": {
           "x": 1688,
           "y": 1417,
           "width": 345,
           "height": 317
         },
-        "anchorX": 0.6543,
-        "anchorY": 0.7063,
+        "anchorX": 0.6453,
+        "anchorY": 0.6544,
         "flipX": false,
         "flipY": false
       }
     },
     {
-      "id": "feb3443a-a114-5ee0-812c-a0a6b0fee913",
-      "compatibilitySlot": "dog_09",
+      "id": "dog_09",
       "x": 1440,
       "y": 1699,
       "r": 57,
       "sprite": {
         "image": "levels/american_southwest_sw_canyon_river_camp_bird_6221/dogs/dog_09/sprite_000.png",
-        "height": 217,
-        "width": 269,
-        "x": 1312,
-        "y": 1595,
+        "x": 1289,
+        "y": 1601,
+        "width": 256,
+        "height": 203,
         "cleanup": {
-          "x": 1292,
-          "y": 1539,
-          "width": 320,
-          "height": 332
+          "x": 1283,
+          "y": 1542,
+          "width": 314,
+          "height": 314
         },
-        "anchorX": 0.4758,
-        "anchorY": 0.4793,
+        "anchorX": 0.5898,
+        "anchorY": 0.4828,
         "flipX": false,
         "flipY": false
       }
     },
     {
-      "id": "b52da564-b73e-5e64-b6b2-8260cd11df0e",
-      "compatibilitySlot": "dog_10",
+      "id": "dog_10",
       "x": 1176,
       "y": 1778,
       "r": 57,
       "sprite": {
         "image": "levels/american_southwest_sw_canyon_river_camp_bird_6221/dogs/dog_10/sprite_000.png",
-        "height": 173,
-        "width": 209,
         "x": 1054,
         "y": 1684,
+        "width": 209,
+        "height": 173,
         "cleanup": {
           "x": 1045,
           "y": 1616,
@@ -285,23 +242,20 @@
           "height": 178
         },
         "anchorX": 0.5837,
-        "anchorY": 0.5434,
-        "flipX": false,
-        "flipY": false
+        "anchorY": 0.5434
       }
     },
     {
-      "id": "27b2b218-97d5-5d0b-a75a-621f6932327a",
-      "compatibilitySlot": "dog_11",
+      "id": "dog_11",
       "x": 2251,
       "y": 1834,
       "r": 57,
       "sprite": {
         "image": "levels/american_southwest_sw_canyon_river_camp_bird_6221/dogs/dog_11/sprite_000.png",
-        "height": 164,
-        "width": 195,
         "x": 2186,
         "y": 1742,
+        "width": 195,
+        "height": 164,
         "cleanup": {
           "x": 2078,
           "y": 1661,
@@ -309,71 +263,66 @@
           "height": 345
         },
         "anchorX": 0.3333,
-        "anchorY": 0.561,
-        "flipX": false,
-        "flipY": false
+        "anchorY": 0.561
       }
     },
     {
-      "id": "1036b686-35e3-5ecd-bdd5-3294a2f7959d",
-      "compatibilitySlot": "dog_12",
+      "id": "dog_12",
       "x": 1854,
       "y": 1844,
       "r": 57,
       "sprite": {
         "image": "levels/american_southwest_sw_canyon_river_camp_bird_6221/dogs/dog_12/sprite_000.png",
-        "height": 151,
-        "width": 193,
-        "x": 1729,
-        "y": 1790,
+        "x": 1740,
+        "y": 1791,
+        "width": 183,
+        "height": 141,
         "cleanup": {
           "x": 1724,
           "y": 1739,
           "width": 345,
           "height": 323
         },
-        "anchorX": 0.6477,
-        "anchorY": 0.3576,
+        "anchorX": 0.623,
+        "anchorY": 0.3759,
         "flipX": false,
         "flipY": false
       }
     },
     {
-      "id": "37de6fe5-12a4-562c-ba07-044eaf5551d6",
-      "compatibilitySlot": "dog_13",
+      "id": "dog_13",
       "x": 604,
       "y": 1883,
       "r": 57,
       "sprite": {
         "image": "levels/american_southwest_sw_canyon_river_camp_bird_6221/dogs/dog_13/sprite_000.png",
-        "height": 154,
-        "width": 199,
-        "x": 516,
-        "y": 1797,
+        "x": 513,
+        "y": 1791,
+        "width": 209,
+        "height": 164,
         "cleanup": {
           "x": 431,
           "y": 1742,
           "width": 299,
           "height": 306
         },
-        "anchorX": 0.4422,
-        "anchorY": 0.5584,
+        "anchorX": 0.4354,
+        "anchorY": 0.561,
         "flipX": false,
         "flipY": false
       }
     },
     {
-      "id": "09d088fd-5ad2-5cbd-b2ab-db8d9f144e0f",
-      "compatibilitySlot": "dog_14",
+      "id": "dog_14",
       "x": 1493,
       "y": 2069,
       "r": 57,
       "sprite": {
         "image": "levels/american_southwest_sw_canyon_river_camp_bird_6221/dogs/dog_14/sprite_000.png",
-        "height": 191,
-        "width": 197,
         "x": 1418,
         "y": 1946,
+        "width": 197,
+        "height": 191,
         "cleanup": {
           "x": 1320,
           "y": 1896,
@@ -387,86 +336,73 @@
       }
     },
     {
-      "id": "d98c3c31-37af-581d-ba2b-7dac4fab39d6",
-      "compatibilitySlot": "dog_15",
+      "id": "dog_15",
       "x": 858,
       "y": 2069,
       "r": 57,
       "sprite": {
         "image": "levels/american_southwest_sw_canyon_river_camp_bird_6221/dogs/dog_15/sprite_000.png",
-        "height": 151,
-        "width": 130,
-        "x": 807,
-        "y": 2004,
+        "x": 799,
+        "y": 2002,
+        "width": 140,
+        "height": 161,
         "cleanup": {
           "x": 732,
           "y": 1896,
           "width": 298,
           "height": 345
         },
-        "anchorX": 0.3923,
-        "anchorY": 0.4305,
+        "anchorX": 0.4214,
+        "anchorY": 0.4161,
         "flipX": false,
         "flipY": false
       }
     },
     {
-      "id": "04725912-0cda-50e6-a907-2da8d2798ef8",
-      "compatibilitySlot": "dog_16",
+      "id": "dog_16",
       "x": 1791,
       "y": 2333,
       "r": 57,
       "sprite": {
         "image": "levels/american_southwest_sw_canyon_river_camp_bird_6221/dogs/dog_16/sprite_000.png",
-        "height": 227,
-        "width": 171,
-        "x": 1704,
-        "y": 2224,
+        "x": 1708,
+        "y": 2229,
+        "width": 170,
+        "height": 194,
         "cleanup": {
-          "x": 1643,
-          "y": 2160,
-          "width": 316,
-          "height": 345
+          "x": 1634,
+          "y": 2176,
+          "width": 314,
+          "height": 314
         },
-        "anchorX": 0.5088,
-        "anchorY": 0.4802,
+        "anchorX": 0.4882,
+        "anchorY": 0.5361,
         "flipX": false,
         "flipY": false
       }
     },
     {
-      "id": "2e1021fa-12d5-5f80-8690-d547e9edae8e",
-      "compatibilitySlot": "dog_17",
+      "id": "dog_17",
       "x": 472,
       "y": 2376,
       "r": 57,
       "sprite": {
         "image": "levels/american_southwest_sw_canyon_river_camp_bird_6221/dogs/dog_17/sprite_000.png",
-        "height": 181,
+        "x": 362,
+        "y": 2290,
         "width": 217,
-        "x": 366,
-        "y": 2286,
+        "height": 181,
         "cleanup": {
           "x": 316,
           "y": 2244,
           "width": 310,
           "height": 266
         },
-        "anchorX": 0.4885,
-        "anchorY": 0.4972,
+        "anchorX": 0.5069,
+        "anchorY": 0.4751,
         "flipX": false,
         "flipY": false
       }
     }
-  ],
-  "provenance": {
-    "setting": "american_southwest",
-    "scene": "sw_canyon_river_camp",
-    "entity": "bird",
-    "style": "clean_old_cartoon",
-    "scenePrompt": "[Purpose]\nCreate a full-bleed mobile-game background for Find the Bird.\n\n[Short Description]\nA red-rock canyon river camp sprawling along a green-water bend arranged as an organic isometric hidden-object scene.\n\n[Scene] A red-rock canyon river camp sprawling along a green-water bend \u2014 a main sandbar with beached rafts, a cottonwood flat with tents and a fire ring, a talus path climbing to a ledge lookout. The entire ground surface is consistent rippled red sand, river cobbles, and calm green river water throughout \u2014 every area the viewer can see the ground, it reads as sand, cobble, or water with no untextured blank areas. Striped canyon walls of varying heights crowd the bend unevenly, some overhanging in deep alcoves, others stepped back in ledges. Cottonwood crowns and boulder stacks at different heights, some overlapping, some freestanding. One raft sits hauled out at an unexpected angle, propped on its cooler like a workbench. Scattered throughout without pattern: dry bags in color piles, paddles fanned against a log, the fire ring with a kettle tripod, camp chairs, a folding table with maps weighted by stones, life vests on a line, water jugs, a dutch oven, driftwood stacks, a guitar against a chair, rolled sleeping pads, a bucket wash station, rescue rope bags, ammo-can side tables, a solar lantern string between cottonwoods. Dense clusters around the fire ring and raft tie-up, sparser breathing room along the open sandbar. Asymmetric, organic layout \u2014 like a camp that flows in with the river and out again.\n\n[View] Moderately elevated three-quarter game-map view with a close, readable mobile-game camera: roughly 35 degrees down from horizontal, with only enough scene visible to support about 20 hidden bird placements. Do not use an extreme aerial, distant establishing, miniature-diorama, or whole-city view. Large scene anchors should occupy substantial frame area, and ordinary props must remain individually recognizable at phone size. Use controlled hidden-object density: arrange approximately 20 plausible hiding pockets across 4 to 6 connected prop clusters, with visible breathing room, clear travel paths between clusters, and readable object boundaries for phone-screen scanning. Use mild perspective or near-isometric construction consistently, without wide-angle distortion, dramatic foreshortening, depth of field, or tiny distance-scaled clutter.\n\n[Style] Vintage hand-drawn cartoon background adapted for a modern mobile puzzle game. Rounded old-cartoon shapes, cheerful simplified silhouettes, thick confident ink outlines, flat poster-like color fills, and soft hand-painted background texture. Use broad readable color masses and minimal internal linework so the scene stays clear on a phone screen. Charming and slightly nostalgic, clean and polished for mobile, with less visual noise, fewer texture marks, and no dense rendering.\n\n[Gameplay Composition]\nDesign this as a production hidden-object background where birds will be added later. Create many plausible hiding pockets on walkable/contact surfaces or open gaps beside props, plants, rocks, furniture, railings, crates, planters, benches, roots, tools, shelves, stalls, boats, carts, market goods, or other readable foreground objects. Near props is ideal; inside solid objects, on blank walls, on roofs, floating over water, or on decorative vertical faces is not useful. Use theme-specific spatial logic such as rings, islands, terraces, nested rooms, clearings, bridges, piers, shelves, courtyards, side alleys, garden pockets, or clustered market zones. Keep open pockets between prop clusters so hitboxes can sit near objects without excessive overlap.\n\n[Constraints]\nDo not depict any bird; every bird is added during the later gameplay pass. No people, no live animals, no insects, no mascots, no readable text, no logos, no watermarks. Signs, chalkboards, labels, plaques, and boards named in the scene may appear but must show only illegible marks, squiggles, or blank surfaces \u2014 never legible words or letters. Market food and fishing props are allowed when the scene calls for them. Avoid huge blank walls, roof-dominated compositions, large featureless empty lawns, empty sand, empty floors, long straight roads, and noisy micro-texture camouflage. Every visible ground, floor, or water-edge region should read as a clear material appropriate to the scene; no untextured blank areas.",
-    "entityPrompt": "Add exactly one bird to this crop. Place exactly one bird centered on the marked target area \u2014 do not repeat the subject. Match the scene's illustration style, line weight, palette, and flat-shaded rendering, but keep the bird's silhouette and boundary readable on a phone screen. The bird may be partially occluded or contextually disguised, but must not disappear through muddy edges, low contrast, texture camouflage, or ambiguous merged shapes. Vary the bird's colors, markings, proportions, and small physical details across crops so the level does not repeat the same bird design. The bird is a charming little anthropomorphic inhabitant of this world \u2014 a character with personality going about its business. Give it something simple and specific to do with its surroundings: holding an object, using a tool, sitting at a small task, peeking at something, carrying something, watching something with interest, tending a small thing, pausing mid-task. Keep the pose clear and readable. The charm comes from the context and the expression, not from dynamic motion. Size the bird realistically relative to the scene around it \u2014 compare it to whatever human-scale objects are visible in the crop and render the bird at the physical size a real bird would be next to them. Not so small that its species is ambiguous, not so large that it dominates the crop. The bird must be fully contained within the visible frame. Keep all other elements of the image unchanged.",
-    "bgModel": "google/gemini-3.1-flash-image-preview",
-    "inpaintModel": "google/gemini-3.1-flash-image-preview"
-  }
+  ]
 }

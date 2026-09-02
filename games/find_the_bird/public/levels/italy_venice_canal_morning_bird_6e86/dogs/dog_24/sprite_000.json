@@ -4,60 +4,36 @@
   "mask": "dogs/dog_24/sprite_mask_000.png",
   "sourceVariant": "dogs/dog_24/variant_000.png",
   "sourceBox": [
-    2241,
-    921,
-    2450,
-    1266
+    2094,
+    880,
+    2520,
+    1306
   ],
   "spriteBox": [
     2263,
-    932,
-    2411,
-    1212
+    920,
+    2392,
+    1176
   ],
   "cleanupBox": [
-    2233,
-    951,
-    2442,
-    1296
+    2203,
+    921,
+    2412,
+    1266
   ],
-  "width": 148,
-  "height": 280,
-  "anchorX": 0.48,
-  "anchorY": 0.4182,
-  "technique": "sam-prompted-cutout-v1",
+  "width": 129,
+  "height": 256,
+  "anchorX": 0.3488,
+  "anchorY": 0.6797,
+  "technique": "flatkey-recreate-v1",
   "quality": {
-    "visibleCoverage": 0.0759,
-    "strongCoverage": 0.0683,
-    "bboxCoverage": 0.1549,
+    "visibleCoverage": 0.092,
+    "strongCoverage": 0.0893,
+    "bboxCoverage": 0.1613,
     "edgeTouches": 0,
     "fullCropLike": false,
     "pickupUsable": true,
     "backgroundFallback": false,
-    "templateFallback": false,
-    "repairReason": "oversized_or_scene_mask"
-  },
-  "autoPlacement": {
-    "method": "features",
-    "score": 0.9615,
-    "originalBox": [
-      2248,
-      1048,
-      2373,
-      1158
-    ],
-    "fittedBox": [
-      2248,
-      1048,
-      2373,
-      1158
-    ]
-  },
-  "flipX": false,
-  "flipY": false,
-  "humanReview": {
-    "confirmed": true,
-    "confirmedAt": "2026-08-12T10:02:37.051563+00:00",
-    "source": "level-bless"
+    "templateFallback": false
   }
 }

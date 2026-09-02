@@ -5,9 +5,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 // itself is injected as a fake, so the real plugin is never reached; this mock
 // only satisfies the enum imports.
 vi.mock('@capacitor-community/admob', () => ({
-  BannerAdPluginEvents: { Loaded: 'bannerLoaded', FailedToLoad: 'bannerFailed', AdImpression: 'bannerImpression' },
-  InterstitialAdPluginEvents: { FailedToLoad: 'intFailed', Dismissed: 'intDismissed', FailedToShow: 'intFailedShow' },
-  RewardAdPluginEvents: { FailedToLoad: 'rewFailed', Dismissed: 'rewDismissed', FailedToShow: 'rewFailedShow' },
+  BannerAdPluginEvents: { Loaded: 'bannerLoaded', FailedToLoad: 'bannerFailed', AdImpression: 'bannerImpression', AdPaid: 'bannerAdPaid' },
+  InterstitialAdPluginEvents: { FailedToLoad: 'intFailed', Dismissed: 'intDismissed', FailedToShow: 'intFailedShow', AdImpression: 'intPaid' },
+  RewardAdPluginEvents: { FailedToLoad: 'rewFailed', Dismissed: 'rewDismissed', FailedToShow: 'rewFailedShow', AdImpression: 'rewPaid' },
   MaxAdContentRating: { General: 'General' },
   BannerAdSize: { ADAPTIVE_BANNER: 'ADAPTIVE_BANNER' },
   BannerAdPosition: { BOTTOM_CENTER: 'BOTTOM_CENTER' },
@@ -41,6 +41,9 @@ const makeAdapter = (overrides: Partial<AdMobAdapter> = {}): FakeAdapter => {
     isNativePlatform: vi.fn(async (): Promise<boolean> => true),
     getPlatform: vi.fn(async (): Promise<'android' | 'ios' | 'web'> => 'android'),
     initialize: vi.fn(async (): Promise<void> => {}),
+    requestConsentInfo: vi.fn(async () => ({ status: 'OBTAINED' as never, canRequestAds: true, privacyOptionsRequirementStatus: 'NOT_REQUIRED' as never })),
+    showConsentForm: vi.fn(async () => ({ status: 'OBTAINED' as never, canRequestAds: true, privacyOptionsRequirementStatus: 'NOT_REQUIRED' as never })),
+    showPrivacyOptionsForm: vi.fn(async (): Promise<void> => {}),
     prepareInterstitial: vi.fn(async (): Promise<void> => {}),
     showInterstitial: vi.fn(async (): Promise<void> => {
       emit(InterstitialAdPluginEvents.Dismissed);
@@ -109,11 +112,41 @@ beforeEach(() => {
   vi.spyOn(console, 'info').mockImplementation((): void => {});
   vi.spyOn(console, 'warn').mockImplementation((): void => {});
 });
+
+describe('UMP consent', () => {
+  it('presents a required form before initializing and exposes privacy options', async () => {
+    const adapter = makeAdapter({
+      requestConsentInfo: vi.fn(async () => ({ status: 'REQUIRED' as never, isConsentFormAvailable: true, canRequestAds: false, privacyOptionsRequirementStatus: 'REQUIRED' as never })),
+      showConsentForm: vi.fn(async () => ({ status: 'OBTAINED' as never, canRequestAds: true, privacyOptionsRequirementStatus: 'REQUIRED' as never })),
+    });
+    const provider = new AdMobProvider(config, { adapter, scheduleRetry });
+    await provider.init();
+    expect(adapter.showConsentForm).toHaveBeenCalledOnce();
+    expect(adapter.initialize).toHaveBeenCalledOnce();
+    await expect(provider.showPrivacyOptions()).resolves.toBe(true);
+    expect(adapter.showPrivacyOptionsForm).toHaveBeenCalledOnce();
+  });
+
+  it('does not initialize when UMP still forbids ad requests', async () => {
+    const adapter = makeAdapter({ requestConsentInfo: vi.fn(async () => ({ status: 'REQUIRED' as never, isConsentFormAvailable: false, canRequestAds: false, privacyOptionsRequirementStatus: 'REQUIRED' as never })) });
+    const provider = new AdMobProvider(config, { adapter, scheduleRetry });
+    await provider.init();
+    expect(adapter.initialize).not.toHaveBeenCalled();
+  });
+});
 afterEach(() => {
   vi.restoreAllMocks();
 });
 
 describe('AdMobProvider lifecycle', (): void => {
+  it('forwards paid impressions with normalized required fields', async () => {
+    const adapter = makeAdapter();
+    const paid = vi.fn();
+    const provider = new AdMobProvider(config, { adapter, onAdRevenuePaid: paid });
+    await provider.init();
+    adapter.__emit('bannerAdPaid', { valueMicros: 12500, currencyCode: 'USD', precision: 3, networkName: 'Google', impressionId: 'imp-1' });
+    expect(paid).toHaveBeenCalledWith({ revenue: 0.0125, currency: 'USD', format: 'banner', placement: 'banner', impressionId: 'imp-1', precision: '3', networkName: 'Google' });
+  });
   it('initializes exactly once across repeated init() calls', async (): Promise<void> => {
     const adapter = makeAdapter();
     const provider = new AdMobProvider(config, { adapter, now, scheduleRetry });

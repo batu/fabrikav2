@@ -1,547 +1,451 @@
 {
   "id": "greece_santorini_steps_bird_4634",
-  "name": "Level greece_santorini_steps_bird_4634",
+  "name": "Level greece_santorini_steps_bird_4634 (clean_old_cartoon)",
   "width": 2688,
   "height": 2688,
+  "bwImage": "levels/greece_santorini_steps_bird_4634/bw.png",
   "colorImage": "levels/greece_santorini_steps_bird_4634/color.png",
-  "artifactRevision": "sha256:cc461225ab2bcc49094ec82bdeab478763b8d585b94c2d30c945163de073d2e2",
-  "compatibilityAliases": {
-    "dog_00": "eb1bff66-09cd-5473-bafa-8bc355680cf3",
-    "dog_01": "8518b661-8822-5ecd-85e8-02760cc54be8",
-    "dog_02": "ff4b80a0-d382-599f-afda-d2ea209dc110",
-    "dog_03": "7a26dd08-ed22-5c57-a2fa-120a04fbae9f",
-    "dog_04": "5491e0be-8ff8-5982-8286-b2003f0c436d",
-    "dog_05": "31a0bc6f-eaa3-5ed7-9baa-79cfec87b205",
-    "dog_06": "657527a8-eecf-5c41-b374-4ab281c4a762",
-    "dog_07": "03491123-fb50-510f-b674-ac55dd04f1be",
-    "dog_08": "d89b0bcf-a699-5a0c-886d-90c4c60482d3",
-    "dog_09": "4cb618c2-7d2c-52b7-9020-2e3021fc4b67",
-    "dog_10": "afa93c90-39e2-5a6f-83ed-eb6c3c230e27",
-    "dog_11": "5faf147b-db66-577f-8930-ad22f7046e14",
-    "dog_14": "9bb3fbbc-2352-55ad-876e-532e325fcdfe",
-    "dog_12": "b8f9828f-8a63-5273-b1e5-47a97ffe1432",
-    "dog_13": "5ee22204-014a-5b7c-ae1d-5ee5dfab5dcb",
-    "dog_15": "e95768c4-6975-57a4-92d3-f69d728b09c6",
-    "dog_16": "a1f13bb6-496a-50a8-9941-216d47625b1c",
-    "dog_17": "7dc4c86c-bbca-5d01-8ac2-142e497f8cc8",
-    "dog_18": "d853361e-3026-5bdb-b48d-b3c3f1179d08",
-    "dog_19": "a915c81c-7b23-5204-a0f2-2987c18d8619",
-    "dog_20": "f312c213-ba1e-510f-bb2f-437819ed62f8"
-  },
   "dogs": [
     {
-      "id": "eb1bff66-09cd-5473-bafa-8bc355680cf3",
-      "compatibilitySlot": "dog_00",
-      "x": 1040,
-      "y": 630,
+      "id": "dog_00",
+      "x": 1042,
+      "y": 627,
       "r": 57,
       "sprite": {
         "image": "levels/greece_santorini_steps_bird_4634/dogs/dog_00/sprite_000.png",
-        "height": 156,
-        "width": 145,
-        "x": 944,
-        "y": 544,
+        "x": 918,
+        "y": 514,
+        "width": 205,
+        "height": 216,
         "cleanup": {
-          "x": 960,
-          "y": 465,
-          "width": 139,
-          "height": 312
+          "x": 924,
+          "y": 611,
+          "width": 134,
+          "height": 285
         },
-        "anchorX": 0.6621,
-        "anchorY": 0.5513,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.6049,
+        "anchorY": 0.5231
       }
     },
     {
-      "id": "8518b661-8822-5ecd-85e8-02760cc54be8",
-      "compatibilitySlot": "dog_01",
-      "x": 903,
-      "y": 738,
+      "id": "dog_01",
+      "x": 868,
+      "y": 745,
       "r": 57,
       "sprite": {
         "image": "levels/greece_santorini_steps_bird_4634/dogs/dog_01/sprite_000.png",
-        "height": 176,
-        "width": 206,
-        "x": 789,
+        "x": 788,
         "y": 672,
+        "width": 208,
+        "height": 178,
         "cleanup": {
-          "x": 724,
-          "y": 570,
-          "width": 234,
-          "height": 345
+          "x": 704,
+          "y": 608,
+          "width": 218,
+          "height": 307
         },
-        "anchorX": 0.5534,
-        "anchorY": 0.375,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.3846,
+        "anchorY": 0.4101
       }
     },
     {
-      "id": "ff4b80a0-d382-599f-afda-d2ea209dc110",
-      "compatibilitySlot": "dog_02",
-      "x": 1215,
-      "y": 737,
+      "id": "dog_02",
+      "x": 1228,
+      "y": 734,
       "r": 57,
       "sprite": {
         "image": "levels/greece_santorini_steps_bird_4634/dogs/dog_02/sprite_000.png",
-        "height": 121,
-        "width": 172,
-        "x": 1119,
-        "y": 670,
+        "x": 1110,
+        "y": 666,
+        "width": 182,
+        "height": 131,
         "cleanup": {
-          "x": 1101,
-          "y": 547,
-          "width": 218,
-          "height": 263
+          "x": 1040,
+          "y": 550,
+          "width": 231,
+          "height": 261
         },
-        "anchorX": 0.5581,
-        "anchorY": 0.5537,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.6484,
+        "anchorY": 0.5191
       }
     },
     {
-      "id": "7a26dd08-ed22-5c57-a2fa-120a04fbae9f",
-      "compatibilitySlot": "dog_03",
-      "x": 1453,
-      "y": 651,
+      "id": "dog_03",
+      "x": 1468,
+      "y": 658,
       "r": 57,
       "sprite": {
         "image": "levels/greece_santorini_steps_bird_4634/dogs/dog_03/sprite_000.png",
-        "height": 126,
-        "width": 201,
-        "x": 1343,
+        "x": 1344,
         "y": 596,
+        "width": 203,
+        "height": 127,
         "cleanup": {
-          "x": 1296,
-          "y": 494,
+          "x": 1311,
+          "y": 501,
           "width": 314,
           "height": 314
         },
-        "anchorX": 0.5473,
-        "anchorY": 0.4365,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.6108,
+        "anchorY": 0.4882
       }
     },
     {
-      "id": "5491e0be-8ff8-5982-8286-b2003f0c436d",
-      "compatibilitySlot": "dog_04",
-      "x": 1611,
+      "id": "dog_04",
+      "x": 1610,
       "y": 699,
       "r": 57,
       "sprite": {
         "image": "levels/greece_santorini_steps_bird_4634/dogs/dog_04/sprite_000.png",
-        "height": 147,
-        "width": 161,
         "x": 1547,
-        "y": 622,
+        "y": 621,
+        "width": 161,
+        "height": 147,
         "cleanup": {
-          "x": 1454,
+          "x": 1453,
           "y": 542,
           "width": 314,
           "height": 314
         },
-        "anchorX": 0.3975,
-        "anchorY": 0.5238,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.3913,
+        "anchorY": 0.5306
       }
     },
     {
-      "id": "31a0bc6f-eaa3-5ed7-9baa-79cfec87b205",
-      "compatibilitySlot": "dog_05",
-      "x": 1259,
-      "y": 902,
+      "id": "dog_05",
+      "x": 1261,
+      "y": 901,
       "r": 57,
       "sprite": {
         "image": "levels/greece_santorini_steps_bird_4634/dogs/dog_05/sprite_000.png",
-        "height": 161,
+        "x": 1161,
+        "y": 820,
         "width": 150,
-        "x": 1162,
-        "y": 815,
+        "height": 161,
         "cleanup": {
-          "x": 1080,
-          "y": 812,
-          "width": 272,
-          "height": 267
+          "x": 1101,
+          "y": 813,
+          "width": 250,
+          "height": 260
         },
-        "anchorX": 0.6467,
-        "anchorY": 0.5404,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.6667,
+        "anchorY": 0.5031
       }
     },
     {
-      "id": "657527a8-eecf-5c41-b374-4ab281c4a762",
-      "compatibilitySlot": "dog_06",
-      "x": 1448,
-      "y": 840,
+      "id": "dog_06",
+      "x": 1444,
+      "y": 841,
       "r": 57,
       "sprite": {
         "image": "levels/greece_santorini_steps_bird_4634/dogs/dog_06/sprite_000.png",
-        "height": 168,
-        "width": 154,
-        "x": 1391,
-        "y": 747,
+        "x": 1350,
+        "y": 699,
+        "width": 204,
+        "height": 221,
         "cleanup": {
-          "x": 1291,
-          "y": 683,
+          "x": 1287,
+          "y": 684,
           "width": 314,
           "height": 314
         },
-        "anchorX": 0.3701,
-        "anchorY": 0.5536,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.4608,
+        "anchorY": 0.6425
       }
     },
     {
-      "id": "03491123-fb50-510f-b674-ac55dd04f1be",
-      "compatibilitySlot": "dog_07",
-      "x": 1229,
-      "y": 1267,
+      "id": "dog_07",
+      "x": 1203,
+      "y": 1240,
       "r": 57,
       "sprite": {
         "image": "levels/greece_santorini_steps_bird_4634/dogs/dog_07/sprite_000.png",
-        "height": 221,
-        "width": 230,
-        "x": 1113,
-        "y": 1158,
+        "x": 1114,
+        "y": 1159,
+        "width": 228,
+        "height": 220,
         "cleanup": {
-          "x": 1072,
-          "y": 1110,
+          "x": 1046,
+          "y": 1083,
           "width": 314,
           "height": 314
         },
-        "anchorX": 0.5043,
-        "anchorY": 0.4932,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.3904,
+        "anchorY": 0.3682
       }
     },
     {
-      "id": "d89b0bcf-a699-5a0c-886d-90c4c60482d3",
-      "compatibilitySlot": "dog_08",
-      "x": 1439,
-      "y": 1439,
+      "id": "dog_08",
+      "x": 1433,
+      "y": 1430,
       "r": 57,
       "sprite": {
         "image": "levels/greece_santorini_steps_bird_4634/dogs/dog_08/sprite_000.png",
-        "height": 174,
-        "width": 202,
-        "x": 1327,
-        "y": 1358,
+        "x": 1328,
+        "y": 1360,
+        "width": 210,
+        "height": 178,
         "cleanup": {
-          "x": 1282,
-          "y": 1282,
+          "x": 1276,
+          "y": 1273,
           "width": 314,
           "height": 314
         },
-        "anchorX": 0.5545,
-        "anchorY": 0.4655,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.5,
+        "anchorY": 0.3933
       }
     },
     {
-      "id": "4cb618c2-7d2c-52b7-9020-2e3021fc4b67",
-      "compatibilitySlot": "dog_09",
-      "x": 1468,
-      "y": 1704,
+      "id": "dog_09",
+      "x": 1467,
+      "y": 1706,
       "r": 57,
       "sprite": {
         "image": "levels/greece_santorini_steps_bird_4634/dogs/dog_09/sprite_000.png",
-        "height": 171,
-        "width": 182,
         "x": 1387,
         "y": 1640,
+        "width": 182,
+        "height": 171,
         "cleanup": {
-          "x": 1293,
-          "y": 1572,
+          "x": 1294,
+          "y": 1569,
           "width": 345,
-          "height": 244
+          "height": 249
         },
-        "anchorX": 0.4451,
-        "anchorY": 0.3743,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.4396,
+        "anchorY": 0.386
       }
     },
     {
-      "id": "afa93c90-39e2-5a6f-83ed-eb6c3c230e27",
-      "compatibilitySlot": "dog_10",
-      "x": 1266,
-      "y": 1917,
+      "id": "dog_10",
+      "x": 1241,
+      "y": 1897,
       "r": 57,
       "sprite": {
         "image": "levels/greece_santorini_steps_bird_4634/dogs/dog_10/sprite_000.png",
-        "height": 236,
-        "width": 160,
         "x": 1157,
         "y": 1779,
+        "width": 160,
+        "height": 236,
         "cleanup": {
-          "x": 1082,
-          "y": 1827,
+          "x": 1096,
+          "y": 1825,
           "width": 345,
-          "height": 243
+          "height": 245
         },
-        "anchorX": 0.6813,
-        "anchorY": 0.5847,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.525,
+        "anchorY": 0.5
       }
     },
     {
-      "id": "5faf147b-db66-577f-8930-ad22f7046e14",
-      "compatibilitySlot": "dog_11",
-      "x": 1167,
-      "y": 2212,
+      "id": "dog_11",
+      "x": 1168,
+      "y": 2210,
       "r": 57,
       "sprite": {
         "image": "levels/greece_santorini_steps_bird_4634/dogs/dog_11/sprite_000.png",
-        "height": 205,
-        "width": 174,
         "x": 1066,
         "y": 2119,
+        "width": 175,
+        "height": 205,
         "cleanup": {
-          "x": 990,
+          "x": 995,
           "y": 2072,
           "width": 345,
-          "height": 315
+          "height": 310
         },
-        "anchorX": 0.5805,
-        "anchorY": 0.4537,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.5829,
+        "anchorY": 0.4439
       }
     },
     {
-      "id": "9bb3fbbc-2352-55ad-876e-532e325fcdfe",
-      "compatibilitySlot": "dog_14",
-      "x": 597,
-      "y": 2327,
-      "r": 57,
-      "sprite": {
-        "image": "levels/greece_santorini_steps_bird_4634/dogs/dog_14/sprite_000.png",
-        "height": 163,
-        "width": 187,
-        "x": 470,
-        "y": 2250,
-        "cleanup": {
-          "x": 443,
-          "y": 2185,
-          "width": 276,
-          "height": 274
-        },
-        "anchorX": 0.5936,
-        "anchorY": 0.4417,
-        "flipX": false,
-        "flipY": false
-      }
-    },
-    {
-      "id": "b8f9828f-8a63-5273-b1e5-47a97ffe1432",
-      "compatibilitySlot": "dog_12",
-      "x": 860,
-      "y": 1703,
+      "id": "dog_12",
+      "x": 856,
+      "y": 1672,
       "r": 57,
       "sprite": {
         "image": "levels/greece_santorini_steps_bird_4634/dogs/dog_12/sprite_000.png",
-        "height": 203,
-        "width": 207,
         "x": 779,
         "y": 1590,
+        "width": 207,
+        "height": 203,
         "cleanup": {
-          "x": 684,
-          "y": 1499,
-          "width": 345,
+          "x": 672,
+          "y": 1549,
+          "width": 293,
           "height": 345
         },
         "anchorX": 0.372,
-        "anchorY": 0.4039,
-        "flipX": false,
-        "flipY": false
+        "anchorY": 0.4039
       }
     },
     {
-      "id": "5ee22204-014a-5b7c-ae1d-5ee5dfab5dcb",
-      "compatibilitySlot": "dog_13",
-      "x": 1081,
-      "y": 1721,
+      "id": "dog_13",
+      "x": 1076,
+      "y": 1744,
       "r": 57,
       "sprite": {
         "image": "levels/greece_santorini_steps_bird_4634/dogs/dog_13/sprite_000.png",
+        "x": 967,
+        "y": 1632,
+        "width": 195,
         "height": 203,
-        "width": 181,
-        "x": 975,
-        "y": 1640,
         "cleanup": {
-          "x": 938,
-          "y": 1572,
-          "width": 275,
-          "height": 345
+          "x": 967,
+          "y": 1543,
+          "width": 292,
+          "height": 280
         },
-        "anchorX": 0.5862,
-        "anchorY": 0.4902,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.559,
+        "anchorY": 0.5517
       }
     },
     {
-      "id": "e95768c4-6975-57a4-92d3-f69d728b09c6",
-      "compatibilitySlot": "dog_15",
-      "x": 1695,
-      "y": 1201,
+      "id": "dog_14",
+      "x": 581,
+      "y": 2322,
+      "r": 57,
+      "sprite": {
+        "image": "levels/greece_santorini_steps_bird_4634/dogs/dog_14/sprite_000.png",
+        "x": 470,
+        "y": 2250,
+        "width": 187,
+        "height": 163,
+        "cleanup": {
+          "x": 451,
+          "y": 2153,
+          "width": 345,
+          "height": 345
+        },
+        "anchorX": 0.5936,
+        "anchorY": 0.4417
+      }
+    },
+    {
+      "id": "dog_15",
+      "x": 1666,
+      "y": 1152,
       "r": 57,
       "sprite": {
         "image": "levels/greece_santorini_steps_bird_4634/dogs/dog_15/sprite_000.png",
-        "height": 214,
-        "width": 151,
-        "x": 1609,
-        "y": 1088,
+        "x": 1615,
+        "y": 1097,
+        "width": 132,
+        "height": 187,
         "cleanup": {
           "x": 1568,
-          "y": 1010,
-          "width": 229,
-          "height": 331
+          "y": 1057,
+          "width": 233,
+          "height": 292
         },
-        "anchorX": 0.5695,
-        "anchorY": 0.528,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.3864,
+        "anchorY": 0.2941
       }
     },
     {
-      "id": "a1f13bb6-496a-50a8-9941-216d47625b1c",
-      "compatibilitySlot": "dog_16",
-      "x": 1901,
-      "y": 1194,
+      "id": "dog_16",
+      "x": 1884,
+      "y": 1169,
       "r": 57,
       "sprite": {
         "image": "levels/greece_santorini_steps_bird_4634/dogs/dog_16/sprite_000.png",
-        "height": 169,
-        "width": 160,
-        "x": 1820,
-        "y": 1095,
+        "x": 1815,
+        "y": 1091,
+        "width": 170,
+        "height": 179,
         "cleanup": {
-          "x": 1799,
-          "y": 1012,
-          "width": 274,
-          "height": 297
+          "x": 1803,
+          "y": 1028,
+          "width": 271,
+          "height": 274
         },
-        "anchorX": 0.5062,
-        "anchorY": 0.5858,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.4059,
+        "anchorY": 0.4358
       }
     },
     {
-      "id": "7dc4c86c-bbca-5d01-8ac2-142e497f8cc8",
-      "compatibilitySlot": "dog_17",
-      "x": 1867,
-      "y": 1483,
+      "id": "dog_17",
+      "x": 1883,
+      "y": 1482,
       "r": 57,
       "sprite": {
         "image": "levels/greece_santorini_steps_bird_4634/dogs/dog_17/sprite_000.png",
-        "height": 168,
-        "width": 172,
         "x": 1777,
         "y": 1418,
+        "width": 172,
+        "height": 168,
         "cleanup": {
-          "x": 1689,
-          "y": 1343,
-          "width": 293,
-          "height": 318
+          "x": 1717,
+          "y": 1351,
+          "width": 265,
+          "height": 292
         },
-        "anchorX": 0.5233,
-        "anchorY": 0.3869,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.6163,
+        "anchorY": 0.381
       }
     },
     {
-      "id": "d853361e-3026-5bdb-b48d-b3c3f1179d08",
-      "compatibilitySlot": "dog_18",
-      "x": 2100,
-      "y": 1426,
+      "id": "dog_18",
+      "x": 2113,
+      "y": 1465,
       "r": 57,
       "sprite": {
         "image": "levels/greece_santorini_steps_bird_4634/dogs/dog_18/sprite_000.png",
-        "height": 161,
-        "width": 167,
         "x": 2045,
         "y": 1388,
+        "width": 167,
+        "height": 161,
         "cleanup": {
           "x": 1984,
-          "y": 1311,
-          "width": 298,
-          "height": 303
+          "y": 1304,
+          "width": 265,
+          "height": 273
         },
-        "anchorX": 0.3293,
-        "anchorY": 0.236,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.4072,
+        "anchorY": 0.4783
       }
     },
     {
-      "id": "a915c81c-7b23-5204-a0f2-2987c18d8619",
-      "compatibilitySlot": "dog_19",
-      "x": 1710,
-      "y": 2327,
+      "id": "dog_19",
+      "x": 1726,
+      "y": 2343,
       "r": 57,
       "sprite": {
         "image": "levels/greece_santorini_steps_bird_4634/dogs/dog_19/sprite_000.png",
-        "height": 236,
-        "width": 219,
-        "x": 1584,
-        "y": 2194,
+        "x": 1578,
+        "y": 2191,
+        "width": 229,
+        "height": 246,
         "cleanup": {
-          "x": 1511,
-          "y": 2153,
-          "width": 324,
+          "x": 1500,
+          "y": 2156,
+          "width": 331,
           "height": 345
         },
-        "anchorX": 0.5753,
-        "anchorY": 0.5636,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.6463,
+        "anchorY": 0.6179
       }
     },
     {
-      "id": "f312c213-ba1e-510f-bb2f-437819ed62f8",
-      "compatibilitySlot": "dog_20",
-      "x": 1996,
-      "y": 2063,
+      "id": "dog_20",
+      "x": 1992,
+      "y": 2060,
       "r": 57,
       "sprite": {
         "image": "levels/greece_santorini_steps_bird_4634/dogs/dog_20/sprite_000.png",
-        "height": 246,
-        "width": 300,
-        "x": 1828,
-        "y": 1923,
+        "x": 1940,
+        "y": 1984,
+        "width": 183,
+        "height": 176,
         "cleanup": {
-          "x": 1837,
-          "y": 1894,
-          "width": 342,
-          "height": 345
+          "x": 1835,
+          "y": 1903,
+          "width": 314,
+          "height": 314
         },
-        "anchorX": 0.56,
-        "anchorY": 0.5691,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.2842,
+        "anchorY": 0.4318
       }
     }
-  ],
-  "provenance": {
-    "setting": "greece",
-    "scene": "greece_santorini_steps",
-    "entity": "bird",
-    "style": "clean_old_cartoon",
-    "scenePrompt": "[Purpose]\nCreate a full-bleed mobile-game background for Find the Bird.\n\n[Short Description]\nA whitewashed Santorini cliffside sprawling down stacked terraces arranged as an organic isometric hidden-object scene.\n\n[Scene] A whitewashed Santorini cliffside sprawling down stacked terraces \u2014 a main stair cascade zigzagging between blue-domed chapels, a side lane branching along a low wall, a small terrace cafe tucked on a landing. The entire ground surface is consistent whitewashed plaster steps, worn flagstone landings, and terracotta terrace tiles throughout \u2014 every area the viewer can see the ground, it reads as plaster, stone, or tile with no untextured blank areas. Cubic white houses of varying sizes crowd unevenly down the slope, some stacked shoulder to shoulder, others standing alone with courtyard gaps. Blue domes and flat roofs at different heights, some overlapping, some freestanding. A single crooked bougainvillea trunk leans across the stair at an unexpected angle, spilling magenta-free crimson blooms over a wall. Scattered throughout without pattern: potted geraniums, stacked amphorae, woven donkey saddlebags on a wall hook, cafe tables with checked cloths, hanging octopus-drying lines left empty, blue shutters ajar, oil jars, coiled garden hoses, straw brooms, stone benches, lanterns on brackets, folded market umbrellas, crates of lemons, terracotta urns, a wooden ladder against a wall. Dense clusters around the cafe landing and chapel forecourt, sparser breathing room on open stair runs. Asymmetric, organic layout \u2014 like a village that grew down the cliff over centuries.\n\n[View] Moderately elevated three-quarter game-map view with a close, readable mobile-game camera: roughly 35 degrees down from horizontal, with only enough scene visible to support about 20 hidden bird placements. Do not use an extreme aerial, distant establishing, miniature-diorama, or whole-city view. Large scene anchors should occupy substantial frame area, and ordinary props must remain individually recognizable at phone size. Use controlled hidden-object density: arrange approximately 20 plausible hiding pockets across 4 to 6 connected prop clusters, with visible breathing room, clear travel paths between clusters, and readable object boundaries for phone-screen scanning. Use mild perspective or near-isometric construction consistently, without wide-angle distortion, dramatic foreshortening, depth of field, or tiny distance-scaled clutter.\n\n[Style] Vintage hand-drawn cartoon background adapted for a modern mobile puzzle game. Rounded old-cartoon shapes, cheerful simplified silhouettes, thick confident ink outlines, flat poster-like color fills, and soft hand-painted background texture. Use broad readable color masses and minimal internal linework so the scene stays clear on a phone screen. Charming and slightly nostalgic, clean and polished for mobile, with less visual noise, fewer texture marks, and no dense rendering.\n\n[Gameplay Composition]\nDesign this as a production hidden-object background where birds will be added later. Create many plausible hiding pockets on walkable/contact surfaces or open gaps beside props, plants, rocks, furniture, railings, crates, planters, benches, roots, tools, shelves, stalls, boats, carts, market goods, or other readable foreground objects. Near props is ideal; inside solid objects, on blank walls, on roofs, floating over water, or on decorative vertical faces is not useful. Use theme-specific spatial logic such as rings, islands, terraces, nested rooms, clearings, bridges, piers, shelves, courtyards, side alleys, garden pockets, or clustered market zones. Keep open pockets between prop clusters so hitboxes can sit near objects without excessive overlap.\n\n[Constraints]\nDo not depict any bird; every bird is added during the later gameplay pass. No people, no live animals, no insects, no mascots, no readable text, no logos, no watermarks. Signs, chalkboards, labels, plaques, and boards named in the scene may appear but must show only illegible marks, squiggles, or blank surfaces \u2014 never legible words or letters. Market food and fishing props are allowed when the scene calls for them. Avoid huge blank walls, roof-dominated compositions, large featureless empty lawns, empty sand, empty floors, long straight roads, and noisy micro-texture camouflage. Every visible ground, floor, or water-edge region should read as a clear material appropriate to the scene; no untextured blank areas.",
-    "entityPrompt": "Add exactly one bird to this crop. Place exactly one bird centered on the marked target area \u2014 do not repeat the subject. Match the scene's illustration style, line weight, palette, and flat-shaded rendering, but keep the bird's silhouette and boundary readable on a phone screen. The bird may be partially occluded or contextually disguised, but must not disappear through muddy edges, low contrast, texture camouflage, or ambiguous merged shapes. Vary the bird's colors, markings, proportions, and small physical details across crops so the level does not repeat the same bird design. The bird is a charming little anthropomorphic inhabitant of this world \u2014 a character with personality going about its business. Give it something simple and specific to do with its surroundings: holding an object, using a tool, sitting at a small task, peeking at something, carrying something, watching something with interest, tending a small thing, pausing mid-task. Keep the pose clear and readable. The charm comes from the context and the expression, not from dynamic motion. Size the bird realistically relative to the scene around it \u2014 compare it to whatever human-scale objects are visible in the crop and render the bird at the physical size a real bird would be next to them. Not so small that its species is ambiguous, not so large that it dominates the crop. The bird must be fully contained within the visible frame. Keep all other elements of the image unchanged.",
-    "bgModel": "google/gemini-3.1-flash-image-preview",
-    "inpaintModel": "google/gemini-3.1-flash-image-preview"
-  }
+  ]
 }

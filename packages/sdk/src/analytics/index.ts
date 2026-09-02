@@ -82,3 +82,11 @@ export {
   type Analytics,
   type CreateAnalyticsOptions,
 } from './analytics.ts';
+export {
+  claimFirstOpen,
+  type FirstOpenAtomicStore,
+  type FirstOpenClaimOptions,
+  type FirstOpenLockManager,
+  type FirstOpenStorage,
+  type FirstOpenStorageDurability,
+} from './first-open.ts';

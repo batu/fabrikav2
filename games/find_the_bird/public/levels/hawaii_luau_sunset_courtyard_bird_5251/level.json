@@ -1,522 +1,430 @@
 {
   "id": "hawaii_luau_sunset_courtyard_bird_5251",
-  "name": "Level hawaii_luau_sunset_courtyard_bird_5251",
+  "name": "Level hawaii_luau_sunset_courtyard_bird_5251 (clean_old_cartoon)",
   "width": 2688,
   "height": 2688,
+  "bwImage": "levels/hawaii_luau_sunset_courtyard_bird_5251/bw.png",
   "colorImage": "levels/hawaii_luau_sunset_courtyard_bird_5251/color.png",
-  "artifactRevision": "sha256:4e51dcc8a664f4596d3b2b46d87fb06af322917801e17ad2bb91a084012bd887",
-  "compatibilityAliases": {
-    "dog_00": "0e9caa89-c1dd-5e4b-8d09-54fcdc91b95b",
-    "dog_01": "0bafcebe-cb60-5f1a-86cf-c4c553acb012",
-    "dog_02": "7b1f2fe2-ba85-593f-b1da-1e8d62a3dc01",
-    "dog_03": "2008cd7f-04f1-5fd2-a90b-e18fddce2456",
-    "dog_04": "9d0553b7-b83a-574a-bee7-d69f021b7907",
-    "dog_06": "75c9a8ab-dae3-5393-b272-369ec7410655",
-    "dog_07": "a9aae9bf-199f-5ff2-93de-666dd40be41c",
-    "dog_05": "2391efe0-1050-52bb-b1b7-aa3ef766d5df",
-    "dog_08": "347318c2-077d-5012-b96f-551c304a86c4",
-    "dog_09": "91844c85-6dd4-5dfa-92c3-a8c7e7b47ce1",
-    "dog_10": "27cf253e-0702-5b16-9f56-7835d5fb65d2",
-    "dog_11": "e32ab958-8473-555b-a525-77fdb34ff5a9",
-    "dog_12": "073c4345-44e2-59a8-92a4-ea6b88484382",
-    "dog_14": "a74993f9-6a94-5f37-9489-120479dda1d5",
-    "dog_15": "fc5d7358-f190-5ac1-bf90-2ddb6699bf77",
-    "dog_16": "726c3699-aa5a-5e19-8f35-55bbd6c1f295",
-    "dog_17": "4070de26-3cfc-5f47-92e6-3aea694ba467",
-    "dog_18": "c711642a-ba8e-59dc-ad38-561fb827a96d",
-    "dog_13": "56e4cf5b-d8ab-5808-bf1f-b763cd8be768",
-    "dog_19": "beb8d5b9-5d30-5bad-bfe9-20bc6b04eadc"
-  },
   "dogs": [
     {
-      "id": "0e9caa89-c1dd-5e4b-8d09-54fcdc91b95b",
-      "compatibilitySlot": "dog_00",
+      "id": "dog_00",
       "x": 421,
       "y": 686,
       "r": 57,
       "sprite": {
         "image": "levels/hawaii_luau_sunset_courtyard_bird_5251/dogs/dog_00/sprite_000.png",
-        "height": 148,
-        "width": 180,
-        "x": 338,
-        "y": 589,
+        "x": 317,
+        "y": 565,
+        "width": 219,
+        "height": 172,
         "cleanup": {
           "x": 281,
           "y": 539,
-          "width": 266,
-          "height": 311
+          "width": 282,
+          "height": 319
         },
         "anchorX": 0.4749,
-        "anchorY": 0.7035,
-        "flipX": false,
-        "flipY": false
+        "anchorY": 0.7035
       }
     },
     {
-      "id": "0bafcebe-cb60-5f1a-86cf-c4c553acb012",
-      "compatibilitySlot": "dog_01",
-      "x": 660,
-      "y": 579,
+      "id": "dog_01",
+      "x": 655,
+      "y": 572,
       "r": 57,
       "sprite": {
         "image": "levels/hawaii_luau_sunset_courtyard_bird_5251/dogs/dog_01/sprite_000.png",
-        "height": 117,
-        "width": 142,
-        "x": 584,
-        "y": 529,
+        "x": 591,
+        "y": 554,
+        "width": 216,
+        "height": 167,
         "cleanup": {
-          "x": 549,
-          "y": 481,
-          "width": 262,
-          "height": 221
+          "x": 639,
+          "y": 526,
+          "width": 165,
+          "height": 118
         },
-        "anchorX": 0.5417,
-        "anchorY": 0.3413,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.2963,
+        "anchorY": 0.1078
       }
     },
     {
-      "id": "7b1f2fe2-ba85-593f-b1da-1e8d62a3dc01",
-      "compatibilitySlot": "dog_02",
-      "x": 705,
-      "y": 806,
+      "id": "dog_02",
+      "x": 704,
+      "y": 812,
       "r": 57,
       "sprite": {
         "image": "levels/hawaii_luau_sunset_courtyard_bird_5251/dogs/dog_02/sprite_000.png",
-        "height": 148,
-        "width": 114,
-        "x": 667,
-        "y": 735,
+        "x": 661,
+        "y": 724,
+        "width": 157,
+        "height": 187,
         "cleanup": {
-          "x": 549,
-          "y": 704,
-          "width": 291,
-          "height": 256
+          "x": 669,
+          "y": 646,
+          "width": 177,
+          "height": 182
         },
-        "anchorX": 0.4522,
-        "anchorY": 0.5134,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.2739,
+        "anchorY": 0.4706
       }
     },
     {
-      "id": "2008cd7f-04f1-5fd2-a90b-e18fddce2456",
-      "compatibilitySlot": "dog_03",
-      "x": 972,
-      "y": 872,
+      "id": "dog_03",
+      "x": 952,
+      "y": 864,
       "r": 57,
       "sprite": {
         "image": "levels/hawaii_luau_sunset_courtyard_bird_5251/dogs/dog_03/sprite_000.png",
-        "height": 167,
-        "width": 182,
-        "x": 853,
-        "y": 782,
+        "x": 813,
+        "y": 769,
+        "width": 237,
+        "height": 204,
         "cleanup": {
-          "x": 842,
-          "y": 738,
-          "width": 225,
-          "height": 321
+          "x": 814,
+          "y": 773,
+          "width": 250,
+          "height": 320
         },
-        "anchorX": 0.6709,
-        "anchorY": 0.5049,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.5865,
+        "anchorY": 0.4657
       }
     },
     {
-      "id": "9d0553b7-b83a-574a-bee7-d69f021b7907",
-      "compatibilitySlot": "dog_04",
+      "id": "dog_04",
       "x": 1240,
-      "y": 819,
+      "y": 811,
       "r": 57,
       "sprite": {
         "image": "levels/hawaii_luau_sunset_courtyard_bird_5251/dogs/dog_04/sprite_000.png",
-        "height": 172,
-        "width": 171,
-        "x": 1160,
-        "y": 722,
+        "x": 1133,
+        "y": 711,
+        "width": 208,
+        "height": 207,
         "cleanup": {
-          "x": 1069,
-          "y": 663,
-          "width": 298,
+          "x": 1066,
+          "y": 666,
+          "width": 264,
           "height": 345
         },
         "anchorX": 0.5144,
-        "anchorY": 0.5217,
-        "flipX": false,
-        "flipY": false
+        "anchorY": 0.4831
       }
     },
     {
-      "id": "75c9a8ab-dae3-5393-b272-369ec7410655",
-      "compatibilitySlot": "dog_06",
-      "x": 2056,
-      "y": 661,
+      "id": "dog_05",
+      "x": 1533,
+      "y": 840,
+      "r": 57,
+      "sprite": {
+        "image": "levels/hawaii_luau_sunset_courtyard_bird_5251/dogs/dog_05/sprite_000.png",
+        "x": 1427,
+        "y": 757,
+        "width": 243,
+        "height": 161,
+        "cleanup": {
+          "x": 1412,
+          "y": 729,
+          "width": 345,
+          "height": 345
+        },
+        "anchorX": 0.4362,
+        "anchorY": 0.5155
+      }
+    },
+    {
+      "id": "dog_06",
+      "x": 2059,
+      "y": 663,
       "r": 57,
       "sprite": {
         "image": "levels/hawaii_luau_sunset_courtyard_bird_5251/dogs/dog_06/sprite_000.png",
-        "height": 127,
-        "width": 156,
-        "x": 1997,
-        "y": 618,
+        "x": 1941,
+        "y": 589,
+        "width": 227,
+        "height": 182,
         "cleanup": {
-          "x": 1937,
-          "y": 502,
-          "width": 243,
-          "height": 323
+          "x": 1886,
+          "y": 490,
+          "width": 277,
+          "height": 345
         },
-        "anchorX": 0.6476,
-        "anchorY": 0.9341,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.5198,
+        "anchorY": 0.4066
       }
     },
     {
-      "id": "a9aae9bf-199f-5ff2-93de-666dd40be41c",
-      "compatibilitySlot": "dog_07",
+      "id": "dog_07",
       "x": 2269,
       "y": 819,
       "r": 57,
       "sprite": {
         "image": "levels/hawaii_luau_sunset_courtyard_bird_5251/dogs/dog_07/sprite_000.png",
-        "height": 126,
-        "width": 215,
-        "x": 2173,
+        "x": 2150,
         "y": 764,
+        "width": 238,
+        "height": 154,
         "cleanup": {
-          "x": 2096,
+          "x": 2165,
           "y": 646,
-          "width": 345,
-          "height": 345
+          "width": 241,
+          "height": 305
         },
         "anchorX": 0.5,
-        "anchorY": 0.3571,
-        "flipX": false,
-        "flipY": false
+        "anchorY": 0.3571
       }
     },
     {
-      "id": "2391efe0-1050-52bb-b1b7-aa3ef766d5df",
-      "compatibilitySlot": "dog_05",
-      "x": 1543,
-      "y": 831,
-      "r": 57,
-      "sprite": {
-        "image": "levels/hawaii_luau_sunset_courtyard_bird_5251/dogs/dog_05/sprite_000.png",
-        "height": 126,
-        "width": 185,
-        "x": 1447,
-        "y": 782,
-        "cleanup": {
-          "x": 1395,
-          "y": 667,
-          "width": 275,
-          "height": 345
-        },
-        "anchorX": 0.5103,
-        "anchorY": 0.4444,
-        "flipX": false,
-        "flipY": false
-      }
-    },
-    {
-      "id": "347318c2-077d-5012-b96f-551c304a86c4",
-      "compatibilitySlot": "dog_08",
-      "x": 2148,
-      "y": 1104,
+      "id": "dog_08",
+      "x": 2137,
+      "y": 1085,
       "r": 57,
       "sprite": {
         "image": "levels/hawaii_luau_sunset_courtyard_bird_5251/dogs/dog_08/sprite_000.png",
-        "height": 148,
-        "width": 201,
-        "x": 2068,
-        "y": 1032,
+        "x": 2042,
+        "y": 1007,
+        "width": 239,
+        "height": 184,
         "cleanup": {
-          "x": 1975,
-          "y": 978,
+          "x": 1964,
+          "y": 953,
           "width": 345,
-          "height": 297
+          "height": 304
         },
-        "anchorX": 0.4435,
-        "anchorY": 0.5272,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.3975,
+        "anchorY": 0.4239
       }
     },
     {
-      "id": "91844c85-6dd4-5dfa-92c3-a8c7e7b47ce1",
-      "compatibilitySlot": "dog_09",
-      "x": 2250,
-      "y": 1566,
+      "id": "dog_09",
+      "x": 2259,
+      "y": 1585,
       "r": 57,
       "sprite": {
         "image": "levels/hawaii_luau_sunset_courtyard_bird_5251/dogs/dog_09/sprite_000.png",
-        "height": 166,
-        "width": 150,
-        "x": 2201,
-        "y": 1502,
+        "x": 2202,
+        "y": 1504,
+        "width": 148,
+        "height": 164,
         "cleanup": {
-          "x": 2064,
-          "y": 1389,
-          "width": 338,
-          "height": 280
+          "x": 2031,
+          "y": 1346,
+          "width": 345,
+          "height": 297
         },
-        "anchorX": 0.3267,
-        "anchorY": 0.3855,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.3851,
+        "anchorY": 0.4939
       }
     },
     {
-      "id": "27cf253e-0702-5b16-9f56-7835d5fb65d2",
-      "compatibilitySlot": "dog_10",
-      "x": 2016,
-      "y": 1791,
+      "id": "dog_10",
+      "x": 1993,
+      "y": 1775,
       "r": 57,
       "sprite": {
         "image": "levels/hawaii_luau_sunset_courtyard_bird_5251/dogs/dog_10/sprite_000.png",
+        "x": 1865,
+        "y": 1676,
+        "width": 262,
         "height": 226,
-        "width": 224,
-        "x": 1934,
-        "y": 1706,
         "cleanup": {
-          "x": 1859,
-          "y": 1634,
-          "width": 314,
-          "height": 314
+          "x": 1820,
+          "y": 1645,
+          "width": 345,
+          "height": 302
         },
-        "anchorX": 0.5893,
-        "anchorY": 0.5088,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.4885,
+        "anchorY": 0.4381
       }
     },
     {
-      "id": "e32ab958-8473-555b-a525-77fdb34ff5a9",
-      "compatibilitySlot": "dog_11",
-      "x": 1483,
-      "y": 1698,
+      "id": "dog_11",
+      "x": 1481,
+      "y": 1675,
       "r": 57,
       "sprite": {
         "image": "levels/hawaii_luau_sunset_courtyard_bird_5251/dogs/dog_11/sprite_000.png",
-        "height": 184,
-        "width": 190,
         "x": 1411,
         "y": 1576,
+        "width": 190,
+        "height": 184,
         "cleanup": {
-          "x": 1340,
-          "y": 1514,
-          "width": 324,
+          "x": 1338,
+          "y": 1554,
+          "width": 291,
           "height": 345
         },
-        "anchorX": 0.3789,
-        "anchorY": 0.663,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.3684,
+        "anchorY": 0.538
       }
     },
     {
-      "id": "073c4345-44e2-59a8-92a4-ea6b88484382",
-      "compatibilitySlot": "dog_12",
-      "x": 1177,
-      "y": 1897,
+      "id": "dog_12",
+      "x": 1169,
+      "y": 1895,
       "r": 57,
       "sprite": {
         "image": "levels/hawaii_luau_sunset_courtyard_bird_5251/dogs/dog_12/sprite_000.png",
-        "height": 189,
-        "width": 217,
         "x": 1044,
         "y": 1824,
+        "width": 217,
+        "height": 189,
         "cleanup": {
-          "x": 1059,
-          "y": 1736,
-          "width": 279,
+          "x": 1072,
+          "y": 1760,
+          "width": 264,
           "height": 345
         },
-        "anchorX": 0.6129,
-        "anchorY": 0.3862,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.576,
+        "anchorY": 0.3757
       }
     },
     {
-      "id": "a74993f9-6a94-5f37-9489-120479dda1d5",
-      "compatibilitySlot": "dog_14",
+      "id": "dog_13",
+      "x": 1503,
+      "y": 2241,
+      "r": 57,
+      "sprite": {
+        "image": "levels/hawaii_luau_sunset_courtyard_bird_5251/dogs/dog_13/sprite_000.png",
+        "x": 1399,
+        "y": 2174,
+        "width": 193,
+        "height": 146,
+        "cleanup": {
+          "x": 1352,
+          "y": 2097,
+          "width": 323,
+          "height": 273
+        },
+        "anchorX": 0.5389,
+        "anchorY": 0.4589
+      }
+    },
+    {
+      "id": "dog_14",
       "x": 921,
       "y": 2103,
       "r": 57,
       "sprite": {
         "image": "levels/hawaii_luau_sunset_courtyard_bird_5251/dogs/dog_14/sprite_000.png",
-        "height": 166,
-        "width": 202,
         "x": 807,
         "y": 2001,
+        "width": 202,
+        "height": 166,
         "cleanup": {
-          "x": 779,
-          "y": 1954,
-          "width": 284,
-          "height": 299
+          "x": 748,
+          "y": 1950,
+          "width": 322,
+          "height": 325
         },
         "anchorX": 0.5644,
-        "anchorY": 0.6145,
-        "flipX": false,
-        "flipY": false
+        "anchorY": 0.6145
       }
     },
     {
-      "id": "fc5d7358-f190-5ac1-bf90-2ddb6699bf77",
-      "compatibilitySlot": "dog_15",
-      "x": 909,
-      "y": 1843,
+      "id": "dog_15",
+      "x": 901,
+      "y": 1856,
       "r": 57,
       "sprite": {
         "image": "levels/hawaii_luau_sunset_courtyard_bird_5251/dogs/dog_15/sprite_000.png",
-        "height": 117,
-        "width": 172,
-        "x": 840,
-        "y": 1795,
+        "x": 787,
+        "y": 1715,
+        "width": 134,
+        "height": 116,
         "cleanup": {
-          "x": 803,
-          "y": 1732,
-          "width": 209,
-          "height": 229
+          "x": 762,
+          "y": 1589,
+          "width": 266,
+          "height": 345
         },
-        "anchorX": 0.9104,
-        "anchorY": 1.0,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.5448,
+        "anchorY": 0.6379
       }
     },
     {
-      "id": "726c3699-aa5a-5e19-8f35-55bbd6c1f295",
-      "compatibilitySlot": "dog_16",
-      "x": 611,
+      "id": "dog_16",
+      "x": 601,
       "y": 1744,
       "r": 57,
       "sprite": {
         "image": "levels/hawaii_luau_sunset_courtyard_bird_5251/dogs/dog_16/sprite_000.png",
-        "height": 299,
-        "width": 194,
-        "x": 510,
+        "x": 529,
         "y": 1601,
+        "width": 175,
+        "height": 257,
         "cleanup": {
-          "x": 428,
-          "y": 1581,
-          "width": 345,
-          "height": 326
+          "x": 496,
+          "y": 1555,
+          "width": 264,
+          "height": 345
         },
         "anchorX": 0.4114,
-        "anchorY": 0.5564,
-        "flipX": false,
-        "flipY": false
+        "anchorY": 0.5564
       }
     },
     {
-      "id": "4070de26-3cfc-5f47-92e6-3aea694ba467",
-      "compatibilitySlot": "dog_17",
-      "x": 566,
-      "y": 1453,
+      "id": "dog_17",
+      "x": 561,
+      "y": 1464,
       "r": 57,
       "sprite": {
         "image": "levels/hawaii_luau_sunset_courtyard_bird_5251/dogs/dog_17/sprite_000.png",
-        "height": 140,
-        "width": 231,
-        "x": 437,
-        "y": 1391,
+        "x": 445,
+        "y": 1388,
+        "width": 220,
+        "height": 153,
         "cleanup": {
-          "x": 389,
-          "y": 1294,
+          "x": 388,
+          "y": 1184,
           "width": 345,
-          "height": 341
+          "height": 345
         },
-        "anchorX": 0.5082,
-        "anchorY": 0.6059,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.5273,
+        "anchorY": 0.4967
       }
     },
     {
-      "id": "c711642a-ba8e-59dc-ad38-561fb827a96d",
-      "compatibilitySlot": "dog_18",
-      "x": 987,
-      "y": 1317,
+      "id": "dog_18",
+      "x": 992,
+      "y": 1304,
       "r": 57,
       "sprite": {
         "image": "levels/hawaii_luau_sunset_courtyard_bird_5251/dogs/dog_18/sprite_000.png",
-        "height": 272,
-        "width": 277,
         "x": 882,
-        "y": 1205,
+        "y": 1243,
+        "width": 214,
+        "height": 201,
         "cleanup": {
-          "x": 831,
-          "y": 1168,
-          "width": 322,
-          "height": 273
+          "x": 847,
+          "y": 1167,
+          "width": 345,
+          "height": 345
         },
         "anchorX": 0.514,
-        "anchorY": 0.3035,
-        "flipX": false,
-        "flipY": false
+        "anchorY": 0.3035
       }
     },
     {
-      "id": "56e4cf5b-d8ab-5808-bf1f-b763cd8be768",
-      "compatibilitySlot": "dog_13",
-      "x": 1502,
-      "y": 2241,
-      "r": 57,
-      "sprite": {
-        "image": "levels/hawaii_luau_sunset_courtyard_bird_5251/dogs/dog_13/sprite_000.png",
-        "height": 146,
-        "width": 193,
-        "x": 1399,
-        "y": 2174,
-        "cleanup": {
-          "x": 1355,
-          "y": 2086,
-          "width": 297,
-          "height": 310
-        },
-        "anchorX": 0.5389,
-        "anchorY": 0.4589,
-        "flipX": false,
-        "flipY": false
-      }
-    },
-    {
-      "id": "beb8d5b9-5d30-5bad-bfe9-20bc6b04eadc",
-      "compatibilitySlot": "dog_19",
-      "x": 2040,
-      "y": 2249,
+      "id": "dog_19",
+      "x": 2020,
+      "y": 2236,
       "r": 57,
       "sprite": {
         "image": "levels/hawaii_luau_sunset_courtyard_bird_5251/dogs/dog_19/sprite_000.png",
-        "height": 274,
-        "width": 236,
-        "x": 1908,
-        "y": 2133,
+        "x": 1934,
+        "y": 2170,
+        "width": 184,
+        "height": 202,
         "cleanup": {
-          "x": 1901,
-          "y": 2088,
-          "width": 307,
-          "height": 320
+          "x": 1843,
+          "y": 2109,
+          "width": 345,
+          "height": 345
         },
-        "anchorX": 0.5761,
-        "anchorY": 0.3911,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.4674,
+        "anchorY": 0.3267
       }
     }
-  ],
-  "provenance": {
-    "setting": "hawaii",
-    "scene": "hawaii_luau_sunset_courtyard",
-    "entity": "bird",
-    "style": "clean_old_cartoon",
-    "scenePrompt": "[Purpose]\nCreate a full-bleed mobile-game background for Find the Bird.\n\n[Short Description]\nAn open-air Hawaiian luau courtyard arranged around a central imu pit in the sand arranged as an organic isometric hidden-object scene.\n\n[Scene] An open-air Hawaiian luau courtyard arranged around a central imu pit in the sand \u2014 a main semicircle of low wooden tables, a side stage branching off with instruments, a torch-lined path leading to the edge of the scene. The courtyard has consistent materials throughout \u2014 each visible region renders as the material it should be, fine sand underfoot, woven lauhala mats beneath the tables, wooden stage planks, with no untextured blank areas. Low wooden tables of varying lengths sit unevenly around the pit, some clustered tightly for group seating, others standing alone with gaps. Thatched shade-posts at different heights, some overlapping, some freestanding. A fire dancer's staff rack leans at an unexpected angle beside the stage. Scattered throughout without pattern: woven placemats, pineapple halves on platters, tiki torches flaring, hibiscus-garland ropes strung between palm posts, ukuleles and hula drums on the stage, stacked coconut bowls, leis hanging from a rack, the unlit staves of a fire dancer, orange-pink sky with silhouetted palms, wooden poi-pounders, carved tiki heads at the corners, platters of kalua pork, woven fans, shell necklaces on a string, bamboo cups, a conch shell on a stand, folded palm-frond decorations. Dense clusters around the imu pit, sparser breathing room at the torch-lined edge. Asymmetric, organic layout \u2014 like a family's luau ground, re-set each celebration across many generations.\n\n[View] Moderately elevated three-quarter game-map view with a close, readable mobile-game camera: roughly 35 degrees down from horizontal, with only enough scene visible to support about 20 hidden bird placements. Do not use an extreme aerial, distant establishing, miniature-diorama, or whole-city view. Large scene anchors should occupy substantial frame area, and ordinary props must remain individually recognizable at phone size. Use controlled hidden-object density: arrange approximately 20 plausible hiding pockets across 4 to 6 connected prop clusters, with visible breathing room, clear travel paths between clusters, and readable object boundaries for phone-screen scanning. Use mild perspective or near-isometric construction consistently, without wide-angle distortion, dramatic foreshortening, depth of field, or tiny distance-scaled clutter.\n\n[Style] Vintage hand-drawn cartoon background adapted for a modern mobile puzzle game. Rounded old-cartoon shapes, cheerful simplified silhouettes, thick confident ink outlines, flat poster-like color fills, and soft hand-painted background texture. Use broad readable color masses and minimal internal linework so the scene stays clear on a phone screen. Charming and slightly nostalgic, clean and polished for mobile, with less visual noise, fewer texture marks, and no dense rendering.\n\n[Gameplay Composition]\nDesign this as a production hidden-object background where birds will be added later. Create many plausible hiding pockets on walkable/contact surfaces or open gaps beside props, plants, rocks, furniture, railings, crates, planters, benches, roots, tools, shelves, stalls, boats, carts, market goods, or other readable foreground objects. Near props is ideal; inside solid objects, on blank walls, on roofs, floating over water, or on decorative vertical faces is not useful. Use theme-specific spatial logic such as rings, islands, terraces, nested rooms, clearings, bridges, piers, shelves, courtyards, side alleys, garden pockets, or clustered market zones. Keep open pockets between prop clusters so hitboxes can sit near objects without excessive overlap.\n\n[Constraints]\nDo not depict any bird; every bird is added during the later gameplay pass. No people, no live animals, no insects, no mascots, no readable text, no logos, no watermarks. Signs, chalkboards, labels, plaques, and boards named in the scene may appear but must show only illegible marks, squiggles, or blank surfaces \u2014 never legible words or letters. Market food and fishing props are allowed when the scene calls for them. Avoid huge blank walls, roof-dominated compositions, large featureless empty lawns, empty sand, empty floors, long straight roads, and noisy micro-texture camouflage. Every visible ground, floor, or water-edge region should read as a clear material appropriate to the scene; no untextured blank areas.",
-    "entityPrompt": "Add exactly one bird to this crop. Place exactly one bird centered on the marked target area \u2014 do not repeat the subject. Match the scene's illustration style, line weight, palette, and flat-shaded rendering, but keep the bird's silhouette and boundary readable on a phone screen. The bird may be partially occluded or contextually disguised, but must not disappear through muddy edges, low contrast, texture camouflage, or ambiguous merged shapes. Vary the bird's colors, markings, proportions, and small physical details across crops so the level does not repeat the same bird design. The bird is a charming little anthropomorphic inhabitant of this world \u2014 a character with personality going about its business. Give it something simple and specific to do with its surroundings: holding an object, using a tool, sitting at a small task, peeking at something, carrying something, watching something with interest, tending a small thing, pausing mid-task. Keep the pose clear and readable. The charm comes from the context and the expression, not from dynamic motion. Size the bird realistically relative to the scene around it \u2014 compare it to whatever human-scale objects are visible in the crop and render the bird at the physical size a real bird would be next to them. Not so small that its species is ambiguous, not so large that it dominates the crop. The bird must be fully contained within the visible frame. Keep all other elements of the image unchanged.",
-    "bgModel": "google/gemini-3.1-flash-image-preview",
-    "inpaintModel": "google/gemini-3.1-flash-image-preview"
-  }
+  ]
 }

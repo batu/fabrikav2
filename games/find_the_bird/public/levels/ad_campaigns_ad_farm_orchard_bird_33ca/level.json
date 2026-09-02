@@ -1,647 +1,535 @@
 {
   "id": "ad_campaigns_ad_farm_orchard_bird_33ca",
-  "name": "Level ad_campaigns_ad_farm_orchard_bird_33ca",
+  "name": "Level ad_campaigns_ad_farm_orchard_bird_33ca (clean_old_cartoon)",
   "width": 2688,
   "height": 2688,
+  "bwImage": "levels/ad_campaigns_ad_farm_orchard_bird_33ca/bw.png",
   "colorImage": "levels/ad_campaigns_ad_farm_orchard_bird_33ca/color.png",
-  "artifactRevision": "sha256:cd544908179f064d42925aa0206479bae9e5064b74192cd8acd21483447b86bb",
-  "compatibilityAliases": {
-    "dog_00": "4991a16b-d8de-580b-a7c5-f639c72df31a",
-    "dog_01": "908895d4-d4a3-5aa5-858a-bf3f16186ca1",
-    "dog_02": "e1c5a3fd-4fa1-5709-b547-6325e8f148c3",
-    "dog_03": "da5159cd-0a19-555b-b5e6-2216dcea0f30",
-    "dog_04": "70827045-da49-5024-b597-737d3af860c4",
-    "dog_05": "af8fa878-d652-5b6e-8d81-a6bc23ddb67a",
-    "dog_06": "0f68961c-b49d-55eb-b0bc-ee502e345572",
-    "dog_07": "ed18e306-7eea-56e3-aec8-3ca7a1daccf2",
-    "dog_08": "e8e3741c-4db3-52b2-9045-0db6a69a9d25",
-    "dog_09": "3d2f09cc-4527-5e44-81c1-f1abae44b567",
-    "dog_10": "c4405ada-cf0f-5b77-9867-33932dafd3df",
-    "dog_11": "29a0ba09-e0c6-59b1-b400-fb3035aaf2fb",
-    "dog_12": "b959f8c9-b10c-5476-ac04-88d665918945",
-    "dog_13": "727df8d1-42cc-52ff-9167-88dab90b675c",
-    "dog_14": "620516ea-9e7d-564c-8d53-f07f6f076b84",
-    "dog_15": "f757fff2-52e9-5b15-b060-35930af8266e",
-    "dog_16": "386a764f-0c01-5b6c-9559-90b80995c72f",
-    "dog_22": "d66e2035-7aa0-5496-919a-98fef5a36e13",
-    "dog_23": "215ea02e-966c-5d5c-98ca-a4a83ea42625",
-    "dog_21": "52bf7ab6-69fd-5ef3-a0c8-13483678424a",
-    "dog_24": "f70f4517-490d-5ff2-a54b-4df89d28118d",
-    "dog_17": "8280d13a-f369-541b-af6a-be2f696af46f",
-    "dog_18": "903f33b6-eb24-51c3-a849-b4a80cf8c028",
-    "dog_19": "ab5571c1-a113-59c5-bf6d-3897e86cce50",
-    "dog_20": "31bec1cb-e83a-5782-bf57-97275aad072a"
-  },
   "dogs": [
     {
-      "id": "4991a16b-d8de-580b-a7c5-f639c72df31a",
-      "compatibilitySlot": "dog_00",
-      "x": 2119,
-      "y": 528,
+      "id": "dog_00",
+      "x": 2116,
+      "y": 526,
       "r": 57,
       "sprite": {
         "image": "levels/ad_campaigns_ad_farm_orchard_bird_33ca/dogs/dog_00/sprite_000.png",
-        "height": 120,
-        "width": 162,
-        "x": 2023,
-        "y": 465,
+        "x": 1987,
+        "y": 467,
+        "width": 217,
+        "height": 208,
         "cleanup": {
-          "x": 1978,
-          "y": 469,
-          "width": 217,
-          "height": 208
+          "x": 2100,
+          "y": 504,
+          "width": 159,
+          "height": 143
         },
-        "anchorX": 0.6498,
-        "anchorY": 0.2837,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.5945,
+        "anchorY": 0.2837
       }
     },
     {
-      "id": "908895d4-d4a3-5aa5-858a-bf3f16186ca1",
-      "compatibilitySlot": "dog_01",
-      "x": 2297,
-      "y": 560,
+      "id": "dog_01",
+      "x": 2295,
+      "y": 540,
       "r": 57,
       "sprite": {
         "image": "levels/ad_campaigns_ad_farm_orchard_bird_33ca/dogs/dog_01/sprite_000.png",
-        "height": 117,
-        "width": 126,
-        "x": 2246,
-        "y": 499,
+        "x": 2212,
+        "y": 479,
+        "width": 217,
+        "height": 168,
         "cleanup": {
-          "x": 2189,
-          "y": 465,
-          "width": 217,
-          "height": 168
+          "x": 2261,
+          "y": 405,
+          "width": 150,
+          "height": 284
         },
-        "anchorX": 0.4977,
-        "anchorY": 0.5655,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.3825,
+        "anchorY": 0.3631
       }
     },
     {
-      "id": "e1c5a3fd-4fa1-5709-b547-6325e8f148c3",
-      "compatibilitySlot": "dog_02",
-      "x": 609,
+      "id": "dog_02",
+      "x": 611,
       "y": 580,
       "r": 57,
       "sprite": {
         "image": "levels/ad_campaigns_ad_farm_orchard_bird_33ca/dogs/dog_02/sprite_000.png",
-        "height": 122,
-        "width": 116,
-        "x": 545,
-        "y": 510,
+        "x": 488,
+        "y": 455,
+        "width": 207,
+        "height": 176,
         "cleanup": {
-          "x": 493,
-          "y": 456,
-          "width": 207,
-          "height": 176
+          "x": 447,
+          "y": 444,
+          "width": 296,
+          "height": 323
         },
-        "anchorX": 0.5604,
-        "anchorY": 0.7045,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.5942,
+        "anchorY": 0.7102
       }
     },
     {
-      "id": "da5159cd-0a19-555b-b5e6-2216dcea0f30",
-      "compatibilitySlot": "dog_03",
-      "x": 660,
-      "y": 994,
+      "id": "dog_03",
+      "x": 645,
+      "y": 981,
       "r": 57,
       "sprite": {
         "image": "levels/ad_campaigns_ad_farm_orchard_bird_33ca/dogs/dog_03/sprite_000.png",
-        "height": 155,
-        "width": 192,
-        "x": 556,
-        "y": 902,
+        "x": 564,
+        "y": 908,
+        "width": 241,
+        "height": 201,
         "cleanup": {
-          "x": 538,
-          "y": 877,
-          "width": 241,
-          "height": 201
+          "x": 516,
+          "y": 863,
+          "width": 258,
+          "height": 343
         },
-        "anchorX": 0.5062,
-        "anchorY": 0.5821,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.3361,
+        "anchorY": 0.3632
       }
     },
     {
-      "id": "70827045-da49-5024-b597-737d3af860c4",
-      "compatibilitySlot": "dog_04",
+      "id": "dog_04",
       "x": 877,
-      "y": 918,
+      "y": 921,
       "r": 57,
       "sprite": {
         "image": "levels/ad_campaigns_ad_farm_orchard_bird_33ca/dogs/dog_04/sprite_000.png",
-        "height": 118,
-        "width": 129,
-        "x": 810,
-        "y": 848,
+        "x": 736,
+        "y": 785,
+        "width": 236,
+        "height": 203,
         "cleanup": {
-          "x": 735,
-          "y": 785,
-          "width": 236,
-          "height": 203
+          "x": 776,
+          "y": 769,
+          "width": 220,
+          "height": 324
         },
-        "anchorX": 0.6379,
-        "anchorY": 0.6552,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.5975,
+        "anchorY": 0.67
       }
     },
     {
-      "id": "af8fa878-d652-5b6e-8d81-a6bc23ddb67a",
-      "compatibilitySlot": "dog_05",
-      "x": 1123,
-      "y": 1050,
+      "id": "dog_05",
+      "x": 1118,
+      "y": 1048,
       "r": 57,
       "sprite": {
         "image": "levels/ad_campaigns_ad_farm_orchard_bird_33ca/dogs/dog_05/sprite_000.png",
-        "height": 165,
-        "width": 194,
-        "x": 1051,
-        "y": 972,
+        "x": 1033,
+        "y": 955,
+        "width": 260,
+        "height": 190,
         "cleanup": {
-          "x": 1033,
-          "y": 955,
-          "width": 260,
-          "height": 190
+          "x": 998,
+          "y": 875,
+          "width": 271,
+          "height": 296
         },
-        "anchorX": 0.3462,
-        "anchorY": 0.5,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.3269,
+        "anchorY": 0.4895
       }
     },
     {
-      "id": "0f68961c-b49d-55eb-b0bc-ee502e345572",
-      "compatibilitySlot": "dog_06",
-      "x": 1421,
-      "y": 1052,
+      "id": "dog_06",
+      "x": 1418,
+      "y": 1064,
       "r": 57,
       "sprite": {
         "image": "levels/ad_campaigns_ad_farm_orchard_bird_33ca/dogs/dog_06/sprite_000.png",
-        "height": 113,
-        "width": 140,
-        "x": 1328,
+        "x": 1231,
         "y": 999,
+        "width": 232,
+        "height": 236,
         "cleanup": {
-          "x": 1231,
-          "y": 999,
-          "width": 232,
-          "height": 236
+          "x": 1271,
+          "y": 933,
+          "width": 281,
+          "height": 345
         },
-        "anchorX": 0.819,
-        "anchorY": 0.2246,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.806,
+        "anchorY": 0.2754
       }
     },
     {
-      "id": "ed18e306-7eea-56e3-aec8-3ca7a1daccf2",
-      "compatibilitySlot": "dog_07",
-      "x": 1558,
-      "y": 763,
+      "id": "dog_07",
+      "x": 1568,
+      "y": 780,
       "r": 57,
       "sprite": {
         "image": "levels/ad_campaigns_ad_farm_orchard_bird_33ca/dogs/dog_07/sprite_000.png",
-        "height": 92,
-        "width": 97,
-        "x": 1506,
-        "y": 735,
+        "x": 1462,
+        "y": 720,
+        "width": 162,
+        "height": 128,
         "cleanup": {
-          "x": 1462,
-          "y": 720,
-          "width": 162,
-          "height": 128
+          "x": 1388,
+          "y": 586,
+          "width": 345,
+          "height": 284
         },
-        "anchorX": 0.5926,
-        "anchorY": 0.3359,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.6543,
+        "anchorY": 0.4688
       }
     },
     {
-      "id": "e8e3741c-4db3-52b2-9045-0db6a69a9d25",
-      "compatibilitySlot": "dog_08",
-      "x": 1751,
-      "y": 930,
+      "id": "dog_08",
+      "x": 1755,
+      "y": 924,
       "r": 57,
       "sprite": {
         "image": "levels/ad_campaigns_ad_farm_orchard_bird_33ca/dogs/dog_08/sprite_000.png",
-        "height": 122,
-        "width": 152,
-        "x": 1693,
-        "y": 872,
+        "x": 1654,
+        "y": 806,
+        "width": 241,
+        "height": 211,
         "cleanup": {
-          "x": 1654,
-          "y": 806,
-          "width": 241,
-          "height": 211
+          "x": 1554,
+          "y": 872,
+          "width": 308,
+          "height": 282
         },
-        "anchorX": 0.4025,
-        "anchorY": 0.5877,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.4191,
+        "anchorY": 0.5592
       }
     },
     {
-      "id": "3d2f09cc-4527-5e44-81c1-f1abae44b567",
-      "compatibilitySlot": "dog_09",
-      "x": 940,
+      "id": "dog_09",
+      "x": 949,
       "y": 1278,
       "r": 57,
       "sprite": {
         "image": "levels/ad_campaigns_ad_farm_orchard_bird_33ca/dogs/dog_09/sprite_000.png",
-        "height": 163,
-        "width": 187,
-        "x": 829,
-        "y": 1192,
+        "x": 812,
+        "y": 1167,
+        "width": 221,
+        "height": 193,
         "cleanup": {
-          "x": 806,
-          "y": 1162,
-          "width": 221,
-          "height": 193
+          "x": 866,
+          "y": 1181,
+          "width": 298,
+          "height": 242
         },
-        "anchorX": 0.6063,
-        "anchorY": 0.601,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.6199,
+        "anchorY": 0.5751
       }
     },
     {
-      "id": "c4405ada-cf0f-5b77-9867-33932dafd3df",
-      "compatibilitySlot": "dog_10",
-      "x": 518,
-      "y": 1416,
+      "id": "dog_10",
+      "x": 517,
+      "y": 1453,
       "r": 57,
       "sprite": {
         "image": "levels/ad_campaigns_ad_farm_orchard_bird_33ca/dogs/dog_10/sprite_000.png",
-        "height": 129,
-        "width": 126,
-        "x": 470,
-        "y": 1354,
+        "x": 463,
+        "y": 1338,
+        "width": 174,
+        "height": 171,
         "cleanup": {
-          "x": 463,
-          "y": 1338,
-          "width": 174,
-          "height": 171
+          "x": 364,
+          "y": 1277,
+          "width": 230,
+          "height": 345
         },
-        "anchorX": 0.3161,
-        "anchorY": 0.4561,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.3103,
+        "anchorY": 0.6725
       }
     },
     {
-      "id": "29a0ba09-e0c6-59b1-b400-fb3035aaf2fb",
-      "compatibilitySlot": "dog_11",
-      "x": 684,
-      "y": 1514,
+      "id": "dog_11",
+      "x": 673,
+      "y": 1512,
       "r": 57,
       "sprite": {
         "image": "levels/ad_campaigns_ad_farm_orchard_bird_33ca/dogs/dog_11/sprite_000.png",
-        "height": 160,
-        "width": 132,
-        "x": 622,
-        "y": 1446,
+        "x": 600,
+        "y": 1444,
+        "width": 179,
+        "height": 193,
         "cleanup": {
-          "x": 589,
-          "y": 1440,
-          "width": 179,
-          "height": 193
+          "x": 596,
+          "y": 1389,
+          "width": 120,
+          "height": 241
         },
-        "anchorX": 0.5307,
-        "anchorY": 0.3834,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.4078,
+        "anchorY": 0.3523
       }
     },
     {
-      "id": "b959f8c9-b10c-5476-ac04-88d665918945",
-      "compatibilitySlot": "dog_12",
-      "x": 793,
-      "y": 1441,
+      "id": "dog_12",
+      "x": 798,
+      "y": 1427,
       "r": 57,
       "sprite": {
         "image": "levels/ad_campaigns_ad_farm_orchard_bird_33ca/dogs/dog_12/sprite_000.png",
-        "height": 98,
-        "width": 139,
-        "x": 749,
-        "y": 1380,
+        "x": 680,
+        "y": 1332,
+        "width": 209,
+        "height": 170,
         "cleanup": {
-          "x": 680,
-          "y": 1332,
-          "width": 209,
-          "height": 170
+          "x": 718,
+          "y": 1410,
+          "width": 113,
+          "height": 138
         },
-        "anchorX": 0.5407,
-        "anchorY": 0.6412,
-        "flipX": true,
-        "flipY": false
+        "anchorX": 0.5646,
+        "anchorY": 0.5588
       }
     },
     {
-      "id": "727df8d1-42cc-52ff-9167-88dab90b675c",
-      "compatibilitySlot": "dog_13",
-      "x": 998,
-      "y": 1592,
+      "id": "dog_13",
+      "x": 992,
+      "y": 1590,
       "r": 57,
       "sprite": {
         "image": "levels/ad_campaigns_ad_farm_orchard_bird_33ca/dogs/dog_13/sprite_000.png",
-        "height": 150,
-        "width": 136,
-        "x": 906,
-        "y": 1554,
+        "x": 881,
+        "y": 1541,
+        "width": 191,
+        "height": 244,
         "cleanup": {
-          "x": 881,
-          "y": 1541,
-          "width": 191,
-          "height": 244
+          "x": 865,
+          "y": 1500,
+          "width": 182,
+          "height": 242
         },
-        "anchorX": 0.6126,
-        "anchorY": 0.209,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.5812,
+        "anchorY": 0.2008
       }
     },
     {
-      "id": "620516ea-9e7d-564c-8d53-f07f6f076b84",
-      "compatibilitySlot": "dog_14",
-      "x": 915,
-      "y": 1804,
+      "id": "dog_14",
+      "x": 903,
+      "y": 1745,
       "r": 57,
       "sprite": {
         "image": "levels/ad_campaigns_ad_farm_orchard_bird_33ca/dogs/dog_14/sprite_000.png",
-        "height": 75,
-        "width": 122,
-        "x": 862,
-        "y": 1710,
+        "x": 822,
+        "y": 1742,
+        "width": 203,
+        "height": 165,
         "cleanup": {
-          "x": 748,
-          "y": 1720,
-          "width": 203,
-          "height": 165
+          "x": 760,
+          "y": 1744,
+          "width": 262,
+          "height": 208
         },
-        "anchorX": 0.8227,
-        "anchorY": 0.5091,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.399,
+        "anchorY": 0.0182
       }
     },
     {
-      "id": "f757fff2-52e9-5b15-b060-35930af8266e",
-      "compatibilitySlot": "dog_15",
-      "x": 1176,
+      "id": "dog_15",
+      "x": 1160,
       "y": 1727,
       "r": 57,
       "sprite": {
         "image": "levels/ad_campaigns_ad_farm_orchard_bird_33ca/dogs/dog_15/sprite_000.png",
-        "height": 143,
-        "width": 167,
-        "x": 1086,
-        "y": 1656,
+        "x": 1039,
+        "y": 1641,
+        "width": 230,
+        "height": 195,
         "cleanup": {
-          "x": 1039,
-          "y": 1641,
-          "width": 230,
-          "height": 195
+          "x": 1049,
+          "y": 1585,
+          "width": 255,
+          "height": 263
         },
-        "anchorX": 0.5957,
-        "anchorY": 0.441,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.5261,
+        "anchorY": 0.441
       }
     },
     {
-      "id": "386a764f-0c01-5b6c-9559-90b80995c72f",
-      "compatibilitySlot": "dog_16",
-      "x": 1562,
-      "y": 1540,
+      "id": "dog_16",
+      "x": 1566,
+      "y": 1561,
       "r": 57,
       "sprite": {
         "image": "levels/ad_campaigns_ad_farm_orchard_bird_33ca/dogs/dog_16/sprite_000.png",
-        "height": 138,
-        "width": 153,
-        "x": 1473,
+        "x": 1418,
         "y": 1477,
+        "width": 225,
+        "height": 160,
         "cleanup": {
-          "x": 1417,
-          "y": 1478,
-          "width": 225,
-          "height": 160
+          "x": 1328,
+          "y": 1292,
+          "width": 345,
+          "height": 323
         },
-        "anchorX": 0.6444,
-        "anchorY": 0.3875,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.6578,
+        "anchorY": 0.525
       }
     },
     {
-      "id": "d66e2035-7aa0-5496-919a-98fef5a36e13",
-      "compatibilitySlot": "dog_22",
-      "x": 872,
-      "y": 2145,
-      "r": 57,
-      "sprite": {
-        "image": "levels/ad_campaigns_ad_farm_orchard_bird_33ca/dogs/dog_22/sprite_000.png",
-        "height": 128,
-        "width": 110,
-        "x": 810,
-        "y": 2083,
-        "cleanup": {
-          "x": 785,
-          "y": 2026,
-          "width": 188,
-          "height": 214
-        },
-        "anchorX": 0.4468,
-        "anchorY": 0.6449,
-        "flipX": false,
-        "flipY": false
-      }
-    },
-    {
-      "id": "215ea02e-966c-5d5c-98ca-a4a83ea42625",
-      "compatibilitySlot": "dog_23",
-      "x": 945,
-      "y": 2382,
-      "r": 57,
-      "sprite": {
-        "image": "levels/ad_campaigns_ad_farm_orchard_bird_33ca/dogs/dog_23/sprite_000.png",
-        "height": 133,
-        "width": 149,
-        "x": 847,
-        "y": 2337,
-        "cleanup": {
-          "x": 777,
-          "y": 2271,
-          "width": 243,
-          "height": 217
-        },
-        "anchorX": 0.679,
-        "anchorY": 0.659,
-        "flipX": false,
-        "flipY": false
-      }
-    },
-    {
-      "id": "52bf7ab6-69fd-5ef3-a0c8-13483678424a",
-      "compatibilitySlot": "dog_21",
-      "x": 1360,
-      "y": 1862,
-      "r": 57,
-      "sprite": {
-        "image": "levels/ad_campaigns_ad_farm_orchard_bird_33ca/dogs/dog_21/sprite_000.png",
-        "height": 131,
-        "width": 128,
-        "x": 1313,
-        "y": 1795,
-        "cleanup": {
-          "x": 1274,
-          "y": 1802,
-          "width": 205,
-          "height": 216
-        },
-        "anchorX": 0.3805,
-        "anchorY": 0.1065,
-        "flipX": false,
-        "flipY": false
-      }
-    },
-    {
-      "id": "f70f4517-490d-5ff2-a54b-4df89d28118d",
-      "compatibilitySlot": "dog_24",
-      "x": 1522,
-      "y": 2192,
-      "r": 57,
-      "sprite": {
-        "image": "levels/ad_campaigns_ad_farm_orchard_bird_33ca/dogs/dog_24/sprite_000.png",
-        "height": 122,
-        "width": 108,
-        "x": 1449,
-        "y": 2139,
-        "cleanup": {
-          "x": 1446,
-          "y": 2059,
-          "width": 205,
-          "height": 215
-        },
-        "anchorX": 0.3268,
-        "anchorY": 0.6372,
-        "flipX": true,
-        "flipY": false
-      }
-    },
-    {
-      "id": "8280d13a-f369-541b-af6a-be2f696af46f",
-      "compatibilitySlot": "dog_17",
-      "x": 1869,
-      "y": 1649,
+      "id": "dog_17",
+      "x": 1880,
+      "y": 1637,
       "r": 57,
       "sprite": {
         "image": "levels/ad_campaigns_ad_farm_orchard_bird_33ca/dogs/dog_17/sprite_000.png",
+        "x": 1713,
+        "y": 1689,
+        "width": 245,
         "height": 211,
-        "width": 177,
-        "x": 1773,
-        "y": 1607,
         "cleanup": {
-          "x": 1733,
-          "y": 1541,
-          "width": 245,
-          "height": 211
+          "x": 1780,
+          "y": 1543,
+          "width": 144,
+          "height": 345
         },
-        "anchorX": 0.5424,
-        "anchorY": 0.1991,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.6122,
+        "anchorY": 0.0
       }
     },
     {
-      "id": "903f33b6-eb24-51c3-a849-b4a80cf8c028",
-      "compatibilitySlot": "dog_18",
-      "x": 1726,
-      "y": 1761,
+      "id": "dog_18",
+      "x": 1729,
+      "y": 1746,
       "r": 57,
       "sprite": {
         "image": "levels/ad_campaigns_ad_farm_orchard_bird_33ca/dogs/dog_18/sprite_000.png",
-        "height": 99,
-        "width": 162,
-        "x": 1630,
-        "y": 1696,
+        "x": 1565,
+        "y": 1600,
+        "width": 242,
+        "height": 210,
         "cleanup": {
-          "x": 1562,
-          "y": 1609,
-          "width": 242,
-          "height": 210
+          "x": 1534,
+          "y": 1617,
+          "width": 244,
+          "height": 328
         },
-        "anchorX": 0.6901,
-        "anchorY": 0.6524,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.6777,
+        "anchorY": 0.6952
       }
     },
     {
-      "id": "ab5571c1-a113-59c5-bf6d-3897e86cce50",
-      "compatibilitySlot": "dog_19",
-      "x": 2024,
-      "y": 1882,
+      "id": "dog_19",
+      "x": 2006,
+      "y": 1852,
       "r": 57,
       "sprite": {
         "image": "levels/ad_campaigns_ad_farm_orchard_bird_33ca/dogs/dog_19/sprite_000.png",
+        "x": 1943,
+        "y": 1802,
+        "width": 135,
         "height": 131,
-        "width": 159,
-        "x": 1945,
-        "y": 1798,
         "cleanup": {
-          "x": 1938,
-          "y": 1768,
-          "width": 175,
-          "height": 173
+          "x": 1926,
+          "y": 1640,
+          "width": 178,
+          "height": 345
         },
-        "anchorX": 0.6239,
-        "anchorY": 0.6107,
-        "flipX": true,
-        "flipY": false
+        "anchorX": 0.4667,
+        "anchorY": 0.3817
       }
     },
     {
-      "id": "31bec1cb-e83a-5782-bf57-97275aad072a",
-      "compatibilitySlot": "dog_20",
-      "x": 2294,
-      "y": 1921,
+      "id": "dog_20",
+      "x": 2290,
+      "y": 1906,
       "r": 57,
       "sprite": {
         "image": "levels/ad_campaigns_ad_farm_orchard_bird_33ca/dogs/dog_20/sprite_000.png",
-        "height": 84,
-        "width": 141,
-        "x": 2236,
-        "y": 1881,
+        "x": 2155,
+        "y": 1803,
+        "width": 228,
+        "height": 180,
         "cleanup": {
-          "x": 2155,
-          "y": 1803,
-          "width": 228,
-          "height": 180
+          "x": 2106,
+          "y": 1760,
+          "width": 281,
+          "height": 311
         },
         "anchorX": 0.5921,
-        "anchorY": 0.5722,
-        "flipX": true,
-        "flipY": false
+        "anchorY": 0.5722
+      }
+    },
+    {
+      "id": "dog_21",
+      "x": 1352,
+      "y": 1825,
+      "r": 57,
+      "sprite": {
+        "image": "levels/ad_campaigns_ad_farm_orchard_bird_33ca/dogs/dog_21/sprite_000.png",
+        "x": 1274,
+        "y": 1802,
+        "width": 205,
+        "height": 216,
+        "cleanup": {
+          "x": 1186,
+          "y": 1809,
+          "width": 345,
+          "height": 253
+        },
+        "anchorX": 0.3805,
+        "anchorY": 0.1065
+      }
+    },
+    {
+      "id": "dog_22",
+      "x": 869,
+      "y": 2164,
+      "r": 57,
+      "sprite": {
+        "image": "levels/ad_campaigns_ad_farm_orchard_bird_33ca/dogs/dog_22/sprite_000.png",
+        "x": 792,
+        "y": 2024,
+        "width": 188,
+        "height": 214,
+        "cleanup": {
+          "x": 662,
+          "y": 2045,
+          "width": 330,
+          "height": 253
+        },
+        "anchorX": 0.4096,
+        "anchorY": 0.6542
+      }
+    },
+    {
+      "id": "dog_23",
+      "x": 942,
+      "y": 2414,
+      "r": 57,
+      "sprite": {
+        "image": "levels/ad_campaigns_ad_farm_orchard_bird_33ca/dogs/dog_23/sprite_000.png",
+        "x": 777,
+        "y": 2271,
+        "width": 243,
+        "height": 217,
+        "cleanup": {
+          "x": 785,
+          "y": 2300,
+          "width": 345,
+          "height": 237
+        },
+        "anchorX": 0.679,
+        "anchorY": 0.659
+      }
+    },
+    {
+      "id": "dog_24",
+      "x": 1513,
+      "y": 2196,
+      "r": 57,
+      "sprite": {
+        "image": "levels/ad_campaigns_ad_farm_orchard_bird_33ca/dogs/dog_24/sprite_000.png",
+        "x": 1446,
+        "y": 2059,
+        "width": 205,
+        "height": 215,
+        "cleanup": {
+          "x": 1282,
+          "y": 2064,
+          "width": 345,
+          "height": 241
+        },
+        "anchorX": 0.3268,
+        "anchorY": 0.6372
       }
     }
-  ],
-  "provenance": {
-    "setting": "ad_campaigns",
-    "scene": "ad_farm_orchard",
-    "entity": "bird",
-    "style": "clean_old_cartoon",
-    "scenePrompt": "[Purpose]\nCreate a full-bleed mobile-game background for Find the Bird.\n\n[Short Description]\nA cheerful farm orchard sprawling across fruit-tree rows, garden plots, and connected barnyard clearings arranged as an organic isometric hidden-object scene.\n\n[Scene] A cheerful farm orchard sprawling across fruit-tree rows, garden plots, and connected barnyard clearings \u2014 a red barn, produce stand, and winding irrigation stream anchor the scene. Every visible surface reads as grass, tilled soil, packed paths, timber, stone, or water. Scattered throughout without pattern: apple crates, baskets, ladders, barrels, wheelbarrows, watering cans, hay bales, hand tools, scarecrows, fences, carts, sacks, beehives, and picnic blankets. Uneven tree clusters and open work pockets match the colorful orchard campaign artwork.\n\n[View] Moderately elevated three-quarter game-map view with a close, readable mobile-game camera: roughly 35 degrees down from horizontal, with only enough scene visible to support about 20 hidden bird placements. Do not use an extreme aerial, distant establishing, miniature-diorama, or whole-city view. Large scene anchors should occupy substantial frame area, and ordinary props must remain individually recognizable at phone size. Use controlled hidden-object density: arrange approximately 20 plausible hiding pockets across 4 to 6 connected prop clusters, with visible breathing room, clear travel paths between clusters, and readable object boundaries for phone-screen scanning. Use mild perspective or near-isometric construction consistently, without wide-angle distortion, dramatic foreshortening, depth of field, or tiny distance-scaled clutter.\n\n[Style] Vintage hand-drawn cartoon background adapted for a modern mobile puzzle game. Rounded old-cartoon shapes, cheerful simplified silhouettes, thick confident ink outlines, flat poster-like color fills, and soft hand-painted background texture. Use broad readable color masses and minimal internal linework so the scene stays clear on a phone screen. Charming and slightly nostalgic, clean and polished for mobile, with less visual noise, fewer texture marks, and no dense rendering.\n\n[Gameplay Composition]\nDesign this as a production hidden-object background where birds will be added later. Create many plausible hiding pockets on walkable/contact surfaces or open gaps beside props, plants, rocks, furniture, railings, crates, planters, benches, roots, tools, shelves, stalls, boats, carts, market goods, or other readable foreground objects. Near props is ideal; inside solid objects, on blank walls, on roofs, floating over water, or on decorative vertical faces is not useful. Use theme-specific spatial logic such as rings, islands, terraces, nested rooms, clearings, bridges, piers, shelves, courtyards, side alleys, garden pockets, or clustered market zones. Keep open pockets between prop clusters so hitboxes can sit near objects without excessive overlap.\n\n[Constraints]\nDo not depict any bird; every bird is added during the later gameplay pass. No people, no live animals, no insects, no mascots, no readable text, no logos, no watermarks. Signs, chalkboards, labels, plaques, and boards named in the scene may appear but must show only illegible marks, squiggles, or blank surfaces \u2014 never legible words or letters. Market food and fishing props are allowed when the scene calls for them. Avoid huge blank walls, roof-dominated compositions, large featureless empty lawns, empty sand, empty floors, long straight roads, and noisy micro-texture camouflage. Every visible ground, floor, or water-edge region should read as a clear material appropriate to the scene; no untextured blank areas.",
-    "entityPrompt": "Add exactly one bird to this crop. Place exactly one bird centered on the marked target area \u2014 do not repeat the subject. Match the scene's illustration style, line weight, palette, and flat-shaded rendering, but keep the bird's silhouette and boundary readable on a phone screen. The bird may be partially occluded or contextually disguised, but must not disappear through muddy edges, low contrast, texture camouflage, or ambiguous merged shapes. Vary the bird's colors, markings, proportions, and small physical details across crops so the level does not repeat the same bird design. The bird is a charming little anthropomorphic inhabitant of this world \u2014 a character with personality going about its business. Give it something simple and specific to do with its surroundings: holding an object, using a tool, sitting at a small task, peeking at something, carrying something, watching something with interest, tending a small thing, pausing mid-task. Keep the pose clear and readable. The charm comes from the context and the expression, not from dynamic motion. Size the bird realistically relative to the scene around it \u2014 compare it to whatever human-scale objects are visible in the crop and render the bird at the physical size a real bird would be next to them. Not so small that its species is ambiguous, not so large that it dominates the crop. The bird must be fully contained within the visible frame. Keep all other elements of the image unchanged.",
-    "bgModel": "google/gemini-3.1-flash-image-preview",
-    "inpaintModel": "google/gemini-3.1-flash-image-preview"
-  }
+  ]
 }

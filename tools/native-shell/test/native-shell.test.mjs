@@ -8,6 +8,7 @@ import {
   patchPbxproj,
   patchStoryboard,
   renderPackageSwift,
+  resolveRuntimeAdMobManifest,
   validateGeneratedShell,
 } from '../src/native-shell.mjs';
 
@@ -94,6 +95,7 @@ function manifest() {
     capacitorAppId: 'com.basegamelab.find_the_dog.dev',
     ios: {
       bundleId: 'com.baseardahan.hiddenobj',
+      firebaseProjectId: 'find-the-dog-basegamelab',
       displayName: 'Find the Dog',
       swiftToolsVersion: '6.1',
       deploymentTarget: '15',
@@ -139,6 +141,38 @@ describe('native shell transforms', () => {
     expect(once).toContain('<key>GOOGLE_ANALYTICS_IDFV_COLLECTION_ENABLED</key>\n\t<false/>');
     expect(once).toContain('<string>UIInterfaceOrientationPortrait</string>');
     expect(once).not.toContain('Landscape');
+  });
+
+  it('omits native AdMob wiring when its explicit enable flag is off', () => {
+    const configured = manifest();
+    configured.ios.adMobEnabledEnv = 'VITE_ADMOB_IOS_ENABLED';
+    configured.ios.adMobApplicationIdEnv = 'VITE_ADMOB_IOS_APP_ID';
+    configured.ios.localPackages.push({
+      name: 'CapacitorCommunityAdmob',
+      path: '../../../../../node_modules/@capacitor-community/admob',
+      product: 'CapacitorCommunityAdmob',
+    });
+
+    const disabled = resolveRuntimeAdMobManifest(configured, { VITE_ADMOB_IOS_ENABLED: 'false' });
+    expect(disabled.ios.localPackages.map((pkg) => pkg.name)).not.toContain('CapacitorCommunityAdmob');
+    expect(disabled.ios.adMobApplicationIdEnv).toBeNull();
+    expect(disabled.ios.skAdNetworkCatalog).toBeNull();
+    expect(resolveRuntimeAdMobManifest(configured, { VITE_ADMOB_IOS_ENABLED: 'true' })).toBe(configured);
+  });
+
+  it('uses committed AdMob enablement when no environment override exists', () => {
+    const configured = manifest();
+    configured.ios.adMobEnabledEnv = 'VITE_ADMOB_IOS_ENABLED';
+    configured.ios.adMobApplicationIdEnv = 'VITE_ADMOB_IOS_APP_ID';
+    configured.ios.localPackages.push({
+      name: 'CapacitorCommunityAdmob',
+      path: '../../../../../node_modules/@capacitor-community/admob',
+      product: 'CapacitorCommunityAdmob',
+    });
+
+    expect(resolveRuntimeAdMobManifest(configured, {}, { enabled: true })).toBe(configured);
+    expect(resolveRuntimeAdMobManifest(configured, {}, { enabled: false }).ios.adMobApplicationIdEnv).toBeNull();
+    expect(resolveRuntimeAdMobManifest(configured, { VITE_ADMOB_IOS_ENABLED: 'false' }, { enabled: true }).ios.adMobApplicationIdEnv).toBeNull();
   });
 
   it('removes tracking and ad-network declarations for a provider-free shell', () => {
@@ -278,7 +312,7 @@ describe('native shell integration', () => {
     expect(validateGeneratedShell({ repoRoot, game: 'find_the_dog', allowMissingFirebase: true }).issues).toEqual([]);
     expect(validateGeneratedShell({ repoRoot, game: 'find_the_dog', allowMissingFirebase: false }).issues).toContainEqual(expect.stringMatching(/GoogleService-Info\.plist is missing/));
 
-    fs.writeFileSync(path.join(iosAppDir, 'App', 'GoogleService-Info.plist'), '<plist><dict><key>BUNDLE_ID</key><string>com.baseardahan.hiddenobj</string></dict></plist>');
+    fs.writeFileSync(path.join(iosAppDir, 'App', 'GoogleService-Info.plist'), '<plist><dict><key>BUNDLE_ID</key><string>com.baseardahan.hiddenobj</string><key>PROJECT_ID</key><string>find-the-dog-basegamelab</string><key>GOOGLE_APP_ID</key><string>1:123:ios:abcdef</string></dict></plist>');
     const firebaseApply = applyNativeShell({ repoRoot, game: 'find_the_dog' });
     expect(firebaseApply.changed).toContain('App.xcodeproj/project.pbxproj');
     expect(validateGeneratedShell({ repoRoot, game: 'find_the_dog', allowMissingFirebase: false }).issues).toEqual([]);
@@ -287,29 +321,41 @@ describe('native shell integration', () => {
 });
 
 describe('Find the Dog manifest contract', () => {
-  it('pins the approved identities, package graph, versions, and 152-entry catalog', () => {
+  it('pins the approved identities, Crashlytics-only Firebase graph, AdMob, and catalog', () => {
     const recipeDir = new URL('../../../games/find_the_dog/native-resources/ios/', import.meta.url);
     const actualManifest = JSON.parse(fs.readFileSync(new URL('shell-manifest.json', recipeDir), 'utf8'));
-    const actualCatalog = JSON.parse(fs.readFileSync(new URL('applovin-skadnetwork-ids.json', recipeDir), 'utf8'));
+    const actualCatalog = JSON.parse(fs.readFileSync(new URL('admob-skadnetwork-ids.json', recipeDir), 'utf8'));
     expect(actualManifest.capacitorAppId).toBe('com.basegamelab.find_the_dog.dev');
     expect(actualManifest.ios.bundleId).toBe('com.baseardahan.hiddenobj');
     expect(actualManifest.ios.swiftToolsVersion).toBe('6.1');
     expect(actualManifest.ios.deploymentTarget).toBe('15');
     expect(Object.fromEntries(actualManifest.ios.remotePackages.map((pkg) => [pkg.name, pkg.version]))).toEqual({
       'capacitor-swift-pm': '8.4.1',
-      AppLovinSDK: '13.6.2',
-      GoogleUserMessagingPlatform: '3.1.0',
-      AdjustSdk: '5.6.2',
+      'AppsFlyerFramework-Strict': '6.17.5',
     });
     expect(actualManifest.ios.localPackages.map((pkg) => pkg.name)).toEqual([
       'CapacitorApp',
       'CapacitorHaptics',
       'CapacitorLocalNotifications',
-      'CapacitorFirebaseAnalytics',
+      'CapacitorFirebaseCrashlytics',
       'RevenuecatPurchasesCapacitor',
+      'CapacitorCommunityAdmob',
     ]);
-    expect(actualManifest.ios.localPackages.find((pkg) => pkg.name === 'CapacitorFirebaseAnalytics').traits).toEqual(['AnalyticsWithoutAdIdSupport']);
-    expect(actualCatalog.skadnetwork_ids).toHaveLength(152);
-    expect(new Set(actualCatalog.skadnetwork_ids.map((entry) => entry.skadnetwork_id)).size).toBe(152);
+    expect(actualManifest.ios.localPackages.some((pkg) => pkg.name === 'CapacitorFirebaseAnalytics')).toBe(false);
+    expect(actualManifest.ios.crashlyticsSymbolUpload).toBe(true);
+    expect(actualManifest.ios.firebaseProjectId).toBe('find-the-dog-basegamelab');
+    expect(actualManifest.ios.swiftSources).toContain('AppsFlyerAttributionPlugin.swift');
+    expect(actualManifest.ios.swiftSources).not.toContain('AdjustAttributionPlugin.swift');
+    expect(actualManifest.ios.remotePackages[1]).toMatchObject({
+      url: 'https://github.com/AppsFlyerSDK/AppsFlyerFramework-Strict',
+      products: ['AppsFlyerLib-Strict'],
+    });
+    expect(actualManifest.ios.adMobEnabledEnv).toBe('VITE_ADMOB_IOS_ENABLED');
+    expect(actualManifest.ios.adMobApplicationIdEnv).toBe('VITE_ADMOB_IOS_APP_ID');
+    expect(actualManifest.ios.trackingUsageDescription).toBeNull();
+    const privacy = fs.readFileSync(new URL('App/PrivacyInfo.xcprivacy', recipeDir), 'utf8');
+    expect(privacy).toMatch(/<key>NSPrivacyTracking<\/key>\s*<false\/>/);
+    expect(privacy).not.toContain('NSPrivacyTrackingDomains');
+    expect(actualCatalog.skadnetwork_ids.map((entry) => entry.skadnetwork_id)).toEqual(['cstr6suwn9.skadnetwork']);
   });
 });

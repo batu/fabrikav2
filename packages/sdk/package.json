@@ -14,7 +14,8 @@
     "./config-env": "./src/config-env.ts",
     "./iap": "./src/iap/index.ts",
     "./ads": "./src/ads/index.ts",
-    "./meta": "./src/meta/index.ts"
+    "./meta": "./src/meta/index.ts",
+    "./crashlytics-probe": "./src/crashlytics-probe.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",

@@ -9,8 +9,16 @@ export type AttributionEventName =
   | 'levelFailed'
   | 'rewardedWatched';
 
+export type AppsFlyerValueEventName =
+  | 'af_tutorial_completion'
+  | 'af_level_achieved'
+  | 'af_purchase'
+  | 'af_ad_revenue'
+  | 'retention_milestone';
+
 export interface AttributionProvider {
   readonly providerName: string;
   init: () => Promise<void>;
   track: <P extends AttributionParamBag<P>>(eventName: AttributionEventName, params?: P) => Promise<void>;
+  trackConfirmed?: (eventName: string, params: Record<string, string>) => Promise<boolean>;
 }

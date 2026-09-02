@@ -10,7 +10,7 @@ const enabledAppsFlyer: AppsFlyerConfigResult = {
     devKey: 'fZvuk792H9hJQKmaTwuXxA',
     appleAppId: '6793860059',
     debugLogging: false,
-    attWaitSeconds: 60,
+    sharingPartners: [],
   },
 };
 

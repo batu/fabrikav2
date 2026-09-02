@@ -90,8 +90,7 @@ Rewarded flows should attribute only after the reward is actually granted. Keep 
 `AttributionProvider` interface, selected via `selectAttributionProvider`
 (explicit `preferred` choice wins; otherwise AppsFlyer-before-Adjust by config
 presence; everything else resolves Disabled with a reason). Native contract
-(`jsName='AppsFlyerAttribution'`): `initialize({devKey, appleAppId, debugLogging,
-attWaitSeconds})`, `trackEvent({eventName, eventValues})`, `getStatus()` — all
+(`jsName='AppsFlyerAttribution'`): `initialize({devKey, appleAppId, debugLogging, sharingPartners})`, `trackEvent({eventName, eventValues})`, `getStatus()` — all
 resolve-not-reject.
 
 Env keys:

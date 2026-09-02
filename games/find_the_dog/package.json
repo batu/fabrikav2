@@ -16,9 +16,10 @@
     "ios:sync": "cap sync ios && node ../../tools/native-shell/apply.mjs --game find_the_dog && node ../../tools/native-shell/validate.mjs --game find_the_dog"
   },
   "dependencies": {
+    "@capacitor-community/admob": "^8.1.0",
+    "@capacitor-firebase/crashlytics": "^8.4.0",
     "@capacitor/app": "^8.1.0",
     "@capacitor/core": "^8.1.0",
-    "@capacitor-firebase/analytics": "^8.3.0",
     "@capacitor/haptics": "^8.0.2",
     "@capacitor/local-notifications": "^8.2.1",
     "@fabrikav2/kernel": "*",

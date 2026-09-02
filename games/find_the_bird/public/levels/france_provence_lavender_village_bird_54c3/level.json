@@ -1,497 +1,409 @@
 {
   "id": "france_provence_lavender_village_bird_54c3",
-  "name": "Level france_provence_lavender_village_bird_54c3",
+  "name": "Level france_provence_lavender_village_bird_54c3 (clean_old_cartoon)",
   "width": 2688,
   "height": 2688,
+  "bwImage": "levels/france_provence_lavender_village_bird_54c3/bw.png",
   "colorImage": "levels/france_provence_lavender_village_bird_54c3/color.png",
-  "artifactRevision": "sha256:47bd5551fb15435edc88d26432f6db5776fc1fa9eabbb57d09eb1f5d5d92c544",
-  "compatibilityAliases": {
-    "dog_00": "aa722d39-2a4d-5f91-8f7b-fefc096e73ed",
-    "dog_01": "8e71d2d0-3b5f-50c3-82f2-f33e4db82a2b",
-    "dog_02": "e4f69f6d-c14f-5af1-bbdb-8066f5128cb9",
-    "dog_03": "7b4b9b53-6537-541c-8425-3806e9cad12f",
-    "dog_04": "22fcf002-6733-5e13-a5db-b720d5cfbc3c",
-    "dog_05": "3698e028-3ca7-566c-a403-3a05dffa3592",
-    "dog_06": "d6858f81-053d-5144-89d1-a1098224f2c2",
-    "dog_07": "4759726d-1a05-5091-86ab-a02ee419119c",
-    "dog_08": "2b81f9a9-cbbd-5e7c-b07d-6a35a02e32b1",
-    "dog_09": "4a5a35a2-b282-5936-bafa-c3c014d06318",
-    "dog_10": "131b8b14-1017-5ac5-9108-6784fc7b2122",
-    "dog_11": "1032ddde-3c51-5a68-ab89-d1b447b5b8cd",
-    "dog_12": "90832b73-7e36-5e06-812c-6b10734ccd94",
-    "dog_13": "a406f053-6b93-5c56-936a-16086d4f4409",
-    "dog_14": "df3639fc-6020-5db3-a908-ec06b57dc571",
-    "dog_15": "446cecfc-258f-586e-9b15-a45e03d6ae7f",
-    "dog_16": "a9e189b2-c7a7-5e19-b58c-0ba02202d344",
-    "dog_17": "52a12da4-9060-5ef0-9b0b-426ff81e46b9",
-    "dog_18": "56e4cceb-8ae3-5df0-a229-61f2764bd474"
-  },
   "dogs": [
     {
-      "id": "aa722d39-2a4d-5f91-8f7b-fefc096e73ed",
-      "compatibilitySlot": "dog_00",
-      "x": 714,
-      "y": 671,
+      "id": "dog_00",
+      "x": 701,
+      "y": 650,
       "r": 57,
       "sprite": {
         "image": "levels/france_provence_lavender_village_bird_54c3/dogs/dog_00/sprite_000.png",
-        "height": 196,
-        "width": 217,
         "x": 580,
         "y": 549,
+        "width": 217,
+        "height": 196,
         "cleanup": {
-          "x": 534,
-          "y": 486,
-          "width": 320,
-          "height": 328
+          "x": 546,
+          "y": 505,
+          "width": 315,
+          "height": 316
         },
         "anchorX": 0.5576,
-        "anchorY": 0.5153,
-        "flipX": false,
-        "flipY": false
+        "anchorY": 0.5153
       }
     },
     {
-      "id": "8e71d2d0-3b5f-50c3-82f2-f33e4db82a2b",
-      "compatibilitySlot": "dog_01",
+      "id": "dog_01",
       "x": 1249,
       "y": 512,
       "r": 57,
       "sprite": {
         "image": "levels/france_provence_lavender_village_bird_54c3/dogs/dog_01/sprite_000.png",
-        "height": 116,
-        "width": 96,
-        "x": 1202,
-        "y": 465,
+        "x": 1162,
+        "y": 451,
+        "width": 153,
+        "height": 236,
         "cleanup": {
-          "x": 1092,
-          "y": 355,
-          "width": 314,
-          "height": 314
+          "x": 1150,
+          "y": 407,
+          "width": 198,
+          "height": 189
         },
         "anchorX": 0.5686,
-        "anchorY": 0.0169,
-        "flipX": false,
-        "flipY": false
+        "anchorY": 0.2585
       }
     },
     {
-      "id": "e4f69f6d-c14f-5af1-bbdb-8066f5128cb9",
-      "compatibilitySlot": "dog_02",
+      "id": "dog_02",
       "x": 1387,
       "y": 682,
       "r": 57,
       "sprite": {
         "image": "levels/france_provence_lavender_village_bird_54c3/dogs/dog_02/sprite_000.png",
-        "height": 156,
-        "width": 140,
-        "x": 1315,
-        "y": 631,
+        "x": 1252,
+        "y": 588,
+        "width": 221,
+        "height": 225,
         "cleanup": {
-          "x": 1230,
-          "y": 525,
-          "width": 314,
-          "height": 314
+          "x": 1214,
+          "y": 598,
+          "width": 331,
+          "height": 233
         },
-        "anchorX": 0.6402,
-        "anchorY": 0.4311,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.6109,
+        "anchorY": 0.4178
       }
     },
     {
-      "id": "7b4b9b53-6537-541c-8425-3806e9cad12f",
-      "compatibilitySlot": "dog_03",
-      "x": 1853,
-      "y": 691,
+      "id": "dog_03",
+      "x": 1859,
+      "y": 686,
       "r": 57,
       "sprite": {
         "image": "levels/france_provence_lavender_village_bird_54c3/dogs/dog_03/sprite_000.png",
-        "height": 119,
-        "width": 104,
-        "x": 1789,
-        "y": 623,
+        "x": 1721,
+        "y": 555,
+        "width": 201,
+        "height": 194,
         "cleanup": {
-          "x": 1702,
-          "y": 529,
-          "width": 314,
-          "height": 314
+          "x": 1686,
+          "y": 513,
+          "width": 279,
+          "height": 261
         },
-        "anchorX": 0.6739,
-        "anchorY": 0.701,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.6866,
+        "anchorY": 0.6753
       }
     },
     {
-      "id": "22fcf002-6733-5e13-a5db-b720d5cfbc3c",
-      "compatibilitySlot": "dog_04",
-      "x": 1723,
-      "y": 827,
+      "id": "dog_04",
+      "x": 1734,
+      "y": 846,
       "r": 57,
       "sprite": {
         "image": "levels/france_provence_lavender_village_bird_54c3/dogs/dog_04/sprite_000.png",
-        "height": 158,
-        "width": 135,
-        "x": 1678,
-        "y": 785,
+        "x": 1639,
+        "y": 754,
+        "width": 184,
+        "height": 262,
         "cleanup": {
-          "x": 1577,
-          "y": 689,
-          "width": 314,
-          "height": 314
+          "x": 1547,
+          "y": 776,
+          "width": 331,
+          "height": 260
         },
-        "anchorX": 0.4586,
-        "anchorY": 0.2786,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.5163,
+        "anchorY": 0.3511
       }
     },
     {
-      "id": "3698e028-3ca7-566c-a403-3a05dffa3592",
-      "compatibilitySlot": "dog_05",
-      "x": 2061,
-      "y": 744,
+      "id": "dog_05",
+      "x": 2048,
+      "y": 771,
       "r": 57,
       "sprite": {
         "image": "levels/france_provence_lavender_village_bird_54c3/dogs/dog_05/sprite_000.png",
-        "height": 109,
-        "width": 145,
-        "x": 1974,
-        "y": 741,
+        "x": 1929,
+        "y": 730,
+        "width": 257,
+        "height": 214,
         "cleanup": {
-          "x": 1891,
-          "y": 614,
-          "width": 314,
-          "height": 314
+          "x": 1967,
+          "y": 570,
+          "width": 278,
+          "height": 345
         },
-        "anchorX": 0.5317,
-        "anchorY": 0.0234,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.463,
+        "anchorY": 0.1916
       }
     },
     {
-      "id": "d6858f81-053d-5144-89d1-a1098224f2c2",
-      "compatibilitySlot": "dog_06",
-      "x": 1021,
-      "y": 943,
+      "id": "dog_06",
+      "x": 1012,
+      "y": 960,
       "r": 57,
       "sprite": {
         "image": "levels/france_provence_lavender_village_bird_54c3/dogs/dog_06/sprite_000.png",
-        "height": 144,
-        "width": 142,
-        "x": 960,
-        "y": 886,
+        "x": 883,
+        "y": 834,
+        "width": 209,
+        "height": 222,
         "cleanup": {
-          "x": 951,
-          "y": 878,
-          "width": 154,
-          "height": 167
+          "x": 845,
+          "y": 823,
+          "width": 240,
+          "height": 312
         },
-        "anchorX": 0.6938,
-        "anchorY": 0.3148,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.6172,
+        "anchorY": 0.5676
       }
     },
     {
-      "id": "4759726d-1a05-5091-86ab-a02ee419119c",
-      "compatibilitySlot": "dog_07",
+      "id": "dog_07",
       "x": 1186,
       "y": 983,
       "r": 57,
       "sprite": {
         "image": "levels/france_provence_lavender_village_bird_54c3/dogs/dog_07/sprite_000.png",
-        "height": 150,
-        "width": 173,
-        "x": 1089,
-        "y": 914,
+        "x": 1094,
+        "y": 813,
+        "width": 247,
+        "height": 222,
         "cleanup": {
-          "x": 1120,
-          "y": 812,
-          "width": 204,
-          "height": 337
+          "x": 1114,
+          "y": 833,
+          "width": 211,
+          "height": 322
         },
         "anchorX": 0.3725,
-        "anchorY": 0.7658,
-        "flipX": false,
-        "flipY": false
+        "anchorY": 0.7658
       }
     },
     {
-      "id": "2b81f9a9-cbbd-5e7c-b07d-6a35a02e32b1",
-      "compatibilitySlot": "dog_08",
-      "x": 587,
-      "y": 1144,
+      "id": "dog_08",
+      "x": 588,
+      "y": 1185,
       "r": 57,
       "sprite": {
         "image": "levels/france_provence_lavender_village_bird_54c3/dogs/dog_08/sprite_000.png",
-        "height": 208,
-        "width": 189,
         "x": 492,
         "y": 1061,
+        "width": 189,
+        "height": 208,
         "cleanup": {
           "x": 443,
-          "y": 975,
+          "y": 973,
           "width": 286,
-          "height": 335
+          "height": 345
         },
         "anchorX": 0.5079,
-        "anchorY": 0.5962,
-        "flipX": false,
-        "flipY": false
+        "anchorY": 0.5962
       }
     },
     {
-      "id": "4a5a35a2-b282-5936-bafa-c3c014d06318",
-      "compatibilitySlot": "dog_09",
+      "id": "dog_09",
       "x": 558,
-      "y": 1478,
+      "y": 1497,
       "r": 57,
       "sprite": {
         "image": "levels/france_provence_lavender_village_bird_54c3/dogs/dog_09/sprite_000.png",
-        "height": 198,
-        "width": 217,
         "x": 443,
         "y": 1373,
+        "width": 217,
+        "height": 198,
         "cleanup": {
-          "x": 388,
-          "y": 1312,
+          "x": 385,
+          "y": 1324,
           "width": 345,
-          "height": 312
+          "height": 308
         },
         "anchorX": 0.53,
-        "anchorY": 0.6263,
-        "flipX": false,
-        "flipY": false
+        "anchorY": 0.6263
       }
     },
     {
-      "id": "131b8b14-1017-5ac5-9108-6784fc7b2122",
-      "compatibilitySlot": "dog_10",
-      "x": 1008,
-      "y": 1547,
+      "id": "dog_10",
+      "x": 1015,
+      "y": 1548,
       "r": 57,
       "sprite": {
         "image": "levels/france_provence_lavender_village_bird_54c3/dogs/dog_10/sprite_000.png",
-        "height": 164,
-        "width": 176,
-        "x": 946,
-        "y": 1469,
+        "x": 967,
+        "y": 1477,
+        "width": 123,
+        "height": 114,
         "cleanup": {
-          "x": 821,
-          "y": 1380,
+          "x": 782,
+          "y": 1379,
           "width": 345,
           "height": 280
         },
-        "anchorX": 0.4553,
-        "anchorY": 0.5877,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.3902,
+        "anchorY": 0.6228
       }
     },
     {
-      "id": "1032ddde-3c51-5a68-ab89-d1b447b5b8cd",
-      "compatibilitySlot": "dog_11",
-      "x": 849,
-      "y": 1762,
+      "id": "dog_11",
+      "x": 845,
+      "y": 1769,
       "r": 57,
       "sprite": {
         "image": "levels/france_provence_lavender_village_bird_54c3/dogs/dog_11/sprite_000.png",
-        "height": 205,
-        "width": 331,
-        "x": 640,
-        "y": 1661,
+        "x": 702,
+        "y": 1687,
+        "width": 252,
+        "height": 148,
         "cleanup": {
-          "x": 672,
-          "y": 1662,
+          "x": 633,
+          "y": 1661,
           "width": 345,
-          "height": 283
+          "height": 280
         },
-        "anchorX": 0.5635,
-        "anchorY": 0.5608,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.5675,
+        "anchorY": 0.5541
       }
     },
     {
-      "id": "90832b73-7e36-5e06-812c-6b10734ccd94",
-      "compatibilitySlot": "dog_12",
-      "x": 569,
-      "y": 2173,
+      "id": "dog_12",
+      "x": 559,
+      "y": 2178,
       "r": 57,
       "sprite": {
         "image": "levels/france_provence_lavender_village_bird_54c3/dogs/dog_12/sprite_000.png",
-        "height": 240,
-        "width": 315,
         "x": 443,
         "y": 2045,
+        "width": 315,
+        "height": 240,
         "cleanup": {
-          "x": 408,
-          "y": 1992,
+          "x": 386,
+          "y": 2005,
           "width": 345,
           "height": 345
         },
         "anchorX": 0.3683,
-        "anchorY": 0.5542,
-        "flipX": false,
-        "flipY": false
+        "anchorY": 0.5542
       }
     },
     {
-      "id": "a406f053-6b93-5c56-936a-16086d4f4409",
-      "compatibilitySlot": "dog_13",
-      "x": 1135,
-      "y": 2252,
+      "id": "dog_13",
+      "x": 1153,
+      "y": 2240,
       "r": 57,
       "sprite": {
         "image": "levels/france_provence_lavender_village_bird_54c3/dogs/dog_13/sprite_000.png",
-        "height": 265,
-        "width": 289,
-        "x": 1044,
-        "y": 2139,
+        "x": 1047,
+        "y": 2185,
+        "width": 210,
+        "height": 174,
         "cleanup": {
-          "x": 983,
-          "y": 2069,
-          "width": 320,
+          "x": 961,
+          "y": 2095,
+          "width": 342,
           "height": 345
         },
         "anchorX": 0.5048,
-        "anchorY": 0.3161,
-        "flipX": false,
-        "flipY": false
+        "anchorY": 0.3161
       }
     },
     {
-      "id": "df3639fc-6020-5db3-a908-ec06b57dc571",
-      "compatibilitySlot": "dog_14",
-      "x": 1580,
-      "y": 1839,
+      "id": "dog_14",
+      "x": 1554,
+      "y": 1849,
       "r": 57,
       "sprite": {
         "image": "levels/france_provence_lavender_village_bird_54c3/dogs/dog_14/sprite_000.png",
-        "height": 241,
-        "width": 264,
         "x": 1450,
         "y": 1715,
+        "width": 264,
+        "height": 241,
         "cleanup": {
-          "x": 1401,
+          "x": 1409,
           "y": 1668,
           "width": 345,
-          "height": 345
+          "height": 342
         },
         "anchorX": 0.3939,
-        "anchorY": 0.556,
-        "flipX": false,
-        "flipY": false
+        "anchorY": 0.556
       }
     },
     {
-      "id": "446cecfc-258f-586e-9b15-a45e03d6ae7f",
-      "compatibilitySlot": "dog_15",
-      "x": 2048,
-      "y": 1702,
+      "id": "dog_15",
+      "x": 2044,
+      "y": 1731,
       "r": 57,
       "sprite": {
         "image": "levels/france_provence_lavender_village_bird_54c3/dogs/dog_15/sprite_000.png",
-        "height": 259,
-        "width": 248,
         "x": 1884,
-        "y": 1630,
+        "y": 1700,
+        "width": 191,
+        "height": 189,
         "cleanup": {
-          "x": 1857,
-          "y": 1558,
+          "x": 1832,
+          "y": 1608,
           "width": 345,
-          "height": 345
+          "height": 322
         },
         "anchorX": 0.8377,
-        "anchorY": 0.164,
-        "flipX": false,
-        "flipY": false
+        "anchorY": 0.164
       }
     },
     {
-      "id": "a9e189b2-c7a7-5e19-b58c-0ba02202d344",
-      "compatibilitySlot": "dog_16",
+      "id": "dog_16",
       "x": 2015,
       "y": 2081,
       "r": 57,
       "sprite": {
         "image": "levels/france_provence_lavender_village_bird_54c3/dogs/dog_16/sprite_000.png",
-        "height": 232,
-        "width": 232,
-        "x": 1907,
-        "y": 1963,
+        "x": 1919,
+        "y": 2004,
+        "width": 181,
+        "height": 169,
         "cleanup": {
-          "x": 1891,
-          "y": 1905,
-          "width": 294,
-          "height": 345
+          "x": 1886,
+          "y": 1932,
+          "width": 301,
+          "height": 321
         },
         "anchorX": 0.5304,
-        "anchorY": 0.4556,
-        "flipX": false,
-        "flipY": false
+        "anchorY": 0.4556
       }
     },
     {
-      "id": "52a12da4-9060-5ef0-9b0b-426ff81e46b9",
-      "compatibilitySlot": "dog_17",
-      "x": 1766,
-      "y": 2318,
+      "id": "dog_17",
+      "x": 1792,
+      "y": 2321,
       "r": 57,
       "sprite": {
         "image": "levels/france_provence_lavender_village_bird_54c3/dogs/dog_17/sprite_000.png",
-        "height": 242,
-        "width": 269,
-        "x": 1624,
-        "y": 2192,
+        "x": 1664,
+        "y": 2224,
+        "width": 218,
+        "height": 201,
         "cleanup": {
-          "x": 1603,
-          "y": 2142,
-          "width": 286,
+          "x": 1583,
+          "y": 2148,
+          "width": 301,
           "height": 345
         },
         "anchorX": 0.5872,
-        "anchorY": 0.4826,
-        "flipX": false,
-        "flipY": false
+        "anchorY": 0.4826
       }
     },
     {
-      "id": "56e4cceb-8ae3-5df0-a229-61f2764bd474",
-      "compatibilitySlot": "dog_18",
-      "x": 2271,
-      "y": 1357,
+      "id": "dog_18",
+      "x": 2297,
+      "y": 1322,
       "r": 57,
       "sprite": {
         "image": "levels/france_provence_lavender_village_bird_54c3/dogs/dog_18/sprite_000.png",
-        "height": 192,
-        "width": 196,
         "x": 2222,
         "y": 1267,
+        "width": 196,
+        "height": 192,
         "cleanup": {
-          "x": 2104,
-          "y": 1175,
-          "width": 306,
+          "x": 2090,
+          "y": 1209,
+          "width": 320,
           "height": 345
         },
         "anchorX": 0.3827,
-        "anchorY": 0.2865,
-        "flipX": false,
-        "flipY": false
+        "anchorY": 0.2865
       }
     }
-  ],
-  "provenance": {
-    "setting": "france",
-    "scene": "france_provence_lavender_village",
-    "entity": "bird",
-    "style": "clean_old_cartoon",
-    "scenePrompt": "[Purpose]\nCreate a full-bleed mobile-game background for Find the Bird.\n\n[Short Description]\nA Proven\u00e7al hilltop village sprawling across a ridge arranged as an organic isometric hidden-object scene.\n\n[Scene] A Proven\u00e7al hilltop village sprawling across a ridge \u2014 a main square with a fountain, a side lane branching down past ochre houses, a bakery strip with drying lavender under a porch. The entire ground surface is consistent sun-warmed stone paving throughout \u2014 every area the viewer can see the ground, it reads as pale flagstones and old setts with no untextured blank areas. Ochre-stone houses of varying sizes crowd unevenly along the streets, some clustered into a tight terrace, others standing alone with pocket gardens. Terracotta-tiled roofs at different heights, some overlapping, some freestanding. A stone fountain sits at an unexpected angle off the square's center. Scattered throughout without pattern: turquoise shutters, baskets of lavender bundles drying under a porch, yellow sunflowers spilling from pots, a bakery chalkboard reading 'pain de campagne', stacked wicker crates of tomatoes and figs, lavender fields stretching beyond, a hanging wrought-iron sign, a blue bicycle leaned on a wall, woven baguette baskets, strings of garlic, painted window shutters ajar, climbing grapevines, a folded cushion on a step, sun-warmed stone details, a caf\u00e9 table with a carafe, a rosemary bush. Dense clusters around the bakery, sparser breathing room along the ridge-walk. Asymmetric, organic layout \u2014 like a village that grew around this fountain across centuries of lavender harvests.\n\n[View] Moderately elevated three-quarter game-map view with a close, readable mobile-game camera: roughly 35 degrees down from horizontal, with only enough scene visible to support about 20 hidden bird placements. Do not use an extreme aerial, distant establishing, miniature-diorama, or whole-city view. Large scene anchors should occupy substantial frame area, and ordinary props must remain individually recognizable at phone size. Use controlled hidden-object density: arrange approximately 20 plausible hiding pockets across 4 to 6 connected prop clusters, with visible breathing room, clear travel paths between clusters, and readable object boundaries for phone-screen scanning. Use mild perspective or near-isometric construction consistently, without wide-angle distortion, dramatic foreshortening, depth of field, or tiny distance-scaled clutter.\n\n[Style] Vintage hand-drawn cartoon background adapted for a modern mobile puzzle game. Rounded old-cartoon shapes, cheerful simplified silhouettes, thick confident ink outlines, flat poster-like color fills, and soft hand-painted background texture. Use broad readable color masses and minimal internal linework so the scene stays clear on a phone screen. Charming and slightly nostalgic, clean and polished for mobile, with less visual noise, fewer texture marks, and no dense rendering.\n\n[Gameplay Composition]\nDesign this as a production hidden-object background where birds will be added later. Create many plausible hiding pockets on walkable/contact surfaces or open gaps beside props, plants, rocks, furniture, railings, crates, planters, benches, roots, tools, shelves, stalls, boats, carts, market goods, or other readable foreground objects. Near props is ideal; inside solid objects, on blank walls, on roofs, floating over water, or on decorative vertical faces is not useful. Use theme-specific spatial logic such as rings, islands, terraces, nested rooms, clearings, bridges, piers, shelves, courtyards, side alleys, garden pockets, or clustered market zones. Keep open pockets between prop clusters so hitboxes can sit near objects without excessive overlap.\n\n[Constraints]\nDo not depict any bird; every bird is added during the later gameplay pass. No people, no live animals, no insects, no mascots, no readable text, no logos, no watermarks. Signs, chalkboards, labels, plaques, and boards named in the scene may appear but must show only illegible marks, squiggles, or blank surfaces \u2014 never legible words or letters. Market food and fishing props are allowed when the scene calls for them. Avoid huge blank walls, roof-dominated compositions, large featureless empty lawns, empty sand, empty floors, long straight roads, and noisy micro-texture camouflage. Every visible ground, floor, or water-edge region should read as a clear material appropriate to the scene; no untextured blank areas.",
-    "entityPrompt": "Add exactly one bird to this crop. Place exactly one bird centered on the marked target area \u2014 do not repeat the subject. Match the scene's illustration style, line weight, palette, and flat-shaded rendering, but keep the bird's silhouette and boundary readable on a phone screen. The bird may be partially occluded or contextually disguised, but must not disappear through muddy edges, low contrast, texture camouflage, or ambiguous merged shapes. Vary the bird's colors, markings, proportions, and small physical details across crops so the level does not repeat the same bird design. The bird is a charming little anthropomorphic inhabitant of this world \u2014 a character with personality going about its business. Give it something simple and specific to do with its surroundings: holding an object, using a tool, sitting at a small task, peeking at something, carrying something, watching something with interest, tending a small thing, pausing mid-task. Keep the pose clear and readable. The charm comes from the context and the expression, not from dynamic motion. Size the bird realistically relative to the scene around it \u2014 compare it to whatever human-scale objects are visible in the crop and render the bird at the physical size a real bird would be next to them. Not so small that its species is ambiguous, not so large that it dominates the crop. The bird must be fully contained within the visible frame. Keep all other elements of the image unchanged.",
-    "bgModel": "google/gemini-3.1-flash-image-preview",
-    "inpaintModel": "google/gemini-3.1-flash-image-preview"
-  }
+  ]
 }

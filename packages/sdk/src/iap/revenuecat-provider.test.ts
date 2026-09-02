@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import {
   RevenueCatProvider,
   type RevenueCatCustomerInfo,
@@ -50,6 +50,15 @@ class FakeRcPlugin implements RevenueCatPurchasesPlugin {
 }
 
 describe('RevenueCatProvider — production seam mapping', () => {
+  it('emits verified revenue only after RevenueCat purchase success', async () => {
+    const plugin = new FakeRcPlugin({ products: [rcProduct(NO_ADS)] });
+    const verified = vi.fn();
+    const provider = new RevenueCatProvider({ plugin, catalogProducts: () => ftdCatalogProducts, onVerifiedPurchase: verified });
+    await provider.configure({ apiKey: 'appl_live_key' });
+    await provider.getProducts([NO_ADS]);
+    await provider.purchaseProduct(NO_ADS);
+    expect(verified).toHaveBeenCalledWith({ productId: NO_ADS, revenue: 1.99, currency: 'USD', transactionId: 'txn' });
+  });
   it('maps RevenueCat products/transactions/customerInfo onto SDK shapes', async () => {
     const plugin = new FakeRcPlugin({ products: [rcProduct(NO_ADS), rcProduct(HINTS_10)] });
     const provider = new RevenueCatProvider({ plugin, catalogProducts: () => ftdCatalogProducts });

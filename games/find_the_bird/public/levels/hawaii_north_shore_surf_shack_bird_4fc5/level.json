@@ -1,572 +1,472 @@
 {
   "id": "hawaii_north_shore_surf_shack_bird_4fc5",
-  "name": "Level hawaii_north_shore_surf_shack_bird_4fc5",
+  "name": "Level hawaii_north_shore_surf_shack_bird_4fc5 (clean_old_cartoon)",
   "width": 2688,
   "height": 2688,
+  "bwImage": "levels/hawaii_north_shore_surf_shack_bird_4fc5/bw.png",
   "colorImage": "levels/hawaii_north_shore_surf_shack_bird_4fc5/color.png",
-  "artifactRevision": "sha256:2a5dd2ba063f86b71a5ea9229024060bb7844ed0ad4f40c3936c2b15b63bc7a0",
-  "compatibilityAliases": {
-    "dog_01": "0300bb60-d30b-5993-a5da-71f3796304cd",
-    "dog_00": "4de68a70-f0a9-54db-92eb-2faa2841d56d",
-    "dog_02": "0227ccc1-e2f4-5289-a5c2-e2cfe69717b0",
-    "dog_03": "bc28709b-ca4a-5476-b6c6-798928b069ab",
-    "dog_04": "e0219e25-0022-5c28-9cae-a3d690802614",
-    "dog_05": "2c39463d-568b-534e-ac85-8c2716f011d7",
-    "dog_06": "22c14d19-b504-516e-b6f6-211e185c32b0",
-    "dog_07": "b82c1ae4-1bb4-539f-ba9c-596f8fbed427",
-    "dog_08": "8795cc60-8c48-5a55-9792-90f20d578eda",
-    "dog_09": "775ddb8a-5f79-5058-9905-84840458d3ba",
-    "dog_19": "daf2ccfe-6be1-5f11-836c-d75ca1417e64",
-    "dog_10": "4db39422-f797-51d8-a796-9958293ba569",
-    "dog_11": "03d3d945-ac9d-55a6-9496-fc844b2ddc16",
-    "dog_21": "e3c69b2c-8818-513d-966c-2fbc0e07fe48",
-    "dog_20": "21164639-0a11-5d0e-a811-50c725171c4c",
-    "dog_17": "b9e9f2e8-f3d6-5619-bb6b-3fbb573ea1ef",
-    "dog_18": "5b426f30-5320-5050-b5e5-ca1bb7f52ed8",
-    "dog_16": "d40e52ed-9f62-5542-8799-5d98b2e44787",
-    "dog_14": "9f56b837-d800-5feb-8afd-2d3ddd2ce697",
-    "dog_15": "6194c75c-762a-5ebf-8dde-047f4ab562c9",
-    "dog_12": "d4c7612e-7228-5e09-ada8-f77e77fdb716",
-    "dog_13": "7eb8ea5c-d62a-5fbd-9910-447d43d665e4"
-  },
   "dogs": [
     {
-      "id": "0300bb60-d30b-5993-a5da-71f3796304cd",
-      "compatibilitySlot": "dog_01",
-      "x": 2255,
-      "y": 613,
-      "r": 57,
-      "sprite": {
-        "image": "levels/hawaii_north_shore_surf_shack_bird_4fc5/dogs/dog_01/sprite_000.png",
-        "height": 134,
-        "width": 153,
-        "x": 2195,
-        "y": 545,
-        "cleanup": {
-          "x": 2195,
-          "y": 545,
-          "width": 153,
-          "height": 134
-        },
-        "anchorX": 0.3922,
-        "anchorY": 0.5075,
-        "flipX": false,
-        "flipY": false
-      }
-    },
-    {
-      "id": "4de68a70-f0a9-54db-92eb-2faa2841d56d",
-      "compatibilitySlot": "dog_00",
+      "id": "dog_00",
       "x": 1686,
       "y": 521,
       "r": 57,
       "sprite": {
         "image": "levels/hawaii_north_shore_surf_shack_bird_4fc5/dogs/dog_00/sprite_000.png",
-        "height": 102,
-        "width": 117,
         "x": 1605,
-        "y": 467,
+        "y": 458,
+        "width": 147,
+        "height": 125,
         "cleanup": {
-          "x": 1605,
-          "y": 458,
-          "width": 147,
-          "height": 125
+          "x": 1550,
+          "y": 415,
+          "width": 308,
+          "height": 202
         },
         "anchorX": 0.551,
-        "anchorY": 0.504,
-        "flipX": false,
-        "flipY": false
+        "anchorY": 0.504
       }
     },
     {
-      "id": "0227ccc1-e2f4-5289-a5c2-e2cfe69717b0",
-      "compatibilitySlot": "dog_02",
-      "x": 485,
-      "y": 582,
+      "id": "dog_01",
+      "x": 2255,
+      "y": 613,
+      "r": 57,
+      "sprite": {
+        "image": "levels/hawaii_north_shore_surf_shack_bird_4fc5/dogs/dog_01/sprite_000.png",
+        "x": 2195,
+        "y": 545,
+        "width": 153,
+        "height": 134,
+        "cleanup": {
+          "x": 2082,
+          "y": 477,
+          "width": 320,
+          "height": 254
+        },
+        "anchorX": 0.3922,
+        "anchorY": 0.5075
+      }
+    },
+    {
+      "id": "dog_02",
+      "x": 475,
+      "y": 575,
       "r": 57,
       "sprite": {
         "image": "levels/hawaii_north_shore_surf_shack_bird_4fc5/dogs/dog_02/sprite_000.png",
-        "height": 103,
-        "width": 144,
-        "x": 405,
-        "y": 531,
+        "x": 394,
+        "y": 519,
+        "width": 155,
+        "height": 122,
         "cleanup": {
-          "x": 394,
-          "y": 519,
-          "width": 155,
-          "height": 122
+          "x": 316,
+          "y": 434,
+          "width": 345,
+          "height": 294
         },
-        "anchorX": 0.5871,
-        "anchorY": 0.5164,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.5226,
+        "anchorY": 0.459
       }
     },
     {
-      "id": "bc28709b-ca4a-5476-b6c6-798928b069ab",
-      "compatibilitySlot": "dog_03",
+      "id": "dog_03",
       "x": 461,
-      "y": 853,
+      "y": 852,
       "r": 57,
       "sprite": {
         "image": "levels/hawaii_north_shore_surf_shack_bird_4fc5/dogs/dog_03/sprite_000.png",
-        "height": 188,
-        "width": 169,
         "x": 363,
         "y": 757,
+        "width": 169,
+        "height": 188,
         "cleanup": {
-          "x": 363,
-          "y": 757,
-          "width": 169,
-          "height": 188
+          "x": 312,
+          "y": 730,
+          "width": 316,
+          "height": 271
         },
         "anchorX": 0.5799,
-        "anchorY": 0.5106,
-        "flipX": false,
-        "flipY": false
+        "anchorY": 0.5053
       }
     },
     {
-      "id": "e0219e25-0022-5c28-9cae-a3d690802614",
-      "compatibilitySlot": "dog_04",
-      "x": 797,
-      "y": 981,
+      "id": "dog_04",
+      "x": 808,
+      "y": 1000,
       "r": 57,
       "sprite": {
         "image": "levels/hawaii_north_shore_surf_shack_bird_4fc5/dogs/dog_04/sprite_000.png",
-        "height": 192,
-        "width": 187,
         "x": 703,
         "y": 886,
+        "width": 186,
+        "height": 192,
         "cleanup": {
-          "x": 703,
-          "y": 886,
-          "width": 187,
-          "height": 192
+          "x": 630,
+          "y": 802,
+          "width": 324,
+          "height": 300
         },
-        "anchorX": 0.5027,
-        "anchorY": 0.4948,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.5645,
+        "anchorY": 0.5938
       }
     },
     {
-      "id": "2c39463d-568b-534e-ac85-8c2716f011d7",
-      "compatibilitySlot": "dog_05",
-      "x": 1113,
-      "y": 924,
+      "id": "dog_05",
+      "x": 1105,
+      "y": 879,
       "r": 57,
       "sprite": {
         "image": "levels/hawaii_north_shore_surf_shack_bird_4fc5/dogs/dog_05/sprite_000.png",
-        "height": 141,
-        "width": 165,
-        "x": 1001,
-        "y": 816,
+        "x": 1032,
+        "y": 820,
+        "width": 138,
+        "height": 193,
         "cleanup": {
-          "x": 983,
-          "y": 798,
-          "width": 187,
-          "height": 187
+          "x": 957,
+          "y": 774,
+          "width": 331,
+          "height": 260
         },
-        "anchorX": 0.587,
-        "anchorY": 0.2521,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.529,
+        "anchorY": 0.3057
       }
     },
     {
-      "id": "22c14d19-b504-516e-b6f6-211e185c32b0",
-      "compatibilitySlot": "dog_06",
-      "x": 1548,
-      "y": 851,
+      "id": "dog_06",
+      "x": 1562,
+      "y": 837,
       "r": 57,
       "sprite": {
         "image": "levels/hawaii_north_shore_surf_shack_bird_4fc5/dogs/dog_06/sprite_000.png",
-        "height": 150,
-        "width": 158,
         "x": 1492,
         "y": 772,
+        "width": 158,
+        "height": 150,
         "cleanup": {
-          "x": 1492,
-          "y": 772,
-          "width": 158,
-          "height": 150
+          "x": 1389,
+          "y": 664,
+          "width": 345,
+          "height": 345
         },
-        "anchorX": 0.3544,
-        "anchorY": 0.5267,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.443,
+        "anchorY": 0.4333
       }
     },
     {
-      "id": "b82c1ae4-1bb4-539f-ba9c-596f8fbed427",
-      "compatibilitySlot": "dog_07",
-      "x": 1106,
-      "y": 1119,
+      "id": "dog_07",
+      "x": 1088,
+      "y": 1124,
       "r": 57,
       "sprite": {
         "image": "levels/hawaii_north_shore_surf_shack_bird_4fc5/dogs/dog_07/sprite_000.png",
-        "height": 194,
-        "width": 276,
-        "x": 963,
-        "y": 1029,
+        "x": 1010,
+        "y": 1048,
+        "width": 201,
+        "height": 149,
         "cleanup": {
-          "x": 1010,
-          "y": 1048,
-          "width": 201,
-          "height": 149
+          "x": 956,
+          "y": 1036,
+          "width": 292,
+          "height": 256
         },
-        "anchorX": 0.4776,
-        "anchorY": 0.4765,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.3881,
+        "anchorY": 0.5101
       }
     },
     {
-      "id": "8795cc60-8c48-5a55-9792-90f20d578eda",
-      "compatibilitySlot": "dog_08",
-      "x": 1362,
+      "id": "dog_08",
+      "x": 1322,
       "y": 1291,
       "r": 57,
       "sprite": {
         "image": "levels/hawaii_north_shore_surf_shack_bird_4fc5/dogs/dog_08/sprite_000.png",
-        "height": 139,
-        "width": 201,
-        "x": 1217,
-        "y": 1242,
+        "x": 1274,
+        "y": 1214,
+        "width": 234,
+        "height": 205,
         "cleanup": {
-          "x": 1217,
-          "y": 1226,
-          "width": 214,
-          "height": 137
+          "x": 1250,
+          "y": 1114,
+          "width": 299,
+          "height": 297
         },
-        "anchorX": 0.3761,
-        "anchorY": 0.2889,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.2051,
+        "anchorY": 0.3756
       }
     },
     {
-      "id": "775ddb8a-5f79-5058-9905-84840458d3ba",
-      "compatibilitySlot": "dog_09",
+      "id": "dog_09",
       "x": 1248,
-      "y": 1540,
+      "y": 1538,
       "r": 57,
       "sprite": {
         "image": "levels/hawaii_north_shore_surf_shack_bird_4fc5/dogs/dog_09/sprite_000.png",
-        "height": 188,
-        "width": 155,
         "x": 1157,
         "y": 1424,
+        "width": 155,
+        "height": 188,
         "cleanup": {
-          "x": 1157,
-          "y": 1424,
-          "width": 155,
-          "height": 188
+          "x": 1095,
+          "y": 1421,
+          "width": 307,
+          "height": 289
         },
         "anchorX": 0.5871,
-        "anchorY": 0.617,
-        "flipX": false,
-        "flipY": false
+        "anchorY": 0.6064
       }
     },
     {
-      "id": "daf2ccfe-6be1-5f11-836c-d75ca1417e64",
-      "compatibilitySlot": "dog_19",
-      "x": 1719,
-      "y": 1420,
-      "r": 57,
-      "sprite": {
-        "image": "levels/hawaii_north_shore_surf_shack_bird_4fc5/dogs/dog_19/sprite_000.png",
-        "height": 208,
-        "width": 215,
-        "x": 1601,
-        "y": 1333,
-        "cleanup": {
-          "x": 1601,
-          "y": 1333,
-          "width": 215,
-          "height": 208
-        },
-        "anchorX": 0.5256,
-        "anchorY": 0.4423,
-        "flipX": false,
-        "flipY": false
-      }
-    },
-    {
-      "id": "4db39422-f797-51d8-a796-9958293ba569",
-      "compatibilitySlot": "dog_10",
-      "x": 2069,
-      "y": 1230,
+      "id": "dog_10",
+      "x": 2071,
+      "y": 1238,
       "r": 57,
       "sprite": {
         "image": "levels/hawaii_north_shore_surf_shack_bird_4fc5/dogs/dog_10/sprite_000.png",
-        "height": 195,
-        "width": 236,
         "x": 1906,
         "y": 1186,
+        "width": 236,
+        "height": 195,
         "cleanup": {
-          "x": 1906,
-          "y": 1186,
-          "width": 236,
-          "height": 195
+          "x": 1900,
+          "y": 1193,
+          "width": 227,
+          "height": 345
         },
         "anchorX": 0.6992,
-        "anchorY": 0.2667,
-        "flipX": false,
-        "flipY": false
+        "anchorY": 0.2667
       }
     },
     {
-      "id": "03d3d945-ac9d-55a6-9496-fc844b2ddc16",
-      "compatibilitySlot": "dog_11",
+      "id": "dog_11",
       "x": 2178,
-      "y": 1449,
+      "y": 1450,
       "r": 57,
       "sprite": {
         "image": "levels/hawaii_north_shore_surf_shack_bird_4fc5/dogs/dog_11/sprite_000.png",
-        "height": 207,
-        "width": 212,
         "x": 2065,
         "y": 1341,
+        "width": 212,
+        "height": 207,
         "cleanup": {
-          "x": 2065,
-          "y": 1341,
-          "width": 212,
-          "height": 207
+          "x": 2129,
+          "y": 1277,
+          "width": 221,
+          "height": 345
         },
         "anchorX": 0.533,
-        "anchorY": 0.5266,
-        "flipX": false,
-        "flipY": false
+        "anchorY": 0.5266
       }
     },
     {
-      "id": "e3c69b2c-8818-513d-966c-2fbc0e07fe48",
-      "compatibilitySlot": "dog_21",
-      "x": 2179,
-      "y": 1922,
+      "id": "dog_12",
+      "x": 458,
+      "y": 1221,
       "r": 57,
       "sprite": {
-        "image": "levels/hawaii_north_shore_surf_shack_bird_4fc5/dogs/dog_21/sprite_000.png",
-        "height": 162,
-        "width": 182,
-        "x": 2124,
-        "y": 1847,
+        "image": "levels/hawaii_north_shore_surf_shack_bird_4fc5/dogs/dog_12/sprite_000.png",
+        "x": 340,
+        "y": 1115,
+        "width": 221,
+        "height": 213,
         "cleanup": {
-          "x": 2124,
-          "y": 1847,
-          "width": 182,
-          "height": 162
+          "x": 290,
+          "y": 1055,
+          "width": 232,
+          "height": 345
         },
-        "anchorX": 0.3297,
-        "anchorY": 0.5185,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.5339,
+        "anchorY": 0.4977
       }
     },
     {
-      "id": "21164639-0a11-5d0e-a811-50c725171c4c",
-      "compatibilitySlot": "dog_20",
-      "x": 1760,
-      "y": 1958,
+      "id": "dog_13",
+      "x": 685,
+      "y": 1178,
       "r": 57,
       "sprite": {
-        "image": "levels/hawaii_north_shore_surf_shack_bird_4fc5/dogs/dog_20/sprite_000.png",
-        "height": 136,
-        "width": 200,
-        "x": 1631,
-        "y": 1900,
+        "image": "levels/hawaii_north_shore_surf_shack_bird_4fc5/dogs/dog_13/sprite_000.png",
+        "x": 547,
+        "y": 1130,
+        "width": 229,
+        "height": 176,
         "cleanup": {
-          "x": 1631,
-          "y": 1900,
-          "width": 200,
-          "height": 136
+          "x": 524,
+          "y": 1106,
+          "width": 240,
+          "height": 297
         },
-        "anchorX": 0.595,
-        "anchorY": 0.4191,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.6026,
+        "anchorY": 0.2727
       }
     },
     {
-      "id": "b9e9f2e8-f3d6-5619-bb6b-3fbb573ea1ef",
-      "compatibilitySlot": "dog_17",
+      "id": "dog_14",
+      "x": 472,
+      "y": 1812,
+      "r": 57,
+      "sprite": {
+        "image": "levels/hawaii_north_shore_surf_shack_bird_4fc5/dogs/dog_14/sprite_000.png",
+        "x": 366,
+        "y": 1726,
+        "width": 199,
+        "height": 167,
+        "cleanup": {
+          "x": 299,
+          "y": 1639,
+          "width": 276,
+          "height": 317
+        },
+        "anchorX": 0.5327,
+        "anchorY": 0.515
+      }
+    },
+    {
+      "id": "dog_15",
+      "x": 730,
+      "y": 1711,
+      "r": 57,
+      "sprite": {
+        "image": "levels/hawaii_north_shore_surf_shack_bird_4fc5/dogs/dog_15/sprite_000.png",
+        "x": 609,
+        "y": 1651,
+        "width": 204,
+        "height": 202,
+        "cleanup": {
+          "x": 577,
+          "y": 1567,
+          "width": 275,
+          "height": 345
+        },
+        "anchorX": 0.5931,
+        "anchorY": 0.297
+      }
+    },
+    {
+      "id": "dog_16",
+      "x": 472,
+      "y": 2103,
+      "r": 57,
+      "sprite": {
+        "image": "levels/hawaii_north_shore_surf_shack_bird_4fc5/dogs/dog_16/sprite_000.png",
+        "x": 383,
+        "y": 2001,
+        "width": 196,
+        "height": 184,
+        "cleanup": {
+          "x": 299,
+          "y": 1958,
+          "width": 345,
+          "height": 304
+        },
+        "anchorX": 0.4541,
+        "anchorY": 0.5543
+      }
+    },
+    {
+      "id": "dog_17",
       "x": 1428,
       "y": 1933,
       "r": 57,
       "sprite": {
         "image": "levels/hawaii_north_shore_surf_shack_bird_4fc5/dogs/dog_17/sprite_000.png",
-        "height": 221,
-        "width": 194,
         "x": 1310,
         "y": 1812,
+        "width": 194,
+        "height": 221,
         "cleanup": {
-          "x": 1310,
-          "y": 1812,
-          "width": 194,
-          "height": 221
+          "x": 1262,
+          "y": 1765,
+          "width": 312,
+          "height": 300
         },
         "anchorX": 0.6082,
-        "anchorY": 0.5475,
-        "flipX": false,
-        "flipY": false
+        "anchorY": 0.5475
       }
     },
     {
-      "id": "5b426f30-5320-5050-b5e5-ca1bb7f52ed8",
-      "compatibilitySlot": "dog_18",
+      "id": "dog_18",
       "x": 1322,
       "y": 2200,
       "r": 57,
       "sprite": {
         "image": "levels/hawaii_north_shore_surf_shack_bird_4fc5/dogs/dog_18/sprite_000.png",
-        "height": 129,
-        "width": 169,
         "x": 1247,
         "y": 2132,
+        "width": 169,
+        "height": 129,
         "cleanup": {
-          "x": 1247,
-          "y": 2132,
-          "width": 169,
-          "height": 129
+          "x": 1149,
+          "y": 2067,
+          "width": 345,
+          "height": 265
         },
         "anchorX": 0.4438,
-        "anchorY": 0.5271,
-        "flipX": false,
-        "flipY": false
+        "anchorY": 0.5271
       }
     },
     {
-      "id": "d40e52ed-9f62-5542-8799-5d98b2e44787",
-      "compatibilitySlot": "dog_16",
-      "x": 482,
-      "y": 2101,
+      "id": "dog_19",
+      "x": 1714,
+      "y": 1425,
       "r": 57,
       "sprite": {
-        "image": "levels/hawaii_north_shore_surf_shack_bird_4fc5/dogs/dog_16/sprite_000.png",
-        "height": 184,
-        "width": 196,
-        "x": 383,
-        "y": 2001,
+        "image": "levels/hawaii_north_shore_surf_shack_bird_4fc5/dogs/dog_19/sprite_000.png",
+        "x": 1601,
+        "y": 1333,
+        "width": 215,
+        "height": 208,
         "cleanup": {
-          "x": 383,
-          "y": 2001,
-          "width": 196,
-          "height": 184
+          "x": 1551,
+          "y": 1286,
+          "width": 335,
+          "height": 345
         },
-        "anchorX": 0.4541,
-        "anchorY": 0.5543,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.5256,
+        "anchorY": 0.4423
       }
     },
     {
-      "id": "9f56b837-d800-5feb-8afd-2d3ddd2ce697",
-      "compatibilitySlot": "dog_14",
-      "x": 473,
-      "y": 1812,
+      "id": "dog_20",
+      "x": 1750,
+      "y": 1957,
       "r": 57,
       "sprite": {
-        "image": "levels/hawaii_north_shore_surf_shack_bird_4fc5/dogs/dog_14/sprite_000.png",
-        "height": 167,
-        "width": 199,
-        "x": 366,
-        "y": 1726,
+        "image": "levels/hawaii_north_shore_surf_shack_bird_4fc5/dogs/dog_20/sprite_000.png",
+        "x": 1631,
+        "y": 1900,
+        "width": 200,
+        "height": 136,
         "cleanup": {
-          "x": 366,
-          "y": 1726,
-          "width": 199,
-          "height": 167
+          "x": 1613,
+          "y": 1750,
+          "width": 345,
+          "height": 345
         },
-        "anchorX": 0.5327,
-        "anchorY": 0.515,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.595,
+        "anchorY": 0.4191
       }
     },
     {
-      "id": "6194c75c-762a-5ebf-8dde-047f4ab562c9",
-      "compatibilitySlot": "dog_15",
-      "x": 694,
-      "y": 1706,
+      "id": "dog_21",
+      "x": 2184,
+      "y": 1931,
       "r": 57,
       "sprite": {
-        "image": "levels/hawaii_north_shore_surf_shack_bird_4fc5/dogs/dog_15/sprite_000.png",
-        "height": 202,
-        "width": 204,
-        "x": 609,
-        "y": 1651,
+        "image": "levels/hawaii_north_shore_surf_shack_bird_4fc5/dogs/dog_21/sprite_000.png",
+        "x": 2124,
+        "y": 1847,
+        "width": 182,
+        "height": 162,
         "cleanup": {
-          "x": 609,
-          "y": 1651,
-          "width": 204,
-          "height": 202
+          "x": 1997,
+          "y": 1765,
+          "width": 345,
+          "height": 345
         },
-        "anchorX": 0.5931,
-        "anchorY": 0.297,
-        "flipX": false,
-        "flipY": false
-      }
-    },
-    {
-      "id": "d4c7612e-7228-5e09-ada8-f77e77fdb716",
-      "compatibilitySlot": "dog_12",
-      "x": 459,
-      "y": 1222,
-      "r": 57,
-      "sprite": {
-        "image": "levels/hawaii_north_shore_surf_shack_bird_4fc5/dogs/dog_12/sprite_000.png",
-        "height": 213,
-        "width": 221,
-        "x": 340,
-        "y": 1115,
-        "cleanup": {
-          "x": 340,
-          "y": 1115,
-          "width": 221,
-          "height": 213
-        },
-        "anchorX": 0.5339,
-        "anchorY": 0.4977,
-        "flipX": false,
-        "flipY": false
-      }
-    },
-    {
-      "id": "7eb8ea5c-d62a-5fbd-9910-447d43d665e4",
-      "compatibilitySlot": "dog_13",
-      "x": 619,
-      "y": 1230,
-      "r": 57,
-      "sprite": {
-        "image": "levels/hawaii_north_shore_surf_shack_bird_4fc5/dogs/dog_13/sprite_000.png",
-        "height": 176,
-        "width": 229,
-        "x": 547,
-        "y": 1130,
-        "cleanup": {
-          "x": 547,
-          "y": 1130,
-          "width": 229,
-          "height": 176
-        },
-        "anchorX": 0.6026,
-        "anchorY": 0.2727,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.3297,
+        "anchorY": 0.5185
       }
     }
-  ],
-  "provenance": {
-    "setting": "hawaii",
-    "scene": "hawaii_north_shore_surf_shack",
-    "entity": "bird",
-    "style": "clean_old_cartoon",
-    "scenePrompt": "[Purpose]\nCreate a full-bleed mobile-game background for Find the Bird.\n\n[Short Description]\nA North Shore surf-shack cluster sprawling along a dirt road arranged as an organic isometric hidden-object scene.\n\n[Scene] A North Shore surf-shack cluster sprawling along a dirt road \u2014 a main row of stilted shacks, a side path branching to a board-wax bench and jeep, a dune-strip with reef break visible beyond. The cluster has consistent materials throughout \u2014 each visible region renders as the material it should be, packed-sand road, weathered deck planks on the shacks, dune grass and sand on the seaward strip, with no untextured blank areas. Weather-beaten wooden shacks of varying sizes crowd unevenly along the road, some clustered shoulder-to-shoulder on shared stilts, others standing alone with gaps. Tin and wooden rooflines at different heights, some overlapping, some freestanding. A rusty jeep loaded with longboards sits parked at an unexpected angle by the bench. Scattered throughout without pattern: boards racked vertically in a dozen colours, a peeling wax-prep bench, neon surf-brand flags, pineapple crates, a stray flip-flop, hand-painted shave-ice sign, frangipani trees dropping flowers, reef break visible beyond low dunes, coiled leashes, hanging wetsuits, stickers on a shack door, a fin-display rack, a driftwood totem, a rusted bicycle, paint-peeled surfboards leaned against walls, a woven hammock, a cooler on the porch, a roadside chalkboard menu. Dense clusters around the wax bench, sparser breathing room toward the dune. Asymmetric, organic layout \u2014 like a surf camp that grew shack by shack across countless summer swells.\n\n[View] Moderately elevated three-quarter game-map view with a close, readable mobile-game camera: roughly 35 degrees down from horizontal, with only enough scene visible to support about 20 hidden bird placements. Do not use an extreme aerial, distant establishing, miniature-diorama, or whole-city view. Large scene anchors should occupy substantial frame area, and ordinary props must remain individually recognizable at phone size. Use controlled hidden-object density: arrange approximately 20 plausible hiding pockets across 4 to 6 connected prop clusters, with visible breathing room, clear travel paths between clusters, and readable object boundaries for phone-screen scanning. Use mild perspective or near-isometric construction consistently, without wide-angle distortion, dramatic foreshortening, depth of field, or tiny distance-scaled clutter.\n\n[Style] Vintage hand-drawn cartoon background adapted for a modern mobile puzzle game. Rounded old-cartoon shapes, cheerful simplified silhouettes, thick confident ink outlines, flat poster-like color fills, and soft hand-painted background texture. Use broad readable color masses and minimal internal linework so the scene stays clear on a phone screen. Charming and slightly nostalgic, clean and polished for mobile, with less visual noise, fewer texture marks, and no dense rendering.\n\n[Gameplay Composition]\nDesign this as a production hidden-object background where birds will be added later. Create many plausible hiding pockets on walkable/contact surfaces or open gaps beside props, plants, rocks, furniture, railings, crates, planters, benches, roots, tools, shelves, stalls, boats, carts, market goods, or other readable foreground objects. Near props is ideal; inside solid objects, on blank walls, on roofs, floating over water, or on decorative vertical faces is not useful. Use theme-specific spatial logic such as rings, islands, terraces, nested rooms, clearings, bridges, piers, shelves, courtyards, side alleys, garden pockets, or clustered market zones. Keep open pockets between prop clusters so hitboxes can sit near objects without excessive overlap.\n\n[Constraints]\nDo not depict any bird; every bird is added during the later gameplay pass. No people, no live animals, no insects, no mascots, no readable text, no logos, no watermarks. Signs, chalkboards, labels, plaques, and boards named in the scene may appear but must show only illegible marks, squiggles, or blank surfaces \u2014 never legible words or letters. Market food and fishing props are allowed when the scene calls for them. Avoid huge blank walls, roof-dominated compositions, large featureless empty lawns, empty sand, empty floors, long straight roads, and noisy micro-texture camouflage. Every visible ground, floor, or water-edge region should read as a clear material appropriate to the scene; no untextured blank areas.",
-    "entityPrompt": "Add exactly one bird to this crop. Place exactly one bird centered on the marked target area \u2014 do not repeat the subject. Match the scene's illustration style, line weight, palette, and flat-shaded rendering, but keep the bird's silhouette and boundary readable on a phone screen. The bird may be partially occluded or contextually disguised, but must not disappear through muddy edges, low contrast, texture camouflage, or ambiguous merged shapes. Vary the bird's colors, markings, proportions, and small physical details across crops so the level does not repeat the same bird design. The bird is a charming little anthropomorphic inhabitant of this world \u2014 a character with personality going about its business. Give it something simple and specific to do with its surroundings: holding an object, using a tool, sitting at a small task, peeking at something, carrying something, watching something with interest, tending a small thing, pausing mid-task. Keep the pose clear and readable. The charm comes from the context and the expression, not from dynamic motion. Size the bird realistically relative to the scene around it \u2014 compare it to whatever human-scale objects are visible in the crop and render the bird at the physical size a real bird would be next to them. Not so small that its species is ambiguous, not so large that it dominates the crop. The bird must be fully contained within the visible frame. Keep all other elements of the image unchanged.",
-    "bgModel": "google/gemini-3.1-flash-image-preview",
-    "inpaintModel": "google/gemini-3.1-flash-image-preview"
-  }
+  ]
 }

@@ -1,447 +1,367 @@
 {
   "id": "fairytale_forest_witches_herb_hut_bird_1a72",
-  "name": "Level fairytale_forest_witches_herb_hut_bird_1a72",
+  "name": "Level fairytale_forest_witches_herb_hut_bird_1a72 (clean_old_cartoon)",
   "width": 2688,
   "height": 2688,
+  "bwImage": "levels/fairytale_forest_witches_herb_hut_bird_1a72/bw.png",
   "colorImage": "levels/fairytale_forest_witches_herb_hut_bird_1a72/color.png",
-  "artifactRevision": "sha256:3e432fae7f5c225f76c3ae2eb9e8ce0ffd7bef6043277ec67671966df9a60065",
-  "compatibilityAliases": {
-    "dog_01": "9248c511-548e-5b0d-8dac-192d4db96884",
-    "dog_00": "071e5f40-c1f1-59d1-a5e0-61418505dea5",
-    "dog_02": "69d59079-ab7d-54fc-b515-a1bc901239c9",
-    "dog_05": "92bf011b-dd90-5b80-81ff-abec913a8bdd",
-    "dog_06": "a3b79aaf-386b-5665-b8f2-e97570f9b8f4",
-    "dog_04": "41b62e61-3859-52a2-8e1e-e9b022728952",
-    "dog_07": "f55aa093-c641-5f9c-9f24-ff7e87fa9c33",
-    "dog_13": "ce43881b-25ca-5db4-a85b-23564e7e3357",
-    "dog_14": "bfaa78ee-2262-574e-9389-0855c3c5beeb",
-    "dog_03": "d4d33787-7456-5ecc-aafa-6388a7ef7f4f",
-    "dog_09": "70036922-c829-5f94-b9d5-9a2ae8214531",
-    "dog_08": "5a9ab8a2-0b1c-5c22-8233-d1d1edb3f733",
-    "dog_12": "260b0f4b-0342-54e8-8937-e593aad8c3bd",
-    "dog_10": "17704903-439d-50ba-a41f-450e5dc1c3b1",
-    "dog_11": "c18a89e7-96c1-5d57-813c-e6558e1d48a5",
-    "dog_15": "31479ff4-7c2b-51cf-9271-22e5f36b9056",
-    "dog_16": "e49c575d-bbbe-583b-a3c9-2b3ec0ca6a11"
-  },
   "dogs": [
     {
-      "id": "9248c511-548e-5b0d-8dac-192d4db96884",
-      "compatibilitySlot": "dog_01",
-      "x": 955,
-      "y": 569,
-      "r": 57,
-      "sprite": {
-        "image": "levels/fairytale_forest_witches_herb_hut_bird_1a72/dogs/dog_01/sprite_000.png",
-        "height": 186,
-        "width": 254,
-        "x": 801,
-        "y": 483,
-        "cleanup": {
-          "x": 792,
-          "y": 441,
-          "width": 337,
-          "height": 259
-        },
-        "anchorX": 0.626,
-        "anchorY": 0.4731,
-        "flipX": false,
-        "flipY": false
-      }
-    },
-    {
-      "id": "071e5f40-c1f1-59d1-a5e0-61418505dea5",
-      "compatibilitySlot": "dog_00",
+      "id": "dog_00",
       "x": 542,
       "y": 638,
       "r": 57,
       "sprite": {
         "image": "levels/fairytale_forest_witches_herb_hut_bird_1a72/dogs/dog_00/sprite_000.png",
-        "height": 186,
-        "width": 244,
         "x": 415,
         "y": 558,
+        "width": 244,
+        "height": 186,
         "cleanup": {
-          "x": 399,
-          "y": 488,
-          "width": 287,
-          "height": 299
+          "x": 369,
+          "y": 466,
+          "width": 337,
+          "height": 259
         },
         "anchorX": 0.5205,
-        "anchorY": 0.4301,
-        "flipX": false,
-        "flipY": false
+        "anchorY": 0.4301
       }
     },
     {
-      "id": "69d59079-ab7d-54fc-b515-a1bc901239c9",
-      "compatibilitySlot": "dog_02",
+      "id": "dog_01",
+      "x": 960,
+      "y": 571,
+      "r": 57,
+      "sprite": {
+        "image": "levels/fairytale_forest_witches_herb_hut_bird_1a72/dogs/dog_01/sprite_000.png",
+        "x": 801,
+        "y": 483,
+        "width": 254,
+        "height": 186,
+        "cleanup": {
+          "x": 787,
+          "y": 440,
+          "width": 272,
+          "height": 303
+        },
+        "anchorX": 0.626,
+        "anchorY": 0.4731
+      }
+    },
+    {
+      "id": "dog_02",
       "x": 433,
       "y": 815,
       "r": 57,
       "sprite": {
         "image": "levels/fairytale_forest_witches_herb_hut_bird_1a72/dogs/dog_02/sprite_000.png",
-        "height": 181,
-        "width": 132,
-        "x": 385,
-        "y": 752,
+        "x": 370,
+        "y": 749,
+        "width": 140,
+        "height": 192,
         "cleanup": {
           "x": 323,
           "y": 727,
           "width": 220,
           "height": 210
         },
-        "anchorX": 0.3636,
-        "anchorY": 0.3481,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.45,
+        "anchorY": 0.3438
       }
     },
     {
-      "id": "92bf011b-dd90-5b80-81ff-abec913a8bdd",
-      "compatibilitySlot": "dog_05",
-      "x": 528,
-      "y": 1145,
+      "id": "dog_03",
+      "x": 1160,
+      "y": 765,
+      "r": 57,
+      "sprite": {
+        "image": "levels/fairytale_forest_witches_herb_hut_bird_1a72/dogs/dog_03/sprite_000.png",
+        "x": 1023,
+        "y": 670,
+        "width": 218,
+        "height": 181,
+        "cleanup": {
+          "x": 1061,
+          "y": 614,
+          "width": 271,
+          "height": 299
+        },
+        "anchorX": 0.6284,
+        "anchorY": 0.5249
+      }
+    },
+    {
+      "id": "dog_04",
+      "x": 947,
+      "y": 1064,
+      "r": 57,
+      "sprite": {
+        "image": "levels/fairytale_forest_witches_herb_hut_bird_1a72/dogs/dog_04/sprite_000.png",
+        "x": 857,
+        "y": 981,
+        "width": 177,
+        "height": 187,
+        "cleanup": {
+          "x": 774,
+          "y": 915,
+          "width": 337,
+          "height": 321
+        },
+        "anchorX": 0.5085,
+        "anchorY": 0.4439
+      }
+    },
+    {
+      "id": "dog_05",
+      "x": 493,
+      "y": 1142,
       "r": 57,
       "sprite": {
         "image": "levels/fairytale_forest_witches_herb_hut_bird_1a72/dogs/dog_05/sprite_000.png",
-        "height": 174,
-        "width": 213,
         "x": 374,
         "y": 1057,
+        "width": 213,
+        "height": 174,
         "cleanup": {
-          "x": 328,
-          "y": 982,
-          "width": 331,
-          "height": 320
+          "x": 380,
+          "y": 974,
+          "width": 345,
+          "height": 283
         },
         "anchorX": 0.5587,
-        "anchorY": 0.4885,
-        "flipX": false,
-        "flipY": false
+        "anchorY": 0.4885
       }
     },
     {
-      "id": "a3b79aaf-386b-5665-b8f2-e97570f9b8f4",
-      "compatibilitySlot": "dog_06",
-      "x": 546,
+      "id": "dog_06",
+      "x": 547,
       "y": 1375,
       "r": 57,
       "sprite": {
         "image": "levels/fairytale_forest_witches_herb_hut_bird_1a72/dogs/dog_06/sprite_000.png",
-        "height": 209,
-        "width": 260,
         "x": 444,
         "y": 1263,
+        "width": 260,
+        "height": 209,
         "cleanup": {
-          "x": 389,
-          "y": 1214,
-          "width": 316,
-          "height": 322
+          "x": 378,
+          "y": 1259,
+          "width": 341,
+          "height": 258
         },
         "anchorX": 0.3962,
-        "anchorY": 0.5359,
-        "flipX": false,
-        "flipY": false
+        "anchorY": 0.5359
       }
     },
     {
-      "id": "41b62e61-3859-52a2-8e1e-e9b022728952",
-      "compatibilitySlot": "dog_04",
-      "x": 947,
-      "y": 1063,
-      "r": 57,
-      "sprite": {
-        "image": "levels/fairytale_forest_witches_herb_hut_bird_1a72/dogs/dog_04/sprite_000.png",
-        "height": 187,
-        "width": 177,
-        "x": 857,
-        "y": 981,
-        "cleanup": {
-          "x": 775,
-          "y": 936,
-          "width": 345,
-          "height": 256
-        },
-        "anchorX": 0.5085,
-        "anchorY": 0.4439,
-        "flipX": false,
-        "flipY": false
-      }
-    },
-    {
-      "id": "f55aa093-c641-5f9c-9f24-ff7e87fa9c33",
-      "compatibilitySlot": "dog_07",
+      "id": "dog_07",
       "x": 924,
       "y": 1700,
       "r": 57,
       "sprite": {
         "image": "levels/fairytale_forest_witches_herb_hut_bird_1a72/dogs/dog_07/sprite_000.png",
-        "height": 195,
-        "width": 231,
         "x": 837,
         "y": 1593,
+        "width": 231,
+        "height": 195,
         "cleanup": {
-          "x": 764,
-          "y": 1534,
-          "width": 320,
-          "height": 332
+          "x": 751,
+          "y": 1545,
+          "width": 315,
+          "height": 327
         },
         "anchorX": 0.3766,
-        "anchorY": 0.5487,
-        "flipX": false,
-        "flipY": false
+        "anchorY": 0.5487
       }
     },
     {
-      "id": "ce43881b-25ca-5db4-a85b-23564e7e3357",
-      "compatibilitySlot": "dog_13",
-      "x": 1211,
-      "y": 1855,
+      "id": "dog_08",
+      "x": 1281,
+      "y": 1110,
       "r": 57,
       "sprite": {
-        "image": "levels/fairytale_forest_witches_herb_hut_bird_1a72/dogs/dog_13/sprite_000.png",
-        "height": 229,
-        "width": 297,
-        "x": 1081,
-        "y": 1742,
+        "image": "levels/fairytale_forest_witches_herb_hut_bird_1a72/dogs/dog_08/sprite_000.png",
+        "x": 1168,
+        "y": 1044,
+        "width": 247,
+        "height": 169,
         "cleanup": {
-          "x": 1059,
-          "y": 1692,
-          "width": 304,
-          "height": 325
+          "x": 1118,
+          "y": 937,
+          "width": 335,
+          "height": 345
         },
-        "anchorX": 0.4727,
-        "anchorY": 0.6149,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.4575,
+        "anchorY": 0.3905
       }
     },
     {
-      "id": "bfaa78ee-2262-574e-9389-0855c3c5beeb",
-      "compatibilitySlot": "dog_14",
-      "x": 885,
-      "y": 2256,
-      "r": 57,
-      "sprite": {
-        "image": "levels/fairytale_forest_witches_herb_hut_bird_1a72/dogs/dog_14/sprite_000.png",
-        "height": 176,
-        "width": 216,
-        "x": 730,
-        "y": 2159,
-        "cleanup": {
-          "x": 713,
-          "y": 2097,
-          "width": 343,
-          "height": 318
-        },
-        "anchorX": 0.6467,
-        "anchorY": 0.6115,
-        "flipX": false,
-        "flipY": false
-      }
-    },
-    {
-      "id": "d4d33787-7456-5ecc-aafa-6388a7ef7f4f",
-      "compatibilitySlot": "dog_03",
-      "x": 1161,
-      "y": 765,
-      "r": 57,
-      "sprite": {
-        "image": "levels/fairytale_forest_witches_herb_hut_bird_1a72/dogs/dog_03/sprite_000.png",
-        "height": 181,
-        "width": 218,
-        "x": 1023,
-        "y": 670,
-        "cleanup": {
-          "x": 988,
-          "y": 623,
-          "width": 344,
-          "height": 285
-        },
-        "anchorX": 0.6284,
-        "anchorY": 0.5249,
-        "flipX": false,
-        "flipY": false
-      }
-    },
-    {
-      "id": "70036922-c829-5f94-b9d5-9a2ae8214531",
-      "compatibilitySlot": "dog_09",
+      "id": "dog_09",
       "x": 1652,
       "y": 919,
       "r": 57,
       "sprite": {
         "image": "levels/fairytale_forest_witches_herb_hut_bird_1a72/dogs/dog_09/sprite_000.png",
-        "height": 241,
-        "width": 221,
         "x": 1552,
         "y": 796,
+        "width": 221,
+        "height": 241,
         "cleanup": {
-          "x": 1518,
-          "y": 770,
-          "width": 269,
-          "height": 299
+          "x": 1505,
+          "y": 746,
+          "width": 319,
+          "height": 345
         },
         "anchorX": 0.4525,
-        "anchorY": 0.5104,
-        "flipX": false,
-        "flipY": false
+        "anchorY": 0.5104
       }
     },
     {
-      "id": "5a9ab8a2-0b1c-5c22-8233-d1d1edb3f733",
-      "compatibilitySlot": "dog_08",
-      "x": 1284,
-      "y": 1113,
-      "r": 57,
-      "sprite": {
-        "image": "levels/fairytale_forest_witches_herb_hut_bird_1a72/dogs/dog_08/sprite_000.png",
-        "height": 169,
-        "width": 247,
-        "x": 1168,
-        "y": 1044,
-        "cleanup": {
-          "x": 1109,
-          "y": 965,
-          "width": 344,
-          "height": 289
-        },
-        "anchorX": 0.4575,
-        "anchorY": 0.3905,
-        "flipX": false,
-        "flipY": false
-      }
-    },
-    {
-      "id": "260b0f4b-0342-54e8-8937-e593aad8c3bd",
-      "compatibilitySlot": "dog_12",
-      "x": 1568,
-      "y": 1700,
-      "r": 57,
-      "sprite": {
-        "image": "levels/fairytale_forest_witches_herb_hut_bird_1a72/dogs/dog_12/sprite_000.png",
-        "height": 145,
-        "width": 198,
-        "x": 1459,
-        "y": 1619,
-        "cleanup": {
-          "x": 1417,
-          "y": 1556,
-          "width": 341,
-          "height": 328
-        },
-        "anchorX": 0.5505,
-        "anchorY": 0.5586,
-        "flipX": false,
-        "flipY": false
-      }
-    },
-    {
-      "id": "17704903-439d-50ba-a41f-450e5dc1c3b1",
-      "compatibilitySlot": "dog_10",
+      "id": "dog_10",
       "x": 2088,
       "y": 893,
       "r": 57,
       "sprite": {
         "image": "levels/fairytale_forest_witches_herb_hut_bird_1a72/dogs/dog_10/sprite_000.png",
-        "height": 243,
-        "width": 171,
         "x": 2001,
         "y": 772,
+        "width": 171,
+        "height": 243,
         "cleanup": {
-          "x": 1929,
-          "y": 731,
-          "width": 319,
-          "height": 324
+          "x": 1918,
+          "y": 720,
+          "width": 304,
+          "height": 325
         },
         "anchorX": 0.5088,
-        "anchorY": 0.4979,
-        "flipX": false,
-        "flipY": false
+        "anchorY": 0.4979
       }
     },
     {
-      "id": "c18a89e7-96c1-5d57-813c-e6558e1d48a5",
-      "compatibilitySlot": "dog_11",
+      "id": "dog_11",
       "x": 2227,
       "y": 1200,
       "r": 57,
       "sprite": {
         "image": "levels/fairytale_forest_witches_herb_hut_bird_1a72/dogs/dog_11/sprite_000.png",
-        "height": 166,
-        "width": 194,
         "x": 2168,
         "y": 1120,
+        "width": 194,
+        "height": 166,
         "cleanup": {
-          "x": 2054,
-          "y": 1027,
+          "x": 2059,
+          "y": 1047,
+          "width": 340,
+          "height": 318
+        },
+        "anchorX": 0.3041,
+        "anchorY": 0.4819
+      }
+    },
+    {
+      "id": "dog_12",
+      "x": 1568,
+      "y": 1657,
+      "r": 57,
+      "sprite": {
+        "image": "levels/fairytale_forest_witches_herb_hut_bird_1a72/dogs/dog_12/sprite_000.png",
+        "x": 1458,
+        "y": 1619,
+        "width": 199,
+        "height": 145,
+        "cleanup": {
+          "x": 1445,
+          "y": 1566,
           "width": 345,
           "height": 345
         },
-        "anchorX": 0.3041,
-        "anchorY": 0.4819,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.5528,
+        "anchorY": 0.2621
       }
     },
     {
-      "id": "31479ff4-7c2b-51cf-9271-22e5f36b9056",
-      "compatibilitySlot": "dog_15",
-      "x": 1780,
-      "y": 2198,
+      "id": "dog_13",
+      "x": 1211,
+      "y": 1855,
+      "r": 57,
+      "sprite": {
+        "image": "levels/fairytale_forest_witches_herb_hut_bird_1a72/dogs/dog_13/sprite_000.png",
+        "x": 1107,
+        "y": 1748,
+        "width": 220,
+        "height": 174,
+        "cleanup": {
+          "x": 1068,
+          "y": 1694,
+          "width": 315,
+          "height": 332
+        },
+        "anchorX": 0.4727,
+        "anchorY": 0.6149
+      }
+    },
+    {
+      "id": "dog_14",
+      "x": 885,
+      "y": 2256,
+      "r": 57,
+      "sprite": {
+        "image": "levels/fairytale_forest_witches_herb_hut_bird_1a72/dogs/dog_14/sprite_000.png",
+        "x": 777,
+        "y": 2171,
+        "width": 167,
+        "height": 139,
+        "cleanup": {
+          "x": 712,
+          "y": 2110,
+          "width": 334,
+          "height": 289
+        },
+        "anchorX": 0.6467,
+        "anchorY": 0.6115
+      }
+    },
+    {
+      "id": "dog_15",
+      "x": 1778,
+      "y": 2197,
       "r": 57,
       "sprite": {
         "image": "levels/fairytale_forest_witches_herb_hut_bird_1a72/dogs/dog_15/sprite_000.png",
-        "height": 179,
-        "width": 214,
-        "x": 1648,
-        "y": 2106,
+        "x": 1664,
+        "y": 2115,
+        "width": 215,
+        "height": 171,
         "cleanup": {
-          "x": 1641,
-          "y": 2046,
-          "width": 196,
-          "height": 209
+          "x": 1605,
+          "y": 2052,
+          "width": 260,
+          "height": 317
         },
-        "anchorX": 0.4559,
-        "anchorY": 0.3102,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.5302,
+        "anchorY": 0.4795
       }
     },
     {
-      "id": "e49c575d-bbbe-583b-a3c9-2b3ec0ca6a11",
-      "compatibilitySlot": "dog_16",
-      "x": 1958,
+      "id": "dog_16",
+      "x": 1955,
       "y": 2194,
       "r": 57,
       "sprite": {
         "image": "levels/fairytale_forest_witches_herb_hut_bird_1a72/dogs/dog_16/sprite_000.png",
-        "height": 213,
-        "width": 209,
-        "x": 1895,
-        "y": 2083,
+        "x": 1840,
+        "y": 2116,
+        "width": 243,
+        "height": 185,
         "cleanup": {
-          "x": 1855,
-          "y": 2077,
-          "width": 251,
-          "height": 241
+          "x": 1867,
+          "y": 2032,
+          "width": 260,
+          "height": 334
         },
-        "anchorX": 0.5777,
-        "anchorY": 0.4496,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.4733,
+        "anchorY": 0.4216
       }
     }
-  ],
-  "provenance": {
-    "setting": "fairytale_forest",
-    "scene": "fairytale_forest_witches_herb_hut",
-    "entity": "bird",
-    "style": "clean_old_cartoon",
-    "scenePrompt": "[Purpose]\nCreate a full-bleed mobile-game background for Find the Bird.\n\n[Short Description]\nA witch's herb hut clearing sprawling in a moonlit thicket arranged as an organic isometric hidden-object scene.\n\n[Scene] A witch's herb hut clearing sprawling in a moonlit thicket \u2014 a main crooked cottage with glowing windows, a side path branching past a bubbling cauldron, a mossy strip of twisted thorn-trees hemming in the glade. The clearing has consistent materials throughout \u2014 each visible region renders as the material it should be, velvet moss on the ground, packed earth on the path, gnarled roots across the thicket floor, with no untextured blank areas. Garden-shed outbuildings of varying sizes crowd unevenly around the cottage, some clustered against its leaning walls, others standing alone between thorn-trees. Crooked rooflines at different heights, some overlapping, some freestanding. A broomstick leans at an unexpected angle against the porch post. Scattered throughout without pattern: ivy-overgrown shutters with amber-glowing windows, a bubbling black cauldron with violet smoke, hanging bundles of dried herbs and garlic, bookshelves on the porch stuffed with ancient tomes, glowing jar lanterns lighting the path, crooked signposts, twisted thorn-trees overhead, a hanging iron key, a candle on a carved stone skull, potion bottles on a windowsill, a folded black shawl on the rail, a hand-written grimoire on a stump, a mortar and pestle on a stone, crystal chimes, a carved staff leaned on the door, a wooden ladder, a tincture-drying rack, a braid of garlic, a chalk-circle on a flagstone. Dense clusters around the cauldron, sparser breathing room at the thorn-edge. Asymmetric, organic layout \u2014 like a hut the forest has grown around across many generations of a hedgewitch's tenure.\n\n[View] Moderately elevated three-quarter game-map view with a close, readable mobile-game camera: roughly 35 degrees down from horizontal, with only enough scene visible to support about 20 hidden bird placements. Do not use an extreme aerial, distant establishing, miniature-diorama, or whole-city view. Large scene anchors should occupy substantial frame area, and ordinary props must remain individually recognizable at phone size. Use controlled hidden-object density: arrange approximately 20 plausible hiding pockets across 4 to 6 connected prop clusters, with visible breathing room, clear travel paths between clusters, and readable object boundaries for phone-screen scanning. Use mild perspective or near-isometric construction consistently, without wide-angle distortion, dramatic foreshortening, depth of field, or tiny distance-scaled clutter.\n\n[Style] Vintage hand-drawn cartoon background adapted for a modern mobile puzzle game. Rounded old-cartoon shapes, cheerful simplified silhouettes, thick confident ink outlines, flat poster-like color fills, and soft hand-painted background texture. Use broad readable color masses and minimal internal linework so the scene stays clear on a phone screen. Charming and slightly nostalgic, clean and polished for mobile, with less visual noise, fewer texture marks, and no dense rendering.\n\n[Gameplay Composition]\nDesign this as a production hidden-object background where birds will be added later. Create many plausible hiding pockets on walkable/contact surfaces or open gaps beside props, plants, rocks, furniture, railings, crates, planters, benches, roots, tools, shelves, stalls, boats, carts, market goods, or other readable foreground objects. Near props is ideal; inside solid objects, on blank walls, on roofs, floating over water, or on decorative vertical faces is not useful. Use theme-specific spatial logic such as rings, islands, terraces, nested rooms, clearings, bridges, piers, shelves, courtyards, side alleys, garden pockets, or clustered market zones. Keep open pockets between prop clusters so hitboxes can sit near objects without excessive overlap.\n\n[Constraints]\nDo not depict any bird; every bird is added during the later gameplay pass. No people, no live animals, no insects, no mascots, no readable text, no logos, no watermarks. Signs, chalkboards, labels, plaques, and boards named in the scene may appear but must show only illegible marks, squiggles, or blank surfaces \u2014 never legible words or letters. Market food and fishing props are allowed when the scene calls for them. Avoid huge blank walls, roof-dominated compositions, large featureless empty lawns, empty sand, empty floors, long straight roads, and noisy micro-texture camouflage. Every visible ground, floor, or water-edge region should read as a clear material appropriate to the scene; no untextured blank areas.",
-    "entityPrompt": "Add exactly one bird to this crop. Place exactly one bird centered on the marked target area \u2014 do not repeat the subject. Match the scene's illustration style, line weight, palette, and flat-shaded rendering, but keep the bird's silhouette and boundary readable on a phone screen. The bird may be partially occluded or contextually disguised, but must not disappear through muddy edges, low contrast, texture camouflage, or ambiguous merged shapes. Vary the bird's colors, markings, proportions, and small physical details across crops so the level does not repeat the same bird design. The bird is a charming little anthropomorphic inhabitant of this world \u2014 a character with personality going about its business. Give it something simple and specific to do with its surroundings: holding an object, using a tool, sitting at a small task, peeking at something, carrying something, watching something with interest, tending a small thing, pausing mid-task. Keep the pose clear and readable. The charm comes from the context and the expression, not from dynamic motion. Size the bird realistically relative to the scene around it \u2014 compare it to whatever human-scale objects are visible in the crop and render the bird at the physical size a real bird would be next to them. Not so small that its species is ambiguous, not so large that it dominates the crop. The bird must be fully contained within the visible frame. Keep all other elements of the image unchanged.",
-    "bgModel": "google/gemini-3.1-flash-image-preview",
-    "inpaintModel": "google/gemini-3.1-flash-image-preview"
-  }
+  ]
 }

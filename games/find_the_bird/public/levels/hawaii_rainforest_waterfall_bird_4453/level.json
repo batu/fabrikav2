@@ -1,397 +1,409 @@
 {
   "id": "hawaii_rainforest_waterfall_bird_4453",
-  "name": "Level hawaii_rainforest_waterfall_bird_4453",
+  "name": "Level hawaii_rainforest_waterfall_bird_4453 (clean_old_cartoon)",
   "width": 4096,
   "height": 4096,
+  "bwImage": "levels/hawaii_rainforest_waterfall_bird_4453/bw.png",
   "colorImage": "levels/hawaii_rainforest_waterfall_bird_4453/color.png",
-  "artifactRevision": "sha256:62864b4860a217ffd13b7a0a26a28ed484422965a6a68c31f41eff81b0ea5591",
-  "compatibilityAliases": {
-    "dog_00": "36290f0c-ceea-5970-a1ed-fd9d0db49655",
-    "dog_01": "a3d4396d-019a-56e0-9f84-629ff0c4ebef",
-    "dog_02": "cc99b902-d61a-5457-a529-e592596223bf",
-    "dog_03": "f9fc9f49-42a9-5172-a2b5-defa867e9284",
-    "dog_04": "cfb2806b-8f9e-5644-8228-fe5cb7122f87",
-    "dog_05": "d3a7e8cd-2a15-528d-a3ed-c33108cc1d63",
-    "dog_06": "c63f8b7c-5b9f-56fc-8b25-76646ec3e4dd",
-    "dog_07": "45b9b57f-c204-53a7-9f63-1bfcaab29bf7",
-    "dog_08": "0c16a7ac-5a66-5440-9779-bd7ae61cfffd",
-    "dog_09": "42853996-c77e-5019-9369-ca33b706790c",
-    "dog_10": "9b3d5e09-ba75-58c6-93b9-ccf6e05664dd",
-    "dog_11": "42917276-2d4a-5d8d-91f7-694525e2cc82",
-    "dog_12": "e66a4e21-00e5-5e05-a282-68b19303de2c",
-    "dog_13": "697da3cd-02b1-566d-bc08-c58cd6748467",
-    "dog_14": "4ef0541b-b83a-5d0a-aec0-6f6fb2bfda9c"
-  },
   "dogs": [
     {
-      "id": "36290f0c-ceea-5970-a1ed-fd9d0db49655",
-      "compatibilitySlot": "dog_00",
-      "x": 2410,
-      "y": 887,
-      "r": 87,
+      "id": "dog_00",
+      "x": 2800,
+      "y": 3289,
+      "r": 144,
       "sprite": {
         "image": "levels/hawaii_rainforest_waterfall_bird_4453/dogs/dog_00/sprite_000.png",
-        "height": 231,
-        "width": 260,
-        "x": 2284,
-        "y": 772,
+        "x": 2676,
+        "y": 3084,
+        "width": 300,
+        "height": 317,
         "cleanup": {
-          "x": 2292,
-          "y": 882,
-          "width": 234,
-          "height": 205
+          "x": 2454,
+          "y": 2972,
+          "width": 695,
+          "height": 658
         },
-        "anchorX": 0.4867,
-        "anchorY": 0.4873,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.4133,
+        "anchorY": 0.6467
       }
     },
     {
-      "id": "a3d4396d-019a-56e0-9f84-629ff0c4ebef",
-      "compatibilitySlot": "dog_01",
-      "x": 3205,
-      "y": 911,
-      "r": 87,
+      "id": "dog_01",
+      "x": 4050,
+      "y": 3726,
+      "r": 46,
       "sprite": {
         "image": "levels/hawaii_rainforest_waterfall_bird_4453/dogs/dog_01/sprite_000.png",
-        "height": 288,
-        "width": 165,
-        "x": 3129,
-        "y": 806,
+        "x": 3941,
+        "y": 3588,
+        "width": 147,
+        "height": 213,
         "cleanup": {
-          "x": 3115,
-          "y": 783,
-          "width": 208,
-          "height": 332
+          "x": 3971,
+          "y": 3622,
+          "width": 125,
+          "height": 207
         },
-        "anchorX": 0.531,
-        "anchorY": 0.3671,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.7415,
+        "anchorY": 0.6479
       }
     },
     {
-      "id": "cc99b902-d61a-5457-a529-e592596223bf",
-      "compatibilitySlot": "dog_02",
-      "x": 1198,
-      "y": 1610,
-      "r": 87,
+      "id": "dog_02",
+      "x": 298,
+      "y": 1021,
+      "r": 144,
       "sprite": {
         "image": "levels/hawaii_rainforest_waterfall_bird_4453/dogs/dog_02/sprite_000.png",
-        "height": 291,
-        "width": 314,
-        "x": 1059,
-        "y": 1451,
+        "x": 149,
+        "y": 769,
+        "width": 167,
+        "height": 288,
         "cleanup": {
-          "x": 1063,
-          "y": 1559,
-          "width": 267,
-          "height": 251
+          "x": 0,
+          "y": 673,
+          "width": 645,
+          "height": 695
         },
-        "anchorX": 0.4402,
-        "anchorY": 0.5309,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.8922,
+        "anchorY": 0.875
       }
     },
     {
-      "id": "f9fc9f49-42a9-5172-a2b5-defa867e9284",
-      "compatibilitySlot": "dog_03",
-      "x": 1388,
-      "y": 2163,
-      "r": 87,
+      "id": "dog_03",
+      "x": 1047,
+      "y": 1279,
+      "r": 144,
       "sprite": {
         "image": "levels/hawaii_rainforest_waterfall_bird_4453/dogs/dog_03/sprite_000.png",
-        "height": 318,
-        "width": 276,
-        "x": 1252,
-        "y": 2003,
+        "x": 777,
+        "y": 968,
+        "width": 532,
+        "height": 613,
         "cleanup": {
-          "x": 1270,
-          "y": 2110,
-          "width": 234,
-          "height": 253
+          "x": 696,
+          "y": 927,
+          "width": 630,
+          "height": 695
         },
-        "anchorX": 0.4248,
-        "anchorY": 0.5265,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.5019,
+        "anchorY": 0.5008
       }
     },
     {
-      "id": "cfb2806b-8f9e-5644-8228-fe5cb7122f87",
-      "compatibilitySlot": "dog_04",
-      "x": 3185,
-      "y": 2148,
-      "r": 87,
+      "id": "dog_04",
+      "x": 339,
+      "y": 1931,
+      "r": 144,
       "sprite": {
         "image": "levels/hawaii_rainforest_waterfall_bird_4453/dogs/dog_04/sprite_000.png",
-        "height": 315,
-        "width": 316,
-        "x": 3063,
-        "y": 2014,
+        "x": 191,
+        "y": 1687,
+        "width": 288,
+        "height": 278,
         "cleanup": {
-          "x": 3045,
-          "y": 2088,
-          "width": 276,
-          "height": 260
+          "x": 0,
+          "y": 1583,
+          "width": 686,
+          "height": 695
         },
-        "anchorX": 0.403,
-        "anchorY": 0.4603,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.5139,
+        "anchorY": 0.8777
       }
     },
     {
-      "id": "d3a7e8cd-2a15-528d-a3ed-c33108cc1d63",
-      "compatibilitySlot": "dog_05",
-      "x": 829,
-      "y": 2425,
-      "r": 87,
+      "id": "dog_05",
+      "x": 416,
+      "y": 2716,
+      "r": 144,
       "sprite": {
         "image": "levels/hawaii_rainforest_waterfall_bird_4453/dogs/dog_05/sprite_000.png",
-        "height": 283,
-        "width": 429,
-        "x": 628,
-        "y": 2279,
+        "x": 198,
+        "y": 2591,
+        "width": 288,
+        "height": 205,
         "cleanup": {
-          "x": 644,
-          "y": 2387,
-          "width": 368,
-          "height": 238
+          "x": 77,
+          "y": 2364,
+          "width": 649,
+          "height": 695
         },
-        "anchorX": 0.6639,
-        "anchorY": 0.5435,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.7569,
+        "anchorY": 0.6098
       }
     },
     {
-      "id": "c63f8b7c-5b9f-56fc-8b25-76646ec3e4dd",
-      "compatibilitySlot": "dog_06",
-      "x": 1189,
-      "y": 2759,
-      "r": 87,
+      "id": "dog_06",
+      "x": 1258,
+      "y": 3196,
+      "r": 144,
       "sprite": {
         "image": "levels/hawaii_rainforest_waterfall_bird_4453/dogs/dog_06/sprite_000.png",
-        "height": 262,
-        "width": 359,
-        "x": 966,
-        "y": 2593,
+        "x": 878,
+        "y": 2980,
+        "width": 406,
+        "height": 366,
         "cleanup": {
-          "x": 1046,
-          "y": 2742,
-          "width": 284,
-          "height": 217
+          "x": 899,
+          "y": 3040,
+          "width": 695,
+          "height": 300
         },
-        "anchorX": 0.3116,
-        "anchorY": 0.5215,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.6034,
+        "anchorY": 0.6858
       }
     },
     {
-      "id": "45b9b57f-c204-53a7-9f63-1bfcaab29bf7",
-      "compatibilitySlot": "dog_07",
-      "x": 1720,
-      "y": 2713,
-      "r": 87,
+      "id": "dog_07",
+      "x": 458,
+      "y": 3429,
+      "r": 144,
       "sprite": {
         "image": "levels/hawaii_rainforest_waterfall_bird_4453/dogs/dog_07/sprite_000.png",
-        "height": 276,
-        "width": 276,
-        "x": 1591,
-        "y": 2537,
+        "x": 243,
+        "y": 3349,
+        "width": 288,
+        "height": 212,
         "cleanup": {
-          "x": 1603,
-          "y": 2687,
-          "width": 231,
-          "height": 226
+          "x": 110,
+          "y": 3081,
+          "width": 695,
+          "height": 695
         },
-        "anchorX": 0.5291,
-        "anchorY": 0.5413,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.7465,
+        "anchorY": 0.3774
       }
     },
     {
-      "id": "0c16a7ac-5a66-5440-9779-bd7ae61cfffd",
-      "compatibilitySlot": "dog_08",
-      "x": 2460,
-      "y": 2541,
-      "r": 87,
+      "id": "dog_08",
+      "x": 1453,
+      "y": 3487,
+      "r": 144,
       "sprite": {
         "image": "levels/hawaii_rainforest_waterfall_bird_4453/dogs/dog_08/sprite_000.png",
-        "height": 277,
-        "width": 429,
-        "x": 2257,
-        "y": 2402,
+        "x": 1296,
+        "y": 3355,
+        "width": 277,
+        "height": 276,
         "cleanup": {
-          "x": 2291,
-          "y": 2508,
-          "width": 335,
-          "height": 233
+          "x": 1120,
+          "y": 3342,
+          "width": 646,
+          "height": 489
         },
-        "anchorX": 0.6391,
-        "anchorY": 0.5378,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.5668,
+        "anchorY": 0.4783
       }
     },
     {
-      "id": "42853996-c77e-5019-9369-ca33b706790c",
-      "compatibilitySlot": "dog_09",
-      "x": 2890,
-      "y": 2408,
-      "r": 87,
+      "id": "dog_09",
+      "x": 1544,
+      "y": 2883,
+      "r": 144,
       "sprite": {
         "image": "levels/hawaii_rainforest_waterfall_bird_4453/dogs/dog_09/sprite_000.png",
-        "height": 257,
-        "width": 379,
-        "x": 2706,
-        "y": 2301,
+        "x": 1268,
+        "y": 2689,
+        "width": 288,
+        "height": 196,
         "cleanup": {
-          "x": 2734,
-          "y": 2393,
-          "width": 310,
-          "height": 215
+          "x": 1202,
+          "y": 2562,
+          "width": 610,
+          "height": 476
         },
-        "anchorX": 0.4868,
-        "anchorY": 0.5169,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.9583,
+        "anchorY": 0.9898
       }
     },
     {
-      "id": "9b3d5e09-ba75-58c6-93b9-ccf6e05664dd",
-      "compatibilitySlot": "dog_10",
-      "x": 2235,
-      "y": 3107,
-      "r": 87,
+      "id": "dog_10",
+      "x": 1038,
+      "y": 2239,
+      "r": 144,
       "sprite": {
         "image": "levels/hawaii_rainforest_waterfall_bird_4453/dogs/dog_10/sprite_000.png",
-        "height": 375,
-        "width": 356,
-        "x": 2067,
-        "y": 2896,
+        "x": 795,
+        "y": 2204,
+        "width": 288,
+        "height": 226,
         "cleanup": {
-          "x": 2082,
-          "y": 3010,
-          "width": 303,
-          "height": 297
+          "x": 728,
+          "y": 1891,
+          "width": 593,
+          "height": 669
         },
-        "anchorX": 0.4508,
-        "anchorY": 0.6125,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.8438,
+        "anchorY": 0.1549
       }
     },
     {
-      "id": "42917276-2d4a-5d8d-91f7-694525e2cc82",
-      "compatibilitySlot": "dog_11",
-      "x": 2352,
-      "y": 3475,
-      "r": 87,
+      "id": "dog_11",
+      "x": 1607,
+      "y": 1743,
+      "r": 144,
       "sprite": {
         "image": "levels/hawaii_rainforest_waterfall_bird_4453/dogs/dog_11/sprite_000.png",
-        "height": 304,
-        "width": 386,
-        "x": 2120,
-        "y": 3325,
+        "x": 1431,
+        "y": 1470,
+        "width": 238,
+        "height": 235,
         "cleanup": {
-          "x": 2203,
-          "y": 3431,
-          "width": 295,
-          "height": 244
+          "x": 1328,
+          "y": 1400,
+          "width": 619,
+          "height": 686
         },
-        "anchorX": 0.5436,
-        "anchorY": 0.5254,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.4622,
+        "anchorY": 0.8298
       }
     },
     {
-      "id": "e66a4e21-00e5-5e05-a282-68b19303de2c",
-      "compatibilitySlot": "dog_12",
-      "x": 2815,
-      "y": 3157,
-      "r": 87,
+      "id": "dog_12",
+      "x": 1942,
+      "y": 1055,
+      "r": 144,
       "sprite": {
         "image": "levels/hawaii_rainforest_waterfall_bird_4453/dogs/dog_12/sprite_000.png",
-        "height": 330,
-        "width": 267,
-        "x": 2733,
-        "y": 3001,
+        "x": 1869,
+        "y": 800,
+        "width": 226,
+        "height": 288,
         "cleanup": {
-          "x": 2713,
-          "y": 2994,
-          "width": 298,
-          "height": 337
+          "x": 1583,
+          "y": 709,
+          "width": 403,
+          "height": 689
         },
-        "anchorX": 0.375,
-        "anchorY": 0.1953,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.323,
+        "anchorY": 0.8854
       }
     },
     {
-      "id": "697da3cd-02b1-566d-bc08-c58cd6748467",
-      "compatibilitySlot": "dog_13",
-      "x": 3031,
-      "y": 2907,
-      "r": 87,
+      "id": "dog_13",
+      "x": 2033,
+      "y": 1047,
+      "r": 144,
       "sprite": {
         "image": "levels/hawaii_rainforest_waterfall_bird_4453/dogs/dog_13/sprite_000.png",
-        "height": 257,
-        "width": 377,
-        "x": 2888,
-        "y": 2785,
+        "x": 1878,
+        "y": 920,
+        "width": 302,
+        "height": 296,
         "cleanup": {
-          "x": 2880,
-          "y": 2757,
-          "width": 388,
-          "height": 308
+          "x": 1988,
+          "y": 700,
+          "width": 401,
+          "height": 695
         },
-        "anchorX": 0.4751,
-        "anchorY": 0.0,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.5132,
+        "anchorY": 0.4291
       }
     },
     {
-      "id": "4ef0541b-b83a-5d0a-aec0-6f6fb2bfda9c",
-      "compatibilitySlot": "dog_14",
-      "x": 3482,
-      "y": 3482,
-      "r": 87,
+      "id": "dog_14",
+      "x": 3817,
+      "y": 1455,
+      "r": 144,
       "sprite": {
         "image": "levels/hawaii_rainforest_waterfall_bird_4453/dogs/dog_14/sprite_000.png",
-        "height": 297,
-        "width": 275,
-        "x": 3381,
-        "y": 3369,
+        "x": 3616,
+        "y": 1192,
+        "width": 229,
+        "height": 288,
         "cleanup": {
-          "x": 3338,
-          "y": 3323,
-          "width": 291,
-          "height": 306
+          "x": 3465,
+          "y": 1119,
+          "width": 631,
+          "height": 695
         },
-        "anchorX": 0.6897,
-        "anchorY": 0.3927,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.8777,
+        "anchorY": 0.9132
+      }
+    },
+    {
+      "id": "dog_15",
+      "x": 2789,
+      "y": 2653,
+      "r": 144,
+      "sprite": {
+        "image": "levels/hawaii_rainforest_waterfall_bird_4453/dogs/dog_15/sprite_000.png",
+        "x": 2501,
+        "y": 2572,
+        "width": 288,
+        "height": 222,
+        "cleanup": {
+          "x": 2703,
+          "y": 2305,
+          "width": 433,
+          "height": 665
+        },
+        "anchorX": 1.0,
+        "anchorY": 0.3649
+      }
+    },
+    {
+      "id": "dog_16",
+      "x": 2082,
+      "y": 3181,
+      "r": 144,
+      "sprite": {
+        "image": "levels/hawaii_rainforest_waterfall_bird_4453/dogs/dog_16/sprite_000.png",
+        "x": 1956,
+        "y": 3022,
+        "width": 306,
+        "height": 324,
+        "cleanup": {
+          "x": 1814,
+          "y": 2900,
+          "width": 622,
+          "height": 627
+        },
+        "anchorX": 0.4118,
+        "anchorY": 0.4907
+      }
+    },
+    {
+      "id": "dog_17",
+      "x": 2616,
+      "y": 2617,
+      "r": 144,
+      "sprite": {
+        "image": "levels/hawaii_rainforest_waterfall_bird_4453/dogs/dog_17/sprite_000.png",
+        "x": 2462,
+        "y": 2432,
+        "width": 288,
+        "height": 254,
+        "cleanup": {
+          "x": 2246,
+          "y": 2261,
+          "width": 455,
+          "height": 637
+        },
+        "anchorX": 0.5347,
+        "anchorY": 0.7283
+      }
+    },
+    {
+      "id": "dog_18",
+      "x": 3654,
+      "y": 2934,
+      "r": 144,
+      "sprite": {
+        "image": "levels/hawaii_rainforest_waterfall_bird_4453/dogs/dog_18/sprite_000.png",
+        "x": 3318,
+        "y": 2923,
+        "width": 645,
+        "height": 334,
+        "cleanup": {
+          "x": 3293,
+          "y": 2593,
+          "width": 695,
+          "height": 695
+        },
+        "anchorX": 0.5008,
+        "anchorY": 0.0539
       }
     }
-  ],
-  "provenance": {
-    "setting": "hawaii",
-    "scene": "hawaii_rainforest_waterfall",
-    "entity": "bird",
-    "style": "clean_old_cartoon",
-    "scenePrompt": "[Purpose]\nCreate a full-bleed portrait mobile-game background for Find the Bird.\n\n[Short Description]\nA Hawaiian rainforest waterfall basin sprawling around a jade pool arranged as an organic isometric hidden-object scene.\n\n[Scene] A Hawaiian rainforest waterfall basin sprawling around a jade pool \u2014 a main cascade dropping into the pool, a side stream branching off through ferns, a mossy shore-strip with a wooden footbridge. The basin has consistent materials throughout \u2014 each visible region renders as the material it should be, moss-slick boulders, wet pebbles along the shore, jade water in the pool, leaf-litter on the paths, with no untextured blank areas. Moss-covered boulders of varying sizes crowd unevenly around the pool, some clustered into dams, others standing alone as solitary stones. Canopy layers at different heights, some overlapping, some freestanding. A weathered wooden footbridge crosses the stream at an unexpected angle. Scattered throughout without pattern: giant monstera leaves, ti-leaf plants, hanging liana vines, red ginger flowers, bamboo grove stalks, a rope swing over the water, hidden stone Menehune carvings, orchid clusters, glossy pool reflections, hanging orchid sprays, fallen palm fronds, coiled ferns, a lava-rock stepping path, a half-buried wooden pestle, dripping vines, a small offering of flowers on a stone, mossy tree roots. Dense clusters near the falls, sparser breathing room along the stream. Asymmetric, organic layout \u2014 like a basin carved by the falls over a thousand years of rain.\n\n[View] Moderately elevated three-quarter game-map view with a close, readable mobile-game camera: roughly 35 degrees down from horizontal, with only enough scene visible to support about 20 hidden bird placements. Do not use an extreme aerial, distant establishing, miniature-diorama, or whole-city view. Large scene anchors should occupy substantial frame area, and ordinary props must remain individually recognizable at phone size. Use controlled hidden-object density: arrange approximately 20 plausible hiding pockets across 4 to 6 connected prop clusters, with visible breathing room, clear travel paths between clusters, and readable object boundaries for phone-screen scanning. Use mild perspective or near-isometric construction consistently, without wide-angle distortion, dramatic foreshortening, depth of field, or tiny distance-scaled clutter.\n\n[Style] Vintage hand-drawn cartoon background adapted for a modern mobile puzzle game. Rounded old-cartoon shapes, cheerful simplified silhouettes, thick confident ink outlines, flat poster-like color fills, and soft hand-painted background texture. Use broad readable color masses and minimal internal linework so the scene stays clear on a phone screen. Charming and slightly nostalgic, clean and polished for mobile, with less visual noise, fewer texture marks, and no dense rendering.\n\n[Gameplay Composition]\nDesign this as a production hidden-object background where birds will be added later. Create many plausible hiding pockets on walkable/contact surfaces or open gaps beside props, plants, rocks, furniture, railings, crates, planters, benches, roots, tools, shelves, stalls, boats, carts, market goods, or other readable foreground objects. Near props is ideal; inside solid objects, on blank walls, on roofs, floating over water, or on decorative vertical faces is not useful. Use theme-specific spatial logic such as rings, islands, terraces, nested rooms, clearings, bridges, piers, shelves, courtyards, side alleys, garden pockets, or clustered market zones. Keep open pockets between prop clusters so hitboxes can sit near objects without excessive overlap.\n\n[Constraints]\nDo not depict any bird; every bird is added during the later gameplay pass. No people, no live animals, no insects, no mascots, no readable text, no logos, no watermarks. Market food and fishing props are allowed when the scene calls for them. Avoid huge blank walls, roof-dominated compositions, empty lawns, empty sand, empty floors, long straight roads, and noisy micro-texture camouflage. Every visible ground, floor, or water-edge region should read as a clear material appropriate to the scene; no untextured blank areas.",
-    "entityPrompt": "Add exactly one bird to this crop. Place exactly one bird centered on the marked target area \u2014 do not repeat the subject. Match the scene's illustration style, line weight, palette, and flat-shaded rendering, but keep the bird's silhouette and boundary readable on a phone screen. The bird may be partially occluded or contextually disguised, but must not disappear through muddy edges, low contrast, texture camouflage, or ambiguous merged shapes. Vary the bird's colors, markings, proportions, and small physical details across crops so the level does not repeat the same bird design. The bird is a charming little anthropomorphic inhabitant of this world \u2014 a character with personality going about its business. Give it something simple and specific to do with its surroundings: holding an object, using a tool, sitting at a small task, peeking at something, carrying something, watching something with interest, tending a small thing, pausing mid-task. Keep the pose clear and readable. The charm comes from the context and the expression, not from dynamic motion. Size the bird realistically relative to the scene around it \u2014 compare it to whatever human-scale objects are visible in the crop and render the bird at the physical size a real bird would be next to them. Not so small that its species is ambiguous, not so large that it dominates the crop. The bird must be fully contained within the visible frame. Keep all other elements of the image unchanged.",
-    "bgModel": "google/gemini-3.1-flash-image-preview",
-    "inpaintModel": "google/gemini-3.1-flash-image-preview"
-  }
+  ]
 }

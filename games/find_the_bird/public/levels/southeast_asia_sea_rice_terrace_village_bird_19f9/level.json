@@ -1,90 +1,64 @@
 {
   "id": "southeast_asia_sea_rice_terrace_village_bird_19f9",
-  "name": "Level southeast_asia_sea_rice_terrace_village_bird_19f9",
+  "name": "Level southeast_asia_sea_rice_terrace_village_bird_19f9 (clean_old_cartoon)",
   "width": 2688,
   "height": 2688,
+  "bwImage": "levels/southeast_asia_sea_rice_terrace_village_bird_19f9/bw.png",
   "colorImage": "levels/southeast_asia_sea_rice_terrace_village_bird_19f9/color.png",
-  "artifactRevision": "sha256:a2c07466400795cc1c0d7189a90c376bc3074cfc6f22c584c7c4a4745c5cb239",
-  "compatibilityAliases": {
-    "dog_00": "3fe83708-a563-5d94-bfcb-ace8a1224127",
-    "dog_01": "223619a9-fa87-5625-86a7-4369830674ad",
-    "dog_02": "cc3d0159-74ae-50dc-a1a9-bbe2bad5486d",
-    "dog_05": "10794186-1a45-5267-bd76-468f529c72ae",
-    "dog_03": "335941f2-d1dd-5bb1-b5f6-64a3ab4643a6",
-    "dog_04": "4267e98a-5320-5adb-9427-c83c54b27d0c",
-    "dog_06": "50156627-f8e7-5a48-b676-31cd28212fd6",
-    "dog_07": "ac34939d-de97-5b1e-aab5-03779ed7cb6b",
-    "dog_08": "f73c8569-6ab8-550a-9968-f9a36c57addd",
-    "dog_09": "34dad0eb-bf09-5408-9f73-8ad786bc7a72",
-    "dog_10": "2fe03d4d-01a6-59a0-803b-cc8c4e1925c8",
-    "dog_11": "243c88d9-5430-58b6-94c8-a349e5a462d3",
-    "dog_12": "320aa2aa-caef-513b-9347-cdac9748d981",
-    "dog_13": "d2691119-809d-5176-adb7-a26682f21b1f",
-    "dog_15": "61304b83-b750-5baa-9bdd-0e7b47c02ac6",
-    "dog_16": "3df6072f-dae1-514f-9a90-4eccd50a16d4",
-    "dog_14": "5338b694-d64c-5d24-a0eb-389e5426b9ad"
-  },
   "dogs": [
     {
-      "id": "3fe83708-a563-5d94-bfcb-ace8a1224127",
-      "compatibilitySlot": "dog_00",
+      "id": "dog_00",
       "x": 705,
-      "y": 836,
+      "y": 841,
       "r": 57,
       "sprite": {
         "image": "levels/southeast_asia_sea_rice_terrace_village_bird_19f9/dogs/dog_00/sprite_000.png",
-        "height": 174,
-        "width": 186,
-        "x": 613,
-        "y": 740,
+        "x": 560,
+        "y": 699,
+        "width": 251,
+        "height": 220,
         "cleanup": {
-          "x": 534,
+          "x": 532,
           "y": 685,
-          "width": 333,
-          "height": 316
+          "width": 335,
+          "height": 328
         },
-        "anchorX": 0.5697,
-        "anchorY": 0.6318,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.5777,
+        "anchorY": 0.6455
       }
     },
     {
-      "id": "223619a9-fa87-5625-86a7-4369830674ad",
-      "compatibilitySlot": "dog_01",
+      "id": "dog_01",
       "x": 1198,
       "y": 684,
       "r": 57,
       "sprite": {
         "image": "levels/southeast_asia_sea_rice_terrace_village_bird_19f9/dogs/dog_01/sprite_000.png",
-        "height": 169,
-        "width": 161,
-        "x": 1088,
-        "y": 592,
+        "x": 1047,
+        "y": 575,
+        "width": 218,
+        "height": 226,
         "cleanup": {
           "x": 1042,
           "y": 534,
           "width": 233,
-          "height": 318
+          "height": 322
         },
-        "anchorX": 0.578,
-        "anchorY": 0.5442,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.6927,
+        "anchorY": 0.4823
       }
     },
     {
-      "id": "cc3d0159-74ae-50dc-a1a9-bbe2bad5486d",
-      "compatibilitySlot": "dog_02",
+      "id": "dog_02",
       "x": 1355,
       "y": 791,
       "r": 57,
       "sprite": {
         "image": "levels/southeast_asia_sea_rice_terrace_village_bird_19f9/dogs/dog_02/sprite_000.png",
-        "height": 130,
-        "width": 81,
         "x": 1306,
         "y": 701,
+        "width": 81,
+        "height": 130,
         "cleanup": {
           "x": 1277,
           "y": 673,
@@ -92,356 +66,302 @@
           "height": 234
         },
         "anchorX": 0.6049,
-        "anchorY": 0.6923,
-        "flipX": false,
-        "flipY": false
+        "anchorY": 0.6923
       }
     },
     {
-      "id": "10794186-1a45-5267-bd76-468f529c72ae",
-      "compatibilitySlot": "dog_05",
-      "x": 1611,
-      "y": 950,
-      "r": 57,
-      "sprite": {
-        "image": "levels/southeast_asia_sea_rice_terrace_village_bird_19f9/dogs/dog_05/sprite_000.png",
-        "height": 144,
-        "width": 148,
-        "x": 1574,
-        "y": 869,
-        "cleanup": {
-          "x": 1463,
-          "y": 790,
-          "width": 287,
-          "height": 319
-        },
-        "anchorX": 0.2422,
-        "anchorY": 0.5427,
-        "flipX": false,
-        "flipY": false
-      }
-    },
-    {
-      "id": "335941f2-d1dd-5bb1-b5f6-64a3ab4643a6",
-      "compatibilitySlot": "dog_03",
+      "id": "dog_03",
       "x": 1866,
-      "y": 575,
+      "y": 576,
       "r": 57,
       "sprite": {
         "image": "levels/southeast_asia_sea_rice_terrace_village_bird_19f9/dogs/dog_03/sprite_000.png",
-        "height": 120,
-        "width": 138,
-        "x": 1803,
-        "y": 499,
+        "x": 1764,
+        "y": 425,
+        "width": 225,
+        "height": 215,
         "cleanup": {
-          "x": 1718,
-          "y": 438,
-          "width": 295,
-          "height": 275
+          "x": 1693,
+          "y": 403,
+          "width": 290,
+          "height": 345
         },
         "anchorX": 0.4533,
-        "anchorY": 0.7023,
-        "flipX": true,
-        "flipY": false
+        "anchorY": 0.7023
       }
     },
     {
-      "id": "4267e98a-5320-5adb-9427-c83c54b27d0c",
-      "compatibilitySlot": "dog_04",
+      "id": "dog_04",
       "x": 2103,
       "y": 558,
       "r": 57,
       "sprite": {
         "image": "levels/southeast_asia_sea_rice_terrace_village_bird_19f9/dogs/dog_04/sprite_000.png",
-        "height": 121,
-        "width": 126,
-        "x": 2017,
-        "y": 491,
+        "x": 1959,
+        "y": 438,
+        "width": 232,
+        "height": 207,
         "cleanup": {
-          "x": 1809,
-          "y": 386,
-          "width": 314,
-          "height": 339
+          "x": 1985,
+          "y": 408,
+          "width": 290,
+          "height": 322
         },
-        "anchorX": 0.0,
-        "anchorY": 0.7343,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.6207,
+        "anchorY": 0.5797
       }
     },
     {
-      "id": "50156627-f8e7-5a48-b676-31cd28212fd6",
-      "compatibilitySlot": "dog_06",
-      "x": 2045,
-      "y": 1002,
+      "id": "dog_05",
+      "x": 1606,
+      "y": 950,
+      "r": 57,
+      "sprite": {
+        "image": "levels/southeast_asia_sea_rice_terrace_village_bird_19f9/dogs/dog_05/sprite_000.png",
+        "x": 1552,
+        "y": 842,
+        "width": 223,
+        "height": 199,
+        "cleanup": {
+          "x": 1481,
+          "y": 809,
+          "width": 297,
+          "height": 275
+        },
+        "anchorX": 0.2422,
+        "anchorY": 0.5427
+      }
+    },
+    {
+      "id": "dog_06",
+      "x": 2043,
+      "y": 989,
       "r": 57,
       "sprite": {
         "image": "levels/southeast_asia_sea_rice_terrace_village_bird_19f9/dogs/dog_06/sprite_000.png",
-        "height": 169,
-        "width": 221,
-        "x": 1991,
-        "y": 951,
+        "x": 1944,
+        "y": 883,
+        "width": 250,
+        "height": 237,
         "cleanup": {
-          "x": 1871,
+          "x": 1866,
           "y": 805,
           "width": 345,
           "height": 310
         },
-        "anchorX": 0.1638,
-        "anchorY": 0.6329,
-        "flipX": true,
-        "flipY": false
+        "anchorX": 0.396,
+        "anchorY": 0.4473
       }
     },
     {
-      "id": "ac34939d-de97-5b1e-aab5-03779ed7cb6b",
-      "compatibilitySlot": "dog_07",
+      "id": "dog_07",
       "x": 819,
       "y": 1224,
       "r": 57,
       "sprite": {
         "image": "levels/southeast_asia_sea_rice_terrace_village_bird_19f9/dogs/dog_07/sprite_000.png",
-        "height": 185,
+        "x": 681,
+        "y": 1130,
         "width": 300,
-        "x": 677,
-        "y": 1134,
+        "height": 186,
         "cleanup": {
-          "x": 642,
-          "y": 1050,
+          "x": 646,
+          "y": 1051,
           "width": 345,
-          "height": 334
+          "height": 333
         },
         "anchorX": 0.46,
-        "anchorY": 0.5027,
-        "flipX": false,
-        "flipY": false
+        "anchorY": 0.5054
       }
     },
     {
-      "id": "f73c8569-6ab8-550a-9968-f9a36c57addd",
-      "compatibilitySlot": "dog_08",
-      "x": 1264,
+      "id": "dog_08",
+      "x": 1265,
       "y": 1397,
       "r": 57,
       "sprite": {
         "image": "levels/southeast_asia_sea_rice_terrace_village_bird_19f9/dogs/dog_08/sprite_000.png",
-        "height": 321,
-        "width": 262,
         "x": 1135,
-        "y": 1236,
+        "y": 1237,
+        "width": 262,
+        "height": 320,
         "cleanup": {
-          "x": 1091,
+          "x": 1092,
           "y": 1224,
-          "width": 316,
+          "width": 341,
           "height": 345
         },
-        "anchorX": 0.4924,
-        "anchorY": 0.5016,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.4962,
+        "anchorY": 0.5
       }
     },
     {
-      "id": "34dad0eb-bf09-5408-9f73-8ad786bc7a72",
-      "compatibilitySlot": "dog_09",
-      "x": 1563,
-      "y": 1403,
+      "id": "dog_09",
+      "x": 1544,
+      "y": 1394,
       "r": 57,
       "sprite": {
         "image": "levels/southeast_asia_sea_rice_terrace_village_bird_19f9/dogs/dog_09/sprite_000.png",
-        "height": 165,
-        "width": 209,
-        "x": 1414,
-        "y": 1321,
+        "x": 1447,
+        "y": 1344,
+        "width": 152,
+        "height": 123,
         "cleanup": {
-          "x": 1414,
-          "y": 1232,
-          "width": 292,
-          "height": 343
+          "x": 1435,
+          "y": 1217,
+          "width": 341,
+          "height": 345
         },
-        "anchorX": 0.7632,
-        "anchorY": 0.4797,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.6382,
+        "anchorY": 0.4065
       }
     },
     {
-      "id": "2fe03d4d-01a6-59a0-803b-cc8c4e1925c8",
-      "compatibilitySlot": "dog_10",
-      "x": 2060,
-      "y": 1501,
+      "id": "dog_10",
+      "x": 2067,
+      "y": 1492,
       "r": 57,
       "sprite": {
         "image": "levels/southeast_asia_sea_rice_terrace_village_bird_19f9/dogs/dog_10/sprite_000.png",
-        "height": 243,
-        "width": 264,
-        "x": 1933,
-        "y": 1401,
+        "x": 1968,
+        "y": 1431,
+        "width": 184,
+        "height": 172,
         "cleanup": {
-          "x": 1881,
-          "y": 1337,
+          "x": 1894,
+          "y": 1319,
           "width": 345,
-          "height": 327
+          "height": 341
         },
-        "anchorX": 0.5,
-        "anchorY": 0.407,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.538,
+        "anchorY": 0.3547
       }
     },
     {
-      "id": "243c88d9-5430-58b6-94c8-a349e5a462d3",
-      "compatibilitySlot": "dog_11",
-      "x": 873,
-      "y": 1738,
+      "id": "dog_11",
+      "x": 867,
+      "y": 1725,
       "r": 57,
       "sprite": {
         "image": "levels/southeast_asia_sea_rice_terrace_village_bird_19f9/dogs/dog_11/sprite_000.png",
-        "height": 191,
-        "width": 286,
         "x": 708,
         "y": 1623,
+        "width": 286,
+        "height": 191,
         "cleanup": {
-          "x": 692,
-          "y": 1558,
+          "x": 708,
+          "y": 1578,
           "width": 345,
-          "height": 342
+          "height": 345
         },
-        "anchorX": 0.5769,
-        "anchorY": 0.6021,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.5559,
+        "anchorY": 0.534
       }
     },
     {
-      "id": "320aa2aa-caef-513b-9347-cdac9748d981",
-      "compatibilitySlot": "dog_12",
-      "x": 1306,
-      "y": 1758,
+      "id": "dog_12",
+      "x": 1302,
+      "y": 1753,
       "r": 57,
       "sprite": {
         "image": "levels/southeast_asia_sea_rice_terrace_village_bird_19f9/dogs/dog_12/sprite_000.png",
-        "height": 237,
-        "width": 152,
         "x": 1234,
-        "y": 1704,
+        "y": 1680,
+        "width": 188,
+        "height": 261,
         "cleanup": {
-          "x": 1130,
-          "y": 1661,
+          "x": 1161,
+          "y": 1676,
           "width": 345,
-          "height": 312
+          "height": 345
         },
-        "anchorX": 0.383,
-        "anchorY": 0.2989,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.3617,
+        "anchorY": 0.2797
       }
     },
     {
-      "id": "d2691119-809d-5176-adb7-a26682f21b1f",
-      "compatibilitySlot": "dog_13",
-      "x": 2089,
-      "y": 1830,
+      "id": "dog_13",
+      "x": 2063,
+      "y": 1823,
       "r": 57,
       "sprite": {
         "image": "levels/southeast_asia_sea_rice_terrace_village_bird_19f9/dogs/dog_13/sprite_000.png",
-        "height": 236,
-        "width": 231,
-        "x": 1964,
+        "x": 1994,
         "y": 1722,
+        "width": 174,
+        "height": 168,
         "cleanup": {
-          "x": 1914,
-          "y": 1666,
+          "x": 1915,
+          "y": 1662,
           "width": 345,
-          "height": 334
+          "height": 340
         },
-        "anchorX": 0.546,
-        "anchorY": 0.6429,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.3966,
+        "anchorY": 0.6012
       }
     },
     {
-      "id": "61304b83-b750-5baa-9bdd-0e7b47c02ac6",
-      "compatibilitySlot": "dog_15",
-      "x": 1085,
-      "y": 2372,
-      "r": 57,
-      "sprite": {
-        "image": "levels/southeast_asia_sea_rice_terrace_village_bird_19f9/dogs/dog_15/sprite_000.png",
-        "height": 146,
-        "width": 249,
-        "x": 957,
-        "y": 2276,
-        "cleanup": {
-          "x": 908,
-          "y": 2205,
-          "width": 345,
-          "height": 329
-        },
-        "anchorX": 0.4293,
-        "anchorY": 0.6838,
-        "flipX": false,
-        "flipY": false
-      }
-    },
-    {
-      "id": "3df6072f-dae1-514f-9a90-4eccd50a16d4",
-      "compatibilitySlot": "dog_16",
-      "x": 1616,
-      "y": 2280,
-      "r": 57,
-      "sprite": {
-        "image": "levels/southeast_asia_sea_rice_terrace_village_bird_19f9/dogs/dog_16/sprite_000.png",
-        "height": 163,
-        "width": 181,
-        "x": 1539,
-        "y": 2197,
-        "cleanup": {
-          "x": 1437,
-          "y": 2105,
-          "width": 339,
-          "height": 345
-        },
-        "anchorX": 0.2778,
-        "anchorY": 0.3305,
-        "flipX": false,
-        "flipY": false
-      }
-    },
-    {
-      "id": "5338b694-d64c-5d24-a0eb-389e5426b9ad",
-      "compatibilitySlot": "dog_14",
-      "x": 468,
-      "y": 2211,
+      "id": "dog_14",
+      "x": 469,
+      "y": 2213,
       "r": 57,
       "sprite": {
         "image": "levels/southeast_asia_sea_rice_terrace_village_bird_19f9/dogs/dog_14/sprite_000.png",
-        "height": 187,
-        "width": 231,
-        "x": 354,
-        "y": 2099,
+        "x": 408,
+        "y": 2128,
+        "width": 161,
+        "height": 137,
         "cleanup": {
-          "x": 297,
-          "y": 2049,
-          "width": 344,
-          "height": 327
+          "x": 301,
+          "y": 2040,
+          "width": 340,
+          "height": 345
         },
         "anchorX": 0.3789,
-        "anchorY": 0.6204,
-        "flipX": false,
-        "flipY": false
+        "anchorY": 0.6204
+      }
+    },
+    {
+      "id": "dog_15",
+      "x": 1081,
+      "y": 2369,
+      "r": 57,
+      "sprite": {
+        "image": "levels/southeast_asia_sea_rice_terrace_village_bird_19f9/dogs/dog_15/sprite_000.png",
+        "x": 1002,
+        "y": 2289,
+        "width": 184,
+        "height": 117,
+        "cleanup": {
+          "x": 908,
+          "y": 2196,
+          "width": 345,
+          "height": 334
+        },
+        "anchorX": 0.4293,
+        "anchorY": 0.6838
+      }
+    },
+    {
+      "id": "dog_16",
+      "x": 1606,
+      "y": 2278,
+      "r": 57,
+      "sprite": {
+        "image": "levels/southeast_asia_sea_rice_terrace_village_bird_19f9/dogs/dog_16/sprite_000.png",
+        "x": 1558,
+        "y": 2224,
+        "width": 144,
+        "height": 118,
+        "cleanup": {
+          "x": 1433,
+          "y": 2151,
+          "width": 345,
+          "height": 345
+        },
+        "anchorX": 0.3333,
+        "anchorY": 0.4576
       }
     }
-  ],
-  "provenance": {
-    "setting": "southeast_asia",
-    "scene": "sea_rice_terrace_village",
-    "entity": "bird",
-    "style": "clean_old_cartoon",
-    "scenePrompt": "[Purpose]\nCreate a full-bleed mobile-game background for Find the Bird.\n\n[Short Description]\nAn emerald rice-terrace hillside sprawling in stacked curves arranged as an organic isometric hidden-object scene.\n\n[Scene] An emerald rice-terrace hillside sprawling in stacked curves \u2014 a main mud-bund path stepping down the paddies, a cluster of stilt granaries on a dry knoll, an irrigation flume zigzagging to a bamboo waterwheel. The entire ground surface is consistent flooded paddy water, young green rice rows, and packed mud bunds throughout \u2014 every area the viewer can see the ground, it reads as water, rice, or bund with no untextured blank areas. Stilt granaries of varying sizes crowd the knoll unevenly, some clustered under one shared roof, others standing alone on tall posts. Thatched ridges at different heights, some overlapping, some freestanding. The bamboo waterwheel leans at an unexpected angle where the flume takes a hard turn. Scattered throughout without pattern: rice-seedling trays, wooden threshing sledges, conical hats on bund posts, woven winnowing fans, water jars, bundled harvest sheaves, a hand plough, bamboo carrying poles with baskets, stone spirit-house shrines, banana clumps on bund corners, drying mats, hoes and sickles on a rack, a low bamboo bench, clay stoves, rope-tied firewood. Dense clusters around the granary knoll, sparser breathing room across open paddies. Asymmetric, organic layout \u2014 like terraces sculpted by generations of hands.\n\n[View] Moderately elevated three-quarter game-map view with a close, readable mobile-game camera: roughly 35 degrees down from horizontal, with only enough scene visible to support about 20 hidden bird placements. Do not use an extreme aerial, distant establishing, miniature-diorama, or whole-city view. Large scene anchors should occupy substantial frame area, and ordinary props must remain individually recognizable at phone size. Use controlled hidden-object density: arrange approximately 20 plausible hiding pockets across 4 to 6 connected prop clusters, with visible breathing room, clear travel paths between clusters, and readable object boundaries for phone-screen scanning. Use mild perspective or near-isometric construction consistently, without wide-angle distortion, dramatic foreshortening, depth of field, or tiny distance-scaled clutter.\n\n[Style] Vintage hand-drawn cartoon background adapted for a modern mobile puzzle game. Rounded old-cartoon shapes, cheerful simplified silhouettes, thick confident ink outlines, flat poster-like color fills, and soft hand-painted background texture. Use broad readable color masses and minimal internal linework so the scene stays clear on a phone screen. Charming and slightly nostalgic, clean and polished for mobile, with less visual noise, fewer texture marks, and no dense rendering.\n\n[Gameplay Composition]\nDesign this as a production hidden-object background where birds will be added later. Create many plausible hiding pockets on walkable/contact surfaces or open gaps beside props, plants, rocks, furniture, railings, crates, planters, benches, roots, tools, shelves, stalls, boats, carts, market goods, or other readable foreground objects. Near props is ideal; inside solid objects, on blank walls, on roofs, floating over water, or on decorative vertical faces is not useful. Use theme-specific spatial logic such as rings, islands, terraces, nested rooms, clearings, bridges, piers, shelves, courtyards, side alleys, garden pockets, or clustered market zones. Keep open pockets between prop clusters so hitboxes can sit near objects without excessive overlap.\n\n[Constraints]\nDo not depict any bird; every bird is added during the later gameplay pass. No people, no live animals, no insects, no mascots, no readable text, no logos, no watermarks. Signs, chalkboards, labels, plaques, and boards named in the scene may appear but must show only illegible marks, squiggles, or blank surfaces \u2014 never legible words or letters. Market food and fishing props are allowed when the scene calls for them. Avoid huge blank walls, roof-dominated compositions, large featureless empty lawns, empty sand, empty floors, long straight roads, and noisy micro-texture camouflage. Every visible ground, floor, or water-edge region should read as a clear material appropriate to the scene; no untextured blank areas.",
-    "entityPrompt": "Add exactly one bird to this crop. Place exactly one bird centered on the marked target area \u2014 do not repeat the subject. Match the scene's illustration style, line weight, palette, and flat-shaded rendering, but keep the bird's silhouette and boundary readable on a phone screen. The bird may be partially occluded or contextually disguised, but must not disappear through muddy edges, low contrast, texture camouflage, or ambiguous merged shapes. Vary the bird's colors, markings, proportions, and small physical details across crops so the level does not repeat the same bird design. The bird is a charming little anthropomorphic inhabitant of this world \u2014 a character with personality going about its business. Give it something simple and specific to do with its surroundings: holding an object, using a tool, sitting at a small task, peeking at something, carrying something, watching something with interest, tending a small thing, pausing mid-task. Keep the pose clear and readable. The charm comes from the context and the expression, not from dynamic motion. Size the bird realistically relative to the scene around it \u2014 compare it to whatever human-scale objects are visible in the crop and render the bird at the physical size a real bird would be next to them. Not so small that its species is ambiguous, not so large that it dominates the crop. The bird must be fully contained within the visible frame. Keep all other elements of the image unchanged.",
-    "bgModel": "google/gemini-3.1-flash-image-preview",
-    "inpaintModel": "google/gemini-3.1-flash-image-preview"
-  }
+  ]
 }

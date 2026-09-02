@@ -34,6 +34,21 @@ function makeGameRoot() {
   return root;
 }
 
+function runCliWithoutLocalOverrides(args, environment = {}) {
+  const root = makeGameRoot();
+  const fixtureTools = path.join(root, 'tools/game-env');
+  const fixtureGame = path.join(root, 'games/find_the_dog');
+  fs.mkdirSync(path.dirname(fixtureTools), { recursive: true });
+  fs.mkdirSync(fixtureGame, { recursive: true });
+  fs.cpSync(path.join(repoRoot, 'tools/game-env'), fixtureTools, { recursive: true });
+  fs.copyFileSync(path.join(repoRoot, 'games/find_the_dog/.env.example'), path.join(fixtureGame, '.env.example'));
+  return spawnSync(process.execPath, [path.join(fixtureTools, 'validate.mjs'), ...args], {
+    cwd: fixtureGame,
+    encoding: 'utf8',
+    env: environment,
+  });
+}
+
 function write(root, name, contents) {
   fs.writeFileSync(path.join(root, name), contents);
 }
@@ -79,7 +94,8 @@ describe('environment validation', () => {
     expect(result.ok).toBe(false);
     expect(result.invalidKeys).toContain('VITE_GAMEANALYTICS_IOS_ENABLED');
     expect(result.invalidKeys).toContain('VITE_ADJUST_IOS_ENABLED');
-    expect(result.invalidKeys).toContain('VITE_APPLOVIN_IOS_ENABLED');
+    expect(result.invalidKeys).toContain('VITE_ADMOB_IOS_ENABLED');
+    expect(result.invalidKeys).toContain('VITE_ADMOB_IOS_TEST_MODE');
     expect(result.invalidKeys).toContain('VITE_CDN_ENABLED');
   });
 
@@ -90,7 +106,9 @@ describe('environment validation', () => {
       'VITE_GAMEANALYTICS_IOS_ENABLED=true',
       'VITE_GAMEANALYTICS_IOS_GAME_KEY=synthetic-game-key',
       'VITE_ADJUST_IOS_ENABLED=false',
-      'VITE_APPLOVIN_IOS_ENABLED=false',
+      'VITE_ADMOB_IOS_ENABLED=false',
+      'VITE_ADMOB_IOS_TEST_MODE=false',
+      'VITE_REVENUECAT_IOS_API_KEY=appl_A1b2C3d4E5f6G7h8I9j0K1l2M3n',
       'VITE_CDN_ENABLED=false',
       '',
     ].join('\n'));
@@ -108,12 +126,198 @@ describe('environment validation', () => {
       'VITE_FTD_DISABLE_REMOTE_CONFIG=false',
       'VITE_GAMEANALYTICS_IOS_ENABLED=false',
       'VITE_ADJUST_IOS_ENABLED=false',
-      'VITE_APPLOVIN_IOS_ENABLED=false',
+      'VITE_ADMOB_IOS_ENABLED=false',
+      'VITE_ADMOB_IOS_TEST_MODE=false',
+      'VITE_REVENUECAT_IOS_API_KEY=appl_A1b2C3d4E5f6G7h8I9j0K1l2M3n',
       'VITE_CDN_ENABLED=false',
       '',
     ].join('\n'));
 
     expect(validateEnvironment({ gameRoot: root, mode: 'ios', policy, environment: {} }).ok).toBe(true);
+  });
+
+  it('requires an owner-controlled RevenueCat key for every iOS release environment', () => {
+    const root = makeGameRoot();
+    const result = validateEnvironment({
+      gameRoot: root,
+      mode: 'ios',
+      policy,
+      environment: {
+        VITE_FTD_DISABLE_REMOTE_CONFIG: 'false',
+        VITE_GAMEANALYTICS_IOS_ENABLED: 'false',
+        VITE_ADJUST_IOS_ENABLED: 'false',
+        VITE_ADMOB_IOS_ENABLED: 'false',
+        VITE_ADMOB_IOS_TEST_MODE: 'false',
+        VITE_CDN_ENABLED: 'false',
+      },
+    });
+
+    expect(result.ok).toBe(false);
+    expect(result.missingKeys).toContain('VITE_REVENUECAT_IOS_API_KEY');
+  });
+
+  it.each([
+    '__SET_IN_LOCAL_ENV__',
+    'test_placeholder_key',
+    'goog_abcdefghijklmnopqrstuvwxyz0',
+    ' appl_abcdefghijklmnopqrstuvwxyz0',
+    'appl_bad-key',
+  ])('rejects non-production RevenueCat iOS public key shape: %s', (apiKey) => {
+    const root = makeGameRoot();
+    const result = validateEnvironment({
+      gameRoot: root,
+      mode: 'ios',
+      policy,
+      environment: {
+        VITE_FTD_DISABLE_REMOTE_CONFIG: 'false',
+        VITE_GAMEANALYTICS_IOS_ENABLED: 'false',
+        VITE_ADJUST_IOS_ENABLED: 'false',
+        VITE_ADMOB_IOS_ENABLED: 'false',
+        VITE_ADMOB_IOS_TEST_MODE: 'false',
+        VITE_REVENUECAT_IOS_API_KEY: apiKey,
+        VITE_CDN_ENABLED: 'false',
+      },
+    });
+
+    expect(result.ok).toBe(false);
+    expect(result.invalidKeys).toContain('VITE_REVENUECAT_IOS_API_KEY');
+    expect(JSON.stringify(result)).not.toContain(apiKey);
+  });
+
+  it('rejects invalid provider choices and incomplete AppsFlyer configuration', () => {
+    const root = makeGameRoot();
+    const base = {
+      VITE_FTD_DISABLE_REMOTE_CONFIG: 'false',
+      VITE_GAMEANALYTICS_IOS_ENABLED: 'false',
+      VITE_ADJUST_IOS_ENABLED: 'false',
+      VITE_APPLOVIN_IOS_ENABLED: 'false',
+      VITE_REVENUECAT_IOS_API_KEY: 'appl_A1b2C3d4E5f6G7h8I9j0K1l2M3n',
+      VITE_CDN_ENABLED: 'false',
+    };
+
+    const invalidChoice = validateEnvironment({
+      gameRoot: root,
+      mode: 'ios',
+      policy,
+      environment: { ...base, VITE_AD_PROVIDER: 'ad-mob' },
+    });
+    expect(invalidChoice.invalidKeys).toContain('VITE_AD_PROVIDER');
+
+    const incompleteAppsFlyer = validateEnvironment({
+      gameRoot: root,
+      mode: 'ios',
+      policy,
+      environment: { ...base, VITE_APPSFLYER_ENABLED: 'true' },
+    });
+    expect(incompleteAppsFlyer.missingKeys).toEqual([
+      'VITE_APPSFLYER_APPLE_APP_ID',
+      'VITE_APPSFLYER_DEV_KEY',
+    ]);
+  });
+
+  it.each([
+    ['play' + 'will', 'VITE_FTD_SUPPORT_URL'],
+    ['https://sdk.' + 'playwill.io/config', 'VITE_FTD_SUPPORT_URL'],
+    ['https://cdn.' + 'basegames.net/find', 'VITE_CDN_ORIGIN_PROD'],
+    ['hidden-object-' + 'base', 'VITE_FIREBASE_PROJECT_ID'],
+  ])('rejects external-stack residue in resolved Find release inputs: %s', (value, key) => {
+    const root = makeGameRoot();
+    const environment = {
+      VITE_FTD_DISABLE_REMOTE_CONFIG: 'false',
+      VITE_GAMEANALYTICS_IOS_ENABLED: 'false',
+      VITE_ADJUST_IOS_ENABLED: 'false',
+      VITE_ADMOB_IOS_ENABLED: 'false',
+      VITE_ADMOB_IOS_TEST_MODE: 'false',
+      VITE_REVENUECAT_IOS_API_KEY: 'appl_A1b2C3d4E5f6G7h8I9j0K1l2M3n',
+      VITE_CDN_ENABLED: 'false',
+      [key]: value,
+    };
+
+    const result = validateEnvironment({ gameRoot: root, mode: 'ios', policy, environment });
+
+    expect(result.ok).toBe(false);
+    expect(result.invalidKeys).toContain(key);
+    expect(JSON.stringify(result)).not.toContain(value);
+  });
+
+  it('rejects external-stack residue in active runtime and store metadata files', () => {
+    const root = makeGameRoot();
+    const sourceDir = path.join(root, 'src/platform');
+    fs.mkdirSync(sourceDir, { recursive: true });
+    write(root, '.env.ios.local', [
+      'VITE_FTD_DISABLE_REMOTE_CONFIG=false',
+      'VITE_GAMEANALYTICS_IOS_ENABLED=false',
+      'VITE_ADJUST_IOS_ENABLED=false',
+      'VITE_ADMOB_IOS_ENABLED=false',
+      'VITE_ADMOB_IOS_TEST_MODE=false',
+      'VITE_REVENUECAT_IOS_API_KEY=appl_A1b2C3d4E5f6G7h8I9j0K1l2M3n',
+      'VITE_CDN_ENABLED=false',
+      '',
+    ].join('\n'));
+    fs.writeFileSync(
+      path.join(sourceDir, 'StoreMetadata.ts'),
+      `export const supportUrl = 'https://support.${'play' + 'will.io'}';\n`,
+    );
+
+    const result = validateEnvironment({ gameRoot: root, mode: 'ios', policy, environment: {} });
+
+    expect(result.ok).toBe(false);
+    expect(result.residueFiles).toEqual(['src/platform/StoreMetadata.ts']);
+  });
+
+  it('scans every shipped textual surface, reports paths only, and bounds binary inputs', () => {
+    const root = makeGameRoot();
+    for (const directory of ['design', 'public/assets', 'src/ui', 'config', 'docs', 'tests', 'ios/App']) {
+      fs.mkdirSync(path.join(root, directory), { recursive: true });
+    }
+    const residue = `https://sdk.${'play' + 'will.io'}`;
+    const shippedFiles = [
+      ['index.html', `<script src="${residue}"></script>`],
+      ['public/runtime-config.json', JSON.stringify({ sdk: residue })],
+      ['public/assets/page.html', residue],
+      ['public/assets/style.css', `/* ${residue} */`],
+      ['public/assets/runtime.js', `const sdk = '${residue}'`],
+      ['public/assets/legacy.test.js', `const sdk = '${residue}'`],
+      ['public/assets/icon.svg', `<svg><title>${residue}</title></svg>`],
+      ['public/assets/readme.md', residue],
+      ['src/ui/view.html', residue],
+      ['design/tokens.css', `:root { --legacy-origin: '${residue}'; }`],
+      ['config/Info.plist', residue],
+      ['config/App.swift', residue],
+      ['config/network.xml', residue],
+    ];
+    for (const [name, contents] of shippedFiles) write(root, name, contents);
+    write(root, 'docs/history.md', residue);
+    write(root, 'tests/fixture.js', residue);
+    write(root, 'ios/App/generated.swift', residue);
+    fs.writeFileSync(path.join(root, 'public/assets/image.png'), Buffer.alloc(2 * 1024 * 1024, 0));
+
+    const result = validateEnvironment({ gameRoot: root, mode: 'ios', policy, environment: {} });
+
+    expect(result.residueFiles).toEqual(shippedFiles.map(([name]) => name).sort());
+    expect(JSON.stringify(result)).not.toContain(residue);
+  });
+
+  it('keeps both active Find runtime/config/metadata trees free of external-stack residue', () => {
+    const environment = {
+      VITE_FTD_DISABLE_REMOTE_CONFIG: 'false',
+      VITE_GAMEANALYTICS_IOS_ENABLED: 'false',
+      VITE_ADJUST_IOS_ENABLED: 'false',
+      VITE_ADMOB_IOS_ENABLED: 'false',
+      VITE_ADMOB_IOS_TEST_MODE: 'false',
+      VITE_REVENUECAT_IOS_API_KEY: 'appl_A1b2C3d4E5f6G7h8I9j0K1l2M3n',
+      VITE_CDN_ENABLED: 'false',
+    };
+
+    for (const game of ['find_the_dog', 'find_the_bird']) {
+      const result = validateEnvironment({
+        gameRoot: path.join(repoRoot, 'games', game),
+        mode: 'ios',
+        policy,
+        environment,
+      });
+      expect(result.residueFiles, game).toEqual([]);
+    }
   });
 
   it('rejects a persisted VITE_INSITU_TOUR value (capture flags are shell-env only)', () => {
@@ -122,7 +326,9 @@ describe('environment validation', () => {
       'VITE_FTD_DISABLE_REMOTE_CONFIG=false',
       'VITE_GAMEANALYTICS_IOS_ENABLED=false',
       'VITE_ADJUST_IOS_ENABLED=false',
-      'VITE_APPLOVIN_IOS_ENABLED=false',
+      'VITE_ADMOB_IOS_ENABLED=false',
+      'VITE_ADMOB_IOS_TEST_MODE=false',
+      'VITE_REVENUECAT_IOS_API_KEY=appl_A1b2C3d4E5f6G7h8I9j0K1l2M3n',
       'VITE_CDN_ENABLED=false',
       'VITE_INSITU_TOUR=allstates',
       '',
@@ -141,9 +347,13 @@ describe('environment validation', () => {
     },
     {
       mode: 'ios',
-      enabled: 'VITE_APPLOVIN_IOS_ENABLED',
-      required: ['VITE_APPLOVIN_IOS_SDK_KEY'],
-      invalid: ['VITE_APPLOVIN_IOS_GENERAL_AUDIENCE_ONLY'],
+      enabled: 'VITE_ADMOB_IOS_ENABLED',
+      required: [
+        'VITE_ADMOB_IOS_APP_ID',
+        'VITE_ADMOB_IOS_BANNER_ID',
+        'VITE_ADMOB_IOS_INTERSTITIAL_ID',
+        'VITE_ADMOB_IOS_REWARDED_ID',
+      ],
     },
     {
       mode: 'android',
@@ -158,7 +368,9 @@ describe('environment validation', () => {
       VITE_CDN_ENABLED: 'false',
       VITE_GAMEANALYTICS_IOS_ENABLED: 'false',
       VITE_ADJUST_IOS_ENABLED: 'false',
-      VITE_APPLOVIN_IOS_ENABLED: 'false',
+      VITE_ADMOB_IOS_ENABLED: 'false',
+      VITE_ADMOB_IOS_TEST_MODE: 'false',
+      VITE_REVENUECAT_IOS_API_KEY: 'appl_A1b2C3d4E5f6G7h8I9j0K1l2M3n',
       VITE_APPLOVIN_ANDROID_ENABLED: 'false',
       [enabled]: 'true',
     };
@@ -178,7 +390,9 @@ describe('environment validation', () => {
       'VITE_GAMEANALYTICS_IOS_GAME_KEY=__SET_IN_LOCAL_ENV__',
       'VITE_GAMEANALYTICS_IOS_SECRET_KEY=synthetic-secret',
       'VITE_ADJUST_IOS_ENABLED=false',
-      'VITE_APPLOVIN_IOS_ENABLED=false',
+      'VITE_ADMOB_IOS_ENABLED=false',
+      'VITE_ADMOB_IOS_TEST_MODE=false',
+      'VITE_REVENUECAT_IOS_API_KEY=appl_A1b2C3d4E5f6G7h8I9j0K1l2M3n',
       'VITE_CDN_ENABLED=false',
       '',
     ].join('\n'));
@@ -195,7 +409,9 @@ describe('environment validation', () => {
       'VITE_FTD_DISABLE_REMOTE_CONFIG=false',
       'VITE_GAMEANALYTICS_IOS_ENABLED=false',
       'VITE_ADJUST_IOS_ENABLED=false',
-      'VITE_APPLOVIN_IOS_ENABLED=false',
+      'VITE_ADMOB_IOS_ENABLED=false',
+      'VITE_ADMOB_IOS_TEST_MODE=false',
+      'VITE_REVENUECAT_IOS_API_KEY=appl_A1b2C3d4E5f6G7h8I9j0K1l2M3n',
       'VITE_CDN_ENABLED=false',
       'VITE_FTD_SUPPORT_URL=',
       '',
@@ -208,7 +424,9 @@ describe('environment validation', () => {
       'VITE_FTD_DISABLE_REMOTE_CONFIG=false',
       'VITE_GAMEANALYTICS_IOS_ENABLED=false',
       'VITE_ADJUST_IOS_ENABLED=false',
-      'VITE_APPLOVIN_IOS_ENABLED=false',
+      'VITE_ADMOB_IOS_ENABLED=false',
+      'VITE_ADMOB_IOS_TEST_MODE=false',
+      'VITE_REVENUECAT_IOS_API_KEY=appl_A1b2C3d4E5f6G7h8I9j0K1l2M3n',
       'VITE_CDN_ENABLED=false',
       '# intentional-blank: use the runtime fallback',
       'VITE_FTD_SUPPORT_URL=',
@@ -260,13 +478,13 @@ describe('environment validation', () => {
 });
 
 describe('canonical template', () => {
-  it('contains the exact 59-key placeholder-only contract with one comment per assignment', () => {
+  it('contains the exact 69-key placeholder-only contract with one comment per assignment', () => {
     const templatePath = path.join(repoRoot, 'games/find_the_dog/.env.example');
     const result = validateTemplate(templatePath, policy);
 
     expect(result.ok).toBe(true);
     expect(result.keys).toEqual([...FIND_THE_DOG_ENV_KEYS].sort());
-    expect(result.keys).toHaveLength(59);
+    expect(result.keys).toHaveLength(69);
   });
 
   it('rejects duplicate assignments even when the final key set is exact', () => {
@@ -355,14 +573,15 @@ describe('validator CLI', () => {
 
   it('fails normal iOS validation loudly without printing ambient values', () => {
     const canary = 'ambient-canary-do-not-print';
-    const result = runCli(
+    const result = runCliWithoutLocalOverrides(
       ['--game', 'find_the_dog', '--mode', 'ios'],
       {
         VITE_FTD_DISABLE_REMOTE_CONFIG: 'false',
         VITE_GAMEANALYTICS_IOS_ENABLED: 'true',
         VITE_GAMEANALYTICS_IOS_GAME_KEY: canary,
         VITE_ADJUST_IOS_ENABLED: 'false',
-        VITE_APPLOVIN_IOS_ENABLED: 'false',
+        VITE_ADMOB_IOS_ENABLED: 'false',
+        VITE_ADMOB_IOS_TEST_MODE: 'false',
         VITE_CDN_ENABLED: 'false',
       },
     );

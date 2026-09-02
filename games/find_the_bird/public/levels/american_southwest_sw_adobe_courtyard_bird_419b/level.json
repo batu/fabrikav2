@@ -1,63 +1,45 @@
 {
   "id": "american_southwest_sw_adobe_courtyard_bird_419b",
-  "name": "Level american_southwest_sw_adobe_courtyard_bird_419b",
+  "name": "Level american_southwest_sw_adobe_courtyard_bird_419b (clean_old_cartoon)",
   "width": 2688,
   "height": 2688,
+  "bwImage": "levels/american_southwest_sw_adobe_courtyard_bird_419b/bw.png",
   "colorImage": "levels/american_southwest_sw_adobe_courtyard_bird_419b/color.png",
-  "artifactRevision": "sha256:256dcd85fe4beb4a0329973354ce2822bed235a738204a583ad1df938cc01ad5",
-  "compatibilityAliases": {
-    "dog_00": "922b8105-2540-520a-8495-26ee9e690d52",
-    "dog_01": "77a6ca02-e903-5a4a-ad28-81a9a53c94a7",
-    "dog_02": "b5226426-87eb-5d6d-a382-c7c062dd2160",
-    "dog_03": "e64a7eb3-854d-5d29-b519-f5ff29acb1cf",
-    "dog_04": "ebeeac3b-191b-54c4-9365-e24d033feb37",
-    "dog_05": "8e6ae553-c6e4-56be-b770-a52257e0a35c",
-    "dog_06": "27d58644-d384-5892-af82-84d85198172d",
-    "dog_07": "0515b3e4-2612-5221-a112-213cc8849895",
-    "dog_08": "6d86550a-5ce0-5805-a802-5a212c50c4e5",
-    "dog_09": "e5a7363b-7fee-527f-8dcb-0ff3f9ca7881",
-    "dog_10": "c294cc29-4750-590d-b5a2-951b45bafd53",
-    "dog_11": "6fafa100-b5bf-5576-855b-e375cd3c3625",
-    "dog_12": "d281ce57-5492-58f1-ab5b-39fde8cf14fa",
-    "dog_13": "e3e3caba-b616-50d6-8189-9c21207db2ce"
-  },
   "dogs": [
     {
-      "id": "922b8105-2540-520a-8495-26ee9e690d52",
-      "compatibilitySlot": "dog_00",
+      "id": "dog_00",
       "x": 1140,
       "y": 600,
       "r": 57,
       "sprite": {
         "image": "levels/american_southwest_sw_adobe_courtyard_bird_419b/dogs/dog_00/sprite_000.png",
-        "height": 140,
+        "x": 1043,
+        "y": 541,
         "width": 194,
-        "x": 1048,
-        "y": 539,
+        "height": 140,
         "cleanup": {
           "x": 967,
           "y": 471,
           "width": 339,
           "height": 275
         },
-        "anchorX": 0.4742,
-        "anchorY": 0.4357,
+        "anchorX": 0.5,
+        "anchorY": 0.4214,
         "flipX": false,
         "flipY": false
       }
     },
     {
-      "id": "77a6ca02-e903-5a4a-ad28-81a9a53c94a7",
-      "compatibilitySlot": "dog_01",
+      "id": "dog_01",
       "x": 500,
       "y": 863,
       "r": 57,
       "sprite": {
         "image": "levels/american_southwest_sw_adobe_courtyard_bird_419b/dogs/dog_01/sprite_000.png",
-        "height": 190,
-        "width": 231,
         "x": 372,
         "y": 765,
+        "width": 231,
+        "height": 190,
         "cleanup": {
           "x": 327,
           "y": 716,
@@ -65,23 +47,20 @@
           "height": 319
         },
         "anchorX": 0.5541,
-        "anchorY": 0.5158,
-        "flipX": false,
-        "flipY": false
+        "anchorY": 0.5158
       }
     },
     {
-      "id": "b5226426-87eb-5d6d-a382-c7c062dd2160",
-      "compatibilitySlot": "dog_02",
+      "id": "dog_02",
       "x": 1640,
       "y": 840,
       "r": 57,
       "sprite": {
         "image": "levels/american_southwest_sw_adobe_courtyard_bird_419b/dogs/dog_02/sprite_000.png",
-        "height": 195,
-        "width": 109,
         "x": 1582,
         "y": 731,
+        "width": 109,
+        "height": 195,
         "cleanup": {
           "x": 1476,
           "y": 685,
@@ -89,119 +68,110 @@
           "height": 313
         },
         "anchorX": 0.5321,
-        "anchorY": 0.559,
-        "flipX": false,
-        "flipY": false
+        "anchorY": 0.559
       }
     },
     {
-      "id": "e64a7eb3-854d-5d29-b519-f5ff29acb1cf",
-      "compatibilitySlot": "dog_03",
+      "id": "dog_03",
       "x": 1673,
       "y": 1164,
       "r": 57,
       "sprite": {
         "image": "levels/american_southwest_sw_adobe_courtyard_bird_419b/dogs/dog_03/sprite_000.png",
-        "height": 303,
-        "width": 282,
-        "x": 1491,
-        "y": 1039,
+        "x": 1583,
+        "y": 1038,
+        "width": 177,
+        "height": 203,
         "cleanup": {
-          "x": 1500,
-          "y": 1003,
-          "width": 345,
-          "height": 333
+          "x": 1589,
+          "y": 1037,
+          "width": 205,
+          "height": 193
         },
-        "anchorX": 0.6454,
-        "anchorY": 0.4125,
+        "anchorX": 0.5085,
+        "anchorY": 0.6207,
         "flipX": false,
         "flipY": false
       }
     },
     {
-      "id": "ebeeac3b-191b-54c4-9365-e24d033feb37",
-      "compatibilitySlot": "dog_04",
+      "id": "dog_04",
       "x": 2105,
       "y": 897,
       "r": 57,
       "sprite": {
         "image": "levels/american_southwest_sw_adobe_courtyard_bird_419b/dogs/dog_04/sprite_000.png",
-        "height": 141,
-        "width": 179,
-        "x": 2014,
-        "y": 825,
+        "x": 2015,
+        "y": 829,
+        "width": 160,
+        "height": 115,
         "cleanup": {
           "x": 1948,
           "y": 740,
           "width": 314,
           "height": 314
         },
-        "anchorX": 0.5084,
-        "anchorY": 0.5106,
+        "anchorX": 0.5625,
+        "anchorY": 0.5913,
         "flipX": false,
         "flipY": false
       }
     },
     {
-      "id": "8e6ae553-c6e4-56be-b770-a52257e0a35c",
-      "compatibilitySlot": "dog_05",
+      "id": "dog_05",
       "x": 2260,
       "y": 963,
       "r": 57,
       "sprite": {
         "image": "levels/american_southwest_sw_adobe_courtyard_bird_419b/dogs/dog_05/sprite_000.png",
-        "height": 167,
-        "width": 163,
         "x": 2183,
-        "y": 868,
+        "y": 873,
+        "width": 172,
+        "height": 137,
         "cleanup": {
-          "x": 2103,
-          "y": 806,
-          "width": 314,
-          "height": 314
+          "x": 2182,
+          "y": 857,
+          "width": 184,
+          "height": 184
         },
-        "anchorX": 0.4724,
-        "anchorY": 0.5689,
-        "flipX": false,
+        "anchorX": 0.4477,
+        "anchorY": 0.6569,
+        "flipX": true,
         "flipY": false
       }
     },
     {
-      "id": "27d58644-d384-5892-af82-84d85198172d",
-      "compatibilitySlot": "dog_06",
+      "id": "dog_06",
       "x": 847,
       "y": 1287,
       "r": 57,
       "sprite": {
         "image": "levels/american_southwest_sw_adobe_courtyard_bird_419b/dogs/dog_06/sprite_000.png",
-        "height": 138,
-        "width": 173,
-        "x": 693,
-        "y": 1247,
+        "x": 713,
+        "y": 1237,
+        "width": 224,
+        "height": 167,
         "cleanup": {
-          "x": 703,
-          "y": 1202,
-          "width": 244,
-          "height": 245
+          "x": 690,
+          "y": 1130,
+          "width": 314,
+          "height": 314
         },
-        "anchorX": 0.8902,
-        "anchorY": 0.2899,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.5982,
+        "anchorY": 0.2994
       }
     },
     {
-      "id": "0515b3e4-2612-5221-a112-213cc8849895",
-      "compatibilitySlot": "dog_07",
+      "id": "dog_07",
       "x": 626,
       "y": 1835,
       "r": 57,
       "sprite": {
         "image": "levels/american_southwest_sw_adobe_courtyard_bird_419b/dogs/dog_07/sprite_000.png",
-        "height": 156,
-        "width": 166,
         "x": 540,
         "y": 1742,
+        "width": 166,
+        "height": 156,
         "cleanup": {
           "x": 453,
           "y": 1691,
@@ -209,23 +179,20 @@
           "height": 294
         },
         "anchorX": 0.5181,
-        "anchorY": 0.5962,
-        "flipX": false,
-        "flipY": false
+        "anchorY": 0.5962
       }
     },
     {
-      "id": "6d86550a-5ce0-5805-a802-5a212c50c4e5",
-      "compatibilitySlot": "dog_08",
+      "id": "dog_08",
       "x": 480,
       "y": 2143,
       "r": 57,
       "sprite": {
         "image": "levels/american_southwest_sw_adobe_courtyard_bird_419b/dogs/dog_08/sprite_000.png",
-        "height": 184,
-        "width": 227,
         "x": 305,
         "y": 2054,
+        "width": 227,
+        "height": 184,
         "cleanup": {
           "x": 307,
           "y": 1990,
@@ -233,47 +200,41 @@
           "height": 325
         },
         "anchorX": 0.7709,
-        "anchorY": 0.4837,
-        "flipX": false,
-        "flipY": false
+        "anchorY": 0.4837
       }
     },
     {
-      "id": "e5a7363b-7fee-527f-8dcb-0ff3f9ca7881",
-      "compatibilitySlot": "dog_09",
+      "id": "dog_09",
       "x": 879,
       "y": 2181,
       "r": 57,
       "sprite": {
         "image": "levels/american_southwest_sw_adobe_courtyard_bird_419b/dogs/dog_09/sprite_000.png",
-        "height": 264,
-        "width": 295,
-        "x": 747,
-        "y": 2056,
+        "x": 749,
+        "y": 2058,
+        "width": 256,
+        "height": 215,
         "cleanup": {
-          "x": 706,
-          "y": 2008,
-          "width": 301,
-          "height": 345
+          "x": 722,
+          "y": 2024,
+          "width": 314,
+          "height": 314
         },
-        "anchorX": 0.4475,
-        "anchorY": 0.4735,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.5078,
+        "anchorY": 0.5721
       }
     },
     {
-      "id": "c294cc29-4750-590d-b5a2-951b45bafd53",
-      "compatibilitySlot": "dog_10",
+      "id": "dog_10",
       "x": 1191,
       "y": 1762,
       "r": 57,
       "sprite": {
         "image": "levels/american_southwest_sw_adobe_courtyard_bird_419b/dogs/dog_10/sprite_000.png",
-        "height": 203,
-        "width": 228,
         "x": 1074,
         "y": 1668,
+        "width": 228,
+        "height": 203,
         "cleanup": {
           "x": 1018,
           "y": 1589,
@@ -281,47 +242,43 @@
           "height": 330
         },
         "anchorX": 0.5132,
-        "anchorY": 0.4631,
-        "flipX": false,
-        "flipY": false
+        "anchorY": 0.4631
       }
     },
     {
-      "id": "6fafa100-b5bf-5576-855b-e375cd3c3625",
-      "compatibilitySlot": "dog_11",
+      "id": "dog_11",
       "x": 1119,
       "y": 2067,
       "r": 57,
       "sprite": {
         "image": "levels/american_southwest_sw_adobe_courtyard_bird_419b/dogs/dog_11/sprite_000.png",
-        "height": 267,
+        "x": 1032,
+        "y": 1949,
         "width": 206,
-        "x": 1035,
-        "y": 1950,
+        "height": 267,
         "cleanup": {
           "x": 1009,
           "y": 1921,
           "width": 268,
           "height": 329
         },
-        "anchorX": 0.4078,
-        "anchorY": 0.4382,
+        "anchorX": 0.4223,
+        "anchorY": 0.4419,
         "flipX": false,
         "flipY": false
       }
     },
     {
-      "id": "d281ce57-5492-58f1-ab5b-39fde8cf14fa",
-      "compatibilitySlot": "dog_12",
+      "id": "dog_12",
       "x": 1404,
       "y": 1885,
       "r": 57,
       "sprite": {
         "image": "levels/american_southwest_sw_adobe_courtyard_bird_419b/dogs/dog_12/sprite_000.png",
-        "height": 201,
-        "width": 209,
         "x": 1319,
         "y": 1765,
+        "width": 209,
+        "height": 201,
         "cleanup": {
           "x": 1298,
           "y": 1712,
@@ -329,23 +286,20 @@
           "height": 345
         },
         "anchorX": 0.4067,
-        "anchorY": 0.597,
-        "flipX": false,
-        "flipY": false
+        "anchorY": 0.597
       }
     },
     {
-      "id": "e3e3caba-b616-50d6-8189-9c21207db2ce",
-      "compatibilitySlot": "dog_13",
+      "id": "dog_13",
       "x": 1797,
       "y": 2384,
       "r": 57,
       "sprite": {
         "image": "levels/american_southwest_sw_adobe_courtyard_bird_419b/dogs/dog_13/sprite_000.png",
-        "height": 199,
-        "width": 255,
         "x": 1668,
         "y": 2287,
+        "width": 255,
+        "height": 199,
         "cleanup": {
           "x": 1624,
           "y": 2240,
@@ -353,20 +307,8 @@
           "height": 291
         },
         "anchorX": 0.5059,
-        "anchorY": 0.4874,
-        "flipX": false,
-        "flipY": false
+        "anchorY": 0.4874
       }
     }
-  ],
-  "provenance": {
-    "setting": "american_southwest",
-    "scene": "sw_adobe_courtyard",
-    "entity": "bird",
-    "style": "clean_old_cartoon",
-    "scenePrompt": "[Purpose]\nCreate a full-bleed mobile-game background for Find the Bird.\n\n[Short Description]\nA terracotta adobe courtyard sprawling within thick rounded walls arranged as an organic isometric hidden-object scene.\n\n[Scene] A terracotta adobe courtyard sprawling within thick rounded walls \u2014 a main flagstone path to a carved wooden gate, a shaded portal walkway along one side, a horno bread oven corner with its woodpile. The entire ground surface is consistent pink flagstone, raked ochre earth, and one woven wool rug at the portal throughout \u2014 every area the viewer can see the ground, it reads as stone, earth, or rug with no untextured blank areas. Adobe building wings of varying heights crowd the courtyard unevenly, some stepped two stories with ladders, others low with deep-set blue windows. Vigas and parapets at different heights, some overlapping, some freestanding. A long wooden ladder leans against the tallest parapet at an unexpected angle. Scattered throughout without pattern: ristra chile strings on posts, clay pots of varying bellies, a strings-up loom under the portal, woven baskets, a water olla in a rope sling, drying corn bundles, a bench with striped blankets, gourds, the horno's iron door ajar, firewood stacks, cactus pots, a tin washtub, saddle blankets on a rail, lanterns in wall niches, a wagon wheel against the wall. Dense clusters around the portal and horno corner, sparser breathing room across the open court. Asymmetric, organic layout \u2014 like a homestead added onto for two hundred years.\n\n[View] Moderately elevated three-quarter game-map view with a close, readable mobile-game camera: roughly 35 degrees down from horizontal, with only enough scene visible to support about 20 hidden bird placements. Do not use an extreme aerial, distant establishing, miniature-diorama, or whole-city view. Large scene anchors should occupy substantial frame area, and ordinary props must remain individually recognizable at phone size. Use controlled hidden-object density: arrange approximately 20 plausible hiding pockets across 4 to 6 connected prop clusters, with visible breathing room, clear travel paths between clusters, and readable object boundaries for phone-screen scanning. Use mild perspective or near-isometric construction consistently, without wide-angle distortion, dramatic foreshortening, depth of field, or tiny distance-scaled clutter.\n\n[Style] Vintage hand-drawn cartoon background adapted for a modern mobile puzzle game. Rounded old-cartoon shapes, cheerful simplified silhouettes, thick confident ink outlines, flat poster-like color fills, and soft hand-painted background texture. Use broad readable color masses and minimal internal linework so the scene stays clear on a phone screen. Charming and slightly nostalgic, clean and polished for mobile, with less visual noise, fewer texture marks, and no dense rendering.\n\n[Gameplay Composition]\nDesign this as a production hidden-object background where birds will be added later. Create many plausible hiding pockets on walkable/contact surfaces or open gaps beside props, plants, rocks, furniture, railings, crates, planters, benches, roots, tools, shelves, stalls, boats, carts, market goods, or other readable foreground objects. Near props is ideal; inside solid objects, on blank walls, on roofs, floating over water, or on decorative vertical faces is not useful. Use theme-specific spatial logic such as rings, islands, terraces, nested rooms, clearings, bridges, piers, shelves, courtyards, side alleys, garden pockets, or clustered market zones. Keep open pockets between prop clusters so hitboxes can sit near objects without excessive overlap.\n\n[Constraints]\nDo not depict any bird; every bird is added during the later gameplay pass. No people, no live animals, no insects, no mascots, no readable text, no logos, no watermarks. Signs, chalkboards, labels, plaques, and boards named in the scene may appear but must show only illegible marks, squiggles, or blank surfaces \u2014 never legible words or letters. Market food and fishing props are allowed when the scene calls for them. Avoid huge blank walls, roof-dominated compositions, large featureless empty lawns, empty sand, empty floors, long straight roads, and noisy micro-texture camouflage. Every visible ground, floor, or water-edge region should read as a clear material appropriate to the scene; no untextured blank areas.",
-    "entityPrompt": "Add exactly one bird to this crop. Place exactly one bird centered on the marked target area \u2014 do not repeat the subject. Match the scene's illustration style, line weight, palette, and flat-shaded rendering, but keep the bird's silhouette and boundary readable on a phone screen. The bird may be partially occluded or contextually disguised, but must not disappear through muddy edges, low contrast, texture camouflage, or ambiguous merged shapes. Vary the bird's colors, markings, proportions, and small physical details across crops so the level does not repeat the same bird design. The bird is a charming little anthropomorphic inhabitant of this world \u2014 a character with personality going about its business. Give it something simple and specific to do with its surroundings: holding an object, using a tool, sitting at a small task, peeking at something, carrying something, watching something with interest, tending a small thing, pausing mid-task. Keep the pose clear and readable. The charm comes from the context and the expression, not from dynamic motion. Size the bird realistically relative to the scene around it \u2014 compare it to whatever human-scale objects are visible in the crop and render the bird at the physical size a real bird would be next to them. Not so small that its species is ambiguous, not so large that it dominates the crop. The bird must be fully contained within the visible frame. Keep all other elements of the image unchanged.",
-    "bgModel": "google/gemini-3.1-flash-image-preview",
-    "inpaintModel": "google/gemini-3.1-flash-image-preview"
-  }
+  ]
 }

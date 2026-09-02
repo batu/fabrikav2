@@ -1,597 +1,493 @@
 {
   "id": "japan_morning_market_bird_f461",
-  "name": "Level japan_morning_market_bird_f461",
+  "name": "Level japan_morning_market_bird_f461 (clean_old_cartoon)",
   "width": 2688,
   "height": 2688,
+  "bwImage": "levels/japan_morning_market_bird_f461/bw.png",
   "colorImage": "levels/japan_morning_market_bird_f461/color.png",
-  "artifactRevision": "sha256:1932ed2a8aead4f17d0d82bdd9228e692e8a0f61e1fe4091272080162b74ed04",
-  "compatibilityAliases": {
-    "dog_00": "1f438190-b3a5-5a26-b57d-1e06cc678706",
-    "dog_01": "6a6cf6e1-41ec-5307-baca-c654cb7b49a3",
-    "dog_02": "142ba8fc-7d82-5e69-afdd-8f11c1a24807",
-    "dog_03": "4902331a-71b8-565b-941e-0309676b069e",
-    "dog_04": "3fe3dc47-8a26-5b55-8d3c-a718f754cabe",
-    "dog_09": "220fb1f2-45bb-5ed1-a7de-44477c9e6ad1",
-    "dog_10": "c3b89ade-3815-5ac9-81f1-32d836463e6d",
-    "dog_08": "bf27e36b-9b0b-5838-810d-449908748175",
-    "dog_07": "0c381d79-2efa-5aa4-a8d2-16a8e955806c",
-    "dog_11": "d4560206-2827-5987-898c-12150de857fe",
-    "dog_13": "018d071c-affc-58ee-ae39-7e9bdbd4ff2f",
-    "dog_12": "000a48fd-9843-5196-a759-7e38a8233e05",
-    "dog_14": "6eea7281-760b-5559-a10e-2fcfdc45ee30",
-    "dog_19": "a1b06889-d0da-5fb1-8131-54ca074799d1",
-    "dog_20": "faaf8910-bcc6-5594-b044-ed6f3caef4fe",
-    "dog_21": "621a147c-f0de-5332-9499-69a68f0a5c04",
-    "dog_22": "244fb76d-bc28-5d03-bad8-faa0c7f064d1",
-    "dog_18": "25509756-b110-5b9e-8ce4-4dd344de4435",
-    "dog_06": "37055166-0fb0-5c7c-8c91-be6922c56079",
-    "dog_05": "44cbaf04-022d-5a2b-91c9-67e1ea91974a",
-    "dog_15": "091598f2-0e2d-5e69-b9f0-1d508665d1aa",
-    "dog_16": "6aeb4582-877a-52b5-9ead-404007b72692",
-    "dog_17": "46cb1fa0-7c18-5f5f-996f-f3f7084e7c30"
-  },
   "dogs": [
     {
-      "id": "1f438190-b3a5-5a26-b57d-1e06cc678706",
-      "compatibilitySlot": "dog_00",
-      "x": 654,
-      "y": 573,
+      "id": "dog_00",
+      "x": 659,
+      "y": 574,
       "r": 57,
       "sprite": {
         "image": "levels/japan_morning_market_bird_f461/dogs/dog_00/sprite_000.png",
-        "height": 142,
-        "width": 249,
         "x": 509,
         "y": 503,
+        "width": 249,
+        "height": 142,
         "cleanup": {
-          "x": 509,
-          "y": 503,
-          "width": 249,
-          "height": 142
+          "x": 486,
+          "y": 426,
+          "width": 345,
+          "height": 286
         },
-        "anchorX": 0.5823,
-        "anchorY": 0.493,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.6024,
+        "anchorY": 0.5
       }
     },
     {
-      "id": "6a6cf6e1-41ec-5307-baca-c654cb7b49a3",
-      "compatibilitySlot": "dog_01",
-      "x": 783,
-      "y": 923,
+      "id": "dog_01",
+      "x": 760,
+      "y": 927,
       "r": 57,
       "sprite": {
         "image": "levels/japan_morning_market_bird_f461/dogs/dog_01/sprite_000.png",
-        "height": 153,
-        "width": 220,
-        "x": 676,
-        "y": 857,
+        "x": 671,
+        "y": 846,
+        "width": 251,
+        "height": 178,
         "cleanup": {
-          "x": 671,
-          "y": 846,
-          "width": 251,
-          "height": 178
+          "x": 594,
+          "y": 754,
+          "width": 338,
+          "height": 345
         },
-        "anchorX": 0.4462,
-        "anchorY": 0.4326,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.3546,
+        "anchorY": 0.4551
       }
     },
     {
-      "id": "142ba8fc-7d82-5e69-afdd-8f11c1a24807",
-      "compatibilitySlot": "dog_02",
-      "x": 427,
-      "y": 1133,
+      "id": "dog_02",
+      "x": 415,
+      "y": 1125,
       "r": 57,
       "sprite": {
         "image": "levels/japan_morning_market_bird_f461/dogs/dog_02/sprite_000.png",
-        "height": 167,
-        "width": 206,
-        "x": 302,
-        "y": 1056,
+        "x": 277,
+        "y": 1072,
+        "width": 256,
+        "height": 192,
         "cleanup": {
-          "x": 277,
-          "y": 1072,
-          "width": 256,
-          "height": 192
+          "x": 273,
+          "y": 977,
+          "width": 319,
+          "height": 345
         },
-        "anchorX": 0.5859,
-        "anchorY": 0.3177,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.5391,
+        "anchorY": 0.276
       }
     },
     {
-      "id": "4902331a-71b8-565b-941e-0309676b069e",
-      "compatibilitySlot": "dog_03",
-      "x": 615,
-      "y": 1668,
+      "id": "dog_03",
+      "x": 618,
+      "y": 1656,
       "r": 57,
       "sprite": {
         "image": "levels/japan_morning_market_bird_f461/dogs/dog_03/sprite_000.png",
-        "height": 183,
-        "width": 215,
         "x": 500,
         "y": 1574,
+        "width": 215,
+        "height": 183,
         "cleanup": {
-          "x": 500,
-          "y": 1574,
-          "width": 215,
-          "height": 183
+          "x": 445,
+          "y": 1494,
+          "width": 345,
+          "height": 313
         },
-        "anchorX": 0.5349,
-        "anchorY": 0.5137,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.5488,
+        "anchorY": 0.4481
       }
     },
     {
-      "id": "3fe3dc47-8a26-5b55-8d3c-a718f754cabe",
-      "compatibilitySlot": "dog_04",
-      "x": 587,
-      "y": 1903,
+      "id": "dog_04",
+      "x": 585,
+      "y": 1879,
       "r": 57,
       "sprite": {
         "image": "levels/japan_morning_market_bird_f461/dogs/dog_04/sprite_000.png",
-        "height": 175,
-        "width": 203,
         "x": 497,
         "y": 1807,
+        "width": 203,
+        "height": 175,
         "cleanup": {
-          "x": 497,
-          "y": 1807,
-          "width": 203,
-          "height": 175
+          "x": 416,
+          "y": 1809,
+          "width": 345,
+          "height": 309
         },
-        "anchorX": 0.4433,
-        "anchorY": 0.5486,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.4335,
+        "anchorY": 0.4114
       }
     },
     {
-      "id": "220fb1f2-45bb-5ed1-a7de-44477c9e6ad1",
-      "compatibilitySlot": "dog_09",
-      "x": 1280,
-      "y": 841,
+      "id": "dog_05",
+      "x": 1130,
+      "y": 2363,
       "r": 57,
       "sprite": {
-        "image": "levels/japan_morning_market_bird_f461/dogs/dog_09/sprite_000.png",
-        "height": 170,
-        "width": 154,
-        "x": 1224,
-        "y": 789,
+        "image": "levels/japan_morning_market_bird_f461/dogs/dog_05/sprite_000.png",
+        "x": 1026,
+        "y": 2250,
+        "width": 278,
+        "height": 231,
         "cleanup": {
-          "x": 1196,
-          "y": 784,
-          "width": 262,
-          "height": 210
+          "x": 957,
+          "y": 2190,
+          "width": 345,
+          "height": 345
         },
-        "anchorX": 0.3321,
-        "anchorY": 0.2667,
-        "flipX": true,
-        "flipY": false
+        "anchorX": 0.3741,
+        "anchorY": 0.4892
       }
     },
     {
-      "id": "c3b89ade-3815-5ac9-81f1-32d836463e6d",
-      "compatibilitySlot": "dog_10",
-      "x": 1556,
-      "y": 970,
+      "id": "dog_06",
+      "x": 1111,
+      "y": 1856,
       "r": 57,
       "sprite": {
-        "image": "levels/japan_morning_market_bird_f461/dogs/dog_10/sprite_000.png",
-        "height": 135,
-        "width": 158,
-        "x": 1455,
-        "y": 870,
+        "image": "levels/japan_morning_market_bird_f461/dogs/dog_06/sprite_000.png",
+        "x": 1021,
+        "y": 1808,
+        "width": 198,
+        "height": 150,
         "cleanup": {
-          "x": 1390,
-          "y": 838,
-          "width": 228,
-          "height": 202
+          "x": 938,
+          "y": 1708,
+          "width": 336,
+          "height": 320
         },
-        "anchorX": 0.6535,
-        "anchorY": 0.495,
-        "flipX": false,
-        "flipY": false
+        "anchorX": 0.4545,
+        "anchorY": 0.32
       }
     },
     {
-      "id": "bf27e36b-9b0b-5838-810d-449908748175",
-      "compatibilitySlot": "dog_08",
-      "x": 1107,
-      "y": 1321,
-      "r": 57,
-      "sprite": {
-        "image": "levels/japan_morning_market_bird_f461/dogs/dog_08/sprite_000.png",
-        "height": 132,
-        "width": 187,
-        "x": 984,
-        "y": 1229,
-        "cleanup": {
-          "x": 926,
-          "y": 1278,
-          "width": 217,
-          "height": 156
-        },
-        "anchorX": 0.7834,
-        "anchorY": 0.0577,
-        "flipX": true,
-        "flipY": false
-      }
-    },
-    {
-      "id": "0c381d79-2efa-5aa4-a8d2-16a8e955806c",
-      "compatibilitySlot": "dog_07",
+      "id": "dog_07",
       "x": 1123,
-      "y": 1578,
+      "y": 1579,
       "r": 57,
       "sprite": {
         "image": "levels/japan_morning_market_bird_f461/dogs/dog_07/sprite_000.png",
-        "height": 161,
-        "width": 180,
         "x": 1026,
         "y": 1510,
+        "width": 180,
+        "height": 161,
         "cleanup": {
-          "x": 1026,
-          "y": 1510,
-          "width": 180,
-          "height": 161
+          "x": 970,
+          "y": 1441,
+          "width": 319,
+          "height": 265
         },
         "anchorX": 0.5389,
-        "anchorY": 0.4286,
-        "flipX": false,
-        "flipY": false
+        "anchorY": 0.4286
       }
     },
     {
-      "id": "d4560206-2827-5987-898c-12150de857fe",
-      "compatibilitySlot": "dog_11",
-      "x": 1579,
-      "y": 1360,
+      "id": "dog_08",
+      "x": 1096,
+      "y": 1287,
+      "r": 57,
+      "sprite": {
+        "image": "levels/japan_morning_market_bird_f461/dogs/dog_08/sprite_000.png",
+        "x": 993,
+        "y": 1192,
+        "width": 217,
+        "height": 156,
+        "cleanup": {
+          "x": 937,
+          "y": 1150,
+          "width": 345,
+          "height": 289
+        },
+        "anchorX": 0.4747,
+        "anchorY": 0.609
+      }
+    },
+    {
+      "id": "dog_09",
+      "x": 1283,
+      "y": 840,
+      "r": 57,
+      "sprite": {
+        "image": "levels/japan_morning_market_bird_f461/dogs/dog_09/sprite_000.png",
+        "x": 1195,
+        "y": 785,
+        "width": 262,
+        "height": 210,
+        "cleanup": {
+          "x": 1128,
+          "y": 663,
+          "width": 302,
+          "height": 345
+        },
+        "anchorX": 0.3359,
+        "anchorY": 0.2619
+      }
+    },
+    {
+      "id": "dog_10",
+      "x": 1539,
+      "y": 938,
+      "r": 57,
+      "sprite": {
+        "image": "levels/japan_morning_market_bird_f461/dogs/dog_10/sprite_000.png",
+        "x": 1390,
+        "y": 838,
+        "width": 228,
+        "height": 202,
+        "cleanup": {
+          "x": 1432,
+          "y": 807,
+          "width": 296,
+          "height": 335
+        },
+        "anchorX": 0.6535,
+        "anchorY": 0.495
+      }
+    },
+    {
+      "id": "dog_11",
+      "x": 1577,
+      "y": 1359,
       "r": 57,
       "sprite": {
         "image": "levels/japan_morning_market_bird_f461/dogs/dog_11/sprite_000.png",
-        "height": 134,
-        "width": 180,
-        "x": 1498,
-        "y": 1292,
+        "x": 1463,
+        "y": 1275,
+        "width": 253,
+        "height": 207,
         "cleanup": {
-          "x": 1463,
-          "y": 1275,
-          "width": 253,
-          "height": 207
+          "x": 1404,
+          "y": 1186,
+          "width": 283,
+          "height": 298
         },
         "anchorX": 0.4506,
-        "anchorY": 0.4058,
-        "flipX": false,
-        "flipY": false
+        "anchorY": 0.4058
       }
     },
     {
-      "id": "018d071c-affc-58ee-ae39-7e9bdbd4ff2f",
-      "compatibilitySlot": "dog_13",
-      "x": 1792,
-      "y": 1485,
-      "r": 57,
-      "sprite": {
-        "image": "levels/japan_morning_market_bird_f461/dogs/dog_13/sprite_000.png",
-        "height": 191,
-        "width": 184,
-        "x": 1704,
-        "y": 1386,
-        "cleanup": {
-          "x": 1704,
-          "y": 1386,
-          "width": 184,
-          "height": 191
-        },
-        "anchorX": 0.4402,
-        "anchorY": 0.4974,
-        "flipX": false,
-        "flipY": false
-      }
-    },
-    {
-      "id": "000a48fd-9843-5196-a759-7e38a8233e05",
-      "compatibilitySlot": "dog_12",
-      "x": 1440,
+      "id": "dog_12",
+      "x": 1439,
       "y": 1612,
       "r": 57,
       "sprite": {
         "image": "levels/japan_morning_market_bird_f461/dogs/dog_12/sprite_000.png",
-        "height": 167,
-        "width": 206,
         "x": 1347,
         "y": 1542,
+        "width": 206,
+        "height": 167,
         "cleanup": {
-          "x": 1347,
-          "y": 1542,
-          "width": 206,
-          "height": 167
+          "x": 1291,
+          "y": 1486,
+          "width": 308,
+          "height": 298
         },
         "anchorX": 0.4466,
-        "anchorY": 0.4192,
-        "flipX": false,
-        "flipY": false
+        "anchorY": 0.4192
       }
     },
     {
-      "id": "6eea7281-760b-5559-a10e-2fcfdc45ee30",
-      "compatibilitySlot": "dog_14",
-      "x": 1712,
-      "y": 1675,
+      "id": "dog_13",
+      "x": 1785,
+      "y": 1481,
+      "r": 57,
+      "sprite": {
+        "image": "levels/japan_morning_market_bird_f461/dogs/dog_13/sprite_000.png",
+        "x": 1704,
+        "y": 1386,
+        "width": 184,
+        "height": 191,
+        "cleanup": {
+          "x": 1689,
+          "y": 1393,
+          "width": 278,
+          "height": 194
+        },
+        "anchorX": 0.4402,
+        "anchorY": 0.4974
+      }
+    },
+    {
+      "id": "dog_14",
+      "x": 1701,
+      "y": 1670,
       "r": 57,
       "sprite": {
         "image": "levels/japan_morning_market_bird_f461/dogs/dog_14/sprite_000.png",
-        "height": 172,
-        "width": 210,
         "x": 1605,
         "y": 1610,
+        "width": 210,
+        "height": 172,
         "cleanup": {
-          "x": 1605,
-          "y": 1610,
-          "width": 210,
-          "height": 172
+          "x": 1601,
+          "y": 1589,
+          "width": 279,
+          "height": 234
         },
         "anchorX": 0.4571,
-        "anchorY": 0.3488,
-        "flipX": false,
-        "flipY": false
+        "anchorY": 0.3488
       }
     },
     {
-      "id": "a1b06889-d0da-5fb1-8131-54ca074799d1",
-      "compatibilitySlot": "dog_19",
-      "x": 1926,
-      "y": 1259,
-      "r": 57,
-      "sprite": {
-        "image": "levels/japan_morning_market_bird_f461/dogs/dog_19/sprite_000.png",
-        "height": 154,
-        "width": 189,
-        "x": 1855,
-        "y": 1192,
-        "cleanup": {
-          "x": 1723,
-          "y": 1109,
-          "width": 237,
-          "height": 197
-        },
-        "anchorX": 0.8987,
-        "anchorY": 0.7563,
-        "flipX": false,
-        "flipY": false
-      }
-    },
-    {
-      "id": "faaf8910-bcc6-5594-b044-ed6f3caef4fe",
-      "compatibilitySlot": "dog_20",
-      "x": 2032,
-      "y": 991,
-      "r": 57,
-      "sprite": {
-        "image": "levels/japan_morning_market_bird_f461/dogs/dog_20/sprite_000.png",
-        "height": 158,
-        "width": 165,
-        "x": 1935,
-        "y": 914,
-        "cleanup": {
-          "x": 1932,
-          "y": 907,
-          "width": 223,
-          "height": 209
-        },
-        "anchorX": 0.5067,
-        "anchorY": 0.3828,
-        "flipX": false,
-        "flipY": false
-      }
-    },
-    {
-      "id": "621a147c-f0de-5332-9499-69a68f0a5c04",
-      "compatibilitySlot": "dog_21",
-      "x": 2193,
-      "y": 856,
-      "r": 57,
-      "sprite": {
-        "image": "levels/japan_morning_market_bird_f461/dogs/dog_21/sprite_000.png",
-        "height": 174,
-        "width": 112,
-        "x": 2135,
-        "y": 721,
-        "cleanup": {
-          "x": 2136,
-          "y": 730,
-          "width": 141,
-          "height": 183
-        },
-        "anchorX": 0.5823,
-        "anchorY": 0.6618,
-        "flipX": false,
-        "flipY": false
-      }
-    },
-    {
-      "id": "244fb76d-bc28-5d03-bad8-faa0c7f064d1",
-      "compatibilitySlot": "dog_22",
-      "x": 2183,
-      "y": 670,
-      "r": 57,
-      "sprite": {
-        "image": "levels/japan_morning_market_bird_f461/dogs/dog_22/sprite_000.png",
-        "height": 103,
-        "width": 121,
-        "x": 2119,
-        "y": 637,
-        "cleanup": {
-          "x": 2100,
-          "y": 603,
-          "width": 150,
-          "height": 123
-        },
-        "anchorX": 0.7208,
-        "anchorY": 0.2067,
-        "flipX": false,
-        "flipY": false
-      }
-    },
-    {
-      "id": "25509756-b110-5b9e-8ce4-4dd344de4435",
-      "compatibilitySlot": "dog_18",
-      "x": 2157,
-      "y": 1544,
-      "r": 57,
-      "sprite": {
-        "image": "levels/japan_morning_market_bird_f461/dogs/dog_18/sprite_000.png",
-        "height": 178,
-        "width": 138,
-        "x": 2111,
-        "y": 1482,
-        "cleanup": {
-          "x": 2100,
-          "y": 1478,
-          "width": 210,
-          "height": 205
-        },
-        "anchorX": 0.8908,
-        "anchorY": 0.3902,
-        "flipX": false,
-        "flipY": false
-      }
-    },
-    {
-      "id": "37055166-0fb0-5c7c-8c91-be6922c56079",
-      "compatibilitySlot": "dog_06",
-      "x": 1098,
-      "y": 1854,
-      "r": 57,
-      "sprite": {
-        "image": "levels/japan_morning_market_bird_f461/dogs/dog_06/sprite_000.png",
-        "height": 171,
-        "width": 221,
-        "x": 1003,
-        "y": 1795,
-        "cleanup": {
-          "x": 1021,
-          "y": 1808,
-          "width": 198,
-          "height": 150
-        },
-        "anchorX": 0.4545,
-        "anchorY": 0.32,
-        "flipX": false,
-        "flipY": false
-      }
-    },
-    {
-      "id": "44cbaf04-022d-5a2b-91c9-67e1ea91974a",
-      "compatibilitySlot": "dog_05",
-      "x": 1132,
-      "y": 2362,
-      "r": 57,
-      "sprite": {
-        "image": "levels/japan_morning_market_bird_f461/dogs/dog_05/sprite_000.png",
-        "height": 231,
-        "width": 278,
-        "x": 1026,
-        "y": 2250,
-        "cleanup": {
-          "x": 1026,
-          "y": 2250,
-          "width": 278,
-          "height": 231
-        },
-        "anchorX": 0.3741,
-        "anchorY": 0.4892,
-        "flipX": false,
-        "flipY": false
-      }
-    },
-    {
-      "id": "091598f2-0e2d-5e69-b9f0-1d508665d1aa",
-      "compatibilitySlot": "dog_15",
-      "x": 1634,
-      "y": 2146,
+      "id": "dog_15",
+      "x": 1661,
+      "y": 2156,
       "r": 57,
       "sprite": {
         "image": "levels/japan_morning_market_bird_f461/dogs/dog_15/sprite_000.png",
-        "height": 192,
-        "width": 268,
-        "x": 1474,
-        "y": 2055,
+        "x": 1524,
+        "y": 2099,
+        "width": 186,
+        "height": 128,
         "cleanup": {
-          "x": 1524,
-          "y": 2099,
-          "width": 186,
-          "height": 128
+          "x": 1438,
+          "y": 1987,
+          "width": 345,
+          "height": 345
         },
         "anchorX": 0.7366,
-        "anchorY": 0.4453,
-        "flipX": false,
-        "flipY": false
+        "anchorY": 0.4453
       }
     },
     {
-      "id": "6aeb4582-877a-52b5-9ead-404007b72692",
-      "compatibilitySlot": "dog_16",
-      "x": 2006,
+      "id": "dog_16",
+      "x": 2002,
       "y": 1843,
       "r": 57,
       "sprite": {
         "image": "levels/japan_morning_market_bird_f461/dogs/dog_16/sprite_000.png",
-        "height": 300,
-        "width": 194,
-        "x": 1899,
-        "y": 1705,
+        "x": 1929,
+        "y": 1733,
+        "width": 145,
+        "height": 221,
         "cleanup": {
-          "x": 1929,
-          "y": 1733,
-          "width": 145,
-          "height": 221
+          "x": 1882,
+          "y": 1685,
+          "width": 292,
+          "height": 312
         },
         "anchorX": 0.5034,
-        "anchorY": 0.4977,
-        "flipX": false,
-        "flipY": false
+        "anchorY": 0.4977
       }
     },
     {
-      "id": "46cb1fa0-7c18-5f5f-996f-f3f7084e7c30",
-      "compatibilitySlot": "dog_17",
-      "x": 2197,
-      "y": 2213,
+      "id": "dog_17",
+      "x": 2178,
+      "y": 2207,
       "r": 57,
       "sprite": {
         "image": "levels/japan_morning_market_bird_f461/dogs/dog_17/sprite_000.png",
-        "height": 223,
-        "width": 255,
-        "x": 2124,
-        "y": 2126,
+        "x": 2152,
+        "y": 2158,
+        "width": 205,
+        "height": 178,
         "cleanup": {
-          "x": 2152,
-          "y": 2158,
-          "width": 205,
-          "height": 178
+          "x": 2058,
+          "y": 2048,
+          "width": 345,
+          "height": 345
         },
         "anchorX": 0.1268,
-        "anchorY": 0.2753,
-        "flipX": false,
-        "flipY": false
+        "anchorY": 0.2753
+      }
+    },
+    {
+      "id": "dog_18",
+      "x": 2156,
+      "y": 1558,
+      "r": 57,
+      "sprite": {
+        "image": "levels/japan_morning_market_bird_f461/dogs/dog_18/sprite_000.png",
+        "x": 2006,
+        "y": 1464,
+        "width": 210,
+        "height": 205,
+        "cleanup": {
+          "x": 1969,
+          "y": 1402,
+          "width": 341,
+          "height": 281
+        },
+        "anchorX": 0.7143,
+        "anchorY": 0.4585
+      }
+    },
+    {
+      "id": "dog_19",
+      "x": 1936,
+      "y": 1258,
+      "r": 57,
+      "sprite": {
+        "image": "levels/japan_morning_market_bird_f461/dogs/dog_19/sprite_000.png",
+        "x": 1803,
+        "y": 1158,
+        "width": 237,
+        "height": 197,
+        "cleanup": {
+          "x": 1730,
+          "y": 1133,
+          "width": 343,
+          "height": 258
+        },
+        "anchorX": 0.5612,
+        "anchorY": 0.5076
+      }
+    },
+    {
+      "id": "dog_20",
+      "x": 2033,
+      "y": 975,
+      "r": 57,
+      "sprite": {
+        "image": "levels/japan_morning_market_bird_f461/dogs/dog_20/sprite_000.png",
+        "x": 1896,
+        "y": 913,
+        "width": 223,
+        "height": 209,
+        "cleanup": {
+          "x": 1849,
+          "y": 954,
+          "width": 345,
+          "height": 177
+        },
+        "anchorX": 0.6682,
+        "anchorY": 0.3541
+      }
+    },
+    {
+      "id": "dog_21",
+      "x": 2182,
+      "y": 847,
+      "r": 57,
+      "sprite": {
+        "image": "levels/japan_morning_market_bird_f461/dogs/dog_21/sprite_000.png",
+        "x": 2037,
+        "y": 782,
+        "width": 209,
+        "height": 204,
+        "cleanup": {
+          "x": 1928,
+          "y": 768,
+          "width": 342,
+          "height": 184
+        },
+        "anchorX": 0.6938,
+        "anchorY": 0.3186
+      }
+    },
+    {
+      "id": "dog_22",
+      "x": 2177,
+      "y": 660,
+      "r": 57,
+      "sprite": {
+        "image": "levels/japan_morning_market_bird_f461/dogs/dog_22/sprite_000.png",
+        "x": 2011,
+        "y": 583,
+        "width": 240,
+        "height": 188,
+        "cleanup": {
+          "x": 1929,
+          "y": 462,
+          "width": 345,
+          "height": 304
+        },
+        "anchorX": 0.6917,
+        "anchorY": 0.4096
       }
     }
-  ],
-  "provenance": {
-    "setting": "japan",
-    "scene": "japan_morning_market",
-    "entity": "bird",
-    "style": "clean_old_cartoon",
-    "scenePrompt": "[Purpose]\nCreate a full-bleed mobile-game background for Find the Bird.\n\n[Short Description]\nA Japanese village fish market sprawling across multiple connected sections arranged as an organic isometric hidden-object scene.\n\n[Scene] A Japanese village fish market sprawling across multiple connected sections \u2014 a main lane with stalls, a side alley branching off, a canal-side strip with more stalls along the water. The entire ground surface is consistent cobblestone paving throughout \u2014 every area the viewer can see the ground, it reads as stone pavers with no untextured blank areas. Wooden stalls of varying sizes crowd unevenly, some clustered tightly, others standing alone with gaps. Tiled rooftops at different heights, some overlapping, some freestanding. A narrow canal cuts through at an unexpected angle with one small arched bridge. Scattered throughout without pattern: crates of fish, barrels, woven baskets, hanging paper lanterns glowing soft amber, food carts with steam plumes, stacked crates, coiled ropes, sake barrels, hanging noren curtains, wooden signs, umbrellas, lantern poles, fish baskets, stone lanterns, potted plants, wooden buckets, rope bundles. Dense clusters in some areas, sparser breathing room in others. Asymmetric, organic layout \u2014 like a real village that grew over time.\n\n[View] Moderately elevated three-quarter game-map view with a close, readable mobile-game camera: roughly 35 degrees down from horizontal, with only enough scene visible to support about 20 hidden bird placements. Do not use an extreme aerial, distant establishing, miniature-diorama, or whole-city view. Large scene anchors should occupy substantial frame area, and ordinary props must remain individually recognizable at phone size. Use controlled hidden-object density: arrange approximately 20 plausible hiding pockets across 4 to 6 connected prop clusters, with visible breathing room, clear travel paths between clusters, and readable object boundaries for phone-screen scanning. Use mild perspective or near-isometric construction consistently, without wide-angle distortion, dramatic foreshortening, depth of field, or tiny distance-scaled clutter.\n\n[Style] Vintage hand-drawn cartoon background adapted for a modern mobile puzzle game. Rounded old-cartoon shapes, cheerful simplified silhouettes, thick confident ink outlines, flat poster-like color fills, and soft hand-painted background texture. Use broad readable color masses and minimal internal linework so the scene stays clear on a phone screen. Charming and slightly nostalgic, clean and polished for mobile, with less visual noise, fewer texture marks, and no dense rendering.\n\n[Gameplay Composition]\nDesign this as a production hidden-object background where birds will be added later. Create many plausible hiding pockets on walkable/contact surfaces or open gaps beside props, plants, rocks, furniture, railings, crates, planters, benches, roots, tools, shelves, stalls, boats, carts, market goods, or other readable foreground objects. Near props is ideal; inside solid objects, on blank walls, on roofs, floating over water, or on decorative vertical faces is not useful. Use theme-specific spatial logic such as rings, islands, terraces, nested rooms, clearings, bridges, piers, shelves, courtyards, side alleys, garden pockets, or clustered market zones. Keep open pockets between prop clusters so hitboxes can sit near objects without excessive overlap.\n\n[Constraints]\nDo not depict any bird; every bird is added during the later gameplay pass. No people, no live animals, no insects, no mascots, no readable text, no logos, no watermarks. Signs, chalkboards, labels, plaques, and boards named in the scene may appear but must show only illegible marks, squiggles, or blank surfaces \u2014 never legible words or letters. Market food and fishing props are allowed when the scene calls for them. Avoid huge blank walls, roof-dominated compositions, large featureless empty lawns, empty sand, empty floors, long straight roads, and noisy micro-texture camouflage. Every visible ground, floor, or water-edge region should read as a clear material appropriate to the scene; no untextured blank areas.",
-    "entityPrompt": "Add exactly one bird to this crop. Place exactly one bird centered on the marked target area \u2014 do not repeat the subject. Match the scene's illustration style, line weight, palette, and flat-shaded rendering, but keep the bird's silhouette and boundary readable on a phone screen. The bird may be partially occluded or contextually disguised, but must not disappear through muddy edges, low contrast, texture camouflage, or ambiguous merged shapes. Vary the bird's colors, markings, proportions, and small physical details across crops so the level does not repeat the same bird design. The bird is a charming little anthropomorphic inhabitant of this world \u2014 a character with personality going about its business. Give it something simple and specific to do with its surroundings: holding an object, using a tool, sitting at a small task, peeking at something, carrying something, watching something with interest, tending a small thing, pausing mid-task. Keep the pose clear and readable. The charm comes from the context and the expression, not from dynamic motion. Size the bird realistically relative to the scene around it \u2014 compare it to whatever human-scale objects are visible in the crop and render the bird at the physical size a real bird would be next to them. Not so small that its species is ambiguous, not so large that it dominates the crop. The bird must be fully contained within the visible frame. Keep all other elements of the image unchanged.",
-    "bgModel": "google/gemini-3.1-flash-image-preview",
-    "inpaintModel": "google/gemini-3.1-flash-image-preview"
-  }
+  ]
 }

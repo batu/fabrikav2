@@ -583,16 +583,16 @@ describe("find_the_dog TestHarness real-flow wiring", () => {
     ]);
   }, 15_000);
 
-  it("keeps the physical-device pause state in the canonical tour order", async () => {
+  it("keeps terminal physical-device pause last in the canonical tour order", async () => {
     const { FIND_THE_DOG_TOUR_STATES } = await import("../../src/testing/TestHarness");
 
     expect(FIND_THE_DOG_TOUR_STATES.slice(0, 6)).toEqual([
       "menu",
       "level",
       "settings",
-      "pause",
       "win",
       "fail",
+      "pause",
     ]);
   });
 

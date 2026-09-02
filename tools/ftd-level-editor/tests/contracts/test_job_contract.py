@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from ftd_editor.contracts import generate_typescript, openapi_bytes
+from ftd_editor.contracts import generate_typescript, openapi_bytes, openapi_document
 from ftd_editor.jobs.actions import StartJobRequest
 
 TOOL_ROOT = Path(__file__).resolve().parent.parent.parent
@@ -91,6 +91,17 @@ def test_openapi_document_is_pinned_without_drift() -> None:
     assert committed == openapi_bytes(), (
         "openapi.json drifted; regenerate with scripts/generate_contracts.py"
     )
+
+
+def test_openapi_pins_http_422_description_across_python_versions() -> None:
+    descriptions = {
+        operation["responses"]["422"]["description"]
+        for operations in openapi_document()["paths"].values()
+        for operation in operations.values()
+        if "422" in operation.get("responses", {})
+    }
+    assert "Unprocessable Content" not in descriptions
+    assert "Unprocessable Entity" in descriptions
 
 
 def test_generated_typescript_is_derived_without_drift() -> None:

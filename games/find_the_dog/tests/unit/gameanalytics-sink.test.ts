@@ -46,4 +46,62 @@ describe('GameAnalytics AnalyticsSink', () => {
       continue_level: 'false',
     }));
   });
+
+  it('accepts the callable browser namespace and waits for SDK readiness', async () => {
+    const initialize = vi.fn();
+    const isSdkReady = vi.fn().mockReturnValueOnce(false).mockReturnValue(true);
+    const addDesignEvent = vi.fn();
+    const GameAnalytics = Object.assign(() => undefined, {
+      setEnabledInfoLog: vi.fn(),
+      setEnabledVerboseLog: vi.fn(),
+      configureAvailableResourceCurrencies: vi.fn(),
+      configureAvailableResourceItemTypes: vi.fn(),
+      initialize,
+      isSdkReady,
+      addProgressionEvent: vi.fn(),
+      addDesignEvent,
+      addResourceEvent: vi.fn(),
+      addAdEvent: vi.fn(),
+    });
+    const sdk = {
+      GameAnalytics,
+      EGAProgressionStatus: { Start: 1, Complete: 2, Fail: 3 },
+      EGAResourceFlowType: { Source: 1, Sink: 2 },
+      EGAAdAction: { Show: 1, FailedShow: 2, RewardReceived: 3, Undefined: 0 },
+      EGAAdType: { Banner: 1, Interstitial: 2, RewardedVideo: 3 },
+    } as unknown as GameAnalyticsSdk;
+    const sink = createGameAnalyticsSink(
+      { gameKey: 'g'.repeat(32), secretKey: 's'.repeat(40), verboseLogging: false },
+      { loader: vi.fn(async () => sdk) },
+    );
+
+    sink.emit(event('dog_found', { level_id: 'l1', dog_index: 0 }));
+    await sink.flush?.();
+
+    expect(initialize).toHaveBeenCalledWith('g'.repeat(32), 's'.repeat(40));
+    expect(isSdkReady).toHaveBeenCalled();
+    expect(addDesignEvent).toHaveBeenCalledWith(
+      'dog:found',
+      undefined,
+      expect.objectContaining({ dog_index: '0' }),
+    );
+  });
+
+  it('logs initialization failures as readable messages', async () => {
+    const warn = vi.fn();
+    const sink = createGameAnalyticsSink(
+      { gameKey: 'g'.repeat(32), secretKey: 's'.repeat(40), verboseLogging: false },
+      {
+        loader: vi.fn(async () => { throw new Error('dynamic import exploded'); }),
+        logger: { warn },
+      },
+    );
+
+    sink.emit(event('dog_found', { level_id: 'l1', dog_index: 0 }));
+    await sink.flush?.();
+
+    expect(warn).toHaveBeenCalledWith(
+      '[analytics:gameanalytics] initialization failed: dynamic import exploded',
+    );
+  });
 });

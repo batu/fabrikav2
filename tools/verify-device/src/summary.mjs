@@ -9,6 +9,13 @@ const MAJOR_OR_WORSE = new Set(['major', 'blocker']);
 // and legacy summaries that lack it keep their existing behavior (KTD6, R14).
 export const RUN_META_KEY = '__run';
 
+export function redactReleaseReceipt(value) {
+  const secretKey = /(secret|token|password|api[_-]?key|sdk[_-]?key)/i;
+  if (Array.isArray(value)) return value.map(redactReleaseReceipt);
+  if (!value || typeof value !== 'object') return value;
+  return Object.fromEntries(Object.entries(value).map(([key, item]) => [key, secretKey.test(key) ? '[REDACTED]' : redactReleaseReceipt(item)]));
+}
+
 function isRunMetaKey(key) {
   return key === RUN_META_KEY;
 }
