@@ -1,0 +1,22 @@
+{
+  "jobId": "5d57c96898904e0a8be380d24d27a721",
+  "status": "succeeded",
+  "succeeded": 1,
+  "failed": 0,
+  "stale": 0,
+  "units": [
+    {
+      "dogIndex": 16,
+      "birdId": "81c11f45-da24-529a-bf4c-007163bdb47c",
+      "inputContentRevision": "sha256:cae0ffe8ccadbb3dc6a90ed1fe5aa1184b8b0fde570123893450af0f9ca88ee9",
+      "status": "succeeded",
+      "stage": "done",
+      "disposition": "committed",
+      "retryable": false,
+      "error": null,
+      "file": "dogs/dog_16/sprite_000.png",
+      "variantIndex": 0
+    }
+  ],
+  "error": null
+}

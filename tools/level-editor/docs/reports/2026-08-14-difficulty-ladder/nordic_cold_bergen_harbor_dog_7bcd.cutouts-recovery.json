@@ -1,0 +1,58 @@
+{
+  "jobId": "4cdb53a062604bdea3c0ddc6a617f962",
+  "status": "succeeded",
+  "succeeded": 4,
+  "failed": 0,
+  "stale": 0,
+  "units": [
+    {
+      "dogIndex": 6,
+      "birdId": "7c218b73-77ba-5a71-9c7b-f2fe70a11bc4",
+      "inputContentRevision": "sha256:c91b44d346b710785becbe76e523e60252fdfb88456d974cd5b6da268460d74d",
+      "status": "succeeded",
+      "stage": "done",
+      "disposition": "committed",
+      "retryable": false,
+      "error": null,
+      "file": "dogs/dog_06/sprite_000.png",
+      "variantIndex": 0
+    },
+    {
+      "dogIndex": 7,
+      "birdId": "13bc8a22-4954-505a-9748-ef445c9faa05",
+      "inputContentRevision": "sha256:c91b44d346b710785becbe76e523e60252fdfb88456d974cd5b6da268460d74d",
+      "status": "succeeded",
+      "stage": "done",
+      "disposition": "committed",
+      "retryable": false,
+      "error": null,
+      "file": "dogs/dog_07/sprite_000.png",
+      "variantIndex": 0
+    },
+    {
+      "dogIndex": 13,
+      "birdId": "25c3a2a8-161a-5ea9-b728-a0aa6bf8179f",
+      "inputContentRevision": "sha256:c91b44d346b710785becbe76e523e60252fdfb88456d974cd5b6da268460d74d",
+      "status": "succeeded",
+      "stage": "done",
+      "disposition": "committed",
+      "retryable": false,
+      "error": null,
+      "file": "dogs/dog_13/sprite_000.png",
+      "variantIndex": 0
+    },
+    {
+      "dogIndex": 29,
+      "birdId": "8afb3cb7-7315-4945-9d90-f1b60b0ff894",
+      "inputContentRevision": "sha256:c91b44d346b710785becbe76e523e60252fdfb88456d974cd5b6da268460d74d",
+      "status": "succeeded",
+      "stage": "done",
+      "disposition": "committed",
+      "retryable": false,
+      "error": null,
+      "file": "dogs/dog_29/sprite_000.png",
+      "variantIndex": 0
+    }
+  ],
+  "error": null
+}
