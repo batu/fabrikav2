@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto';
 import { URL } from 'node:url';
+import { FIND_THE_DOG_ADMOB_IDENTITY } from '../admob-identities.mjs';
 
 export const FIND_THE_DOG_ENV_KEYS = Object.freeze([
   'VITE_FIREBASE_API_KEY',
@@ -80,6 +81,16 @@ const FIND_THE_DOG_RELEASE_IDENTITY = Object.freeze({
   firebaseProjectId: 'find-the-dog-basegamelab',
   gameAnalyticsGameId: 'find_the_dog',
   appsFlyerAppleAppId: '6772100729',
+  admobIos: FIND_THE_DOG_ADMOB_IDENTITY,
+  legal: Object.freeze({
+    VITE_FTD_PRIVACY_POLICY_URL: 'https://basegamelab.com/find-the-dog/privacy',
+    VITE_FTD_TERMS_URL: 'https://basegamelab.com/find-the-dog/terms',
+    VITE_FTD_DATA_DELETION_URL: 'https://basegamelab.com/find-the-dog/data-deletion',
+    VITE_FTD_SUPPORT_URL: 'https://basegamelab.com/find-the-dog/support',
+    VITE_FTD_STORE_LINK: 'https://apps.apple.com/app/id6772100729',
+    VITE_PRIVACY_POLICY_URL: 'https://basegamelab.com/find-the-dog/privacy',
+    VITE_TERMS_URL: 'https://basegamelab.com/find-the-dog/terms',
+  }),
 });
 const FIND_THE_DOG_GAME_KEY_FINGERPRINT = '6552cf5728ac534e7c024e59e817fa90eb470ed4a13fde22a818ee18e496271d';
 const FIND_THE_DOG_SECRET_KEY_FINGERPRINT = '2506d2b5d3ac051a6443feca234099beee48675b2573e19b48f14de28b72b4d2';
@@ -110,6 +121,11 @@ function validateConditional({ values, mode, booleanValue, requireValue, invalid
   const firebaseProjectId = values.get('VITE_FIREBASE_PROJECT_ID');
   if (firebaseProjectId && firebaseProjectId.trim() !== identityPolicy.releaseIdentity.firebaseProjectId) {
     invalidKeys.push('VITE_FIREBASE_PROJECT_ID');
+  }
+
+  for (const [key, expected] of Object.entries(identityPolicy.releaseIdentity.legal)) {
+    const actual = values.get(key)?.trim();
+    if (actual && actual !== expected) invalidKeys.push(key);
   }
 
   if (mode === 'ios') {
@@ -209,6 +225,16 @@ function validateConditional({ values, mode, booleanValue, requireValue, invalid
       'VITE_ADMOB_IOS_INTERSTITIAL_ID',
       'VITE_ADMOB_IOS_REWARDED_ID',
     ]) requireValue(key);
+    const expectedAdMobValues = {
+      VITE_ADMOB_IOS_APP_ID: identityPolicy.releaseIdentity.admobIos.appId,
+      VITE_ADMOB_IOS_BANNER_ID: identityPolicy.releaseIdentity.admobIos.adUnits.banner,
+      VITE_ADMOB_IOS_INTERSTITIAL_ID: identityPolicy.releaseIdentity.admobIos.adUnits.interstitial,
+      VITE_ADMOB_IOS_REWARDED_ID: identityPolicy.releaseIdentity.admobIos.adUnits.rewarded,
+    };
+    for (const [key, expected] of Object.entries(expectedAdMobValues)) {
+      const actual = values.get(key)?.trim();
+      if (actual && actual !== expected) invalidKeys.push(key);
+    }
     if (booleanValue(values.get('VITE_ADMOB_IOS_TEST_MODE')) === true) {
       requireValue('VITE_ADMOB_IOS_TEST_DEVICE_IDS');
     }
@@ -239,6 +265,7 @@ function validateChoice(values, key, allowed, invalidKeys) {
 
 function configureSyntheticFixture(values, mode, releaseIdentity) {
   values.set('VITE_FIREBASE_PROJECT_ID', releaseIdentity.firebaseProjectId);
+  for (const [key, value] of Object.entries(releaseIdentity.legal)) values.set(key, value);
   if (mode === 'ios') {
     values.set('VITE_GAMEANALYTICS_IOS_ENABLED', 'true');
     values.set('VITE_GAMEANALYTICS_IOS_GAME_ID', releaseIdentity.gameAnalyticsGameId);

@@ -1,4 +1,6 @@
+import fs from 'node:fs';
 import { describe, expect, it } from 'vitest';
+import { readEnvFile } from '../../../../tools/game-env/src/env.mjs';
 import { readGameAnalyticsIosConfig } from '../../src/analytics/GameAnalyticsConfig';
 
 describe('FTD GameAnalytics runtime configuration', () => {
@@ -47,6 +49,30 @@ describe('FTD GameAnalytics runtime configuration', () => {
     expect(JSON.stringify(result)).not.toContain(placeholderSecretKey);
   });
 
+  it.runIf(fs.existsSync('.env.ios.local'))('accepts the provisioned owner credential through the pinned production identity path', () => {
+    const ownerEnv = Object.fromEntries(readEnvFile('.env.ios.local').values);
+
+    const result = readGameAnalyticsIosConfig(ownerEnv, true);
+
+    expect(result).toMatchObject({ enabled: true });
+  });
+
+  it.runIf(fs.existsSync('.env.ios.local'))('fails production closed when a well-shaped secret is not approved for FTD', () => {
+    const ownerEnv = Object.fromEntries(readEnvFile('.env.ios.local').values);
+    const arbitrarySecretKey = 'b'.repeat(40);
+
+    const result = readGameAnalyticsIosConfig({
+      ...ownerEnv,
+      VITE_GAMEANALYTICS_IOS_SECRET_KEY: arbitrarySecretKey,
+    }, true);
+
+    expect(result).toMatchObject({
+      enabled: false,
+      reason: 'VITE_GAMEANALYTICS_IOS_SECRET_KEY is not approved for find_the_dog',
+    });
+    expect(JSON.stringify(result)).not.toContain(arbitrarySecretKey);
+  });
+
   it('fails production closed when the well-shaped game key is not in the approved FTD registry', () => {
     const arbitraryGameKey = 'a'.repeat(32);
     const result = readGameAnalyticsIosConfig({
@@ -70,7 +96,10 @@ describe('FTD GameAnalytics runtime configuration', () => {
       VITE_GAMEANALYTICS_IOS_GAME_ID: 'find_the_dog',
       VITE_GAMEANALYTICS_IOS_GAME_KEY: ownedSyntheticGameKey,
       VITE_GAMEANALYTICS_IOS_SECRET_KEY: 'b'.repeat(40),
-    }, true, { approvedGameKeys: [ownedSyntheticGameKey] });
+    }, true, {
+      approvedGameKeys: [ownedSyntheticGameKey],
+      approvedSecretKeys: ['b'.repeat(40)],
+    });
 
     expect(result).toMatchObject({ enabled: true });
   });

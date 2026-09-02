@@ -189,13 +189,17 @@ function canonicalEventIdForProgressionStatus(status: GameAnalyticsProgressionSt
 
 function canonicalEventIdForDesignEvent(eventId: string): CanonicalAnalyticsEventId | null {
   const normalized = eventId.trim().toLowerCase();
+  if (normalized === 'session:start') return 'session_start';
   if (normalized === 'app:open') return 'app_open';
   if (normalized === 'app:background') return 'app_background';
   if (normalized === 'app:foreground') return 'app_foreground';
   if (normalized === 'dog:found') return 'dog_found';
   if (normalized === 'hint:used') return 'hint_used';
   if (normalized === 'store:product_tap') return 'product_tapped';
+  if (normalized === 'purchase:initiated') return 'purchase_initiated';
   if (normalized === 'purchase:sheet_shown') return 'purchase_sheet_shown';
+  if (normalized === 'purchase:cancelled') return 'purchase_cancelled';
+  if (normalized === 'purchase:failed') return 'purchase_failed';
   if (normalized === 'iap:state_changed') return 'iap_state_changed';
   if (normalized.startsWith('settings:')) return 'settings_changed';
   if (normalized === 'purchase:fulfilled') return 'purchase_fulfilled';

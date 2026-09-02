@@ -204,6 +204,23 @@ describe('GameAnalytics AnalyticsSink', () => {
   });
 
   it.each([
+    ['purchase_initiated', 'purchase:initiated', { product_id: 'hints_pack', surface: 'shop' }],
+    ['purchase_cancelled', 'purchase:cancelled', { product_id: 'hints_pack', surface: 'fail_continue' }],
+    ['purchase_failed', 'purchase:failed', { product_id: 'hints_pack', surface: 'shop', reason: 'failed', failure_kind: 'timeout' }],
+  ])('maps %s with declared dimensions while rejecting arbitrary params', async (name, wireName, dimensions) => {
+    const addDesignEvent = vi.fn();
+    const sink = createGameAnalyticsSink(validConfig(), {
+      loader: vi.fn(async () => gameAnalyticsSdk({ addDesignEvent })),
+    });
+
+    sink.emit(event(name, { ...dimensions, arbitrary_param: 'must-not-leak' }));
+    await sink.flush?.();
+
+    expect(addDesignEvent).toHaveBeenCalledWith(wireName, undefined, dimensions);
+    expect(addDesignEvent.mock.calls[0]?.[2]).not.toHaveProperty('arbitrary_param');
+  });
+
+  it.each([
     ['app_background', 'app:background', {}],
     ['app_foreground', 'app:foreground', {}],
     ['product_tapped', 'store:product_tap', { product_id: 'hints_pack' }],

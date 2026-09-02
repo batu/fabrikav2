@@ -38,6 +38,7 @@ import {
   readAttributionProviderChoice,
   selectAttributionProvider,
 } from '@fabrikav2/sdk/attribution';
+import adMobPublicConfig from '../../config/admob.public.json';
 import { setMusicPausedForAd } from '../audio/AudioManager';
 import { bootstrapStorage, type BootstrapStorage } from '../platform/bootstrapStorage';
 import { gameState } from '../core/GameState';
@@ -146,7 +147,12 @@ export function createSdkContext(deps: CreateSdkContextDependencies = {}): GameS
 
   let analyticsFacade: Analytics<FtdEvent> | null = null;
   let forwardAcquisitionValueEvent: (event: Parameters<AppsFlyerEventMapper['map']>[0]) => Promise<boolean> = async () => false;
-  const adMobConfig = readAdMobConfig(platform === 'android' ? 'android' : 'ios', env);
+  const adMobConfig = readAdMobConfig(
+    platform === 'android' ? 'android' : 'ios',
+    env,
+    platform === 'ios' ? adMobPublicConfig : undefined,
+    buildEnv === 'production' && platform === 'ios',
+  );
   const lifecycle = {
     onFullScreenAdStarted: (): void => setMusicPausedForAd(true),
     onFullScreenAdFinished: (): void => setMusicPausedForAd(false),
@@ -246,6 +252,7 @@ export function createSdkContext(deps: CreateSdkContextDependencies = {}): GameS
     sinks,
     globalParams: {
       game: 'find_the_dog',
+      environment: environments.analytics,
       platform,
       build: analyticsBuild,
       app_version: analyticsVersion,

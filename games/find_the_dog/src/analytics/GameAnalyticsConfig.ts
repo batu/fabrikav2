@@ -1,3 +1,5 @@
+import { sha256Hex } from '@fabrikav2/sdk/config-env';
+
 export interface GameAnalyticsIosConfig {
   gameKey: string;
   secretKey: string;
@@ -18,13 +20,22 @@ export type GameAnalyticsConfigResult =
 export type GameAnalyticsEnv = Record<string, string | boolean | undefined>;
 
 export interface GameAnalyticsIdentityPolicy {
-  /** Public GameAnalytics game keys explicitly bound to FTD. Empty in
-   * production until the external FTD project has been provisioned. */
+  /** GameAnalytics credentials explicitly bound to FTD. Raw values are a test-only seam;
+   * production pins one-way fingerprints so raw credentials are not bundled. */
   readonly approvedGameKeys: readonly string[];
+  readonly approvedGameKeyFingerprints?: readonly string[];
+  readonly approvedSecretKeys?: readonly string[];
+  readonly approvedSecretKeyFingerprints?: readonly string[];
 }
 
 const PRODUCTION_GAMEANALYTICS_IDENTITY_POLICY: GameAnalyticsIdentityPolicy = {
   approvedGameKeys: [],
+  approvedGameKeyFingerprints: [
+    '6552cf5728ac534e7c024e59e817fa90eb470ed4a13fde22a818ee18e496271d',
+  ],
+  approvedSecretKeyFingerprints: [
+    '2506d2b5d3ac051a6443feca234099beee48675b2573e19b48f14de28b72b4d2',
+  ],
 };
 
 const REQUIRED_GAMEANALYTICS_KEYS = [
@@ -85,10 +96,23 @@ export function readGameAnalyticsIosConfig(
   }
 
   const gameKey = requiredValue(values.VITE_GAMEANALYTICS_IOS_GAME_KEY);
-  if (isProductionBuild && !identityPolicy.approvedGameKeys.includes(gameKey)) {
+  const gameKeyApproved = identityPolicy.approvedGameKeys.includes(gameKey)
+    || (identityPolicy.approvedGameKeyFingerprints ?? []).includes(sha256Hex(gameKey));
+  if (isProductionBuild && !gameKeyApproved) {
     return {
       enabled: false,
       reason: 'VITE_GAMEANALYTICS_IOS_GAME_KEY is not approved for find_the_dog',
+      missingKeys: [],
+    };
+  }
+
+  const secretKey = requiredValue(values.VITE_GAMEANALYTICS_IOS_SECRET_KEY);
+  const secretKeyApproved = (identityPolicy.approvedSecretKeys ?? []).includes(secretKey)
+    || (identityPolicy.approvedSecretKeyFingerprints ?? []).includes(sha256Hex(secretKey));
+  if (isProductionBuild && !secretKeyApproved) {
+    return {
+      enabled: false,
+      reason: 'VITE_GAMEANALYTICS_IOS_SECRET_KEY is not approved for find_the_dog',
       missingKeys: [],
     };
   }
@@ -97,7 +121,7 @@ export function readGameAnalyticsIosConfig(
     enabled: true,
     config: {
       gameKey,
-      secretKey: requiredValue(values.VITE_GAMEANALYTICS_IOS_SECRET_KEY),
+      secretKey,
       verboseLogging: !isProductionBuild && parseBooleanEnv(env.VITE_GAMEANALYTICS_VERBOSE_LOGGING, false),
     },
   };

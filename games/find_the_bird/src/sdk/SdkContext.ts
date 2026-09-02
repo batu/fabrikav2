@@ -51,8 +51,9 @@ import {
   type OwnedAnalyticsMirrorStats,
 } from '../analytics/AnalyticsService';
 import { createGameAnalyticsSink, type GameAnalyticsSdkLoader } from '../analytics/GameAnalyticsSink';
-import { readGameAnalyticsIosConfig } from '../analytics/GameAnalyticsConfig';
-import { readOwnedAnalyticsMirrorConfig } from '../analytics/OwnedAnalyticsMirrorConfig';
+import { readGameAnalyticsIosConfig, type GameAnalyticsIdentityPolicy } from '../analytics/GameAnalyticsConfig';
+import { sanitizeCanonicalAnalyticsParams } from '../analytics/CanonicalAnalyticsEvents';
+import { readOwnedAnalyticsMirrorConfig, type OwnedMirrorIdentityPolicy } from '../analytics/OwnedAnalyticsMirrorConfig';
 import {
   attribution,
   configureAttributionService,
@@ -133,7 +134,9 @@ export interface CreateSdkContextDependencies {
   readonly firebaseAnalyticsLoader?: () => Promise<unknown>;
   readonly revenueCatLoader?: RevenueCatLoader;
   readonly gameAnalyticsLoader?: GameAnalyticsSdkLoader;
+  readonly gameAnalyticsIdentityPolicy?: GameAnalyticsIdentityPolicy;
   readonly mirrorTransport?: MirrorTransport;
+  readonly ownedMirrorIdentityPolicy?: OwnedMirrorIdentityPolicy;
   readonly adProviderFactories?: AdProviderFactories;
   readonly storage?: BootstrapStorage;
   readonly logger?: Pick<Console, 'warn'>;
@@ -152,7 +155,12 @@ export function createSdkContext(deps: CreateSdkContextDependencies = {}): GameS
 
   let analyticsFacade: Analytics<FtdEvent> | null = null;
   let forwardAcquisitionValueEvent: (event: Parameters<AppsFlyerEventMapper['map']>[0]) => Promise<boolean> = async () => false;
-  const adMobConfig = readAdMobConfig(platform === 'android' ? 'android' : 'ios', env, platform === 'ios' ? adMobPublicConfig : undefined);
+  const adMobConfig = readAdMobConfig(
+    platform === 'android' ? 'android' : 'ios',
+    env,
+    platform === 'ios' ? adMobPublicConfig : undefined,
+    buildEnv === 'production' && platform === 'ios',
+  );
   const lifecycle = {
     onFullScreenAdStarted: (): void => setMusicPausedForAd(true),
     onFullScreenAdFinished: (): void => setMusicPausedForAd(false),
@@ -206,9 +214,13 @@ export function createSdkContext(deps: CreateSdkContextDependencies = {}): GameS
 
   let ownedMirror: OwnedMirrorSink | null = null;
   let ownedMirrorDisabledReason = 'owned analytics mirror is not configured';
-  const mirrorConfig = readOwnedAnalyticsMirrorConfig(env);
+  const mirrorConfig = readOwnedAnalyticsMirrorConfig(
+    env,
+    buildEnv === 'production',
+    deps.ownedMirrorIdentityPolicy,
+  );
   if (mirrorConfig.config.enabled && mirrorConfig.config.endpointUrl !== null && mirrorConfig.config.publicClientKey !== null) {
-    ownedMirror = createOwnedMirrorSink({
+    const configuredOwnedMirror = createOwnedMirrorSink({
       url: mirrorConfig.config.endpointUrl,
       publicClientKey: mirrorConfig.config.publicClientKey,
       transport: deps.mirrorTransport ?? fetchMirrorTransport,
@@ -217,13 +229,26 @@ export function createSdkContext(deps: CreateSdkContextDependencies = {}): GameS
       batchSize: mirrorConfig.config.flushBatchSize,
       maxAttempts: mirrorConfig.config.maxAttempts,
     });
-    sinks.push(ownedMirror);
+    ownedMirror = configuredOwnedMirror;
+    sinks.push({
+      name: configuredOwnedMirror.name,
+      emit: (event): void => configuredOwnedMirror.emit({
+        ...event,
+        params: sanitizeCanonicalAnalyticsParams(event.name, event.params),
+      }),
+      flush: (): Promise<void> => configuredOwnedMirror.flush(),
+      diagnostics: () => configuredOwnedMirror.diagnostics(),
+    });
     ownedMirrorDisabledReason = '';
   } else {
     ownedMirrorDisabledReason = mirrorConfig.config.disabledReason ?? 'owned analytics mirror is invalid';
   }
 
-  const gaConfig = readGameAnalyticsIosConfig(env, buildEnv === 'production');
+  const gaConfig = readGameAnalyticsIosConfig(
+    env,
+    buildEnv === 'production',
+    deps.gameAnalyticsIdentityPolicy,
+  );
   const gameAnalyticsEnabled = platform === 'ios' && gaConfig.enabled;
   if (gameAnalyticsEnabled && gaConfig.enabled) {
     sinks.push(createGameAnalyticsSink(gaConfig.config, { loader: deps.gameAnalyticsLoader, logger }));

@@ -1,6 +1,19 @@
 import { describe, expect, it, vi } from 'vitest';
 import { createSdkContext } from '../../src/sdk/SdkContext';
 import { gameConfig } from '../../game.config';
+import ownAdMobConfig from '../../config/admob.public.json';
+import otherAdMobConfig from '../../../find_the_bird/config/admob.public.json';
+
+function adMobEnv(config: typeof ownAdMobConfig) {
+  return {
+    VITE_ADMOB_IOS_ENABLED: 'true',
+    VITE_ADMOB_IOS_APP_ID: config.appId,
+    VITE_ADMOB_IOS_BANNER_ID: config.adUnits.banner,
+    VITE_ADMOB_IOS_INTERSTITIAL_ID: config.adUnits.interstitial,
+    VITE_ADMOB_IOS_REWARDED_ID: config.adUnits.rewarded,
+    VITE_ADMOB_IOS_TEST_MODE: 'false',
+  };
+}
 
 describe('FTD SdkContext composition matrix', () => {
   it('resolves environments once and keeps web/CI native loaders cold', () => {
@@ -59,12 +72,7 @@ describe('FTD SdkContext composition matrix', () => {
         VITE_ADJUST_IOS_ENABLED: 'true',
         VITE_ADJUST_IOS_APP_TOKEN: 'a'.repeat(12),
         VITE_ADJUST_IOS_ENVIRONMENT: 'production',
-        VITE_ADMOB_IOS_ENABLED: 'true',
-        VITE_ADMOB_IOS_APP_ID: 'ca-app-pub-1234567890123456~1234567890',
-        VITE_ADMOB_IOS_BANNER_ID: 'ca-app-pub-1234567890123456/1111111111',
-        VITE_ADMOB_IOS_INTERSTITIAL_ID: 'ca-app-pub-1234567890123456/2222222222',
-        VITE_ADMOB_IOS_REWARDED_ID: 'ca-app-pub-1234567890123456/3333333333',
-        VITE_ADMOB_IOS_TEST_MODE: 'false',
+        ...adMobEnv(ownAdMobConfig),
         VITE_FIREBASE_API_KEY: 'firebase-api-key',
         VITE_FIREBASE_PROJECT_ID: 'firebase-project-id',
         VITE_FIREBASE_APP_ID: 'firebase-app-id',
@@ -73,7 +81,10 @@ describe('FTD SdkContext composition matrix', () => {
       firebaseAnalyticsLoader: firebase,
       revenueCatLoader: revenuecat,
       gameAnalyticsLoader: gameanalytics,
-      gameAnalyticsIdentityPolicy: { approvedGameKeys: ['a'.repeat(32)] },
+      gameAnalyticsIdentityPolicy: {
+        approvedGameKeys: ['a'.repeat(32)],
+        approvedSecretKeys: ['b'.repeat(40)],
+      },
     });
 
     expect(context.selection.iap).toBe('revenuecat');
@@ -105,13 +116,38 @@ describe('FTD SdkContext composition matrix', () => {
     expect(context.remoteConfig.snapshot().state).toBe('local-only');
   });
 
-  it('fails closed instead of falling back to sample IDs when AdMob config is incomplete', () => {
+  it('fails closed instead of falling back when an AdMob environment override is malformed', () => {
     const context = createSdkContext({
       buildEnv: 'production',
       platform: 'ios',
       isNativePlatform: true,
       env: {
         VITE_ADMOB_IOS_ENABLED: 'true',
+        VITE_ADMOB_IOS_BANNER_ID: 'not-an-ad-unit-id',
+        VITE_REVENUECAT_IOS_API_KEY: 'appl_A1b2C3d4E5f6G7h8I9j0K1l2M3n',
+      },
+    });
+    expect(context.selection.ads).toBe('disabled');
+  });
+
+  it.each([
+    ['the FTB tuple', otherAdMobConfig],
+    ['an arbitrary well-shaped tuple', {
+      ...ownAdMobConfig,
+      appId: 'ca-app-pub-1234567890123456~1234567890',
+      adUnits: {
+        banner: 'ca-app-pub-1234567890123456/1111111111',
+        interstitial: 'ca-app-pub-1234567890123456/2222222222',
+        rewarded: 'ca-app-pub-1234567890123456/3333333333',
+      },
+    }],
+  ])('rejects %s on the default production composition path', (_label, config) => {
+    const context = createSdkContext({
+      buildEnv: 'production',
+      platform: 'ios',
+      isNativePlatform: true,
+      env: {
+        ...adMobEnv(config),
         VITE_REVENUECAT_IOS_API_KEY: 'appl_A1b2C3d4E5f6G7h8I9j0K1l2M3n',
       },
     });
@@ -201,6 +237,54 @@ describe('FTD SdkContext composition matrix', () => {
       build: expect.any(String),
       cohort_bucket: 3,
     });
+  });
+
+  it('maps the facade production environment through to GameAnalytics custom fields', async () => {
+    const addDesignEvent = vi.fn();
+    const context = createSdkContext({
+      buildEnv: 'production',
+      platform: 'ios',
+      isNativePlatform: true,
+      env: {
+        VITE_REVENUECAT_IOS_API_KEY: 'appl_A1b2C3d4E5f6G7h8I9j0K1l2M3n',
+        VITE_GAMEANALYTICS_IOS_ENABLED: 'true',
+        VITE_GAMEANALYTICS_IOS_GAME_ID: 'find_the_dog',
+        VITE_GAMEANALYTICS_IOS_GAME_KEY: 'a'.repeat(32),
+        VITE_GAMEANALYTICS_IOS_SECRET_KEY: 'b'.repeat(40),
+        VITE_FTD_DISABLE_REMOTE_CONFIG: 'true',
+      },
+      gameAnalyticsIdentityPolicy: {
+        approvedGameKeys: ['a'.repeat(32)],
+        approvedSecretKeys: ['b'.repeat(40)],
+      },
+      gameAnalyticsLoader: vi.fn(async () => ({
+        GameAnalytics: {
+          setEnabledInfoLog: vi.fn(),
+          setEnabledVerboseLog: vi.fn(),
+          configureAvailableResourceCurrencies: vi.fn(),
+          configureAvailableResourceItemTypes: vi.fn(),
+          initialize: vi.fn(),
+          isSdkReady: vi.fn(() => true),
+          addProgressionEvent: vi.fn(),
+          addDesignEvent,
+          addResourceEvent: vi.fn(),
+          addAdEvent: vi.fn(),
+        },
+        EGAProgressionStatus: { Start: 1, Complete: 2, Fail: 3 },
+        EGAResourceFlowType: { Source: 1, Sink: 2 },
+        EGAAdAction: { Show: 1, FailedShow: 2, RewardReceived: 3 },
+        EGAAdType: { Banner: 1, Interstitial: 2, RewardedVideo: 3 },
+      })),
+    });
+
+    context.analytics.track('dog_found', { level_id: 'level_1', dog_index: 0 });
+    await context.analytics.flush();
+
+    expect(addDesignEvent).toHaveBeenCalledWith(
+      'dog:found',
+      undefined,
+      expect.objectContaining({ environment: 'production' }),
+    );
   });
 
   it('selects strict AppsFlyer from the shared config matrix', () => {
@@ -341,7 +425,10 @@ describe('FTD SdkContext composition matrix', () => {
         VITE_FTD_DISABLE_REMOTE_CONFIG: 'true',
       },
       gameAnalyticsLoader: vi.fn(async () => { throw new TypeError('secret-canary'); }),
-      gameAnalyticsIdentityPolicy: { approvedGameKeys: ['a'.repeat(32)] },
+      gameAnalyticsIdentityPolicy: {
+        approvedGameKeys: ['a'.repeat(32)],
+        approvedSecretKeys: ['b'.repeat(40)],
+      },
       logger: { warn: vi.fn() },
     });
 

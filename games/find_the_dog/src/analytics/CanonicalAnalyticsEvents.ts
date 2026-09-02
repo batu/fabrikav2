@@ -48,9 +48,21 @@ const levelAttributionFields = [
 
 const economyFields = ['flow_type', 'currency', 'amount', 'item_type', 'item_id', 'product_id', 'no_ads', 'hints', 'coins', 'continue_level', 'level_id'] as const;
 const adRevenueFields = ['ad_type', 'placement', 'provider', 'currency', 'precision', 'network_name'] as const;
-const runtimeIdentityFields = ['app_version', 'build', 'platform', 'game', 'cohort_bucket'] as const;
+const runtimeIdentityFields = ['app_version', 'build', 'platform', 'game', 'environment', 'cohort_bucket'] as const;
 
 export const canonicalAnalyticsEvents = [
+  {
+    id: 'session_start',
+    firebaseName: 'session_start',
+    gameAnalyticsName: 'session:start',
+    family: 'design',
+    panel: 'retention',
+    question: 'New-install sessions versus returning sessions.',
+    primaryDimensions: ['first_open'],
+    instrumentationStatus: 'runtime',
+    successBoundary: 'Analytics session start is emitted after first-open state is resolved.',
+    allowedGameAnalyticsCustomFields: ['first_open'],
+  },
   {
     id: 'app_open',
     firebaseName: 'app_open',
@@ -665,7 +677,11 @@ const runtimeIdentityFieldKeySet = new Set(runtimeIdentityFields.map(normalizeAn
 const gameAnalyticsAllowedCustomFieldKeySetsByEventId = new Map(
   canonicalAnalyticsEventDefinitions.map((event) => [
     event.id,
-    new Set([...runtimeIdentityFields, ...(event.allowedGameAnalyticsCustomFields ?? [])].map(normalizeAnalyticsFieldKey)),
+    new Set([
+      ...runtimeIdentityFields,
+      ...event.primaryDimensions,
+      ...(event.allowedGameAnalyticsCustomFields ?? []),
+    ].map(normalizeAnalyticsFieldKey)),
   ]),
 );
 const canonicalAllowedParamKeySetsByEventId = new Map(
@@ -707,6 +723,7 @@ export const dashboardImportDimensionKeys = [
   'experiment_id',
   'fallback_reason',
   'finds_remaining',
+  'first_open',
   'flow_type',
   'goal',
   'game',

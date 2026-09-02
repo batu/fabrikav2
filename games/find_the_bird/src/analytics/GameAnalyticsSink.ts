@@ -174,6 +174,9 @@ function unwrapSdk(module: unknown): GameAnalyticsSdk {
 function dispatch(sdk: GameAnalyticsSdk, event: AnalyticsEvent): boolean {
   const params = event.params;
   const levelId = String(params.level_id ?? 'unknown');
+  if (event.name === 'ad_request') {
+    return trackDesign(sdk, designEvent(gameAnalyticsDesignEventId(event.name, params), params));
+  }
   if (event.name === 'level_start') return trackProgression(sdk, levelProgressionEvent('start', levelId, undefined, params));
   if (event.name === 'level_complete') return trackProgression(sdk, levelProgressionEvent('complete', levelId, numberParam(params.duration_ms), params));
   if (event.name === 'level_fail' || event.name === 'level_failed') return trackProgression(sdk, levelProgressionEvent('fail', levelId, undefined, params));

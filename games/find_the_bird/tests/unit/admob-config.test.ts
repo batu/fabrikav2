@@ -1,4 +1,6 @@
 import { describe, expect, it } from 'vitest';
+import ownPublicConfig from '../../config/admob.public.json';
+import otherPublicConfig from '../../../find_the_dog/config/admob.public.json';
 import { readAdMobConfig, readAdMobIosConfig } from '../../src/ads/AdMobConfig';
 
 const complete = {
@@ -12,6 +14,37 @@ const complete = {
 };
 
 describe('readAdMobIosConfig', () => {
+  it('accepts only the committed FTB tuple in production', () => {
+    const envFor = (config: typeof ownPublicConfig) => ({
+      VITE_ADMOB_IOS_ENABLED: 'true',
+      VITE_ADMOB_IOS_APP_ID: config.appId,
+      VITE_ADMOB_IOS_BANNER_ID: config.adUnits.banner,
+      VITE_ADMOB_IOS_INTERSTITIAL_ID: config.adUnits.interstitial,
+      VITE_ADMOB_IOS_REWARDED_ID: config.adUnits.rewarded,
+      VITE_ADMOB_IOS_TEST_MODE: 'false',
+    });
+
+    expect(readAdMobIosConfig(envFor(ownPublicConfig), ownPublicConfig, true)).toMatchObject({ enabled: true });
+    expect(readAdMobIosConfig(envFor(otherPublicConfig), ownPublicConfig, true)).toMatchObject({
+      enabled: false,
+      invalidKeys: expect.arrayContaining([
+        'VITE_ADMOB_IOS_APP_ID',
+        'VITE_ADMOB_IOS_BANNER_ID',
+        'VITE_ADMOB_IOS_INTERSTITIAL_ID',
+        'VITE_ADMOB_IOS_REWARDED_ID',
+      ]),
+    });
+    expect(readAdMobIosConfig(complete, ownPublicConfig, true)).toMatchObject({
+      enabled: false,
+      invalidKeys: expect.arrayContaining([
+        'VITE_ADMOB_IOS_APP_ID',
+        'VITE_ADMOB_IOS_BANNER_ID',
+        'VITE_ADMOB_IOS_INTERSTITIAL_ID',
+        'VITE_ADMOB_IOS_REWARDED_ID',
+      ]),
+    });
+  });
+
   it('is disabled unless explicitly enabled', () => {
     expect(readAdMobIosConfig({})).toMatchObject({ enabled: false, missingKeys: [] });
   });

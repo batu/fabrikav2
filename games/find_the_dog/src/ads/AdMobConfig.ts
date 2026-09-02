@@ -28,11 +28,20 @@ export type AdMobIosConfigResult =
   | { enabled: true; appId: string; config: AdConfig; reason?: undefined }
   | { enabled: false; reason: string; missingKeys: string[]; invalidKeys: string[] };
 
-export function readAdMobIosConfig(env: Env, publicConfig?: AdMobIosPublicConfig): AdMobIosConfigResult {
-  return readAdMobConfig('ios', env, publicConfig);
+export function readAdMobIosConfig(
+  env: Env,
+  publicConfig?: AdMobIosPublicConfig,
+  enforcePublicIdentity = false,
+): AdMobIosConfigResult {
+  return readAdMobConfig('ios', env, publicConfig, enforcePublicIdentity);
 }
 
-export function readAdMobConfig(platform: 'android' | 'ios', env: Env, publicConfig?: AdMobIosPublicConfig): AdMobIosConfigResult {
+export function readAdMobConfig(
+  platform: 'android' | 'ios',
+  env: Env,
+  publicConfig?: AdMobIosPublicConfig,
+  enforcePublicIdentity = false,
+): AdMobIosConfigResult {
   const prefix = platform === 'android' ? 'VITE_ADMOB_ANDROID' : 'VITE_ADMOB_IOS';
   const keys = REQUIRED_KEYS.map((key) => key.replace('VITE_ADMOB_IOS', prefix));
   if (!parseBooleanEnv(env[`${prefix}_ENABLED`], publicConfig?.enabled ?? false)) {
@@ -65,6 +74,17 @@ export function readAdMobConfig(platform: 'android' | 'ios', env: Env, publicCon
   for (const [slot, value] of Object.entries(units)) {
     if (!validIdentifier(value, UNIT_ID)) invalidKeys.push(`${prefix}_${slot.toUpperCase()}_ID`);
   }
+  if (enforcePublicIdentity) {
+    const expected = publicConfig && {
+      VITE_ADMOB_IOS_APP_ID: publicConfig.appId,
+      VITE_ADMOB_IOS_BANNER_ID: publicConfig.adUnits.banner,
+      VITE_ADMOB_IOS_INTERSTITIAL_ID: publicConfig.adUnits.interstitial,
+      VITE_ADMOB_IOS_REWARDED_ID: publicConfig.adUnits.rewarded,
+    };
+    for (const key of REQUIRED_KEYS) {
+      if (!expected || values[key] !== expected[key]) invalidKeys.push(key);
+    }
+  }
   if (invalidKeys.length > 0) {
     return { enabled: false, reason: `invalid AdMob iOS config: ${invalidKeys.join(', ')}`, missingKeys: [], invalidKeys };
   }
@@ -87,7 +107,7 @@ export function readAdMobConfig(platform: 'android' | 'ios', env: Env, publicCon
 }
 
 export function adMobIosConfigPresent(env: Env, publicConfig?: AdMobIosPublicConfig): boolean {
-  return readAdMobIosConfig(env, publicConfig).enabled;
+  return readAdMobIosConfig(env, publicConfig, publicConfig !== undefined).enabled;
 }
 
 function csv(value: string | null): string[] {

@@ -134,6 +134,31 @@ describe('analytics lifecycle flush (session_end loss fix)', () => {
     ]);
   });
 
+  it('reconciles suspend then resume during first-open claim without a resumed or background session', async () => {
+    const events: string[] = [];
+    let releaseClaim = (): void => {};
+    const delayedLocks = {
+      request: async (_name: string, callback: () => boolean | Promise<boolean>) => {
+        await new Promise<void>((resolve) => { releaseClaim = resolve; });
+        return callback();
+      },
+    };
+    analytics.configureComposition({ sdk: sdk() as never, storage: memoryStorage(), firstOpenLocks: delayedLocks });
+    vi.spyOn(sdk(), 'sessionStart').mockImplementation((params: unknown) => { events.push(`session_start:${JSON.stringify(params)}`); });
+    vi.spyOn(sdk(), 'track').mockImplementation((name: unknown) => { events.push(String(name)); });
+    vi.spyOn(sdk(), 'sessionEnd').mockImplementation(() => { events.push('session_end'); });
+    vi.spyOn(sdk(), 'flush').mockImplementation(async () => { events.push('flush'); });
+
+    const initializing = analytics.init({ hadExistingStateAtBootstrap: false });
+    setLifecycleForTest('inactive');
+    setLifecycleForTest('active');
+    expect(events).toEqual([]);
+    releaseClaim();
+    await initializing;
+
+    expect(events).toEqual(['session_start:{"first_open":true}']);
+  });
+
   it('orders session_start(first_open), app_open, then lifecycle flush on a normal boot', async () => {
     const events: string[] = [];
     vi.spyOn(sdk(), 'sessionStart').mockImplementation((params: unknown) => { events.push(`session_start:${JSON.stringify(params)}`); });
