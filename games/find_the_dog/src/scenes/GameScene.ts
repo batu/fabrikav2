@@ -74,6 +74,7 @@ type HitboxVisibilityWarning = 'clipped' | 'near border' | 'HUD' | 'AD' | 'SAFE_
 const CLASSIC_REVEAL_EDGE_FEATHER_PX = 10;
 /** Upper bound on a classic reveal patch canvas edge (pixels), independent of the GL texture cap. */
 const CLASSIC_PATCH_MAX_LONG_EDGE = 4096;
+const CLASSIC_REVEALED_TEXTURE_KEY = 'classic_revealed';
 const RESTORATION_CLEANUP_FOOTPRINT_SCALE = 2;
 const FAST_E2E_UI = String(import.meta.env.VITE_FTD_FAST_E2E_UI) === 'true';
 const TUTORIAL_PROMPT_DELAY_MS = FAST_E2E_UI ? 40 : 500;
@@ -183,6 +184,10 @@ export class GameScene extends Phaser.Scene {
   private classicUsesCpuComposite: boolean = false;
   private classicUsesPatchComposite: boolean = false;
   private classicActivePatch: ClassicPatch | null = null;
+  /** iOS classic: one persistent color layer that finished cells are folded into (patch-composite only). */
+  private classicRevealedCtx: CanvasRenderingContext2D | null = null;
+  private classicRevealedImage: Phaser.GameObjects.Image | null = null;
+  private classicRevealedDensity: number = 1;
   private classicPatchImages: Phaser.GameObjects.Image[] = [];
   private classicPatchTextureKeys: string[] = [];
   private classicPatchTextureCounter: number = 0;
@@ -337,6 +342,9 @@ export class GameScene extends Phaser.Scene {
     this.classicUsesCpuComposite = false;
     this.classicUsesPatchComposite = false;
     this.classicActivePatch = null;
+    this.classicRevealedCtx = null;
+    this.classicRevealedImage = null;
+    this.classicRevealedDensity = 1;
     this.classicPatchImages = [];
     this.classicPatchTextureKeys = [];
     this.classicPatchTextureCounter = 0;
@@ -896,6 +904,7 @@ export class GameScene extends Phaser.Scene {
       this.colorImage.setMask(bitmapMask);
     } else if (this.classicUsesPatchComposite) {
       this.colorImage.setVisible(false).setActive(false);
+      this.createClassicRevealedLayer(colorExtentW, colorExtentH);
     } else if (this.classicUsesCpuComposite) {
       this.compositeCanvas = document.createElement('canvas');
       this.compositeCanvas.width = colorExtentW;
@@ -1095,6 +1104,9 @@ export class GameScene extends Phaser.Scene {
       for (const textureKey of this.classicPatchTextureKeys) {
         if (this.textures.exists(textureKey)) this.textures.remove(textureKey);
       }
+      if (this.textures.exists(CLASSIC_REVEALED_TEXTURE_KEY)) this.textures.remove(CLASSIC_REVEALED_TEXTURE_KEY);
+      this.classicRevealedCtx = null;
+      this.classicRevealedImage = null;
       this.classicPatchImages = [];
       this.classicPatchTextureKeys = [];
       this.classicPatchTextureCounter = 0;
@@ -1459,6 +1471,7 @@ export class GameScene extends Phaser.Scene {
         this.revealedCells.push({ polygon: cellPolygon, screenPoints });
         this.stampPermanentCell(screenPoints);
         this.pendingRevealDirtyRect = this.getPolygonDirtyRect(screenPoints, CLASSIC_REVEAL_EDGE_FEATHER_PX + 4);
+        this.commitClassicPatch();
 
         this.activeRevealCenter = null;
         this.activeRevealRadius = 0;
@@ -2680,7 +2693,12 @@ export class GameScene extends Phaser.Scene {
     this.recordRevealFrame(frameStartedAt, redrawMs, timings.maskRefreshMs, timings.cpuCompositeMs, rw * rh);
   }
 
-  private drawActiveClassicReveal(ctx: CanvasRenderingContext2D): void {
+  /**
+   * @param featherScale canvas pixels per screen pixel of `ctx`'s backing
+   * store. shadowBlur ignores the current transform, so a denser canvas
+   * needs the feather scaled up to keep the same on-screen softness.
+   */
+  private drawActiveClassicReveal(ctx: CanvasRenderingContext2D, featherScale: number = 1): void {
     if (!this.activeRevealCenter || this.activeRevealRadius <= 0 || !this.activeRevealPolygon) return;
 
     const cx = this.imgOffsetX + this.activeRevealCenter.x * this.imgScale;
@@ -2689,7 +2707,7 @@ export class GameScene extends Phaser.Scene {
     ctx.save();
     ctx.fillStyle = 'white';
     ctx.shadowColor = 'white';
-    ctx.shadowBlur = CLASSIC_REVEAL_EDGE_FEATHER_PX;
+    ctx.shadowBlur = CLASSIC_REVEAL_EDGE_FEATHER_PX * featherScale;
 
     // Clip to the Voronoi polygon
     ctx.beginPath();
@@ -2765,7 +2783,7 @@ export class GameScene extends Phaser.Scene {
     ctx.scale(density, density);
     ctx.translate(-rect.x, -rect.y);
     if (this.activeRevealCenter && this.activeRevealRadius > 0 && this.activeRevealPolygon) {
-      this.drawActiveClassicReveal(ctx);
+      this.drawActiveClassicReveal(ctx, density);
     } else {
       ctx.drawImage(this.maskCanvas!, 0, 0);
     }
@@ -2785,7 +2803,7 @@ export class GameScene extends Phaser.Scene {
    * Color-texture pixels per screen pixel for a classic patch, never below 1
    * and never so high that the patch canvas exceeds the runtime texture cap.
    */
-  private resolveClassicPatchDensity(rect: DirtyRect): number {
+  private resolveClassicPatchDensity(rect: DirtyRect, maxLongEdge: number = CLASSIC_PATCH_MAX_LONG_EDGE): number {
     const level = this.level;
     const colorSource = this.getCanvasSourceImage('color') as { width?: number } | null;
     const sourceWidth = Number(colorSource?.width);
@@ -2795,8 +2813,67 @@ export class GameScene extends Phaser.Scene {
     // Patches persist for the whole level (one per found dog), so bound the
     // worst case (a near-fullscreen first cell) independently of the GL cap.
     const longEdge = Math.max(1, rect.w, rect.h);
-    const cap = Math.min(this.runtimeTextureLongEdge, CLASSIC_PATCH_MAX_LONG_EDGE) / longEdge;
+    const cap = Math.min(this.runtimeTextureLongEdge, maxLongEdge) / longEdge;
     return Math.max(1, Math.min(native, cap));
+  }
+
+  /**
+   * iOS classic: the single color layer finished cells are folded into. Sized
+   * at the color texture's density (bounded only by the GL cap) so folded
+   * cells keep the sharpness the per-cell patch had; one texture of roughly
+   * the color texture's footprint replaces one texture per found dog.
+   */
+  private createClassicRevealedLayer(extentW: number, extentH: number): void {
+    const density = this.resolveClassicPatchDensity({ x: 0, y: 0, w: extentW, h: extentH }, this.runtimeTextureLongEdge);
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.max(1, Math.ceil(extentW * density));
+    canvas.height = Math.max(1, Math.ceil(extentH * density));
+    if (this.textures.exists(CLASSIC_REVEALED_TEXTURE_KEY)) this.textures.remove(CLASSIC_REVEALED_TEXTURE_KEY);
+    this.textures.addCanvas(CLASSIC_REVEALED_TEXTURE_KEY, canvas);
+    const texture = this.textures.get(CLASSIC_REVEALED_TEXTURE_KEY) as Phaser.Textures.CanvasTexture;
+    this.classicRevealedCtx = texture.context;
+    this.classicRevealedDensity = density;
+    this.classicRevealedImage = this.add.image(0, 0, CLASSIC_REVEALED_TEXTURE_KEY);
+    this.classicRevealedImage.setOrigin(0, 0);
+    this.classicRevealedImage.setDisplaySize(extentW, extentH);
+    this.refreshCanvasTexture(CLASSIC_REVEALED_TEXTURE_KEY);
+  }
+
+  /** Fold the just-finished cell into the persistent layer and drop its per-cell patch. */
+  private commitClassicPatch(): void {
+    const patch = this.classicActivePatch;
+    const ctx = this.classicRevealedCtx;
+    const level = this.level;
+    if (!patch || !ctx || !level || !this.permanentCanvas || !this.textures.exists('color')) return;
+
+    const colorSource = this.getCanvasSourceImage('color');
+    if (colorSource) {
+      const { rect } = patch;
+      const density = this.classicRevealedDensity;
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.save();
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = 'high';
+      ctx.scale(density, density);
+      ctx.beginPath();
+      ctx.rect(rect.x, rect.y, rect.w, rect.h);
+      ctx.clip();
+      ctx.clearRect(rect.x, rect.y, rect.w, rect.h);
+      // permanentCanvas holds every finished cell's feathered mask, so this
+      // region ends as mask ∧ color regardless of how cells overlap.
+      ctx.drawImage(this.permanentCanvas, 0, 0);
+      ctx.globalCompositeOperation = 'source-in';
+      ctx.drawImage(colorSource, this.imgOffsetX, this.imgOffsetY, level.width * this.imgScale, level.height * this.imgScale);
+      ctx.restore();
+      ctx.globalCompositeOperation = 'source-over';
+      this.refreshCanvasTexture(CLASSIC_REVEALED_TEXTURE_KEY);
+    }
+
+    patch.image.destroy();
+    if (this.textures.exists(patch.textureKey)) this.textures.remove(patch.textureKey);
+    this.classicPatchImages = this.classicPatchImages.filter((image) => image !== patch.image);
+    this.classicPatchTextureKeys = this.classicPatchTextureKeys.filter((key) => key !== patch.textureKey);
+    this.classicActivePatch = null;
   }
 
   private getActiveRevealDirtyRect(): DirtyRect | null {
