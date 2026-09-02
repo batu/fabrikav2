@@ -19,6 +19,7 @@ and pitch), storyboard in `refs/art/`, research in `docs/research.md`, plan in
 - `src/battle/` — Phaser renderer and the mage gear composite (base body +
   rarity-tinted garment + element staff).
 - `src/shell/` — kit-composed DOM screens (`@fabrikav2/ui`), harness.
+- `src/game/shop.ts` + `content/shop.ts` — gem packs on the sdk's sandbox purchase provider (no store account).
 - `src/dev/` — dev-only remote drive for on-device iteration (never shipped).
 - `design/` — tokens, copy, asset bindings, generated art + `PROVENANCE.md`.
 

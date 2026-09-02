@@ -34,7 +34,7 @@ with a deviation, named), **MISSING** (not built).
 | 22 | Energy: regen over time, offline regen, spent per level; never a paywall | MET | 45 s regen, tick on boot covers offline; soak: no paywall exists |
 | 23 | Gold faucets: drops, discards, offline income; sink: Rift upgrades | MET | all present |
 | 24 | Crystal faucets: drops, offline income; sink: pulls | MET | all present |
-| 25 | Gems faucets: **purchased**, milestone trickle; sink: skip Rift timer | PARTIAL | milestone trickle and skip are built; **purchasing Gems is not** (the build goal excluded IAP, so no shop exists) |
+| 25 | Gems faucets: **purchased**, milestone trickle; sink: skip Rift timer | MET (sandbox) | Shop tab sells three gem packs through the sdk's sandbox purchase provider (instant settle, no store account); milestone trickle and gem skip unchanged. Real-money wiring (RevenueCat + App Store products) is a separate lane. |
 | 26 | Offline income = passive rate tied to highest cleared level, 8 h cap | MET | walkthrough: "Welcome" grant after a 3 h backdate; `OFFLINE.capHours = 8` |
 | 27 | Progression = Levels of Stages; clearing all unlocks the next | MET | ladder, first-clear timeline in the soak |
 | 28 | Difficulty ramps per level, spikes at the last-stage boss | MET | boss wave with escorts; boss banner + shake |
@@ -49,10 +49,6 @@ with a deviation, named), **MISSING** (not built).
 
 ## Summary
 
-- **MET: 31 of 36.** Every loop element in the design doc is on the phone and in the recording.
-- **PARTIAL: 5.** #8 armor substat pool includes a small ATK roll the doc does not list; #25 Gems can be earned but not **bought** (the build goal excluded IAP, so there is no shop or gem-pack purchase flow); #29 the early ramp was a wall at level 6 in the first 30-minute soak, softened afterwards but not yet re-soaked; #30 the defeat card adds Retry to the doc's "return to menu"; none of these block play.
-- **MISSING: 0** at the loop level. The single feature the doc names that does not exist is the Gem purchase faucet.
-
-## What closing the Gem-purchase gap would take
-
-The kit already ships a `ShopPage` and `@fabrikav2/sdk/iap` with a catalog schema and a fake purchase provider. A shop tab with three gem packs on the fake provider (sandbox fulfilment, no store account) is roughly an hour of work and keeps the "no real IAP" constraint; wiring RevenueCat with real products is a separate lane that needs App Store Connect products and a native shell rebuild.
+- **MET: 32 of 36** (2026-09-03 update: the Gem shop landed on the sandbox provider).
+- **PARTIAL: 4.** #8 armor substat pool includes a small ATK roll the doc does not list; #29 the early ramp was a wall at level 6 in the first 30-minute soak, softened afterwards (headless pacing now reaches level 9–10 with 6 losses; device re-soak pending); #30 the defeat card adds Retry to the doc's "return to menu"; the Gem purchase is sandbox-only (no real store).
+- **MISSING: 0.**
