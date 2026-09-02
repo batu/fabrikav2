@@ -1,0 +1,445 @@
+{
+  "consensus": [
+    "layout",
+    "typography",
+    "missing-element",
+    "background",
+    "sizing",
+    "spacing",
+    "other"
+  ],
+  "defects": [
+    {
+      "defect": "Only one mage is present in the camp area (lone hooded figure at x\u2248530,y\u22481000); the spec calls for three mages at the camp ledge, and the melee unit fighting at x\u2248265,y\u2248540 is a warrior, not a mage trio",
+      "direction": "Place all three mage sprites (Bastion, Ember, Sage) staged on the camp ledge so the HUD cards map 1:1 to visible units",
+      "region": "arena, camp ledge bottom area (y\u2248940-1120)",
+      "severity": "blocker"
+    },
+    {
+      "defect": "A tall empty flat-brown band sits under the sand ledge with no dressing, and the sand play area does not span the full device width \u2014 cream letterbox strips are visible at x\u22480-40 and x\u2248690-724",
+      "direction": "Extend the arena art edge-to-edge and either fill the lower brown band with painted foreground terrain or shrink it so the arena meets the HUD",
+      "region": "arena bottom, brown band between ledge and HUD (y\u22481100-1240)",
+      "severity": "blocker"
+    },
+    {
+      "defect": "Damage/heal numbers stack over character faces and each other, making the combat feedback hard to read.",
+      "direction": "Stagger floating numbers vertically and laterally, with stronger contrast and collision avoidance.",
+      "region": "battlefield upper-center",
+      "severity": "major"
+    },
+    {
+      "defect": "Damage/heal numbers ('50', '13', '+54') are small, low-contrast and overlap each other and the hero sprite; the grey '50' nearly vanishes against sand",
+      "direction": "Increase font size, add a dark outline/drop shadow, and offset stacked numbers vertically so they never overlap sprites or each other",
+      "region": "floating combat numbers near x\u2248180-290, y\u2248420-520",
+      "severity": "major"
+    },
+    {
+      "defect": "Speed toggle and pause buttons overhang the cream title bar and bleed past its top/left edges, and the 1x chip is a plain flat rectangle while pause is an ornate round frame \u2014 inconsistent control styling",
+      "direction": "Inset both controls within the title bar with equal margins and give the speed toggle the same ornate round/pill frame treatment as pause",
+      "region": "top strip, 1x button x\u224820-105 and pause x\u2248620-700, y\u2248220-300",
+      "severity": "major"
+    },
+    {
+      "defect": "All three hero cards use the same tiny grey-robed mage sprite as the portrait even though Bastion is rendered in-arena as a red-haired dwarf with shield",
+      "direction": "Give each card a distinct portrait matching that hero's arena sprite",
+      "region": "bottom HUD, all three portrait rings",
+      "severity": "major"
+    },
+    {
+      "defect": "Only one hooded mage is visibly staged near the camp; the intended three-mage camp composition is not legible.",
+      "direction": "Place all three hero identities clearly around the camp ledge with distinct silhouettes.",
+      "region": "camp ledge, lower arena",
+      "severity": "major"
+    },
+    {
+      "defect": "Spec calls for three mages defending at the camp ledge; only one robed mage stands near the camp, a second hero (dwarf) is far upfield in the goblin spawn area, and a third hero is not visible at all",
+      "direction": "Place all three party heroes together near the camp ledge with the goblins advancing down toward them",
+      "region": "arena camp ledge, bottom-left quadrant",
+      "severity": "major"
+    },
+    {
+      "defect": "The hero and goblin sprites collapse into one dense overlap, obscuring combat silhouettes and who is attacking whom.",
+      "direction": "Separate combatants with clearer lanes and preserve visible sprite outlines.",
+      "region": "battlefield upper-center",
+      "severity": "major"
+    },
+    {
+      "defect": "The stage track rail is drawn on top of / clipped by the arena's left edge and its nodes are half-cut by the sand panel; the active node (yellow, y\u2248865) reads as third from bottom rather than stage 2/4, and node spacing is uneven (gaps 235/235/240 vs bottom node crowding)",
+      "direction": "Move the track fully outside the arena bounds in its own gutter, evenly space the four nodes, and highlight the node matching Stage 2/4",
+      "region": "left-edge stage track, x\u224810-45, y\u2248380-1105",
+      "severity": "major"
+    },
+    {
+      "defect": "Three goblins and the hero overlap heavily and share ambiguous ground shadows; the archer goblin's bow/quiver is occluded and depth ordering reads flat",
+      "direction": "Spread advancing goblins into a staggered formation with clear separation and consistent per-sprite ground shadows",
+      "region": "enemy cluster x\u2248230-460, y\u2248430-620",
+      "severity": "major"
+    },
+    {
+      "defect": "Damage/heal numbers ('13', '+54', faded '50') are small and low-contrast against sprites and sand, hurting readability",
+      "direction": "Enlarge the numbers, add a stronger outline/drop shadow, and float them clear of sprite overlap",
+      "region": "damage numbers over melee cluster, upper arena",
+      "severity": "minor"
+    },
+    {
+      "defect": "Name spacing is inconsistent \u2014 'Bastion' has a gap after its portrait while 'Ember' and 'Sage' butt directly against theirs",
+      "direction": "Use one consistent portrait-to-name gap across all three cards",
+      "region": "HUD cards: name labels next to portraits",
+      "severity": "minor"
+    },
+    {
+      "defect": "Card columns are not evenly distributed: left gutter \u224840px, right gutter \u224844px but inter-card gaps \u224867px, and HP bars have differing widths (Bastion 40-212, Ember 277-445, Sage 511-680)",
+      "direction": "Use a uniform 3-column grid with equal gutters and identical HP-bar widths per card",
+      "region": "HUD cards, x\u224840/275/510, y\u22481275-1465",
+      "severity": "minor"
+    },
+    {
+      "defect": "Hero sprites are very small inside their ornate rings, leaving the ring mostly empty",
+      "direction": "Scale portrait sprites up to fill the ring interior (head/bust crop rather than full tiny body)",
+      "region": "HUD portrait rings, all three cards",
+      "severity": "minor"
+    },
+    {
+      "defect": "Gear tiles are inconsistent \u2014 Bastion's tiles sit at x\u224840-208 while Sage's run x\u2248510-680, and the icon art styles mix (flat grey armor vs saturated painted robes), so tiles do not read as one set",
+      "direction": "Normalize tile size, gutter, and icon rendering style across all six gear tiles",
+      "region": "HUD gear tiles, y\u22481395-1460 across all three cards",
+      "severity": "minor"
+    },
+    {
+      "defect": "The stage track reads as a detached vertical control with ambiguous progression states.",
+      "direction": "Clarify active/completed nodes and visually integrate the track with the battlefield frame.",
+      "region": "left arena edge",
+      "severity": "minor"
+    },
+    {
+      "defect": "Large empty dark-brown dead strip separates the arena panel from the HUD, reading as unfinished layout",
+      "direction": "Extend the arena/camp foreground down to meet the HUD or fill the band with ground dressing",
+      "region": "brown band between arena bottom (~y1100) and HUD top (~y1230)",
+      "severity": "minor"
+    },
+    {
+      "defect": "All three HP bars use the same red fill even at full health (580/580, 760/760), reading as danger rather than healthy",
+      "direction": "Use green/amber/red HP states driven by ratio, reserving red for low health",
+      "region": "HUD HP bars, y\u22481330-1345",
+      "severity": "minor"
+    },
+    {
+      "defect": "The sand field has a large under-dressed empty area, making the arena feel less finished than the character-rich edges.",
+      "direction": "Add subtle terrain variation, clustered props, and pathing detail while retaining gameplay clarity.",
+      "region": "arena lower-middle",
+      "severity": "minor"
+    },
+    {
+      "defect": "Mid-arena is a broad stretch of bare sand with only a single cactus; dressing density drops off versus the prop-rich edges",
+      "direction": "Add a few more painted props (rocks, bones, shrubs) through the middle band so the environment reads finished",
+      "region": "arena mid-field, center third",
+      "severity": "minor"
+    },
+    {
+      "defect": "Prop dressing is sparse and repetitive \u2014 the same pebble/tuft stamp tiles visibly, and props (2 rock piles, 2 skulls, 1 cactus, tent, campfire) cluster at the edges leaving a large empty center",
+      "direction": "Vary and rotate the scatter stamps, break the tiling seam, and add mid-field dressing so the arena reads as a finished painted environment",
+      "region": "arena field, whole sand area",
+      "severity": "minor"
+    }
+  ],
+  "participated": [
+    "codex/gpt-5.6-terra",
+    "anthropic/claude-fable-5",
+    "anthropic/claude-opus-5"
+  ],
+  "per_model": {
+    "anthropic/claude-fable-5": {
+      "defects": [
+        {
+          "defect": "Spec calls for three mages defending at the camp ledge; only one robed mage stands near the camp, a second hero (dwarf) is far upfield in the goblin spawn area, and a third hero is not visible at all",
+          "direction": "Place all three party heroes together near the camp ledge with the goblins advancing down toward them",
+          "key": "missing-element",
+          "region": "arena camp ledge, bottom-left quadrant",
+          "severity": "major"
+        },
+        {
+          "defect": "All three hero cards use the same tiny grey-robed mage sprite as the portrait even though Bastion is rendered in-arena as a red-haired dwarf with shield",
+          "direction": "Give each card a distinct portrait matching that hero's arena sprite",
+          "key": "other",
+          "region": "bottom HUD, all three portrait rings",
+          "severity": "major"
+        },
+        {
+          "defect": "Large empty dark-brown dead strip separates the arena panel from the HUD, reading as unfinished layout",
+          "direction": "Extend the arena/camp foreground down to meet the HUD or fill the band with ground dressing",
+          "key": "layout",
+          "region": "brown band between arena bottom (~y1100) and HUD top (~y1230)",
+          "severity": "minor"
+        },
+        {
+          "defect": "Damage/heal numbers ('13', '+54', faded '50') are small and low-contrast against sprites and sand, hurting readability",
+          "direction": "Enlarge the numbers, add a stronger outline/drop shadow, and float them clear of sprite overlap",
+          "key": "typography",
+          "region": "damage numbers over melee cluster, upper arena",
+          "severity": "minor"
+        },
+        {
+          "defect": "Mid-arena is a broad stretch of bare sand with only a single cactus; dressing density drops off versus the prop-rich edges",
+          "direction": "Add a few more painted props (rocks, bones, shrubs) through the middle band so the environment reads finished",
+          "key": "background",
+          "region": "arena mid-field, center third",
+          "severity": "minor"
+        },
+        {
+          "defect": "Name spacing is inconsistent \u2014 'Bastion' has a gap after its portrait while 'Ember' and 'Sage' butt directly against theirs",
+          "direction": "Use one consistent portrait-to-name gap across all three cards",
+          "key": "spacing",
+          "region": "HUD cards: name labels next to portraits",
+          "severity": "minor"
+        },
+        {
+          "defect": "Hero sprites are very small inside their ornate rings, leaving the ring mostly empty",
+          "direction": "Scale portrait sprites up to fill the ring interior (head/bust crop rather than full tiny body)",
+          "key": "sizing",
+          "region": "HUD portrait rings, all three cards",
+          "severity": "minor"
+        }
+      ],
+      "model": "claude-fable-5",
+      "recurring_checks": [
+        {
+          "evidence": "fid-17-battle: no sprite banners/ribbons present; header strip at y230 composites cleanly",
+          "id": "banner-transparency",
+          "pass": true
+        },
+        {
+          "evidence": "fid-17-battle: identical grey mage sprite in all three HUD portrait rings (~y1300) despite Bastion appearing as a dwarf in-arena at ~(270,550)",
+          "id": "asset-identity",
+          "pass": false
+        },
+        {
+          "evidence": "fid-17-battle: pause glyph centered in circular button top-right (~660,258); '1x' centered in speed toggle (~63,258)",
+          "id": "glyph-centering",
+          "pass": true
+        },
+        {
+          "evidence": "fid-17-battle: resource pill text, hero names, and gear icons all stay inside their pill/tile bounds (top strip y150, HUD y1240-1460)",
+          "id": "content-containment",
+          "pass": true
+        },
+        {
+          "evidence": "fid-17-battle: three HUD cards and their paired gear tiles at y1400-1460 are equal-sized",
+          "id": "sibling-size-consistency",
+          "pass": true
+        }
+      ],
+      "score": 72.0
+    },
+    "anthropic/claude-opus-5": {
+      "defects": [
+        {
+          "defect": "Only one mage is present in the camp area (lone hooded figure at x\u2248530,y\u22481000); the spec calls for three mages at the camp ledge, and the melee unit fighting at x\u2248265,y\u2248540 is a warrior, not a mage trio",
+          "direction": "Place all three mage sprites (Bastion, Ember, Sage) staged on the camp ledge so the HUD cards map 1:1 to visible units",
+          "key": "missing-element",
+          "region": "arena, camp ledge bottom area (y\u2248940-1120)",
+          "severity": "blocker"
+        },
+        {
+          "defect": "A tall empty flat-brown band sits under the sand ledge with no dressing, and the sand play area does not span the full device width \u2014 cream letterbox strips are visible at x\u22480-40 and x\u2248690-724",
+          "direction": "Extend the arena art edge-to-edge and either fill the lower brown band with painted foreground terrain or shrink it so the arena meets the HUD",
+          "key": "layout",
+          "region": "arena bottom, brown band between ledge and HUD (y\u22481100-1240)",
+          "severity": "blocker"
+        },
+        {
+          "defect": "The stage track rail is drawn on top of / clipped by the arena's left edge and its nodes are half-cut by the sand panel; the active node (yellow, y\u2248865) reads as third from bottom rather than stage 2/4, and node spacing is uneven (gaps 235/235/240 vs bottom node crowding)",
+          "direction": "Move the track fully outside the arena bounds in its own gutter, evenly space the four nodes, and highlight the node matching Stage 2/4",
+          "key": "layout",
+          "region": "left-edge stage track, x\u224810-45, y\u2248380-1105",
+          "severity": "major"
+        },
+        {
+          "defect": "Speed toggle and pause buttons overhang the cream title bar and bleed past its top/left edges, and the 1x chip is a plain flat rectangle while pause is an ornate round frame \u2014 inconsistent control styling",
+          "direction": "Inset both controls within the title bar with equal margins and give the speed toggle the same ornate round/pill frame treatment as pause",
+          "key": "spacing",
+          "region": "top strip, 1x button x\u224820-105 and pause x\u2248620-700, y\u2248220-300",
+          "severity": "major"
+        },
+        {
+          "defect": "Damage/heal numbers ('50', '13', '+54') are small, low-contrast and overlap each other and the hero sprite; the grey '50' nearly vanishes against sand",
+          "direction": "Increase font size, add a dark outline/drop shadow, and offset stacked numbers vertically so they never overlap sprites or each other",
+          "key": "typography",
+          "region": "floating combat numbers near x\u2248180-290, y\u2248420-520",
+          "severity": "major"
+        },
+        {
+          "defect": "Three goblins and the hero overlap heavily and share ambiguous ground shadows; the archer goblin's bow/quiver is occluded and depth ordering reads flat",
+          "direction": "Spread advancing goblins into a staggered formation with clear separation and consistent per-sprite ground shadows",
+          "key": "layout",
+          "region": "enemy cluster x\u2248230-460, y\u2248430-620",
+          "severity": "major"
+        },
+        {
+          "defect": "Gear tiles are inconsistent \u2014 Bastion's tiles sit at x\u224840-208 while Sage's run x\u2248510-680, and the icon art styles mix (flat grey armor vs saturated painted robes), so tiles do not read as one set",
+          "direction": "Normalize tile size, gutter, and icon rendering style across all six gear tiles",
+          "key": "sizing",
+          "region": "HUD gear tiles, y\u22481395-1460 across all three cards",
+          "severity": "minor"
+        },
+        {
+          "defect": "Card columns are not evenly distributed: left gutter \u224840px, right gutter \u224844px but inter-card gaps \u224867px, and HP bars have differing widths (Bastion 40-212, Ember 277-445, Sage 511-680)",
+          "direction": "Use a uniform 3-column grid with equal gutters and identical HP-bar widths per card",
+          "key": "spacing",
+          "region": "HUD cards, x\u224840/275/510, y\u22481275-1465",
+          "severity": "minor"
+        },
+        {
+          "defect": "All three HP bars use the same red fill even at full health (580/580, 760/760), reading as danger rather than healthy",
+          "direction": "Use green/amber/red HP states driven by ratio, reserving red for low health",
+          "key": "color",
+          "region": "HUD HP bars, y\u22481330-1345",
+          "severity": "minor"
+        },
+        {
+          "defect": "Prop dressing is sparse and repetitive \u2014 the same pebble/tuft stamp tiles visibly, and props (2 rock piles, 2 skulls, 1 cactus, tent, campfire) cluster at the edges leaving a large empty center",
+          "direction": "Vary and rotate the scatter stamps, break the tiling seam, and add mid-field dressing so the arena reads as a finished painted environment",
+          "key": "background",
+          "region": "arena field, whole sand area",
+          "severity": "minor"
+        }
+      ],
+      "model": "claude-opus-5",
+      "recurring_checks": [
+        {
+          "evidence": "fid-17-battle: no sprite banner/ribbon present; floating numbers at (265,505) composite transparently over sand",
+          "id": "banner-transparency",
+          "pass": true
+        },
+        {
+          "evidence": "fid-17-battle: portrait rings at (65,1300)/(300,1300)/(535,1300) use painted sprite art, no font-glyph stand-ins",
+          "id": "asset-identity",
+          "pass": true
+        },
+        {
+          "evidence": "fid-17-battle: pause glyph centered in round button at (657,258); '1x' centered in chip at (62,259)",
+          "id": "glyph-centering",
+          "pass": true
+        },
+        {
+          "evidence": "fid-17-battle: '1x' chip (20,220-105,300) and pause button (618,220-700,300) overflow the cream title bar's top edge at y\u2248212",
+          "id": "content-containment",
+          "pass": false
+        },
+        {
+          "evidence": "fid-17-battle: HUD gear tiles differ across the row \u2014 Bastion pair spans x\u224840-208 vs Sage pair x\u2248510-680 at y\u22481395-1460",
+          "id": "sibling-size-consistency",
+          "pass": false
+        }
+      ],
+      "score": 62.0
+    },
+    "codex/gpt-5.6-terra": {
+      "defects": [
+        {
+          "defect": "The hero and goblin sprites collapse into one dense overlap, obscuring combat silhouettes and who is attacking whom.",
+          "direction": "Separate combatants with clearer lanes and preserve visible sprite outlines.",
+          "key": "layout",
+          "region": "battlefield upper-center",
+          "severity": "major"
+        },
+        {
+          "defect": "Damage/heal numbers stack over character faces and each other, making the combat feedback hard to read.",
+          "direction": "Stagger floating numbers vertically and laterally, with stronger contrast and collision avoidance.",
+          "key": "typography",
+          "region": "battlefield upper-center",
+          "severity": "major"
+        },
+        {
+          "defect": "Only one hooded mage is visibly staged near the camp; the intended three-mage camp composition is not legible.",
+          "direction": "Place all three hero identities clearly around the camp ledge with distinct silhouettes.",
+          "key": "missing-element",
+          "region": "camp ledge, lower arena",
+          "severity": "major"
+        },
+        {
+          "defect": "The sand field has a large under-dressed empty area, making the arena feel less finished than the character-rich edges.",
+          "direction": "Add subtle terrain variation, clustered props, and pathing detail while retaining gameplay clarity.",
+          "key": "background",
+          "region": "arena lower-middle",
+          "severity": "minor"
+        },
+        {
+          "defect": "The stage track reads as a detached vertical control with ambiguous progression states.",
+          "direction": "Clarify active/completed nodes and visually integrate the track with the battlefield frame.",
+          "key": "other",
+          "region": "left arena edge",
+          "severity": "minor"
+        }
+      ],
+      "model": "gpt-5.6-terra",
+      "recurring_checks": [
+        {
+          "evidence": "fid-17-battle \u2014 no opaque sprite-banner boxes visible over the arena.",
+          "id": "banner-transparency",
+          "pass": true
+        },
+        {
+          "evidence": "fid-17-battle \u2014 character, prop, resource, and equipment art use a consistent illustrated asset set.",
+          "id": "asset-identity",
+          "pass": true
+        },
+        {
+          "evidence": "fid-17-battle \u2014 pause glyph is centered in the circular button at upper-right around 662,260.",
+          "id": "glyph-centering",
+          "pass": true
+        },
+        {
+          "evidence": "fid-17-battle \u2014 resource values and HUD labels remain inside their pills and HUD regions.",
+          "id": "content-containment",
+          "pass": true
+        },
+        {
+          "evidence": "fid-17-battle \u2014 the three lower HUD groups and paired gear tiles use visually consistent sizing.",
+          "id": "sibling-size-consistency",
+          "pass": true
+        }
+      ],
+      "score": 78.0
+    },
+    "google/gemini-3.6-flash": {
+      "model": "google/gemini-3.6-flash",
+      "reason": "HTTP 402",
+      "skipped": true
+    }
+  },
+  "recurring_checks": [
+    {
+      "evidence": "fid-17-battle \u2014 no opaque sprite-banner boxes visible over the arena.",
+      "id": "banner-transparency",
+      "pass": true
+    },
+    {
+      "evidence": "fid-17-battle: identical grey mage sprite in all three HUD portrait rings (~y1300) despite Bastion appearing as a dwarf in-arena at ~(270,550)",
+      "id": "asset-identity",
+      "pass": false
+    },
+    {
+      "evidence": "fid-17-battle \u2014 pause glyph is centered in the circular button at upper-right around 662,260.",
+      "id": "glyph-centering",
+      "pass": true
+    },
+    {
+      "evidence": "fid-17-battle: '1x' chip (20,220-105,300) and pause button (618,220-700,300) overflow the cream title bar's top edge at y\u2248212",
+      "id": "content-containment",
+      "pass": false
+    },
+    {
+      "evidence": "fid-17-battle: HUD gear tiles differ across the row \u2014 Bastion pair spans x\u224840-208 vs Sage pair x\u2248510-680 at y\u22481395-1460",
+      "id": "sibling-size-consistency",
+      "pass": false
+    }
+  ],
+  "score": 72.0,
+  "skipped": [
+    {
+      "judge": "google/gemini-3.6-flash",
+      "reason": "HTTP 402"
+    }
+  ],
+  "verdict": "fail"
+}

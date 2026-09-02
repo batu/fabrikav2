@@ -1,0 +1,429 @@
+{
+  "consensus": [
+    "missing-element",
+    "sizing",
+    "spacing",
+    "background"
+  ],
+  "defects": [
+    {
+      "defect": "No game title lettering anywhere on the screen; spec's vertical axis is anchored on title, scene, map, Play button",
+      "direction": "Add centered stylized title art between the framed top bar and the hero scene panel",
+      "region": "between top resource bar and hero scene panel",
+      "severity": "blocker"
+    },
+    {
+      "defect": "The level map panel is an empty wooden board with a single unexplained vertical gold bar and a tiny hook glyph near its base; no level nodes, path, icons or labels are drawn, so the screen's core content reads as unfinished placeholder art",
+      "direction": "Populate the map panel with an actual node path (numbered/level markers, connecting trail, current-level highlight) filling the framed area, as Kingdom Rush's stage-select map does",
+      "region": "level map panel, center of screen (x 30-695, y 575-1035)",
+      "severity": "blocker"
+    },
+    {
+      "defect": "No game title lettering exists anywhere; the spec requires a centered title between the framed top bar and the hero scene, so there is nothing to center on the vertical axis",
+      "direction": "Add a centered title/banner lockup below the framed resource bar with even margins to the bar above and scene below",
+      "region": "top of screen, between status bar and resource bar (y 70-100)",
+      "severity": "blocker"
+    },
+    {
+      "defect": "A very large blank brown gap makes the lower half feel unfinished and breaks the otherwise tight vertical rhythm.",
+      "direction": "Reduce this gap or fill it with intentional progression/home content.",
+      "region": "between Play button and bottom navigation",
+      "severity": "major"
+    },
+    {
+      "defect": "Nav labels sit at the bottom edge of a tall framed bar with dead space above; labels not vertically centered and no tab icons fill the space",
+      "direction": "Vertically center label+icon stacks within the nav frame, adding tab icons above each label",
+      "region": "nav bar labels, bottom frame",
+      "severity": "major"
+    },
+    {
+      "defect": "A ~175px band of bare background sits between the Play button and the nav bar, far larger than every other inter-panel gap (~20-40px), reading as an unfinished empty region",
+      "direction": "Either expand the map panel/Play block to absorb the space or add content, so vertical rhythm between top bar, scene, map, Play and nav is consistent",
+      "region": "gap between Play button and bottom nav bar (y 1165-1340)",
+      "severity": "major"
+    },
+    {
+      "defect": "Nav cells are unequal: the Home cell is a visibly larger filled block while Rift/Mages/Settings are unbounded text of differing widths and no cell backgrounds",
+      "direction": "Give all four tabs identical cell widths and matching hit-area treatment, differing only by active-state styling",
+      "region": "bottom nav bar, four tab cells (y 1340-1500)",
+      "severity": "major"
+    },
+    {
+      "defect": "Panel widths are inconsistent: the resource top bar and nav bar run edge-to-edge (x\u22482-720), while the scene panel (x\u224822-702), map panel (x\u224828-698) and Play button (x\u224835-690) each use a different inset, so no shared vertical axis or margin is established",
+      "direction": "Unify all panels to one horizontal margin and one centered axis so left and right edges align down the screen",
+      "region": "panel widths, left/right edges of all panels",
+      "severity": "major"
+    },
+    {
+      "defect": "The expected centered title lettering is absent, weakening the home-screen hierarchy.",
+      "direction": "Add a framed or clearly readable centered game/title treatment above the hero scene.",
+      "region": "upper home content, between top bar and hero scene",
+      "severity": "major"
+    },
+    {
+      "defect": "The large framed map panel is almost entirely empty and contains an unframed-looking vertical loading/placeholder mark.",
+      "direction": "Populate it with the level-map content or use a polished intentional empty state; remove the placeholder-like vertical mark.",
+      "region": "level map panel, center",
+      "severity": "major"
+    },
+    {
+      "defect": "Map panel is a large empty wood board with only a thin vertical track and one faint '2' node; reads as unfinished",
+      "direction": "Populate the panel with a winding level path, node badges, and decorative map art in the Kingdom Rush style",
+      "region": "level map panel, center of screen",
+      "severity": "major"
+    },
+    {
+      "defect": "The Home selection highlight is a plain flat rectangle that is taller and wider than its sibling cells, is clipped by the frame edge, and its 'Home' label sits low and off-center within it",
+      "direction": "Make the active-tab highlight a rounded inset shape inset from the frame, sized identically to the other three tab cells, with the label optically centered",
+      "region": "bottom nav bar, Home cell (x 30-195, y 1340-1500)",
+      "severity": "major"
+    },
+    {
+      "defect": "The Bastion/Ember/Sage name pills straddle the scene's bottom edge and are cut off by the panel frame; they are also unevenly spaced (Bastion sits far left near the frame, Sage nearly touches the right frame)",
+      "direction": "Move the pills fully inside the panel with clearance from the bottom frame, and distribute the three at equal centers on a shared baseline",
+      "region": "hero scene panel, hero name pills at bottom edge (y 515-545)",
+      "severity": "major"
+    },
+    {
+      "defect": "Four resource pills show bare numbers with no currency/resource icons",
+      "direction": "Add an icon (heart, coin, gem, etc.) leading each pill so values are legible as resources",
+      "region": "top resource bar pills",
+      "severity": "major"
+    },
+    {
+      "defect": "The dark '1' badge is appended inside the Play label, pushing 'Play \u00b7 Level 2' off the button's horizontal center and creating an ambiguous meaning next to 'Level 2'",
+      "direction": "Center the label text on the button and move or relabel the badge (or drop it) so the primary CTA reads as centered",
+      "region": "Play button badge (x 455-540, y 1100-1140)",
+      "severity": "minor"
+    },
+    {
+      "defect": "Frame margins vary slightly across the stacked central panels.",
+      "direction": "Normalize left/right insets and inter-panel spacing to one consistent grid.",
+      "region": "hero scene, map panel, and Play button stack",
+      "severity": "minor"
+    },
+    {
+      "defect": "The four stat chips are bare numbers with no icons or labels, so 180 / 61 / 50 are unidentifiable; chips are also unequal widths within the bar",
+      "direction": "Add an icon or short label per stat and equalize chip widths across the row",
+      "region": "resource bar chips (y 125-175)",
+      "severity": "minor"
+    },
+    {
+      "defect": "The four stat pills have visibly unequal widths, creating an unbalanced row.",
+      "direction": "Use equal-width stat cells/pills with consistent inner padding.",
+      "region": "top stat row",
+      "severity": "minor"
+    },
+    {
+      "defect": "Level node is a faint bare numeral fading into the track end instead of a distinct tappable badge",
+      "direction": "Render the node as a framed circular badge with clear contrast against the board",
+      "region": "level map path node '2'",
+      "severity": "minor"
+    },
+    {
+      "defect": "Large blank stretch with a smudgy dark gradient blotch on the background; area reads unfinished",
+      "direction": "Tighten vertical margins or fill with a decorative flourish; remove the uneven dark gradient patch",
+      "region": "empty band between Play button and nav bar",
+      "severity": "minor"
+    },
+    {
+      "defect": "The background is a flat brown diagonal-stripe fill with no scene depth; the large exposed regions above the nav bar make it read as unfinished rather than intentional",
+      "direction": "Add a vignette, parchment texture or environment art so exposed background areas read as finished",
+      "region": "full-screen background",
+      "severity": "minor"
+    }
+  ],
+  "participated": [
+    "codex/gpt-5.6-terra",
+    "anthropic/claude-fable-5",
+    "anthropic/claude-opus-5"
+  ],
+  "per_model": {
+    "anthropic/claude-fable-5": {
+      "defects": [
+        {
+          "defect": "No game title lettering anywhere on the screen; spec's vertical axis is anchored on title, scene, map, Play button",
+          "direction": "Add centered stylized title art between the framed top bar and the hero scene panel",
+          "key": "missing-element",
+          "region": "between top resource bar and hero scene panel",
+          "severity": "blocker"
+        },
+        {
+          "defect": "Map panel is a large empty wood board with only a thin vertical track and one faint '2' node; reads as unfinished",
+          "direction": "Populate the panel with a winding level path, node badges, and decorative map art in the Kingdom Rush style",
+          "key": "missing-element",
+          "region": "level map panel, center of screen",
+          "severity": "major"
+        },
+        {
+          "defect": "Four resource pills show bare numbers with no currency/resource icons",
+          "direction": "Add an icon (heart, coin, gem, etc.) leading each pill so values are legible as resources",
+          "key": "iconography",
+          "region": "top resource bar pills",
+          "severity": "major"
+        },
+        {
+          "defect": "Nav labels sit at the bottom edge of a tall framed bar with dead space above; labels not vertically centered and no tab icons fill the space",
+          "direction": "Vertically center label+icon stacks within the nav frame, adding tab icons above each label",
+          "key": "spacing",
+          "region": "nav bar labels, bottom frame",
+          "severity": "major"
+        },
+        {
+          "defect": "Large blank stretch with a smudgy dark gradient blotch on the background; area reads unfinished",
+          "direction": "Tighten vertical margins or fill with a decorative flourish; remove the uneven dark gradient patch",
+          "key": "background",
+          "region": "empty band between Play button and nav bar",
+          "severity": "minor"
+        },
+        {
+          "defect": "Level node is a faint bare numeral fading into the track end instead of a distinct tappable badge",
+          "direction": "Render the node as a framed circular badge with clear contrast against the board",
+          "key": "sizing",
+          "region": "level map path node '2'",
+          "severity": "minor"
+        }
+      ],
+      "model": "claude-fable-5",
+      "recurring_checks": [
+        {
+          "evidence": "fid-23-home: Bastion/Ember/Sage chips at ~y=525 composite cleanly over scene art",
+          "id": "banner-transparency",
+          "pass": true
+        },
+        {
+          "evidence": "fid-23-home: bare font numeral '2' at ~(360,935) stands in for level-node badge art on map track",
+          "id": "asset-identity",
+          "pass": false
+        },
+        {
+          "evidence": "fid-23-home: 'Play \u00b7 Level 2' text with count pill visually centered in gold button at ~y=1120",
+          "id": "glyph-centering",
+          "pass": true
+        },
+        {
+          "evidence": "fid-23-home: pill labels and Play button contents stay within bounds; '2' at ~(360,935) remains inside map frame",
+          "id": "content-containment",
+          "pass": true
+        },
+        {
+          "evidence": "fid-23-home: four resource pills at y\u2248150 equal-sized; four nav cells at y\u22481400 equal width",
+          "id": "sibling-size-consistency",
+          "pass": true
+        }
+      ],
+      "score": 55.0
+    },
+    "anthropic/claude-opus-5": {
+      "defects": [
+        {
+          "defect": "The level map panel is an empty wooden board with a single unexplained vertical gold bar and a tiny hook glyph near its base; no level nodes, path, icons or labels are drawn, so the screen's core content reads as unfinished placeholder art",
+          "direction": "Populate the map panel with an actual node path (numbered/level markers, connecting trail, current-level highlight) filling the framed area, as Kingdom Rush's stage-select map does",
+          "key": "missing-element",
+          "region": "level map panel, center of screen (x 30-695, y 575-1035)",
+          "severity": "blocker"
+        },
+        {
+          "defect": "No game title lettering exists anywhere; the spec requires a centered title between the framed top bar and the hero scene, so there is nothing to center on the vertical axis",
+          "direction": "Add a centered title/banner lockup below the framed resource bar with even margins to the bar above and scene below",
+          "key": "missing-element",
+          "region": "top of screen, between status bar and resource bar (y 70-100)",
+          "severity": "blocker"
+        },
+        {
+          "defect": "A ~175px band of bare background sits between the Play button and the nav bar, far larger than every other inter-panel gap (~20-40px), reading as an unfinished empty region",
+          "direction": "Either expand the map panel/Play block to absorb the space or add content, so vertical rhythm between top bar, scene, map, Play and nav is consistent",
+          "key": "spacing",
+          "region": "gap between Play button and bottom nav bar (y 1165-1340)",
+          "severity": "major"
+        },
+        {
+          "defect": "The Home selection highlight is a plain flat rectangle that is taller and wider than its sibling cells, is clipped by the frame edge, and its 'Home' label sits low and off-center within it",
+          "direction": "Make the active-tab highlight a rounded inset shape inset from the frame, sized identically to the other three tab cells, with the label optically centered",
+          "key": "layout",
+          "region": "bottom nav bar, Home cell (x 30-195, y 1340-1500)",
+          "severity": "major"
+        },
+        {
+          "defect": "Nav cells are unequal: the Home cell is a visibly larger filled block while Rift/Mages/Settings are unbounded text of differing widths and no cell backgrounds",
+          "direction": "Give all four tabs identical cell widths and matching hit-area treatment, differing only by active-state styling",
+          "key": "sizing",
+          "region": "bottom nav bar, four tab cells (y 1340-1500)",
+          "severity": "major"
+        },
+        {
+          "defect": "The Bastion/Ember/Sage name pills straddle the scene's bottom edge and are cut off by the panel frame; they are also unevenly spaced (Bastion sits far left near the frame, Sage nearly touches the right frame)",
+          "direction": "Move the pills fully inside the panel with clearance from the bottom frame, and distribute the three at equal centers on a shared baseline",
+          "key": "layout",
+          "region": "hero scene panel, hero name pills at bottom edge (y 515-545)",
+          "severity": "major"
+        },
+        {
+          "defect": "Panel widths are inconsistent: the resource top bar and nav bar run edge-to-edge (x\u22482-720), while the scene panel (x\u224822-702), map panel (x\u224828-698) and Play button (x\u224835-690) each use a different inset, so no shared vertical axis or margin is established",
+          "direction": "Unify all panels to one horizontal margin and one centered axis so left and right edges align down the screen",
+          "key": "sizing",
+          "region": "panel widths, left/right edges of all panels",
+          "severity": "major"
+        },
+        {
+          "defect": "The four stat chips are bare numbers with no icons or labels, so 180 / 61 / 50 are unidentifiable; chips are also unequal widths within the bar",
+          "direction": "Add an icon or short label per stat and equalize chip widths across the row",
+          "key": "spacing",
+          "region": "resource bar chips (y 125-175)",
+          "severity": "minor"
+        },
+        {
+          "defect": "The dark '1' badge is appended inside the Play label, pushing 'Play \u00b7 Level 2' off the button's horizontal center and creating an ambiguous meaning next to 'Level 2'",
+          "direction": "Center the label text on the button and move or relabel the badge (or drop it) so the primary CTA reads as centered",
+          "key": "typography",
+          "region": "Play button badge (x 455-540, y 1100-1140)",
+          "severity": "minor"
+        },
+        {
+          "defect": "The background is a flat brown diagonal-stripe fill with no scene depth; the large exposed regions above the nav bar make it read as unfinished rather than intentional",
+          "direction": "Add a vignette, parchment texture or environment art so exposed background areas read as finished",
+          "key": "background",
+          "region": "full-screen background",
+          "severity": "minor"
+        }
+      ],
+      "model": "claude-opus-5",
+      "recurring_checks": [
+        {
+          "evidence": "fid-23-home: hero name pills at y\u2248529 composite over scene art without opaque backing boxes; no ribbon sprite present",
+          "id": "banner-transparency",
+          "pass": true
+        },
+        {
+          "evidence": "fid-23-home: map panel at (360, 790) uses a bare gold bar plus a text-like hook glyph at (362, 935) standing in for level-node art",
+          "id": "asset-identity",
+          "pass": false
+        },
+        {
+          "evidence": "fid-23-home: '1' badge in Play button at (497, 1120) sits right of button center; 'Home' label at (114, 1457) sits low in its nav cell (cell y 1345-1500)",
+          "id": "glyph-centering",
+          "pass": false
+        },
+        {
+          "evidence": "fid-23-home: 'Bastion'/'Ember'/'Sage' pills at y\u2248529 overlap the scene panel's bottom frame edge at y\u2248545",
+          "id": "content-containment",
+          "pass": false
+        },
+        {
+          "evidence": "fid-23-home: nav Home cell spans x 30-195 with fill while Rift/Mages/Settings cells at y\u22481457 have no matching cell bounds; resource chips at y\u2248150 differ in width (chip1 x 45-213 vs chip3 x 388-540)",
+          "id": "sibling-size-consistency",
+          "pass": false
+        }
+      ],
+      "score": 42.0
+    },
+    "codex/gpt-5.6-terra": {
+      "defects": [
+        {
+          "defect": "The expected centered title lettering is absent, weakening the home-screen hierarchy.",
+          "direction": "Add a framed or clearly readable centered game/title treatment above the hero scene.",
+          "key": "missing-element",
+          "region": "upper home content, between top bar and hero scene",
+          "severity": "major"
+        },
+        {
+          "defect": "The large framed map panel is almost entirely empty and contains an unframed-looking vertical loading/placeholder mark.",
+          "direction": "Populate it with the level-map content or use a polished intentional empty state; remove the placeholder-like vertical mark.",
+          "key": "missing-element",
+          "region": "level map panel, center",
+          "severity": "major"
+        },
+        {
+          "defect": "A very large blank brown gap makes the lower half feel unfinished and breaks the otherwise tight vertical rhythm.",
+          "direction": "Reduce this gap or fill it with intentional progression/home content.",
+          "key": "spacing",
+          "region": "between Play button and bottom navigation",
+          "severity": "major"
+        },
+        {
+          "defect": "The four stat pills have visibly unequal widths, creating an unbalanced row.",
+          "direction": "Use equal-width stat cells/pills with consistent inner padding.",
+          "key": "sizing",
+          "region": "top stat row",
+          "severity": "minor"
+        },
+        {
+          "defect": "Frame margins vary slightly across the stacked central panels.",
+          "direction": "Normalize left/right insets and inter-panel spacing to one consistent grid.",
+          "key": "spacing",
+          "region": "hero scene, map panel, and Play button stack",
+          "severity": "minor"
+        }
+      ],
+      "model": "gpt-5.6-terra",
+      "recurring_checks": [
+        {
+          "evidence": "fid-23-home: hero-scene name pills at y510 composite cleanly over the illustrated scene.",
+          "id": "banner-transparency",
+          "pass": true
+        },
+        {
+          "evidence": "fid-23-home: illustrated camp, portal, wood frames, and gold trim share a coherent Kingdom Rush-like asset treatment.",
+          "id": "asset-identity",
+          "pass": true
+        },
+        {
+          "evidence": "fid-23-home: level-count glyph '1' is visually centered in the dark pill at x514 y1121.",
+          "id": "glyph-centering",
+          "pass": true
+        },
+        {
+          "evidence": "fid-23-home: Play Level 2 text and count remain inside the button bounds at y1072-1170.",
+          "id": "content-containment",
+          "pass": true
+        },
+        {
+          "evidence": "fid-23-home: top stat pills at y124-180 vary substantially in width.",
+          "id": "sibling-size-consistency",
+          "pass": false
+        }
+      ],
+      "score": 76.0
+    },
+    "google/gemini-3.6-flash": {
+      "model": "google/gemini-3.6-flash",
+      "reason": "HTTP 402",
+      "skipped": true
+    }
+  },
+  "recurring_checks": [
+    {
+      "evidence": "fid-23-home: hero-scene name pills at y510 composite cleanly over the illustrated scene.",
+      "id": "banner-transparency",
+      "pass": true
+    },
+    {
+      "evidence": "fid-23-home: bare font numeral '2' at ~(360,935) stands in for level-node badge art on map track",
+      "id": "asset-identity",
+      "pass": false
+    },
+    {
+      "evidence": "fid-23-home: '1' badge in Play button at (497, 1120) sits right of button center; 'Home' label at (114, 1457) sits low in its nav cell (cell y 1345-1500)",
+      "id": "glyph-centering",
+      "pass": false
+    },
+    {
+      "evidence": "fid-23-home: 'Bastion'/'Ember'/'Sage' pills at y\u2248529 overlap the scene panel's bottom frame edge at y\u2248545",
+      "id": "content-containment",
+      "pass": false
+    },
+    {
+      "evidence": "fid-23-home: top stat pills at y124-180 vary substantially in width.",
+      "id": "sibling-size-consistency",
+      "pass": false
+    }
+  ],
+  "score": 55.0,
+  "skipped": [
+    {
+      "judge": "google/gemini-3.6-flash",
+      "reason": "HTTP 402"
+    }
+  ],
+  "verdict": "fail"
+}

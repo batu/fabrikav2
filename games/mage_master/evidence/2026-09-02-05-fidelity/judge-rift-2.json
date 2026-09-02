@@ -1,0 +1,338 @@
+{
+  "consensus": [
+    "layout",
+    "missing-element",
+    "sizing",
+    "other"
+  ],
+  "defects": [
+    {
+      "defect": "OURS shows the Home/camp page (campfire scene, Play \u00b7 Level 2 button, Home tab active), not the Summon Rift page; no 'Summon Rift' title, tier badge, framed portal scene panel, Summon button, upgrade panel, or odds table is present",
+      "direction": "capture or navigate to the Rift tab so the Summon Rift page renders with its title, tier badge, portal panel, Summon button, upgrade panel, and odds table",
+      "region": "entire screen",
+      "severity": "blocker"
+    },
+    {
+      "defect": "the main framed panel is empty dark wood except a lone vertical gold bar with a clipped glyph at its base, indicating failed/missing content",
+      "direction": "render the panel's intended content (portal scene or stage content) instead of the placeholder bar",
+      "region": "large framed panel, center of screen (~y 590-1030)",
+      "severity": "blocker"
+    },
+    {
+      "defect": "The capture is the Home screen (camp scene, Play \u00b7 Level 2) with the bottom nav on 'Home'; none of the specified Summon Rift content exists \u2014 no page title, no tier badge, no framed portal scene panel, no Summon button, no upgrade panel, no odds table",
+      "direction": "Navigate to / render the Rift tab so the screen shows the Summon Rift title + tier badge, portal scene panel, Summon button, upgrade panel and odds table",
+      "region": "whole screen \u2014 Home tab shown, not Summon Rift",
+      "severity": "blocker"
+    },
+    {
+      "defect": "The main content panel is empty \u2014 a bare wood texture with a single stray vertical gold bar/hook shape at x\u2248345\u2013380, y\u2248635\u2013950; no cards, art, or text render inside it",
+      "direction": "Populate the framed panel with its intended content (portal scene / odds table); remove the orphan gold bar artifact",
+      "region": "large wood-framed panel, y\u2248575\u20131035",
+      "severity": "blocker"
+    },
+    {
+      "defect": "The Home/level-selection screen is shown instead of the Summon Rift page.",
+      "direction": "Replace the camp scene, Play button, and Home-selected navigation with the Rift summon layout.",
+      "region": "whole screen, OURS image 1",
+      "severity": "blocker"
+    },
+    {
+      "defect": "Stat pills show bare numbers (10/10, 180, 61, 50) with no icons or labels, so the values are unidentifiable",
+      "direction": "Add resource icons/labels inside each pill as the target design specifies",
+      "region": "top stat bar, four pills y\u2248120\u2013180",
+      "severity": "major"
+    },
+    {
+      "defect": "Large empty background gap between the Play button and the bottom nav; vertical rhythm/margins between framed panels are inconsistent (tight 20px gaps above, ~180px void below)",
+      "direction": "Balance panel margins and let content fill or the layout compress so no dead band remains above the nav",
+      "region": "below Play button, y\u22481170\u20131330",
+      "severity": "major"
+    },
+    {
+      "defect": "Camp tent, level-play, and character-location assets are used rather than Rift summoning assets.",
+      "direction": "Use the portal/summoning scene and associated Rift UI artwork.",
+      "region": "hero panel, OURS image 1",
+      "severity": "major"
+    },
+    {
+      "defect": "a numeral glyph is clipped/half-rendered at the bottom of the gold bar",
+      "direction": "fully contain and render the glyph within its element bounds",
+      "region": "bottom of vertical gold bar inside center panel (~x 360, y 930)",
+      "severity": "major"
+    },
+    {
+      "defect": "No Summon Rift title, tier badge, centered Summon button, upgrade panel, or odds table is present.",
+      "direction": "Add the specified Rift page hierarchy and framed panels with aligned labels and columns.",
+      "region": "upper and central content, OURS image 1",
+      "severity": "major"
+    },
+    {
+      "defect": "The four resource pills visibly shrink from left to right.",
+      "direction": "Use consistently sized sibling cells with uniform gaps.",
+      "region": "top resource row, OURS image 1",
+      "severity": "minor"
+    },
+    {
+      "defect": "The active 'Home' tab highlight is a wider, taller lighter rectangle than the other tab cells, breaking equal sizing across the row",
+      "direction": "Make all four nav cells equal width/height and keep the active state within the same cell bounds",
+      "region": "bottom nav bar, 'Home' cell x\u224830\u2013195",
+      "severity": "minor"
+    },
+    {
+      "defect": "active Home tab highlight is a plain darker rectangle taller than sibling cells and flush to the frame edge, reading as unpolished",
+      "direction": "give the active tab a styled highlight equal in size and inset to sibling tab cells",
+      "region": "bottom tab bar, Home cell (~x 40-190, y 1345-1490)",
+      "severity": "minor"
+    },
+    {
+      "defect": "The 'Bastion', 'Ember', 'Sage' name chips sit flush on the bottom edge of the scene panel with uneven horizontal spacing (Bastion at x\u224895, Ember centered, Sage at x\u2248550 near the edge)",
+      "direction": "Inset the chips from the panel edge and distribute them evenly under their portraits",
+      "region": "portal/camp scene panel, name chips at y\u2248528",
+      "severity": "minor"
+    }
+  ],
+  "participated": [
+    "codex/gpt-5.6-terra",
+    "anthropic/claude-fable-5",
+    "anthropic/claude-opus-5"
+  ],
+  "per_model": {
+    "anthropic/claude-fable-5": {
+      "defects": [
+        {
+          "defect": "OURS shows the Home/camp page (campfire scene, Play \u00b7 Level 2 button, Home tab active), not the Summon Rift page; no 'Summon Rift' title, tier badge, framed portal scene panel, Summon button, upgrade panel, or odds table is present",
+          "direction": "capture or navigate to the Rift tab so the Summon Rift page renders with its title, tier badge, portal panel, Summon button, upgrade panel, and odds table",
+          "key": "missing-element",
+          "region": "entire screen",
+          "severity": "blocker"
+        },
+        {
+          "defect": "the main framed panel is empty dark wood except a lone vertical gold bar with a clipped glyph at its base, indicating failed/missing content",
+          "direction": "render the panel's intended content (portal scene or stage content) instead of the placeholder bar",
+          "key": "missing-element",
+          "region": "large framed panel, center of screen (~y 590-1030)",
+          "severity": "blocker"
+        },
+        {
+          "defect": "a numeral glyph is clipped/half-rendered at the bottom of the gold bar",
+          "direction": "fully contain and render the glyph within its element bounds",
+          "key": "other",
+          "region": "bottom of vertical gold bar inside center panel (~x 360, y 930)",
+          "severity": "major"
+        },
+        {
+          "defect": "active Home tab highlight is a plain darker rectangle taller than sibling cells and flush to the frame edge, reading as unpolished",
+          "direction": "give the active tab a styled highlight equal in size and inset to sibling tab cells",
+          "key": "layout",
+          "region": "bottom tab bar, Home cell (~x 40-190, y 1345-1490)",
+          "severity": "minor"
+        }
+      ],
+      "model": "claude-fable-5",
+      "recurring_checks": [
+        {
+          "evidence": "fid-24-rift: Bastion/Ember/Sage label pills (~y 730) composite transparently over the camp scene; no opaque banner boxes",
+          "id": "banner-transparency",
+          "pass": true
+        },
+        {
+          "evidence": "fid-24-rift: center panel (~x 360, y 640-940) uses a bare gold bar with a font numeral in place of intended art",
+          "id": "asset-identity",
+          "pass": false
+        },
+        {
+          "evidence": "fid-24-rift: '1' numeral in the dark pill on the Play button (~x 495, y 1120) is visually centered",
+          "id": "glyph-centering",
+          "pass": true
+        },
+        {
+          "evidence": "fid-24-rift: numeral clipped at the base of the gold bar in the center panel (~x 360, y 930)",
+          "id": "content-containment",
+          "pass": false
+        },
+        {
+          "evidence": "fid-24-rift: Home tab's highlight cell (~x 40-190, y 1345) is taller than the Rift/Mages/Settings cells in the same row",
+          "id": "sibling-size-consistency",
+          "pass": false
+        }
+      ],
+      "score": 12.0
+    },
+    "anthropic/claude-opus-5": {
+      "defects": [
+        {
+          "defect": "The capture is the Home screen (camp scene, Play \u00b7 Level 2) with the bottom nav on 'Home'; none of the specified Summon Rift content exists \u2014 no page title, no tier badge, no framed portal scene panel, no Summon button, no upgrade panel, no odds table",
+          "direction": "Navigate to / render the Rift tab so the screen shows the Summon Rift title + tier badge, portal scene panel, Summon button, upgrade panel and odds table",
+          "key": "missing-element",
+          "region": "whole screen \u2014 Home tab shown, not Summon Rift",
+          "severity": "blocker"
+        },
+        {
+          "defect": "The main content panel is empty \u2014 a bare wood texture with a single stray vertical gold bar/hook shape at x\u2248345\u2013380, y\u2248635\u2013950; no cards, art, or text render inside it",
+          "direction": "Populate the framed panel with its intended content (portal scene / odds table); remove the orphan gold bar artifact",
+          "key": "missing-element",
+          "region": "large wood-framed panel, y\u2248575\u20131035",
+          "severity": "blocker"
+        },
+        {
+          "defect": "Stat pills show bare numbers (10/10, 180, 61, 50) with no icons or labels, so the values are unidentifiable",
+          "direction": "Add resource icons/labels inside each pill as the target design specifies",
+          "key": "typography",
+          "region": "top stat bar, four pills y\u2248120\u2013180",
+          "severity": "major"
+        },
+        {
+          "defect": "Large empty background gap between the Play button and the bottom nav; vertical rhythm/margins between framed panels are inconsistent (tight 20px gaps above, ~180px void below)",
+          "direction": "Balance panel margins and let content fill or the layout compress so no dead band remains above the nav",
+          "key": "spacing",
+          "region": "below Play button, y\u22481170\u20131330",
+          "severity": "major"
+        },
+        {
+          "defect": "The 'Bastion', 'Ember', 'Sage' name chips sit flush on the bottom edge of the scene panel with uneven horizontal spacing (Bastion at x\u224895, Ember centered, Sage at x\u2248550 near the edge)",
+          "direction": "Inset the chips from the panel edge and distribute them evenly under their portraits",
+          "key": "layout",
+          "region": "portal/camp scene panel, name chips at y\u2248528",
+          "severity": "minor"
+        },
+        {
+          "defect": "The active 'Home' tab highlight is a wider, taller lighter rectangle than the other tab cells, breaking equal sizing across the row",
+          "direction": "Make all four nav cells equal width/height and keep the active state within the same cell bounds",
+          "key": "sizing",
+          "region": "bottom nav bar, 'Home' cell x\u224830\u2013195",
+          "severity": "minor"
+        }
+      ],
+      "model": "claude-opus-5",
+      "recurring_checks": [
+        {
+          "evidence": "fid-24-rift: name chips at y\u2248528 use soft translucent plates over the scene art, no opaque boxes",
+          "id": "banner-transparency",
+          "pass": true
+        },
+        {
+          "evidence": "fid-24-rift: main panel at x\u2248345\u2013380, y\u2248635\u2013950 shows a stray gold bar glyph standing in for the missing Rift content art",
+          "id": "asset-identity",
+          "pass": false
+        },
+        {
+          "evidence": "fid-24-rift: '1' in the dark pill at x\u2248520, y\u22481120 is centered; no circular +/- buttons present",
+          "id": "glyph-centering",
+          "pass": true
+        },
+        {
+          "evidence": "fid-24-rift: 'Play \u00b7 Level 2' text and stat pill values stay inside their button bounds (y\u22481100\u20131140)",
+          "id": "content-containment",
+          "pass": true
+        },
+        {
+          "evidence": "fid-24-rift: bottom nav 'Home' cell (x\u224830\u2013195, y\u22481370\u20131500) is larger than Rift/Mages/Settings cells",
+          "id": "sibling-size-consistency",
+          "pass": false
+        }
+      ],
+      "score": 22.0
+    },
+    "codex/gpt-5.6-terra": {
+      "defects": [
+        {
+          "defect": "The Home/level-selection screen is shown instead of the Summon Rift page.",
+          "direction": "Replace the camp scene, Play button, and Home-selected navigation with the Rift summon layout.",
+          "key": "layout",
+          "region": "whole screen, OURS image 1",
+          "severity": "blocker"
+        },
+        {
+          "defect": "No Summon Rift title, tier badge, centered Summon button, upgrade panel, or odds table is present.",
+          "direction": "Add the specified Rift page hierarchy and framed panels with aligned labels and columns.",
+          "key": "missing-element",
+          "region": "upper and central content, OURS image 1",
+          "severity": "major"
+        },
+        {
+          "defect": "Camp tent, level-play, and character-location assets are used rather than Rift summoning assets.",
+          "direction": "Use the portal/summoning scene and associated Rift UI artwork.",
+          "key": "other",
+          "region": "hero panel, OURS image 1",
+          "severity": "major"
+        },
+        {
+          "defect": "The four resource pills visibly shrink from left to right.",
+          "direction": "Use consistently sized sibling cells with uniform gaps.",
+          "key": "sizing",
+          "region": "top resource row, OURS image 1",
+          "severity": "minor"
+        }
+      ],
+      "model": "gpt-5.6-terra",
+      "recurring_checks": [
+        {
+          "evidence": "fid-24-rift: no opaque sprite-banner box is visible; camp labels at y=528 are contained pills.",
+          "id": "banner-transparency",
+          "pass": true
+        },
+        {
+          "evidence": "fid-24-rift: camp tent and Play Level 2 art occupy the intended Rift content area.",
+          "id": "asset-identity",
+          "pass": false
+        },
+        {
+          "evidence": "fid-24-rift: numeral in the Level 1 pill is centered near x=512 y=1121.",
+          "id": "glyph-centering",
+          "pass": true
+        },
+        {
+          "evidence": "fid-24-rift: visible navigation and Play button labels remain within their bounds.",
+          "id": "content-containment",
+          "pass": true
+        },
+        {
+          "evidence": "fid-24-rift: top resource pills at y=151 have visibly unequal widths.",
+          "id": "sibling-size-consistency",
+          "pass": false
+        }
+      ],
+      "score": 12.0
+    },
+    "google/gemini-3.6-flash": {
+      "model": "google/gemini-3.6-flash",
+      "reason": "HTTP 402",
+      "skipped": true
+    }
+  },
+  "recurring_checks": [
+    {
+      "evidence": "fid-24-rift: no opaque sprite-banner box is visible; camp labels at y=528 are contained pills.",
+      "id": "banner-transparency",
+      "pass": true
+    },
+    {
+      "evidence": "fid-24-rift: camp tent and Play Level 2 art occupy the intended Rift content area.",
+      "id": "asset-identity",
+      "pass": false
+    },
+    {
+      "evidence": "fid-24-rift: numeral in the Level 1 pill is centered near x=512 y=1121.",
+      "id": "glyph-centering",
+      "pass": true
+    },
+    {
+      "evidence": "fid-24-rift: numeral clipped at the base of the gold bar in the center panel (~x 360, y 930)",
+      "id": "content-containment",
+      "pass": false
+    },
+    {
+      "evidence": "fid-24-rift: top resource pills at y=151 have visibly unequal widths.",
+      "id": "sibling-size-consistency",
+      "pass": false
+    }
+  ],
+  "score": 12.0,
+  "skipped": [
+    {
+      "judge": "google/gemini-3.6-flash",
+      "reason": "HTTP 402"
+    }
+  ],
+  "verdict": "fail"
+}

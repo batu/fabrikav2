@@ -1,0 +1,378 @@
+{
+  "consensus": [
+    "layout",
+    "typography",
+    "missing-element",
+    "spacing",
+    "sizing"
+  ],
+  "defects": [
+    {
+      "defect": "The primary 'Play \u00b7 Level 1' CTA is unframed floating text on the bare background \u2014 no button plate, border or fill, so it does not read as tappable",
+      "direction": "Wrap it in a wide framed CTA button (gold/green plate with dark bevel border and drop shadow) matching the top-bar/nav frame language, centered on the same vertical axis",
+      "region": "Play button area, y\u22481200-1250, center",
+      "severity": "blocker"
+    },
+    {
+      "defect": "Vertical rhythm is uneven: large empty gaps around the Play text and beneath the map read as unfinished dead space",
+      "direction": "Equalize the gaps between top bar, title, hero panel, map panel, Play button and nav bar to a single spacing unit (~32-40px)",
+      "region": "Between hero panel (y\u2248718) and map (y\u2248760) vs map to Play (y\u22481110-1210) vs Play to nav (y\u22481250-1335)",
+      "severity": "major"
+    },
+    {
+      "defect": "The map has no visible enclosing panel or route treatment, leaving a large brown field that reads unfinished.",
+      "direction": "Add a framed map field and a clearer connected progression path behind the locks, node, and side landmarks.",
+      "region": "fid-16-home level-map area, y=722\u20131340",
+      "severity": "major"
+    },
+    {
+      "defect": "'Play \u00b7 Level 1' is bare text with no button plate/frame; it floats unframed on the background",
+      "direction": "Wrap the Play label and energy cost in a single framed button (gold/wood plate per Kingdom Rush style) centered on the vertical axis",
+      "region": "Play row, ~y=1225 center-bottom",
+      "severity": "major"
+    },
+    {
+      "defect": "\u201cPlay \u00b7 Level 1\u201d and its energy cost float as separate text/chip elements rather than reading as one primary button.",
+      "direction": "Place the label and cost inside one substantial, centered, framed CTA with a clear tap surface.",
+      "region": "fid-16-home Play control, y=1205\u20131247",
+      "severity": "major"
+    },
+    {
+      "defect": "Level map has no framed panel; path nodes and decor props sit directly on the striped background, unlike the framed hero scene panel above",
+      "direction": "Contain the level path and decorations in a framed panel matching the hero panel's border treatment, aligned to the same width and axis",
+      "region": "Level map area, y\u2248760-1150",
+      "severity": "major"
+    },
+    {
+      "defect": "The level map is an unframed strip of scattered props (rocks, tent, campfire, cactus) with no panel container, unlike the framed hero panel above it",
+      "direction": "Place the map inside a rounded framed panel with the same border weight and corner radius as the hero panel, with matching left/right margins",
+      "region": "Level map region, y\u2248760-1110",
+      "severity": "major"
+    },
+    {
+      "defect": "The 'Play \u00b7 Level 1' label plus energy-cost pill is left-of-center as a group; the text block and pill together shift the optical center off the screen axis shared by title, panel and level node",
+      "direction": "Center the whole CTA group (label + cost pill) on the screen's vertical axis",
+      "region": "Play row, y\u22481226",
+      "severity": "major"
+    },
+    {
+      "defect": "The thin outlined CTA lettering has weaker contrast and hierarchy than the otherwise bold game UI.",
+      "direction": "Use heavier, higher-contrast button typography once enclosed in the primary CTA.",
+      "region": "fid-16-home Play label, x=188\u2013434 y=1212\u20131243",
+      "severity": "minor"
+    },
+    {
+      "defect": "Play label is low-contrast gray-on-brown and reads as disabled/watermarked",
+      "direction": "Raise contrast (light cream or gold fill with dark outline) so the primary CTA is the most legible element on screen",
+      "region": "'Play \u00b7 Level 1' text, bottom third",
+      "severity": "minor"
+    },
+    {
+      "defect": "'Play \u00b7 Level 1' is thin low-contrast light text on mid-brown, weaker legibility than every other label on screen",
+      "direction": "Use the heavier outlined/shadowed game font on a contrasting button fill",
+      "region": "Play label, y\u22481226",
+      "severity": "minor"
+    },
+    {
+      "defect": "The sparse locks and side decorations are widely separated and do not visually anchor to the central level node.",
+      "direction": "Tighten the progression composition or strengthen connectors, landmarks, and background structure to fill the map intentionally.",
+      "region": "fid-16-home map content, y=760\u20131180",
+      "severity": "minor"
+    },
+    {
+      "defect": "Empty brown strip below the Play row reads as leftover space, making margins between Play and nav bar feel unbalanced versus the tighter gaps above",
+      "direction": "Tighten the gap or shift the Play button down so vertical margins between title, panels, Play and nav bar are consistent",
+      "region": "Band between Play row and nav bar, y\u22481260-1330",
+      "severity": "minor"
+    },
+    {
+      "defect": "Name chips sit on the panel's bottom edge with almost no bottom padding, and Bastion/Sage chips are not centered under their sprites' optical mass",
+      "direction": "Add bottom padding inside the panel and center each chip under its sprite",
+      "region": "Hero name chips, y\u2248691",
+      "severity": "minor"
+    },
+    {
+      "defect": "The four currency pills have unequal widths (energy pill ~25% wider than the others)",
+      "direction": "Equalize pill widths and distribute them on a uniform grid so the row reads as one consistent set",
+      "region": "Top currency bar, y\u2248145",
+      "severity": "minor"
+    },
+    {
+      "defect": "Hero panel has a tall empty cream band above the characters (~110px), leaving the sprites bottom-weighted in the frame",
+      "direction": "Reduce the panel's top padding or raise the sprite row so the characters sit optically centered in the panel",
+      "region": "Hero panel, y\u2248400-718",
+      "severity": "minor"
+    },
+    {
+      "defect": "Large flat diagonal-stripe areas flanking the map and below it are empty, so the middle of the screen reads unfinished",
+      "direction": "Fill with a framed map panel and decorative parallax/vignette so no bare stripe field remains",
+      "region": "Mid background, y\u22481130-1330 and left/right of map",
+      "severity": "minor"
+    }
+  ],
+  "participated": [
+    "codex/gpt-5.6-terra",
+    "anthropic/claude-fable-5",
+    "anthropic/claude-opus-5"
+  ],
+  "per_model": {
+    "anthropic/claude-fable-5": {
+      "defects": [
+        {
+          "defect": "'Play \u00b7 Level 1' is bare text with no button plate/frame; it floats unframed on the background",
+          "direction": "Wrap the Play label and energy cost in a single framed button (gold/wood plate per Kingdom Rush style) centered on the vertical axis",
+          "key": "missing-element",
+          "region": "Play row, ~y=1225 center-bottom",
+          "severity": "major"
+        },
+        {
+          "defect": "Level map has no framed panel; path nodes and decor props sit directly on the striped background, unlike the framed hero scene panel above",
+          "direction": "Contain the level path and decorations in a framed panel matching the hero panel's border treatment, aligned to the same width and axis",
+          "key": "layout",
+          "region": "Level map area, y\u2248760-1150",
+          "severity": "major"
+        },
+        {
+          "defect": "Play label is low-contrast gray-on-brown and reads as disabled/watermarked",
+          "direction": "Raise contrast (light cream or gold fill with dark outline) so the primary CTA is the most legible element on screen",
+          "key": "typography",
+          "region": "'Play \u00b7 Level 1' text, bottom third",
+          "severity": "minor"
+        },
+        {
+          "defect": "The four currency pills have unequal widths (energy pill ~25% wider than the others)",
+          "direction": "Equalize pill widths and distribute them on a uniform grid so the row reads as one consistent set",
+          "key": "sizing",
+          "region": "Top currency bar, y\u2248145",
+          "severity": "minor"
+        },
+        {
+          "defect": "Empty brown strip below the Play row reads as leftover space, making margins between Play and nav bar feel unbalanced versus the tighter gaps above",
+          "direction": "Tighten the gap or shift the Play button down so vertical margins between title, panels, Play and nav bar are consistent",
+          "key": "spacing",
+          "region": "Band between Play row and nav bar, y\u22481260-1330",
+          "severity": "minor"
+        }
+      ],
+      "model": "claude-fable-5",
+      "recurring_checks": [
+        {
+          "evidence": "fid-16-home: 'Mage Master' title art with purple lightning composites transparently over brown background at ~y=290",
+          "id": "banner-transparency",
+          "pass": true
+        },
+        {
+          "evidence": "fid-16-home: hero sprites, level medallion, lock nodes and nav icons are all rendered art, no font-glyph stand-ins observed",
+          "id": "asset-identity",
+          "pass": true
+        },
+        {
+          "evidence": "fid-16-home: '1' in gold level medallion at ~(363,1055) and lightning glyphs in energy pills are visually centered",
+          "id": "glyph-centering",
+          "pass": true
+        },
+        {
+          "evidence": "fid-16-home: currency values, name chips (Bastion/Ember/Sage) and energy-cost pill all stay inside their pill bounds",
+          "id": "content-containment",
+          "pass": true
+        },
+        {
+          "evidence": "fid-16-home: top bar pills at y\u2248145 \u2014 energy pill ~176px wide vs ~130-145px for coin/crystal/gem pills",
+          "id": "sibling-size-consistency",
+          "pass": false
+        }
+      ],
+      "score": 74.0
+    },
+    "anthropic/claude-opus-5": {
+      "defects": [
+        {
+          "defect": "The primary 'Play \u00b7 Level 1' CTA is unframed floating text on the bare background \u2014 no button plate, border or fill, so it does not read as tappable",
+          "direction": "Wrap it in a wide framed CTA button (gold/green plate with dark bevel border and drop shadow) matching the top-bar/nav frame language, centered on the same vertical axis",
+          "key": "missing-element",
+          "region": "Play button area, y\u22481200-1250, center",
+          "severity": "blocker"
+        },
+        {
+          "defect": "The level map is an unframed strip of scattered props (rocks, tent, campfire, cactus) with no panel container, unlike the framed hero panel above it",
+          "direction": "Place the map inside a rounded framed panel with the same border weight and corner radius as the hero panel, with matching left/right margins",
+          "key": "layout",
+          "region": "Level map region, y\u2248760-1110",
+          "severity": "major"
+        },
+        {
+          "defect": "Vertical rhythm is uneven: large empty gaps around the Play text and beneath the map read as unfinished dead space",
+          "direction": "Equalize the gaps between top bar, title, hero panel, map panel, Play button and nav bar to a single spacing unit (~32-40px)",
+          "key": "spacing",
+          "region": "Between hero panel (y\u2248718) and map (y\u2248760) vs map to Play (y\u22481110-1210) vs Play to nav (y\u22481250-1335)",
+          "severity": "major"
+        },
+        {
+          "defect": "The 'Play \u00b7 Level 1' label plus energy-cost pill is left-of-center as a group; the text block and pill together shift the optical center off the screen axis shared by title, panel and level node",
+          "direction": "Center the whole CTA group (label + cost pill) on the screen's vertical axis",
+          "key": "layout",
+          "region": "Play row, y\u22481226",
+          "severity": "major"
+        },
+        {
+          "defect": "Large flat diagonal-stripe areas flanking the map and below it are empty, so the middle of the screen reads unfinished",
+          "direction": "Fill with a framed map panel and decorative parallax/vignette so no bare stripe field remains",
+          "key": "background",
+          "region": "Mid background, y\u22481130-1330 and left/right of map",
+          "severity": "minor"
+        },
+        {
+          "defect": "Hero panel has a tall empty cream band above the characters (~110px), leaving the sprites bottom-weighted in the frame",
+          "direction": "Reduce the panel's top padding or raise the sprite row so the characters sit optically centered in the panel",
+          "key": "sizing",
+          "region": "Hero panel, y\u2248400-718",
+          "severity": "minor"
+        },
+        {
+          "defect": "'Play \u00b7 Level 1' is thin low-contrast light text on mid-brown, weaker legibility than every other label on screen",
+          "direction": "Use the heavier outlined/shadowed game font on a contrasting button fill",
+          "key": "typography",
+          "region": "Play label, y\u22481226",
+          "severity": "minor"
+        },
+        {
+          "defect": "Name chips sit on the panel's bottom edge with almost no bottom padding, and Bastion/Sage chips are not centered under their sprites' optical mass",
+          "direction": "Add bottom padding inside the panel and center each chip under its sprite",
+          "key": "spacing",
+          "region": "Hero name chips, y\u2248691",
+          "severity": "minor"
+        }
+      ],
+      "model": "claude-opus-5",
+      "recurring_checks": [
+        {
+          "evidence": "fid-16-home: 'Mage Master' title art and purple burst composite over the striped background with no opaque box, y\u2248240-370",
+          "id": "banner-transparency",
+          "pass": true
+        },
+        {
+          "evidence": "fid-16-home: nav icons, resource icons and map props are painted art, no font glyphs standing in for art (nav row y\u22481390)",
+          "id": "asset-identity",
+          "pass": true
+        },
+        {
+          "evidence": "fid-16-home: '1' in the circular level node is centered at ~(362,1048); lock glyphs centered in their shields at (362,790) and (362,913)",
+          "id": "glyph-centering",
+          "pass": true
+        },
+        {
+          "evidence": "fid-16-home: resource pill labels '10/10', '50', '30', '30' stay inside pill bounds y\u2248125-175; name chips contained y\u2248678-704",
+          "id": "content-containment",
+          "pass": true
+        },
+        {
+          "evidence": "fid-16-home: top-bar pills unequal \u2014 energy pill spans x\u224840-220 (~180px) while coin/gem pills span ~150px each, y\u2248150",
+          "id": "sibling-size-consistency",
+          "pass": false
+        }
+      ],
+      "score": 68.0
+    },
+    "codex/gpt-5.6-terra": {
+      "defects": [
+        {
+          "defect": "The map has no visible enclosing panel or route treatment, leaving a large brown field that reads unfinished.",
+          "direction": "Add a framed map field and a clearer connected progression path behind the locks, node, and side landmarks.",
+          "key": "missing-element",
+          "region": "fid-16-home level-map area, y=722\u20131340",
+          "severity": "major"
+        },
+        {
+          "defect": "\u201cPlay \u00b7 Level 1\u201d and its energy cost float as separate text/chip elements rather than reading as one primary button.",
+          "direction": "Place the label and cost inside one substantial, centered, framed CTA with a clear tap surface.",
+          "key": "layout",
+          "region": "fid-16-home Play control, y=1205\u20131247",
+          "severity": "major"
+        },
+        {
+          "defect": "The sparse locks and side decorations are widely separated and do not visually anchor to the central level node.",
+          "direction": "Tighten the progression composition or strengthen connectors, landmarks, and background structure to fill the map intentionally.",
+          "key": "spacing",
+          "region": "fid-16-home map content, y=760\u20131180",
+          "severity": "minor"
+        },
+        {
+          "defect": "The thin outlined CTA lettering has weaker contrast and hierarchy than the otherwise bold game UI.",
+          "direction": "Use heavier, higher-contrast button typography once enclosed in the primary CTA.",
+          "key": "typography",
+          "region": "fid-16-home Play label, x=188\u2013434 y=1212\u20131243",
+          "severity": "minor"
+        }
+      ],
+      "model": "gpt-5.6-terra",
+      "recurring_checks": [
+        {
+          "evidence": "fid-16-home: Mage Master logo at x=103\u2013626, y=231\u2013378 composites cleanly over the wood background.",
+          "id": "banner-transparency",
+          "pass": true
+        },
+        {
+          "evidence": "fid-16-home: hero portraits and fantasy UI art at x=81\u2013653, y=516\u2013666 are stylistically coherent.",
+          "id": "asset-identity",
+          "pass": true
+        },
+        {
+          "evidence": "fid-16-home: level numeral 1 is visually centered in the medallion at x=363, y=1050.",
+          "id": "glyph-centering",
+          "pass": true
+        },
+        {
+          "evidence": "fid-16-home: resource pills, hero-name chips, and nav labels remain within their bounds.",
+          "id": "content-containment",
+          "pass": true
+        },
+        {
+          "evidence": "fid-16-home: four bottom-nav cells at y=1342\u20131535 have consistent widths and spacing.",
+          "id": "sibling-size-consistency",
+          "pass": true
+        }
+      ],
+      "score": 82.0
+    },
+    "google/gemini-3.6-flash": {
+      "model": "google/gemini-3.6-flash",
+      "reason": "HTTP 402",
+      "skipped": true
+    }
+  },
+  "recurring_checks": [
+    {
+      "evidence": "fid-16-home: Mage Master logo at x=103\u2013626, y=231\u2013378 composites cleanly over the wood background.",
+      "id": "banner-transparency",
+      "pass": true
+    },
+    {
+      "evidence": "fid-16-home: hero portraits and fantasy UI art at x=81\u2013653, y=516\u2013666 are stylistically coherent.",
+      "id": "asset-identity",
+      "pass": true
+    },
+    {
+      "evidence": "fid-16-home: level numeral 1 is visually centered in the medallion at x=363, y=1050.",
+      "id": "glyph-centering",
+      "pass": true
+    },
+    {
+      "evidence": "fid-16-home: resource pills, hero-name chips, and nav labels remain within their bounds.",
+      "id": "content-containment",
+      "pass": true
+    },
+    {
+      "evidence": "fid-16-home: top bar pills at y\u2248145 \u2014 energy pill ~176px wide vs ~130-145px for coin/crystal/gem pills",
+      "id": "sibling-size-consistency",
+      "pass": false
+    }
+  ],
+  "score": 74.0,
+  "skipped": [
+    {
+      "judge": "google/gemini-3.6-flash",
+      "reason": "HTTP 402"
+    }
+  ],
+  "verdict": "fail"
+}

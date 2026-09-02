@@ -15,7 +15,7 @@ import { ARENA_THEME, LEVEL_COUNT, levelSpec } from "../../content/levels.ts";
 import { MAGE_CLASSES, type MageClass } from "../../content/mages.ts";
 import { MAX_RIFT_TIER, PULL_COST_CRYSTALS, oddsFor, riftTier } from "../../content/rift.ts";
 import { PERCENT_STATS, STAT_KEYS, type StatKey } from "../../content/stats.ts";
-import { armorIcon, assetUrls, chromeIcon, currencyIcon, frame, lettering, nodeArt, riftPortal, scene, unitSprite, weaponIcon } from "../../design/assets.ts";
+import { armorIcon, assetUrls, chromeIcon, currencyIcon, frame, lettering, magesIcon, nodeArt, propSprite, riftPortal, scene, unitSprite, weaponIcon } from "../../design/assets.ts";
 import { copy, fill, type CopyKey } from "../../design/copy.ts";
 import { createBattleRenderer, type BattleRenderer } from "../battle/BattleScene.ts";
 import { createSfx, type Sfx } from "../game/sfx.ts";
@@ -141,17 +141,21 @@ export function mountMageMasterScreen(opts: MageMasterScreenOptions): MageMaster
   const body = el("div", "mm-body");
   const nav = el("nav", "mm-nav");
   root.append(topbar, body, nav);
-  // Ornate frames reach CSS as custom properties so the stylesheet stays free of asset paths.
-  const frames: Array<[string, string | undefined]> = [
-    ["--mm-frame-panel", frame("panel")],
-    ["--mm-frame-button", frame("button")],
-    ["--mm-frame-button-dark", frame("button-dark")],
-    ["--mm-frame-portrait", frame("portrait")],
-    ["--mm-scene-home", scene("home")],
-    ["--mm-scene-rift", scene("rift")],
-  ];
-  for (const [name, url] of frames) if (url) root.style.setProperty(name, `url(${url})`);
-  root.classList.toggle("mm-root--framed", Boolean(frame("panel") && frame("button")));
+  // Ornate frames reach CSS as custom properties so the stylesheet stays free of
+  // asset paths. Re-applied on every refresh so a late-resolving asset heals itself.
+  const applyFrames = (): void => {
+    const frames: Array<[string, string | undefined]> = [
+      ["--mm-frame-panel", frame("panel")],
+      ["--mm-frame-button", frame("button")],
+      ["--mm-frame-button-dark", frame("button-dark")],
+      ["--mm-frame-portrait", frame("portrait")],
+      ["--mm-scene-home", scene("home")],
+      ["--mm-scene-rift", scene("rift")],
+    ];
+    for (const [name, url] of frames) if (url) root.style.setProperty(name, `url(${url})`);
+    root.classList.toggle("mm-root--framed", Boolean(frame("panel") && frame("button")));
+  };
+  applyFrames();
   const toaster: ToasterHandle = mountToaster({ mountInto: root, id: "mm-toaster" });
   // Warm the modal chrome so the first pause/result card never paints unskinned.
   for (const url of [assetUrls.panel, assetUrls.ribbon.win, assetUrls.ribbon.fail, assetUrls.ribbon.neutral, assetUrls.button.primary, assetUrls.button.secondary]) {
@@ -210,7 +214,7 @@ export function mountMageMasterScreen(opts: MageMasterScreenOptions): MageMaster
   nav.append(
     navButton(copy["nav.home"], "nav-home", chromeIcon("home"), () => controller.home()),
     navButton(copy["nav.rift"], "nav-rift", riftPortal(), () => (controller.snapshot().surface === "rift" ? undefined : controller.openRift() || (controller.home() && controller.openRift()))),
-    navButton(copy["nav.mages"], "nav-mages", unitSprite("warrior"), () => (controller.snapshot().surface === "mages" ? undefined : controller.openMages() || (controller.home() && controller.openMages()))),
+    navButton(copy["nav.mages"], "nav-mages", magesIcon(), () => (controller.snapshot().surface === "mages" ? undefined : controller.openMages() || (controller.home() && controller.openMages()))),
     navButton(copy["nav.settings"], "nav-settings", chromeIcon("settings"), () => controller.openSettings()),
   );
 
@@ -237,6 +241,11 @@ export function mountMageMasterScreen(opts: MageMasterScreenOptions): MageMaster
 
     const ladder = el("section", "mm-home__ladder");
     ladder.setAttribute("aria-label", copy["menu.progression"]);
+    // Map dressing on the flanks so the board reads as a camp map, not an empty plank.
+    for (const [prop, cls] of [["tent", "mm-home__deco mm-home__deco--tent"], ["campfire", "mm-home__deco mm-home__deco--fire"], ["rock-sand", "mm-home__deco mm-home__deco--rock"], ["cactus", "mm-home__deco mm-home__deco--cactus"]] as const) {
+      const url = propSprite(prop as "tent" | "campfire");
+      if (url) ladder.append(img(url, cls));
+    }
     const current = snap.unlockedLevel;
     // Climb: the current level sits at the bottom, the next three rise above it.
     const nodes: LevelMapNode[] = [];
@@ -368,7 +377,7 @@ export function mountMageMasterScreen(opts: MageMasterScreenOptions): MageMaster
 
     const odds = el("section", "mm-odds");
     const oddsHead = el("div", "mm-odds__head");
-    oddsHead.append(el("span", undefined, copy["rift.odds"]), el("span", undefined, snap.riftTier < MAX_RIFT_TIER ? copy["rift.nextOdds"] : ""));
+    oddsHead.append(el("span", undefined, copy["rift.odds"]), el("span", undefined, copy["rift.nowOdds"]), el("span", undefined, snap.riftTier < MAX_RIFT_TIER ? copy["rift.nextOdds"] : ""));
     odds.append(oddsHead);
     const now = oddsFor(snap.riftTier);
     const next = snap.riftTier < MAX_RIFT_TIER ? oddsFor(snap.riftTier + 1) : null;
@@ -872,6 +881,8 @@ export function mountMageMasterScreen(opts: MageMasterScreenOptions): MageMaster
   const structureKey = (snap: MageMasterSnapshot): string =>
     [
       pageFor(snap.surface),
+      // Art availability: a page rendered before a late-resolving asset re-renders once it lands.
+      [frame("panel"), frame("button"), scene("home"), scene("rift"), nodeArt("current"), lettering("title")].filter(Boolean).length,
       snap.unlockedLevel,
       snap.riftTier,
       snap.level,
@@ -880,6 +891,7 @@ export function mountMageMasterScreen(opts: MageMasterScreenOptions): MageMaster
 
   const refresh = (): void => {
     const snap = controller.snapshot();
+    applyFrames();
     const nextPage = pageFor(snap.surface);
     const key = structureKey(snap);
     if (nextPage !== page || key !== pageKey) {

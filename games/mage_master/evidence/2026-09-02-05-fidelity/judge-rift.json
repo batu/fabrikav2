@@ -1,0 +1,338 @@
+{
+  "consensus": [
+    "layout",
+    "spacing",
+    "typography",
+    "sizing"
+  ],
+  "defects": [
+    {
+      "defect": "Odds table panel is cut off by the bottom nav bar \u2014 only the header row and the 'Common' row are visible, the panel's bottom frame and remaining rarity rows are clipped",
+      "direction": "Add bottom scroll padding / reduce panel heights so the full framed odds table clears the tab bar",
+      "region": "Pull odds panel, bottom of screen (y\u22481215-1345)",
+      "severity": "blocker"
+    },
+    {
+      "defect": "Body copy 'Better odds pull rarer gear...' floats directly on the portal artwork with no plate or scrim, colliding with scene detail (torches/crystals) and hurting legibility",
+      "direction": "Move the caption below the art onto a wood plate, or add a dark scrim strip behind it",
+      "region": "Portal panel, description text over scene (y\u2248700-760)",
+      "severity": "major"
+    },
+    {
+      "defect": "The bottom navigation overlaps and hides most of the pull-odds panel, leaving only its header and first row partially visible.",
+      "direction": "Reserve bottom safe-area space or make the content scroll above the navigation so the full odds table is visible.",
+      "region": "bottom odds table / fixed navigation",
+      "severity": "major"
+    },
+    {
+      "defect": "Odds table is cut off mid-row by the tab bar; the Common row's progress bar and any following rarity rows are clipped and the panel's bottom frame is hidden",
+      "direction": "Shorten or reposition the odds panel (or add bottom scroll inset) so full rows and the panel's framed bottom edge clear the tab bar",
+      "region": "bottom odds panel, y\u22481230-1350",
+      "severity": "major"
+    },
+    {
+      "defect": "Summon CTA is overlaid on top of the framed art panel and overlaps the panel's inner frame edge instead of sitting in its own row",
+      "direction": "Pull the button out below the art frame (or inset it fully with even padding) so no frame overlap occurs",
+      "region": "Summon button inside portal panel (y\u2248785-870)",
+      "severity": "major"
+    },
+    {
+      "defect": "The current-odds column (60%) has no header and does not align under 'Pull odds' or 'Next tier', making the two percentage columns ambiguous",
+      "direction": "Add a 'Current' column header aligned over the 60% column and right-align both percentage columns consistently",
+      "region": "odds table header row, y\u22481270",
+      "severity": "minor"
+    },
+    {
+      "defect": "Odds columns lack alignment structure \u2014 the 60%/45% values are right-of-center with no column headers directly above them ('Next tier' header sits far right of its value column)",
+      "direction": "Right-align numeric columns to fixed column x-positions and align each header to its column",
+      "region": "Odds table row 'Common' (y\u22481305-1340)",
+      "severity": "minor"
+    },
+    {
+      "defect": "The visible odds panel is crowded directly against the fixed navigation, making the lower screen feel clipped rather than intentionally spaced.",
+      "direction": "Add a clear bottom inset below the odds panel or adjust the viewport scroll position.",
+      "region": "lower content stack",
+      "severity": "minor"
+    },
+    {
+      "defect": "The caption text 'Rarer gear clears deeper levels' overlaps the torch/brazier props in the scene, reducing legibility against busy art",
+      "direction": "Add a subtle dark scrim behind the caption or nudge it above the props so it sits on quieter background",
+      "region": "portal panel caption, y\u2248700-745",
+      "severity": "minor"
+    },
+    {
+      "defect": "Tier badge baseline sits slightly high relative to the large title's optical center",
+      "direction": "Vertically center the badge to the title's cap-height midpoint",
+      "region": "Header row 'Summon Rift' + 'Rift tier 1' badge (y\u2248245-290)",
+      "severity": "minor"
+    },
+    {
+      "defect": "The Mages character icon is substantially smaller and less visually prominent than the Home, Rift, and Settings icons.",
+      "direction": "Increase the Mages icon\u2019s rendered size and visual weight to match its sibling tabs.",
+      "region": "bottom navigation, Mages tab",
+      "severity": "minor"
+    },
+    {
+      "defect": "Upgrade button spans nearly the full panel width with very tight left/right frame margins, unlike the more inset Summon button \u2014 sibling CTA insets are inconsistent",
+      "direction": "Match Upgrade button inset to the same horizontal padding used by other framed panel content",
+      "region": "Upgrade panel, gold button (y\u22481015-1095)",
+      "severity": "minor"
+    },
+    {
+      "defect": "The tier badge's vertical center sits slightly high relative to the 'Summon Rift' title's optical center",
+      "direction": "Baseline/center-align the badge with the title text",
+      "region": "header row, 'Rift tier 1' badge, top-right y\u2248265",
+      "severity": "minor"
+    },
+    {
+      "defect": "Flat brown background is undifferentiated from panel wood tone, so framed panels read low-contrast against the page",
+      "direction": "Darken/texture the page background so gold frames separate from it",
+      "region": "Page background behind panels",
+      "severity": "minor"
+    }
+  ],
+  "participated": [
+    "codex/gpt-5.6-terra",
+    "anthropic/claude-fable-5",
+    "anthropic/claude-opus-5"
+  ],
+  "per_model": {
+    "anthropic/claude-fable-5": {
+      "defects": [
+        {
+          "defect": "Odds table is cut off mid-row by the tab bar; the Common row's progress bar and any following rarity rows are clipped and the panel's bottom frame is hidden",
+          "direction": "Shorten or reposition the odds panel (or add bottom scroll inset) so full rows and the panel's framed bottom edge clear the tab bar",
+          "key": "layout",
+          "region": "bottom odds panel, y\u22481230-1350",
+          "severity": "major"
+        },
+        {
+          "defect": "The current-odds column (60%) has no header and does not align under 'Pull odds' or 'Next tier', making the two percentage columns ambiguous",
+          "direction": "Add a 'Current' column header aligned over the 60% column and right-align both percentage columns consistently",
+          "key": "typography",
+          "region": "odds table header row, y\u22481270",
+          "severity": "minor"
+        },
+        {
+          "defect": "The caption text 'Rarer gear clears deeper levels' overlaps the torch/brazier props in the scene, reducing legibility against busy art",
+          "direction": "Add a subtle dark scrim behind the caption or nudge it above the props so it sits on quieter background",
+          "key": "spacing",
+          "region": "portal panel caption, y\u2248700-745",
+          "severity": "minor"
+        },
+        {
+          "defect": "The tier badge's vertical center sits slightly high relative to the 'Summon Rift' title's optical center",
+          "direction": "Baseline/center-align the badge with the title text",
+          "key": "layout",
+          "region": "header row, 'Rift tier 1' badge, top-right y\u2248265",
+          "severity": "minor"
+        }
+      ],
+      "model": "claude-fable-5",
+      "recurring_checks": [
+        {
+          "evidence": "fid-11-rift: no opaque box behind any banner; tier badge at (620,265) composites cleanly",
+          "id": "banner-transparency",
+          "pass": true
+        },
+        {
+          "evidence": "fid-11-rift: portal, crystal, coin, and nav icons at y\u22481420 are drawn art, no font-glyph stand-ins",
+          "id": "asset-identity",
+          "pass": true
+        },
+        {
+          "evidence": "fid-11-rift: crystal+'10' cost chip centered in its black pill inside Summon button at (480,828)",
+          "id": "glyph-centering",
+          "pass": true
+        },
+        {
+          "evidence": "fid-11-rift: odds panel rows clipped behind tab bar at y\u22481350",
+          "id": "content-containment",
+          "pass": false
+        },
+        {
+          "evidence": "fid-11-rift: four currency pills in top bar y\u2248150 and four nav items y\u22481420 are equal-sized",
+          "id": "sibling-size-consistency",
+          "pass": true
+        }
+      ],
+      "score": 82.0
+    },
+    "anthropic/claude-opus-5": {
+      "defects": [
+        {
+          "defect": "Odds table panel is cut off by the bottom nav bar \u2014 only the header row and the 'Common' row are visible, the panel's bottom frame and remaining rarity rows are clipped",
+          "direction": "Add bottom scroll padding / reduce panel heights so the full framed odds table clears the tab bar",
+          "key": "layout",
+          "region": "Pull odds panel, bottom of screen (y\u22481215-1345)",
+          "severity": "blocker"
+        },
+        {
+          "defect": "Body copy 'Better odds pull rarer gear...' floats directly on the portal artwork with no plate or scrim, colliding with scene detail (torches/crystals) and hurting legibility",
+          "direction": "Move the caption below the art onto a wood plate, or add a dark scrim strip behind it",
+          "key": "spacing",
+          "region": "Portal panel, description text over scene (y\u2248700-760)",
+          "severity": "major"
+        },
+        {
+          "defect": "Summon CTA is overlaid on top of the framed art panel and overlaps the panel's inner frame edge instead of sitting in its own row",
+          "direction": "Pull the button out below the art frame (or inset it fully with even padding) so no frame overlap occurs",
+          "key": "layout",
+          "region": "Summon button inside portal panel (y\u2248785-870)",
+          "severity": "major"
+        },
+        {
+          "defect": "Upgrade button spans nearly the full panel width with very tight left/right frame margins, unlike the more inset Summon button \u2014 sibling CTA insets are inconsistent",
+          "direction": "Match Upgrade button inset to the same horizontal padding used by other framed panel content",
+          "key": "sizing",
+          "region": "Upgrade panel, gold button (y\u22481015-1095)",
+          "severity": "minor"
+        },
+        {
+          "defect": "Odds columns lack alignment structure \u2014 the 60%/45% values are right-of-center with no column headers directly above them ('Next tier' header sits far right of its value column)",
+          "direction": "Right-align numeric columns to fixed column x-positions and align each header to its column",
+          "key": "typography",
+          "region": "Odds table row 'Common' (y\u22481305-1340)",
+          "severity": "minor"
+        },
+        {
+          "defect": "Tier badge baseline sits slightly high relative to the large title's optical center",
+          "direction": "Vertically center the badge to the title's cap-height midpoint",
+          "key": "spacing",
+          "region": "Header row 'Summon Rift' + 'Rift tier 1' badge (y\u2248245-290)",
+          "severity": "minor"
+        },
+        {
+          "defect": "Flat brown background is undifferentiated from panel wood tone, so framed panels read low-contrast against the page",
+          "direction": "Darken/texture the page background so gold frames separate from it",
+          "key": "color",
+          "region": "Page background behind panels",
+          "severity": "minor"
+        }
+      ],
+      "model": "claude-opus-5",
+      "recurring_checks": [
+        {
+          "evidence": "fid-11-rift: tier badge and Summon cost chip composite cleanly, no opaque box artifacts (620,265) / (455,828)",
+          "id": "banner-transparency",
+          "pass": true
+        },
+        {
+          "evidence": "fid-11-rift: portal art, currency icons and nav icons are consistent painted sprites, no font-glyph stand-ins (280,1395)",
+          "id": "asset-identity",
+          "pass": true
+        },
+        {
+          "evidence": "fid-11-rift: crystal glyph in cost pill vertically centered at (437,828)",
+          "id": "glyph-centering",
+          "pass": true
+        },
+        {
+          "evidence": "fid-11-rift: odds panel content clipped by tab bar at y\u22481345; Summon button overlaps art frame edge at (90,828)",
+          "id": "content-containment",
+          "pass": false
+        },
+        {
+          "evidence": "fid-11-rift: four currency chips equal height in top bar y\u2248125-175; four nav cells equal width y\u22481360-1470",
+          "id": "sibling-size-consistency",
+          "pass": true
+        }
+      ],
+      "score": 72.0
+    },
+    "codex/gpt-5.6-terra": {
+      "defects": [
+        {
+          "defect": "The bottom navigation overlaps and hides most of the pull-odds panel, leaving only its header and first row partially visible.",
+          "direction": "Reserve bottom safe-area space or make the content scroll above the navigation so the full odds table is visible.",
+          "key": "layout",
+          "region": "bottom odds table / fixed navigation",
+          "severity": "major"
+        },
+        {
+          "defect": "The Mages character icon is substantially smaller and less visually prominent than the Home, Rift, and Settings icons.",
+          "direction": "Increase the Mages icon\u2019s rendered size and visual weight to match its sibling tabs.",
+          "key": "sizing",
+          "region": "bottom navigation, Mages tab",
+          "severity": "minor"
+        },
+        {
+          "defect": "The visible odds panel is crowded directly against the fixed navigation, making the lower screen feel clipped rather than intentionally spaced.",
+          "direction": "Add a clear bottom inset below the odds panel or adjust the viewport scroll position.",
+          "key": "spacing",
+          "region": "lower content stack",
+          "severity": "minor"
+        }
+      ],
+      "model": "gpt-5.6-terra",
+      "recurring_checks": [
+        {
+          "evidence": "fid-11-rift upgrade ribbon around x363,y1057 composites cleanly over the wood panel.",
+          "id": "banner-transparency",
+          "pass": true
+        },
+        {
+          "evidence": "fid-11-rift portal, frames, resource icons, and navigation art use a coherent illustrated asset set.",
+          "id": "asset-identity",
+          "pass": true
+        },
+        {
+          "evidence": "fid-11-rift Settings gear at x613,y1409 is visually centered in its tab.",
+          "id": "glyph-centering",
+          "pass": true
+        },
+        {
+          "evidence": "fid-11-rift Summon label and crystal cost at x365,y828 remain inside the gold button.",
+          "id": "content-containment",
+          "pass": true
+        },
+        {
+          "evidence": "fid-11-rift bottom navigation cells across x4\u2013721 are consistently sized.",
+          "id": "sibling-size-consistency",
+          "pass": true
+        }
+      ],
+      "score": 84.0
+    },
+    "google/gemini-3.6-flash": {
+      "model": "google/gemini-3.6-flash",
+      "reason": "HTTP 402",
+      "skipped": true
+    }
+  },
+  "recurring_checks": [
+    {
+      "evidence": "fid-11-rift upgrade ribbon around x363,y1057 composites cleanly over the wood panel.",
+      "id": "banner-transparency",
+      "pass": true
+    },
+    {
+      "evidence": "fid-11-rift portal, frames, resource icons, and navigation art use a coherent illustrated asset set.",
+      "id": "asset-identity",
+      "pass": true
+    },
+    {
+      "evidence": "fid-11-rift Settings gear at x613,y1409 is visually centered in its tab.",
+      "id": "glyph-centering",
+      "pass": true
+    },
+    {
+      "evidence": "fid-11-rift: odds panel rows clipped behind tab bar at y\u22481350",
+      "id": "content-containment",
+      "pass": false
+    },
+    {
+      "evidence": "fid-11-rift bottom navigation cells across x4\u2013721 are consistently sized.",
+      "id": "sibling-size-consistency",
+      "pass": true
+    }
+  ],
+  "score": 82.0,
+  "skipped": [
+    {
+      "judge": "google/gemini-3.6-flash",
+      "reason": "HTTP 402"
+    }
+  ],
+  "verdict": "fail"
+}

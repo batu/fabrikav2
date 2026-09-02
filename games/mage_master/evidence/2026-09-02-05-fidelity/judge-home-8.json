@@ -1,0 +1,324 @@
+{
+  "consensus": [
+    "missing-element",
+    "background",
+    "other"
+  ],
+  "defects": [
+    {
+      "defect": "OURS is an iOS App Library / home screen screenshot, not the game's home screen; none of the specified elements (title lettering, hero scene panel, level map panel, Play button, framed top bar, framed nav bar) are present",
+      "direction": "Capture the actual idle RPG home screen; the app evidently failed to launch or the capture targeted the springboard instead of the app",
+      "region": "fid-25-home, entire frame (0,0)-(725,1568)",
+      "severity": "blocker"
+    },
+    {
+      "defect": "The required Kingdom Rush-style idle RPG home screen is absent; this is an iOS App Library screen.",
+      "direction": "Render the game home screen instead of the device launcher.",
+      "region": "Image 1, entire screen",
+      "severity": "blocker"
+    },
+    {
+      "defect": "Capture shows the iOS App Library (system home screen with app folders like Suggestions, Recently Added, Utilities), not the game's home screen at all \u2014 no title lettering, hero scene panel, level map panel, Play button, top bar, or nav bar is present",
+      "direction": "Launch the game app and re-capture its home screen; the app was not in the foreground when the screenshot was taken",
+      "region": "entire screen",
+      "severity": "blocker"
+    },
+    {
+      "defect": "No title lettering or hero scene panel exists",
+      "direction": "Render the framed title and hero scene panel centered on the screen's vertical axis",
+      "region": "fid-25-home, upper third where title/hero scene should sit (60,230)-(680,620)",
+      "severity": "blocker"
+    },
+    {
+      "defect": "No level map panel and no Play button",
+      "direction": "Render the level map panel and a Play button centered on the same vertical axis with consistent margins",
+      "region": "fid-25-home, mid/lower area where level map and Play button should sit (60,620)-(680,1400)",
+      "severity": "blocker"
+    },
+    {
+      "defect": "No framed top bar or framed nav bar; the iOS status bar and search field occupy the top instead",
+      "direction": "Render the game's framed top bar and bottom nav bar with matching frame treatment",
+      "region": "fid-25-home, top and bottom edges (0,0)-(725,220) and (0,1400)-(725,1568)",
+      "severity": "blocker"
+    },
+    {
+      "defect": "No vertically aligned framed top bar, title, hero scene, level map, Play button, or framed navigation bar is present.",
+      "direction": "Build the specified stacked game-home composition on one centered vertical axis.",
+      "region": "Image 1, entire screen",
+      "severity": "blocker"
+    },
+    {
+      "defect": "All visible content (search pill, app icon grid, folder labels, status bar clock 6:12) belongs to iOS, an extra system UI replacing the target screen entirely",
+      "direction": "Ensure the capture targets the running game window/simulator app rather than the springboard",
+      "region": "full frame",
+      "severity": "blocker"
+    },
+    {
+      "defect": "Background is the iOS wallpaper gradient, not the premium-casual Kingdom Rush style art background",
+      "direction": "Replace with the game's illustrated background once the correct screen is captured",
+      "region": "fid-25-home, full background",
+      "severity": "blocker"
+    },
+    {
+      "defect": "System labels such as \u201cApp Library\u201d and folder names replace the game title and UI lettering.",
+      "direction": "Add a centered, legible game title and consistent fantasy-styled UI typography.",
+      "region": "Image 1, entire screen",
+      "severity": "major"
+    },
+    {
+      "defect": "iOS system folders and app icons replace the intended fantasy RPG artwork and controls.",
+      "direction": "Use original Kingdom Rush-inspired game assets, panels, scene art, and navigation icons.",
+      "region": "Image 1, entire screen",
+      "severity": "major"
+    },
+    {
+      "defect": "Content is cut off mid-row at the frame bottom, indicating a truncated/scrolling capture",
+      "direction": "Capture the full screen height of the app so no row is clipped",
+      "region": "fid-25-home, bottom edge (0,1500)-(725,1568)",
+      "severity": "major"
+    },
+    {
+      "defect": "The pink-purple iOS launcher wallpaper does not read as a premium-casual fantasy game background.",
+      "direction": "Replace it with a cohesive illustrated fantasy-game backdrop behind framed UI panels.",
+      "region": "Image 1, entire screen",
+      "severity": "major"
+    }
+  ],
+  "participated": [
+    "codex/gpt-5.6-terra",
+    "anthropic/claude-fable-5",
+    "anthropic/claude-opus-5"
+  ],
+  "per_model": {
+    "anthropic/claude-fable-5": {
+      "defects": [
+        {
+          "defect": "Capture shows the iOS App Library (system home screen with app folders like Suggestions, Recently Added, Utilities), not the game's home screen at all \u2014 no title lettering, hero scene panel, level map panel, Play button, top bar, or nav bar is present",
+          "direction": "Launch the game app and re-capture its home screen; the app was not in the foreground when the screenshot was taken",
+          "key": "missing-element",
+          "region": "entire screen",
+          "severity": "blocker"
+        },
+        {
+          "defect": "All visible content (search pill, app icon grid, folder labels, status bar clock 6:12) belongs to iOS, an extra system UI replacing the target screen entirely",
+          "direction": "Ensure the capture targets the running game window/simulator app rather than the springboard",
+          "key": "extra-element",
+          "region": "full frame",
+          "severity": "blocker"
+        }
+      ],
+      "model": "claude-fable-5",
+      "recurring_checks": [
+        {
+          "evidence": "fid-25-home: no game banner exists to judge; frame is iOS App Library (full 725x1568)",
+          "id": "banner-transparency",
+          "pass": false
+        },
+        {
+          "evidence": "fid-25-home: every asset is an iOS system icon, not the game's art (grid from y\u2248270 down)",
+          "id": "asset-identity",
+          "pass": false
+        },
+        {
+          "evidence": "fid-25-home: no game pill/circular buttons present to verify (no Play button anywhere in frame)",
+          "id": "glyph-centering",
+          "pass": false
+        },
+        {
+          "evidence": "fid-25-home: game text/icons absent; only iOS folder labels visible (e.g. 'Suggestions' at ~195,595)",
+          "id": "content-containment",
+          "pass": false
+        },
+        {
+          "evidence": "fid-25-home: no game row cells to compare; iOS folder grid at 45-680 x 270-1330 is not the judged UI",
+          "id": "sibling-size-consistency",
+          "pass": false
+        }
+      ],
+      "score": 2.0
+    },
+    "anthropic/claude-opus-5": {
+      "defects": [
+        {
+          "defect": "OURS is an iOS App Library / home screen screenshot, not the game's home screen; none of the specified elements (title lettering, hero scene panel, level map panel, Play button, framed top bar, framed nav bar) are present",
+          "direction": "Capture the actual idle RPG home screen; the app evidently failed to launch or the capture targeted the springboard instead of the app",
+          "key": "text-content",
+          "region": "fid-25-home, entire frame (0,0)-(725,1568)",
+          "severity": "blocker"
+        },
+        {
+          "defect": "No title lettering or hero scene panel exists",
+          "direction": "Render the framed title and hero scene panel centered on the screen's vertical axis",
+          "key": "missing-element",
+          "region": "fid-25-home, upper third where title/hero scene should sit (60,230)-(680,620)",
+          "severity": "blocker"
+        },
+        {
+          "defect": "No level map panel and no Play button",
+          "direction": "Render the level map panel and a Play button centered on the same vertical axis with consistent margins",
+          "key": "missing-element",
+          "region": "fid-25-home, mid/lower area where level map and Play button should sit (60,620)-(680,1400)",
+          "severity": "blocker"
+        },
+        {
+          "defect": "No framed top bar or framed nav bar; the iOS status bar and search field occupy the top instead",
+          "direction": "Render the game's framed top bar and bottom nav bar with matching frame treatment",
+          "key": "missing-element",
+          "region": "fid-25-home, top and bottom edges (0,0)-(725,220) and (0,1400)-(725,1568)",
+          "severity": "blocker"
+        },
+        {
+          "defect": "Background is the iOS wallpaper gradient, not the premium-casual Kingdom Rush style art background",
+          "direction": "Replace with the game's illustrated background once the correct screen is captured",
+          "key": "background",
+          "region": "fid-25-home, full background",
+          "severity": "blocker"
+        },
+        {
+          "defect": "Content is cut off mid-row at the frame bottom, indicating a truncated/scrolling capture",
+          "direction": "Capture the full screen height of the app so no row is clipped",
+          "key": "other",
+          "region": "fid-25-home, bottom edge (0,1500)-(725,1568)",
+          "severity": "major"
+        }
+      ],
+      "model": "claude-opus-5",
+      "recurring_checks": [
+        {
+          "evidence": "fid-25-home: no game banner/ribbon present anywhere; folder label plates at (194,596) are OS chrome, not the target's sprite banners",
+          "id": "banner-transparency",
+          "pass": false
+        },
+        {
+          "evidence": "fid-25-home: every visible asset is iOS system app iconography (e.g. Safari icon at 127,354), none matching the specified game art",
+          "id": "asset-identity",
+          "pass": false
+        },
+        {
+          "evidence": "fid-25-home: no circular/pill game buttons exist to evaluate; expected Play button absent near (362,1200)",
+          "id": "glyph-centering",
+          "pass": false
+        },
+        {
+          "evidence": "fid-25-home: folder labels such as 'Recently Added' at (528,596) stay within their bounds; no leakage observed",
+          "id": "content-containment",
+          "pass": true
+        },
+        {
+          "evidence": "fid-25-home: within-folder tiles differ in size, e.g. large tile at (460,354) vs quarter tiles at (568,462) in the same row",
+          "id": "sibling-size-consistency",
+          "pass": false
+        }
+      ],
+      "score": 0.0
+    },
+    "codex/gpt-5.6-terra": {
+      "defects": [
+        {
+          "defect": "The required Kingdom Rush-style idle RPG home screen is absent; this is an iOS App Library screen.",
+          "direction": "Render the game home screen instead of the device launcher.",
+          "key": "missing-element",
+          "region": "Image 1, entire screen",
+          "severity": "blocker"
+        },
+        {
+          "defect": "No vertically aligned framed top bar, title, hero scene, level map, Play button, or framed navigation bar is present.",
+          "direction": "Build the specified stacked game-home composition on one centered vertical axis.",
+          "key": "layout",
+          "region": "Image 1, entire screen",
+          "severity": "blocker"
+        },
+        {
+          "defect": "iOS system folders and app icons replace the intended fantasy RPG artwork and controls.",
+          "direction": "Use original Kingdom Rush-inspired game assets, panels, scene art, and navigation icons.",
+          "key": "other",
+          "region": "Image 1, entire screen",
+          "severity": "major"
+        },
+        {
+          "defect": "The pink-purple iOS launcher wallpaper does not read as a premium-casual fantasy game background.",
+          "direction": "Replace it with a cohesive illustrated fantasy-game backdrop behind framed UI panels.",
+          "key": "background",
+          "region": "Image 1, entire screen",
+          "severity": "major"
+        },
+        {
+          "defect": "System labels such as \u201cApp Library\u201d and folder names replace the game title and UI lettering.",
+          "direction": "Add a centered, legible game title and consistent fantasy-styled UI typography.",
+          "key": "typography",
+          "region": "Image 1, entire screen",
+          "severity": "major"
+        }
+      ],
+      "model": "gpt-5.6-terra",
+      "recurring_checks": [
+        {
+          "evidence": "fid-25-home, Image 1: no opaque sprite banner or ribbon is visible.",
+          "id": "banner-transparency",
+          "pass": true
+        },
+        {
+          "evidence": "fid-25-home, Image 1 full screen: iOS App Library assets replace game artwork.",
+          "id": "asset-identity",
+          "pass": false
+        },
+        {
+          "evidence": "fid-25-home, Image 1: required Play control and its centered glyph are absent.",
+          "id": "glyph-centering",
+          "pass": false
+        },
+        {
+          "evidence": "fid-25-home, Image 1: visible system labels and icons remain within their launcher containers.",
+          "id": "content-containment",
+          "pass": true
+        },
+        {
+          "evidence": "fid-25-home, Image 1: required game control row and consistently sized sibling buttons are absent.",
+          "id": "sibling-size-consistency",
+          "pass": false
+        }
+      ],
+      "score": 1.0
+    },
+    "google/gemini-3.6-flash": {
+      "model": "google/gemini-3.6-flash",
+      "reason": "HTTP 402",
+      "skipped": true
+    }
+  },
+  "recurring_checks": [
+    {
+      "evidence": "fid-25-home: no game banner exists to judge; frame is iOS App Library (full 725x1568)",
+      "id": "banner-transparency",
+      "pass": false
+    },
+    {
+      "evidence": "fid-25-home, Image 1 full screen: iOS App Library assets replace game artwork.",
+      "id": "asset-identity",
+      "pass": false
+    },
+    {
+      "evidence": "fid-25-home, Image 1: required Play control and its centered glyph are absent.",
+      "id": "glyph-centering",
+      "pass": false
+    },
+    {
+      "evidence": "fid-25-home: game text/icons absent; only iOS folder labels visible (e.g. 'Suggestions' at ~195,595)",
+      "id": "content-containment",
+      "pass": false
+    },
+    {
+      "evidence": "fid-25-home, Image 1: required game control row and consistently sized sibling buttons are absent.",
+      "id": "sibling-size-consistency",
+      "pass": false
+    }
+  ],
+  "score": 1.0,
+  "skipped": [
+    {
+      "judge": "google/gemini-3.6-flash",
+      "reason": "HTTP 402"
+    }
+  ],
+  "verdict": "fail"
+}

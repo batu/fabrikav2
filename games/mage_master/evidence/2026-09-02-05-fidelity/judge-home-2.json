@@ -1,0 +1,390 @@
+{
+  "consensus": [
+    "layout",
+    "missing-element",
+    "sizing",
+    "spacing"
+  ],
+  "defects": [
+    {
+      "defect": "No visible Play button or primary action.",
+      "direction": "Add a prominent framed Play button centered beneath the ladder.",
+      "region": "lower center, below level ladder",
+      "severity": "blocker"
+    },
+    {
+      "defect": "No Play/primary CTA button exists anywhere on the screen; the spec's main call to action is absent",
+      "direction": "Add a large centered framed Play button between the ladder and the nav bar",
+      "region": "lower third, y\u22481100-1330",
+      "severity": "blocker"
+    },
+    {
+      "defect": "The level ladder is a thin unframed vertical strip hard-left of center with a single lock node, floating with no panel behind it; it breaks the screen's vertical axis and reads unfinished",
+      "direction": "Center the ladder on the same axis as the title/scene/nav and give it a framed panel with multiple nodes, matching the framed treatment of the top bar and nav bar",
+      "region": "level ladder, y\u22481105-1290, x\u2248150-215",
+      "severity": "blocker"
+    },
+    {
+      "defect": "Large empty wood areas make the screen read unfinished.",
+      "direction": "Tighten vertical rhythm and use the space for the centered progression/CTA structure.",
+      "region": "between top resource bar and title; beneath hero panel",
+      "severity": "major"
+    },
+    {
+      "defect": "A very large empty brown gap (~400px) sits between the resource bar and the title, reading as unfinished dead space",
+      "direction": "Redistribute vertical rhythm: raise the title/scene block or fill the region so margins between top bar, title, scene, ladder and nav are consistent",
+      "region": "between framed top bar and title, upper 40% of screen",
+      "severity": "major"
+    },
+    {
+      "defect": "~375px of empty striped background between the resource bar and the title, versus tight gaps elsewhere; the top half reads as unfinished dead space",
+      "direction": "Pull content up / distribute vertical rhythm so margins between top bar, title, scene, ladder and nav bar are consistent",
+      "region": "between top bar and title, y\u2248215-590",
+      "severity": "major"
+    },
+    {
+      "defect": "The thin ladder/lock floats without a substantial framed progression panel.",
+      "direction": "Place progression in a visually grounded, framed component matching the other ornate UI.",
+      "region": "level ladder, x135-210 y1100-1290",
+      "severity": "major"
+    },
+    {
+      "defect": "No Play button is present; the ladder ribbon just tapers off with nothing beneath it",
+      "direction": "Add a prominent centered Play button on the shared vertical axis between the ladder and the nav bar",
+      "region": "below the level ladder, lower-middle of screen",
+      "severity": "major"
+    },
+    {
+      "defect": "The ladder is offset far left while title and hero panel are centered.",
+      "direction": "Center the ladder and Play button on the title/scene vertical axis.",
+      "region": "center-to-lower screen",
+      "severity": "major"
+    },
+    {
+      "defect": "Level ladder hangs well left of the screen's center axis while title and scene panel are centered",
+      "direction": "Move the ladder ribbon onto the same vertical centerline as the title, scene panel and Play button",
+      "region": "ladder ribbon with lock medallion, ~x=175 of ~725px width",
+      "severity": "major"
+    },
+    {
+      "defect": "The Mages icon is a cropped fragment of a character head, tiny and misaligned relative to the House/Rift/Gear icons which are full framed emblems",
+      "direction": "Replace with a purpose-drawn emblem icon at the same optical size and baseline as the sibling nav icons",
+      "region": "nav bar 'Mages' tab, x\u2248400-490, y\u22481380-1425",
+      "severity": "major"
+    },
+    {
+      "defect": "Hero name labels are plain white text with no plate or outline sitting directly on busy art; Bastion and Sage sit near the panel's rounded edges",
+      "direction": "Give each name a framed plate or stronger outline and inset them from the panel edges",
+      "region": "scene panel name plates 'Bastion'/'Ember'/'Sage', y\u22481045-1070",
+      "severity": "minor"
+    },
+    {
+      "defect": "Scene panel side margins (~28px) differ slightly from the framed top and nav bars (~10px), so vertical edges don't align down the screen",
+      "direction": "Match the scene panel's horizontal insets to the framed bars for a shared left/right gutter",
+      "region": "scene panel vs top bar/nav bar horizontal margins",
+      "severity": "minor"
+    },
+    {
+      "defect": "The Mages icon is noticeably smaller and less visually substantial than sibling icons.",
+      "direction": "Scale and center it to match the perceived weight of Home, Rift, and Settings icons.",
+      "region": "Mages navigation icon, x420-467 y1380-1425",
+      "severity": "minor"
+    },
+    {
+      "defect": "Home tab's highlighted panel appears slightly taller than the other three tab panels",
+      "direction": "Equalize the selected-state tile height with sibling tabs, using tint/glow rather than size for selection",
+      "region": "Home tab vs other tabs in bottom nav",
+      "severity": "minor"
+    },
+    {
+      "defect": "Nav icon optical sizes are inconsistent \u2014 Rift and Settings glyphs are noticeably larger than Home and Mages",
+      "direction": "Normalize icon bounding box and optical weight across all four tabs",
+      "region": "nav bar icons, y\u22481370-1430",
+      "severity": "minor"
+    },
+    {
+      "defect": "Ladder ribbon ends floating mid-air with a frayed tip, unanchored to any frame or button",
+      "direction": "Terminate the ribbon into the Play button or a framed footer element so it doesn't float",
+      "region": "bottom of ladder ribbon, ~y=1280",
+      "severity": "minor"
+    },
+    {
+      "defect": "Mages icon is a tiny low-detail character sprite, visibly smaller and lower-fidelity than the sibling nav icons (house, portal, gear)",
+      "direction": "Replace with an icon rendered at the same visual size and style weight as the other nav icons",
+      "region": "Mages tab in bottom nav bar",
+      "severity": "minor"
+    }
+  ],
+  "participated": [
+    "codex/gpt-5.6-terra",
+    "anthropic/claude-fable-5",
+    "anthropic/claude-opus-5"
+  ],
+  "per_model": {
+    "anthropic/claude-fable-5": {
+      "defects": [
+        {
+          "defect": "No Play button is present; the ladder ribbon just tapers off with nothing beneath it",
+          "direction": "Add a prominent centered Play button on the shared vertical axis between the ladder and the nav bar",
+          "key": "missing-element",
+          "region": "below the level ladder, lower-middle of screen",
+          "severity": "major"
+        },
+        {
+          "defect": "Level ladder hangs well left of the screen's center axis while title and scene panel are centered",
+          "direction": "Move the ladder ribbon onto the same vertical centerline as the title, scene panel and Play button",
+          "key": "layout",
+          "region": "ladder ribbon with lock medallion, ~x=175 of ~725px width",
+          "severity": "major"
+        },
+        {
+          "defect": "A very large empty brown gap (~400px) sits between the resource bar and the title, reading as unfinished dead space",
+          "direction": "Redistribute vertical rhythm: raise the title/scene block or fill the region so margins between top bar, title, scene, ladder and nav are consistent",
+          "key": "spacing",
+          "region": "between framed top bar and title, upper 40% of screen",
+          "severity": "major"
+        },
+        {
+          "defect": "Ladder ribbon ends floating mid-air with a frayed tip, unanchored to any frame or button",
+          "direction": "Terminate the ribbon into the Play button or a framed footer element so it doesn't float",
+          "key": "layout",
+          "region": "bottom of ladder ribbon, ~y=1280",
+          "severity": "minor"
+        },
+        {
+          "defect": "Mages icon is a tiny low-detail character sprite, visibly smaller and lower-fidelity than the sibling nav icons (house, portal, gear)",
+          "direction": "Replace with an icon rendered at the same visual size and style weight as the other nav icons",
+          "key": "iconography",
+          "region": "Mages tab in bottom nav bar",
+          "severity": "minor"
+        },
+        {
+          "defect": "Home tab's highlighted panel appears slightly taller than the other three tab panels",
+          "direction": "Equalize the selected-state tile height with sibling tabs, using tint/glow rather than size for selection",
+          "key": "sizing",
+          "region": "Home tab vs other tabs in bottom nav",
+          "severity": "minor"
+        }
+      ],
+      "model": "claude-fable-5",
+      "recurring_checks": [
+        {
+          "evidence": "fid-13-home: Mage Master title art and name chips (Bastion/Ember/Sage, ~y=1055) composite transparently over background",
+          "id": "banner-transparency",
+          "pass": true
+        },
+        {
+          "evidence": "fid-13-home: all elements use drawn art assets; no font glyphs standing in for art (nav icons ~y=1410)",
+          "id": "asset-identity",
+          "pass": true
+        },
+        {
+          "evidence": "fid-13-home: lock glyph centered in circular medallion at ~(175,1190)",
+          "id": "glyph-centering",
+          "pass": true
+        },
+        {
+          "evidence": "fid-13-home: nav labels and resource counts stay inside their pills/cells (top bar ~y=150, nav ~y=1455)",
+          "id": "content-containment",
+          "pass": true
+        },
+        {
+          "evidence": "fid-13-home: Home tab tile ~y=1345 renders slightly taller than Rift/Mages/Settings tiles in the same nav row",
+          "id": "sibling-size-consistency",
+          "pass": false
+        }
+      ],
+      "score": 58.0
+    },
+    "anthropic/claude-opus-5": {
+      "defects": [
+        {
+          "defect": "The level ladder is a thin unframed vertical strip hard-left of center with a single lock node, floating with no panel behind it; it breaks the screen's vertical axis and reads unfinished",
+          "direction": "Center the ladder on the same axis as the title/scene/nav and give it a framed panel with multiple nodes, matching the framed treatment of the top bar and nav bar",
+          "key": "layout",
+          "region": "level ladder, y\u22481105-1290, x\u2248150-215",
+          "severity": "blocker"
+        },
+        {
+          "defect": "No Play/primary CTA button exists anywhere on the screen; the spec's main call to action is absent",
+          "direction": "Add a large centered framed Play button between the ladder and the nav bar",
+          "key": "missing-element",
+          "region": "lower third, y\u22481100-1330",
+          "severity": "blocker"
+        },
+        {
+          "defect": "~375px of empty striped background between the resource bar and the title, versus tight gaps elsewhere; the top half reads as unfinished dead space",
+          "direction": "Pull content up / distribute vertical rhythm so margins between top bar, title, scene, ladder and nav bar are consistent",
+          "key": "spacing",
+          "region": "between top bar and title, y\u2248215-590",
+          "severity": "major"
+        },
+        {
+          "defect": "The Mages icon is a cropped fragment of a character head, tiny and misaligned relative to the House/Rift/Gear icons which are full framed emblems",
+          "direction": "Replace with a purpose-drawn emblem icon at the same optical size and baseline as the sibling nav icons",
+          "key": "layout",
+          "region": "nav bar 'Mages' tab, x\u2248400-490, y\u22481380-1425",
+          "severity": "major"
+        },
+        {
+          "defect": "Nav icon optical sizes are inconsistent \u2014 Rift and Settings glyphs are noticeably larger than Home and Mages",
+          "direction": "Normalize icon bounding box and optical weight across all four tabs",
+          "key": "sizing",
+          "region": "nav bar icons, y\u22481370-1430",
+          "severity": "minor"
+        },
+        {
+          "defect": "Hero name labels are plain white text with no plate or outline sitting directly on busy art; Bastion and Sage sit near the panel's rounded edges",
+          "direction": "Give each name a framed plate or stronger outline and inset them from the panel edges",
+          "key": "typography",
+          "region": "scene panel name plates 'Bastion'/'Ember'/'Sage', y\u22481045-1070",
+          "severity": "minor"
+        },
+        {
+          "defect": "Scene panel side margins (~28px) differ slightly from the framed top and nav bars (~10px), so vertical edges don't align down the screen",
+          "direction": "Match the scene panel's horizontal insets to the framed bars for a shared left/right gutter",
+          "key": "spacing",
+          "region": "scene panel vs top bar/nav bar horizontal margins",
+          "severity": "minor"
+        }
+      ],
+      "model": "claude-opus-5",
+      "recurring_checks": [
+        {
+          "evidence": "fid-13-home: hero name labels at y\u22481055 composite directly over scene art, no opaque box",
+          "id": "banner-transparency",
+          "pass": true
+        },
+        {
+          "evidence": "fid-13-home: 'Mages' nav icon at (445,1400) is a cropped character-head fragment rather than a proper emblem like the sibling tabs",
+          "id": "asset-identity",
+          "pass": false
+        },
+        {
+          "evidence": "fid-13-home: lock glyph in circular ladder node at (181,1195) is centered",
+          "id": "glyph-centering",
+          "pass": true
+        },
+        {
+          "evidence": "fid-13-home: resource chip text '10/10' at (140,152) and others stay inside their pill bounds",
+          "id": "content-containment",
+          "pass": true
+        },
+        {
+          "evidence": "fid-13-home: nav row icons at y\u22481400 differ in optical size (Rift/Settings larger than Home/Mages)",
+          "id": "sibling-size-consistency",
+          "pass": false
+        }
+      ],
+      "score": 58.0
+    },
+    "codex/gpt-5.6-terra": {
+      "defects": [
+        {
+          "defect": "No visible Play button or primary action.",
+          "direction": "Add a prominent framed Play button centered beneath the ladder.",
+          "key": "missing-element",
+          "region": "lower center, below level ladder",
+          "severity": "blocker"
+        },
+        {
+          "defect": "The ladder is offset far left while title and hero panel are centered.",
+          "direction": "Center the ladder and Play button on the title/scene vertical axis.",
+          "key": "layout",
+          "region": "center-to-lower screen",
+          "severity": "major"
+        },
+        {
+          "defect": "Large empty wood areas make the screen read unfinished.",
+          "direction": "Tighten vertical rhythm and use the space for the centered progression/CTA structure.",
+          "key": "spacing",
+          "region": "between top resource bar and title; beneath hero panel",
+          "severity": "major"
+        },
+        {
+          "defect": "The thin ladder/lock floats without a substantial framed progression panel.",
+          "direction": "Place progression in a visually grounded, framed component matching the other ornate UI.",
+          "key": "other",
+          "region": "level ladder, x135-210 y1100-1290",
+          "severity": "major"
+        },
+        {
+          "defect": "The Mages icon is noticeably smaller and less visually substantial than sibling icons.",
+          "direction": "Scale and center it to match the perceived weight of Home, Rift, and Settings icons.",
+          "key": "sizing",
+          "region": "Mages navigation icon, x420-467 y1380-1425",
+          "severity": "minor"
+        }
+      ],
+      "model": "gpt-5.6-terra",
+      "recurring_checks": [
+        {
+          "evidence": "fid-13-home: no opaque sprite-banner box visible around hero labels at x90-650 y1030-1075",
+          "id": "banner-transparency",
+          "pass": true
+        },
+        {
+          "evidence": "fid-13-home: illustrated title, heroes, and ornate UI assets are stylistically coherent at x25-700 y95-1490",
+          "id": "asset-identity",
+          "pass": true
+        },
+        {
+          "evidence": "fid-13-home: Settings gear is visually centered in its nav cell at x612 y1405",
+          "id": "glyph-centering",
+          "pass": true
+        },
+        {
+          "evidence": "fid-13-home: Bastion, Ember, and Sage labels remain within their dark name chips at x90-650 y1040-1075",
+          "id": "content-containment",
+          "pass": true
+        },
+        {
+          "evidence": "fid-13-home: four bottom navigation cells have consistent widths across x29-697 y1345-1490",
+          "id": "sibling-size-consistency",
+          "pass": true
+        }
+      ],
+      "score": 58.0
+    },
+    "google/gemini-3.6-flash": {
+      "model": "google/gemini-3.6-flash",
+      "reason": "HTTP 402",
+      "skipped": true
+    }
+  },
+  "recurring_checks": [
+    {
+      "evidence": "fid-13-home: no opaque sprite-banner box visible around hero labels at x90-650 y1030-1075",
+      "id": "banner-transparency",
+      "pass": true
+    },
+    {
+      "evidence": "fid-13-home: 'Mages' nav icon at (445,1400) is a cropped character-head fragment rather than a proper emblem like the sibling tabs",
+      "id": "asset-identity",
+      "pass": false
+    },
+    {
+      "evidence": "fid-13-home: Settings gear is visually centered in its nav cell at x612 y1405",
+      "id": "glyph-centering",
+      "pass": true
+    },
+    {
+      "evidence": "fid-13-home: Bastion, Ember, and Sage labels remain within their dark name chips at x90-650 y1040-1075",
+      "id": "content-containment",
+      "pass": true
+    },
+    {
+      "evidence": "fid-13-home: Home tab tile ~y=1345 renders slightly taller than Rift/Mages/Settings tiles in the same nav row",
+      "id": "sibling-size-consistency",
+      "pass": false
+    }
+  ],
+  "score": 58.0,
+  "skipped": [
+    {
+      "judge": "google/gemini-3.6-flash",
+      "reason": "HTTP 402"
+    }
+  ],
+  "verdict": "fail"
+}

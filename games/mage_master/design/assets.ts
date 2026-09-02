@@ -42,13 +42,18 @@ export function chromeIcon(name: "home" | "settings" | "back" | "pause"): string
   return generatedUrl(`icon-nav-${name}`) ?? assetUrls.chrome[name];
 }
 
+/** Mages tab icon: the generated wizard hat, else the warrior sprite. */
+export function magesIcon(): string | undefined {
+  return generatedUrl("icon-nav-mages") ?? unitSprite("warrior");
+}
+
 /** Level-ladder node art (kit `--fab-levelmap-art-*`), undefined until generated. */
 export function nodeArt(state: "current" | "locked" | "completed"): string | undefined {
   return generatedUrl(`node-${state}`);
 }
 
 /** Camp props drawn at the party's camp line. */
-export function propSprite(name: "campfire" | "tent"): string | undefined {
+export function propSprite(name: "campfire" | "tent" | "rock-sand" | "cactus" | "bones" | "rock-forest" | "grass" | "stump" | "mushroom" | "puddle" | "roots"): string | undefined {
   return generatedUrl(`prop-${name}`);
 }
 

@@ -1,0 +1,349 @@
+{
+  "consensus": [
+    "missing-element",
+    "background"
+  ],
+  "defects": [
+    {
+      "defect": "Capture shows the iOS App Library home screen, not the game's battle screen at all \u2014 the app is not running or failed to launch into the battle scene",
+      "direction": "Launch the app and capture the battle screen; the frame must show the arena, mages, goblins and HUD described in the spec",
+      "region": "entire screen (image 1, 0,0-725,1568)",
+      "severity": "blocker"
+    },
+    {
+      "defect": "OURS is an iOS App Library home-screen screenshot, not the game's battle screen; no arena, mages, goblins, HUD, or stage track is present",
+      "direction": "Capture the running game's battle screen (sand arena, three mages, goblin wave, top strip, bottom HUD) instead of the device app library",
+      "region": "entire image",
+      "severity": "blocker"
+    },
+    {
+      "defect": "No battle arena, mages, goblins, stage track, or combat feedback is present.",
+      "direction": "Add the painted sand arena, advancing units, enemies, damage numbers, and left stage track.",
+      "region": "Image 1, top and center",
+      "severity": "blocker"
+    },
+    {
+      "defect": "No speed chip, level/stage title, or pause button; instead an iOS status bar and 'App Library' search pill",
+      "direction": "Launch the app and capture the in-game top strip with speed chip, stage title, and pause button",
+      "region": "top strip area (y 0-200)",
+      "severity": "blocker"
+    },
+    {
+      "defect": "No painted sand arena, props, mage sprites, or advancing goblins \u2014 only app icon folders",
+      "direction": "Show the battle arena with the two melee mages advancing, the ranged mage at the camp ledge, and goblins entering from the top",
+      "region": "center of frame",
+      "severity": "blocker"
+    },
+    {
+      "defect": "No left-edge stage track and no bottom HUD with three framed mage cards (portrait ring, name, HP bar, gear tiles)",
+      "direction": "Render the stage track along the left edge and the three-card mage HUD along the bottom",
+      "region": "left edge and bottom of frame",
+      "severity": "blocker"
+    },
+    {
+      "defect": "No speed chip, level/stage title or pause button; instead the iOS status bar and an 'App Library' search field are present",
+      "direction": "Render the battle top strip with speed chip on the left, centered stage title and pause button on the right",
+      "region": "top strip (image 1, y 0-220)",
+      "severity": "blocker"
+    },
+    {
+      "defect": "Painted sand arena with props, three mages, advancing goblins and damage numbers are entirely absent; springboard app-folder grid occupies the area",
+      "direction": "Draw the arena environment with dressing across the full width, two advancing melee mages, one ranged mage on the camp ledge and goblins entering from the top",
+      "region": "center (image 1, y 220-1330)",
+      "severity": "blocker"
+    },
+    {
+      "defect": "The left-edge stage track is missing",
+      "direction": "Add the vertical stage track pinned to the left edge of the arena",
+      "region": "left edge (image 1, x 0-60, full height)",
+      "severity": "blocker"
+    },
+    {
+      "defect": "No bottom HUD; the three framed mage cards with portrait ring, name, HP bar and two gear tiles are absent",
+      "direction": "Add the bottom HUD row of three equally sized mage cards with aligned portrait rings, names, HP bars and gear tiles",
+      "region": "bottom HUD (image 1, y 1330-1568)",
+      "severity": "blocker"
+    },
+    {
+      "defect": "An iOS App Library screen is shown instead of the idle-RPG battle screen.",
+      "direction": "Replace the entire view with the specified battle UI.",
+      "region": "Image 1, entire screen",
+      "severity": "blocker"
+    },
+    {
+      "defect": "Background is the iOS wallpaper gradient rather than the painted battle environment",
+      "direction": "Replace with the game's rendered arena background",
+      "region": "full frame (image 1)",
+      "severity": "blocker"
+    },
+    {
+      "defect": "The speed chip, stage title, pause control, and three-card mage HUD are absent.",
+      "direction": "Build the specified battle top strip and bottom framed mage cards with portraits, names, HP bars, and gear tiles.",
+      "region": "Image 1, top and bottom",
+      "severity": "major"
+    },
+    {
+      "defect": "System app icons and folder glyphs are used instead of RPG characters, equipment, and battle controls.",
+      "direction": "Use cohesive premium-casual fantasy game assets throughout.",
+      "region": "Image 1, entire screen",
+      "severity": "major"
+    },
+    {
+      "defect": "The pink-purple iOS wallpaper and app folders replace the finished Kingdom Rush-style arena environment.",
+      "direction": "Use a full-width painted sand arena with environmental dressing and props.",
+      "region": "Image 1, entire screen",
+      "severity": "major"
+    }
+  ],
+  "participated": [
+    "codex/gpt-5.6-terra",
+    "anthropic/claude-fable-5",
+    "anthropic/claude-opus-5"
+  ],
+  "per_model": {
+    "anthropic/claude-fable-5": {
+      "defects": [
+        {
+          "defect": "OURS is an iOS App Library home-screen screenshot, not the game's battle screen; no arena, mages, goblins, HUD, or stage track is present",
+          "direction": "Capture the running game's battle screen (sand arena, three mages, goblin wave, top strip, bottom HUD) instead of the device app library",
+          "key": "other",
+          "region": "entire image",
+          "severity": "blocker"
+        },
+        {
+          "defect": "No speed chip, level/stage title, or pause button; instead an iOS status bar and 'App Library' search pill",
+          "direction": "Launch the app and capture the in-game top strip with speed chip, stage title, and pause button",
+          "key": "missing-element",
+          "region": "top strip area (y 0-200)",
+          "severity": "blocker"
+        },
+        {
+          "defect": "No painted sand arena, props, mage sprites, or advancing goblins \u2014 only app icon folders",
+          "direction": "Show the battle arena with the two melee mages advancing, the ranged mage at the camp ledge, and goblins entering from the top",
+          "key": "missing-element",
+          "region": "center of frame",
+          "severity": "blocker"
+        },
+        {
+          "defect": "No left-edge stage track and no bottom HUD with three framed mage cards (portrait ring, name, HP bar, gear tiles)",
+          "direction": "Render the stage track along the left edge and the three-card mage HUD along the bottom",
+          "key": "missing-element",
+          "region": "left edge and bottom of frame",
+          "severity": "blocker"
+        }
+      ],
+      "model": "claude-fable-5",
+      "recurring_checks": [
+        {
+          "evidence": "fid-26-battle: not assessable \u2014 no game banners exist; image is iOS App Library at 0,0-725x1568",
+          "id": "banner-transparency",
+          "pass": false
+        },
+        {
+          "evidence": "fid-26-battle: entire capture uses iOS system/app icons in place of game assets, full frame",
+          "id": "asset-identity",
+          "pass": false
+        },
+        {
+          "evidence": "fid-26-battle: not assessable \u2014 no game pill/circular buttons present in capture",
+          "id": "glyph-centering",
+          "pass": false
+        },
+        {
+          "evidence": "fid-26-battle: not assessable \u2014 no game chips/buttons present; only iOS folder labels near y=596, y=960, y=1324",
+          "id": "content-containment",
+          "pass": false
+        },
+        {
+          "evidence": "fid-26-battle: not assessable \u2014 no HUD card row exists; iOS folder grids at y\u2248270-1300 are not game elements",
+          "id": "sibling-size-consistency",
+          "pass": false
+        }
+      ],
+      "score": 0.0
+    },
+    "anthropic/claude-opus-5": {
+      "defects": [
+        {
+          "defect": "Capture shows the iOS App Library home screen, not the game's battle screen at all \u2014 the app is not running or failed to launch into the battle scene",
+          "direction": "Launch the app and capture the battle screen; the frame must show the arena, mages, goblins and HUD described in the spec",
+          "key": "text-content",
+          "region": "entire screen (image 1, 0,0-725,1568)",
+          "severity": "blocker"
+        },
+        {
+          "defect": "No speed chip, level/stage title or pause button; instead the iOS status bar and an 'App Library' search field are present",
+          "direction": "Render the battle top strip with speed chip on the left, centered stage title and pause button on the right",
+          "key": "missing-element",
+          "region": "top strip (image 1, y 0-220)",
+          "severity": "blocker"
+        },
+        {
+          "defect": "Painted sand arena with props, three mages, advancing goblins and damage numbers are entirely absent; springboard app-folder grid occupies the area",
+          "direction": "Draw the arena environment with dressing across the full width, two advancing melee mages, one ranged mage on the camp ledge and goblins entering from the top",
+          "key": "missing-element",
+          "region": "center (image 1, y 220-1330)",
+          "severity": "blocker"
+        },
+        {
+          "defect": "The left-edge stage track is missing",
+          "direction": "Add the vertical stage track pinned to the left edge of the arena",
+          "key": "missing-element",
+          "region": "left edge (image 1, x 0-60, full height)",
+          "severity": "blocker"
+        },
+        {
+          "defect": "No bottom HUD; the three framed mage cards with portrait ring, name, HP bar and two gear tiles are absent",
+          "direction": "Add the bottom HUD row of three equally sized mage cards with aligned portrait rings, names, HP bars and gear tiles",
+          "key": "missing-element",
+          "region": "bottom HUD (image 1, y 1330-1568)",
+          "severity": "blocker"
+        },
+        {
+          "defect": "Background is the iOS wallpaper gradient rather than the painted battle environment",
+          "direction": "Replace with the game's rendered arena background",
+          "key": "background",
+          "region": "full frame (image 1)",
+          "severity": "blocker"
+        }
+      ],
+      "model": "claude-opus-5",
+      "recurring_checks": [
+        {
+          "evidence": "fid-26-battle: no sprite banner present anywhere in capture-budget.png; only iOS folder tiles at ~(194,596)",
+          "id": "banner-transparency",
+          "pass": false
+        },
+        {
+          "evidence": "fid-26-battle: entire frame uses iOS springboard assets instead of game art, e.g. app icons at (127,354) and (461,354)",
+          "id": "asset-identity",
+          "pass": false
+        },
+        {
+          "evidence": "fid-26-battle: no circular/pill game buttons rendered; nothing at expected pause-button location ~(660,170)",
+          "id": "glyph-centering",
+          "pass": false
+        },
+        {
+          "evidence": "fid-26-battle: no game pills/chips rendered; 'App Library' label at (386,170) is OS chrome, not app content",
+          "id": "content-containment",
+          "pass": false
+        },
+        {
+          "evidence": "fid-26-battle: no HUD card row exists at expected y~1400; bottom rows are iOS folder tiles",
+          "id": "sibling-size-consistency",
+          "pass": false
+        }
+      ],
+      "score": 0.0
+    },
+    "codex/gpt-5.6-terra": {
+      "defects": [
+        {
+          "defect": "An iOS App Library screen is shown instead of the idle-RPG battle screen.",
+          "direction": "Replace the entire view with the specified battle UI.",
+          "key": "layout",
+          "region": "Image 1, entire screen",
+          "severity": "blocker"
+        },
+        {
+          "defect": "No battle arena, mages, goblins, stage track, or combat feedback is present.",
+          "direction": "Add the painted sand arena, advancing units, enemies, damage numbers, and left stage track.",
+          "key": "missing-element",
+          "region": "Image 1, top and center",
+          "severity": "blocker"
+        },
+        {
+          "defect": "The speed chip, stage title, pause control, and three-card mage HUD are absent.",
+          "direction": "Build the specified battle top strip and bottom framed mage cards with portraits, names, HP bars, and gear tiles.",
+          "key": "missing-element",
+          "region": "Image 1, top and bottom",
+          "severity": "major"
+        },
+        {
+          "defect": "The pink-purple iOS wallpaper and app folders replace the finished Kingdom Rush-style arena environment.",
+          "direction": "Use a full-width painted sand arena with environmental dressing and props.",
+          "key": "background",
+          "region": "Image 1, entire screen",
+          "severity": "major"
+        },
+        {
+          "defect": "System app icons and folder glyphs are used instead of RPG characters, equipment, and battle controls.",
+          "direction": "Use cohesive premium-casual fantasy game assets throughout.",
+          "key": "iconography",
+          "region": "Image 1, entire screen",
+          "severity": "major"
+        }
+      ],
+      "model": "gpt-5.6-terra",
+      "recurring_checks": [
+        {
+          "evidence": "fid-26-battle, no sprite banner visible at screen center.",
+          "id": "banner-transparency",
+          "pass": true
+        },
+        {
+          "evidence": "fid-26-battle, iOS App Library icons occupy the full 725x1608 screen.",
+          "id": "asset-identity",
+          "pass": false
+        },
+        {
+          "evidence": "fid-26-battle, no circular or pill battle glyph control is visible.",
+          "id": "glyph-centering",
+          "pass": true
+        },
+        {
+          "evidence": "fid-26-battle, visible App Library labels remain within their folder regions around y=590-1335.",
+          "id": "content-containment",
+          "pass": true
+        },
+        {
+          "evidence": "fid-26-battle, no battle HUD card row is visible to show unequal sibling cells.",
+          "id": "sibling-size-consistency",
+          "pass": true
+        }
+      ],
+      "score": 0.0
+    },
+    "google/gemini-3.6-flash": {
+      "model": "google/gemini-3.6-flash",
+      "reason": "HTTP 402",
+      "skipped": true
+    }
+  },
+  "recurring_checks": [
+    {
+      "evidence": "fid-26-battle: not assessable \u2014 no game banners exist; image is iOS App Library at 0,0-725x1568",
+      "id": "banner-transparency",
+      "pass": false
+    },
+    {
+      "evidence": "fid-26-battle, iOS App Library icons occupy the full 725x1608 screen.",
+      "id": "asset-identity",
+      "pass": false
+    },
+    {
+      "evidence": "fid-26-battle: not assessable \u2014 no game pill/circular buttons present in capture",
+      "id": "glyph-centering",
+      "pass": false
+    },
+    {
+      "evidence": "fid-26-battle: not assessable \u2014 no game chips/buttons present; only iOS folder labels near y=596, y=960, y=1324",
+      "id": "content-containment",
+      "pass": false
+    },
+    {
+      "evidence": "fid-26-battle: not assessable \u2014 no HUD card row exists; iOS folder grids at y\u2248270-1300 are not game elements",
+      "id": "sibling-size-consistency",
+      "pass": false
+    }
+  ],
+  "score": 0.0,
+  "skipped": [
+    {
+      "judge": "google/gemini-3.6-flash",
+      "reason": "HTTP 402"
+    }
+  ],
+  "verdict": "fail"
+}

@@ -1,0 +1,324 @@
+{
+  "consensus": [
+    "sizing",
+    "spacing",
+    "layout"
+  ],
+  "defects": [
+    {
+      "defect": "Vertical rhythm is inconsistent: title sits ~50px under the top bar but the gap between Play button and nav bar is ~90px, and the ladder-to-Play gap ~30px",
+      "direction": "Normalize gaps to one spacing scale so top bar\u2192title\u2192scene\u2192ladder\u2192Play\u2192nav read as an even stack",
+      "region": "title vs top bar / scene, y\u2248220-390",
+      "severity": "major"
+    },
+    {
+      "defect": "The framed ladder is excessively tall for its sparse contents, leaving a large expanse of empty wood that reads unfinished.",
+      "direction": "Reduce the panel height to fit the current nodes, or populate it with a fuller visible progression.",
+      "region": "Level ladder panel, center",
+      "severity": "major"
+    },
+    {
+      "defect": "Ladder occupies only a narrow center strip; the wide dark plank areas flanking it are empty and read as unfinished",
+      "direction": "Fill flanking space with map decoration, side-path nodes, or props, or narrow the panel so the ladder fills it (Kingdom Rush maps wind nodes across the full width)",
+      "region": "level ladder panel, left and right thirds (~x40-280 and x430-680, y740-1140)",
+      "severity": "major"
+    },
+    {
+      "defect": "Ladder panel is a large mostly-empty wooden board; the level path occupies only a narrow central column with wide blank flanks and only three nodes, reading as unfinished placeholder space",
+      "direction": "Shrink the panel height or populate it with a winding path, decorations and more level nodes so the framed area feels authored like Kingdom Rush's level map",
+      "region": "level ladder panel, y\u2248740-1150",
+      "severity": "major"
+    },
+    {
+      "defect": "Name pills (Bastion, Ember, Sage) sit flush against the panel's bottom inner edge and are unevenly spaced (Bastion at x\u2248100, Ember x\u2248362, Sage x\u2248583), not matching the characters' horizontal centers",
+      "direction": "Add bottom padding inside the panel and center each pill under its character with even, symmetric spacing",
+      "region": "hero scene panel, hero name pills y\u2248690",
+      "severity": "major"
+    },
+    {
+      "defect": "Title wordmark optical center is slightly right of screen center and the purple magic glow crops at the top edge of its bounding area",
+      "direction": "Center the wordmark on the same vertical axis as the panels and give the glow enough headroom to render uncropped",
+      "region": "title lettering, y\u2248250-370",
+      "severity": "minor"
+    },
+    {
+      "defect": "The empty gap is noticeably larger than the otherwise consistent vertical rhythm between sections.",
+      "direction": "Tighten this gap or rebalance the ladder/button area to match adjacent spacing.",
+      "region": "Between Play button and bottom navigation",
+      "severity": "minor"
+    },
+    {
+      "defect": "Vertical margins are uneven: gap below the Play button and gap above the title are larger than the scene-to-ladder and ladder-to-Play gaps",
+      "direction": "Equalize the vertical rhythm between top bar, title, scene, ladder, Play button, and nav bar",
+      "region": "between Play button (~y1280) and framed nav bar (~y1340)",
+      "severity": "minor"
+    },
+    {
+      "defect": "Active Home cell uses a lighter fill that extends to the frame's inner edge while the other three items have no cell backing, making the row look unevenly divided",
+      "direction": "Inset the active highlight symmetrically within the nav frame and keep all four tab cells the same width",
+      "region": "bottom nav bar, Home cell x\u224835-195",
+      "severity": "minor"
+    },
+    {
+      "defect": "Locked nodes are much smaller than the level-1 node and cluster in the upper half, leaving the lower half of the strip mostly bare track",
+      "direction": "Distribute nodes evenly along the track and reduce the size disparity so the ladder reads as a continuous progression",
+      "region": "ladder panel, two lock nodes (~x360, y785 and y915)",
+      "severity": "minor"
+    },
+    {
+      "defect": "Horizontal insets differ per block: scene panel is inset ~24px, ladder panel ~28px, Play button ~40px, so left/right edges do not align down the screen",
+      "direction": "Use one shared content width and identical side margins for scene, ladder and Play button",
+      "region": "hero scene panel vs ladder panel and Play button, x\u224824-698",
+      "severity": "minor"
+    },
+    {
+      "defect": "The four chips are equal width but the content inside is not balanced \u2014 '10/10' nearly fills its chip while '50', '30', '30' leave large right-hand gaps",
+      "direction": "Center icon+value pairs within each chip or size chips to content so the row reads evenly weighted",
+      "region": "top bar resource chips, y\u2248120-180",
+      "severity": "minor"
+    },
+    {
+      "defect": "Flat diagonal-stripe brown fills large empty gutters, especially between top bar and title and around the Play button, reading as unfinished",
+      "direction": "Add subtle vignette/decorative depth or tighten panel widths so the bare background is less prominent",
+      "region": "background gutters left/right and behind title, full screen",
+      "severity": "minor"
+    }
+  ],
+  "participated": [
+    "codex/gpt-5.6-terra",
+    "anthropic/claude-fable-5",
+    "anthropic/claude-opus-5"
+  ],
+  "per_model": {
+    "anthropic/claude-fable-5": {
+      "defects": [
+        {
+          "defect": "Ladder occupies only a narrow center strip; the wide dark plank areas flanking it are empty and read as unfinished",
+          "direction": "Fill flanking space with map decoration, side-path nodes, or props, or narrow the panel so the ladder fills it (Kingdom Rush maps wind nodes across the full width)",
+          "key": "layout",
+          "region": "level ladder panel, left and right thirds (~x40-280 and x430-680, y740-1140)",
+          "severity": "major"
+        },
+        {
+          "defect": "Vertical margins are uneven: gap below the Play button and gap above the title are larger than the scene-to-ladder and ladder-to-Play gaps",
+          "direction": "Equalize the vertical rhythm between top bar, title, scene, ladder, Play button, and nav bar",
+          "key": "spacing",
+          "region": "between Play button (~y1280) and framed nav bar (~y1340)",
+          "severity": "minor"
+        },
+        {
+          "defect": "Locked nodes are much smaller than the level-1 node and cluster in the upper half, leaving the lower half of the strip mostly bare track",
+          "direction": "Distribute nodes evenly along the track and reduce the size disparity so the ladder reads as a continuous progression",
+          "key": "sizing",
+          "region": "ladder panel, two lock nodes (~x360, y785 and y915)",
+          "severity": "minor"
+        }
+      ],
+      "model": "claude-fable-5",
+      "recurring_checks": [
+        {
+          "evidence": "fid-15-home: Mage Master title lockup and name pills (~x360,y300; y690) composite transparently over the brown background",
+          "id": "banner-transparency",
+          "pass": true
+        },
+        {
+          "evidence": "fid-15-home: currency icons, locks, nav icons (~y150, y785, y1420) are all drawn art, no font glyph stand-ins",
+          "id": "asset-identity",
+          "pass": true
+        },
+        {
+          "evidence": "fid-15-home: '1' in circular level node (~x360,y1040) and bolt in Play energy chip (~x495,y1225) are visually centered",
+          "id": "glyph-centering",
+          "pass": true
+        },
+        {
+          "evidence": "fid-15-home: 'Play \u00b7 Level 1' text and energy chip stay inside the gold pill (~x360,y1225); name pills contain their labels",
+          "id": "content-containment",
+          "pass": true
+        },
+        {
+          "evidence": "fid-15-home: four resource pills in top bar (~y150) and four nav cells (~y1420) are equal-sized within their rows",
+          "id": "sibling-size-consistency",
+          "pass": true
+        }
+      ],
+      "score": 87.0
+    },
+    "anthropic/claude-opus-5": {
+      "defects": [
+        {
+          "defect": "Ladder panel is a large mostly-empty wooden board; the level path occupies only a narrow central column with wide blank flanks and only three nodes, reading as unfinished placeholder space",
+          "direction": "Shrink the panel height or populate it with a winding path, decorations and more level nodes so the framed area feels authored like Kingdom Rush's level map",
+          "key": "layout",
+          "region": "level ladder panel, y\u2248740-1150",
+          "severity": "major"
+        },
+        {
+          "defect": "Name pills (Bastion, Ember, Sage) sit flush against the panel's bottom inner edge and are unevenly spaced (Bastion at x\u2248100, Ember x\u2248362, Sage x\u2248583), not matching the characters' horizontal centers",
+          "direction": "Add bottom padding inside the panel and center each pill under its character with even, symmetric spacing",
+          "key": "layout",
+          "region": "hero scene panel, hero name pills y\u2248690",
+          "severity": "major"
+        },
+        {
+          "defect": "Vertical rhythm is inconsistent: title sits ~50px under the top bar but the gap between Play button and nav bar is ~90px, and the ladder-to-Play gap ~30px",
+          "direction": "Normalize gaps to one spacing scale so top bar\u2192title\u2192scene\u2192ladder\u2192Play\u2192nav read as an even stack",
+          "key": "spacing",
+          "region": "title vs top bar / scene, y\u2248220-390",
+          "severity": "major"
+        },
+        {
+          "defect": "Horizontal insets differ per block: scene panel is inset ~24px, ladder panel ~28px, Play button ~40px, so left/right edges do not align down the screen",
+          "direction": "Use one shared content width and identical side margins for scene, ladder and Play button",
+          "key": "sizing",
+          "region": "hero scene panel vs ladder panel and Play button, x\u224824-698",
+          "severity": "minor"
+        },
+        {
+          "defect": "Title wordmark optical center is slightly right of screen center and the purple magic glow crops at the top edge of its bounding area",
+          "direction": "Center the wordmark on the same vertical axis as the panels and give the glow enough headroom to render uncropped",
+          "key": "typography",
+          "region": "title lettering, y\u2248250-370",
+          "severity": "minor"
+        },
+        {
+          "defect": "Flat diagonal-stripe brown fills large empty gutters, especially between top bar and title and around the Play button, reading as unfinished",
+          "direction": "Add subtle vignette/decorative depth or tighten panel widths so the bare background is less prominent",
+          "key": "background",
+          "region": "background gutters left/right and behind title, full screen",
+          "severity": "minor"
+        },
+        {
+          "defect": "Active Home cell uses a lighter fill that extends to the frame's inner edge while the other three items have no cell backing, making the row look unevenly divided",
+          "direction": "Inset the active highlight symmetrically within the nav frame and keep all four tab cells the same width",
+          "key": "spacing",
+          "region": "bottom nav bar, Home cell x\u224835-195",
+          "severity": "minor"
+        },
+        {
+          "defect": "The four chips are equal width but the content inside is not balanced \u2014 '10/10' nearly fills its chip while '50', '30', '30' leave large right-hand gaps",
+          "direction": "Center icon+value pairs within each chip or size chips to content so the row reads evenly weighted",
+          "key": "sizing",
+          "region": "top bar resource chips, y\u2248120-180",
+          "severity": "minor"
+        }
+      ],
+      "model": "claude-opus-5",
+      "recurring_checks": [
+        {
+          "evidence": "fid-15-home: title wordmark glow at (360,310) composites over background with no opaque box",
+          "id": "banner-transparency",
+          "pass": true
+        },
+        {
+          "evidence": "fid-15-home: nav icons at (115,1390),(280,1390),(445,1390),(610,1390) are painted art, not font glyphs",
+          "id": "asset-identity",
+          "pass": true
+        },
+        {
+          "evidence": "fid-15-home: '1' in circular level node at (362,1045) is centered; lock glyphs at (362,790) and (362,915) centered",
+          "id": "glyph-centering",
+          "pass": true
+        },
+        {
+          "evidence": "fid-15-home: hero name pills at (100,690),(362,690),(583,690) touch/overrun the scene panel's bottom inner frame edge",
+          "id": "content-containment",
+          "pass": false
+        },
+        {
+          "evidence": "fid-15-home: bottom nav Home cell (35-195 px wide fill) is visually backed while Rift/Mages/Settings cells at y\u22481420 have none",
+          "id": "sibling-size-consistency",
+          "pass": false
+        }
+      ],
+      "score": 78.0
+    },
+    "codex/gpt-5.6-terra": {
+      "defects": [
+        {
+          "defect": "The framed ladder is excessively tall for its sparse contents, leaving a large expanse of empty wood that reads unfinished.",
+          "direction": "Reduce the panel height to fit the current nodes, or populate it with a fuller visible progression.",
+          "key": "sizing",
+          "region": "Level ladder panel, center",
+          "severity": "major"
+        },
+        {
+          "defect": "The empty gap is noticeably larger than the otherwise consistent vertical rhythm between sections.",
+          "direction": "Tighten this gap or rebalance the ladder/button area to match adjacent spacing.",
+          "key": "spacing",
+          "region": "Between Play button and bottom navigation",
+          "severity": "minor"
+        }
+      ],
+      "model": "gpt-5.6-terra",
+      "recurring_checks": [
+        {
+          "evidence": "fid-15-home title logo at x105-620, y236-371 composites cleanly over the background.",
+          "id": "banner-transparency",
+          "pass": true
+        },
+        {
+          "evidence": "fid-15-home title, hero art, resource icons, and navigation icons use cohesive bespoke fantasy artwork.",
+          "id": "asset-identity",
+          "pass": true
+        },
+        {
+          "evidence": "fid-15-home Level 1 numeral at x363, y1046 and energy glyph at x476, y1227 are visually centered.",
+          "id": "glyph-centering",
+          "pass": true
+        },
+        {
+          "evidence": "fid-15-home resource labels, character names, and Play text remain inside their framed pills and buttons.",
+          "id": "content-containment",
+          "pass": true
+        },
+        {
+          "evidence": "fid-15-home bottom navigation row at y1345-1495 presents balanced, consistently scaled icon-and-label cells.",
+          "id": "sibling-size-consistency",
+          "pass": true
+        }
+      ],
+      "score": 86.0
+    },
+    "google/gemini-3.6-flash": {
+      "model": "google/gemini-3.6-flash",
+      "reason": "HTTP 402",
+      "skipped": true
+    }
+  },
+  "recurring_checks": [
+    {
+      "evidence": "fid-15-home title logo at x105-620, y236-371 composites cleanly over the background.",
+      "id": "banner-transparency",
+      "pass": true
+    },
+    {
+      "evidence": "fid-15-home title, hero art, resource icons, and navigation icons use cohesive bespoke fantasy artwork.",
+      "id": "asset-identity",
+      "pass": true
+    },
+    {
+      "evidence": "fid-15-home Level 1 numeral at x363, y1046 and energy glyph at x476, y1227 are visually centered.",
+      "id": "glyph-centering",
+      "pass": true
+    },
+    {
+      "evidence": "fid-15-home: hero name pills at (100,690),(362,690),(583,690) touch/overrun the scene panel's bottom inner frame edge",
+      "id": "content-containment",
+      "pass": false
+    },
+    {
+      "evidence": "fid-15-home: bottom nav Home cell (35-195 px wide fill) is visually backed while Rift/Mages/Settings cells at y\u22481420 have none",
+      "id": "sibling-size-consistency",
+      "pass": false
+    }
+  ],
+  "score": 86.0,
+  "skipped": [
+    {
+      "judge": "google/gemini-3.6-flash",
+      "reason": "HTTP 402"
+    }
+  ],
+  "verdict": "pass"
+}

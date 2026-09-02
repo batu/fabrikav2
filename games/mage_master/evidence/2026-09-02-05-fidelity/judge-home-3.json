@@ -1,0 +1,363 @@
+{
+  "consensus": [
+    "missing-element",
+    "spacing",
+    "iconography"
+  ],
+  "defects": [
+    {
+      "defect": "The primary Play button is absent, leaving no clear centered action to enter gameplay.",
+      "direction": "Add a prominent gold Play button on the shared vertical axis below the ladder.",
+      "region": "Image 1, between level ladder and bottom nav",
+      "severity": "blocker"
+    },
+    {
+      "defect": "~365px of empty flat brown background sits between the framed top bar and the title; screen reads as unfinished with no Play button anywhere",
+      "direction": "Add the primary Play/Start button below the level ladder and pull the title/scene block up so no dead zone exceeds normal margins",
+      "region": "between top bar and title, y\u2248215-580 (full width)",
+      "severity": "blocker"
+    },
+    {
+      "defect": "Ladder panel has only one filled node ('1') at far left; the remaining two-thirds are empty wood with no level markers or connectors",
+      "direction": "Populate the ladder with the full sequence of level nodes (locked/unlocked states) evenly spaced across the panel",
+      "region": "level ladder panel, x\u2248260-690, y\u22481120-1285",
+      "severity": "blocker"
+    },
+    {
+      "defect": "The large empty wood area creates a broken vertical rhythm and reads as unfinished.",
+      "direction": "Compress this gap substantially or fill it with purposeful home-screen content.",
+      "region": "Image 1, top bar to Mage Master title",
+      "severity": "major"
+    },
+    {
+      "defect": "Very large empty brown region (~380px) above the title makes the screen read top-heavy and unfinished",
+      "direction": "Redistribute vertical spacing so margins between top bar, title, scene, ladder, and nav are consistent; move content up or fill the gap with framed content",
+      "region": "upper half, y~210-590 between top resource bar and title",
+      "severity": "major"
+    },
+    {
+      "defect": "Margins are wildly inconsistent: ~365px above the title, ~35px title-to-scene, ~30px scene-to-ladder, ~65px ladder-to-nav",
+      "direction": "Normalize to a single spacing unit (e.g. 24-32px) between all framed blocks and vertically center the stack",
+      "region": "vertical rhythm, top bar \u2192 title \u2192 scene \u2192 ladder \u2192 nav",
+      "severity": "major"
+    },
+    {
+      "defect": "Two framed ladder cells are completely empty, making the progression panel look incomplete.",
+      "direction": "Populate the cells with locked/upcoming level states or reduce the panel to the available content.",
+      "region": "Image 1, level ladder panel",
+      "severity": "major"
+    },
+    {
+      "defect": "No Play button is present; the spec's vertical stack (title, scene, ladder, Play button) is missing its call-to-action",
+      "direction": "Add a centered Play button on the shared vertical axis between the ladder panel and the nav bar",
+      "region": "between level ladder panel and bottom nav",
+      "severity": "major"
+    },
+    {
+      "defect": "The '1' medallion overhangs the panel's left inner frame rail and breaks the panel bounds",
+      "direction": "Inset nodes fully inside the panel's inner wood area, respecting the frame rail padding",
+      "region": "level node '1', x\u2248155-260, y\u22481140-1245",
+      "severity": "major"
+    },
+    {
+      "defect": "Name labels are plain unframed light plates that float over the art and are clipped by the panel's bottom rounded corner; 'Bastion' and 'Sage' sit near the edges rather than centered under their heroes",
+      "direction": "Use consistent framed pill chips, inset them above the panel bottom edge, and center each under its hero",
+      "region": "hero name chips 'Bastion'/'Ember'/'Sage', y\u22481045-1072",
+      "severity": "minor"
+    },
+    {
+      "defect": "Scene panel is inset ~14px narrower than the top bar, ladder and nav frames, so left/right edges do not align",
+      "direction": "Match all panels to one content width and shared side gutter",
+      "region": "content width, ladder/nav panels (x\u22488-712) vs scene panel (x\u224822-700)",
+      "severity": "minor"
+    },
+    {
+      "defect": "Only slot 1 of the ladder is populated; the two empty plank cells read as placeholder/unfinished",
+      "direction": "Populate upcoming level nodes (e.g., locked '2' and '3' medallions) or connector path art in the empty cells",
+      "region": "level ladder panel, right two cells (x~360-690, y~1120-1280)",
+      "severity": "minor"
+    },
+    {
+      "defect": "The tiny character icon is less legible and has a smaller optical footprint than the neighboring navigation icons.",
+      "direction": "Scale and center the Mages icon to match the visual weight of Home, Rift, and Settings.",
+      "region": "Image 1, Mages bottom-navigation item",
+      "severity": "minor"
+    },
+    {
+      "defect": "Mages icon is a tiny character sprite noticeably smaller and less legible than the Home, Rift, and Settings icons",
+      "direction": "Replace with an icon-scale glyph matching the size and visual weight of sibling nav icons",
+      "region": "bottom nav, Mages tab (x~440, y~1395)",
+      "severity": "minor"
+    },
+    {
+      "defect": "Mages nav icon is a tiny cropped character head at much smaller optical size than the Home/Rift/Settings icons",
+      "direction": "Replace with a full-bleed icon rendered at the same optical size and baseline as its siblings",
+      "region": "nav bar 'Mages' icon, x\u2248425-465, y\u22481385-1420",
+      "severity": "minor"
+    },
+    {
+      "defect": "Backdrop is a flat diagonal-stripe brown with no depth or vignette, amplifying the empty upper region",
+      "direction": "Add depth (vignette, subtle scenic texture) so unused space reads as intentional",
+      "region": "full-screen backdrop",
+      "severity": "minor"
+    }
+  ],
+  "participated": [
+    "codex/gpt-5.6-terra",
+    "anthropic/claude-fable-5",
+    "anthropic/claude-opus-5"
+  ],
+  "per_model": {
+    "anthropic/claude-fable-5": {
+      "defects": [
+        {
+          "defect": "No Play button is present; the spec's vertical stack (title, scene, ladder, Play button) is missing its call-to-action",
+          "direction": "Add a centered Play button on the shared vertical axis between the ladder panel and the nav bar",
+          "key": "missing-element",
+          "region": "between level ladder panel and bottom nav",
+          "severity": "major"
+        },
+        {
+          "defect": "Very large empty brown region (~380px) above the title makes the screen read top-heavy and unfinished",
+          "direction": "Redistribute vertical spacing so margins between top bar, title, scene, ladder, and nav are consistent; move content up or fill the gap with framed content",
+          "key": "spacing",
+          "region": "upper half, y~210-590 between top resource bar and title",
+          "severity": "major"
+        },
+        {
+          "defect": "Only slot 1 of the ladder is populated; the two empty plank cells read as placeholder/unfinished",
+          "direction": "Populate upcoming level nodes (e.g., locked '2' and '3' medallions) or connector path art in the empty cells",
+          "key": "missing-element",
+          "region": "level ladder panel, right two cells (x~360-690, y~1120-1280)",
+          "severity": "minor"
+        },
+        {
+          "defect": "Mages icon is a tiny character sprite noticeably smaller and less legible than the Home, Rift, and Settings icons",
+          "direction": "Replace with an icon-scale glyph matching the size and visual weight of sibling nav icons",
+          "key": "iconography",
+          "region": "bottom nav, Mages tab (x~440, y~1395)",
+          "severity": "minor"
+        }
+      ],
+      "model": "claude-fable-5",
+      "recurring_checks": [
+        {
+          "evidence": "fid-14-home: name chips 'Bastion/Ember/Sage' composite transparently over scene art at y~1058",
+          "id": "banner-transparency",
+          "pass": true
+        },
+        {
+          "evidence": "fid-14-home: Mages nav tab at x~440,y~1395 uses a tiny character sprite instead of a proper nav icon",
+          "id": "asset-identity",
+          "pass": false
+        },
+        {
+          "evidence": "fid-14-home: '1' glyph centered in gold medallion at x~180,y~1195",
+          "id": "glyph-centering",
+          "pass": true
+        },
+        {
+          "evidence": "fid-14-home: resource values and nav labels stay inside their pills/frames, e.g. '10/10' chip at x~130,y~150",
+          "id": "content-containment",
+          "pass": true
+        },
+        {
+          "evidence": "fid-14-home: three ladder cells at y~1200 and four nav cells at y~1425 are equal-width",
+          "id": "sibling-size-consistency",
+          "pass": true
+        }
+      ],
+      "score": 70.0
+    },
+    "anthropic/claude-opus-5": {
+      "defects": [
+        {
+          "defect": "~365px of empty flat brown background sits between the framed top bar and the title; screen reads as unfinished with no Play button anywhere",
+          "direction": "Add the primary Play/Start button below the level ladder and pull the title/scene block up so no dead zone exceeds normal margins",
+          "key": "missing-element",
+          "region": "between top bar and title, y\u2248215-580 (full width)",
+          "severity": "blocker"
+        },
+        {
+          "defect": "Ladder panel has only one filled node ('1') at far left; the remaining two-thirds are empty wood with no level markers or connectors",
+          "direction": "Populate the ladder with the full sequence of level nodes (locked/unlocked states) evenly spaced across the panel",
+          "key": "missing-element",
+          "region": "level ladder panel, x\u2248260-690, y\u22481120-1285",
+          "severity": "blocker"
+        },
+        {
+          "defect": "The '1' medallion overhangs the panel's left inner frame rail and breaks the panel bounds",
+          "direction": "Inset nodes fully inside the panel's inner wood area, respecting the frame rail padding",
+          "key": "layout",
+          "region": "level node '1', x\u2248155-260, y\u22481140-1245",
+          "severity": "major"
+        },
+        {
+          "defect": "Margins are wildly inconsistent: ~365px above the title, ~35px title-to-scene, ~30px scene-to-ladder, ~65px ladder-to-nav",
+          "direction": "Normalize to a single spacing unit (e.g. 24-32px) between all framed blocks and vertically center the stack",
+          "key": "spacing",
+          "region": "vertical rhythm, top bar \u2192 title \u2192 scene \u2192 ladder \u2192 nav",
+          "severity": "major"
+        },
+        {
+          "defect": "Scene panel is inset ~14px narrower than the top bar, ladder and nav frames, so left/right edges do not align",
+          "direction": "Match all panels to one content width and shared side gutter",
+          "key": "sizing",
+          "region": "content width, ladder/nav panels (x\u22488-712) vs scene panel (x\u224822-700)",
+          "severity": "minor"
+        },
+        {
+          "defect": "Name labels are plain unframed light plates that float over the art and are clipped by the panel's bottom rounded corner; 'Bastion' and 'Sage' sit near the edges rather than centered under their heroes",
+          "direction": "Use consistent framed pill chips, inset them above the panel bottom edge, and center each under its hero",
+          "key": "typography",
+          "region": "hero name chips 'Bastion'/'Ember'/'Sage', y\u22481045-1072",
+          "severity": "minor"
+        },
+        {
+          "defect": "Mages nav icon is a tiny cropped character head at much smaller optical size than the Home/Rift/Settings icons",
+          "direction": "Replace with a full-bleed icon rendered at the same optical size and baseline as its siblings",
+          "key": "iconography",
+          "region": "nav bar 'Mages' icon, x\u2248425-465, y\u22481385-1420",
+          "severity": "minor"
+        },
+        {
+          "defect": "Backdrop is a flat diagonal-stripe brown with no depth or vignette, amplifying the empty upper region",
+          "direction": "Add depth (vignette, subtle scenic texture) so unused space reads as intentional",
+          "key": "background",
+          "region": "full-screen backdrop",
+          "severity": "minor"
+        }
+      ],
+      "model": "claude-opus-5",
+      "recurring_checks": [
+        {
+          "evidence": "fid-14-home: hero name plates 'Bastion' (x\u224895-190, y\u22481045) render as opaque light boxes over the scene art",
+          "id": "banner-transparency",
+          "pass": false
+        },
+        {
+          "evidence": "fid-14-home: 'Mages' nav icon (x\u2248445, y\u22481400) is a cropped character sprite, not a matching nav icon like Home/Rift/Settings",
+          "id": "asset-identity",
+          "pass": false
+        },
+        {
+          "evidence": "fid-14-home: '1' glyph centered in circular level medallion at (207, 1192)",
+          "id": "glyph-centering",
+          "pass": true
+        },
+        {
+          "evidence": "fid-14-home: level-1 medallion overhangs ladder panel left rail at x\u2248155, y\u22481192; 'Sage' plate clipped by scene corner at x\u2248545-618, y\u22481058",
+          "id": "content-containment",
+          "pass": false
+        },
+        {
+          "evidence": "fid-14-home: four nav cells (x\u224820-710, y\u22481360-1480) and four top-bar resource pills are equal-sized",
+          "id": "sibling-size-consistency",
+          "pass": true
+        }
+      ],
+      "score": 58.0
+    },
+    "codex/gpt-5.6-terra": {
+      "defects": [
+        {
+          "defect": "The primary Play button is absent, leaving no clear centered action to enter gameplay.",
+          "direction": "Add a prominent gold Play button on the shared vertical axis below the ladder.",
+          "key": "missing-element",
+          "region": "Image 1, between level ladder and bottom nav",
+          "severity": "blocker"
+        },
+        {
+          "defect": "The large empty wood area creates a broken vertical rhythm and reads as unfinished.",
+          "direction": "Compress this gap substantially or fill it with purposeful home-screen content.",
+          "key": "spacing",
+          "region": "Image 1, top bar to Mage Master title",
+          "severity": "major"
+        },
+        {
+          "defect": "Two framed ladder cells are completely empty, making the progression panel look incomplete.",
+          "direction": "Populate the cells with locked/upcoming level states or reduce the panel to the available content.",
+          "key": "missing-element",
+          "region": "Image 1, level ladder panel",
+          "severity": "major"
+        },
+        {
+          "defect": "The tiny character icon is less legible and has a smaller optical footprint than the neighboring navigation icons.",
+          "direction": "Scale and center the Mages icon to match the visual weight of Home, Rift, and Settings.",
+          "key": "iconography",
+          "region": "Image 1, Mages bottom-navigation item",
+          "severity": "minor"
+        }
+      ],
+      "model": "gpt-5.6-terra",
+      "recurring_checks": [
+        {
+          "evidence": "fid-14-home: Mage Master wordmark at x120-600, y590-735 has no opaque rectangular backing.",
+          "id": "banner-transparency",
+          "pass": true
+        },
+        {
+          "evidence": "fid-14-home: title, hero-scene, and navigation art use a coherent illustrated fantasy asset set.",
+          "id": "asset-identity",
+          "pass": true
+        },
+        {
+          "evidence": "fid-14-home: level 1 glyph is visually centered in its circular medallion near x198, y1194.",
+          "id": "glyph-centering",
+          "pass": true
+        },
+        {
+          "evidence": "fid-14-home: resource values, character labels, and navigation labels remain inside their respective pills and cells.",
+          "id": "content-containment",
+          "pass": true
+        },
+        {
+          "evidence": "fid-14-home: ladder and bottom-navigation divider centerlines form consistently sized sibling cells.",
+          "id": "sibling-size-consistency",
+          "pass": true
+        }
+      ],
+      "score": 58.0
+    },
+    "google/gemini-3.6-flash": {
+      "model": "google/gemini-3.6-flash",
+      "reason": "HTTP 402",
+      "skipped": true
+    }
+  },
+  "recurring_checks": [
+    {
+      "evidence": "fid-14-home: hero name plates 'Bastion' (x\u224895-190, y\u22481045) render as opaque light boxes over the scene art",
+      "id": "banner-transparency",
+      "pass": false
+    },
+    {
+      "evidence": "fid-14-home: Mages nav tab at x~440,y~1395 uses a tiny character sprite instead of a proper nav icon",
+      "id": "asset-identity",
+      "pass": false
+    },
+    {
+      "evidence": "fid-14-home: level 1 glyph is visually centered in its circular medallion near x198, y1194.",
+      "id": "glyph-centering",
+      "pass": true
+    },
+    {
+      "evidence": "fid-14-home: level-1 medallion overhangs ladder panel left rail at x\u2248155, y\u22481192; 'Sage' plate clipped by scene corner at x\u2248545-618, y\u22481058",
+      "id": "content-containment",
+      "pass": false
+    },
+    {
+      "evidence": "fid-14-home: ladder and bottom-navigation divider centerlines form consistently sized sibling cells.",
+      "id": "sibling-size-consistency",
+      "pass": true
+    }
+  ],
+  "score": 58.0,
+  "skipped": [
+    {
+      "judge": "google/gemini-3.6-flash",
+      "reason": "HTTP 402"
+    }
+  ],
+  "verdict": "fail"
+}

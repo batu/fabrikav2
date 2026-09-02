@@ -1,0 +1,391 @@
+{
+  "consensus": [
+    "missing-element",
+    "spacing",
+    "layout",
+    "typography",
+    "sizing"
+  ],
+  "defects": [
+    {
+      "defect": "The Play \u00b7 Level 2 call-to-action has no button frame, plate or fill \u2014 it is bare text floating on the background, so the primary action does not read as tappable",
+      "direction": "Give it a large framed wood/gold pill button matching the top-bar chip styling, centered on the same vertical axis as the title and hero panel",
+      "region": "Play button area, y\u22481180-1260",
+      "severity": "blocker"
+    },
+    {
+      "defect": "The level map is an unframed strip of loose props (rocks, campfire, tent, cactus) around a plain tan vertical bar with a faint '2'; there is no panel, no path nodes and no framing, so the area reads as unfinished placeholder",
+      "direction": "Wrap the map in a framed panel matching the hero panel's border radius and stroke, and replace the bare bar with an explicit node path with numbered level markers",
+      "region": "Mid screen level map, y\u2248740-1130",
+      "severity": "blocker"
+    },
+    {
+      "defect": "The level number is low-contrast dark brown on brown and overlaps the bar's lower edge, nearly illegible",
+      "direction": "Place the number inside a framed node badge with light fill and dark outline for contrast",
+      "region": "'2' level number, x\u2248362 y\u22481048",
+      "severity": "major"
+    },
+    {
+      "defect": "Margins are inconsistent: ~30px title-to-panel, ~40px panel-to-map, ~90px map-to-Play, ~110px Play-to-nav bar",
+      "direction": "Normalize inter-section gutters to a single spacing unit (~32-40px) matching the 24px side margins",
+      "region": "Vertical stack, gaps between hero panel, map, Play, nav bar",
+      "severity": "major"
+    },
+    {
+      "defect": "Level path is a flat plain rectangle that ends abruptly below the hero panel, reading as a placeholder rather than a road/trail asset",
+      "direction": "Replace with a textured winding path or dotted trail with level-node medallions, terminating naturally at both ends",
+      "region": "vertical path, x\u2248360 y\u2248770-1070",
+      "severity": "major"
+    },
+    {
+      "defect": "\u201cPlay \u00b7 Level 2\u201d reads as unframed text rather than a prominent tappable Play button.",
+      "direction": "Use a substantial framed button treatment, centered on the same axis as the title, hero panel, and map.",
+      "region": "primary action at bottom-center",
+      "severity": "major"
+    },
+    {
+      "defect": "Level map has no framed panel; decorative icons (rocks, tent, campfire, cactus) float directly on the background",
+      "direction": "Enclose the map in a framed panel matching the hero panel's border style so props sit inside a contained scene",
+      "region": "middle map area, y\u2248760-1180",
+      "severity": "major"
+    },
+    {
+      "defect": "'Play \u00b7 Level 2' is bare outlined text with no button plate, so the primary CTA doesn't read as tappable",
+      "direction": "Place the label on a large rounded Play button (gold/green plate with bevel) centered on the axis, with the energy cost chip inside or attached to it",
+      "region": "Play row, y\u22481225",
+      "severity": "major"
+    },
+    {
+      "defect": "The map consists of isolated floating props around a thin vertical meter, with no framed map panel, path, or visual grouping.",
+      "direction": "Add a cohesive map container or route structure that connects the props and progress indicator.",
+      "region": "central level-map area",
+      "severity": "major"
+    },
+    {
+      "defect": "The tan bar and the '2' sit at x\u2248362 while the screen center is x\u2248362 but the hero panel and title center at x\u2248362 \u2014 the props flanking it are asymmetric (left rocks x\u2248133, right tent x\u2248575, left campfire x\u2248122, right cactus x\u2248592), breaking mirror balance",
+      "direction": "Mirror prop positions equidistant from the center axis or intentionally offset them along a path",
+      "region": "Level bar and level number, x\u2248362, y\u2248765-1075",
+      "severity": "major"
+    },
+    {
+      "defect": "Large flat brown diagonal-stripe areas above and below the Play text with no content; empty regions dominate the lower half",
+      "direction": "Tighten vertical rhythm and add scene depth/decoration so no band of dead background exceeds the panel gutters",
+      "region": "Full background, especially y\u2248740-1330",
+      "severity": "major"
+    },
+    {
+      "defect": "Level number '2' is a plain dark-brown glyph on the brown path with low contrast and no node art",
+      "direction": "Put the number inside a level-node badge (shield/medallion) with a light fill for contrast",
+      "region": "level marker '2', x\u2248360 y\u22481045",
+      "severity": "minor"
+    },
+    {
+      "defect": "'Play \u00b7 Level 2' uses a thin, low-contrast light face inconsistent with the bold outlined game typography used in the title and nav labels",
+      "direction": "Use the bold outlined display face with a dark stroke, sized as the screen's primary action",
+      "region": "Play label, y\u22481228",
+      "severity": "minor"
+    },
+    {
+      "defect": "Large unstructured empty areas make the middle of the screen feel unfinished and weaken the vertical flow.",
+      "direction": "Tighten the content rhythm and use the map area to intentionally occupy the available space.",
+      "region": "between hero panel, map props, and Play action",
+      "severity": "minor"
+    },
+    {
+      "defect": "Large empty brown expanses between the sparse map props read as unfinished",
+      "direction": "Tighten the map region's height or add ground texture/props so density matches the polished top half",
+      "region": "map area whitespace, y\u2248900-1200",
+      "severity": "minor"
+    },
+    {
+      "defect": "The tall narrow gold bar is visually disconnected from the small \u201c2\u201d label and feels too slight relative to surrounding art.",
+      "direction": "Turn it into a clearly legible level path/progress element with proportionate milestones and labels.",
+      "region": "center progress indicator",
+      "severity": "minor"
+    },
+    {
+      "defect": "The three hero sprites vary in height and baseline (Bastion tall ~150px, Sage short ~120px) and sit on unequal cell widths, with a wide empty band above them",
+      "direction": "Give each hero an equal-width framed cell with a shared baseline and reduce the panel's top padding",
+      "region": "Hero panel interior, y\u2248400-720",
+      "severity": "minor"
+    },
+    {
+      "defect": "The cream panel fill is flat and untextured against an otherwise textured brown scene, reading as a UI card rather than a scene panel",
+      "direction": "Add parchment/wood texture and inner shading consistent with the top and bottom bars",
+      "region": "Hero panel fill, y\u2248400-720",
+      "severity": "minor"
+    }
+  ],
+  "participated": [
+    "codex/gpt-5.6-terra",
+    "anthropic/claude-fable-5",
+    "anthropic/claude-opus-5"
+  ],
+  "per_model": {
+    "anthropic/claude-fable-5": {
+      "defects": [
+        {
+          "defect": "Level map has no framed panel; decorative icons (rocks, tent, campfire, cactus) float directly on the background",
+          "direction": "Enclose the map in a framed panel matching the hero panel's border style so props sit inside a contained scene",
+          "key": "missing-element",
+          "region": "middle map area, y\u2248760-1180",
+          "severity": "major"
+        },
+        {
+          "defect": "'Play \u00b7 Level 2' is bare outlined text with no button plate, so the primary CTA doesn't read as tappable",
+          "direction": "Place the label on a large rounded Play button (gold/green plate with bevel) centered on the axis, with the energy cost chip inside or attached to it",
+          "key": "missing-element",
+          "region": "Play row, y\u22481225",
+          "severity": "major"
+        },
+        {
+          "defect": "Level path is a flat plain rectangle that ends abruptly below the hero panel, reading as a placeholder rather than a road/trail asset",
+          "direction": "Replace with a textured winding path or dotted trail with level-node medallions, terminating naturally at both ends",
+          "key": "other",
+          "region": "vertical path, x\u2248360 y\u2248770-1070",
+          "severity": "major"
+        },
+        {
+          "defect": "Level number '2' is a plain dark-brown glyph on the brown path with low contrast and no node art",
+          "direction": "Put the number inside a level-node badge (shield/medallion) with a light fill for contrast",
+          "key": "typography",
+          "region": "level marker '2', x\u2248360 y\u22481045",
+          "severity": "minor"
+        },
+        {
+          "defect": "Large empty brown expanses between the sparse map props read as unfinished",
+          "direction": "Tighten the map region's height or add ground texture/props so density matches the polished top half",
+          "key": "spacing",
+          "region": "map area whitespace, y\u2248900-1200",
+          "severity": "minor"
+        }
+      ],
+      "model": "claude-fable-5",
+      "recurring_checks": [
+        {
+          "evidence": "fid-22-home: 'Mage Master' title art composites transparently over striped background at ~(360,300)",
+          "id": "banner-transparency",
+          "pass": true
+        },
+        {
+          "evidence": "fid-22-home: plain font glyph '2' on flat rectangle path at ~(360,1045) stands in for level-node art",
+          "id": "asset-identity",
+          "pass": false
+        },
+        {
+          "evidence": "fid-22-home: energy bolt and '1' centered in cost pill at ~(495,1226)",
+          "id": "glyph-centering",
+          "pass": true
+        },
+        {
+          "evidence": "fid-22-home: 'Bastion'/'Ember'/'Sage' labels and currency counts sit inside their pill bounds, y\u2248145 and y\u2248690",
+          "id": "content-containment",
+          "pass": true
+        },
+        {
+          "evidence": "fid-22-home: four nav items at y\u22481410 and three hero cells at y\u2248590 are equal-sized within rows",
+          "id": "sibling-size-consistency",
+          "pass": true
+        }
+      ],
+      "score": 62.0
+    },
+    "anthropic/claude-opus-5": {
+      "defects": [
+        {
+          "defect": "The Play \u00b7 Level 2 call-to-action has no button frame, plate or fill \u2014 it is bare text floating on the background, so the primary action does not read as tappable",
+          "direction": "Give it a large framed wood/gold pill button matching the top-bar chip styling, centered on the same vertical axis as the title and hero panel",
+          "key": "missing-element",
+          "region": "Play button area, y\u22481180-1260",
+          "severity": "blocker"
+        },
+        {
+          "defect": "The level map is an unframed strip of loose props (rocks, campfire, tent, cactus) around a plain tan vertical bar with a faint '2'; there is no panel, no path nodes and no framing, so the area reads as unfinished placeholder",
+          "direction": "Wrap the map in a framed panel matching the hero panel's border radius and stroke, and replace the bare bar with an explicit node path with numbered level markers",
+          "key": "missing-element",
+          "region": "Mid screen level map, y\u2248740-1130",
+          "severity": "blocker"
+        },
+        {
+          "defect": "Large flat brown diagonal-stripe areas above and below the Play text with no content; empty regions dominate the lower half",
+          "direction": "Tighten vertical rhythm and add scene depth/decoration so no band of dead background exceeds the panel gutters",
+          "key": "background",
+          "region": "Full background, especially y\u2248740-1330",
+          "severity": "major"
+        },
+        {
+          "defect": "Margins are inconsistent: ~30px title-to-panel, ~40px panel-to-map, ~90px map-to-Play, ~110px Play-to-nav bar",
+          "direction": "Normalize inter-section gutters to a single spacing unit (~32-40px) matching the 24px side margins",
+          "key": "spacing",
+          "region": "Vertical stack, gaps between hero panel, map, Play, nav bar",
+          "severity": "major"
+        },
+        {
+          "defect": "The tan bar and the '2' sit at x\u2248362 while the screen center is x\u2248362 but the hero panel and title center at x\u2248362 \u2014 the props flanking it are asymmetric (left rocks x\u2248133, right tent x\u2248575, left campfire x\u2248122, right cactus x\u2248592), breaking mirror balance",
+          "direction": "Mirror prop positions equidistant from the center axis or intentionally offset them along a path",
+          "key": "layout",
+          "region": "Level bar and level number, x\u2248362, y\u2248765-1075",
+          "severity": "major"
+        },
+        {
+          "defect": "The level number is low-contrast dark brown on brown and overlaps the bar's lower edge, nearly illegible",
+          "direction": "Place the number inside a framed node badge with light fill and dark outline for contrast",
+          "key": "typography",
+          "region": "'2' level number, x\u2248362 y\u22481048",
+          "severity": "major"
+        },
+        {
+          "defect": "'Play \u00b7 Level 2' uses a thin, low-contrast light face inconsistent with the bold outlined game typography used in the title and nav labels",
+          "direction": "Use the bold outlined display face with a dark stroke, sized as the screen's primary action",
+          "key": "typography",
+          "region": "Play label, y\u22481228",
+          "severity": "minor"
+        },
+        {
+          "defect": "The three hero sprites vary in height and baseline (Bastion tall ~150px, Sage short ~120px) and sit on unequal cell widths, with a wide empty band above them",
+          "direction": "Give each hero an equal-width framed cell with a shared baseline and reduce the panel's top padding",
+          "key": "sizing",
+          "region": "Hero panel interior, y\u2248400-720",
+          "severity": "minor"
+        },
+        {
+          "defect": "The cream panel fill is flat and untextured against an otherwise textured brown scene, reading as a UI card rather than a scene panel",
+          "direction": "Add parchment/wood texture and inner shading consistent with the top and bottom bars",
+          "key": "color",
+          "region": "Hero panel fill, y\u2248400-720",
+          "severity": "minor"
+        }
+      ],
+      "model": "claude-opus-5",
+      "recurring_checks": [
+        {
+          "evidence": "fid-22-home: hero name ribbons 'Bastion'/'Ember'/'Sage' at y\u2248691 composite as rounded chips with no opaque bounding box",
+          "id": "banner-transparency",
+          "pass": true
+        },
+        {
+          "evidence": "fid-22-home: level marker at x\u2248362,y\u22481048 is a plain text glyph '2' over a flat bar standing in for a level-node art asset",
+          "id": "asset-identity",
+          "pass": false
+        },
+        {
+          "evidence": "fid-22-home: lightning glyph in energy pill at x\u2248487,y\u22481226 and coin/gem glyphs in top chips y\u2248150 are centered in their circles",
+          "id": "glyph-centering",
+          "pass": true
+        },
+        {
+          "evidence": "fid-22-home: '9/10 30s' text stays inside the energy chip bounds x\u224850-218,y\u2248124-176; name chips contain their labels",
+          "id": "content-containment",
+          "pass": true
+        },
+        {
+          "evidence": "fid-22-home: hero row y\u2248500-700 sprites differ in height (Bastion ~150px vs Sage ~120px) and the name chips vary in width (Bastion 108px vs Sage 82px)",
+          "id": "sibling-size-consistency",
+          "pass": false
+        }
+      ],
+      "score": 52.0
+    },
+    "codex/gpt-5.6-terra": {
+      "defects": [
+        {
+          "defect": "The map consists of isolated floating props around a thin vertical meter, with no framed map panel, path, or visual grouping.",
+          "direction": "Add a cohesive map container or route structure that connects the props and progress indicator.",
+          "key": "layout",
+          "region": "central level-map area",
+          "severity": "major"
+        },
+        {
+          "defect": "\u201cPlay \u00b7 Level 2\u201d reads as unframed text rather than a prominent tappable Play button.",
+          "direction": "Use a substantial framed button treatment, centered on the same axis as the title, hero panel, and map.",
+          "key": "missing-element",
+          "region": "primary action at bottom-center",
+          "severity": "major"
+        },
+        {
+          "defect": "Large unstructured empty areas make the middle of the screen feel unfinished and weaken the vertical flow.",
+          "direction": "Tighten the content rhythm and use the map area to intentionally occupy the available space.",
+          "key": "spacing",
+          "region": "between hero panel, map props, and Play action",
+          "severity": "minor"
+        },
+        {
+          "defect": "The tall narrow gold bar is visually disconnected from the small \u201c2\u201d label and feels too slight relative to surrounding art.",
+          "direction": "Turn it into a clearly legible level path/progress element with proportionate milestones and labels.",
+          "key": "sizing",
+          "region": "center progress indicator",
+          "severity": "minor"
+        }
+      ],
+      "model": "gpt-5.6-terra",
+      "recurring_checks": [
+        {
+          "evidence": "fid-22-home: title art at x105-622, y232-373 composites cleanly over the wood background.",
+          "id": "banner-transparency",
+          "pass": true
+        },
+        {
+          "evidence": "fid-22-home: hero, resource, map, and navigation artwork use a coherent illustrated fantasy asset set.",
+          "id": "asset-identity",
+          "pass": true
+        },
+        {
+          "evidence": "fid-22-home: lightning glyph inside the Play energy pill at x478-488, y1227 is visually centered.",
+          "id": "glyph-centering",
+          "pass": true
+        },
+        {
+          "evidence": "fid-22-home: top resource labels and icons remain within their pills across x45-680, y124-177.",
+          "id": "content-containment",
+          "pass": true
+        },
+        {
+          "evidence": "fid-22-home: bottom navigation slots for Home, Rift, Mages, and Settings are evenly spaced from x83-644, y1374-1467.",
+          "id": "sibling-size-consistency",
+          "pass": true
+        }
+      ],
+      "score": 72.0
+    },
+    "google/gemini-3.6-flash": {
+      "model": "google/gemini-3.6-flash",
+      "reason": "HTTP 402",
+      "skipped": true
+    }
+  },
+  "recurring_checks": [
+    {
+      "evidence": "fid-22-home: title art at x105-622, y232-373 composites cleanly over the wood background.",
+      "id": "banner-transparency",
+      "pass": true
+    },
+    {
+      "evidence": "fid-22-home: plain font glyph '2' on flat rectangle path at ~(360,1045) stands in for level-node art",
+      "id": "asset-identity",
+      "pass": false
+    },
+    {
+      "evidence": "fid-22-home: lightning glyph inside the Play energy pill at x478-488, y1227 is visually centered.",
+      "id": "glyph-centering",
+      "pass": true
+    },
+    {
+      "evidence": "fid-22-home: top resource labels and icons remain within their pills across x45-680, y124-177.",
+      "id": "content-containment",
+      "pass": true
+    },
+    {
+      "evidence": "fid-22-home: hero row y\u2248500-700 sprites differ in height (Bastion ~150px vs Sage ~120px) and the name chips vary in width (Bastion 108px vs Sage 82px)",
+      "id": "sibling-size-consistency",
+      "pass": false
+    }
+  ],
+  "score": 62.0,
+  "skipped": [
+    {
+      "judge": "google/gemini-3.6-flash",
+      "reason": "HTTP 402"
+    }
+  ],
+  "verdict": "fail"
+}

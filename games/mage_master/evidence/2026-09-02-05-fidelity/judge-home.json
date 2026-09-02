@@ -1,0 +1,365 @@
+{
+  "consensus": [
+    "sizing",
+    "spacing",
+    "background",
+    "layout",
+    "iconography"
+  ],
+  "defects": [
+    {
+      "defect": "The scene-to-CTA gap is disproportionately large, leaving the lock nodes visually detached and weakening the screen's flow.",
+      "direction": "Tighten the vertical rhythm or expand the ladder into a more substantial framed progression module.",
+      "region": "Vertical progression area",
+      "severity": "major"
+    },
+    {
+      "defect": "Ladder nodes are left of the horizontal center while title, scene panel and Play button are centered",
+      "direction": "Center the ladder column on the same vertical axis as the Play button, or intentionally stagger nodes as a winding path spanning the width",
+      "region": "level ladder column, mid-screen (~x230 of ~725-wide frame)",
+      "severity": "major"
+    },
+    {
+      "defect": "Ladder column is left-of-center (centered near x\u2248230 vs screen center x\u2248362) and floats on bare brown with no frame or path art, so the whole mid-screen reads unfinished and misaligned against the centered title, scene and Play button",
+      "direction": "Center the ladder on the screen axis or give it a framed/decorated map panel matching the scene panel width, so its center aligns with the title and Play button",
+      "region": "level ladder, x\u2248175-285, y\u2248770-1125",
+      "severity": "major"
+    },
+    {
+      "defect": "Mages tab icon is a tiny cropped character sprite at a much smaller optical size than the Home/Rift/Settings icons and sits higher in its cell, breaking icon-row consistency",
+      "direction": "Replace with a purpose-built nav icon matched in size, weight and baseline to the other three tabs",
+      "region": "nav bar 'Mages' tab, x\u2248420-470, y\u22481370-1400",
+      "severity": "major"
+    },
+    {
+      "defect": "The large uninterrupted brown area around the sparse level ladder reads unfinished rather than intentionally composed.",
+      "direction": "Add subtle environmental texture, framing, or more compact progression treatment while preserving the ladder hierarchy.",
+      "region": "Center, between hero scene and Play button",
+      "severity": "major"
+    },
+    {
+      "defect": "Ladder floats on flat empty brown with no frame, path texture or decoration, reading as unfinished",
+      "direction": "Give the ladder a framed panel or decorated path/terrain strip consistent with the Kingdom Rush map style",
+      "region": "brown region between scene panel and Play button (~y740-1160)",
+      "severity": "major"
+    },
+    {
+      "defect": "Large flat brown voids with no texture, vignette or decoration between scene panel, ladder and Play button; reads as unfinished placeholder rather than Kingdom Rush parchment/map ground",
+      "direction": "Add map/parchment texture or a framed map region behind the ladder and tighten the empty band above the nav bar",
+      "region": "brown area around ladder, y\u2248740-1150 and y\u22481280-1330",
+      "severity": "major"
+    },
+    {
+      "defect": "Name labels are unequal-width dark chips sitting on the panel's bottom edge; 'Bastion' and 'Sage' are clipped by the panel's rounded corners/edges",
+      "direction": "Inset the chips above the panel border with uniform padding and equal-height pills",
+      "region": "hero name chips 'Bastion'/'Ember'/'Sage', y\u2248680-710",
+      "severity": "minor"
+    },
+    {
+      "defect": "Empty brown band under the Play button is larger than other inter-element margins, adding to the unfinished read",
+      "direction": "Tighten vertical rhythm or fill with subtle background texture/vignette",
+      "region": "below Play button to nav bar (~y1280-1350)",
+      "severity": "minor"
+    },
+    {
+      "defect": "Gaps are uneven: top bar\u2192title \u224840px, scene\u2192ladder \u224850px, ladder\u2192Play \u224835px, but Play\u2192nav bar \u224875px",
+      "direction": "Normalize inter-block margins to a single spacing unit so blocks read as one rhythm",
+      "region": "vertical rhythm, whole screen",
+      "severity": "minor"
+    },
+    {
+      "defect": "Pills have differing internal balance \u2014 '10/10' pill is much wider and its text nearly touches the pill edge while the other three have loose padding",
+      "direction": "Equalize pill widths or use consistent icon-to-text padding across all four",
+      "region": "top bar resource pills, y\u2248120-180",
+      "severity": "minor"
+    },
+    {
+      "defect": "The Mages character icon is much smaller and less visually substantial than the neighboring Home, Rift, and Settings icons.",
+      "direction": "Use a similarly sized, high-contrast icon with a consistent visual footprint.",
+      "region": "Bottom navigation, Mages tab",
+      "severity": "minor"
+    },
+    {
+      "defect": "The energy pill is substantially wider than the other resource pills, making the row feel uneven.",
+      "direction": "Standardize pill widths or balance their spacing so the size difference reads intentional.",
+      "region": "Top resource bar",
+      "severity": "minor"
+    },
+    {
+      "defect": "Locked nodes are much smaller than the level-1 node, and the connecting rail top ends abruptly with a cap above the first lock",
+      "direction": "Reduce the size gap between node states and terminate or fade the rail cleanly",
+      "region": "ladder locked nodes vs level-1 node (~x230, y800-1080)",
+      "severity": "minor"
+    },
+    {
+      "defect": "Level 1 node is noticeably larger (\u2248115px) than the two locked nodes (\u224868px), and the connector bar is a plain flat stripe rather than a path",
+      "direction": "Either make the size difference an intentional pulse/selected state with consistent base size, or equalize nodes and style the connector as a dotted path",
+      "region": "ladder nodes, y\u2248780-1125",
+      "severity": "minor"
+    },
+    {
+      "defect": "Mages icon is a small character sprite noticeably smaller and stylistically thinner than the Home, Rift and Settings icons",
+      "direction": "Scale the Mages icon to match sibling icon bounding size and visual weight",
+      "region": "nav bar, Mages tab (~x440, y1420)",
+      "severity": "minor"
+    }
+  ],
+  "participated": [
+    "codex/gpt-5.6-terra",
+    "anthropic/claude-fable-5",
+    "anthropic/claude-opus-5"
+  ],
+  "per_model": {
+    "anthropic/claude-fable-5": {
+      "defects": [
+        {
+          "defect": "Ladder nodes are left of the horizontal center while title, scene panel and Play button are centered",
+          "direction": "Center the ladder column on the same vertical axis as the Play button, or intentionally stagger nodes as a winding path spanning the width",
+          "key": "layout",
+          "region": "level ladder column, mid-screen (~x230 of ~725-wide frame)",
+          "severity": "major"
+        },
+        {
+          "defect": "Ladder floats on flat empty brown with no frame, path texture or decoration, reading as unfinished",
+          "direction": "Give the ladder a framed panel or decorated path/terrain strip consistent with the Kingdom Rush map style",
+          "key": "background",
+          "region": "brown region between scene panel and Play button (~y740-1160)",
+          "severity": "major"
+        },
+        {
+          "defect": "Mages icon is a small character sprite noticeably smaller and stylistically thinner than the Home, Rift and Settings icons",
+          "direction": "Scale the Mages icon to match sibling icon bounding size and visual weight",
+          "key": "iconography",
+          "region": "nav bar, Mages tab (~x440, y1420)",
+          "severity": "minor"
+        },
+        {
+          "defect": "Locked nodes are much smaller than the level-1 node, and the connecting rail top ends abruptly with a cap above the first lock",
+          "direction": "Reduce the size gap between node states and terminate or fade the rail cleanly",
+          "key": "sizing",
+          "region": "ladder locked nodes vs level-1 node (~x230, y800-1080)",
+          "severity": "minor"
+        },
+        {
+          "defect": "Empty brown band under the Play button is larger than other inter-element margins, adding to the unfinished read",
+          "direction": "Tighten vertical rhythm or fill with subtle background texture/vignette",
+          "key": "spacing",
+          "region": "below Play button to nav bar (~y1280-1350)",
+          "severity": "minor"
+        }
+      ],
+      "model": "claude-fable-5",
+      "recurring_checks": [
+        {
+          "evidence": "fid-12-home: Bastion/Ember/Sage name chips (~y690) are translucent pills over the scene; title art composites transparently at ~y300",
+          "id": "banner-transparency",
+          "pass": true
+        },
+        {
+          "evidence": "fid-12-home: top-bar resource icons, title lockup and nav icons are art assets; no font glyph stand-ins observed",
+          "id": "asset-identity",
+          "pass": true
+        },
+        {
+          "evidence": "fid-12-home: '1' digit centered in circular node (~x230,y1080); lock glyphs centered in both locked nodes",
+          "id": "glyph-centering",
+          "pass": true
+        },
+        {
+          "evidence": "fid-12-home: 'Play \u00b7 Level 1 \u26a11' sits within the gold pill (~y1220); resource counts contained in top-bar pills",
+          "id": "content-containment",
+          "pass": true
+        },
+        {
+          "evidence": "fid-12-home: four top-bar resource pills (~y150) and four nav cells (~y1420) are equal-sized, though the Mages icon inside its cell is undersized",
+          "id": "sibling-size-consistency",
+          "pass": true
+        }
+      ],
+      "score": 74.0
+    },
+    "anthropic/claude-opus-5": {
+      "defects": [
+        {
+          "defect": "Ladder column is left-of-center (centered near x\u2248230 vs screen center x\u2248362) and floats on bare brown with no frame or path art, so the whole mid-screen reads unfinished and misaligned against the centered title, scene and Play button",
+          "direction": "Center the ladder on the screen axis or give it a framed/decorated map panel matching the scene panel width, so its center aligns with the title and Play button",
+          "key": "layout",
+          "region": "level ladder, x\u2248175-285, y\u2248770-1125",
+          "severity": "major"
+        },
+        {
+          "defect": "Large flat brown voids with no texture, vignette or decoration between scene panel, ladder and Play button; reads as unfinished placeholder rather than Kingdom Rush parchment/map ground",
+          "direction": "Add map/parchment texture or a framed map region behind the ladder and tighten the empty band above the nav bar",
+          "key": "background",
+          "region": "brown area around ladder, y\u2248740-1150 and y\u22481280-1330",
+          "severity": "major"
+        },
+        {
+          "defect": "Mages tab icon is a tiny cropped character sprite at a much smaller optical size than the Home/Rift/Settings icons and sits higher in its cell, breaking icon-row consistency",
+          "direction": "Replace with a purpose-built nav icon matched in size, weight and baseline to the other three tabs",
+          "key": "iconography",
+          "region": "nav bar 'Mages' tab, x\u2248420-470, y\u22481370-1400",
+          "severity": "major"
+        },
+        {
+          "defect": "Gaps are uneven: top bar\u2192title \u224840px, scene\u2192ladder \u224850px, ladder\u2192Play \u224835px, but Play\u2192nav bar \u224875px",
+          "direction": "Normalize inter-block margins to a single spacing unit so blocks read as one rhythm",
+          "key": "spacing",
+          "region": "vertical rhythm, whole screen",
+          "severity": "minor"
+        },
+        {
+          "defect": "Level 1 node is noticeably larger (\u2248115px) than the two locked nodes (\u224868px), and the connector bar is a plain flat stripe rather than a path",
+          "direction": "Either make the size difference an intentional pulse/selected state with consistent base size, or equalize nodes and style the connector as a dotted path",
+          "key": "sizing",
+          "region": "ladder nodes, y\u2248780-1125",
+          "severity": "minor"
+        },
+        {
+          "defect": "Name labels are unequal-width dark chips sitting on the panel's bottom edge; 'Bastion' and 'Sage' are clipped by the panel's rounded corners/edges",
+          "direction": "Inset the chips above the panel border with uniform padding and equal-height pills",
+          "key": "typography",
+          "region": "hero name chips 'Bastion'/'Ember'/'Sage', y\u2248680-710",
+          "severity": "minor"
+        },
+        {
+          "defect": "Pills have differing internal balance \u2014 '10/10' pill is much wider and its text nearly touches the pill edge while the other three have loose padding",
+          "direction": "Equalize pill widths or use consistent icon-to-text padding across all four",
+          "key": "spacing",
+          "region": "top bar resource pills, y\u2248120-180",
+          "severity": "minor"
+        }
+      ],
+      "model": "claude-opus-5",
+      "recurring_checks": [
+        {
+          "evidence": "fid-12-home: title lockup and hero name chips composite over brown with no opaque bounding box (title y\u2248250-370)",
+          "id": "banner-transparency",
+          "pass": true
+        },
+        {
+          "evidence": "fid-12-home: 'Mages' nav tab at x\u2248445,y\u22481385 uses a shrunken character sprite instead of a nav icon matching siblings",
+          "id": "asset-identity",
+          "pass": false
+        },
+        {
+          "evidence": "fid-12-home: '1' in level node at x\u2248230,y\u22481080 and lock glyphs at y\u2248815/945 are centered in their circles",
+          "id": "glyph-centering",
+          "pass": true
+        },
+        {
+          "evidence": "fid-12-home: 'Bastion' chip at x\u2248100-190,y\u2248695 and 'Sage' chip at x\u2248545-615 are clipped by the scene panel's rounded bottom edge",
+          "id": "content-containment",
+          "pass": false
+        },
+        {
+          "evidence": "fid-12-home: ladder nodes differ (level-1 \u2248115px at y\u22481080 vs locked \u224868px at y\u2248815); top-bar pills also unequal widths at y\u2248150",
+          "id": "sibling-size-consistency",
+          "pass": false
+        }
+      ],
+      "score": 71.0
+    },
+    "codex/gpt-5.6-terra": {
+      "defects": [
+        {
+          "defect": "The large uninterrupted brown area around the sparse level ladder reads unfinished rather than intentionally composed.",
+          "direction": "Add subtle environmental texture, framing, or more compact progression treatment while preserving the ladder hierarchy.",
+          "key": "background",
+          "region": "Center, between hero scene and Play button",
+          "severity": "major"
+        },
+        {
+          "defect": "The scene-to-CTA gap is disproportionately large, leaving the lock nodes visually detached and weakening the screen's flow.",
+          "direction": "Tighten the vertical rhythm or expand the ladder into a more substantial framed progression module.",
+          "key": "spacing",
+          "region": "Vertical progression area",
+          "severity": "major"
+        },
+        {
+          "defect": "The Mages character icon is much smaller and less visually substantial than the neighboring Home, Rift, and Settings icons.",
+          "direction": "Use a similarly sized, high-contrast icon with a consistent visual footprint.",
+          "key": "sizing",
+          "region": "Bottom navigation, Mages tab",
+          "severity": "minor"
+        },
+        {
+          "defect": "The energy pill is substantially wider than the other resource pills, making the row feel uneven.",
+          "direction": "Standardize pill widths or balance their spacing so the size difference reads intentional.",
+          "key": "sizing",
+          "region": "Top resource bar",
+          "severity": "minor"
+        }
+      ],
+      "model": "gpt-5.6-terra",
+      "recurring_checks": [
+        {
+          "evidence": "fid-12-home: no opaque sprite-banner box is visible.",
+          "id": "banner-transparency",
+          "pass": true
+        },
+        {
+          "evidence": "fid-12-home: title, character art, and UI ornaments use a coherent fantasy asset family.",
+          "id": "asset-identity",
+          "pass": true
+        },
+        {
+          "evidence": "fid-12-home: lightning cost glyph and Settings gear appear centered in their controls.",
+          "id": "glyph-centering",
+          "pass": true
+        },
+        {
+          "evidence": "fid-12-home: resource values, character labels, and Play text remain inside their pills and buttons.",
+          "id": "content-containment",
+          "pass": true
+        },
+        {
+          "evidence": "fid-12-home: top resource pills at y=122-180 and the Mages icon at x=452,y=1395 are visibly inconsistent with siblings.",
+          "id": "sibling-size-consistency",
+          "pass": false
+        }
+      ],
+      "score": 76.0
+    },
+    "google/gemini-3.6-flash": {
+      "model": "google/gemini-3.6-flash",
+      "reason": "HTTP 402",
+      "skipped": true
+    }
+  },
+  "recurring_checks": [
+    {
+      "evidence": "fid-12-home: no opaque sprite-banner box is visible.",
+      "id": "banner-transparency",
+      "pass": true
+    },
+    {
+      "evidence": "fid-12-home: 'Mages' nav tab at x\u2248445,y\u22481385 uses a shrunken character sprite instead of a nav icon matching siblings",
+      "id": "asset-identity",
+      "pass": false
+    },
+    {
+      "evidence": "fid-12-home: lightning cost glyph and Settings gear appear centered in their controls.",
+      "id": "glyph-centering",
+      "pass": true
+    },
+    {
+      "evidence": "fid-12-home: 'Bastion' chip at x\u2248100-190,y\u2248695 and 'Sage' chip at x\u2248545-615 are clipped by the scene panel's rounded bottom edge",
+      "id": "content-containment",
+      "pass": false
+    },
+    {
+      "evidence": "fid-12-home: top resource pills at y=122-180 and the Mages icon at x=452,y=1395 are visibly inconsistent with siblings.",
+      "id": "sibling-size-consistency",
+      "pass": false
+    }
+  ],
+  "score": 74.0,
+  "skipped": [
+    {
+      "judge": "google/gemini-3.6-flash",
+      "reason": "HTTP 402"
+    }
+  ],
+  "verdict": "fail"
+}

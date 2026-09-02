@@ -58,6 +58,8 @@ class Scene extends Phaser.Scene {
   private readonly onFrame?: (view: BattleView) => void;
   private readonly partyLooks: Partial<Record<string, MageLook>>;
   private readonly sfx: Sfx | null;
+  /** Visible world height (the host's aspect at arena width). */
+  private readonly viewH: number;
   private readonly palette = readPalette();
   private visuals = new Map<string, UnitVisual>();
   private units = new Map<string, Unit>();
@@ -72,12 +74,18 @@ class Scene extends Phaser.Scene {
   private coins!: Phaser.GameObjects.Particles.ParticleEmitter;
   private time0 = 0;
 
-  constructor(controller: MageMasterController, onFrame?: (view: BattleView) => void, partyLooks: Partial<Record<string, MageLook>> = {}, sfx: Sfx | null = null) {
+  constructor(controller: MageMasterController, onFrame: ((view: BattleView) => void) | undefined, partyLooks: Partial<Record<string, MageLook>>, sfx: Sfx | null, viewH: number) {
     super("battle");
     this.controller = controller;
     this.onFrame = onFrame;
     this.partyLooks = partyLooks;
     this.sfx = sfx;
+    this.viewH = viewH;
+  }
+
+  /** World y at the top of the viewport for the current camera scroll. */
+  private viewTop(): number {
+    return this.cameraY + ARENA.campLineY + 70 - this.viewH;
   }
 
   preload(): void {
@@ -176,7 +184,7 @@ class Scene extends Phaser.Scene {
     // Edge vignette: a screen-fixed frame that darkens the borders slightly.
     const vignette = this.add.graphics().setScrollFactor(0).setDepth(DEPTH.banner - 1);
     const vw = ARENA.width;
-    const vh = ARENA.height;
+    const vh = this.viewH;
     for (let i = 0; i < 6; i += 1) {
       vignette.lineStyle(10, p("ink"), 0.035 * (6 - i));
       vignette.strokeRect(5 + i * 9, 5 + i * 9, vw - 10 - i * 18, vh - 10 - i * 18);
@@ -336,7 +344,7 @@ class Scene extends Phaser.Scene {
 
   private floatText(x: number, y: number, text: string, color: number, opts: { size?: number; crit?: boolean; slotKey?: string } = {}): void {
     const t = this.textPool.pop() ?? this.add.text(0, 0, "", { fontFamily: "Arial Rounded MT Bold, system-ui, sans-serif" }).setDepth(DEPTH.text);
-    const size = opts.size ?? (opts.crit ? 22 : 15);
+    const size = opts.size ?? (opts.crit ? 24 : 17);
     // Spread rapid numbers on the same target so they do not stack into a blob.
     const key = opts.slotKey ?? "";
     const slot = key ? (this.floatSlots.get(key) ?? 0) : 0;
@@ -344,7 +352,7 @@ class Scene extends Phaser.Scene {
     const spreadX = key ? [0, -22, 22, -12, 12][slot] ?? 0 : (Math.random() - 0.5) * 14;
     const spreadY = key ? [0, -10, -10, -20, -20][slot] ?? 0 : 0;
     t.setText(text)
-      .setStyle({ fontSize: `${size}px`, color: `#${color.toString(16).padStart(6, "0")}`, stroke: `#${this.palette("ink").toString(16).padStart(6, "0")}`, strokeThickness: 4 })
+      .setStyle({ fontSize: `${size}px`, fontStyle: "bold", color: `#${color.toString(16).padStart(6, "0")}`, stroke: `#${this.palette("ink").toString(16).padStart(6, "0")}`, strokeThickness: 5 })
       .setOrigin(0.5, 1)
       .setPosition(x + spreadX, y + spreadY)
       .setAlpha(1)
@@ -519,7 +527,7 @@ class Scene extends Phaser.Scene {
           });
         }
         if (event.kind !== "burn") this.sfx?.play(event.crit ? "crit" : "hit");
-        const color = event.crit ? p("gold") : event.element ? elementColor(p, event.element) : p("cream");
+        const color = event.crit ? p("gold") : target.side === "party" ? p("hp") : event.element ? elementColor(p, event.element) : 0xffffff;
         const label = `${event.blocked ? "-" : ""}${event.amount}${event.crit ? "!" : ""}`;
         this.floatText(target.pos.x, target.pos.y - UNIT_HEIGHT * target.scale * 0.9, label, color, { crit: event.crit, size: event.kind === "burn" ? 12 : undefined, slotKey: target.id });
         if (event.crit && target.side === "party") this.cameras.main.shake(120, 0.004);
@@ -695,21 +703,27 @@ class Scene extends Phaser.Scene {
     // Camera follows the camp line (party) — the field scrolls up on advance.
     this.cameraTargetY = view.campY - ARENA.campLineY;
     this.cameraY += (this.cameraTargetY - this.cameraY) * Math.min(1, dt * 6);
-    this.cameras.main.centerOn(ARENA.width / 2, this.cameraY + ARENA.height / 2);
-    this.ground.y = this.cameraY + ARENA.height / 2;
-    this.ground.tilePositionY = this.cameraY;
+    // Camp line sits near the bottom of the viewport; the field above scrolls with the party.
+    const top = this.viewTop();
+    this.cameras.main.centerOn(ARENA.width / 2, top + this.viewH / 2);
+    this.ground.y = top + this.viewH / 2;
+    this.ground.tilePositionY = top;
     this.onFrame?.(view);
   }
 }
 
 export function createBattleRenderer(options: BattleRendererOptions): BattleRenderer {
   const dpr = Math.min(3, Math.max(1, window.devicePixelRatio || 1));
-  const scene = new Scene(options.controller, options.onFrame, options.partyLooks ?? {}, options.sfx ?? null);
+  // Size the canvas to the host's aspect so the arena fills it edge to edge (no letterbox).
+  const hostW = options.container.clientWidth || ARENA.width;
+  const hostH = options.container.clientHeight || ARENA.height;
+  const viewH = Math.max(360, Math.round(hostH * (ARENA.width / hostW)));
+  const scene = new Scene(options.controller, options.onFrame, options.partyLooks ?? {}, options.sfx ?? null, viewH);
   const game = new Phaser.Game({
     type: Phaser.AUTO,
     parent: options.container,
     width: ARENA.width * dpr,
-    height: ARENA.height * dpr,
+    height: viewH * dpr,
     transparent: false,
     antialias: true,
     scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_HORIZONTALLY },
