@@ -44,3 +44,6 @@ games/*/refs/video/*.mov
 
 # Publisher-provided SDK credentials & sheets (keys, tokens; never commit)
 games/*/sdk_integration/
+
+# OAuth client credentials (local operator secrets; never commit)
+client_secret*.json
