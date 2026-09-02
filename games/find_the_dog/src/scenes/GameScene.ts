@@ -72,6 +72,8 @@ interface RevealContext {
 type HitboxVisibilityWarning = 'clipped' | 'near border' | 'HUD' | 'AD' | 'SAFE_L' | 'SAFE_R';
 
 const CLASSIC_REVEAL_EDGE_FEATHER_PX = 10;
+/** Upper bound on a classic reveal patch canvas edge (pixels), independent of the GL texture cap. */
+const CLASSIC_PATCH_MAX_LONG_EDGE = 4096;
 const RESTORATION_CLEANUP_FOOTPRINT_SCALE = 2;
 const FAST_E2E_UI = String(import.meta.env.VITE_FTD_FAST_E2E_UI) === 'true';
 const TUTORIAL_PROMPT_DELAY_MS = FAST_E2E_UI ? 40 : 500;
@@ -112,6 +114,8 @@ interface ClassicPatch {
   ctx: CanvasRenderingContext2D;
   image: Phaser.GameObjects.Image;
   rect: DirtyRect;
+  /** Patch canvas pixels per screen pixel (>= 1) so revealed color keeps the color texture's density. */
+  density: number;
 }
 
 export interface RuntimeTextureSnapshot {
@@ -2202,14 +2206,20 @@ export class GameScene extends Phaser.Scene {
     const textureKey = `classic_patch_${this.level?.id ?? 'level'}_${this.classicPatchTextureCounter}`;
     this.classicPatchTextureCounter += 1;
 
+    // The bw base is a full-density texture the GPU samples directly, so a
+    // patch rasterised at screen density reads visibly softer next to it
+    // (most obviously under pinch zoom). Size the patch canvas to the color
+    // texture's density instead, capped so it stays a legal GL texture.
+    const density = this.resolveClassicPatchDensity(rect);
     const canvas = document.createElement('canvas');
-    canvas.width = Math.max(1, Math.ceil(rect.w));
-    canvas.height = Math.max(1, Math.ceil(rect.h));
+    canvas.width = Math.max(1, Math.ceil(rect.w * density));
+    canvas.height = Math.max(1, Math.ceil(rect.h * density));
     if (this.textures.exists(textureKey)) this.textures.remove(textureKey);
     this.textures.addCanvas(textureKey, canvas);
     const texture = this.textures.get(textureKey) as Phaser.Textures.CanvasTexture;
     const image = this.add.image(rect.x, rect.y, textureKey);
     image.setOrigin(0, 0);
+    image.setDisplaySize(rect.w, rect.h);
 
     this.classicActivePatch = {
       textureKey,
@@ -2217,6 +2227,7 @@ export class GameScene extends Phaser.Scene {
       ctx: texture.context,
       image,
       rect,
+      density,
     };
     this.classicPatchImages.push(image);
     this.classicPatchTextureKeys.push(textureKey);
@@ -2739,14 +2750,19 @@ export class GameScene extends Phaser.Scene {
     const colorSource = this.getCanvasSourceImage('color');
     if (!colorSource) return;
 
-    const { ctx, canvas, rect } = patch;
+    const { ctx, canvas, rect, density } = patch;
     const ox = this.imgOffsetX;
     const oy = this.imgOffsetY;
     const dw = level.width * this.imgScale;
     const dh = level.height * this.imgScale;
 
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.save();
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+    // Draw in screen space; the density scale maps it onto the denser canvas.
+    ctx.scale(density, density);
     ctx.translate(-rect.x, -rect.y);
     if (this.activeRevealCenter && this.activeRevealRadius > 0 && this.activeRevealPolygon) {
       this.drawActiveClassicReveal(ctx);
@@ -2763,6 +2779,24 @@ export class GameScene extends Phaser.Scene {
     if (!this.activeRevealCenter) {
       this.classicActivePatch = null;
     }
+  }
+
+  /**
+   * Color-texture pixels per screen pixel for a classic patch, never below 1
+   * and never so high that the patch canvas exceeds the runtime texture cap.
+   */
+  private resolveClassicPatchDensity(rect: DirtyRect): number {
+    const level = this.level;
+    const colorSource = this.getCanvasSourceImage('color') as { width?: number } | null;
+    const sourceWidth = Number(colorSource?.width);
+    if (!level || !Number.isFinite(sourceWidth) || sourceWidth <= 0 || this.imgScale <= 0) return 1;
+    const displayWidth = level.width * this.imgScale;
+    const native = sourceWidth / displayWidth;
+    // Patches persist for the whole level (one per found dog), so bound the
+    // worst case (a near-fullscreen first cell) independently of the GL cap.
+    const longEdge = Math.max(1, rect.w, rect.h);
+    const cap = Math.min(this.runtimeTextureLongEdge, CLASSIC_PATCH_MAX_LONG_EDGE) / longEdge;
+    return Math.max(1, Math.min(native, cap));
   }
 
   private getActiveRevealDirtyRect(): DirtyRect | null {
