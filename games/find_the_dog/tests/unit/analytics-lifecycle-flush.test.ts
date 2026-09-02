@@ -1,5 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { analytics } from '../../src/analytics/AnalyticsService';
+import { AnalyticsService } from '../../src/analytics/AnalyticsService';
+import { createAnalytics, type AnalyticsSink } from '@fabrikav2/sdk/analytics';
 import { resetGameLifecycleForTest, setLifecycleForTest } from '../../src/platform/gameLifecycle';
 
 interface SdkSeam {
@@ -43,6 +45,28 @@ afterEach(() => {
 });
 
 describe('analytics lifecycle flush (session_end loss fix)', () => {
+  it('background flush reaches every buffering sink', async () => {
+    const firstFlush = vi.fn(async () => undefined);
+    const secondFlush = vi.fn(async () => undefined);
+    const sinks: AnalyticsSink[] = [
+      { name: 'first-buffer', emit: vi.fn(), flush: firstFlush },
+      { name: 'second-buffer', emit: vi.fn(), flush: secondFlush },
+    ];
+    const service = new AnalyticsService({
+      sdk: createAnalytics({ env: 'test', sessionId: 'session', sinks }),
+      storage: memoryStorage(),
+      storageDurability: 'durable',
+      firstOpenLocks: locks,
+    });
+
+    await service.init();
+    setLifecycleForTest('inactive');
+    await vi.waitFor(() => {
+      expect(firstFlush).toHaveBeenCalledTimes(1);
+      expect(secondFlush).toHaveBeenCalledTimes(1);
+    });
+  });
+
   it('marks first_open exactly once for the install profile', async () => {
     const sessionStart = vi.spyOn(sdk(), 'sessionStart');
 
@@ -108,6 +132,31 @@ describe('analytics lifecycle flush (session_end loss fix)', () => {
       'flush',
       'app_open',
     ]);
+  });
+
+  it('reconciles suspend then resume during first-open claim without a resumed or background session', async () => {
+    const events: string[] = [];
+    let releaseClaim = (): void => {};
+    const delayedLocks = {
+      request: async (_name: string, callback: () => boolean | Promise<boolean>) => {
+        await new Promise<void>((resolve) => { releaseClaim = resolve; });
+        return callback();
+      },
+    };
+    analytics.configureComposition({ sdk: sdk() as never, storage: memoryStorage(), firstOpenLocks: delayedLocks });
+    vi.spyOn(sdk(), 'sessionStart').mockImplementation((params: unknown) => { events.push(`session_start:${JSON.stringify(params)}`); });
+    vi.spyOn(sdk(), 'track').mockImplementation((name: unknown) => { events.push(String(name)); });
+    vi.spyOn(sdk(), 'sessionEnd').mockImplementation(() => { events.push('session_end'); });
+    vi.spyOn(sdk(), 'flush').mockImplementation(async () => { events.push('flush'); });
+
+    const initializing = analytics.init({ hadExistingStateAtBootstrap: false });
+    setLifecycleForTest('inactive');
+    setLifecycleForTest('active');
+    expect(events).toEqual([]);
+    releaseClaim();
+    await initializing;
+
+    expect(events).toEqual(['session_start:{"first_open":true}']);
   });
 
   it('orders session_start(first_open), app_open, then lifecycle flush on a normal boot', async () => {

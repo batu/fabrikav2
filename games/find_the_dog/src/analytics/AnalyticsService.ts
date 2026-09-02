@@ -265,22 +265,23 @@ export class AnalyticsService {
     storageDurability?: FirstOpenStorageDurability;
   } = {}): Promise<void> {
     let initializing = true;
-    let suspendedDuringInit = false;
+    const lifecycleState: { current: 'active' | 'inactive' } = { current: 'active' };
     const suspend = (): void => {
-      if (initializing) {
-        suspendedDuringInit = true;
-        return;
-      }
+      lifecycleState.current = 'inactive';
+      if (initializing) return;
       this.flushForSuspend();
     };
-    // Register before the asynchronous atomic claim. A suspend arriving while
-    // IndexedDB/Web Locks is pending is replayed immediately after session_start.
+    const resume = (): void => {
+      lifecycleState.current = 'active';
+      if (initializing) return;
+      this.sdk.track('app_foreground');
+      this.sdk.sessionStart({ first_open: false });
+    };
+    // Register before the asynchronous atomic claim. Lifecycle transitions are
+    // deferred while the claim is pending and reconciled to the latest state.
     registerLifecycleHooks('analytics-flush', {
       onSuspend: suspend,
-      onResume: (): void => {
-        this.sdk.track('app_foreground');
-        this.sdk.sessionStart({ first_open: false });
-      },
+      onResume: resume,
     });
     const firstOpen = await claimFirstOpen({
       storage: this.storage,
@@ -292,7 +293,7 @@ export class AnalyticsService {
     });
     this.sdk.sessionStart({ first_open: firstOpen });
     initializing = false;
-    if (suspendedDuringInit) this.flushForSuspend();
+    if (lifecycleState.current === 'inactive') this.flushForSuspend();
   }
 
   private flushForSuspend(): void {
@@ -391,13 +392,6 @@ export class AnalyticsService {
   }
 
   resourceChanged(params: ResourceChangedParams): Promise<void> {
-    this.sdk.resourceChange({
-      currency: params.currency,
-      amount: params.amount,
-      flow: params.flow_type,
-      reason: params.item_id,
-      balance: undefined,
-    });
     this.sdk.track('resource_changed', compactParams(params));
     return Promise.resolve();
   }

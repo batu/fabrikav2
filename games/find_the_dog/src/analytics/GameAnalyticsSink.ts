@@ -55,6 +55,13 @@ export function createGameAnalyticsSink(
   let disabled = false;
   let initPromise: Promise<void> | null = null;
   const queue: AnalyticsEvent[] = [];
+  let sent = 0;
+  let dropped = 0;
+  let initializationFailure: string | null = null;
+  function send(loaded: GameAnalyticsSdk, event: AnalyticsEvent): void {
+    if (dispatch(loaded, event)) sent += 1;
+    else dropped += 1;
+  }
 
   function init(): Promise<void> {
     if (sdk !== null || disabled) return Promise.resolve();
@@ -68,13 +75,25 @@ export function createGameAnalyticsSink(
         loaded.GameAnalytics.configureAvailableResourceItemTypes([...GAMEANALYTICS_RESOURCE_ITEM_TYPES]);
         loaded.GameAnalytics.initialize(config.gameKey, config.secretKey);
         await waitForSdkReady(loaded.GameAnalytics);
+        while (queue.length > 0) {
+          const event = queue.shift();
+          if (event === undefined) break;
+          try {
+            send(loaded, event);
+          } catch (error) {
+            dropped += 1 + queue.length;
+            queue.length = 0;
+            throw error;
+          }
+        }
         sdk = loaded;
-        for (const event of queue.splice(0)) dispatch(loaded, event);
       })
       .catch((error: unknown): void => {
         disabled = true;
+        dropped += queue.length;
         queue.length = 0;
-        logger.warn(`[analytics:gameanalytics] initialization failed: ${errorMessage(error)}`);
+        initializationFailure = errorKind(error);
+        logger.warn(`[analytics:gameanalytics] initialization failed (${initializationFailure})`);
       });
     return initPromise;
   }
@@ -82,9 +101,17 @@ export function createGameAnalyticsSink(
   return {
     name: 'gameanalytics',
     emit(event): void {
-      if (disabled) return;
+      if (disabled) {
+        dropped += 1;
+        return;
+      }
       if (sdk !== null) {
-        dispatch(sdk, event);
+        try {
+          send(sdk, event);
+        } catch (error) {
+          dropped += 1;
+          throw error;
+        }
         return;
       }
       queue.push(event);
@@ -92,6 +119,17 @@ export function createGameAnalyticsSink(
     },
     async flush(): Promise<void> {
       await init();
+    },
+    diagnostics() {
+      return {
+        queued: queue.length,
+        sent,
+        retried: 0,
+        dropped,
+        initializationFailure,
+        // The GA JavaScript SDK exposes no network-delivery acknowledgement.
+        lastSuccessfulFlushAt: null,
+      };
     },
   };
 }
@@ -105,8 +143,8 @@ async function waitForSdkReady(api: GameAnalyticsSdk['GameAnalytics']): Promise<
   }
 }
 
-function errorMessage(error: unknown): string {
-  return error instanceof Error ? error.message : String(error);
+function errorKind(error: unknown): string {
+  return error instanceof Error && error.name.trim() ? error.name : 'UnknownError';
 }
 
 function unwrapSdk(module: unknown): GameAnalyticsSdk {
@@ -118,9 +156,12 @@ function unwrapSdk(module: unknown): GameAnalyticsSdk {
   return candidate as unknown as GameAnalyticsSdk;
 }
 
-function dispatch(sdk: GameAnalyticsSdk, event: AnalyticsEvent): void {
+function dispatch(sdk: GameAnalyticsSdk, event: AnalyticsEvent): boolean {
   const params = event.params;
   const levelId = String(params.level_id ?? 'unknown');
+  if (event.name === 'ad_request') {
+    return trackDesign(sdk, designEvent(gameAnalyticsDesignEventId(event.name, params), params));
+  }
   if (event.name === 'level_start') return trackProgression(sdk, levelProgressionEvent('start', levelId, undefined, params));
   if (event.name === 'level_complete') return trackProgression(sdk, levelProgressionEvent('complete', levelId, numberParam(params.duration_ms), params));
   if (event.name === 'level_fail' || event.name === 'level_failed') return trackProgression(sdk, levelProgressionEvent('fail', levelId, undefined, params));
@@ -135,7 +176,7 @@ function dispatch(sdk: GameAnalyticsSdk, event: AnalyticsEvent): void {
   const ad = mappedAdEvent(event);
   if (ad !== null) return trackAd(sdk, ad);
 
-  trackDesign(sdk, designEvent(
+  return trackDesign(sdk, designEvent(
     gameAnalyticsDesignEventId(event.name, params),
     params,
     numberParam(params.value ?? params.revenue_usd),
@@ -147,38 +188,40 @@ function mappedAdEvent(event: AnalyticsEvent): GameAnalyticsAdEvent | null {
   const placement = String(params.placement ?? 'unknown');
   const type = mappedAdType(params.ad_format ?? params.ad_type);
   const sdkName = String(params.provider ?? '').includes('admob') ? 'admob' : 'applovin';
-  if (event.name === 'ad_request') return adEvent('request', type, sdkName, placement, params);
   if (event.name === 'ad_impression' || event.name === 'ad_shown') return adEvent('show', type, sdkName, placement, params);
   if (event.name === 'ad_show_failed') return adEvent('failed_show', type, sdkName, placement, params);
   if (event.name === 'ad_reward' || event.name === 'rewarded_ad_granted') return adEvent('reward_received', 'rewarded_video', sdkName, placement, params);
   return null;
 }
 
-function trackProgression(sdk: GameAnalyticsSdk, event: GameAnalyticsProgressionEvent): void {
+function trackProgression(sdk: GameAnalyticsSdk, event: GameAnalyticsProgressionEvent): true {
   const status = sdk.EGAProgressionStatus[
     event.status === 'start' ? 'Start' : event.status === 'complete' ? 'Complete' : 'Fail'
   ];
   sdk.GameAnalytics.addProgressionEvent(status, event.progression01, event.progression02, event.progression03, event.score, event.customFields);
+  return true;
 }
 
-function trackDesign(sdk: GameAnalyticsSdk, event: GameAnalyticsDesignEvent): void {
+function trackDesign(sdk: GameAnalyticsSdk, event: GameAnalyticsDesignEvent): true {
   sdk.GameAnalytics.addDesignEvent(event.eventId, event.value, event.customFields);
+  return true;
 }
 
-function trackResource(sdk: GameAnalyticsSdk, event: GameAnalyticsResourceEvent): void {
-  if (event.amount <= 0) return;
+function trackResource(sdk: GameAnalyticsSdk, event: GameAnalyticsResourceEvent): boolean {
+  if (event.amount <= 0) return false;
   const flow = event.flowType === 'source' ? sdk.EGAResourceFlowType.Source : sdk.EGAResourceFlowType.Sink;
   sdk.GameAnalytics.addResourceEvent(flow, event.currency, event.amount, event.category, event.itemId, event.customFields);
+  return true;
 }
 
-function trackAd(sdk: GameAnalyticsSdk, event: GameAnalyticsAdEvent): void {
+function trackAd(sdk: GameAnalyticsSdk, event: GameAnalyticsAdEvent): true {
   const actionKeys = {
     show: 'Show',
     failed_show: 'FailedShow',
     reward_received: 'RewardReceived',
-    request: 'Undefined',
-    loaded: 'Undefined',
-    clicked: 'Undefined',
+    request: 'Show',
+    loaded: 'Show',
+    clicked: 'Clicked',
   } as const;
   const typeKeys = {
     rewarded_video: 'RewardedVideo',
@@ -191,6 +234,7 @@ function trackAd(sdk: GameAnalyticsSdk, event: GameAnalyticsAdEvent): void {
   const action = sdk.EGAAdAction[actionKeys[event.action]];
   const typeKey = typeKeys[event.adType];
   sdk.GameAnalytics.addAdEvent(action, sdk.EGAAdType[typeKey], event.sdkName, event.placement, event.customFields);
+  return true;
 }
 
 function mappedAdType(value: unknown): GameAnalyticsAdEvent['adType'] {

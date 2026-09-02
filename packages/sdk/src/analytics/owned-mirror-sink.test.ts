@@ -120,10 +120,28 @@ describe('createOwnedMirrorSink — batching + wire body', () => {
 
     expect(transport.calls).toHaveLength(1);
     expect(sink.stats().sent).toBe(2);
+    expect(sink.diagnostics()).toEqual({
+      queued: 0,
+      sent: 2,
+      retried: 0,
+      dropped: 0,
+      initializationFailure: null,
+      lastSuccessfulFlushAt: '2023-11-14T22:13:20.000Z',
+    });
   });
 });
 
 describe('createOwnedMirrorSink — retry + drop', () => {
+  it('does not report an empty flush as transport-acknowledged', async () => {
+    const transport = scriptedTransport([]);
+    const sink = createOwnedMirrorSink(baseOptions(transport));
+
+    await sink.flush();
+
+    expect(transport.calls).toHaveLength(0);
+    expect(sink.diagnostics().lastSuccessfulFlushAt).toBeNull();
+  });
+
   it('retries a retryable status: bumps attempts and requeues survivors', async () => {
     const transport = scriptedTransport([
       { ok: false, status: 503 }, // first flush fails transiently
@@ -156,6 +174,7 @@ describe('createOwnedMirrorSink — retry + drop', () => {
     expect(stats.dropped).toBe(1);
     expect(stats.dropReasons.status_400).toBe(1);
     expect(stats.queueLength).toBe(0);
+    expect(sink.diagnostics().lastSuccessfulFlushAt).toBeNull();
   });
 
   it('drops after maxAttempts of retryable failures', async () => {
@@ -176,6 +195,7 @@ describe('createOwnedMirrorSink — retry + drop', () => {
     expect(stats.dropped).toBe(1);
     expect(stats.dropReasons.max_attempts).toBe(1);
     expect(stats.queueLength).toBe(0);
+    expect(sink.diagnostics().lastSuccessfulFlushAt).toBeNull();
   });
 
   it('treats a transport throw as a transient (retryable) failure', async () => {

@@ -23,7 +23,7 @@ import type {
   AnalyticsParams,
 } from './contract.ts';
 import { toWirePayload } from './contract.ts';
-import type { AnalyticsSink } from './sink.ts';
+import type { AnalyticsSink, AnalyticsSinkDiagnostics } from './sink.ts';
 import { OWNED_ANALYTICS_WIRE_SCHEMA } from './wire.ts';
 import type { OwnedAnalyticsWireEvent } from './wire.ts';
 
@@ -118,6 +118,7 @@ function requirePositiveInteger(
 export interface OwnedMirrorSink extends AnalyticsSink {
   flush(): Promise<void>;
   stats(): OwnedMirrorStats;
+  diagnostics(): AnalyticsSinkDiagnostics;
 }
 
 export function createOwnedMirrorSink(
@@ -142,6 +143,7 @@ export function createOwnedMirrorSink(
   let sent = 0;
   let dropped = 0;
   let retried = 0;
+  let lastSuccessfulFlushAt: string | null = null;
   const dropReasons: Record<string, number> = {};
 
   function recordDrop(count: number, reason: string): void {
@@ -178,6 +180,7 @@ export function createOwnedMirrorSink(
 
   async function runOwnedDrain(owner: FlushOwner): Promise<void> {
     try {
+      const sentBeforeFlush = sent;
       let stoppedForRetry: boolean;
       do {
         stoppedForRetry = await drain();
@@ -190,6 +193,10 @@ export function createOwnedMirrorSink(
         // A retryable failure deliberately leaves the queue for a later flush,
         // so it skips closeout and must not spin here against a down backend.
       } while (!stoppedForRetry && queue.length > 0);
+
+      if (!stoppedForRetry && queue.length === 0 && sent > sentBeforeFlush) {
+        lastSuccessfulFlushAt = new Date(now()).toISOString();
+      }
 
       if (inFlight === owner) inFlight = null;
       owner.resolve();
@@ -278,6 +285,17 @@ export function createOwnedMirrorSink(
         retried,
         queueLength: queue.length,
         dropReasons: { ...dropReasons },
+      };
+    },
+
+    diagnostics(): AnalyticsSinkDiagnostics {
+      return {
+        queued: queue.length,
+        sent,
+        retried,
+        dropped,
+        initializationFailure: null,
+        lastSuccessfulFlushAt,
       };
     },
   };

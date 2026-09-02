@@ -46,9 +46,37 @@ describe('canonical event contract', () => {
       expect(byId.get(id)?.instrumentationStatus, id).toBe('runtime');
     }
   });
+
+  it('declares progression events in the Find the Bird namespace used by the runtime mapping', () => {
+    const byId = new Map(canonicalAnalyticsEvents.map((event) => [event.id, event]));
+
+    expect(byId.get('level_start')?.gameAnalyticsName).toBe('Progression start find_the_bird:<level_id>');
+    expect(byId.get('level_complete')?.gameAnalyticsName).toBe('Progression complete find_the_bird:<level_id>');
+    expect(byId.get('level_failed')?.gameAnalyticsName).toBe('Progression fail find_the_bird:<level_id>');
+  });
 });
 
 describe('AnalyticsService purchase funnel emitters', () => {
+  it('resourceChanged emits one canonical economy envelope instead of a duplicate SDK resource event', async () => {
+    const sdk = (analytics as unknown as {
+      sdk: { track: (...args: unknown[]) => void; resourceChange: (...args: unknown[]) => void };
+    }).sdk;
+    const track = vi.spyOn(sdk, 'track');
+    const resourceChange = vi.spyOn(sdk, 'resourceChange');
+
+    await analytics.resourceChanged({
+      flow_type: 'source', currency: 'coins', amount: 10,
+      item_type: 'level', item_id: 'level_complete', level_id: 'level_1',
+    });
+
+    expect(resourceChange).not.toHaveBeenCalled();
+    expect(track).toHaveBeenCalledTimes(1);
+    expect(track).toHaveBeenCalledWith('resource_changed', expect.objectContaining({
+      flow_type: 'source', currency: 'coins', amount: 10,
+      item_type: 'level', item_id: 'level_complete', level_id: 'level_1',
+    }));
+  });
+
   it('purchaseFailed carries surface, reason, failure_kind and truncates error_message', async () => {
     const spy = trackSpy();
     await analytics.purchaseFailed({

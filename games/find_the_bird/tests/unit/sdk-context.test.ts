@@ -1,6 +1,19 @@
 import { describe, expect, it, vi } from 'vitest';
 import { createSdkContext } from '../../src/sdk/SdkContext';
 import { gameConfig } from '../../game.config';
+import ownAdMobConfig from '../../config/admob.public.json';
+import otherAdMobConfig from '../../../find_the_dog/config/admob.public.json';
+
+function adMobEnv(config: typeof ownAdMobConfig) {
+  return {
+    VITE_ADMOB_IOS_ENABLED: 'true',
+    VITE_ADMOB_IOS_APP_ID: config.appId,
+    VITE_ADMOB_IOS_BANNER_ID: config.adUnits.banner,
+    VITE_ADMOB_IOS_INTERSTITIAL_ID: config.adUnits.interstitial,
+    VITE_ADMOB_IOS_REWARDED_ID: config.adUnits.rewarded,
+    VITE_ADMOB_IOS_TEST_MODE: 'false',
+  };
+}
 
 describe('FTD SdkContext composition matrix', () => {
   it('resolves environments once and keeps web/CI native loaders cold', () => {
@@ -52,17 +65,14 @@ describe('FTD SdkContext composition matrix', () => {
       env: {
         PROD: true,
         VITE_REVENUECAT_IOS_API_KEY: 'appl_A1b2C3d4E5f6G7h8I9j0K1l2M3n',
-        VITE_GAMEANALYTICS_IOS_GAME_KEY: 'g'.repeat(32),
-        VITE_GAMEANALYTICS_IOS_SECRET_KEY: 's'.repeat(40),
+        VITE_GAMEANALYTICS_IOS_ENABLED: 'true',
+        VITE_GAMEANALYTICS_IOS_GAME_ID: 'find_the_bird',
+        VITE_GAMEANALYTICS_IOS_GAME_KEY: 'a'.repeat(32),
+        VITE_GAMEANALYTICS_IOS_SECRET_KEY: 'b'.repeat(40),
         VITE_ADJUST_IOS_ENABLED: 'true',
         VITE_ADJUST_IOS_APP_TOKEN: 'a'.repeat(12),
         VITE_ADJUST_IOS_ENVIRONMENT: 'production',
-        VITE_ADMOB_IOS_ENABLED: 'true',
-        VITE_ADMOB_IOS_APP_ID: 'ca-app-pub-1234567890123456~1234567890',
-        VITE_ADMOB_IOS_BANNER_ID: 'ca-app-pub-1234567890123456/1111111111',
-        VITE_ADMOB_IOS_INTERSTITIAL_ID: 'ca-app-pub-1234567890123456/2222222222',
-        VITE_ADMOB_IOS_REWARDED_ID: 'ca-app-pub-1234567890123456/3333333333',
-        VITE_ADMOB_IOS_TEST_MODE: 'false',
+        ...adMobEnv(ownAdMobConfig),
         VITE_FIREBASE_API_KEY: 'firebase-api-key',
         VITE_FIREBASE_PROJECT_ID: 'firebase-project-id',
         VITE_FIREBASE_APP_ID: 'firebase-app-id',
@@ -70,6 +80,10 @@ describe('FTD SdkContext composition matrix', () => {
       firebaseAnalyticsLoader: firebase,
       revenueCatLoader: revenuecat,
       gameAnalyticsLoader: gameanalytics,
+      gameAnalyticsIdentityPolicy: {
+        approvedGameKeys: ['a'.repeat(32)],
+        approvedSecretKeys: ['b'.repeat(40)],
+      },
     });
 
     expect(context.selection.iap).toBe('revenuecat');
@@ -91,6 +105,30 @@ describe('FTD SdkContext composition matrix', () => {
       env: {
         VITE_ADMOB_IOS_ENABLED: 'true',
         VITE_ADMOB_IOS_BANNER_ID: 'not-an-ad-unit-id',
+        VITE_REVENUECAT_IOS_API_KEY: 'appl_A1b2C3d4E5f6G7h8I9j0K1l2M3n',
+      },
+    });
+    expect(context.selection.ads).toBe('disabled');
+  });
+
+  it.each([
+    ['the FTD tuple', otherAdMobConfig],
+    ['an arbitrary well-shaped tuple', {
+      ...ownAdMobConfig,
+      appId: 'ca-app-pub-1234567890123456~1234567890',
+      adUnits: {
+        banner: 'ca-app-pub-1234567890123456/1111111111',
+        interstitial: 'ca-app-pub-1234567890123456/2222222222',
+        rewarded: 'ca-app-pub-1234567890123456/3333333333',
+      },
+    }],
+  ])('rejects %s on the default production composition path', (_label, config) => {
+    const context = createSdkContext({
+      buildEnv: 'production',
+      platform: 'ios',
+      isNativePlatform: true,
+      env: {
+        ...adMobEnv(config),
         VITE_REVENUECAT_IOS_API_KEY: 'appl_A1b2C3d4E5f6G7h8I9j0K1l2M3n',
       },
     });
@@ -186,11 +224,7 @@ describe('FTD SdkContext composition matrix', () => {
       isNativePlatform: true,
       env: {
         VITE_AD_PROVIDER: 'admob',
-        VITE_ADMOB_IOS_ENABLED: 'true',
-        VITE_ADMOB_IOS_APP_ID: 'ca-app-pub-1234567890123456~1234567890',
-        VITE_ADMOB_IOS_BANNER_ID: 'ca-app-pub-1234567890123456/1111111111',
-        VITE_ADMOB_IOS_INTERSTITIAL_ID: 'ca-app-pub-1234567890123456/2222222222',
-        VITE_ADMOB_IOS_REWARDED_ID: 'ca-app-pub-1234567890123456/3333333333',
+        ...adMobEnv(ownAdMobConfig),
         VITE_ATTRIBUTION_PROVIDER: 'disabled',
         VITE_ADJUST_IOS_ENABLED: 'true',
         VITE_ADJUST_IOS_APP_TOKEN: 'a'.repeat(12),
@@ -266,5 +300,105 @@ describe('FTD SdkContext composition matrix', () => {
       },
     });
     expect(context.selection.ads).toBe('admob');
+  });
+
+  it('fails production closed for an arbitrary HTTPS mirror unless the endpoint is explicitly approved for FTB', () => {
+    const endpoint = 'https://analytics.example.com/ingest';
+    const env = {
+      VITE_FTD_OWNED_ANALYTICS_MIRROR_URL: endpoint,
+      VITE_FTD_OWNED_ANALYTICS_MIRROR_PUBLIC_CLIENT_KEY: 'public_client_key_1234',
+    };
+    const rejected = createSdkContext({ buildEnv: 'production', platform: 'web', env });
+    const testApproved = createSdkContext({
+      buildEnv: 'production',
+      platform: 'web',
+      env,
+      ownedMirrorIdentityPolicy: { approvedEndpointUrls: [endpoint] },
+      mirrorTransport: vi.fn(async () => ({ ok: true, status: 200 })),
+    });
+
+    expect(rejected.selection.analyticsSinks).not.toContain('owned-mirror');
+    expect(rejected.ownedMirrorStats().disabledReason).toContain('not approved for find_the_bird');
+    expect(testApproved.selection.analyticsSinks).toContain('owned-mirror');
+  });
+
+  it('filters purchase, user, and device identifiers from owned mirror batches', async () => {
+    const bodies: string[] = [];
+    const context = createSdkContext({
+      buildEnv: 'development',
+      platform: 'web',
+      env: {
+        VITE_FTD_OWNED_ANALYTICS_MIRROR_URL: 'https://analytics.example.com/ingest',
+        VITE_FTD_OWNED_ANALYTICS_MIRROR_PUBLIC_CLIENT_KEY: 'public_client_key_1234',
+      },
+      mirrorTransport: vi.fn(async (request) => {
+        bodies.push(request.body);
+        return { ok: true, status: 200 };
+      }),
+    });
+
+    context.analytics.track('purchase_fulfilled', {
+      product_id: 'hints_pack',
+      purchase_id: 'purchase-secret-123456',
+      user_id: 'user-secret-123456',
+      device_id: 'device-secret-123456',
+    });
+    context.analytics.track('app_background', { levels_played: 3 });
+    await context.analytics.flush();
+
+    expect(bodies).toHaveLength(1);
+    expect(bodies[0]).toContain('hints_pack');
+    expect(bodies[0]).toContain('"levels_played":3');
+    expect(bodies[0]).not.toContain('purchase-secret');
+    expect(bodies[0]).not.toContain('user-secret');
+    expect(bodies[0]).not.toContain('device-secret');
+  });
+
+  it('reports GameAnalytics selection reason and safe runtime provenance', () => {
+    vi.stubGlobal('__BUILD_INFO__', { version: '1.2.0', sha: 'abc123', dirty: false });
+    const disabled = createSdkContext({ buildEnv: 'development', platform: 'ios', env: {} });
+    const enabled = createSdkContext({
+      buildEnv: 'development',
+      platform: 'ios',
+      env: {
+        VITE_GAMEANALYTICS_IOS_ENABLED: 'true',
+        VITE_GAMEANALYTICS_IOS_GAME_ID: 'find_the_bird',
+        VITE_GAMEANALYTICS_IOS_GAME_KEY: 'a'.repeat(32),
+        VITE_GAMEANALYTICS_IOS_SECRET_KEY: 'b'.repeat(40),
+      },
+      gameAnalyticsLoader: vi.fn(async () => ({
+        GameAnalytics: {
+          setEnabledInfoLog: vi.fn(), setEnabledVerboseLog: vi.fn(),
+          configureAvailableResourceCurrencies: vi.fn(), configureAvailableResourceItemTypes: vi.fn(),
+          initialize: vi.fn(), isSdkReady: vi.fn(() => true),
+          addProgressionEvent: vi.fn(), addDesignEvent: vi.fn(),
+          addResourceEvent: vi.fn(), addAdEvent: vi.fn(),
+        },
+        EGAProgressionStatus: { Start: 1, Complete: 2, Fail: 3 },
+        EGAResourceFlowType: { Source: 1, Sink: 2 },
+        EGAAdAction: { Show: 1, FailedShow: 2, RewardReceived: 3 },
+        EGAAdType: { Banner: 1, Interstitial: 2, RewardedVideo: 3 },
+      })),
+    });
+
+    enabled.analytics.track('dog_found');
+    expect(enabled.analyticsRing.drain()[0]?.params).toMatchObject({
+      game: 'find_the_bird',
+      platform: 'ios',
+      build: expect.any(String),
+      app_version: '1.2.0',
+      environment: 'development',
+    });
+    expect(disabled.analyticsDiagnostics().gameAnalytics).toEqual({
+      enabled: false,
+      reason: 'GameAnalytics iOS is disabled',
+    });
+    expect(enabled.analyticsDiagnostics()).toMatchObject({
+      game: 'find_the_bird',
+      environment: 'development',
+      platform: 'ios',
+      selectedSinks: expect.arrayContaining(['ring-buffer', 'gameanalytics']),
+      gameAnalytics: { enabled: true, reason: null },
+    });
   });
 });

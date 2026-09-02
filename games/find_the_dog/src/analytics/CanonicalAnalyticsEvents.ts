@@ -48,8 +48,21 @@ const levelAttributionFields = [
 
 const economyFields = ['flow_type', 'currency', 'amount', 'item_type', 'item_id', 'product_id', 'no_ads', 'hints', 'coins', 'continue_level', 'level_id'] as const;
 const adRevenueFields = ['ad_type', 'placement', 'provider', 'currency', 'precision', 'network_name'] as const;
+const runtimeIdentityFields = ['app_version', 'build', 'platform', 'game', 'environment', 'cohort_bucket'] as const;
 
 export const canonicalAnalyticsEvents = [
+  {
+    id: 'session_start',
+    firebaseName: 'session_start',
+    gameAnalyticsName: 'session:start',
+    family: 'design',
+    panel: 'retention',
+    question: 'New-install sessions versus returning sessions.',
+    primaryDimensions: ['first_open'],
+    instrumentationStatus: 'runtime',
+    successBoundary: 'Analytics session start is emitted after first-open state is resolved.',
+    allowedGameAnalyticsCustomFields: ['first_open'],
+  },
   {
     id: 'app_open',
     firebaseName: 'app_open',
@@ -654,13 +667,31 @@ export const forbiddenAnalyticsIdentifierKeys = [
 
 const canonicalAnalyticsEventDefinitions: readonly CanonicalAnalyticsEventDefinition[] = canonicalAnalyticsEvents;
 
-export const gameAnalyticsAllowedCustomFieldKeys = uniqueStrings(canonicalAnalyticsEventDefinitions.flatMap((event) => [...(event.allowedGameAnalyticsCustomFields ?? [])]));
+export const gameAnalyticsAllowedCustomFieldKeys = uniqueStrings([
+  ...runtimeIdentityFields,
+  ...canonicalAnalyticsEventDefinitions.flatMap((event) => [...(event.allowedGameAnalyticsCustomFields ?? [])]),
+]);
 
 const gameAnalyticsAllowedCustomFieldKeySet = new Set(gameAnalyticsAllowedCustomFieldKeys.map(normalizeAnalyticsFieldKey));
+const runtimeIdentityFieldKeySet = new Set(runtimeIdentityFields.map(normalizeAnalyticsFieldKey));
 const gameAnalyticsAllowedCustomFieldKeySetsByEventId = new Map(
   canonicalAnalyticsEventDefinitions.map((event) => [
     event.id,
-    new Set((event.allowedGameAnalyticsCustomFields ?? []).map(normalizeAnalyticsFieldKey)),
+    new Set([
+      ...runtimeIdentityFields,
+      ...event.primaryDimensions,
+      ...(event.allowedGameAnalyticsCustomFields ?? []),
+    ].map(normalizeAnalyticsFieldKey)),
+  ]),
+);
+const canonicalAllowedParamKeySetsByEventId = new Map(
+  canonicalAnalyticsEventDefinitions.map((event) => [
+    event.id,
+    new Set([
+      ...runtimeIdentityFields,
+      ...event.primaryDimensions,
+      ...(event.allowedGameAnalyticsCustomFields ?? []),
+    ].map(normalizeAnalyticsFieldKey)),
   ]),
 );
 const forbiddenAnalyticsIdentifierKeySet = new Set(forbiddenAnalyticsIdentifierKeys.map(normalizeAnalyticsFieldKey));
@@ -678,6 +709,7 @@ export const dashboardImportDimensionKeys = [
   'app_version',
   'category',
   'bucket',
+  'build',
   'catalog_revision',
   'cohort_bucket',
   'continue_level',
@@ -691,8 +723,10 @@ export const dashboardImportDimensionKeys = [
   'experiment_id',
   'fallback_reason',
   'finds_remaining',
+  'first_open',
   'flow_type',
   'goal',
+  'game',
   'hints_granted',
   'intended_level_id',
   'item_id',
@@ -749,6 +783,25 @@ export function isAllowedGameAnalyticsCustomFieldKeyForEvent(eventId: CanonicalA
   return eventAllowedFields !== undefined
     && eventAllowedFields.has(normalized)
     && !forbiddenAnalyticsIdentifierKeySet.has(normalized);
+}
+
+/** Apply the canonical per-event allowlist before a durable product sink sees
+ * params. Unknown events retain only runtime identity fields; identifiers and
+ * sensitive-looking string values are always removed. */
+export function sanitizeCanonicalAnalyticsParams(
+  eventId: string,
+  params: Readonly<Record<string, string | number | boolean>>,
+): Record<string, string | number | boolean> {
+  const eventAllowedFields = canonicalAllowedParamKeySetsByEventId.get(eventId);
+  const sanitized: Record<string, string | number | boolean> = {};
+  for (const [key, value] of Object.entries(params)) {
+    const normalized = normalizeAnalyticsFieldKey(key);
+    const allowed = eventAllowedFields?.has(normalized) ?? runtimeIdentityFieldKeySet.has(normalized);
+    if (!allowed || forbiddenAnalyticsIdentifierKeySet.has(normalized)) continue;
+    if (typeof value === 'string' && looksSensitiveAnalyticsValue(value.trim())) continue;
+    sanitized[key] = value;
+  }
+  return sanitized;
 }
 
 export function looksSensitiveAnalyticsValue(value: string): boolean {
