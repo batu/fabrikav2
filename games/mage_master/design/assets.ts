@@ -20,8 +20,19 @@ const generated = import.meta.glob("./assets/*.png", { eager: true, query: "?url
   string
 >;
 
+/**
+ * Dev builds serve unhashed URLs; a file rewritten while the WebView holds it
+ * cached paints as blank until the URL changes, so dev URLs carry a boot stamp.
+ * Production URLs are content-hashed by Vite and need nothing.
+ */
+const BOOT_STAMP = import.meta.env.DEV ? `?b=${Date.now().toString(36)}` : "";
+
+function stamped(url: string | undefined): string | undefined {
+  return url ? `${url}${BOOT_STAMP}` : undefined;
+}
+
 function generatedUrl(name: string): string | undefined {
-  return generated[`./assets/${name}.png`];
+  return stamped(generated[`./assets/${name}.png`]);
 }
 
 export const assetUrls = {
@@ -66,12 +77,12 @@ const scenes = import.meta.glob("./assets/scene-*.jpg", { eager: true, query: "?
 
 /** Painted scene backgrounds (opaque JPEG). */
 export function scene(name: "home" | "rift"): string | undefined {
-  return scenes[`./assets/scene-${name}.jpg`];
+  return stamped(scenes[`./assets/scene-${name}.jpg`]);
 }
 
 /** Painted ground plate per arena theme (repeats vertically in the battle scene). */
 export function groundScene(theme: string): string | undefined {
-  return scenes[`./assets/scene-ground-${theme}.jpg`];
+  return stamped(scenes[`./assets/scene-ground-${theme}.jpg`]);
 }
 
 /** Ornate 9-slice frames for panels, buttons, and portraits. */

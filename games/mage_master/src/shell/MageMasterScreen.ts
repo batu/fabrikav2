@@ -158,10 +158,7 @@ export function mountMageMasterScreen(opts: MageMasterScreenOptions): MageMaster
   applyFrames();
   const toaster: ToasterHandle = mountToaster({ mountInto: root, id: "mm-toaster" });
   // Warm the chrome art so the first paint of any framed surface is never unskinned.
-  const warmUrls = [assetUrls.panel, assetUrls.ribbon.win, assetUrls.ribbon.fail, assetUrls.ribbon.neutral, assetUrls.button.primary, assetUrls.button.secondary,
-    frame("panel"), frame("button"), frame("button-dark"), frame("portrait"), scene("home"), scene("rift"),
-    lettering("title"), lettering("victory"), lettering("defeat"), lettering("summoned"), lettering("welcome"),
-    nodeArt("current"), nodeArt("locked"), nodeArt("completed")];
+  const warmUrls = [assetUrls.panel, assetUrls.ribbon.win, assetUrls.ribbon.fail, assetUrls.ribbon.neutral, assetUrls.button.primary, assetUrls.button.secondary];
   for (const url of warmUrls) {
     if (!url) continue;
     const warm = new Image();

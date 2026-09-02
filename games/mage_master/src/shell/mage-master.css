@@ -398,9 +398,6 @@ body {
   height: 42px;
 }
 
-.mm-party--scene {
-  padding-bottom: 8px;
-}
 
 .mm-root--framed .mm-home {
   gap: 10px;
@@ -1751,4 +1748,8 @@ body {
 .mm-root--framed .mm-battle__top .mm-icon-btn__icon {
   width: 22px;
   height: 22px;
+}
+
+.mm-party--scene {
+  padding-bottom: 8px;
 }
