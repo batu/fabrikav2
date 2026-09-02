@@ -17,6 +17,16 @@ export type GameAnalyticsConfigResult =
 
 export type GameAnalyticsEnv = Record<string, string | boolean | undefined>;
 
+export interface GameAnalyticsIdentityPolicy {
+  /** Public GameAnalytics game keys explicitly bound to FTD. Empty in
+   * production until the external FTD project has been provisioned. */
+  readonly approvedGameKeys: readonly string[];
+}
+
+const PRODUCTION_GAMEANALYTICS_IDENTITY_POLICY: GameAnalyticsIdentityPolicy = {
+  approvedGameKeys: [],
+};
+
 const REQUIRED_GAMEANALYTICS_KEYS = [
   'VITE_GAMEANALYTICS_IOS_GAME_KEY',
   'VITE_GAMEANALYTICS_IOS_SECRET_KEY',
@@ -26,7 +36,22 @@ type RequiredGameAnalyticsKey = (typeof REQUIRED_GAMEANALYTICS_KEYS)[number];
 export function readGameAnalyticsIosConfig(
   env: GameAnalyticsEnv,
   isProductionBuild: boolean = false,
+  identityPolicy: GameAnalyticsIdentityPolicy = PRODUCTION_GAMEANALYTICS_IDENTITY_POLICY,
 ): GameAnalyticsConfigResult {
+  if (!parseBooleanEnv(env.VITE_GAMEANALYTICS_IOS_ENABLED, false)) {
+    return {
+      enabled: false,
+      reason: 'GameAnalytics iOS is disabled',
+      missingKeys: [],
+    };
+  }
+  if (envString(env.VITE_GAMEANALYTICS_IOS_GAME_ID) !== 'find_the_dog') {
+    return {
+      enabled: false,
+      reason: 'VITE_GAMEANALYTICS_IOS_GAME_ID must be find_the_dog',
+      missingKeys: [],
+    };
+  }
   const values = {
     VITE_GAMEANALYTICS_IOS_GAME_KEY: envString(env.VITE_GAMEANALYTICS_IOS_GAME_KEY),
     VITE_GAMEANALYTICS_IOS_SECRET_KEY: envString(env.VITE_GAMEANALYTICS_IOS_SECRET_KEY),
@@ -46,7 +71,7 @@ export function readGameAnalyticsIosConfig(
   if (!isGameAnalyticsGameKey(requiredValue(values.VITE_GAMEANALYTICS_IOS_GAME_KEY))) {
     return {
       enabled: false,
-      reason: 'VITE_GAMEANALYTICS_IOS_GAME_KEY must be 32 characters',
+      reason: 'VITE_GAMEANALYTICS_IOS_GAME_KEY must be 32 hexadecimal characters',
       missingKeys: [],
     };
   }
@@ -54,7 +79,16 @@ export function readGameAnalyticsIosConfig(
   if (!isGameAnalyticsSecretKey(requiredValue(values.VITE_GAMEANALYTICS_IOS_SECRET_KEY))) {
     return {
       enabled: false,
-      reason: 'VITE_GAMEANALYTICS_IOS_SECRET_KEY must be 40 characters',
+      reason: 'VITE_GAMEANALYTICS_IOS_SECRET_KEY must be 40 hexadecimal characters',
+      missingKeys: [],
+    };
+  }
+
+  const gameKey = requiredValue(values.VITE_GAMEANALYTICS_IOS_GAME_KEY);
+  if (isProductionBuild && !identityPolicy.approvedGameKeys.includes(gameKey)) {
+    return {
+      enabled: false,
+      reason: 'VITE_GAMEANALYTICS_IOS_GAME_KEY is not approved for find_the_dog',
       missingKeys: [],
     };
   }
@@ -62,7 +96,7 @@ export function readGameAnalyticsIosConfig(
   return {
     enabled: true,
     config: {
-      gameKey: requiredValue(values.VITE_GAMEANALYTICS_IOS_GAME_KEY),
+      gameKey,
       secretKey: requiredValue(values.VITE_GAMEANALYTICS_IOS_SECRET_KEY),
       verboseLogging: !isProductionBuild && parseBooleanEnv(env.VITE_GAMEANALYTICS_VERBOSE_LOGGING, false),
     },
@@ -80,11 +114,11 @@ export function redactGameAnalyticsKey(value: string): string {
 }
 
 function isGameAnalyticsGameKey(value: string): boolean {
-  return value.length === 32;
+  return /^[a-f0-9]{32}$/i.test(value);
 }
 
 function isGameAnalyticsSecretKey(value: string): boolean {
-  return value.length === 40;
+  return /^[a-f0-9]{40}$/i.test(value);
 }
 
 function envString(value: string | boolean | undefined): string | null {

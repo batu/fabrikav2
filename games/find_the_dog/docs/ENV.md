@@ -8,6 +8,8 @@ Credential-bearing client configuration includes Firebase identifiers, GameAnaly
 
 Never put server-grade or private credentials here. RevenueCat server secrets, GameAnalytics Metrics API keys, Cloudflare/R2 credentials, Firebase operator OAuth tokens, signing keys, and similar administrative credentials belong in the appropriate secrets manager or operator environment, not in any `VITE_*` file.
 
+GameAnalytics' JavaScript SDK does not acknowledge backend receipt. Its local `flush()` diagnostic can wait for SDK initialization, but it cannot report delivery success; `lastSuccessfulFlushAt` therefore remains `null`. Verify backend receipt externally in the GameAnalytics dashboard or Metrics API during release validation.
+
 Booleans, the Adjust environment name, public legal/support/store URLs, CDN origins, and the owned-analytics endpoint URL are not secrets. They remain part of the tracked contract because they control release behavior, but real deployment values still live in the ignored mode-local file.
 
 ## Validation behavior

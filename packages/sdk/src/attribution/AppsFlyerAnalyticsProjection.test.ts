@@ -5,6 +5,30 @@ function event(name: string, params: Record<string, unknown> = {}) { return { na
 function memory() { const values = new Map<string, string>(); return { getItem: (k: string) => values.get(k) ?? null, setItem: (k: string, v: string) => { values.set(k, v); } }; }
 
 describe('AppsFlyer analytics projection', () => {
+  it('reports delivered and rejected projections after emission', async () => {
+    const forward = vi.fn()
+      .mockResolvedValueOnce(true)
+      .mockResolvedValueOnce(false);
+    const sink = createAppsFlyerAnalyticsProjection({
+      forward,
+      dedupe: { has: () => false, add: vi.fn() },
+      storage: memory(),
+    });
+
+    sink.emit(event('level_complete', { sequence_slot: 1 }));
+    expect(sink.diagnostics?.()).toMatchObject({ queued: 2, sent: 0, dropped: 0 });
+    await Promise.all([Promise.resolve(), Promise.resolve(), Promise.resolve()]);
+
+    expect(sink.diagnostics?.()).toEqual({
+      queued: 0,
+      sent: 1,
+      retried: 0,
+      dropped: 1,
+      initializationFailure: null,
+      lastSuccessfulFlushAt: null,
+    });
+  });
+
   it('projects tutorial and selected progression milestones once', async () => {
     const forward = vi.fn(async (_event: unknown) => true); const keys = new Set<string>();
     const sink = createAppsFlyerAnalyticsProjection({ forward, dedupe: { has: (k) => keys.has(k), add: (k) => { keys.add(k); } }, storage: memory() });

@@ -20,6 +20,7 @@ import {
   createRingBufferSink,
   type Analytics,
   type AnalyticsSink,
+  type AnalyticsSinkDiagnostics,
   type MirrorTransport,
   type OwnedMirrorSink,
   type RingBufferSink,
@@ -53,8 +54,9 @@ import {
   type OwnedAnalyticsMirrorStats,
 } from '../analytics/AnalyticsService';
 import { createGameAnalyticsSink, type GameAnalyticsSdkLoader } from '../analytics/GameAnalyticsSink';
-import { readGameAnalyticsIosConfig } from '../analytics/GameAnalyticsConfig';
-import { readOwnedAnalyticsMirrorConfig } from '../analytics/OwnedAnalyticsMirrorConfig';
+import { readGameAnalyticsIosConfig, type GameAnalyticsIdentityPolicy } from '../analytics/GameAnalyticsConfig';
+import { readOwnedAnalyticsMirrorConfig, type OwnedMirrorIdentityPolicy } from '../analytics/OwnedAnalyticsMirrorConfig';
+import { sanitizeCanonicalAnalyticsParams } from '../analytics/CanonicalAnalyticsEvents';
 import {
   attribution,
   configureAttributionService,
@@ -96,7 +98,24 @@ export interface GameSdkContext {
   readonly remoteConfig: RemoteConfigService;
   readonly selection: SdkProviderSelection;
   readonly ownedMirrorStats: () => OwnedAnalyticsMirrorStats;
+  readonly analyticsDiagnostics: () => FtdAnalyticsDiagnostics;
   readonly storage: BootstrapStorage;
+}
+
+export interface FtdAnalyticsDiagnostics {
+  readonly game: 'find_the_dog';
+  readonly environment: SdkEnvironments['analytics'];
+  readonly platform: 'android' | 'ios' | 'web';
+  readonly build: string | null;
+  readonly version: string | null;
+  readonly selectedSinks: readonly string[];
+  readonly providers: {
+    readonly attribution: string;
+    readonly ads: string;
+    readonly iap: SdkProviderSelection['iap'];
+    readonly remoteConfig: SdkProviderSelection['remoteConfig'];
+  };
+  readonly sinks: Readonly<Record<string, AnalyticsSinkDiagnostics>>;
 }
 
 export interface CreateSdkContextDependencies {
@@ -109,7 +128,9 @@ export interface CreateSdkContextDependencies {
   readonly firebaseAnalyticsLoader?: () => Promise<unknown>;
   readonly revenueCatLoader?: RevenueCatLoader;
   readonly gameAnalyticsLoader?: GameAnalyticsSdkLoader;
+  readonly gameAnalyticsIdentityPolicy?: GameAnalyticsIdentityPolicy;
   readonly mirrorTransport?: MirrorTransport;
+  readonly ownedMirrorIdentityPolicy?: OwnedMirrorIdentityPolicy;
   readonly adProviderFactories?: AdProviderFactories;
   readonly storage?: BootstrapStorage;
   readonly logger?: Pick<Console, 'warn'>;
@@ -193,9 +214,13 @@ export function createSdkContext(deps: CreateSdkContextDependencies = {}): GameS
 
   let ownedMirror: OwnedMirrorSink | null = null;
   let ownedMirrorDisabledReason = 'owned analytics mirror is not configured';
-  const mirrorConfig = readOwnedAnalyticsMirrorConfig(env);
+  const mirrorConfig = readOwnedAnalyticsMirrorConfig(
+    env,
+    buildEnv === 'production',
+    deps.ownedMirrorIdentityPolicy,
+  );
   if (mirrorConfig.config.enabled && mirrorConfig.config.endpointUrl !== null && mirrorConfig.config.publicClientKey !== null) {
-    ownedMirror = createOwnedMirrorSink({
+    const configuredOwnedMirror = createOwnedMirrorSink({
       url: mirrorConfig.config.endpointUrl,
       publicClientKey: mirrorConfig.config.publicClientKey,
       transport: deps.mirrorTransport ?? fetchMirrorTransport,
@@ -204,22 +229,41 @@ export function createSdkContext(deps: CreateSdkContextDependencies = {}): GameS
       batchSize: mirrorConfig.config.flushBatchSize,
       maxAttempts: mirrorConfig.config.maxAttempts,
     });
-    sinks.push(ownedMirror);
+    ownedMirror = configuredOwnedMirror;
+    sinks.push({
+      name: configuredOwnedMirror.name,
+      emit: (event): void => configuredOwnedMirror.emit({
+        ...event,
+        params: sanitizeCanonicalAnalyticsParams(event.name, event.params),
+      }),
+      flush: (): Promise<void> => configuredOwnedMirror.flush(),
+      diagnostics: () => configuredOwnedMirror.diagnostics(),
+    });
     ownedMirrorDisabledReason = '';
   } else {
     ownedMirrorDisabledReason = mirrorConfig.config.disabledReason ?? 'owned analytics mirror is invalid';
   }
 
-  const gaConfig = readGameAnalyticsIosConfig(env, buildEnv === 'production');
+  const gaConfig = readGameAnalyticsIosConfig(
+    env,
+    buildEnv === 'production',
+    deps.gameAnalyticsIdentityPolicy,
+  );
   if (platform === 'ios' && gaConfig.enabled) {
     sinks.push(createGameAnalyticsSink(gaConfig.config, { loader: deps.gameAnalyticsLoader, logger }));
   }
 
+  const analyticsBuild = buildStamp();
   analyticsFacade = createAnalytics<FtdEvent>({
     env: environments.analytics,
     sessionId: createFtdSessionId(),
     sinks,
-    globalParams: { game: 'find_the_dog', platform, build: buildStamp() },
+    globalParams: {
+      game: 'find_the_dog',
+      platform,
+      build: analyticsBuild,
+      app_version: analyticsBuild?.split('+', 1)[0],
+    },
   });
 
   const catalogProducts = () => buildShopCatalog().products.map(ftdCatalogProduct);
@@ -278,6 +322,39 @@ export function createSdkContext(deps: CreateSdkContextDependencies = {}): GameS
     };
   };
 
+  const selection: SdkProviderSelection = {
+    platform,
+    analyticsSinks: sinks.map((sink) => sink.name),
+    iap: iapSelection,
+    ads: ads.providerName,
+    attribution: attributionProvider.providerName,
+    remoteConfig: firebaseRemoteProvider === undefined ? 'static' : 'firebase',
+  };
+  const analyticsDiagnostics = (): FtdAnalyticsDiagnostics => {
+    const sinkDiagnostics: Record<string, AnalyticsSinkDiagnostics> = {};
+    for (const sink of sinks) {
+      if (sink.diagnostics !== undefined) {
+        sinkDiagnostics[sink.name] = sink.diagnostics();
+      }
+    }
+    const build = buildStamp();
+    return {
+      game: 'find_the_dog',
+      environment: environments.analytics,
+      platform,
+      build,
+      version: build?.split('+', 1)[0] ?? null,
+      selectedSinks: [...selection.analyticsSinks],
+      providers: {
+        attribution: selection.attribution,
+        ads: selection.ads,
+        iap: selection.iap,
+        remoteConfig: selection.remoteConfig,
+      },
+      sinks: sinkDiagnostics,
+    };
+  };
+
   return {
     environments,
     analytics: analyticsFacade,
@@ -286,15 +363,9 @@ export function createSdkContext(deps: CreateSdkContextDependencies = {}): GameS
     attribution: attributionService,
     iapComposition,
     remoteConfig,
-    selection: {
-      platform,
-      analyticsSinks: sinks.map((sink) => sink.name),
-      iap: iapSelection,
-      ads: ads.providerName,
-      attribution: attributionProvider.providerName,
-      remoteConfig: firebaseRemoteProvider === undefined ? 'static' : 'firebase',
-    },
+    selection,
     ownedMirrorStats,
+    analyticsDiagnostics,
     storage,
   };
 }

@@ -195,17 +195,18 @@ function syntheticFixture(policy) {
 
 export function runDryRun({ mode, policy }) {
   if (!MODES.has(mode)) throw new Error(`unsupported mode: ${mode}`);
-  const fixture = syntheticFixture(policy);
-  policy.configureSyntheticFixture?.(fixture, mode);
-  const positive = validateResolvedValues({ values: fixture, mode, policy });
+  const syntheticPolicy = policy.forSyntheticValidation?.() ?? policy;
+  const fixture = syntheticFixture(syntheticPolicy);
+  syntheticPolicy.configureSyntheticFixture?.(fixture, mode);
+  const positive = validateResolvedValues({ values: fixture, mode, policy: syntheticPolicy });
   if (positive.missingKeys.length || positive.invalidKeys.length) {
     throw new Error('complete synthetic fixture did not pass');
   }
 
   const missingFixture = new Map(fixture);
-  const expectedMissingKey = policy.configureMissingDryRunCase(missingFixture, mode);
+  const expectedMissingKey = syntheticPolicy.configureMissingDryRunCase(missingFixture, mode);
   missingFixture.delete(expectedMissingKey);
-  const negative = validateResolvedValues({ values: missingFixture, mode, policy });
+  const negative = validateResolvedValues({ values: missingFixture, mode, policy: syntheticPolicy });
   if (!negative.missingKeys.includes(expectedMissingKey)) {
     throw new Error('missing required value was not rejected');
   }

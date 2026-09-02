@@ -1,3 +1,5 @@
+import { URL } from 'node:url';
+
 export const FIND_THE_DOG_ENV_KEYS = Object.freeze([
   'VITE_FIREBASE_API_KEY',
   'VITE_FIREBASE_PROJECT_ID',
@@ -12,6 +14,7 @@ export const FIND_THE_DOG_ENV_KEYS = Object.freeze([
   'VITE_SDK_VERIFIER_AUTOMOUNT',
   'VITE_SDK_VERIFIER_AUTOCRASH',
   'VITE_GAMEANALYTICS_IOS_ENABLED',
+  'VITE_GAMEANALYTICS_IOS_GAME_ID',
   'VITE_GAMEANALYTICS_IOS_GAME_KEY',
   'VITE_GAMEANALYTICS_IOS_SECRET_KEY',
   'VITE_GAMEANALYTICS_VERBOSE_LOGGING',
@@ -87,7 +90,10 @@ function intentKeys(mode) {
   return keys;
 }
 
-function validateConditional({ values, mode, booleanValue, requireValue, invalidKeys }) {
+function validateConditional(
+  { values, mode, booleanValue, requireValue, invalidKeys },
+  identityPolicy,
+) {
   validateChoice(values, 'VITE_AD_PROVIDER', ['auto', 'admob', 'applovin-max', 'disabled'], invalidKeys);
   validateChoice(values, 'VITE_ATTRIBUTION_PROVIDER', ['auto', 'appsflyer', 'adjust', 'disabled'], invalidKeys);
 
@@ -107,10 +113,14 @@ function validateConditional({ values, mode, booleanValue, requireValue, invalid
 
   if (booleanValue(values.get('VITE_APPSFLYER_ENABLED')) === true) {
     requireValue('VITE_APPSFLYER_DEV_KEY');
+    const devKey = values.get('VITE_APPSFLYER_DEV_KEY');
+    if (devKey && !/^[A-Za-z0-9]{20,32}$/.test(devKey.trim())) {
+      invalidKeys.push('VITE_APPSFLYER_DEV_KEY');
+    }
     if (mode === 'ios') {
       requireValue('VITE_APPSFLYER_APPLE_APP_ID');
       const appId = values.get('VITE_APPSFLYER_APPLE_APP_ID');
-      if (appId && !/^\d+$/.test(appId.trim())) invalidKeys.push('VITE_APPSFLYER_APPLE_APP_ID');
+      if (appId && appId.trim() !== '6772100729') invalidKeys.push('VITE_APPSFLYER_APPLE_APP_ID');
     }
   }
 
@@ -123,8 +133,44 @@ function validateConditional({ values, mode, booleanValue, requireValue, invalid
   }
 
   if (mode === 'ios' && booleanValue(values.get('VITE_GAMEANALYTICS_IOS_ENABLED')) === true) {
+    if (values.get('VITE_GAMEANALYTICS_IOS_GAME_ID')?.trim() !== 'find_the_dog') {
+      invalidKeys.push('VITE_GAMEANALYTICS_IOS_GAME_ID');
+    }
     requireValue('VITE_GAMEANALYTICS_IOS_GAME_KEY');
     requireValue('VITE_GAMEANALYTICS_IOS_SECRET_KEY');
+    const gameKey = values.get('VITE_GAMEANALYTICS_IOS_GAME_KEY')?.trim();
+    const secretKey = values.get('VITE_GAMEANALYTICS_IOS_SECRET_KEY')?.trim();
+    if (gameKey && !/^[a-f0-9]{32}$/i.test(gameKey)) {
+      invalidKeys.push('VITE_GAMEANALYTICS_IOS_GAME_KEY');
+    } else if (gameKey && !identityPolicy.approvedGameAnalyticsGameKeys.includes(gameKey)) {
+      invalidKeys.push('VITE_GAMEANALYTICS_IOS_GAME_KEY');
+    }
+    if (secretKey && !/^[a-f0-9]{40}$/i.test(secretKey)) {
+      invalidKeys.push('VITE_GAMEANALYTICS_IOS_SECRET_KEY');
+    }
+  }
+
+  if (mode === 'ios') {
+    if (values.get('VITE_ATTRIBUTION_PROVIDER')?.trim().toLowerCase() !== 'appsflyer') {
+      invalidKeys.push('VITE_ATTRIBUTION_PROVIDER');
+    }
+    if (booleanValue(values.get('VITE_APPSFLYER_ENABLED')) !== true) {
+      invalidKeys.push('VITE_APPSFLYER_ENABLED');
+    }
+    const gameAnalyticsEnabled = booleanValue(values.get('VITE_GAMEANALYTICS_IOS_ENABLED')) === true;
+    const mirrorUrl = values.get('VITE_FTD_OWNED_ANALYTICS_MIRROR_URL')?.trim();
+    const mirrorKey = values.get('VITE_FTD_OWNED_ANALYTICS_MIRROR_PUBLIC_CLIENT_KEY')?.trim();
+    const mirrorUrlValid = mirrorUrl
+      ? isValidMirrorEndpoint(mirrorUrl)
+        && identityPolicy.approvedOwnedMirrorEndpointUrls.includes(mirrorUrl)
+      : false;
+    const mirrorKeyValid = mirrorKey ? mirrorKey.length >= 16 : false;
+    if (mirrorUrl && !mirrorUrlValid) invalidKeys.push('VITE_FTD_OWNED_ANALYTICS_MIRROR_URL');
+    if (mirrorKey && !mirrorKeyValid) invalidKeys.push('VITE_FTD_OWNED_ANALYTICS_MIRROR_PUBLIC_CLIENT_KEY');
+    const ownedMirrorEnabled = mirrorUrlValid && mirrorKeyValid;
+    if (!gameAnalyticsEnabled && !ownedMirrorEnabled) {
+      invalidKeys.push('VITE_GAMEANALYTICS_IOS_ENABLED');
+    }
   }
 
   if (mode === 'ios' && booleanValue(values.get('VITE_ADJUST_IOS_ENABLED')) === true) {
@@ -157,14 +203,38 @@ function validateConditional({ values, mode, booleanValue, requireValue, invalid
   }
 }
 
+function isValidMirrorEndpoint(value) {
+  try {
+    const url = new URL(value);
+    return url.protocol === 'https:'
+      && url.username.length === 0
+      && url.password.length === 0
+      && url.search.length === 0;
+  } catch {
+    return false;
+  }
+}
+
 function validateChoice(values, key, allowed, invalidKeys) {
   const value = values.get(key);
   if (value === undefined || value.trim() === '') return;
   if (!allowed.includes(value.trim().toLowerCase())) invalidKeys.push(key);
 }
 
-function configureSyntheticFixture(values) {
+function configureSyntheticFixture(values, mode) {
   values.set('VITE_FIREBASE_PROJECT_ID', EXPECTED_FIREBASE_PROJECT_ID);
+  if (mode === 'ios') {
+    values.set('VITE_GAMEANALYTICS_IOS_ENABLED', 'true');
+    values.set('VITE_GAMEANALYTICS_IOS_GAME_ID', 'find_the_dog');
+    values.set('VITE_GAMEANALYTICS_IOS_GAME_KEY', 'a'.repeat(32));
+    values.set('VITE_GAMEANALYTICS_IOS_SECRET_KEY', 'b'.repeat(40));
+    values.set('VITE_ATTRIBUTION_PROVIDER', 'appsflyer');
+    values.set('VITE_APPSFLYER_ENABLED', 'true');
+    values.set('VITE_APPSFLYER_DEV_KEY', 'A1b2C3d4E5f6G7h8I9j0');
+    values.set('VITE_APPSFLYER_APPLE_APP_ID', '6772100729');
+    values.set('VITE_FTD_OWNED_ANALYTICS_MIRROR_URL', 'https://example.invalid/analytics');
+    values.set('VITE_FTD_OWNED_ANALYTICS_MIRROR_PUBLIC_CLIENT_KEY', 'synthetic-public-client-key');
+  }
 }
 
 function configureMissingDryRunCase(values, mode) {
@@ -178,10 +248,27 @@ function configureMissingDryRunCase(values, mode) {
   return 'VITE_APPLOVIN_ANDROID_SDK_KEY';
 }
 
-export const FIND_THE_DOG_POLICY = Object.freeze({
-  canonicalKeys: FIND_THE_DOG_ENV_KEYS,
-  intentKeys,
-  validateConditional,
-  configureSyntheticFixture,
-  configureMissingDryRunCase,
-});
+export function createFindTheDogPolicy({
+  approvedGameAnalyticsGameKeys = [],
+  approvedOwnedMirrorEndpointUrls = [],
+} = {}) {
+  const identityPolicy = Object.freeze({
+    approvedGameAnalyticsGameKeys: Object.freeze([...approvedGameAnalyticsGameKeys]),
+    approvedOwnedMirrorEndpointUrls: Object.freeze([...approvedOwnedMirrorEndpointUrls]),
+  });
+  return Object.freeze({
+    canonicalKeys: FIND_THE_DOG_ENV_KEYS,
+    intentKeys,
+    validateConditional: (context) => validateConditional(context, identityPolicy),
+    configureSyntheticFixture,
+    configureMissingDryRunCase,
+    forSyntheticValidation: () => createFindTheDogPolicy({
+      approvedGameAnalyticsGameKeys: ['a'.repeat(32)],
+      approvedOwnedMirrorEndpointUrls: ['https://example.invalid/analytics'],
+    }),
+  });
+}
+
+// No external FTD GameAnalytics project or owned mirror endpoint is provisioned
+// yet. Production therefore fails closed until reviewed public identities land.
+export const FIND_THE_DOG_POLICY = createFindTheDogPolicy();

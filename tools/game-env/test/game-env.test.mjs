@@ -12,13 +12,17 @@ import {
   validateTemplate,
 } from '../src/validate.mjs';
 import { getGamePolicy } from '../src/policies.mjs';
-import { FIND_THE_DOG_ENV_KEYS } from '../src/policies/find-the-dog.mjs';
+import { createFindTheDogPolicy, FIND_THE_DOG_ENV_KEYS } from '../src/policies/find-the-dog.mjs';
 import { resolveFindTheDogViteConfig } from '../../../games/find_the_dog/vite.config.ts';
 
 const temporaryDirectories = [];
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
 const cliPath = path.join(repoRoot, 'tools/game-env/validate.mjs');
-const policy = getGamePolicy('find_the_dog');
+const productionPolicy = getGamePolicy('find_the_dog');
+const policy = createFindTheDogPolicy({
+  approvedGameAnalyticsGameKeys: ['a'.repeat(32)],
+  approvedOwnedMirrorEndpointUrls: ['https://example.invalid/analytics'],
+});
 
 function runCli(args, environment = {}) {
   return spawnSync(process.execPath, [cliPath, ...args], {
@@ -120,11 +124,18 @@ describe('environment validation', () => {
     expect(JSON.stringify(result)).not.toContain('synthetic-game-key');
   });
 
-  it('allows disabled providers without credentials', () => {
+  it('allows optional iOS providers to remain disabled when the required analytics stack is valid', () => {
     const root = makeGameRoot();
     write(root, '.env.ios.local', [
       'VITE_FTD_DISABLE_REMOTE_CONFIG=false',
-      'VITE_GAMEANALYTICS_IOS_ENABLED=false',
+      'VITE_GAMEANALYTICS_IOS_ENABLED=true',
+      'VITE_GAMEANALYTICS_IOS_GAME_ID=find_the_dog',
+      `VITE_GAMEANALYTICS_IOS_GAME_KEY=${'a'.repeat(32)}`,
+      `VITE_GAMEANALYTICS_IOS_SECRET_KEY=${'b'.repeat(40)}`,
+      'VITE_ATTRIBUTION_PROVIDER=appsflyer',
+      'VITE_APPSFLYER_ENABLED=true',
+      'VITE_APPSFLYER_DEV_KEY=A1b2C3d4E5f6G7h8I9j0',
+      'VITE_APPSFLYER_APPLE_APP_ID=6772100729',
       'VITE_ADJUST_IOS_ENABLED=false',
       'VITE_ADMOB_IOS_ENABLED=false',
       'VITE_ADMOB_IOS_TEST_MODE=false',
@@ -134,6 +145,188 @@ describe('environment validation', () => {
     ].join('\n'));
 
     expect(validateEnvironment({ gameRoot: root, mode: 'ios', policy, environment: {} }).ok).toBe(true);
+  });
+
+  it('rejects production iOS when product analytics resolves to local-only sinks', () => {
+    const root = makeGameRoot();
+    const result = validateEnvironment({
+      gameRoot: root,
+      mode: 'ios',
+      policy,
+      environment: {
+        VITE_FTD_DISABLE_REMOTE_CONFIG: 'false',
+        VITE_GAMEANALYTICS_IOS_ENABLED: 'false',
+        VITE_ADJUST_IOS_ENABLED: 'false',
+        VITE_ADMOB_IOS_ENABLED: 'false',
+        VITE_ADMOB_IOS_TEST_MODE: 'false',
+        VITE_REVENUECAT_IOS_API_KEY: 'appl_A1b2C3d4E5f6G7h8I9j0K1l2M3n',
+        VITE_ATTRIBUTION_PROVIDER: 'appsflyer',
+        VITE_APPSFLYER_ENABLED: 'true',
+        VITE_APPSFLYER_DEV_KEY: 'A1b2C3d4E5f6G7h8I9j0',
+        VITE_APPSFLYER_APPLE_APP_ID: '6772100729',
+        VITE_CDN_ENABLED: 'false',
+      },
+    });
+
+    expect(result.ok).toBe(false);
+    expect(result.invalidKeys).toContain('VITE_GAMEANALYTICS_IOS_ENABLED');
+  });
+
+  it('rejects a malformed owned mirror as a durable production sink', () => {
+    const root = makeGameRoot();
+    const result = validateEnvironment({
+      gameRoot: root,
+      mode: 'ios',
+      policy,
+      environment: {
+        VITE_FTD_DISABLE_REMOTE_CONFIG: 'false',
+        VITE_GAMEANALYTICS_IOS_ENABLED: 'false',
+        VITE_FTD_OWNED_ANALYTICS_MIRROR_URL: 'http://localhost/ingest?token=secret',
+        VITE_FTD_OWNED_ANALYTICS_MIRROR_PUBLIC_CLIENT_KEY: 'short',
+        VITE_ADJUST_IOS_ENABLED: 'false',
+        VITE_ADMOB_IOS_ENABLED: 'false',
+        VITE_ADMOB_IOS_TEST_MODE: 'false',
+        VITE_REVENUECAT_IOS_API_KEY: 'appl_A1b2C3d4E5f6G7h8I9j0K1l2M3n',
+        VITE_ATTRIBUTION_PROVIDER: 'appsflyer',
+        VITE_APPSFLYER_ENABLED: 'true',
+        VITE_APPSFLYER_DEV_KEY: 'A1b2C3d4E5f6G7h8I9j0',
+        VITE_APPSFLYER_APPLE_APP_ID: '6772100729',
+        VITE_CDN_ENABLED: 'false',
+      },
+    });
+
+    expect(result.ok).toBe(false);
+    expect(result.invalidKeys).toEqual(expect.arrayContaining([
+      'VITE_FTD_OWNED_ANALYTICS_MIRROR_URL',
+      'VITE_FTD_OWNED_ANALYTICS_MIRROR_PUBLIC_CLIENT_KEY',
+    ]));
+  });
+
+  it('rejects well-shaped but unapproved FTD analytics identities and permits injected synthetic fixtures', () => {
+    const root = makeGameRoot();
+    const environment = {
+      VITE_FTD_DISABLE_REMOTE_CONFIG: 'false',
+      VITE_GAMEANALYTICS_IOS_ENABLED: 'true',
+      VITE_GAMEANALYTICS_IOS_GAME_ID: 'find_the_dog',
+      VITE_GAMEANALYTICS_IOS_GAME_KEY: 'a'.repeat(32),
+      VITE_GAMEANALYTICS_IOS_SECRET_KEY: 'b'.repeat(40),
+      VITE_FTD_OWNED_ANALYTICS_MIRROR_URL: 'https://example.invalid/analytics',
+      VITE_FTD_OWNED_ANALYTICS_MIRROR_PUBLIC_CLIENT_KEY: 'synthetic-public-client-key',
+      VITE_ADJUST_IOS_ENABLED: 'false',
+      VITE_ADMOB_IOS_ENABLED: 'false',
+      VITE_ADMOB_IOS_TEST_MODE: 'false',
+      VITE_REVENUECAT_IOS_API_KEY: 'appl_A1b2C3d4E5f6G7h8I9j0K1l2M3n',
+      VITE_ATTRIBUTION_PROVIDER: 'appsflyer',
+      VITE_APPSFLYER_ENABLED: 'true',
+      VITE_APPSFLYER_DEV_KEY: 'A1b2C3d4E5f6G7h8I9j0',
+      VITE_APPSFLYER_APPLE_APP_ID: '6772100729',
+      VITE_CDN_ENABLED: 'false',
+    };
+
+    const rejected = validateEnvironment({ gameRoot: root, mode: 'ios', policy: productionPolicy, environment });
+    const injected = validateEnvironment({
+      gameRoot: root,
+      mode: 'ios',
+      policy: createFindTheDogPolicy({
+        approvedGameAnalyticsGameKeys: ['a'.repeat(32)],
+        approvedOwnedMirrorEndpointUrls: ['https://example.invalid/analytics'],
+      }),
+      environment,
+    });
+
+    expect(rejected.invalidKeys).toEqual(expect.arrayContaining([
+      'VITE_GAMEANALYTICS_IOS_GAME_KEY',
+      'VITE_FTD_OWNED_ANALYTICS_MIRROR_URL',
+    ]));
+    expect(injected.ok).toBe(true);
+  });
+
+  it('requires AppsFlyer as the production iOS attribution provider', () => {
+    const root = makeGameRoot();
+    const result = validateEnvironment({
+      gameRoot: root,
+      mode: 'ios',
+      policy,
+      environment: {
+        VITE_FTD_DISABLE_REMOTE_CONFIG: 'false',
+        VITE_GAMEANALYTICS_IOS_ENABLED: 'true',
+        VITE_GAMEANALYTICS_IOS_GAME_KEY: 'a'.repeat(32),
+        VITE_GAMEANALYTICS_IOS_SECRET_KEY: 'b'.repeat(40),
+        VITE_ADJUST_IOS_ENABLED: 'false',
+        VITE_ADMOB_IOS_ENABLED: 'false',
+        VITE_ADMOB_IOS_TEST_MODE: 'false',
+        VITE_REVENUECAT_IOS_API_KEY: 'appl_A1b2C3d4E5f6G7h8I9j0K1l2M3n',
+        VITE_ATTRIBUTION_PROVIDER: 'disabled',
+        VITE_APPSFLYER_ENABLED: 'false',
+        VITE_CDN_ENABLED: 'false',
+      },
+    });
+
+    expect(result.ok).toBe(false);
+    expect(result.invalidKeys).toEqual(expect.arrayContaining([
+      'VITE_APPSFLYER_ENABLED',
+      'VITE_ATTRIBUTION_PROVIDER',
+    ]));
+  });
+
+  it.each([undefined, 'find_the_bird'])('rejects non-FTD GameAnalytics identity: %s', (gameIdentity) => {
+    const root = makeGameRoot();
+    const environment = {
+      VITE_FTD_DISABLE_REMOTE_CONFIG: 'false',
+      VITE_GAMEANALYTICS_IOS_ENABLED: 'true',
+      VITE_GAMEANALYTICS_IOS_GAME_KEY: 'a'.repeat(32),
+      VITE_GAMEANALYTICS_IOS_SECRET_KEY: 'b'.repeat(40),
+      VITE_ADJUST_IOS_ENABLED: 'false',
+      VITE_ADMOB_IOS_ENABLED: 'false',
+      VITE_ADMOB_IOS_TEST_MODE: 'false',
+      VITE_REVENUECAT_IOS_API_KEY: 'appl_A1b2C3d4E5f6G7h8I9j0K1l2M3n',
+      VITE_ATTRIBUTION_PROVIDER: 'appsflyer',
+      VITE_APPSFLYER_ENABLED: 'true',
+      VITE_APPSFLYER_DEV_KEY: 'A1b2C3d4E5f6G7h8I9j0',
+      VITE_APPSFLYER_APPLE_APP_ID: '6772100729',
+      VITE_CDN_ENABLED: 'false',
+      ...(gameIdentity === undefined ? {} : { VITE_GAMEANALYTICS_IOS_GAME_ID: gameIdentity }),
+    };
+
+    const result = validateEnvironment({ gameRoot: root, mode: 'ios', policy, environment });
+
+    expect(result.ok).toBe(false);
+    expect(result.invalidKeys).toContain('VITE_GAMEANALYTICS_IOS_GAME_ID');
+    expect(JSON.stringify(result)).not.toContain('find_the_bird');
+  });
+
+  it('rejects malformed GameAnalytics credentials without printing them', () => {
+    const root = makeGameRoot();
+    const malformedGameKey = 'not-a-real-gameanalytics-key!!!!';
+    const malformedSecretKey = 'not-a-real-gameanalytics-secret-key!!!!!!!!';
+    const result = validateEnvironment({
+      gameRoot: root,
+      mode: 'ios',
+      policy,
+      environment: {
+        VITE_FTD_DISABLE_REMOTE_CONFIG: 'false',
+        VITE_GAMEANALYTICS_IOS_ENABLED: 'true',
+        VITE_GAMEANALYTICS_IOS_GAME_ID: 'find_the_dog',
+        VITE_GAMEANALYTICS_IOS_GAME_KEY: malformedGameKey,
+        VITE_GAMEANALYTICS_IOS_SECRET_KEY: malformedSecretKey,
+        VITE_ADJUST_IOS_ENABLED: 'false',
+        VITE_ADMOB_IOS_ENABLED: 'false',
+        VITE_ADMOB_IOS_TEST_MODE: 'false',
+        VITE_REVENUECAT_IOS_API_KEY: 'appl_A1b2C3d4E5f6G7h8I9j0K1l2M3n',
+        VITE_ATTRIBUTION_PROVIDER: 'appsflyer',
+        VITE_APPSFLYER_ENABLED: 'true',
+        VITE_APPSFLYER_DEV_KEY: 'A1b2C3d4E5f6G7h8I9j0',
+        VITE_APPSFLYER_APPLE_APP_ID: '6772100729',
+        VITE_CDN_ENABLED: 'false',
+      },
+    });
+
+    expect(result.invalidKeys).toEqual(expect.arrayContaining([
+      'VITE_GAMEANALYTICS_IOS_GAME_KEY',
+      'VITE_GAMEANALYTICS_IOS_SECRET_KEY',
+    ]));
+    expect(JSON.stringify(result)).not.toContain(malformedGameKey);
+    expect(JSON.stringify(result)).not.toContain(malformedSecretKey);
   });
 
   it('requires an owner-controlled RevenueCat key for every iOS release environment', () => {
@@ -213,6 +406,40 @@ describe('environment validation', () => {
       'VITE_APPSFLYER_APPLE_APP_ID',
       'VITE_APPSFLYER_DEV_KEY',
     ]);
+  });
+
+  it('rejects malformed or wrong-app AppsFlyer configuration without printing values', () => {
+    const root = makeGameRoot();
+    const malformedDevKey = 'not-a-valid-appsflyer-key';
+    const wrongAppleAppId = '1234567890';
+    const result = validateEnvironment({
+      gameRoot: root,
+      mode: 'ios',
+      policy,
+      environment: {
+        VITE_FTD_DISABLE_REMOTE_CONFIG: 'false',
+        VITE_GAMEANALYTICS_IOS_ENABLED: 'true',
+        VITE_GAMEANALYTICS_IOS_GAME_ID: 'find_the_dog',
+        VITE_GAMEANALYTICS_IOS_GAME_KEY: 'a'.repeat(32),
+        VITE_GAMEANALYTICS_IOS_SECRET_KEY: 'b'.repeat(40),
+        VITE_ADJUST_IOS_ENABLED: 'false',
+        VITE_ADMOB_IOS_ENABLED: 'false',
+        VITE_ADMOB_IOS_TEST_MODE: 'false',
+        VITE_REVENUECAT_IOS_API_KEY: 'appl_A1b2C3d4E5f6G7h8I9j0K1l2M3n',
+        VITE_ATTRIBUTION_PROVIDER: 'appsflyer',
+        VITE_APPSFLYER_ENABLED: 'true',
+        VITE_APPSFLYER_DEV_KEY: malformedDevKey,
+        VITE_APPSFLYER_APPLE_APP_ID: wrongAppleAppId,
+        VITE_CDN_ENABLED: 'false',
+      },
+    });
+
+    expect(result.invalidKeys).toEqual(expect.arrayContaining([
+      'VITE_APPSFLYER_DEV_KEY',
+      'VITE_APPSFLYER_APPLE_APP_ID',
+    ]));
+    expect(JSON.stringify(result)).not.toContain(malformedDevKey);
+    expect(JSON.stringify(result)).not.toContain(wrongAppleAppId);
   });
 
   it.each([
@@ -394,6 +621,16 @@ describe('environment validation', () => {
       VITE_ADMOB_IOS_TEST_MODE: 'false',
       VITE_REVENUECAT_IOS_API_KEY: 'appl_A1b2C3d4E5f6G7h8I9j0K1l2M3n',
       VITE_APPLOVIN_ANDROID_ENABLED: 'false',
+      ...(mode === 'ios' ? {
+        VITE_GAMEANALYTICS_IOS_ENABLED: 'true',
+        VITE_GAMEANALYTICS_IOS_GAME_ID: 'find_the_dog',
+        VITE_GAMEANALYTICS_IOS_GAME_KEY: 'a'.repeat(32),
+        VITE_GAMEANALYTICS_IOS_SECRET_KEY: 'b'.repeat(40),
+        VITE_ATTRIBUTION_PROVIDER: 'appsflyer',
+        VITE_APPSFLYER_ENABLED: 'true',
+        VITE_APPSFLYER_DEV_KEY: 'A1b2C3d4E5f6G7h8I9j0',
+        VITE_APPSFLYER_APPLE_APP_ID: '6772100729',
+      } : {}),
       [enabled]: 'true',
     };
 
@@ -429,7 +666,14 @@ describe('environment validation', () => {
     write(root, '.env', 'VITE_FTD_SUPPORT_URL=https://example.invalid/support\n');
     write(root, '.env.ios.local', [
       'VITE_FTD_DISABLE_REMOTE_CONFIG=false',
-      'VITE_GAMEANALYTICS_IOS_ENABLED=false',
+      'VITE_GAMEANALYTICS_IOS_ENABLED=true',
+      'VITE_GAMEANALYTICS_IOS_GAME_ID=find_the_dog',
+      `VITE_GAMEANALYTICS_IOS_GAME_KEY=${'a'.repeat(32)}`,
+      `VITE_GAMEANALYTICS_IOS_SECRET_KEY=${'b'.repeat(40)}`,
+      'VITE_ATTRIBUTION_PROVIDER=appsflyer',
+      'VITE_APPSFLYER_ENABLED=true',
+      'VITE_APPSFLYER_DEV_KEY=A1b2C3d4E5f6G7h8I9j0',
+      'VITE_APPSFLYER_APPLE_APP_ID=6772100729',
       'VITE_ADJUST_IOS_ENABLED=false',
       'VITE_ADMOB_IOS_ENABLED=false',
       'VITE_ADMOB_IOS_TEST_MODE=false',
@@ -444,7 +688,14 @@ describe('environment validation', () => {
 
     write(root, '.env.ios.local', [
       'VITE_FTD_DISABLE_REMOTE_CONFIG=false',
-      'VITE_GAMEANALYTICS_IOS_ENABLED=false',
+      'VITE_GAMEANALYTICS_IOS_ENABLED=true',
+      'VITE_GAMEANALYTICS_IOS_GAME_ID=find_the_dog',
+      `VITE_GAMEANALYTICS_IOS_GAME_KEY=${'a'.repeat(32)}`,
+      `VITE_GAMEANALYTICS_IOS_SECRET_KEY=${'b'.repeat(40)}`,
+      'VITE_ATTRIBUTION_PROVIDER=appsflyer',
+      'VITE_APPSFLYER_ENABLED=true',
+      'VITE_APPSFLYER_DEV_KEY=A1b2C3d4E5f6G7h8I9j0',
+      'VITE_APPSFLYER_APPLE_APP_ID=6772100729',
       'VITE_ADJUST_IOS_ENABLED=false',
       'VITE_ADMOB_IOS_ENABLED=false',
       'VITE_ADMOB_IOS_TEST_MODE=false',
@@ -500,13 +751,13 @@ describe('environment validation', () => {
 });
 
 describe('canonical template', () => {
-  it('contains the exact 69-key placeholder-only contract with one comment per assignment', () => {
+  it('contains the exact 70-key placeholder-only contract with one comment per assignment', () => {
     const templatePath = path.join(repoRoot, 'games/find_the_dog/.env.example');
     const result = validateTemplate(templatePath, policy);
 
     expect(result.ok).toBe(true);
     expect(result.keys).toEqual([...FIND_THE_DOG_ENV_KEYS].sort());
-    expect(result.keys).toHaveLength(69);
+    expect(result.keys).toHaveLength(70);
   });
 
   it('rejects duplicate assignments even when the final key set is exact', () => {

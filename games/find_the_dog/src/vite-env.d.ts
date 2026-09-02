@@ -47,6 +47,7 @@ interface ImportMetaEnv {
   readonly VITE_ADJUST_EVENT_REWARDED_WATCHED_TOKEN?: string;
   readonly VITE_REVENUECAT_IOS_API_KEY?: string;
   readonly VITE_GAMEANALYTICS_IOS_GAME_KEY?: string;
+  readonly VITE_GAMEANALYTICS_IOS_GAME_ID?: string;
   readonly VITE_GAMEANALYTICS_IOS_SECRET_KEY?: string;
   readonly VITE_GAMEANALYTICS_VERBOSE_LOGGING?: string;
   readonly VITE_FTD_OWNED_ANALYTICS_MIRROR_URL?: string;
