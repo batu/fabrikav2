@@ -1,9 +1,11 @@
 import { loadPersistedJson, mulberry32, savePersistedJson } from "@fabrikav2/kernel";
 import { createAnalytics, createRingBufferSink, type AnalyticsEvent, type RingBufferSink } from "@fabrikav2/sdk/analytics";
 import { createHaptics, NotificationType } from "@fabrikav2/sdk/haptics";
+import type { IapService } from "@fabrikav2/sdk/iap";
 import { LEVEL_COUNT, STAGES_PER_LEVEL } from "../../content/levels.ts";
 import { MAGE_CLASSES, type MageClass } from "../../content/mages.ts";
 import { riftTier } from "../../content/rift.ts";
+import type { GemGrant } from "../../content/shop.ts";
 import { gameConfig } from "../../game.config.ts";
 import { mageStats, type Item, type Loadout } from "./economy/items.ts";
 import {
@@ -32,10 +34,11 @@ import {
   type SaveSettings,
   type SaveState,
 } from "./economy/save.ts";
+import { createGemIapService } from "./shop.ts";
 import { createBattle, simulateBattle, type Battle, type PartyMember, FIXED_STEP } from "./sim/battle.ts";
 import type { BattleEvent, BattleView, Loot } from "./sim/types.ts";
 
-export type Surface = "menu" | "rift" | "mages" | "battle" | "pause" | "settings" | "win" | "fail";
+export type Surface = "menu" | "rift" | "mages" | "shop" | "battle" | "pause" | "settings" | "win" | "fail";
 export type Scene = "menu" | "playing" | "paused" | "complete" | "failed";
 
 export interface PartySnapshot {
@@ -83,6 +86,7 @@ export interface MageMasterController {
   home(): boolean;
   openRift(): boolean;
   openMages(): boolean;
+  openShop(): boolean;
   openSettings(): boolean;
   closeSettings(): boolean;
   setSetting(key: keyof SaveSettings, value: boolean): void;
@@ -111,9 +115,13 @@ export interface MageMasterController {
   resetSave(): void;
   grantCoins(amount: number): void;
   grantResources(patch: Partial<Pick<SaveState, "gold" | "crystals" | "gems" | "energy">>): void;
+  /** Sandbox purchase fulfilment: credit a gem pack and report the faucet. */
+  purchaseGems(gems: number, productId: string): void;
   unlockAll(): void;
   drainTrace(): AnalyticsEvent[];
   readonly haptics: ReturnType<typeof createHaptics>;
+  /** The store the shop page and its tests share (sandbox provider). */
+  readonly iap: IapService<GemGrant>;
 }
 
 export interface ControllerOptions {
@@ -126,7 +134,7 @@ export interface ControllerOptions {
 const STORAGE_KEY = "fabrikav2.mage_master.save";
 const OUTCOME_DELAY = 0.9;
 
-type GameEvent = "rift_pull" | "rift_upgrade" | "rift_skip" | "item_use" | "item_discard" | "offline_claim" | "battle_quit";
+type GameEvent = "rift_pull" | "rift_upgrade" | "rift_skip" | "item_use" | "item_discard" | "offline_claim" | "battle_quit" | "gems_purchased";
 
 export function createMageMasterController(options: ControllerOptions = {}): MageMasterController {
   const now = options.now ?? (() => Date.now());
@@ -160,6 +168,9 @@ export function createMageMasterController(options: ControllerOptions = {}): Mag
   let speed: 1 | 2 = 1;
   const eventQueue: BattleEvent[] = [];
   const haptics = createHaptics({ isEnabled: () => save.settings.haptics });
+  const iap = createGemIapService();
+  // Warm the store at boot so the shop opens with live prices, never "Unavailable".
+  void iap.init();
 
   analytics.sessionStart({ first_open: save.pulls === 0 && save.highestCleared === 0 });
 
@@ -283,6 +294,7 @@ export function createMageMasterController(options: ControllerOptions = {}): Mag
 
   return {
     haptics,
+    iap,
     snapshot,
     subscribe(listener) {
       listeners.add(listener);
@@ -317,8 +329,14 @@ export function createMageMasterController(options: ControllerOptions = {}): Mag
       notify();
       return true;
     },
+    openShop() {
+      if (surface !== "menu" && surface !== "rift" && surface !== "mages") return false;
+      surface = "shop";
+      notify();
+      return true;
+    },
     openSettings() {
-      if (surface !== "menu" && surface !== "pause" && surface !== "rift" && surface !== "mages") return false;
+      if (surface !== "menu" && surface !== "pause" && surface !== "rift" && surface !== "mages" && surface !== "shop") return false;
       settingsOrigin = surface;
       surface = "settings";
       notify();
@@ -506,6 +524,13 @@ export function createMageMasterController(options: ControllerOptions = {}): Mag
     },
     grantResources(patch) {
       save = { ...save, ...patch };
+      commit();
+    },
+    purchaseGems(gems, productId) {
+      save = { ...save, gems: save.gems + gems };
+      analytics.track("gems_purchased", { product_id: productId, gems });
+      analytics.resourceChange({ currency: "gems", amount: gems, flow: "source", reason: "purchase", balance: save.gems });
+      haptics.notification(NotificationType.Success);
       commit();
     },
     unlockAll() {

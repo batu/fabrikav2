@@ -36,7 +36,7 @@ export const ARENA = {
   height: 560,
   campLineY: 470,
   spawnTop: 40,
-  spawnBottom: 130,
+  spawnBottom: 175,
   /** How far the party runs forward between stages (one stage of field). */
   advanceDistance: 560,
   advanceSeconds: 1.2,

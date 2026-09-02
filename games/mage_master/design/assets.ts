@@ -58,6 +58,16 @@ export function magesIcon(): string | undefined {
   return generatedUrl("icon-nav-mages") ?? unitSprite("warrior");
 }
 
+/** Shop tab icon; falls back to the gem pill icon until the art lands. */
+export function shopNavIcon(): string | undefined {
+  return generatedUrl("icon-nav-shop") ?? currencyIcon("gem");
+}
+
+/** Gem-pack art by catalog id (`gems_small` -> `shop-gems-small.png`). */
+export function shopIcon(name: string): string | undefined {
+  return generatedUrl(`shop-${name.replace(/_/g, "-")}`) ?? currencyIcon("gem");
+}
+
 /** Level-ladder node art (kit `--fab-levelmap-art-*`), undefined until generated. */
 export function nodeArt(state: "current" | "locked" | "completed"): string | undefined {
   return generatedUrl(`node-${state}`);

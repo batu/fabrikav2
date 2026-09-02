@@ -68,6 +68,21 @@
   --fab-levelmap-line-mid: #c69a3c;
   --fab-levelmap-line-bottom: #7a4a22;
 
+  /* Shop (kit ShopPage) — wood cards, gold trim, cream copy. */
+  --fab-shop-gap: 14px;
+  --fab-shop-grid-min: 104px;
+  --fab-shop-card-bg: #5b3a1e;
+  --fab-shop-card-radius: 16px;
+  --fab-shop-card-icon-size: 72px;
+  --fab-shop-card-title-color: #fff3d6;
+  --fab-shop-card-desc-color: #d9c39a;
+  --fab-shop-section-title-color: #e8b84a;
+  --fab-shop-badge-bg: #e8b84a;
+  --fab-shop-badge-color: #3a2410;
+  --fab-shop-restore-bg: #5b3a1e;
+  --fab-shop-restore-title-color: #fff3d6;
+  --fab-shop-restore-status-color: #d9c39a;
+
   /* Game surfaces */
   --fab-mm-sand: #e9d3a6;
   --fab-mm-sand-deep: #d9bf8c;
@@ -120,6 +135,31 @@
   --fab-mm-content-max: 430px;
   --fab-mm-title-size: 34px;
   --fab-mm-battle-title-size: 18px;
+
+  /* Alpha tints used by the shell (hoisted so src/shell stays literal-free). */
+  --fab-mm-ink-a50: rgba(58, 36, 16, 0.5);
+  --fab-mm-ink-a35: rgba(58, 36, 16, 0.35);
+  --fab-mm-ink-a65: rgba(58, 36, 16, 0.65);
+  --fab-mm-ink-a45: rgba(58, 36, 16, 0.45);
+  --fab-mm-ink-a85: rgba(58, 36, 16, 0.85);
+  --fab-mm-cream-a50: rgba(255, 243, 214, 0.5);
+  --fab-mm-ink-a40: rgba(58, 36, 16, 0.4);
+  --fab-mm-ink-a70: rgba(20, 10, 30, 0.7);
+  --fab-mm-cream-a08: rgba(255, 243, 214, 0.08);
+  --fab-mm-ink-a00: rgba(58, 36, 16, 0.0);
+  --fab-mm-ink-a55: rgba(58, 36, 16, 0.55);
+  --fab-mm-ink-a12: rgba(58, 36, 16, 0.12);
+  --fab-mm-ink-a62: rgba(20, 10, 30, 0.62);
+  --fab-mm-gold-a35: rgba(232, 184, 74, 0.35);
+  --fab-mm-gold-a55: rgba(232, 184, 74, 0.55);
+  --fab-mm-ink-a28: rgba(58, 36, 16, 0.28);
+  /* Runtime-bound art (set by the shell from design/assets.ts); none until the art resolves. */
+  --fab-mm-frame-panel: none;
+  --fab-mm-frame-button: none;
+  --fab-mm-frame-button-dark: none;
+  --fab-mm-frame-portrait: none;
+  --fab-mm-scene-home: none;
+  --fab-mm-scene-rift: none;
 }
 
 @font-face {

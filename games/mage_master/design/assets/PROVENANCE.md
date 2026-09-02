@@ -53,3 +53,7 @@ One line per asset: file name — generator — prompt subject used. Style pream
 - prop-mushroom.png — codex image tool, gpt image model, 1254x1254, matte via mm-matte.py — a cluster of purple-capped mushrooms, top-down three-quarter view
 - prop-puddle.png — codex image tool, gpt image model, 1254x1254, matte via mm-matte.py — a small murky swamp puddle with lily pads, top-down three-quarter view
 - prop-roots.png — codex image tool, gpt image model, 1254x1254, matte via mm-matte.py — a twisted dark root cluster, top-down three-quarter view
+- shop-gems-small.png — codex image tool, gpt image model, 1254x1254, matte via mm-matte.py — a small leather pouch spilling three cyan faceted gems
+- shop-gems-medium.png — codex image tool, gpt image model, 1254x1254, matte via mm-matte.py — an open wooden chest with gold trim heaped with cyan faceted gems
+- shop-gems-large.png — codex image tool, gpt image model, 1254x1254, matte via mm-matte.py — a stone vault doorway overflowing with a mound of cyan faceted gems and a gold crown on top
+- icon-nav-shop.png — codex image tool, gpt image model, 1254x1254, matte via mm-matte.py — a cream-and-gold market stall awning icon with a cyan gem on the sign, glyph-like and readable at 34 px

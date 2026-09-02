@@ -13,7 +13,7 @@ import { gameConfig } from "../../game.config.ts";
 import { createMageMasterController, type MageMasterController, type MageMasterSnapshot } from "../game/MageMasterController.ts";
 import type { MageMasterScreen } from "./MageMasterScreen.ts";
 
-export type MageMasterVerb = "enterLevel" | "pull" | "equip" | "discard" | "upgradeRift" | "skipTimer" | "openRift" | "openMages" | "home";
+export type MageMasterVerb = "enterLevel" | "pull" | "equip" | "discard" | "upgradeRift" | "skipTimer" | "openRift" | "openMages" | "openShop" | "home";
 
 export interface MageMasterHarness extends GameHarness<MageMasterVerb> {
   snapshot(): MageMasterSnapshot;
@@ -125,6 +125,7 @@ export function createMageMasterHarness(meta: MageMasterHarnessOptions): MageMas
       skipTimer: verb(() => controller.skipUpgrade(), "skip-upgrade"),
       openRift: verb(() => controller.openRift(), "nav-rift"),
       openMages: verb(() => controller.openMages(), "nav-mages"),
+      openShop: verb(() => controller.openShop(), "nav-shop"),
       home: verb(() => controller.home(), "nav-home"),
     },
     winLevel,

@@ -9,7 +9,11 @@ export const gameConfig = {
   saga: { levels: 10 },
   economy: { softCurrency: "gold" },
   adPlacements: [],
-  productCatalog: [],
+  productCatalog: [
+    "com.basegamelab.mage_master.gems.small",
+    "com.basegamelab.mage_master.gems.medium",
+    "com.basegamelab.mage_master.gems.large",
+  ],
   analyticsEvents: [
     "session_start",
     "level_start",
@@ -23,5 +27,6 @@ export const gameConfig = {
     "item_discard",
     "offline_claim",
     "battle_quit",
+    "gems_purchased",
   ],
 } as const;

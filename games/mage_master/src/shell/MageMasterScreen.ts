@@ -5,8 +5,11 @@ import {
   mountResultCard,
   mountSagaMap,
   mountSettingsPage,
+  mountShopPage,
   mountToaster,
   type LevelMapNode,
+  type ShopCopy,
+  type ShopPageHandle,
   type ToasterHandle,
   type UiHandle,
 } from "@fabrikav2/ui";
@@ -14,8 +17,9 @@ import { ENERGY } from "../../content/economy.ts";
 import { ARENA_THEME, LEVEL_COUNT, levelSpec } from "../../content/levels.ts";
 import { MAGE_CLASSES, type MageClass } from "../../content/mages.ts";
 import { MAX_RIFT_TIER, PULL_COST_CRYSTALS, oddsFor, riftTier } from "../../content/rift.ts";
+import { GEM_GROUP, gemsForProductId, type GemGrant } from "../../content/shop.ts";
 import { PERCENT_STATS, STAT_KEYS, type StatKey } from "../../content/stats.ts";
-import { armorIcon, assetUrls, chromeIcon, currencyIcon, frame, lettering, magesIcon, nodeArt, propSprite, riftPortal, scene, unitSprite, weaponIcon } from "../../design/assets.ts";
+import { armorIcon, assetUrls, chromeIcon, currencyIcon, frame, lettering, magesIcon, nodeArt, propSprite, riftPortal, scene, shopIcon, shopNavIcon, unitSprite, weaponIcon } from "../../design/assets.ts";
 import { copy, fill, type CopyKey } from "../../design/copy.ts";
 import { createBattleRenderer, type BattleRenderer } from "../battle/BattleScene.ts";
 import { createSfx, type Sfx } from "../game/sfx.ts";
@@ -40,7 +44,7 @@ export interface MageMasterScreen {
   destroy(): void;
 }
 
-type Page = "menu" | "rift" | "mages" | "battle";
+type Page = "menu" | "rift" | "mages" | "shop" | "battle";
 const REVEAL_DELAY_MS = 550;
 type Overlay = "pause" | "settings" | "win" | "fail" | "reveal" | "offline" | "item" | null;
 
@@ -84,6 +88,8 @@ function pageFor(surface: Surface): Page {
       return "rift";
     case "mages":
       return "mages";
+    case "shop":
+      return "shop";
     case "battle":
     case "pause":
     case "win":
@@ -95,6 +101,25 @@ function pageFor(surface: Surface): Page {
       return "menu";
   }
 }
+
+/** ShopPage takes every label injected; the SDK ships the state, copy.ts the words. */
+const SHOP_COPY: ShopCopy = {
+  purchase: { pending: copy["shop.buying"], busy: copy["shop.busy"], unavailable: copy["shop.unavailable"] },
+  restore: {
+    title: copy["shop.restore.title"],
+    status: {
+      idle: copy["shop.restore.idle"],
+      initializing: copy["shop.restore.initializing"],
+      busy: copy["shop.restore.busy"],
+      unavailable: copy["shop.restore.unavailable"],
+      pending: copy["shop.restore.pending"],
+      restored: copy["shop.restore.restored"],
+      empty: copy["shop.restore.empty"],
+      failed: copy["shop.restore.failed"],
+    },
+    button: { rest: copy["shop.restore.button"], pending: copy["shop.restore.buttonPending"], restored: copy["shop.restore.buttonDone"] },
+  },
+};
 
 function mageName(cls: MageClass): string {
   return copy[`mage.${cls}.name`];
@@ -145,12 +170,12 @@ export function mountMageMasterScreen(opts: MageMasterScreenOptions): MageMaster
   // asset paths. Re-applied on every refresh so a late-resolving asset heals itself.
   const applyFrames = (): void => {
     const frames: Array<[string, string | undefined]> = [
-      ["--mm-frame-panel", frame("panel")],
-      ["--mm-frame-button", frame("button")],
-      ["--mm-frame-button-dark", frame("button-dark")],
-      ["--mm-frame-portrait", frame("portrait")],
-      ["--mm-scene-home", scene("home")],
-      ["--mm-scene-rift", scene("rift")],
+      ["--fab-mm-frame-panel", frame("panel")],
+      ["--fab-mm-frame-button", frame("button")],
+      ["--fab-mm-frame-button-dark", frame("button-dark")],
+      ["--fab-mm-frame-portrait", frame("portrait")],
+      ["--fab-mm-scene-home", scene("home")],
+      ["--fab-mm-scene-rift", scene("rift")],
     ];
     for (const [name, url] of frames) if (url) root.style.setProperty(name, `url(${url})`);
     root.classList.toggle("mm-root--framed", Boolean(frame("panel") && frame("button")));
@@ -174,6 +199,7 @@ export function mountMageMasterScreen(opts: MageMasterScreenOptions): MageMaster
   let pageKey = "";
 
   let overlayHandle: UiHandle | null = null;
+  let shop: ShopPageHandle | null = null;
   let renderer: BattleRenderer | null = null;
   let itemDetail: Item | null = null;
   let previousTier = controller.snapshot().riftTier;
@@ -217,6 +243,7 @@ export function mountMageMasterScreen(opts: MageMasterScreenOptions): MageMaster
     navButton(copy["nav.home"], "nav-home", chromeIcon("home"), () => controller.home()),
     navButton(copy["nav.rift"], "nav-rift", riftPortal(), () => (controller.snapshot().surface === "rift" ? undefined : controller.openRift() || (controller.home() && controller.openRift()))),
     navButton(copy["nav.mages"], "nav-mages", magesIcon(), () => (controller.snapshot().surface === "mages" ? undefined : controller.openMages() || (controller.home() && controller.openMages()))),
+    navButton(copy["nav.shop"], "nav-shop", shopNavIcon(), () => (controller.snapshot().surface === "shop" ? undefined : controller.openShop() || (controller.home() && controller.openShop()))),
     navButton(copy["nav.settings"], "nav-settings", chromeIcon("settings"), () => controller.openSettings()),
   );
 
@@ -485,6 +512,39 @@ export function mountMageMasterScreen(opts: MageMasterScreenOptions): MageMaster
       mages.append(card);
     }
     return mages;
+  };
+
+  const renderShop = (): HTMLElement => {
+    const shopPage = el("main", "mm-shop");
+    const head = el("header", "mm-page__head");
+    head.append(el("h1", "mm-page__title", copy["shop.title"]));
+    shopPage.append(head, el("p", "mm-page__blurb", copy["shop.blurb"]));
+    const host = el("div", "mm-shop__host");
+    shopPage.append(host);
+    shop = mountShopPage<GemGrant>({
+      mountInto: host,
+      id: "mm-shop",
+      iap: controller.iap,
+      sections: [{ group: GEM_GROUP, layout: "grid" }],
+      copy: SHOP_COPY,
+      badges: { best: copy["shop.badge.best"] },
+      resolveIcon: (product) => shopIcon(product.id),
+      onPurchase: (result) => {
+        // A user cancel is not a failure; every other non-purchase is.
+        if (result.status === "cancelled") return;
+        if (result.status !== "purchased") {
+          toaster.show(copy["shop.failed"]);
+          return;
+        }
+        const gems = gemsForProductId(result.productId);
+        controller.purchaseGems(gems, result.productId);
+        sfx.play("coin");
+        toaster.show(fill("shop.purchased", { gems }));
+      },
+    });
+    // Store init is async and has no clock of its own: refresh once it settles.
+    void controller.iap.init().then(() => shop?.refresh());
+    return shopPage;
   };
 
   const renderBattle = (snap: MageMasterSnapshot): HTMLElement => {
@@ -878,7 +938,7 @@ export function mountMageMasterScreen(opts: MageMasterScreenOptions): MageMaster
     if (pullBtn) pullBtn.disabled = snap.crystals < PULL_COST_CRYSTALS || snap.pending !== null;
     for (const btn of nav.querySelectorAll<HTMLButtonElement>(".mm-nav__btn")) {
       const action = btn.dataset.fabAction;
-      const active = (action === "nav-home" && snap.surface === "menu") || (action === "nav-rift" && snap.surface === "rift") || (action === "nav-mages" && snap.surface === "mages");
+      const active = (action === "nav-home" && snap.surface === "menu") || (action === "nav-rift" && snap.surface === "rift") || (action === "nav-mages" && snap.surface === "mages") || (action === "nav-shop" && snap.surface === "shop");
       btn.classList.toggle("mm-nav__btn--active", active);
     }
   };
@@ -908,9 +968,21 @@ export function mountMageMasterScreen(opts: MageMasterScreenOptions): MageMaster
         renderer?.destroy();
         renderer = null;
       }
+      // The shop page owns a live purchase flow; drop it before its host element goes.
+      shop?.dismiss();
+      shop = null;
       page = nextPage;
       pageKey = key;
-      const content = nextPage === "menu" ? renderMenu(snap) : nextPage === "rift" ? renderRift(snap) : nextPage === "mages" ? renderMages(snap) : renderBattle(snap);
+      const content =
+        nextPage === "menu"
+          ? renderMenu(snap)
+          : nextPage === "rift"
+            ? renderRift(snap)
+            : nextPage === "mages"
+              ? renderMages(snap)
+              : nextPage === "shop"
+                ? renderShop()
+                : renderBattle(snap);
       body.replaceChildren(content);
       root.dataset.fabState = snap.surface;
       root.classList.toggle("mm-root--battle", nextPage === "battle");
@@ -934,6 +1006,7 @@ export function mountMageMasterScreen(opts: MageMasterScreenOptions): MageMaster
       previousTier = snap.riftTier;
     }
     refreshLive(snap);
+    shop?.refresh();
     reconcileOverlay(snap);
   };
 
@@ -964,6 +1037,7 @@ export function mountMageMasterScreen(opts: MageMasterScreenOptions): MageMaster
       document.removeEventListener("visibilitychange", onVisibility);
       unsubscribe();
       overlayHandle?.dismiss();
+      shop?.dismiss();
       renderer?.destroy();
       toaster.dismiss();
       root.remove();

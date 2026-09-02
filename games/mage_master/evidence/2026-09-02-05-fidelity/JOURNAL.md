@@ -41,3 +41,13 @@ fid-13, fid-16, fid-22, fid-23/24, fid-39.
 
 fid-05 … fid-43 (home, rift, mages, battle, pause, defeat, reveal). Frame bursts
 in `.work/frames/` were used for motion checks but not archived here.
+
+## Handover check (18:57) and the blank-image defect
+
+`fid-44-standalone-home.png` (18:51) showed the installed bundle with the camp
+band and Play plate blank. On the dev build the computed styles were correct and
+the images loaded, but a fresh URL painted immediately (`fid-46-inline.png`):
+WebKit held bad cache entries for the two files that had been rewritten while
+the WebView had them loaded. Fix: dev asset URLs carry a per-boot stamp, and the
+image warm-up that raced first paint was removed. `fid-47-standalone-home.png`
+(18:57) is the reinstalled standalone bundle rendering fully.

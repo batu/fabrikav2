@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { copy } from "../../design/copy.ts";
 import { createMageMasterController } from "../../src/game/MageMasterController.ts";
 import { mountMageMasterScreen } from "../../src/shell/MageMasterScreen.ts";
 
@@ -96,6 +97,32 @@ describe("mage master shell", () => {
     expect(screen.root.querySelector("#mm-settings")).not.toBeNull();
     click(screen.root, "back");
     expect(controller.snapshot().surface).toBe("menu");
+    screen.destroy();
+  });
+
+  it("shop: three gem packs, buying the small pack credits 60 gems", async () => {
+    const controller = createMageMasterController({ env: "test", storageKey: "test-shell-g" });
+    // The sandbox store settles off the microtask queue; wait for it before buying.
+    await controller.iap.init();
+    const screen = mountMageMasterScreen({ mountInto: document.getElementById("app")!, controller });
+    click(screen.root, "nav-shop");
+    expect(screen.root.dataset.fabState).toBe("shop");
+    expect(screen.root.querySelectorAll(".fab-shop-card").length).toBe(3);
+
+    const gemsBefore = controller.snapshot().gems;
+    const buy = screen.root.querySelector<HTMLButtonElement>('.fab-shop-purchase-btn[data-catalog-id="gems_small"]')!;
+    expect(buy.disabled).toBe(false);
+    expect(buy.textContent).toBe("$0.99");
+    buy.click();
+    await vi.waitFor(() => expect(controller.snapshot().gems).toBe(gemsBefore + 60));
+    expect(controller.snapshot().surface).toBe("shop");
+    const purchased = controller.drainTrace().find((event) => event.name === "gems_purchased");
+    expect(purchased?.params).toMatchObject({ product_id: "com.basegamelab.mage_master.gems.small", gems: 60 });
+
+    // Consumables are never restore-recoverable: restore must report empty, not failed.
+    click(screen.root, "shop-restore");
+    const status = screen.root.querySelector(".fab-shop-restore-status")!;
+    await vi.waitFor(() => expect(status.textContent).toBe(copy["shop.restore.empty"]));
     screen.destroy();
   });
 

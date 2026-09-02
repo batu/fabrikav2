@@ -120,7 +120,8 @@ export function createBattle(options: BattleOptions): Battle {
     const def = enemyDefinition(kind);
     const scaled = scaledEnemyStats(kind, options.level, stage);
     const fieldTop = campY - ARENA.campLineY;
-    const x = 40 + rand() * (ARENA.width - 80);
+    // Spread the wave across the field; spawns in the same tick still separate via the soft repulsion.
+    const x = 34 + rand() * (ARENA.width - 68);
     const y = fieldTop + ARENA.spawnTop + rand() * (ARENA.spawnBottom - ARENA.spawnTop);
     const unit: Unit = {
       id: `e${nextId++}`,
