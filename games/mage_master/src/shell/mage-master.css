@@ -1828,3 +1828,42 @@ body {
   color: var(--fab-mm-cream);
   text-shadow: 0 1px 0 var(--fab-mm-ink);
 }
+
+/* Reveal ceremony: orbiting sparkles for rare ages and above. */
+.mm-reveal-glow--rare .mm-item__frame,
+.mm-reveal-glow--epic .mm-item__frame,
+.mm-reveal-glow--legendary .mm-item__frame,
+.mm-reveal-glow--mythic .mm-item__frame,
+.mm-reveal-glow--immortal .mm-item__frame,
+.mm-reveal-glow--astral .mm-item__frame,
+.mm-reveal-glow--celestial .mm-item__frame,
+.mm-reveal-glow--ultimate .mm-item__frame {
+  position: relative;
+}
+
+.mm-reveal-glow--rare .mm-item__frame::before,
+.mm-reveal-glow--epic .mm-item__frame::before,
+.mm-reveal-glow--legendary .mm-item__frame::before,
+.mm-reveal-glow--mythic .mm-item__frame::before,
+.mm-reveal-glow--immortal .mm-item__frame::before,
+.mm-reveal-glow--astral .mm-item__frame::before,
+.mm-reveal-glow--celestial .mm-item__frame::before,
+.mm-reveal-glow--ultimate .mm-item__frame::before {
+  content: "";
+  position: absolute;
+  inset: -18px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 12% 30%, var(--mm-rarity, var(--fab-mm-cream)) 0 3px, transparent 4px),
+    radial-gradient(circle at 85% 20%, var(--mm-rarity, var(--fab-mm-cream)) 0 2px, transparent 3px),
+    radial-gradient(circle at 70% 90%, var(--mm-rarity, var(--fab-mm-cream)) 0 3px, transparent 4px),
+    radial-gradient(circle at 20% 85%, var(--mm-rarity, var(--fab-mm-cream)) 0 2px, transparent 3px);
+  animation: mm-orbit 2.6s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes mm-orbit {
+  to {
+    transform: rotate(360deg);
+  }
+}
