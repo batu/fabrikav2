@@ -365,10 +365,12 @@ describe('FTD SdkContext composition matrix', () => {
       transaction_id: 'transaction-secret-123456',
       receipt: 'receipt-secret-123456',
     });
+    context.analytics.track('app_background', { levels_played: 3 });
     await context.analytics.flush();
 
     expect(bodies).toHaveLength(1);
     expect(bodies[0]).toContain('hints_pack');
+    expect(bodies[0]).toContain('"levels_played":3');
     expect(bodies[0]).not.toContain('purchase-secret');
     expect(bodies[0]).not.toContain('transaction-secret');
     expect(bodies[0]).not.toContain('receipt-secret');

@@ -668,6 +668,16 @@ const gameAnalyticsAllowedCustomFieldKeySetsByEventId = new Map(
     new Set([...runtimeIdentityFields, ...(event.allowedGameAnalyticsCustomFields ?? [])].map(normalizeAnalyticsFieldKey)),
   ]),
 );
+const canonicalAllowedParamKeySetsByEventId = new Map(
+  canonicalAnalyticsEventDefinitions.map((event) => [
+    event.id,
+    new Set([
+      ...runtimeIdentityFields,
+      ...event.primaryDimensions,
+      ...(event.allowedGameAnalyticsCustomFields ?? []),
+    ].map(normalizeAnalyticsFieldKey)),
+  ]),
+);
 const forbiddenAnalyticsIdentifierKeySet = new Set(forbiddenAnalyticsIdentifierKeys.map(normalizeAnalyticsFieldKey));
 
 // Must stay a superset of every event's `primaryDimensions` — those are the
@@ -765,7 +775,7 @@ export function sanitizeCanonicalAnalyticsParams(
   eventId: string,
   params: Readonly<Record<string, string | number | boolean>>,
 ): Record<string, string | number | boolean> {
-  const eventAllowedFields = gameAnalyticsAllowedCustomFieldKeySetsByEventId.get(eventId);
+  const eventAllowedFields = canonicalAllowedParamKeySetsByEventId.get(eventId);
   const sanitized: Record<string, string | number | boolean> = {};
   for (const [key, value] of Object.entries(params)) {
     const normalized = normalizeAnalyticsFieldKey(key);
