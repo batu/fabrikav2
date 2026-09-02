@@ -1,6 +1,6 @@
 {
   "name": "@fabrikav2/find_the_dog",
-  "version": "0.0.0",
+  "version": "1.0.4",
   "private": true,
   "type": "module",
   "scripts": {
@@ -13,7 +13,12 @@
     "build:ios": "node ../../tools/game-env/validate.mjs --game find_the_dog --mode ios && vite build --mode ios",
     "build:android": "node ../../tools/game-env/validate.mjs --game find_the_dog --mode android && vite build --mode android",
     "dev:ios": "vite --mode ios",
-    "ios:sync": "cap sync ios && node ../../tools/native-shell/apply.mjs --game find_the_dog && node ../../tools/native-shell/validate.mjs --game find_the_dog"
+    "ios:sync": "cap sync ios && node ../../tools/native-shell/apply.mjs --game find_the_dog && node ../../tools/native-shell/validate.mjs --game find_the_dog",
+    "android:add": "cap add android && npm run android:sync",
+    "android:sync": "cap sync android && node ../../tools/google-play/cli.mjs apply --game=find_the_dog && node ../../tools/google-play/cli.mjs validate --game=find_the_dog",
+    "android:validate-source": "node ../../tools/google-play/cli.mjs validate-source --game=find_the_dog",
+    "android:validate": "node ../../tools/google-play/cli.mjs validate --game=find_the_dog",
+    "android:release": "npm run build:android && npm run android:sync && cd android && ./gradlew bundleRelease && cd .. && node ../../tools/google-play/cli.mjs inspect-aab --game=find_the_dog --aab=android/app/build/outputs/bundle/release/app-release.aab"
   },
   "dependencies": {
     "@capacitor-community/admob": "^8.1.0",

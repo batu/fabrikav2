@@ -29,8 +29,14 @@ export type AdMobIosConfigResult =
   | { enabled: false; reason: string; missingKeys: string[]; invalidKeys: string[] };
 
 export function readAdMobIosConfig(env: Env, publicConfig?: AdMobIosPublicConfig): AdMobIosConfigResult {
-  if (!parseBooleanEnv(env.VITE_ADMOB_IOS_ENABLED, publicConfig?.enabled ?? false)) {
-    return { enabled: false, reason: 'VITE_ADMOB_IOS_ENABLED is not true', missingKeys: [], invalidKeys: [] };
+  return readAdMobConfig('ios', env, publicConfig);
+}
+
+export function readAdMobConfig(platform: 'android' | 'ios', env: Env, publicConfig?: AdMobIosPublicConfig): AdMobIosConfigResult {
+  const prefix = platform === 'android' ? 'VITE_ADMOB_ANDROID' : 'VITE_ADMOB_IOS';
+  const keys = REQUIRED_KEYS.map((key) => key.replace('VITE_ADMOB_IOS', prefix));
+  if (!parseBooleanEnv(env[`${prefix}_ENABLED`], publicConfig?.enabled ?? false)) {
+    return { enabled: false, reason: `${prefix}_ENABLED is not true`, missingKeys: [], invalidKeys: [] };
   }
 
   const defaults: Record<(typeof REQUIRED_KEYS)[number], string | null> = {
@@ -39,26 +45,25 @@ export function readAdMobIosConfig(env: Env, publicConfig?: AdMobIosPublicConfig
     VITE_ADMOB_IOS_INTERSTITIAL_ID: envString(publicConfig?.adUnits.interstitial),
     VITE_ADMOB_IOS_REWARDED_ID: envString(publicConfig?.adUnits.rewarded),
   };
-  const values = Object.fromEntries(REQUIRED_KEYS.map((key) => [key, envString(env[key]) ?? defaults[key]])) as
-    Record<(typeof REQUIRED_KEYS)[number], string | null>;
-  const missingKeys: string[] = REQUIRED_KEYS.filter((key) => values[key] === null);
-  const testMode = parseBooleanEnv(env.VITE_ADMOB_IOS_TEST_MODE, false);
-  const testingDevices = csv(envString(env.VITE_ADMOB_IOS_TEST_DEVICE_IDS));
-  if (testMode && testingDevices.length === 0) missingKeys.push('VITE_ADMOB_IOS_TEST_DEVICE_IDS');
+  const values = Object.fromEntries(keys.map((key, index) => [key, envString(env[key]) ?? defaults[REQUIRED_KEYS[index]]])) as Record<string, string | null>;
+  const missingKeys: string[] = keys.filter((key) => values[key] === null);
+  const testMode = parseBooleanEnv(env[`${prefix}_TEST_MODE`], false);
+  const testingDevices = csv(envString(env[`${prefix}_TEST_DEVICE_IDS`]));
+  if (testMode && testingDevices.length === 0) missingKeys.push(`${prefix}_TEST_DEVICE_IDS`);
   if (missingKeys.length > 0) {
     return { enabled: false, reason: `missing AdMob iOS config: ${missingKeys.join(', ')}`, missingKeys, invalidKeys: [] };
   }
 
-  const appId = requiredValue(values.VITE_ADMOB_IOS_APP_ID);
+  const appId = requiredValue(values[keys[0]]);
   const units = {
-    banner: requiredValue(values.VITE_ADMOB_IOS_BANNER_ID),
-    interstitial: requiredValue(values.VITE_ADMOB_IOS_INTERSTITIAL_ID),
-    rewarded: requiredValue(values.VITE_ADMOB_IOS_REWARDED_ID),
+    banner: requiredValue(values[keys[1]]),
+    interstitial: requiredValue(values[keys[2]]),
+    rewarded: requiredValue(values[keys[3]]),
   };
   const invalidKeys: string[] = [];
-  if (!validIdentifier(appId, APP_ID)) invalidKeys.push('VITE_ADMOB_IOS_APP_ID');
+  if (!validIdentifier(appId, APP_ID)) invalidKeys.push(`${prefix}_APP_ID`);
   for (const [slot, value] of Object.entries(units)) {
-    if (!validIdentifier(value, UNIT_ID)) invalidKeys.push(`VITE_ADMOB_IOS_${slot.toUpperCase()}_ID`);
+    if (!validIdentifier(value, UNIT_ID)) invalidKeys.push(`${prefix}_${slot.toUpperCase()}_ID`);
   }
   if (invalidKeys.length > 0) {
     return { enabled: false, reason: `invalid AdMob iOS config: ${invalidKeys.join(', ')}`, missingKeys: [], invalidKeys };
@@ -70,12 +75,12 @@ export function readAdMobIosConfig(env: Env, publicConfig?: AdMobIosPublicConfig
     config: {
       enabled: true,
       isTesting: testMode,
-      iosBannerAdUnitId: units.banner,
-      iosInterstitialAdUnitId: units.interstitial,
-      iosRewardedAdUnitId: units.rewarded,
-      androidBannerAdUnitId: '',
-      androidInterstitialAdUnitId: '',
-      androidRewardedAdUnitId: '',
+      iosBannerAdUnitId: platform === 'ios' ? units.banner : '',
+      iosInterstitialAdUnitId: platform === 'ios' ? units.interstitial : '',
+      iosRewardedAdUnitId: platform === 'ios' ? units.rewarded : '',
+      androidBannerAdUnitId: platform === 'android' ? units.banner : '',
+      androidInterstitialAdUnitId: platform === 'android' ? units.interstitial : '',
+      androidRewardedAdUnitId: platform === 'android' ? units.rewarded : '',
       testingDevices,
     },
   };

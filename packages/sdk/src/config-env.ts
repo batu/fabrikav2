@@ -14,6 +14,12 @@ export function isRevenueCatIosPublicKey(value: string | null | undefined): valu
   return typeof value === 'string' && /^appl_[A-Za-z0-9]{27}$/.test(value);
 }
 
+/** RevenueCat Android public SDK keys are safe client identifiers, but only
+ * the canonical goog_ form may select real production commerce. */
+export function isRevenueCatAndroidPublicKey(value: string | null | undefined): value is string {
+  return typeof value === 'string' && /^goog_[A-Za-z0-9]{28}$/.test(value);
+}
+
 export function requiredValue(
   value: string | null,
   diagnostic = 'Config value was read after missing-key validation.',

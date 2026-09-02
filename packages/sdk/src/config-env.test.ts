@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { isRevenueCatIosPublicKey, parseChoiceEnv } from './config-env.ts';
+import { isRevenueCatAndroidPublicKey, isRevenueCatIosPublicKey, parseChoiceEnv } from './config-env.ts';
 
 describe('isRevenueCatIosPublicKey', () => {
   it('accepts only the observed production iOS public key shape', () => {
@@ -15,6 +15,14 @@ describe('isRevenueCatIosPublicKey', () => {
     `appl_${'a'.repeat(26)}-`,
   ])('rejects placeholder, test, wrong-prefix, whitespace, or malformed key: %s', (value) => {
     expect(isRevenueCatIosPublicKey(value)).toBe(false);
+  });
+});
+
+describe('isRevenueCatAndroidPublicKey', () => {
+  it('accepts only owner public goog_ keys', () => {
+    expect(isRevenueCatAndroidPublicKey(`goog_${'a'.repeat(28)}`)).toBe(true);
+    expect(isRevenueCatAndroidPublicKey('test_placeholder_key')).toBe(false);
+    expect(isRevenueCatAndroidPublicKey('goog_bad-key')).toBe(false);
   });
 });
 

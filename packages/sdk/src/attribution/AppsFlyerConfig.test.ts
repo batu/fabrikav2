@@ -25,9 +25,12 @@ describe('readAppsFlyerConfig', (): void => {
     });
   });
 
-  it('fails closed on Android until a native bridge exists', (): void => {
+  it('enables Android with the dev key and no Apple app id', (): void => {
     const result = readAppsFlyerConfig('android', { VITE_APPSFLYER_ENABLED: 'true', VITE_APPSFLYER_DEV_KEY: DEV_KEY }, false);
-    expect(result).toMatchObject({ enabled: false, reason: expect.stringContaining('iOS bridge unavailable') });
+    expect(result).toEqual({
+      enabled: true,
+      config: { devKey: DEV_KEY, appleAppId: null, debugLogging: false, sharingPartners: [] },
+    });
   });
 
   it('disables when the enable flag is absent', (): void => {
@@ -40,8 +43,8 @@ describe('readAppsFlyerConfig', (): void => {
     const web = readAppsFlyerConfig('web', enabledEnv, false);
     const blank = readAppsFlyerConfig('', enabledEnv, false);
 
-    expect(web).toMatchObject({ enabled: false, reason: 'AppsFlyer iOS bridge unavailable on web platform' });
-    expect(blank).toMatchObject({ enabled: false, reason: 'AppsFlyer iOS bridge unavailable on web platform' });
+    expect(web).toMatchObject({ enabled: false, reason: 'AppsFlyer native bridge unavailable on web platform' });
+    expect(blank).toMatchObject({ enabled: false, reason: 'AppsFlyer native bridge unavailable on web platform' });
   });
 
   it('names missing keys per platform', (): void => {
@@ -58,7 +61,7 @@ describe('readAppsFlyerConfig', (): void => {
       missingKeys: ['VITE_APPSFLYER_DEV_KEY', 'VITE_APPSFLYER_APPLE_APP_ID'],
     });
     expect(iosNoAppId).toMatchObject({ enabled: false, missingKeys: ['VITE_APPSFLYER_APPLE_APP_ID'] });
-    expect(android).toMatchObject({ enabled: false, reason: expect.stringContaining('iOS bridge unavailable'), missingKeys: [] });
+    expect(android).toMatchObject({ enabled: false, missingKeys: ['VITE_APPSFLYER_DEV_KEY'] });
   });
 
   it('fails closed when a partner allowlist is requested', (): void => {

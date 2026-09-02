@@ -7,7 +7,7 @@ import { computeIncludePlugins } from "./src/sdk/includePlugins";
 import adMobPublicConfig from "./config/admob.public.json";
 
 const config = {
-  appId: "com.basegamelab.find_the_dog.dev",
+  appId: "com.basegamelab.findthedog",
   appName: "Find the Dog",
   webDir: "dist",
   // Explicit native plugin allowlist. @capacitor-firebase/analytics configures

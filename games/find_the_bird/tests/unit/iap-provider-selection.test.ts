@@ -52,6 +52,31 @@ describe('FTD IAP provider selection', () => {
     })).toThrow('VITE_REVENUECAT_IOS_API_KEY');
   });
 
+  it('uses RevenueCat on native Android and never disguises fake commerce as iOS', () => {
+    const android = createSdkContext({
+      buildEnv: 'production',
+      platform: 'android',
+      isNativePlatform: true,
+      env: { VITE_REVENUECAT_ANDROID_API_KEY: `goog_${'a'.repeat(28)}` },
+    });
+    expect(android.selection.iap).toBe('revenuecat');
+    expect(android.iapComposition.platform()).toBe('android');
+
+    const web = createSdkContext({ buildEnv: 'development', platform: 'web', isNativePlatform: false, env: {} });
+    expect(web.iapComposition.platform()).toBe('web');
+    expect(web.iapComposition.isNativePlatform()).toBe(false);
+  });
+
+  it('fails closed for production native Android without a valid public key', () => {
+    expect(() => createSdkContext({
+      buildEnv: 'production', platform: 'android', isNativePlatform: true, env: {},
+    })).toThrow('VITE_REVENUECAT_ANDROID_API_KEY');
+    expect(() => createSdkContext({
+      buildEnv: 'production', platform: 'android', isNativePlatform: true,
+      env: { VITE_REVENUECAT_ANDROID_API_KEY: 'test_placeholder_key' },
+    })).toThrow('valid RevenueCat Android public key');
+  });
+
   it.each([
     'test_placeholder_key',
     '__SET_IN_LOCAL_ENV__',

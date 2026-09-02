@@ -40,10 +40,10 @@ export function readAppsFlyerConfig(
     };
   }
 
-  if (platform !== 'ios') {
+  if (platform !== 'ios' && platform !== 'android') {
     return {
       enabled: false,
-      reason: `AppsFlyer iOS bridge unavailable on ${platform || 'web'} platform`,
+      reason: `AppsFlyer native bridge unavailable on ${platform || 'web'} platform`,
       missingKeys: [],
     };
   }
@@ -54,7 +54,7 @@ export function readAppsFlyerConfig(
   if (sharingPartners.length > 0) {
     return {
       enabled: false,
-      reason: 'partner allowlisting is unsupported by the AppsFlyer iOS SDK; keep deny-all and activate reviewed partners in the dashboard',
+      reason: 'partner allowlisting is unsupported by the AppsFlyer native bridge; keep deny-all and activate reviewed partners in the dashboard',
       missingKeys: [],
     };
   }

@@ -1,0 +1,24 @@
+dependencies {
+    implementation 'com.appsflyer:af-android-sdk:6.17.3'
+}
+
+android {
+    defaultConfig {
+        applicationId 'com.basegamelab.findthebird'
+        versionCode Integer.parseInt(System.getenv('PLAY_VERSION_CODE') ?: '1')
+        versionName System.getenv('PLAY_VERSION_NAME') ?: '1.2.0'
+        manifestPlaceholders.admobApplicationId = System.getenv('VITE_ADMOB_ANDROID_APP_ID') ?: ''
+    }
+    signingConfigs {
+        release {
+            def keyFile = System.getenv('PLAY_UPLOAD_KEYSTORE_PATH')
+            def keyAliasValue = System.getenv('PLAY_UPLOAD_KEY_ALIAS')
+            def keyPasswordValue = System.getenv('PLAY_UPLOAD_KEY_PASSWORD')
+            def storePasswordValue = System.getenv('PLAY_UPLOAD_STORE_PASSWORD')
+            if (keyFile && keyAliasValue && keyPasswordValue && storePasswordValue) {
+                storeFile file(keyFile); keyAlias keyAliasValue; keyPassword keyPasswordValue; storePassword storePasswordValue
+            }
+        }
+    }
+    buildTypes { release { if (System.getenv('PLAY_UPLOAD_KEYSTORE_PATH')) signingConfig signingConfigs.release; debuggable false } }
+}

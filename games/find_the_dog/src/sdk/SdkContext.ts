@@ -4,14 +4,12 @@ import {
   type SdkBuildEnv,
   type SdkEnvironments,
 } from '@fabrikav2/sdk';
-import { isRevenueCatIosPublicKey } from '@fabrikav2/sdk/config-env';
+import { isRevenueCatIosPublicKey, parseBooleanEnv } from '@fabrikav2/sdk/config-env';
 import {
   AdMobProvider,
-  AppLovinMaxProvider,
   defaultAdProviderFactories,
   type AdProvider as SdkAdProvider,
   type AdProviderFactories,
-  type AppLovinConfigResult as SdkAppLovinConfigResult,
 } from '@fabrikav2/sdk/ads';
 import {
   createAnalytics,
@@ -42,8 +40,7 @@ import {
 import { setMusicPausedForAd } from '../audio/AudioManager';
 import { bootstrapStorage, type BootstrapStorage } from '../platform/bootstrapStorage';
 import { gameState } from '../core/GameState';
-import { readAppLovinConfigForPlatform } from '../ads/AppLovinConfig';
-import { readAdMobIosConfig } from '../ads/AdMobConfig';
+import { readAdMobConfig } from '../ads/AdMobConfig';
 import { configureAdService } from '../ads/Service';
 import {
   analytics,
@@ -128,13 +125,12 @@ export function createSdkContext(deps: CreateSdkContextDependencies = {}): GameS
 
   let analyticsFacade: Analytics<FtdEvent> | null = null;
   let forwardAcquisitionValueEvent: (event: Parameters<AppsFlyerEventMapper['map']>[0]) => Promise<boolean> = async () => false;
-  const appLovinConfig: SdkAppLovinConfigResult = readAppLovinConfigForPlatform('android', env);
-  const adMobConfig = readAdMobIosConfig(env);
+  const adMobConfig = readAdMobConfig(platform === 'android' ? 'android' : 'ios', env);
   const lifecycle = {
     onFullScreenAdStarted: (): void => setMusicPausedForAd(true),
     onFullScreenAdFinished: (): void => setMusicPausedForAd(false),
   };
-  const ads = platform === 'ios'
+  const ads = platform === 'ios' || platform === 'android'
     ? isNativePlatform && adMobConfig.enabled
       ? new AdMobProvider(adMobConfig.config, {
           lifecycle,
@@ -144,18 +140,7 @@ export function createSdkContext(deps: CreateSdkContextDependencies = {}): GameS
           }),
         })
       : defaultAdProviderFactories.createDisabledProvider(`AdMob unavailable: ${adMobConfig.enabled ? 'not running on a native platform' : adMobConfig.reason}`)
-    : platform === 'android' && appLovinConfig.enabled
-      ? deps.adProviderFactories?.createAppLovinMaxProvider(appLovinConfig.config, lifecycle) ?? new AppLovinMaxProvider(appLovinConfig.config, {
-          lifecycle,
-          onAdRevenuePaid: (event): void => {
-            analyticsFacade?.track('ad_revenue_paid', { ...event });
-          },
-        })
-      : defaultAdProviderFactories.createDisabledProvider(
-          platform === 'android' && 'reason' in appLovinConfig
-            ? `AppLovin unavailable: ${appLovinConfig.reason}`
-            : `ads disabled on ${platform}`,
-        );
+    : defaultAdProviderFactories.createDisabledProvider(`ads disabled on ${platform}`);
 
   const adjustConfig = readAdjustIosConfig(env, buildEnv === 'production');
   const resolvedAdjustConfig = adjustConfig.enabled
@@ -223,7 +208,8 @@ export function createSdkContext(deps: CreateSdkContextDependencies = {}): GameS
   });
 
   const catalogProducts = () => buildShopCatalog().products.map(ftdCatalogProduct);
-  const rawRevenueCatKey = typeof env.VITE_REVENUECAT_IOS_API_KEY === 'string' ? env.VITE_REVENUECAT_IOS_API_KEY : null;
+  const revenueCatEnvName = platform === 'android' ? 'VITE_REVENUECAT_ANDROID_API_KEY' : 'VITE_REVENUECAT_IOS_API_KEY';
+  const rawRevenueCatKey = typeof env[revenueCatEnvName] === 'string' ? env[revenueCatEnvName] : null;
   const revenueCatKey = envString(rawRevenueCatKey ?? undefined);
   if (platform === 'ios' && isNativePlatform && revenueCatKey !== null && !isRevenueCatIosPublicKey(rawRevenueCatKey)) {
     throw new Error('Native iOS requires a valid RevenueCat iOS public key (appl_ plus 27 alphanumeric characters)');
@@ -231,9 +217,15 @@ export function createSdkContext(deps: CreateSdkContextDependencies = {}): GameS
   if (buildEnv === 'production' && platform === 'ios' && isNativePlatform && revenueCatKey === null) {
     throw new Error('Production native iOS requires owner-controlled VITE_REVENUECAT_IOS_API_KEY');
   }
+  if (platform === 'android' && isNativePlatform && revenueCatKey !== null && !isRevenueCatAndroidPublicKey(rawRevenueCatKey)) {
+    throw new Error('Native Android requires a valid RevenueCat Android public key (goog_ plus 28 alphanumeric characters)');
+  }
+  if (buildEnv === 'production' && platform === 'android' && isNativePlatform && revenueCatKey === null) {
+    throw new Error('Production native Android requires owner-controlled VITE_REVENUECAT_ANDROID_API_KEY');
+  }
   let purchaseProvider: PurchaseProvider;
   let iapSelection: SdkProviderSelection['iap'] = 'fake';
-  if (platform === 'ios' && isNativePlatform && revenueCatKey !== null) {
+  if ((platform === 'ios' || platform === 'android') && isNativePlatform && revenueCatKey !== null) {
     purchaseProvider = new RevenueCatProvider({
       plugin: createLazyRevenueCatPlugin(deps.revenueCatLoader ?? (() => import('@revenuecat/purchases-capacitor'))),
       catalogProducts,
@@ -241,8 +233,8 @@ export function createSdkContext(deps: CreateSdkContextDependencies = {}): GameS
     });
     iapSelection = 'revenuecat';
   } else {
-    if (platform === 'ios' && isNativePlatform && revenueCatKey === null) {
-      logger.warn('[iap] RELEASE BLOCKER: native iOS is using FakePurchaseProvider because VITE_REVENUECAT_IOS_API_KEY is absent');
+    if ((platform === 'ios' || platform === 'android') && isNativePlatform && revenueCatKey === null) {
+      logger.warn(`[iap] RELEASE BLOCKER: native ${platform} is using FakePurchaseProvider because ${revenueCatEnvName} is absent`);
     }
     purchaseProvider = new FakePurchaseProvider({
       products: buildShopCatalog().products.map(ftdDefaultStoreProduct),
@@ -252,13 +244,14 @@ export function createSdkContext(deps: CreateSdkContextDependencies = {}): GameS
   const iapComposition: FindTheDogIapComposition = {
     // Preserve the current seeded fake web service as ready while still selecting
     // the provider from the real production matrix.
-    isNativePlatform: () => iapSelection === 'fake' ? true : isNativePlatform,
-    platform: () => iapSelection === 'fake' ? 'ios' : platform,
+    isNativePlatform: () => isNativePlatform,
+    platform: () => platform,
     apiKey: () => apiKey,
     provider: () => purchaseProvider,
   };
 
-  const firebaseRemoteProvider = platform === 'ios' && isNativePlatform
+  const remoteConfigDisabled = parseBooleanEnv(env.VITE_FTD_DISABLE_REMOTE_CONFIG, false);
+  const firebaseRemoteProvider = platform === 'ios' && isNativePlatform && !remoteConfigDisabled
     ? createFirebaseRemoteConfigProvider()
     : undefined;
   const remoteConfig = createFtdRemoteConfigService(firebaseRemoteProvider, firebaseRemoteProvider);
@@ -332,6 +325,10 @@ function envString(value: string | boolean | undefined): string | null {
   if (typeof value !== 'string') return null;
   const trimmed = value.trim();
   return trimmed.length > 0 ? trimmed : null;
+}
+
+function isRevenueCatAndroidPublicKey(value: string | null | undefined): value is string {
+  return typeof value === 'string' && /^goog_[A-Za-z0-9]{28}$/.test(value);
 }
 
 async function fetchMirrorTransport(request: Parameters<MirrorTransport>[0]): Promise<{ ok: boolean; status: number }> {

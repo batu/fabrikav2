@@ -196,6 +196,7 @@ function syntheticFixture(policy) {
 export function runDryRun({ mode, policy }) {
   if (!MODES.has(mode)) throw new Error(`unsupported mode: ${mode}`);
   const fixture = syntheticFixture(policy);
+  policy.configureSyntheticFixture?.(fixture, mode);
   const positive = validateResolvedValues({ values: fixture, mode, policy });
   if (positive.missingKeys.length || positive.invalidKeys.length) {
     throw new Error('complete synthetic fixture did not pass');

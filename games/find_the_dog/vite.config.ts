@@ -48,12 +48,22 @@ function injectIosEnvironment(root: string): void {
   for (const [key, value] of readEnvFile(path.join(root, '.env.ios.local')).values) {
     if (!canonicalEnvironmentKeys.has(key) || !keyAppliesToMode(key, 'ios')) continue;
     injectedEnvironment.set(key, process.env[key]);
-    process.env[key] = value;
+    // Explicit launcher values own one-off lanes such as verify-device's
+    // harness build; the protected file supplies only missing defaults.
+    if (process.env[key] === undefined) process.env[key] = value;
   }
 }
 
 function envPrefixesForMode(mode: string): string[] {
-  return FIND_THE_DOG_ENV_KEYS.filter((key) => keyAppliesToMode(key, mode));
+  return FIND_THE_DOG_ENV_KEYS.filter((key) => {
+    if (!keyAppliesToMode(key, mode)) return false;
+    // Do not serialize the harness flag into a native store bundle merely to
+    // expose the value "false". Explicit harness builds still opt it in.
+    if ((mode === 'ios' || mode === 'android') && key === 'VITE_ENABLE_TEST_HARNESS') {
+      return process.env.VITE_ENABLE_TEST_HARNESS === 'true';
+    }
+    return true;
+  });
 }
 
 export function resolveFindTheDogViteConfig(mode: string, root = gameRoot): UserConfig {
@@ -68,6 +78,7 @@ export function resolveFindTheDogViteConfig(mode: string, root = gameRoot): User
     envPrefix: envPrefixesForMode(mode),
     publicDir: nativeMode ? false : undefined,
     plugins: nativeMode ? [nativePublicBundlePlugin(path.join(root, 'public'))] : [],
+    build: nativeMode ? { sourcemap: false } : undefined,
     server: { port: 5199 },
     resolve: { alias },
   });

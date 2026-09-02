@@ -193,6 +193,7 @@ describe('environment validation', () => {
       VITE_APPLOVIN_IOS_ENABLED: 'false',
       VITE_REVENUECAT_IOS_API_KEY: 'appl_A1b2C3d4E5f6G7h8I9j0K1l2M3n',
       VITE_CDN_ENABLED: 'false',
+      VITE_REVENUECAT_ANDROID_API_KEY: `goog_${'a'.repeat(28)}`,
     };
 
     const invalidChoice = validateEnvironment({
@@ -238,6 +239,28 @@ describe('environment validation', () => {
     expect(result.ok).toBe(false);
     expect(result.invalidKeys).toContain(key);
     expect(JSON.stringify(result)).not.toContain(value);
+  });
+
+  it('rejects any noncanonical Firebase project even when it is not the known legacy ID', () => {
+    const root = makeGameRoot();
+    const result = validateEnvironment({
+      gameRoot: root,
+      mode: 'ios',
+      policy,
+      environment: {
+        VITE_FTD_DISABLE_REMOTE_CONFIG: 'false',
+        VITE_FIREBASE_PROJECT_ID: 'other-owned-project',
+        VITE_GAMEANALYTICS_IOS_ENABLED: 'false',
+        VITE_ADJUST_IOS_ENABLED: 'false',
+        VITE_ADMOB_IOS_ENABLED: 'false',
+        VITE_ADMOB_IOS_TEST_MODE: 'false',
+        VITE_REVENUECAT_IOS_API_KEY: 'appl_A1b2C3d4E5f6G7h8I9j0K1l2M3n',
+        VITE_CDN_ENABLED: 'false',
+      },
+    });
+
+    expect(result.ok).toBe(false);
+    expect(result.invalidKeys).toContain('VITE_FIREBASE_PROJECT_ID');
   });
 
   it('rejects external-stack residue in active runtime and store metadata files', () => {
@@ -357,9 +380,13 @@ describe('environment validation', () => {
     },
     {
       mode: 'android',
-      enabled: 'VITE_APPLOVIN_ANDROID_ENABLED',
-      required: ['VITE_APPLOVIN_ANDROID_SDK_KEY'],
-      invalid: ['VITE_APPLOVIN_ANDROID_GENERAL_AUDIENCE_ONLY'],
+      enabled: 'VITE_ADMOB_ANDROID_ENABLED',
+      required: [
+        'VITE_ADMOB_ANDROID_APP_ID',
+        'VITE_ADMOB_ANDROID_BANNER_ID',
+        'VITE_ADMOB_ANDROID_INTERSTITIAL_ID',
+        'VITE_ADMOB_ANDROID_REWARDED_ID',
+      ],
     },
   ])('requires enabled-provider configuration for $mode $enabled', ({ mode, enabled, required, invalid = [] }) => {
     const root = makeGameRoot();
@@ -371,6 +398,7 @@ describe('environment validation', () => {
       VITE_ADMOB_IOS_ENABLED: 'false',
       VITE_ADMOB_IOS_TEST_MODE: 'false',
       VITE_REVENUECAT_IOS_API_KEY: 'appl_A1b2C3d4E5f6G7h8I9j0K1l2M3n',
+      VITE_REVENUECAT_ANDROID_API_KEY: `goog_${'a'.repeat(28)}`,
       VITE_APPLOVIN_ANDROID_ENABLED: 'false',
       [enabled]: 'true',
     };
@@ -441,6 +469,7 @@ describe('environment validation', () => {
     write(root, '.env.android.local', [
       'VITE_FTD_DISABLE_REMOTE_CONFIG=false',
       'VITE_APPLOVIN_ANDROID_ENABLED=false',
+      'VITE_ADMOB_ANDROID_ENABLED=false',
       'VITE_CDN_ENABLED=',
       '',
     ].join('\n'));
@@ -449,7 +478,7 @@ describe('environment validation', () => {
       gameRoot: root,
       mode: 'android',
       policy,
-      environment: { VITE_CDN_ENABLED: 'false' },
+      environment: { VITE_CDN_ENABLED: 'false', VITE_REVENUECAT_ANDROID_API_KEY: `goog_${'a'.repeat(28)}` },
     });
 
     expect(result.ok).toBe(true);
@@ -478,13 +507,13 @@ describe('environment validation', () => {
 });
 
 describe('canonical template', () => {
-  it('contains the exact 69-key placeholder-only contract with one comment per assignment', () => {
+  it('contains the exact 71-key placeholder-only contract with one comment per assignment', () => {
     const templatePath = path.join(repoRoot, 'games/find_the_dog/.env.example');
     const result = validateTemplate(templatePath, policy);
 
     expect(result.ok).toBe(true);
     expect(result.keys).toEqual([...FIND_THE_DOG_ENV_KEYS].sort());
-    expect(result.keys).toHaveLength(69);
+    expect(result.keys).toHaveLength(71);
   });
 
   it('rejects duplicate assignments even when the final key set is exact', () => {
@@ -498,23 +527,28 @@ describe('canonical template', () => {
 });
 
 describe('Vite mode configuration', () => {
-  it('force-loads iOS values, restores them for later modes, and exposes only canonical prefixes', () => {
+  it('preserves launcher overrides, fills missing iOS defaults, restores later modes, and exposes only canonical prefixes', () => {
     const root = makeGameRoot();
     const key = 'VITE_REVENUECAT_IOS_API_KEY';
+    const missingKey = 'VITE_GAMEANALYTICS_IOS_GAME_KEY';
     const unknownKey = 'VITE_UNKNOWN_BUILD_OVERRIDE';
     const previous = process.env[key];
+    const previousMissing = process.env[missingKey];
     const previousUnknown = process.env[unknownKey];
     process.env[key] = 'ambient-value';
+    delete process.env[missingKey];
     process.env[unknownKey] = 'ambient-unknown';
     write(root, '.env.ios.local', [
       `export ${key}="ios-local-value"`,
+      `${missingKey}=ios-local-default`,
       `${unknownKey}=ios-local-unknown`,
       '',
     ].join('\n'));
 
     try {
       const ios = resolveFindTheDogViteConfig('ios', root);
-      expect(process.env[key]).toBe('ios-local-value');
+      expect(process.env[key]).toBe('ambient-value');
+      expect(process.env[missingKey]).toBe('ios-local-default');
       expect(process.env[unknownKey]).toBe('ambient-unknown');
       expect(ios.publicDir).toBe(false);
       expect(ios.plugins?.some((plugin) => plugin && plugin.name === 'ftd-native-public-bundle')).toBe(true);
@@ -525,6 +559,7 @@ describe('Vite mode configuration', () => {
 
       const android = resolveFindTheDogViteConfig('android', root);
       expect(process.env[key]).toBe('ambient-value');
+      expect(process.env[missingKey]).toBeUndefined();
       expect(android.publicDir).toBe(false);
       expect(android.plugins?.some((plugin) => plugin && plugin.name === 'ftd-native-public-bundle')).toBe(true);
       expect(android.envPrefix).toContain('VITE_REVENUECAT_ANDROID_API_KEY');
@@ -542,6 +577,8 @@ describe('Vite mode configuration', () => {
       resolveFindTheDogViteConfig('android', root);
       if (previous === undefined) delete process.env[key];
       else process.env[key] = previous;
+      if (previousMissing === undefined) delete process.env[missingKey];
+      else process.env[missingKey] = previousMissing;
       if (previousUnknown === undefined) delete process.env[unknownKey];
       else process.env[unknownKey] = previousUnknown;
     }
