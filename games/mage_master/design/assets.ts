@@ -1,0 +1,164 @@
+import iconBack from "./assets/icon-control-back.png";
+import iconHome from "./assets/icon-control-home.png";
+import iconPause from "./assets/icon-control-pause.png";
+import iconPlay from "./assets/icon-control-play.png";
+import iconSettings from "./assets/icon-control-settings.png";
+import ribbonFail from "./assets/ribbon-fail.svg?url";
+import ribbonNeutral from "./assets/ribbon-neutral.svg?url";
+import ribbonWin from "./assets/ribbon-win.svg?url";
+import panel from "./assets/panel.svg?url";
+import buttonPrimary from "./assets/button-primary.svg?url";
+import buttonSecondary from "./assets/button-secondary.svg?url";
+
+/**
+ * Generated art is bound by file name so a sprite that has not landed yet
+ * resolves to undefined and the renderer draws a placeholder. Adding a unit
+ * or icon = dropping `unit-<kind>.png` / `icon-<name>.png` into ./assets.
+ */
+const generated = import.meta.glob("./assets/*.png", { eager: true, query: "?url", import: "default" }) as Record<
+  string,
+  string
+>;
+
+function generatedUrl(name: string): string | undefined {
+  return generated[`./assets/${name}.png`];
+}
+
+export const assetUrls = {
+  chrome: {
+    back: iconBack,
+    home: iconHome,
+    pause: iconPause,
+    play: iconPlay,
+    settings: iconSettings,
+  },
+  ribbon: { win: ribbonWin, fail: ribbonFail, neutral: ribbonNeutral },
+  panel,
+  button: { primary: buttonPrimary, secondary: buttonSecondary },
+} as const;
+
+/** Generated chrome icon with the Kenney seed as fallback until the art lands. */
+export function chromeIcon(name: "home" | "settings" | "back" | "pause"): string {
+  return generatedUrl(`icon-nav-${name}`) ?? assetUrls.chrome[name];
+}
+
+/** Level-ladder node art (kit `--fab-levelmap-art-*`), undefined until generated. */
+export function nodeArt(state: "current" | "locked" | "completed"): string | undefined {
+  return generatedUrl(`node-${state}`);
+}
+
+/** Camp props drawn at the party's camp line. */
+export function propSprite(name: "campfire" | "tent"): string | undefined {
+  return generatedUrl(`prop-${name}`);
+}
+
+/** Lettering art (title, victory, defeat, summoned, welcome). */
+export function lettering(name: "title" | "victory" | "defeat" | "summoned" | "welcome"): string | undefined {
+  return generatedUrl(`lettering-${name}`);
+}
+
+const scenes = import.meta.glob("./assets/scene-*.jpg", { eager: true, query: "?url", import: "default" }) as Record<string, string>;
+
+/** Painted scene backgrounds (opaque JPEG). */
+export function scene(name: "home" | "rift"): string | undefined {
+  return scenes[`./assets/scene-${name}.jpg`];
+}
+
+/** Painted ground plate per arena theme (repeats vertically in the battle scene). */
+export function groundScene(theme: string): string | undefined {
+  return scenes[`./assets/scene-ground-${theme}.jpg`];
+}
+
+/** Ornate 9-slice frames for panels, buttons, and portraits. */
+export function frame(name: "panel" | "button" | "button-dark" | "portrait"): string | undefined {
+  return generatedUrl(`frame-${name}`);
+}
+
+/** Environment props by arena theme, in placement order. */
+export const THEME_PROPS: Readonly<Record<string, readonly string[]>> = {
+  sand: ["rock-sand", "cactus", "bones"],
+  forest: ["rock-forest", "grass", "stump"],
+  swamp: ["mushroom", "puddle", "roots"],
+};
+
+export function allPropSprites(): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const [path, url] of Object.entries(generated)) {
+    const m = /\/prop-(.+)\.png$/.exec(path);
+    if (m?.[1]) out[m[1]] = url;
+  }
+  return out;
+}
+
+/** Unit sprite by kind (`tank`, `goblin_grunt`, ...). */
+export function unitSprite(kind: string): string | undefined {
+  const name = kind.startsWith("goblin") || kind.startsWith("wolf") || kind.startsWith("slime") ? kind : `mage-${kind}`;
+  return generatedUrl(`unit-${name.replace(/_/g, "-")}`);
+}
+
+export function currencyIcon(currency: "energy" | "gold" | "crystal" | "gem"): string | undefined {
+  return generatedUrl(`icon-${currency}`);
+}
+
+export function weaponIcon(element: string): string | undefined {
+  return generatedUrl(`icon-weapon-${element}`);
+}
+
+export function armorIcon(cls: string): string | undefined {
+  return generatedUrl(`icon-armor-${cls}`);
+}
+
+export function riftPortal(): string | undefined {
+  return generatedUrl("icon-rift-portal");
+}
+
+/** Every generated unit url, for renderer preloads. */
+export function allUnitSprites(): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const [path, url] of Object.entries(generated)) {
+    const m = /\/unit-(.+)\.png$/.exec(path);
+    if (!m?.[1]) continue;
+    const kind = m[1].replace(/^mage-/, "").replace(/-/g, "_");
+    out[kind] = url;
+  }
+  return out;
+}
+
+/** Which way each generated sprite faces as drawn (+1 right, -1 left); the renderer flips relative to this. */
+const ART_FACING: Readonly<Record<string, 1 | -1>> = {
+  wolf: -1,
+  wolf_alpha: -1,
+  warrior: -1,
+};
+
+export function spriteFacing(kind: string): 1 | -1 {
+  return ART_FACING[kind] ?? 1;
+}
+
+/** Tintable garment layer for a mage (luminance-only PNG split from the base). */
+export function garmentSprite(cls: string): string | undefined {
+  return generatedUrl(`garment-mage-${cls}`);
+}
+
+export interface MageAnchor {
+  /** Raised-hand position as a fraction of the composite canvas. */
+  readonly x: number;
+  readonly y: number;
+  /** Staff icon size relative to the canvas, rotation in degrees, and the pivot within the staff icon. */
+  readonly staffScale: number;
+  readonly staffAngle: number;
+  readonly staffPivotX: number;
+  readonly staffPivotY: number;
+  /** Draw the staff behind the body (hand in front of the shaft). */
+  readonly staffBehind: boolean;
+}
+
+const ANCHORS: Readonly<Record<string, MageAnchor>> = {
+  tank: { x: 0.15, y: 0.21, staffScale: 0.66, staffAngle: -6, staffPivotX: 0.44, staffPivotY: 0.56, staffBehind: true },
+  warrior: { x: 0.19, y: 0.32, staffScale: 0.62, staffAngle: -8, staffPivotX: 0.44, staffPivotY: 0.56, staffBehind: true },
+  support: { x: 0.27, y: 0.29, staffScale: 0.6, staffAngle: -4, staffPivotX: 0.44, staffPivotY: 0.56, staffBehind: true },
+};
+
+export function mageAnchor(cls: string): MageAnchor {
+  return ANCHORS[cls] ?? ANCHORS.tank!;
+}

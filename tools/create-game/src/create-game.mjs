@@ -240,7 +240,7 @@ function main() {
   const args = process.argv.slice(2);
   const fromIdx = args.indexOf('--from');
   const from = fromIdx >= 0 ? args[fromIdx + 1] : undefined;
-  const positional = args.filter((a, i) => a !== '--from' && i !== fromIdx + 1);
+  const positional = args.filter((a, i) => a !== '--from' && (fromIdx < 0 || i !== fromIdx + 1));
   const name = positional[0];
   const repoRoot = repoRootFrom(import.meta.url);
   let result;

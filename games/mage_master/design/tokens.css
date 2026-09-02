@@ -1,0 +1,130 @@
+/* Mage Master design tokens. Kit tokens (--fab-*) theme @fabrikav2/ui; game
+   tokens are namespaced --fab-mm-*. Palette: warm sand arena, dark wood ledge,
+   gold trim, cream text (Kingdom Rush: no gradients, muted saturation, no pure black). */
+:root,
+.fab-ui {
+  --fab-color-surface: #efdcb0;
+  --fab-color-overlay-scrim: rgba(38, 22, 10, 0.62);
+  --fab-color-text: #fff3d6;
+  --fab-color-text-muted: #d9c39a;
+  --fab-color-accent: #e8b84a;
+  --fab-color-on-accent: #3a2410;
+  --fab-color-secondary-surface: #7a4a22;
+  --fab-color-on-secondary: #fff3d6;
+  --fab-color-secondary-border: #4a2c14;
+  --fab-space-sm: 8px;
+  --fab-space-md: 14px;
+  --fab-space-lg: 22px;
+  --fab-radius-sm: 8px;
+  --fab-radius-md: 14px;
+  --fab-radius-pill: 999px;
+  --fab-font-family: "Arial Rounded MT Bold", "Helvetica Neue", -apple-system, system-ui, sans-serif;
+  --fab-font-size-sm: 12px;
+  --fab-font-size-md: 15px;
+  --fab-font-size-lg: 19px;
+  --fab-font-weight-normal: 600;
+  --fab-font-weight-bold: 800;
+  --fab-shadow-button: 0 4px 0 #4a2c14, 0 8px 16px rgba(38, 22, 10, 0.28);
+  --fab-shadow-button-active: 0 1px 0 #4a2c14;
+  --fab-shadow-modal: 0 18px 40px rgba(38, 22, 10, 0.45);
+  --fab-btn-color: #3a2410;
+  --fab-btn-radius: 14px;
+  --fab-btn-min-size: 48px;
+  --fab-btn-padding: 12px 22px;
+  --fab-btn-font-size: 17px;
+  --fab-modal-card-border: 3px solid #4a2c14;
+  --fab-pause-title-color: #fff3d6;
+  --fab-ribbon-title-color: #fff3d6;
+  --fab-ribbon-eyebrow-color: #e8b84a;
+  --fab-ribbon-title-outline: #3a2410;
+  --fab-result-reward-color: #e8b84a;
+  --fab-toast-bg: #3a2410;
+  --fab-toast-color: #fff3d6;
+  --fab-toggle-track-off: #5b3a1e;
+  --fab-toggle-thumb: #fff3d6;
+  --fab-page-card-bg: #5b3a1e;
+  --fab-safe-top: env(safe-area-inset-top);
+  --fab-page-overlay-bg: #3a2410;
+  --fab-levelmap-node-size: 50px;
+  --fab-levelmap-node-current-size: 66px;
+  --fab-levelmap-node-font: 20px;
+  --fab-levelmap-node-current-font: 30px;
+  --fab-levelmap-node-gap: 4px;
+  --fab-levelmap-offset: 28px;
+  --fab-levelmap-path-width: 220px;
+  --fab-levelmap-node-color: #fff3d6;
+  --fab-levelmap-dot-color: #fff3d6;
+  --fab-levelmap-locked-dot-color: #9c8460;
+  --fab-levelmap-line-glow: 0 0 0 3px rgba(232, 184, 74, 0.25);
+  --fab-levelmap-node-bg: #7a4a22;
+  --fab-levelmap-node-color: #fff3d6;
+  --fab-levelmap-current-bg: #e8b84a;
+  --fab-levelmap-current-color: #3a2410;
+  --fab-levelmap-completed-bg: #7f9c4a;
+  --fab-levelmap-completed-color: #fff3d6;
+  --fab-levelmap-locked-bg: #4a2c14;
+  --fab-levelmap-locked-color: #9c8460;
+  --fab-levelmap-line-top: #e8b84a;
+  --fab-levelmap-line-mid: #c69a3c;
+  --fab-levelmap-line-bottom: #7a4a22;
+
+  /* Game surfaces */
+  --fab-mm-sand: #e9d3a6;
+  --fab-mm-sand-deep: #d9bf8c;
+  --fab-mm-ground-sand: #e9d3a6;
+  --fab-mm-ground-sand-deep: #d9bf8c;
+  --fab-mm-ground-forest: #c9d2a1;
+  --fab-mm-ground-forest-deep: #aebb85;
+  --fab-mm-ground-swamp: #d8c6df;
+  --fab-mm-ground-swamp-deep: #bfa9c9;
+  --fab-mm-ledge: #5b3a1e;
+  --fab-mm-ledge-edge: #3f2612;
+  --fab-mm-wood: #7a4a22;
+  --fab-mm-wood-dark: #4a2c14;
+  --fab-mm-wood-light: #9a6231;
+  --fab-mm-ink: #3a2410;
+  --fab-mm-cream: #fff3d6;
+  --fab-mm-cream-dim: #d9c39a;
+  --fab-mm-gold: #e8b84a;
+  --fab-mm-gold-deep: #b98722;
+  --fab-mm-hp: #d4472f;
+  --fab-mm-hp-track: #2b1a10;
+  --fab-mm-energy: #f2d34c;
+  --fab-mm-crystal: #a56cf5;
+  --fab-mm-gem: #4fd6e8;
+  --fab-mm-success: #7f9c4a;
+  --fab-mm-danger: #b9331c;
+
+  /* Rarity ages */
+  --fab-mm-rarity-common: #9a9a92;
+  --fab-mm-rarity-uncommon: #6fae4b;
+  --fab-mm-rarity-rare: #3f8fd8;
+  --fab-mm-rarity-epic: #9b5de5;
+  --fab-mm-rarity-legendary: #f19a2b;
+  --fab-mm-rarity-mythic: #e63b4f;
+  --fab-mm-rarity-immortal: #2fd6c9;
+  --fab-mm-rarity-astral: #ff6fd8;
+  --fab-mm-rarity-celestial: #ffd84a;
+  --fab-mm-rarity-ultimate: #ffffff;
+
+  /* Elements */
+  --fab-mm-element-fire: #f26a2a;
+  --fab-mm-element-ice: #7cc6ff;
+  --fab-mm-element-lightning: #ffe14a;
+  --fab-mm-element-arcane: #b56cff;
+
+  /* Layout */
+  --fab-mm-topbar-height: 52px;
+  --fab-mm-nav-height: 72px;
+  --fab-mm-hud-height: 150px;
+  --fab-mm-content-max: 430px;
+  --fab-mm-title-size: 34px;
+  --fab-mm-battle-title-size: 18px;
+}
+
+@font-face {
+  font-family: "Kenney Future";
+  src: url("./fonts/kenney-future.ttf") format("truetype");
+  font-weight: 400 800;
+  font-display: swap;
+}
