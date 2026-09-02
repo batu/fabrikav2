@@ -52,8 +52,10 @@ describe('FTD SdkContext composition matrix', () => {
       env: {
         PROD: true,
         VITE_REVENUECAT_IOS_API_KEY: 'appl_A1b2C3d4E5f6G7h8I9j0K1l2M3n',
-        VITE_GAMEANALYTICS_IOS_GAME_KEY: 'g'.repeat(32),
-        VITE_GAMEANALYTICS_IOS_SECRET_KEY: 's'.repeat(40),
+        VITE_GAMEANALYTICS_IOS_ENABLED: 'true',
+        VITE_GAMEANALYTICS_IOS_GAME_ID: 'find_the_bird',
+        VITE_GAMEANALYTICS_IOS_GAME_KEY: 'a'.repeat(32),
+        VITE_GAMEANALYTICS_IOS_SECRET_KEY: 'b'.repeat(40),
         VITE_ADJUST_IOS_ENABLED: 'true',
         VITE_ADJUST_IOS_APP_TOKEN: 'a'.repeat(12),
         VITE_ADJUST_IOS_ENVIRONMENT: 'production',
@@ -266,5 +268,53 @@ describe('FTD SdkContext composition matrix', () => {
       },
     });
     expect(context.selection.ads).toBe('admob');
+  });
+
+  it('reports GameAnalytics selection reason and safe runtime provenance', () => {
+    vi.stubGlobal('__BUILD_INFO__', { version: '1.2.0', sha: 'abc123', dirty: false });
+    const disabled = createSdkContext({ buildEnv: 'development', platform: 'ios', env: {} });
+    const enabled = createSdkContext({
+      buildEnv: 'development',
+      platform: 'ios',
+      env: {
+        VITE_GAMEANALYTICS_IOS_ENABLED: 'true',
+        VITE_GAMEANALYTICS_IOS_GAME_ID: 'find_the_bird',
+        VITE_GAMEANALYTICS_IOS_GAME_KEY: 'a'.repeat(32),
+        VITE_GAMEANALYTICS_IOS_SECRET_KEY: 'b'.repeat(40),
+      },
+      gameAnalyticsLoader: vi.fn(async () => ({
+        GameAnalytics: {
+          setEnabledInfoLog: vi.fn(), setEnabledVerboseLog: vi.fn(),
+          configureAvailableResourceCurrencies: vi.fn(), configureAvailableResourceItemTypes: vi.fn(),
+          initialize: vi.fn(), isSdkReady: vi.fn(() => true),
+          addProgressionEvent: vi.fn(), addDesignEvent: vi.fn(),
+          addResourceEvent: vi.fn(), addAdEvent: vi.fn(),
+        },
+        EGAProgressionStatus: { Start: 1, Complete: 2, Fail: 3 },
+        EGAResourceFlowType: { Source: 1, Sink: 2 },
+        EGAAdAction: { Show: 1, FailedShow: 2, RewardReceived: 3 },
+        EGAAdType: { Banner: 1, Interstitial: 2, RewardedVideo: 3 },
+      })),
+    });
+
+    enabled.analytics.track('dog_found');
+    expect(enabled.analyticsRing.drain()[0]?.params).toMatchObject({
+      game: 'find_the_bird',
+      platform: 'ios',
+      build: expect.any(String),
+      app_version: '1.2.0',
+      environment: 'development',
+    });
+    expect(disabled.analyticsDiagnostics().gameAnalytics).toEqual({
+      enabled: false,
+      reason: 'GameAnalytics iOS is disabled',
+    });
+    expect(enabled.analyticsDiagnostics()).toMatchObject({
+      game: 'find_the_bird',
+      environment: 'development',
+      platform: 'ios',
+      selectedSinks: expect.arrayContaining(['ring-buffer', 'gameanalytics']),
+      gameAnalytics: { enabled: true, reason: null },
+    });
   });
 });

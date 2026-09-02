@@ -23,6 +23,7 @@ export interface GameAnalyticsSdk {
     configureAvailableResourceCurrencies(values: string[]): void;
     configureAvailableResourceItemTypes(values: string[]): void;
     initialize(gameKey: string, secretKey: string): void;
+    isSdkReady?(needsInitialized: boolean, warn?: boolean): boolean;
     addProgressionEvent(status: number, p1: string, p2?: string, p3?: string, score?: number, fields?: Record<string, unknown>): void;
     addDesignEvent(eventId: string, value?: number, fields?: Record<string, unknown>): void;
     addResourceEvent(flow: number, currency: string, amount: number, category: string, itemId: string, fields?: Record<string, unknown>): void;
@@ -41,38 +42,71 @@ export interface GameAnalyticsAnalyticsSinkOptions {
   readonly logger?: Pick<Console, 'warn'>;
 }
 
+export interface GameAnalyticsSink extends AnalyticsSink {
+  diagnostics(): {
+    readonly queued: number;
+    readonly sent: number;
+    readonly retried: number;
+    readonly dropped: number;
+    readonly initializationFailure: string | null;
+    readonly flushAttempts: number;
+    readonly lastSuccessfulFlushAt: null;
+  };
+}
+
 /** GameAnalytics is an additive AnalyticsSink. It never becomes a second event
  * authority: canonical facade envelopes are translated with FTD's existing
  * progression/design/resource/ad mappers. */
 export function createGameAnalyticsSink(
   config: GameAnalyticsIosConfig,
   options: GameAnalyticsAnalyticsSinkOptions = {},
-): AnalyticsSink {
+): GameAnalyticsSink {
   const loader = options.loader ?? (() => import('gameanalytics'));
   const logger = options.logger ?? console;
   let sdk: GameAnalyticsSdk | null = null;
   let disabled = false;
   let initPromise: Promise<void> | null = null;
   const queue: AnalyticsEvent[] = [];
+  let sent = 0;
+  let dropped = 0;
+  let flushAttempts = 0;
+  let initializationFailure: string | null = null;
+  function send(loaded: GameAnalyticsSdk, event: AnalyticsEvent): void {
+    if (dispatch(loaded, event)) sent += 1;
+    else dropped += 1;
+  }
 
   function init(): Promise<void> {
     if (sdk !== null || disabled) return Promise.resolve();
     if (initPromise !== null) return initPromise;
     initPromise = loader()
-      .then((module): void => {
+      .then(async (module): Promise<void> => {
         const loaded = unwrapSdk(module);
         loaded.GameAnalytics.setEnabledInfoLog(config.verboseLogging);
         loaded.GameAnalytics.setEnabledVerboseLog(config.verboseLogging);
         loaded.GameAnalytics.configureAvailableResourceCurrencies([...GAMEANALYTICS_RESOURCE_CURRENCIES]);
         loaded.GameAnalytics.configureAvailableResourceItemTypes([...GAMEANALYTICS_RESOURCE_ITEM_TYPES]);
         loaded.GameAnalytics.initialize(config.gameKey, config.secretKey);
+        await waitForSdkReady(loaded.GameAnalytics);
+        while (queue.length > 0) {
+          const event = queue.shift();
+          if (event === undefined) break;
+          try {
+            send(loaded, event);
+          } catch (error) {
+            dropped += 1 + queue.length;
+            queue.length = 0;
+            throw error;
+          }
+        }
         sdk = loaded;
-        for (const event of queue.splice(0)) dispatch(loaded, event);
       })
       .catch((error: unknown): void => {
         disabled = true;
+        dropped += queue.length;
         queue.length = 0;
-        logger.warn('[analytics:gameanalytics] initialization failed', error);
+        initializationFailure = errorKind(error);
+        logger.warn(`[analytics:gameanalytics] initialization failed (${initializationFailure})`);
       });
     return initPromise;
   }
@@ -80,30 +114,64 @@ export function createGameAnalyticsSink(
   return {
     name: 'gameanalytics',
     emit(event): void {
-      if (disabled) return;
+      if (disabled) {
+        dropped += 1;
+        return;
+      }
       if (sdk !== null) {
-        dispatch(sdk, event);
+        try {
+          send(sdk, event);
+        } catch (error) {
+          dropped += 1;
+          throw error;
+        }
         return;
       }
       queue.push(event);
       void init();
     },
     async flush(): Promise<void> {
+      flushAttempts += 1;
       await init();
     },
+    diagnostics() {
+      return {
+        queued: queue.length,
+        sent,
+        retried: 0,
+        dropped,
+        initializationFailure,
+        flushAttempts,
+        // GameAnalytics exposes no backend delivery acknowledgement.
+        lastSuccessfulFlushAt: null,
+      };
+    },
   };
+}
+
+async function waitForSdkReady(api: GameAnalyticsSdk['GameAnalytics']): Promise<void> {
+  if (api.isSdkReady === undefined) return;
+  const deadline = Date.now() + 10_000;
+  while (!api.isSdkReady(true, false)) {
+    if (Date.now() >= deadline) throw new Error('GameAnalytics SDK did not become ready within 10 seconds');
+    await new Promise((resolve) => setTimeout(resolve, 50));
+  }
+}
+
+function errorKind(error: unknown): string {
+  return error instanceof Error && error.name.trim() ? error.name : 'UnknownError';
 }
 
 function unwrapSdk(module: unknown): GameAnalyticsSdk {
   const record = isRecord(module) ? module : {};
   const candidate = isRecord(record.default) ? record.default : record;
-  if (!isRecord(candidate.GameAnalytics)) {
+  if (!isRecord(candidate.GameAnalytics) && typeof candidate.GameAnalytics !== 'function') {
     throw new Error('GameAnalytics JavaScript SDK did not expose GameAnalytics');
   }
   return candidate as unknown as GameAnalyticsSdk;
 }
 
-function dispatch(sdk: GameAnalyticsSdk, event: AnalyticsEvent): void {
+function dispatch(sdk: GameAnalyticsSdk, event: AnalyticsEvent): boolean {
   const params = event.params;
   const levelId = String(params.level_id ?? 'unknown');
   if (event.name === 'level_start') return trackProgression(sdk, levelProgressionEvent('start', levelId, undefined, params));
@@ -120,7 +188,7 @@ function dispatch(sdk: GameAnalyticsSdk, event: AnalyticsEvent): void {
   const ad = mappedAdEvent(event);
   if (ad !== null) return trackAd(sdk, ad);
 
-  trackDesign(sdk, designEvent(
+  return trackDesign(sdk, designEvent(
     gameAnalyticsDesignEventId(event.name, params),
     params,
     numberParam(params.value ?? params.revenue_usd),
@@ -139,24 +207,27 @@ function mappedAdEvent(event: AnalyticsEvent): GameAnalyticsAdEvent | null {
   return null;
 }
 
-function trackProgression(sdk: GameAnalyticsSdk, event: GameAnalyticsProgressionEvent): void {
+function trackProgression(sdk: GameAnalyticsSdk, event: GameAnalyticsProgressionEvent): true {
   const status = sdk.EGAProgressionStatus[
     event.status === 'start' ? 'Start' : event.status === 'complete' ? 'Complete' : 'Fail'
   ];
   sdk.GameAnalytics.addProgressionEvent(status, event.progression01, event.progression02, event.progression03, event.score, event.customFields);
+  return true;
 }
 
-function trackDesign(sdk: GameAnalyticsSdk, event: GameAnalyticsDesignEvent): void {
+function trackDesign(sdk: GameAnalyticsSdk, event: GameAnalyticsDesignEvent): true {
   sdk.GameAnalytics.addDesignEvent(event.eventId, event.value, event.customFields);
+  return true;
 }
 
-function trackResource(sdk: GameAnalyticsSdk, event: GameAnalyticsResourceEvent): void {
-  if (event.amount <= 0) return;
+function trackResource(sdk: GameAnalyticsSdk, event: GameAnalyticsResourceEvent): boolean {
+  if (event.amount <= 0) return false;
   const flow = event.flowType === 'source' ? sdk.EGAResourceFlowType.Source : sdk.EGAResourceFlowType.Sink;
   sdk.GameAnalytics.addResourceEvent(flow, event.currency, event.amount, event.category, event.itemId, event.customFields);
+  return true;
 }
 
-function trackAd(sdk: GameAnalyticsSdk, event: GameAnalyticsAdEvent): void {
+function trackAd(sdk: GameAnalyticsSdk, event: GameAnalyticsAdEvent): true {
   const actionKeys = {
     show: 'Show',
     failed_show: 'FailedShow',
@@ -176,6 +247,7 @@ function trackAd(sdk: GameAnalyticsSdk, event: GameAnalyticsAdEvent): void {
   const action = sdk.EGAAdAction[actionKeys[event.action]];
   const typeKey = typeKeys[event.adType];
   sdk.GameAnalytics.addAdEvent(action, sdk.EGAAdType[typeKey], event.sdkName, event.placement, event.customFields);
+  return true;
 }
 
 function mappedAdType(value: unknown): GameAnalyticsAdEvent['adType'] {
