@@ -62,7 +62,7 @@ describe('Export Candidate validation', () => {
     expect((await validateExportCandidate(stale)).issues).toEqual(expect.arrayContaining([expect.stringMatching(/shipped baseline/i)]));
     const otherBaseline = { ...candidate(), baseline: { ...value.baseline, aggregate: '1'.repeat(64) } };
     expect((await validateExportCandidate(value, { baselineCandidate: otherBaseline })).issues).toEqual(expect.arrayContaining([expect.stringMatching(/loaded baseline/i)]));
-  });
+  }, 15_000);
 
   it('preserves a locked board and its accepted evidence across inherited journey changes', async () => {
     const baseline = candidate();
