@@ -326,7 +326,7 @@ export function mountMageMasterScreen(opts: MageMasterScreenOptions): MageMaster
       title.append(img(titleArt, "mm-home__title-art", copy["game.title"]));
       hero.append(title);
     } else {
-      hero.append(el("h1", "mm-home__title", copy["game.title"]), el("p", "mm-home__subtitle", copy["menu.subtitle"]));
+      hero.append(el("h1", "mm-home__title", copy["game.title"]));
     }
     const party = el("div", "mm-party");
     if (artScene("home")) party.classList.add("mm-party--scene");
@@ -413,7 +413,7 @@ export function mountMageMasterScreen(opts: MageMasterScreenOptions): MageMaster
     if (artScene("rift")) art.classList.add("mm-rift__art--scene");
     const portal = img(riftPortal(), "mm-rift__portal");
     art.append(portal);
-    stageInner.append(art, el("p", "mm-rift__blurb", copy["rift.blurb"]));
+    stageInner.append(art);
     stage.append(stageInner);
 
     const pullBtn = buildButtonElement({
@@ -549,8 +549,13 @@ export function mountMageMasterScreen(opts: MageMasterScreenOptions): MageMaster
       }
       return col;
     };
+    const powerBefore = itemPower(current);
+    const powerAfter = itemPower(item);
+    const powerDelta = powerAfter - powerBefore;
+    const powerTrend = powerDelta > 0 ? "up" : powerDelta < 0 ? "down" : "same";
     const head = el("div", "mm-compare__head");
-    const arrow = el("span", "mm-compare__arrow");
+    // The arrow carries the verdict: green for a power gain, red for a loss.
+    const arrow = el("span", `mm-compare__arrow mm-compare__arrow--${powerTrend}`);
     arrow.setAttribute("aria-hidden", "true");
     head.append(column(copy["compare.equipped"], current, false), arrow, column(copy["compare.new"], item, true));
     wrap.append(head);
@@ -576,16 +581,13 @@ export function mountMageMasterScreen(opts: MageMasterScreenOptions): MageMaster
     wrap.append(table);
     if (item.weapon) wrap.append(el("p", "mm-item__effect", copy[`element.${item.weapon.element}.effect`]));
 
-    const powerBefore = itemPower(current);
-    const powerAfter = itemPower(item);
-    const powerDelta = powerAfter - powerBefore;
     const power = el("p", "mm-compare__power");
     power.append(
       el("span", "mm-compare__power-label", copy["mages.power"]),
       el("span", "mm-compare__cur", String(powerBefore)),
       el("span", "mm-compare__power-arrow"),
       el("span", "mm-compare__next", String(powerAfter)),
-      el("span", `mm-compare__delta mm-compare__delta--${powerDelta > 0 ? "up" : powerDelta < 0 ? "down" : "same"}`, powerDelta === 0 ? "" : `${powerDelta > 0 ? "+" : ""}${powerDelta}`),
+      el("span", `mm-compare__delta mm-compare__delta--${powerTrend}`, powerDelta === 0 ? "" : `${powerDelta > 0 ? "+" : ""}${powerDelta}`),
     );
     wrap.append(power);
     return wrap;
@@ -595,7 +597,7 @@ export function mountMageMasterScreen(opts: MageMasterScreenOptions): MageMaster
     const mages = el("main", "mm-mages");
     const head = el("header", "mm-page__head");
     head.append(el("h1", "mm-page__title", copy["mages.title"]));
-    mages.append(head, el("p", "mm-page__blurb", copy["mages.blurb"]));
+    mages.append(head);
     for (const cls of MAGE_CLASSES) {
       const loadout = snap.loadout[cls];
       const stats = mageStats(cls, loadout);
@@ -643,7 +645,7 @@ export function mountMageMasterScreen(opts: MageMasterScreenOptions): MageMaster
     const shopPage = el("main", "mm-shop");
     const head = el("header", "mm-page__head");
     head.append(el("h1", "mm-page__title", copy["shop.title"]));
-    shopPage.append(head, el("p", "mm-page__blurb", copy["shop.blurb"]));
+    shopPage.append(head);
     const host = el("div", "mm-shop__host");
     shopPage.append(host);
     shop = mountShopPage<GemGrant>({

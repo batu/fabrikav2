@@ -20,6 +20,8 @@ interface UnitVisual {
   readonly root: Phaser.GameObjects.Container;
   readonly sprite: Phaser.GameObjects.Image;
   readonly shadow: Phaser.GameObjects.Ellipse;
+  /** Sprite y that puts the feet on the shadow (the art has transparent rows below the feet). */
+  readonly footY: number;
   readonly hpBar: Phaser.GameObjects.Graphics | null;
   readonly offset: { x: number; y: number };
   readonly squash: { x: number; y: number };
@@ -313,6 +315,33 @@ class Scene extends Phaser.Scene {
     return { key: this.textures.exists(`unit-${kind}`) ? `unit-${kind}` : "unit-missing", bodyHeight: null };
   }
 
+  private readonly footInsets = new Map<string, number>();
+
+  /** Transparent rows below the feet as a fraction of the texture height, sampled once per texture. */
+  private footInset(key: string): number {
+    const cached = this.footInsets.get(key);
+    if (cached !== undefined) return cached;
+    let inset = 0;
+    const source = this.textures.get(key).getSourceImage() as HTMLImageElement | HTMLCanvasElement;
+    const w = 64;
+    const h = 96;
+    const canvas = document.createElement("canvas");
+    canvas.width = w;
+    canvas.height = h;
+    const ctx = canvas.getContext("2d", { willReadFrequently: true });
+    if (ctx && source.width > 0 && source.height > 0) {
+      ctx.drawImage(source, 0, 0, w, h);
+      const data = ctx.getImageData(0, 0, w, h).data;
+      let bottom = h - 1;
+      scan: for (; bottom >= 0; bottom -= 1) {
+        for (let x = 0; x < w; x += 1) if ((data[(bottom * w + x) * 4 + 3] ?? 0) > 40) break scan;
+      }
+      inset = bottom < 0 ? 0 : (h - 1 - bottom) / h;
+    }
+    this.footInsets.set(key, inset);
+    return inset;
+  }
+
   private ensureVisual(unit: Unit): UnitVisual {
     const existing = this.visuals.get(unit.id);
     if (existing) return existing;
@@ -322,6 +351,8 @@ class Scene extends Phaser.Scene {
     const sprite = this.add.image(0, 0, texture.key).setOrigin(0.5, 1);
     const scale = height / (texture.bodyHeight ?? sprite.height);
     sprite.setScale(scale);
+    const footY = this.footInset(texture.key) * sprite.displayHeight;
+    sprite.y = footY;
     const shadow = this.add.ellipse(0, 2, height * 0.62, height * 0.2, p("ink"), 0.22);
     const root = this.add.container(unit.pos.x, unit.pos.y, [shadow, sprite]).setDepth(DEPTH.unit + unit.pos.y / 1000);
     let hpBar: Phaser.GameObjects.Graphics | null = null;
@@ -334,6 +365,7 @@ class Scene extends Phaser.Scene {
       root,
       sprite,
       shadow,
+      footY,
       hpBar,
       offset: { x: 0, y: 0 },
       squash: { x: 1, y: 1 },
@@ -725,7 +757,7 @@ class Scene extends Phaser.Scene {
       v.root.x = pos.x + v.offset.x;
       v.root.y = pos.y + v.offset.y;
       v.root.setDepth(DEPTH.unit + (pos.y - view.campY + 1000) / 1000);
-      v.sprite.y = -Math.abs(bob) * (moving ? 1 : 0.5) - (moving ? 0 : bob * 0.5);
+      v.sprite.y = v.footY - Math.abs(bob) * (moving ? 1 : 0.5) - (moving ? 0 : bob * 0.5);
       v.sprite.setScale(v.baseScale * v.squash.x * (moving ? 1 + Math.abs(Math.sin(t * 7 + v.bobPhase)) * 0.03 : 1), v.baseScale * v.squash.y);
       v.sprite.flipX = unit.facing !== spriteFacing(unit.kind);
       v.sprite.angle = moving ? Math.sin(t * 14 + v.bobPhase) * 4 : 0;

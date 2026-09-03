@@ -3,7 +3,6 @@ export const copyLocale = "en";
 
 export const copy = {
   "game.title": "Mage Master",
-  "menu.subtitle": "Summon. Equip. Push deeper.",
   "menu.play": "Play",
   "menu.level": "Level",
   "menu.levelShort": "Lv",
@@ -40,7 +39,6 @@ export const copy = {
   "rift.skip": "Skip for {gems} gems",
   "rift.skipOne": "Skip for 1 gem",
   "rift.ready": "Upgrade complete",
-  "rift.blurb": "Better odds pull rarer gear. Rarer gear clears deeper levels.",
   "rift.needCrystals": "Not enough crystals",
   "rift.needGold": "Not enough gold",
   "rift.needGems": "Not enough gems",
@@ -57,7 +55,6 @@ export const copy = {
   "mages.weapon": "Weapon",
   "mages.armor": "Armor",
   "mages.power": "Power",
-  "mages.blurb": "Mages never level. All power comes from their two items.",
   "mage.tank.name": "Bastion",
   "mage.warrior.name": "Ember",
   "mage.support.name": "Sage",
@@ -65,7 +62,6 @@ export const copy = {
   "mage.warrior.role": "Warrior",
   "mage.support.role": "Support",
   "shop.title": "Gem Shop",
-  "shop.blurb": "Gems skip Rift upgrade timers.",
   "shop.pack": "{gems} Gems",
   "shop.packDesc.small": "A pinch for a quick skip.",
   "shop.packDesc.medium": "A pouch for a busy Rift.",

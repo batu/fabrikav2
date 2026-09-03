@@ -661,8 +661,16 @@
 }
 
 .mm-root--minimal .mm-compare__arrow {
-  background: var(--fab-mm-min-accent);
+  background: var(--fab-mm-min-muted);
   color: var(--fab-mm-min-panel);
+}
+
+.mm-root--minimal .mm-compare__arrow--up {
+  background: var(--fab-mm-min-positive);
+}
+
+.mm-root--minimal .mm-compare__arrow--down {
+  background: var(--fab-mm-min-accent);
 }
 
 .mm-root--minimal .mm-compare__row {
