@@ -13,8 +13,6 @@ import type { Sfx } from "../game/sfx.ts";
 /** Base sprite height in world units for a scale-1 unit. */
 const UNIT_HEIGHT = 74;
 const HP_BAR_WIDTH = 40;
-/** World height of the dark ledge band below a camp line. */
-const LEDGE_BAND = 80;
 const DEPTH = { ground: 0, shadow: 1, unit: 10, projectile: 40, fx: 50, text: 60, banner: 80 } as const;
 
 interface UnitVisual {
@@ -78,7 +76,6 @@ class Scene extends Phaser.Scene {
   private prevTickCampY: number = ARENA.campLineY;
   private tickElapsed = -1;
   private ground!: Phaser.GameObjects.TileSprite;
-  private ledges: Phaser.GameObjects.Graphics[] = [];
   private crystals!: Phaser.GameObjects.Particles.ParticleEmitter;
   private sparks!: Phaser.GameObjects.Particles.ParticleEmitter;
   private dust!: Phaser.GameObjects.Particles.ParticleEmitter;
@@ -203,7 +200,7 @@ class Scene extends Phaser.Scene {
     this.cameraY = 0;
     this.cameras.main.setZoom(this.zoom());
     this.time0 = this.time.now;
-    this.drawLedge(ARENA.campLineY);
+    this.drawCamp(ARENA.campLineY);
     this.dressField(0, 0);
     if (this.minimal) return;
     // Edge vignette: a screen-fixed frame that darkens the borders slightly.
@@ -278,19 +275,9 @@ class Scene extends Phaser.Scene {
     g.destroy();
   }
 
-  private drawLedge(campY: number): void {
+  /** Camp dressing behind the party (classic skin only); the field itself is continuous ground. */
+  private drawCamp(campY: number): void {
     const p = this.palette;
-    const g = this.add.graphics().setDepth(DEPTH.ground + 1);
-    const top = campY + 26;
-    g.fillStyle(p("ledge-edge"), 1);
-    g.fillEllipse(ARENA.width / 2, top + 30, ARENA.width * 1.5, 120);
-    g.fillStyle(p("ledge"), 1);
-    g.fillEllipse(ARENA.width / 2, top + 36, ARENA.width * 1.5, 120);
-    // A band, not a whole field: the next camp's ledge is drawn while the party
-    // is still crossing the field below it, and must not paint over that field.
-    g.fillRect(-ARENA.width, top + 36, ARENA.width * 3, LEDGE_BAND);
-    this.ledges.push(g);
-    // Camp props sit on the ledge behind the party.
     if (this.minimal) return;
     if (this.textures.exists("prop-tent")) {
       this.add.image(ARENA.width * 0.12, campY + 28, "prop-tent").setOrigin(0.5, 1).setDisplaySize(64, 64).setDepth(DEPTH.ground + 2);
@@ -298,7 +285,7 @@ class Scene extends Phaser.Scene {
     if (this.textures.exists("prop-campfire")) {
       const fire = this.add.image(ARENA.width * 0.88, campY + 30, "prop-campfire").setOrigin(0.5, 1).setDisplaySize(44, 44).setDepth(DEPTH.ground + 2);
       this.tweens.add({ targets: fire, scaleX: fire.scaleX * 1.06, scaleY: fire.scaleY * 0.94, duration: 260, yoyo: true, repeat: -1, ease: "Sine.inOut" });
-      const embers = this.add.particles(fire.x, fire.y - 30, "dot", {
+      this.add.particles(fire.x, fire.y - 30, "dot", {
         speedY: { min: -40, max: -20 },
         speedX: { min: -8, max: 8 },
         scale: { start: 0.25, end: 0 },
@@ -307,7 +294,6 @@ class Scene extends Phaser.Scene {
         frequency: 140,
         tint: [p("element-fire"), p("gold")],
       }).setDepth(DEPTH.ground + 3);
-      this.ledges.push(embers as unknown as Phaser.GameObjects.Graphics);
     }
   }
 
@@ -683,9 +669,9 @@ class Scene extends Phaser.Scene {
         this.sfx?.play("stageClear");
         break;
       case "advance": {
-        // Dress the next camp before the party arrives so the run-forward lands on a drawn ledge.
+        // Dress the next camp before the party arrives.
         const nextStage = (this.controller.battleView()?.stage ?? 1) + 1;
-        this.drawLedge(event.toCampY);
+        this.drawCamp(event.toCampY);
         this.dressField(event.toCampY - ARENA.campLineY, nextStage - 1);
         break;
       }

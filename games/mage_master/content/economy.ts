@@ -40,6 +40,10 @@ export const ARENA = {
   /** How far the party runs forward between stages (one stage of field). */
   advanceDistance: 560,
   advanceSeconds: 1.2,
+  /** After a stage clear the party walks back into formation at its own move
+      speed (at most this long), then holds before the run-forward. */
+  regroupMaxSeconds: 2.2,
+  regroupHoldSeconds: 0.5,
   /** Soft separation between living units so clusters stay readable. Allies
       hold this distance (times average scale); opposing pairs may close to the
       attacker's reach so melee units still land hits. Per tick the push is at

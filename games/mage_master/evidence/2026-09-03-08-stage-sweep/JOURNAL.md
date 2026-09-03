@@ -45,3 +45,18 @@ counters (the kit's `animateEconomyTransfer`, ported from Find the Dog).
 
 Not done: boss readability (melee mages inside the boss silhouette) still
 needs an edge-to-edge reach; the wider ally radius does not address it.
+
+## Round 2 — ledge removed, regroup phase
+
+Batu: "Just remove that brown area … have the mages move into position
+slower before moving onto the next stage, right now it feels like snap."
+
+- The ledge graphics are gone (`drawLedge` → `drawCamp`, props only in the
+  classic skin); the field is continuous ground.
+- The snap had two parts: on the first advance tick every mage's y was set
+  straight to its home row, and at the end `pos = home`. New `regroup`
+  battle phase after a stage clear: the party walks home at its own move
+  speed (`ARENA.regroupMaxSeconds` 2.2 cap), holds `regroupHoldSeconds`
+  0.5, then the run-forward starts from formation, so both snaps vanish.
+- `regroup-burst-20f-130ms.png`: stage clear at f04, Ember and Bastion walk
+  back into formation f05–f14, settled beside Sage from f15, no brown.

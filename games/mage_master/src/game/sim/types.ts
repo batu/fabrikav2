@@ -102,7 +102,8 @@ export type BattleEvent =
   | { type: "levelWin"; loot: Loot }
   | { type: "levelLose"; loot: Loot };
 
-export type BattlePhase = "stage" | "advance" | "won" | "lost";
+/** `regroup`: the stage is clear and the party walks back into formation before the run-forward. */
+export type BattlePhase = "stage" | "regroup" | "advance" | "won" | "lost";
 
 export interface BattleView {
   readonly level: number;

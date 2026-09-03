@@ -76,6 +76,8 @@ export function createBattle(options: BattleOptions): Battle {
   let pending: PendingSpawn[] = [];
   let nextId = 1;
   let advanceRemaining = 0;
+  let regroupRemaining = 0;
+  let regroupHold = 0;
   let advanceFrom = campY;
   let advanceTo = campY;
 
@@ -462,17 +464,40 @@ export function createBattle(options: BattleOptions): Battle {
         emit({ type: "levelWin", loot: { ...loot } });
         return;
       }
-      phase = "advance";
-      advanceFrom = campY;
-      advanceTo = campY - ARENA.advanceDistance;
-      advanceRemaining = ARENA.advanceSeconds;
+      phase = "regroup";
+      regroupRemaining = ARENA.regroupMaxSeconds;
+      regroupHold = ARENA.regroupHoldSeconds;
       for (const u of living("party")) {
-        u.home = { x: u.home.x, y: u.home.y - ARENA.advanceDistance };
         u.statuses = [];
         u.targetId = null;
       }
-      emit({ type: "advance", fromCampY: advanceFrom, toCampY: advanceTo, seconds: ARENA.advanceSeconds });
     }
+  };
+
+  /** Walk the party back into formation, hold a beat, then start the run-forward. */
+  const tickRegroup = (dt: number): void => {
+    regroupRemaining -= dt;
+    let settled = true;
+    for (const u of living("party")) {
+      const arrived = moveToward(u, u.home, dt, 1);
+      u.moving = !arrived;
+      if (!arrived) settled = false;
+      if (u.hp < u.maxHp) u.hp = Math.min(u.maxHp, u.hp + u.maxHp * 0.15 * dt);
+    }
+    if (settled) regroupHold -= dt;
+    if ((settled && regroupHold <= 0) || regroupRemaining <= 0) beginAdvance();
+  };
+
+  const beginAdvance = (): void => {
+    phase = "advance";
+    advanceFrom = campY;
+    advanceTo = campY - ARENA.advanceDistance;
+    advanceRemaining = ARENA.advanceSeconds;
+    for (const u of living("party")) {
+      u.home = { x: u.home.x, y: u.home.y - ARENA.advanceDistance };
+      u.facing = 1;
+    }
+    emit({ type: "advance", fromCampY: advanceFrom, toCampY: advanceTo, seconds: ARENA.advanceSeconds });
   };
 
   const tickAdvance = (dt: number): void => {
@@ -510,6 +535,10 @@ export function createBattle(options: BattleOptions): Battle {
     step(dt: number): void {
       if (phase === "won" || phase === "lost") return;
       elapsed += dt;
+      if (phase === "regroup") {
+        tickRegroup(dt);
+        return;
+      }
       if (phase === "advance") {
         tickAdvance(dt);
         return;
