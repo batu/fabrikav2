@@ -45,6 +45,38 @@ afterEach(() => {
 });
 
 describe('analytics lifecycle flush (session_end loss fix)', () => {
+  it('keeps the suspend transition pending until buffering sinks finish flushing', async () => {
+    let releaseFlush = (): void => {};
+    const sink: AnalyticsSink = {
+      name: 'delayed-buffer',
+      emit: vi.fn(),
+      flush: () => new Promise<void>((resolve) => { releaseFlush = resolve; }),
+    };
+    const service = new AnalyticsService({
+      sdk: createAnalytics({ env: 'test', sessionId: 'session', sinks: [sink] }),
+      storage: memoryStorage(),
+      storageDurability: 'durable',
+      firstOpenLocks: locks,
+    });
+    await service.init();
+
+    const suspending = setLifecycleForTest('inactive');
+    const duplicateSuspend = setLifecycleForTest('inactive');
+    let completed = false;
+    let duplicateCompleted = false;
+    void suspending.then(() => { completed = true; });
+    void duplicateSuspend.then(() => { duplicateCompleted = true; });
+    await Promise.resolve();
+    expect(completed).toBe(false);
+    expect(duplicateCompleted).toBe(false);
+
+    releaseFlush();
+    await suspending;
+    await duplicateSuspend;
+    expect(completed).toBe(true);
+    expect(duplicateCompleted).toBe(true);
+  });
+
   it('background flush reaches every buffering sink', async () => {
     const firstFlush = vi.fn(async () => undefined);
     const secondFlush = vi.fn(async () => undefined);
@@ -67,14 +99,16 @@ describe('analytics lifecycle flush (session_end loss fix)', () => {
     });
   });
 
-  it('marks first_open exactly once for the install profile', async () => {
+  it('emits one initial session when init is repeated sequentially or concurrently', async () => {
     const sessionStart = vi.spyOn(sdk(), 'sessionStart');
 
-    await analytics.init();
+    const first = analytics.init();
+    const concurrent = analytics.init();
+    await Promise.all([first, concurrent]);
     await analytics.init();
 
-    expect(sessionStart).toHaveBeenNthCalledWith(1, { first_open: true });
-    expect(sessionStart).toHaveBeenNthCalledWith(2, { first_open: false });
+    expect(sessionStart).toHaveBeenCalledTimes(1);
+    expect(sessionStart).toHaveBeenCalledWith({ first_open: true });
   });
 
   it('migrates durable Find the Dog game state without classifying an upgrade as first_open', async () => {
@@ -119,10 +153,15 @@ describe('analytics lifecycle flush (session_end loss fix)', () => {
     vi.spyOn(sdk(), 'flush').mockImplementation(async () => { events.push('flush'); });
 
     const initializing = analytics.init({ hadExistingStateAtBootstrap: false });
-    setLifecycleForTest('inactive');
+    const suspending = setLifecycleForTest('inactive');
+    let suspendCompleted = false;
+    void suspending.then(() => { suspendCompleted = true; });
+    await new Promise((resolve) => setTimeout(resolve, 0));
     expect(events).toEqual([]);
+    expect(suspendCompleted).toBe(false);
     releaseClaim();
     await initializing;
+    await suspending;
     await analytics.appOpen();
 
     expect(events).toEqual([
@@ -132,6 +171,7 @@ describe('analytics lifecycle flush (session_end loss fix)', () => {
       'flush',
       'app_open',
     ]);
+    expect(suspendCompleted).toBe(true);
   });
 
   it('reconciles suspend then resume during first-open claim without a resumed or background session', async () => {
@@ -187,6 +227,8 @@ describe('analytics lifecycle flush (session_end loss fix)', () => {
     setLifecycleForTest('active');
 
     expect(track).toHaveBeenCalledWith('app_foreground');
-    expect(sessionStart).toHaveBeenCalled();
+    expect(sessionStart).toHaveBeenCalledTimes(1);
+    setLifecycleForTest('active');
+    expect(sessionStart).toHaveBeenCalledTimes(1);
   });
 });

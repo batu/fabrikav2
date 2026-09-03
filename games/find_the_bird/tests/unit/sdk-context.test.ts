@@ -370,7 +370,9 @@ describe('FTD SdkContext composition matrix', () => {
         GameAnalytics: {
           setEnabledInfoLog: vi.fn(), setEnabledVerboseLog: vi.fn(),
           configureAvailableResourceCurrencies: vi.fn(), configureAvailableResourceItemTypes: vi.fn(),
-          initialize: vi.fn(), isSdkReady: vi.fn(() => true),
+          setEnabledManualSessionHandling: vi.fn(),
+          initialize: vi.fn(), startSession: vi.fn(), endSession: vi.fn(),
+          isSdkReady: vi.fn(() => true),
           addProgressionEvent: vi.fn(), addDesignEvent: vi.fn(),
           addResourceEvent: vi.fn(), addAdEvent: vi.fn(),
         },

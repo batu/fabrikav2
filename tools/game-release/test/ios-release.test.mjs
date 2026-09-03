@@ -5,6 +5,7 @@ import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 import { captureIosReleaseCandidate, defaultDependencies, deriveReleaseBuildId, executeIosRelease, finalizeIosReleaseCandidate, inspectBundle, inspectSignedIosApp, reviewReceiptPayload, validateReleaseEnvironment, verifyExactInstall, verifyReviewedGameplayEvidence } from '../src/ios-release.mjs';
+import { patchGameAnalyticsSource, verifyPatchedGameAnalyticsSource } from '../../patch-gameanalytics-persistence.mjs';
 
 const attestation = { manifestDigest: 'a'.repeat(64), sourceSha: 'b'.repeat(40) };
 const buildId = deriveReleaseBuildId(attestation.manifestDigest, attestation.sourceSha);
@@ -27,6 +28,25 @@ function attachReviewReceipt(evidence, privateKey) {
 }
 
 describe('iOS exact release lane', () => {
+  it('accepts exactly one persistence patch and rejects ambiguous or tampered SDK source', () => {
+    const before = 'delete-events; log-sent';
+    const after = 'delete-events; save-store; log-sent';
+    const markers = {
+      before,
+      after,
+      unpatchedSha256: crypto.createHash('sha256').update(before).digest('hex'),
+      patchedSha256: crypto.createHash('sha256').update(after).digest('hex'),
+    };
+
+    expect(patchGameAnalyticsSource(before, markers)).toBe(after);
+    expect(patchGameAnalyticsSource(after, markers)).toBe(after);
+    expect(() => patchGameAnalyticsSource(`${before}\n${before}`, markers)).toThrow(/digest|exactly one/i);
+    expect(() => patchGameAnalyticsSource(`${after}\n${after}`, markers)).toThrow(/digest|exactly one/i);
+    expect(() => patchGameAnalyticsSource(`${after} tampered`, markers)).toThrow(/digest/i);
+    expect(() => verifyPatchedGameAnalyticsSource(before, markers)).toThrow(/not applied/i);
+    expect(verifyPatchedGameAnalyticsSource(after, markers)).toBeUndefined();
+  });
+
   it('stages an installed candidate without gameplay review, then finalizes it without rebuilding', () => {
     const root = fs.mkdtempSync(path.join(os.tmpdir(), 'ios-release-staged-'));
     const app = path.join(root, 'App.app'); fs.mkdirSync(app); fs.writeFileSync(path.join(app, 'payload.bin'), 'release');
@@ -97,6 +117,31 @@ describe('iOS exact release lane', () => {
       return '';
     } });
     expect(deps.queryInstalledApp({ bundleId: 'com.example.dog', device: { udid: 'PHONE' } })).toEqual({ bundleId: 'com.example.dog', version: '1.2.3', buildId });
+  });
+
+  it('force-applies the exact GameAnalytics persistence patch before the iOS web build', () => {
+    const calls = [];
+    const deps = defaultDependencies({
+      execImpl: (file, args, options) => {
+        calls.push({ file, args, cwd: options.cwd });
+        return '';
+      },
+    });
+
+    deps.buildWeb({ gameDir: '/repo/games/find_the_dog', env: {} });
+
+    expect(calls).toEqual([
+      {
+        file: 'node',
+        args: ['tools/patch-gameanalytics-persistence.mjs', '--verify'],
+        cwd: '/repo',
+      },
+      {
+        file: 'npm',
+        args: ['run', 'build:ios'],
+        cwd: '/repo/games/find_the_dog',
+      },
+    ]);
   });
 
   it('passes the requested marketing version to Xcode', () => {

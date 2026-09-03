@@ -9,3 +9,4 @@
 - 2026-07-11 — [separate-active-attempt-from-durable-progression](logic-errors/separate-active-attempt-from-durable-progression.md) — keep attempt identity separate from persisted progression and reward state
 - 2026-08-05 — [yolo-hitbox-anchored-label-corpus](logic-errors/yolo-hitbox-anchored-label-corpus.md) — sprite metadata lies as training labels; anchor centers on human hitboxes, size from local diff, gate misaligned sessions
 - 2026-08-05 — [one-to-one-matching-for-ranking-eval-metrics](best-practices/one-to-one-matching-for-ranking-eval-metrics.md) — any-overlap recall/precision are gameable; rank one-to-one, disclose legacy columns, hash the golden set, surface min-level recall
+- 2026-09-03 — [gameanalytics-wkwebview-session-runtime](logic-errors/gameanalytics-wkwebview-session-runtime.md) — persist successful queue deletion, idempotent boot, manual sessions, and recoverable readiness

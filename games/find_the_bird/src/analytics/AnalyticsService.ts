@@ -236,6 +236,7 @@ export class AnalyticsService {
     disabledReason: 'sdk-console-sink-only',
   });
   private cohortBucket: number | null = null;
+  private initPromise: Promise<void> | null = null;
 
   constructor(composition?: AnalyticsServiceComposition) {
     this.storage = composition?.storage ?? bootstrapStorage;
@@ -251,6 +252,7 @@ export class AnalyticsService {
   }
 
   configureComposition(composition: AnalyticsServiceComposition): void {
+    this.initPromise = null;
     this.sdk = composition.sdk;
     this.attributionPort = composition.attribution ?? attribution;
     this.providerNamePort = composition.providerName ?? (() => adService.providerName);
@@ -260,16 +262,30 @@ export class AnalyticsService {
     if (composition.firstOpenLocks !== undefined) this.firstOpenLocks = composition.firstOpenLocks;
   }
 
-  async init(options: {
+  init(options: {
     hadExistingStateAtBootstrap?: boolean;
     storageDurability?: FirstOpenStorageDurability;
   } = {}): Promise<void> {
+    if (this.initPromise !== null) return this.initPromise;
+    this.initPromise = this.initialize(options);
+    return this.initPromise;
+  }
+
+  private async initialize(options: {
+    hadExistingStateAtBootstrap?: boolean;
+    storageDurability?: FirstOpenStorageDurability;
+  }): Promise<void> {
     let initializing = true;
+    let pendingSuspend: Promise<void> | null = null;
+    let resolvePendingSuspend = (): void => {};
     const lifecycleState: { current: 'active' | 'inactive' } = { current: 'active' };
-    const suspend = (): void => {
+    const suspend = (): Promise<void> => {
       lifecycleState.current = 'inactive';
-      if (initializing) return;
-      this.flushForSuspend();
+      if (initializing) {
+        pendingSuspend ??= new Promise<void>((resolve) => { resolvePendingSuspend = resolve; });
+        return pendingSuspend;
+      }
+      return this.flushForSuspend();
     };
     const resume = (): void => {
       lifecycleState.current = 'active';
@@ -281,23 +297,28 @@ export class AnalyticsService {
       onSuspend: suspend,
       onResume: resume,
     });
-    const firstOpen = await claimFirstOpen({
-      storage: this.storage,
-      storageDurability: options.storageDurability ?? this.storageDurability,
-      profile: 'find_the_bird',
-      existingStateKeys: EXISTING_FIND_THE_BIRD_STATE_KEYS,
-      hadExistingStateAtBootstrap: options.hadExistingStateAtBootstrap,
-      locks: this.firstOpenLocks,
-    });
-    this.sdk.sessionStart({ first_open: firstOpen });
-    initializing = false;
-    if (lifecycleState.current === 'inactive') this.flushForSuspend();
+    try {
+      const firstOpen = await claimFirstOpen({
+        storage: this.storage,
+        storageDurability: options.storageDurability ?? this.storageDurability,
+        profile: 'find_the_bird',
+        existingStateKeys: EXISTING_FIND_THE_BIRD_STATE_KEYS,
+        hadExistingStateAtBootstrap: options.hadExistingStateAtBootstrap,
+        locks: this.firstOpenLocks,
+      });
+      this.sdk.sessionStart({ first_open: firstOpen });
+      initializing = false;
+      if (lifecycleState.current === 'inactive') await this.flushForSuspend();
+    } finally {
+      initializing = false;
+      resolvePendingSuspend();
+    }
   }
 
-  private flushForSuspend(): void {
+  private flushForSuspend(): Promise<void> {
     this.sdk.track('app_background');
     this.sdk.sessionEnd();
-    void this.sdk.flush();
+    return this.sdk.flush();
   }
 
   setCohortBucket(bucket: number): void {

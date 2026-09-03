@@ -20,6 +20,7 @@
     "tools/marble-run-difficulty-editor"
   ],
   "scripts": {
+    "postinstall": "node tools/patch-gameanalytics-persistence.mjs",
     "typecheck": "npm run typecheck --workspaces --if-present",
     "test": "npm run test:unit --workspaces --if-present",
     "test:unit": "npm run test:unit --workspaces --if-present",

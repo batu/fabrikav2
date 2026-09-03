@@ -263,7 +263,10 @@ describe('FTD SdkContext composition matrix', () => {
           setEnabledVerboseLog: vi.fn(),
           configureAvailableResourceCurrencies: vi.fn(),
           configureAvailableResourceItemTypes: vi.fn(),
+          setEnabledManualSessionHandling: vi.fn(),
           initialize: vi.fn(),
+          startSession: vi.fn(),
+          endSession: vi.fn(),
           isSdkReady: vi.fn(() => true),
           addProgressionEvent: vi.fn(),
           addDesignEvent,
@@ -411,7 +414,8 @@ describe('FTD SdkContext composition matrix', () => {
     expect(context.analyticsDiagnostics().sinks).not.toHaveProperty('console');
   });
 
-  it('keeps GameAnalytics initialization failure non-crashing and observable', async () => {
+  it('bounds permanent GameAnalytics initialization retries and reports the hard drop', async () => {
+    const gameAnalyticsLoader = vi.fn(async () => { throw new TypeError('secret-canary'); });
     const context = createSdkContext({
       buildEnv: 'production',
       platform: 'ios',
@@ -424,7 +428,7 @@ describe('FTD SdkContext composition matrix', () => {
         VITE_GAMEANALYTICS_IOS_SECRET_KEY: 'b'.repeat(40),
         VITE_FTD_DISABLE_REMOTE_CONFIG: 'true',
       },
-      gameAnalyticsLoader: vi.fn(async () => { throw new TypeError('secret-canary'); }),
+      gameAnalyticsLoader,
       gameAnalyticsIdentityPolicy: {
         approvedGameKeys: ['a'.repeat(32)],
         approvedSecretKeys: ['b'.repeat(40)],
@@ -435,11 +439,14 @@ describe('FTD SdkContext composition matrix', () => {
     context.analytics.track('app_open');
     await expect(context.analytics.flush()).resolves.toBeUndefined();
 
+    expect(gameAnalyticsLoader).toHaveBeenCalledTimes(3);
     expect(context.analyticsDiagnostics().sinks.gameanalytics).toMatchObject({
       queued: 0,
       sent: 0,
+      retried: 2,
       dropped: 1,
       initializationFailure: 'TypeError',
+      flushAttempts: 1,
       lastSuccessfulFlushAt: null,
     });
     expect(JSON.stringify(context.analyticsDiagnostics())).not.toContain('secret-canary');
