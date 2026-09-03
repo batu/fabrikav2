@@ -1213,6 +1213,8 @@ export function mountMageMasterScreen(opts: MageMasterScreenOptions): MageMaster
     }
     root.dataset.fabState = snap.surface;
     sfx.setEnabled(snap.settings.sfx);
+    sfx.setMusicEnabled(snap.settings.music);
+    sfx.music(nextPage === "battle" ? "battle" : "menu");
     if (snap.surface !== previousSurface) {
       if (snap.surface === "win") sfx.play("win");
       if (snap.surface === "fail") sfx.play("lose");
@@ -1234,7 +1236,10 @@ export function mountMageMasterScreen(opts: MageMasterScreenOptions): MageMaster
 
   const unsubscribe = controller.subscribe(refresh);
   const onVisibility = (): void => {
-    if (document.visibilityState === "visible") controller.wake();
+    if (document.visibilityState === "visible") {
+      controller.wake();
+      sfx.resume();
+    }
   };
   document.addEventListener("visibilitychange", onVisibility);
   const timer = window.setInterval(() => {

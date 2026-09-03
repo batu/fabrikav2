@@ -6,6 +6,7 @@ import "./shell/mage-master-minimal.css";
 import { assignWindowBindings, maybeRunInsituTour } from "@fabrikav2/testkit/testing";
 import { gameConfig } from "../game.config.ts";
 import { createMageMasterController } from "./game/MageMasterController.ts";
+import { createSfx } from "./game/sfx.ts";
 import { mountMageMasterScreen } from "./shell/MageMasterScreen.ts";
 import { createMageMasterHarness } from "./shell/harness.ts";
 import { installDevDrive } from "./dev/devDrive.ts";
@@ -13,8 +14,9 @@ import { itemPower } from "./game/economy/items.ts";
 
 export function bootGame(mountInto: HTMLElement) {
   const controller = createMageMasterController({ env: import.meta.env.MODE === "test" ? "test" : "development" });
-  const screen = mountMageMasterScreen({ mountInto, controller });
-  return { controller, screen, config: gameConfig };
+  const sfx = createSfx();
+  const screen = mountMageMasterScreen({ mountInto, controller, sfx });
+  return { controller, screen, sfx, config: gameConfig };
 }
 
 export function harnessWindowKeyForGame(gameId: string): string {
@@ -40,7 +42,7 @@ if (appRoot) {
     if (import.meta.env.DEV) {
       installDevDrive(harness);
       // Dev-only handle for eval-driven inspection (fast-forwarding a battle, reading views).
-      (window as unknown as Record<string, unknown>).__MM_DEV = { controller: boot.controller, screen: boot.screen, harness, itemPower };
+      (window as unknown as Record<string, unknown>).__MM_DEV = { controller: boot.controller, screen: boot.screen, sfx: boot.sfx, harness, itemPower };
     }
   }
 }

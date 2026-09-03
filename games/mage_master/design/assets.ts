@@ -188,3 +188,10 @@ const ANCHORS: Readonly<Record<string, MageAnchor>> = {
 export function mageAnchor(cls: string): MageAnchor {
   return ANCHORS[cls] ?? ANCHORS.tank!;
 }
+
+/** Sound clips (Kenney CC0, see ./audio/LICENSE-KENNEY-AUDIO.txt) by file stem: `sfx-hit`, `music-menu`. */
+const audio = import.meta.glob("./audio/*.wav", { eager: true, query: "?url", import: "default" }) as Record<string, string>;
+
+export function audioClip(name: string): string | undefined {
+  return audio[`./audio/${name}.wav`];
+}

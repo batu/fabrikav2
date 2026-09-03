@@ -1,9 +1,20 @@
-import { createAudioBus, type AudioBus, type AudioSource } from "@fabrikav2/sdk/audio";
+import { createAudioBus, type AudioBus, type AudioSource, type PlayHandle } from "@fabrikav2/sdk/audio";
+import { audioClip } from "../../design/assets.ts";
 
 /**
- * Procedural sound effects on the sdk audio bus: no clip assets, every voice is
- * an oscillator/noise envelope. Gated by the sfx setting through the bus mute.
+ * Sound on the sdk audio bus. Every cue has a procedural voice (oscillator /
+ * noise envelope) that plays until its clip (`design/audio/sfx-<name>.wav`)
+ * has decoded, after which the clip wins. Music is two looping clips
+ * (`music-menu`, `music-battle`) crossfaded on the music channel. Both are
+ * gated by their settings through the bus mutes.
  */
+export type MusicTrack = "menu" | "battle";
+const MUSIC_TRACKS: readonly MusicTrack[] = ["menu", "battle"];
+const MUSIC_VOLUME = 0.55;
+const MUSIC_FADE_OUT_MS = 220;
+const MUSIC_FADE_IN_MS = 450;
+/** Melee clusters would otherwise fire the same sample at one pitch; jitter it. */
+const HIT_PITCH_JITTER = 0.16;
 export type SfxName =
   | "tap"
   | "hit"
@@ -123,15 +134,62 @@ const VOICES: Record<SfxName, AudioSource["kind"] extends "voice" ? never : (ctx
 export interface Sfx {
   play(name: SfxName): void;
   setEnabled(enabled: boolean): void;
+  /** Loop a track on the music channel (crossfading from the current one); null stops music. */
+  music(track: MusicTrack | null): void;
+  setMusicEnabled(enabled: boolean): void;
   /** Call from a user gesture once; iOS keeps the context suspended until then. */
   unlock(): void;
+  /** Resume the context after the app returns to the foreground. */
+  resume(): void;
+  /** Dev inspection: context state, decoded clips, current track, master output level. */
+  debug(): { state: string; clips: number; tracks: number; track: MusicTrack | null; level: number };
+}
+
+/** iOS Capacitor serves app assets with status 0; only a real HTTP error is a failure. */
+async function decodeClip(bus: AudioBus, url: string): Promise<AudioBuffer> {
+  const response = await fetch(url);
+  if (!response.ok && response.status !== 0) throw new Error(`clip ${response.status}`);
+  const data = await response.arrayBuffer();
+  return bus.master.context.decodeAudioData(data);
 }
 
 export function createSfx(): Sfx {
   let bus: AudioBus | null = null;
+  let analyser: AnalyserNode | null = null;
   let enabled = true;
+  let musicEnabled = true;
   let unlocked = false;
   const lastPlayed = new Map<SfxName, number>();
+  const clips = new Set<SfxName>();
+  const tracks = new Set<MusicTrack>();
+  let wantTrack: MusicTrack | null = null;
+  let playing: { track: MusicTrack; handle: PlayHandle } | null = null;
+  let musicSeq = 0;
+
+  const loadClips = (b: AudioBus): void => {
+    for (const name of Object.keys(VOICES) as SfxName[]) {
+      const url = audioClip(`sfx-${name}`);
+      if (!url) continue;
+      void decodeClip(b, url)
+        .then((buffer) => {
+          b.register(`clip:${name}`, { kind: "clip", buffer });
+          clips.add(name);
+        })
+        .catch(() => undefined); // the procedural voice keeps covering the cue
+    }
+    for (const track of MUSIC_TRACKS) {
+      const url = audioClip(`music-${track}`);
+      if (!url) continue;
+      void decodeClip(b, url)
+        .then((buffer) => {
+          b.register(`music:${track}`, { kind: "clip", buffer });
+          tracks.add(track);
+          applyMusic();
+        })
+        .catch(() => undefined);
+    }
+  };
+
   const ensure = (): AudioBus | null => {
     if (bus) return bus;
     if (typeof AudioContext === "undefined") return null;
@@ -150,8 +208,47 @@ export function createSfx(): Sfx {
       });
     }
     bus.setMuted("sfx", !enabled);
+    bus.setMuted("music", !musicEnabled);
+    try {
+      analyser = bus.master.context.createAnalyser();
+      analyser.fftSize = 256;
+      bus.master.connect(analyser);
+    } catch {
+      analyser = null;
+    }
+    loadClips(bus);
     return bus;
   };
+
+  /** Bring the music channel to `wantTrack`: fade the current loop out, start the next, fade in. */
+  const applyMusic = (): void => {
+    const b = bus;
+    if (!b || !unlocked) return;
+    if (playing?.track === wantTrack) return;
+    if (wantTrack && !tracks.has(wantTrack)) return; // starts when its clip decodes
+    const seq = ++musicSeq;
+    const start = (): void => {
+      if (seq !== musicSeq) return;
+      if (playing) {
+        playing.handle.stop();
+        playing = null;
+      }
+      if (!wantTrack) return;
+      try {
+        playing = { track: wantTrack, handle: b.play(`music:${wantTrack}`, { channel: "music", loop: true }) };
+        b.setVolume("music", MUSIC_VOLUME, MUSIC_FADE_IN_MS);
+      } catch {
+        playing = null;
+      }
+    };
+    if (playing) {
+      b.setVolume("music", 0, MUSIC_FADE_OUT_MS);
+      window.setTimeout(start, MUSIC_FADE_OUT_MS + 20);
+    } else {
+      start();
+    }
+  };
+
   return {
     play(name) {
       if (!enabled || !unlocked) return;
@@ -163,7 +260,12 @@ export function createSfx(): Sfx {
       if (minGap && now - (lastPlayed.get(name) ?? -1000) < minGap) return;
       lastPlayed.set(name, now);
       try {
-        b.play(name, { channel: "sfx" });
+        if (clips.has(name)) {
+          const pitch = name === "hit" ? 1 - HIT_PITCH_JITTER / 2 + Math.random() * HIT_PITCH_JITTER : undefined;
+          b.play(`clip:${name}`, { channel: "sfx", pitch });
+        } else {
+          b.play(name, { channel: "sfx" });
+        }
       } catch {
         // A failed voice must never break gameplay.
       }
@@ -172,11 +274,34 @@ export function createSfx(): Sfx {
       enabled = next;
       bus?.setMuted("sfx", !next);
     },
+    music(track) {
+      wantTrack = track;
+      ensure();
+      applyMusic();
+    },
+    setMusicEnabled(next) {
+      musicEnabled = next;
+      bus?.setMuted("music", !next);
+    },
     unlock() {
       if (unlocked) return;
       unlocked = true;
       const b = ensure();
-      void b?.unlock();
+      void b?.unlock().then(() => applyMusic());
+    },
+    resume() {
+      void bus?.resume();
+    },
+    debug() {
+      let level = 0;
+      if (analyser) {
+        const data = new Float32Array(analyser.fftSize);
+        analyser.getFloatTimeDomainData(data);
+        let sum = 0;
+        for (const v of data) sum += v * v;
+        level = Math.sqrt(sum / data.length);
+      }
+      return { state: bus ? bus.master.context.state : "none", clips: clips.size, tracks: tracks.size, track: playing?.track ?? null, level };
     },
   };
 }
