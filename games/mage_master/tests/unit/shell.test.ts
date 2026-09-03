@@ -117,7 +117,7 @@ describe("mage master shell", () => {
     await vi.waitFor(() => expect(controller.snapshot().gems).toBe(gemsBefore + 60));
     expect(controller.snapshot().surface).toBe("shop");
     const purchased = controller.drainTrace().find((event) => event.name === "gems_purchased");
-    expect(purchased?.params).toMatchObject({ product_id: "com.basegamelab.mage_master.gems.small", gems: 60 });
+    expect(purchased?.params).toMatchObject({ product_id: "com.basegamelab.magemaster.gems.small", gems: 60 });
 
     // Consumables are never restore-recoverable: restore must report empty, not failed.
     click(screen.root, "shop-restore");

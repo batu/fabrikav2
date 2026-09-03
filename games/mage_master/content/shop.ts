@@ -11,7 +11,7 @@ export type GemProduct = CatalogProduct<GemGrant>;
 /** Catalog group the packs share; the shop renders one section for it. */
 export const GEM_GROUP = "gems";
 
-const SKU_PREFIX = "com.basegamelab.mage_master.gems";
+const SKU_PREFIX = "com.basegamelab.magemaster.gems";
 
 function gemPack(id: string, sku: "small" | "medium" | "large", tier: number, gems: number, displayPrice: string, badges: string[]): GemProduct {
   return {

@@ -10,9 +10,9 @@ export const gameConfig = {
   economy: { softCurrency: "gold" },
   adPlacements: [],
   productCatalog: [
-    "com.basegamelab.mage_master.gems.small",
-    "com.basegamelab.mage_master.gems.medium",
-    "com.basegamelab.mage_master.gems.large",
+    "com.basegamelab.magemaster.gems.small",
+    "com.basegamelab.magemaster.gems.medium",
+    "com.basegamelab.magemaster.gems.large",
   ],
   analyticsEvents: [
     "session_start",

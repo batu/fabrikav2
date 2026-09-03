@@ -38,5 +38,5 @@ branch in `src/game/sim/battle.ts`. Rarity ages, odds, timers: `content/rarity.t
 - `npm run audit`
 - Device: see `evidence/` journals for the live-reload + capture loop.
 
-Native: `com.basegamelab.mage_master`, portrait only. `ios/` is generated
+Native: `com.basegamelab.magemaster`, portrait only. `ios/` is generated
 (`npx cap add ios`) and gitignored; committed inputs live in `native-resources/`.
