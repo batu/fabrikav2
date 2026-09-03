@@ -313,7 +313,8 @@ body {
 
 .mm-party__sprite {
   width: 84px;
-  height: 84px;
+  /* 84 x 608/512: the composite's staff headroom, so the body keeps its size. */
+  height: 100px;
   object-fit: contain;
   animation: mm-idle 2.6s ease-in-out infinite;
 }
@@ -770,7 +771,7 @@ body {
 
 .mm-mage__sprite {
   width: 76px;
-  height: 76px;
+  height: 90px;
   object-fit: contain;
 }
 
@@ -1180,7 +1181,9 @@ body {
 .mm-hud__portrait {
   width: 26px;
   height: 26px;
-  object-fit: contain;
+  /* Square ring: crop the composite's staff headroom rather than letterbox the body. */
+  object-fit: cover;
+  object-position: bottom;
   flex: 0 0 auto;
 }
 
@@ -1276,7 +1279,7 @@ body {
 
 .mm-party--scene .mm-party__sprite {
   width: 82px;
-  height: 82px;
+  height: 98px;
   filter: drop-shadow(0 6px 4px var(--fab-mm-ink-a45));
 }
 

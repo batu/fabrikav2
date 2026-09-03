@@ -6,7 +6,7 @@ import { THEME_PROPS, allPropSprites, allUnitSprites, groundScene, propSprite, s
 import { copy, fill } from "../../design/copy.ts";
 import type { MageMasterController } from "../game/MageMasterController.ts";
 import type { BattleEvent, BattleView, Unit } from "../game/sim/types.ts";
-import { cachedComposite, lookKey, type MageLook } from "./mageComposite.ts";
+import { cachedComposite, COMPOSITE_SIZE, lookKey, type MageLook } from "./mageComposite.ts";
 import { readPalette } from "./palette.ts";
 import type { Sfx } from "../game/sfx.ts";
 
@@ -303,7 +303,8 @@ class Scene extends Phaser.Scene {
     }
   }
 
-  private textureFor(kind: string): string {
+  /** Texture key plus the body height to scale against (null = the whole texture). */
+  private textureFor(kind: string): { key: string; bodyHeight: number | null } {
     const look = this.partyLooks[kind];
     if (look) {
       const key = `look-${lookKey(look)}`;
@@ -311,9 +312,11 @@ class Scene extends Phaser.Scene {
         const canvas = cachedComposite(look);
         if (canvas) this.textures.addCanvas(key, canvas);
       }
-      if (this.textures.exists(key)) return key;
+      // Composites carry transparent headroom for the raised staff; the figure is the
+      // bottom square, so scale against that to match the plain unit sprites.
+      if (this.textures.exists(key)) return { key, bodyHeight: COMPOSITE_SIZE };
     }
-    return this.textures.exists(`unit-${kind}`) ? `unit-${kind}` : "unit-missing";
+    return { key: this.textures.exists(`unit-${kind}`) ? `unit-${kind}` : "unit-missing", bodyHeight: null };
   }
 
   private ensureVisual(unit: Unit): UnitVisual {
@@ -321,8 +324,9 @@ class Scene extends Phaser.Scene {
     if (existing) return existing;
     const p = this.palette;
     const height = UNIT_HEIGHT * unit.scale * (unit.side === "party" ? 1.18 : 1);
-    const sprite = this.add.image(0, 0, this.textureFor(unit.kind)).setOrigin(0.5, 1);
-    const scale = height / sprite.height;
+    const texture = this.textureFor(unit.kind);
+    const sprite = this.add.image(0, 0, texture.key).setOrigin(0.5, 1);
+    const scale = height / (texture.bodyHeight ?? sprite.height);
     sprite.setScale(scale);
     const shadow = this.add.ellipse(0, 2, height * 0.62, height * 0.2, p("ink"), 0.22);
     const root = this.add.container(unit.pos.x, unit.pos.y, [shadow, sprite]).setDepth(DEPTH.unit + unit.pos.y / 1000);
