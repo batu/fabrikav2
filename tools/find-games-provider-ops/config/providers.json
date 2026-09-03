@@ -1,0 +1,87 @@
+{
+  "schema_version": 1,
+  "browser": {
+    "session": "default",
+    "expected_window_count": 1,
+    "expected_tab_count": 9
+  },
+  "games": [
+    {
+      "id": "find_the_dog",
+      "app_store_id": "6772100729",
+      "appsflyer_app_id": "id6772100729",
+      "bundle_id": "com.baseardahan.hiddenobj",
+      "gameanalytics_project_id": "350269"
+    },
+    {
+      "id": "find_the_bird",
+      "app_store_id": "6796698146",
+      "appsflyer_app_id": "id6796698146",
+      "bundle_id": "com.basegamelab.findthebird",
+      "gameanalytics_project_id": "351396",
+      "appsflyer_contamination": {
+        "foreign_game": "find_the_dog",
+        "foreign_app_versions": ["1.0.4"],
+        "hardened_release_at": "2026-09-03T05:03:10Z"
+      }
+    }
+  ],
+  "providers": [
+    {
+      "id": "appsflyer",
+      "api": "appsflyer",
+      "tab": { "label": "AppsFlyer", "hosts": ["hq1.appsflyer.com"] },
+      "credentials": [
+        { "id": "sdk_dev_key", "kind": "sdk_ingestion", "locator": { "env": "FIND_GAMES_APPSFLYER_DEV_KEY" } },
+        { "id": "reporting_token", "kind": "reporting_api", "locator": { "path_env": "FIND_GAMES_APPSFLYER_REPORTING_TOKEN_FILE" } }
+      ]
+    },
+    {
+      "id": "admob",
+      "tab": { "label": "AdMob", "hosts": ["admob.google.com"] },
+      "credentials": [{ "id": "reporting_credential", "kind": "reporting_api", "locator": { "path_env": "FIND_GAMES_ADMOB_REPORTING_CREDENTIAL_FILE" } }]
+    },
+    {
+      "id": "google_play",
+      "tab": { "label": "Google Play Console", "hosts": ["play.google.com"] },
+      "credentials": [{ "id": "reporting_credential", "kind": "reporting_api", "locator": { "path_env": "FIND_GAMES_GOOGLE_PLAY_REPORTING_CREDENTIAL_FILE" } }]
+    },
+    {
+      "id": "gameanalytics",
+      "tab": { "label": "GameAnalytics", "hosts": ["tool.gameanalytics.com", "app.gameanalytics.com"] },
+      "credentials": [{ "id": "reporting_token", "kind": "reporting_api", "locator": { "env": "FIND_GAMES_GAMEANALYTICS_REPORTING_TOKEN" } }]
+    },
+    {
+      "id": "revenuecat",
+      "tab": { "label": "RevenueCat", "hosts": ["app.revenuecat.com"] },
+      "credentials": [{ "id": "reporting_token", "kind": "reporting_api", "locator": { "env": "FIND_GAMES_REVENUECAT_REPORTING_TOKEN" } }]
+    },
+    {
+      "id": "meta",
+      "api": "meta",
+      "ad_account_id": "2805795896467959",
+      "tab": { "label": "Meta Ads Manager", "hosts": ["adsmanager.facebook.com", "business.facebook.com"] },
+      "credentials": [{ "id": "reporting_token", "kind": "reporting_api", "locator": { "env": "FIND_GAMES_META_REPORTING_TOKEN" } }]
+    },
+    {
+      "id": "app_store_connect",
+      "api": "app_store_connect",
+      "tab": { "label": "App Store Connect", "hosts": ["appstoreconnect.apple.com"] },
+      "credentials": [
+        { "id": "issuer_id", "kind": "reporting_api", "locator": { "env": "FIND_GAMES_ASC_ISSUER_ID" } },
+        { "id": "key_id", "kind": "reporting_api", "locator": { "env": "FIND_GAMES_ASC_KEY_ID" } },
+        { "id": "private_key", "kind": "reporting_api", "locator": { "path_env": "FIND_GAMES_ASC_PRIVATE_KEY_FILE" } }
+      ]
+    },
+    {
+      "id": "firebase",
+      "tab": { "label": "Firebase", "hosts": ["console.firebase.google.com"] },
+      "credentials": [{ "id": "reporting_credential", "kind": "reporting_api", "locator": { "path_env": "FIND_GAMES_FIREBASE_REPORTING_CREDENTIAL_FILE" } }]
+    },
+    {
+      "id": "google_drive",
+      "tab": { "label": "Google Drive", "hosts": ["drive.google.com"] },
+      "credentials": [{ "id": "reporting_credential", "kind": "reporting_api", "locator": { "path_env": "FIND_GAMES_DRIVE_REPORTING_CREDENTIAL_FILE" } }]
+    }
+  ]
+}

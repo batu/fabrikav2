@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "credentials": {
+    "appsflyer": {
+      "sdk_dev_key": { "path_env": "FIND_GAMES_APPSFLYER_DEV_KEY_FILE" },
+      "reporting_token": { "path_env": "FIND_GAMES_APPSFLYER_REPORTING_TOKEN_FILE" }
+    },
+    "admob": {
+      "reporting_credential": { "path_env": "FIND_GAMES_ADMOB_REPORTING_CREDENTIAL_FILE" }
+    },
+    "google_play": {
+      "reporting_credential": { "path_env": "FIND_GAMES_GOOGLE_PLAY_REPORTING_CREDENTIAL_FILE" }
+    },
+    "gameanalytics": {
+      "reporting_token": { "env": "FIND_GAMES_GAMEANALYTICS_REPORTING_TOKEN" }
+    },
+    "revenuecat": {
+      "reporting_token": { "env": "FIND_GAMES_REVENUECAT_REPORTING_TOKEN" }
+    },
+    "meta": {
+      "reporting_token": { "env": "FIND_GAMES_META_REPORTING_TOKEN" }
+    },
+    "app_store_connect": {
+      "issuer_id": { "env": "FIND_GAMES_ASC_ISSUER_ID" },
+      "key_id": { "env": "FIND_GAMES_ASC_KEY_ID" },
+      "private_key": { "path_env": "FIND_GAMES_ASC_PRIVATE_KEY_FILE" }
+    },
+    "firebase": {
+      "reporting_credential": { "path_env": "FIND_GAMES_FIREBASE_REPORTING_CREDENTIAL_FILE" }
+    },
+    "google_drive": {
+      "reporting_credential": { "path_env": "FIND_GAMES_DRIVE_REPORTING_CREDENTIAL_FILE" }
+    }
+  }
+}
