@@ -40,6 +40,9 @@ export function hydrateProviders(config, runtime) {
       const override = runtime.credentials?.[provider.id]?.[credential.id];
       const locator = override ?? credential.locator;
       if (!locator) throw new Error(`provider ${provider.id} credential ${credential.id} has no locator`);
+      if (provider.id === 'appsflyer' && credential.id === 'reporting_token' && !locator.path_env) {
+        throw new Error('AppsFlyer reporting_token requires path_env');
+      }
       return { id: credential.id, kind: credential.kind, ...locator };
     });
     return { ...provider, credentials };

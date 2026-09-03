@@ -12,11 +12,22 @@ Run the read-only health check against the canonical Chrome workspace:
 node tools/find-games-provider-ops/cli.mjs health
 ```
 
-Run real read-only Meta and App Store Connect API probes when their reporting credentials are available:
+Run real read-only AppsFlyer, Meta, and App Store Connect API probes when their reporting credentials are available:
 
 ```bash
-node tools/find-games-provider-ops/cli.mjs health --live
+FIND_GAMES_APPSFLYER_REPORTING_TOKEN_FILE="$HOME/.config/base-game-lab/appsflyer-reporting-api.token" \
+  node tools/find-games-provider-ops/cli.mjs health --live
 ```
+
+Fetch a bounded AppsFlyer partners-by-date aggregate for both committed app IDs:
+
+```bash
+FIND_GAMES_APPSFLYER_REPORTING_TOKEN_FILE="$HOME/.config/base-game-lab/appsflyer-reporting-api.token" \
+  node tools/find-games-provider-ops/cli.mjs appsflyer-aggregate \
+  --from 2026-09-01 --to 2026-09-02
+```
+
+Both commands share an owner-only cache under `~/.cache/base-game-lab/find-games-provider-ops/appsflyer`, keyed by exact app ID and requested date window. A successful app/window response is fetched once and resumed from cache; do not delete the cache or blindly retry to work around provider failures. AppsFlyer's `403` body exactly equal to `Limit reached for partners-daily-report` is safely recognized as `degraded` / `rate_limited`; arbitrary `401`/`403` bodies remain redacted and classify as `auth_required`.
 
 Use deterministic fixtures (tests and incident reproduction; no network):
 
@@ -42,9 +53,15 @@ Committed identity and provider definitions live in `config/providers.json`. Cop
 ~/.config/base-game-lab/find-games-provider-ops.json
 ```
 
-The runtime file contains environment-variable names only. Set those variables to credential values or protected-file paths in the operator environment. Do not place credentials or absolute machine paths in Git. Existing protected files may be used by setting the corresponding `*_FILE` environment variable.
+The runtime file contains environment-variable names only. `FIND_GAMES_APPSFLYER_REPORTING_TOKEN_FILE` must resolve to a regular, non-symlink token file with no group/world permission bits (normally mode `0600`). The token value is never accepted directly through an environment variable. Do not place credentials or absolute machine paths in Git.
 
-The AppsFlyer `sdk_dev_key` is deliberately typed `sdk_ingestion`; it does not satisfy the separate `reporting_token` requirement. Browser authentication is represented as a degraded read fallback and never upgrades reporting API credential availability.
+The AppsFlyer `sdk_dev_key` is deliberately typed `sdk_ingestion`; it does not satisfy the separate protected-file `reporting_token` requirement. Browser authentication is represented as a degraded read fallback and never upgrades reporting API credential availability.
+
+## AppsFlyer aggregate meaning
+
+The aggregate command returns deterministic JSON grouped per game, media source, and campaign. It sums only metric columns actually present in AppsFlyer's CSV among installs, sessions, impressions, clicks, cost, and revenue variants; blank numeric cells become zero and provider `N/A` cells remain `null`. It does **not** invent active users or any other metric absent from the endpoint.
+
+AppsFlyer `organic` means **unattributed**, not necessarily external discovery. It can include internal, development, and TestFlight activity. AppsFlyer is the acquisition-attribution source; **GameAnalytics remains the product-behavior authority** for active users, engagement, retention, and gameplay behavior.
 
 ## Statuses
 

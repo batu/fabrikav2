@@ -9,6 +9,7 @@ import {
   inspectCredential,
   buildHealthSnapshot,
   classifyProbeFailure,
+  probeAppsFlyer,
   probeAppStoreConnect,
   probeMeta,
   validateIdentityConfig,
@@ -86,14 +87,18 @@ test('credential file checks report existence and unsafe mode without reading co
 
 test('identity validation preserves per-game isolation', () => {
   const games = [
-    { id: 'find_the_dog', app_store_id: '6772100729', bundle_id: 'com.baseardahan.hiddenobj', gameanalytics_project_id: '350269' },
-    { id: 'find_the_bird', app_store_id: '6796698146', bundle_id: 'com.basegamelab.findthebird', gameanalytics_project_id: '351396' },
+    { id: 'find_the_dog', app_store_id: '6772100729', appsflyer_app_id: 'id6772100729', bundle_id: 'com.baseardahan.hiddenobj', gameanalytics_project_id: '350269' },
+    { id: 'find_the_bird', app_store_id: '6796698146', appsflyer_app_id: 'id6796698146', bundle_id: 'com.basegamelab.findthebird', gameanalytics_project_id: '351396' },
   ];
   assert.deepEqual(validateIdentityConfig(games), games);
   assert.throws(() => validateIdentityConfig([
     games[0],
     { ...games[1], bundle_id: games[0].bundle_id },
   ]), /duplicate bundle_id/);
+  assert.throws(() => validateIdentityConfig([
+    games[0],
+    { ...games[1], appsflyer_app_id: games[0].appsflyer_app_id },
+  ]), /duplicate appsflyer_app_id/);
 });
 
 test('API failures map to stable non-secret categories', () => {
@@ -105,8 +110,8 @@ test('API failures map to stable non-secret categories', () => {
 
 test('health snapshot is stable, provenance-bearing, and identity-isolated', () => {
   const games = [
-    { id: 'find_the_dog', app_store_id: '6772100729', bundle_id: 'com.baseardahan.hiddenobj', gameanalytics_project_id: '350269' },
-    { id: 'find_the_bird', app_store_id: '6796698146', bundle_id: 'com.basegamelab.findthebird', gameanalytics_project_id: '351396' },
+    { id: 'find_the_dog', app_store_id: '6772100729', appsflyer_app_id: 'id6772100729', bundle_id: 'com.baseardahan.hiddenobj', gameanalytics_project_id: '350269' },
+    { id: 'find_the_bird', app_store_id: '6796698146', appsflyer_app_id: 'id6796698146', bundle_id: 'com.basegamelab.findthebird', gameanalytics_project_id: '351396' },
   ];
   const providerConfig = [
     { id: 'meta', tab: { hosts: ['business.facebook.com'], label: 'Meta Ads Manager' }, api: 'meta', credentials: [{ kind: 'reporting_api', env: 'META_REPORTING_TOKEN' }] },
@@ -166,6 +171,55 @@ test('Meta probe uses an authorization header and classifies HTTP failure withou
   });
   assert.deepEqual(denied, { ok: false, status: 403 });
   assert.doesNotMatch(JSON.stringify(denied), /LEAK-ME|meta-secret/);
+});
+
+test('AppsFlyer probe checks both exact app IDs with bearer auth and redacted failures', async () => {
+  const requests = [];
+  const success = await probeAppsFlyer({
+    appIds: ['id6772100729', 'id6796698146'],
+    accessToken: 'appsflyer-secret',
+    date: '2026-09-03',
+    fetchImpl: async (url, options) => {
+      requests.push({ url, options });
+      return { ok: true, status: 200, text: async () => 'never-needed' };
+    },
+  });
+  assert.deepEqual(success, {
+    ok: true,
+    window: { from: '2026-09-03', to: '2026-09-03' },
+    games: [
+      { appsflyer_app_id: 'id6772100729', ok: true },
+      { appsflyer_app_id: 'id6796698146', ok: true },
+    ],
+  });
+  assert.deepEqual(requests.map(({ url }) => new URL(url).pathname), [
+    '/api/agg-data/export/app/id6772100729/partners_by_date_report/v5',
+    '/api/agg-data/export/app/id6796698146/partners_by_date_report/v5',
+  ]);
+  assert.ok(requests.every(({ url }) => !url.includes('appsflyer-secret')));
+  assert.ok(requests.every(({ options }) => options.headers.Authorization === 'Bearer appsflyer-secret'));
+
+  for (const [status, body, expected] of [
+    [401, 'RESPONSE-BODY-LEAK', 'auth_required'],
+    [403, 'RESPONSE-BODY-LEAK', 'auth_required'],
+    [403, 'Limit reached for partners-daily-report', 'degraded'],
+    [429, 'RESPONSE-BODY-LEAK', 'degraded'],
+    [503, 'RESPONSE-BODY-LEAK', 'unavailable'],
+  ]) {
+    const failed = await probeAppsFlyer({
+      appIds: ['id6772100729', 'id6796698146'], accessToken: 'appsflyer-secret', date: '2026-09-03',
+      fetchImpl: async () => ({ ok: false, status, text: async () => body }),
+    });
+    assert.equal(classifyProbeFailure(failed).status, expected);
+    assert.doesNotMatch(JSON.stringify(failed), /RESPONSE-BODY-LEAK|appsflyer-secret/);
+  }
+
+  const network = await probeAppsFlyer({
+    appIds: ['id6772100729', 'id6796698146'], accessToken: 'appsflyer-secret', date: '2026-09-03',
+    fetchImpl: async () => { throw Object.assign(new Error('sensitive URL'), { code: 'ENOTFOUND' }); },
+  });
+  assert.deepEqual(classifyProbeFailure(network), { status: 'unavailable', category: 'network_error' });
+  assert.doesNotMatch(JSON.stringify(network), /sensitive URL|appsflyer-secret/);
 });
 
 test('App Store Connect probe signs a short-lived JWT with built-in crypto', async () => {

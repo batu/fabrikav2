@@ -3,7 +3,7 @@
   "credentials": {
     "appsflyer": {
       "sdk_dev_key": { "path_env": "FIND_GAMES_APPSFLYER_DEV_KEY_FILE" },
-      "reporting_token": { "env": "FIND_GAMES_APPSFLYER_REPORTING_TOKEN" }
+      "reporting_token": { "path_env": "FIND_GAMES_APPSFLYER_REPORTING_TOKEN_FILE" }
     },
     "admob": {
       "reporting_credential": { "path_env": "FIND_GAMES_ADMOB_REPORTING_CREDENTIAL_FILE" }

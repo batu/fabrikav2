@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import { sign } from 'node:crypto';
+import { AppsFlyerReportingError, fetchAppsFlyerCsv } from './appsflyer.mjs';
 
 const LOGIN_ROUTE = /(?:\/login|\/signin|accounts\.google\.com|appleid\.apple\.com|business\.facebook\.com\/login)/i;
 
@@ -64,7 +65,7 @@ export function inspectCredential(spec, env = process.env) {
 
 export function validateIdentityConfig(games) {
   if (!Array.isArray(games) || games.length === 0) throw new Error('games must be a non-empty array');
-  const fields = ['id', 'app_store_id', 'bundle_id', 'gameanalytics_project_id'];
+  const fields = ['id', 'app_store_id', 'appsflyer_app_id', 'bundle_id', 'gameanalytics_project_id'];
   for (const field of fields) {
     const seen = new Set();
     for (const game of games) {
@@ -77,12 +78,34 @@ export function validateIdentityConfig(games) {
 }
 
 export function classifyProbeFailure(error) {
+  if (error?.category && ['auth_required', 'degraded', 'unavailable'].includes(error.status)) {
+    return { status: error.status, category: error.category };
+  }
   if (error?.code === 'INVALID_CREDENTIAL') return { status: 'auth_required', category: 'invalid_credential' };
   if (error?.status === 401 || error?.status === 403) return { status: 'auth_required', category: 'invalid_credential' };
   if (error?.status === 429) return { status: 'degraded', category: 'rate_limited' };
   if (Number.isInteger(error?.status) && error.status >= 500) return { status: 'unavailable', category: 'provider_unavailable' };
   if (error?.code) return { status: 'unavailable', category: 'network_error' };
   return { status: 'degraded', category: 'probe_failed' };
+}
+
+export async function probeAppsFlyer({ appIds, accessToken, date, fetchImpl = fetch, cacheDir }) {
+  const results = await Promise.allSettled(appIds.map(async (appId) => {
+    await fetchAppsFlyerCsv({ appId, token: accessToken, from: date, to: date, fetchImpl, cacheDir });
+    return { appsflyer_app_id: appId, ok: true };
+  }));
+  const failure = results.find(({ status }) => status === 'rejected');
+  if (failure) {
+    if (failure.reason instanceof AppsFlyerReportingError) {
+      return { ok: false, status: failure.reason.status, category: failure.reason.category };
+    }
+    return { ok: false, code: 'NETWORK_ERROR' };
+  }
+  return {
+    ok: true,
+    window: { from: date, to: date },
+    games: results.map(({ value }) => value),
+  };
 }
 
 export async function probeMeta({ accountId, accessToken, fetchImpl = fetch }) {

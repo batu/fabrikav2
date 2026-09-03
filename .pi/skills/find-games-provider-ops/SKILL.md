@@ -67,10 +67,10 @@ Read committed identities from
 `tools/find-games-provider-ops/config/providers.json`. Verify these exact rows
 before attributing any metric:
 
-| Game | App Store / AppsFlyer | Bundle | GameAnalytics project |
-|---|---:|---|---:|
-| FTD | `6772100729` | `com.baseardahan.hiddenobj` | `350269` |
-| FTB | `6796698146` | `com.basegamelab.findthebird` | `351396` |
+| Game | App Store | AppsFlyer | Bundle | GameAnalytics project |
+|---|---:|---|---|---:|
+| FTD | `6772100729` | `id6772100729` | `com.baseardahan.hiddenobj` | `350269` |
+| FTB | `6796698146` | `id6796698146` | `com.basegamelab.findthebird` | `351396` |
 
 The Meta ad account is `2805795896467959`. It is shared reporting context, not
 a substitute for per-game campaign/app identity. Never copy an FTD result into
@@ -86,12 +86,17 @@ Runtime locator configuration belongs outside Git at:
 
 Start from
 `tools/find-games-provider-ops/config/runtime-config.example.json`. The file may
-name environment variables whose values are tokens or protected file paths. Do
-not place credential values or absolute user paths in committed files.
+name environment variables whose values are non-AppsFlyer tokens or protected
+file paths. AppsFlyer reporting is stricter: set exactly
+`FIND_GAMES_APPSFLYER_REPORTING_TOKEN_FILE` to a protected regular file; never
+put its reporting token value in an environment variable. Do not place
+credential values or absolute user paths in committed files.
 
 Protected files remain where the operator manages them. The source only accepts
 their paths through runtime configuration or environment variables. Inspect
 existence and POSIX mode without printing file contents or resolved paths.
+AppsFlyer token files must not be symlinks and must have no group/world bits
+(mode `0600` is expected).
 
 AppsFlyer's existing developer key has kind `sdk_ingestion`. It sends SDK events
 and does not grant reporting access. Only a distinct credential with kind
@@ -106,8 +111,23 @@ not provider payloads.
 
 For every provider, begin with `health`. Then verify as follows:
 
-- **AppsFlyer:** require a reporting token for API use. Treat the SDK developer
-  key only as ingestion readiness. Otherwise inspect the authenticated dashboard.
+- **AppsFlyer:** require a protected-file reporting token for API use. `health
+  --live` probes the partners-by-date v5 endpoint for both exact committed app
+  IDs with a Bearer authorization header. Treat the SDK developer key only as
+  ingestion readiness. For bounded acquisition totals run:
+
+  ```bash
+  FIND_GAMES_APPSFLYER_REPORTING_TOKEN_FILE="$HOME/.config/base-game-lab/appsflyer-reporting-api.token" \
+    node tools/find-games-provider-ops/cli.mjs appsflyer-aggregate \
+    --from 2026-09-01 --to 2026-09-02
+  ```
+
+  The command groups stable rows per game/media-source/campaign and emits only
+  CSV-provided installs, sessions, impressions, clicks, cost, and revenue
+  fields. Blank numeric fields are zero and provider `N/A` values stay `null`.
+  Never fabricate active users.
+  AppsFlyer `organic` means unattributed and may include internal or TestFlight
+  activity. GameAnalytics remains the product-behavior authority.
 - **AdMob:** prefer its reporting API credential. Otherwise inspect the AdMob tab
   and label the result browser-derived.
 - **Google Play Console:** prefer the reporting API/service account. Otherwise
@@ -126,8 +146,13 @@ For every provider, begin with `health`. Then verify as follows:
 - **Google Drive:** use authenticated API/OAuth access when configured. Otherwise
   treat the canonical Drive tab as a browser fallback only.
 
-A successful Meta or App Store Connect probe proves read reachability, not that
-a requested analytics metric or reporting window exists.
+A successful Meta, AppsFlyer, or App Store Connect probe proves read
+reachability, not that every requested analytics metric exists. AppsFlyer calls
+share an owner-only cache keyed by app ID and exact date window. Once a response
+succeeds, resume from that cache rather than fetching the same app/window again.
+Never blindly retry AppsFlyer's low-quota partners daily report. A `403` whose
+body exactly matches `Limit reached for partners-daily-report` is classified
+`degraded` / `rate_limited`; no other response body is returned or logged.
 
 ## Reporting Schema
 
@@ -201,6 +226,9 @@ Run focused tests and lint, then inspect the real read-only browser inventory:
 node --test tools/find-games-provider-ops/test/*.test.mjs
 npx eslint tools/find-games-provider-ops
 node tools/find-games-provider-ops/cli.mjs health
+FIND_GAMES_APPSFLYER_REPORTING_TOKEN_FILE="$HOME/.config/base-game-lab/appsflyer-reporting-api.token" \
+  node tools/find-games-provider-ops/cli.mjs appsflyer-aggregate \
+  --from 2026-09-01 --to 2026-09-02
 ```
 
 Confirm one window, nine tabs, nine provider rows, both game identity rows, no

@@ -26,6 +26,24 @@ test('runtime config accepts locators but rejects embedded credential values', (
   }), /env or path_env/);
 });
 
+test('AppsFlyer reporting tokens require a protected file locator', () => {
+  const config = {
+    providers: [{
+      id: 'appsflyer', tab: { label: 'AppsFlyer', hosts: ['hq1.appsflyer.com'] },
+      credentials: [
+        { id: 'sdk_dev_key', kind: 'sdk_ingestion', locator: { path_env: 'APPSFLYER_DEV_KEY_FILE' } },
+        { id: 'reporting_token', kind: 'reporting_api', locator: { path_env: 'APPSFLYER_REPORTING_TOKEN_FILE' } },
+      ],
+    }],
+  };
+  assert.throws(() => hydrateProviders(config, {
+    credentials: { appsflyer: { reporting_token: { env: 'APPSFLYER_REPORTING_TOKEN' } } },
+  }), /AppsFlyer reporting_token requires path_env/);
+  assert.doesNotThrow(() => hydrateProviders(config, {
+    credentials: { appsflyer: { reporting_token: { path_env: 'APPSFLYER_REPORTING_TOKEN_FILE' } } },
+  }));
+});
+
 test('provider hydration rejects unknown runtime provider and credential keys', () => {
   const config = {
     providers: [{
@@ -39,6 +57,43 @@ test('provider hydration rejects unknown runtime provider and credential keys', 
   assert.throws(() => hydrateProviders(config, {
     credentials: { meta: { typo_credential: { env: 'META_TOKEN' } } },
   }), /unknown runtime credential/);
+});
+
+test('AppsFlyer aggregate CLI requires explicit dates and resumes from protected cache', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'provider-ops-appsflyer-cli-'));
+  const tokenFile = path.join(dir, 'reporting.token');
+  const runtimeFile = path.join(dir, 'runtime.json');
+  const cacheDir = path.join(dir, 'cache');
+  fs.writeFileSync(tokenFile, 'never-print-token', { mode: 0o600 });
+  fs.writeFileSync(runtimeFile, JSON.stringify({
+    schema_version: 1,
+    credentials: { appsflyer: { reporting_token: { path_env: 'TEST_APPSFLYER_TOKEN_FILE' } } },
+  }));
+  fs.mkdirSync(cacheDir, { mode: 0o700 });
+  const csv = 'Media Source (pid),Campaign (c),Installs,Sessions\norganic,,2,3\n';
+  fs.writeFileSync(path.join(cacheDir, 'id6772100729_2026-09-01_2026-09-02.csv'), csv, { mode: 0o600 });
+  fs.writeFileSync(path.join(cacheDir, 'id6796698146_2026-09-01_2026-09-02.csv'), csv, { mode: 0o600 });
+  try {
+    const result = spawnSync(process.execPath, [
+      path.join(toolRoot, 'cli.mjs'), 'appsflyer-aggregate',
+      '--from', '2026-09-01', '--to', '2026-09-02',
+      '--observed-at', '2026-09-03T10:00:00.000Z',
+      '--runtime-config', runtimeFile, '--cache-dir', cacheDir,
+    ], { cwd: toolRoot, encoding: 'utf8', env: { PATH: process.env.PATH, TEST_APPSFLYER_TOKEN_FILE: tokenFile } });
+    assert.equal(result.status, 0, result.stderr);
+    const output = JSON.parse(result.stdout);
+    assert.deepEqual(output.requested_window, { from: '2026-09-01', to: '2026-09-02' });
+    assert.deepEqual(output.rows.map(({ game }) => game), ['find_the_bird', 'find_the_dog']);
+    assert.doesNotMatch(`${result.stdout}${result.stderr}`, /never-print-token|reporting\.token/);
+
+    const invalid = spawnSync(process.execPath, [path.join(toolRoot, 'cli.mjs'), 'appsflyer-aggregate', '--from', '2026-09-01'], {
+      cwd: toolRoot, encoding: 'utf8', env: { PATH: process.env.PATH },
+    });
+    assert.equal(invalid.status, 2);
+    assert.doesNotMatch(invalid.stderr, /never-print-token/);
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
 });
 
 test('health CLI consumes deterministic tab and probe fixtures without network', () => {
