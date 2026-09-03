@@ -393,7 +393,7 @@
 
 .mm-root--minimal .mm-hud {
   gap: 8px;
-  height: 128px;
+  height: 84px;
   padding: 10px 12px;
   background: var(--fab-mm-min-panel);
   border-top: 2px solid var(--fab-mm-min-line);
@@ -649,9 +649,15 @@
   color: var(--fab-mm-min-ink);
 }
 
-.mm-root--minimal .mm-reveal-card__hero {
+.mm-root--minimal .mm-reveal-card__hero,
+.mm-root--minimal .mm-reveal-card__current-frame {
   background: var(--fab-mm-min-panel-alt);
   box-shadow: none;
+}
+
+.mm-root--minimal .mm-reveal-card__current-label,
+.mm-root--minimal .mm-reveal-card__arrow {
+  color: var(--fab-mm-min-muted);
 }
 
 .mm-root--minimal .mm-reveal-card__badge {

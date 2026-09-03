@@ -547,11 +547,20 @@ export function mountMageMasterScreen(opts: MageMasterScreenOptions): MageMaster
       el("span", undefined, `${mageName(item.cls)} · ${copy[item.slot === "weapon" ? "mages.weapon" : "mages.armor"]}`),
     );
 
+    // What they have now, small and dimmed, pointing at the hero: the new item keeps the stage.
+    const items = el("div", "mm-reveal-card__items");
+    const currentBox = el("div", `mm-reveal-card__current mm-rarity--${current.rarity}`);
+    const currentFrame = el("div", "mm-reveal-card__current-frame");
+    currentFrame.append(img(current.weapon ? weaponIcon(current.weapon.element) : armorIcon(current.cls), "mm-reveal-card__current-icon", itemName(current)));
+    currentBox.append(currentFrame, el("span", "mm-reveal-card__current-label", copy["reveal.current"]));
+    const arrow = el("span", "mm-reveal-card__arrow");
+    arrow.setAttribute("aria-hidden", "true");
     const hero = el("div", "mm-reveal-card__hero");
     hero.append(img(item.weapon ? weaponIcon(item.weapon.element) : armorIcon(item.cls), "mm-reveal-card__icon", itemName(item)));
     const badge = el("span", `mm-reveal-card__badge mm-reveal-card__badge--${trend}`);
     badge.append(el("b", undefined, `${powerDelta > 0 ? "+" : ""}${powerDelta}`), el("small", undefined, copy["compare.power"]));
     hero.append(badge);
+    items.append(currentBox, arrow, hero);
 
     const name = el("h3", "mm-reveal-card__name", itemName(item));
     const meta = el("p", "mm-reveal-card__meta");
@@ -577,7 +586,7 @@ export function mountMageMasterScreen(opts: MageMasterScreenOptions): MageMaster
       );
       rows.append(row);
     }
-    wrap.append(owner, hero, name, meta, rows);
+    wrap.append(owner, items, name, meta, rows);
     return wrap;
   };
 
@@ -935,12 +944,12 @@ export function mountMageMasterScreen(opts: MageMasterScreenOptions): MageMaster
           actions.append(
             spriteAction(copy["win.next"], "result-next", true, () => collectThen(() => controller.next())),
             // Straight home: next()/retry() would start a battle first, and home() refuses mid-battle.
-            spriteAction(copy["win.home"], "result-menu", false, () => collectThen(() => controller.home())),
+            textAction(copy["win.home"], "result-menu", () => collectThen(() => controller.home())),
           );
         } else {
           actions.append(
             spriteAction(copy["fail.retry"], "result-retry", true, () => collectThen(() => controller.retry())),
-            spriteAction(copy["fail.home"], "result-menu", false, () => collectThen(() => controller.home())),
+            textAction(copy["fail.home"], "result-menu", () => collectThen(() => controller.home())),
           );
         }
         const reward = el("div", "mm-result__reward");
@@ -983,19 +992,13 @@ export function mountMageMasterScreen(opts: MageMasterScreenOptions): MageMaster
         const actions = el("div", "fab-modal-actions mm-reveal__actions");
         actions.append(
           spriteAction(copy["reveal.use"], "reveal-use", true, () => {
-            if (controller.useItem()) {
-              sfx.play("equip");
-              toaster.show(fill("toast.equipped", { name: itemName(item), mage: mageName(item.cls) }));
-            }
+            if (controller.useItem()) sfx.play("equip");
           }),
           textAction(fill("reveal.discard", { gold: discardValue(item) }), "reveal-discard", () => {
             const gold = discardValue(item);
             const before = controller.snapshot().gold;
             flyCurrency("gold", gold, body.querySelector(".mm-item__frame"), before, before + gold);
-            if (controller.discardItem()) {
-              sfx.play("coin");
-              toaster.show(fill("toast.discarded", { gold }));
-            }
+            if (controller.discardItem()) sfx.play("coin");
           }),
         );
         const summonedArt = artLettering("summoned");
