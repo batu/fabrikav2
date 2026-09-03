@@ -311,10 +311,6 @@ body {
   width: 33%;
 }
 
-.mm-party__mage--tank {
-  transform: translateY(-8px);
-}
-
 .mm-party__sprite {
   width: 84px;
   height: 84px;
@@ -1282,10 +1278,6 @@ body {
   width: 82px;
   height: 82px;
   filter: drop-shadow(0 6px 4px var(--fab-mm-ink-a45));
-}
-
-.mm-party--scene .mm-party__mage--tank {
-  transform: none;
 }
 
 .mm-party--scene .mm-party__name {
