@@ -3,7 +3,7 @@ import { ARENA } from "../../../content/economy.ts";
 import { LEVEL_SCALING, enemyDefinition, type EnemyKind } from "../../../content/enemies.ts";
 import { AOE, ELEMENT_EFFECTS, PROJECTILE_SPEED, WEAPON_REACH, type AttackPattern, type Element, type WeaponRange } from "../../../content/items.ts";
 import { MAGES, type MageClass } from "../../../content/mages.ts";
-import { levelSpec, type LevelSpec, type StageSpec } from "../../../content/levels.ts";
+import { levelExponent, levelSpec, type LevelSpec, type StageSpec } from "../../../content/levels.ts";
 import type { StatBlock } from "../../../content/stats.ts";
 import type { BattleEvent, BattlePhase, BattleView, Loot, Projectile, Status, Unit, Vec } from "./types.ts";
 
@@ -51,12 +51,13 @@ function dist(a: Vec, b: Vec): number {
 function scaledEnemyStats(kind: EnemyKind, level: number, stage: number): { stats: StatBlock; hp: number } {
   const def = enemyDefinition(kind);
   const stageMult = 1 + LEVEL_SCALING.perStage * (stage - 1);
-  const hp = Math.round(def.base.hp * LEVEL_SCALING.hpPerLevel ** (level - 1) * stageMult);
+  const exponent = levelExponent(level);
+  const hp = Math.round(def.base.hp * LEVEL_SCALING.hpPerLevel ** exponent * stageMult);
   const stats: StatBlock = {
     ...def.base,
     hp,
-    atk: Math.round(def.base.atk * LEVEL_SCALING.atkPerLevel ** (level - 1) * stageMult),
-    def: Math.round(def.base.def * LEVEL_SCALING.defPerLevel ** (level - 1)),
+    atk: Math.round(def.base.atk * LEVEL_SCALING.atkPerLevel ** exponent * stageMult),
+    def: Math.round(def.base.def * LEVEL_SCALING.defPerLevel ** exponent),
   };
   return { stats, hp };
 }
@@ -187,7 +188,7 @@ export function createBattle(options: BattleOptions): Battle {
   const dropsFor = (unit: Unit): Loot => {
     const def = enemyDefinition(unit.kind as EnemyKind);
     const stageMult = 1 + LEVEL_SCALING.perStage * (stage - 1);
-    const gold = Math.max(1, Math.round(def.drops.gold * LEVEL_SCALING.goldPerLevel ** (options.level - 1) * stageMult));
+    const gold = Math.max(1, Math.round(def.drops.gold * LEVEL_SCALING.goldPerLevel ** levelExponent(options.level) * stageMult));
     const crystals = rand() < def.drops.crystalChance ? def.drops.crystals : 0;
     return { gold, crystals };
   };

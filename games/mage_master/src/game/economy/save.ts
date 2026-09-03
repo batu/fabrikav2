@@ -1,5 +1,5 @@
 import { ENERGY, GEM_MILESTONE_PER_FIRST_CLEAR, OFFLINE, STARTING_BALANCE } from "../../../content/economy.ts";
-import { LEVEL_COUNT, levelSpec } from "../../../content/levels.ts";
+import { levelSpec } from "../../../content/levels.ts";
 import { MAGE_CLASSES, type MageClass } from "../../../content/mages.ts";
 import { rarityDefinition } from "../../../content/rarity.ts";
 import { MAX_RIFT_TIER, PULL_COST_CRYSTALS, SKIP_SECONDS_PER_GEM, riftTier } from "../../../content/rift.ts";
@@ -128,7 +128,7 @@ export function touch(state: SaveState, now: number): SaveState {
 }
 
 export function unlockedLevel(state: SaveState): number {
-  return Math.min(LEVEL_COUNT, state.highestCleared + 1);
+  return state.highestCleared + 1;
 }
 
 export function canEnterLevel(state: SaveState, level: number): boolean {

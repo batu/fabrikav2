@@ -730,6 +730,8 @@ class Scene extends Phaser.Scene {
     // starts fresh so nothing slides from the previous battle's positions.
     if (view.elapsed !== this.tickElapsed) {
       const reset = view.elapsed < this.tickElapsed;
+      // A retry keeps this scene: the defeat fade would otherwise stay painted over the new battle.
+      if (reset) this.cameras.main.resetFX();
       this.tickElapsed = view.elapsed;
       this.prevTickPos = reset ? new Map() : this.tickPos;
       this.tickPos = new Map(view.units.map((u) => [u.id, { x: u.pos.x, y: u.pos.y }]));

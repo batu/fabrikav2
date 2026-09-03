@@ -15,7 +15,7 @@ import {
   type UiHandle,
 } from "@fabrikav2/ui";
 import { ENERGY } from "../../content/economy.ts";
-import { ARENA_THEME, LEVEL_COUNT, levelSpec } from "../../content/levels.ts";
+import { ARENA_THEME, levelSpec } from "../../content/levels.ts";
 import { enemyDefinition, type EnemyKind } from "../../content/enemies.ts";
 import { MAGE_CLASSES, type MageClass } from "../../content/mages.ts";
 import { MAX_RIFT_TIER, PULL_COST_CRYSTALS, oddsFor, riftTier } from "../../content/rift.ts";
@@ -347,7 +347,7 @@ export function mountMageMasterScreen(opts: MageMasterScreenOptions): MageMaster
     const current = snap.unlockedLevel;
     // Climb: the current level sits at the bottom, the next three rise above it.
     const nodes: LevelMapNode[] = [];
-    for (let id = Math.min(LEVEL_COUNT, current + 2); id >= current; id -= 1) {
+    for (let id = current + 2; id >= current; id -= 1) {
       const state = id < current ? "completed" : id === current ? "current" : "locked";
       const stateLabel = state === "completed" ? copy["menu.cleared"] : state === "current" ? copy["menu.next"] : copy["menu.locked"];
       nodes.push({ id, label: String(id), name: `${copy["menu.level"]} ${id}, ${stateLabel}`, state });
@@ -535,71 +535,49 @@ export function mountMageMasterScreen(opts: MageMasterScreenOptions): MageMaster
     return card;
   };
 
-  /** Equipped vs new, side by side, with per-stat deltas (the decision the reveal asks for). */
-  const compareCard = (snap: MageMasterSnapshot, item: Item, current: Item): HTMLElement => {
-    const wrap = el("div", "mm-compare");
-    // Who receives it, first: portrait, name, role and the slot being replaced.
-    const owner = el("div", `mm-compare__owner mm-compare__owner--${item.cls}`);
-    owner.append(mageImage(lookFor(snap, item.cls), "mm-compare__owner-portrait", mageName(item.cls)));
-    const ownerText = el("div", "mm-compare__owner-text");
-    ownerText.append(
-      el("span", "mm-compare__owner-name", fill("reveal.for", { mage: mageName(item.cls) })),
-      el("span", "mm-compare__owner-role", `${copy[`mage.${item.cls}.role`]} · ${copy[item.slot === "weapon" ? "mages.weapon" : "mages.armor"]}`),
+  /** The reveal: one hero item with its power verdict, who gets it, and old → new per stat. */
+  const revealCard = (snap: MageMasterSnapshot, item: Item, current: Item): HTMLElement => {
+    const wrap = el("div", `mm-reveal-card mm-rarity--${item.rarity}`);
+    const powerDelta = itemPower(item) - itemPower(current);
+    const trend = powerDelta > 0 ? "up" : powerDelta < 0 ? "down" : "same";
+
+    const owner = el("div", "mm-reveal-card__owner");
+    owner.append(
+      mageImage(lookFor(snap, item.cls), "mm-reveal-card__portrait", mageName(item.cls)),
+      el("span", undefined, `${mageName(item.cls)} · ${copy[item.slot === "weapon" ? "mages.weapon" : "mages.armor"]}`),
     );
-    owner.append(ownerText);
-    wrap.append(owner);
-    const column = (label: string, it: Item, isNew: boolean): HTMLElement => {
-      const col = el("div", `mm-compare__col mm-rarity--${it.rarity}${isNew ? " mm-compare__col--new" : ""}`);
-      col.append(el("span", "mm-compare__label", label));
-      const frame = el("div", "mm-compare__frame");
-      frame.append(img(it.weapon ? weaponIcon(it.weapon.element) : armorIcon(it.cls), "mm-compare__icon", itemName(it)));
-      col.append(frame, el("span", "mm-compare__name", itemName(it)));
-      if (it.weapon) {
-        col.append(el("span", "mm-compare__traits", `${copy[`range.${it.weapon.range}`]} · ${copy[`pattern.${it.weapon.pattern}`]} · ${copy[`element.${it.weapon.element}`]}`));
-      }
-      return col;
-    };
-    const powerBefore = itemPower(current);
-    const powerAfter = itemPower(item);
-    const powerDelta = powerAfter - powerBefore;
-    const powerTrend = powerDelta > 0 ? "up" : powerDelta < 0 ? "down" : "same";
-    const head = el("div", "mm-compare__head");
-    // The arrow carries the verdict: green for a power gain, red for a loss.
-    const arrow = el("span", `mm-compare__arrow mm-compare__arrow--${powerTrend}`);
-    arrow.setAttribute("aria-hidden", "true");
-    head.append(column(copy["compare.equipped"], current, false), arrow, column(copy["compare.new"], item, true));
-    wrap.append(head);
+
+    const hero = el("div", "mm-reveal-card__hero");
+    hero.append(img(item.weapon ? weaponIcon(item.weapon.element) : armorIcon(item.cls), "mm-reveal-card__icon", itemName(item)));
+    const badge = el("span", `mm-reveal-card__badge mm-reveal-card__badge--${trend}`);
+    badge.append(el("b", undefined, `${powerDelta > 0 ? "+" : ""}${powerDelta}`), el("small", undefined, copy["compare.power"]));
+    hero.append(badge);
+
+    const name = el("h3", "mm-reveal-card__name", itemName(item));
+    const meta = el("p", "mm-reveal-card__meta");
+    meta.textContent = item.weapon
+      ? `${copy[`range.${item.weapon.range}`]} · ${copy[`pattern.${item.weapon.pattern}`]} · ${copy[`element.${item.weapon.element}.effect`]}`
+      : fill("reveal.replaces", { name: itemName(current) });
 
     const before = itemStats(current);
     const after = itemStats(item);
-    const table = el("dl", "mm-compare__stats");
+    const rows = el("dl", "mm-reveal-card__stats");
     for (const key of STAT_KEYS) {
       const a = before[key] ?? 0;
       const b = after[key] ?? 0;
       if (a === 0 && b === 0) continue;
-      const row = el("div", "mm-compare__row");
       const delta = b - a;
-      const trend = delta > 0 ? "up" : delta < 0 ? "down" : "same";
+      const rowTrend = delta > 0 ? "up" : delta < 0 ? "down" : "same";
+      const row = el("div", "mm-reveal-card__row");
       row.append(
         el("dt", undefined, copy[`stat.${key}`]),
-        el("dd", "mm-compare__cur", formatStat(key, a)),
-        el("dd", "mm-compare__next", formatStat(key, b)),
-        el("span", `mm-compare__delta mm-compare__delta--${trend}`, delta === 0 ? "" : `${delta > 0 ? "+" : ""}${formatStat(key, delta)}`),
+        el("dd", "mm-reveal-card__old", formatStat(key, a)),
+        el("dd", "mm-reveal-card__new", formatStat(key, b)),
+        el("span", `mm-reveal-card__delta mm-reveal-card__delta--${rowTrend}`, delta === 0 ? "" : `${delta > 0 ? "+" : ""}${formatStat(key, delta)}`),
       );
-      table.append(row);
+      rows.append(row);
     }
-    wrap.append(table);
-    if (item.weapon) wrap.append(el("p", "mm-item__effect", copy[`element.${item.weapon.element}.effect`]));
-
-    const power = el("p", "mm-compare__power");
-    power.append(
-      el("span", "mm-compare__power-label", copy["mages.power"]),
-      el("span", "mm-compare__cur", String(powerBefore)),
-      el("span", "mm-compare__power-arrow"),
-      el("span", "mm-compare__next", String(powerAfter)),
-      el("span", `mm-compare__delta mm-compare__delta--${powerTrend}`, powerDelta === 0 ? "" : `${powerDelta > 0 ? "+" : ""}${powerDelta}`),
-    );
-    wrap.append(power);
+    wrap.append(owner, hero, name, meta, rows);
     return wrap;
   };
 
@@ -844,6 +822,10 @@ export function mountMageMasterScreen(opts: MageMasterScreenOptions): MageMaster
       onClick,
     });
 
+  /** A quiet secondary action: plain text, no plate, for the option nobody should tap by reflex. */
+  const textAction = (label: string, dataAction: string, onClick: () => void): HTMLButtonElement =>
+    buildButtonElement({ label, dataAction, className: "mm-btn mm-btn--text", onClick });
+
   const mountOverlay = (kind: Overlay, snap: MageMasterSnapshot): UiHandle | null => {
     switch (kind) {
       case "pause": {
@@ -1006,8 +988,7 @@ export function mountMageMasterScreen(opts: MageMasterScreenOptions): MageMaster
         if (!item) return null;
         const current = item.slot === "weapon" ? snap.loadout[item.cls].weapon : snap.loadout[item.cls].armor;
         const body = el("div", "mm-reveal");
-        body.append(compareCard(snap, item, current));
-        body.append(el("p", "mm-reveal__replaces", fill("reveal.replaces", { name: itemName(current), gold: discardValue(current) })));
+        body.append(revealCard(snap, item, current));
         const actions = el("div", "fab-modal-actions mm-reveal__actions");
         actions.append(
           spriteAction(copy["reveal.use"], "reveal-use", true, () => {
@@ -1016,7 +997,7 @@ export function mountMageMasterScreen(opts: MageMasterScreenOptions): MageMaster
               toaster.show(fill("toast.equipped", { name: itemName(item), mage: mageName(item.cls) }));
             }
           }),
-          spriteAction(fill("reveal.discard", { gold: discardValue(item) }), "reveal-discard", false, () => {
+          textAction(fill("reveal.discard", { gold: discardValue(item) }), "reveal-discard", () => {
             const gold = discardValue(item);
             const before = controller.snapshot().gold;
             flyCurrency("gold", gold, body.querySelector(".mm-item__frame"), before, before + gold);

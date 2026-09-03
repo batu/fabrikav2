@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { MAGE_CLASSES } from "../../content/mages.ts";
-import { LEVEL_COUNT } from "../../content/levels.ts";
+import { LEVEL_COUNT, levelExponent, levelSpec } from "../../content/levels.ts";
 import { createBattle, simulateBattle, type PartyMember } from "../../src/game/sim/battle.ts";
 import { mageStats, rollItem, starterLoadouts, type Loadout } from "../../src/game/economy/items.ts";
 import { mulberry32 } from "@fabrikav2/kernel";
@@ -107,5 +107,22 @@ describe("separation and reach", () => {
       for (const e of battle.drainEvents()) if (e.type === "hit" && e.sourceId && melee.has(e.sourceId)) meleeHits += 1;
     }
     expect(meleeHits).toBeGreaterThan(0);
+  });
+});
+
+describe("endless levels", () => {
+  it("builds any level past the authored ladder with capped waves and slower scaling", () => {
+    const spec = levelSpec(37);
+    expect(spec.stages.length).toBe(4);
+    for (const stage of spec.stages) expect(stage.spawns.length).toBeLessThanOrEqual(9);
+    expect(levelExponent(LEVEL_COUNT + 10)).toBe(LEVEL_COUNT - 1 + 5);
+    // Ultimate gear must make headway at level 25: at least one stage cleared inside four minutes.
+    const battle = createBattle({ level: 25, party: gearedParty("ultimate"), seed: 1 });
+    let cleared = 0;
+    for (let t = 0; t < 240 && battle.phase !== "won" && battle.phase !== "lost"; t += 1 / 30) {
+      battle.step(1 / 30);
+      for (const e of battle.drainEvents()) if (e.type === "stageClear") cleared += 1;
+    }
+    expect(cleared).toBeGreaterThanOrEqual(1);
   });
 });

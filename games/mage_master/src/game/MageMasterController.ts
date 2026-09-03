@@ -384,10 +384,10 @@ export function createMageMasterController(options: ControllerOptions = {}): Mag
     },
     next() {
       if (surface !== "win") return false;
-      const nextLevel = Math.min(LEVEL_COUNT, battleLevel + 1);
+      const nextLevel = battleLevel + 1;
       battle = null;
       surface = "menu";
-      if (battleLevel >= LEVEL_COUNT || !canEnterLevel(save, nextLevel)) {
+      if (!canEnterLevel(save, nextLevel)) {
         notify();
         return true;
       }
