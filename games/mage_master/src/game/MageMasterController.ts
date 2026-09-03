@@ -1,3 +1,4 @@
+import { ENERGY } from "../../content/economy.ts";
 import { loadPersistedJson, mulberry32, savePersistedJson } from "@fabrikav2/kernel";
 import { createAnalytics, createRingBufferSink, type AnalyticsEvent, type RingBufferSink } from "@fabrikav2/sdk/analytics";
 import { createHaptics, NotificationType } from "@fabrikav2/sdk/haptics";
@@ -260,7 +261,7 @@ export function createMageMasterController(options: ControllerOptions = {}): Mag
           return { cls, hp: stats.hp, maxHp: stats.hp, alive: true };
         });
     const energyNextIn =
-      save.energy >= 10 ? 0 : Math.max(0, Math.ceil((save.energyAt + 60_000 - t) / 1000));
+      save.energy >= ENERGY.cap ? 0 : Math.max(0, Math.ceil((save.energyAt + ENERGY.regenSeconds * 1000 - t) / 1000));
     return {
       scene: scene(),
       status: surface === "battle" ? "playing" : surface === "pause" ? "paused" : surface === "win" ? "won" : surface === "fail" ? "lost" : "idle",

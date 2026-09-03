@@ -96,3 +96,13 @@ describe("economy", () => {
     expect(applyOffline(defaultSave(T0), T0 + 3600 * 1000).grant).toBeNull();
   });
 });
+
+describe("energy countdown", () => {
+  it("counts down from the regen interval after a level entry, not from a minute", async () => {
+    const { createMageMasterController } = await import("../../src/game/MageMasterController.ts");
+    const { ENERGY } = await import("../../content/economy.ts");
+    const controller = createMageMasterController({ now: () => 1_000_000, storageKey: "mm-test-countdown" });
+    controller.enterLevel(1);
+    expect(controller.snapshot().energyNextIn).toBe(ENERGY.regenSeconds);
+  });
+});
