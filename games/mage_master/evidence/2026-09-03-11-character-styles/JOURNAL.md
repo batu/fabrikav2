@@ -22,3 +22,11 @@ one prompt per style; prompts in the session log). Three calls.
 
 `style-comparison.png` puts each reference beside its result. Nothing is
 wired into the game; this is a direction pick.
+
+## Round 2 — regenerated with codex (Batu: "no use codex please")
+
+`1-…`, `2-…`, `3-…` are now the codex image tool results (`codex exec -i <style ref> -i
+<party ref>`, gpt image model, #333333 matte). The fal Nano Banana versions are kept as
+`fal-*.png` for the record. Codex's Forge Master set is a simplified chibi rather than
+a true flat vector; the Kingdom Rush set fixed the missing staff. Portal: stream
+`mage-master`, second report post.

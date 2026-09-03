@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mage Master — character style pick (codex)</title>
+<style>
+  body{margin:0;padding:20px;background:#f4f4ef;color:#23262b;font:15px/1.5 -apple-system,system-ui,"Helvetica Neue",sans-serif}
+  h1{font-size:22px;margin:0 0 4px} h2{font-size:17px;margin:28px 0 8px} p{margin:6px 0} .muted{color:#7b8089}
+  .row{display:grid;grid-template-columns:minmax(200px,1fr) minmax(300px,2.6fr);gap:14px;align-items:start;background:#fff;border:2px solid #dcded6;border-radius:16px;padding:14px;margin:10px 0}
+  .row img{width:100%;height:auto;display:block;border-radius:10px;background:#eceee7}
+  .cap{font-size:12px;color:#7b8089;margin-top:4px}
+  .ask{background:#fff;border:2px solid #ef4d4d;border-radius:16px;padding:14px;margin-top:22px}
+  .ask b{color:#ef4d4d}
+  ul{margin:6px 0 0 18px;padding:0}
+</style></head><body>
+<h1>Mage Master — three character styles</h1>
+<p class="muted">2026-09-03 · branch <code>feat/mage-master-minimal-ui</code> · nothing is wired into the game; this is a direction pick.</p>
+<p>Each row shows the reference on the left and the generated party (Bastion, Ember, Sage) on the right. All three were generated from the same identity reference (the current sprites) plus the style reference, with the codex image tool (gpt image model), one call per style with both references attached. On a #333333 matte, as the sprite pipeline expects.</p>
+<div class="row"><div><img src="02_ref-0-current-party.jpg" alt="Current party"><div class="cap">Identity reference: the current unit sprites.</div></div><div class="muted" style="align-self:center">The three sets below keep these identities: stout dwarf tank with shield and lightning staff, spiky red-haired warrior mage with an ice staff, hooded support mage with a lightning staff.</div></div>
+
+<h2>1 · Forge Master simple</h2>
+<div class="row"><div><img src="03_ref-1-forge-master.jpg" alt="Forge Master gameplay"><div class="cap">Reference: Forge Master App Store gameplay shot (tiny flat fighters).</div></div><div><img src="06_1-forge-master-style.png" alt="Forge Master style party"><div class="cap">Simplified chibi with flat two-tone shading and clean outlines. Codex kept more detail than Forge Master's vector look; if this direction wins, the next pass pushes flatter.</div></div></div>
+
+<h2>2 · Top-down hat &amp; wand</h2>
+<div class="row"><div><img src="04_ref-2-storyboard.jpeg" alt="Storyboard"><div class="cap">Reference: our storyboard (refs/art/layout-reference.jpeg), the tiny top-down mages.</div></div><div><img src="07_2-topdown-hat-wand-style.png" alt="Top-down style party"><div class="cap">Hat is the silhouette (helmet spike for Bastion), shoulders and shield beneath, staff out past the brim with the element crystal. Matches the storyboard figures; reads at battlefield size.</div></div></div>
+
+<h2>3 · Kingdom Rush gameplay</h2>
+<div class="row"><div><img src="05_ref-3-kingdom-rush.jpg" alt="Kingdom Rush gameplay"><div class="cap">Reference: Kingdom Rush gameplay (Wikipedia; only a 325×244 copy was reachable).</div></div><div><img src="08_3-kingdom-rush-style.png" alt="Kingdom Rush style party"><div class="cap">Chunky three-quarter units, thick outlines, two-step cel shading, ornate staffs. Closest to the current art direction, and every hero holds the right weapon.</div></div></div>
+
+<div class="ask"><b>Ask:</b> reply with 1, 2 or 3. Then I produce the full unit set in that style: the three mages as separate sprites on the matte the composite pipeline expects, and the ten enemies to match.
+<ul><li>1 fits the minimal UI best and costs least to keep consistent.</li><li>2 changes the camera feel (top-down) and would want the enemies and arena redrawn the same way.</li><li>3 is closest to the original art direction (Kingdom Rush warmth) and the current sprites.</li></ul></div>
+</body></html>
