@@ -177,13 +177,16 @@ export interface MageAnchor {
   readonly staffPivotY: number;
   /** Draw the staff behind the body (hand in front of the shaft); false keeps the wand on top of the hand. */
   readonly staffBehind: boolean;
+  /** Where the crystal sits within the staff icon (fraction): projectiles and cast flashes start here. */
+  readonly staffTipX: number;
+  readonly staffTipY: number;
 }
 
 const ANCHORS: Readonly<Record<string, MageAnchor>> = {
   // Fist centres of the 2026-09-03 chibi set (measured on a 0.1 grid over the 512 body box).
-  tank: { x: 0.15, y: 0.24, staffScale: 0.62, staffAngle: -6, staffPivotX: 0.44, staffPivotY: 0.56, staffBehind: false },
-  warrior: { x: 0.27, y: 0.42, staffScale: 0.58, staffAngle: -8, staffPivotX: 0.44, staffPivotY: 0.56, staffBehind: false },
-  support: { x: 0.24, y: 0.38, staffScale: 0.56, staffAngle: -4, staffPivotX: 0.44, staffPivotY: 0.56, staffBehind: false },
+  tank: { x: 0.15, y: 0.24, staffScale: 0.62, staffAngle: -6, staffPivotX: 0.44, staffPivotY: 0.56, staffBehind: false, staffTipX: 0.72, staffTipY: 0.12 },
+  warrior: { x: 0.27, y: 0.42, staffScale: 0.58, staffAngle: -8, staffPivotX: 0.44, staffPivotY: 0.56, staffBehind: false, staffTipX: 0.72, staffTipY: 0.12 },
+  support: { x: 0.24, y: 0.38, staffScale: 0.56, staffAngle: -4, staffPivotX: 0.44, staffPivotY: 0.56, staffBehind: false, staffTipX: 0.72, staffTipY: 0.12 },
 };
 
 export function mageAnchor(cls: string): MageAnchor {

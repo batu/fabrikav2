@@ -22,8 +22,21 @@ export interface MageLook {
 /** Body box: the figure is drawn into the bottom square, feet on its lower edge. */
 export const COMPOSITE_SIZE = 512;
 /** Transparent rows reserved above the body box for the raised staff (worst case 82px). */
-const COMPOSITE_HEADROOM = 96;
-const COMPOSITE_HEIGHT = COMPOSITE_SIZE + COMPOSITE_HEADROOM;
+export const COMPOSITE_HEADROOM = 96;
+export const COMPOSITE_HEIGHT = COMPOSITE_SIZE + COMPOSITE_HEADROOM;
+
+/** Canvas-space position of the staff crystal for a class (the point spells leave from). */
+export function staffTipCanvas(cls: string): { x: number; y: number } {
+  const a = mageAnchor(cls);
+  const size = COMPOSITE_SIZE * a.staffScale;
+  const dx = (a.staffTipX - a.staffPivotX) * size;
+  const dy = (a.staffTipY - a.staffPivotY) * size;
+  const rad = (a.staffAngle * Math.PI) / 180;
+  return {
+    x: a.x * COMPOSITE_SIZE + dx * Math.cos(rad) - dy * Math.sin(rad),
+    y: COMPOSITE_HEADROOM + a.y * COMPOSITE_SIZE + dx * Math.sin(rad) + dy * Math.cos(rad),
+  };
+}
 
 const imageCache = new Map<string, Promise<HTMLImageElement>>();
 const compositeCache = new Map<string, HTMLCanvasElement>();

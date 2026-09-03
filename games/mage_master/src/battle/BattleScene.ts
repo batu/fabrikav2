@@ -6,7 +6,7 @@ import { THEME_PROPS, allPropSprites, allUnitSprites, groundScene, propSprite, s
 import { copy, fill } from "../../design/copy.ts";
 import type { MageMasterController } from "../game/MageMasterController.ts";
 import type { BattleEvent, BattleView, Unit } from "../game/sim/types.ts";
-import { cachedComposite, COMPOSITE_SIZE, lookKey, type MageLook } from "./mageComposite.ts";
+import { cachedComposite, COMPOSITE_HEIGHT, COMPOSITE_SIZE, lookKey, staffTipCanvas, type MageLook } from "./mageComposite.ts";
 import { readPalette } from "./palette.ts";
 import type { Sfx } from "../game/sfx.ts";
 
@@ -384,6 +384,29 @@ class Scene extends Phaser.Scene {
     return visual;
   }
 
+  /** World position of a mage's staff crystal (null for plain sprites): spells and flashes start here. */
+  private staffTip(unit: Unit): { x: number; y: number } | null {
+    const v = this.visuals.get(unit.id);
+    if (!v || !this.partyLooks[unit.kind] || !this.textures.exists(`look-${lookKey(this.partyLooks[unit.kind]!)}`)) return null;
+    const tip = staffTipCanvas(unit.kind);
+    const scale = v.baseScale;
+    const flip = v.sprite.flipX ? -1 : 1;
+    return {
+      x: v.root.x + (tip.x - COMPOSITE_SIZE / 2) * scale * flip,
+      y: v.root.y + v.sprite.y - (COMPOSITE_HEIGHT - tip.y) * scale,
+    };
+  }
+
+  /** Ring flash plus sparks: the one impact/cast shape, tinted per element. */
+  private burst(x: number, y: number, color: number, size = 1, sparks = 6): void {
+    const ring = this.add.image(x, y, "ring").setTint(color).setDepth(DEPTH.fx).setScale(0.25 * size).setAlpha(0.9);
+    this.tweens.add({ targets: ring, scale: 1.1 * size, alpha: 0, duration: 200, ease: "Quad.out", onComplete: () => ring.destroy() });
+    if (sparks > 0) {
+      this.sparks.setParticleTint(color);
+      this.sparks.explode(sparks, x, y);
+    }
+  }
+
   private drawHp(visual: UnitVisual, unit: Unit): void {
     if (!visual.hpBar) return;
     const p = this.palette;
@@ -458,6 +481,7 @@ class Scene extends Phaser.Scene {
         if (unit) {
           this.ensureVisual(unit);
           if (unit.boss) {
+            this.burst(unit.pos.x, unit.pos.y - UNIT_HEIGHT * unit.scale * 0.5, p("danger"), 2.4, 12);
             this.cameras.main.shake(260, 0.006);
             this.banner(copy["battle.boss"], p("danger"));
             this.sfx?.play("boss");
@@ -475,6 +499,10 @@ class Scene extends Phaser.Scene {
         const len = Math.hypot(dx, dy) || 1;
         const nx = dx / len;
         const ny = dy / len;
+        if (unit && unit.side === "party") {
+          const tip = this.staffTip(unit);
+          if (tip) this.burst(tip.x, tip.y, elementColor(p, unit.element), 0.6, 3);
+        }
         if (event.range === "melee") {
           // Anticipation, lunge, settle.
           this.tweens.chain({
@@ -516,14 +544,18 @@ class Scene extends Phaser.Scene {
         const target = this.units.get(event.targetId);
         if (!source || !target) break;
         const color = elementColor(p, event.element);
-        const orb = this.add.image(source.pos.x, source.pos.y - UNIT_HEIGHT * 0.55, "orb").setTint(color).setDepth(DEPTH.projectile).setScale(0.5);
+        // Spells leave the staff crystal; plain sprites (enemies) fire from chest height.
+        const start = this.staffTip(source) ?? { x: source.pos.x, y: source.pos.y - UNIT_HEIGHT * 0.55 * source.scale };
+        this.burst(start.x, start.y, color, 0.7, 4);
+        const orb = this.add.image(start.x, start.y, "orb").setTint(color).setDepth(DEPTH.projectile).setScale(0.5);
+        this.tweens.add({ targets: orb, scale: 0.68, duration: 90, yoyo: true, repeat: -1, ease: "Sine.inOut" });
         const trail = this.add.particles(0, 0, "dot", {
           follow: orb,
-          speed: 10,
-          scale: { start: 0.35, end: 0 },
-          alpha: { start: 0.8, end: 0 },
-          lifespan: 220,
-          frequency: 18,
+          speed: 14,
+          scale: { start: 0.42, end: 0 },
+          alpha: { start: 0.85, end: 0 },
+          lifespan: 260,
+          frequency: 12,
           tint: color,
         }).setDepth(DEPTH.projectile - 1);
         const ms = event.seconds * 1000;
@@ -543,8 +575,7 @@ class Scene extends Phaser.Scene {
             orb.y = from.y + (ty - from.y) * k + arc * 4 * k * (1 - k);
           },
           onComplete: () => {
-            this.sparks.setParticleTint(color);
-            this.sparks.explode(8, orb.x, orb.y);
+            this.burst(orb.x, orb.y, color, 1, 8);
             trail.stop();
             this.time.delayedCall(260, () => trail.destroy());
             orb.destroy();
@@ -585,6 +616,8 @@ class Scene extends Phaser.Scene {
         }
         if (event.kind !== "burn") this.sfx?.play(event.crit ? "crit" : "hit");
         const color = event.crit ? p("gold") : target.side === "party" ? p("hp") : event.element ? elementColor(p, event.element) : 0xffffff;
+        if (event.kind === "damage") this.burst(target.pos.x, target.pos.y - UNIT_HEIGHT * target.scale * 0.45, color, event.crit ? 1.3 : 0.8, event.crit ? 8 : 0);
+        if (event.crit && target.side === "enemy") this.cameras.main.shake(80, 0.003);
         const label = `${event.blocked ? "-" : ""}${event.amount}${event.crit ? "!" : ""}`;
         this.floatText(target.pos.x, target.pos.y - UNIT_HEIGHT * target.scale * 0.9, label, color, { crit: event.crit, size: event.kind === "burn" ? 12 : undefined, slotKey: target.id });
         if (event.crit && target.side === "party") this.cameras.main.shake(120, 0.004);
@@ -631,8 +664,7 @@ class Scene extends Phaser.Scene {
         if (!target || !v) break;
         this.floatText(target.pos.x, target.pos.y - UNIT_HEIGHT * 0.9, `+${event.amount}`, p("success"), { size: 15 });
         this.sfx?.play("heal");
-        this.sparks.setParticleTint(p("success"));
-        this.sparks.explode(6, target.pos.x, target.pos.y - 30);
+        this.burst(target.pos.x, target.pos.y - UNIT_HEIGHT * target.scale * 0.5, p("success"), 1.4, 6);
         break;
       }
       case "status": {
@@ -662,6 +694,8 @@ class Scene extends Phaser.Scene {
         v.hpBar?.clear();
         v.burn?.stop();
         this.sfx?.play("death");
+        v.flash = 1;
+        if (unit) this.burst(unit.pos.x, unit.pos.y - UNIT_HEIGHT * unit.scale * 0.4, unit.boss ? p("gold") : p("cream"), unit?.boss ? 2.2 : 1.1, 0);
         if (event.loot && event.loot.gold > 0) this.sfx?.play("coin");
         if (unit?.side === "enemy") {
           this.dust.explode(8, unit.pos.x, unit.pos.y);

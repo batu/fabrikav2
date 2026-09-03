@@ -30,3 +30,25 @@ wired into the game; this is a direction pick.
 `fal-*.png` for the record. Codex's Forge Master set is a simplified chibi rather than
 a true flat vector; the Kingdom Rush set fixed the missing staff. Portal: stream
 `mage-master`, second report post.
+
+## Round 3 — style 1 installed, wand-tip spells, VFX pass, defeat fallback
+
+- Style 1 chosen. Three mage bases (magenta garment → tintable layer, empty
+  fist) and seven enemies generated with codex against the style sheet;
+  anchors re-measured (`set1-anchor-grid.png`); composite preview
+  `set1-mages-composite-preview.png`; enemies `set1-enemies.png`.
+- Device: `set1-home.png`, `set1-battle.png`, `set1-reveal.png`.
+- Spells now leave the staff crystal: `staffTipCanvas()` transforms the
+  icon's crystal point through anchor, rotation, sprite scale, flip and foot
+  inset. `set1-vfx-burst-20f-80ms.png` f07–f09: Sage's bolt leaves the wand
+  tip; f13/f16/f18: impact rings and hit flashes.
+- VFX pass: cast flash at the tip on every attack, pulsing orb with a denser
+  trail, element-tinted impact ring on direct hits (bigger on crits), crit
+  shake for both sides, white flash + pop ring on deaths (gold, larger for
+  bosses), heal ring, boss-entrance ring.
+- Defeat fallback: losing the newest level drops progression by one (floor:
+  level 1); Retry plays that level; the card says "You fall back to level N".
+  Reducer unit-tested; the on-device card capture is pending (the phone was on
+  another app when probed).
+- `mm-shot.sh` now reads the tunnel address from tunneld (it changes on every
+  reconnect).

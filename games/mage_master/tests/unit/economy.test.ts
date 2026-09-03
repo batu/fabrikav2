@@ -11,6 +11,7 @@ import {
   defaultSave,
   discardPending,
   enterLevel,
+  failLevel,
   pull,
   skipCost,
   skipUpgrade,
@@ -104,5 +105,15 @@ describe("energy countdown", () => {
     const controller = createMageMasterController({ now: () => 1_000_000, storageKey: "mm-test-countdown" });
     controller.enterLevel(1);
     expect(controller.snapshot().energyNextIn).toBe(ENERGY.regenSeconds);
+  });
+});
+
+describe("defeat fallback", () => {
+  it("losing the newest level drops progression by one, never below the first level", () => {
+    const base = { ...defaultSave(0), highestCleared: 4 };
+    const loot = { gold: 0, crystals: 0 };
+    expect(failLevel(base, loot, 5).highestCleared).toBe(3);
+    expect(failLevel(base, loot, 2).highestCleared).toBe(4);
+    expect(failLevel({ ...base, highestCleared: 0 }, loot, 1).highestCleared).toBe(0);
   });
 });

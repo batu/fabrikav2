@@ -146,6 +146,8 @@ export const copy = {
   "fail.eyebrow": "Level {level}",
   "fail.message": "All three mages fell. Replay an earlier level for crystals, or summon stronger gear.",
   "fail.retry": "Retry",
+  "fail.fallback": "All three mages fell. You fall back to level {level}.",
+  "fail.retryLevel": "Play level {level}",
   "fail.home": "Home",
   "result.loot": "Loot",
   "offline.title": "Welcome",

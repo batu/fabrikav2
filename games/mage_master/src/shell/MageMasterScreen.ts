@@ -913,8 +913,9 @@ export function mountMageMasterScreen(opts: MageMasterScreenOptions): MageMaster
             textAction(copy["win.home"], "result-menu", () => collectThen(() => controller.home())),
           );
         } else {
+          const retryLevel = Math.min(snap.level, snap.unlockedLevel);
           actions.append(
-            spriteAction(copy["fail.retry"], "result-retry", true, () => collectThen(() => controller.retry())),
+            spriteAction(retryLevel < snap.level ? fill("fail.retryLevel", { level: retryLevel }) : copy["fail.retry"], "result-retry", true, () => collectThen(() => controller.retry())),
             textAction(copy["fail.home"], "result-menu", () => collectThen(() => controller.home())),
           );
         }
@@ -929,7 +930,10 @@ export function mountMageMasterScreen(opts: MageMasterScreenOptions): MageMaster
           title: win ? copy["win.title"] : copy["fail.title"],
           ribbonImage: letter ?? (win ? assetUrls.ribbon.win : assetUrls.ribbon.fail),
           cardImage: skinned(assetUrls.panel),
-          messages: [win ? fill("win.eyebrow", { level: snap.level }) : fill("fail.eyebrow", { level: snap.level }), win ? copy["win.message"] : copy["fail.message"]],
+          messages: [
+            win ? fill("win.eyebrow", { level: snap.level }) : fill("fail.eyebrow", { level: snap.level }),
+            win ? copy["win.message"] : snap.unlockedLevel < snap.level ? fill("fail.fallback", { level: snap.unlockedLevel }) : copy["fail.message"],
+          ],
           rewardDisplay: reward,
           actions,
         });

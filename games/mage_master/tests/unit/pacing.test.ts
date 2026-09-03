@@ -103,7 +103,7 @@ function playSession(seed: number, minutes: number): Log {
       log.highest = Math.max(log.highest, level);
       target = Math.min(LEVEL_COUNT, level + 1);
     } else {
-      save = failLevel(save, loot);
+      save = failLevel(save, loot, level);
       log.levelsLost += 1;
       // Farm the previous level while gearing up, then retry.
       target = Math.max(1, level - 1);

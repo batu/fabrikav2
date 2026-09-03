@@ -164,8 +164,15 @@ export function completeLevel(state: SaveState, level: number, loot: Loot): { st
   };
 }
 
-export function failLevel(state: SaveState, loot: Loot): SaveState {
-  return { ...state, gold: state.gold + loot.gold, crystals: state.crystals + loot.crystals };
+/** A defeat on the newest level drops progression one level (never below the first); earlier replays cost nothing. */
+export function failLevel(state: SaveState, loot: Loot, level: number): SaveState {
+  const fellBack = level > state.highestCleared && state.highestCleared > 0;
+  return {
+    ...state,
+    gold: state.gold + loot.gold,
+    crystals: state.crystals + loot.crystals,
+    highestCleared: fellBack ? state.highestCleared - 1 : state.highestCleared,
+  };
 }
 
 export function canPull(state: SaveState): boolean {

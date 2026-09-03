@@ -226,7 +226,7 @@ export function createMageMasterController(options: ControllerOptions = {}): Mag
       haptics.notification(NotificationType.Success);
       surface = "win";
     } else {
-      save = failLevel(save, view.loot);
+      save = failLevel(save, view.loot, battleLevel);
       reward = null;
       analytics.levelFail({ level_id: String(battleLevel), level_index: battleLevel - 1 });
       haptics.notification(NotificationType.Error);
@@ -395,13 +395,15 @@ export function createMageMasterController(options: ControllerOptions = {}): Mag
     },
     retry() {
       if (surface !== "fail") return false;
+      // After a fallback the newest level is one lower than the one just lost.
+      const level = Math.min(battleLevel, unlockedLevel(save));
       battle = null;
       surface = "menu";
-      if (!canEnterLevel(save, battleLevel)) {
+      if (!canEnterLevel(save, level)) {
         notify();
         return true;
       }
-      return startBattle(battleLevel);
+      return startBattle(level);
     },
     pull() {
       if (surface !== "rift" || !canPull(save)) return false;
