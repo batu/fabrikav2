@@ -1,0 +1,339 @@
+{
+  "consensus": [
+    "layout",
+    "color",
+    "extra-element",
+    "spacing",
+    "background"
+  ],
+  "defects": [
+    {
+      "defect": "The two plate buttons use inconsistent frame styles and widths \u2014 'Next level' is a plain rounded gold pill while 'Home' is a wider gem-tipped ribbon plate with side gems extending past the pill's width",
+      "direction": "Give both buttons the same plate silhouette, width and ornament treatment, differing only in gold vs dark fill",
+      "region": "Home button vs Next level button, y\u2248880-1070",
+      "severity": "major"
+    },
+    {
+      "defect": "The ornate card frame is clipped at both screen edges \u2014 the left gold border is cut by the viewport and the right border sits flush against it, so the card reads as overflowing rather than as a centered floating panel",
+      "direction": "Inset the card to leave ~24-32px of arena background on both sides so the full ornate frame and its corner bosses are visible",
+      "region": "Victory card left/right edges, x\u224830-40 and x\u2248690-700, y\u2248430-1140",
+      "severity": "major"
+    },
+    {
+      "defect": "The laurel/title banner overhangs and is clipped by the card frame on the left (laurel tips cut at x\u224835) and the sparkle/gem flourishes bleed above the top rail into the arena",
+      "direction": "Scale the title art down ~10-15% so laurels sit inside the frame rails with a consistent margin, or intentionally overhang symmetrically on both sides",
+      "region": "Victory title art, y\u2248400-620",
+      "severity": "major"
+    },
+    {
+      "defect": "Stray unit sprites (small creature/animal art) protrude from behind the card's top edge and read as clipped floating debris, not as intentional paused-arena content",
+      "direction": "Dim/blur the paused arena behind a scrim so no half-hidden sprites poke over the card edge",
+      "region": "Above card top rail, x\u2248330-410, y\u2248395-425",
+      "severity": "major"
+    },
+    {
+      "defect": "The paused battle arena is not visibly represented; the dimmed background is mostly empty terrain and HUD.",
+      "direction": "Show subdued combat units or arena action around/behind the modal while retaining the victory card's contrast.",
+      "region": "now-13-win, behind the victory card",
+      "severity": "major"
+    },
+    {
+      "defect": "Body/loot text uses a plain sans-serif with no gold gradient, outline or drop shadow, clashing with the painted Kingdom Rush title art",
+      "direction": "Apply a warm cream fill with dark outline and subtle bevel to match the title's painted treatment",
+      "region": "Loot row and body text, y\u2248680-830",
+      "severity": "minor"
+    },
+    {
+      "defect": "Large empty wood-plank gap between the title art and the message block leaves the card top-heavy and slightly unfinished-looking",
+      "direction": "Tighten vertical rhythm: reduce the gap or enlarge the message/loot block so content fills the card evenly",
+      "region": "card interior between Victory banner and 'Level 1 cleared' text (~y=610-680)",
+      "severity": "minor"
+    },
+    {
+      "defect": "Large empty wood gap between the title art and the message block, while the loot row is cramped against the Next level button; vertical rhythm is uneven",
+      "direction": "Distribute vertical spacing evenly: tighten the title-to-message gap and add breathing room below the loot row",
+      "region": "Loot row and cleared message, y\u2248670-840",
+      "severity": "minor"
+    },
+    {
+      "defect": "Loot values sit as bare text on the wood background without framed chips or plates, reading flatter than the ornate framing elsewhere",
+      "direction": "Wrap coin and crystal rewards in small framed pills/plates matching the wood-and-gold UI style",
+      "region": "loot row (~y=770-830)",
+      "severity": "minor"
+    },
+    {
+      "defect": "Two purple gems sit centered on the top and bottom edges of the Home plate directly over the label, colliding visually with the text and looking like misplaced ornament",
+      "direction": "Move edge gems to the plate's left/right terminals only, keeping the label band clear",
+      "region": "Home button, gems at x\u2248360 y\u22481005 and y\u22481065",
+      "severity": "minor"
+    },
+    {
+      "defect": "A stray small creature/enemy sprite pokes over the top-center card frame, colliding with the ornament",
+      "direction": "Ensure the result card renders above arena sprites or dim/hide units behind the modal",
+      "region": "top edge of card, small sprite above frame (~x=390,y=400)",
+      "severity": "minor"
+    },
+    {
+      "defect": "Hero names (blue 'Bastion', red 'Ember', green 'Sage') have low contrast against the dark dimmed cards",
+      "direction": "Brighten name text or add a subtle outline/shadow so labels stay legible under the dim overlay",
+      "region": "party HUD card name labels (~y=1290)",
+      "severity": "minor"
+    },
+    {
+      "defect": "The arena is only slightly darkened, so its sandy tan competes with the card and there is no clear modal separation",
+      "direction": "Add a stronger dark vignette/scrim behind the card to push the arena back",
+      "region": "Paused arena background behind card, full screen",
+      "severity": "minor"
+    },
+    {
+      "defect": "The wood-plank interior shows flat vertical seam lines and small floating rivet nubs mid-panel with no supporting rail, reading as unfinished CSS repeat rather than painted wood",
+      "direction": "Anchor rivets to a horizontal cross-rail or remove them, and soften the vertical plank seams with painted grain",
+      "region": "Card interior, y\u2248620-1140",
+      "severity": "minor"
+    }
+  ],
+  "participated": [
+    "codex/gpt-5.6-terra",
+    "anthropic/claude-fable-5",
+    "anthropic/claude-opus-5"
+  ],
+  "per_model": {
+    "anthropic/claude-fable-5": {
+      "defects": [
+        {
+          "defect": "Large empty wood-plank gap between the title art and the message block leaves the card top-heavy and slightly unfinished-looking",
+          "direction": "Tighten vertical rhythm: reduce the gap or enlarge the message/loot block so content fills the card evenly",
+          "key": "spacing",
+          "region": "card interior between Victory banner and 'Level 1 cleared' text (~y=610-680)",
+          "severity": "minor"
+        },
+        {
+          "defect": "Loot values sit as bare text on the wood background without framed chips or plates, reading flatter than the ornate framing elsewhere",
+          "direction": "Wrap coin and crystal rewards in small framed pills/plates matching the wood-and-gold UI style",
+          "key": "layout",
+          "region": "loot row (~y=770-830)",
+          "severity": "minor"
+        },
+        {
+          "defect": "A stray small creature/enemy sprite pokes over the top-center card frame, colliding with the ornament",
+          "direction": "Ensure the result card renders above arena sprites or dim/hide units behind the modal",
+          "key": "extra-element",
+          "region": "top edge of card, small sprite above frame (~x=390,y=400)",
+          "severity": "minor"
+        },
+        {
+          "defect": "Hero names (blue 'Bastion', red 'Ember', green 'Sage') have low contrast against the dark dimmed cards",
+          "direction": "Brighten name text or add a subtle outline/shadow so labels stay legible under the dim overlay",
+          "key": "color",
+          "region": "party HUD card name labels (~y=1290)",
+          "severity": "minor"
+        }
+      ],
+      "model": "claude-fable-5",
+      "recurring_checks": [
+        {
+          "evidence": "now-13-win: Victory laurel banner composites transparently over card frame and arena at ~(360,490)",
+          "id": "banner-transparency",
+          "pass": true
+        },
+        {
+          "evidence": "now-13-win: lettered Victory art, coin/crystal icons, and plate buttons are painted assets, not font glyph stand-ins (~360,490 / ~250,818)",
+          "id": "asset-identity",
+          "pass": true
+        },
+        {
+          "evidence": "now-13-win: pause glyph centered in circular button at ~(645,270); 1x centered in plate at ~(88,270)",
+          "id": "glyph-centering",
+          "pass": true
+        },
+        {
+          "evidence": "now-13-win: 'Next level' and 'Home' labels sit fully inside their plate buttons at ~(360,912) and ~(360,1037)",
+          "id": "content-containment",
+          "pass": true
+        },
+        {
+          "evidence": "now-13-win: Bastion/Ember/Sage HUD cards equal width and height across row at y\u22481240-1470",
+          "id": "sibling-size-consistency",
+          "pass": true
+        }
+      ],
+      "score": 92.0
+    },
+    "anthropic/claude-opus-5": {
+      "defects": [
+        {
+          "defect": "The ornate card frame is clipped at both screen edges \u2014 the left gold border is cut by the viewport and the right border sits flush against it, so the card reads as overflowing rather than as a centered floating panel",
+          "direction": "Inset the card to leave ~24-32px of arena background on both sides so the full ornate frame and its corner bosses are visible",
+          "key": "layout",
+          "region": "Victory card left/right edges, x\u224830-40 and x\u2248690-700, y\u2248430-1140",
+          "severity": "major"
+        },
+        {
+          "defect": "The laurel/title banner overhangs and is clipped by the card frame on the left (laurel tips cut at x\u224835) and the sparkle/gem flourishes bleed above the top rail into the arena",
+          "direction": "Scale the title art down ~10-15% so laurels sit inside the frame rails with a consistent margin, or intentionally overhang symmetrically on both sides",
+          "key": "layout",
+          "region": "Victory title art, y\u2248400-620",
+          "severity": "major"
+        },
+        {
+          "defect": "Stray unit sprites (small creature/animal art) protrude from behind the card's top edge and read as clipped floating debris, not as intentional paused-arena content",
+          "direction": "Dim/blur the paused arena behind a scrim so no half-hidden sprites poke over the card edge",
+          "key": "extra-element",
+          "region": "Above card top rail, x\u2248330-410, y\u2248395-425",
+          "severity": "major"
+        },
+        {
+          "defect": "The two plate buttons use inconsistent frame styles and widths \u2014 'Next level' is a plain rounded gold pill while 'Home' is a wider gem-tipped ribbon plate with side gems extending past the pill's width",
+          "direction": "Give both buttons the same plate silhouette, width and ornament treatment, differing only in gold vs dark fill",
+          "key": "sizing",
+          "region": "Home button vs Next level button, y\u2248880-1070",
+          "severity": "major"
+        },
+        {
+          "defect": "Two purple gems sit centered on the top and bottom edges of the Home plate directly over the label, colliding visually with the text and looking like misplaced ornament",
+          "direction": "Move edge gems to the plate's left/right terminals only, keeping the label band clear",
+          "key": "iconography",
+          "region": "Home button, gems at x\u2248360 y\u22481005 and y\u22481065",
+          "severity": "minor"
+        },
+        {
+          "defect": "The wood-plank interior shows flat vertical seam lines and small floating rivet nubs mid-panel with no supporting rail, reading as unfinished CSS repeat rather than painted wood",
+          "direction": "Anchor rivets to a horizontal cross-rail or remove them, and soften the vertical plank seams with painted grain",
+          "key": "background",
+          "region": "Card interior, y\u2248620-1140",
+          "severity": "minor"
+        },
+        {
+          "defect": "Large empty wood gap between the title art and the message block, while the loot row is cramped against the Next level button; vertical rhythm is uneven",
+          "direction": "Distribute vertical spacing evenly: tighten the title-to-message gap and add breathing room below the loot row",
+          "key": "spacing",
+          "region": "Loot row and cleared message, y\u2248670-840",
+          "severity": "minor"
+        },
+        {
+          "defect": "Body/loot text uses a plain sans-serif with no gold gradient, outline or drop shadow, clashing with the painted Kingdom Rush title art",
+          "direction": "Apply a warm cream fill with dark outline and subtle bevel to match the title's painted treatment",
+          "key": "typography",
+          "region": "Loot row and body text, y\u2248680-830",
+          "severity": "minor"
+        },
+        {
+          "defect": "The arena is only slightly darkened, so its sandy tan competes with the card and there is no clear modal separation",
+          "direction": "Add a stronger dark vignette/scrim behind the card to push the arena back",
+          "key": "color",
+          "region": "Paused arena background behind card, full screen",
+          "severity": "minor"
+        }
+      ],
+      "model": "claude-opus-5",
+      "recurring_checks": [
+        {
+          "evidence": "now-13-win: Victory laurel banner at (100-620, 400-620) composites over the wood planks with no opaque backing box",
+          "id": "banner-transparency",
+          "pass": true
+        },
+        {
+          "evidence": "now-13-win: title, laurels, coin and crystal loot icons at (240-490, 800-835) are painted art, not font glyphs",
+          "id": "asset-identity",
+          "pass": true
+        },
+        {
+          "evidence": "now-13-win: pause '||' glyph in circular button at (643, 279) and '1x' plate at (91, 273) are centered",
+          "id": "glyph-centering",
+          "pass": true
+        },
+        {
+          "evidence": "now-13-win: Victory laurel art clipped at card frame left edge x\u224835, y\u2248470-560, and sparkles overflow above top rail at y\u2248400",
+          "id": "content-containment",
+          "pass": false
+        },
+        {
+          "evidence": "now-13-win: 'Next level' plate spans x\u2248108-628 while 'Home' plate spans x\u2248100-640 with differing height and ornament, y\u2248880-1070",
+          "id": "sibling-size-consistency",
+          "pass": false
+        }
+      ],
+      "score": 76.0
+    },
+    "codex/gpt-5.6-terra": {
+      "defects": [
+        {
+          "defect": "The paused battle arena is not visibly represented; the dimmed background is mostly empty terrain and HUD.",
+          "direction": "Show subdued combat units or arena action around/behind the modal while retaining the victory card's contrast.",
+          "key": "background",
+          "region": "now-13-win, behind the victory card",
+          "severity": "major"
+        }
+      ],
+      "model": "gpt-5.6-terra",
+      "recurring_checks": [
+        {
+          "evidence": "now-13-win, Victory crest around x365 y515 composites cleanly over the wood card.",
+          "id": "banner-transparency",
+          "pass": true
+        },
+        {
+          "evidence": "now-13-win, ornate laurels, gold frames, loot icons, and buttons share the painted fantasy asset style.",
+          "id": "asset-identity",
+          "pass": true
+        },
+        {
+          "evidence": "now-13-win, pause glyph is visually centered in its circular badge near x644 y272.",
+          "id": "glyph-centering",
+          "pass": true
+        },
+        {
+          "evidence": "now-13-win, victory text, loot values, and button labels remain inside their framed bounds.",
+          "id": "content-containment",
+          "pass": true
+        },
+        {
+          "evidence": "now-13-win, the three party HUD cards along y1255 have consistent cell dimensions.",
+          "id": "sibling-size-consistency",
+          "pass": true
+        }
+      ],
+      "score": 92.0
+    },
+    "google/gemini-3.6-flash": {
+      "model": "google/gemini-3.6-flash",
+      "reason": "HTTP 402",
+      "skipped": true
+    }
+  },
+  "recurring_checks": [
+    {
+      "evidence": "now-13-win, Victory crest around x365 y515 composites cleanly over the wood card.",
+      "id": "banner-transparency",
+      "pass": true
+    },
+    {
+      "evidence": "now-13-win, ornate laurels, gold frames, loot icons, and buttons share the painted fantasy asset style.",
+      "id": "asset-identity",
+      "pass": true
+    },
+    {
+      "evidence": "now-13-win, pause glyph is visually centered in its circular badge near x644 y272.",
+      "id": "glyph-centering",
+      "pass": true
+    },
+    {
+      "evidence": "now-13-win: Victory laurel art clipped at card frame left edge x\u224835, y\u2248470-560, and sparkles overflow above top rail at y\u2248400",
+      "id": "content-containment",
+      "pass": false
+    },
+    {
+      "evidence": "now-13-win: 'Next level' plate spans x\u2248108-628 while 'Home' plate spans x\u2248100-640 with differing height and ornament, y\u2248880-1070",
+      "id": "sibling-size-consistency",
+      "pass": false
+    }
+  ],
+  "score": 92.0,
+  "skipped": [
+    {
+      "judge": "google/gemini-3.6-flash",
+      "reason": "HTTP 402"
+    }
+  ],
+  "verdict": "pass"
+}

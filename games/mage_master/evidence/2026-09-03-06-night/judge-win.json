@@ -1,0 +1,309 @@
+{
+  "consensus": [
+    "text-content"
+  ],
+  "defects": [
+    {
+      "defect": "Button labels use a plain system sans-serif with no outline or drop shadow, clashing with the painted display lettering of the 'Victory' title and the rest of the fantasy UI",
+      "direction": "Use the game's display/fantasy face with dark outline and bevel for both plate labels",
+      "region": "'Next level' and 'Home' button labels, y\u2248917 and y\u22481038",
+      "severity": "major"
+    },
+    {
+      "defect": "Coin value is truncated to '12\u2026' inside its chip while neighboring chips show full values",
+      "direction": "Widen the coin chip or abbreviate numerically (e.g. '12.3k') so the value is fully readable",
+      "region": "top resource bar, coin chip x\u2248250-380, y\u2248150",
+      "severity": "major"
+    },
+    {
+      "defect": "The two stacked action plates use inconsistent frame styles and sizes \u2014 the gold plate is a plain rounded capsule while the Home plate is a narrower wood bar with gem end-caps and a top/bottom gem, so the pair does not read as one button set",
+      "direction": "Give both plates the same frame construction, height, and corner treatment, varying only the gold vs dark fill",
+      "region": "'Next level' vs 'Home' plate buttons, y\u2248880-1075",
+      "severity": "major"
+    },
+    {
+      "defect": "Card interior is a flat single-tone brown fill with no painted wood/parchment texture or inner bevel, so it reads as CSS rather than Kingdom Rush-style painted art; the title banner also sits on an opaque flat plate rather than compositing over the panel",
+      "direction": "Fill the card with a painted textured panel (wood grain or parchment) with inner shadow and highlight, and let the laurel/title art composite transparently over it",
+      "region": "victory card body, x\u224860-665, y\u2248450-1110",
+      "severity": "major"
+    },
+    {
+      "defect": "Gold total is visibly truncated as \u201c12...\u201d.",
+      "direction": "Widen or compact the currency display so the full value fits.",
+      "region": "now-03-win, top gold currency pill",
+      "severity": "minor"
+    },
+    {
+      "defect": "Coin total truncated to '12\u2026' with an ellipsis inside the chip",
+      "direction": "Widen the chip or abbreviate the number (e.g. 12.4k) so the full value renders without truncation",
+      "region": "top resource bar, second chip (coin count)",
+      "severity": "minor"
+    },
+    {
+      "defect": "Large empty gap between the laurel title and the cleared-level message leaves the upper card body looking unfinished and vertically unbalanced",
+      "direction": "Tighten the title-to-message gap and distribute the message, loot, and buttons more evenly in the card",
+      "region": "card body between message block and loot row, y\u2248740-800",
+      "severity": "minor"
+    },
+    {
+      "defect": "Paused battle arena is an empty sand field with no units, enemies, or battle remnants visible around the card",
+      "direction": "Show the paused battle state (units/props) dimmed behind the result card",
+      "region": "arena background behind card",
+      "severity": "minor"
+    },
+    {
+      "defect": "Stray dark rounded shapes and a small tab poke out from behind the card's left edge with no counterpart on the right, reading as an unfinished/misplaced frame ornament",
+      "direction": "Remove or mirror the edge ornaments symmetrically on both sides of the card frame",
+      "region": "card left edge, x\u224820-60, y\u2248450-1120",
+      "severity": "minor"
+    },
+    {
+      "defect": "Header bar is disproportionately tall with the centered title block floating high and dead space beneath, and its frame style differs from the resource bar directly above",
+      "direction": "Reduce the header height and match its frame treatment to the resource bar",
+      "region": "stage header bar, 'Level 1 / Stage 4 / 4', y\u2248220-360",
+      "severity": "minor"
+    },
+    {
+      "defect": "Hero portraits are tiny, low-contrast and nearly identical silhouettes inside their ring frames, so heroes are not visually distinguishable",
+      "direction": "Enlarge and brighten the portrait art within the ring so each hero is identifiable",
+      "region": "party HUD portraits, y\u22481275-1320 (all three cards)",
+      "severity": "minor"
+    },
+    {
+      "defect": "Dark semicircular notches protrude from the card's left border, reading as clipped or stray decoration on that edge only",
+      "direction": "Remove the notches or mirror an intentional binding motif symmetrically on both edges so the frame reads finished",
+      "region": "left edge of victory card, ~y1030-1110",
+      "severity": "minor"
+    }
+  ],
+  "participated": [
+    "codex/gpt-5.6-terra",
+    "anthropic/claude-fable-5",
+    "anthropic/claude-opus-5"
+  ],
+  "per_model": {
+    "anthropic/claude-fable-5": {
+      "defects": [
+        {
+          "defect": "Coin total truncated to '12\u2026' with an ellipsis inside the chip",
+          "direction": "Widen the chip or abbreviate the number (e.g. 12.4k) so the full value renders without truncation",
+          "key": "text-content",
+          "region": "top resource bar, second chip (coin count)",
+          "severity": "minor"
+        },
+        {
+          "defect": "Dark semicircular notches protrude from the card's left border, reading as clipped or stray decoration on that edge only",
+          "direction": "Remove the notches or mirror an intentional binding motif symmetrically on both edges so the frame reads finished",
+          "key": "extra-element",
+          "region": "left edge of victory card, ~y1030-1110",
+          "severity": "minor"
+        },
+        {
+          "defect": "Paused battle arena is an empty sand field with no units, enemies, or battle remnants visible around the card",
+          "direction": "Show the paused battle state (units/props) dimmed behind the result card",
+          "key": "missing-element",
+          "region": "arena background behind card",
+          "severity": "minor"
+        }
+      ],
+      "model": "claude-fable-5",
+      "recurring_checks": [
+        {
+          "evidence": "now-03-win Victory laurel banner at ~(360,510) composites transparently over the card top",
+          "id": "banner-transparency",
+          "pass": true
+        },
+        {
+          "evidence": "now-03-win coin/crystal loot icons at ~(300,818) and hero gear icons are painted art, no font-glyph stand-ins",
+          "id": "asset-identity",
+          "pass": true
+        },
+        {
+          "evidence": "now-03-win pause '\u23f8' glyph centered in circular button at ~(645,270)",
+          "id": "glyph-centering",
+          "pass": true
+        },
+        {
+          "evidence": "now-03-win 'Next level' at ~(363,915) and 'Home' at ~(363,1038) sit fully inside their plates",
+          "id": "content-containment",
+          "pass": true
+        },
+        {
+          "evidence": "now-03-win three party HUD cards along y\u22481240-1500 are equal width and height",
+          "id": "sibling-size-consistency",
+          "pass": true
+        }
+      ],
+      "score": 91.0
+    },
+    "anthropic/claude-opus-5": {
+      "defects": [
+        {
+          "defect": "Card interior is a flat single-tone brown fill with no painted wood/parchment texture or inner bevel, so it reads as CSS rather than Kingdom Rush-style painted art; the title banner also sits on an opaque flat plate rather than compositing over the panel",
+          "direction": "Fill the card with a painted textured panel (wood grain or parchment) with inner shadow and highlight, and let the laurel/title art composite transparently over it",
+          "key": "background",
+          "region": "victory card body, x\u224860-665, y\u2248450-1110",
+          "severity": "major"
+        },
+        {
+          "defect": "Button labels use a plain system sans-serif with no outline or drop shadow, clashing with the painted display lettering of the 'Victory' title and the rest of the fantasy UI",
+          "direction": "Use the game's display/fantasy face with dark outline and bevel for both plate labels",
+          "key": "typography",
+          "region": "'Next level' and 'Home' button labels, y\u2248917 and y\u22481038",
+          "severity": "major"
+        },
+        {
+          "defect": "The two stacked action plates use inconsistent frame styles and sizes \u2014 the gold plate is a plain rounded capsule while the Home plate is a narrower wood bar with gem end-caps and a top/bottom gem, so the pair does not read as one button set",
+          "direction": "Give both plates the same frame construction, height, and corner treatment, varying only the gold vs dark fill",
+          "key": "sizing",
+          "region": "'Next level' vs 'Home' plate buttons, y\u2248880-1075",
+          "severity": "major"
+        },
+        {
+          "defect": "Coin value is truncated to '12\u2026' inside its chip while neighboring chips show full values",
+          "direction": "Widen the coin chip or abbreviate numerically (e.g. '12.3k') so the value is fully readable",
+          "key": "text-content",
+          "region": "top resource bar, coin chip x\u2248250-380, y\u2248150",
+          "severity": "major"
+        },
+        {
+          "defect": "Stray dark rounded shapes and a small tab poke out from behind the card's left edge with no counterpart on the right, reading as an unfinished/misplaced frame ornament",
+          "direction": "Remove or mirror the edge ornaments symmetrically on both sides of the card frame",
+          "key": "layout",
+          "region": "card left edge, x\u224820-60, y\u2248450-1120",
+          "severity": "minor"
+        },
+        {
+          "defect": "Large empty gap between the laurel title and the cleared-level message leaves the upper card body looking unfinished and vertically unbalanced",
+          "direction": "Tighten the title-to-message gap and distribute the message, loot, and buttons more evenly in the card",
+          "key": "spacing",
+          "region": "card body between message block and loot row, y\u2248740-800",
+          "severity": "minor"
+        },
+        {
+          "defect": "Hero portraits are tiny, low-contrast and nearly identical silhouettes inside their ring frames, so heroes are not visually distinguishable",
+          "direction": "Enlarge and brighten the portrait art within the ring so each hero is identifiable",
+          "key": "iconography",
+          "region": "party HUD portraits, y\u22481275-1320 (all three cards)",
+          "severity": "minor"
+        },
+        {
+          "defect": "Header bar is disproportionately tall with the centered title block floating high and dead space beneath, and its frame style differs from the resource bar directly above",
+          "direction": "Reduce the header height and match its frame treatment to the resource bar",
+          "key": "layout",
+          "region": "stage header bar, 'Level 1 / Stage 4 / 4', y\u2248220-360",
+          "severity": "minor"
+        }
+      ],
+      "model": "claude-opus-5",
+      "recurring_checks": [
+        {
+          "evidence": "now-03-win: Victory laurel banner sits on an opaque lighter-brown plate x\u224860-665, y\u2248450-620",
+          "id": "banner-transparency",
+          "pass": false
+        },
+        {
+          "evidence": "now-03-win: button labels 'Next level' (y\u2248917) and 'Home' (y\u22481038) render in system sans, not the painted display face used by the title",
+          "id": "asset-identity",
+          "pass": false
+        },
+        {
+          "evidence": "now-03-win: pause glyph centered in circular button at x\u2248641, y\u2248279; '1x' centered at x\u224889, y\u2248272",
+          "id": "glyph-centering",
+          "pass": true
+        },
+        {
+          "evidence": "now-03-win: coin value clipped to '12\u2026' inside chip at x\u2248250-380, y\u2248150",
+          "id": "content-containment",
+          "pass": false
+        },
+        {
+          "evidence": "now-03-win: 'Next level' plate (h\u224870, y\u2248882-952) vs 'Home' plate (h\u224850, y\u22481013-1063) differ in height and frame style",
+          "id": "sibling-size-consistency",
+          "pass": false
+        }
+      ],
+      "score": 76.0
+    },
+    "codex/gpt-5.6-terra": {
+      "defects": [
+        {
+          "defect": "Gold total is visibly truncated as \u201c12...\u201d.",
+          "direction": "Widen or compact the currency display so the full value fits.",
+          "key": "text-content",
+          "region": "now-03-win, top gold currency pill",
+          "severity": "minor"
+        }
+      ],
+      "model": "gpt-5.6-terra",
+      "recurring_checks": [
+        {
+          "evidence": "now-03-win: Next level and Home banners composite cleanly over the card at center-lower screen.",
+          "id": "banner-transparency",
+          "pass": true
+        },
+        {
+          "evidence": "now-03-win: painted Victory lettering, laurels, frames, and loot icons are cohesive custom fantasy assets.",
+          "id": "asset-identity",
+          "pass": true
+        },
+        {
+          "evidence": "now-03-win: pause glyph is visually centered in its circular frame near x645 y273.",
+          "id": "glyph-centering",
+          "pass": true
+        },
+        {
+          "evidence": "now-03-win: gold counter text truncates in the upper HUD pill near x336 y151.",
+          "id": "content-containment",
+          "pass": false
+        },
+        {
+          "evidence": "now-03-win: Bastion, Ember, and Sage party cards use matching widths and frame scale along the bottom row.",
+          "id": "sibling-size-consistency",
+          "pass": true
+        }
+      ],
+      "score": 96.0
+    },
+    "google/gemini-3.6-flash": {
+      "model": "google/gemini-3.6-flash",
+      "reason": "HTTP 402",
+      "skipped": true
+    }
+  },
+  "recurring_checks": [
+    {
+      "evidence": "now-03-win: Victory laurel banner sits on an opaque lighter-brown plate x\u224860-665, y\u2248450-620",
+      "id": "banner-transparency",
+      "pass": false
+    },
+    {
+      "evidence": "now-03-win: button labels 'Next level' (y\u2248917) and 'Home' (y\u22481038) render in system sans, not the painted display face used by the title",
+      "id": "asset-identity",
+      "pass": false
+    },
+    {
+      "evidence": "now-03-win: pause glyph is visually centered in its circular frame near x645 y273.",
+      "id": "glyph-centering",
+      "pass": true
+    },
+    {
+      "evidence": "now-03-win: gold counter text truncates in the upper HUD pill near x336 y151.",
+      "id": "content-containment",
+      "pass": false
+    },
+    {
+      "evidence": "now-03-win: 'Next level' plate (h\u224870, y\u2248882-952) vs 'Home' plate (h\u224850, y\u22481013-1063) differ in height and frame style",
+      "id": "sibling-size-consistency",
+      "pass": false
+    }
+  ],
+  "score": 91.0,
+  "skipped": [
+    {
+      "judge": "google/gemini-3.6-flash",
+      "reason": "HTTP 402"
+    }
+  ],
+  "verdict": "pass"
+}

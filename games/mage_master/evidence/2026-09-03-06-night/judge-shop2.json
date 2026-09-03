@@ -1,0 +1,325 @@
+{
+  "consensus": [
+    "layout",
+    "sizing",
+    "background",
+    "other"
+  ],
+  "defects": [
+    {
+      "defect": "Each pack description wraps to two lines, despite the specified one-line description layout.",
+      "direction": "Widen the description column or reduce its type size so each description fits on one line.",
+      "region": "All three gem-pack rows",
+      "severity": "major"
+    },
+    {
+      "defect": "Badge is an opaque flat gold pill sitting over/above the frame rail, overlapping the frame's top border and crowding the $6.99 plate directly below it",
+      "direction": "Give the badge the same painted ribbon/banner treatment with transparent compositing, and place it clear of the frame rail with breathing room above the price plate",
+      "region": "'Best value' badge, pack 3 frame top-right (~x520-660, y795-830)",
+      "severity": "major"
+    },
+    {
+      "defect": "Flat brown fill behind the top bar, title and blurb reads as dead space and clashes with the painted rift art lower on the page",
+      "direction": "Extend a painted cave/parchment backdrop or vignette behind the header so the whole page reads as one painted scene",
+      "region": "Header/top area behind the currency bar and title (y0-380)",
+      "severity": "major"
+    },
+    {
+      "defect": "Pack names wrap onto two lines, so the count and 'Gems' stack and compete with the adjacent description column",
+      "direction": "Reduce the name size or widen the column so each pack name sits on one line",
+      "region": "Pack rows, '60 Gems' / '200 Gems' / '600 Gems' labels",
+      "severity": "minor"
+    },
+    {
+      "defect": "Restore frame is inset narrower than the pack frames and its Restore button crowds the right rail",
+      "direction": "Match the Restore frame width and inner padding to the pack frames and pull the button in from the edge",
+      "region": "Restore row (y1010-1110) vs pack rows",
+      "severity": "minor"
+    },
+    {
+      "defect": "Painted rift scene shows no glow or activity, reading as a static empty stage rather than the 'glowing rift' called for",
+      "direction": "Add the purple rift glow/light bloom over the platform so the scene reads as alive",
+      "region": "Rift scene between Restore row and nav (y1110-1350)",
+      "severity": "minor"
+    },
+    {
+      "defect": "The four currency pills have visibly uneven widths; the energy pill is substantially wider than the others.",
+      "direction": "Use equal-width pill cells with consistent internal icon-and-label alignment.",
+      "region": "Top currency bar",
+      "severity": "minor"
+    },
+    {
+      "defect": "Gem art occupies noticeably different footprints per row (row 1 small bag, row 3 fills the full cell height), making the sibling rows look inconsistent",
+      "direction": "Normalize art bounding boxes to a consistent size and baseline across the three pack rows",
+      "region": "Pack rows 1-3, gem art column",
+      "severity": "minor"
+    },
+    {
+      "defect": "Description says 'A chest for the long haul' but the art shows a stone vault doorway, not a chest",
+      "direction": "Align copy and art: either use chest artwork or reword the description to match the vault",
+      "region": "600 Gems row, left art",
+      "severity": "minor"
+    },
+    {
+      "defect": "Largest pack uses an archway/portal illustration rather than a chest, while its copy says 'A chest for the long haul' \u2014 art conflicts with description and breaks the bag\u2192chest\u2192bigger-chest progression",
+      "direction": "Swap in a larger overflowing treasure chest so the three pack arts read as one escalating set",
+      "region": "Pack 3 gem art (~x60-180, y830-940)",
+      "severity": "minor"
+    },
+    {
+      "defect": "'Best value' badge floats almost entirely above the pack frame rather than sitting on its corner",
+      "direction": "Lower the badge so it visibly overlaps the frame edge as a corner tag instead of hovering detached above the row",
+      "region": "600 Gems row, top-right badge",
+      "severity": "minor"
+    },
+    {
+      "defect": "Settings gear reads as a flat single-color glyph while the other four tab icons are fully painted assets",
+      "direction": "Replace the gear with a painted, shaded icon matching the fidelity of Home/Rift/Mages/Shop",
+      "region": "bottom nav, Settings tab",
+      "severity": "minor"
+    },
+    {
+      "defect": "Rift scene shows a pedestal and crystals but the promised glow is faint; no clearly glowing rift focal point",
+      "direction": "Add a visible glowing rift/portal emission above the dais to match the spec's 'painted rift scene glowing'",
+      "region": "rift scene between Restore row and nav",
+      "severity": "minor"
+    }
+  ],
+  "participated": [
+    "codex/gpt-5.6-terra",
+    "anthropic/claude-fable-5",
+    "anthropic/claude-opus-5"
+  ],
+  "per_model": {
+    "anthropic/claude-fable-5": {
+      "defects": [
+        {
+          "defect": "Settings gear reads as a flat single-color glyph while the other four tab icons are fully painted assets",
+          "direction": "Replace the gear with a painted, shaded icon matching the fidelity of Home/Rift/Mages/Shop",
+          "key": "iconography",
+          "region": "bottom nav, Settings tab",
+          "severity": "minor"
+        },
+        {
+          "defect": "'Best value' badge floats almost entirely above the pack frame rather than sitting on its corner",
+          "direction": "Lower the badge so it visibly overlaps the frame edge as a corner tag instead of hovering detached above the row",
+          "key": "layout",
+          "region": "600 Gems row, top-right badge",
+          "severity": "minor"
+        },
+        {
+          "defect": "Description says 'A chest for the long haul' but the art shows a stone vault doorway, not a chest",
+          "direction": "Align copy and art: either use chest artwork or reword the description to match the vault",
+          "key": "other",
+          "region": "600 Gems row, left art",
+          "severity": "minor"
+        },
+        {
+          "defect": "Rift scene shows a pedestal and crystals but the promised glow is faint; no clearly glowing rift focal point",
+          "direction": "Add a visible glowing rift/portal emission above the dais to match the spec's 'painted rift scene glowing'",
+          "key": "background",
+          "region": "rift scene between Restore row and nav",
+          "severity": "minor"
+        }
+      ],
+      "model": "claude-fable-5",
+      "recurring_checks": [
+        {
+          "evidence": "now-11-shop: 'Best value' pill at ~(600,815) composites cleanly over the row/background with no opaque box",
+          "id": "banner-transparency",
+          "pass": true
+        },
+        {
+          "evidence": "now-11-shop: pack art, price plates, and tab icons are painted assets; only the Settings gear at ~(625,1430) trends flat (flagged as minor)",
+          "id": "asset-identity",
+          "pass": true
+        },
+        {
+          "evidence": "now-11-shop: '$0.99'/'$2.99'/'$6.99' centered in gold plates at right edge of pack rows; 'Restore' centered in its plate at ~(580,1065)",
+          "id": "glyph-centering",
+          "pass": true
+        },
+        {
+          "evidence": "now-11-shop: all price text, 'Best value' label, and currency counts stay inside their pills/plates",
+          "id": "content-containment",
+          "pass": true
+        },
+        {
+          "evidence": "now-11-shop: five nav tabs at y~1420 equal width; four currency pills at y~150 consistent height and near-equal width",
+          "id": "sibling-size-consistency",
+          "pass": true
+        }
+      ],
+      "score": 92.0
+    },
+    "anthropic/claude-opus-5": {
+      "defects": [
+        {
+          "defect": "Badge is an opaque flat gold pill sitting over/above the frame rail, overlapping the frame's top border and crowding the $6.99 plate directly below it",
+          "direction": "Give the badge the same painted ribbon/banner treatment with transparent compositing, and place it clear of the frame rail with breathing room above the price plate",
+          "key": "layout",
+          "region": "'Best value' badge, pack 3 frame top-right (~x520-660, y795-830)",
+          "severity": "major"
+        },
+        {
+          "defect": "Flat brown fill behind the top bar, title and blurb reads as dead space and clashes with the painted rift art lower on the page",
+          "direction": "Extend a painted cave/parchment backdrop or vignette behind the header so the whole page reads as one painted scene",
+          "key": "background",
+          "region": "Header/top area behind the currency bar and title (y0-380)",
+          "severity": "major"
+        },
+        {
+          "defect": "Largest pack uses an archway/portal illustration rather than a chest, while its copy says 'A chest for the long haul' \u2014 art conflicts with description and breaks the bag\u2192chest\u2192bigger-chest progression",
+          "direction": "Swap in a larger overflowing treasure chest so the three pack arts read as one escalating set",
+          "key": "other",
+          "region": "Pack 3 gem art (~x60-180, y830-940)",
+          "severity": "minor"
+        },
+        {
+          "defect": "Gem art occupies noticeably different footprints per row (row 1 small bag, row 3 fills the full cell height), making the sibling rows look inconsistent",
+          "direction": "Normalize art bounding boxes to a consistent size and baseline across the three pack rows",
+          "key": "sizing",
+          "region": "Pack rows 1-3, gem art column",
+          "severity": "minor"
+        },
+        {
+          "defect": "Pack names wrap onto two lines, so the count and 'Gems' stack and compete with the adjacent description column",
+          "direction": "Reduce the name size or widen the column so each pack name sits on one line",
+          "key": "typography",
+          "region": "Pack rows, '60 Gems' / '200 Gems' / '600 Gems' labels",
+          "severity": "minor"
+        },
+        {
+          "defect": "Restore frame is inset narrower than the pack frames and its Restore button crowds the right rail",
+          "direction": "Match the Restore frame width and inner padding to the pack frames and pull the button in from the edge",
+          "key": "spacing",
+          "region": "Restore row (y1010-1110) vs pack rows",
+          "severity": "minor"
+        },
+        {
+          "defect": "Painted rift scene shows no glow or activity, reading as a static empty stage rather than the 'glowing rift' called for",
+          "direction": "Add the purple rift glow/light bloom over the platform so the scene reads as alive",
+          "key": "spacing",
+          "region": "Rift scene between Restore row and nav (y1110-1350)",
+          "severity": "minor"
+        }
+      ],
+      "model": "claude-opus-5",
+      "recurring_checks": [
+        {
+          "evidence": "now-11-shop: 'Best value' badge is an opaque gold slab overlapping the pack-3 frame rail at ~(588,812)",
+          "id": "banner-transparency",
+          "pass": false
+        },
+        {
+          "evidence": "now-11-shop: pack-3 art at ~(120,880) is an archway/portal, not the chest its copy names",
+          "id": "asset-identity",
+          "pass": false
+        },
+        {
+          "evidence": "now-11-shop: currency pill icons at ~(70,150)/(180,150)/(310,150)/(420,150) and nav icons ~y1400 are centered",
+          "id": "glyph-centering",
+          "pass": true
+        },
+        {
+          "evidence": "now-11-shop: price plates $0.99/$2.99/$6.99 and 'Restore' text stay within their gold plate bounds (~x515-660)",
+          "id": "content-containment",
+          "pass": true
+        },
+        {
+          "evidence": "now-11-shop: gem art cells differ across pack rows \u2014 small bag at ~(115,470) vs full-height portal at ~(120,880)",
+          "id": "sibling-size-consistency",
+          "pass": false
+        }
+      ],
+      "score": 82.0
+    },
+    "codex/gpt-5.6-terra": {
+      "defects": [
+        {
+          "defect": "Each pack description wraps to two lines, despite the specified one-line description layout.",
+          "direction": "Widen the description column or reduce its type size so each description fits on one line.",
+          "key": "layout",
+          "region": "All three gem-pack rows",
+          "severity": "major"
+        },
+        {
+          "defect": "The four currency pills have visibly uneven widths; the energy pill is substantially wider than the others.",
+          "direction": "Use equal-width pill cells with consistent internal icon-and-label alignment.",
+          "key": "sizing",
+          "region": "Top currency bar",
+          "severity": "minor"
+        }
+      ],
+      "model": "gpt-5.6-terra",
+      "recurring_checks": [
+        {
+          "evidence": "now-11-shop: Best value badge at upper-right of the 600 Gems row composites cleanly without an opaque box.",
+          "id": "banner-transparency",
+          "pass": true
+        },
+        {
+          "evidence": "now-11-shop: painted gem bundles, wood frames, gold plates, and rift scene use a cohesive fantasy asset set.",
+          "id": "asset-identity",
+          "pass": true
+        },
+        {
+          "evidence": "now-11-shop: price labels and Restore label are visually centered within their gold button plates.",
+          "id": "glyph-centering",
+          "pass": true
+        },
+        {
+          "evidence": "now-11-shop: pack text, icons, prices, and navigation labels remain within their framed bounds.",
+          "id": "content-containment",
+          "pass": true
+        },
+        {
+          "evidence": "now-11-shop: top currency pills around x=42\u2013684 have noticeably inconsistent widths.",
+          "id": "sibling-size-consistency",
+          "pass": false
+        }
+      ],
+      "score": 91.0
+    },
+    "google/gemini-3.6-flash": {
+      "model": "google/gemini-3.6-flash",
+      "reason": "HTTP 402",
+      "skipped": true
+    }
+  },
+  "recurring_checks": [
+    {
+      "evidence": "now-11-shop: 'Best value' badge is an opaque gold slab overlapping the pack-3 frame rail at ~(588,812)",
+      "id": "banner-transparency",
+      "pass": false
+    },
+    {
+      "evidence": "now-11-shop: pack-3 art at ~(120,880) is an archway/portal, not the chest its copy names",
+      "id": "asset-identity",
+      "pass": false
+    },
+    {
+      "evidence": "now-11-shop: price labels and Restore label are visually centered within their gold button plates.",
+      "id": "glyph-centering",
+      "pass": true
+    },
+    {
+      "evidence": "now-11-shop: pack text, icons, prices, and navigation labels remain within their framed bounds.",
+      "id": "content-containment",
+      "pass": true
+    },
+    {
+      "evidence": "now-11-shop: top currency pills around x=42\u2013684 have noticeably inconsistent widths.",
+      "id": "sibling-size-consistency",
+      "pass": false
+    }
+  ],
+  "score": 91.0,
+  "skipped": [
+    {
+      "judge": "google/gemini-3.6-flash",
+      "reason": "HTTP 402"
+    }
+  ],
+  "verdict": "pass"
+}

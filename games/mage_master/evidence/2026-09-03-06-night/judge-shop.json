@@ -1,0 +1,333 @@
+{
+  "consensus": [
+    "text-content",
+    "layout",
+    "sizing",
+    "spacing",
+    "iconography"
+  ],
+  "defects": [
+    {
+      "defect": "Coin balance is visibly truncated as \u201c12...\u201d instead of a complete value.",
+      "direction": "Show the full balance or reduce/reflow its typography so it fits cleanly inside the pill.",
+      "region": "top currency bar, coin pill",
+      "severity": "major"
+    },
+    {
+      "defect": "Coin currency value is truncated to \"12\u2026\", hiding the actual amount",
+      "direction": "Widen the pill or shrink/auto-fit the numeral so the full coin count renders without ellipsis",
+      "region": "top bar, second currency pill",
+      "severity": "major"
+    },
+    {
+      "defect": "Coin currency value is truncated to '12\u2026' inside its pill",
+      "direction": "Abbreviate numerically (e.g. 12.3K) and widen the pill so the value fits without ellipsis",
+      "region": "top bar, 2nd currency pill '12\u2026'",
+      "severity": "major"
+    },
+    {
+      "defect": "Large empty dead space between the Restore row and the bottom nav that reads unfinished",
+      "direction": "Grow card/price sizing or add a framed footer/promo element so content fills to the nav, or center content vertically",
+      "region": "below Restore row, y\u22481090-1360",
+      "severity": "major"
+    },
+    {
+      "defect": "Large empty dead space below the Restore row reads unfinished versus the densely framed chrome above",
+      "direction": "Fill with additional content (e.g. a featured bundle or decorative flourish) or vertically distribute sections so the gap disappears",
+      "region": "between Restore row and bottom nav (~y=1080-1310)",
+      "severity": "major"
+    },
+    {
+      "defect": "Gold price plates float detached from their cards instead of reading as part of the product card frame",
+      "direction": "Tuck the price plate into or overlapping the bottom of each card frame so each product reads as one framed unit",
+      "region": "price plates under each card, y\u2248780-855",
+      "severity": "major"
+    },
+    {
+      "defect": "Identical 'Straight to your purse.' copy wraps to two lines and reads flat/repetitive vs painted chrome",
+      "direction": "Shorten to one line or vary per tier, and add subtle drop shadow matching the rest of the UI",
+      "region": "card body copy, all three cards",
+      "severity": "minor"
+    },
+    {
+      "defect": "Large empty wood area reads as unfinished dead space.",
+      "direction": "Reduce the vertical gap or extend the shop content/background treatment into it.",
+      "region": "lower page between Restore row and bottom navigation",
+      "severity": "minor"
+    },
+    {
+      "defect": "Currency pill widths and icon-to-text spacing vary noticeably across the four pills (energy pill much wider, crystal pill icon crowds its number)",
+      "direction": "Normalize pill widths and internal padding so the four currency pills read as one consistent set",
+      "region": "top bar currency pills",
+      "severity": "minor"
+    },
+    {
+      "defect": "Restore button's ornate frame nearly touches the row frame's right/vertical padding and its gem finials extend past the button's visual bounds",
+      "direction": "Add inset margin and constrain the button ornament so it sits comfortably inside the row",
+      "region": "Restore button vs Restore row frame, y\u2248960-1015",
+      "severity": "minor"
+    },
+    {
+      "defect": "Badge is a flat rounded CSS-style pill, lower fidelity than the ornate wood-and-gold chrome around it",
+      "direction": "Restyle as a painted ribbon/banner sprite consistent with the fantasy UI kit",
+      "region": "Best value badge, top-right card",
+      "severity": "minor"
+    },
+    {
+      "defect": "Mages icon reads as a plain pale hat with low contrast compared to the richly painted Home/Rift/Shop icons",
+      "direction": "Repaint with the same saturation, outline and shading fidelity as the sibling nav icons",
+      "region": "nav bar, Mages tab",
+      "severity": "minor"
+    },
+    {
+      "defect": "Best-value ribbon is a flat rounded gold pill without wood/gold frame treatment and overlaps/clips the card's top-right frame edge",
+      "direction": "Restyle as a painted ribbon banner consistent with the frame art and seat it so it does not cut the card border",
+      "region": "'Best value' banner over card 3, y\u2248390",
+      "severity": "minor"
+    }
+  ],
+  "participated": [
+    "codex/gpt-5.6-terra",
+    "anthropic/claude-fable-5",
+    "anthropic/claude-opus-5"
+  ],
+  "per_model": {
+    "anthropic/claude-fable-5": {
+      "defects": [
+        {
+          "defect": "Coin currency value is truncated to \"12\u2026\", hiding the actual amount",
+          "direction": "Widen the pill or shrink/auto-fit the numeral so the full coin count renders without ellipsis",
+          "key": "text-content",
+          "region": "top bar, second currency pill",
+          "severity": "major"
+        },
+        {
+          "defect": "Large empty dead space below the Restore row reads unfinished versus the densely framed chrome above",
+          "direction": "Fill with additional content (e.g. a featured bundle or decorative flourish) or vertically distribute sections so the gap disappears",
+          "key": "layout",
+          "region": "between Restore row and bottom nav (~y=1080-1310)",
+          "severity": "major"
+        },
+        {
+          "defect": "Badge is a flat rounded CSS-style pill, lower fidelity than the ornate wood-and-gold chrome around it",
+          "direction": "Restyle as a painted ribbon/banner sprite consistent with the fantasy UI kit",
+          "key": "iconography",
+          "region": "Best value badge, top-right card",
+          "severity": "minor"
+        },
+        {
+          "defect": "Currency pill widths and icon-to-text spacing vary noticeably across the four pills (energy pill much wider, crystal pill icon crowds its number)",
+          "direction": "Normalize pill widths and internal padding so the four currency pills read as one consistent set",
+          "key": "sizing",
+          "region": "top bar currency pills",
+          "severity": "minor"
+        }
+      ],
+      "model": "claude-fable-5",
+      "recurring_checks": [
+        {
+          "evidence": "now-04-shop: Best value badge at top-right card corner (~x=615,y=400) composites cleanly with no opaque box behind it",
+          "id": "banner-transparency",
+          "pass": true
+        },
+        {
+          "evidence": "now-04-shop: painted gem pouch, chest, and vault art in the three product cards (~y=430-560) are real art assets, no font-glyph stand-ins",
+          "id": "asset-identity",
+          "pass": true
+        },
+        {
+          "evidence": "now-04-shop: Restore button label (~x=560,y=985) and price plate text are visually centered; no circular glyph buttons present",
+          "id": "glyph-centering",
+          "pass": true
+        },
+        {
+          "evidence": "now-04-shop: coin pill (~x=300,y=145) truncates its value to \"12\u2026\" because the numeral does not fit the pill bounds",
+          "id": "content-containment",
+          "pass": false
+        },
+        {
+          "evidence": "now-04-shop: three product cards (~y=385-745) and three price plates (~y=790-850) are equal-sized within their rows",
+          "id": "sibling-size-consistency",
+          "pass": true
+        }
+      ],
+      "score": 86.0
+    },
+    "anthropic/claude-opus-5": {
+      "defects": [
+        {
+          "defect": "Large empty dead space between the Restore row and the bottom nav that reads unfinished",
+          "direction": "Grow card/price sizing or add a framed footer/promo element so content fills to the nav, or center content vertically",
+          "key": "spacing",
+          "region": "below Restore row, y\u22481090-1360",
+          "severity": "major"
+        },
+        {
+          "defect": "Gold price plates float detached from their cards instead of reading as part of the product card frame",
+          "direction": "Tuck the price plate into or overlapping the bottom of each card frame so each product reads as one framed unit",
+          "key": "layout",
+          "region": "price plates under each card, y\u2248780-855",
+          "severity": "major"
+        },
+        {
+          "defect": "Coin currency value is truncated to '12\u2026' inside its pill",
+          "direction": "Abbreviate numerically (e.g. 12.3K) and widen the pill so the value fits without ellipsis",
+          "key": "text-content",
+          "region": "top bar, 2nd currency pill '12\u2026'",
+          "severity": "major"
+        },
+        {
+          "defect": "Four currency pills are unequal widths, first pill much wider than the others",
+          "direction": "Equalize pill widths across the row or distribute evenly with consistent padding",
+          "key": "sizing",
+          "region": "top bar currency pills",
+          "severity": "minor"
+        },
+        {
+          "defect": "Best-value ribbon is a flat rounded gold pill without wood/gold frame treatment and overlaps/clips the card's top-right frame edge",
+          "direction": "Restyle as a painted ribbon banner consistent with the frame art and seat it so it does not cut the card border",
+          "key": "extra-element",
+          "region": "'Best value' banner over card 3, y\u2248390",
+          "severity": "minor"
+        },
+        {
+          "defect": "Identical 'Straight to your purse.' copy wraps to two lines and reads flat/repetitive vs painted chrome",
+          "direction": "Shorten to one line or vary per tier, and add subtle drop shadow matching the rest of the UI",
+          "key": "typography",
+          "region": "card body copy, all three cards",
+          "severity": "minor"
+        },
+        {
+          "defect": "Restore button's ornate frame nearly touches the row frame's right/vertical padding and its gem finials extend past the button's visual bounds",
+          "direction": "Add inset margin and constrain the button ornament so it sits comfortably inside the row",
+          "key": "sizing",
+          "region": "Restore button vs Restore row frame, y\u2248960-1015",
+          "severity": "minor"
+        },
+        {
+          "defect": "Mages icon reads as a plain pale hat with low contrast compared to the richly painted Home/Rift/Shop icons",
+          "direction": "Repaint with the same saturation, outline and shading fidelity as the sibling nav icons",
+          "key": "iconography",
+          "region": "nav bar, Mages tab",
+          "severity": "minor"
+        }
+      ],
+      "model": "claude-opus-5",
+      "recurring_checks": [
+        {
+          "evidence": "now-04-shop 'Best value' ribbon at ~(634,403) composites over card, no opaque box",
+          "id": "banner-transparency",
+          "pass": true
+        },
+        {
+          "evidence": "now-04-shop card art at ~(130,500)/(360,500)/(594,500) are distinct painted gem assets, no glyph stand-ins",
+          "id": "asset-identity",
+          "pass": true
+        },
+        {
+          "evidence": "now-04-shop currency pill glyphs ~(70,150) and price text ~(130,819) centered in plates",
+          "id": "glyph-centering",
+          "pass": true
+        },
+        {
+          "evidence": "now-04-shop coin pill value truncated '12\u2026' at ~(345,150); Restore button finials at ~(497,988)/(624,988) sit on frame edge",
+          "id": "content-containment",
+          "pass": false
+        },
+        {
+          "evidence": "now-04-shop top-bar pills unequal: pill 1 spans ~(40-240,150) vs pill 3 ~(395-537,150)",
+          "id": "sibling-size-consistency",
+          "pass": false
+        }
+      ],
+      "score": 74.0
+    },
+    "codex/gpt-5.6-terra": {
+      "defects": [
+        {
+          "defect": "Coin balance is visibly truncated as \u201c12...\u201d instead of a complete value.",
+          "direction": "Show the full balance or reduce/reflow its typography so it fits cleanly inside the pill.",
+          "key": "text-content",
+          "region": "top currency bar, coin pill",
+          "severity": "major"
+        },
+        {
+          "defect": "Large empty wood area reads as unfinished dead space.",
+          "direction": "Reduce the vertical gap or extend the shop content/background treatment into it.",
+          "key": "spacing",
+          "region": "lower page between Restore row and bottom navigation",
+          "severity": "minor"
+        }
+      ],
+      "model": "gpt-5.6-terra",
+      "recurring_checks": [
+        {
+          "evidence": "now-04-shop Best value badge at upper-right product card composites cleanly with no opaque rectangular box.",
+          "id": "banner-transparency",
+          "pass": true
+        },
+        {
+          "evidence": "now-04-shop product gem, chest, and mine art at y440-560 are painted fantasy assets consistent with the screen.",
+          "id": "asset-identity",
+          "pass": true
+        },
+        {
+          "evidence": "now-04-shop Restore and price-button labels are visually centered within their controls.",
+          "id": "glyph-centering",
+          "pass": true
+        },
+        {
+          "evidence": "now-04-shop coin value at approximately x333 y151 is clipped/truncated inside its currency pill.",
+          "id": "content-containment",
+          "pass": false
+        },
+        {
+          "evidence": "now-04-shop three product cards and their price plates form consistent equal-sized rows.",
+          "id": "sibling-size-consistency",
+          "pass": true
+        }
+      ],
+      "score": 88.0
+    },
+    "google/gemini-3.6-flash": {
+      "model": "google/gemini-3.6-flash",
+      "reason": "HTTP 402",
+      "skipped": true
+    }
+  },
+  "recurring_checks": [
+    {
+      "evidence": "now-04-shop Best value badge at upper-right product card composites cleanly with no opaque rectangular box.",
+      "id": "banner-transparency",
+      "pass": true
+    },
+    {
+      "evidence": "now-04-shop product gem, chest, and mine art at y440-560 are painted fantasy assets consistent with the screen.",
+      "id": "asset-identity",
+      "pass": true
+    },
+    {
+      "evidence": "now-04-shop Restore and price-button labels are visually centered within their controls.",
+      "id": "glyph-centering",
+      "pass": true
+    },
+    {
+      "evidence": "now-04-shop coin value at approximately x333 y151 is clipped/truncated inside its currency pill.",
+      "id": "content-containment",
+      "pass": false
+    },
+    {
+      "evidence": "now-04-shop top-bar pills unequal: pill 1 spans ~(40-240,150) vs pill 3 ~(395-537,150)",
+      "id": "sibling-size-consistency",
+      "pass": false
+    }
+  ],
+  "score": 86.0,
+  "skipped": [
+    {
+      "judge": "google/gemini-3.6-flash",
+      "reason": "HTTP 402"
+    }
+  ],
+  "verdict": "pass"
+}

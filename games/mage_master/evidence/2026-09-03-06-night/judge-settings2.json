@@ -1,0 +1,298 @@
+{
+  "consensus": [
+    "spacing",
+    "sizing",
+    "background"
+  ],
+  "defects": [
+    {
+      "defect": "Reset save is a narrow gold pill rather than the specified full-width dark plate, and it is crowded against the panel's bottom frame with less padding than the gaps between toggle rows",
+      "direction": "Make Reset save a full-width dark plate matching the toggle-row style, and equalize its top/bottom padding with the row rhythm",
+      "region": "Reset save plate inside panel, y\u22481030-1090",
+      "severity": "major"
+    },
+    {
+      "defect": "Panel sits low/centered with a very tall empty gap between the title (y\u2248155) and the panel top (y\u2248595), so the screen reads unbalanced and unfinished",
+      "direction": "Raise the framed panel closer under the title or add content/padding balance so top gap matches bottom breathing room",
+      "region": "main panel, y\u2248595-1150 \u2014 vertically centered leaving large empty scene above and below",
+      "severity": "major"
+    },
+    {
+      "defect": "Reset save uses plain white sans text with no gold treatment, inconsistent with the gold 'Settings' title and the ornate gold plate it sits on",
+      "direction": "Use the gold painted title face/color with stroke and shadow to match the rest of the UI",
+      "region": "Reset save label, x\u2248280-445 y\u22481060",
+      "severity": "minor"
+    },
+    {
+      "defect": "A large empty wood-texture gap separates the Haptics row from the Reset save plate.",
+      "direction": "Reduce the unused lower-panel space or lower the reset plate to create a more intentional vertical rhythm.",
+      "region": "bottom of ornate settings panel",
+      "severity": "minor"
+    },
+    {
+      "defect": "Large empty vertical gap leaves the layout bottom-heavy; panel sits low with ~450px of unused scene below the header",
+      "direction": "Raise the panel toward vertical center or balance header-to-panel spacing so the screen reads composed rather than sparse",
+      "region": "between title (y~150) and panel top (y~600)",
+      "severity": "minor"
+    },
+    {
+      "defect": "The gold diamond end-caps of the Reset save plate extend to touch/overlap the panel's inner gold frame",
+      "direction": "Shrink the plate width slightly so its pointed finials clear the panel frame with a small margin",
+      "region": "Reset save plate finials, x~75 and x~650, y~1065",
+      "severity": "minor"
+    },
+    {
+      "defect": "Round wooden back button is small relative to the large title and its arrow glyph nearly fills the disc",
+      "direction": "Slightly enlarge the button and add padding around the arrow so the rim ornament reads",
+      "region": "back button, x\u224835-105 y\u2248120-190",
+      "severity": "minor"
+    },
+    {
+      "defect": "Toggles read as flat CSS pills \u2014 plain gradient track with a plain cream circle, no painted rim, bevel or gem detailing like the rest of the frame",
+      "direction": "Give toggles a painted metal rim, inner shadow and knob highlight consistent with the gold ornate frame",
+      "region": "toggle knobs, x\u2248535-645 across all three rows",
+      "severity": "minor"
+    },
+    {
+      "defect": "The dark scrim makes the sunset camp art and lower panel details slightly muddy.",
+      "direction": "Lift background and panel midtones subtly while preserving foreground text contrast.",
+      "region": "full-screen background and panel",
+      "severity": "minor"
+    },
+    {
+      "defect": "Scrim over the painted camp scene is lighter than the spec's 'dark scrim', so the sunset sky competes slightly with the gold title",
+      "direction": "Darken the scrim a step so the UI reads clearly against the background",
+      "region": "upper half of screen, y 0-600",
+      "severity": "minor"
+    },
+    {
+      "defect": "Row backgrounds are near-flat dark rectangles with a thin 1px outline; faint wood grain and panel seams show through inconsistently between rows",
+      "direction": "Use a consistent painted dark slate texture with a subtle carved bevel for each row",
+      "region": "toggle rows, y\u2248625-990",
+      "severity": "minor"
+    }
+  ],
+  "participated": [
+    "codex/gpt-5.6-terra",
+    "anthropic/claude-fable-5",
+    "anthropic/claude-opus-5"
+  ],
+  "per_model": {
+    "anthropic/claude-fable-5": {
+      "defects": [
+        {
+          "defect": "Large empty vertical gap leaves the layout bottom-heavy; panel sits low with ~450px of unused scene below the header",
+          "direction": "Raise the panel toward vertical center or balance header-to-panel spacing so the screen reads composed rather than sparse",
+          "key": "spacing",
+          "region": "between title (y~150) and panel top (y~600)",
+          "severity": "minor"
+        },
+        {
+          "defect": "The gold diamond end-caps of the Reset save plate extend to touch/overlap the panel's inner gold frame",
+          "direction": "Shrink the plate width slightly so its pointed finials clear the panel frame with a small margin",
+          "key": "sizing",
+          "region": "Reset save plate finials, x~75 and x~650, y~1065",
+          "severity": "minor"
+        },
+        {
+          "defect": "Scrim over the painted camp scene is lighter than the spec's 'dark scrim', so the sunset sky competes slightly with the gold title",
+          "direction": "Darken the scrim a step so the UI reads clearly against the background",
+          "key": "background",
+          "region": "upper half of screen, y 0-600",
+          "severity": "minor"
+        }
+      ],
+      "model": "claude-fable-5",
+      "recurring_checks": [
+        {
+          "evidence": "now-12-settings: Reset save gold plate at y~1065 composites transparently over wooden panel, no opaque box",
+          "id": "banner-transparency",
+          "pass": true
+        },
+        {
+          "evidence": "now-12-settings: back button arrow at (70,148) and gold toggles at x~590 are painted art assets, no font-glyph stand-ins",
+          "id": "asset-identity",
+          "pass": true
+        },
+        {
+          "evidence": "now-12-settings: arrow icon visually centered in round wooden button at (70,148)",
+          "id": "glyph-centering",
+          "pass": true
+        },
+        {
+          "evidence": "now-12-settings: row labels and 'Reset save' text at y~1065 stay within their plates; toggle knobs within tracks",
+          "id": "content-containment",
+          "pass": true
+        },
+        {
+          "evidence": "now-12-settings: three toggle rows y 630-990 are equal width/height with matching toggle sizes",
+          "id": "sibling-size-consistency",
+          "pass": true
+        }
+      ],
+      "score": 88.0
+    },
+    "anthropic/claude-opus-5": {
+      "defects": [
+        {
+          "defect": "Panel sits low/centered with a very tall empty gap between the title (y\u2248155) and the panel top (y\u2248595), so the screen reads unbalanced and unfinished",
+          "direction": "Raise the framed panel closer under the title or add content/padding balance so top gap matches bottom breathing room",
+          "key": "layout",
+          "region": "main panel, y\u2248595-1150 \u2014 vertically centered leaving large empty scene above and below",
+          "severity": "major"
+        },
+        {
+          "defect": "Reset save is a narrow gold pill rather than the specified full-width dark plate, and it is crowded against the panel's bottom frame with less padding than the gaps between toggle rows",
+          "direction": "Make Reset save a full-width dark plate matching the toggle-row style, and equalize its top/bottom padding with the row rhythm",
+          "key": "spacing",
+          "region": "Reset save plate inside panel, y\u22481030-1090",
+          "severity": "major"
+        },
+        {
+          "defect": "Reset save uses plain white sans text with no gold treatment, inconsistent with the gold 'Settings' title and the ornate gold plate it sits on",
+          "direction": "Use the gold painted title face/color with stroke and shadow to match the rest of the UI",
+          "key": "typography",
+          "region": "Reset save label, x\u2248280-445 y\u22481060",
+          "severity": "minor"
+        },
+        {
+          "defect": "Toggles read as flat CSS pills \u2014 plain gradient track with a plain cream circle, no painted rim, bevel or gem detailing like the rest of the frame",
+          "direction": "Give toggles a painted metal rim, inner shadow and knob highlight consistent with the gold ornate frame",
+          "key": "iconography",
+          "region": "toggle knobs, x\u2248535-645 across all three rows",
+          "severity": "minor"
+        },
+        {
+          "defect": "Row backgrounds are near-flat dark rectangles with a thin 1px outline; faint wood grain and panel seams show through inconsistently between rows",
+          "direction": "Use a consistent painted dark slate texture with a subtle carved bevel for each row",
+          "key": "background",
+          "region": "toggle rows, y\u2248625-990",
+          "severity": "minor"
+        },
+        {
+          "defect": "Round wooden back button is small relative to the large title and its arrow glyph nearly fills the disc",
+          "direction": "Slightly enlarge the button and add padding around the arrow so the rim ornament reads",
+          "key": "sizing",
+          "region": "back button, x\u224835-105 y\u2248120-190",
+          "severity": "minor"
+        }
+      ],
+      "model": "claude-opus-5",
+      "recurring_checks": [
+        {
+          "evidence": "now-12-settings: Reset save gold ribbon plate at y\u22481060 composites over panel wood with no opaque box",
+          "id": "banner-transparency",
+          "pass": true
+        },
+        {
+          "evidence": "now-12-settings: frame corners, gems and back-button arrow at (68,155) are painted art, not font glyphs",
+          "id": "asset-identity",
+          "pass": true
+        },
+        {
+          "evidence": "now-12-settings: back-button arrow centered in disc at (68,152)",
+          "id": "glyph-centering",
+          "pass": true
+        },
+        {
+          "evidence": "now-12-settings: 'Sound effects' at (88-308, 813) and 'Reset save' at (280-445, 1060) stay inside their bounds",
+          "id": "content-containment",
+          "pass": true
+        },
+        {
+          "evidence": "now-12-settings: three toggle rows all span x\u224862-663 with equal 118px height",
+          "id": "sibling-size-consistency",
+          "pass": true
+        }
+      ],
+      "score": 82.0
+    },
+    "codex/gpt-5.6-terra": {
+      "defects": [
+        {
+          "defect": "A large empty wood-texture gap separates the Haptics row from the Reset save plate.",
+          "direction": "Reduce the unused lower-panel space or lower the reset plate to create a more intentional vertical rhythm.",
+          "key": "spacing",
+          "region": "bottom of ornate settings panel",
+          "severity": "minor"
+        },
+        {
+          "defect": "The dark scrim makes the sunset camp art and lower panel details slightly muddy.",
+          "direction": "Lift background and panel midtones subtly while preserving foreground text contrast.",
+          "key": "color",
+          "region": "full-screen background and panel",
+          "severity": "minor"
+        }
+      ],
+      "model": "gpt-5.6-terra",
+      "recurring_checks": [
+        {
+          "evidence": "now-12-settings Reset save ribbon at x75-652, y1036-1100 composites cleanly over the wood panel.",
+          "id": "banner-transparency",
+          "pass": true
+        },
+        {
+          "evidence": "now-12-settings gold frame, wooden back button, toggles, and reset ribbon use a cohesive fantasy-game asset style.",
+          "id": "asset-identity",
+          "pass": true
+        },
+        {
+          "evidence": "now-12-settings toggle knobs at x609, y685/814/943 are vertically centered in their gold pill controls.",
+          "id": "glyph-centering",
+          "pass": true
+        },
+        {
+          "evidence": "now-12-settings row labels and Reset save text remain inside their respective dark plates and ribbon.",
+          "id": "content-containment",
+          "pass": true
+        },
+        {
+          "evidence": "now-12-settings Music, Sound effects, and Haptics rows at y631-993 have consistent cell and toggle sizing.",
+          "id": "sibling-size-consistency",
+          "pass": true
+        }
+      ],
+      "score": 94.0
+    },
+    "google/gemini-3.6-flash": {
+      "model": "google/gemini-3.6-flash",
+      "reason": "HTTP 402",
+      "skipped": true
+    }
+  },
+  "recurring_checks": [
+    {
+      "evidence": "now-12-settings Reset save ribbon at x75-652, y1036-1100 composites cleanly over the wood panel.",
+      "id": "banner-transparency",
+      "pass": true
+    },
+    {
+      "evidence": "now-12-settings gold frame, wooden back button, toggles, and reset ribbon use a cohesive fantasy-game asset style.",
+      "id": "asset-identity",
+      "pass": true
+    },
+    {
+      "evidence": "now-12-settings toggle knobs at x609, y685/814/943 are vertically centered in their gold pill controls.",
+      "id": "glyph-centering",
+      "pass": true
+    },
+    {
+      "evidence": "now-12-settings row labels and Reset save text remain inside their respective dark plates and ribbon.",
+      "id": "content-containment",
+      "pass": true
+    },
+    {
+      "evidence": "now-12-settings Music, Sound effects, and Haptics rows at y631-993 have consistent cell and toggle sizing.",
+      "id": "sibling-size-consistency",
+      "pass": true
+    }
+  ],
+  "score": 88.0,
+  "skipped": [
+    {
+      "judge": "google/gemini-3.6-flash",
+      "reason": "HTTP 402"
+    }
+  ],
+  "verdict": "pass"
+}

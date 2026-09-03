@@ -1,0 +1,284 @@
+{
+  "consensus": [
+    "layout",
+    "iconography",
+    "background"
+  ],
+  "defects": [
+    {
+      "defect": "Reset save button frame is much narrower (~380px) than the full-width toggle rows (~660px) and uses a different ornate style (gem end-caps, rounded pill) than the rows' rectangular corner-bracket frames",
+      "direction": "Match the Reset save frame width/inset and border vocabulary to the toggle rows, or restyle rows to share the button's ornament language",
+      "region": "Reset save button vs. toggle row frames",
+      "severity": "major"
+    },
+    {
+      "defect": "All content is crowded into the top half; the lower half is empty, so the screen reads unfinished",
+      "direction": "Vertically distribute or center the settings stack, or add footer framing so the page feels composed",
+      "region": "bottom ~55% of screen (below y\u2248820)",
+      "severity": "major"
+    },
+    {
+      "defect": "Large empty wood area below the Reset save button leaves the screen reading unfinished and top-heavy",
+      "direction": "Vertically center the settings stack or add framed content/footer decoration so the page fills the viewport",
+      "region": "lower ~55% of screen below Reset save button",
+      "severity": "major"
+    },
+    {
+      "defect": "Background is a flat brown fill with faint diagonal CSS-style stripes, not a painted wood ground",
+      "direction": "Replace with a painted wood-plank/ground texture matching the Kingdom Rush-style painted UI",
+      "region": "full screen, especially lower half",
+      "severity": "major"
+    },
+    {
+      "defect": "Labels use a plain bold sans-serif that clashes with the ornate display face used for the 'Settings' title",
+      "direction": "Use the fantasy display face (or a stroked/embossed variant) for row labels to unify typography",
+      "region": "row labels 'Music', 'Sound effects', 'Haptics'",
+      "severity": "minor"
+    },
+    {
+      "defect": "Header is flush against the left edge and the back button sits slightly low relative to the title's optical center",
+      "direction": "Add consistent horizontal padding matching the row frames and align the back button to the title baseline/center",
+      "region": "back arrow + title, top-left y~120-185",
+      "severity": "minor"
+    },
+    {
+      "defect": "A dark blurry smudge/vignette artifact sits on the background with no apparent purpose",
+      "direction": "Remove the stray shadow blob or replace it with intentional ground texture",
+      "region": "bottom center, around x\u2248360 y\u22481250",
+      "severity": "minor"
+    },
+    {
+      "defect": "Toggles are flat single-color iOS-style switches that read as plain CSS rather than painted gold game assets",
+      "direction": "Restyle toggles with painted bevels/ornament consistent with the gold frame treatment",
+      "region": "toggles in Music/Sound effects/Haptics rows, right edge x\u2248555-660",
+      "severity": "minor"
+    },
+    {
+      "defect": "Toggles are plain flat CSS pills with a solid cream knob \u2014 no gold bevel, rim, or painted knob detail matching the frame art",
+      "direction": "Give toggles a beveled gold track and rimmed/ornamented knob consistent with the wood-and-gold frames",
+      "region": "gold toggles, right of each row (~x 558-658)",
+      "severity": "minor"
+    },
+    {
+      "defect": "Row interiors are flat dark-brown with only faint plank lines; they read as a CSS fill rather than a painted wood panel",
+      "direction": "Add painted wood grain, inner shadow, and warm highlight to the 9-slice interior fill",
+      "region": "toggle row interiors, e.g. Music row x 40-690, y 220-345",
+      "severity": "minor"
+    }
+  ],
+  "participated": [
+    "codex/gpt-5.6-terra",
+    "anthropic/claude-fable-5",
+    "anthropic/claude-opus-5"
+  ],
+  "per_model": {
+    "anthropic/claude-fable-5": {
+      "defects": [
+        {
+          "defect": "Background is a flat brown fill with faint diagonal CSS-style stripes, not a painted wood ground",
+          "direction": "Replace with a painted wood-plank/ground texture matching the Kingdom Rush-style painted UI",
+          "key": "background",
+          "region": "full screen, especially lower half",
+          "severity": "major"
+        },
+        {
+          "defect": "All content is crowded into the top half; the lower half is empty, so the screen reads unfinished",
+          "direction": "Vertically distribute or center the settings stack, or add footer framing so the page feels composed",
+          "key": "layout",
+          "region": "bottom ~55% of screen (below y\u2248820)",
+          "severity": "major"
+        },
+        {
+          "defect": "Toggles are flat single-color iOS-style switches that read as plain CSS rather than painted gold game assets",
+          "direction": "Restyle toggles with painted bevels/ornament consistent with the gold frame treatment",
+          "key": "iconography",
+          "region": "toggles in Music/Sound effects/Haptics rows, right edge x\u2248555-660",
+          "severity": "minor"
+        },
+        {
+          "defect": "A dark blurry smudge/vignette artifact sits on the background with no apparent purpose",
+          "direction": "Remove the stray shadow blob or replace it with intentional ground texture",
+          "key": "other",
+          "region": "bottom center, around x\u2248360 y\u22481250",
+          "severity": "minor"
+        }
+      ],
+      "model": "claude-fable-5",
+      "recurring_checks": [
+        {
+          "evidence": "now-05-settings: no banner/ribbon sprites present; no opaque boxes behind title at y\u2248150",
+          "id": "banner-transparency",
+          "pass": true
+        },
+        {
+          "evidence": "now-05-settings: back-button arrow at x\u224868 y\u2248148 is drawn art, no font-glyph stand-ins",
+          "id": "asset-identity",
+          "pass": true
+        },
+        {
+          "evidence": "now-05-settings: arrow glyph centered in circular back button at x\u224868 y\u2248148",
+          "id": "glyph-centering",
+          "pass": true
+        },
+        {
+          "evidence": "now-05-settings: 'Reset save' text fits inside gold pill at x\u2248360 y\u2248770; row labels within frames",
+          "id": "content-containment",
+          "pass": true
+        },
+        {
+          "evidence": "now-05-settings: three toggle rows at y\u2248280/440/605 are equal width and height, toggles equal-sized",
+          "id": "sibling-size-consistency",
+          "pass": true
+        }
+      ],
+      "score": 74.0
+    },
+    "anthropic/claude-opus-5": {
+      "defects": [
+        {
+          "defect": "Large empty wood area below the Reset save button leaves the screen reading unfinished and top-heavy",
+          "direction": "Vertically center the settings stack or add framed content/footer decoration so the page fills the viewport",
+          "key": "layout",
+          "region": "lower ~55% of screen below Reset save button",
+          "severity": "major"
+        },
+        {
+          "defect": "Reset save button frame is much narrower (~380px) than the full-width toggle rows (~660px) and uses a different ornate style (gem end-caps, rounded pill) than the rows' rectangular corner-bracket frames",
+          "direction": "Match the Reset save frame width/inset and border vocabulary to the toggle rows, or restyle rows to share the button's ornament language",
+          "key": "sizing",
+          "region": "Reset save button vs. toggle row frames",
+          "severity": "major"
+        },
+        {
+          "defect": "Row interiors are flat dark-brown with only faint plank lines; they read as a CSS fill rather than a painted wood panel",
+          "direction": "Add painted wood grain, inner shadow, and warm highlight to the 9-slice interior fill",
+          "key": "background",
+          "region": "toggle row interiors, e.g. Music row x 40-690, y 220-345",
+          "severity": "minor"
+        },
+        {
+          "defect": "Toggles are plain flat CSS pills with a solid cream knob \u2014 no gold bevel, rim, or painted knob detail matching the frame art",
+          "direction": "Give toggles a beveled gold track and rimmed/ornamented knob consistent with the wood-and-gold frames",
+          "key": "iconography",
+          "region": "gold toggles, right of each row (~x 558-658)",
+          "severity": "minor"
+        },
+        {
+          "defect": "Labels use a plain bold sans-serif that clashes with the ornate display face used for the 'Settings' title",
+          "direction": "Use the fantasy display face (or a stroked/embossed variant) for row labels to unify typography",
+          "key": "typography",
+          "region": "row labels 'Music', 'Sound effects', 'Haptics'",
+          "severity": "minor"
+        },
+        {
+          "defect": "Header is flush against the left edge and the back button sits slightly low relative to the title's optical center",
+          "direction": "Add consistent horizontal padding matching the row frames and align the back button to the title baseline/center",
+          "key": "spacing",
+          "region": "back arrow + title, top-left y~120-185",
+          "severity": "minor"
+        }
+      ],
+      "model": "claude-opus-5",
+      "recurring_checks": [
+        {
+          "evidence": "now-05-settings: Reset save ribbon at (165-560, 725-810) composites over wood with no opaque backing box",
+          "id": "banner-transparency",
+          "pass": true
+        },
+        {
+          "evidence": "now-05-settings: back arrow at (35-105, 120-185) is painted art, not a font glyph; all three row frames use the same sprite",
+          "id": "asset-identity",
+          "pass": true
+        },
+        {
+          "evidence": "now-05-settings: circular back button arrow at (70,152) is visually centered in its disc",
+          "id": "glyph-centering",
+          "pass": true
+        },
+        {
+          "evidence": "now-05-settings: 'Reset save' text (280-445, 755-785) and row labels stay inside their frames",
+          "id": "content-containment",
+          "pass": true
+        },
+        {
+          "evidence": "now-05-settings: three toggle rows all span x 28-694 with equal ~135px heights; toggles identical at ~100x50",
+          "id": "sibling-size-consistency",
+          "pass": true
+        }
+      ],
+      "score": 72.0
+    },
+    "codex/gpt-5.6-terra": {
+      "defects": [],
+      "model": "gpt-5.6-terra",
+      "recurring_checks": [
+        {
+          "evidence": "now-05-settings Reset save ribbon at x166-559, y726-815 composites cleanly over wood",
+          "id": "banner-transparency",
+          "pass": true
+        },
+        {
+          "evidence": "now-05-settings ornate wood-and-gold row frames and reset ribbon at x32-694 match painted fantasy styling",
+          "id": "asset-identity",
+          "pass": true
+        },
+        {
+          "evidence": "now-05-settings back-arrow glyph is visually centered in circular button at x36-105, y113-181",
+          "id": "glyph-centering",
+          "pass": true
+        },
+        {
+          "evidence": "now-05-settings all row labels and Reset save text remain within their framed controls",
+          "id": "content-containment",
+          "pass": true
+        },
+        {
+          "evidence": "now-05-settings Music, Sound effects, and Haptics rows use consistent x32-694 widths and heights",
+          "id": "sibling-size-consistency",
+          "pass": true
+        }
+      ],
+      "score": 96.0
+    },
+    "google/gemini-3.6-flash": {
+      "model": "google/gemini-3.6-flash",
+      "reason": "HTTP 402",
+      "skipped": true
+    }
+  },
+  "recurring_checks": [
+    {
+      "evidence": "now-05-settings Reset save ribbon at x166-559, y726-815 composites cleanly over wood",
+      "id": "banner-transparency",
+      "pass": true
+    },
+    {
+      "evidence": "now-05-settings ornate wood-and-gold row frames and reset ribbon at x32-694 match painted fantasy styling",
+      "id": "asset-identity",
+      "pass": true
+    },
+    {
+      "evidence": "now-05-settings back-arrow glyph is visually centered in circular button at x36-105, y113-181",
+      "id": "glyph-centering",
+      "pass": true
+    },
+    {
+      "evidence": "now-05-settings all row labels and Reset save text remain within their framed controls",
+      "id": "content-containment",
+      "pass": true
+    },
+    {
+      "evidence": "now-05-settings Music, Sound effects, and Haptics rows use consistent x32-694 widths and heights",
+      "id": "sibling-size-consistency",
+      "pass": true
+    }
+  ],
+  "score": 74.0,
+  "skipped": [
+    {
+      "judge": "google/gemini-3.6-flash",
+      "reason": "HTTP 402"
+    }
+  ],
+  "verdict": "fail"
+}

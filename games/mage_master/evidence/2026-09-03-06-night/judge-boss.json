@@ -1,0 +1,391 @@
+{
+  "consensus": [
+    "layout",
+    "text-content",
+    "missing-element",
+    "sizing",
+    "spacing"
+  ],
+  "defects": [
+    {
+      "defect": "Boss name text 'Goblin chief' and the green boss health bar overlap a semi-transparent debris/skull sprite and the bar is unframed, edge-bleeding off the right screen edge with a second orphan red bar floating below it",
+      "direction": "Give the boss bar a framed wooden plate with margins on both sides, center the name above it inside the frame, and attach the small red unit bar to its owning unit instead of floating under the boss bar",
+      "region": "boss name + health bar, arena top (y\u2248395-480)",
+      "severity": "blocker"
+    },
+    {
+      "defect": "Only two of three party mages are on the front line and they overlap the goblin chief's body; the third (Sage) stands alone in the lower-right dead zone, and the whole lower half of the arena is empty, giving a dead, unfinished composition",
+      "direction": "Stage all three mages in a readable formation opposite the boss with no sprite overlap, and shift the fight group down so the arena's empty lower half is used",
+      "region": "arena center, units at x\u2248390-620 y\u2248530-760",
+      "severity": "blocker"
+    },
+    {
+      "defect": "Gold value is visibly truncated as \u201c13...\u201d rather than a readable count.",
+      "direction": "Fit the full value or reduce type/icon spacing so the resource count remains legible.",
+      "region": "top resource bar, gold pill",
+      "severity": "major"
+    },
+    {
+      "defect": "Gold value is truncated to '13\u2026' with an ellipsis",
+      "direction": "Widen the gold chip or abbreviate the value (e.g. 1.3K) so the full amount renders",
+      "region": "top resource bar, gold coin chip (second pill)",
+      "severity": "major"
+    },
+    {
+      "defect": "Gold value is truncated to '13\u2026' inside its pill",
+      "direction": "Widen the pill or abbreviate numerically (e.g. 13.4k) so the full value fits",
+      "region": "top bar, gold counter (x\u2248300-380, y\u2248150)",
+      "severity": "major"
+    },
+    {
+      "defect": "Unit health bars are missing above the mages and the goblin chief; only one stray red bar exists near the top",
+      "direction": "Render a small health bar above each unit sprite, anchored to that unit",
+      "region": "unit sprites in arena",
+      "severity": "major"
+    },
+    {
+      "defect": "Boss and front-line heroes overlap heavily, making combatant silhouettes and actions difficult to read.",
+      "direction": "Separate sprites into clearer combat positions with visible attack spacing.",
+      "region": "center-right combat cluster",
+      "severity": "major"
+    },
+    {
+      "defect": "Stage track is clipped by the left screen edge \u2014 the diamond marker at the top is half cut off and the track has no frame or stage labels",
+      "direction": "Inset the track from the edge, fully show the current-stage marker, and frame it consistently with the rest of the HUD",
+      "region": "stage track, left edge x\u224815-65",
+      "severity": "major"
+    },
+    {
+      "defect": "Smudged semi-transparent ghosted glyphs/number artifacts hover over the sand near the boss name and health bar, reading as a rendering error",
+      "direction": "Remove or properly animate/fade damage numbers so no stale translucent glyph trails remain",
+      "region": "top of arena, right of 'Goblin chief' label (~x400-540, y375-430)",
+      "severity": "major"
+    },
+    {
+      "defect": "All three card HP bars are flat solid green rectangles with no frame, bevel, or texture \u2014 reads as plain CSS against the painted, framed art around them",
+      "direction": "Give the bars a carved wooden/metal frame, gradient fill and inner shadow matching the panel art style",
+      "region": "party HUD cards, health bars (y\u22481330-1345)",
+      "severity": "major"
+    },
+    {
+      "defect": "Large empty sand areas make the battle feel sparse while units are split into distant clusters.",
+      "direction": "Tighten the encounter composition and distribute props or combat activity more intentionally.",
+      "region": "arena center and lower half",
+      "severity": "minor"
+    },
+    {
+      "defect": "A wide flat brown band sits between the sand horizon and the party HUD, and the tent and campfire props are half-clipped by it",
+      "direction": "Reduce the dead brown band and lift the props fully into the arena, or blend the horizon into the HUD frame",
+      "region": "arena bottom horizon, y\u22481120-1210",
+      "severity": "minor"
+    },
+    {
+      "defect": "The small red over-unit bar floats detached below the skull trophy pile rather than anchored over the boss sprite",
+      "direction": "Anchor the boss's over-unit health bar directly above the goblin chief sprite",
+      "region": "boss health bar area (~x420-540, y470)",
+      "severity": "minor"
+    },
+    {
+      "defect": "Portrait medallions are small relative to the card and the hero names sit hard against the right edge of Bastion's card, crowding the frame",
+      "direction": "Enlarge portraits slightly and balance name padding inside each card",
+      "region": "party HUD cards, portrait icons (y\u22481275-1320)",
+      "severity": "minor"
+    },
+    {
+      "defect": "The long green bar plus smaller red bar reads as an ambiguous duplicate health UI.",
+      "direction": "Clarify the relationship with a single dominant boss health bar or explicit secondary-state styling.",
+      "region": "boss health area beneath \u201cGoblin chief\u201d",
+      "severity": "minor"
+    },
+    {
+      "defect": "Player units show no individual health bars; only the boss has an over-unit bar",
+      "direction": "Render small health bars above each fighting mage per the spec's 'unit health bars'",
+      "region": "mage units in the arena (center and lower-right)",
+      "severity": "minor"
+    },
+    {
+      "defect": "One of the three mages stands idle far from the boss fight, making the combat composition feel dead on that side",
+      "direction": "Move the third mage toward the boss engagement or give it an in-combat casting pose near the fight",
+      "region": "lower-right arena, hooded Sage mage (~x540, y1030)",
+      "severity": "minor"
+    },
+    {
+      "defect": "Speed button label '1x' sits in a wide frame while the pause button opposite uses a round medallion \u2014 mismatched sibling treatment",
+      "direction": "Match the two level-strip controls to the same frame shape and size",
+      "region": "top-left level strip, '1x' button",
+      "severity": "minor"
+    }
+  ],
+  "participated": [
+    "codex/gpt-5.6-terra",
+    "anthropic/claude-fable-5",
+    "anthropic/claude-opus-5"
+  ],
+  "per_model": {
+    "anthropic/claude-fable-5": {
+      "defects": [
+        {
+          "defect": "Smudged semi-transparent ghosted glyphs/number artifacts hover over the sand near the boss name and health bar, reading as a rendering error",
+          "direction": "Remove or properly animate/fade damage numbers so no stale translucent glyph trails remain",
+          "key": "extra-element",
+          "region": "top of arena, right of 'Goblin chief' label (~x400-540, y375-430)",
+          "severity": "major"
+        },
+        {
+          "defect": "Gold value is truncated to '13\u2026' with an ellipsis",
+          "direction": "Widen the gold chip or abbreviate the value (e.g. 1.3K) so the full amount renders",
+          "key": "text-content",
+          "region": "top resource bar, gold coin chip (second pill)",
+          "severity": "major"
+        },
+        {
+          "defect": "Player units show no individual health bars; only the boss has an over-unit bar",
+          "direction": "Render small health bars above each fighting mage per the spec's 'unit health bars'",
+          "key": "missing-element",
+          "region": "mage units in the arena (center and lower-right)",
+          "severity": "minor"
+        },
+        {
+          "defect": "One of the three mages stands idle far from the boss fight, making the combat composition feel dead on that side",
+          "direction": "Move the third mage toward the boss engagement or give it an in-combat casting pose near the fight",
+          "key": "layout",
+          "region": "lower-right arena, hooded Sage mage (~x540, y1030)",
+          "severity": "minor"
+        },
+        {
+          "defect": "The small red over-unit bar floats detached below the skull trophy pile rather than anchored over the boss sprite",
+          "direction": "Anchor the boss's over-unit health bar directly above the goblin chief sprite",
+          "key": "sizing",
+          "region": "boss health bar area (~x420-540, y470)",
+          "severity": "minor"
+        }
+      ],
+      "model": "claude-fable-5",
+      "recurring_checks": [
+        {
+          "evidence": "now-06-boss: 'Goblin chief' name and health bar composite transparently over sand at ~y400-440",
+          "id": "banner-transparency",
+          "pass": true
+        },
+        {
+          "evidence": "now-06-boss: all HUD frames, resource icons, and sprites are painted art assets, e.g. gem/crystal icons at ~y150",
+          "id": "asset-identity",
+          "pass": true
+        },
+        {
+          "evidence": "now-06-boss: pause glyph centered in circular button at ~(640,278); '1x' centered in its badge at ~(90,278)",
+          "id": "glyph-centering",
+          "pass": true
+        },
+        {
+          "evidence": "now-06-boss: resource text and party-card item icons stay inside their pills/slots (top bar ~y150, cards ~y1400), though gold text truncates",
+          "id": "content-containment",
+          "pass": true
+        },
+        {
+          "evidence": "now-06-boss: four top-bar resource chips at ~y150 have unequal widths (energy chip ~1.3x wider than gold/crystal/gem chips); party cards at ~y1250-1520 are consistent",
+          "id": "sibling-size-consistency",
+          "pass": false
+        }
+      ],
+      "score": 80.0
+    },
+    "anthropic/claude-opus-5": {
+      "defects": [
+        {
+          "defect": "Boss name text 'Goblin chief' and the green boss health bar overlap a semi-transparent debris/skull sprite and the bar is unframed, edge-bleeding off the right screen edge with a second orphan red bar floating below it",
+          "direction": "Give the boss bar a framed wooden plate with margins on both sides, center the name above it inside the frame, and attach the small red unit bar to its owning unit instead of floating under the boss bar",
+          "key": "layout",
+          "region": "boss name + health bar, arena top (y\u2248395-480)",
+          "severity": "blocker"
+        },
+        {
+          "defect": "Only two of three party mages are on the front line and they overlap the goblin chief's body; the third (Sage) stands alone in the lower-right dead zone, and the whole lower half of the arena is empty, giving a dead, unfinished composition",
+          "direction": "Stage all three mages in a readable formation opposite the boss with no sprite overlap, and shift the fight group down so the arena's empty lower half is used",
+          "key": "layout",
+          "region": "arena center, units at x\u2248390-620 y\u2248530-760",
+          "severity": "blocker"
+        },
+        {
+          "defect": "Unit health bars are missing above the mages and the goblin chief; only one stray red bar exists near the top",
+          "direction": "Render a small health bar above each unit sprite, anchored to that unit",
+          "key": "missing-element",
+          "region": "unit sprites in arena",
+          "severity": "major"
+        },
+        {
+          "defect": "Gold value is truncated to '13\u2026' inside its pill",
+          "direction": "Widen the pill or abbreviate numerically (e.g. 13.4k) so the full value fits",
+          "key": "text-content",
+          "region": "top bar, gold counter (x\u2248300-380, y\u2248150)",
+          "severity": "major"
+        },
+        {
+          "defect": "Stage track is clipped by the left screen edge \u2014 the diamond marker at the top is half cut off and the track has no frame or stage labels",
+          "direction": "Inset the track from the edge, fully show the current-stage marker, and frame it consistently with the rest of the HUD",
+          "key": "layout",
+          "region": "stage track, left edge x\u224815-65",
+          "severity": "major"
+        },
+        {
+          "defect": "All three card HP bars are flat solid green rectangles with no frame, bevel, or texture \u2014 reads as plain CSS against the painted, framed art around them",
+          "direction": "Give the bars a carved wooden/metal frame, gradient fill and inner shadow matching the panel art style",
+          "key": "color",
+          "region": "party HUD cards, health bars (y\u22481330-1345)",
+          "severity": "major"
+        },
+        {
+          "defect": "A wide flat brown band sits between the sand horizon and the party HUD, and the tent and campfire props are half-clipped by it",
+          "direction": "Reduce the dead brown band and lift the props fully into the arena, or blend the horizon into the HUD frame",
+          "key": "spacing",
+          "region": "arena bottom horizon, y\u22481120-1210",
+          "severity": "minor"
+        },
+        {
+          "defect": "Portrait medallions are small relative to the card and the hero names sit hard against the right edge of Bastion's card, crowding the frame",
+          "direction": "Enlarge portraits slightly and balance name padding inside each card",
+          "key": "sizing",
+          "region": "party HUD cards, portrait icons (y\u22481275-1320)",
+          "severity": "minor"
+        },
+        {
+          "defect": "Speed button label '1x' sits in a wide frame while the pause button opposite uses a round medallion \u2014 mismatched sibling treatment",
+          "direction": "Match the two level-strip controls to the same frame shape and size",
+          "key": "iconography",
+          "region": "top-left level strip, '1x' button",
+          "severity": "minor"
+        }
+      ],
+      "model": "claude-opus-5",
+      "recurring_checks": [
+        {
+          "evidence": "now-06-boss: boss name plate area (x\u2248300-680, y\u2248395-450) has no opaque box; sand shows through",
+          "id": "banner-transparency",
+          "pass": true
+        },
+        {
+          "evidence": "now-06-boss: goblin chief (x\u2248390-520, y\u2248545-710) and mage sprites are painted art, no glyph stand-ins",
+          "id": "asset-identity",
+          "pass": true
+        },
+        {
+          "evidence": "now-06-boss: pause glyph centered in medallion at (x\u2248613, y\u2248279)",
+          "id": "glyph-centering",
+          "pass": true
+        },
+        {
+          "evidence": "now-06-boss: gold pill truncates '13\u2026' at (x\u2248345, y\u2248150); boss HP bar runs off right edge at (x\u2248690, y\u2248437)",
+          "id": "content-containment",
+          "pass": false
+        },
+        {
+          "evidence": "now-06-boss: three party cards equal width at y\u22481245-1465; four top-bar pills equal width at y\u2248150",
+          "id": "sibling-size-consistency",
+          "pass": true
+        }
+      ],
+      "score": 61.0
+    },
+    "codex/gpt-5.6-terra": {
+      "defects": [
+        {
+          "defect": "Gold value is visibly truncated as \u201c13...\u201d rather than a readable count.",
+          "direction": "Fit the full value or reduce type/icon spacing so the resource count remains legible.",
+          "key": "text-content",
+          "region": "top resource bar, gold pill",
+          "severity": "major"
+        },
+        {
+          "defect": "Boss and front-line heroes overlap heavily, making combatant silhouettes and actions difficult to read.",
+          "direction": "Separate sprites into clearer combat positions with visible attack spacing.",
+          "key": "layout",
+          "region": "center-right combat cluster",
+          "severity": "major"
+        },
+        {
+          "defect": "Large empty sand areas make the battle feel sparse while units are split into distant clusters.",
+          "direction": "Tighten the encounter composition and distribute props or combat activity more intentionally.",
+          "key": "spacing",
+          "region": "arena center and lower half",
+          "severity": "minor"
+        },
+        {
+          "defect": "The long green bar plus smaller red bar reads as an ambiguous duplicate health UI.",
+          "direction": "Clarify the relationship with a single dominant boss health bar or explicit secondary-state styling.",
+          "key": "other",
+          "region": "boss health area beneath \u201cGoblin chief\u201d",
+          "severity": "minor"
+        }
+      ],
+      "model": "gpt-5.6-terra",
+      "recurring_checks": [
+        {
+          "evidence": "now-06-boss: 1x and pause badges at upper arena have clean transparent-edged sprites.",
+          "id": "banner-transparency",
+          "pass": true
+        },
+        {
+          "evidence": "now-06-boss: arena props, framed HUD, and character art share a cohesive Kingdom Rush-style asset language.",
+          "id": "asset-identity",
+          "pass": true
+        },
+        {
+          "evidence": "now-06-boss: pause glyph is centered within the circular button near x664 y273.",
+          "id": "glyph-centering",
+          "pass": true
+        },
+        {
+          "evidence": "now-06-boss: HUD labels and item icons remain within their framed cards; gold text is truncated but does not overflow.",
+          "id": "content-containment",
+          "pass": true
+        },
+        {
+          "evidence": "now-06-boss: Bastion, Ember, and Sage cards form equal-sized bottom-row cells.",
+          "id": "sibling-size-consistency",
+          "pass": true
+        }
+      ],
+      "score": 84.0
+    },
+    "google/gemini-3.6-flash": {
+      "model": "google/gemini-3.6-flash",
+      "reason": "HTTP 402",
+      "skipped": true
+    }
+  },
+  "recurring_checks": [
+    {
+      "evidence": "now-06-boss: 1x and pause badges at upper arena have clean transparent-edged sprites.",
+      "id": "banner-transparency",
+      "pass": true
+    },
+    {
+      "evidence": "now-06-boss: arena props, framed HUD, and character art share a cohesive Kingdom Rush-style asset language.",
+      "id": "asset-identity",
+      "pass": true
+    },
+    {
+      "evidence": "now-06-boss: pause glyph is centered within the circular button near x664 y273.",
+      "id": "glyph-centering",
+      "pass": true
+    },
+    {
+      "evidence": "now-06-boss: gold pill truncates '13\u2026' at (x\u2248345, y\u2248150); boss HP bar runs off right edge at (x\u2248690, y\u2248437)",
+      "id": "content-containment",
+      "pass": false
+    },
+    {
+      "evidence": "now-06-boss: four top-bar resource chips at ~y150 have unequal widths (energy chip ~1.3x wider than gold/crystal/gem chips); party cards at ~y1250-1520 are consistent",
+      "id": "sibling-size-consistency",
+      "pass": false
+    }
+  ],
+  "score": 80.0,
+  "skipped": [
+    {
+      "judge": "google/gemini-3.6-flash",
+      "reason": "HTTP 402"
+    }
+  ],
+  "verdict": "fail"
+}

@@ -15,6 +15,7 @@ import {
 } from "@fabrikav2/ui";
 import { ENERGY } from "../../content/economy.ts";
 import { ARENA_THEME, LEVEL_COUNT, levelSpec } from "../../content/levels.ts";
+import { enemyDefinition, type EnemyKind } from "../../content/enemies.ts";
 import { MAGE_CLASSES, type MageClass } from "../../content/mages.ts";
 import { MAX_RIFT_TIER, PULL_COST_CRYSTALS, oddsFor, riftTier } from "../../content/rift.ts";
 import { GEM_GROUP, gemsForProductId, type GemGrant } from "../../content/shop.ts";
@@ -73,6 +74,15 @@ function formatTime(seconds: number): string {
   if (s < 60) return fill("time.seconds", { s });
   if (s < 3600) return fill("time.minutes", { m: Math.floor(s / 60), s: s % 60 });
   return fill("time.hours", { h: Math.floor(s / 3600), m: Math.floor((s % 3600) / 60) });
+}
+
+/** Top-bar counters: full up to four digits, then compact so the pill never ellipsizes. */
+function formatCount(value: number): string {
+  const n = Math.max(0, Math.floor(value));
+  if (n < 10_000) return String(n);
+  if (n < 100_000) return fill("num.thousands", { n: (n / 1000).toFixed(1) });
+  if (n < 1_000_000) return fill("num.thousands", { n: Math.floor(n / 1000) });
+  return fill("num.millions", { n: (n / 1_000_000).toFixed(1) });
 }
 
 function formatStat(key: StatKey, value: number): string {
@@ -216,14 +226,18 @@ export function mountMageMasterScreen(opts: MageMasterScreenOptions): MageMaster
     pill.setAttribute("role", "status");
     pill.setAttribute("aria-label", label);
     pill.append(img(currencyIcon(key), "mm-pill__icon"));
+    // Value and (for energy) the regen timer stack in a column so every pill
+    // can share the bar's width equally without the longest one starving the rest.
+    const text = el("span", "mm-pill__text");
     const value = el("span", "mm-pill__value", "0");
-    pill.append(value);
+    text.append(value);
     live.set(`pill-${key}`, value);
     if (key === "energy") {
       const sub = el("span", "mm-pill__sub", "");
-      pill.append(sub);
+      text.append(sub);
       live.set("pill-energy-sub", sub);
     }
+    pill.append(text);
     return pill;
   };
   topbar.append(
@@ -525,7 +539,7 @@ export function mountMageMasterScreen(opts: MageMasterScreenOptions): MageMaster
       mountInto: host,
       id: "mm-shop",
       iap: controller.iap,
-      sections: [{ group: GEM_GROUP, layout: "grid" }],
+      sections: [{ group: GEM_GROUP, layout: "featured" }],
       copy: SHOP_COPY,
       badges: { best: copy["shop.badge.best"] },
       resolveIcon: (product) => shopIcon(product.id),
@@ -577,6 +591,19 @@ export function mountMageMasterScreen(opts: MageMasterScreenOptions): MageMaster
     const arena = el("div", "mm-battle__arena");
     const canvasHost = el("div", "mm-battle__canvas");
     arena.append(canvasHost);
+    // Boss health lives in the DOM over the arena, where the strip and the
+    // camera can never hide it; onBattleFrame drives it from the sim view.
+    const bossBar = el("div", "mm-bossbar");
+    bossBar.hidden = true;
+    const bossName = el("span", "mm-bossbar__name");
+    const bossTrack = el("div", "mm-bossbar__track");
+    const bossFill = el("span", "mm-bossbar__fill");
+    bossTrack.append(bossFill);
+    bossBar.append(bossName, bossTrack);
+    live.set("boss-bar", bossBar);
+    live.set("boss-name", bossName);
+    live.set("boss-fill", bossFill);
+    arena.append(bossBar);
     const track = el("div", "mm-track");
     track.setAttribute("aria-hidden", "true");
     stageDots.length = 0;
@@ -642,6 +669,22 @@ export function mountMageMasterScreen(opts: MageMasterScreenOptions): MageMaster
       bar.card.classList.toggle("mm-hud__mage--dead", !unit.alive);
       bar.card.classList.toggle("mm-hud__mage--low", unit.alive && ratio < 0.3);
       bar.fill.dataset.mmHp = ratio >= 0.6 ? "high" : ratio >= 0.3 ? "mid" : "low";
+    }
+    const bossBar = live.get("boss-bar");
+    if (bossBar) {
+      const boss = view.units.find((unit) => unit.side === "enemy" && unit.boss && unit.alive);
+      bossBar.hidden = !boss;
+      if (boss) {
+        const name = copy[enemyDefinition(boss.kind as EnemyKind).nameKey];
+        const nameEl = live.get("boss-name");
+        if (nameEl && nameEl.textContent !== name) nameEl.textContent = name;
+        const ratio = Math.max(0, Math.min(1, boss.hp / boss.maxHp));
+        const fillEl = live.get("boss-fill");
+        if (fillEl) {
+          fillEl.style.transform = `scaleX(${ratio.toFixed(3)})`;
+          fillEl.dataset.mmHp = ratio >= 0.6 ? "high" : ratio >= 0.3 ? "mid" : "low";
+        }
+      }
     }
     const stageLabel = live.get("battle-stage");
     if (stageLabel) {
@@ -903,10 +946,10 @@ export function mountMageMasterScreen(opts: MageMasterScreenOptions): MageMaster
   const refreshLive = (snap: MageMasterSnapshot): void => {
     live.get("pill-energy")!.textContent = `${snap.energy}/${ENERGY.cap}`;
     const energySub = live.get("pill-energy-sub");
-    if (energySub) energySub.textContent = snap.energy >= ENERGY.cap ? "" : `· ${formatTime(snap.energyNextIn)}`;
-    live.get("pill-gold")!.textContent = String(snap.gold);
-    live.get("pill-crystal")!.textContent = String(snap.crystals);
-    live.get("pill-gem")!.textContent = String(snap.gems);
+    if (energySub) energySub.textContent = snap.energy >= ENERGY.cap ? "" : formatTime(snap.energyNextIn);
+    live.get("pill-gold")!.textContent = formatCount(snap.gold);
+    live.get("pill-crystal")!.textContent = formatCount(snap.crystals);
+    live.get("pill-gem")!.textContent = formatCount(snap.gems);
     const note = live.get("energy-note");
     if (note) note.textContent = snap.energy < ENERGY.levelCost ? fill("menu.noEnergy", { seconds: snap.energyNextIn }) : "";
     const play = root.querySelector<HTMLButtonElement>('[data-fab-action="play"]');

@@ -1,0 +1,282 @@
+{
+  "consensus": [
+    "spacing"
+  ],
+  "defects": [
+    {
+      "defect": "Restore button's decorative gold end-diamonds are pushed to the row frame's right inner rail and the button is not vertically centered against the two-line label block; right padding is much smaller than the price plates' in the rows above",
+      "direction": "Inset the Restore button to match the price plates' right margin (~x=655 inner edge) and center it vertically in the row",
+      "region": "Restore row, 'Restore' button ~(575,1064)",
+      "severity": "major"
+    },
+    {
+      "defect": "Best value badge is jammed against the frame's top-inner edge and overlaps the row's inner panel, and it sits right-aligned above the price plate with almost no gap, crowding the plate below",
+      "direction": "Lift badge so it straddles or clears the frame top rail as a discrete ribbon, with even breathing room above the $6.99 plate",
+      "region": "600 Gems row, 'Best value' badge at ~(600,828)",
+      "severity": "major"
+    },
+    {
+      "defect": "Badge is a flat solid rounded rectangle with plain text \u2014 no painted frame, bevel, or ribbon shape, so it reads as CSS rather than the ornate wood-and-gold UI",
+      "direction": "Repaint the badge as a small gold/parchment ribbon with beveled edge and shadow matching the price plates",
+      "region": "Best value badge fill ~(535-670, 812-845)",
+      "severity": "major"
+    },
+    {
+      "defect": "'Best value' badge sits tight against the row's inner frame edge, nearly touching the ornate border above the price plate",
+      "direction": "Nudge the badge down or shrink it slightly so it clears the frame border with even padding",
+      "region": "third pack row, top-right",
+      "severity": "minor"
+    },
+    {
+      "defect": "The painted rift scene is cropped mid-composition and its top edge cuts abruptly across the flat brown page background, leaving a seam that reads unfinished",
+      "direction": "Blend or vignette the scene's top edge into the page background, or extend the scene so it isn't hard-cut",
+      "region": "Rift scene band between Restore row and nav, y\u22481110-1350",
+      "severity": "minor"
+    },
+    {
+      "defect": "Restore frame is noticeably shorter and its inner panel lacks the wood-plank texture used in the three pack rows, so frame styling is inconsistent",
+      "direction": "Use the same inner wood panel treatment and comparable row height as the pack rows",
+      "region": "Restore row height vs pack rows",
+      "severity": "minor"
+    },
+    {
+      "defect": "Scene shows an empty stone dais with crystal pillars but no visible rift/portal, though the spec calls for a painted rift scene",
+      "direction": "Add the glowing purple rift portal (as seen in the Rift tab icon) above or on the dais",
+      "region": "painted scene between Restore row and nav bar",
+      "severity": "minor"
+    },
+    {
+      "defect": "The pouch art is smaller and sits higher/left compared with the chest and vault art in the rows below, so the three art slots are not on a consistent baseline or scale",
+      "direction": "Normalize gem-art bounding box and center each piece in an equal-width art slot",
+      "region": "60 Gems row art ~(105,470)",
+      "severity": "minor"
+    },
+    {
+      "defect": "Restore button uses a diamond-tipped banner plate style unlike the rounded gold price plates on the three pack rows",
+      "direction": "Harmonize the Restore button with the pack rows' gold plate framing, or keep the variance intentional but match its gold tone and bevel treatment",
+      "region": "Restore row, right side",
+      "severity": "minor"
+    },
+    {
+      "defect": "Flat untextured brown fill behind title and blurb contrasts with the painted scene lower down",
+      "direction": "Add subtle painted/vignette texture so the upper page matches the fantasy art treatment",
+      "region": "Page background above first pack row, y\u2248215-380",
+      "severity": "minor"
+    }
+  ],
+  "participated": [
+    "codex/gpt-5.6-terra",
+    "anthropic/claude-fable-5",
+    "anthropic/claude-opus-5"
+  ],
+  "per_model": {
+    "anthropic/claude-fable-5": {
+      "defects": [
+        {
+          "defect": "Scene shows an empty stone dais with crystal pillars but no visible rift/portal, though the spec calls for a painted rift scene",
+          "direction": "Add the glowing purple rift portal (as seen in the Rift tab icon) above or on the dais",
+          "key": "missing-element",
+          "region": "painted scene between Restore row and nav bar",
+          "severity": "minor"
+        },
+        {
+          "defect": "Restore button uses a diamond-tipped banner plate style unlike the rounded gold price plates on the three pack rows",
+          "direction": "Harmonize the Restore button with the pack rows' gold plate framing, or keep the variance intentional but match its gold tone and bevel treatment",
+          "key": "iconography",
+          "region": "Restore row, right side",
+          "severity": "minor"
+        },
+        {
+          "defect": "'Best value' badge sits tight against the row's inner frame edge, nearly touching the ornate border above the price plate",
+          "direction": "Nudge the badge down or shrink it slightly so it clears the frame border with even padding",
+          "key": "spacing",
+          "region": "third pack row, top-right",
+          "severity": "minor"
+        }
+      ],
+      "model": "claude-fable-5",
+      "recurring_checks": [
+        {
+          "evidence": "now-14-shop: 'Best value' pill badge at ~(595,828) composites cleanly over the wood row background",
+          "id": "banner-transparency",
+          "pass": true
+        },
+        {
+          "evidence": "now-14-shop: all pack art (gem pouch ~(110,470), chest ~(110,665), vault ~(110,875)) and nav icons are painted assets, no font-glyph stand-ins",
+          "id": "asset-identity",
+          "pass": true
+        },
+        {
+          "evidence": "now-14-shop: currency values in the four top-bar pills (~y=150) and price text in gold plates are visually centered",
+          "id": "glyph-centering",
+          "pass": true
+        },
+        {
+          "evidence": "now-14-shop: '$0.99'-'$6.99' fit inside their gold plates and 'Best value' text stays within its pill at ~(595,828)",
+          "id": "content-containment",
+          "pass": true
+        },
+        {
+          "evidence": "now-14-shop: five nav tabs (~y=1430) and four currency pills (~y=150) are equal-sized within their rows",
+          "id": "sibling-size-consistency",
+          "pass": true
+        }
+      ],
+      "score": 93.0
+    },
+    "anthropic/claude-opus-5": {
+      "defects": [
+        {
+          "defect": "Best value badge is jammed against the frame's top-inner edge and overlaps the row's inner panel, and it sits right-aligned above the price plate with almost no gap, crowding the plate below",
+          "direction": "Lift badge so it straddles or clears the frame top rail as a discrete ribbon, with even breathing room above the $6.99 plate",
+          "key": "layout",
+          "region": "600 Gems row, 'Best value' badge at ~(600,828)",
+          "severity": "major"
+        },
+        {
+          "defect": "Badge is a flat solid rounded rectangle with plain text \u2014 no painted frame, bevel, or ribbon shape, so it reads as CSS rather than the ornate wood-and-gold UI",
+          "direction": "Repaint the badge as a small gold/parchment ribbon with beveled edge and shadow matching the price plates",
+          "key": "background",
+          "region": "Best value badge fill ~(535-670, 812-845)",
+          "severity": "major"
+        },
+        {
+          "defect": "Restore button's decorative gold end-diamonds are pushed to the row frame's right inner rail and the button is not vertically centered against the two-line label block; right padding is much smaller than the price plates' in the rows above",
+          "direction": "Inset the Restore button to match the price plates' right margin (~x=655 inner edge) and center it vertically in the row",
+          "key": "spacing",
+          "region": "Restore row, 'Restore' button ~(575,1064)",
+          "severity": "major"
+        },
+        {
+          "defect": "Restore frame is noticeably shorter and its inner panel lacks the wood-plank texture used in the three pack rows, so frame styling is inconsistent",
+          "direction": "Use the same inner wood panel treatment and comparable row height as the pack rows",
+          "key": "sizing",
+          "region": "Restore row height vs pack rows",
+          "severity": "minor"
+        },
+        {
+          "defect": "The painted rift scene is cropped mid-composition and its top edge cuts abruptly across the flat brown page background, leaving a seam that reads unfinished",
+          "direction": "Blend or vignette the scene's top edge into the page background, or extend the scene so it isn't hard-cut",
+          "key": "spacing",
+          "region": "Rift scene band between Restore row and nav, y\u22481110-1350",
+          "severity": "minor"
+        },
+        {
+          "defect": "The pouch art is smaller and sits higher/left compared with the chest and vault art in the rows below, so the three art slots are not on a consistent baseline or scale",
+          "direction": "Normalize gem-art bounding box and center each piece in an equal-width art slot",
+          "key": "layout",
+          "region": "60 Gems row art ~(105,470)",
+          "severity": "minor"
+        },
+        {
+          "defect": "Flat untextured brown fill behind title and blurb contrasts with the painted scene lower down",
+          "direction": "Add subtle painted/vignette texture so the upper page matches the fantasy art treatment",
+          "key": "background",
+          "region": "Page background above first pack row, y\u2248215-380",
+          "severity": "minor"
+        }
+      ],
+      "model": "claude-opus-5",
+      "recurring_checks": [
+        {
+          "evidence": "now-14-shop: 'Best value' badge at (600,828) is an opaque flat rounded box over the row frame",
+          "id": "banner-transparency",
+          "pass": false
+        },
+        {
+          "evidence": "now-14-shop: painted gem art at (105,470), (105,668), (110,868) and nav icons at y\u22481400 are real art, no glyph stand-ins",
+          "id": "asset-identity",
+          "pass": true
+        },
+        {
+          "evidence": "now-14-shop: price plate text '$0.99' at (588,477), '$2.99' (588,677), '$6.99' (588,895) centered in plates",
+          "id": "glyph-centering",
+          "pass": true
+        },
+        {
+          "evidence": "now-14-shop: 'Restore' label at (575,1064) and all price texts stay within their plate bounds",
+          "id": "content-containment",
+          "pass": true
+        },
+        {
+          "evidence": "now-14-shop: five nav cells y\u22481360-1470 equal width (~130px each); three price plates equal size ~150x52",
+          "id": "sibling-size-consistency",
+          "pass": true
+        }
+      ],
+      "score": 82.0
+    },
+    "codex/gpt-5.6-terra": {
+      "defects": [],
+      "model": "gpt-5.6-terra",
+      "recurring_checks": [
+        {
+          "evidence": "now-14-shop: \u201cBest value\u201d badge at upper-right of largest pack composites cleanly without an opaque backing box.",
+          "id": "banner-transparency",
+          "pass": true
+        },
+        {
+          "evidence": "now-14-shop: painted gem packs, currency icons, frames, and navigation art are visually consistent fantasy assets.",
+          "id": "asset-identity",
+          "pass": true
+        },
+        {
+          "evidence": "now-14-shop: price labels are visually centered within gold price plates.",
+          "id": "glyph-centering",
+          "pass": true
+        },
+        {
+          "evidence": "now-14-shop: pack titles, descriptions, prices, and Restore label remain inside their framed bounds.",
+          "id": "content-containment",
+          "pass": true
+        },
+        {
+          "evidence": "now-14-shop: the three gem-pack rows use consistent frame dimensions and aligned price-plate positions.",
+          "id": "sibling-size-consistency",
+          "pass": true
+        }
+      ],
+      "score": 98.0
+    },
+    "google/gemini-3.6-flash": {
+      "model": "google/gemini-3.6-flash",
+      "reason": "HTTP 402",
+      "skipped": true
+    }
+  },
+  "recurring_checks": [
+    {
+      "evidence": "now-14-shop: 'Best value' badge at (600,828) is an opaque flat rounded box over the row frame",
+      "id": "banner-transparency",
+      "pass": false
+    },
+    {
+      "evidence": "now-14-shop: painted gem packs, currency icons, frames, and navigation art are visually consistent fantasy assets.",
+      "id": "asset-identity",
+      "pass": true
+    },
+    {
+      "evidence": "now-14-shop: price labels are visually centered within gold price plates.",
+      "id": "glyph-centering",
+      "pass": true
+    },
+    {
+      "evidence": "now-14-shop: pack titles, descriptions, prices, and Restore label remain inside their framed bounds.",
+      "id": "content-containment",
+      "pass": true
+    },
+    {
+      "evidence": "now-14-shop: the three gem-pack rows use consistent frame dimensions and aligned price-plate positions.",
+      "id": "sibling-size-consistency",
+      "pass": true
+    }
+  ],
+  "score": 93.0,
+  "skipped": [
+    {
+      "judge": "google/gemini-3.6-flash",
+      "reason": "HTTP 402"
+    }
+  ],
+  "verdict": "pass"
+}

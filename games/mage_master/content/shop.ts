@@ -13,12 +13,12 @@ export const GEM_GROUP = "gems";
 
 const SKU_PREFIX = "com.basegamelab.mage_master.gems";
 
-function gemPack(id: string, sku: string, tier: number, gems: number, displayPrice: string, badges: string[]): GemProduct {
+function gemPack(id: string, sku: "small" | "medium" | "large", tier: number, gems: number, displayPrice: string, badges: string[]): GemProduct {
   return {
     id,
     productId: `${SKU_PREFIX}.${sku}`,
     title: fill("shop.pack", { gems }),
-    description: copy["shop.packDesc"],
+    description: copy[`shop.packDesc.${sku}`],
     // Gems are spent, so a pack is never restore-recoverable.
     kind: "consumable",
     group: GEM_GROUP,

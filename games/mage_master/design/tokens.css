@@ -153,7 +153,14 @@
   --fab-mm-gold-a35: rgba(232, 184, 74, 0.35);
   --fab-mm-gold-a55: rgba(232, 184, 74, 0.55);
   --fab-mm-ink-a28: rgba(58, 36, 16, 0.28);
-  /* Runtime-bound art (set by the shell from design/assets.ts); none until the art resolves. */
+}
+
+/* Runtime-bound art (set inline on .mm-root by the shell from design/assets.ts);
+   none until the art resolves. Declared on :root ONLY: kit roots nested inside
+   .mm-root (modal backdrops, shop and settings pages) also carry .fab-ui, and a
+   .fab-ui declaration here would reset the inherited URL to none on every one
+   of them — which is exactly how the result-card buttons lost their plates. */
+:root {
   --fab-mm-frame-panel: none;
   --fab-mm-frame-button: none;
   --fab-mm-frame-button-dark: none;

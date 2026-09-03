@@ -4,7 +4,6 @@ import { ARENA_THEME, levelSpec } from "../../content/levels.ts";
 import type { Element } from "../../content/items.ts";
 import { THEME_PROPS, allPropSprites, allUnitSprites, groundScene, propSprite, spriteFacing } from "../../design/assets.ts";
 import { copy, fill } from "../../design/copy.ts";
-import { enemyDefinition, type EnemyKind } from "../../content/enemies.ts";
 import type { MageMasterController } from "../game/MageMasterController.ts";
 import type { BattleEvent, BattleView, Unit } from "../game/sim/types.ts";
 import { cachedComposite, lookKey, type MageLook } from "./mageComposite.ts";
@@ -70,7 +69,6 @@ class Scene extends Phaser.Scene {
   private cameraTargetY = 0;
   private ground!: Phaser.GameObjects.TileSprite;
   private ledges: Phaser.GameObjects.Graphics[] = [];
-  private bossBar: { root: Phaser.GameObjects.Container; fill: Phaser.GameObjects.Graphics; unitId: string; width: number } | null = null;
   private crystals!: Phaser.GameObjects.Particles.ParticleEmitter;
   private sparks!: Phaser.GameObjects.Particles.ParticleEmitter;
   private dust!: Phaser.GameObjects.Particles.ParticleEmitter;
@@ -415,51 +413,6 @@ class Scene extends Phaser.Scene {
     this.tweens.add({ targets: t, alpha: 0, y: y - 30, duration: 400, delay: 900, onComplete: () => t.destroy() });
   }
 
-  /** Screen-fixed boss health bar under the top strip, shown for the stage's boss. */
-  private showBossBar(unit: Unit): void {
-    this.hideBossBar();
-    const p = this.palette;
-    const width = ARENA.width - 60;
-    const root = this.add.container(ARENA.width / 2, 34).setScrollFactor(0).setDepth(DEPTH.banner);
-    const track = this.add.graphics();
-    track.fillStyle(p("ink"), 0.85);
-    track.fillRoundedRect(-width / 2 - 3, -9, width + 6, 18, 9);
-    const fillG = this.add.graphics();
-    const name = this.add
-      .text(0, -22, copy[enemyDefinition(unit.kind as EnemyKind).nameKey], {
-        fontFamily: "Arial Rounded MT Bold, system-ui, sans-serif",
-        fontSize: "15px",
-        fontStyle: "bold",
-        color: `#${p("cream").toString(16).padStart(6, "0")}`,
-        stroke: `#${p("ink").toString(16).padStart(6, "0")}`,
-        strokeThickness: 4,
-      })
-      .setOrigin(0.5, 1);
-    root.add([track, fillG, name]);
-    root.setAlpha(0);
-    this.tweens.add({ targets: root, alpha: 1, y: 40, duration: 320, ease: "Quad.out" });
-    this.bossBar = { root, fill: fillG, unitId: unit.id, width };
-  }
-
-  private hideBossBar(): void {
-    if (!this.bossBar) return;
-    const bar = this.bossBar;
-    this.bossBar = null;
-    this.tweens.add({ targets: bar.root, alpha: 0, duration: 300, onComplete: () => bar.root.destroy() });
-  }
-
-  private updateBossBar(): void {
-    if (!this.bossBar) return;
-    const unit = this.units.get(this.bossBar.unitId);
-    if (!unit) return;
-    const p = this.palette;
-    const g = this.bossBar.fill;
-    const ratio = Math.max(0, Math.min(1, unit.hp / unit.maxHp));
-    g.clear();
-    g.fillStyle(ratio > 0.5 ? p("hp") : ratio > 0.25 ? p("element-fire") : p("danger"), 1);
-    g.fillRoundedRect(-this.bossBar.width / 2, -6, Math.max(4, this.bossBar.width * ratio), 12, 6);
-  }
-
   private handle(event: BattleEvent): void {
     const p = this.palette;
     switch (event.type) {
@@ -471,7 +424,6 @@ class Scene extends Phaser.Scene {
             this.cameras.main.shake(260, 0.006);
             this.banner(copy["battle.boss"], p("danger"));
             this.sfx?.play("boss");
-            this.showBossBar(unit);
           }
         }
         break;
@@ -678,10 +630,7 @@ class Scene extends Phaser.Scene {
           this.dust.explode(8, unit.pos.x, unit.pos.y);
           if (event.loot && event.loot.gold > 0) this.coins.explode(unit.boss ? 8 : 3, unit.pos.x, unit.pos.y - 20);
           if (event.loot && event.loot.crystals > 0) this.crystals.explode(Math.min(8, 2 + event.loot.crystals), unit.pos.x, unit.pos.y - 24);
-          if (unit.boss) {
-            this.cameras.main.shake(300, 0.008);
-            this.hideBossBar();
-          }
+          if (unit.boss) this.cameras.main.shake(300, 0.008);
         }
         this.tweens.add({
           targets: v.sprite,
@@ -777,7 +726,6 @@ class Scene extends Phaser.Scene {
     }
 
     // Camera follows the camp line (party) — the field scrolls up on advance.
-    this.updateBossBar();
     this.cameraTargetY = view.campY - ARENA.campLineY;
     this.cameraY += (this.cameraTargetY - this.cameraY) * Math.min(1, dt * 6);
     // Camp line sits near the bottom of the viewport; the field above scrolls with the party.

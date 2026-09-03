@@ -50,5 +50,5 @@ with a deviation, named), **MISSING** (not built).
 ## Summary
 
 - **MET: 32 of 36** (2026-09-03 update: the Gem shop landed on the sandbox provider).
-- **PARTIAL: 4.** #8 armor substat pool includes a small ATK roll the doc does not list; #29 the early ramp was a wall at level 6 in the first 30-minute soak, softened afterwards (headless pacing now reaches level 9–10 with 6 losses; device re-soak pending); #30 the defeat card adds Retry to the doc's "return to menu"; the Gem purchase is sandbox-only (no real store).
+- **PARTIAL: 4.** #8 armor substat pool includes a small ATK roll the doc does not list; #29 the early ramp was a wall at level 6 in the first 30-minute soak, softened afterwards (headless pacing now reaches level 9–10 with 6 losses; the device re-soak did not run on 2026-09-03 — see `evidence/2026-09-03-06-night/JOURNAL.md`); #30 the defeat card adds Retry to the doc's "return to menu"; the Gem purchase is sandbox-only (no real store).
 - **MISSING: 0.**

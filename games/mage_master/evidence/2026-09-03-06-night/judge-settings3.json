@@ -1,0 +1,244 @@
+{
+  "consensus": [
+    "sizing",
+    "background"
+  ],
+  "defects": [
+    {
+      "defect": "Reset save is a narrow gold-framed pill with side gem finials, not the full-width dark plate the spec calls for; its frame style also differs from the three toggle rows above, giving two competing frame languages inside one panel",
+      "direction": "Make Reset save a full-width dark plate matching the toggle rows' width and inset-frame treatment, dropping the ornate side gems",
+      "region": "Reset save plate, panel bottom (~x100-630, y675-750)",
+      "severity": "major"
+    },
+    {
+      "defect": "Reset save pill overhangs the row rhythm \u2014 it is vertically taller than the gap allows and sits with unequal top/bottom breathing room against the panel's bottom frame",
+      "direction": "Align the Reset row to the same 128px row height and equal 16px gaps used by the three toggle rows",
+      "region": "Reset save row vs rows above (y655-760)",
+      "severity": "minor"
+    },
+    {
+      "defect": "Reset save is a narrower ornate gold-framed pill rather than a full-width dark plate matching the toggle rows' width",
+      "direction": "Widen the Reset save plate to span the same interior width as the three toggle rows and simplify toward a dark plate treatment",
+      "region": "Reset save plate, bottom of panel",
+      "severity": "minor"
+    },
+    {
+      "defect": "Faint repeated vertical plank seams and nail dots inside the toggle rows read as slightly noisy tiling",
+      "direction": "Soften or randomize the plank seam texture inside rows so it reads as painted wood rather than a repeating pattern",
+      "region": "toggle rows, mid-row seams",
+      "severity": "minor"
+    },
+    {
+      "defect": "Gold toggles bleed past the inner dark row's right inset \u2014 the pill's right edge is flush with/overlapping the row border rather than inset like the left-side labels",
+      "direction": "Inset the toggles ~20px from the row's right edge to mirror the label's left padding",
+      "region": "toggles, right edge of each row (~x535-645)",
+      "severity": "minor"
+    },
+    {
+      "defect": "Dark scrim fades out over the lower half, leaving the campfire scene brighter than the scrimmed top",
+      "direction": "Extend a subtle uniform dark scrim over the full scene for consistent contrast",
+      "region": "lower half, campfire scene",
+      "severity": "minor"
+    },
+    {
+      "defect": "Scrim over the painted sunset is heavier at the top than over the campfire half, flattening the sky into near-solid purple and hiding the painted camp scene detail",
+      "direction": "Even out the dark scrim so the sunset sky keeps visible painted detail behind the title",
+      "region": "upper background behind panel (y0-240)",
+      "severity": "minor"
+    }
+  ],
+  "participated": [
+    "codex/gpt-5.6-terra",
+    "anthropic/claude-fable-5",
+    "anthropic/claude-opus-5"
+  ],
+  "per_model": {
+    "anthropic/claude-fable-5": {
+      "defects": [
+        {
+          "defect": "Reset save is a narrower ornate gold-framed pill rather than a full-width dark plate matching the toggle rows' width",
+          "direction": "Widen the Reset save plate to span the same interior width as the three toggle rows and simplify toward a dark plate treatment",
+          "key": "sizing",
+          "region": "Reset save plate, bottom of panel",
+          "severity": "minor"
+        },
+        {
+          "defect": "Dark scrim fades out over the lower half, leaving the campfire scene brighter than the scrimmed top",
+          "direction": "Extend a subtle uniform dark scrim over the full scene for consistent contrast",
+          "key": "background",
+          "region": "lower half, campfire scene",
+          "severity": "minor"
+        },
+        {
+          "defect": "Faint repeated vertical plank seams and nail dots inside the toggle rows read as slightly noisy tiling",
+          "direction": "Soften or randomize the plank seam texture inside rows so it reads as painted wood rather than a repeating pattern",
+          "key": "other",
+          "region": "toggle rows, mid-row seams",
+          "severity": "minor"
+        }
+      ],
+      "model": "claude-fable-5",
+      "recurring_checks": [
+        {
+          "evidence": "now-15-settings: gold 'Settings' title at ~(250,150) composites with glow over sky, no opaque box",
+          "id": "banner-transparency",
+          "pass": true
+        },
+        {
+          "evidence": "now-15-settings: painted wooden back button with drawn arrow at ~(65,148), toggles and frame are art assets",
+          "id": "asset-identity",
+          "pass": true
+        },
+        {
+          "evidence": "now-15-settings: arrow glyph visually centered in round wooden button at ~(65,148)",
+          "id": "glyph-centering",
+          "pass": true
+        },
+        {
+          "evidence": "now-15-settings: 'Music'/'Sound effects'/'Haptics' labels and 'Reset save' at ~(362,710) stay inside their plates",
+          "id": "content-containment",
+          "pass": true
+        },
+        {
+          "evidence": "now-15-settings: three toggle rows at y\u2248285-635 are equal width and height with matching toggle sizes",
+          "id": "sibling-size-consistency",
+          "pass": true
+        }
+      ],
+      "score": 92.0
+    },
+    "anthropic/claude-opus-5": {
+      "defects": [
+        {
+          "defect": "Reset save is a narrow gold-framed pill with side gem finials, not the full-width dark plate the spec calls for; its frame style also differs from the three toggle rows above, giving two competing frame languages inside one panel",
+          "direction": "Make Reset save a full-width dark plate matching the toggle rows' width and inset-frame treatment, dropping the ornate side gems",
+          "key": "sizing",
+          "region": "Reset save plate, panel bottom (~x100-630, y675-750)",
+          "severity": "major"
+        },
+        {
+          "defect": "Reset save pill overhangs the row rhythm \u2014 it is vertically taller than the gap allows and sits with unequal top/bottom breathing room against the panel's bottom frame",
+          "direction": "Align the Reset row to the same 128px row height and equal 16px gaps used by the three toggle rows",
+          "key": "spacing",
+          "region": "Reset save row vs rows above (y655-760)",
+          "severity": "minor"
+        },
+        {
+          "defect": "Gold toggles bleed past the inner dark row's right inset \u2014 the pill's right edge is flush with/overlapping the row border rather than inset like the left-side labels",
+          "direction": "Inset the toggles ~20px from the row's right edge to mirror the label's left padding",
+          "key": "layout",
+          "region": "toggles, right edge of each row (~x535-645)",
+          "severity": "minor"
+        },
+        {
+          "defect": "Scrim over the painted sunset is heavier at the top than over the campfire half, flattening the sky into near-solid purple and hiding the painted camp scene detail",
+          "direction": "Even out the dark scrim so the sunset sky keeps visible painted detail behind the title",
+          "key": "background",
+          "region": "upper background behind panel (y0-240)",
+          "severity": "minor"
+        }
+      ],
+      "model": "claude-opus-5",
+      "recurring_checks": [
+        {
+          "evidence": "now-15-settings: Settings title and Reset save ribbon composite over panel wood with no opaque backing box (~x280-450, y700)",
+          "id": "banner-transparency",
+          "pass": true
+        },
+        {
+          "evidence": "now-15-settings: back button, panel frame, toggles all painted art assets, no font-glyph stand-ins (~x68,150)",
+          "id": "asset-identity",
+          "pass": true
+        },
+        {
+          "evidence": "now-15-settings: back arrow centered in round wooden button at ~x68,y150",
+          "id": "glyph-centering",
+          "pass": true
+        },
+        {
+          "evidence": "now-15-settings: toggle pills touch/overrun the dark row's right border at ~x645,y336 and y592",
+          "id": "content-containment",
+          "pass": false
+        },
+        {
+          "evidence": "now-15-settings: three toggle rows equal height/width ~x62-663, y280-640",
+          "id": "sibling-size-consistency",
+          "pass": true
+        }
+      ],
+      "score": 82.0
+    },
+    "codex/gpt-5.6-terra": {
+      "defects": [],
+      "model": "gpt-5.6-terra",
+      "recurring_checks": [
+        {
+          "evidence": "now-15-settings Reset save ribbon at x92-633, y680-746 cleanly composites over the panel.",
+          "id": "banner-transparency",
+          "pass": true
+        },
+        {
+          "evidence": "now-15-settings ornate frame, wooden back button, gold toggles, and painted camp scene are stylistically coherent.",
+          "id": "asset-identity",
+          "pass": true
+        },
+        {
+          "evidence": "now-15-settings back-arrow glyph is visually centered in its circular wooden button at x70, y148.",
+          "id": "glyph-centering",
+          "pass": true
+        },
+        {
+          "evidence": "now-15-settings all row labels and Reset save text remain inside their respective control bounds.",
+          "id": "content-containment",
+          "pass": true
+        },
+        {
+          "evidence": "now-15-settings Music, Sound effects, and Haptics rows and their toggle controls use consistent sizing.",
+          "id": "sibling-size-consistency",
+          "pass": true
+        }
+      ],
+      "score": 97.0
+    },
+    "google/gemini-3.6-flash": {
+      "model": "google/gemini-3.6-flash",
+      "reason": "HTTP 402",
+      "skipped": true
+    }
+  },
+  "recurring_checks": [
+    {
+      "evidence": "now-15-settings Reset save ribbon at x92-633, y680-746 cleanly composites over the panel.",
+      "id": "banner-transparency",
+      "pass": true
+    },
+    {
+      "evidence": "now-15-settings ornate frame, wooden back button, gold toggles, and painted camp scene are stylistically coherent.",
+      "id": "asset-identity",
+      "pass": true
+    },
+    {
+      "evidence": "now-15-settings back-arrow glyph is visually centered in its circular wooden button at x70, y148.",
+      "id": "glyph-centering",
+      "pass": true
+    },
+    {
+      "evidence": "now-15-settings: toggle pills touch/overrun the dark row's right border at ~x645,y336 and y592",
+      "id": "content-containment",
+      "pass": false
+    },
+    {
+      "evidence": "now-15-settings Music, Sound effects, and Haptics rows and their toggle controls use consistent sizing.",
+      "id": "sibling-size-consistency",
+      "pass": true
+    }
+  ],
+  "score": 92.0,
+  "skipped": [
+    {
+      "judge": "google/gemini-3.6-flash",
+      "reason": "HTTP 402"
+    }
+  ],
+  "verdict": "pass"
+}

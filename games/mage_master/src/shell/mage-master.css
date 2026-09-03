@@ -58,10 +58,10 @@ body {
   display: flex;
   align-items: center;
   gap: 3px;
-  flex: 1 1 auto;
+  flex: 1 1 0;
   min-width: 0;
   height: 32px;
-  padding: 0 7px 0 3px;
+  padding: 0 5px 0 2px;
   border-radius: var(--fab-radius-pill);
   background: var(--fab-mm-hp-track);
   border: 2px solid var(--fab-mm-wood-dark);
@@ -72,10 +72,18 @@ body {
 }
 
 .mm-pill__icon {
-  width: 24px;
-  height: 24px;
+  width: 22px;
+  height: 22px;
   flex: 0 0 auto;
   object-fit: contain;
+}
+
+.mm-pill__text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+  line-height: 1.05;
 }
 
 .mm-pill__value {
@@ -1799,27 +1807,99 @@ body {
   white-space: nowrap;
 }
 
-/* Framed: the shop wears the same panel and button plates as the other pages.
-   The frame vars are injected on .mm-root at runtime, so each reference carries
-   a `none` fallback — that is what the audit's token-references linter resolves. */
-.mm-root--framed .mm-shop .fab-shop-card,
+/* Framed: each pack is one framed row (art, copy, price plate inside the frame);
+   Restore wears the same panel. The frame vars are injected on .mm-root at runtime,
+   so each reference carries a `none` fallback — that is what the audit's
+   token-references linter resolves. */
+.mm-root--framed .mm-shop .fab-shop-card-wrapper,
 .mm-root--framed .mm-shop .fab-shop-restore {
-  border: 10px solid transparent;
-  border-image: var(--fab-mm-frame-panel, none) 64 fill / 10px / 0 round;
+  border: 12px solid transparent;
+  border-image: var(--fab-mm-frame-panel, none) 64 fill / 12px / 0 round;
   border-radius: 0;
   background: none;
   box-shadow: none;
 }
 
+.mm-root--framed .mm-shop .fab-shop-card-wrapper {
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+  padding: 0 2px;
+}
+
+.mm-root--framed .mm-shop .fab-shop-card {
+  flex: 1 1 auto;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: auto auto;
+  align-items: center;
+  column-gap: 10px;
+  row-gap: 0;
+  min-width: 0;
+  padding: 2px 0;
+  border: 0;
+  background: none;
+  text-align: left;
+}
+
+.mm-root--framed .mm-shop .fab-shop-card-icon {
+  grid-row: 1 / span 2;
+}
+
+.mm-root--framed .mm-shop .fab-shop-card-title {
+  grid-column: 2;
+  align-self: end;
+}
+
+.mm-root--framed .mm-shop .fab-shop-card-desc {
+  grid-column: 2;
+  align-self: start;
+}
+
+.mm-root--framed .mm-shop .fab-shop-card-icon {
+  width: 68px;
+  height: 68px;
+}
+
+.mm-root--framed .mm-shop .fab-shop-card-title {
+  flex: 0 0 auto;
+  font-size: 18px;
+  white-space: nowrap;
+  color: var(--fab-mm-cream);
+  text-shadow: 0 1px 0 var(--fab-mm-ink);
+}
+
+.mm-root--framed .mm-shop .fab-shop-card-desc {
+  font-size: 12px;
+  color: var(--fab-mm-cream-dim);
+}
+
+.mm-root--framed .mm-shop .fab-shop-badge {
+  top: 2px;
+  right: 6px;
+  padding: 1px 8px;
+  font-size: 10px;
+  box-shadow: 0 1px 0 var(--fab-mm-gold-deep);
+}
+
+/* A badged row makes room for its badge above the price plate. */
+.mm-root--framed .mm-shop .fab-shop-card-wrapper:has(.fab-shop-badge) .fab-shop-purchase-btn {
+  margin-top: 18px;
+}
+
 .mm-root--framed .mm-shop .fab-shop-purchase-btn,
 .mm-root--framed .mm-shop .fab-shop-restore-btn {
+  flex: 0 0 auto;
+  width: auto;
+  min-width: 92px;
   min-height: 0;
-  padding: 4px 8px;
+  padding: 2px 6px;
   border: 15px solid transparent;
   border-image: var(--fab-mm-frame-button, none) 30 fill / 15px / 0 stretch;
   border-radius: 0;
   background: none;
   box-shadow: none;
+  font-size: 15px;
   color: var(--fab-mm-ink);
 }
 
@@ -1829,41 +1909,190 @@ body {
   text-shadow: 0 1px 0 var(--fab-mm-ink);
 }
 
-/* Reveal ceremony: orbiting sparkles for rare ages and above. */
-.mm-reveal-glow--rare .mm-item__frame,
-.mm-reveal-glow--epic .mm-item__frame,
-.mm-reveal-glow--legendary .mm-item__frame,
-.mm-reveal-glow--mythic .mm-item__frame,
-.mm-reveal-glow--immortal .mm-item__frame,
-.mm-reveal-glow--astral .mm-item__frame,
-.mm-reveal-glow--celestial .mm-item__frame,
-.mm-reveal-glow--ultimate .mm-item__frame {
-  position: relative;
+.mm-root--framed .mm-shop .fab-shop-restore {
+  padding: 2px 4px;
 }
 
-.mm-reveal-glow--rare .mm-item__frame::before,
-.mm-reveal-glow--epic .mm-item__frame::before,
-.mm-reveal-glow--legendary .mm-item__frame::before,
-.mm-reveal-glow--mythic .mm-item__frame::before,
-.mm-reveal-glow--immortal .mm-item__frame::before,
-.mm-reveal-glow--astral .mm-item__frame::before,
-.mm-reveal-glow--celestial .mm-item__frame::before,
-.mm-reveal-glow--ultimate .mm-item__frame::before {
-  content: "";
+/* The Rift glows below the packs so the page never ends in bare wood. */
+.mm-root--framed .mm-shop {
+  min-height: 100%;
+  box-sizing: border-box;
+  padding-bottom: 150px;
+  background-image:
+    linear-gradient(to bottom, var(--fab-mm-wood) 0, var(--fab-mm-wood) 52%, var(--fab-mm-ink-a00) 78%),
+    var(--fab-mm-scene-rift, none);
+  background-position: center top, center bottom;
+  background-size: auto, 100% auto;
+  background-repeat: no-repeat;
+}
+
+/* ---------- boss bar: DOM overlay at the top of the arena ---------- */
+.mm-bossbar {
   position: absolute;
-  inset: -18px;
-  border-radius: 50%;
-  background:
-    radial-gradient(circle at 12% 30%, var(--mm-rarity, var(--fab-mm-cream)) 0 3px, transparent 4px),
-    radial-gradient(circle at 85% 20%, var(--mm-rarity, var(--fab-mm-cream)) 0 2px, transparent 3px),
-    radial-gradient(circle at 70% 90%, var(--mm-rarity, var(--fab-mm-cream)) 0 3px, transparent 4px),
-    radial-gradient(circle at 20% 85%, var(--mm-rarity, var(--fab-mm-cream)) 0 2px, transparent 3px);
-  animation: mm-orbit 2.6s linear infinite;
+  top: 8px;
+  left: 44px;
+  right: 24px;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
   pointer-events: none;
+  animation: mm-bossbar-in 320ms ease-out;
 }
 
-@keyframes mm-orbit {
-  to {
-    transform: rotate(360deg);
+.mm-bossbar[hidden] {
+  display: none;
+}
+
+.mm-bossbar__name {
+  font-size: 14px;
+  font-weight: var(--fab-font-weight-bold);
+  letter-spacing: 0.02em;
+  color: var(--fab-mm-cream);
+  text-shadow: 0 1px 0 var(--fab-mm-ink), 0 0 6px var(--fab-mm-ink);
+}
+
+.mm-bossbar__track {
+  width: 100%;
+  height: 14px;
+  border-radius: 7px;
+  background: var(--fab-mm-ink-a62);
+  box-shadow: inset 0 0 0 2px var(--fab-mm-gold-a55);
+  overflow: hidden;
+}
+
+.mm-bossbar__fill {
+  display: block;
+  height: 100%;
+  border-radius: 7px;
+  background: var(--fab-mm-danger);
+  transform-origin: left center;
+  transition: transform 120ms linear;
+}
+
+.mm-bossbar__fill[data-mm-hp="high"] {
+  background: var(--fab-mm-success);
+}
+
+.mm-bossbar__fill[data-mm-hp="mid"] {
+  background: var(--fab-mm-gold);
+}
+
+@keyframes mm-bossbar-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
   }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ---------- settings page (kit PageShell): camp scene under a scrim, one framed panel ---------- */
+.mm-root--framed .fab-page {
+  background-color: var(--fab-mm-wood);
+  background-image:
+    linear-gradient(var(--fab-mm-ink-a62), var(--fab-mm-ink-a62)),
+    var(--fab-mm-scene-home, none);
+  background-position: center, center 40%;
+  background-size: auto, cover;
+  background-repeat: no-repeat;
+}
+
+.mm-root--framed .fab-page-header {
+  min-height: 52px;
+  margin-bottom: 6px;
+}
+
+.mm-root--framed .fab-page-back {
+  width: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  background: none;
+  box-shadow: none;
+}
+
+.mm-root--framed .fab-page-back-art {
+  width: 40px;
+  height: 40px;
+}
+
+.mm-root--framed .fab-page-title {
+  font-size: 30px;
+  text-shadow: 0 2px 0 var(--fab-mm-ink), 0 0 12px var(--fab-mm-ink);
+}
+
+.mm-root--framed .fab-page-body {
+  flex: 0 0 auto;
+  margin: 18px 0 auto;
+  gap: 8px;
+  padding: 6px 4px;
+  border: 14px solid transparent;
+  border-image: var(--fab-mm-frame-panel, none) 64 fill / 14px / 0 round;
+  overflow: visible;
+}
+
+.mm-root--framed .fab-settings-toggles {
+  gap: 8px;
+}
+
+.mm-root--framed .fab-toggle-row {
+  min-height: 50px;
+  padding: 4px 12px;
+  border-radius: 10px;
+  background: var(--fab-mm-ink-a62);
+  box-shadow: inset 0 0 0 1px var(--fab-mm-gold-a35);
+}
+
+.mm-root--framed .fab-toggle-row-label {
+  font-size: 17px;
+  color: var(--fab-mm-cream);
+  text-shadow: 0 1px 0 var(--fab-mm-ink);
+}
+
+.mm-root--framed .fab-toggle-slider {
+  box-shadow: inset 0 2px 3px var(--fab-mm-ink-a55), 0 0 0 2px var(--fab-mm-gold-deep);
+}
+
+.mm-root--framed .fab-toggle-slider::before {
+  background: var(--fab-mm-cream);
+  box-shadow: 0 1px 2px var(--fab-mm-ink-a55);
+}
+
+.mm-root--framed .fab-settings-legal {
+  align-items: stretch;
+  padding: 0 10px;
+  border-top: 0;
+}
+
+.mm-root--framed .fab-settings-legal-link {
+  width: 100%;
+  min-height: 0;
+  padding: 4px 18px;
+  border: 15px solid transparent;
+  border-image: var(--fab-mm-frame-button-dark, none) 30 fill / 15px / 0 stretch;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  font-size: 16px;
+  font-weight: var(--fab-font-weight-bold);
+  text-align: center;
+  color: var(--fab-mm-cream);
+  text-shadow: 0 1px 0 var(--fab-mm-ink);
+  text-decoration: none;
+}
+
+/* ---------- modal cards wear the wood frame instead of the flat plate ---------- */
+.mm-root--framed .mm-modal.fab-modal-card,
+.mm-root--framed .fab-modal-card.fab-result-card,
+.mm-root--framed .fab-modal-card.fab-pause-card {
+  padding: 10px 12px 14px;
+  border: 16px solid transparent;
+  border-image: var(--fab-mm-frame-panel, none) 64 fill / 16px / 0 round;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
 }

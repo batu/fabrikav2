@@ -98,3 +98,23 @@ Find the Bird, Marble Run store pages): painted full-bleed scenes, a real title
 card, framed panels, lettered result art, environment dressing in battle. The
 shell_template asset specs (`games/shell_template/design/asset-specs/`) are the
 generation checklist that was skipped and must be worked through.
+
+## Night plan (2026-09-03, 01:30 → morning, Batu: "work until the morning")
+
+1. Gem shop on the sandbox IAP provider (design-doc faucet #25) — agent implementing; art landed.
+2. Battle feel: boss health bar, stage banners, crystal shard drops, wider spawns (landed; device check pending).
+3. Judge pass over reveal, victory, settings, offline; fix majors.
+4. Re-soak 30 minutes on device against the softened ramp.
+5. Standalone reinstall, journals, memory, report.
+
+Constraint: the phone was in use (Find the Bird on screen at 01:28); device work resumes when it is free.
+
+## Status 2026-09-03 10:30 (morning)
+
+- Night queue items 1–3 landed and are device-captured (`games/mage_master/evidence/2026-09-03-06-night/`):
+  gem shop on the sandbox provider, boss bar moved to the DOM, result-card plates
+  restored (runtime art vars were being reset by nested `.fab-ui` roots), shop and
+  settings restyled to the frame language, top-bar counters made overflow-proof.
+- Item 4 (30-minute device re-soak) did not run: the phone was occupied at night and the
+  session was suspended 02:15–10:04 by a re-login. Headless pacing test remains green.
+- Item 5: standalone reinstall + report — see the final status in the Portal stream `mage-master`.
