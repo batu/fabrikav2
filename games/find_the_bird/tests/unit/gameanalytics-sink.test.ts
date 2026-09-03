@@ -7,29 +7,51 @@ function event(name: string, params: AnalyticsEvent['params']): AnalyticsEvent {
 }
 
 describe('GameAnalytics AnalyticsSink', () => {
-  it('configures manual sessions before initialize and mirrors canonical session boundaries once', async () => {
+  it('adopts the native session created by gameanalytics@4.4.7 and only starts after a real end', async () => {
     const calls: string[] = [];
+    let nativeSessionActive = false;
     const sdk = gameAnalyticsSdk();
     const manual = {
       setEnabledManualSessionHandling: vi.fn(() => calls.push('manual')),
-      startSession: vi.fn(() => calls.push('start')),
-      endSession: vi.fn(() => calls.push('end')),
+      startSession: vi.fn(() => {
+        if (nativeSessionActive) calls.push('implicit-end-from-start');
+        nativeSessionActive = true;
+        calls.push('start');
+      }),
+      endSession: vi.fn(() => {
+        nativeSessionActive = false;
+        calls.push('end');
+      }),
     };
     Object.assign(sdk.GameAnalytics, manual, {
-      initialize: vi.fn(() => calls.push('initialize')),
-      addDesignEvent: vi.fn(() => calls.push('design')),
+      // Faithfully model 4.4.7: initialize unconditionally creates a session,
+      // regardless of setEnabledManualSessionHandling(true).
+      initialize: vi.fn(() => {
+        nativeSessionActive = true;
+        calls.push('initialize-created-session');
+      }),
+      addDesignEvent: vi.fn((_name: string) => calls.push('design')),
     });
     const sink = createGameAnalyticsSink(validConfig(), { loader: vi.fn(async () => sdk) });
 
     sink.emit(event('session_start', { first_open: true }));
     sink.emit(event('session_end', {}));
+    sink.emit(event('session_start', { first_open: false }));
     await sink.flush?.();
 
-    expect(calls.indexOf('manual')).toBeLessThan(calls.indexOf('initialize'));
+    expect(calls.indexOf('manual')).toBeLessThan(calls.indexOf('initialize-created-session'));
     expect(manual.setEnabledManualSessionHandling).toHaveBeenCalledWith(true);
     expect(manual.startSession).toHaveBeenCalledTimes(1);
     expect(manual.endSession).toHaveBeenCalledTimes(1);
-    expect(calls).toEqual(['manual', 'initialize', 'start', 'design', 'design', 'end']);
+    expect(calls).toEqual([
+      'manual',
+      'initialize-created-session',
+      'design',
+      'design',
+      'end',
+      'start',
+      'design',
+    ]);
   });
 
   it('initializes allowlists before the SDK and preserves falsy custom fields as strings', async () => {
@@ -204,7 +226,7 @@ describe('GameAnalytics AnalyticsSink', () => {
     expect(sink.diagnostics()).toMatchObject({ sent: 1, dropped: 0 });
   });
 
-  it('preserves queued events across a transient loader failure and retries on the next event', async () => {
+  it('preserves queued events across a transient loader failure and retries during flush', async () => {
     const sdk = gameAnalyticsSdk();
     const loader = vi.fn()
       .mockRejectedValueOnce(new TypeError('network canary'))
@@ -216,13 +238,73 @@ describe('GameAnalytics AnalyticsSink', () => {
     });
 
     sink.emit(event('dog_found', { level_id: 'l1', dog_index: 0 }));
-    await sink.flush?.();
+    await vi.waitFor(() => expect(sink.diagnostics().initializationFailure).toBe('TypeError'));
     expect(sink.diagnostics()).toMatchObject({ queued: 1, sent: 0, dropped: 0, initializationFailure: 'TypeError' });
+
+    await sink.flush?.();
+    expect(loader).toHaveBeenCalledTimes(2);
+    expect(sink.diagnostics()).toMatchObject({ queued: 0, sent: 1, retried: 1, dropped: 0, initializationFailure: null });
 
     sink.emit(event('dog_found', { level_id: 'l1', dog_index: 1 }));
     await sink.flush?.();
-    expect(loader).toHaveBeenCalledTimes(2);
     expect(sink.diagnostics()).toMatchObject({ queued: 0, sent: 2, retried: 1, dropped: 0, initializationFailure: null });
+  });
+
+  it('bypasses retry cooldown so a suspend flush drains lifecycle events immediately', async () => {
+    vi.useFakeTimers();
+    try {
+      const addDesignEvent = vi.fn();
+      const endSession = vi.fn();
+      const sdk = gameAnalyticsSdk({ addDesignEvent, endSession });
+      const loader = vi.fn()
+        .mockRejectedValueOnce(new TypeError('temporary loader failure'))
+        .mockResolvedValue(sdk);
+      const sink = createGameAnalyticsSink(validConfig(), {
+        loader,
+        logger: { warn: vi.fn() },
+        retryDelayMs: 50,
+      });
+
+      sink.emit(event('app_background', {}));
+      sink.emit(event('session_end', {}));
+      const flushing = sink.flush?.();
+      await vi.advanceTimersByTimeAsync(0);
+      expect(loader).toHaveBeenCalledTimes(2);
+      await flushing;
+      expect(addDesignEvent).toHaveBeenCalledTimes(2);
+      expect(endSession).toHaveBeenCalledTimes(1);
+      expect(sink.diagnostics()).toMatchObject({ queued: 0, sent: 2, retried: 1, dropped: 0 });
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('bounds the pre-initialization queue and truthfully counts evicted events', () => {
+    const sink = createGameAnalyticsSink(validConfig(), {
+      loader: vi.fn(() => new Promise(() => undefined)),
+      maxQueueItems: 2,
+    });
+    sink.emit(event('dog_found', { dog_index: 0 }));
+    sink.emit(event('dog_found', { dog_index: 1 }));
+    sink.emit(event('dog_found', { dog_index: 2 }));
+    expect(sink.diagnostics()).toMatchObject({ queued: 2, sent: 0, dropped: 1 });
+  });
+
+  it('stops retrying a permanently failing loader and drops queued and later events truthfully', async () => {
+    const loader = vi.fn(async () => { throw new TypeError('permanent loader failure'); });
+    const sink = createGameAnalyticsSink(validConfig(), {
+      loader,
+      logger: { warn: vi.fn() },
+      retryDelayMs: 0,
+      maxInitAttempts: 2,
+    });
+    sink.emit(event('dog_found', { dog_index: 0 }));
+    await vi.waitFor(() => expect(loader).toHaveBeenCalledTimes(1));
+    sink.emit(event('dog_found', { dog_index: 1 }));
+    await vi.waitFor(() => expect(loader).toHaveBeenCalledTimes(2));
+    sink.emit(event('dog_found', { dog_index: 2 }));
+    expect(loader).toHaveBeenCalledTimes(2);
+    expect(sink.diagnostics()).toMatchObject({ queued: 0, sent: 0, retried: 1, dropped: 3, initializationFailure: 'TypeError' });
   });
 
   it('preserves timed-out events and retries once on a later event without reinitializing', async () => {

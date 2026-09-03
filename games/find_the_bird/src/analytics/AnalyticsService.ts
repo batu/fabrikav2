@@ -276,11 +276,16 @@ export class AnalyticsService {
     storageDurability?: FirstOpenStorageDurability;
   }): Promise<void> {
     let initializing = true;
+    let pendingSuspend: Promise<void> | null = null;
+    let resolvePendingSuspend = (): void => {};
     const lifecycleState: { current: 'active' | 'inactive' } = { current: 'active' };
-    const suspend = (): void => {
+    const suspend = (): Promise<void> => {
       lifecycleState.current = 'inactive';
-      if (initializing) return;
-      this.flushForSuspend();
+      if (initializing) {
+        pendingSuspend ??= new Promise<void>((resolve) => { resolvePendingSuspend = resolve; });
+        return pendingSuspend;
+      }
+      return this.flushForSuspend();
     };
     const resume = (): void => {
       lifecycleState.current = 'active';
@@ -292,23 +297,28 @@ export class AnalyticsService {
       onSuspend: suspend,
       onResume: resume,
     });
-    const firstOpen = await claimFirstOpen({
-      storage: this.storage,
-      storageDurability: options.storageDurability ?? this.storageDurability,
-      profile: 'find_the_bird',
-      existingStateKeys: EXISTING_FIND_THE_BIRD_STATE_KEYS,
-      hadExistingStateAtBootstrap: options.hadExistingStateAtBootstrap,
-      locks: this.firstOpenLocks,
-    });
-    this.sdk.sessionStart({ first_open: firstOpen });
-    initializing = false;
-    if (lifecycleState.current === 'inactive') this.flushForSuspend();
+    try {
+      const firstOpen = await claimFirstOpen({
+        storage: this.storage,
+        storageDurability: options.storageDurability ?? this.storageDurability,
+        profile: 'find_the_bird',
+        existingStateKeys: EXISTING_FIND_THE_BIRD_STATE_KEYS,
+        hadExistingStateAtBootstrap: options.hadExistingStateAtBootstrap,
+        locks: this.firstOpenLocks,
+      });
+      this.sdk.sessionStart({ first_open: firstOpen });
+      initializing = false;
+      if (lifecycleState.current === 'inactive') await this.flushForSuspend();
+    } finally {
+      initializing = false;
+      resolvePendingSuspend();
+    }
   }
 
-  private flushForSuspend(): void {
+  private flushForSuspend(): Promise<void> {
     this.sdk.track('app_background');
     this.sdk.sessionEnd();
-    void this.sdk.flush();
+    return this.sdk.flush();
   }
 
   setCohortBucket(bucket: number): void {

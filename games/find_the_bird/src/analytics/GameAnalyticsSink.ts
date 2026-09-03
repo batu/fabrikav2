@@ -46,6 +46,8 @@ export interface GameAnalyticsAnalyticsSinkOptions {
   readonly readyTimeoutMs?: number;
   readonly readyPollMs?: number;
   readonly retryDelayMs?: number;
+  readonly maxQueueItems?: number;
+  readonly maxInitAttempts?: number;
 }
 
 export interface GameAnalyticsSink extends AnalyticsSink {
@@ -72,6 +74,8 @@ export function createGameAnalyticsSink(
   const readyTimeoutMs = options.readyTimeoutMs ?? 10_000;
   const readyPollMs = options.readyPollMs ?? 50;
   const retryDelayMs = options.retryDelayMs ?? 1_000;
+  const maxQueueItems = Math.max(1, Math.floor(options.maxQueueItems ?? 100));
+  const maxInitAttempts = Math.max(1, Math.floor(options.maxInitAttempts ?? 3));
   let sdk: GameAnalyticsSdk | null = null;
   let loadingSdk: GameAnalyticsSdk | null = null;
   let disabled = false;
@@ -83,16 +87,33 @@ export function createGameAnalyticsSink(
   let retried = 0;
   let dropped = 0;
   let flushAttempts = 0;
+  let nativeSessionActive = false;
   let initializationFailure: string | null = null;
   function send(loaded: GameAnalyticsSdk, event: AnalyticsEvent): void {
-    if (dispatch(loaded, event)) sent += 1;
+    let tracked: boolean;
+    if (event.name === 'session_start') {
+      // gameanalytics@4.4.7 initialize() creates a native session even when
+      // manual handling is enabled. Adopt that first session instead of
+      // startSession() ending it and creating a cold-start phantom session.
+      if (!nativeSessionActive) loaded.GameAnalytics.startSession();
+      nativeSessionActive = true;
+      tracked = trackDesign(loaded, designEvent(gameAnalyticsDesignEventId(event.name, event.params), event.params));
+    } else if (event.name === 'session_end') {
+      // Preserve the canonical close event before ending the native session.
+      tracked = trackDesign(loaded, designEvent(gameAnalyticsDesignEventId(event.name, event.params), event.params));
+      loaded.GameAnalytics.endSession();
+      nativeSessionActive = false;
+    } else {
+      tracked = dispatch(loaded, event);
+    }
+    if (tracked) sent += 1;
     else dropped += 1;
   }
 
-  function init(): Promise<void> {
-    if (sdk !== null || disabled) return Promise.resolve();
+  async function init(forceRetry = false): Promise<void> {
+    if (sdk !== null || disabled) return;
     if (initPromise !== null) return initPromise;
-    if (Date.now() < nextRetryAt) return Promise.resolve();
+    if (Date.now() < nextRetryAt && !forceRetry) return;
     if (initAttempts > 0) retried += 1;
     initAttempts += 1;
     initPromise = (async (): Promise<void> => {
@@ -106,6 +127,7 @@ export function createGameAnalyticsSink(
           loaded.GameAnalytics.configureAvailableResourceItemTypes([...GAMEANALYTICS_RESOURCE_ITEM_TYPES]);
           loaded.GameAnalytics.setEnabledManualSessionHandling(true);
           loaded.GameAnalytics.initialize(config.gameKey, config.secretKey);
+          nativeSessionActive = true;
           loadingSdk = loaded;
         }
         await waitForSdkReady(loadingSdk.GameAnalytics, readyTimeoutMs, readyPollMs);
@@ -126,7 +148,9 @@ export function createGameAnalyticsSink(
       } catch (error: unknown) {
         initializationFailure = errorKind(error);
         logger.warn(`[analytics:gameanalytics] initialization failed (${initializationFailure})`);
-        if (error instanceof SdkReadyTimeout || (loadingSdk === null && !(error instanceof SdkShapeError))) {
+        const retryable = error instanceof SdkReadyTimeout
+          || (loadingSdk === null && !(error instanceof SdkShapeError));
+        if (retryable && initAttempts < maxInitAttempts) {
           nextRetryAt = Date.now() + retryDelayMs;
         } else {
           disabled = true;
@@ -156,12 +180,16 @@ export function createGameAnalyticsSink(
         }
         return;
       }
+      if (queue.length >= maxQueueItems) {
+        queue.shift();
+        dropped += 1;
+      }
       queue.push(event);
       void init();
     },
     async flush(): Promise<void> {
       flushAttempts += 1;
-      await init();
+      while (sdk === null && !disabled) await init(true);
     },
     diagnostics() {
       return {
@@ -227,15 +255,7 @@ function validateSdk(sdk: GameAnalyticsSdk): void {
 function dispatch(sdk: GameAnalyticsSdk, event: AnalyticsEvent): boolean {
   const params = event.params;
   const levelId = String(params.level_id ?? 'unknown');
-  if (event.name === 'session_start') {
-    sdk.GameAnalytics.startSession();
-    return trackDesign(sdk, designEvent(gameAnalyticsDesignEventId(event.name, params), params));
-  }
-  if (event.name === 'session_end') {
-    const tracked = trackDesign(sdk, designEvent(gameAnalyticsDesignEventId(event.name, params), params));
-    sdk.GameAnalytics.endSession();
-    return tracked;
-  }
+
   if (event.name === 'ad_request') {
     return trackDesign(sdk, designEvent(gameAnalyticsDesignEventId(event.name, params), params));
   }
