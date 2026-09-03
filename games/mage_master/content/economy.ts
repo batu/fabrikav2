@@ -40,7 +40,10 @@ export const ARENA = {
   /** How far the party runs forward between stages (one stage of field). */
   advanceDistance: 560,
   advanceSeconds: 1.2,
-  /** Soft separation between living units so clusters stay readable. */
-  separation: 34,
-  separationStrength: 3.5,
+  /** Soft separation between living units so clusters stay readable. Allies
+      hold this distance (times average scale); opposing pairs may close to the
+      attacker's reach so melee units still land hits. Per tick the push is at
+      most `separationStrength * 2` world units (full overlap at 30 Hz). */
+  separation: 44,
+  separationStrength: 1.5,
 } as const;

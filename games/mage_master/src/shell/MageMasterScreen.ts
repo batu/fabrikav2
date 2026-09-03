@@ -1,4 +1,5 @@
 import {
+  animateEconomyTransfer,
   buildButtonElement,
   mountModalShell,
   mountPauseOverlay,
@@ -47,6 +48,10 @@ export interface MageMasterScreen {
 
 type Page = "menu" | "rift" | "mages" | "shop" | "battle";
 const REVEAL_DELAY_MS = 550;
+/** Let the result card's entrance settle before coins launch from its loot row. */
+const RESULT_FLY_DELAY_MS = 260;
+/** Kit flight (760 ms) plus its token stagger; the pill is the count-up's until then. */
+const FLY_HOLD_MS = 1400;
 type Overlay = "pause" | "settings" | "win" | "fail" | "reveal" | "offline" | "item" | null;
 
 function el<K extends keyof HTMLElementTagNameMap>(tag: K, className?: string, text?: string): HTMLElementTagNameMap[K] {
@@ -226,12 +231,37 @@ export function mountMageMasterScreen(opts: MageMasterScreenOptions): MageMaster
   let revealDelayUntil = 0;
   let previousSurface: Surface = controller.snapshot().surface;
   const live = new Map<string, HTMLElement>();
+  /** Totals last written to the pills; a grant flies its tokens from the old value to the new one. */
+  const displayed = { gold: 0, crystal: 0, gem: 0 };
+  let totalsBefore = { ...displayed };
+  type Currency = keyof typeof displayed;
+  /** While a flight counts a pill up, the periodic refresh leaves that pill alone. */
+  const countingUntil: Record<Currency, number> = { gold: 0, crystal: 0, gem: 0 };
+  /** Kit coin-fly from `source` to the matching top-bar pill, counting the pill up from -> to. */
+  const flyCurrency = (key: Currency, amount: number, source: Element | null, from: number, to: number): void => {
+    const tokenImage = currencyIcon(key);
+    if (amount <= 0 || !tokenImage) return;
+    countingUntil[key] = Date.now() + FLY_HOLD_MS;
+    void animateEconomyTransfer({
+      kind: key === "gold" ? "coin" : "hint",
+      amount,
+      tokenImage,
+      source,
+      owner: root,
+      targets: [`[data-fab-economy-target="${key}"]`],
+      countElement: live.get(`pill-${key}`) ?? null,
+      fromValue: from,
+      toValue: to,
+      mountInto: root,
+    });
+  };
   const hudBars = new Map<MageClass, { fill: HTMLElement; value: HTMLElement; card: HTMLElement }>();
   const stageDots: HTMLElement[] = [];
 
   // ---------- top bar ----------
   const currencyPill = (key: "energy" | "gold" | "crystal" | "gem", label: string): HTMLElement => {
     const pill = el("div", `mm-pill mm-pill--${key}`);
+    pill.dataset.fabEconomyTarget = key;
     pill.setAttribute("role", "status");
     pill.setAttribute("aria-label", label);
     pill.append(img(currencyIcon(key), "mm-pill__icon"));
@@ -710,13 +740,14 @@ export function mountMageMasterScreen(opts: MageMasterScreenOptions): MageMaster
   // ---------- overlays ----------
   const lootRow = (gold: number, crystals: number, gems: number): HTMLElement => {
     const row = el("div", "mm-loot");
-    const cell = (icon: string | undefined, value: number): HTMLElement => {
+    const cell = (key: Currency, value: number): HTMLElement => {
       const c = el("span", "mm-loot__cell");
-      c.append(img(icon, "mm-inline-icon"), el("span", undefined, `+${value}`));
+      c.dataset.mmLoot = key;
+      c.append(img(currencyIcon(key), "mm-inline-icon"), el("span", undefined, `+${value}`));
       return c;
     };
-    row.append(cell(currencyIcon("gold"), gold), cell(currencyIcon("crystal"), crystals));
-    if (gems > 0) row.append(cell(currencyIcon("gem"), gems));
+    row.append(cell("gold", gold), cell("crystal", crystals));
+    if (gems > 0) row.append(cell("gem", gems));
     return row;
   };
 
@@ -837,6 +868,20 @@ export function mountMageMasterScreen(opts: MageMasterScreenOptions): MageMaster
           actions,
         });
         if (letter) resultCard.el.classList.add("mm-modal--lettered");
+        const grant = { gold: snap.loot?.gold ?? 0, crystal: snap.loot?.crystals ?? 0, gem: snap.reward?.gems ?? 0 };
+        const totals = { gold: snap.gold, crystal: snap.crystals, gem: snap.gems };
+        const from = { ...totalsBefore };
+        // Hold the pills at the old totals until the coins land; the count-up closes the gap.
+        for (const key of ["gold", "crystal", "gem"] as const) {
+          const pillValue = live.get(`pill-${key}`);
+          if (grant[key] > 0 && pillValue) pillValue.textContent = formatCount(from[key]);
+        }
+        window.setTimeout(() => {
+          if (!resultCard.el.isConnected) return;
+          for (const key of ["gold", "crystal", "gem"] as const) {
+            flyCurrency(key, grant[key], resultCard.el.querySelector(`[data-mm-loot="${key}"]`), from[key], totals[key]);
+          }
+        }, RESULT_FLY_DELAY_MS);
         if (win) {
           // Confetti burst behind the card: 24 tinted chips with staggered falls.
           const burst = el("div", "mm-confetti");
@@ -869,6 +914,8 @@ export function mountMageMasterScreen(opts: MageMasterScreenOptions): MageMaster
           }),
           spriteAction(fill("reveal.discard", { gold: discardValue(item) }), "reveal-discard", false, () => {
             const gold = discardValue(item);
+            const before = controller.snapshot().gold;
+            flyCurrency("gold", gold, body.querySelector(".mm-item__frame"), before, before + gold);
             if (controller.discardItem()) {
               sfx.play("coin");
               toaster.show(fill("toast.discarded", { gold }));
@@ -919,7 +966,14 @@ export function mountMageMasterScreen(opts: MageMasterScreenOptions): MageMaster
         const body = el("div", "mm-offline");
         body.append(el("p", "mm-offline__message", fill("offline.message", { time: formatTime(grant.seconds) })), lootRow(grant.gold, grant.crystals, 0));
         const actions = el("div", "fab-modal-actions");
-        actions.append(spriteAction(copy["offline.claim"], "offline-claim", true, () => controller.claimOffline()));
+        actions.append(
+          spriteAction(copy["offline.claim"], "offline-claim", true, () => {
+            const before = controller.snapshot();
+            flyCurrency("gold", grant.gold, body.querySelector('[data-mm-loot="gold"]'), before.gold, before.gold + grant.gold);
+            flyCurrency("crystal", grant.crystals, body.querySelector('[data-mm-loot="crystal"]'), before.crystals, before.crystals + grant.crystals);
+            controller.claimOffline();
+          }),
+        );
         const welcomeArt = artLettering("welcome");
         const offlineCard = mountModalShell({
           mountInto: root,
@@ -969,9 +1023,13 @@ export function mountMageMasterScreen(opts: MageMasterScreenOptions): MageMaster
     live.get("pill-energy")!.textContent = `${snap.energy}/${ENERGY.cap}`;
     const energySub = live.get("pill-energy-sub");
     if (energySub) energySub.textContent = snap.energy >= ENERGY.cap ? "" : formatTime(snap.energyNextIn);
-    live.get("pill-gold")!.textContent = formatCount(snap.gold);
-    live.get("pill-crystal")!.textContent = formatCount(snap.crystals);
-    live.get("pill-gem")!.textContent = formatCount(snap.gems);
+    const now = Date.now();
+    const totals = { gold: snap.gold, crystal: snap.crystals, gem: snap.gems };
+    for (const key of ["gold", "crystal", "gem"] as const) {
+      if (now < countingUntil[key]) continue;
+      live.get(`pill-${key}`)!.textContent = formatCount(totals[key]);
+      displayed[key] = totals[key];
+    }
     const note = live.get("energy-note");
     if (note) note.textContent = snap.energy < ENERGY.levelCost ? fill("menu.noEnergy", { seconds: snap.energyNextIn }) : "";
     const play = root.querySelector<HTMLButtonElement>('[data-fab-action="play"]');
@@ -1022,6 +1080,7 @@ export function mountMageMasterScreen(opts: MageMasterScreenOptions): MageMaster
 
   const refresh = (): void => {
     const snap = controller.snapshot();
+    totalsBefore = { ...displayed };
     applyFrames();
     const nextPage = pageFor(snap.surface);
     const key = structureKey(snap);

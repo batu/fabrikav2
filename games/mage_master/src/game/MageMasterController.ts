@@ -111,6 +111,8 @@ export interface MageMasterController {
   /** Battle clock: called by the renderer each frame with seconds elapsed. */
   advanceBattle(dtSeconds: number): void;
   battleView(): BattleView | null;
+  /** Fraction of the next fixed step already elapsed (0..1) — render interpolation between 30 Hz ticks. */
+  battleAlpha(): number;
   drainBattleEvents(): BattleEvent[];
   /** Headless: run the active (or a fresh) battle to completion. */
   resolveBattle(outcome: "win" | "lose"): boolean;
@@ -491,6 +493,9 @@ export function createMageMasterController(options: ControllerOptions = {}): Mag
     },
     battleView() {
       return battle?.view() ?? null;
+    },
+    battleAlpha() {
+      return battle ? Math.max(0, Math.min(1, accumulator / FIXED_STEP)) : 0;
     },
     drainBattleEvents() {
       return eventQueue.splice(0, eventQueue.length);

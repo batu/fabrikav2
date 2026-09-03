@@ -13,6 +13,8 @@ import type { Sfx } from "../game/sfx.ts";
 /** Base sprite height in world units for a scale-1 unit. */
 const UNIT_HEIGHT = 74;
 const HP_BAR_WIDTH = 40;
+/** World height of the dark ledge band below a camp line. */
+const LEDGE_BAND = 80;
 const DEPTH = { ground: 0, shadow: 1, unit: 10, projectile: 40, fx: 50, text: 60, banner: 80 } as const;
 
 interface UnitVisual {
@@ -69,7 +71,12 @@ class Scene extends Phaser.Scene {
   private textPool: Phaser.GameObjects.Text[] = [];
   private floatSlots = new Map<string, number>();
   private cameraY = 0;
-  private cameraTargetY = 0;
+  /** Sim positions at the last two ticks: the renderer interpolates between 30 Hz steps. */
+  private tickPos = new Map<string, { x: number; y: number }>();
+  private prevTickPos = new Map<string, { x: number; y: number }>();
+  private tickCampY: number = ARENA.campLineY;
+  private prevTickCampY: number = ARENA.campLineY;
+  private tickElapsed = -1;
   private ground!: Phaser.GameObjects.TileSprite;
   private ledges: Phaser.GameObjects.Graphics[] = [];
   private crystals!: Phaser.GameObjects.Particles.ParticleEmitter;
@@ -194,7 +201,6 @@ class Scene extends Phaser.Scene {
     }).setDepth(DEPTH.fx);
     this.cameras.main.setBackgroundColor(p(`ground-${this.theme()}`));
     this.cameraY = 0;
-    this.cameraTargetY = 0;
     this.cameras.main.setZoom(this.zoom());
     this.time0 = this.time.now;
     this.drawLedge(ARENA.campLineY);
@@ -280,7 +286,9 @@ class Scene extends Phaser.Scene {
     g.fillEllipse(ARENA.width / 2, top + 30, ARENA.width * 1.5, 120);
     g.fillStyle(p("ledge"), 1);
     g.fillEllipse(ARENA.width / 2, top + 36, ARENA.width * 1.5, 120);
-    g.fillRect(-ARENA.width, top + 36, ARENA.width * 3, ARENA.height);
+    // A band, not a whole field: the next camp's ledge is drawn while the party
+    // is still crossing the field below it, and must not paint over that field.
+    g.fillRect(-ARENA.width, top + 36, ARENA.width * 3, LEDGE_BAND);
     this.ledges.push(g);
     // Camp props sit on the ledge behind the party.
     if (this.minimal) return;
@@ -700,6 +708,24 @@ class Scene extends Phaser.Scene {
     for (const u of view.units) this.units.set(u.id, u);
     for (const e of this.controller.drainBattleEvents()) this.handle(e);
 
+    // A new sim tick landed: shift the interpolation window. A reset (retry)
+    // starts fresh so nothing slides from the previous battle's positions.
+    if (view.elapsed !== this.tickElapsed) {
+      const reset = view.elapsed < this.tickElapsed;
+      this.tickElapsed = view.elapsed;
+      this.prevTickPos = reset ? new Map() : this.tickPos;
+      this.tickPos = new Map(view.units.map((u) => [u.id, { x: u.pos.x, y: u.pos.y }]));
+      this.prevTickCampY = reset ? view.campY : this.tickCampY;
+      this.tickCampY = view.campY;
+    }
+    const alpha = this.controller.battleAlpha();
+    const lerp = (a: number, b: number): number => a + (b - a) * alpha;
+    const renderPos = (unit: Unit): { x: number; y: number } => {
+      const cur = this.tickPos.get(unit.id) ?? unit.pos;
+      const prev = this.prevTickPos.get(unit.id) ?? cur;
+      return { x: lerp(prev.x, cur.x), y: lerp(prev.y, cur.y) };
+    };
+
     // Sync visuals to sim positions with bob / squash / offset layers.
     const t = (time - this.time0) / 1000;
     for (const unit of view.units) {
@@ -709,9 +735,10 @@ class Scene extends Phaser.Scene {
       const bobSpeed = moving ? 14 : 3.2;
       const bobAmp = moving ? 3.5 : 1.4;
       const bob = Math.sin(t * bobSpeed + v.bobPhase) * bobAmp;
-      v.root.x = unit.pos.x + v.offset.x;
-      v.root.y = unit.pos.y + v.offset.y;
-      v.root.setDepth(DEPTH.unit + (unit.pos.y - view.campY + 1000) / 1000);
+      const pos = renderPos(unit);
+      v.root.x = pos.x + v.offset.x;
+      v.root.y = pos.y + v.offset.y;
+      v.root.setDepth(DEPTH.unit + (pos.y - view.campY + 1000) / 1000);
       v.sprite.y = -Math.abs(bob) * (moving ? 1 : 0.5) - (moving ? 0 : bob * 0.5);
       v.sprite.setScale(v.baseScale * v.squash.x * (moving ? 1 + Math.abs(Math.sin(t * 7 + v.bobPhase)) * 0.03 : 1), v.baseScale * v.squash.y);
       v.sprite.flipX = unit.facing !== spriteFacing(unit.kind);
@@ -736,9 +763,10 @@ class Scene extends Phaser.Scene {
       this.drawHp(v, unit);
     }
 
-    // Camera follows the camp line (party) — the field scrolls up on advance.
-    this.cameraTargetY = view.campY - ARENA.campLineY;
-    this.cameraY += (this.cameraTargetY - this.cameraY) * Math.min(1, dt * 6);
+    // Camera follows the camp line exactly, interpolated like the units, so the
+    // party never drifts against its own ground during the run-forward (the sim
+    // already eases campY over the advance).
+    this.cameraY = lerp(this.prevTickCampY, this.tickCampY) - ARENA.campLineY;
     // Camp line sits near the bottom of the viewport; the field above scrolls with the party.
     const top = this.viewTop();
     this.cameras.main.centerOn(ARENA.width / 2, top + this.viewH / 2);

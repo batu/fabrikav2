@@ -90,3 +90,22 @@ describe("unit separation", () => {
     expect(minDistance).toBeGreaterThan(8);
   });
 });
+
+describe("separation and reach", () => {
+  it("melee mages still land hits with the wider ally separation radius", () => {
+    const battle = createBattle({ level: 1, party: partyFrom(starterLoadouts()), seed: 3 });
+    const melee = new Set(
+      battle
+        .view()
+        .units.filter((u) => u.side === "party" && u.range === "melee")
+        .map((u) => u.id),
+    );
+    expect(melee.size).toBeGreaterThan(0);
+    let meleeHits = 0;
+    for (let t = 0; t < 12; t += 1 / 30) {
+      battle.step(1 / 30);
+      for (const e of battle.drainEvents()) if (e.type === "hit" && e.sourceId && melee.has(e.sourceId)) meleeHits += 1;
+    }
+    expect(meleeHits).toBeGreaterThan(0);
+  });
+});

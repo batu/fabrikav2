@@ -417,7 +417,9 @@ export function createBattle(options: BattleOptions): Battle {
       for (let j = i + 1; j < alive.length; j += 1) {
         const b = alive[j];
         if (!b) continue;
-        const minDist = ARENA.separation * ((a.scale + b.scale) / 2);
+        let minDist = ARENA.separation * ((a.scale + b.scale) / 2);
+        // Opponents may close to attack range: never hold a melee unit outside its own reach.
+        if (a.side !== b.side) minDist = Math.min(minDist, Math.min(a.reach, b.reach) - STOP_MARGIN);
         const dx = b.pos.x - a.pos.x;
         const dy = b.pos.y - a.pos.y;
         const d = Math.hypot(dx, dy);
