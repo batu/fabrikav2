@@ -40,6 +40,8 @@ export interface BattleRendererOptions {
   /** Gear looks per mage class; composites must be drawn (composeMage) before boot. */
   readonly partyLooks?: Partial<Record<string, MageLook>>;
   readonly sfx?: Sfx;
+  /** Minimal interface: flat ground, no props, no vignette. */
+  readonly minimal?: boolean;
 }
 
 export interface BattleRenderer {
@@ -58,6 +60,7 @@ class Scene extends Phaser.Scene {
   private readonly onFrame?: (view: BattleView) => void;
   private readonly partyLooks: Partial<Record<string, MageLook>>;
   private readonly sfx: Sfx | null;
+  private readonly minimal: boolean;
   /** Visible world height (the host's aspect at arena width). */
   private readonly viewH: number;
   private readonly palette = readPalette();
@@ -75,13 +78,14 @@ class Scene extends Phaser.Scene {
   private coins!: Phaser.GameObjects.Particles.ParticleEmitter;
   private time0 = 0;
 
-  constructor(controller: MageMasterController, onFrame: ((view: BattleView) => void) | undefined, partyLooks: Partial<Record<string, MageLook>>, sfx: Sfx | null, viewH: number) {
+  constructor(controller: MageMasterController, onFrame: ((view: BattleView) => void) | undefined, partyLooks: Partial<Record<string, MageLook>>, sfx: Sfx | null, viewH: number, minimal: boolean) {
     super("battle");
     this.controller = controller;
     this.onFrame = onFrame;
     this.partyLooks = partyLooks;
     this.sfx = sfx;
     this.viewH = viewH;
+    this.minimal = minimal;
   }
 
   /** World y at the top of the viewport for the current camera scroll. */
@@ -106,6 +110,7 @@ class Scene extends Phaser.Scene {
 
   /** Scatter theme props across one stage's field, deterministic per stage. */
   private dressField(fieldTop: number, stageIndex: number): void {
+    if (this.minimal) return;
     const names = THEME_PROPS[this.theme()] ?? [];
     const available = names.filter((n) => this.textures.exists(`prop-${n}`));
     if (available.length === 0) return;
@@ -141,7 +146,7 @@ class Scene extends Phaser.Scene {
   create(): void {
     const p = this.palette;
     this.makeTextures();
-    const groundKey = this.textures.exists(`ground-${this.theme()}`) ? `ground-${this.theme()}` : "ground";
+    const groundKey = !this.minimal && this.textures.exists(`ground-${this.theme()}`) ? `ground-${this.theme()}` : "ground";
     this.ground = this.add
       .tileSprite(ARENA.width / 2, ARENA.height / 2, ARENA.width, ARENA.height * 3, groundKey)
       .setDepth(DEPTH.ground);
@@ -194,6 +199,7 @@ class Scene extends Phaser.Scene {
     this.time0 = this.time.now;
     this.drawLedge(ARENA.campLineY);
     this.dressField(0, 0);
+    if (this.minimal) return;
     // Edge vignette: a screen-fixed frame that darkens the borders slightly.
     const vignette = this.add.graphics().setScrollFactor(0).setDepth(DEPTH.banner - 1);
     const vw = ARENA.width;
@@ -277,6 +283,7 @@ class Scene extends Phaser.Scene {
     g.fillRect(-ARENA.width, top + 36, ARENA.width * 3, ARENA.height);
     this.ledges.push(g);
     // Camp props sit on the ledge behind the party.
+    if (this.minimal) return;
     if (this.textures.exists("prop-tent")) {
       this.add.image(ARENA.width * 0.12, campY + 28, "prop-tent").setOrigin(0.5, 1).setDisplaySize(64, 64).setDepth(DEPTH.ground + 2);
     }
@@ -743,7 +750,7 @@ export function createBattleRenderer(options: BattleRendererOptions): BattleRend
   const hostW = options.container.clientWidth || ARENA.width;
   const hostH = options.container.clientHeight || ARENA.height;
   const viewH = Math.max(360, Math.round(hostH * (ARENA.width / hostW)));
-  const scene = new Scene(options.controller, options.onFrame, options.partyLooks ?? {}, options.sfx ?? null, viewH);
+  const scene = new Scene(options.controller, options.onFrame, options.partyLooks ?? {}, options.sfx ?? null, viewH, options.minimal ?? false);
   const game = new Phaser.Game({
     type: Phaser.AUTO,
     parent: options.container,

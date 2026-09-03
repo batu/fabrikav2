@@ -89,6 +89,22 @@ describe("mage master shell", () => {
     screen.destroy();
   });
 
+  it("minimal interface is on by default and the settings row switches to classic", () => {
+    const controller = createMageMasterController({ env: "test", storageKey: "test-shell-ui" });
+    const screen = mountMageMasterScreen({ mountInto: document.getElementById("app")!, controller });
+    expect(screen.root.classList.contains("mm-root--minimal")).toBe(true);
+    expect(screen.root.classList.contains("mm-root--framed")).toBe(false);
+    expect(screen.root.querySelector(".mm-home__deco")).toBeNull();
+    click(screen.root, "nav-settings");
+    const row = screen.root.querySelector<HTMLButtonElement>('[data-fab-legal-url="toggle-ui"]');
+    expect(row?.textContent).toBe(copy["settings.uiToClassic"]);
+    row!.click();
+    expect(controller.snapshot().settings.minimalUi).toBe(false);
+    expect(screen.root.classList.contains("mm-root--minimal")).toBe(false);
+    expect(screen.root.querySelector<HTMLButtonElement>('[data-fab-legal-url="toggle-ui"]')?.textContent).toBe(copy["settings.uiToMinimal"]);
+    screen.destroy();
+  });
+
   it("settings opens from home and closes back to home", () => {
     const controller = createMageMasterController({ env: "test", storageKey: "test-shell-e" });
     const screen = mountMageMasterScreen({ mountInto: document.getElementById("app")!, controller });

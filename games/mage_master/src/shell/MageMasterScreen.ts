@@ -158,8 +158,7 @@ function mageImage(look: MageLook, className: string, alt: string): HTMLElement 
 }
 
 /** A portrait inside the ornate round frame (falls back to the bare portrait). */
-function framedPortrait(look: MageLook, className: string, alt: string): HTMLElement {
-  const ring = frame("portrait");
+function framedPortrait(look: MageLook, className: string, alt: string, ring: string | undefined): HTMLElement {
   const portrait = mageImage(look, className, alt);
   if (!ring) return portrait;
   const wrap = el("span", "mm-portrait");
@@ -170,6 +169,15 @@ function framedPortrait(look: MageLook, className: string, alt: string): HTMLEle
 export function mountMageMasterScreen(opts: MageMasterScreenOptions): MageMasterScreen {
   const { controller } = opts;
   const root = el("div", "mm-root fab-ui");
+  // Minimal interface mod: the same DOM without painted chrome, scenes,
+  // lettering, or map dressing; mage-master-minimal.css restyles the rest.
+  const isMinimal = (): boolean => controller.snapshot().settings.minimalUi;
+  const skinned = <T,>(url: T | undefined): T | undefined => (isMinimal() ? undefined : url);
+  const artFrame = (name: Parameters<typeof frame>[0]): string | undefined => skinned(frame(name));
+  const artScene = (name: Parameters<typeof scene>[0]): string | undefined => skinned(scene(name));
+  const artLettering = (name: Parameters<typeof lettering>[0]): string | undefined => skinned(lettering(name));
+  const artNode = (state: Parameters<typeof nodeArt>[0]): string | undefined => skinned(nodeArt(state));
+  const artProp = (name: Parameters<typeof propSprite>[0]): string | undefined => skinned(propSprite(name));
   opts.mountInto.replaceChildren(root);
 
   const topbar = el("header", "mm-topbar");
@@ -180,15 +188,16 @@ export function mountMageMasterScreen(opts: MageMasterScreenOptions): MageMaster
   // asset paths. Re-applied on every refresh so a late-resolving asset heals itself.
   const applyFrames = (): void => {
     const frames: Array<[string, string | undefined]> = [
-      ["--fab-mm-frame-panel", frame("panel")],
-      ["--fab-mm-frame-button", frame("button")],
-      ["--fab-mm-frame-button-dark", frame("button-dark")],
-      ["--fab-mm-frame-portrait", frame("portrait")],
-      ["--fab-mm-scene-home", scene("home")],
-      ["--fab-mm-scene-rift", scene("rift")],
+      ["--fab-mm-frame-panel", artFrame("panel")],
+      ["--fab-mm-frame-button", artFrame("button")],
+      ["--fab-mm-frame-button-dark", artFrame("button-dark")],
+      ["--fab-mm-frame-portrait", artFrame("portrait")],
+      ["--fab-mm-scene-home", artScene("home")],
+      ["--fab-mm-scene-rift", artScene("rift")],
     ];
     for (const [name, url] of frames) if (url) root.style.setProperty(name, `url(${url})`);
-    root.classList.toggle("mm-root--framed", Boolean(frame("panel") && frame("button")));
+    root.classList.toggle("mm-root--framed", Boolean(artFrame("panel") && artFrame("button")));
+    root.classList.toggle("mm-root--minimal", isMinimal());
   };
   applyFrames();
   const toaster: ToasterHandle = mountToaster({ mountInto: root, id: "mm-toaster" });
@@ -265,7 +274,7 @@ export function mountMageMasterScreen(opts: MageMasterScreenOptions): MageMaster
   const renderMenu = (snap: MageMasterSnapshot): HTMLElement => {
     const home = el("main", "mm-home");
     const hero = el("section", "mm-home__hero");
-    const titleArt = lettering("title");
+    const titleArt = artLettering("title");
     if (titleArt) {
       const title = el("h1", "mm-home__title mm-home__title--art");
       title.append(img(titleArt, "mm-home__title-art", copy["game.title"]));
@@ -274,7 +283,7 @@ export function mountMageMasterScreen(opts: MageMasterScreenOptions): MageMaster
       hero.append(el("h1", "mm-home__title", copy["game.title"]), el("p", "mm-home__subtitle", copy["menu.subtitle"]));
     }
     const party = el("div", "mm-party");
-    if (scene("home")) party.classList.add("mm-party--scene");
+    if (artScene("home")) party.classList.add("mm-party--scene");
     for (const cls of MAGE_CLASSES) {
       const card = el("div", `mm-party__mage mm-party__mage--${cls}`);
       card.append(mageImage(lookFor(snap, cls), "mm-party__sprite", mageName(cls)), el("span", "mm-party__name", mageName(cls)));
@@ -286,7 +295,7 @@ export function mountMageMasterScreen(opts: MageMasterScreenOptions): MageMaster
     ladder.setAttribute("aria-label", copy["menu.progression"]);
     // Map dressing on the flanks so the board reads as a camp map, not an empty plank.
     for (const [prop, cls] of [["tent", "mm-home__deco mm-home__deco--tent"], ["campfire", "mm-home__deco mm-home__deco--fire"], ["rock-sand", "mm-home__deco mm-home__deco--rock"], ["cactus", "mm-home__deco mm-home__deco--cactus"], ["bones", "mm-home__deco mm-home__deco--bones"], ["grass", "mm-home__deco mm-home__deco--grass"]] as const) {
-      const url = propSprite(prop);
+      const url = artProp(prop);
       if (url) ladder.append(img(url, cls));
     }
     const current = snap.unlockedLevel;
@@ -297,9 +306,9 @@ export function mountMageMasterScreen(opts: MageMasterScreenOptions): MageMaster
       const stateLabel = state === "completed" ? copy["menu.cleared"] : state === "current" ? copy["menu.next"] : copy["menu.locked"];
       nodes.push({ id, label: String(id), name: `${copy["menu.level"]} ${id}, ${stateLabel}`, state });
     }
-    const artCurrent = nodeArt("current");
-    const artLocked = nodeArt("locked");
-    const artCompleted = nodeArt("completed");
+    const artCurrent = artNode("current");
+    const artLocked = artNode("locked");
+    const artCompleted = artNode("completed");
     const hasNodeArt = Boolean(artCurrent && artLocked && artCompleted);
     const map = mountSagaMap({
       mountInto: ladder,
@@ -355,7 +364,7 @@ export function mountMageMasterScreen(opts: MageMasterScreenOptions): MageMaster
     const stage = el("section", "mm-rift__stage");
     const stageInner = el("div", "mm-rift__inner");
     const art = el("div", "mm-rift__art");
-    if (scene("rift")) art.classList.add("mm-rift__art--scene");
+    if (artScene("rift")) art.classList.add("mm-rift__art--scene");
     const portal = img(riftPortal(), "mm-rift__portal");
     art.append(portal);
     stageInner.append(art, el("p", "mm-rift__blurb", copy["rift.blurb"]));
@@ -490,7 +499,7 @@ export function mountMageMasterScreen(opts: MageMasterScreenOptions): MageMaster
       const stats = mageStats(cls, loadout);
       const card = el("section", `mm-mage mm-mage--${cls}`);
       const top = el("div", "mm-mage__top");
-      top.append(framedPortrait(lookFor(snap, cls), "mm-mage__sprite", mageName(cls)));
+      top.append(framedPortrait(lookFor(snap, cls), "mm-mage__sprite", mageName(cls), artFrame("portrait")));
       const ident = el("div", "mm-mage__ident");
       ident.append(el("h2", "mm-mage__name", mageName(cls)), el("p", "mm-mage__role", copy[`mage.${cls}.role`]));
       ident.append(el("p", "mm-mage__power", `${copy["mages.power"]} ${itemPower(loadout.weapon) + itemPower(loadout.armor)}`));
@@ -620,7 +629,7 @@ export function mountMageMasterScreen(opts: MageMasterScreenOptions): MageMaster
       const loadout = snap.loadout[cls];
       const card = el("div", `mm-hud__mage mm-hud__mage--${cls}`);
       const head = el("div", "mm-hud__head");
-      head.append(framedPortrait(lookFor(snap, cls), "mm-hud__portrait", mageName(cls)), el("span", "mm-hud__name", mageName(cls)));
+      head.append(framedPortrait(lookFor(snap, cls), "mm-hud__portrait", mageName(cls), artFrame("portrait")), el("span", "mm-hud__name", mageName(cls)));
       card.append(head);
       const bar = el("div", "mm-hud__bar");
       const fillEl = el("span", "mm-hud__fill");
@@ -654,7 +663,7 @@ export function mountMageMasterScreen(opts: MageMasterScreenOptions): MageMaster
       if (token !== rendererToken || !host.isConnected) return;
       renderer?.destroy();
       const partyLooks = Object.fromEntries(looks.map((look) => [look.cls, look])) as Record<MageClass, MageLook>;
-      renderer = createBattleRenderer({ container: host, controller, onFrame: onBattleFrame, partyLooks, sfx });
+      renderer = createBattleRenderer({ container: host, controller, onFrame: onBattleFrame, partyLooks, sfx, minimal: isMinimal() });
     });
   };
 
@@ -736,9 +745,12 @@ export function mountMageMasterScreen(opts: MageMasterScreenOptions): MageMaster
         // The kit pause card takes no sprites; dress it like the other modals.
         const card = pause.el.querySelector<HTMLElement>(".fab-modal-card");
         if (card) {
-          card.classList.add("mm-modal", "mm-modal--pause", "fab-modal-card--image");
-          card.style.setProperty("--fab-modal-card-image", `url(${assetUrls.panel})`);
-          card.style.backgroundImage = `url(${assetUrls.panel})`;
+          card.classList.add("mm-modal", "mm-modal--pause");
+          if (!isMinimal()) {
+            card.classList.add("fab-modal-card--image");
+            card.style.setProperty("--fab-modal-card-image", `url(${assetUrls.panel})`);
+            card.style.backgroundImage = `url(${assetUrls.panel})`;
+          }
         }
         for (const button of pause.el.querySelectorAll<HTMLButtonElement>(".fab-btn")) {
           const primary = button.dataset.fabAction === "pause-resume";
@@ -761,8 +773,18 @@ export function mountMageMasterScreen(opts: MageMasterScreenOptions): MageMaster
             labels: { music: copy["settings.music"], sfx: copy["settings.sfx"], haptics: copy["settings.haptics"] },
           },
           onToggle: (key, next) => controller.setSetting(key, next),
-          legalLinks: [{ label: copy["settings.reset"], url: "reset-save" }],
+          legalLinks: [
+            { label: isMinimal() ? copy["settings.uiToClassic"] : copy["settings.uiToMinimal"], url: "toggle-ui" },
+            { label: copy["settings.reset"], url: "reset-save" },
+          ],
           onOpenLink: (url) => {
+            if (url === "toggle-ui") {
+              controller.setSetting("minimalUi", !isMinimal());
+              // Remount the page so the row reads the new state.
+              overlayKey = null;
+              reconcileOverlay(controller.snapshot());
+              return;
+            }
             if (url !== "reset-save") return;
             // Two taps within 4 s: an accidental tap must not wipe a session.
             if (resetArmedAt !== null && Date.now() - resetArmedAt < 4000) {
@@ -802,14 +824,14 @@ export function mountMageMasterScreen(opts: MageMasterScreenOptions): MageMaster
         const reward = el("div", "mm-result__reward");
         reward.append(el("p", "mm-result__loot-label", copy["result.loot"]), lootRow(snap.loot?.gold ?? 0, snap.loot?.crystals ?? 0, snap.reward?.gems ?? 0));
         if (snap.reward?.firstClear) reward.append(el("p", "mm-result__first", fill("win.firstClear", { gems: snap.reward.gems })));
-        const letter = lettering(win ? "victory" : "defeat");
+        const letter = artLettering(win ? "victory" : "defeat");
         const resultCard = mountResultCard({
           mountInto: root,
           id: win ? "mm-win" : "mm-fail",
           variant: win ? "win" : "lose",
           title: win ? copy["win.title"] : copy["fail.title"],
           ribbonImage: letter ?? (win ? assetUrls.ribbon.win : assetUrls.ribbon.fail),
-          cardImage: assetUrls.panel,
+          cardImage: skinned(assetUrls.panel),
           messages: [win ? fill("win.eyebrow", { level: snap.level }) : fill("fail.eyebrow", { level: snap.level }), win ? copy["win.message"] : copy["fail.message"]],
           rewardDisplay: reward,
           actions,
@@ -853,14 +875,14 @@ export function mountMageMasterScreen(opts: MageMasterScreenOptions): MageMaster
             }
           }),
         );
-        const summonedArt = lettering("summoned");
+        const summonedArt = artLettering("summoned");
         const handle = mountModalShell({
           mountInto: root,
           id: "mm-reveal",
           ribbon: { title: copy["reveal.title"], image: summonedArt ?? assetUrls.ribbon.neutral },
           body,
           actions,
-          cardImage: assetUrls.panel,
+          cardImage: skinned(assetUrls.panel),
           cardClassName: `mm-modal mm-modal--reveal mm-rarity--${item.rarity}`,
         });
         handle.el.classList.add(`mm-reveal-glow--${item.rarity}`);
@@ -883,7 +905,7 @@ export function mountMageMasterScreen(opts: MageMasterScreenOptions): MageMaster
           ribbon: { title: itemName(item), image: assetUrls.ribbon.neutral },
           body: itemCard(item),
           actions,
-          cardImage: assetUrls.panel,
+          cardImage: skinned(assetUrls.panel),
           cardClassName: `mm-modal mm-rarity--${item.rarity}`,
           backdropDismiss: true,
           onDismiss: () => {
@@ -898,14 +920,14 @@ export function mountMageMasterScreen(opts: MageMasterScreenOptions): MageMaster
         body.append(el("p", "mm-offline__message", fill("offline.message", { time: formatTime(grant.seconds) })), lootRow(grant.gold, grant.crystals, 0));
         const actions = el("div", "fab-modal-actions");
         actions.append(spriteAction(copy["offline.claim"], "offline-claim", true, () => controller.claimOffline()));
-        const welcomeArt = lettering("welcome");
+        const welcomeArt = artLettering("welcome");
         const offlineCard = mountModalShell({
           mountInto: root,
           id: "mm-offline",
           ribbon: { title: copy["offline.title"], image: welcomeArt ?? assetUrls.ribbon.win },
           body,
           actions,
-          cardImage: assetUrls.panel,
+          cardImage: skinned(assetUrls.panel),
           cardClassName: "mm-modal",
         });
         if (welcomeArt) offlineCard.el.classList.add("mm-modal--lettered");
@@ -989,8 +1011,9 @@ export function mountMageMasterScreen(opts: MageMasterScreenOptions): MageMaster
   const structureKey = (snap: MageMasterSnapshot): string =>
     [
       pageFor(snap.surface),
+      snap.settings.minimalUi ? "minimal" : "classic",
       // Art availability: a page rendered before a late-resolving asset re-renders once it lands.
-      [frame("panel"), frame("button"), scene("home"), scene("rift"), nodeArt("current"), lettering("title")].filter(Boolean).length,
+      [artFrame("panel"), artFrame("button"), artScene("home"), artScene("rift"), artNode("current"), artLettering("title")].filter(Boolean).length,
       snap.unlockedLevel,
       snap.riftTier,
       snap.level,

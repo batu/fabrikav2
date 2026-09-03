@@ -23,6 +23,18 @@ and pitch), storyboard in `refs/art/`, research in `docs/research.md`, plan in
 - `src/dev/` — dev-only remote drive for on-device iteration (never shipped).
 - `design/` — tokens, copy, asset bindings, generated art + `PROVENANCE.md`.
 
+## Interface modes
+
+Two skins over one DOM, switched by the `minimalUi` save setting (Settings →
+"Switch to classic/minimal interface"; default minimal on this branch):
+
+- **Minimal** (Forge Master reference): flat white panels, thin lines, one red
+  accent, plain text headings, flat arena. The shell withholds frames, scenes,
+  lettering, node art, and map dressing; `src/shell/mage-master-minimal.css`
+  restyles the rest under `.mm-root--minimal`, and the palette lives in the
+  matching block of `design/tokens.css`.
+- **Classic**: the painted wood-and-gold chrome (`.mm-root--framed`).
+
 ## Adding content
 
 New enemy: one row in `content/enemies.ts` + `design/assets/unit-<kind>.png`.

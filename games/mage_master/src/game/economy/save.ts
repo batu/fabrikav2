@@ -10,6 +10,8 @@ export interface SaveSettings {
   readonly music: boolean;
   readonly sfx: boolean;
   readonly haptics: boolean;
+  /** Minimal interface mod: flat panels, no painted chrome. */
+  readonly minimalUi: boolean;
 }
 
 export interface SaveState {
@@ -44,10 +46,15 @@ export function defaultSave(now: number): SaveState {
     pending: null,
     highestCleared: 0,
     lastSeenAt: now,
-    settings: { music: true, sfx: true, haptics: true },
+    settings: { music: true, sfx: true, haptics: true, minimalUi: true },
     pulls: 0,
     nextItemId: 1,
   };
+}
+
+/** Settings added after a save was written default in without a version bump. */
+export function withSettingsDefaults(state: SaveState): SaveState {
+  return { ...state, settings: { ...defaultSave(state.lastSeenAt).settings, ...state.settings } };
 }
 
 export function isValidSave(value: Partial<SaveState>): boolean {

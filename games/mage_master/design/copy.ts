@@ -158,6 +158,8 @@ export const copy = {
   "settings.music": "Music",
   "settings.sfx": "Sound effects",
   "settings.haptics": "Haptics",
+  "settings.uiToClassic": "Switch to classic interface",
+  "settings.uiToMinimal": "Switch to minimal interface",
   "settings.reset": "Reset save",
   "settings.resetConfirm": "Tap again to confirm the reset",
   "toast.equipped": "{name} equipped on {mage}",

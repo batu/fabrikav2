@@ -1,0 +1,638 @@
+/* Mage Master — minimal interface mod. Flat white panels, thin lines, one red
+   accent, no painted chrome (Forge Master reference). Layered after
+   mage-master.css; every rule is scoped to .mm-root--minimal and resolves
+   through the --fab-mm-min-* tokens in design/tokens.css. The DOM is the same;
+   the shell only withholds frames, scenes, lettering, and map dressing. */
+
+.mm-root--minimal {
+  background: var(--fab-mm-min-bg);
+  color: var(--fab-mm-min-ink);
+}
+
+.mm-root--minimal .mm-ph {
+  background: var(--fab-mm-min-line);
+}
+
+/* ---------- top bar ---------- */
+.mm-root--minimal .mm-topbar {
+  height: 44px;
+  gap: 8px;
+  padding: 6px 12px;
+  background: var(--fab-mm-min-panel);
+  border-bottom: 2px solid var(--fab-mm-min-line);
+}
+
+.mm-root--minimal .mm-pill {
+  height: 28px;
+  padding: 0 8px 0 4px;
+  border: 0;
+  background: var(--fab-mm-min-panel-alt);
+  color: var(--fab-mm-min-ink);
+  font-size: 13px;
+}
+
+.mm-root--minimal .mm-pill__icon {
+  width: 18px;
+  height: 18px;
+}
+
+.mm-root--minimal .mm-pill__sub {
+  color: var(--fab-mm-min-muted);
+}
+
+.mm-root--minimal .mm-pill--gold .mm-pill__value,
+.mm-root--minimal .mm-pill--crystal .mm-pill__value,
+.mm-root--minimal .mm-pill--gem .mm-pill__value,
+.mm-root--minimal .mm-pill--energy .mm-pill__value {
+  color: var(--fab-mm-min-ink);
+}
+
+/* ---------- body / nav ---------- */
+.mm-root--minimal .mm-body,
+.mm-root--minimal.mm-root--battle .mm-body {
+  background: var(--fab-mm-min-bg);
+}
+
+.mm-root--minimal .mm-nav {
+  height: 64px;
+  padding: 0;
+  background: var(--fab-mm-min-panel);
+  border-top: 2px solid var(--fab-mm-min-line);
+}
+
+.mm-root--minimal .mm-nav__btn {
+  color: var(--fab-mm-min-muted);
+  font-size: 10px;
+}
+
+.mm-root--minimal .mm-nav__btn--active {
+  background: transparent;
+  color: var(--fab-mm-min-accent);
+}
+
+.mm-root--minimal .mm-nav__icon {
+  width: 28px;
+  height: 28px;
+}
+
+.mm-root--minimal .mm-nav__btn--active .mm-nav__icon {
+  transform: none;
+}
+
+/* ---------- buttons: solid fill, hard drop, no sprite ---------- */
+.mm-root--minimal .mm-btn {
+  min-height: 48px;
+  padding: 8px 20px;
+  border: 0;
+  border-radius: 12px;
+  background-image: none;
+  background-color: var(--fab-mm-min-accent);
+  box-shadow: 0 4px 0 var(--fab-mm-min-accent-deep);
+  color: var(--fab-mm-min-panel);
+  font-size: 16px;
+  text-shadow: none;
+}
+
+.mm-root--minimal .mm-btn:active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 var(--fab-mm-min-accent-deep);
+  filter: none;
+}
+
+.mm-root--minimal .mm-btn--secondary {
+  border: 2px solid var(--fab-mm-min-line);
+  background-color: var(--fab-mm-min-panel);
+  box-shadow: 0 4px 0 var(--fab-mm-min-line);
+  color: var(--fab-mm-min-ink);
+}
+
+.mm-root--minimal .mm-btn--secondary:active {
+  box-shadow: 0 1px 0 var(--fab-mm-min-line);
+}
+
+.mm-root--minimal .mm-btn--big {
+  min-height: 56px;
+  padding: 10px 26px;
+  font-size: 18px;
+}
+
+.mm-root--minimal .mm-btn:disabled,
+.mm-root--minimal .mm-btn[data-disabled="true"] {
+  background-color: var(--fab-mm-min-line);
+  box-shadow: none;
+  color: var(--fab-mm-min-muted);
+  filter: none;
+  opacity: 1;
+}
+
+.mm-root--minimal .mm-btn__cost,
+.mm-root--minimal .mm-home__cost {
+  background: var(--fab-mm-min-shadow);
+  color: inherit;
+}
+
+.mm-root--minimal .mm-icon-btn {
+  border: 2px solid var(--fab-mm-min-line);
+  border-radius: 50%;
+  background: var(--fab-mm-min-panel);
+  box-shadow: 0 2px 0 var(--fab-mm-min-line);
+}
+
+.mm-root--minimal .mm-battle__top .mm-icon-btn--speed {
+  color: var(--fab-mm-min-ink);
+  font-size: 14px;
+}
+
+.mm-root--minimal .mm-icon-btn--active {
+  border-color: var(--fab-mm-min-accent);
+  background: var(--fab-mm-min-accent);
+  color: var(--fab-mm-min-panel);
+}
+
+/* ---------- home ---------- */
+.mm-root--minimal .mm-home {
+  gap: 10px;
+  padding: 10px 14px 14px;
+}
+
+.mm-root--minimal .mm-home__title {
+  font-size: 26px;
+  letter-spacing: 0;
+  color: var(--fab-mm-min-ink);
+  text-shadow: none;
+}
+
+.mm-root--minimal .mm-home__subtitle {
+  color: var(--fab-mm-min-muted);
+}
+
+.mm-root--minimal .mm-party {
+  padding: 10px 6px 4px;
+  border: 2px solid var(--fab-mm-min-line);
+  border-radius: 16px;
+  background: var(--fab-mm-min-panel);
+  box-shadow: none;
+}
+
+.mm-root--minimal .mm-party__name {
+  background: var(--fab-mm-min-panel-alt);
+  color: var(--fab-mm-min-ink);
+}
+
+.mm-root--minimal .mm-home__ladder {
+  max-height: 240px;
+  border: 2px solid var(--fab-mm-min-line);
+  border-radius: 16px;
+  background: var(--fab-mm-min-panel);
+}
+
+.mm-root--minimal .mm-home__note {
+  color: var(--fab-mm-min-muted);
+}
+
+/* ---------- pages ---------- */
+.mm-root--minimal .mm-page__title {
+  font-size: 22px;
+  color: var(--fab-mm-min-ink);
+  text-shadow: none;
+}
+
+.mm-root--minimal .mm-page__blurb,
+.mm-root--minimal .mm-rift__blurb,
+.mm-root--minimal .mm-rift__upgrade-label,
+.mm-root--minimal .mm-rift__inner .mm-rift__blurb {
+  color: var(--fab-mm-min-muted);
+}
+
+.mm-root--minimal .mm-rift__tier {
+  background: var(--fab-mm-min-panel-alt);
+  color: var(--fab-mm-min-info);
+}
+
+.mm-root--minimal .mm-rift__stage,
+.mm-root--minimal .mm-rift__upgrade,
+.mm-root--minimal .mm-odds,
+.mm-root--minimal .mm-mage {
+  border: 2px solid var(--fab-mm-min-line);
+  border-radius: 16px;
+  background: var(--fab-mm-min-panel);
+  box-shadow: none;
+}
+
+.mm-root--minimal .mm-rift__art {
+  min-height: 150px;
+  background: var(--fab-mm-min-panel-alt);
+}
+
+.mm-root--minimal .mm-rift__portal {
+  width: 130px;
+  height: 130px;
+  filter: none;
+  animation: none;
+}
+
+.mm-root--minimal .mm-odds__head {
+  color: var(--fab-mm-min-muted);
+}
+
+.mm-root--minimal .mm-odds__bar {
+  background: var(--fab-mm-min-track);
+}
+
+.mm-root--minimal .mm-odds__next {
+  color: var(--fab-mm-min-muted);
+}
+
+/* ---------- item card ---------- */
+.mm-root--minimal .mm-item__frame {
+  border-width: 3px;
+  background: var(--fab-mm-min-panel-alt);
+  box-shadow: none;
+}
+
+.mm-root--minimal .mm-item__name {
+  text-shadow: none;
+}
+
+.mm-root--minimal .mm-item__owner,
+.mm-root--minimal .mm-item__effect,
+.mm-root--minimal .mm-item__power,
+.mm-root--minimal .mm-item__stat dt,
+.mm-root--minimal .mm-reveal__replaces {
+  color: var(--fab-mm-min-muted);
+}
+
+.mm-root--minimal .mm-item__traits {
+  color: var(--fab-mm-min-ink);
+}
+
+.mm-root--minimal .mm-item__stat {
+  background: var(--fab-mm-min-panel-alt);
+  color: var(--fab-mm-min-ink);
+}
+
+.mm-root--minimal .mm-item__stat--primary dd {
+  color: var(--fab-mm-min-ink);
+}
+
+/* ---------- mages page ---------- */
+.mm-root--minimal .mm-mage__name {
+  color: var(--fab-mm-min-ink);
+}
+
+.mm-root--minimal .mm-mage__role,
+.mm-root--minimal .mm-mage__power,
+.mm-root--minimal .mm-mage__stat dt {
+  color: var(--fab-mm-min-muted);
+}
+
+.mm-root--minimal .mm-slot {
+  border-width: 2px;
+  background: var(--fab-mm-min-panel-alt);
+  box-shadow: none;
+  color: var(--fab-mm-min-ink);
+}
+
+/* ---------- battle ---------- */
+.mm-root--minimal .mm-battle,
+.mm-root--minimal .mm-battle[data-mm-theme="forest"],
+.mm-root--minimal .mm-battle[data-mm-theme="swamp"] {
+  background: var(--fab-mm-min-bg);
+}
+
+.mm-root--minimal .mm-battle__top,
+.mm-root--minimal .mm-battle[data-mm-theme="forest"] .mm-battle__top,
+.mm-root--minimal .mm-battle[data-mm-theme="swamp"] .mm-battle__top {
+  height: 52px;
+  background: var(--fab-mm-min-panel);
+  border-bottom: 2px solid var(--fab-mm-min-line);
+}
+
+.mm-root--minimal .mm-battle__title {
+  flex-direction: row;
+  align-items: baseline;
+  gap: 6px;
+  color: var(--fab-mm-min-ink);
+}
+
+.mm-root--minimal .mm-battle__level {
+  font-size: 16px;
+}
+
+.mm-root--minimal .mm-battle__stage {
+  font-size: 13px;
+  color: var(--fab-mm-min-muted);
+}
+
+.mm-root--minimal .mm-battle__top .mm-icon-btn {
+  top: 4px;
+}
+
+/* Stage track: a short horizontal dotted line under the title, not a rail on the flank. */
+.mm-root--minimal .mm-track {
+  top: 10px;
+  bottom: auto;
+  left: 50%;
+  width: 96px;
+  height: 3px;
+  transform: translateX(-50%);
+  flex-direction: row;
+  background: var(--fab-mm-min-line);
+}
+
+.mm-root--minimal .mm-track::before {
+  display: none;
+}
+
+.mm-root--minimal .mm-track__dot {
+  width: 12px;
+  height: 12px;
+  border: 2px solid var(--fab-mm-min-line);
+  background: var(--fab-mm-min-panel);
+  box-shadow: none;
+}
+
+.mm-root--minimal .mm-track__dot--done {
+  border-color: var(--fab-mm-min-info);
+  background: var(--fab-mm-min-info);
+}
+
+.mm-root--minimal .mm-track__dot--current {
+  border-color: var(--fab-mm-min-info);
+  background: var(--fab-mm-min-panel);
+  transform: scale(1.25);
+}
+
+.mm-root--minimal .mm-track__dot--boss {
+  width: 14px;
+  height: 14px;
+  border-radius: 4px;
+  transform: rotate(45deg);
+}
+
+.mm-root--minimal .mm-track__dot--boss.mm-track__dot--current {
+  transform: rotate(45deg) scale(1.2);
+}
+
+.mm-root--minimal .mm-bossbar {
+  top: 30px;
+  left: 24px;
+  right: 24px;
+}
+
+.mm-root--minimal .mm-bossbar__name {
+  color: var(--fab-mm-min-ink);
+  text-shadow: none;
+}
+
+.mm-root--minimal .mm-bossbar__track {
+  height: 10px;
+  background: var(--fab-mm-min-track);
+  box-shadow: none;
+}
+
+.mm-root--minimal .mm-hud {
+  gap: 8px;
+  height: 128px;
+  padding: 10px 12px;
+  background: var(--fab-mm-min-panel);
+  border-top: 2px solid var(--fab-mm-min-line);
+}
+
+.mm-root--minimal .mm-hud__mage {
+  gap: 3px;
+  padding: 6px 8px;
+  border: 2px solid var(--fab-mm-min-line);
+  border-radius: 12px;
+  background: var(--fab-mm-min-panel);
+}
+
+.mm-root--minimal .mm-hud__name,
+.mm-root--minimal .mm-hud__mage--tank .mm-hud__name,
+.mm-root--minimal .mm-hud__mage--warrior .mm-hud__name,
+.mm-root--minimal .mm-hud__mage--support .mm-hud__name {
+  font-size: 12px;
+  color: var(--fab-mm-min-ink);
+}
+
+.mm-root--minimal .mm-hud__bar {
+  height: 8px;
+  background: var(--fab-mm-min-track);
+}
+
+.mm-root--minimal .mm-hud__fill,
+.mm-root--minimal .mm-hud__fill[data-mm-hp="high"],
+.mm-root--minimal .mm-hud__fill[data-mm-hp="mid"] {
+  background: var(--fab-mm-min-positive);
+}
+
+.mm-root--minimal .mm-hud__fill[data-mm-hp="low"] {
+  background: var(--fab-mm-min-accent);
+}
+
+.mm-root--minimal .mm-hud__hp {
+  color: var(--fab-mm-min-muted);
+}
+
+.mm-root--minimal .mm-hud__slot {
+  width: 34px;
+  height: 34px;
+  border-width: 2px;
+  border-radius: 8px;
+  background: var(--fab-mm-min-panel-alt);
+}
+
+/* ---------- modals and kit pages ---------- */
+.mm-root--minimal .mm-modal.fab-modal-card,
+.mm-root--minimal .fab-modal-card {
+  border-radius: 18px;
+  background-image: none;
+  background-color: var(--fab-mm-min-panel);
+  color: var(--fab-mm-min-ink);
+}
+
+/* The ribbon becomes a plain heading: the banner art is withheld, the text stays. */
+.mm-root--minimal .fab-modal-ribbon {
+  width: auto;
+  aspect-ratio: auto;
+  margin: 0 0 6px;
+}
+
+.mm-root--minimal .fab-modal-ribbon-image {
+  display: none;
+}
+
+.mm-root--minimal .fab-modal-ribbon-eyebrow,
+.mm-root--minimal .fab-modal-ribbon-title {
+  position: static;
+  display: block;
+  width: auto;
+  max-width: none;
+  transform: none;
+  -webkit-text-stroke: 0;
+  text-shadow: none;
+}
+
+.mm-root--minimal .fab-modal-ribbon-eyebrow {
+  margin-bottom: 4px;
+  font-size: 12px;
+}
+
+.mm-root--minimal .fab-modal-ribbon-title {
+  font-size: 24px;
+}
+
+.mm-root--minimal .mm-modal--pause .fab-modal-title,
+.mm-root--minimal .fab-page-title {
+  color: var(--fab-mm-min-ink);
+  text-shadow: none;
+}
+
+.mm-root--minimal .mm-loot {
+  color: var(--fab-mm-min-ink);
+}
+
+.mm-root--minimal .mm-result__loot-label {
+  color: var(--fab-mm-min-muted);
+}
+
+.mm-root--minimal .mm-result__first {
+  color: var(--fab-mm-min-info);
+}
+
+.mm-root--minimal .mm-confetti {
+  display: none;
+}
+
+.mm-root--minimal .fab-modal-backdrop .fab-modal-card {
+  animation: none;
+  box-shadow: var(--fab-shadow-modal);
+}
+
+.mm-root--minimal .mm-shop .fab-shop-card,
+.mm-root--minimal .mm-shop .fab-shop-restore {
+  border: 2px solid var(--fab-mm-min-line);
+}
+
+.mm-root--minimal .mm-shop .fab-shop-badge {
+  box-shadow: none;
+}
+
+/* ---------- kit-owned buttons (settings back, link rows, shop) ----------
+   The kit paints .fab-btn from --fab-btn-sprite-image; with no sprite it is
+   transparent, so each kit button gets its own flat fill here. */
+.mm-root--minimal .mm-shop .fab-shop-purchase-btn {
+  border-radius: 12px;
+  background: var(--fab-mm-min-accent);
+  box-shadow: 0 4px 0 var(--fab-mm-min-accent-deep);
+  color: var(--fab-mm-min-panel);
+  text-shadow: none;
+}
+
+.mm-root--minimal .mm-shop .fab-shop-purchase-btn:active:not(:disabled) {
+  box-shadow: 0 1px 0 var(--fab-mm-min-accent-deep);
+}
+
+.mm-root--minimal .fab-page-back {
+  border: 2px solid var(--fab-mm-min-line);
+  color: var(--fab-mm-min-ink);
+  text-shadow: none;
+  border-radius: 50%;
+  background: var(--fab-mm-min-panel);
+  box-shadow: 0 2px 0 var(--fab-mm-min-line);
+}
+
+.mm-root--minimal .fab-settings-legal-link {
+  background: var(--fab-mm-min-panel);
+  border: 2px solid var(--fab-mm-min-line);
+  box-shadow: none;
+  color: var(--fab-mm-min-ink);
+}
+
+.mm-root--minimal .fab-settings-legal-link:active:not(:disabled) {
+  box-shadow: none;
+}
+
+/* Shop: one flat row per pack — art, copy, price button — like the framed layout without frames. */
+.mm-root--minimal .mm-shop .fab-shop-card-wrapper {
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 2px solid var(--fab-mm-min-line);
+  border-radius: 16px;
+  background: var(--fab-mm-min-panel);
+}
+
+.mm-root--minimal .mm-shop .fab-shop-card {
+  flex: 1 1 auto;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: auto auto;
+  align-items: center;
+  column-gap: 10px;
+  row-gap: 0;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  text-align: left;
+}
+
+.mm-root--minimal .mm-shop .fab-shop-card-icon {
+  grid-row: 1 / span 2;
+  width: 60px;
+  height: 60px;
+}
+
+.mm-root--minimal .mm-shop .fab-shop-card-title {
+  grid-column: 2;
+  align-self: end;
+  font-size: 17px;
+  white-space: nowrap;
+}
+
+.mm-root--minimal .mm-shop .fab-shop-card-desc {
+  grid-column: 2;
+  align-self: start;
+  font-size: 12px;
+}
+
+.mm-root--minimal .mm-shop .fab-shop-badge {
+  top: -10px;
+  right: 10px;
+  padding: 2px 8px;
+  font-size: 10px;
+}
+
+.mm-root--minimal .mm-shop .fab-shop-purchase-btn,
+.mm-root--minimal .mm-shop .fab-shop-restore-btn {
+  flex: 0 0 auto;
+  width: auto;
+  min-width: 88px;
+  min-height: 42px;
+  padding: 6px 12px;
+  font-size: 15px;
+}
+
+.mm-root--minimal .mm-shop .fab-shop-restore {
+  padding: 10px 12px;
+  border: 2px solid var(--fab-mm-min-line);
+  border-radius: 16px;
+}
+
+.mm-root--minimal .mm-shop .fab-shop-restore-btn {
+  border: 2px solid var(--fab-mm-min-line);
+  background: var(--fab-mm-min-panel);
+  box-shadow: 0 3px 0 var(--fab-mm-min-line);
+  color: var(--fab-mm-min-ink);
+}
+
+/* Ladder: numbers stay on locked nodes (no padlock art here) and the rail sits centered. */
+.mm-root--minimal .mm-home__ladder .fab-levelmap-node.locked .fab-levelmap-node-dot {
+  color: var(--fab-mm-min-muted);
+}
+
+.mm-root--minimal .mm-home__ladder .fab-levelmap-path {
+  margin: 0 auto;
+}

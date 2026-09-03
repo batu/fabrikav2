@@ -1,6 +1,7 @@
 import "@fabrikav2/ui/ui.css";
 import "../design/tokens.css";
 import "./shell/mage-master.css";
+import "./shell/mage-master-minimal.css";
 
 import { assignWindowBindings, maybeRunInsituTour } from "@fabrikav2/testkit/testing";
 import { gameConfig } from "../game.config.ts";

@@ -175,3 +175,75 @@
   font-weight: 400 800;
   font-display: swap;
 }
+
+/* ---- Minimal interface mod (flat, one accent; Forge Master reference) ----
+   Kit token overrides plus the --fab-mm-min-* palette. Declared on the minimal
+   root AND on every nested kit root (.fab-ui): the classic block above is also
+   declared on .fab-ui, so a modal, page, or shop root would otherwise reset
+   every value back to wood and gold. */
+.mm-root--minimal,
+.mm-root--minimal .fab-ui {
+  --fab-mm-min-bg: #f4f4ef;
+  --fab-mm-min-panel: #ffffff;
+  --fab-mm-min-panel-alt: #eceee7;
+  --fab-mm-min-line: #dcded6;
+  --fab-mm-min-ink: #23262b;
+  --fab-mm-min-muted: #7b8089;
+  --fab-mm-min-accent: #ef4d4d;
+  --fab-mm-min-accent-deep: #c53838;
+  --fab-mm-min-positive: #4fc463;
+  --fab-mm-min-info: #4a8fe7;
+  --fab-mm-min-track: #e5e7e0;
+  --fab-mm-min-shadow: rgba(35, 38, 43, 0.12);
+
+  --fab-color-surface: #ffffff;
+  --fab-color-overlay-scrim: rgba(35, 38, 43, 0.5);
+  --fab-color-text: #23262b;
+  --fab-color-text-muted: #7b8089;
+  --fab-color-accent: #ef4d4d;
+  --fab-color-on-accent: #ffffff;
+  --fab-color-secondary-surface: #ffffff;
+  --fab-color-on-secondary: #23262b;
+  --fab-color-secondary-border: #dcded6;
+  --fab-shadow-button: 0 4px 0 #c53838;
+  --fab-shadow-button-active: 0 1px 0 #c53838;
+  --fab-shadow-modal: 0 12px 32px rgba(35, 38, 43, 0.18);
+  --fab-btn-color: #ffffff;
+  --fab-modal-card-border: 2px solid #dcded6;
+  --fab-pause-title-color: #23262b;
+  --fab-ribbon-title-color: #23262b;
+  --fab-ribbon-eyebrow-color: #7b8089;
+  --fab-ribbon-title-outline: transparent;
+  --fab-result-reward-color: #23262b;
+  --fab-toast-bg: #23262b;
+  --fab-toast-color: #ffffff;
+  --fab-toggle-track-off: #dcded6;
+  --fab-toggle-thumb: #ffffff;
+  --fab-page-card-bg: #ffffff;
+  --fab-page-overlay-bg: #f4f4ef;
+  --fab-levelmap-node-color: #23262b;
+  --fab-levelmap-dot-color: #4a8fe7;
+  --fab-levelmap-locked-dot-color: #dcded6;
+  --fab-levelmap-line-glow: none;
+  --fab-levelmap-node-bg: #ffffff;
+  --fab-levelmap-current-bg: #ef4d4d;
+  --fab-levelmap-current-color: #ffffff;
+  --fab-levelmap-completed-bg: #4fc463;
+  --fab-levelmap-completed-color: #ffffff;
+  --fab-levelmap-locked-bg: #eceee7;
+  --fab-levelmap-locked-color: #7b8089;
+  --fab-levelmap-line-top: #4a8fe7;
+  --fab-levelmap-line-mid: #4a8fe7;
+  --fab-levelmap-line-bottom: #dcded6;
+  --fab-shop-card-bg: #ffffff;
+  --fab-shop-card-title-color: #23262b;
+  --fab-shop-card-desc-color: #7b8089;
+  --fab-shop-section-title-color: #23262b;
+  --fab-shop-badge-bg: #ef4d4d;
+  --fab-shop-badge-color: #ffffff;
+  --fab-shop-restore-bg: #ffffff;
+  --fab-shop-restore-title-color: #23262b;
+  --fab-shop-restore-status-color: #7b8089;
+  --fab-mm-hp: #4fc463;
+  --fab-mm-hp-track: #e5e7e0;
+}

@@ -23,6 +23,7 @@ import {
   isValidSave,
   pull,
   setSetting,
+  withSettingsDefaults,
   skipCost,
   skipUpgrade,
   startUpgrade,
@@ -151,7 +152,7 @@ export function createMageMasterController(options: ControllerOptions = {}): Mag
   });
   const listeners = new Set<() => void>();
 
-  let save: SaveState = loadPersistedJson(storageKey, () => defaultSave(now()), isValidSave);
+  let save: SaveState = withSettingsDefaults(loadPersistedJson(storageKey, () => defaultSave(now()), isValidSave));
   save = tick(save, now());
   const offlineResult = applyOffline(save, now());
   save = offlineResult.state;
