@@ -2348,3 +2348,71 @@ body {
   gap: 6px;
   padding: 8px 10px;
 }
+
+/* ---------- home: party hero, level stepper, one Play ---------- */
+.mm-home {
+  justify-content: flex-end;
+}
+
+.mm-home__hero {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 0;
+}
+
+.mm-home__level {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  margin-bottom: 4px;
+}
+
+.mm-home__level-btn {
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0;
+  font-size: 22px;
+  line-height: 1;
+}
+
+.mm-home__level-btn--prev::before {
+  content: "‹";
+}
+
+.mm-home__level-btn--next::before {
+  content: "›";
+}
+
+.mm-home__level-btn:disabled {
+  opacity: 0.3;
+}
+
+.mm-home__level-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 96px;
+  line-height: 1;
+}
+
+.mm-home__level-eyebrow {
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--fab-mm-cream-dim);
+}
+
+.mm-home__level-num {
+  font-size: 40px;
+  font-weight: var(--fab-font-weight-bold);
+  color: var(--fab-mm-cream);
+}
+
+.mm-home__play {
+  padding-bottom: 6px;
+}

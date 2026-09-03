@@ -707,3 +707,56 @@
   box-shadow: none;
   color: var(--fab-mm-min-muted);
 }
+
+/* ---------- home ---------- */
+.mm-root--minimal .mm-home__title {
+  display: none;
+}
+
+.mm-root--minimal .mm-party {
+  position: relative;
+  padding: 18px 6px 10px;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+/* A soft ground under the party so the figures stand on something. */
+.mm-root--minimal .mm-party::before {
+  content: "";
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  bottom: 34px;
+  height: 46px;
+  border-radius: 50%;
+  background: var(--fab-mm-min-panel-alt);
+}
+
+.mm-root--minimal .mm-party__mage {
+  position: relative;
+}
+
+.mm-root--minimal .mm-party__sprite {
+  width: 104px;
+  height: 104px;
+}
+
+.mm-root--minimal .mm-party__name {
+  border: 0;
+  background: transparent;
+  color: var(--fab-mm-min-muted);
+  font-size: 12px;
+}
+
+.mm-root--minimal .mm-home__level-eyebrow {
+  color: var(--fab-mm-min-muted);
+}
+
+.mm-root--minimal .mm-home__level-num {
+  color: var(--fab-mm-min-ink);
+}
+
+.mm-root--minimal .mm-home__level-btn {
+  color: var(--fab-mm-min-ink);
+}

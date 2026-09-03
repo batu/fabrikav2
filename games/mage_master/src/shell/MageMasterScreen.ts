@@ -4,11 +4,9 @@ import {
   mountModalShell,
   mountPauseOverlay,
   mountResultCard,
-  mountSagaMap,
   mountSettingsPage,
   mountShopPage,
   mountToaster,
-  type LevelMapNode,
   type ShopCopy,
   type ShopPageHandle,
   type ToasterHandle,
@@ -21,7 +19,7 @@ import { MAGE_CLASSES, type MageClass } from "../../content/mages.ts";
 import { MAX_RIFT_TIER, PULL_COST_CRYSTALS, oddsFor, riftTier } from "../../content/rift.ts";
 import { GEM_GROUP, gemsForProductId, type GemGrant } from "../../content/shop.ts";
 import { PERCENT_STATS, STAT_KEYS, type StatKey } from "../../content/stats.ts";
-import { armorIcon, assetUrls, chromeIcon, currencyIcon, frame, lettering, magesIcon, nodeArt, propSprite, riftPortal, scene, shopIcon, shopNavIcon, unitSprite, weaponIcon } from "../../design/assets.ts";
+import { armorIcon, assetUrls, chromeIcon, currencyIcon, frame, lettering, magesIcon, riftPortal, scene, shopIcon, shopNavIcon, unitSprite, weaponIcon } from "../../design/assets.ts";
 import { copy, fill, type CopyKey } from "../../design/copy.ts";
 import { createBattleRenderer, type BattleRenderer } from "../battle/BattleScene.ts";
 import { createSfx, type Sfx } from "../game/sfx.ts";
@@ -182,8 +180,6 @@ export function mountMageMasterScreen(opts: MageMasterScreenOptions): MageMaster
   const artFrame = (name: Parameters<typeof frame>[0]): string | undefined => skinned(frame(name));
   const artScene = (name: Parameters<typeof scene>[0]): string | undefined => skinned(scene(name));
   const artLettering = (name: Parameters<typeof lettering>[0]): string | undefined => skinned(lettering(name));
-  const artNode = (state: Parameters<typeof nodeArt>[0]): string | undefined => skinned(nodeArt(state));
-  const artProp = (name: Parameters<typeof propSprite>[0]): string | undefined => skinned(propSprite(name));
   opts.mountInto.replaceChildren(root);
 
   const topbar = el("header", "mm-topbar");
@@ -227,7 +223,10 @@ export function mountMageMasterScreen(opts: MageMasterScreenOptions): MageMaster
   let shop: ShopPageHandle | null = null;
   let renderer: BattleRenderer | null = null;
   let itemDetail: Item | null = null;
+  /** Level chosen on the home stepper; null follows the newest unlocked level. */
+  let selectedLevel: number | null = null;
   let previousTier = controller.snapshot().riftTier;
+  let previousUnlocked = controller.snapshot().unlockedLevel;
   let resetArmedAt: number | null = null;
   let revealDelayUntil = 0;
   let previousSurface: Surface = controller.snapshot().surface;
@@ -337,67 +336,48 @@ export function mountMageMasterScreen(opts: MageMasterScreenOptions): MageMaster
     }
     hero.append(party);
 
-    const ladder = el("section", "mm-home__ladder");
-    ladder.setAttribute("aria-label", copy["menu.progression"]);
-    // Map dressing on the flanks so the board reads as a camp map, not an empty plank.
-    for (const [prop, cls] of [["tent", "mm-home__deco mm-home__deco--tent"], ["campfire", "mm-home__deco mm-home__deco--fire"], ["rock-sand", "mm-home__deco mm-home__deco--rock"], ["cactus", "mm-home__deco mm-home__deco--cactus"], ["bones", "mm-home__deco mm-home__deco--bones"], ["grass", "mm-home__deco mm-home__deco--grass"]] as const) {
-      const url = artProp(prop);
-      if (url) ladder.append(img(url, cls));
-    }
+    // One decision on this screen: which level to play. A stepper replaces the map;
+    // earlier levels stay replayable, the newest is the default.
     const current = snap.unlockedLevel;
-    // Climb: the current level sits at the bottom, the next three rise above it.
-    const nodes: LevelMapNode[] = [];
-    for (let id = current + 2; id >= current; id -= 1) {
-      const state = id < current ? "completed" : id === current ? "current" : "locked";
-      const stateLabel = state === "completed" ? copy["menu.cleared"] : state === "current" ? copy["menu.next"] : copy["menu.locked"];
-      nodes.push({ id, label: String(id), name: `${copy["menu.level"]} ${id}, ${stateLabel}`, state });
-    }
-    const artCurrent = artNode("current");
-    const artLocked = artNode("locked");
-    const artCompleted = artNode("completed");
-    const hasNodeArt = Boolean(artCurrent && artLocked && artCompleted);
-    const map = mountSagaMap({
-      mountInto: ladder,
-      id: "mm-saga",
-      suppressDefaultNodeDisc: hasNodeArt,
-      theme: hasNodeArt
-        ? {
-            "--fab-levelmap-art-current": `url(${artCurrent})`,
-            "--fab-levelmap-art-locked": `url(${artLocked})`,
-            "--fab-levelmap-art-completed": `url(${artCompleted})`,
-            "--fab-levelmap-art-default": `url(${artLocked})`,
-          }
-        : undefined,
-      state: { nodes },
-      actions: {
-        onSelectLevel: (id) => {
-          const level = Number(id);
-          if (level <= snap.unlockedLevel) controller.enterLevel(level);
+    const level = Math.max(1, Math.min(selectedLevel ?? current, current));
+    const picker = el("div", "mm-home__level");
+    const stepButton = (action: "level-prev" | "level-next", label: string, target: number, enabled: boolean): HTMLButtonElement => {
+      const button = buildButtonElement({
+        label: "",
+        ariaLabel: label,
+        className: `mm-icon-btn mm-home__level-btn mm-home__level-btn--${action === "level-prev" ? "prev" : "next"}`,
+        dataAction: action,
+        onClick: () => {
+          selectedLevel = target;
+          refresh();
         },
-      },
-      loadingLabel: copy["menu.loading"],
-    });
-    for (const node of map.el.querySelectorAll<HTMLButtonElement>(".fab-levelmap-node")) {
-      const id = Number(node.dataset.fabNodeId);
-      node.dataset.fabAction = id <= snap.unlockedLevel ? `level-${id}` : "locked";
-      if (id > snap.unlockedLevel) node.disabled = true;
-    }
+      });
+      button.disabled = !enabled;
+      return button;
+    };
+    const levelLabel = el("div", "mm-home__level-label");
+    levelLabel.append(el("span", "mm-home__level-eyebrow", copy["menu.level"]), el("b", "mm-home__level-num", String(level)));
+    picker.append(
+      stepButton("level-prev", copy["menu.prevLevel"], level - 1, level > 1),
+      levelLabel,
+      stepButton("level-next", copy["menu.nextLevel"], level + 1, level < current),
+    );
 
     const playWrap = el("div", "mm-home__play");
     const play = buildButtonElement({
-      label: `${copy["menu.play"]} · ${copy["menu.level"]} ${current}`,
+      label: copy["menu.play"],
       className: "mm-btn mm-btn--primary mm-btn--big",
       spriteImage: assetUrls.button.primary,
       dataAction: "play",
-      onClick: () => controller.enterLevel(current),
+      onClick: () => controller.enterLevel(level),
     });
     const cost = el("span", "mm-home__cost");
     cost.append(img(currencyIcon("energy"), "mm-inline-icon"), el("span", undefined, String(ENERGY.levelCost)));
     play.append(cost);
     const energyNote = el("p", "mm-home__note", "");
     live.set("energy-note", energyNote);
-    playWrap.append(play, energyNote);
-    home.append(hero, ladder, playWrap);
+    playWrap.append(picker, play, energyNote);
+    home.append(hero, playWrap);
     return home;
   };
 
@@ -1153,8 +1133,9 @@ export function mountMageMasterScreen(opts: MageMasterScreenOptions): MageMaster
       pageFor(snap.surface),
       snap.settings.minimalUi ? "minimal" : "classic",
       // Art availability: a page rendered before a late-resolving asset re-renders once it lands.
-      [artFrame("panel"), artFrame("button"), artScene("home"), artScene("rift"), artNode("current"), artLettering("title")].filter(Boolean).length,
+      [artFrame("panel"), artFrame("button"), artScene("home"), artScene("rift"), artLettering("title")].filter(Boolean).length,
       snap.unlockedLevel,
+      selectedLevel ?? 0,
       snap.riftTier,
       snap.level,
       MAGE_CLASSES.map((c) => `${snap.loadout[c].weapon.id}:${snap.loadout[c].armor.id}`).join(","),
@@ -1208,6 +1189,10 @@ export function mountMageMasterScreen(opts: MageMasterScreenOptions): MageMaster
         toaster.show(copy["hint.rift"]);
       }
       previousSurface = snap.surface;
+    }
+    if (snap.unlockedLevel !== previousUnlocked) {
+      selectedLevel = null;
+      previousUnlocked = snap.unlockedLevel;
     }
     if (snap.riftTier !== previousTier) {
       // Only an increase is an upgrade; a reset lowers the tier silently.

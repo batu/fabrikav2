@@ -42,9 +42,8 @@ export function createMageMasterHarness(meta: MageMasterHarnessOptions): MageMas
     run(level?: number) {
       return controller.enterLevel(level);
     },
-    clientPoint(level?: number) {
-      return meta.screen?.clientPoint(level ? `level-${level}` : "play") ?? { x: 0, y: 0 };
-    },
+    // The home stepper picks the level; the tap itself is always Play.
+    clientPoint: point("play"),
   };
 
   function gotoMenu(): void {
