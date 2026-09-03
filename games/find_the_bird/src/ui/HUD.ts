@@ -4,9 +4,9 @@ import { gameState } from '../core/GameState';
 import { GAMEPLAY } from '../core/Constants';
 import { playUITap, playHint, setMusicEnabled, setSoundEffectsEnabled } from '../audio/AudioManager';
 import {
-  DEFAULT_PICKUP_STYLE,
   PICKUP_STYLE_OPTIONS,
   getPickupStylePreference,
+  resolvePickupStyle,
   setPickupStylePreference,
   type PickupStyle,
 } from '../settings/pickupStylePreference';
@@ -900,7 +900,7 @@ function renderSettingsRows(): string {
           <span class="settings-row-label">Pickup Style</span>
         </div>
         <select id="pickup-style" class="settings-pickup-style-select" aria-label="Pickup style">
-          ${PICKUP_STYLE_OPTIONS.map(({ value, label }) => `<option value="${value}" ${(getPickupStylePreference() ?? DEFAULT_PICKUP_STYLE) === value ? 'selected' : ''}>${label}</option>`).join('')}
+          ${PICKUP_STYLE_OPTIONS.map(({ value, label }) => `<option value="${value}" ${resolvePickupStyle(getPickupStylePreference(), false) === value ? 'selected' : ''}>${label}</option>`).join('')}
         </select>
       </div>
       <div class="settings-legal-footer" aria-label="Privacy, legal, and support links">

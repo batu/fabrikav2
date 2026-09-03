@@ -4,9 +4,9 @@ import { prefersReducedMotion } from '@fabrikav2/ui';
 import { COLORS, GAME, GAMEPLAY, TEST_HARNESS_ENABLED, TIMING } from '../core/Constants';
 import { gameState } from '../core/GameState';
 import {
-  DEFAULT_PICKUP_STYLE,
   getPickupStylePreference,
   registerPickupStyleApplier,
+  resolvePickupStyle,
   type PickupStyle,
 } from '../settings/pickupStylePreference';
 import { disposeLevelUrls, getLevelIndex, loadLevel, loadLevelForProgression, releaseLevelSceneResources, withDirectSelectServingAttempt } from '../data/levels';
@@ -2436,10 +2436,10 @@ export class GameScene extends Phaser.Scene {
   // localStorage deliberately NOT consulted: a style cycled during an earlier
   // build's evaluation persisted and silently overrode the shipped default on
   // device (observed on build 6).
-  private pickupStyle: PickupStyle =
-    (new URLSearchParams(globalThis.location?.search ?? '').get('pickupStyle') as PickupStyle | null)
-    ?? getPickupStylePreference()
-    ?? DEFAULT_PICKUP_STYLE;
+  private pickupStyle: PickupStyle = resolvePickupStyle(
+    new URLSearchParams(globalThis.location?.search ?? '').get('pickupStyle')
+      ?? getPickupStylePreference(),
+  );
 
   setPickupStyleForTest(style: PickupStyle): void {
     this.pickupStyle = style;

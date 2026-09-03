@@ -1,6 +1,11 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
+import {
+  DEFAULT_PICKUP_STYLE,
+  PICKUP_STYLE_OPTIONS,
+  resolvePickupStyle,
+} from '../../src/settings/pickupStylePreference';
 
 const gameScene = readFileSync(join(process.cwd(), 'src/scenes/GameScene.ts'), 'utf8');
 const pickupPreference = readFileSync(join(process.cwd(), 'src/settings/pickupStylePreference.ts'), 'utf8');
@@ -9,9 +14,15 @@ const testHarness = readFileSync(join(process.cwd(), 'src/testing/TestHarness.ts
 
 describe('pickup style routing', () => {
   it('uses the sprite-free Feathers style as the single default for gameplay and Settings', () => {
+    expect(DEFAULT_PICKUP_STYLE).toBe('feathers');
+    expect(PICKUP_STYLE_OPTIONS).toEqual([{ value: 'feathers', label: 'Feathers' }]);
+    expect(resolvePickupStyle('feathers', false)).toBe('feathers');
+    expect(resolvePickupStyle('classic', false)).toBe('feathers');
+    expect(resolvePickupStyle('not-a-style', false)).toBe('feathers');
+    expect(resolvePickupStyle('classic', true)).toBe('classic');
     expect(pickupPreference).toContain("export const DEFAULT_PICKUP_STYLE: PickupStyle = 'feathers';");
-    expect(gameScene).toContain('?? DEFAULT_PICKUP_STYLE;');
-    expect(hud).toContain('getPickupStylePreference() ?? DEFAULT_PICKUP_STYLE');
+    expect(gameScene).toContain('resolvePickupStyle(');
+    expect(hud).toContain('resolvePickupStyle(getPickupStylePreference(), false)');
     expect(gameScene).not.toContain("?? 'classic';");
     expect(hud).not.toContain("getPickupStylePreference() ?? 'classic'");
   });

@@ -67,12 +67,8 @@ describe('shop and Settings parity', () => {
 
     const select = document.querySelector<HTMLSelectElement>('#pickup-style');
     expect(select?.getAttribute('aria-label')).toBe('Pickup style');
-    expect([...select!.options].map((option) => option.value)).toEqual([
-      // 2026-08-07: three juice proposals added for review (flashbulb/burst/
-      // tumble). Shipping default is unchanged.
-      'classic', 'dissolve', 'feathers', 'flashbulb', 'burst', 'tumble',
-    ]);
-    expect(select?.querySelector('option[value="dissolve"]')?.hasAttribute('selected')).toBe(true);
+    expect([...select!.options].map((option) => option.value)).toEqual(['feathers']);
+    expect(select?.querySelector('option[value="feathers"]')?.hasAttribute('selected')).toBe(true);
 
     select!.value = 'feathers';
     select!.dispatchEvent(new Event('change', { bubbles: true }));
