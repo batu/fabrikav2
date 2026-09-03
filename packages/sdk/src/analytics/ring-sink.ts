@@ -16,7 +16,7 @@
  * `snapshot()` reads them without clearing.
  */
 import type { AnalyticsEvent } from './contract.ts';
-import type { AnalyticsSink } from './sink.ts';
+import type { AnalyticsSink, AnalyticsSinkDiagnostics } from './sink.ts';
 
 /** Default ring capacity — enough headroom for a test scenario's event trace
  *  without unbounded growth. Override via {@link RingBufferSinkOptions}. */
@@ -36,6 +36,7 @@ export interface RingBufferSink extends AnalyticsSink {
   clear(): void;
   /** How many events are currently buffered. */
   readonly size: number;
+  diagnostics(): AnalyticsSinkDiagnostics;
 }
 
 export function createRingBufferSink(options: RingBufferSinkOptions = {}): RingBufferSink {
@@ -45,6 +46,8 @@ export function createRingBufferSink(options: RingBufferSinkOptions = {}): RingB
   const buffer: (AnalyticsEvent | undefined)[] = new Array(capacity);
   let head = 0;
   let count = 0;
+  let accepted = 0;
+  let evicted = 0;
 
   function ordered(): AnalyticsEvent[] {
     const out: AnalyticsEvent[] = [];
@@ -65,6 +68,8 @@ export function createRingBufferSink(options: RingBufferSinkOptions = {}): RingB
   return {
     name: 'ring-buffer',
     emit(event: AnalyticsEvent): void {
+      accepted += 1;
+      if (count === capacity) evicted += 1;
       buffer[head] = event;
       head = (head + 1) % capacity;
       if (count < capacity) count += 1;
@@ -80,6 +85,16 @@ export function createRingBufferSink(options: RingBufferSinkOptions = {}): RingB
     clear,
     get size(): number {
       return count;
+    },
+    diagnostics(): AnalyticsSinkDiagnostics {
+      return {
+        queued: count,
+        sent: accepted,
+        retried: 0,
+        dropped: evicted,
+        initializationFailure: null,
+        lastSuccessfulFlushAt: null,
+      };
     },
   };
 }

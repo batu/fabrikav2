@@ -29,4 +29,17 @@ export interface AnalyticsSink {
    * Optional: stateless sinks (console, firebase-forwarder) don't implement it.
    */
   flush?(): Promise<void>;
+
+  /** Non-secret operational state suitable for support/release diagnostics. */
+  diagnostics?(): AnalyticsSinkDiagnostics;
+}
+
+export interface AnalyticsSinkDiagnostics {
+  readonly queued: number;
+  readonly sent: number;
+  readonly retried: number;
+  readonly dropped: number;
+  readonly initializationFailure: string | null;
+  /** Timestamp of a transport-acknowledged flush; null when the backend exposes no receipt acknowledgement. */
+  readonly lastSuccessfulFlushAt: string | null;
 }

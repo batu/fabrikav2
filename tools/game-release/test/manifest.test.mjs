@@ -27,8 +27,11 @@ const validEnvironment = () => ({ ok: true, mode: 'ios', missingKeys: [], invali
 const validNative = () => ({ issues: [], generatedPresent: false, skAdNetworkCount: 0 });
 const identityGraph = [
   'tools/game-release/cli.mjs', 'tools/game-release/src/manifest.mjs',
-  'tools/game-env/src/env.mjs', 'tools/game-env/src/policies.mjs', 'tools/game-env/src/policies/find-the-dog.mjs', 'tools/game-env/src/validate.mjs',
+  'games/find_the_dog/config/admob.public.json', 'games/find_the_bird/config/admob.public.json',
+  'tools/game-env/src/env.mjs', 'tools/game-env/src/admob-identities.mjs', 'tools/game-env/src/policies.mjs',
+  'tools/game-env/src/policies/find-the-bird.mjs', 'tools/game-env/src/policies/find-the-dog.mjs', 'tools/game-env/src/validate.mjs',
   'tools/native-shell/src/native-shell.mjs', 'games/find_the_dog/native-resources/ios/shell-manifest.json',
+  'games/find_the_bird/native-resources/ios/shell-manifest.json',
 ];
 
 describe('release manifest authority', () => {
@@ -140,5 +143,18 @@ describe('release manifest authority', () => {
     const result = spawnSync(executable, [], { input: '{malformed-json', encoding: 'utf8' });
     expect(result.status).toBe(1);
     expect(JSON.parse(result.stdout)).toEqual({ ok: false, error: 'release identity integrity failed' });
+  });
+
+  it('declares every transitive relative import in the identity integrity graph', () => {
+    const declared = new Set(identityGraph);
+    for (const relative of identityGraph.filter((file) => /\.(?:mjs|js|ts)$/.test(file))) {
+      const source = fs.readFileSync(path.resolve(relative), 'utf8').split('\n').filter((line) => !line.trimStart().startsWith('//')).join('\n');
+      for (const match of source.matchAll(/(?:from\s+|import\s*)['"](\.[^'"]+)['"]/g)) {
+        const unresolved = path.resolve(path.dirname(relative), match[1]);
+        const resolved = [unresolved, `${unresolved}.mjs`, `${unresolved}.js`, `${unresolved}.ts`].find((candidate) => fs.existsSync(candidate));
+        const imported = path.relative(process.cwd(), resolved || unresolved);
+        expect(declared, `${relative} imports undeclared identity runtime file ${imported}`).toContain(imported);
+      }
+    }
   });
 });

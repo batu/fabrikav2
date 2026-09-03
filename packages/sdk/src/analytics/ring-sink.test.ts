@@ -8,6 +8,23 @@ function event(name: string, timestamp: number): AnalyticsEvent {
 }
 
 describe('createRingBufferSink', () => {
+  it('reports accepted, queued, and capacity-evicted events truthfully', () => {
+    const sink = createRingBufferSink({ capacity: 2 });
+
+    sink.emit(event('one', 1));
+    sink.emit(event('two', 2));
+    sink.emit(event('three', 3));
+
+    expect(sink.diagnostics()).toEqual({
+      queued: 2,
+      sent: 3,
+      retried: 0,
+      dropped: 1,
+      initializationFailure: null,
+      lastSuccessfulFlushAt: null,
+    });
+  });
+
   it('buffers emitted events oldest-first and reports its size', () => {
     const sink = createRingBufferSink();
     sink.emit(event('a', 1));

@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { defineConfig, type UserConfig } from 'vite';
+import { defineConfig, loadEnv, type UserConfig } from 'vite';
 import { baseViteConfig } from '../../configs/vite.base.ts';
 import { readEnvFile } from '../../tools/game-env/src/env.mjs';
 import { FIND_THE_DOG_ENV_KEYS } from '../../tools/game-env/src/policies/find-the-dog.mjs';
@@ -13,7 +13,7 @@ const canonicalEnvironmentKeys = new Set(FIND_THE_DOG_ENV_KEYS);
 // Web/CI builds resolve the optional AdMob Capacitor plugin to a local no-op
 // shim so the shared ads barrel stays importable without the native package
 // (same pattern as vitest.config.ts).
-const admobStub = fileURLToPath(new URL('./src/sdk/shims/capacitor-community-admob.ts', import.meta.url));
+const admobStub = path.join(gameRoot, 'src/sdk/shims/capacitor-community-admob.ts');
 
 function keyAppliesToMode(key: string, mode: string): boolean {
   const iosOnly = [
@@ -45,16 +45,19 @@ function restoreInjectedEnvironment(): void {
 }
 
 function injectIosEnvironment(root: string): void {
+  const verifyDeviceHarness = process.env.VITE_ENABLE_TEST_HARNESS === 'true';
   for (const [key, value] of readEnvFile(path.join(root, '.env.ios.local')).values) {
     if (!canonicalEnvironmentKeys.has(key) || !keyAppliesToMode(key, 'ios')) continue;
+    if (verifyDeviceHarness && key === 'VITE_ENABLE_TEST_HARNESS') continue;
+    if (verifyDeviceHarness && key === 'VITE_INSITU_TOUR' && process.env[key] !== undefined) continue;
     injectedEnvironment.set(key, process.env[key]);
-    // Explicit launcher values own one-off lanes such as verify-device's
-    // harness build; the protected file supplies only missing defaults.
-    if (process.env[key] === undefined) process.env[key] = value;
+    // The protected owner file is the validator's authority, so the same value
+    // must overwrite any ambient shell value before Vite snapshots import.meta.env.
+    process.env[key] = value;
   }
 }
 
-function envPrefixesForMode(mode: string): string[] {
+function environmentKeysForMode(mode: string): string[] {
   return FIND_THE_DOG_ENV_KEYS.filter((key) => {
     if (!keyAppliesToMode(key, mode)) return false;
     // Do not serialize the harness flag into a native store bundle merely to
@@ -66,6 +69,16 @@ function envPrefixesForMode(mode: string): string[] {
   });
 }
 
+function exactEnvironmentDefines(mode: string, root: string): Record<string, string> {
+  const environment = loadEnv(mode, root, '');
+  const defines: Record<string, string> = {};
+  for (const key of environmentKeysForMode(mode)) {
+    const value = environment[key];
+    if (value !== undefined) defines[`import.meta.env.${key}`] = JSON.stringify(value);
+  }
+  return defines;
+}
+
 export function resolveFindTheDogViteConfig(mode: string, root = gameRoot): UserConfig {
   restoreInjectedEnvironment();
   if (mode === 'ios') {
@@ -73,9 +86,12 @@ export function resolveFindTheDogViteConfig(mode: string, root = gameRoot): User
   }
 
   const nativeMode = mode === 'ios' || mode === 'android';
-  const alias = mode === 'ios' ? {} : { '@capacitor-community/admob': admobStub };
+  const alias: Record<string, string> = mode === 'ios' ? {} : { '@capacitor-community/admob': admobStub };
   return baseViteConfig({
-    envPrefix: envPrefixesForMode(mode),
+    // Vite's envPrefix is prefix-based, not an exact allowlist. Disable its
+    // automatic VITE_* exposure and inject only active canonical properties.
+    envPrefix: '__FABRIKA_EXPLICIT_ENV_ONLY__',
+    define: exactEnvironmentDefines(mode, root),
     publicDir: nativeMode ? false : undefined,
     plugins: nativeMode ? [nativePublicBundlePlugin(path.join(root, 'public'))] : [],
     build: nativeMode ? { sourcemap: false } : undefined,

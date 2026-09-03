@@ -1,5 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { analytics } from '../../src/analytics/AnalyticsService';
+import { AnalyticsService } from '../../src/analytics/AnalyticsService';
+import { createAnalytics, type AnalyticsSink } from '@fabrikav2/sdk/analytics';
 import { resetGameLifecycleForTest, setLifecycleForTest } from '../../src/platform/gameLifecycle';
 
 interface SdkSeam {
@@ -43,14 +45,70 @@ afterEach(() => {
 });
 
 describe('analytics lifecycle flush (session_end loss fix)', () => {
-  it('marks first_open exactly once for the install profile', async () => {
+  it('keeps the suspend transition pending until buffering sinks finish flushing', async () => {
+    let releaseFlush = (): void => {};
+    const sink: AnalyticsSink = {
+      name: 'delayed-buffer',
+      emit: vi.fn(),
+      flush: () => new Promise<void>((resolve) => { releaseFlush = resolve; }),
+    };
+    const service = new AnalyticsService({
+      sdk: createAnalytics({ env: 'test', sessionId: 'session', sinks: [sink] }),
+      storage: memoryStorage(),
+      storageDurability: 'durable',
+      firstOpenLocks: locks,
+    });
+    await service.init();
+
+    const suspending = setLifecycleForTest('inactive');
+    const duplicateSuspend = setLifecycleForTest('inactive');
+    let completed = false;
+    let duplicateCompleted = false;
+    void suspending.then(() => { completed = true; });
+    void duplicateSuspend.then(() => { duplicateCompleted = true; });
+    await Promise.resolve();
+    expect(completed).toBe(false);
+    expect(duplicateCompleted).toBe(false);
+
+    releaseFlush();
+    await suspending;
+    await duplicateSuspend;
+    expect(completed).toBe(true);
+    expect(duplicateCompleted).toBe(true);
+  });
+
+  it('background flush reaches every buffering sink', async () => {
+    const firstFlush = vi.fn(async () => undefined);
+    const secondFlush = vi.fn(async () => undefined);
+    const sinks: AnalyticsSink[] = [
+      { name: 'first-buffer', emit: vi.fn(), flush: firstFlush },
+      { name: 'second-buffer', emit: vi.fn(), flush: secondFlush },
+    ];
+    const service = new AnalyticsService({
+      sdk: createAnalytics({ env: 'test', sessionId: 'session', sinks }),
+      storage: memoryStorage(),
+      storageDurability: 'durable',
+      firstOpenLocks: locks,
+    });
+
+    await service.init();
+    setLifecycleForTest('inactive');
+    await vi.waitFor(() => {
+      expect(firstFlush).toHaveBeenCalledTimes(1);
+      expect(secondFlush).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  it('emits one initial session when init is repeated sequentially or concurrently', async () => {
     const sessionStart = vi.spyOn(sdk(), 'sessionStart');
 
-    await analytics.init();
+    const first = analytics.init();
+    const concurrent = analytics.init();
+    await Promise.all([first, concurrent]);
     await analytics.init();
 
-    expect(sessionStart).toHaveBeenNthCalledWith(1, { first_open: true });
-    expect(sessionStart).toHaveBeenNthCalledWith(2, { first_open: false });
+    expect(sessionStart).toHaveBeenCalledTimes(1);
+    expect(sessionStart).toHaveBeenCalledWith({ first_open: true });
   });
 
   it('migrates durable Find the Dog game state without classifying an upgrade as first_open', async () => {
@@ -95,10 +153,15 @@ describe('analytics lifecycle flush (session_end loss fix)', () => {
     vi.spyOn(sdk(), 'flush').mockImplementation(async () => { events.push('flush'); });
 
     const initializing = analytics.init({ hadExistingStateAtBootstrap: false });
-    setLifecycleForTest('inactive');
+    const suspending = setLifecycleForTest('inactive');
+    let suspendCompleted = false;
+    void suspending.then(() => { suspendCompleted = true; });
+    await new Promise((resolve) => setTimeout(resolve, 0));
     expect(events).toEqual([]);
+    expect(suspendCompleted).toBe(false);
     releaseClaim();
     await initializing;
+    await suspending;
     await analytics.appOpen();
 
     expect(events).toEqual([
@@ -108,6 +171,32 @@ describe('analytics lifecycle flush (session_end loss fix)', () => {
       'flush',
       'app_open',
     ]);
+    expect(suspendCompleted).toBe(true);
+  });
+
+  it('reconciles suspend then resume during first-open claim without a resumed or background session', async () => {
+    const events: string[] = [];
+    let releaseClaim = (): void => {};
+    const delayedLocks = {
+      request: async (_name: string, callback: () => boolean | Promise<boolean>) => {
+        await new Promise<void>((resolve) => { releaseClaim = resolve; });
+        return callback();
+      },
+    };
+    analytics.configureComposition({ sdk: sdk() as never, storage: memoryStorage(), firstOpenLocks: delayedLocks });
+    vi.spyOn(sdk(), 'sessionStart').mockImplementation((params: unknown) => { events.push(`session_start:${JSON.stringify(params)}`); });
+    vi.spyOn(sdk(), 'track').mockImplementation((name: unknown) => { events.push(String(name)); });
+    vi.spyOn(sdk(), 'sessionEnd').mockImplementation(() => { events.push('session_end'); });
+    vi.spyOn(sdk(), 'flush').mockImplementation(async () => { events.push('flush'); });
+
+    const initializing = analytics.init({ hadExistingStateAtBootstrap: false });
+    setLifecycleForTest('inactive');
+    setLifecycleForTest('active');
+    expect(events).toEqual([]);
+    releaseClaim();
+    await initializing;
+
+    expect(events).toEqual(['session_start:{"first_open":true}']);
   });
 
   it('orders session_start(first_open), app_open, then lifecycle flush on a normal boot', async () => {
@@ -138,6 +227,8 @@ describe('analytics lifecycle flush (session_end loss fix)', () => {
     setLifecycleForTest('active');
 
     expect(track).toHaveBeenCalledWith('app_foreground');
-    expect(sessionStart).toHaveBeenCalled();
+    expect(sessionStart).toHaveBeenCalledTimes(1);
+    setLifecycleForTest('active');
+    expect(sessionStart).toHaveBeenCalledTimes(1);
   });
 });

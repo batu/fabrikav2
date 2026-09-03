@@ -323,7 +323,11 @@ export function defaultDependencies({ execImpl = execFileSync, spawnImpl = spawn
       if (run('git', ['rev-parse', 'HEAD'], { cwd: root, env: childEnv(request) }).trim() !== request.attestation.sourceSha) throw new Error('release source revision changed after approval');
       if (run('git', ['status', '--porcelain'], { cwd: root, env: childEnv(request) }).trim()) throw new Error('release source worktree is dirty');
     },
-    buildWeb(request) { run('npm', ['run', 'build:ios'], { cwd: request.gameDir, env: childEnv(request) }); },
+    buildWeb(request) {
+      const root = repoRoot(request);
+      run('node', ['tools/patch-gameanalytics-persistence.mjs', '--verify'], { cwd: root, env: childEnv(request) });
+      run('npm', ['run', 'build:ios'], { cwd: request.gameDir, env: childEnv(request) });
+    },
     syncNative(request) {
       if (!fs.existsSync(path.join(request.gameDir, 'ios'))) run('npx', ['cap', 'add', 'ios'], { cwd: request.gameDir, env: childEnv(request) });
       run('npx', ['cap', 'sync', 'ios'], { cwd: request.gameDir, env: childEnv(request) });

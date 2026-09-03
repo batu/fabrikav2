@@ -236,6 +236,7 @@ export class AnalyticsService {
     disabledReason: 'sdk-console-sink-only',
   });
   private cohortBucket: number | null = null;
+  private initPromise: Promise<void> | null = null;
 
   constructor(composition?: AnalyticsServiceComposition) {
     this.storage = composition?.storage ?? bootstrapStorage;
@@ -251,6 +252,7 @@ export class AnalyticsService {
   }
 
   configureComposition(composition: AnalyticsServiceComposition): void {
+    this.initPromise = null;
     this.sdk = composition.sdk;
     this.attributionPort = composition.attribution ?? attribution;
     this.providerNamePort = composition.providerName ?? (() => adService.providerName);
@@ -260,45 +262,65 @@ export class AnalyticsService {
     if (composition.firstOpenLocks !== undefined) this.firstOpenLocks = composition.firstOpenLocks;
   }
 
-  async init(options: {
+  init(options: {
     hadExistingStateAtBootstrap?: boolean;
     storageDurability?: FirstOpenStorageDurability;
   } = {}): Promise<void> {
-    let initializing = true;
-    let suspendedDuringInit = false;
-    const suspend = (): void => {
-      if (initializing) {
-        suspendedDuringInit = true;
-        return;
-      }
-      this.flushForSuspend();
-    };
-    // Register before the asynchronous atomic claim. A suspend arriving while
-    // IndexedDB/Web Locks is pending is replayed immediately after session_start.
-    registerLifecycleHooks('analytics-flush', {
-      onSuspend: suspend,
-      onResume: (): void => {
-        this.sdk.track('app_foreground');
-        this.sdk.sessionStart({ first_open: false });
-      },
-    });
-    const firstOpen = await claimFirstOpen({
-      storage: this.storage,
-      storageDurability: options.storageDurability ?? this.storageDurability,
-      profile: 'find_the_dog',
-      existingStateKeys: EXISTING_FIND_THE_DOG_STATE_KEYS,
-      hadExistingStateAtBootstrap: options.hadExistingStateAtBootstrap,
-      locks: this.firstOpenLocks,
-    });
-    this.sdk.sessionStart({ first_open: firstOpen });
-    initializing = false;
-    if (suspendedDuringInit) this.flushForSuspend();
+    if (this.initPromise !== null) return this.initPromise;
+    this.initPromise = this.initialize(options);
+    return this.initPromise;
   }
 
-  private flushForSuspend(): void {
+  private async initialize(options: {
+    hadExistingStateAtBootstrap?: boolean;
+    storageDurability?: FirstOpenStorageDurability;
+  }): Promise<void> {
+    let initializing = true;
+    let pendingSuspend: Promise<void> | null = null;
+    let resolvePendingSuspend = (): void => {};
+    const lifecycleState: { current: 'active' | 'inactive' } = { current: 'active' };
+    const suspend = (): Promise<void> => {
+      lifecycleState.current = 'inactive';
+      if (initializing) {
+        pendingSuspend ??= new Promise<void>((resolve) => { resolvePendingSuspend = resolve; });
+        return pendingSuspend;
+      }
+      return this.flushForSuspend();
+    };
+    const resume = (): void => {
+      lifecycleState.current = 'active';
+      if (initializing) return;
+      this.sdk.track('app_foreground');
+      this.sdk.sessionStart({ first_open: false });
+    };
+    // Register before the asynchronous atomic claim. Lifecycle transitions are
+    // deferred while the claim is pending and reconciled to the latest state.
+    registerLifecycleHooks('analytics-flush', {
+      onSuspend: suspend,
+      onResume: resume,
+    });
+    try {
+      const firstOpen = await claimFirstOpen({
+        storage: this.storage,
+        storageDurability: options.storageDurability ?? this.storageDurability,
+        profile: 'find_the_dog',
+        existingStateKeys: EXISTING_FIND_THE_DOG_STATE_KEYS,
+        hadExistingStateAtBootstrap: options.hadExistingStateAtBootstrap,
+        locks: this.firstOpenLocks,
+      });
+      this.sdk.sessionStart({ first_open: firstOpen });
+      initializing = false;
+      if (lifecycleState.current === 'inactive') await this.flushForSuspend();
+    } finally {
+      initializing = false;
+      resolvePendingSuspend();
+    }
+  }
+
+  private flushForSuspend(): Promise<void> {
     this.sdk.track('app_background');
     this.sdk.sessionEnd();
-    void this.sdk.flush();
+    return this.sdk.flush();
   }
 
   setCohortBucket(bucket: number): void {
@@ -391,13 +413,6 @@ export class AnalyticsService {
   }
 
   resourceChanged(params: ResourceChangedParams): Promise<void> {
-    this.sdk.resourceChange({
-      currency: params.currency,
-      amount: params.amount,
-      flow: params.flow_type,
-      reason: params.item_id,
-      balance: undefined,
-    });
     this.sdk.track('resource_changed', compactParams(params));
     return Promise.resolve();
   }

@@ -53,7 +53,7 @@ export {
 } from './wire.ts';
 
 // --- sinks ---
-export { type AnalyticsSink } from './sink.ts';
+export { type AnalyticsSink, type AnalyticsSinkDiagnostics } from './sink.ts';
 export { createConsoleSink, type ConsoleSinkOptions } from './console-sink.ts';
 export {
   DEFAULT_RING_CAPACITY,

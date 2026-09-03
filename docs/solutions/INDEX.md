@@ -10,3 +10,4 @@
 - 2026-08-05 — [yolo-hitbox-anchored-label-corpus](logic-errors/yolo-hitbox-anchored-label-corpus.md) — sprite metadata lies as training labels; anchor centers on human hitboxes, size from local diff, gate misaligned sessions
 - 2026-08-05 — [one-to-one-matching-for-ranking-eval-metrics](best-practices/one-to-one-matching-for-ranking-eval-metrics.md) — any-overlap recall/precision are gameable; rank one-to-one, disclose legacy columns, hash the golden set, surface min-level recall
 - 2026-09-02 — [kit-token-scope-and-svg-inlining](logic-errors/kit-token-scope-and-svg-inlining.md) — game tokens must target `.fab-ui` (kit layer beats `:root`); inline SVG data URIs break the kit `url()` — use `?url` + no inlining
+- 2026-09-03 — [gameanalytics-wkwebview-session-runtime](logic-errors/gameanalytics-wkwebview-session-runtime.md) — persist successful queue deletion, idempotent boot, manual sessions, and recoverable readiness

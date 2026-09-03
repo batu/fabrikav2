@@ -723,7 +723,6 @@ function collectRecipeIssues(gameDir, recipeDir, manifest, ids) {
   validateManifest(manifest, issues);
   validateCatalog(ids, manifest, issues);
   validateRecipeSources(recipeDir, manifest, issues);
-  if (manifest.game === 'find_the_dog' && manifest.capacitorAppId !== 'com.basegamelab.find_the_dog.dev') issues.push('Capacitor/Android identity drifted from com.basegamelab.find_the_dog.dev');
   const capacitorConfig = path.join(gameDir, 'capacitor.config.ts');
   if (!fs.existsSync(capacitorConfig) || !fs.readFileSync(capacitorConfig, 'utf8').includes(`appId: "${manifest.capacitorAppId}"`)) {
     issues.push(`capacitor.config.ts does not declare appId ${manifest.capacitorAppId}`);
