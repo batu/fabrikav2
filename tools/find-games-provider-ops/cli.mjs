@@ -11,7 +11,15 @@ import {
   validateDateWindow,
 } from './src/appsflyer.mjs';
 import { hydrateProviders, readJson, validateRuntimeConfig } from './src/config.mjs';
-import { buildHealthSnapshot, inspectCredential, probeAppsFlyer, probeAppStoreConnect, probeMeta } from './src/health.mjs';
+import {
+  buildHealthSnapshot,
+  inspectCredential,
+  probeAppsFlyer,
+  probeAppStoreConnect,
+  probeMeta,
+  validateObservedAt,
+  validateProbeFixtures,
+} from './src/health.mjs';
 
 const toolRoot = path.dirname(fileURLToPath(import.meta.url));
 const defaultRuntimePath = path.join(os.homedir(), '.config', 'base-game-lab', 'find-games-provider-ops.json');
@@ -21,12 +29,13 @@ async function main(argv) {
   const [command, ...args] = argv;
   if (!['health', 'appsflyer-aggregate'].includes(command)) throw new Error('usage: cli.mjs health|appsflyer-aggregate [options]');
   const options = parseArgs(args);
+  if (options.live && options.probeFile) throw new Error('--live and --probe-file are mutually exclusive');
   const staticConfig = readJson(options.config ?? path.join(toolRoot, 'config', 'providers.json'));
   if (staticConfig.schema_version !== 1) throw new Error('provider config schema_version must equal 1');
   const runtimePath = options.runtimeConfig ?? defaultRuntimePath;
   const runtime = fs.existsSync(runtimePath) ? validateRuntimeConfig(readJson(runtimePath)) : validateRuntimeConfig({ schema_version: 1, credentials: {} });
   const providers = hydrateProviders(staticConfig, runtime);
-  const observedAt = options.observedAt ?? new Date().toISOString();
+  const observedAt = validateObservedAt(options.observedAt ?? new Date().toISOString());
   const cacheDir = options.cacheDir ?? defaultCacheDir;
 
   if (command === 'appsflyer-aggregate') {
@@ -45,13 +54,18 @@ async function main(argv) {
     return;
   }
 
-  const tabs = options.tabsFile ? readJson(options.tabsFile) : inspectChromeTabs();
-  const probes = options.probeFile ? readJson(options.probeFile) : (options.live ? await runLiveProbes(providers, staticConfig.games, cacheDir) : {});
+  const browserInventory = options.tabsFile
+    ? { ok: true, tabs: readJson(options.tabsFile) }
+    : inspectChromeTabs();
+  const probes = options.probeFile
+    ? validateProbeFixtures(readJson(options.probeFile), providers, staticConfig.games)
+    : (options.live ? await runLiveProbes(providers, staticConfig.games, cacheDir) : {});
   const snapshot = buildHealthSnapshot({
     observedAt,
     games: staticConfig.games,
     providers,
-    tabs,
+    tabs: browserInventory.tabs,
+    browserFailure: browserInventory.ok ? null : browserInventory.error,
     browserContract: {
       expectedWindowCount: staticConfig.browser.expected_window_count,
       expectedTabCount: staticConfig.browser.expected_tab_count,
@@ -85,8 +99,8 @@ function requiredValue(args, index, flag) {
   return args[index];
 }
 
-export function inspectChromeTabs() {
-  if (process.platform !== 'darwin') throw new Error('live Chrome tab inspection is available only on macOS; use --tabs-file elsewhere');
+export function inspectChromeTabs({ spawnImpl = spawnSync, platform = process.platform } = {}) {
+  if (platform !== 'darwin') return { ok: false, tabs: [], error: { category: 'browser_unavailable' } };
   const script = `
     const chrome = Application('Google Chrome');
     const rows = [];
@@ -100,9 +114,14 @@ export function inspectChromeTabs() {
     });
     JSON.stringify(rows);
   `;
-  const result = spawnSync('/usr/bin/osascript', ['-l', 'JavaScript', '-e', script], { encoding: 'utf8' });
-  if (result.status !== 0) throw new Error('Chrome tab inventory unavailable or automation permission denied');
-  return JSON.parse(result.stdout);
+  const result = spawnImpl('/usr/bin/osascript', ['-l', 'JavaScript', '-e', script], { encoding: 'utf8', timeout: 5_000 });
+  if (result.status !== 0 || result.error) return { ok: false, tabs: [], error: { category: 'browser_unavailable' } };
+  try {
+    const tabs = JSON.parse(result.stdout);
+    return Array.isArray(tabs) ? { ok: true, tabs } : { ok: false, tabs: [], error: { category: 'browser_unavailable' } };
+  } catch {
+    return { ok: false, tabs: [], error: { category: 'browser_unavailable' } };
+  }
 }
 
 async function runLiveProbes(providers, games, cacheDir) {
@@ -127,6 +146,7 @@ async function runLiveProbes(providers, games, cacheDir) {
         issuerId: credentialValue(provider, 'issuer_id'),
         keyId: credentialValue(provider, 'key_id'),
         privateKey: fs.readFileSync(credentialPath(provider, 'private_key'), 'utf8'),
+        expectedAppIds: games.map(({ app_store_id: appId }) => appId),
       });
     }
   }
@@ -143,11 +163,13 @@ function credentialPath(provider, id) {
   return process.env[credential.path_env];
 }
 
-main(process.argv.slice(2)).catch((error) => {
-  if (error instanceof AppsFlyerReportingError) {
-    process.stderr.write(`${JSON.stringify({ provider: 'appsflyer', status: error.status, error: { category: error.category } })}\n`);
-  } else {
-    process.stderr.write('find-games-provider-ops: configuration, browser inspection, or probe setup failed\n');
-  }
-  process.exitCode = 2;
-});
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  main(process.argv.slice(2)).catch((error) => {
+    if (error instanceof AppsFlyerReportingError) {
+      process.stderr.write(`${JSON.stringify({ provider: 'appsflyer', status: error.status, error: { category: error.category } })}\n`);
+    } else {
+      process.stderr.write('find-games-provider-ops: configuration, browser inspection, or probe setup failed\n');
+    }
+    process.exitCode = 2;
+  });
+}

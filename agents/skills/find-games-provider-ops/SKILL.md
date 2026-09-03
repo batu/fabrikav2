@@ -104,8 +104,9 @@ and does not grant reporting access. Only a distinct credential with kind
 AppsFlyer dashboard remains a browser fallback until that token exists.
 
 Never print tokens, JWTs, private keys, response bodies from authentication
-failures, URL query strings, or URL fragments. Error output contains categories,
-not provider payloads.
+failures, browser titles, or URL path/query/fragment data. Browser matching uses
+exact allowed HTTPS hostnames and emits only trusted origins. Error output
+contains categories, not provider payloads.
 
 ## Provider Verification
 
@@ -124,7 +125,12 @@ For every provider, begin with `health`. Then verify as follows:
 
   The command groups stable rows per game/media-source/campaign and emits only
   CSV-provided installs, sessions, impressions, clicks, cost, and revenue
-  fields. Blank numeric fields are zero and provider `N/A` values stay `null`.
+  fields. Blank numeric fields are zero. If any grouped contributor is `N/A`,
+  the metric stays `null`/incomplete. FTD 1.0.4 embedded FTB's AppsFlyer ID;
+  the hardened FTD 1.0.5 US release was `2026-09-03T05:03:10Z`. FTB organic
+  installs therefore require raw app-version segmentation. Publish confirmed
+  FTD contamination and plausible FTB counts separately; version alone does
+  not prove clean production traffic, so aggregate metrics remain non-green.
   Never fabricate active users.
   AppsFlyer `organic` means unattributed and may include internal or TestFlight
   activity. GameAnalytics remains the product-behavior authority.
@@ -137,19 +143,23 @@ For every provider, begin with `health`. Then verify as follows:
 - **RevenueCat:** prefer reporting API access and select the exact app/project.
   Browser authentication alone stays degraded.
 - **Meta:** use the read-only live probe against ad account
-  `2805795896467959` when its reporting token exists. Never put the token in a
-  URL; use the authorization header.
+  `2805795896467959` when its reporting token exists. Require the exact active
+  account identity in the response. Never put the token in a URL; use the
+  authorization header.
 - **App Store Connect:** use issuer ID, key ID, and protected P-256 private key.
-  The tool signs a short-lived JWT in memory and never emits it.
+  Require both exact configured App Store IDs in the catalog response before
+  declaring health. The tool signs a short-lived JWT in memory and never emits it.
 - **Firebase:** prefer configured API/service-account access. Otherwise use the
   authenticated console and select the exact bundle/project.
 - **Google Drive:** use authenticated API/OAuth access when configured. Otherwise
   treat the canonical Drive tab as a browser fallback only.
 
 A successful Meta, AppsFlyer, or App Store Connect probe proves read
-reachability, not that every requested analytics metric exists. AppsFlyer calls
-share an owner-only cache keyed by app ID and exact date window. Once a response
-succeeds, resume from that cache rather than fetching the same app/window again.
+reachability, not that every requested analytics metric exists. Live health
+bypasses report caches. AppsFlyer aggregate calls use an owner-only, 24-hour
+cache keyed by app ID, report, API version, and exact date window. Cache output
+is `local_cache` / non-green, retains the original acquisition time, and lists
+exact per-game/report provenance when cached and live inputs are mixed.
 Never blindly retry AppsFlyer's low-quota partners daily report. A `403` whose
 body exactly matches `Limit reached for partners-daily-report` is classified
 `degraded` / `rate_limited`; no other response body is returned or logged.
@@ -166,7 +176,7 @@ Preserve the CLI's stable JSON fields:
     "observed_at": "ISO-8601",
     "provider": "provider_id",
     "status": "healthy|missing_credential|auth_required|degraded|unavailable",
-    "source": { "kind": "live_api|authenticated_browser|none", "provenance": "provider_id" },
+    "source": { "kind": "live_api|fixture|authenticated_browser|local_cache|none", "provenance": "provider_id" },
     "freshness": { "observed_at": "ISO-8601", "window": null },
     "games": [],
     "credentials": [],
@@ -224,7 +234,7 @@ Run focused tests and lint, then inspect the real read-only browser inventory:
 
 ```bash
 node --test tools/find-games-provider-ops/test/*.test.mjs
-npx eslint tools/find-games-provider-ops
+npm run lint -w @fabrikav2/find-games-provider-ops
 node tools/find-games-provider-ops/cli.mjs health
 FIND_GAMES_APPSFLYER_REPORTING_TOKEN_FILE="$HOME/.config/base-game-lab/appsflyer-reporting-api.token" \
   node tools/find-games-provider-ops/cli.mjs appsflyer-aggregate \

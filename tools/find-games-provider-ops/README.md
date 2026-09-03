@@ -27,7 +27,7 @@ FIND_GAMES_APPSFLYER_REPORTING_TOKEN_FILE="$HOME/.config/base-game-lab/appsflyer
   --from 2026-09-01 --to 2026-09-02
 ```
 
-Both commands share an owner-only cache under `~/.cache/base-game-lab/find-games-provider-ops/appsflyer`, keyed by exact app ID and requested date window. A successful app/window response is fetched once and resumed from cache; do not delete the cache or blindly retry to work around provider failures. AppsFlyer's `403` body exactly equal to `Limit reached for partners-daily-report` is safely recognized as `degraded` / `rate_limited`; arbitrary `401`/`403` bodies remain redacted and classify as `auth_required`.
+Aggregate acquisition uses an owner-only cache under `~/.cache/base-game-lab/find-games-provider-ops/appsflyer`, keyed by exact app ID, report, API version, and requested date window. Entries record their acquisition time, expire after 24 hours, and cached output is explicitly `local_cache` / `degraded` with the original acquisition time. Mixed cached/live results list exact per-game/report provenance. Live health always bypasses this cache. AppsFlyer's `403` body exactly equal to `Limit reached for partners-daily-report` is safely recognized as `degraded` / `rate_limited`; arbitrary `401`/`403` bodies remain redacted and classify as `auth_required`.
 
 Use deterministic fixtures (tests and incident reproduction; no network):
 
@@ -38,11 +38,13 @@ node tools/find-games-provider-ops/cli.mjs health \
   --observed-at 2026-09-03T10:00:00.000Z
 ```
 
+Probe fixtures are schema-validated and emitted as non-green `fixture` evidence. They cannot impersonate `live_api`, and providers without an implemented API probe cannot become healthy from a fixture.
+
 Run focused verification:
 
 ```bash
 node --test tools/find-games-provider-ops/test/*.test.mjs
-npx eslint tools/find-games-provider-ops
+npm run lint -w @fabrikav2/find-games-provider-ops
 ```
 
 ## Configuration
@@ -59,7 +61,9 @@ The AppsFlyer `sdk_dev_key` is deliberately typed `sdk_ingestion`; it does not s
 
 ## AppsFlyer aggregate meaning
 
-The aggregate command returns deterministic JSON grouped per game, media source, and campaign. It sums only metric columns actually present in AppsFlyer's CSV among installs, sessions, impressions, clicks, cost, and revenue variants; blank numeric cells become zero and provider `N/A` cells remain `null`. It does **not** invent active users or any other metric absent from the endpoint.
+The aggregate command returns deterministic JSON grouped per game, media source, and campaign. It sums only metric columns actually present in AppsFlyer's CSV among installs, sessions, impressions, clicks, cost, and revenue variants; blank numeric cells become zero. If any contributing value is provider `N/A`, the grouped metric remains `null` and is marked incomplete. It does **not** invent active users or any other metric absent from the endpoint.
+
+FTD 1.0.4 embedded FTB's AppsFlyer ID before the hardened FTD 1.0.5 US release at `2026-09-03T05:03:10Z`. For FTB, the command therefore fetches raw organic-install app-version evidence. It surfaces 1.0.4 installs as confirmed FTD contamination and other versions only as plausible FTB installs; version alone does not prove clean production traffic, so aggregate metrics remain `null`/incomplete and the report remains `degraded`.
 
 AppsFlyer `organic` means **unattributed**, not necessarily external discovery. It can include internal, development, and TestFlight activity. AppsFlyer is the acquisition-attribution source; **GameAnalytics remains the product-behavior authority** for active users, engagement, retention, and gameplay behavior.
 
@@ -75,7 +79,7 @@ The CLI never returns guessed metrics. Its JSON includes `observed_at`, provider
 
 ## Browser contract
 
-On macOS the CLI reads Google Chrome with JXA through `osascript`. The canonical workspace is the persistent browser-harness `default` session: one window and exactly one tab for each of AppsFlyer, AdMob, Google Play Console, GameAnalytics, RevenueCat, Meta Ads Manager, App Store Connect, Firebase, and Google Drive. Query strings and fragments are removed from tab provenance before it can be returned.
+On macOS the CLI reads Google Chrome with JXA through a five-second-bounded `osascript` call. Timeout or automation failure returns stable browser `unavailable` output. The canonical workspace is the persistent browser-harness `default` session: one window and exactly one tab for each of AppsFlyer, AdMob, Google Play Console, GameAnalytics, RevenueCat, Meta Ads Manager, App Store Connect, Firebase, and Google Drive. Matching requires an exact allowed HTTPS hostname; returned tab provenance contains only the trusted origin and a redacted title, never path, query, or fragment data.
 
 Hammerspoon may launch or arrange the browser, but it must not extract analytics or determine provider health.
 

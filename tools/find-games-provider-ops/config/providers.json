@@ -18,7 +18,12 @@
       "app_store_id": "6796698146",
       "appsflyer_app_id": "id6796698146",
       "bundle_id": "com.basegamelab.findthebird",
-      "gameanalytics_project_id": "351396"
+      "gameanalytics_project_id": "351396",
+      "appsflyer_contamination": {
+        "foreign_game": "find_the_dog",
+        "foreign_app_versions": ["1.0.4"],
+        "hardened_release_at": "2026-09-03T05:03:10Z"
+      }
     }
   ],
   "providers": [

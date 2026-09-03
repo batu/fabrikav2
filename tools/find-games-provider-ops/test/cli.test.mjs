@@ -5,6 +5,7 @@ import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import test from 'node:test';
 import { hydrateProviders, validateRuntimeConfig } from '../src/config.mjs';
+import { inspectChromeTabs } from '../cli.mjs';
 
 const toolRoot = path.resolve(import.meta.dirname, '..');
 
@@ -70,9 +71,24 @@ test('AppsFlyer aggregate CLI requires explicit dates and resumes from protected
     credentials: { appsflyer: { reporting_token: { path_env: 'TEST_APPSFLYER_TOKEN_FILE' } } },
   }));
   fs.mkdirSync(cacheDir, { mode: 0o700 });
+  const acquiredAt = new Date().toISOString();
   const csv = 'Media Source (pid),Campaign (c),Installs,Sessions\norganic,,2,3\n';
-  fs.writeFileSync(path.join(cacheDir, 'id6772100729_2026-09-01_2026-09-02.csv'), csv, { mode: 0o600 });
-  fs.writeFileSync(path.join(cacheDir, 'id6796698146_2026-09-01_2026-09-02.csv'), csv, { mode: 0o600 });
+  const writeCache = (appId, report, reportVersion, contents) => fs.writeFileSync(
+    path.join(cacheDir, `${appId}_${report}_2026-09-01_2026-09-02.json`),
+    JSON.stringify({
+      schema_version: 1,
+      app_id: appId,
+      report,
+      report_version: reportVersion,
+      requested_window: { from: '2026-09-01', to: '2026-09-02' },
+      acquired_at: acquiredAt,
+      csv: contents,
+    }),
+    { mode: 0o600 },
+  );
+  writeCache('id6772100729', 'partners_by_date_report_v5', 'v5', csv);
+  writeCache('id6796698146', 'partners_by_date_report_v5', 'v5', csv);
+  writeCache('id6796698146', 'organic_installs_report_v5', 'v5', 'Install Time,App Version\n2026-09-01 10:00:00,1.0.0\n2026-09-02 10:00:00,1.0.0\n');
   try {
     const result = spawnSync(process.execPath, [
       path.join(toolRoot, 'cli.mjs'), 'appsflyer-aggregate',
@@ -83,6 +99,8 @@ test('AppsFlyer aggregate CLI requires explicit dates and resumes from protected
     assert.equal(result.status, 0, result.stderr);
     const output = JSON.parse(result.stdout);
     assert.deepEqual(output.requested_window, { from: '2026-09-01', to: '2026-09-02' });
+    assert.equal(output.observed_at, acquiredAt);
+    assert.equal(output.source.kind, 'local_cache');
     assert.deepEqual(output.rows.map(({ game }) => game), ['find_the_bird', 'find_the_dog']);
     assert.doesNotMatch(`${result.stdout}${result.stderr}`, /never-print-token|reporting\.token/);
 
@@ -93,6 +111,34 @@ test('AppsFlyer aggregate CLI requires explicit dates and resumes from protected
     assert.doesNotMatch(invalid.stderr, /never-print-token/);
   } finally {
     fs.rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('Chrome inspection is bounded and returns stable unavailable provenance on timeout', () => {
+  let options;
+  const result = inspectChromeTabs({
+    platform: 'darwin',
+    spawnImpl: (_command, _args, receivedOptions) => {
+      options = receivedOptions;
+      return { status: null, error: { code: 'ETIMEDOUT' }, stdout: '' };
+    },
+  });
+  assert.equal(options.timeout, 5_000);
+  assert.deepEqual(result, { ok: false, tabs: [], error: { category: 'browser_unavailable' } });
+});
+
+test('health CLI rejects simultaneous live and fixture probe modes', () => {
+  const tabs = temporaryJson([]);
+  const probes = temporaryJson({});
+  try {
+    const result = spawnSync(process.execPath, [
+      path.join(toolRoot, 'cli.mjs'), 'health', '--live', '--probe-file', probes.file, '--tabs-file', tabs.file,
+    ], { cwd: toolRoot, encoding: 'utf8', env: { PATH: process.env.PATH } });
+    assert.equal(result.status, 2);
+    assert.equal(result.stdout, '');
+  } finally {
+    fs.rmSync(tabs.dir, { recursive: true, force: true });
+    fs.rmSync(probes.dir, { recursive: true, force: true });
   }
 });
 
@@ -108,7 +154,13 @@ test('health CLI consumes deterministic tab and probe fixtures without network',
     ['Firebase', 'https://console.firebase.google.com/'],
     ['Google Drive', 'https://drive.google.com/drive/my-drive'],
   ].map(([title, url], index) => ({ window: 1, index: index + 1, title, url })));
-  const probes = temporaryJson({ meta: { ok: true, window: 'fixture' } });
+  const probes = temporaryJson({
+    meta: {
+      ok: true,
+      window: 'account_read',
+      account: { id: 'act_2805795896467959', account_status: 1 },
+    },
+  });
   try {
     const result = spawnSync(process.execPath, [
       path.join(toolRoot, 'cli.mjs'), 'health',
@@ -121,7 +173,10 @@ test('health CLI consumes deterministic tab and probe fixtures without network',
     const output = JSON.parse(result.stdout);
     assert.equal(output.browser.status, 'healthy');
     assert.equal(output.providers.length, 9);
-    assert.equal(output.providers.find(({ provider }) => provider === 'meta').status, 'healthy');
+    const meta = output.providers.find(({ provider }) => provider === 'meta');
+    assert.equal(meta.status, 'degraded');
+    assert.equal(meta.source.kind, 'fixture');
+    assert.deepEqual(meta.games, []);
     assert.equal(output.providers.find(({ provider }) => provider === 'appsflyer').error.category, 'missing_credential');
   } finally {
     fs.rmSync(tabs.dir, { recursive: true, force: true });
