@@ -78,6 +78,8 @@ export function createBattle(options: BattleOptions): Battle {
   let advanceRemaining = 0;
   let regroupRemaining = 0;
   let regroupHold = 0;
+  /** Where each mage stood relative to home when the advance began; eased out over the run. */
+  const advanceOffset = new Map<string, Vec>();
   let advanceFrom = campY;
   let advanceTo = campY;
 
@@ -322,10 +324,14 @@ export function createBattle(options: BattleOptions): Battle {
     resolveHit(unit, target, unit.stats.atk, unit.stats.critChance, unit.stats.critDamage, unit.element, unit.pattern);
   };
 
-  const moveToward = (unit: Unit, to: Vec, dt: number, stopAt: number): boolean => {
+  const bodyRadius = (unit: Unit): number => ARENA.bodyRadius * unit.scale;
+  /** Attack distance edge to edge: weapon reach plus both bodies. */
+  const contactRange = (unit: Unit, foe: Unit): number => unit.reach + bodyRadius(unit) + bodyRadius(foe);
+
+  const moveToward = (unit: Unit, to: Vec, dt: number, stopAt: number, speedScale = 1): boolean => {
     const d = dist(unit.pos, to);
     if (d <= stopAt) return true;
-    const speed = unit.stats.moveSpeed * speedMult(unit);
+    const speed = unit.stats.moveSpeed * speedMult(unit) * speedScale;
     const stepLen = Math.min(d - stopAt, speed * dt);
     unit.pos.x += ((to.x - unit.pos.x) / d) * stepLen;
     unit.pos.y += ((to.y - unit.pos.y) / d) * stepLen;
@@ -381,11 +387,11 @@ export function createBattle(options: BattleOptions): Battle {
       if (unit.side === "party") unit.moving = !moveToward(unit, unit.home, dt, 1);
       return;
     }
-    const inReach = dist(unit.pos, foe.pos) <= unit.reach;
+    const inReach = dist(unit.pos, foe.pos) <= contactRange(unit, foe);
     if (!inReach) {
       if (unit.range === "melee" || unit.side === "enemy") {
         unit.moving = true;
-        moveToward(unit, foe.pos, dt, Math.max(2, unit.reach - STOP_MARGIN));
+        moveToward(unit, foe.pos, dt, Math.max(2, contactRange(unit, foe) - STOP_MARGIN));
       } else {
         unit.moving = false;
       }
@@ -410,33 +416,39 @@ export function createBattle(options: BattleOptions): Battle {
     }
   };
 
-  /** Push overlapping units apart (both sides), keeping melee piles legible. */
-  const separate = (dt: number): void => {
+  /** Resolve body overlap between living units (both sides) as a positional
+      constraint: each pair is pushed apart by most of its overlap, in two
+      passes, so walking into the same target can never stack bodies. */
+  const separate = (): void => {
     const alive = units.filter((u) => u.alive);
-    for (let i = 0; i < alive.length; i += 1) {
-      const a = alive[i];
-      if (!a) continue;
-      for (let j = i + 1; j < alive.length; j += 1) {
-        const b = alive[j];
-        if (!b) continue;
-        let minDist = ARENA.separation * ((a.scale + b.scale) / 2);
-        // Opponents may close to attack range: never hold a melee unit outside its own reach.
-        if (a.side !== b.side) minDist = Math.min(minDist, Math.min(a.reach, b.reach) - STOP_MARGIN);
-        const dx = b.pos.x - a.pos.x;
-        const dy = b.pos.y - a.pos.y;
-        const d = Math.hypot(dx, dy);
-        if (d >= minDist || d === 0) continue;
-        const push = ((minDist - d) / minDist) * ARENA.separationStrength * dt * 60;
-        const nx = dx / d;
-        const ny = dy / d;
-        const wa = a.boss ? 0.2 : 1;
-        const wb = b.boss ? 0.2 : 1;
-        a.pos.x -= nx * push * wa;
-        a.pos.y -= ny * push * wa * 0.6;
-        b.pos.x += nx * push * wb;
-        b.pos.y += ny * push * wb * 0.6;
-        a.pos.x = Math.max(16, Math.min(ARENA.width - 16, a.pos.x));
-        b.pos.x = Math.max(16, Math.min(ARENA.width - 16, b.pos.x));
+    for (let pass = 0; pass < 2; pass += 1) {
+      for (let i = 0; i < alive.length; i += 1) {
+        const a = alive[i];
+        if (!a) continue;
+        for (let j = i + 1; j < alive.length; j += 1) {
+          const b = alive[j];
+          if (!b) continue;
+          let minDist = ARENA.separation * ((a.scale + b.scale) / 2);
+          // Opponents may close to attack range: never hold a melee unit outside its own reach.
+          if (a.side !== b.side) minDist = Math.min(minDist, Math.min(contactRange(a, b), contactRange(b, a)) - STOP_MARGIN);
+          const dx = b.pos.x - a.pos.x;
+          const dy = b.pos.y - a.pos.y;
+          const d = Math.hypot(dx, dy);
+          if (d >= minDist) continue;
+          // Coincident units split along x so the correction has a direction.
+          const nx = d === 0 ? 1 : dx / d;
+          const ny = d === 0 ? 0 : dy / d;
+          const correction = (minDist - d) * ARENA.separationStrength;
+          const wa = a.boss ? 0.2 : 1;
+          const wb = b.boss ? 0.2 : 1;
+          const share = wa + wb;
+          a.pos.x -= nx * correction * (wa / share);
+          a.pos.y -= ny * correction * (wa / share);
+          b.pos.x += nx * correction * (wb / share);
+          b.pos.y += ny * correction * (wb / share);
+          a.pos.x = Math.max(16, Math.min(ARENA.width - 16, a.pos.x));
+          b.pos.x = Math.max(16, Math.min(ARENA.width - 16, b.pos.x));
+        }
       }
     }
   };
@@ -479,11 +491,12 @@ export function createBattle(options: BattleOptions): Battle {
     regroupRemaining -= dt;
     let settled = true;
     for (const u of living("party")) {
-      const arrived = moveToward(u, u.home, dt, 1);
+      const arrived = moveToward(u, u.home, dt, 1, ARENA.regroupSpeedMult);
       u.moving = !arrived;
       if (!arrived) settled = false;
       if (u.hp < u.maxHp) u.hp = Math.min(u.maxHp, u.hp + u.maxHp * 0.15 * dt);
     }
+    separate();
     if (settled) regroupHold -= dt;
     if ((settled && regroupHold <= 0) || regroupRemaining <= 0) beginAdvance();
   };
@@ -493,7 +506,9 @@ export function createBattle(options: BattleOptions): Battle {
     advanceFrom = campY;
     advanceTo = campY - ARENA.advanceDistance;
     advanceRemaining = ARENA.advanceSeconds;
+    advanceOffset.clear();
     for (const u of living("party")) {
+      advanceOffset.set(u.id, { x: u.pos.x - u.home.x, y: u.pos.y - u.home.y });
       u.home = { x: u.home.x, y: u.home.y - ARENA.advanceDistance };
       u.facing = 1;
     }
@@ -506,8 +521,10 @@ export function createBattle(options: BattleOptions): Battle {
     const eased = t * t * (3 - 2 * t);
     campY = advanceFrom + (advanceTo - advanceFrom) * eased;
     for (const u of living("party")) {
-      u.pos.y = u.home.y + ARENA.advanceDistance * (1 - eased);
-      u.pos.x += (u.home.x - u.pos.x) * Math.min(1, dt * 4);
+      // Whatever offset from formation remained when the run began eases out with it: no snap.
+      const off = advanceOffset.get(u.id) ?? { x: 0, y: 0 };
+      u.pos.y = u.home.y + (ARENA.advanceDistance + off.y) * (1 - eased);
+      u.pos.x = u.home.x + off.x * (1 - eased);
       u.facing = 1;
       u.moving = true;
       if (u.hp < u.maxHp) u.hp = Math.min(u.maxHp, u.hp + u.maxHp * 0.15 * dt);
@@ -546,7 +563,7 @@ export function createBattle(options: BattleOptions): Battle {
       stageClock += dt;
       tickSpawns();
       for (const unit of units) tickUnit(unit, dt);
-      separate(dt);
+      separate();
       tickProjectiles(dt);
       checkOutcome();
     },

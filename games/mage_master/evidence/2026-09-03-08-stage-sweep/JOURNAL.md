@@ -60,3 +60,33 @@ slower before moving onto the next stage, right now it feels like snap."
   0.5, then the run-forward starts from formation, so both snaps vanish.
 - `regroup-burst-20f-130ms.png`: stage clear at f04, Ember and Bastion walk
   back into formation f05–f14, settled beside Sage from f15, no brown.
+
+## Round 3 — no snap at all, collect on tap, hard separation, comparison card
+
+Batu: "they walk slowly then snap in the last bit"; "coin flyout when we
+press next level, number count to 0"; "solve the character bunching up,
+much bigger collisions"; "when buying items make it much easier to compare
+(Forge Master)".
+
+- **Snap.** The regroup timed out (2.2 s) for the slowest mage and the
+  advance then wrote y straight to the home row. Walk-back is now 1.6× move
+  speed, and whatever offset from formation remains when the run starts is
+  eased out over the run (`advanceOffset`), so there is no snap under any
+  timing. `regroup2-burst-20f-130ms.png`.
+- **Collect on tap.** The result card holds the pills at the old totals; on
+  Next/Home (and Retry/Home) the loot cells count down to +0 while the coins
+  fly and the pills count up, then the level advances after 1 s. Probe on the
+  Next tap: loot `+120 +82 +50 +28 +14 +5 +1 +0`, pill `2455 → 2575`, tokens
+  `6 10 14 18 20 20 20 18 12 …`, then surface `battle`, level 2.
+- **Bunching.** The soft push (≤ 3 px/tick) lost to walking toward a shared
+  target (3–4 px/tick), so bodies stacked (`spacing-starter-l3-8s.png`).
+  Separation is now a positional constraint: 85 % of the overlap corrected
+  per tick in two passes, radius 72 (× scale), also during regroup. Reach is
+  measured edge to edge (`ARENA.bodyRadius` 22 × scale added to weapon
+  reach) so the wide radius never holds melee out of range; this also puts
+  melee mages outside a boss silhouette. `spacing-72-l3-8s.png` /
+  `-11s.png`: spaced goblin line, Ember and Bastion side by side, clean
+  formation after the clear.
+- **Comparison.** The reveal shows Equipped vs New side by side (icons,
+  rarity names, traits), a stat table with old / new / ▲▼ delta per row, the
+  effect line, and `Power 318 → 112 ▼ -206`. `reveal-compare.png`.

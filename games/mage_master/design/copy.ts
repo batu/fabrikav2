@@ -49,6 +49,8 @@ export const copy = {
   "reveal.discard": "Discard for {gold} gold",
   "reveal.replaces": "Replaces {name} ({gold} gold)",
   "reveal.for": "For the {mage}",
+  "compare.equipped": "Equipped",
+  "compare.new": "New",
   "reveal.weapon": "Weapon",
   "reveal.armor": "Armor",
   "mages.title": "Mages",

@@ -48,10 +48,11 @@ export interface MageMasterScreen {
 
 type Page = "menu" | "rift" | "mages" | "shop" | "battle";
 const REVEAL_DELAY_MS = 550;
-/** Let the result card's entrance settle before coins launch from its loot row. */
-const RESULT_FLY_DELAY_MS = 260;
 /** Kit flight (760 ms) plus its token stagger; the pill is the count-up's until then. */
 const FLY_HOLD_MS = 1400;
+/** Loot counts down to zero over the flight, then the result card proceeds. */
+const RESULT_COLLECT_MS = 1000;
+const LOOT_COUNTDOWN_MS = 760;
 type Overlay = "pause" | "settings" | "win" | "fail" | "reveal" | "offline" | "item" | null;
 
 function el<K extends keyof HTMLElementTagNameMap>(tag: K, className?: string, text?: string): HTMLElementTagNameMap[K] {
@@ -238,9 +239,10 @@ export function mountMageMasterScreen(opts: MageMasterScreenOptions): MageMaster
   /** While a flight counts a pill up, the periodic refresh leaves that pill alone. */
   const countingUntil: Record<Currency, number> = { gold: 0, crystal: 0, gem: 0 };
   /** Kit coin-fly from `source` to the matching top-bar pill, counting the pill up from -> to. */
-  const flyCurrency = (key: Currency, amount: number, source: Element | null, from: number, to: number): void => {
+  const flyCurrency = (key: Currency, amount: number, source: Element | null, from: number, to: number): boolean => {
     const tokenImage = currencyIcon(key);
-    if (amount <= 0 || !tokenImage) return;
+    const target = root.querySelector(`[data-fab-economy-target="${key}"]`);
+    if (amount <= 0 || !tokenImage || !target || target.getBoundingClientRect().width === 0) return false;
     countingUntil[key] = Date.now() + FLY_HOLD_MS;
     void animateEconomyTransfer({
       kind: key === "gold" ? "coin" : "hint",
@@ -254,6 +256,20 @@ export function mountMageMasterScreen(opts: MageMasterScreenOptions): MageMaster
       toValue: to,
       mountInto: root,
     });
+    return true;
+  };
+  /** Count a loot cell's "+N" down to zero as its tokens leave. */
+  const countDown = (cell: Element | null, amount: number): void => {
+    const label = cell?.querySelector<HTMLElement>("span:last-child");
+    if (!label) return;
+    const startedAt = performance.now();
+    const step = (now: number): void => {
+      if (!label.isConnected) return;
+      const t = Math.min(1, (now - startedAt) / LOOT_COUNTDOWN_MS);
+      label.textContent = `+${Math.round(amount * (1 - t) ** 3)}`;
+      if (t < 1) window.requestAnimationFrame(step);
+    };
+    window.requestAnimationFrame(step);
   };
   const hudBars = new Map<MageClass, { fill: HTMLElement; value: HTMLElement; card: HTMLElement }>();
   const stageDots: HTMLElement[] = [];
@@ -517,6 +533,62 @@ export function mountMageMasterScreen(opts: MageMasterScreenOptions): MageMaster
     const power = el("p", "mm-item__power", `${copy["mages.power"]} ${itemPower(item)}${compare ? ` (${itemPower(compare)})` : ""}`);
     card.append(power);
     return card;
+  };
+
+  /** Equipped vs new, side by side, with per-stat deltas (the decision the reveal asks for). */
+  const compareCard = (item: Item, current: Item): HTMLElement => {
+    const wrap = el("div", "mm-compare");
+    const column = (label: string, it: Item, isNew: boolean): HTMLElement => {
+      const col = el("div", `mm-compare__col mm-rarity--${it.rarity}${isNew ? " mm-compare__col--new" : ""}`);
+      col.append(el("span", "mm-compare__label", label));
+      const frame = el("div", "mm-compare__frame");
+      frame.append(img(it.weapon ? weaponIcon(it.weapon.element) : armorIcon(it.cls), "mm-compare__icon", itemName(it)));
+      col.append(frame, el("span", "mm-compare__name", itemName(it)));
+      if (it.weapon) {
+        col.append(el("span", "mm-compare__traits", `${copy[`range.${it.weapon.range}`]} · ${copy[`pattern.${it.weapon.pattern}`]} · ${copy[`element.${it.weapon.element}`]}`));
+      }
+      return col;
+    };
+    const head = el("div", "mm-compare__head");
+    const arrow = el("span", "mm-compare__arrow");
+    arrow.setAttribute("aria-hidden", "true");
+    head.append(column(copy["compare.equipped"], current, false), arrow, column(copy["compare.new"], item, true));
+    wrap.append(head);
+
+    const before = itemStats(current);
+    const after = itemStats(item);
+    const table = el("dl", "mm-compare__stats");
+    for (const key of STAT_KEYS) {
+      const a = before[key] ?? 0;
+      const b = after[key] ?? 0;
+      if (a === 0 && b === 0) continue;
+      const row = el("div", "mm-compare__row");
+      const delta = b - a;
+      const trend = delta > 0 ? "up" : delta < 0 ? "down" : "same";
+      row.append(
+        el("dt", undefined, copy[`stat.${key}`]),
+        el("dd", "mm-compare__cur", formatStat(key, a)),
+        el("dd", "mm-compare__next", formatStat(key, b)),
+        el("span", `mm-compare__delta mm-compare__delta--${trend}`, delta === 0 ? "" : `${delta > 0 ? "+" : ""}${formatStat(key, delta)}`),
+      );
+      table.append(row);
+    }
+    wrap.append(table);
+    if (item.weapon) wrap.append(el("p", "mm-item__effect", copy[`element.${item.weapon.element}.effect`]));
+
+    const powerBefore = itemPower(current);
+    const powerAfter = itemPower(item);
+    const powerDelta = powerAfter - powerBefore;
+    const power = el("p", "mm-compare__power");
+    power.append(
+      el("span", "mm-compare__power-label", copy["mages.power"]),
+      el("span", "mm-compare__cur", String(powerBefore)),
+      el("span", "mm-compare__power-arrow"),
+      el("span", "mm-compare__next", String(powerAfter)),
+      el("span", `mm-compare__delta mm-compare__delta--${powerDelta > 0 ? "up" : powerDelta < 0 ? "down" : "same"}`, powerDelta === 0 ? "" : `${powerDelta > 0 ? "+" : ""}${powerDelta}`),
+    );
+    wrap.append(power);
+    return wrap;
   };
 
   const renderMages = (snap: MageMasterSnapshot): HTMLElement => {
@@ -835,21 +907,55 @@ export function mountMageMasterScreen(opts: MageMasterScreenOptions): MageMaster
       case "fail": {
         const win = kind === "win";
         const actions = el("div", "fab-modal-actions mm-result__actions");
+        // The grant already landed in the save; the pills hold the old totals until the
+        // player taps an action, when the loot flies to the counters and counts down.
+        const grant = { gold: snap.loot?.gold ?? 0, crystal: snap.loot?.crystals ?? 0, gem: snap.reward?.gems ?? 0 };
+        const totals = { gold: snap.gold, crystal: snap.crystals, gem: snap.gems };
+        const from = { ...totalsBefore };
+        for (const key of ["gold", "crystal", "gem"] as const) {
+          const pillValue = live.get(`pill-${key}`);
+          if (grant[key] > 0 && pillValue) {
+            countingUntil[key] = Number.POSITIVE_INFINITY;
+            pillValue.textContent = formatCount(from[key]);
+          }
+        }
+        const collectThen = (proceed: () => void): void => {
+          let launched = false;
+          for (const key of ["gold", "crystal", "gem"] as const) {
+            const cell = root.querySelector(`[data-mm-loot="${key}"]`);
+            if (flyCurrency(key, grant[key], cell, from[key], totals[key])) {
+              launched = true;
+              countDown(cell, grant[key]);
+            } else {
+              countingUntil[key] = 0;
+            }
+          }
+          if (!launched) {
+            proceed();
+            return;
+          }
+          for (const button of actions.querySelectorAll("button")) button.disabled = true;
+          window.setTimeout(proceed, RESULT_COLLECT_MS);
+        };
         if (win) {
           actions.append(
-            spriteAction(copy["win.next"], "result-next", true, () => controller.next()),
-            spriteAction(copy["win.home"], "result-menu", false, () => {
-              controller.next();
-              controller.home();
-            }),
+            spriteAction(copy["win.next"], "result-next", true, () => collectThen(() => controller.next())),
+            spriteAction(copy["win.home"], "result-menu", false, () =>
+              collectThen(() => {
+                controller.next();
+                controller.home();
+              }),
+            ),
           );
         } else {
           actions.append(
-            spriteAction(copy["fail.retry"], "result-retry", true, () => controller.retry()),
-            spriteAction(copy["fail.home"], "result-menu", false, () => {
-              controller.retry();
-              controller.home();
-            }),
+            spriteAction(copy["fail.retry"], "result-retry", true, () => collectThen(() => controller.retry())),
+            spriteAction(copy["fail.home"], "result-menu", false, () =>
+              collectThen(() => {
+                controller.retry();
+                controller.home();
+              }),
+            ),
           );
         }
         const reward = el("div", "mm-result__reward");
@@ -868,20 +974,6 @@ export function mountMageMasterScreen(opts: MageMasterScreenOptions): MageMaster
           actions,
         });
         if (letter) resultCard.el.classList.add("mm-modal--lettered");
-        const grant = { gold: snap.loot?.gold ?? 0, crystal: snap.loot?.crystals ?? 0, gem: snap.reward?.gems ?? 0 };
-        const totals = { gold: snap.gold, crystal: snap.crystals, gem: snap.gems };
-        const from = { ...totalsBefore };
-        // Hold the pills at the old totals until the coins land; the count-up closes the gap.
-        for (const key of ["gold", "crystal", "gem"] as const) {
-          const pillValue = live.get(`pill-${key}`);
-          if (grant[key] > 0 && pillValue) pillValue.textContent = formatCount(from[key]);
-        }
-        window.setTimeout(() => {
-          if (!resultCard.el.isConnected) return;
-          for (const key of ["gold", "crystal", "gem"] as const) {
-            flyCurrency(key, grant[key], resultCard.el.querySelector(`[data-mm-loot="${key}"]`), from[key], totals[key]);
-          }
-        }, RESULT_FLY_DELAY_MS);
         if (win) {
           // Confetti burst behind the card: 24 tinted chips with staggered falls.
           const burst = el("div", "mm-confetti");
@@ -902,7 +994,7 @@ export function mountMageMasterScreen(opts: MageMasterScreenOptions): MageMaster
         if (!item) return null;
         const current = item.slot === "weapon" ? snap.loadout[item.cls].weapon : snap.loadout[item.cls].armor;
         const body = el("div", "mm-reveal");
-        body.append(itemCard(item, current));
+        body.append(compareCard(item, current));
         body.append(el("p", "mm-reveal__replaces", fill("reveal.replaces", { name: itemName(current), gold: discardValue(current) })));
         const actions = el("div", "fab-modal-actions mm-reveal__actions");
         actions.append(
@@ -1014,6 +1106,9 @@ export function mountMageMasterScreen(opts: MageMasterScreenOptions): MageMaster
 
     overlayHandle = null;
     old?.dismiss();
+    for (const key of ["gold", "crystal", "gem"] as const) {
+      if (countingUntil[key] === Number.POSITIVE_INFINITY) countingUntil[key] = 0;
+    }
     if (next) overlayHandle = mountOverlay(next, snap);
   };
   let overlayKey: string | null = null;

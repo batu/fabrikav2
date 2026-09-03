@@ -44,10 +44,14 @@ export const ARENA = {
       speed (at most this long), then holds before the run-forward. */
   regroupMaxSeconds: 2.2,
   regroupHoldSeconds: 0.5,
-  /** Soft separation between living units so clusters stay readable. Allies
-      hold this distance (times average scale); opposing pairs may close to the
-      attacker's reach so melee units still land hits. Per tick the push is at
-      most `separationStrength * 2` world units (full overlap at 30 Hz). */
-  separation: 44,
-  separationStrength: 1.5,
+  /** Walk-back speed relative to the mage's move speed. */
+  regroupSpeedMult: 1.6,
+  /** Body separation between living units (centre to centre, times average
+      scale): overlapping bodies are pushed apart by this fraction of the
+      overlap every tick, in two passes, so a pile never interpenetrates. */
+  separation: 72,
+  separationStrength: 0.85,
+  /** Body radius (times scale) added to weapon reach, so attacks are measured
+      edge to edge and a wide separation never holds melee out of range. */
+  bodyRadius: 22,
 } as const;
