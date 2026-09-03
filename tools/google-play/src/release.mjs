@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-const ANDROID_KEY = /^goog_[A-Za-z0-9]{28}$/;
+const ANDROID_KEY = /^goog_[A-Za-z0-9]{27,28}$/;
 const ADMOB_APP_ID = /^ca-app-pub-(?!3940256099942544)(\d{16})~\d{10}$/;
 const ADMOB_UNIT_ID = /^ca-app-pub-(?!3940256099942544)(\d{16})\/\d{10}$/;
 const CRASHLYTICS_CLASSPATH = "classpath 'com.google.firebase:firebase-crashlytics-gradle:3.0.7'";
@@ -17,6 +17,23 @@ const RELEASE_LEAKAGE_KEYS = [
   'VITE_FTD_SIM_AUTOPLAY',
   'FTB_DEV_SHELL_URL',
 ];
+
+export function verifyJarSignatureOutput(output, exitCode = 0) {
+  if (!/\bjar verified(?:, with signer errors)?\./im.test(output)) throw new Error('AAB jar signature was not verified');
+  if (/unsigned entr(?:y|ies)/i.test(output)) throw new Error('AAB contains unsigned entries');
+  if (exitCode !== 0) {
+    const errorBlock = /\nError:\s*\n([\s\S]*?)(?:\n\s*\nWarning:|$)/i.exec(output)?.[1] ?? '';
+    const errors = errorBlock.split('\n').map((line) => line.trim()).filter(Boolean);
+    const allowedError = (line) => (
+      /^This jar contains entries whose certificate chain is invalid\./i.test(line)
+      || /^This jar contains entries whose signer certificate is self-signed\.$/i.test(line)
+    );
+    if (errors.length === 0 || errors.some((line) => !allowedError(line))) {
+      throw new Error('AAB failed strict verification for an unapproved reason');
+    }
+  }
+  return true;
+}
 
 export function inspectBundleManifest(xml, expected) {
   const attribute = (name) => new RegExp(`(?:android:)?${name}="([^"]+)"`).exec(xml)?.[1] ?? null;
@@ -45,7 +62,7 @@ export function validateRecipe({ packageId, versionCode, versionName, env, files
   if (!ANDROID_KEY.test(env.VITE_REVENUECAT_ANDROID_API_KEY ?? '')) issues.push('RevenueCat Android public key is absent or invalid');
   if (env.VITE_APPSFLYER_ENABLED !== 'true') issues.push('AppsFlyer must be enabled for production Android');
   if (env.VITE_ATTRIBUTION_PROVIDER !== 'appsflyer') issues.push('VITE_ATTRIBUTION_PROVIDER must equal appsflyer for production Android');
-  if (!usableSecret(env.VITE_APPSFLYER_DEV_KEY)) issues.push('AppsFlyer dev key is absent or placeholder');
+  if (!usableAppsFlyerDevKey(env.VITE_APPSFLYER_DEV_KEY)) issues.push('AppsFlyer dev key is absent, placeholder, or diagnostic');
   if (!([...files].some((file) => file.endsWith('AppsFlyerAttributionPlugin.java')))) issues.push('AppsFlyer selected but Android bridge is absent');
   if (env.VITE_ADMOB_ANDROID_ENABLED !== 'true') issues.push('AdMob must be enabled for production Android');
   if (!ADMOB_APP_ID.test(env.VITE_ADMOB_ANDROID_APP_ID ?? '')) issues.push('AdMob Android app ID is absent or invalid');
@@ -142,6 +159,16 @@ export function normalizeSha256(value) {
 
 function usableSecret(value) {
   return typeof value === 'string' && value.trim().length > 6 && !value.includes('__SET_') && !value.includes('placeholder');
+}
+
+// AppsFlyer dev keys are 22 alphanumeric characters. Anything else (including
+// the DIAGNOSTIC placeholder that once reached a physical build) fails closed.
+const APPSFLYER_DEV_KEY = /^[A-Za-z0-9]{22}$/;
+function usableAppsFlyerDevKey(value) {
+  if (!usableSecret(value)) return false;
+  const trimmed = value.trim();
+  if (!APPSFLYER_DEV_KEY.test(trimmed)) return false;
+  return !/diagnostic|notreal|placeholder|example|sample/i.test(trimmed);
 }
 
 function hasValue(value) {
