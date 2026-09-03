@@ -67,14 +67,16 @@ describe('analytics lifecycle flush (session_end loss fix)', () => {
     });
   });
 
-  it('marks first_open exactly once for the install profile', async () => {
+  it('emits one initial session when init is repeated sequentially or concurrently', async () => {
     const sessionStart = vi.spyOn(sdk(), 'sessionStart');
 
-    await analytics.init();
+    const first = analytics.init();
+    const concurrent = analytics.init();
+    await Promise.all([first, concurrent]);
     await analytics.init();
 
-    expect(sessionStart).toHaveBeenNthCalledWith(1, { first_open: true });
-    expect(sessionStart).toHaveBeenNthCalledWith(2, { first_open: false });
+    expect(sessionStart).toHaveBeenCalledTimes(1);
+    expect(sessionStart).toHaveBeenCalledWith({ first_open: true });
   });
 
   it('migrates durable Find the Dog game state without classifying an upgrade as first_open', async () => {
@@ -187,6 +189,8 @@ describe('analytics lifecycle flush (session_end loss fix)', () => {
     setLifecycleForTest('active');
 
     expect(track).toHaveBeenCalledWith('app_foreground');
-    expect(sessionStart).toHaveBeenCalled();
+    expect(sessionStart).toHaveBeenCalledTimes(1);
+    setLifecycleForTest('active');
+    expect(sessionStart).toHaveBeenCalledTimes(1);
   });
 });

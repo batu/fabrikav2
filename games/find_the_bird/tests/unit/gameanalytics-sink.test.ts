@@ -7,6 +7,31 @@ function event(name: string, params: AnalyticsEvent['params']): AnalyticsEvent {
 }
 
 describe('GameAnalytics AnalyticsSink', () => {
+  it('configures manual sessions before initialize and mirrors canonical session boundaries once', async () => {
+    const calls: string[] = [];
+    const sdk = gameAnalyticsSdk();
+    const manual = {
+      setEnabledManualSessionHandling: vi.fn(() => calls.push('manual')),
+      startSession: vi.fn(() => calls.push('start')),
+      endSession: vi.fn(() => calls.push('end')),
+    };
+    Object.assign(sdk.GameAnalytics, manual, {
+      initialize: vi.fn(() => calls.push('initialize')),
+      addDesignEvent: vi.fn(() => calls.push('design')),
+    });
+    const sink = createGameAnalyticsSink(validConfig(), { loader: vi.fn(async () => sdk) });
+
+    sink.emit(event('session_start', { first_open: true }));
+    sink.emit(event('session_end', {}));
+    await sink.flush?.();
+
+    expect(calls.indexOf('manual')).toBeLessThan(calls.indexOf('initialize'));
+    expect(manual.setEnabledManualSessionHandling).toHaveBeenCalledWith(true);
+    expect(manual.startSession).toHaveBeenCalledTimes(1);
+    expect(manual.endSession).toHaveBeenCalledTimes(1);
+    expect(calls).toEqual(['manual', 'initialize', 'start', 'design', 'design', 'end']);
+  });
+
   it('initializes allowlists before the SDK and preserves falsy custom fields as strings', async () => {
     const calls: string[] = [];
     const addDesignEvent = vi.fn();
@@ -16,7 +41,10 @@ describe('GameAnalytics AnalyticsSink', () => {
         setEnabledVerboseLog: vi.fn(() => calls.push('verbose')),
         configureAvailableResourceCurrencies: vi.fn(() => calls.push('currencies')),
         configureAvailableResourceItemTypes: vi.fn(() => calls.push('types')),
+        setEnabledManualSessionHandling: vi.fn(),
         initialize: vi.fn(() => calls.push('initialize')),
+        startSession: vi.fn(),
+        endSession: vi.fn(),
         isSdkReady: vi.fn(() => true),
         addProgressionEvent: vi.fn(),
         addDesignEvent,
@@ -176,27 +204,85 @@ describe('GameAnalytics AnalyticsSink', () => {
     expect(sink.diagnostics()).toMatchObject({ sent: 1, dropped: 0 });
   });
 
-  it('reports initialization failure, drops queued events, and records flush attempts without claiming backend acknowledgement', async () => {
+  it('preserves queued events across a transient loader failure and retries on the next event', async () => {
+    const sdk = gameAnalyticsSdk();
+    const loader = vi.fn()
+      .mockRejectedValueOnce(new TypeError('network canary'))
+      .mockResolvedValue(sdk);
+    const sink = createGameAnalyticsSink(validConfig(), {
+      loader,
+      logger: { warn: vi.fn() },
+      retryDelayMs: 0,
+    });
+
+    sink.emit(event('dog_found', { level_id: 'l1', dog_index: 0 }));
+    await sink.flush?.();
+    expect(sink.diagnostics()).toMatchObject({ queued: 1, sent: 0, dropped: 0, initializationFailure: 'TypeError' });
+
+    sink.emit(event('dog_found', { level_id: 'l1', dog_index: 1 }));
+    await sink.flush?.();
+    expect(loader).toHaveBeenCalledTimes(2);
+    expect(sink.diagnostics()).toMatchObject({ queued: 0, sent: 2, retried: 1, dropped: 0, initializationFailure: null });
+  });
+
+  it('preserves timed-out events and retries once on a later event without reinitializing', async () => {
+    vi.useFakeTimers();
+    try {
+      let ready = false;
+      const sdk = gameAnalyticsSdk({ isSdkReady: vi.fn(() => ready) });
+      const loader = vi.fn(async () => sdk);
+      const initialize = vi.mocked(sdk.GameAnalytics.initialize);
+      const addDesignEvent = vi.mocked(sdk.GameAnalytics.addDesignEvent);
+      const sink = createGameAnalyticsSink(validConfig(), {
+        loader,
+        logger: { warn: vi.fn() },
+        readyTimeoutMs: 10,
+        readyPollMs: 1,
+        retryDelayMs: 5,
+      });
+
+      sink.emit(event('dog_found', { level_id: 'l1', dog_index: 0 }));
+      await vi.advanceTimersByTimeAsync(10_001);
+      expect(sink.diagnostics()).toMatchObject({ queued: 1, sent: 0, dropped: 0, initializationFailure: 'SdkReadyTimeout' });
+
+      sink.emit(event('dog_found', { level_id: 'l1', dog_index: 1 }));
+      sink.emit(event('dog_found', { level_id: 'l1', dog_index: 2 }));
+      expect(loader).toHaveBeenCalledTimes(1);
+      ready = true;
+      await vi.advanceTimersByTimeAsync(5);
+      await sink.flush?.();
+
+      expect(loader).toHaveBeenCalledTimes(1);
+      expect(initialize).toHaveBeenCalledTimes(1);
+      expect(addDesignEvent).toHaveBeenCalledTimes(3);
+      expect(sink.diagnostics()).toMatchObject({ queued: 0, sent: 3, retried: 1, dropped: 0, initializationFailure: null });
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('reports a hard SDK shape failure, drops queued events, and never claims backend acknowledgement', async () => {
     const warn = vi.fn();
     const sink = createGameAnalyticsSink(
       { gameKey: 'a'.repeat(32), secretKey: 'b'.repeat(40), verboseLogging: false },
-      { loader: vi.fn(async () => { throw new TypeError('secret-canary'); }), logger: { warn } },
+      { loader: vi.fn(async () => ({ notGameAnalytics: true })), logger: { warn } },
     );
 
     sink.emit(event('dog_found', { level_id: 'l1', dog_index: 0 }));
     await sink.flush?.();
 
-    expect(warn).toHaveBeenCalledWith('[analytics:gameanalytics] initialization failed (TypeError)');
+    expect(warn).toHaveBeenCalledWith('[analytics:gameanalytics] initialization failed (SdkShapeError)');
     expect(sink.diagnostics?.()).toEqual({
       queued: 0,
       sent: 0,
       retried: 0,
       dropped: 1,
-      initializationFailure: 'TypeError',
+      initializationFailure: 'SdkShapeError',
       flushAttempts: 1,
       lastSuccessfulFlushAt: null,
     });
-    expect(JSON.stringify(sink.diagnostics?.())).not.toContain('secret-canary');
+    sink.emit(event('dog_found', { level_id: 'l2', dog_index: 1 }));
+    expect(sink.diagnostics()).toMatchObject({ queued: 0, dropped: 2 });
   });
 });
 
@@ -211,7 +297,10 @@ function gameAnalyticsSdk(overrides: Partial<GameAnalyticsSdk['GameAnalytics']> 
       setEnabledVerboseLog: vi.fn(),
       configureAvailableResourceCurrencies: vi.fn(),
       configureAvailableResourceItemTypes: vi.fn(),
+      setEnabledManualSessionHandling: vi.fn(),
       initialize: vi.fn(),
+      startSession: vi.fn(),
+      endSession: vi.fn(),
       isSdkReady: vi.fn(() => true),
       addProgressionEvent: vi.fn(),
       addDesignEvent: vi.fn(),

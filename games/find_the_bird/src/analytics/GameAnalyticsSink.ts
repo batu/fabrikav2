@@ -22,7 +22,10 @@ export interface GameAnalyticsSdk {
     setEnabledVerboseLog(flag: boolean): void;
     configureAvailableResourceCurrencies(values: string[]): void;
     configureAvailableResourceItemTypes(values: string[]): void;
+    setEnabledManualSessionHandling(flag: boolean): void;
     initialize(gameKey: string, secretKey: string): void;
+    startSession(): void;
+    endSession(): void;
     isSdkReady?(needsInitialized: boolean, warn?: boolean): boolean;
     addProgressionEvent(status: number, p1: string, p2?: string, p3?: string, score?: number, fields?: Record<string, unknown>): void;
     addDesignEvent(eventId: string, value?: number, fields?: Record<string, unknown>): void;
@@ -40,6 +43,9 @@ export type GameAnalyticsSdkLoader = () => Promise<unknown>;
 export interface GameAnalyticsAnalyticsSinkOptions {
   readonly loader?: GameAnalyticsSdkLoader;
   readonly logger?: Pick<Console, 'warn'>;
+  readonly readyTimeoutMs?: number;
+  readonly readyPollMs?: number;
+  readonly retryDelayMs?: number;
 }
 
 export interface GameAnalyticsSink extends AnalyticsSink {
@@ -63,11 +69,18 @@ export function createGameAnalyticsSink(
 ): GameAnalyticsSink {
   const loader = options.loader ?? (() => import('gameanalytics'));
   const logger = options.logger ?? console;
+  const readyTimeoutMs = options.readyTimeoutMs ?? 10_000;
+  const readyPollMs = options.readyPollMs ?? 50;
+  const retryDelayMs = options.retryDelayMs ?? 1_000;
   let sdk: GameAnalyticsSdk | null = null;
+  let loadingSdk: GameAnalyticsSdk | null = null;
   let disabled = false;
   let initPromise: Promise<void> | null = null;
+  let initAttempts = 0;
+  let nextRetryAt = 0;
   const queue: AnalyticsEvent[] = [];
   let sent = 0;
+  let retried = 0;
   let dropped = 0;
   let flushAttempts = 0;
   let initializationFailure: string | null = null;
@@ -79,35 +92,51 @@ export function createGameAnalyticsSink(
   function init(): Promise<void> {
     if (sdk !== null || disabled) return Promise.resolve();
     if (initPromise !== null) return initPromise;
-    initPromise = loader()
-      .then(async (module): Promise<void> => {
-        const loaded = unwrapSdk(module);
-        loaded.GameAnalytics.setEnabledInfoLog(config.verboseLogging);
-        loaded.GameAnalytics.setEnabledVerboseLog(config.verboseLogging);
-        loaded.GameAnalytics.configureAvailableResourceCurrencies([...GAMEANALYTICS_RESOURCE_CURRENCIES]);
-        loaded.GameAnalytics.configureAvailableResourceItemTypes([...GAMEANALYTICS_RESOURCE_ITEM_TYPES]);
-        loaded.GameAnalytics.initialize(config.gameKey, config.secretKey);
-        await waitForSdkReady(loaded.GameAnalytics);
+    if (Date.now() < nextRetryAt) return Promise.resolve();
+    if (initAttempts > 0) retried += 1;
+    initAttempts += 1;
+    initPromise = (async (): Promise<void> => {
+      try {
+        if (loadingSdk === null) {
+          const loaded = unwrapSdk(await loader());
+          validateSdk(loaded);
+          loaded.GameAnalytics.setEnabledInfoLog(config.verboseLogging);
+          loaded.GameAnalytics.setEnabledVerboseLog(config.verboseLogging);
+          loaded.GameAnalytics.configureAvailableResourceCurrencies([...GAMEANALYTICS_RESOURCE_CURRENCIES]);
+          loaded.GameAnalytics.configureAvailableResourceItemTypes([...GAMEANALYTICS_RESOURCE_ITEM_TYPES]);
+          loaded.GameAnalytics.setEnabledManualSessionHandling(true);
+          loaded.GameAnalytics.initialize(config.gameKey, config.secretKey);
+          loadingSdk = loaded;
+        }
+        await waitForSdkReady(loadingSdk.GameAnalytics, readyTimeoutMs, readyPollMs);
         while (queue.length > 0) {
           const event = queue.shift();
           if (event === undefined) break;
           try {
-            send(loaded, event);
+            send(loadingSdk, event);
           } catch (error) {
             dropped += 1 + queue.length;
             queue.length = 0;
             throw error;
           }
         }
-        sdk = loaded;
-      })
-      .catch((error: unknown): void => {
-        disabled = true;
-        dropped += queue.length;
-        queue.length = 0;
+        sdk = loadingSdk;
+        loadingSdk = null;
+        initializationFailure = null;
+      } catch (error: unknown) {
         initializationFailure = errorKind(error);
         logger.warn(`[analytics:gameanalytics] initialization failed (${initializationFailure})`);
-      });
+        if (error instanceof SdkReadyTimeout || (loadingSdk === null && !(error instanceof SdkShapeError))) {
+          nextRetryAt = Date.now() + retryDelayMs;
+        } else {
+          disabled = true;
+          dropped += queue.length;
+          queue.length = 0;
+        }
+      } finally {
+        initPromise = null;
+      }
+    })();
     return initPromise;
   }
 
@@ -138,7 +167,7 @@ export function createGameAnalyticsSink(
       return {
         queued: queue.length,
         sent,
-        retried: 0,
+        retried,
         dropped,
         initializationFailure,
         flushAttempts,
@@ -149,12 +178,24 @@ export function createGameAnalyticsSink(
   };
 }
 
-async function waitForSdkReady(api: GameAnalyticsSdk['GameAnalytics']): Promise<void> {
+class SdkReadyTimeout extends Error {
+  override name = 'SdkReadyTimeout';
+}
+
+class SdkShapeError extends Error {
+  override name = 'SdkShapeError';
+}
+
+async function waitForSdkReady(
+  api: GameAnalyticsSdk['GameAnalytics'],
+  timeoutMs: number,
+  pollMs: number,
+): Promise<void> {
   if (api.isSdkReady === undefined) return;
-  const deadline = Date.now() + 10_000;
+  const deadline = Date.now() + timeoutMs;
   while (!api.isSdkReady(true, false)) {
-    if (Date.now() >= deadline) throw new Error('GameAnalytics SDK did not become ready within 10 seconds');
-    await new Promise((resolve) => setTimeout(resolve, 50));
+    if (Date.now() >= deadline) throw new SdkReadyTimeout('GameAnalytics SDK readiness timed out');
+    await new Promise((resolve) => setTimeout(resolve, pollMs));
   }
 }
 
@@ -166,14 +207,35 @@ function unwrapSdk(module: unknown): GameAnalyticsSdk {
   const record = isRecord(module) ? module : {};
   const candidate = isRecord(record.default) ? record.default : record;
   if (!isRecord(candidate.GameAnalytics) && typeof candidate.GameAnalytics !== 'function') {
-    throw new Error('GameAnalytics JavaScript SDK did not expose GameAnalytics');
+    throw new SdkShapeError('GameAnalytics JavaScript SDK did not expose GameAnalytics');
   }
   return candidate as unknown as GameAnalyticsSdk;
+}
+
+function validateSdk(sdk: GameAnalyticsSdk): void {
+  const required = [
+    'setEnabledInfoLog', 'setEnabledVerboseLog', 'configureAvailableResourceCurrencies',
+    'configureAvailableResourceItemTypes', 'setEnabledManualSessionHandling', 'initialize',
+    'startSession', 'endSession', 'addProgressionEvent', 'addDesignEvent',
+    'addResourceEvent', 'addAdEvent',
+  ] as const;
+  if (required.some((method) => typeof sdk.GameAnalytics[method] !== 'function')) {
+    throw new SdkShapeError('GameAnalytics JavaScript SDK API is incomplete');
+  }
 }
 
 function dispatch(sdk: GameAnalyticsSdk, event: AnalyticsEvent): boolean {
   const params = event.params;
   const levelId = String(params.level_id ?? 'unknown');
+  if (event.name === 'session_start') {
+    sdk.GameAnalytics.startSession();
+    return trackDesign(sdk, designEvent(gameAnalyticsDesignEventId(event.name, params), params));
+  }
+  if (event.name === 'session_end') {
+    const tracked = trackDesign(sdk, designEvent(gameAnalyticsDesignEventId(event.name, params), params));
+    sdk.GameAnalytics.endSession();
+    return tracked;
+  }
   if (event.name === 'ad_request') {
     return trackDesign(sdk, designEvent(gameAnalyticsDesignEventId(event.name, params), params));
   }

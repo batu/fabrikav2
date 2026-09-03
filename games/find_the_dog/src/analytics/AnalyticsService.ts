@@ -236,6 +236,7 @@ export class AnalyticsService {
     disabledReason: 'sdk-console-sink-only',
   });
   private cohortBucket: number | null = null;
+  private initPromise: Promise<void> | null = null;
 
   constructor(composition?: AnalyticsServiceComposition) {
     this.storage = composition?.storage ?? bootstrapStorage;
@@ -251,6 +252,7 @@ export class AnalyticsService {
   }
 
   configureComposition(composition: AnalyticsServiceComposition): void {
+    this.initPromise = null;
     this.sdk = composition.sdk;
     this.attributionPort = composition.attribution ?? attribution;
     this.providerNamePort = composition.providerName ?? (() => adService.providerName);
@@ -260,10 +262,19 @@ export class AnalyticsService {
     if (composition.firstOpenLocks !== undefined) this.firstOpenLocks = composition.firstOpenLocks;
   }
 
-  async init(options: {
+  init(options: {
     hadExistingStateAtBootstrap?: boolean;
     storageDurability?: FirstOpenStorageDurability;
   } = {}): Promise<void> {
+    if (this.initPromise !== null) return this.initPromise;
+    this.initPromise = this.initialize(options);
+    return this.initPromise;
+  }
+
+  private async initialize(options: {
+    hadExistingStateAtBootstrap?: boolean;
+    storageDurability?: FirstOpenStorageDurability;
+  }): Promise<void> {
     let initializing = true;
     const lifecycleState: { current: 'active' | 'inactive' } = { current: 'active' };
     const suspend = (): void => {

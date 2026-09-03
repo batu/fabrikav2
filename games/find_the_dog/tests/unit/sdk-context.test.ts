@@ -263,7 +263,10 @@ describe('FTD SdkContext composition matrix', () => {
           setEnabledVerboseLog: vi.fn(),
           configureAvailableResourceCurrencies: vi.fn(),
           configureAvailableResourceItemTypes: vi.fn(),
+          setEnabledManualSessionHandling: vi.fn(),
           initialize: vi.fn(),
+          startSession: vi.fn(),
+          endSession: vi.fn(),
           isSdkReady: vi.fn(() => true),
           addProgressionEvent: vi.fn(),
           addDesignEvent,
@@ -411,7 +414,7 @@ describe('FTD SdkContext composition matrix', () => {
     expect(context.analyticsDiagnostics().sinks).not.toHaveProperty('console');
   });
 
-  it('keeps GameAnalytics initialization failure non-crashing and observable', async () => {
+  it('keeps a transient GameAnalytics initialization failure queued and observable', async () => {
     const context = createSdkContext({
       buildEnv: 'production',
       platform: 'ios',
@@ -436,9 +439,9 @@ describe('FTD SdkContext composition matrix', () => {
     await expect(context.analytics.flush()).resolves.toBeUndefined();
 
     expect(context.analyticsDiagnostics().sinks.gameanalytics).toMatchObject({
-      queued: 0,
+      queued: 1,
       sent: 0,
-      dropped: 1,
+      dropped: 0,
       initializationFailure: 'TypeError',
       lastSuccessfulFlushAt: null,
     });
