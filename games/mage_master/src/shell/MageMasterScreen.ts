@@ -223,6 +223,8 @@ export function mountMageMasterScreen(opts: MageMasterScreenOptions): MageMaster
   let shop: ShopPageHandle | null = null;
   let renderer: BattleRenderer | null = null;
   let itemDetail: Item | null = null;
+  /** A result card is flying its loot to the counters; its buttons stay disabled until it proceeds. */
+  let collecting = false;
   let previousTier = controller.snapshot().riftTier;
   let resetArmedAt: number | null = null;
   let revealDelayUntil = 0;
@@ -644,6 +646,8 @@ export function mountMageMasterScreen(opts: MageMasterScreenOptions): MageMaster
     const title = el("div", "mm-battle__title");
     const levelLabel = el("span", "mm-battle__level", fill("battle.level", { level: snap.level }));
     const stageLabel = el("span", "mm-battle__stage", fill("battle.stage", { stage: snap.stage, count: snap.stageCount }));
+    live.set("battle-level", levelLabel);
+    live.set("battle-root", battle);
     live.set("battle-stage", stageLabel);
     title.append(levelLabel, stageLabel);
     const pauseBtn = buildButtonElement({
@@ -903,12 +907,21 @@ export function mountMageMasterScreen(opts: MageMasterScreenOptions): MageMaster
             proceed();
             return;
           }
+          collecting = true;
           for (const button of actions.querySelectorAll("button")) button.disabled = true;
-          window.setTimeout(proceed, RESULT_COLLECT_MS);
+          window.setTimeout(() => {
+            collecting = false;
+            proceed();
+          }, RESULT_COLLECT_MS);
         };
         if (win) {
+          const nextBtn = spriteAction(copy["win.next"], "result-next", true, () => collectThen(() => controller.next()));
+          const energyNote = el("p", "mm-result__energy", "");
+          live.set("result-next", nextBtn);
+          live.set("result-energy", energyNote);
           actions.append(
-            spriteAction(copy["win.next"], "result-next", true, () => collectThen(() => controller.next())),
+            nextBtn,
+            energyNote,
             // Straight home: next()/retry() would start a battle first, and home() refuses mid-battle.
             textAction(copy["win.home"], "result-menu", () => collectThen(() => controller.home())),
           );
@@ -1104,6 +1117,21 @@ export function mountMageMasterScreen(opts: MageMasterScreenOptions): MageMaster
         }
       }
     }
+    const levelLabel = live.get("battle-level");
+    if (levelLabel) {
+      const text = fill("battle.level", { level: snap.level });
+      if (levelLabel.textContent !== text) levelLabel.textContent = text;
+      const battleRoot = live.get("battle-root");
+      if (battleRoot) battleRoot.dataset.mmTheme = ARENA_THEME[levelSpec(snap.level).family];
+    }
+    // Victory card: Next waits for energy instead of dropping to the menu.
+    const nextBtn = live.get("result-next") as HTMLButtonElement | undefined;
+    const resultNote = live.get("result-energy");
+    if (nextBtn && resultNote && !collecting) {
+      const short = snap.energy < ENERGY.levelCost;
+      nextBtn.disabled = short;
+      resultNote.textContent = short ? fill("menu.noEnergy", { seconds: snap.energyNextIn }) : "";
+    }
     const speedBtn = live.get("speed-btn");
     if (speedBtn) {
       speedBtn.textContent = snap.speed === 2 ? copy["battle.speed2"] : copy["battle.speed1"];
@@ -1126,7 +1154,6 @@ export function mountMageMasterScreen(opts: MageMasterScreenOptions): MageMaster
       [artFrame("panel"), artFrame("button"), artScene("home"), artScene("rift"), artLettering("title")].filter(Boolean).length,
       snap.unlockedLevel,
       snap.riftTier,
-      snap.level,
       MAGE_CLASSES.map((c) => `${snap.loadout[c].weapon.id}:${snap.loadout[c].armor.id}`).join(","),
     ].join("|");
 

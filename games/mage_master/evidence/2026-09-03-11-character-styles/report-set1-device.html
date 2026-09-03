@@ -1,0 +1,9 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Mage Master — style 1 on device, wand-tip spells, VFX</title>
+<style>body{margin:0;padding:20px;background:#f4f4ef;color:#23262b;font:15px/1.5 -apple-system,system-ui,sans-serif}h1{font-size:22px;margin:0 0 4px}h2{font-size:17px;margin:24px 0 8px}.muted{color:#7b8089}.row{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}img{width:100%;height:auto;display:block;border-radius:12px;background:#eceee7;border:2px solid #dcded6}.cap{font-size:12px;color:#7b8089;margin:4px 0 0}.note{background:#fff;border:2px solid #dcded6;border-radius:14px;padding:12px;margin-top:20px}</style></head><body>
+<h1>Style 1 on the phone · spells from the wand tip · VFX pass</h1>
+<p class="muted">2026-09-03 · iPhone 12 dev build · branch <code>feat/mage-master-minimal-ui</code></p>
+<div class="row"><div><img src="02_set1-home.png" alt="Home"><p class="cap">Home with the new party.</p></div><div><img src="03_set1-battle.png" alt="Battle"><p class="cap">Level 3, new goblins and mages.</p></div><div><img src="04_set1-reveal.png" alt="Reveal"><p class="cap">Reveal with the new portrait chip.</p></div></div>
+<h2>Spells leave the wand tip; impact rings and flashes</h2>
+<img src="05_set1-vfx-burst-20f-80ms.png" alt="VFX burst"><p class="cap">20 canvas frames, 80 ms apart. f07–f09: Sage's lightning bolt leaves the staff crystal. f13, f16, f18: element-tinted impact rings and hit flashes on the goblins. Every attack also flashes at the tip; deaths pop with a ring; heals ring green; boss entrances ring red.</p>
+<div class="note"><b>Also in this commit:</b> losing the newest level now drops you back one level (Retry plays it; the card says "You fall back to level N"). Unit-tested; the on-device card capture is pending because the phone was on another app when probed.</div>
+</body></html>

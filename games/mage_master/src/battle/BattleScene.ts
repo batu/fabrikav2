@@ -134,13 +134,15 @@ class Scene extends Phaser.Scene {
       const x = left ? 52 + rnd() * 50 : ARENA.width - 24 - rnd() * 60;
       const y = fieldTop + 90 + rnd() * (ARENA.height - 240);
       const size = 30 + rnd() * 22;
-      this.add
-        .image(x, y, `prop-${name}`)
-        .setOrigin(0.5, 1)
-        .setDisplaySize(size, size)
-        .setDepth(DEPTH.ground + 1 + y / 100000)
-        .setFlipX(rnd() < 0.5)
-        .setAlpha(0.95);
+      this.dressing.push(
+        this.add
+          .image(x, y, `prop-${name}`)
+          .setOrigin(0.5, 1)
+          .setDisplaySize(size, size)
+          .setDepth(DEPTH.ground + 1 + y / 100000)
+          .setFlipX(rnd() < 0.5)
+          .setAlpha(0.95),
+      );
     }
   }
 
@@ -219,6 +221,63 @@ class Scene extends Phaser.Scene {
     return this.scale.width / ARENA.width;
   }
 
+  /** Flat field with sparse darker speckles (no gradient), themed per enemy family; regenerated per battle. */
+  private makeGroundTexture(g: Phaser.GameObjects.Graphics): void {
+    const size = 128;
+    const theme = this.theme();
+    if (this.textures.exists("ground")) this.textures.remove("ground");
+    g.fillStyle(this.palette(`ground-${theme}`), 1);
+    g.fillRect(0, 0, size, size);
+    g.fillStyle(this.palette(`ground-${theme}-deep`), 1);
+    let s = 7;
+    const rnd = (): number => {
+      s = (s * 9301 + 49297) % 233280;
+      return s / 233280;
+    };
+    for (let i = 0; i < 26; i += 1) {
+      const x = rnd() * size;
+      const y = rnd() * size;
+      const r = 1.5 + rnd() * 3;
+      g.fillEllipse(x, y, r * 2.6, r);
+    }
+    g.generateTexture("ground", size, size);
+  }
+
+  /** Apply the current battle's theme to the ground plate, sky color and dust. */
+  private applyTheme(): void {
+    const theme = this.theme();
+    const key = !this.minimal && this.textures.exists(`ground-${theme}`) ? `ground-${theme}` : "ground";
+    this.ground.setTexture(key);
+    if (key !== "ground") {
+      const src = this.textures.get(key).getSourceImage() as { width: number };
+      this.ground.setTileScale(ARENA.width / src.width);
+    } else {
+      this.ground.setTileScale(1);
+    }
+    this.cameras.main.setBackgroundColor(this.palette(`ground-${theme}`));
+    this.dust.setParticleTint(this.palette(`ground-${theme}-deep`));
+  }
+
+  /** A new battle started in this scene (next level or retry): rebuild the field without rebooting Phaser. */
+  private resetBattle(): void {
+    for (const v of this.visuals.values()) {
+      v.root.destroy();
+      v.burn?.destroy();
+    }
+    this.visuals.clear();
+    this.floatSlots.clear();
+    for (const obj of this.dressing) obj.destroy();
+    this.dressing = [];
+    this.cameras.main.resetFX();
+    this.cameraY = 0;
+    const g = this.make.graphics({ x: 0, y: 0 }, false);
+    this.makeGroundTexture(g);
+    g.destroy();
+    this.applyTheme();
+    this.drawCamp(ARENA.campLineY);
+    this.dressField(0, 0);
+  }
+
   private makeTextures(): void {
     const g = this.make.graphics({ x: 0, y: 0 }, false);
     g.fillStyle(0xffffff, 1);
@@ -248,25 +307,7 @@ class Scene extends Phaser.Scene {
     g.strokePoints([{ x: 8, y: 0 }, { x: 16, y: 8 }, { x: 8, y: 20 }, { x: 0, y: 8 }], true);
     g.generateTexture("shard", 16, 20);
     g.clear();
-    // Ground: flat field with sparse darker speckles (flat, no gradient), themed per enemy family.
-    const size = 128;
-    const theme = this.theme();
-    g.fillStyle(this.palette(`ground-${theme}`), 1);
-    g.fillRect(0, 0, size, size);
-    g.fillStyle(this.palette(`ground-${theme}-deep`), 1);
-    const seed = 7;
-    let s = seed;
-    const rnd = (): number => {
-      s = (s * 9301 + 49297) % 233280;
-      return s / 233280;
-    };
-    for (let i = 0; i < 26; i += 1) {
-      const x = rnd() * size;
-      const y = rnd() * size;
-      const r = 1.5 + rnd() * 3;
-      g.fillEllipse(x, y, r * 2.6, r);
-    }
-    g.generateTexture("ground", size, size);
+    this.makeGroundTexture(g);
     g.clear();
     // Placeholder unit for missing art.
     g.fillStyle(this.palette("ink"), 1);
@@ -282,12 +323,13 @@ class Scene extends Phaser.Scene {
     const p = this.palette;
     if (this.minimal) return;
     if (this.textures.exists("prop-tent")) {
-      this.add.image(ARENA.width * 0.12, campY + 28, "prop-tent").setOrigin(0.5, 1).setDisplaySize(64, 64).setDepth(DEPTH.ground + 2);
+      this.dressing.push(this.add.image(ARENA.width * 0.12, campY + 28, "prop-tent").setOrigin(0.5, 1).setDisplaySize(64, 64).setDepth(DEPTH.ground + 2));
     }
     if (this.textures.exists("prop-campfire")) {
       const fire = this.add.image(ARENA.width * 0.88, campY + 30, "prop-campfire").setOrigin(0.5, 1).setDisplaySize(44, 44).setDepth(DEPTH.ground + 2);
+      this.dressing.push(fire);
       this.tweens.add({ targets: fire, scaleX: fire.scaleX * 1.06, scaleY: fire.scaleY * 0.94, duration: 260, yoyo: true, repeat: -1, ease: "Sine.inOut" });
-      this.add.particles(fire.x, fire.y - 30, "dot", {
+      const embers = this.add.particles(fire.x, fire.y - 30, "dot", {
         speedY: { min: -40, max: -20 },
         speedX: { min: -8, max: 8 },
         scale: { start: 0.25, end: 0 },
@@ -296,6 +338,7 @@ class Scene extends Phaser.Scene {
         frequency: 140,
         tint: [p("element-fire"), p("gold")],
       }).setDepth(DEPTH.ground + 3);
+      this.dressing.push(embers);
     }
   }
 
@@ -316,6 +359,8 @@ class Scene extends Phaser.Scene {
   }
 
   private readonly footInsets = new Map<string, number>();
+  /** Camp props and field dressing of the current battle; cleared when a new battle starts in this scene. */
+  private dressing: Phaser.GameObjects.GameObject[] = [];
 
   /** Transparent rows below the feet as a fraction of the texture height, sampled once per texture. */
   private footInset(key: string): number {
@@ -764,8 +809,8 @@ class Scene extends Phaser.Scene {
     // starts fresh so nothing slides from the previous battle's positions.
     if (view.elapsed !== this.tickElapsed) {
       const reset = view.elapsed < this.tickElapsed;
-      // A retry keeps this scene: the defeat fade would otherwise stay painted over the new battle.
-      if (reset) this.cameras.main.resetFX();
+      // Next level and retry keep this scene: rebuild the field in place instead of rebooting Phaser (no black frame).
+      if (reset) this.resetBattle();
       this.tickElapsed = view.elapsed;
       this.prevTickPos = reset ? new Map() : this.tickPos;
       this.tickPos = new Map(view.units.map((u) => [u.id, { x: u.pos.x, y: u.pos.y }]));
