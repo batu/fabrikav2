@@ -11,7 +11,7 @@ import {
 } from '../settings/pickupStylePreference';
 import { disposeLevelUrls, getLevelIndex, loadLevel, loadLevelForProgression, releaseLevelSceneResources, withDirectSelectServingAttempt } from '../data/levels';
 import type { LevelData, LevelDog, LevelSection } from '../data/levels';
-import { playFind, playWrongTap, preloadDogFoundSounds } from '../audio/AudioManager';
+import { playFind, playWrongTap, preloadBirdFoundSounds } from '../audio/AudioManager';
 import { crossfadeTo as crossfadeAmbient, presetForLevel } from '../audio/AmbientManager';
 import { adService, showRewardedAdForEconomy } from '../ads/Service';
 import { trackRewardedWatchedIfGranted } from '../attribution/RewardedAttribution';
@@ -585,7 +585,7 @@ export class GameScene extends Phaser.Scene {
     const run = (): void => {
       if (this.isShuttingDown || !this.sys.isActive()) return;
       void preloadLevelCompleteAssets();
-      if (hasUserActivated()) void preloadDogFoundSounds();
+      if (hasUserActivated()) void preloadBirdFoundSounds();
     };
 
     if (FAST_E2E_UI) {
