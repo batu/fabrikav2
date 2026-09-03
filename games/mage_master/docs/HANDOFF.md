@@ -175,6 +175,24 @@ Evidence folders under `evidence/` have captures and a `JOURNAL.md` each.
 - App: Mage Master, id `6808146812`, bundle `com.basegamelab.magemaster`.
 - Build 1.0 (1) uploaded 2026-09-03, state `IN_BETA_TESTING`, internal group
   "Internal" with access to all builds. Internal testers need no beta review.
+- Build 1.0 (2) uploaded 2026-09-03 (Delivery 13184035-107d-48ba-ae9d-1b6f1796f84c)
+  from `feat/mage-master-minimal-ui`: minimal interface, style-1 sprites,
+  generated audio, endless levels. Recipe that worked, from `games/mage_master`:
+  `env -u VITE_ENABLE_TEST_HARNESS npx vite build` → `npx cap sync ios` → copy
+  `native-resources/ios/App/` → `xcodebuild … archive -configuration Release
+  -destination 'generic/platform=iOS' -allowProvisioningUpdates
+  -authenticationKeyPath ~/.private_keys/AuthKey_52LFXZKXD4.p8
+  -authenticationKeyID 52LFXZKXD4 -authenticationKeyIssuerID e26454d9-…
+  DEVELOPMENT_TEAM=42L77JAX72 PRODUCT_BUNDLE_IDENTIFIER=com.basegamelab.magemaster
+  CURRENT_PROJECT_VERSION=<n> CODE_SIGN_STYLE=Automatic` (the generated pbxproj
+  still says `mage_master`; the override on the command line is what ships) →
+  `-exportArchive` with an app-store-connect/automatic plist
+  (`manageAppVersionAndBuildNumber=false`) → unzip the IPA and check
+  `CFBundleIdentifier`/`CFBundleVersion` → `API_PRIVATE_KEYS_DIR=/Users/base/fabrika-keys/appstore-connect
+  xcrun altool --upload-app -f App.ipa -t ios --apiKey 52LFXZKXD4 --apiIssuer e26454d9-…`.
+- External TestFlight group "Friends" (a121d3d3-…) exists with one tester; the
+  first external build needs Beta App Review, which needs `contactPhone` on the
+  app's `betaAppReviewDetail` (empty as of 2026-09-03).
 - Release build recipe: `env -u VITE_ENABLE_TEST_HARNESS npx vite build` →
   `cap sync` → copy `native-resources` → `xcodebuild archive` (Release, automatic
   signing, `-allowProvisioningUpdates` + ASC API key) → `-exportArchive`
