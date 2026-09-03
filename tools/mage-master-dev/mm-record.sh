@@ -2,9 +2,10 @@
 # Record a scripted playthrough on the phone: continuous screenshots (~1 fps) plus
 # high-rate canvas bursts during battle, then assemble mp4s with ffmpeg.
 # usage: mm-record.sh OUTDIR
+ROOT=$(cd "$(dirname "$0")/../.." && pwd)  # repo root, whichever checkout this lives in
 OUT=${1:-/tmp/mm-record}; mkdir -p $OUT/shots $OUT/bursts
-D=/Users/base/dev/appletolye/fabrikav2/.worktrees/mage-master/tools/mage-master-dev
-W=/Users/base/dev/appletolye/fabrikav2/.worktrees/mage-master/games/mage_master/.work
+D=$ROOT/tools/mage-master-dev
+W=$ROOT/games/mage_master/.work
 START=$(date +%s.%N)
 # continuous screenshot loop in the background (each shot ~1.2 s)
 ( i=0; while [[ ! -f $OUT/STOP ]]; do t=$(printf '%08.2f' $(echo "$(date +%s.%N) - $START" | bc)); $D/mm-shot.sh $OUT/shots/t$t.png >/dev/null 2>&1; i=$((i+1)); done ) &
@@ -29,7 +30,7 @@ mark "resume"; ev 'document.querySelector("[data-fab-action=pause-resume]").clic
 mark "2x speed"; ev 'document.querySelector("[data-fab-action=speed]").click(); return 1'; sleep 6
 burst battle-l1-late 40 60
 # wait for the level to finish (win or fail), up to 90 s
-for i in $(seq 1 45); do s=$($D/mm-drive.sh snapshot '[]' 2>/dev/null | python3 -c 'import json,sys; d=json.load(open("/Users/base/dev/appletolye/fabrikav2/.worktrees/mage-master/games/mage_master/.work/drive-result.json")); print(d["snapshot"]["surface"])' 2>/dev/null); [[ "$s" == "win" || "$s" == "fail" ]] && break; sleep 2; done
+for i in $(seq 1 45); do s=$($D/mm-drive.sh snapshot '[]' 2>/dev/null | python3 -c 'import json,sys; d=json.load(open("$ROOT/games/mage_master/.work/drive-result.json")); print(d["snapshot"]["surface"])' 2>/dev/null); [[ "$s" == "win" || "$s" == "fail" ]] && break; sleep 2; done
 mark "result: $s"; sleep 3
 mark "result -> home"; ev 'const b=document.querySelector("[data-fab-action=result-menu]"); b&&b.click(); return 1'; sleep 2.5
 mark "rift page"; ev 'document.querySelector("[data-fab-action=nav-rift]").click(); return 1'; sleep 2.5

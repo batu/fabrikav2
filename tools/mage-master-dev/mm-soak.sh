@@ -1,8 +1,9 @@
 #!/bin/zsh
 # 30-minute on-device play soak: drives the real app on the phone like a player would.
 # usage: mm-soak.sh MINUTES OUTDIR
+ROOT=$(cd "$(dirname "$0")/../.." && pwd)  # repo root, whichever checkout this lives in
 MIN=${1:-30}; OUT=${2:-/tmp/soak}; mkdir -p $OUT
-D=/Users/base/dev/appletolye/fabrikav2/.worktrees/mage-master/tools/mage-master-dev
+D=$ROOT/tools/mage-master-dev
 START=$(date +%s); END=$((START + MIN*60)); LAST_SHOT=0; N=0
 STEP='const c=window.__MM_DEV.controller, ip=window.__MM_DEV.itemPower; let s=c.snapshot(); const acts=[]; const order=["common","uncommon","rare","epic","legendary","mythic","immortal","astral","celestial","ultimate"];
 if (s.surface==="win") { acts.push("win->next"); c.next(); }
@@ -23,7 +24,7 @@ JS=$(python3 -c "import json,sys; print(json.dumps([sys.stdin.read()]))" <<< "$S
 while [[ $(date +%s) -lt $END ]]; do
   N=$((N+1)); NOW=$(date +%s); ELAPSED=$((NOW-START))
   $D/mm-drive.sh eval "$JS" >/dev/null 2>&1
-  R=$(python3 -c 'import json;print(json.load(open("/Users/base/dev/appletolye/fabrikav2/.worktrees/mage-master/games/mage_master/.work/drive-result.json")).get("value"))' 2>/dev/null)
+  R=$(python3 -c 'import json;print(json.load(open("$ROOT/games/mage_master/.work/drive-result.json")).get("value"))' 2>/dev/null)
   echo "$(date '+%H:%M:%S') +${ELAPSED}s ${R}" >> $OUT/soak.log
   if [[ $((NOW-LAST_SHOT)) -ge 150 ]]; then $D/mm-shot.sh $OUT/shot-$(printf '%02d' $((ELAPSED/60)))m.png >/dev/null 2>&1; LAST_SHOT=$NOW; fi
   if (( N % 12 == 0 )); then $D/mm-drive.sh inspect '["canvas",["width"]]' 2>/dev/null | grep -o '"errors":\[[^]]*\]' >> $OUT/errors.log; fi

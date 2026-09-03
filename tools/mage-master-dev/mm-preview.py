@@ -1,13 +1,14 @@
 """Preview the runtime mage composite on the Mac (same algorithm as src/battle/mageComposite.ts).
 usage: python mm-preview.py OUT.png  — renders 3 mages x (fire common, ice epic, lightning legendary, arcane ultimate)"""
-import sys, json, re
+import json, os, re, sys
+ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 from PIL import Image, ImageChops
-D="/Users/base/dev/appletolye/fabrikav2/.worktrees/mage-master/games/mage_master/design/assets"
-src=open("/Users/base/dev/appletolye/fabrikav2/.worktrees/mage-master/games/mage_master/design/assets.ts").read()
+D=ROOT+"/games/mage_master/design/assets"
+src=open(ROOT+"/games/mage_master/design/assets.ts").read()
 anchors={}
 for m in re.finditer(r'(\w+): \{ x: ([\d.]+), y: ([\d.]+), staffScale: ([\d.]+), staffAngle: (-?[\d.]+), staffPivotX: ([\d.]+), staffPivotY: ([\d.]+), staffBehind: (true|false) \}', src):
     anchors[m.group(1)]=dict(x=float(m.group(2)),y=float(m.group(3)),scale=float(m.group(4)),angle=float(m.group(5)),px=float(m.group(6)),py=float(m.group(7)),behind=m.group(8)=="true")
-tokens=open("/Users/base/dev/appletolye/fabrikav2/.worktrees/mage-master/games/mage_master/design/tokens.css").read()
+tokens=open(ROOT+"/games/mage_master/design/tokens.css").read()
 def color(rarity):
     return re.search(r'--fab-mm-rarity-%s: (#[0-9a-f]{6})'%rarity, tokens).group(1)
 def hex2rgb(h): return tuple(int(h[i:i+2],16) for i in (1,3,5))

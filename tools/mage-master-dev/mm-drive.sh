@@ -1,6 +1,7 @@
 #!/bin/zsh
 # usage: mm-drive.sh OP ARGS_JSON   e.g. mm-drive.sh driveTo '["level"]'  |  mm-drive.sh verb '["pull"]'  |  mm-drive.sh frames '[10,80]'
-W=/Users/base/dev/appletolye/fabrikav2/.worktrees/mage-master/games/mage_master/.work
+ROOT=$(cd "$(dirname "$0")/../.." && pwd)  # repo root, whichever checkout this lives in
+W=$ROOT/games/mage_master/.work
 SEQ=$(( $(date +%s%N) / 1000000 ))
 rm -f $W/drive-result.json
 printf '{"seq":%d,"op":"%s","args":%s}\n' "$SEQ" "$1" "${2:-[]}" > $W/drive.json

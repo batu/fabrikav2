@@ -1,0 +1,12 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Mage Master — final pass before TestFlight</title>
+<style>body{margin:0;padding:20px;background:#f4f4ef;color:#23262b;font:15px/1.5 -apple-system,system-ui,sans-serif}h1{font-size:22px;margin:0 0 4px}h2{font-size:17px;margin:24px 0 8px}.muted{color:#7b8089}.row{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}img{width:100%;height:auto;display:block;border-radius:12px;background:#eceee7;border:2px solid #dcded6}.cap{font-size:12px;color:#7b8089;margin:4px 0 0}.ask{background:#fff;border:2px solid #ef4d4d;border-radius:14px;padding:12px;margin-top:20px}.ask b{color:#ef4d4d}</style></head><body>
+<h1>Final pass before TestFlight</h1>
+<p class="muted">2026-09-03 · branch <code>feat/mage-master-minimal-ui</code> · iPhone 12 · app deleted and reinstalled as a standalone bundle</p>
+<h2>Fresh save</h2>
+<div class="row"><div><img src="02_01-fresh-home.png" alt="Fresh home"><p class="cap">First launch: level 1, 10 energy, starter gear.</p></div><div><img src="03_02-level1-fight.png" alt="Level 1"><p class="cap">Level 1, stage 1.</p></div><div><img src="04_09-settings-fresh.png" alt="Settings"><p class="cap">Settings (music, effects, haptics, interface switch, reset).</p></div></div>
+<h2>Fixed in this pass</h2>
+<div class="row"><div><img src="05_10-next-level-burst.png" alt="Next level burst"><p class="cap"><b>No black frame on Next level.</b> The battle scene now persists across levels and rebuilds the field in place. 16 frames at 60 ms across Next into level 4 (forest, wolves): dark-pixel fraction ≤ 1.3 % in every frame.</p></div><div><img src="06_11-victory-no-energy.png" alt="Victory without energy"><p class="cap"><b>Next no longer dumps to the menu.</b> With no energy the card keeps Next disabled and counts down; it enables itself when energy arrives.</p></div></div>
+<h2>Standalone install</h2>
+<div class="row"><div><img src="07_12-standalone-home.png" alt="Standalone boot"><p class="cap">Deleted from the phone, reinstalled from the bundled build (no dev server, 16 audio files bundled), launched. This is the build on your phone now.</p></div></div>
+<div class="ask"><b>Ask:</b> play it. If it holds, say "ship" and I archive without the test harness, bump the build number, and upload to TestFlight (internal testers, no review).</div>
+</body></html>
