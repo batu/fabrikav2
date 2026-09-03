@@ -934,22 +934,13 @@ export function mountMageMasterScreen(opts: MageMasterScreenOptions): MageMaster
         if (win) {
           actions.append(
             spriteAction(copy["win.next"], "result-next", true, () => collectThen(() => controller.next())),
-            spriteAction(copy["win.home"], "result-menu", false, () =>
-              collectThen(() => {
-                controller.next();
-                controller.home();
-              }),
-            ),
+            // Straight home: next()/retry() would start a battle first, and home() refuses mid-battle.
+            spriteAction(copy["win.home"], "result-menu", false, () => collectThen(() => controller.home())),
           );
         } else {
           actions.append(
             spriteAction(copy["fail.retry"], "result-retry", true, () => collectThen(() => controller.retry())),
-            spriteAction(copy["fail.home"], "result-menu", false, () =>
-              collectThen(() => {
-                controller.retry();
-                controller.home();
-              }),
-            ),
+            spriteAction(copy["fail.home"], "result-menu", false, () => collectThen(() => controller.home())),
           );
         }
         const reward = el("div", "mm-result__reward");

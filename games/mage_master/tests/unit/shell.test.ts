@@ -105,6 +105,19 @@ describe("mage master shell", () => {
     screen.destroy();
   });
 
+  it("result card Home returns to the menu without starting the next level", () => {
+    const controller = createMageMasterController({ env: "test", storageKey: "test-shell-home" });
+    const screen = mountMageMasterScreen({ mountInto: document.getElementById("app")!, controller });
+    controller.enterLevel(1);
+    controller.resolveBattle("win");
+    expect(controller.snapshot().surface).toBe("win");
+    const energy = controller.snapshot().energy;
+    click(screen.root, "result-menu");
+    expect(controller.snapshot().surface).toBe("menu");
+    expect(controller.snapshot().energy).toBe(energy);
+    screen.destroy();
+  });
+
   it("settings opens from home and closes back to home", () => {
     const controller = createMageMasterController({ env: "test", storageKey: "test-shell-e" });
     const screen = mountMageMasterScreen({ mountInto: document.getElementById("app")!, controller });
