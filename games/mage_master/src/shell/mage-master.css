@@ -2349,7 +2349,7 @@ body {
   padding: 8px 10px;
 }
 
-/* ---------- home: party hero, level stepper, one Play ---------- */
+/* ---------- home: party hero, saga strip, one Play ---------- */
 .mm-home {
   justify-content: flex-end;
 }
@@ -2362,55 +2362,61 @@ body {
   min-height: 0;
 }
 
-.mm-home__level {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 18px;
-  margin-bottom: 4px;
-}
-
-.mm-home__level-btn {
-  width: 44px;
-  height: 44px;
-  min-width: 44px;
-  min-height: 44px;
-  padding: 0;
-  font-size: 22px;
-  line-height: 1;
-}
-
-.mm-home__level-btn--prev::before {
-  content: "‹";
-}
-
-.mm-home__level-btn--next::before {
-  content: "›";
-}
-
-.mm-home__level-btn:disabled {
-  opacity: 0.3;
-}
-
-.mm-home__level-label {
+.mm-saga {
   display: flex;
   flex-direction: column;
   align-items: center;
-  min-width: 96px;
-  line-height: 1;
+  gap: 8px;
+  margin-bottom: 6px;
 }
 
-.mm-home__level-eyebrow {
+.mm-saga__eyebrow {
   font-size: 11px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--fab-mm-cream-dim);
 }
 
-.mm-home__level-num {
-  font-size: 40px;
+.mm-saga__strip {
+  display: flex;
+  align-items: center;
+}
+
+.mm-saga__node {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--fab-mm-wood-dark);
+  color: var(--fab-mm-cream-dim);
+  font-size: 13px;
   font-weight: var(--fab-font-weight-bold);
+  font-variant-numeric: tabular-nums;
+}
+
+.mm-saga__node--done {
+  background: var(--fab-mm-success);
   color: var(--fab-mm-cream);
+}
+
+.mm-saga__node--current {
+  width: 52px;
+  height: 52px;
+  background: var(--fab-mm-gold);
+  color: var(--fab-mm-ink);
+  font-size: 22px;
+  box-shadow: 0 3px 0 var(--fab-mm-gold-deep);
+}
+
+.mm-saga__link {
+  width: 22px;
+  height: 4px;
+  background: var(--fab-mm-wood-dark);
+}
+
+.mm-saga__link--done {
+  background: var(--fab-mm-success);
 }
 
 .mm-home__play {

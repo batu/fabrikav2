@@ -223,10 +223,7 @@ export function mountMageMasterScreen(opts: MageMasterScreenOptions): MageMaster
   let shop: ShopPageHandle | null = null;
   let renderer: BattleRenderer | null = null;
   let itemDetail: Item | null = null;
-  /** Level chosen on the home stepper; null follows the newest unlocked level. */
-  let selectedLevel: number | null = null;
   let previousTier = controller.snapshot().riftTier;
-  let previousUnlocked = controller.snapshot().unlockedLevel;
   let resetArmedAt: number | null = null;
   let revealDelayUntil = 0;
   let previousSurface: Surface = controller.snapshot().surface;
@@ -336,32 +333,21 @@ export function mountMageMasterScreen(opts: MageMasterScreenOptions): MageMaster
     }
     hero.append(party);
 
-    // One decision on this screen: which level to play. A stepper replaces the map;
-    // earlier levels stay replayable, the newest is the default.
+    // A simple saga strip: the two cleared levels, the current one, the two ahead.
     const current = snap.unlockedLevel;
-    const level = Math.max(1, Math.min(selectedLevel ?? current, current));
-    const picker = el("div", "mm-home__level");
-    const stepButton = (action: "level-prev" | "level-next", label: string, target: number, enabled: boolean): HTMLButtonElement => {
-      const button = buildButtonElement({
-        label: "",
-        ariaLabel: label,
-        className: `mm-icon-btn mm-home__level-btn mm-home__level-btn--${action === "level-prev" ? "prev" : "next"}`,
-        dataAction: action,
-        onClick: () => {
-          selectedLevel = target;
-          refresh();
-        },
-      });
-      button.disabled = !enabled;
-      return button;
-    };
-    const levelLabel = el("div", "mm-home__level-label");
-    levelLabel.append(el("span", "mm-home__level-eyebrow", copy["menu.level"]), el("b", "mm-home__level-num", String(level)));
-    picker.append(
-      stepButton("level-prev", copy["menu.prevLevel"], level - 1, level > 1),
-      levelLabel,
-      stepButton("level-next", copy["menu.nextLevel"], level + 1, level < current),
-    );
+    const saga = el("div", "mm-saga");
+    saga.setAttribute("aria-label", copy["menu.progression"]);
+    const eyebrow = el("span", "mm-saga__eyebrow", `${copy["menu.level"]} ${current}`);
+    const strip = el("div", "mm-saga__strip");
+    for (let id = Math.max(1, current - 2); id <= current + 2; id += 1) {
+      if (id > Math.max(1, current - 2)) strip.append(el("span", `mm-saga__link${id <= current ? " mm-saga__link--done" : ""}`));
+      const state = id < current ? "done" : id === current ? "current" : "locked";
+      const stateLabel = state === "done" ? copy["menu.cleared"] : state === "current" ? copy["menu.next"] : copy["menu.locked"];
+      const node = el("span", `mm-saga__node mm-saga__node--${state}`, String(id));
+      node.setAttribute("aria-label", `${copy["menu.level"]} ${id}, ${stateLabel}`);
+      strip.append(node);
+    }
+    saga.append(eyebrow, strip);
 
     const playWrap = el("div", "mm-home__play");
     const play = buildButtonElement({
@@ -369,14 +355,14 @@ export function mountMageMasterScreen(opts: MageMasterScreenOptions): MageMaster
       className: "mm-btn mm-btn--primary mm-btn--big",
       spriteImage: assetUrls.button.primary,
       dataAction: "play",
-      onClick: () => controller.enterLevel(level),
+      onClick: () => controller.enterLevel(current),
     });
     const cost = el("span", "mm-home__cost");
     cost.append(img(currencyIcon("energy"), "mm-inline-icon"), el("span", undefined, String(ENERGY.levelCost)));
     play.append(cost);
     const energyNote = el("p", "mm-home__note", "");
     live.set("energy-note", energyNote);
-    playWrap.append(picker, play, energyNote);
+    playWrap.append(saga, play, energyNote);
     home.append(hero, playWrap);
     return home;
   };
@@ -1135,7 +1121,6 @@ export function mountMageMasterScreen(opts: MageMasterScreenOptions): MageMaster
       // Art availability: a page rendered before a late-resolving asset re-renders once it lands.
       [artFrame("panel"), artFrame("button"), artScene("home"), artScene("rift"), artLettering("title")].filter(Boolean).length,
       snap.unlockedLevel,
-      selectedLevel ?? 0,
       snap.riftTier,
       snap.level,
       MAGE_CLASSES.map((c) => `${snap.loadout[c].weapon.id}:${snap.loadout[c].armor.id}`).join(","),
@@ -1189,10 +1174,6 @@ export function mountMageMasterScreen(opts: MageMasterScreenOptions): MageMaster
         toaster.show(copy["hint.rift"]);
       }
       previousSurface = snap.surface;
-    }
-    if (snap.unlockedLevel !== previousUnlocked) {
-      selectedLevel = null;
-      previousUnlocked = snap.unlockedLevel;
     }
     if (snap.riftTier !== previousTier) {
       // Only an increase is an upgrade; a reset lowers the tier silently.

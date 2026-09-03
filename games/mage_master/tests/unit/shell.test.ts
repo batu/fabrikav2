@@ -30,7 +30,8 @@ describe("mage master shell", () => {
     expect(screen.root.dataset.fabState).toBe("menu");
     expect(screen.root.querySelectorAll(".mm-party__mage").length).toBe(3);
     expect(screen.root.querySelector('[data-fab-action="play"]')).not.toBeNull();
-    expect(screen.root.querySelector('[data-fab-action="level-prev"]')).not.toBeNull();
+    expect(screen.root.querySelectorAll(".mm-saga__node").length).toBe(3);
+    expect(screen.root.querySelector(".mm-saga__node--current")?.textContent).toBe("1");
     screen.destroy();
   });
 

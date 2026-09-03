@@ -5,8 +5,6 @@ export const copy = {
   "game.title": "Mage Master",
   "menu.play": "Play",
   "menu.level": "Level",
-  "menu.prevLevel": "Previous level",
-  "menu.nextLevel": "Next level",
   "menu.levelShort": "Lv",
   "menu.stage": "Stage",
   "menu.locked": "Locked",

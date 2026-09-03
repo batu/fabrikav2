@@ -749,14 +749,24 @@
   font-size: 12px;
 }
 
-.mm-root--minimal .mm-home__level-eyebrow {
+.mm-root--minimal .mm-saga__eyebrow {
   color: var(--fab-mm-min-muted);
 }
 
-.mm-root--minimal .mm-home__level-num {
-  color: var(--fab-mm-min-ink);
+.mm-root--minimal .mm-saga__node,
+.mm-root--minimal .mm-saga__link {
+  background: var(--fab-mm-min-line);
+  color: var(--fab-mm-min-muted);
 }
 
-.mm-root--minimal .mm-home__level-btn {
-  color: var(--fab-mm-min-ink);
+.mm-root--minimal .mm-saga__node--done,
+.mm-root--minimal .mm-saga__link--done {
+  background: var(--fab-mm-min-positive);
+  color: var(--fab-mm-min-panel);
+}
+
+.mm-root--minimal .mm-saga__node--current {
+  background: var(--fab-mm-min-accent);
+  color: var(--fab-mm-min-panel);
+  box-shadow: 0 3px 0 var(--fab-mm-min-accent-deep);
 }
