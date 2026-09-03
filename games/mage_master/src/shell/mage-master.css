@@ -2101,6 +2101,53 @@ body {
   width: 100%;
 }
 
+.mm-compare__owner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 12px 6px 8px;
+  border-radius: 14px;
+  background: var(--fab-mm-hp-track);
+  border: 2px solid var(--fab-mm-gold);
+  text-align: left;
+}
+
+.mm-compare__owner--tank {
+  border-color: var(--fab-mm-element-ice);
+}
+
+.mm-compare__owner--warrior {
+  border-color: var(--fab-mm-element-fire);
+}
+
+.mm-compare__owner--support {
+  border-color: var(--fab-mm-success);
+}
+
+.mm-compare__owner-portrait {
+  width: 48px;
+  height: 48px;
+  flex: 0 0 auto;
+  object-fit: contain;
+}
+
+.mm-compare__owner-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.mm-compare__owner-name {
+  font-size: 17px;
+  font-weight: var(--fab-font-weight-bold);
+  color: var(--fab-mm-cream);
+}
+
+.mm-compare__owner-role {
+  font-size: 12px;
+  color: var(--fab-mm-cream-dim);
+}
+
 .mm-compare__head {
   display: grid;
   grid-template-columns: 1fr auto 1fr;

@@ -536,8 +536,18 @@ export function mountMageMasterScreen(opts: MageMasterScreenOptions): MageMaster
   };
 
   /** Equipped vs new, side by side, with per-stat deltas (the decision the reveal asks for). */
-  const compareCard = (item: Item, current: Item): HTMLElement => {
+  const compareCard = (snap: MageMasterSnapshot, item: Item, current: Item): HTMLElement => {
     const wrap = el("div", "mm-compare");
+    // Who receives it, first: portrait, name, role and the slot being replaced.
+    const owner = el("div", `mm-compare__owner mm-compare__owner--${item.cls}`);
+    owner.append(mageImage(lookFor(snap, item.cls), "mm-compare__owner-portrait", mageName(item.cls)));
+    const ownerText = el("div", "mm-compare__owner-text");
+    ownerText.append(
+      el("span", "mm-compare__owner-name", fill("reveal.for", { mage: mageName(item.cls) })),
+      el("span", "mm-compare__owner-role", `${copy[`mage.${item.cls}.role`]} · ${copy[item.slot === "weapon" ? "mages.weapon" : "mages.armor"]}`),
+    );
+    owner.append(ownerText);
+    wrap.append(owner);
     const column = (label: string, it: Item, isNew: boolean): HTMLElement => {
       const col = el("div", `mm-compare__col mm-rarity--${it.rarity}${isNew ? " mm-compare__col--new" : ""}`);
       col.append(el("span", "mm-compare__label", label));
@@ -996,7 +1006,7 @@ export function mountMageMasterScreen(opts: MageMasterScreenOptions): MageMaster
         if (!item) return null;
         const current = item.slot === "weapon" ? snap.loadout[item.cls].weapon : snap.loadout[item.cls].armor;
         const body = el("div", "mm-reveal");
-        body.append(compareCard(item, current));
+        body.append(compareCard(snap, item, current));
         body.append(el("p", "mm-reveal__replaces", fill("reveal.replaces", { name: itemName(current), gold: discardValue(current) })));
         const actions = el("div", "fab-modal-actions mm-reveal__actions");
         actions.append(

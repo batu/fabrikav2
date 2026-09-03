@@ -638,6 +638,18 @@
 }
 
 /* ---------- reveal comparison ---------- */
+.mm-root--minimal .mm-compare__owner {
+  background: var(--fab-mm-min-panel-alt);
+}
+
+.mm-root--minimal .mm-compare__owner-name {
+  color: var(--fab-mm-min-ink);
+}
+
+.mm-root--minimal .mm-compare__owner-role {
+  color: var(--fab-mm-min-muted);
+}
+
 .mm-root--minimal .mm-compare__label,
 .mm-root--minimal .mm-compare__traits,
 .mm-root--minimal .mm-compare__row dt,

@@ -13,8 +13,30 @@ const MUSIC_TRACKS: readonly MusicTrack[] = ["menu", "battle"];
 const MUSIC_VOLUME = 0.55;
 const MUSIC_FADE_OUT_MS = 220;
 const MUSIC_FADE_IN_MS = 450;
-/** Melee clusters would otherwise fire the same sample at one pitch; jitter it. */
-const HIT_PITCH_JITTER = 0.16;
+/** Every play picks a random playback rate in 1 ± jitter/2 so repeats never
+    sound identical; percussive cues get a wide range, jingles stay near tune. */
+const PITCH_JITTER: Record<SfxName, number> = {
+  tap: 0.2,
+  hit: 0.2,
+  crit: 0.16,
+  death: 0.16,
+  boss: 0.08,
+  heal: 0.1,
+  stageClear: 0.06,
+  win: 0.04,
+  lose: 0.04,
+  pull: 0.1,
+  rare: 0.06,
+  equip: 0.16,
+  coin: 0.2,
+  upgrade: 0.08,
+};
+/** Procedural voices read this while rendering; set per play. */
+let voicePitch = 1;
+function randomPitch(name: SfxName): number {
+  const jitter = PITCH_JITTER[name];
+  return 1 - jitter / 2 + Math.random() * jitter;
+}
 export type SfxName =
   | "tap"
   | "hit"
@@ -40,8 +62,8 @@ function tone(
   const gain = ctx.createGain();
   const t0 = ctx.currentTime + (opts.delay ?? 0);
   osc.type = opts.type;
-  osc.frequency.setValueAtTime(opts.from, t0);
-  if (opts.to !== undefined) osc.frequency.exponentialRampToValueAtTime(Math.max(20, opts.to), t0 + opts.seconds);
+  osc.frequency.setValueAtTime(opts.from * voicePitch, t0);
+  if (opts.to !== undefined) osc.frequency.exponentialRampToValueAtTime(Math.max(20, opts.to * voicePitch), t0 + opts.seconds);
   gain.gain.setValueAtTime(0.0001, t0);
   gain.gain.exponentialRampToValueAtTime(opts.gain ?? 0.25, t0 + 0.008);
   gain.gain.exponentialRampToValueAtTime(0.0001, t0 + opts.seconds);
@@ -260,11 +282,13 @@ export function createSfx(): Sfx {
       if (minGap && now - (lastPlayed.get(name) ?? -1000) < minGap) return;
       lastPlayed.set(name, now);
       try {
+        const pitch = randomPitch(name);
         if (clips.has(name)) {
-          const pitch = name === "hit" ? 1 - HIT_PITCH_JITTER / 2 + Math.random() * HIT_PITCH_JITTER : undefined;
           b.play(`clip:${name}`, { channel: "sfx", pitch });
         } else {
+          voicePitch = pitch;
           b.play(name, { channel: "sfx" });
+          voicePitch = 1;
         }
       } catch {
         // A failed voice must never break gameplay.
