@@ -3,7 +3,7 @@ import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { applyCrashlyticsGradle, copyOverlay, inspectBundleManifest, materializeFirebaseConfig, normalizeSha256, resolveReleaseIdentity, validateGeneratedAndroidProject, validateRecipe } from './src/release.mjs';
+import { applyCrashlyticsGradle, copyOverlay, inspectBundleManifest, materializeFirebaseConfig, normalizeSha256, resolveReleaseIdentity, validateGeneratedAndroidProject, validateRecipe, verifyJarSignatureOutput } from './src/release.mjs';
 
 const args = Object.fromEntries(process.argv.slice(2).map((part) => part.split('=', 2)));
 const command = process.argv[2]?.includes('=') ? null : process.argv[2];
@@ -66,7 +66,15 @@ try {
     const aab = args['--aab'] ?? process.argv.find((part) => part.startsWith('--aab='))?.split('=')[1];
     const bundletool = process.env.BUNDLETOOL_JAR;
     if (!aab || !bundletool) throw new Error('inspect-aab requires --aab=<exact path> and BUNDLETOOL_JAR');
-    execFileSync('jarsigner', ['-verify', '-strict', aab], { stdio: 'pipe' });
+    let signatureOutput = '';
+    let signatureExitCode = 0;
+    try {
+      signatureOutput = execFileSync('jarsigner', ['-verify', '-strict', '-verbose', aab], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
+    } catch (error) {
+      signatureExitCode = Number.isInteger(error.status) ? error.status : 1;
+      signatureOutput = `${error.stdout ?? ''}\n${error.stderr ?? ''}`;
+    }
+    verifyJarSignatureOutput(signatureOutput, signatureExitCode);
     const expectedCert = normalizeSha256(process.env.PLAY_UPLOAD_CERT_SHA256);
     const certificate = execFileSync('keytool', ['-printcert', '-jarfile', aab], { encoding: 'utf8' });
     const actualCert = normalizeSha256(/SHA256:\s*([A-Fa-f0-9:]+)/.exec(certificate)?.[1]);

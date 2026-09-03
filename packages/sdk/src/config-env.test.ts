@@ -36,6 +36,8 @@ describe('isRevenueCatIosPublicKey', () => {
 describe('isRevenueCatAndroidPublicKey', () => {
   it('accepts only owner public goog_ keys', () => {
     expect(isRevenueCatAndroidPublicKey(`goog_${'a'.repeat(28)}`)).toBe(true);
+    expect(isRevenueCatAndroidPublicKey(`goog_${'a'.repeat(27)}`)).toBe(true);
+    expect(isRevenueCatAndroidPublicKey(`goog_${'a'.repeat(26)}`)).toBe(false);
     expect(isRevenueCatAndroidPublicKey('test_placeholder_key')).toBe(false);
     expect(isRevenueCatAndroidPublicKey('goog_bad-key')).toBe(false);
   });

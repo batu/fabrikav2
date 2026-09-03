@@ -161,6 +161,25 @@ describe("level-complete confetti", () => {
     expect(coreCss).not.toMatch(/fabCompleteConfetti(?:Side|Top)Blast|fab-complete-confetti-(?:burst|fall)/);
   });
 
+  it("keeps the completion plaque clear of the mascot", () => {
+    const appCss = readFileSync(join(process.cwd(), "src/ui/styles.css"), "utf8");
+    const cardOverride = appCss.match(
+      /#level-complete-overlay \.fab-complete-card \{([\s\S]*?)\n\}/,
+    )?.[1];
+
+    expect(cardOverride).toBeDefined();
+    expect(cardOverride).toContain("padding: 160px 34px 24px;");
+
+    const shortViewportOverride = appCss.match(
+      /@media \(max-height: 860px\) \{([\s\S]*?)\n\}/,
+    )?.[1].match(
+      /#level-complete-overlay \.fab-complete-card \{([\s\S]*?)\n[ ]{2}\}/,
+    )?.[1];
+
+    expect(shortViewportOverride).toBeDefined();
+    expect(shortViewportOverride).toContain("padding: 160px 24px 18px;");
+  });
+
   it("clones the live home into the generation-guarded play-entry cover", () => {
     setReducedMotion(true);
     vi.spyOn(window, "requestAnimationFrame").mockImplementation((callback) => {

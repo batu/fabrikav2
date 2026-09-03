@@ -3,20 +3,35 @@
  * Deliberately not persisted: a style selected during an earlier build's
  * evaluation silently overrode the shipped default on device (build 6). */
 
-export const PICKUP_STYLE_OPTIONS = [
-  { value: 'classic', label: 'Classic' },
-  { value: 'dissolve', label: 'Dissolve' },
-  { value: 'feathers', label: 'Feathers' },
-  // 2026-08-07 juice proposals — each hides the sprite-swap size shift with a
-  // different opening beat; see the Portal review post.
-  { value: 'flashbulb', label: 'Flashbulb' },
-  { value: 'burst', label: 'Feather burst' },
-  { value: 'tumble', label: 'Pop & tumble' },
+const EXPERIMENTAL_PICKUP_STYLES = [
+  'classic',
+  'dissolve',
+  'feathers',
+  'flashbulb',
+  'burst',
+  'tumble',
 ] as const;
 
-export type PickupStyle = (typeof PICKUP_STYLE_OPTIONS)[number]['value'];
+export type PickupStyle = (typeof EXPERIMENTAL_PICKUP_STYLES)[number];
 
-export const DEFAULT_PICKUP_STYLE: PickupStyle = 'classic';
+// Production exposes only the sprite-free presentation. The other styles stay
+// available to the test harness for deliberate visual evaluation.
+export const PICKUP_STYLE_OPTIONS = [
+  { value: 'feathers', label: 'Feathers' },
+] as const satisfies ReadonlyArray<{ value: PickupStyle; label: string }>;
+
+export const DEFAULT_PICKUP_STYLE: PickupStyle = 'feathers';
+
+export function resolvePickupStyle(
+  requested: string | null,
+  allowExperimental = import.meta.env.DEV,
+): PickupStyle {
+  if (requested === 'feathers') return requested;
+  if (allowExperimental && EXPERIMENTAL_PICKUP_STYLES.includes(requested as PickupStyle)) {
+    return requested as PickupStyle;
+  }
+  return DEFAULT_PICKUP_STYLE;
+}
 
 let preference: PickupStyle | null = null;
 let liveApply: ((style: PickupStyle) => void) | null = null;

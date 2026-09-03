@@ -98,7 +98,7 @@ export function getSoundEffectsOutput(): GainNode {
 // outside the synchronous user-gesture window stays silent even after a later
 // resume(). resume() alone is unreliable for buffer playback; the canonical
 // unlock is to resume AND start a 1-sample silent buffer synchronously inside
-// the first user gesture. Every file-backed sound (background music, dog-found
+// the first user gesture. Every file-backed sound (background music, bird-found
 // samples) awaits ensureAudioUnlocked() before calling source.start(), so it
 // never starts on a suspended context. Synthesized SFX don't need this — they
 // start synchronously inside their own gesture handlers.
@@ -148,24 +148,25 @@ export function installAudioUnlock(): void {
   document.addEventListener('keydown', handler, { capture: true });
 }
 
-// ---- Dog-found voice samples ----
-// Recorded "excited dog" one-shots. On each pickup we play a random sample
-// at a random playback rate in [0.9, 1.1] so repeated finds don't sound
-// identical. Decoded buffers are cached after the first load.
-const DOG_FOUND_SAMPLE_COUNT = 13;
-const DOG_FOUND_SAMPLE_URLS: string[] = Array.from(
-  { length: DOG_FOUND_SAMPLE_COUNT },
-  (_, i): string => `/audio/dog-found/dog-found-${i + 1}.wav`,
+// ---- Bird-found samples ----
+// Ten short bird chirp/whistle one-shots (chirp, peep, whistle, tweet, warble,
+// quick pair, song note, two-note, double). On each pickup we play a random
+// sample at a random playback rate in [0.9, 1.1] so repeated finds don't
+// sound identical. Decoded buffers are cached after the first load.
+const BIRD_FOUND_SAMPLE_COUNT = 10;
+const BIRD_FOUND_SAMPLE_URLS: string[] = Array.from(
+  { length: BIRD_FOUND_SAMPLE_COUNT },
+  (_, i): string => `/audio/bird-found/bird-found-${i + 1}.wav`,
 );
-let dogFoundBuffersPromise: Promise<AudioBuffer[]> | null = null;
+let birdFoundBuffersPromise: Promise<AudioBuffer[]> | null = null;
 
-/** Fetch + decode every dog-found sample once. Safe to call repeatedly —
+/** Fetch + decode every bird-found sample once. Safe to call repeatedly —
  *  the work is memoized. Kick this off when a level loads so buffers are
- *  ready by the time the player taps a dog. */
-export function preloadDogFoundSounds(): Promise<AudioBuffer[]> {
+ *  ready by the time the player taps a bird. */
+export function preloadBirdFoundSounds(): Promise<AudioBuffer[]> {
   const ctx = getAudioContext();
-  dogFoundBuffersPromise ??= Promise.all(
-    DOG_FOUND_SAMPLE_URLS.map((url: string): Promise<AudioBuffer> =>
+  birdFoundBuffersPromise ??= Promise.all(
+    BIRD_FOUND_SAMPLE_URLS.map((url: string): Promise<AudioBuffer> =>
       fetch(url)
         .then((response: Response): Promise<ArrayBuffer> => {
           // iOS Capacitor serves app assets from the capacitor://localhost
@@ -174,7 +175,7 @@ export function preloadDogFoundSounds(): Promise<AudioBuffer[]> {
           // error status counts as a failure; status 0 is an accepted local
           // response. (Android uses https / web uses http, both real 200s.)
           if (!response.ok && response.status !== 0) {
-            throw new Error(`Failed to load dog-found sound: ${response.status}`);
+            throw new Error(`Failed to load bird-found sound: ${response.status}`);
           }
           return response.arrayBuffer();
         })
@@ -183,10 +184,10 @@ export function preloadDogFoundSounds(): Promise<AudioBuffer[]> {
   ).catch((error: unknown): never => {
     // Don't poison the whole session on a transient load/decode failure —
     // clear the memo so a later pickup can retry the fetch + decode.
-    dogFoundBuffersPromise = null;
+    birdFoundBuffersPromise = null;
     throw error;
   });
-  return dogFoundBuffersPromise;
+  return birdFoundBuffersPromise;
 }
 
 function playNotes(
@@ -296,13 +297,13 @@ function playVoiceBlip(): void {
 }
 
 export function playFind(): void {
-  // Play a random "excited dog" sample with a random playback rate in
+  // Play a random bird chirp sample with a random playback rate in
   // [0.9, 1.1] so repeated pickups vary in pitch. Wait for both the unlock
   // and the decoded buffers before start() — on iOS a buffer source started
   // on a suspended context never produces sound. Both promises resolve
   // instantly in steady state. Surface load/decode failures instead of
   // swallowing them.
-  void Promise.all([ensureAudioUnlocked(), preloadDogFoundSounds()])
+  void Promise.all([ensureAudioUnlocked(), preloadBirdFoundSounds()])
     .then(([, buffers]: [void, AudioBuffer[]]): void => {
       const ctx = getAudioContext();
       const buffer = buffers[Math.floor(Math.random() * buffers.length)];
@@ -313,7 +314,7 @@ export function playFind(): void {
       source.start(ctx.currentTime);
     })
     .catch((error: unknown): void => {
-      console.error('[audio] dog-found playback failed', error);
+      console.error('[audio] bird-found playback failed', error);
     });
 }
 
