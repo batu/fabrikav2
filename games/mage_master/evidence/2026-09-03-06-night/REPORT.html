@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mage Master — morning status 2026-09-03</title>
+<style>
+  :root { --ink:#1f1a14; --muted:#6b6257; --line:#e5dccd; --ok:#1f7a3a; --warn:#b3631a; --bad:#a32020; --bg:#faf6ef; --card:#fff; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:15px/1.45 -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; }
+  main { max-width:1040px; margin:0 auto; padding:28px 20px 60px; }
+  .eyebrow { margin:0; font-size:12px; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); }
+  h1 { margin:6px 0 8px; font-size:26px; line-height:1.2; }
+  h2 { margin:34px 0 10px; font-size:18px; border-bottom:1px solid var(--line); padding-bottom:6px; }
+  .summary { margin:0 0 14px; font-size:16px; }
+  .status { display:grid; grid-template-columns:repeat(auto-fit, minmax(220px,1fr)); gap:10px; margin:14px 0; }
+  .tile { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:12px 14px; }
+  .tile b { display:block; font-size:12px; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); margin-bottom:4px; }
+  .tag { display:inline-block; padding:1px 8px; border-radius:999px; font-size:12px; font-weight:600; }
+  .ok { background:#e2f3e7; color:var(--ok); } .warn { background:#fbe9d6; color:var(--warn); } .bad { background:#f9dede; color:var(--bad); }
+  table { width:100%; border-collapse:collapse; background:var(--card); border:1px solid var(--line); border-radius:10px; overflow:hidden; font-size:14px; }
+  th, td { text-align:left; vertical-align:top; padding:8px 10px; border-bottom:1px solid var(--line); }
+  th { background:#f3ede2; font-size:12px; letter-spacing:.05em; text-transform:uppercase; color:var(--muted); }
+  tr:last-child td { border-bottom:0; }
+  .shots { display:grid; grid-template-columns:repeat(auto-fill, minmax(150px,1fr)); gap:12px; margin:12px 0; }
+  figure { margin:0; }
+  figure img { width:100%; border:1px solid var(--line); border-radius:8px; background:#222; }
+  figcaption { font-size:12px; color:var(--muted); margin-top:4px; }
+  code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size:13px; background:#f1ebe0; padding:1px 5px; border-radius:4px; }
+  ol li, ul li { margin:4px 0; }
+  details { margin:10px 0; } summary { cursor:pointer; font-weight:600; }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <p class="eyebrow">Status report · Mage Master vertical slice · worktree <code>feat/mage-master</code></p>
+    <h1>Playable on the iPhone end to end; the night pass closed the visual majors the judges found. Two things are still unverified.</h1>
+    <p class="summary">Energy → levels → three mages auto-fighting four stages → drops → win/lose → Rift pulls with odds → use/discard → Rift upgrade timer with gem skip → offline income → sandbox gem shop: all captured on the device. Not verified: a 30-minute device re-soak on the softened ramp, and a real (non-sandbox) purchase. Details, evidence paths and the decisions you own are below.</p>
+  </header>
+
+  <section aria-labelledby="verdict">
+    <h2 id="verdict">Where it stands</h2>
+    <div class="status">
+      <div class="tile"><b>Loop on device</b><span class="tag ok">Verified</span><br>Every design-doc loop element captured on the phone (evidence 01, 03, 04). Requirements audit: 32 of 36 MET, 4 PARTIAL, 0 MISSING.</div>
+      <div class="tile"><b>Fidelity bar</b><span class="tag ok">Judged pass</span><br>Home, Rift, Mages, Battle passed the multi-model judge on 2026-09-02. Night pass fixed Victory, Shop, Settings, boss bar, top bar. Final re-judge of Shop, Settings and Victory: pass, pass, pass.</div>
+      <div class="tile"><b>Handover build</b><span id="handover-tag" class="tag ok">Installed 10:31</span><br>Standalone build (bundled dist, no dev server) installed and launched on the phone; your existing save is intact (level 5, offline income claimed on the wood-framed Welcome Back card, capture 19). Two build traps fixed on the way: copied derived data pointing at the main checkout, and a locked keychain (errSecInternalComponent).</div>
+      <div class="tile"><b>Unverified</b><span class="tag warn">2 items</span><br>30-minute device re-soak after the ramp retune (headless pacing test is green); on-device purchase tap (the DOM purchase test is green, the shop renders on device).</div>
+    </div>
+  </section>
+
+  <section aria-labelledby="night">
+    <h2 id="night">Night pass — what the review captures found, and the fixes</h2>
+    <table>
+      <thead><tr><th style="width:26%">Finding</th><th>Cause</th><th>Fix</th><th style="width:18%">Evidence</th></tr></thead>
+      <tbody>
+        <tr><td>Victory / Defeat buttons rendered as bare text</td><td>Runtime art variables were defaulted to <code>none</code> on <code>.fab-ui</code>; every kit root nested in the game root carries that class, so modal cards reset the inherited plate URL.</td><td>Defaults moved to <code>:root</code> only. Recorded as kit trap #3 in auto-memory.</td><td>03 → 06, 15</td></tr>
+        <tr><td>Boss health bar hidden behind the framed level strip</td><td>Phaser bar at canvas y≈40 under the DOM strip.</td><td>Bar is a DOM overlay at the arena top, driven per frame from the sim view.</td><td>02 → 09</td></tr>
+        <tr><td>Gold "12…" at four digits</td><td>Pills shrank unevenly; energy timer inline.</td><td>Equal-width pills, timer stacked under the value, counts ≥ 10 000 compact to "10.9k".</td><td>13, 14</td></tr>
+        <tr><td>Shop: price plates floating, dead wood below, one-copy-for-all</td><td>Kit grid layout with the plate outside the card.</td><td>Framed pack rows (art · name over copy · plate inside), per-pack copy, "Best value" badge inside the frame, rift scene under the packs.</td><td>01 → 16</td></tr>
+        <tr><td>Settings: flat kit page</td><td>Unstyled PageShell.</td><td>Painted camp scene under a scrim, one framed panel with the toggle rows and a full-width Reset plate.</td><td>04 → 17</td></tr>
+        <tr><td>Modal cards on the flat SVG plate</td><td>Kit card image.</td><td>Victory, Defeat, Pause and Reveal cards wear the painted wood 9-slice.</td><td>15, 18</td></tr>
+      </tbody>
+    </table>
+    <div class="shots">
+      <figure><img src="03-victory-before.png" alt="Victory card before: bare text buttons"><figcaption>03 · Victory before</figcaption></figure>
+      <figure><img src="15-victory-wood-frame.png" alt="Victory card after: plates on wood frame"><figcaption>15 · Victory after</figcaption></figure>
+      <figure><img src="02-boss-bar-before.png" alt="Boss bar hidden before"><figcaption>02 · Boss bar before</figcaption></figure>
+      <figure><img src="09-boss-bar-after.png" alt="Boss bar visible after"><figcaption>09 · Boss bar after</figcaption></figure>
+      <figure><img src="01-shop-before.png" alt="Shop before"><figcaption>01 · Shop before</figcaption></figure>
+      <figure><img src="16-shop-final.png" alt="Shop after"><figcaption>16 · Shop after</figcaption></figure>
+      <figure><img src="04-settings-before.png" alt="Settings before"><figcaption>04 · Settings before</figcaption></figure>
+      <figure><img src="17-settings-final.png" alt="Settings after"><figcaption>17 · Settings after</figcaption></figure>
+      <figure><img src="13-topbar-worst-case.png" alt="Top bar worst case"><figcaption>13 · Top bar, worst case</figcaption></figure>
+      <figure><img src="18-pause-wood-frame.png" alt="Pause card"><figcaption>18 · Pause card</figcaption></figure>
+      <figure><img src="19-standalone-home.png" alt="Standalone build home with Welcome Back card"><figcaption>19 · Standalone build, 10:31</figcaption></figure>
+    </div>
+  </section>
+
+  <section aria-labelledby="judges">
+    <h2 id="judges">Judge trajectory (pixelsmith, multi-model consensus on device captures)</h2>
+    <table>
+      <thead><tr><th>Screen</th><th>Round</th><th>Verdict</th><th>Majors that drove the next fix</th></tr></thead>
+      <tbody id="judge-rows">
+        <tr><td>Shop</td><td>v1 (grid)</td><td><span class="tag warn">pass, 3 majors</span></td><td>truncated coin ×3 models, dead space below Restore, detached price plates</td></tr>
+        <tr><td>Shop</td><td>v2 (rows)</td><td><span class="tag warn">pass, 3 majors</span></td><td>copy wrapping, badge over the rail, flat top area</td></tr>
+        <tr><td>Settings</td><td>v1 (kit)</td><td><span class="tag bad">fail</span></td><td>reset width, empty lower half, flat background</td></tr>
+        <tr><td>Settings</td><td>v2 (scene + panel)</td><td><span class="tag warn">pass, 2 majors</span></td><td>panel sat too low, reset crowding</td></tr>
+        <tr><td>Victory</td><td>v1</td><td><span class="tag warn">pass, 4 majors</span></td><td>flat card interior, truncated coin (already fixed), plate style mix (by design)</td></tr>
+        <tr><td>Boss fight</td><td>v1</td><td><span class="tag bad">fail</span></td><td>melee mages overlap the boss body (sim separation, open), unframed boss bar; the truncated-coin majors are fixed</td></tr>
+        <tr><td>Shop</td><td>v3 (final)</td><td><span class="tag ok">pass</span></td><td>remaining notes are nits: flat badge, restore-button centering, scene seam</td></tr>
+        <tr><td>Settings</td><td>v3 (final)</td><td><span class="tag ok">pass</span></td><td>one contested major: the judge wanted a darker reset plate; kept the dark plate with gold rim for consistency with Home</td></tr>
+        <tr><td>Victory</td><td>v2 (wood frame)</td><td><span class="tag ok">pass</span></td><td>notes are by-design: paused units behind the card, gold vs dark plate hierarchy, card fills the width</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section aria-labelledby="open">
+    <h2 id="open">Open items — decisions and work you own</h2>
+    <ol>
+      <li><b>Real purchases.</b> The Gem shop runs on the SDK's sandbox provider (instant settle). RevenueCat + App Store products are a separate lane; the sandbox stays in until you say which store setup to use.</li>
+      <li><b>Boss readability.</b> Melee mages stand inside the boss silhouette during boss stages. Fix is in the sim's separation radius (boss-scaled), which touches melee reach; not attempted blind at 10:30.</li>
+      <li><b>Re-soak.</b> The 30-minute device soak was run before the ramp retune (level-6 wall found, then softened). The headless pacing bot passes on the shipped tuning; the device re-soak still needs a free phone for 30 minutes.</li>
+      <li><b>Design-doc deviations kept</b> (audit PARTIALs): defeat card offers Retry; armor substat pool includes a small ATK roll.</li>
+    </ol>
+  </section>
+
+  <section aria-labelledby="where">
+    <h2 id="where">Where everything is</h2>
+    <ul>
+      <li>Worktree <code>fabrikav2/.worktrees/mage-master</code>, branch <code>feat/mage-master</code>, commits <code>05007f533</code> (fidelity pass) → <code>d2890da62</code> (night fixes). <code>main</code> untouched.</li>
+      <li>Evidence: <code>games/mage_master/evidence/2026-09-02-01…05</code> (slice, polish, soak, video, fidelity) and <code>2026-09-03-06-night/</code> (this pass, JOURNAL.md + judge JSON).</li>
+      <li>Docs: <code>docs/plans/2026-09-02-001-feat-mage-master-mvp-plan.md</code>, <code>games/mage_master/docs/{research,requirements-audit,brief}.md</code>.</li>
+      <li>Device loop scripts: <code>tools/mage-master-dev/</code> (install, dev install, drive, shot, soak, judge, record, trim/matte/garment). README inside.</li>
+      <li>Checks at handover: typecheck clean, 20 unit tests green (incl. the 30-minute pacing bot and the DOM purchase test), repo audit passing with token warnings only.</li>
+    </ul>
+  </section>
+
+  <section aria-labelledby="next">
+    <h2 id="next">Suggested next actions</h2>
+    <ol>
+      <li>Play the standalone build for 30 minutes on the phone; note where it stalls or feels dead.</li>
+      <li>Decide the store lane for gems (RevenueCat vs StoreKit direct).</li>
+      <li>Approve a sim pass on boss separation; I will capture a 15 fps burst before/after.</li>
+    </ol>
+  </section>
+</main>
+</body>
+</html>
