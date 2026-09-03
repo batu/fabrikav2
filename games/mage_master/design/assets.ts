@@ -175,14 +175,14 @@ export interface MageAnchor {
   readonly staffAngle: number;
   readonly staffPivotX: number;
   readonly staffPivotY: number;
-  /** Draw the staff behind the body (hand in front of the shaft). */
+  /** Draw the staff behind the body (hand in front of the shaft); false keeps the wand on top of the hand. */
   readonly staffBehind: boolean;
 }
 
 const ANCHORS: Readonly<Record<string, MageAnchor>> = {
-  tank: { x: 0.15, y: 0.21, staffScale: 0.66, staffAngle: -6, staffPivotX: 0.44, staffPivotY: 0.56, staffBehind: true },
-  warrior: { x: 0.19, y: 0.32, staffScale: 0.62, staffAngle: -8, staffPivotX: 0.44, staffPivotY: 0.56, staffBehind: true },
-  support: { x: 0.27, y: 0.29, staffScale: 0.6, staffAngle: -4, staffPivotX: 0.44, staffPivotY: 0.56, staffBehind: true },
+  tank: { x: 0.15, y: 0.21, staffScale: 0.66, staffAngle: -6, staffPivotX: 0.44, staffPivotY: 0.56, staffBehind: false },
+  warrior: { x: 0.19, y: 0.32, staffScale: 0.62, staffAngle: -8, staffPivotX: 0.44, staffPivotY: 0.56, staffBehind: false },
+  support: { x: 0.27, y: 0.29, staffScale: 0.6, staffAngle: -4, staffPivotX: 0.44, staffPivotY: 0.56, staffBehind: false },
 };
 
 export function mageAnchor(cls: string): MageAnchor {
