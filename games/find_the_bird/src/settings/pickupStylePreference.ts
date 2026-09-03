@@ -16,7 +16,7 @@ export const PICKUP_STYLE_OPTIONS = [
 
 export type PickupStyle = (typeof PICKUP_STYLE_OPTIONS)[number]['value'];
 
-export const DEFAULT_PICKUP_STYLE: PickupStyle = 'classic';
+export const DEFAULT_PICKUP_STYLE: PickupStyle = 'feathers';
 
 let preference: PickupStyle | null = null;
 let liveApply: ((style: PickupStyle) => void) | null = null;

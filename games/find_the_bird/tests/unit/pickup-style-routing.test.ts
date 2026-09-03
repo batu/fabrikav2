@@ -8,12 +8,12 @@ const hud = readFileSync(join(process.cwd(), 'src/ui/HUD.ts'), 'utf8');
 const testHarness = readFileSync(join(process.cwd(), 'src/testing/TestHarness.ts'), 'utf8');
 
 describe('pickup style routing', () => {
-  it('uses Classic as the single default for gameplay and Settings', () => {
-    expect(pickupPreference).toContain("export const DEFAULT_PICKUP_STYLE: PickupStyle = 'classic';");
+  it('uses the sprite-free Feathers style as the single default for gameplay and Settings', () => {
+    expect(pickupPreference).toContain("export const DEFAULT_PICKUP_STYLE: PickupStyle = 'feathers';");
     expect(gameScene).toContain('?? DEFAULT_PICKUP_STYLE;');
     expect(hud).toContain('getPickupStylePreference() ?? DEFAULT_PICKUP_STYLE');
-    expect(gameScene).not.toContain("?? 'dissolve';");
-    expect(hud).not.toContain("getPickupStylePreference() ?? 'dissolve'");
+    expect(gameScene).not.toContain("?? 'classic';");
+    expect(hud).not.toContain("getPickupStylePreference() ?? 'classic'");
   });
 
   it('routes the feathers style to an animation that never creates a bird cutout', () => {
