@@ -6,7 +6,7 @@ from PIL import Image, ImageChops
 D=ROOT+"/games/mage_master/design/assets"
 src=open(ROOT+"/games/mage_master/design/assets.ts").read()
 anchors={}
-for m in re.finditer(r'(\w+): \{ x: ([\d.]+), y: ([\d.]+), staffScale: ([\d.]+), staffAngle: (-?[\d.]+), staffPivotX: ([\d.]+), staffPivotY: ([\d.]+), staffBehind: (true|false) \}', src):
+for m in re.finditer(r'(\w+): \{ x: ([\d.]+), y: ([\d.]+), staffScale: ([\d.]+), staffAngle: (-?[\d.]+), staffPivotX: ([\d.]+), staffPivotY: ([\d.]+), staffBehind: (true|false)[^}]*\}', src):
     anchors[m.group(1)]=dict(x=float(m.group(2)),y=float(m.group(3)),scale=float(m.group(4)),angle=float(m.group(5)),px=float(m.group(6)),py=float(m.group(7)),behind=m.group(8)=="true")
 tokens=open(ROOT+"/games/mage_master/design/tokens.css").read()
 def color(rarity):
