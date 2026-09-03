@@ -180,9 +180,10 @@ export interface MageAnchor {
 }
 
 const ANCHORS: Readonly<Record<string, MageAnchor>> = {
-  tank: { x: 0.15, y: 0.21, staffScale: 0.66, staffAngle: -6, staffPivotX: 0.44, staffPivotY: 0.56, staffBehind: false },
-  warrior: { x: 0.19, y: 0.32, staffScale: 0.62, staffAngle: -8, staffPivotX: 0.44, staffPivotY: 0.56, staffBehind: false },
-  support: { x: 0.27, y: 0.29, staffScale: 0.6, staffAngle: -4, staffPivotX: 0.44, staffPivotY: 0.56, staffBehind: false },
+  // Fist centres of the 2026-09-03 chibi set (measured on a 0.1 grid over the 512 body box).
+  tank: { x: 0.15, y: 0.24, staffScale: 0.62, staffAngle: -6, staffPivotX: 0.44, staffPivotY: 0.56, staffBehind: false },
+  warrior: { x: 0.27, y: 0.42, staffScale: 0.58, staffAngle: -8, staffPivotX: 0.44, staffPivotY: 0.56, staffBehind: false },
+  support: { x: 0.24, y: 0.38, staffScale: 0.56, staffAngle: -4, staffPivotX: 0.44, staffPivotY: 0.56, staffBehind: false },
 };
 
 export function mageAnchor(cls: string): MageAnchor {
