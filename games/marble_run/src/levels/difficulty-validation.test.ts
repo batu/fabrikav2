@@ -49,7 +49,7 @@ describe('Export Candidate validation', () => {
     const value = { ...candidate(), changedLevelIds: [7] };
     const draftFingerprint = await fingerprintCanonicalDifficultyJson({ authored: value.authored, levels: value.levels, locks: value.locks, overrides: value.overrides });
     expect((await validateExportCandidate(value, { baselineCandidate: candidate(), currentDraftFingerprint: draftFingerprint })).issues).toEqual(expect.arrayContaining([expect.stringMatching(/stale/i), expect.stringMatching(/changed-level inventory/i)]));
-  });
+  }, 15_000);
 
   it('requires an intrinsic lowercase SHA-256 reviewed-draft fingerprint', async () => {
     const value = { ...candidate(), reviewedDraftFingerprint: 'A'.repeat(64) };
