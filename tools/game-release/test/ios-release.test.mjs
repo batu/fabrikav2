@@ -119,7 +119,7 @@ describe('iOS exact release lane', () => {
     expect(deps.queryInstalledApp({ bundleId: 'com.example.dog', device: { udid: 'PHONE' } })).toEqual({ bundleId: 'com.example.dog', version: '1.2.3', buildId });
   });
 
-  it('force-applies the exact GameAnalytics persistence patch before the iOS web build', () => {
+  it('verifies both dependency patches before the iOS web build', () => {
     const calls = [];
     const deps = defaultDependencies({
       execImpl: (file, args, options) => {
@@ -137,12 +137,35 @@ describe('iOS exact release lane', () => {
         cwd: '/repo',
       },
       {
+        file: 'node',
+        args: ['tools/patch-admob-ios-revenue.mjs', '--verify'],
+        cwd: '/repo',
+      },
+      {
         file: 'npm',
         args: ['run', 'build:ios'],
         cwd: '/repo/games/find_the_dog',
       },
     ]);
   });
+
+  it.each(['tools/patch-gameanalytics-persistence.mjs', 'tools/patch-admob-ios-revenue.mjs'])(
+    'blocks the iOS web build when dependency verification fails: %s',
+    (failedPatch) => {
+      const calls = [];
+      const deps = defaultDependencies({
+        execImpl: (file, args) => {
+          calls.push({ file, args });
+          if (args[0] === failedPatch) throw new Error('dependency correction missing');
+          return '';
+        },
+      });
+
+      expect(() => deps.buildWeb({ gameDir: '/repo/games/find_the_dog', env: {} })).toThrow('dependency correction missing');
+      expect(calls.at(-1)).toEqual({ file: 'node', args: [failedPatch, '--verify'] });
+      expect(calls.some(({ file }) => file === 'npm')).toBe(false);
+    },
+  );
 
   it('passes the requested marketing version to Xcode', () => {
     const root = fs.mkdtempSync(path.join(os.tmpdir(), 'ios-release-build-'));

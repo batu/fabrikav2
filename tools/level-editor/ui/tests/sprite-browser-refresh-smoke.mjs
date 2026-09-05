@@ -1,6 +1,5 @@
-import { spawn } from 'node:child_process';
 import { createServer } from 'node:net';
-import { chromium } from 'playwright';
+import { startSmokeVite, launchSmokeBrowser } from './smoke-support.mjs';
 
 const port = await freePort();
 const baseUrl = `http://127.0.0.1:${port}`;
@@ -47,21 +46,31 @@ function waitForServer() {
 }
 
 async function run() {
-  const vite = spawn(
-    process.platform === 'win32' ? 'npx.cmd' : 'npx',
-    ['vite', '--host', '127.0.0.1', '--port', String(port)],
-    { detached: process.platform !== 'win32', stdio: ['ignore', 'ignore', 'ignore'] },
-  );
+  const vite = startSmokeVite(port);
   let browser;
   try {
     await waitForServer();
-    browser = await chromium.launch({ headless: true });
+    browser = await launchSmokeBrowser(baseUrl);
     const page = await browser.newPage({ viewport: { width: 1280, height: 1100 } });
     let candidateRequests = 0;
     let refreshedCandidate = false;
+    let ready = false;
 
     await page.route('**/*', async (route) => {
       const url = new URL(route.request().url());
+      if (url.pathname === '/api/sessions') {
+        await route.fulfill({ json: ready ? [{
+          id: sessionId, name: 'Refresh demo', nDogs: 1, hasImage: true,
+          hasThumbnail: true, setting: 'park', exported: false,
+          model: 'scripted', variants: [], scene: 'bench', entity: 'dog',
+          orientation: 'portrait', createdAt: '2026-05-11T12:00:00Z',
+        }] : [] });
+        return;
+      }
+      if (url.pathname === `/api/sessions/${sessionId}/animation-jobs`) {
+        await route.fulfill({ json: { jobs: [] } });
+        return;
+      }
       if (url.pathname === `/api/sessions/${sessionId}/sprite-candidates`) {
         candidateRequests += 1;
         await route.fulfill({
@@ -97,13 +106,13 @@ async function run() {
         });
         return;
       }
-      await route.continue();
+      await route.fallback();
     });
 
     await page.goto(`${baseUrl}/tests/sprite-browser-refresh-harness.html`);
     await page.waitForSelector('.sprite-browser-empty');
     const waitingText = await page.locator('.sprite-browser-empty').last().innerText();
-    if (!waitingText.includes('Finish generating dog sprites')) {
+    if (!waitingText.includes('No generated sprites found yet')) {
       throw new Error(`Expected waiting state before sprite candidates are ready, got: ${waitingText}`);
     }
     if (candidateRequests !== 0) {
@@ -111,26 +120,27 @@ async function run() {
     }
     const beforeReadyCandidateRequests = candidateRequests;
 
-    await page.locator('#settle').click();
-    await page.waitForSelector('.sprite-candidate-card');
+    ready = true;
+    await page.locator('.animation-page-actions').getByRole('button', { name: 'Refresh', exact: true }).click();
+    await page.waitForSelector('.animation-page-sprite');
     if (candidateRequests <= beforeReadyCandidateRequests) {
       throw new Error(`Expected a candidate fetch after sprites settle, got ${candidateRequests}`);
     }
-    const summary = await page.locator('.sprite-browser-summary').innerText();
+    const summary = await page.locator('.animation-page-count').innerText();
     if (!summary.includes('1 of 1')) {
       throw new Error(`Expected ready candidate summary after sprites settle, got: ${summary}`);
     }
-    await page.locator('.sprite-candidate-card').click();
+    await page.locator('.animation-page-sprite').click();
     await page.waitForSelector('.sprite-animation-wizard');
     await page.getByLabel('Custom direction').fill('This draft should clear after source refresh.');
     const beforeCandidateRefresh = candidateRequests;
     refreshedCandidate = true;
-    await page.locator('#refresh-candidates').click();
+    await page.locator('.animation-page-actions').getByRole('button', { name: 'Refresh', exact: true }).click();
     await page.waitForTimeout(500);
     if (candidateRequests <= beforeCandidateRefresh) {
       throw new Error(`Expected candidate refresh after dog variant change, got ${candidateRequests}`);
     }
-    const selectionText = await page.locator('.sprite-browser-selection').innerText();
+    const selectionText = await page.locator('.animation-page-selected').innerText();
     if (!selectionText.includes('dog #0')) {
       throw new Error(`Expected selection to survive candidate refresh, got: ${selectionText}`);
     }

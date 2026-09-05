@@ -7,6 +7,7 @@
  */
 export * from './catalog.ts';
 export * from './service.ts';
+export * from './pending-purchases.ts';
 export * from './fake-provider.ts';
 export * from './revenuecat-provider.ts';
 export * from './fulfillment.ts';

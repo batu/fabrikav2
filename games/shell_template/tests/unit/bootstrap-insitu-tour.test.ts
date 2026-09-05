@@ -101,6 +101,8 @@ describe("find_the_dog bootstrap insitu tour wiring", () => {
     vi.doMock("../../src/shop/IapService", () => ({
       iapService: {
         setOnCustomerInfoUpdate: vi.fn(),
+        setOnCompletedPurchase: vi.fn(),
+        reconcilePendingPurchases: vi.fn(),
         init: vi.fn(),
         initPromiseValue: null,
         restore: vi.fn(),
@@ -141,5 +143,12 @@ describe("find_the_dog bootstrap insitu tour wiring", () => {
         snapshotMatchesState: snapshotMatchesFindTheDogDriveState,
       });
     });
+    const { iapService } = await import("../../src/shop/IapService");
+    const { registerLifecycleHooks } = await import("../../src/platform/gameLifecycle");
+    expect(iapService.setOnCompletedPurchase).toHaveBeenCalledWith(expect.any(Function));
+    const recovery = vi.mocked(registerLifecycleHooks).mock.calls.find(([id]) => id === "pending-purchases");
+    expect(recovery).toBeDefined();
+    recovery![1].onResume?.(10);
+    expect(iapService.reconcilePendingPurchases).toHaveBeenCalledOnce();
   });
 });

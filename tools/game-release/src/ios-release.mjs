@@ -326,6 +326,7 @@ export function defaultDependencies({ execImpl = execFileSync, spawnImpl = spawn
     buildWeb(request) {
       const root = repoRoot(request);
       run('node', ['tools/patch-gameanalytics-persistence.mjs', '--verify'], { cwd: root, env: childEnv(request) });
+      run('node', ['tools/patch-admob-ios-revenue.mjs', '--verify'], { cwd: root, env: childEnv(request) });
       run('npm', ['run', 'build:ios'], { cwd: request.gameDir, env: childEnv(request) });
     },
     syncNative(request) {

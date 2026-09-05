@@ -12,6 +12,7 @@ import { fileURLToPath } from 'node:url';
 
 const testsDir = dirname(fileURLToPath(import.meta.url));
 const smokes = readdirSync(testsDir).filter((f) => f.endsWith('-smoke.mjs')).sort();
+if (smokes.length === 0) throw new Error('No editor browser smoke tests discovered');
 
 let failed = 0;
 for (const smoke of smokes) {

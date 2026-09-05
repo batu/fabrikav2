@@ -1,9 +1,8 @@
 import { Buffer } from 'node:buffer';
-import { spawn } from 'node:child_process';
 import { createServer } from 'node:net';
 import process from 'node:process';
 import { URL } from 'node:url';
-import { chromium } from 'playwright';
+import { startSmokeVite, launchSmokeBrowser } from './smoke-support.mjs';
 
 const port = await freePort();
 const baseUrl = `http://127.0.0.1:${port}`;
@@ -79,19 +78,27 @@ function waitForServer() {
 }
 
 async function run() {
-  const vite = spawn(
-    process.platform === 'win32' ? 'npx.cmd' : 'npx',
-    ['vite', '--host', '127.0.0.1', '--port', String(port)],
-    { detached: process.platform !== 'win32', stdio: ['ignore', 'ignore', 'ignore'] },
-  );
+  const vite = startSmokeVite(port);
   let browser;
   try {
     await waitForServer();
-    browser = await chromium.launch({ headless: true });
+    browser = await launchSmokeBrowser(baseUrl);
     const page = await browser.newPage({ viewport: { width: 1000, height: 900 } });
 
     await page.route('**/*', async (route) => {
       const url = new URL(route.request().url());
+      if (url.pathname === '/api/config/geometry') {
+        await route.fulfill({ json: {
+          hudFraction: 0.139, bannerFraction: 0.071, sectionBoundaryBuffer: 60,
+          landscapeEdgeSafeArea: 128, viewportSafeFraction: 0.8, nSections: 3,
+          portraitReference: { width: 768, height: 1376, deadzones: [] },
+        } });
+        return;
+      }
+      if (url.pathname.startsWith('/api/sessions/step_place_dogs_prompt_contract/sprite-candidate/')) {
+        await route.fulfill({ contentType: 'image/png', body: png });
+        return;
+      }
       if (url.pathname === '/api/sessions/step_place_dogs_prompt_contract') {
         await route.fulfill({ json: session });
         return;
@@ -108,18 +115,18 @@ async function run() {
         await route.fulfill({ contentType: 'image/png', body: png });
         return;
       }
-      await route.continue();
+      await route.fallback();
     });
 
     await page.goto(`${baseUrl}/tests/step-place-dogs-harness.html`);
     await page.getByTestId('dogs-canvas').waitFor({ timeout: 10_000 });
     await page.getByRole('button', { name: 'Inpaint All dogs (1)' }).waitFor({ timeout: 10_000 });
-    await page.getByTestId('inpaint-mode-crop_reference').click();
+    await page.getByTestId('inpaint-mode-crop').click();
     await page.getByRole('button', { name: 'Inpaint All dogs (1)' }).click();
     await page.waitForFunction(() => window.__lastInpaintStart !== undefined, null, { timeout: 5_000 });
     const mode = await page.evaluate(() => window.__lastInpaintStart?.[3]);
-    if (mode !== 'crop_reference') {
-      throw new Error(`Expected crop_reference mode, got ${mode}`);
+    if (mode !== 'crop') {
+      throw new Error(`Expected crop mode, got ${mode}`);
     }
 
     const body = await page.locator('body').innerText();

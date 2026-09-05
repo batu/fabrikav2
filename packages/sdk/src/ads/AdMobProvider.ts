@@ -52,8 +52,10 @@ export interface AdMobPaidImpression {
 }
 type AdEventListener = (info: AdEventInfo) => void;
 type ListenerHandle = { remove: () => Promise<void> };
-type FullScreenAdDismissalWaiter = {
-  wait: () => Promise<void>;
+type RewardedTerminalWaiter = {
+  wait: () => Promise<RewardedAdResult>;
+  reward: (info: AdEventInfo) => void;
+  fail: () => void;
   cleanup: () => Promise<void>;
 };
 
@@ -667,16 +669,18 @@ export class AdMobProvider implements AdProvider {
    * blocked by an ad load.
    */
   async preloadRewarded(): Promise<void> {
+    if (this.disposed) return;
     if (this.rewardedPreloadPromise) {
       return this.rewardedPreloadPromise;
     }
 
+    const generation = this.generation;
     this.rewardedPreloadPromise = (async (): Promise<void> => {
       await this.init();
-      if (!this.initialized) return;
+      if (this.disposed || this.generation !== generation || !this.initialized) return;
 
       const platform: RuntimePlatform = await this.adapter.getPlatform();
-      if (platform === 'web') return;
+      if (this.disposed || this.generation !== generation || platform === 'web') return;
 
       const options: RewardAdOptions = {
         adId: getRewardedUnitId(platform, this.config),
@@ -691,6 +695,7 @@ export class AdMobProvider implements AdProvider {
           isTesting: options.isTesting,
         });
         await this.adapter.prepareRewardVideoAd(options);
+        if (this.disposed || this.generation !== generation) return;
         this.rewardedLoaded = true;
         this.log('rewarded ad preloaded');
       } catch (err: unknown) {
@@ -712,41 +717,53 @@ export class AdMobProvider implements AdProvider {
    * (cancelled, failed to load, web platform, ads disabled).
    */
   async showRewardedAd(): Promise<RewardedAdResult> {
-    await this.init();
-    if (!this.initialized) return { granted: false };
-
-    const platform: RuntimePlatform = await this.adapter.getPlatform();
-    if (platform === 'web') return { granted: false };
-
-    if (!this.rewardedLoaded) {
-      await this.preloadRewarded();
-    }
-    if (!this.rewardedLoaded) return { granted: false };
-
-    const dismissal = await this.createFullScreenAdDismissalWaiter(
-      RewardAdPluginEvents.Dismissed,
-      RewardAdPluginEvents.FailedToShow,
-      'rewarded',
-    );
-    const finishFullScreenAd = this.beginFullScreenAd('rewarded');
+    if (this.disposed || this.showInProgress) return { granted: false };
+    // Own the same fullscreen gate as interstitials, including preparation.
+    this.showInProgress = true;
+    const generation = this.generation;
+    let cancelShow: () => void = (): void => {};
+    const cancelled = new Promise<undefined>((resolve) => {
+      cancelShow = (): void => resolve(undefined);
+    });
+    this.activeShowSettle = cancelShow;
+    const isCurrent = (): boolean => !this.disposed && this.generation === generation;
+    let terminal: RewardedTerminalWaiter | null = null;
+    let finishFullScreenAd = (): void => {};
     try {
-      // Adapter contract: resolves with an AdMobRewardItem iff the player
-      // completed the video; rejects on cancel / load failure. The reward can
-      // arrive before the full-screen ad is dismissed, so wait for Dismissed
-      // before returning to callers that animate rewards into the game UI.
-      const reward = await this.adapter.showRewardVideoAd();
-      const granted = reward.amount > 0;
-      await dismissal.wait();
-      return { granted };
+      // Disposal must release the caller even when a bridge load is pending.
+      await Promise.race([this.init(), cancelled]);
+      if (!isCurrent() || !this.initialized) return { granted: false };
+      const platform = await Promise.race([this.adapter.getPlatform(), cancelled]);
+      if (!isCurrent() || platform === undefined || platform === 'web') return { granted: false };
+      if (!this.rewardedLoaded) await Promise.race([this.preloadRewarded(), cancelled]);
+      if (!isCurrent() || !this.rewardedLoaded) return { granted: false };
+
+      terminal = await Promise.race([this.createRewardedTerminalWaiter(generation), cancelled]) ?? null;
+      if (terminal === null || !isCurrent()) return { granted: false };
+      finishFullScreenAd = this.beginFullScreenAd('rewarded');
+      const owner = terminal;
+      // AdMob 8.1.0 resolves the native promise only on earned reward. Closing
+      // without reward merely emits Dismissed; do not await that promise ahead
+      // of the terminal event. Observe rejection as well as the reward event.
+      void Promise.resolve().then(() => isCurrent() ? this.adapter.showRewardVideoAd() : undefined).then(
+        (reward) => { if (reward !== undefined) owner.reward(reward); },
+        (err: unknown) => {
+          this.warn('rewarded native show failed', err);
+          owner.fail();
+        },
+      );
+      return await Promise.race([owner.wait(), cancelled.then(() => ({ granted: false }))]);
     } catch (err: unknown) {
       this.warn('rewarded show failed', err);
       return { granted: false };
     } finally {
-      await dismissal.cleanup();
+      await terminal?.cleanup();
+      if (this.activeShowSettle === cancelShow) this.activeShowSettle = null;
       finishFullScreenAd();
       // One rewarded show consumes the preloaded ad — always mark as
       // consumed so the next showRewardedAd triggers a fresh preload.
       this.rewardedLoaded = false;
+      this.showInProgress = false;
     }
   }
 
@@ -776,6 +793,7 @@ export class AdMobProvider implements AdProvider {
     this.generation += 1;
     this.clearPendingRetry();
     this.interstitialLoaded = false;
+    this.rewardedLoaded = false;
     // Unblock a show that is awaiting a terminal event whose listeners we are
     // about to remove; its finally finishes lifecycle once and skips re-arm
     // (generation advanced above).
@@ -794,8 +812,7 @@ export class AdMobProvider implements AdProvider {
    * Interstitial-only terminal waiter (Dismissed / FailedToShow, no synthetic
    * timeout). Both listeners are required; returns null (and cleans up any
    * partially registered handle) if either cannot be registered, so the caller
-   * does not present. Distinct from `createFullScreenAdDismissalWaiter`, which
-   * keeps its 30-second timeout for rewarded ads.
+   * does not present. Rewarded ads also require terminal listeners before show.
    */
   private async createInterstitialTerminalWaiter(generation: number): Promise<{
     wait: () => Promise<void>;
@@ -861,59 +878,53 @@ export class AdMobProvider implements AdProvider {
     };
   }
 
-  private async createFullScreenAdDismissalWaiter(
-    dismissedEventName: AdEventName,
-    failedToShowEventName: AdEventName,
-    adType: FullScreenAdType,
-    timeoutMs = 30_000,
-  ): Promise<FullScreenAdDismissalWaiter> {
+  private async createRewardedTerminalWaiter(generation: number): Promise<RewardedTerminalWaiter | null> {
     const handles: ListenerHandle[] = [];
-    let timeout: ReturnType<typeof setTimeout> | null = null;
     let settled = false;
-    let resolveWait: () => void = (): void => {};
-
-    const waitPromise = new Promise<void>((resolve) => {
-      resolveWait = (): void => {
-        if (settled) return;
-        settled = true;
-        if (timeout !== null) clearTimeout(timeout);
-        resolve();
-      };
-      timeout = setTimeout(resolveWait, timeoutMs);
+    let earned = false;
+    let resolveWait: (result: RewardedAdResult) => void = (): void => {};
+    const waitPromise = new Promise<RewardedAdResult>((resolve) => {
+      resolveWait = resolve;
     });
-
-    try {
-      handles.push(await this.adapter.addListener(dismissedEventName, resolveWait));
-    } catch (err: unknown) {
-      this.warn(`${adType} dismissal listener registration failed`, err);
-    }
-
-    try {
-      handles.push(await this.adapter.addListener(failedToShowEventName, resolveWait));
-    } catch (err: unknown) {
-      this.warn(`${adType} failed-to-show listener registration failed`, err);
-    }
-
-    if (handles.length === 0) {
-      resolveWait();
-    }
-
-    return {
-      wait: (): Promise<void> => waitPromise,
-      cleanup: async (): Promise<void> => {
-        if (timeout !== null) {
-          clearTimeout(timeout);
-          timeout = null;
-        }
-        resolveWait();
-        while (handles.length > 0) {
-          const handle = handles.pop();
-          if (handle !== undefined) {
-            await handle.remove();
-          }
-        }
-      },
+    const isCurrent = (): boolean => !settled && !this.disposed && this.generation === generation;
+    const settle = (granted: boolean): void => {
+      if (settled) return;
+      settled = true;
+      resolveWait({ granted });
     };
+    const reward = (info: AdEventInfo): void => {
+      if (!isCurrent() || typeof info !== 'object' || info === null || !('amount' in info)) return;
+      if (Number.isFinite(info.amount) && info.amount > 0) earned = true;
+    };
+    const cleanup = async (): Promise<void> => {
+      settle(false);
+      while (handles.length > 0) {
+        const handle = handles.pop();
+        if (handle !== undefined) await this.removeHandleSafely(handle);
+      }
+    };
+    // Google ads emit Rewarded before Dismissed. A mediation integration with
+    // different ordering needs correlated native events; this plugin's global
+    // reward event contains no ad/show ID to attribute a post-dismissal reward.
+    const listeners: [AdEventName, AdEventListener][] = [
+      [RewardAdPluginEvents.Rewarded, reward],
+      [RewardAdPluginEvents.Dismissed, () => { if (isCurrent()) settle(earned); }],
+      [RewardAdPluginEvents.FailedToShow, () => { if (isCurrent()) settle(false); }],
+    ];
+    try {
+      for (const [event, listener] of listeners) {
+        handles.push(await this.adapter.addListener(event, listener));
+        if (this.disposed || this.generation !== generation) {
+          await cleanup();
+          return null;
+        }
+      }
+    } catch (err: unknown) {
+      this.warn('rewarded terminal listener registration failed', err);
+      await cleanup();
+      return null;
+    }
+    return { wait: () => waitPromise, reward, fail: () => settle(false), cleanup };
   }
 }
 

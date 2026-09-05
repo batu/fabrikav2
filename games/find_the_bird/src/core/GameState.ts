@@ -48,6 +48,7 @@ const STORAGE_KEYS = {
   PREMIUM_ENTITLEMENT: 'ftd_wallet_premium_entitlement',
   REWARD_PROGRESS_COUNT: 'ftd_wallet_reward_progress_count',
   PROCESSED_PURCHASE_IDS: 'ftd_wallet_processed_purchase_ids',
+  PURCHASE_CHECKPOINT: 'ftd_wallet_purchase_checkpoint_v1',
   WALLET_COUNTERS: 'ftd_wallet_counters',
   ACTIVE_COMPLETION_TRANSACTION: 'ftd_active_completion_transaction',
   COMPLETION_SEQUENCE: 'ftd_completion_sequence',
@@ -217,6 +218,11 @@ export interface WalletSnapshot {
   activeCompletionTransaction: CompletionTransaction | null;
   counters: WalletCounters;
 }
+
+type PurchaseWalletCheckpoint = Omit<WalletSnapshot, 'activeCompletionTransaction'> & {
+  version: 1;
+  adsEnabled: boolean;
+};
 
 const EMPTY_WALLET_COUNTERS: WalletCounters = {
   coinsGranted: 0,
@@ -605,6 +611,8 @@ export class GameState {
   private _premiumEntitlement: boolean = false;
   private _rewardProgressCount: number = 0;
   private _processedPurchaseIds: string[] = [];
+  private _purchaseWalletCheckpointActive = false;
+  private _purchaseWalletPersistenceReady = false;
   private _activeCompletionTransaction: CompletionTransaction | null = null;
   private _completionSequence: number = 0;
   private _walletCounters: WalletCounters = { ...EMPTY_WALLET_COUNTERS };
@@ -824,10 +832,13 @@ export class GameState {
     _source: Extract<WalletMutationSource, 'iap'>,
   ): { noAds: boolean; hints: number; coins: number; continueLevel: boolean } | null {
     if (id.length === 0) throw new Error('processed purchase id must not be empty');
+    if (!this._purchaseWalletPersistenceReady) throw new Error('purchase wallet persistence is unavailable');
     if (this._processedPurchaseIds.includes(id)) return null;
 
     const hintAmount = nonNegativeInteger(grant.hints, 'iap hint grant amount');
     const coinAmount = nonNegativeInteger(grant.coins, 'iap coin grant amount');
+    this.recoverPendingSettlement();
+    const before = this.purchaseWalletCheckpoint();
 
     if (grant.noAds) {
       this._noAdsEntitlement = true;
@@ -845,6 +856,12 @@ export class GameState {
       this._walletCounters.coinsGranted += coinAmount;
     }
     this._processedPurchaseIds = [...this._processedPurchaseIds, id];
+    try {
+      this.persistPurchaseWallet();
+    } catch (error) {
+      this.restorePurchaseWallet(before);
+      throw error;
+    }
     this.save();
     return { ...grant, hints: appliedHintAmount };
   }
@@ -1290,6 +1307,7 @@ export class GameState {
     localStorage.setItem(STORAGE_KEYS.HINTS, String(this._hintBalance));
     localStorage.setItem(STORAGE_KEYS.COINS, String(this._coinBalance));
     localStorage.setItem(STORAGE_KEYS.WALLET_COUNTERS, JSON.stringify(this._walletCounters));
+    if (this._purchaseWalletCheckpointActive) this.persistPurchaseWallet();
   }
 
   /** Single-key durable write of the achievement record. Throw propagates. */
@@ -1536,8 +1554,65 @@ export class GameState {
     return allocation.event;
   }
 
+  private purchaseWalletCheckpoint(): PurchaseWalletCheckpoint {
+    return {
+      version: 1,
+      coins: this._coinBalance,
+      hints: this._hintBalance,
+      hasNoAdsEntitlement: this._noAdsEntitlement,
+      hasPremiumEntitlement: this._premiumEntitlement,
+      rewardProgressCount: this._rewardProgressCount,
+      processedPurchaseIds: [...this._processedPurchaseIds],
+      counters: { ...this._walletCounters },
+      adsEnabled: this.settings.adsEnabled,
+    };
+  }
+
+  private restorePurchaseWallet(checkpoint: PurchaseWalletCheckpoint): void {
+    this._coinBalance = checkpoint.coins;
+    this._hintBalance = checkpoint.hints;
+    this._noAdsEntitlement = checkpoint.hasNoAdsEntitlement;
+    this._premiumEntitlement = checkpoint.hasPremiumEntitlement;
+    this._rewardProgressCount = checkpoint.rewardProgressCount;
+    this._processedPurchaseIds = [...checkpoint.processedPurchaseIds];
+    this._walletCounters = { ...checkpoint.counters };
+    this.settings.adsEnabled = checkpoint.adsEnabled;
+  }
+
+  /** Grant and dedupe identity commit together; legacy keys remain mirrors. */
+  private persistPurchaseWallet(): void {
+    if (!this._purchaseWalletPersistenceReady) throw new Error('purchase wallet persistence is unavailable');
+    localStorage.setItem(STORAGE_KEYS.PURCHASE_CHECKPOINT, JSON.stringify(this.purchaseWalletCheckpoint()));
+    this._purchaseWalletCheckpointActive = true;
+  }
+
+  private loadPurchaseWallet(): void {
+    const raw = localStorage.getItem(STORAGE_KEYS.PURCHASE_CHECKPOINT);
+    if (raw !== null) {
+      const checkpoint = JSON.parse(raw) as PurchaseWalletCheckpoint;
+      const numericFields = ['coins', 'hints', 'rewardProgressCount'] as const;
+      const booleanFields = ['hasNoAdsEntitlement', 'hasPremiumEntitlement', 'adsEnabled'] as const;
+      const counterKeys = Object.keys(EMPTY_WALLET_COUNTERS) as (keyof WalletCounters)[];
+      if (
+        checkpoint === null || typeof checkpoint !== 'object' || checkpoint.version !== 1
+        || !numericFields.every((key) => Number.isSafeInteger(checkpoint[key]) && checkpoint[key] >= 0)
+        || !booleanFields.every((key) => typeof checkpoint[key] === 'boolean')
+        || !Array.isArray(checkpoint.processedPurchaseIds)
+        || !checkpoint.processedPurchaseIds.every((id) => typeof id === 'string' && id.length > 0)
+        || checkpoint.counters === null || typeof checkpoint.counters !== 'object'
+        || !counterKeys.every((key) => Number.isSafeInteger(checkpoint.counters[key]) && checkpoint.counters[key] >= 0)
+      ) throw new Error('invalid purchase wallet checkpoint');
+      this.restorePurchaseWallet(checkpoint);
+      this._purchaseWalletCheckpointActive = true;
+    }
+    // An absent checkpoint is a legacy save; its loaded wallet is migrated on
+    // the first purchase. Unreadable or malformed checkpoints fail closed.
+    this._purchaseWalletPersistenceReady = true;
+  }
+
   save(): void {
     try {
+      if (this._purchaseWalletCheckpointActive) this.persistPurchaseWallet();
       localStorage.setItem(STORAGE_KEYS.HINTS, String(this._hintBalance));
       localStorage.setItem(STORAGE_KEYS.LEVEL, String(this.currentLevelIndex));
       localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(this.settings));
@@ -1571,6 +1646,8 @@ export class GameState {
   }
 
   load(): void {
+    this._purchaseWalletCheckpointActive = false;
+    this._purchaseWalletPersistenceReady = false;
     this._achievementPersistenceReady = false;
     try {
       this._hintBalance = safeParseNonNegativeInteger(
@@ -1646,6 +1723,8 @@ export class GameState {
         // (Legacy `artStyle` key is ignored — the art-style feature
         // was removed when we moved to a single color.png per level.)
       }
+
+      this.loadPurchaseWallet();
 
       // --- Achievement domain (card ACH-1) ---
       // Progression reconciliation: repair progression from the durable

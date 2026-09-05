@@ -37,3 +37,37 @@ Built in migration order (haptics → audio → analytics → ads → iap → at
   `MetaEvents` native bridge, `DisabledMetaProvider` as the first-class off state.
 
 Source-shipped; native-backed SDKs need a native shell to verify.
+
+## Purchase timeout recovery
+
+Inject an application-scoped `pendingPurchaseStore` (the SDK exports
+`localStoragePendingPurchaseStore(key)`) and register
+`setOnCompletedPurchase(result => acknowledged)` before `init()`. The handler
+receives successful native results that arrived after the caller timed out.
+Return `true` only after an atomic durable wallet grant, or a duplicate found in
+that durable transaction ledger. Return `false` or throw to retain the result.
+Call `reconcilePendingPurchases()` from the existing application resume hook.
+It also runs on initialization and purchase retry; a retry that delivers an old
+result returns that result instead of issuing another charge.
+
+Results are saved before delivery and removed after acknowledgment. Failure to
+remove a delivered record can cause redelivery, so wallet idempotence is required.
+Malformed/unreadable records block new purchases rather than overwrite evidence.
+Consumers without a pending store retain the earlier in-memory same-SKU retry.
+Normal results still go to their awaiting caller. This is not universal purchase
+reconciliation: a process killed before receiving the native result, an on-time
+caller that fails to fulfill, or unwritable/volatile storage still needs recovery
+outside this late-result mechanism. Do not grant consumables from restored
+product membership; it does not preserve the original purchase transaction ID.
+
+## AdMob native correction
+
+Root `npm install`/`npm ci` runs `tools/patch-admob-ios-revenue.mjs` after the
+existing GameAnalytics correction. It approves only AdMob 8.1.0 and exact
+original/patched source hashes, converting iOS decimal currency values to micros
+in all five native formats. `node tools/patch-admob-ios-revenue.mjs --verify`
+checks an existing installation without changing it. Review and update the
+correction when upgrading the dependency; Android's existing micros stay intact.
+Rewarded completion follows earned-reward plus dismissal events, with fullscreen
+ownership held until a terminal event or disposal. Automated adapter tests do
+not establish physical-device behavior or ordering for future mediation SDKs.

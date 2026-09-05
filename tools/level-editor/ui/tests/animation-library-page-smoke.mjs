@@ -1,9 +1,8 @@
 import { Buffer } from 'node:buffer';
-import { spawn } from 'node:child_process';
 import { createServer } from 'node:net';
 import process from 'node:process';
 import { URL } from 'node:url';
-import { chromium } from 'playwright';
+import { startSmokeVite, launchSmokeBrowser } from './smoke-support.mjs';
 
 const port = await freePort();
 const baseUrl = `http://127.0.0.1:${port}`;
@@ -67,15 +66,11 @@ function stopVite(vite) {
 }
 
 async function run() {
-  const vite = spawn(
-    process.platform === 'win32' ? 'npx.cmd' : 'npx',
-    ['vite', '--host', '127.0.0.1', '--port', String(port)],
-    { detached: process.platform !== 'win32', stdio: ['ignore', 'ignore', 'ignore'] },
-  );
+  const vite = startSmokeVite(port);
   let browser;
   try {
     await waitForServer();
-    browser = await chromium.launch({ headless: true });
+    browser = await launchSmokeBrowser(baseUrl);
     const page = await browser.newPage({ viewport: { width: 1280, height: 1000 } });
 
     await page.route('**/*', async (route) => {
@@ -223,7 +218,7 @@ async function run() {
         await route.fulfill({ contentType: 'video/mp4', body: Buffer.from('') });
         return;
       }
-      await route.continue();
+      await route.fallback();
     });
 
     await page.goto(`${baseUrl}/#animations`);
