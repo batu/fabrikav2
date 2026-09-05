@@ -1,0 +1,13 @@
+✔ paid totals require own identity and exclude test, contamination, pre-cutoff, foreign campaign and QA rows (61.150791ms)
+✔ a cohort cannot be approved without a valid UTC cutoff and complete QA exclusion policy (6.420709ms)
+✔ empty or malformed successful responses cannot masquerade as a healthy zero (3.348375ms)
+✔ canonical policy has no public paid T0 and never promotes FTB 1.2.1 (1.27475ms)
+✔ unavailable organic report leaves every organic aggregate unknown, not zero (1.60925ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 193.572292

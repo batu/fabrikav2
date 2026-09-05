@@ -1,0 +1,54 @@
+
+> @fabrikav2/sdk@0.0.0 test:unit
+> vitest run
+
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.9 [39m[90m/Users/base/dev/appletolye/fabrikav2/.worktrees/ua-code-audit/packages/sdk[39m
+
+ [32m✓[39m src/attribution/AdjustAttributionPlugin.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 15[2mms[22m[39m
+ [32m✓[39m src/ads/DeathAdCoordinator.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 24[2mms[22m[39m
+ [32m✓[39m src/ads/AppLovinMaxProvider.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m src/attribution/AdjustAttributionProvider.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m src/ads/createAdProvider.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m src/ads/AdMobProvider.test.ts [2m([22m[2m35 tests[22m[2m)[22m[32m 26[2mms[22m[39m
+ [32m✓[39m src/analytics/owned-mirror-sink.test.ts [2m([22m[2m27 tests[22m[2m)[22m[32m 43[2mms[22m[39m
+ [32m✓[39m src/attribution/AttributionService.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m src/iap/revenuecat-provider.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m src/with-timeout.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m src/config-env.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m src/iap/catalog.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m src/audio/mixer.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m src/audio/bus.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+[90mstdout[2m | src/ads/DisabledAdProvider.test.ts[2m > [22m[2mDisabledAdProvider[2m > [22m[2mno-ops every method and never grants a reward
+[22m[39m[ads:disabled] web platform
+
+ [32m✓[39m src/ads/DisabledAdProvider.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m src/attribution/AppsFlyerAnalyticsProjection.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m src/attribution/AdjustConfig.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m src/analytics/ring-sink.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m src/analytics/analytics.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m src/attribution/AppsFlyerEventMapper.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m src/haptics/index.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+ [32m✓[39m src/meta/MetaConfig.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m src/meta/CapacitorMetaProvider.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m src/attribution/AppsFlyerAttributionProvider.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 13[2mms[22m[39m
+ [32m✓[39m src/analytics/contract.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m src/iap/fulfillment.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m src/analytics/first-open.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m src/crashlytics-probe.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m src/meta/DisabledMetaProvider.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m src/ads/AppLovinConfig.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m src/attribution/selectAttributionProvider.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m src/attribution/AppsFlyerConfig.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m src/iap/restore-machine.test.ts [2m([22m[2m18 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m src/analytics/firebase-sink.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m src/ads/cadence.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m src/analytics/console-sink.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m src/env/resolveSdkEnvironments.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m src/iap/service.test.ts [2m([22m[2m27 tests[22m[2m)[22m[33m 474[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m38 passed[39m[22m[90m (38)[39m
+[2m      Tests [22m [1m[32m345 passed[39m[22m[90m (345)[39m
+[2m   Start at [22m 14:28:23
+[2m   Duration [22m 877ms[2m (transform 1.46s, setup 0ms, import 2.01s, tests 768ms, environment 4ms)[22m
+

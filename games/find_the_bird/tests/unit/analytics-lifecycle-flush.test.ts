@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { analytics, AnalyticsService } from '../../src/analytics/AnalyticsService';
 import { createAnalytics, type AnalyticsSink } from '@fabrikav2/sdk/analytics';
+import { createAppsFlyerAnalyticsProjection } from '@fabrikav2/sdk/attribution';
 import { resetGameLifecycleForTest, setLifecycleForTest } from '../../src/platform/gameLifecycle';
 
 interface SdkSeam {
@@ -44,6 +45,29 @@ afterEach(() => {
 });
 
 describe('analytics lifecycle flush (session_end loss fix)', () => {
+  it('projects D1 from the real service foreground lifecycle chain', async () => {
+    let now = 1_000;
+    const forward = vi.fn(async () => true);
+    const keys = new Set<string>();
+    const storage = memoryStorage();
+    const projection = createAppsFlyerAnalyticsProjection({
+      forward, storage, now: () => now,
+      dedupe: { has: (key) => keys.has(key), add: (key) => { keys.add(key); } },
+    });
+    const service = new AnalyticsService({
+      sdk: createAnalytics({ env: 'production', sessionId: 'session', sinks: [projection] }),
+      storage, storageDurability: 'durable', firstOpenLocks: locks,
+    });
+    await service.init();
+    await service.appOpen();
+    await setLifecycleForTest('inactive');
+    now += 86_400_000;
+    await setLifecycleForTest('active');
+    await setLifecycleForTest('active');
+    await Promise.resolve();
+    expect(forward).toHaveBeenCalledExactlyOnceWith({ type: 'retention_milestone', day: 1 });
+  });
+
   it('keeps the suspend transition pending until buffering sinks finish flushing', async () => {
     let releaseFlush = (): void => {};
     const sink: AnalyticsSink = {

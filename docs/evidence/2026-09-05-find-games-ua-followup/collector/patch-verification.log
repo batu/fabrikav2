@@ -1,0 +1,11 @@
+patch -p1 -i collector.patch (temporary baseline copy)
+patching file find-games-daily-scorecard.mjs
+
+
+exit=0
+PASS: patched baseline exactly equals canonical source bytes
+PASS: canonical/evidence byte equality and node --check /Users/base/.hermes/scripts/find-games-daily-scorecard.mjs
+PASS: canonical/evidence byte equality and node --check /Users/base/.hermes/scripts/find-games-daily-scorecard.test.mjs
+SHA-256 find-games-daily-scorecard.before.mjs: cd196a027a0d2287be06322e36229952da157f54dde494ad0b1c0567bd66d3f9
+SHA-256 find-games-daily-scorecard.mjs: af042800b65ee9f7f4330d167793d9fa1d1b37de47eb14b7d62b15e8f008599c
+SHA-256 find-games-daily-scorecard.test.mjs: 0ba90b3f71517efafc4e60c3ff5ea8bddb75440a056ee22fd7d1305d7a2d7f10

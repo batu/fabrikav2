@@ -1,0 +1,32 @@
+{
+  "ipa": "/Users/base/store-review/find-games/builds/ftb-1.2-34/export/App.ipa",
+  "sha256": "d1f86610e7d7fd6af57a0dd6df388713a4aaa630166c6ce15c55f52b679d361f",
+  "bundle": "com.basegamelab.findthebird",
+  "version": "1.2.1",
+  "build": "34",
+  "skan": [
+    "cstr6suwn9.skadnetwork",
+    "n38lu8286q.skadnetwork",
+    "v9wttpbfk9.skadnetwork"
+  ],
+  "att_description_present": false,
+  "own_af_id_present": true,
+  "foreign_af_id_present": false,
+  "source_sha_present": true,
+  "ga_success_persist": true,
+  "compiled_production_markers": {
+    "appsflyer": true,
+    "gameanalytics": true,
+    "find_the_bird": true,
+    "production": true
+  },
+  "bird_ga_keys_embedded": [
+    true,
+    true
+  ],
+  "dog_ga_keys_embedded": [
+    false,
+    false
+  ],
+  "ga_success_persist_evidence": "GameAnalytics.node-CWtBZGzD.js processEventsCallback: e===h.Ok)i.delete(E.Events,g),i.save(a.getGameKey())"
+}

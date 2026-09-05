@@ -1,0 +1,53 @@
+[
+  {
+    "name": "sdk-suite",
+    "command": [
+      "npm",
+      "run",
+      "test:unit",
+      "-w",
+      "@fabrikav2/sdk"
+    ],
+    "exit_code": 0
+  },
+  {
+    "name": "ftb-suite",
+    "command": [
+      "npm",
+      "run",
+      "test:unit",
+      "-w",
+      "@fabrikav2/find_the_bird"
+    ],
+    "exit_code": 0
+  },
+  {
+    "name": "ftd-suite",
+    "command": [
+      "npm",
+      "run",
+      "test:unit",
+      "-w",
+      "@fabrikav2/find_the_dog"
+    ],
+    "exit_code": 0
+  },
+  {
+    "name": "production-propagation",
+    "command": [
+      "node",
+      "--test",
+      "tools/game-release/test/native-analytics-provenance.integration.mjs"
+    ],
+    "exit_code": 0
+  },
+  {
+    "name": "collector",
+    "command": [
+      "node",
+      "--test",
+      "/Users/base/.hermes/scripts/find-games-daily-scorecard.test.mjs"
+    ],
+    "exit_code": 0
+  }
+]

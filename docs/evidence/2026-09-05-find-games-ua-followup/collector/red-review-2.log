@@ -1,0 +1,28 @@
+✖ paid installs cannot occur after the snapshot observation instant (4.418875ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 45.072334
+
+✖ failing tests:
+
+test at .hermes/scripts/find-games-daily-scorecard.test.mjs:50:1
+✖ paid installs cannot occur after the snapshot observation instant (4.418875ms)
+  AssertionError [ERR_ASSERTION]: 2026-09-05T12:00:01Z
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///Users/base/.hermes/scripts/find-games-daily-scorecard.test.mjs:54:12)
+      at async Test.run (node:internal/test_runner/test:1404:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
