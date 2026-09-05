@@ -30,11 +30,9 @@ lanes() { pgrep -fl "codex exec .*wayfinder-ticket" | wc -l | tr -d ' '; }
 launch() {
   local n="$1"; local mode="${2:-fresh}"
   local wt="$REPO/.worktrees/cutout-lab-$n"
-  if [ ! -d "$wt" ]; then
-    git worktree add "$wt" -b "feat/cutout-lab-$n" origin/main >/dev/null 2>&1 \
-      || git worktree add "$wt" "feat/cutout-lab-$n" >/dev/null 2>&1 \
-      || { echo "$(date '+%H:%M') worktree add FAILED for #$n"; return 1; }
-  fi
+  agency workspace create --repo "$REPO" --path "$wt" \
+    --branch "feat/cutout-lab-$n" --base origin/main --profile bird \
+    || { echo "$(date '+%H:%M') scoped worktree create/reuse FAILED for #$n"; return 1; }
   echo "$(date '+%H:%M') launching ticket #$n ($MODEL/$EFFORT)"
   ( cd "$wt" && codex exec \
       --dangerously-bypass-approvals-and-sandbox \
@@ -53,14 +51,12 @@ Resolve ONLY this ticket per the wayfinder protocol: resolution comment, close, 
 }
 
 prune_closed() {
-  # Free disk: closed tickets' worktrees go once their branch is on origin.
+  # Completion produces review only; exact removal and branch deletion need approval.
   gh api "repos/batu/fabrikav2/issues/$MAP/sub_issues" --paginate     --jq '.[] | select(.state=="closed") | .number' 2>/dev/null | while read -r n; do
     wt="$REPO/.worktrees/cutout-lab-$n"
     [ -d "$wt" ] || continue
     pgrep -f "wayfinder-ticket $n:" >/dev/null && continue
-    L=$(git rev-parse "feat/cutout-lab-$n" 2>/dev/null); R=$(git ls-remote origin "feat/cutout-lab-$n" 2>/dev/null | awk '{print $1}')
-    [ "$L" = "$R" ] || git push -q origin "feat/cutout-lab-$n" 2>/dev/null || continue
-    git worktree remove --force "$wt" 2>/dev/null && echo "$(date '+%H:%M') pruned worktree #$n"
+    agency workspace cleanup-review --repo "$REPO" --path "$wt" --check-pr
   done
 }
 

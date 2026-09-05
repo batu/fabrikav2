@@ -8,6 +8,7 @@
 // inspectable, never silent.
 
 import { execFileSync } from 'node:child_process';
+import { runIosBuild } from '../../native-shell/src/build-output.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
 import { buildAdbCommandParts } from './androidDriver.mjs';
@@ -298,17 +299,15 @@ export function buildAndInstallApp(
   if (!fs.existsSync(proj)) {
     throw new Error(`no Capacitor iOS project at ${proj} — run 'npx cap add ios' in ${gameDir} first`);
   }
-  const derived = path.join(gameDir, 'ios', 'App', 'build');
   const provisioningArgs = developmentTeam ? ['-allowProvisioningUpdates'] : [];
   const buildSettings = developmentTeam ? [`DEVELOPMENT_TEAM=${developmentTeam}`] : [];
-  shImpl('xcodebuild', [
+  const { appPath } = runIosBuild({ gameDir, configuration: 'Debug', run: shImpl, args: [
     '-project', proj, '-scheme', 'App', '-configuration', 'Debug',
-    '-destination', `id=${deviceUdid}`, '-derivedDataPath', derived,
+    '-destination', `id=${deviceUdid}`,
     ...provisioningArgs,
     'build',
     ...buildSettings,
-  ]);
-  const appPath = path.join(derived, 'Build', 'Products', 'Debug-iphoneos', 'App.app');
+  ] });
   shImpl('xcrun', ['devicectl', 'device', 'install', 'app', '--device', deviceUdid, appPath]);
   return appBundleId;
 }
@@ -328,10 +327,9 @@ export function launchIosApp({ deviceUdid, bundleId, shImpl = sh }) {
 
 export function buildSignedIosApp({ gameDir, deviceUdid, developmentTeam = process.env.DEVELOPMENT_TEAM, shImpl = sh }) {
   const project = path.join(gameDir, 'ios', 'App', 'App.xcodeproj');
-  const derived = path.join(gameDir, 'ios', 'App', 'release-build');
   const settings = developmentTeam ? ['-allowProvisioningUpdates', `DEVELOPMENT_TEAM=${developmentTeam}`] : [];
-  shImpl('xcodebuild', ['-project', project, '-scheme', 'App', '-configuration', 'Release', '-destination', `id=${deviceUdid}`, '-derivedDataPath', derived, 'build', ...settings]);
-  return { appPath: path.join(derived, 'Build', 'Products', 'Release-iphoneos', 'App.app'), signingIdentity: developmentTeam || 'xcode-managed' };
+  const { appPath } = runIosBuild({ gameDir, configuration: 'Release', run: shImpl, args: ['-project', project, '-scheme', 'App', '-configuration', 'Release', '-destination', `id=${deviceUdid}`, 'build', ...settings] });
+  return { appPath, signingIdentity: developmentTeam || 'xcode-managed' };
 }
 
 /**

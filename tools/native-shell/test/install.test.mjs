@@ -3,12 +3,36 @@ import fs from 'node:fs';
 import os from 'node:os';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it, vi } from 'vitest';
+import { runIosBuild } from '../src/build-output.mjs';
 import {
   prepareValidatedIosWebBuildEnvironment,
   runValidatedIosWebBuild,
 } from '../src/install-web-build.mjs';
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
+
+describe('owned native build output', () => {
+  it('returns the exact built artifact from the shared runner and protects release output', () => {
+    const calls = [];
+    const built = runIosBuild({ gameDir: path.join(repoRoot, 'games/find_the_bird'), configuration: 'Release', args: ['build'],
+      run: (file, args) => {
+        calls.push([file, args]);
+        fs.writeFileSync(args[args.indexOf('--result-file') + 1], JSON.stringify({ output_dir: '/private/tmp/owned-release' }));
+        return '** BUILD SUCCEEDED **';
+      },
+    });
+    expect(calls[0][0]).toBe('agency');
+    expect(calls[0][1]).toContain('durable');
+    expect(calls[0][1]).toContain('{agency-output}/DerivedData');
+    expect(built.appPath).toBe('/private/tmp/owned-release/DerivedData/Build/Products/Release-iphoneos/App.app');
+  });
+
+  it('never falls back to a stale in-tree build after runner failure', () => {
+    expect(() => runIosBuild({ gameDir: '/repo/games/bird', configuration: 'Debug', args: [],
+      run: () => { throw new Error('build failed'); },
+    })).toThrow('build failed');
+  });
+});
 
 describe('native-shell install caller', () => {
   it('runs the game-env iOS validator before invoking the raw Vite build', () => {
