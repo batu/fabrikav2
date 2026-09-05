@@ -69,7 +69,9 @@
           "tools/wayfinder-driver",
           "games/shell_template",
           "tools/refcap-compare",
-          "games/find_the_dog/config"
+          "games/find_the_dog/config",
+          "tools/level-editor/fixtures",
+          "tools/level-editor/scripts"
         ],
         "dog": [
           ".claude",
@@ -97,7 +99,9 @@
           "tools/wayfinder-driver",
           "games/shell_template",
           "tools/refcap-compare",
-          "games/find_the_bird/config"
+          "games/find_the_bird/config",
+          "tools/level-editor/fixtures",
+          "tools/level-editor/scripts"
         ],
         "find-games": [
           ".claude",
@@ -125,7 +129,9 @@
           "docs/handoffs",
           "tools/wayfinder-driver",
           "games/shell_template",
-          "tools/refcap-compare"
+          "tools/refcap-compare",
+          "tools/level-editor/fixtures",
+          "tools/level-editor/scripts"
         ],
         "full": []
       },
