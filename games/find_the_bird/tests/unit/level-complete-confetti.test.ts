@@ -161,7 +161,7 @@ describe("level-complete confetti", () => {
     expect(coreCss).not.toMatch(/fabCompleteConfetti(?:Side|Top)Blast|fab-complete-confetti-(?:burst|fall)/);
   });
 
-  it("keeps the completion plaque clear of the mascot", () => {
+  it("keeps the completion card compact instead of adding the Android workaround gap", () => {
     const appCss = readFileSync(join(process.cwd(), "src/ui/styles.css"), "utf8");
     const cardOverride = appCss.match(
       /#level-complete-overlay \.fab-complete-card \{([\s\S]*?)\n\}/,
@@ -177,7 +177,7 @@ describe("level-complete confetti", () => {
     )?.[1];
 
     expect(shortViewportOverride).toBeDefined();
-    expect(shortViewportOverride).toContain("padding: 160px 24px 18px;");
+    expect(shortViewportOverride).toContain("padding: 42px 24px 18px;");
   });
 
   it("clones the live home into the generation-guarded play-entry cover", () => {
