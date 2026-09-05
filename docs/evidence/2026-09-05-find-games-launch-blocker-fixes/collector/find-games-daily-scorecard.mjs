@@ -251,6 +251,37 @@ function playState(text) {
   };
 }
 
+// Serialized into Runtime.evaluate: no collector-side dependencies. innerText
+// alone includes GA's collapsed demo banner, so require rendered text geometry.
+function gameAnalyticsPageSnapshot() {
+  const demo = /\bdemo\s+(?:mode|data)\b/i;
+  const visible = (element) => {
+    let rect = element.getBoundingClientRect();
+    if (rect.width <= 0 || rect.height <= 0) return false;
+    let left = rect.left, right = rect.right, top = rect.top, bottom = rect.bottom;
+    for (let node = element; node; node = node.parentElement) {
+      const style = getComputedStyle(node);
+      if (style.display === 'none' || style.visibility === 'hidden' || style.visibility === 'collapse'
+        || Number(style.opacity) === 0 || style.contentVisibility === 'hidden') return false;
+      rect = node.getBoundingClientRect();
+      if (/(hidden|clip|auto|scroll)/.test(style.overflowX)) {
+        left = Math.max(left, rect.left); right = Math.min(right, rect.right);
+      }
+      if (/(hidden|clip|auto|scroll)/.test(style.overflowY)) {
+        top = Math.max(top, rect.top); bottom = Math.min(bottom, rect.bottom);
+      }
+      if (right <= left || bottom <= top) return false;
+    }
+    return true;
+  };
+  // Prefer the smallest element containing the phrase (also handles nested
+  // spans), not body-sized ancestors containing unrelated dashboard text.
+  const candidates = [...(document.body?.querySelectorAll('*') ?? [])].filter((element) =>
+    demo.test(element.textContent ?? '') && ![...element.children].some((child) => demo.test(child.textContent ?? '')));
+  return { url: location.href, readyState: document.readyState,
+    text: document.body?.innerText ?? '', visibleDemo: candidates.some(visible) };
+}
+
 async function browserSnapshots() {
   const targets = await (await fetch(CDP_LIST, { signal: AbortSignal.timeout(5_000) })).json();
   const gaTarget = targets.find((target) => target.type === 'page' && target.url.startsWith(`${GA_ORIGIN}/game/`));
@@ -275,7 +306,7 @@ async function browserSnapshots() {
         const frameResponse = await client.call('Page.getFrameTree');
         const frame = frameResponse.result?.frameTree?.frame;
         const response = await client.call('Runtime.evaluate', {
-          expression: '({ url: location.href, readyState: document.readyState, text: document.body?.innerText ?? "" })',
+          expression: `(${gameAnalyticsPageSnapshot.toString()})()`,
           returnByValue: true,
         });
         const page = response.result?.result?.value;
@@ -289,12 +320,13 @@ async function browserSnapshots() {
         // Bind body text to the document produced by this navigation, not a
         // previous project still visible in the operator's authenticated tab.
         if (frame?.loaderId !== navigation.result.loaderId || !ownPage(frame?.url)
-          || !ownPage(page?.url) || page?.readyState !== 'complete' || typeof page?.text !== 'string') {
+          || !ownPage(page?.url) || page?.readyState !== 'complete' || typeof page?.text !== 'string'
+          || typeof page?.visibleDemo !== 'boolean') {
           result.games[game].gameanalytics = unavailable('page_identity_unverified');
           continue;
         }
         const text = page.text;
-        if (/\bdemo\s+(?:mode|data)\b/i.test(text)) {
+        if (page.visibleDemo) {
           result.games[game].gameanalytics = unavailable('demo_data');
           break;
         }

@@ -39,11 +39,26 @@ async function browserCollector(mode = 'healthy') {
       assert.equal(method, 'Runtime.evaluate');
       const dau = mode === 'unavailable_metric' ? 'N/A' : mode === 'invalid_metric' ? 'Error'
         : currentUrl.includes('/350269/') ? '42' : '17';
-      return { result: { result: { value: {
-        url: mode === 'wrong_project' ? 'https://tool.gameanalytics.com/game/999/overview/overview' : currentUrl,
-        readyState: 'complete',
-        text: `${mode === 'demo' ? 'Demo mode\n' : ''}DAU\n${dau}\nSessions\n84\nPlaytime\n10m\nNew Users\n7\n`,
-      } } } };
+      const element = (text, parentElement = null, overrides = {}) => ({
+        textContent: text, children: [], parentElement,
+        getBoundingClientRect: () => ({ left: 0, right: 200, top: 0, bottom: 24, width: 200, height: 24 }),
+        style: { display: 'block', visibility: 'visible', opacity: '1', overflowX: 'visible', overflowY: 'visible' },
+        ...overrides,
+      });
+      const body = element('');
+      const banner = element('', body, mode === 'hidden_demo' ? {
+        style: { ...body.style, overflowY: 'hidden' },
+        getBoundingClientRect: () => ({ left: 0, right: 200, top: 0, bottom: 0, width: 200, height: 0 }),
+      } : {});
+      const label = element('Demo mode', banner);
+      banner.children = [label];
+      body.querySelectorAll = () => ['demo', 'hidden_demo'].includes(mode) ? [banner, label] : [];
+      body.innerText = `${['demo', 'hidden_demo'].includes(mode) ? 'Demo mode\n' : ''}DAU\n${dau}\nSessions\n84\nPlaytime\n10m\nNew Users\n7\n`;
+      const value = vm.runInNewContext(params.expression, {
+        location: { href: mode === 'wrong_project' ? 'https://tool.gameanalytics.com/game/999/overview/overview' : currentUrl },
+        document: { readyState: 'complete', body }, getComputedStyle: (node) => node.style,
+      });
+      return { result: { result: { value } } };
     },
     close() {},
   };
@@ -66,6 +81,13 @@ test('browser metrics are bound to each successfully loaded production project',
   assert.equal(games.find_the_bird.gameanalytics.dau, 17);
   assert.equal(games.find_the_dog.gameanalytics.project_id, '350269');
   assert.equal(games.find_the_bird.gameanalytics.project_id, '351396');
+  for (const game of Object.values(games)) assert.equal(game.gameanalytics.status, 'healthy');
+});
+
+test('collapsed demo banner text does not reject genuine project metrics', async () => {
+  const games = await browserCollector('hidden_demo');
+  assert.equal(games.find_the_dog.gameanalytics.dau, 42);
+  assert.equal(games.find_the_bird.gameanalytics.dau, 17);
   for (const game of Object.values(games)) assert.equal(game.gameanalytics.status, 'healthy');
 });
 
