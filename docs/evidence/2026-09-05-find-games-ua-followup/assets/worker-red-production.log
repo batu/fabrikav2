@@ -1,0 +1,52 @@
+✖ find_the_bird: production compile preserves source identity across late native overrides (723.416125ms)
+✖ find_the_dog: production compile preserves source identity across late native overrides (278.163375ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 0
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1438.602417
+
+✖ failing tests:
+
+test at tools/game-release/test/native-analytics-provenance.integration.mjs:16:3
+✖ find_the_bird: production compile preserves source identity across late native overrides (723.416125ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + undefined
+  - '1.2.1'
+  
+      at TestContext.<anonymous> (file:///Users/base/dev/appletolye/fabrikav2/.worktrees/ua-code-audit/tools/game-release/test/native-analytics-provenance.integration.mjs:116:16)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1404:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: '1.2.1',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tools/game-release/test/native-analytics-provenance.integration.mjs:16:3
+✖ find_the_dog: production compile preserves source identity across late native overrides (278.163375ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + undefined
+  - '1.2.1'
+  
+      at TestContext.<anonymous> (file:///Users/base/dev/appletolye/fabrikav2/.worktrees/ua-code-audit/tools/game-release/test/native-analytics-provenance.integration.mjs:116:16)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1404:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:969:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: '1.2.1',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

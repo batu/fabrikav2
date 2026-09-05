@@ -1,0 +1,1132 @@
+
+> @fabrikav2/find_the_bird@1.2.0 test:unit
+> vitest run
+
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.9 [39m[90m/Users/base/dev/appletolye/fabrikav2/.worktrees/ua-code-audit/games/find_the_bird[39m
+
+(node:43114) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [32m✓[39m tests/unit/analytics-storage-denial.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 149[2mms[22m[39m
+ [32m✓[39m tests/unit/gameanalytics-sink.test.ts [2m([22m[2m24 tests[22m[2m)[22m[32m 129[2mms[22m[39m
+ [32m✓[39m tests/unit/game-lifecycle-signals.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 160[2mms[22m[39m
+ [32m✓[39m tests/unit/bootstrap-analytics-chain.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 206[2mms[22m[39m
+ [32m✓[39m tests/unit/achievement-home-routing.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 251[2mms[22m[39m
+(node:43113) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[90mstdout[2m | tests/unit/sdk-storage-denial-bootstrap.test.ts[2m > [22m[2mSDK storage denial composition[2m > [22m[2mboots getSdkContext with an unreplaceable throwing localStorage getter and fails analytics closed
+[22m[39m[analytics] session_start {
+  game: [32m'find_the_bird'[39m,
+  platform: [32m'web'[39m,
+  environment: [32m'development'[39m,
+  first_open: [33mfalse[39m,
+  env: [32m'development'[39m,
+  session_id: [32m'cbbe6358-6497-4c60-a961-1cf0ec797071'[39m,
+  event_ts: [33m1788609565904[39m
+}
+
+[90mstdout[2m | tests/unit/sdk-storage-denial-bootstrap.test.ts[2m > [22m[2mSDK storage denial composition[2m > [22m[2mboots getSdkContext with an unreplaceable throwing localStorage getter and fails analytics closed
+[22m[39m[analytics] app_open {
+  game: [32m'find_the_bird'[39m,
+  platform: [32m'web'[39m,
+  environment: [32m'development'[39m,
+  env: [32m'development'[39m,
+  session_id: [32m'cbbe6358-6497-4c60-a961-1cf0ec797071'[39m,
+  event_ts: [33m1788609565905[39m
+}
+
+[90mstdout[2m | tests/unit/sdk-storage-denial-bootstrap.test.ts[2m > [22m[2mSDK storage denial composition[2m > [22m[2mboots getSdkContext with an unreplaceable throwing localStorage getter and fails analytics closed
+[22m[39m[attribution:disabled] no attribution provider configured (AppsFlyer: VITE_APPSFLYER_ENABLED is not true; Adjust: VITE_ADJUST_IOS_ENABLED is not true)
+
+ [32m✓[39m tests/unit/sdk-storage-denial-bootstrap.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 289[2mms[22m[39m
+[90mstdout[2m | tests/unit/bootstrap-storage-durability-chain.test.ts[2m > [22m[2mproduction bootstrap storage durability chain[2m > [22m[2mfails first_open closed on every launch backed only by the in-memory fallback
+[22m[39m[ads:disabled] ads disabled on web
+
+[90mstdout[2m | tests/unit/bootstrap-storage-durability-chain.test.ts[2m > [22m[2mproduction bootstrap storage durability chain[2m > [22m[2mfails first_open closed on every launch backed only by the in-memory fallback
+[22m[39m[analytics] iap_state_changed {
+  game: [32m'find_the_bird'[39m,
+  platform: [32m'web'[39m,
+  environment: [32m'development'[39m,
+  state: [32m'unsupported-platform'[39m,
+  reason: [32m'not a native platform'[39m,
+  env: [32m'development'[39m,
+  session_id: [32m'4bd8525f-a773-40ea-9b22-54280e37269a'[39m,
+  event_ts: [33m1788609565926[39m
+}
+
+[90mstdout[2m | tests/unit/bootstrap-storage-durability-chain.test.ts[2m > [22m[2mproduction bootstrap storage durability chain[2m > [22m[2mfails first_open closed on every launch backed only by the in-memory fallback
+[22m[39m[attribution:disabled] no attribution provider configured (AppsFlyer: VITE_APPSFLYER_ENABLED is not true; Adjust: VITE_ADJUST_IOS_ENABLED is not true)
+
+[90mstdout[2m | tests/unit/bootstrap-storage-durability-chain.test.ts[2m > [22m[2mproduction bootstrap storage durability chain[2m > [22m[2mfails first_open closed on every launch backed only by the in-memory fallback
+[22m[39m[analytics] session_start {
+  game: [32m'find_the_bird'[39m,
+  platform: [32m'web'[39m,
+  environment: [32m'development'[39m,
+  first_open: [33mfalse[39m,
+  env: [32m'development'[39m,
+  session_id: [32m'4bd8525f-a773-40ea-9b22-54280e37269a'[39m,
+  event_ts: [33m1788609565928[39m
+}
+
+[90mstdout[2m | tests/unit/bootstrap-storage-durability-chain.test.ts[2m > [22m[2mproduction bootstrap storage durability chain[2m > [22m[2mfails first_open closed on every launch backed only by the in-memory fallback
+[22m[39m[analytics] app_open {
+  game: [32m'find_the_bird'[39m,
+  platform: [32m'web'[39m,
+  environment: [32m'development'[39m,
+  cohort_bucket: [33m84[39m,
+  env: [32m'development'[39m,
+  session_id: [32m'4bd8525f-a773-40ea-9b22-54280e37269a'[39m,
+  event_ts: [33m1788609565934[39m
+}
+
+[90mstderr[2m | tests/unit/bootstrap-storage-durability-chain.test.ts[2m > [22m[2mproduction bootstrap storage durability chain[2m > [22m[2mfails first_open closed on every launch backed only by the in-memory fallback
+[22m[39mCapacitor plugin "AdjustAttribution" already registered. Cannot register plugins twice.
+
+[90mstderr[2m | tests/unit/bootstrap-storage-durability-chain.test.ts[2m > [22m[2mproduction bootstrap storage durability chain[2m > [22m[2mfails first_open closed on every launch backed only by the in-memory fallback
+[22m[39mCapacitor plugin "AppsFlyerAttribution" already registered. Cannot register plugins twice.
+
+[90mstderr[2m | tests/unit/bootstrap-storage-durability-chain.test.ts[2m > [22m[2mproduction bootstrap storage durability chain[2m > [22m[2mfails first_open closed on every launch backed only by the in-memory fallback
+[22m[39mCapacitor plugin "AppLovinMax" already registered. Cannot register plugins twice.
+
+[90mstderr[2m | tests/unit/bootstrap-storage-durability-chain.test.ts[2m > [22m[2mproduction bootstrap storage durability chain[2m > [22m[2mfails first_open closed on every launch backed only by the in-memory fallback
+[22m[39mCapacitor plugin "MetaEvents" already registered. Cannot register plugins twice.
+
+[90mstdout[2m | tests/unit/bootstrap-storage-durability-chain.test.ts[2m > [22m[2mproduction bootstrap storage durability chain[2m > [22m[2mfails first_open closed on every launch backed only by the in-memory fallback
+[22m[39m[ads:disabled] ads disabled on web
+
+[90mstdout[2m | tests/unit/bootstrap-storage-durability-chain.test.ts[2m > [22m[2mproduction bootstrap storage durability chain[2m > [22m[2mfails first_open closed on every launch backed only by the in-memory fallback
+[22m[39m[analytics] iap_state_changed {
+  game: [32m'find_the_bird'[39m,
+  platform: [32m'web'[39m,
+  environment: [32m'development'[39m,
+  state: [32m'unsupported-platform'[39m,
+  reason: [32m'not a native platform'[39m,
+  env: [32m'development'[39m,
+  session_id: [32m'c6c0af51-98ef-4b77-bcaf-d4dc46b73314'[39m,
+  event_ts: [33m1788609565966[39m
+}
+
+[90mstdout[2m | tests/unit/bootstrap-storage-durability-chain.test.ts[2m > [22m[2mproduction bootstrap storage durability chain[2m > [22m[2mfails first_open closed on every launch backed only by the in-memory fallback
+[22m[39m[attribution:disabled] no attribution provider configured (AppsFlyer: VITE_APPSFLYER_ENABLED is not true; Adjust: VITE_ADJUST_IOS_ENABLED is not true)
+
+[90mstdout[2m | tests/unit/bootstrap-storage-durability-chain.test.ts[2m > [22m[2mproduction bootstrap storage durability chain[2m > [22m[2mfails first_open closed on every launch backed only by the in-memory fallback
+[22m[39m[analytics] session_start {
+  game: [32m'find_the_bird'[39m,
+  platform: [32m'web'[39m,
+  environment: [32m'development'[39m,
+  first_open: [33mfalse[39m,
+  env: [32m'development'[39m,
+  session_id: [32m'c6c0af51-98ef-4b77-bcaf-d4dc46b73314'[39m,
+  event_ts: [33m1788609565966[39m
+}
+
+[90mstdout[2m | tests/unit/bootstrap-storage-durability-chain.test.ts[2m > [22m[2mproduction bootstrap storage durability chain[2m > [22m[2mfails first_open closed on every launch backed only by the in-memory fallback
+[22m[39m[analytics] app_open {
+  game: [32m'find_the_bird'[39m,
+  platform: [32m'web'[39m,
+  environment: [32m'development'[39m,
+  cohort_bucket: [33m19[39m,
+  env: [32m'development'[39m,
+  session_id: [32m'c6c0af51-98ef-4b77-bcaf-d4dc46b73314'[39m,
+  event_ts: [33m1788609565966[39m
+}
+
+ [32m✓[39m tests/unit/bootstrap-storage-durability-chain.test.ts [2m([22m[2m1 test[22m[2m)[22m[33m 397[2mms[22m[39m
+     [33m[2m✓[22m[39m fails first_open closed on every launch backed only by the in-memory fallback [33m 396[2mms[22m[39m
+ [32m✓[39m tests/unit/five-square-campaign.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 93[2mms[22m[39m
+[90mstdout[2m | tests/unit/test-harness-real-flow.test.ts[2m > [22m[2mfind_the_dog TestHarness real-flow wiring[2m > [22m[2mpublishes every canonical tour marker in order through the real harness
+[22m[39m[insituTour] state=menu scene=HomeScene
+
+[90mstdout[2m | tests/unit/test-harness-real-flow.test.ts[2m > [22m[2mfind_the_dog TestHarness real-flow wiring[2m > [22m[2mpublishes every canonical tour marker in order through the real harness
+[22m[39m[insituTour] state=menu-DONE scene=HomeScene
+
+(node:43179) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:43181) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[90mstdout[2m | tests/unit/test-harness-real-flow.test.ts[2m > [22m[2mfind_the_dog TestHarness real-flow wiring[2m > [22m[2mpublishes every canonical tour marker in order through the real harness
+[22m[39m[insituTour] state=level scene=GameScene
+
+[90mstdout[2m | tests/unit/test-harness-real-flow.test.ts[2m > [22m[2mfind_the_dog TestHarness real-flow wiring[2m > [22m[2mpublishes every canonical tour marker in order through the real harness
+[22m[39m[insituTour] state=level-DONE scene=GameScene
+
+[90mstdout[2m | tests/unit/insitu-tour.test.ts[2m > [22m[2mfind_the_dog maybeRunInsituTour — allstates[2m > [22m[2mdrives every canonical state via driveTo and marks each confirmed state
+[22m[39m[insituTour] state=menu scene=HomeScene
+
+[90mstdout[2m | tests/unit/insitu-tour.test.ts[2m > [22m[2mfind_the_dog maybeRunInsituTour — allstates[2m > [22m[2mdrives every canonical state via driveTo and marks each confirmed state
+[22m[39m[insituTour] state=menu-DONE scene=HomeScene
+
+[90mstdout[2m | tests/unit/insitu-tour.test.ts[2m > [22m[2mfind_the_dog maybeRunInsituTour — allstates[2m > [22m[2mdrives every canonical state via driveTo and marks each confirmed state
+[22m[39m[insituTour] state=level scene=GameScene
+
+[90mstdout[2m | tests/unit/insitu-tour.test.ts[2m > [22m[2mfind_the_dog maybeRunInsituTour — allstates[2m > [22m[2mdrives every canonical state via driveTo and marks each confirmed state
+[22m[39m[insituTour] state=level-DONE scene=GameScene
+
+[90mstdout[2m | tests/unit/insitu-tour.test.ts[2m > [22m[2mfind_the_dog maybeRunInsituTour — allstates[2m > [22m[2mdrives every canonical state via driveTo and marks each confirmed state
+[22m[39m[insituTour] state=settings scene=HomeScene
+
+[90mstdout[2m | tests/unit/insitu-tour.test.ts[2m > [22m[2mfind_the_dog maybeRunInsituTour — allstates[2m > [22m[2mdrives every canonical state via driveTo and marks each confirmed state
+[22m[39m[insituTour] state=settings-DONE scene=HomeScene
+
+[90mstdout[2m | tests/unit/insitu-tour.test.ts[2m > [22m[2mfind_the_dog maybeRunInsituTour — allstates[2m > [22m[2mdrives every canonical state via driveTo and marks each confirmed state
+[22m[39m[insituTour] state=pause scene=GameScene
+
+[90mstdout[2m | tests/unit/insitu-tour.test.ts[2m > [22m[2mfind_the_dog maybeRunInsituTour — allstates[2m > [22m[2mdrives every canonical state via driveTo and marks each confirmed state
+[22m[39m[insituTour] state=pause-DONE scene=GameScene
+
+[90mstdout[2m | tests/unit/insitu-tour.test.ts[2m > [22m[2mfind_the_dog maybeRunInsituTour — allstates[2m > [22m[2mdrives every canonical state via driveTo and marks each confirmed state
+[22m[39m[insituTour] state=win scene=GameScene
+
+[90mstdout[2m | tests/unit/insitu-tour.test.ts[2m > [22m[2mfind_the_dog maybeRunInsituTour — allstates[2m > [22m[2mdrives every canonical state via driveTo and marks each confirmed state
+[22m[39m[insituTour] state=win-DONE scene=GameScene
+
+[90mstdout[2m | tests/unit/insitu-tour.test.ts[2m > [22m[2mfind_the_dog maybeRunInsituTour — allstates[2m > [22m[2mdrives every canonical state via driveTo and marks each confirmed state
+[22m[39m[insituTour] state=fail scene=GameScene
+
+[90mstdout[2m | tests/unit/insitu-tour.test.ts[2m > [22m[2mfind_the_dog maybeRunInsituTour — allstates[2m > [22m[2mdrives every canonical state via driveTo and marks each confirmed state
+[22m[39m[insituTour] state=fail-DONE scene=GameScene
+[insituTour] state=done scene=GameScene
+
+[90mstdout[2m | tests/unit/insitu-tour.test.ts[2m > [22m[2mfind_the_dog maybeRunInsituTour — allstates[2m > [22m[2mresets and seeds save state before the first canonical drive
+[22m[39m[insituTour] state=menu scene=HomeScene
+
+[90mstdout[2m | tests/unit/insitu-tour.test.ts[2m > [22m[2mfind_the_dog maybeRunInsituTour — allstates[2m > [22m[2mresets and seeds save state before the first canonical drive
+[22m[39m[insituTour] state=menu-DONE scene=HomeScene
+
+[90mstdout[2m | tests/unit/insitu-tour.test.ts[2m > [22m[2mfind_the_dog maybeRunInsituTour — allstates[2m > [22m[2mresets and seeds save state before the first canonical drive
+[22m[39m[insituTour] state=level scene=GameScene
+
+[90mstdout[2m | tests/unit/insitu-tour.test.ts[2m > [22m[2mfind_the_dog maybeRunInsituTour — allstates[2m > [22m[2mresets and seeds save state before the first canonical drive
+[22m[39m[insituTour] state=level-DONE scene=GameScene
+
+[90mstdout[2m | tests/unit/insitu-tour.test.ts[2m > [22m[2mfind_the_dog maybeRunInsituTour — allstates[2m > [22m[2mresets and seeds save state before the first canonical drive
+[22m[39m[insituTour] state=settings scene=HomeScene
+
+[90mstdout[2m | tests/unit/insitu-tour.test.ts[2m > [22m[2mfind_the_dog maybeRunInsituTour — allstates[2m > [22m[2mresets and seeds save state before the first canonical drive
+[22m[39m[insituTour] state=settings-DONE scene=HomeScene
+
+[90mstdout[2m | tests/unit/insitu-tour.test.ts[2m > [22m[2mfind_the_dog maybeRunInsituTour — allstates[2m > [22m[2mresets and seeds save state before the first canonical drive
+[22m[39m[insituTour] state=pause scene=GameScene
+
+[90mstdout[2m | tests/unit/insitu-tour.test.ts[2m > [22m[2mfind_the_dog maybeRunInsituTour — allstates[2m > [22m[2mresets and seeds save state before the first canonical drive
+[22m[39m[insituTour] state=pause-DONE scene=GameScene
+
+ [32m✓[39m tests/unit/frame-rate-governor.test.ts [2m([22m[2m5 tests[22m[2m)[22m[33m 532[2mms[22m[39m
+[90mstdout[2m | tests/unit/insitu-tour.test.ts[2m > [22m[2mfind_the_dog maybeRunInsituTour — allstates[2m > [22m[2mresets and seeds save state before the first canonical drive
+[22m[39m[insituTour] state=win scene=GameScene
+
+[90mstdout[2m | tests/unit/insitu-tour.test.ts[2m > [22m[2mfind_the_dog maybeRunInsituTour — allstates[2m > [22m[2mresets and seeds save state before the first canonical drive
+[22m[39m[insituTour] state=win-DONE scene=GameScene
+
+[90mstdout[2m | tests/unit/insitu-tour.test.ts[2m > [22m[2mfind_the_dog maybeRunInsituTour — allstates[2m > [22m[2mresets and seeds save state before the first canonical drive
+[22m[39m[insituTour] state=fail scene=GameScene
+
+[90mstdout[2m | tests/unit/insitu-tour.test.ts[2m > [22m[2mfind_the_dog maybeRunInsituTour — allstates[2m > [22m[2mresets and seeds save state before the first canonical drive
+[22m[39m[insituTour] state=fail-DONE scene=GameScene
+[insituTour] state=done scene=GameScene
+
+[90mstdout[2m | tests/unit/insitu-tour.test.ts[2m > [22m[2mfind_the_dog maybeRunInsituTour — allstates[2m > [22m[2mmarks a failed state honestly when driveTo returns false
+[22m[39m[insituTour] state=menu scene=HomeScene
+
+[90mstdout[2m | tests/unit/insitu-tour.test.ts[2m > [22m[2mfind_the_dog maybeRunInsituTour — allstates[2m > [22m[2mmarks a failed state honestly when driveTo returns false
+[22m[39m[insituTour] state=menu-DONE scene=HomeScene
+
+[90mstdout[2m | tests/unit/insitu-tour.test.ts[2m > [22m[2mfind_the_dog maybeRunInsituTour — allstates[2m > [22m[2mmarks a failed state honestly when driveTo returns false
+[22m[39m[insituTour] state=level scene=GameScene
+
+[90mstdout[2m | tests/unit/insitu-tour.test.ts[2m > [22m[2mfind_the_dog maybeRunInsituTour — allstates[2m > [22m[2mmarks a failed state honestly when driveTo returns false
+[22m[39m[insituTour] state=level-DONE scene=GameScene
+
+[90mstdout[2m | tests/unit/insitu-tour.test.ts[2m > [22m[2mfind_the_dog maybeRunInsituTour — allstates[2m > [22m[2mmarks a failed state honestly when driveTo returns false
+[22m[39m[insituTour] state=settings scene=HomeScene
+
+[90mstdout[2m | tests/unit/insitu-tour.test.ts[2m > [22m[2mfind_the_dog maybeRunInsituTour — allstates[2m > [22m[2mmarks a failed state honestly when driveTo returns false
+[22m[39m[insituTour] state=settings-DONE scene=HomeScene
+
+[90mstdout[2m | tests/unit/insitu-tour.test.ts[2m > [22m[2mfind_the_dog maybeRunInsituTour — allstates[2m > [22m[2mmarks a failed state honestly when driveTo returns false
+[22m[39m[insituTour] state=pause-FAILED scene=HomeScene
+
+[90mstdout[2m | tests/unit/insitu-tour.test.ts[2m > [22m[2mfind_the_dog maybeRunInsituTour — allstates[2m > [22m[2mmarks a failed state honestly when driveTo returns false
+[22m[39m[insituTour] state=win scene=GameScene
+
+[90mstdout[2m | tests/unit/insitu-tour.test.ts[2m > [22m[2mfind_the_dog maybeRunInsituTour — allstates[2m > [22m[2mmarks a failed state honestly when driveTo returns false
+[22m[39m[insituTour] state=win-DONE scene=GameScene
+
+[90mstdout[2m | tests/unit/insitu-tour.test.ts[2m > [22m[2mfind_the_dog maybeRunInsituTour — allstates[2m > [22m[2mmarks a failed state honestly when driveTo returns false
+[22m[39m[insituTour] state=fail scene=GameScene
+
+[90mstdout[2m | tests/unit/insitu-tour.test.ts[2m > [22m[2mfind_the_dog maybeRunInsituTour — allstates[2m > [22m[2mmarks a failed state honestly when driveTo returns false
+[22m[39m[insituTour] state=fail-DONE scene=GameScene
+[insituTour] state=done scene=GameScene
+
+[90mstdout[2m | tests/unit/insitu-tour.test.ts[2m > [22m[2mfind_the_dog maybeRunInsituTour — allstates[2m > [22m[2mtimes out a never-settling driveTo, marks FAILED, and continues the tour
+[22m[39m[insituTour] state=menu scene=HomeScene
+
+[90mstdout[2m | tests/unit/insitu-tour.test.ts[2m > [22m[2mfind_the_dog maybeRunInsituTour — allstates[2m > [22m[2mtimes out a never-settling driveTo, marks FAILED, and continues the tour
+[22m[39m[insituTour] state=menu-DONE scene=HomeScene
+
+[90mstdout[2m | tests/unit/insitu-tour.test.ts[2m > [22m[2mfind_the_dog maybeRunInsituTour — allstates[2m > [22m[2mtimes out a never-settling driveTo, marks FAILED, and continues the tour
+[22m[39m[insituTour] state=level scene=GameScene
+
+[90mstdout[2m | tests/unit/insitu-tour.test.ts[2m > [22m[2mfind_the_dog maybeRunInsituTour — allstates[2m > [22m[2mtimes out a never-settling driveTo, marks FAILED, and continues the tour
+[22m[39m[insituTour] state=level-DONE scene=GameScene
+
+[90mstdout[2m | tests/unit/insitu-tour.test.ts[2m > [22m[2mfind_the_dog maybeRunInsituTour — allstates[2m > [22m[2mtimes out a never-settling driveTo, marks FAILED, and continues the tour
+[22m[39m[insituTour] driveTo(settings) timed out after 20000ms
+
+[90mstdout[2m | tests/unit/insitu-tour.test.ts[2m > [22m[2mfind_the_dog maybeRunInsituTour — allstates[2m > [22m[2mtimes out a never-settling driveTo, marks FAILED, and continues the tour
+[22m[39m[insituTour] state=settings-FAILED scene=GameScene
+
+[90mstdout[2m | tests/unit/insitu-tour.test.ts[2m > [22m[2mfind_the_dog maybeRunInsituTour — allstates[2m > [22m[2mtimes out a never-settling driveTo, marks FAILED, and continues the tour
+[22m[39m[insituTour] state=pause scene=GameScene
+
+[90mstdout[2m | tests/unit/insitu-tour.test.ts[2m > [22m[2mfind_the_dog maybeRunInsituTour — allstates[2m > [22m[2mtimes out a never-settling driveTo, marks FAILED, and continues the tour
+[22m[39m[insituTour] state=pause-DONE scene=GameScene
+
+[90mstdout[2m | tests/unit/insitu-tour.test.ts[2m > [22m[2mfind_the_dog maybeRunInsituTour — allstates[2m > [22m[2mtimes out a never-settling driveTo, marks FAILED, and continues the tour
+[22m[39m[insituTour] state=win scene=GameScene
+
+[90mstdout[2m | tests/unit/insitu-tour.test.ts[2m > [22m[2mfind_the_dog maybeRunInsituTour — allstates[2m > [22m[2mtimes out a never-settling driveTo, marks FAILED, and continues the tour
+[22m[39m[insituTour] state=win-DONE scene=GameScene
+
+[90mstdout[2m | tests/unit/insitu-tour.test.ts[2m > [22m[2mfind_the_dog maybeRunInsituTour — allstates[2m > [22m[2mtimes out a never-settling driveTo, marks FAILED, and continues the tour
+[22m[39m[insituTour] state=fail scene=GameScene
+
+[90mstdout[2m | tests/unit/insitu-tour.test.ts[2m > [22m[2mfind_the_dog maybeRunInsituTour — allstates[2m > [22m[2mtimes out a never-settling driveTo, marks FAILED, and continues the tour
+[22m[39m[insituTour] state=fail-DONE scene=GameScene
+[insituTour] state=done scene=GameScene
+
+[90mstdout[2m | tests/unit/insitu-tour.test.ts[2m > [22m[2mfind_the_dog maybeRunInsituTour — allstates[2m > [22m[2mretires each exact marker before driving the next state
+[22m[39m[insituTour] state=menu scene=HomeScene
+
+[90mstdout[2m | tests/unit/insitu-tour.test.ts[2m > [22m[2mfind_the_dog maybeRunInsituTour — allstates[2m > [22m[2mretires each exact marker before driving the next state
+[22m[39m[insituTour] state=menu-DONE scene=HomeScene
+
+[90mstdout[2m | tests/unit/insitu-tour.test.ts[2m > [22m[2mfind_the_dog maybeRunInsituTour — allstates[2m > [22m[2mretires each exact marker before driving the next state
+[22m[39m[insituTour] state=level scene=GameScene
+
+[90mstdout[2m | tests/unit/insitu-tour.test.ts[2m > [22m[2mfind_the_dog maybeRunInsituTour — allstates[2m > [22m[2mretires each exact marker before driving the next state
+[22m[39m[insituTour] state=level-DONE scene=GameScene
+
+[90mstdout[2m | tests/unit/insitu-tour.test.ts[2m > [22m[2mfind_the_dog maybeRunInsituTour — allstates[2m > [22m[2mretires each exact marker before driving the next state
+[22m[39m[insituTour] state=settings scene=HomeScene
+
+[90mstdout[2m | tests/unit/insitu-tour.test.ts[2m > [22m[2mfind_the_dog maybeRunInsituTour — allstates[2m > [22m[2mretires each exact marker before driving the next state
+[22m[39m[insituTour] state=settings-DONE scene=HomeScene
+
+[90mstdout[2m | tests/unit/insitu-tour.test.ts[2m > [22m[2mfind_the_dog maybeRunInsituTour — allstates[2m > [22m[2mretires each exact marker before driving the next state
+[22m[39m[insituTour] state=pause scene=GameScene
+
+[90mstdout[2m | tests/unit/insitu-tour.test.ts[2m > [22m[2mfind_the_dog maybeRunInsituTour — allstates[2m > [22m[2mretires each exact marker before driving the next state
+[22m[39m[insituTour] state=pause-DONE scene=GameScene
+
+[90mstdout[2m | tests/unit/insitu-tour.test.ts[2m > [22m[2mfind_the_dog maybeRunInsituTour — allstates[2m > [22m[2mretires each exact marker before driving the next state
+[22m[39m[insituTour] state=win scene=GameScene
+
+[90mstdout[2m | tests/unit/insitu-tour.test.ts[2m > [22m[2mfind_the_dog maybeRunInsituTour — allstates[2m > [22m[2mretires each exact marker before driving the next state
+[22m[39m[insituTour] state=win-DONE scene=GameScene
+
+[90mstdout[2m | tests/unit/shop-home-parity.test.ts[2m > [22m[2mshop and Settings parity
+[22m[39m[analytics] iap_state_changed {
+  game: [32m'find_the_bird'[39m,
+  state: [32m'initializing'[39m,
+  env: [32m'development'[39m,
+  session_id: [32m'7ad35cf6-4ffe-4593-84c2-22caee6f0826'[39m,
+  event_ts: [33m1788609566199[39m
+}
+
+[90mstdout[2m | tests/unit/insitu-tour.test.ts[2m > [22m[2mfind_the_dog maybeRunInsituTour — allstates[2m > [22m[2mretires each exact marker before driving the next state
+[22m[39m[insituTour] state=fail scene=GameScene
+
+[90mstdout[2m | tests/unit/insitu-tour.test.ts[2m > [22m[2mfind_the_dog maybeRunInsituTour — allstates[2m > [22m[2mretires each exact marker before driving the next state
+[22m[39m[insituTour] state=fail-DONE scene=GameScene
+[insituTour] state=done scene=GameScene
+
+[90mstdout[2m | tests/unit/shop-home-parity.test.ts[2m > [22m[2mshop and Settings parity
+[22m[39m[analytics] iap_state_changed {
+  game: [32m'find_the_bird'[39m,
+  state: [32m'ready'[39m,
+  env: [32m'development'[39m,
+  session_id: [32m'7ad35cf6-4ffe-4593-84c2-22caee6f0826'[39m,
+  event_ts: [33m1788609566199[39m
+}
+
+[90mstdout[2m | tests/unit/insitu-tour.test.ts[2m > [22m[2mfind_the_dog maybeRunInsituTour — allstates[2m > [22m[2mwrites one off-screen #__tourstate__ marker with exact final label and text
+[22m[39m[insituTour] state=menu scene=HomeScene
+
+[90mstdout[2m | tests/unit/insitu-tour.test.ts[2m > [22m[2mfind_the_dog maybeRunInsituTour — allstates[2m > [22m[2mwrites one off-screen #__tourstate__ marker with exact final label and text
+[22m[39m[insituTour] state=menu-DONE scene=HomeScene
+
+[90mstdout[2m | tests/unit/insitu-tour.test.ts[2m > [22m[2mfind_the_dog maybeRunInsituTour — allstates[2m > [22m[2mwrites one off-screen #__tourstate__ marker with exact final label and text
+[22m[39m[insituTour] state=level scene=GameScene
+
+[90mstdout[2m | tests/unit/insitu-tour.test.ts[2m > [22m[2mfind_the_dog maybeRunInsituTour — allstates[2m > [22m[2mwrites one off-screen #__tourstate__ marker with exact final label and text
+[22m[39m[insituTour] state=level-DONE scene=GameScene
+
+[90mstdout[2m | tests/unit/insitu-tour.test.ts[2m > [22m[2mfind_the_dog maybeRunInsituTour — allstates[2m > [22m[2mwrites one off-screen #__tourstate__ marker with exact final label and text
+[22m[39m[insituTour] state=settings scene=HomeScene
+
+[90mstdout[2m | tests/unit/insitu-tour.test.ts[2m > [22m[2mfind_the_dog maybeRunInsituTour — allstates[2m > [22m[2mwrites one off-screen #__tourstate__ marker with exact final label and text
+[22m[39m[insituTour] state=settings-DONE scene=HomeScene
+
+[90mstdout[2m | tests/unit/insitu-tour.test.ts[2m > [22m[2mfind_the_dog maybeRunInsituTour — allstates[2m > [22m[2mwrites one off-screen #__tourstate__ marker with exact final label and text
+[22m[39m[insituTour] state=pause scene=GameScene
+
+[90mstdout[2m | tests/unit/insitu-tour.test.ts[2m > [22m[2mfind_the_dog maybeRunInsituTour — allstates[2m > [22m[2mwrites one off-screen #__tourstate__ marker with exact final label and text
+[22m[39m[insituTour] state=pause-DONE scene=GameScene
+
+[90mstdout[2m | tests/unit/insitu-tour.test.ts[2m > [22m[2mfind_the_dog maybeRunInsituTour — allstates[2m > [22m[2mwrites one off-screen #__tourstate__ marker with exact final label and text
+[22m[39m[insituTour] state=win scene=GameScene
+
+[90mstdout[2m | tests/unit/insitu-tour.test.ts[2m > [22m[2mfind_the_dog maybeRunInsituTour — allstates[2m > [22m[2mwrites one off-screen #__tourstate__ marker with exact final label and text
+[22m[39m[insituTour] state=win-DONE scene=GameScene
+
+[90mstdout[2m | tests/unit/insitu-tour.test.ts[2m > [22m[2mfind_the_dog maybeRunInsituTour — allstates[2m > [22m[2mwrites one off-screen #__tourstate__ marker with exact final label and text
+[22m[39m[insituTour] state=fail scene=GameScene
+
+[90mstdout[2m | tests/unit/insitu-tour.test.ts[2m > [22m[2mfind_the_dog maybeRunInsituTour — allstates[2m > [22m[2mwrites one off-screen #__tourstate__ marker with exact final label and text
+[22m[39m[insituTour] state=fail-DONE scene=GameScene
+[insituTour] state=done scene=GameScene
+
+[90mstdout[2m | tests/unit/insitu-tour.test.ts[2m > [22m[2mfind_the_dog maybeRunInsituTour — allstates[2m > [22m[2mpublishes viewport geometry on a separate off-screen accessibility marker for exact states
+[22m[39m[insituTour] state=menu scene=HomeScene
+
+[90mstdout[2m | tests/unit/insitu-tour.test.ts[2m > [22m[2mfind_the_dog maybeRunInsituTour — allstates[2m > [22m[2mpublishes viewport geometry on a separate off-screen accessibility marker for exact states
+[22m[39m[insituTour] state=menu-DONE scene=HomeScene
+
+[90mstdout[2m | tests/unit/insitu-tour.test.ts[2m > [22m[2mfind_the_dog maybeRunInsituTour — allstates[2m > [22m[2mpublishes viewport geometry on a separate off-screen accessibility marker for exact states
+[22m[39m[insituTour] state=level scene=GameScene
+
+[90mstdout[2m | tests/unit/insitu-tour.test.ts[2m > [22m[2mfind_the_dog maybeRunInsituTour — allstates[2m > [22m[2mpublishes viewport geometry on a separate off-screen accessibility marker for exact states
+[22m[39m[insituTour] state=level-DONE scene=GameScene
+
+[90mstderr[2m | tests/unit/bootstrap-insitu-tour.test.ts[2m > [22m[2mfind_the_dog bootstrap insitu tour wiring[2m > [22m[2mstarts maybeRunInsituTour with the mounted harness when the test harness is enabled
+[22m[39m[bootstrap] runtime initialization failed TypeError: __vite_ssr_import_6__.analytics.init is not a function
+    at startAnalyticsBootstrap [90m(/Users/base/dev/appletolye/fabrikav2/.worktrees/ua-code-audit/games/find_the_bird/[39msrc/runtime.ts:127:19[90m)[39m
+    at [90m/Users/base/dev/appletolye/fabrikav2/.worktrees/ua-code-audit/games/find_the_bird/[39msrc/bootstrap.ts:9:3
+[90m    at processTicksAndRejections (node:internal/process/task_queues:104:5)[39m
+
+[90mstdout[2m | tests/unit/insitu-tour.test.ts[2m > [22m[2mfind_the_dog maybeRunInsituTour — allstates[2m > [22m[2mpublishes viewport geometry on a separate off-screen accessibility marker for exact states
+[22m[39m[insituTour] state=settings scene=HomeScene
+
+[90mstdout[2m | tests/unit/insitu-tour.test.ts[2m > [22m[2mfind_the_dog maybeRunInsituTour — allstates[2m > [22m[2mpublishes viewport geometry on a separate off-screen accessibility marker for exact states
+[22m[39m[insituTour] state=settings-DONE scene=HomeScene
+
+[90mstdout[2m | tests/unit/insitu-tour.test.ts[2m > [22m[2mfind_the_dog maybeRunInsituTour — allstates[2m > [22m[2mpublishes viewport geometry on a separate off-screen accessibility marker for exact states
+[22m[39m[insituTour] state=pause scene=GameScene
+
+[90mstdout[2m | tests/unit/insitu-tour.test.ts[2m > [22m[2mfind_the_dog maybeRunInsituTour — allstates[2m > [22m[2mpublishes viewport geometry on a separate off-screen accessibility marker for exact states
+[22m[39m[insituTour] state=pause-DONE scene=GameScene
+
+[90mstdout[2m | tests/unit/insitu-tour.test.ts[2m > [22m[2mfind_the_dog maybeRunInsituTour — allstates[2m > [22m[2mpublishes viewport geometry on a separate off-screen accessibility marker for exact states
+[22m[39m[insituTour] state=win scene=GameScene
+
+[90mstdout[2m | tests/unit/insitu-tour.test.ts[2m > [22m[2mfind_the_dog maybeRunInsituTour — allstates[2m > [22m[2mpublishes viewport geometry on a separate off-screen accessibility marker for exact states
+[22m[39m[insituTour] state=win-DONE scene=GameScene
+
+[90mstdout[2m | tests/unit/insitu-tour.test.ts[2m > [22m[2mfind_the_dog maybeRunInsituTour — allstates[2m > [22m[2mpublishes viewport geometry on a separate off-screen accessibility marker for exact states
+[22m[39m[insituTour] state=fail scene=GameScene
+
+[90mstdout[2m | tests/unit/insitu-tour.test.ts[2m > [22m[2mfind_the_dog maybeRunInsituTour — allstates[2m > [22m[2mpublishes viewport geometry on a separate off-screen accessibility marker for exact states
+[22m[39m[insituTour] state=fail-DONE scene=GameScene
+[insituTour] state=done scene=GameScene
+
+ [32m✓[39m tests/unit/insitu-tour.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 57[2mms[22m[39m
+[90mstdout[2m | tests/unit/test-harness-real-flow.test.ts[2m > [22m[2mfind_the_dog TestHarness real-flow wiring[2m > [22m[2mpublishes every canonical tour marker in order through the real harness
+[22m[39m[insituTour] state=settings scene=HomeScene
+
+[90mstdout[2m | tests/unit/test-harness-real-flow.test.ts[2m > [22m[2mfind_the_dog TestHarness real-flow wiring[2m > [22m[2mpublishes every canonical tour marker in order through the real harness
+[22m[39m[insituTour] state=settings-DONE scene=HomeScene
+
+[90mstdout[2m | tests/unit/shop-home-parity.test.ts[2m > [22m[2mshop and Settings parity[2m > [22m[2mkeeps only the pending product visually busy while preserving every price and blocking re-entry
+[22m[39m[analytics] purchase_sheet_shown {
+  game: [32m'find_the_bird'[39m,
+  product_id: [32m'com.basegamelab.findthebird.hints50'[39m,
+  env: [32m'development'[39m,
+  session_id: [32m'7ad35cf6-4ffe-4593-84c2-22caee6f0826'[39m,
+  event_ts: [33m1788609566230[39m
+}
+
+ [32m✓[39m tests/unit/shop-home-parity.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 49[2mms[22m[39m
+ [32m✓[39m tests/unit/bootstrap-insitu-tour.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 68[2mms[22m[39m
+ [32m✓[39m tests/unit/achievement-collection-ui.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 90[2mms[22m[39m
+[90mstdout[2m | tests/unit/test-harness-real-flow.test.ts[2m > [22m[2mfind_the_dog TestHarness real-flow wiring[2m > [22m[2mpublishes every canonical tour marker in order through the real harness
+[22m[39m[insituTour] state=pause scene=GameScene
+
+[90mstdout[2m | tests/unit/test-harness-real-flow.test.ts[2m > [22m[2mfind_the_dog TestHarness real-flow wiring[2m > [22m[2mpublishes every canonical tour marker in order through the real harness
+[22m[39m[insituTour] state=pause-DONE scene=GameScene
+
+[90mstdout[2m | tests/unit/test-harness-real-flow.test.ts[2m > [22m[2mfind_the_dog TestHarness real-flow wiring[2m > [22m[2mpublishes every canonical tour marker in order through the real harness
+[22m[39m[insituTour] state=win scene=GameScene
+
+[90mstdout[2m | tests/unit/test-harness-real-flow.test.ts[2m > [22m[2mfind_the_dog TestHarness real-flow wiring[2m > [22m[2mpublishes every canonical tour marker in order through the real harness
+[22m[39m[insituTour] state=win-DONE scene=GameScene
+
+[90mstdout[2m | tests/unit/test-harness-real-flow.test.ts[2m > [22m[2mfind_the_dog TestHarness real-flow wiring[2m > [22m[2mpublishes every canonical tour marker in order through the real harness
+[22m[39m[insituTour] state=fail scene=GameScene
+
+[90mstdout[2m | tests/unit/test-harness-real-flow.test.ts[2m > [22m[2mfind_the_dog TestHarness real-flow wiring[2m > [22m[2mpublishes every canonical tour marker in order through the real harness
+[22m[39m[insituTour] state=fail-DONE scene=GameScene
+[insituTour] state=done scene=GameScene
+
+(node:43190) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[90mstdout[2m | tests/unit/test-harness-real-flow.test.ts[2m > [22m[2mfind_the_dog TestHarness real-flow wiring[2m > [22m[2mmarks a lost real-harness state FAILED and continues to the next state
+[22m[39m[insituTour] state=settings scene=HomeScene
+
+[90mstdout[2m | tests/unit/test-harness-real-flow.test.ts[2m > [22m[2mfind_the_dog TestHarness real-flow wiring[2m > [22m[2mmarks a lost real-harness state FAILED and continues to the next state
+[22m[39m[insituTour] state=settings-FAILED scene=HomeScene
+
+[90mstderr[2m | tests/unit/manifest-retry-refresh.test.ts[2m > [22m[2mruntime manifest retry refresh[2m > [22m[2mreplaces a cached fallback index after a later CDN initialization succeeds
+[22m[39m[levels] catalog manifest unavailable; preserving cached sequence/fallback state Error: unexpected fetch: levels/catalog-manifest.json
+    at [90m/Users/base/dev/appletolye/fabrikav2/.worktrees/ua-code-audit/games/find_the_bird/[39mtests/unit/manifest-retry-refresh.test.ts:69:13
+    at Mock (file:///Users/base/dev/appletolye/fabrikav2/.worktrees/ua-code-audit/node_modules/[4m@vitest/spy[24m/dist/index.js:332:34)
+    at fetchWithTimeout [90m(/Users/base/dev/appletolye/fabrikav2/.worktrees/ua-code-audit/games/find_the_bird/[39msrc/data/levels.ts:607:28[90m)[39m
+    at fetchRuntimeCatalogJson [90m(/Users/base/dev/appletolye/fabrikav2/.worktrees/ua-code-audit/games/find_the_bird/[39msrc/data/levels.ts:273:28[90m)[39m
+    at getCatalogManifest [90m(/Users/base/dev/appletolye/fabrikav2/.worktrees/ua-code-audit/games/find_the_bird/[39msrc/data/levels.ts:304:19[90m)[39m
+    at getActivePackageCatalog [90m(/Users/base/dev/appletolye/fabrikav2/.worktrees/ua-code-audit/games/find_the_bird/[39msrc/data/levels.ts:722:40[90m)[39m
+    at buildLevelIndex [90m(/Users/base/dev/appletolye/fabrikav2/.worktrees/ua-code-audit/games/find_the_bird/[39msrc/data/levels.ts:867:25[90m)[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:104:5)[39m
+    at [90m/Users/base/dev/appletolye/fabrikav2/.worktrees/ua-code-audit/games/find_the_bird/[39msrc/data/levels.ts:854:12
+    at Module.getLevelIndex [90m(/Users/base/dev/appletolye/fabrikav2/.worktrees/ua-code-audit/games/find_the_bird/[39msrc/data/levels.ts:858:12[90m)[39m
+
+(node:43189) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[90mstderr[2m | tests/unit/sdk-context.test.ts[2m > [22m[2mFTD SdkContext composition matrix[2m > [22m[2mfails closed on native Android when Android AdMob config is absent
+[22m[39m[iap] RELEASE BLOCKER: native android is using FakePurchaseProvider because VITE_REVENUECAT_ANDROID_API_KEY is absent
+
+[90mstdout[2m | tests/unit/sdk-context.test.ts[2m > [22m[2mFTD SdkContext composition matrix[2m > [22m[2mkeeps Firebase Analytics absent even with complete Firebase config
+[22m[39m[analytics] dog_found {
+  game: [32m'find_the_bird'[39m,
+  platform: [32m'ios'[39m,
+  environment: [32m'development'[39m,
+  dog_index: [33m0[39m,
+  no_ads: [33mfalse[39m,
+  env: [32m'development'[39m,
+  session_id: [32m'c4bc9a26-bf6b-4998-8f37-cbe9aa91fe93'[39m,
+  event_ts: [33m1788609566483[39m
+}
+
+[90mstderr[2m | tests/unit/sdk-context.test.ts[2m > [22m[2mFTD SdkContext composition matrix[2m > [22m[2mkeeps Firebase Analytics absent even with complete Firebase config
+[22m[39m[iap] RELEASE BLOCKER: native ios is using FakePurchaseProvider because VITE_REVENUECAT_IOS_API_KEY is absent
+
+[90mstdout[2m | tests/unit/sdk-context.test.ts[2m > [22m[2mFTD SdkContext composition matrix[2m > [22m[2momits the Firebase sink and never touches the plugin when config is absent on native iOS
+[22m[39m[analytics] dog_found {
+  game: [32m'find_the_bird'[39m,
+  platform: [32m'ios'[39m,
+  environment: [32m'development'[39m,
+  dog_index: [33m0[39m,
+  no_ads: [33mfalse[39m,
+  env: [32m'development'[39m,
+  session_id: [32m'c1f76ddb-7f80-42de-8356-542b5adb38ac'[39m,
+  event_ts: [33m1788609566484[39m
+}
+
+[90mstderr[2m | tests/unit/sdk-context.test.ts[2m > [22m[2mFTD SdkContext composition matrix[2m > [22m[2momits the Firebase sink and never touches the plugin when config is absent on native iOS
+[22m[39m[iap] RELEASE BLOCKER: native ios is using FakePurchaseProvider because VITE_REVENUECAT_IOS_API_KEY is absent
+
+[90mstderr[2m | tests/unit/sdk-context.test.ts[2m > [22m[2mFTD SdkContext composition matrix[2m > [22m[2momits the Firebase sink when config is partial (missing APP_ID)
+[22m[39m[iap] RELEASE BLOCKER: native ios is using FakePurchaseProvider because VITE_REVENUECAT_IOS_API_KEY is absent
+
+[90mstdout[2m | tests/unit/sdk-context.test.ts[2m > [22m[2mFTD SdkContext composition matrix[2m > [22m[2mkeeps every game.config analytics id emittable through the root facade
+[22m[39m[analytics] session_start {
+  game: [32m'find_the_bird'[39m,
+  platform: [32m'web'[39m,
+  environment: [32m'development'[39m,
+  env: [32m'development'[39m,
+  session_id: [32m'6526018b-ba3a-4ad8-83e0-842ba8b19e24'[39m,
+  event_ts: [33m1788609566485[39m
+}
+[analytics] session_end {
+  game: [32m'find_the_bird'[39m,
+  platform: [32m'web'[39m,
+  environment: [32m'development'[39m,
+  env: [32m'development'[39m,
+  session_id: [32m'6526018b-ba3a-4ad8-83e0-842ba8b19e24'[39m,
+  event_ts: [33m1788609566485[39m
+}
+[analytics] level_start {
+  game: [32m'find_the_bird'[39m,
+  platform: [32m'web'[39m,
+  environment: [32m'development'[39m,
+  env: [32m'development'[39m,
+  session_id: [32m'6526018b-ba3a-4ad8-83e0-842ba8b19e24'[39m,
+  event_ts: [33m1788609566485[39m
+}
+[analytics] level_complete {
+  game: [32m'find_the_bird'[39m,
+  platform: [32m'web'[39m,
+  environment: [32m'development'[39m,
+  env: [32m'development'[39m,
+  session_id: [32m'6526018b-ba3a-4ad8-83e0-842ba8b19e24'[39m,
+  event_ts: [33m1788609566485[39m
+}
+[analytics] level_fail {
+  game: [32m'find_the_bird'[39m,
+  platform: [32m'web'[39m,
+  environment: [32m'development'[39m,
+  env: [32m'development'[39m,
+  session_id: [32m'6526018b-ba3a-4ad8-83e0-842ba8b19e24'[39m,
+  event_ts: [33m1788609566485[39m
+}
+[analytics] resource_change {
+  game: [32m'find_the_bird'[39m,
+  platform: [32m'web'[39m,
+  environment: [32m'development'[39m,
+  env: [32m'development'[39m,
+  session_id: [32m'6526018b-ba3a-4ad8-83e0-842ba8b19e24'[39m,
+  event_ts: [33m1788609566485[39m
+}
+[analytics] ad_request {
+  game: [32m'find_the_bird'[39m,
+  platform: [32m'web'[39m,
+  environment: [32m'development'[39m,
+  env: [32m'development'[39m,
+  session_id: [32m'6526018b-ba3a-4ad8-83e0-842ba8b19e24'[39m,
+  event_ts: [33m1788609566485[39m
+}
+[analytics] ad_impression {
+  game: [32m'find_the_bird'[39m,
+  platform: [32m'web'[39m,
+  environment: [32m'development'[39m,
+  env: [32m'development'[39m,
+  session_id: [32m'6526018b-ba3a-4ad8-83e0-842ba8b19e24'[39m,
+  event_ts: [33m1788609566485[39m
+}
+[analytics] ad_reward {
+  game: [32m'find_the_bird'[39m,
+  platform: [32m'web'[39m,
+  environment: [32m'development'[39m,
+  env: [32m'development'[39m,
+  session_id: [32m'6526018b-ba3a-4ad8-83e0-842ba8b19e24'[39m,
+  event_ts: [33m1788609566486[39m
+}
+[analytics] purchase {
+  game: [32m'find_the_bird'[39m,
+  platform: [32m'web'[39m,
+  environment: [32m'development'[39m,
+  env: [32m'development'[39m,
+  session_id: [32m'6526018b-ba3a-4ad8-83e0-842ba8b19e24'[39m,
+  event_ts: [33m1788609566486[39m
+}
+
+[90mstdout[2m | tests/unit/sdk-context.test.ts[2m > [22m[2mFTD SdkContext composition matrix[2m > [22m[2muses the bird identity in analytics events and owned mirror batches
+[22m[39m[analytics] app_open {
+  game: [32m'find_the_bird'[39m,
+  platform: [32m'web'[39m,
+  environment: [32m'development'[39m,
+  env: [32m'development'[39m,
+  session_id: [32m'c5010ce9-a996-4cbb-9854-da69ac25b8f7'[39m,
+  event_ts: [33m1788609566486[39m
+}
+
+[90mstdout[2m | tests/unit/sdk-context.test.ts[2m > [22m[2mFTD SdkContext composition matrix[2m > [22m[2mfilters purchase, user, and device identifiers from owned mirror batches
+[22m[39m[analytics] purchase_fulfilled {
+  game: [32m'find_the_bird'[39m,
+  platform: [32m'web'[39m,
+  environment: [32m'development'[39m,
+  product_id: [32m'hints_pack'[39m,
+  purchase_id: [32m'purchase-secret-123456'[39m,
+  user_id: [32m'user-secret-123456'[39m,
+  device_id: [32m'device-secret-123456'[39m,
+  env: [32m'development'[39m,
+  session_id: [32m'd7777676-606f-4392-83fa-54b279f3e89a'[39m,
+  event_ts: [33m1788609566494[39m
+}
+[analytics] app_background {
+  game: [32m'find_the_bird'[39m,
+  platform: [32m'web'[39m,
+  environment: [32m'development'[39m,
+  levels_played: [33m3[39m,
+  env: [32m'development'[39m,
+  session_id: [32m'd7777676-606f-4392-83fa-54b279f3e89a'[39m,
+  event_ts: [33m1788609566494[39m
+}
+
+[90mstdout[2m | tests/unit/sdk-context.test.ts[2m > [22m[2mFTD SdkContext composition matrix[2m > [22m[2mreports GameAnalytics selection reason and safe runtime provenance
+[22m[39m[analytics] dog_found {
+  game: [32m'find_the_bird'[39m,
+  platform: [32m'ios'[39m,
+  build: [32m'1.2.0+abc123'[39m,
+  app_version: [32m'1.2.0'[39m,
+  environment: [32m'development'[39m,
+  env: [32m'development'[39m,
+  session_id: [32m'9f897f45-a744-4b1f-843a-c588328a608e'[39m,
+  event_ts: [33m1788609566498[39m
+}
+
+[90mstdout[2m | tests/unit/test-harness-real-flow.test.ts[2m > [22m[2mfind_the_dog TestHarness real-flow wiring[2m > [22m[2mmarks a lost real-harness state FAILED and continues to the next state
+[22m[39m[insituTour] state=pause scene=GameScene
+
+[90mstdout[2m | tests/unit/test-harness-real-flow.test.ts[2m > [22m[2mfind_the_dog TestHarness real-flow wiring[2m > [22m[2mmarks a lost real-harness state FAILED and continues to the next state
+[22m[39m[insituTour] state=pause-DONE scene=GameScene
+[insituTour] state=done scene=GameScene
+
+ [32m✓[39m tests/unit/sdk-context.test.ts [2m([22m[2m18 tests[22m[2m)[22m[32m 40[2mms[22m[39m
+[90mstdout[2m | tests/unit/test-harness-real-flow.test.ts[2m > [22m[2mfind_the_dog TestHarness real-flow wiring[2m > [22m[2mpublishes trusted achievement tour markers only after their real predicates pass
+[22m[39m[insituTour] state=achievements scene=HomeScene
+
+[90mstdout[2m | tests/unit/test-harness-real-flow.test.ts[2m > [22m[2mfind_the_dog TestHarness real-flow wiring[2m > [22m[2mpublishes trusted achievement tour markers only after their real predicates pass
+[22m[39m[insituTour] state=achievements-DONE scene=HomeScene
+
+[90mstdout[2m | tests/unit/test-harness-real-flow.test.ts[2m > [22m[2mfind_the_dog TestHarness real-flow wiring[2m > [22m[2mpublishes trusted achievement tour markers only after their real predicates pass
+[22m[39m[insituTour] state=win-achievement scene=GameScene
+
+[90mstdout[2m | tests/unit/test-harness-real-flow.test.ts[2m > [22m[2mfind_the_dog TestHarness real-flow wiring[2m > [22m[2mpublishes trusted achievement tour markers only after their real predicates pass
+[22m[39m[insituTour] state=win-achievement-DONE scene=GameScene
+[insituTour] state=done scene=GameScene
+
+ [32m✓[39m tests/unit/test-harness-real-flow.test.ts [2m([22m[2m16 tests[22m[2m)[22m[33m 894[2mms[22m[39m
+     [33m[2m✓[22m[39m startLevel drives the mounted home Play button before confirming level [33m 323[2mms[22m[39m
+     [33m[2m✓[22m[39m publishes every canonical tour marker in order through the real harness [33m 344[2mms[22m[39m
+[90mstderr[2m | tests/unit/manifest-retry-refresh.test.ts[2m > [22m[2mruntime manifest retry refresh[2m > [22m[2mshares concurrent manifest initialization and retries fallback on the next completed call
+[22m[39m[levels] catalog manifest unavailable; preserving cached sequence/fallback state Error: unexpected fetch: levels/catalog-manifest.json
+    at [90m/Users/base/dev/appletolye/fabrikav2/.worktrees/ua-code-audit/games/find_the_bird/[39mtests/unit/manifest-retry-refresh.test.ts:96:13
+    at Mock (file:///Users/base/dev/appletolye/fabrikav2/.worktrees/ua-code-audit/node_modules/[4m@vitest/spy[24m/dist/index.js:332:34)
+    at fetchWithTimeout [90m(/Users/base/dev/appletolye/fabrikav2/.worktrees/ua-code-audit/games/find_the_bird/[39msrc/data/levels.ts:607:28[90m)[39m
+    at fetchRuntimeCatalogJson [90m(/Users/base/dev/appletolye/fabrikav2/.worktrees/ua-code-audit/games/find_the_bird/[39msrc/data/levels.ts:273:28[90m)[39m
+    at getCatalogManifest [90m(/Users/base/dev/appletolye/fabrikav2/.worktrees/ua-code-audit/games/find_the_bird/[39msrc/data/levels.ts:304:19[90m)[39m
+    at getActivePackageCatalog [90m(/Users/base/dev/appletolye/fabrikav2/.worktrees/ua-code-audit/games/find_the_bird/[39msrc/data/levels.ts:722:40[90m)[39m
+    at buildLevelIndex [90m(/Users/base/dev/appletolye/fabrikav2/.worktrees/ua-code-audit/games/find_the_bird/[39msrc/data/levels.ts:867:25[90m)[39m
+    at [90m/Users/base/dev/appletolye/fabrikav2/.worktrees/ua-code-audit/games/find_the_bird/[39msrc/data/levels.ts:854:12
+
+ [32m✓[39m tests/unit/manifest-retry-refresh.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 62[2mms[22m[39m
+ [32m✓[39m tests/unit/home-menu-polish.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 64[2mms[22m[39m
+ [32m✓[39m tests/unit/native-public-bundle.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 16[2mms[22m[39m
+ [32m✓[39m tests/unit/level-complete-confetti.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 99[2mms[22m[39m
+ [32m✓[39m tests/unit/asset-preload-parity.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+(node:43195) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:43193) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[90mstdout[2m | tests/unit/purchase-funnel-analytics.test.ts[2m > [22m[2mAnalyticsService purchase funnel emitters[2m > [22m[2mresourceChanged emits one canonical economy envelope instead of a duplicate SDK resource event
+[22m[39m[analytics] resource_changed {
+  game: [32m'find_the_bird'[39m,
+  flow_type: [32m'source'[39m,
+  currency: [32m'coins'[39m,
+  amount: [33m10[39m,
+  item_type: [32m'level'[39m,
+  item_id: [32m'level_complete'[39m,
+  level_id: [32m'level_1'[39m,
+  env: [32m'development'[39m,
+  session_id: [32m'db1bb3e6-8c71-4ca4-a8ac-5d288d840e8e'[39m,
+  event_ts: [33m1788609566648[39m
+}
+
+[90mstdout[2m | tests/unit/purchase-funnel-analytics.test.ts[2m > [22m[2mAnalyticsService purchase funnel emitters[2m > [22m[2mpurchaseFailed carries surface, reason, failure_kind and truncates error_message
+[22m[39m[analytics] purchase_failed {
+  game: [32m'find_the_bird'[39m,
+  product_id: [32m'com.example.hints10x'[39m,
+  surface: [32m'fail_continue'[39m,
+  reason: [32m'failed'[39m,
+  failure_kind: [32m'timeout'[39m,
+  error_message: [32m'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'[39m,
+  env: [32m'development'[39m,
+  session_id: [32m'db1bb3e6-8c71-4ca4-a8ac-5d288d840e8e'[39m,
+  event_ts: [33m1788609566650[39m
+}
+
+[90mstdout[2m | tests/unit/purchase-funnel-analytics.test.ts[2m > [22m[2mAnalyticsService purchase funnel emitters[2m > [22m[2mpurchaseInitiated / purchaseCancelled carry the surface dimension
+[22m[39m[analytics] purchase_initiated {
+  game: [32m'find_the_bird'[39m,
+  product_id: [32m'p'[39m,
+  surface: [32m'shop'[39m,
+  env: [32m'development'[39m,
+  session_id: [32m'db1bb3e6-8c71-4ca4-a8ac-5d288d840e8e'[39m,
+  event_ts: [33m1788609566650[39m
+}
+
+[90mstdout[2m | tests/unit/purchase-funnel-analytics.test.ts[2m > [22m[2mAnalyticsService purchase funnel emitters[2m > [22m[2mpurchaseInitiated / purchaseCancelled carry the surface dimension
+[22m[39m[analytics] purchase_cancelled {
+  game: [32m'find_the_bird'[39m,
+  product_id: [32m'p'[39m,
+  surface: [32m'shop'[39m,
+  env: [32m'development'[39m,
+  session_id: [32m'db1bb3e6-8c71-4ca4-a8ac-5d288d840e8e'[39m,
+  event_ts: [33m1788609566650[39m
+}
+
+[90mstdout[2m | tests/unit/purchase-funnel-analytics.test.ts[2m > [22m[2mFindTheDogIapService analytics wiring[2m > [22m[2mretries initialization after the native store initially returns no products
+[22m[39m[analytics] iap_state_changed {
+  game: [32m'find_the_bird'[39m,
+  state: [32m'initializing'[39m,
+  env: [32m'development'[39m,
+  session_id: [32m'db1bb3e6-8c71-4ca4-a8ac-5d288d840e8e'[39m,
+  event_ts: [33m1788609566664[39m
+}
+
+[90mstdout[2m | tests/unit/purchase-funnel-analytics.test.ts[2m > [22m[2mFindTheDogIapService analytics wiring[2m > [22m[2mretries initialization after the native store initially returns no products
+[22m[39m[analytics] iap_state_changed {
+  game: [32m'find_the_bird'[39m,
+  state: [32m'load-failed'[39m,
+  reason: [32m'provider returned zero store products'[39m,
+  env: [32m'development'[39m,
+  session_id: [32m'db1bb3e6-8c71-4ca4-a8ac-5d288d840e8e'[39m,
+  event_ts: [33m1788609566664[39m
+}
+
+[90mstdout[2m | tests/unit/purchase-funnel-analytics.test.ts[2m > [22m[2mFindTheDogIapService analytics wiring[2m > [22m[2mretries initialization after the native store initially returns no products
+[22m[39m[analytics] iap_state_changed {
+  game: [32m'find_the_bird'[39m,
+  state: [32m'initializing'[39m,
+  env: [32m'development'[39m,
+  session_id: [32m'db1bb3e6-8c71-4ca4-a8ac-5d288d840e8e'[39m,
+  event_ts: [33m1788609566664[39m
+}
+
+[90mstdout[2m | tests/unit/purchase-funnel-analytics.test.ts[2m > [22m[2mFindTheDogIapService analytics wiring[2m > [22m[2mretries initialization after the native store initially returns no products
+[22m[39m[analytics] iap_state_changed {
+  game: [32m'find_the_bird'[39m,
+  state: [32m'ready'[39m,
+  env: [32m'development'[39m,
+  session_id: [32m'db1bb3e6-8c71-4ca4-a8ac-5d288d840e8e'[39m,
+  event_ts: [33m1788609566665[39m
+}
+
+ [32m✓[39m tests/unit/purchase-funnel-analytics.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 23[2mms[22m[39m
+ [32m✓[39m tests/unit/iap-provider-selection.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 21[2mms[22m[39m
+(node:43200) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:43203) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [32m✓[39m tests/unit/achievement-unlock-toast.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m tests/unit/storage-fallback.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m tests/unit/remote-config-composition.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+ [32m✓[39m tests/unit/restoration-cleanup-geometry.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 25[2mms[22m[39m
+ [32m✓[39m tests/unit/level-scene-resource-release.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m✓[39m tests/unit/overlay-visibility.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+(node:43205) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [32m✓[39m tests/unit/browser-scheduling.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+[90mstdout[2m | tests/unit/achievement-persistence.test.ts[2m > [22m[2mwrite-ahead recovery (AC3/KTD2)[2m > [22m[2mcomponent matching neither snapshot journals a system-scoped anomaly and drains it
+[22m[39m[analytics] achievement_reconciliation_anomaly {
+  game: [32m'find_the_bird'[39m,
+  event_id: [32m'ach:5:reconciliation:achievement_system'[39m,
+  achievement_id: [32m'achievement_system'[39m,
+  occurrence_id: [32m'occ-r'[39m,
+  category: [32m'system'[39m,
+  wallet_component: [32m'coins'[39m,
+  env: [32m'development'[39m,
+  session_id: [32m'7f36c2f3-0bb1-4134-8012-9bd03bda0924'[39m,
+  event_ts: [33m1788609567055[39m
+}
+
+(node:43208) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [32m✓[39m tests/unit/achievement-persistence.test.ts [2m([22m[2m35 tests[22m[2m)[22m[32m 84[2mms[22m[39m
+ [32m✓[39m tests/unit/achievement-migration.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 22[2mms[22m[39m
+ [32m✓[39m tests/unit/hitbox-geometry.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m tests/unit/achievement-progress.test.ts [2m([22m[2m20 tests[22m[2m)[22m[32m 13[2mms[22m[39m
+[90mstderr[2m | tests/unit/manifest-freshness-guard.test.ts[2m > [22m[2mmanifest freshness guard (O1)[2m > [22m[2mrefuses a CDN manifest older than the bundled one
+[22m[39m[assets] refusing stale CDN manifest rev 12 < bundled rev 13; using bundled
+
+[90mstderr[2m | tests/unit/manifest-freshness-guard.test.ts[2m > [22m[2mmanifest freshness guard (O1)[2m > [22m[2ma refused stale manifest retries on a later initialize
+[22m[39m[assets] refusing stale CDN manifest rev 12 < bundled rev 13; using bundled
+
+ [32m✓[39m tests/unit/manifest-freshness-guard.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m tests/unit/artifact-revision-contract.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+ [32m✓[39m tests/unit/achievement-unlock-present.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 13[2mms[22m[39m
+(node:43211) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[90mstdout[2m | tests/unit/notification-service.test.ts[2m > [22m[2mNotificationService permission prompting[2m > [22m[2mprompts exactly once, on the second app open
+[22m[39m[analytics] settings_changed {
+  game: [32m'find_the_bird'[39m,
+  setting_name: [32m'notificationPermission'[39m,
+  new_value: [32m'granted'[39m,
+  env: [32m'development'[39m,
+  session_id: [32m'aa7607a2-4f2b-4a8d-88d5-46517a6f659b'[39m,
+  event_ts: [33m1788609567324[39m
+}
+
+[90mstdout[2m | tests/unit/notification-service.test.ts[2m > [22m[2mNotificationService permission prompting[2m > [22m[2mhonors a configured permissionPromptLaunch
+[22m[39m[analytics] settings_changed {
+  game: [32m'find_the_bird'[39m,
+  setting_name: [32m'notificationPermission'[39m,
+  new_value: [32m'granted'[39m,
+  env: [32m'development'[39m,
+  session_id: [32m'aa7607a2-4f2b-4a8d-88d5-46517a6f659b'[39m,
+  event_ts: [33m1788609567324[39m
+}
+
+[90mstderr[2m | tests/unit/notification-service.test.ts[2m > [22m[2mNotificationService permission prompting[2m > [22m[2mleaves the one-shot un-consumed when the permission request fails
+[22m[39m[notifications] operation failed Error: bridge lost
+    at FakeProvider.h.provider.requestPermission [90m(/Users/base/dev/appletolye/fabrikav2/.worktrees/ua-code-audit/games/find_the_bird/[39mtests/unit/notification-service.test.ts:277:57[90m)[39m
+    at NotificationService.maybePromptOnLaunch [90m(/Users/base/dev/appletolye/fabrikav2/.worktrees/ua-code-audit/games/find_the_bird/[39msrc/notifications/NotificationService.ts:226:50[90m)[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:104:5)[39m
+    at [90m/Users/base/dev/appletolye/fabrikav2/.worktrees/ua-code-audit/games/find_the_bird/[39mtests/unit/notification-service.test.ts:279:5
+    at file:///Users/base/dev/appletolye/fabrikav2/.worktrees/ua-code-audit/node_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:1903:20
+
+ [32m✓[39m tests/unit/notification-service.test.ts [2m([22m[2m24 tests[22m[2m)[22m[32m 18[2mms[22m[39m
+ [32m✓[39m tests/unit/include-plugins.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+(node:43300) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [32m✓[39m tests/unit/achievement-claiming.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+(node:43301) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [32m✓[39m tests/unit/level-index-persistence.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m tests/unit/admob-config.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+(node:43303) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [32m✓[39m tests/unit/ui-surface-system.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+(node:43304) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:43305) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[90mstdout[2m | tests/unit/achievement-analytics.test.ts[2m > [22m[2mdispatchAchievementEvent (correction 1)[2m > [22m[2mroutes each achievement event to its typed sdk.track name
+[22m[39m[analytics] achievement_progress {
+  game: [32m'find_the_bird'[39m,
+  event_id: [32m'ach:0:progress:completions_10'[39m,
+  achievement_id: [32m'completions_10'[39m,
+  occurrence_id: [32m'occ-d'[39m,
+  category: [32m'completion'[39m,
+  progress: [33m5[39m,
+  threshold: [33m10[39m,
+  env: [32m'development'[39m,
+  session_id: [32m'180926c2-1a63-41d7-a99b-50bbf6e9ee8e'[39m,
+  event_ts: [33m1788609567608[39m
+}
+[analytics] achievement_unlocked {
+  game: [32m'find_the_bird'[39m,
+  event_id: [32m'ach:1:unlocked:first_completion'[39m,
+  achievement_id: [32m'first_completion'[39m,
+  occurrence_id: [32m'occ-d'[39m,
+  category: [32m'completion'[39m,
+  threshold: [33m1[39m,
+  env: [32m'development'[39m,
+  session_id: [32m'180926c2-1a63-41d7-a99b-50bbf6e9ee8e'[39m,
+  event_ts: [33m1788609567608[39m
+}
+[analytics] achievement_unlocked {
+  game: [32m'find_the_bird'[39m,
+  event_id: [32m'ach:2:unlocked:streak_3'[39m,
+  achievement_id: [32m'streak_3'[39m,
+  occurrence_id: [32m'occ-d'[39m,
+  category: [32m'streak'[39m,
+  threshold: [33m3[39m,
+  env: [32m'development'[39m,
+  session_id: [32m'180926c2-1a63-41d7-a99b-50bbf6e9ee8e'[39m,
+  event_ts: [33m1788609567608[39m
+}
+[analytics] achievement_reward_granted {
+  game: [32m'find_the_bird'[39m,
+  event_id: [32m'ach:3:reward:first_completion'[39m,
+  achievement_id: [32m'first_completion'[39m,
+  occurrence_id: [32m'occ-d'[39m,
+  category: [32m'completion'[39m,
+  reward_coins: [33m25[39m,
+  reward_hints: [33m0[39m,
+  env: [32m'development'[39m,
+  session_id: [32m'180926c2-1a63-41d7-a99b-50bbf6e9ee8e'[39m,
+  event_ts: [33m1788609567608[39m
+}
+[analytics] achievement_reward_granted {
+  game: [32m'find_the_bird'[39m,
+  event_id: [32m'ach:4:reward:streak_3'[39m,
+  achievement_id: [32m'streak_3'[39m,
+  occurrence_id: [32m'occ-d'[39m,
+  category: [32m'streak'[39m,
+  reward_coins: [33m30[39m,
+  reward_hints: [33m0[39m,
+  env: [32m'development'[39m,
+  session_id: [32m'180926c2-1a63-41d7-a99b-50bbf6e9ee8e'[39m,
+  event_ts: [33m1788609567608[39m
+}
+
+[90mstdout[2m | tests/unit/achievement-analytics.test.ts[2m > [22m[2mdispatchAchievementEvent (correction 1)[2m > [22m[2mroutes the system-scoped reconciliation anomaly
+[22m[39m[analytics] achievement_reconciliation_anomaly {
+  game: [32m'find_the_bird'[39m,
+  event_id: [32m'ach:7:reconciliation:achievement_system'[39m,
+  achievement_id: [32m'achievement_system'[39m,
+  occurrence_id: [32m'occ-x'[39m,
+  category: [32m'system'[39m,
+  wallet_component: [32m'coins'[39m,
+  env: [32m'development'[39m,
+  session_id: [32m'180926c2-1a63-41d7-a99b-50bbf6e9ee8e'[39m,
+  event_ts: [33m1788609567610[39m
+}
+
+[90mstdout[2m | tests/unit/achievement-analytics.test.ts[2m > [22m[2mdispatchAchievementEvent (correction 1)[2m > [22m[2mexposes typed discovery and page-view methods for the dependent UI card
+[22m[39m[analytics] achievement_viewed {
+  game: [32m'find_the_bird'[39m,
+  event_id: [32m'ach:20:viewed:first_completion'[39m,
+  achievement_id: [32m'first_completion'[39m,
+  occurrence_id: [32m'view:first_completion'[39m,
+  category: [32m'completion'[39m,
+  env: [32m'development'[39m,
+  session_id: [32m'180926c2-1a63-41d7-a99b-50bbf6e9ee8e'[39m,
+  event_ts: [33m1788609567612[39m
+}
+[analytics] achievement_page_viewed {
+  game: [32m'find_the_bird'[39m,
+  event_id: [32m'ach:21:page:achievement_system'[39m,
+  env: [32m'development'[39m,
+  session_id: [32m'180926c2-1a63-41d7-a99b-50bbf6e9ee8e'[39m,
+  event_ts: [33m1788609567612[39m
+}
+
+[90mstdout[2m | tests/unit/achievement-analytics.test.ts[2m > [22m[2mdispatchAchievementEvent (correction 1)[2m > [22m[2mdispatches allocated view events without payload adaptation
+[22m[39m[analytics] achievement_viewed {
+  game: [32m'find_the_bird'[39m,
+  event_id: [32m'ach:30:viewed:first_completion'[39m,
+  achievement_id: [32m'first_completion'[39m,
+  occurrence_id: [32m'ach:30:viewed:first_completion'[39m,
+  category: [32m'completion'[39m,
+  env: [32m'development'[39m,
+  session_id: [32m'180926c2-1a63-41d7-a99b-50bbf6e9ee8e'[39m,
+  event_ts: [33m1788609567613[39m
+}
+[analytics] achievement_page_viewed {
+  game: [32m'find_the_bird'[39m,
+  event_id: [32m'ach:31:page:achievement_system'[39m,
+  env: [32m'development'[39m,
+  session_id: [32m'180926c2-1a63-41d7-a99b-50bbf6e9ee8e'[39m,
+  event_ts: [33m1788609567613[39m
+}
+
+[90mstdout[2m | tests/unit/analytics-lifecycle-flush.test.ts[2m > [22m[2manalytics lifecycle flush (session_end loss fix)[2m > [22m[2mprojects D1 from the real service foreground lifecycle chain
+[22m[39m[attribution:disabled] Adjust disabled on web platform
+
+[90mstdout[2m | tests/unit/analytics-lifecycle-flush.test.ts[2m > [22m[2manalytics lifecycle flush (session_end loss fix)[2m > [22m[2memits one initial session when init is repeated sequentially or concurrently
+[22m[39m[analytics] session_start {
+  game: [32m'find_the_bird'[39m,
+  first_open: [33mtrue[39m,
+  env: [32m'development'[39m,
+  session_id: [32m'e222763b-de05-4a20-b331-368f3bb32664'[39m,
+  event_ts: [33m1788609567617[39m
+}
+
+[90mstdout[2m | tests/unit/analytics-lifecycle-flush.test.ts[2m > [22m[2manalytics lifecycle flush (session_end loss fix)[2m > [22m[2mmigrates durable Find the Bird game state without classifying an upgrade as first_open
+[22m[39m[analytics] session_start {
+  game: [32m'find_the_bird'[39m,
+  first_open: [33mfalse[39m,
+  env: [32m'development'[39m,
+  session_id: [32m'e222763b-de05-4a20-b331-368f3bb32664'[39m,
+  event_ts: [33m1788609567618[39m
+}
+
+ [32m✓[39m tests/unit/achievement-analytics.test.ts [2m([22m[2m19 tests[22m[2m)[22m[32m 18[2mms[22m[39m
+[90mstdout[2m | tests/unit/analytics-lifecycle-flush.test.ts[2m > [22m[2manalytics lifecycle flush (session_end loss fix)[2m > [22m[2mbackgrounding tracks app_background, ends the session, and flushes sinks
+[22m[39m[analytics] session_start {
+  game: [32m'find_the_bird'[39m,
+  first_open: [33mtrue[39m,
+  env: [32m'development'[39m,
+  session_id: [32m'e222763b-de05-4a20-b331-368f3bb32664'[39m,
+  event_ts: [33m1788609567619[39m
+}
+
+[90mstdout[2m | tests/unit/analytics-lifecycle-flush.test.ts[2m > [22m[2manalytics lifecycle flush (session_end loss fix)[2m > [22m[2mbackgrounding tracks app_background, ends the session, and flushes sinks
+[22m[39m[analytics] app_background {
+  game: [32m'find_the_bird'[39m,
+  env: [32m'development'[39m,
+  session_id: [32m'e222763b-de05-4a20-b331-368f3bb32664'[39m,
+  event_ts: [33m1788609567619[39m
+}
+[analytics] session_end {
+  game: [32m'find_the_bird'[39m,
+  env: [32m'development'[39m,
+  session_id: [32m'e222763b-de05-4a20-b331-368f3bb32664'[39m,
+  event_ts: [33m1788609567619[39m
+}
+
+[90mstdout[2m | tests/unit/analytics-lifecycle-flush.test.ts[2m > [22m[2manalytics lifecycle flush (session_end loss fix)[2m > [22m[2morders session_start(first_open), app_open, then lifecycle flush on a normal boot
+[22m[39m[analytics] session_end {
+  game: [32m'find_the_bird'[39m,
+  env: [32m'development'[39m,
+  session_id: [32m'e222763b-de05-4a20-b331-368f3bb32664'[39m,
+  event_ts: [33m1788609567622[39m
+}
+
+[90mstdout[2m | tests/unit/analytics-lifecycle-flush.test.ts[2m > [22m[2manalytics lifecycle flush (session_end loss fix)[2m > [22m[2mforegrounding tracks app_foreground and starts a new session segment
+[22m[39m[analytics] session_start {
+  game: [32m'find_the_bird'[39m,
+  first_open: [33mtrue[39m,
+  env: [32m'development'[39m,
+  session_id: [32m'e222763b-de05-4a20-b331-368f3bb32664'[39m,
+  event_ts: [33m1788609567622[39m
+}
+
+[90mstdout[2m | tests/unit/analytics-lifecycle-flush.test.ts[2m > [22m[2manalytics lifecycle flush (session_end loss fix)[2m > [22m[2mforegrounding tracks app_foreground and starts a new session segment
+[22m[39m[analytics] app_background {
+  game: [32m'find_the_bird'[39m,
+  env: [32m'development'[39m,
+  session_id: [32m'e222763b-de05-4a20-b331-368f3bb32664'[39m,
+  event_ts: [33m1788609567622[39m
+}
+[analytics] session_end {
+  game: [32m'find_the_bird'[39m,
+  env: [32m'development'[39m,
+  session_id: [32m'e222763b-de05-4a20-b331-368f3bb32664'[39m,
+  event_ts: [33m1788609567622[39m
+}
+[analytics] app_foreground {
+  game: [32m'find_the_bird'[39m,
+  env: [32m'development'[39m,
+  session_id: [32m'e222763b-de05-4a20-b331-368f3bb32664'[39m,
+  event_ts: [33m1788609567623[39m
+}
+[analytics] session_start {
+  game: [32m'find_the_bird'[39m,
+  first_open: [33mfalse[39m,
+  env: [32m'development'[39m,
+  session_id: [32m'e222763b-de05-4a20-b331-368f3bb32664'[39m,
+  event_ts: [33m1788609567623[39m
+}
+
+ [32m✓[39m tests/unit/analytics-lifecycle-flush.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 13[2mms[22m[39m
+[90mstdout[2m | tests/unit/ad-show-failed.test.ts[2m > [22m[2mad_show_failed owned event[2m > [22m[2mAnalyticsService.adShowFailed emits with ad_type/placement/reason
+[22m[39m[analytics] ad_show_failed {
+  game: [32m'find_the_bird'[39m,
+  ad_type: [32m'banner'[39m,
+  placement: [32m'gameplay'[39m,
+  reason: [32m'not_shown'[39m,
+  env: [32m'development'[39m,
+  session_id: [32m'81339482-cce9-4bea-af71-f2624118c246'[39m,
+  event_ts: [33m1788609567652[39m
+}
+
+[90mstdout[2m | tests/unit/ad-show-failed.test.ts[2m > [22m[2mpersistent banner semantics (AppLovinMaxProvider)[2m > [22m[2ma second showBanner while visible returns true without a native re-show
+[22m[39m[ads:applovin] initializing AppLovin MAX { sdkKey: [32m'<redacted>'[39m, verboseLogging: [33mfalse[39m }
+
+[90mstdout[2m | tests/unit/ad-show-failed.test.ts[2m > [22m[2mpersistent banner semantics (AppLovinMaxProvider)[2m > [22m[2ma second showBanner while visible returns true without a native re-show
+[22m[39m[ads:applovin] AppLovin MAX initialized 
+
+[90mstdout[2m | tests/unit/ad-show-failed.test.ts[2m > [22m[2mpersistent banner semantics (AppLovinMaxProvider)[2m > [22m[2ma no-fill show returns false and a later retry is allowed
+[22m[39m[ads:applovin] initializing AppLovin MAX { sdkKey: [32m'<redacted>'[39m, verboseLogging: [33mfalse[39m }
+
+[90mstdout[2m | tests/unit/ad-show-failed.test.ts[2m > [22m[2mpersistent banner semantics (AppLovinMaxProvider)[2m > [22m[2ma no-fill show returns false and a later retry is allowed
+[22m[39m[ads:applovin] AppLovin MAX initialized 
+
+ [32m✓[39m tests/unit/ad-show-failed.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+(node:43307) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [32m✓[39m tests/unit/canvas-dpr.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m tests/unit/connectivity-indicator.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 25[2mms[22m[39m
+ [32m✓[39m tests/unit/runtime-texture-policy.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m tests/unit/health-bar-flag.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m tests/unit/level-fit.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m tests/unit/pickup-style-routing.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m tests/unit/phaser-snapshot.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m tests/unit/ga-falsy-custom-fields.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+(node:43317) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [32m✓[39m tests/unit/native-shell-manifest.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m tests/unit/daily-streak-reward.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 19[2mms[22m[39m
+ [32m✓[39m tests/unit/drive-to.test.ts [2m([22m[2m21 tests[22m[2m)[22m[32m 15[2mms[22m[39m
+ [32m✓[39m tests/unit/catalog-snapshot-routing.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/gameanalytics-config.test.ts [2m([22m[2m7 tests[22m[2m | [22m[33m3 skipped[39m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m tests/unit/playable-aspect.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/pinch-zoom-inertia.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+(node:43328) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [32m✓[39m tests/unit/manifest-bundle-authority.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/gameanalytics-persistence.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m tests/unit/achievement-runtime-wiring.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/cdn-config.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/smoke.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/legal-links.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m66 passed[39m[22m[90m (66)[39m
+[2m      Tests [22m [1m[32m408 passed[39m[22m[2m | [22m[33m3 skipped[39m[90m (411)[39m
+[2m   Start at [22m 14:59:25
+[2m   Duration [22m 3.32s[2m (transform 2.79s, setup 0ms, import 3.56s, tests 4.15s, environment 13.85s)[22m
+

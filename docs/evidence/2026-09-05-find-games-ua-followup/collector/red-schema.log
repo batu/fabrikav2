@@ -1,0 +1,31 @@
+✔ paid totals require own identity and exclude test, contamination, pre-cutoff, foreign campaign and QA rows (3.580542ms)
+✔ a cohort cannot be approved without a valid UTC cutoff and complete QA exclusion policy (3.007333ms)
+✖ empty or malformed successful responses cannot masquerade as a healthy zero (0.673625ms)
+✔ unavailable organic report leaves every organic aggregate unknown, not zero (0.57375ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 3
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 45.527333
+
+✖ failing tests:
+
+test at .hermes/scripts/find-games-daily-scorecard.test.mjs:62:1
+✖ empty or malformed successful responses cannot masquerade as a healthy zero (0.673625ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  0 !== null
+  
+      at TestContext.<anonymous> (file:///Users/base/.hermes/scripts/find-games-daily-scorecard.test.mjs:67:12)
+      at async Test.run (node:internal/test_runner/test:1404:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:969:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: null,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
