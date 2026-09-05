@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.2.0",
   "scripts": {
-    "test:unit": "node --test scripts/verify.test.mjs",
+    "test:unit": "node --test scripts/*.test.mjs",
     "editor2:ci": "node scripts/verify.mjs",
     "typecheck": "tsc -p ui/tsconfig.json --noEmit",
     "editor2:backend:test": "UV_CACHE_DIR=${TMPDIR:-/tmp}/level-editor-uv-cache uv run pytest tests -q",
