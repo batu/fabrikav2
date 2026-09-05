@@ -102,5 +102,119 @@ describe('late store result through the game wallet', () => {
     expect(fulfillVerifiedPurchaseOnce(purchase, products, wallet).status).toBe('fulfilled');
     expect(new GameState().hasProcessedPurchaseId('ordinary-store-id')).toBe(true);
     expect(delivered).not.toHaveBeenCalled();
+    expect(JSON.parse(localStorage.getItem(pendingKey)!)).toEqual([purchase]);
+    expect(service.acknowledgePurchase({ ...purchase, purchaseId: 'another-transaction' })).toBe(false);
+    expect(service.acknowledgePurchase(purchase)).toBe(true);
+    expect(JSON.parse(localStorage.getItem(pendingKey)!)).toEqual([]);
+    expect((await service.purchase(product.productId)).status).toBe('purchased');
+    expect(provider.purchaseCalls).toHaveLength(2);
+  });
+});
+
+function ordinaryPurchaseFixture(wallet = new GameState()) {
+  const products = buildFullShopCatalog().products;
+  const product = products.find((p) => p.kind === 'coinPack')!;
+  const provider = new FakePurchaseProvider({
+    products: products.map(ftdDefaultStoreProduct),
+    purchaseResults: { [product.productId]: {
+      productIdentifier: product.productId, transactionId: 'received-store-id', purchaseToken: null,
+      customerInfo: { allPurchasedProductIdentifiers: [product.productId], nonSubscriptionTransactions: [{ productIdentifier: product.productId }] },
+    } },
+  });
+  const composition = { isNativePlatform: () => true, platform: () => 'ios' as const,
+    apiKey: () => 'test_key', provider: () => provider, preparePurchase: () => wallet.preparePurchase() };
+  const service = new FindTheDogIapService(composition);
+  service.setOnCompletedPurchase((purchase) => {
+    const delivered = fulfillVerifiedPurchaseOnce(purchase, products, wallet);
+    return delivered.status === 'fulfilled' || delivered.status === 'duplicate';
+  });
+  return { service, wallet, provider, composition, product, products };
+}
+
+function failPurchaseWrites(keyToFail: string) {
+  const setItem = localStorage.setItem.bind(localStorage);
+  return vi.spyOn(localStorage, 'setItem').mockImplementation((key, value) => {
+    if (key === keyToFail) throw new Error('QuotaExceededError');
+    setItem(key, value);
+  });
+}
+
+describe('ordinary received purchase delivery', () => {
+  it('recovers an ordinary success after wallet failure and restart without a second charge', async () => {
+    const f = ordinaryPurchaseFixture();
+    const before = f.wallet.coinBalance;
+    f.service.init(); await f.service.initPromiseValue;
+    const purchase = await f.service.purchase(f.product.productId);
+    expect(purchase.status).toBe('purchased');
+    expect(JSON.parse(localStorage.getItem(pendingKey)!)).toEqual([purchase]);
+
+    const failure = failPurchaseWrites(walletKey);
+    expect(fulfillVerifiedPurchaseOnce(purchase, f.products, f.wallet).status).toBe('delivery-pending');
+    f.service.reconcilePendingPurchases();
+    expect(f.wallet.coinBalance).toBe(before);
+    expect((await f.service.purchase(f.product.productId)).status).toBe('unavailable');
+    expect(f.provider.purchaseCalls).toEqual([f.product.productId]);
+    failure.mockRestore();
+
+    const restartedWallet = new GameState();
+    const restarted = new FindTheDogIapService({ ...f.composition, preparePurchase: () => restartedWallet.preparePurchase() });
+    restarted.setOnCompletedPurchase((received) => {
+      const grant = fulfillVerifiedPurchaseOnce(received, f.products, restartedWallet);
+      return grant.status === 'fulfilled' || grant.status === 'duplicate';
+    });
+    restarted.init(); await restarted.initPromiseValue;
+    restarted.reconcilePendingPurchases();
+    expect(restartedWallet.coinBalance).toBe(before + f.product.coinAmount);
+    expect(new GameState().hasProcessedPurchaseId(purchase.purchaseId!)).toBe(true);
+    expect(JSON.parse(localStorage.getItem(pendingKey)!)).toEqual([]);
+    expect(f.provider.purchaseCalls).toEqual([f.product.productId]);
+  });
+
+  it('refuses a native purchase when the existing wallet checkpoint is malformed', async () => {
+    localStorage.setItem(walletKey, '{}');
+    const f = ordinaryPurchaseFixture();
+    f.service.init(); await f.service.initPromiseValue;
+    expect((await f.service.purchase(f.product.productId)).status).toBe('unavailable');
+    expect(f.provider.purchaseCalls).toEqual([]);
+    expect(localStorage.getItem(walletKey)).toBe('{}');
+  });
+
+  it.each([walletKey, pendingKey])('refuses a native purchase when %s is already unwritable', async (key) => {
+    const f = ordinaryPurchaseFixture();
+    f.service.init(); await f.service.initPromiseValue;
+    failPurchaseWrites(key);
+    expect((await f.service.purchase(f.product.productId)).status).toBe('unavailable');
+    expect(f.provider.purchaseCalls).toEqual([]);
+  });
+
+  it('retains a granted purchase if acknowledgement fails and redelivers only a ledger duplicate', async () => {
+    const f = ordinaryPurchaseFixture();
+    const before = f.wallet.coinBalance;
+    f.service.init(); await f.service.initPromiseValue;
+    const purchase = await f.service.purchase(f.product.productId);
+    expect(fulfillVerifiedPurchaseOnce(purchase, f.products, f.wallet).status).toBe('fulfilled');
+    const failure = failPurchaseWrites(pendingKey);
+    expect(f.service.acknowledgePurchase(purchase)).toBe(false);
+    expect(JSON.parse(localStorage.getItem(pendingKey)!)).toEqual([purchase]);
+    failure.mockRestore();
+    f.service.reconcilePendingPurchases();
+    expect(JSON.parse(localStorage.getItem(pendingKey)!)).toEqual([]);
+    expect(new GameState().coinBalance).toBe(before + f.product.coinAmount);
+    expect(f.provider.purchaseCalls).toEqual([f.product.productId]);
+  });
+
+  it('retries recording a received success without dispatching again when storage fails after payment starts', async () => {
+    const f = ordinaryPurchaseFixture();
+    f.service.init(); await f.service.initPromiseValue;
+    const waiting = f.service.purchase(f.product.productId);
+    const failure = failPurchaseWrites(pendingKey);
+    expect((await waiting).status).toBe('unavailable');
+    expect((await f.service.purchase(f.product.productId)).status).toBe('unavailable');
+    expect(f.provider.purchaseCalls).toEqual([f.product.productId]);
+    failure.mockRestore();
+    const recovered = await f.service.purchase(f.product.productId);
+    expect(recovered.status).toBe('purchased');
+    expect(new GameState().hasProcessedPurchaseId('received-store-id')).toBe(true);
+    expect(f.provider.purchaseCalls).toEqual([f.product.productId]);
   });
 });

@@ -98,11 +98,8 @@ export function createGameAnalyticsSink(
     if (nativeIdentity !== null) event = { ...event, params: { ...nativeIdentity, ...event.params, ...nativeIdentity } };
     let tracked: boolean;
     if (event.name === 'session_start') {
-      // gameanalytics@4.4.7 initialize() creates a native session even when
-      // manual handling is enabled. Adopt that first session instead of
-      // startSession() ending it and creating a cold-start phantom session.
-      if (!nativeSessionActive) loaded.GameAnalytics.startSession();
-      nativeSessionActive = true;
+      // initialize() creates the first GA session. Subsequent sessions are
+      // started and readiness-checked before this event leaves our queue.
       tracked = trackDesign(loaded, designEvent(gameAnalyticsDesignEventId(event.name, event.params), event.params));
     } else if (event.name === 'session_end') {
       // Preserve the canonical close event before ending the native session.
@@ -120,6 +117,9 @@ export function createGameAnalyticsSink(
     if (sdk !== null || disabled) return;
     if (initPromise !== null) return initPromise;
     if (Date.now() < nextRetryAt && !forceRetry) return;
+    // Once polling is exhausted, later events/resumes only probe the retained
+    // SDK. Its original request may still complete; do not reinitialize it.
+    const probeOnly = loadingSdk !== null && initAttempts >= maxInitAttempts;
     if (initAttempts > 0) retried += 1;
     initAttempts += 1;
     initPromise = (async (): Promise<void> => {
@@ -140,10 +140,30 @@ export function createGameAnalyticsSink(
           nativeSessionActive = true;
           loadingSdk = loaded;
         }
-        await waitForSdkReady(loadingSdk.GameAnalytics, readyTimeoutMs, readyPollMs);
+        const deadline = Date.now() + (probeOnly ? 0 : readyTimeoutMs);
+        const remainingMs = () => Math.max(0, deadline - Date.now());
+        if (queue.length === 0 && nativeSessionActive) {
+          await waitForSdkReady(loadingSdk.GameAnalytics, remainingMs(), readyPollMs);
+        }
         while (queue.length > 0) {
-          const event = queue.shift();
+          const event = queue[0];
           if (event === undefined) break;
+          if (event.name === 'session_start' && !nativeSessionActive) {
+            // endSession/startSession run on GA's asynchronous thread. Wait
+            // for the old session to close before requesting the new one, so
+            // its still-ready state cannot falsely satisfy the next check.
+            if (loadingSdk.GameAnalytics.isSdkReady?.(true, false) === true) {
+              await waitForSdkReady(loadingSdk.GameAnalytics, remainingMs(), readyPollMs, false);
+            }
+            loadingSdk.GameAnalytics.startSession();
+            nativeSessionActive = true;
+          }
+          if (nativeSessionActive && loadingSdk.GameAnalytics.isSdkReady?.(true, false) === false) {
+            await waitForSdkReady(loadingSdk.GameAnalytics, remainingMs(), readyPollMs);
+          }
+          // Queue overflow may have evicted the event while readiness waited.
+          if (queue[0] !== event) continue;
+          queue.shift();
           try {
             send(loadingSdk, event);
           } catch (error) {
@@ -160,17 +180,20 @@ export function createGameAnalyticsSink(
         logger.warn(`[analytics:gameanalytics] initialization failed (${initializationFailure})`);
         const retryable = error instanceof SdkReadyTimeout
           || (loadingSdk === null && !(error instanceof SdkShapeError));
-        if (retryable && initAttempts < maxInitAttempts) {
+        if ((error instanceof SdkReadyTimeout && loadingSdk !== null)
+          || (retryable && initAttempts < maxInitAttempts)) {
           nextRetryAt = Date.now() + retryDelayMs;
         } else {
           disabled = true;
           dropped += queue.length;
           queue.length = 0;
         }
-      } finally {
-        initPromise = null;
       }
-    })();
+    })().finally(() => {
+      // A ready retained-SDK probe can complete without awaiting. Clear after
+      // assignment, so its resolved promise cannot lock the next transition.
+      initPromise = null;
+    });
     return initPromise;
   }
 
@@ -182,13 +205,23 @@ export function createGameAnalyticsSink(
         return;
       }
       if (sdk !== null) {
-        try {
-          send(sdk, event);
-        } catch (error) {
-          dropped += 1;
-          throw error;
+        const needsSessionWait = (event.name === 'session_start' && !nativeSessionActive)
+          || (nativeSessionActive && sdk.GameAnalytics.isSdkReady?.(true, false) === false);
+        if (!needsSessionWait) {
+          try {
+            send(sdk, event);
+          } catch (error) {
+            dropped += 1;
+            throw error;
+          }
+          return;
         }
-        return;
+        // Reuse the bounded queue/probes for every manual session transition,
+        // without reloading or reinitializing the retained SDK.
+        loadingSdk = sdk;
+        sdk = null;
+        initAttempts = 0;
+        nextRetryAt = 0;
       }
       if (queue.length >= maxQueueItems) {
         queue.shift();
@@ -199,7 +232,12 @@ export function createGameAnalyticsSink(
     },
     async flush(): Promise<void> {
       flushAttempts += 1;
-      while (sdk === null && !disabled) await init(true);
+      while (sdk === null && !disabled) {
+        await init(true);
+        // A suspend flush is bounded even if initialization is still pending.
+        // Later events/resumes may probe readiness and drain the retained queue.
+        if (initAttempts >= maxInitAttempts) break;
+      }
     },
     diagnostics() {
       return {
@@ -252,10 +290,11 @@ async function waitForSdkReady(
   api: GameAnalyticsSdk['GameAnalytics'],
   timeoutMs: number,
   pollMs: number,
+  ready = true,
 ): Promise<void> {
   if (api.isSdkReady === undefined) return;
   const deadline = Date.now() + timeoutMs;
-  while (!api.isSdkReady(true, false)) {
+  while (api.isSdkReady(true, false) !== ready) {
     if (Date.now() >= deadline) throw new SdkReadyTimeout('GameAnalytics SDK readiness timed out');
     await new Promise((resolve) => setTimeout(resolve, pollMs));
   }

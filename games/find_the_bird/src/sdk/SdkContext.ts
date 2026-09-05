@@ -310,6 +310,7 @@ export function createSdkContext(deps: CreateSdkContextDependencies = {}): GameS
     platform: () => platform,
     apiKey: () => apiKey,
     provider: () => purchaseProvider,
+    preparePurchase: () => gameState.preparePurchase(),
   };
 
   const firebaseRemoteProvider = platform === 'ios' && isNativePlatform

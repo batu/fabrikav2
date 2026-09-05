@@ -14,6 +14,7 @@ export type PurchaseFulfillmentStatus =
   | 'duplicate'
   | 'unknown-product'
   | 'ambiguous-product'
+  | 'delivery-pending'
   | 'unverified-purchase';
 
 /** Outcomes that may reach the `purchase:unfulfilled` sink. Excludes 'fulfilled'
@@ -143,7 +144,14 @@ export function fulfillVerifiedPurchaseOnce(
     return { status: 'ambiguous-product', productId, purchaseId, grant: null };
   }
 
-  const grant = wallet.applyPurchaseGrantOnce(purchaseId, grantForCatalogProduct(matchingProducts[0]), 'iap');
+  let grant: PurchaseGrant | null;
+  try {
+    grant = wallet.applyPurchaseGrantOnce(purchaseId, grantForCatalogProduct(matchingProducts[0]), 'iap');
+  } catch {
+    // The service retains this received purchase until a durable grant is
+    // acknowledged. Surface pending delivery without abandoning the UI flow.
+    return { status: 'delivery-pending', productId, purchaseId, grant: null };
+  }
   if (grant === null) {
     return { status: 'duplicate', productId, purchaseId, grant: null };
   }
@@ -159,9 +167,8 @@ export function fulfillVerifiedPurchaseOnce(
  * a successful restore retry if one landed. A `duplicate` is expected and
  * not reported as unfulfilled.
  *
- * Critical: consumables (hint/coin packs) that land here have NO client
- * recovery path until PR-6 ships — restore intentionally excludes them —
- * so this telemetry is the only signal support gets for those today. */
+ * Received consumables stay in the service's pending journal for wallet
+ * recovery; restore alone must not infer or replay their transaction ids. */
 export async function reportUnfulfilledPurchase(
   fulfillment: PurchaseFulfillmentResult,
   analyticsSink: PurchaseAnalyticsSink,

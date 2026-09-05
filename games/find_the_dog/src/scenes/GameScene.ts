@@ -2125,6 +2125,10 @@ export class GameScene extends Phaser.Scene {
         wallet: gameState,
       }),
     );
+    if (resolved.status === 'fulfilled' || resolved.status === 'duplicate') iapService.acknowledgePurchase(purchase);
+    if (resolved.status === 'delivery-pending') {
+      return { resumed: false, message: 'Purchase received. Reward delivery is pending.' };
+    }
     if (resolved.status !== 'fulfilled' || resolved.grant?.continueLevel !== true) {
       return { resumed: false, message: 'Purchase could not continue this level.' };
     }

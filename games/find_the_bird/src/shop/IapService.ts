@@ -70,6 +70,7 @@ export interface FindTheDogIapComposition {
   readonly platform: () => 'android' | 'ios' | 'web';
   readonly apiKey: () => string | null;
   readonly provider: () => PurchaseProvider | Promise<PurchaseProvider>;
+  readonly preparePurchase?: () => void;
 }
 
 export function ftdCatalogProduct(product: ShopCatalogProduct, tier: number): CatalogProduct<FtdIapGrant> {
@@ -164,6 +165,10 @@ export class FindTheDogIapService {
     this.service.reconcilePendingPurchases();
   }
 
+  acknowledgePurchase(purchase: IapPurchaseResult): boolean {
+    return this.service.acknowledgePurchase(purchase);
+  }
+
   setStateForTest(state: IapTestState): void {
     const purchaseResults: Record<string, PurchaseTransaction> = {};
     for (const [productId, result] of Object.entries(state.purchaseResultsByProductId ?? {})) {
@@ -217,6 +222,7 @@ export class FindTheDogIapService {
       apiKey: this.composition.apiKey,
       catalogProducts: () => buildShopCatalog().products.map(ftdCatalogProduct),
       provider: this.composition.provider,
+      preparePurchase: this.composition.preparePurchase,
       operationTimeoutMs: () => 15_000,
       purchaseTimeoutMs: () => 60_000,
       pendingPurchaseStore: localStoragePendingPurchaseStore('find_the_bird_pending_purchases_v1', () => {

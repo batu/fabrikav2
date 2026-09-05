@@ -820,6 +820,11 @@ export class GameState {
     return true;
   }
 
+  /** Fail before requesting payment when this wallet cannot durably deliver. */
+  preparePurchase(): void {
+    this.persistPurchaseWallet();
+  }
+
   applyPurchaseGrantOnce(
     id: string,
     grant: { noAds: boolean; hints: number; coins: number; continueLevel: boolean },
