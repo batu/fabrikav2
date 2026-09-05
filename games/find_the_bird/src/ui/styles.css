@@ -638,7 +638,7 @@
 
   #level-complete-overlay .fab-complete-card {
     min-height: 0;
-    padding: 160px 24px 18px;
+    padding: 42px 24px 18px;
     border-radius: 24px;
   }
 
@@ -5565,23 +5565,6 @@
 .home-page-settings .settings-footer-action { background-color: #eadbc7; }
 .home-page-settings .settings-home-btn { background-color: #a8b67d; }
 .home-page-settings .settings-home-arrow { background-color: #2fa94a; }
-
-.settings-pickup-style-select {
-  min-width: 118px;
-  min-height: 42px;
-  padding: 7px 34px 7px 12px;
-  border: 2px solid #607047;
-  border-radius: 14px;
-  background-color: #fff8e8;
-  color: #33423d;
-  font: 800 15px/1 'Nunito', sans-serif;
-  box-shadow: 0 3px 0 rgba(70, 85, 54, 0.28);
-}
-
-.settings-pickup-style-select:focus-visible {
-  outline: 3px solid #2f7598;
-  outline-offset: 2px;
-}
 
 /* Promotional labels still need a bounded layout after the generated surface
    layer is removed. Keep them as plain flat pills with live text. */

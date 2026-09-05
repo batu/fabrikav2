@@ -568,7 +568,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   create(): void {
-    // Settings live-applies pickup presentation to the running scene; the
+    // The test harness can live-apply experimental pickup presentations; the
     // registration is scene-scoped and cleared on shutdown.
     registerPickupStyleApplier((style) => this.setPickupStyleForTest(style));
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => registerPickupStyleApplier(null));

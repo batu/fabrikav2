@@ -3,13 +3,6 @@ import { remoteConfigService } from '../config/RemoteConfigService';
 import { gameState } from '../core/GameState';
 import { GAMEPLAY } from '../core/Constants';
 import { playUITap, playHint, setMusicEnabled, setSoundEffectsEnabled } from '../audio/AudioManager';
-import {
-  PICKUP_STYLE_OPTIONS,
-  getPickupStylePreference,
-  resolvePickupStyle,
-  setPickupStylePreference,
-  type PickupStyle,
-} from '../settings/pickupStylePreference';
 import { syncAmbientMusicPreference } from '../audio/AmbientManager';
 import { analytics } from '../analytics/AnalyticsService';
 import { trackRewardedWatchedAfterGrant } from '../attribution/RewardedAttribution';
@@ -895,14 +888,6 @@ function renderSettingsRows(): string {
           <span class="toggle-slider"></span>
         </label>
       </div>
-      <div class="modal-row settings-row settings-pickup-style-row">
-        <div class="settings-row-left">
-          <span class="settings-row-label">Pickup Style</span>
-        </div>
-        <select id="pickup-style" class="settings-pickup-style-select" aria-label="Pickup style">
-          ${PICKUP_STYLE_OPTIONS.map(({ value, label }) => `<option value="${value}" ${resolvePickupStyle(getPickupStylePreference(), false) === value ? 'selected' : ''}>${label}</option>`).join('')}
-        </select>
-      </div>
       <div class="settings-legal-footer" aria-label="Privacy, legal, and support links">
         <button id="settings-restore-btn" class="settings-footer-link settings-footer-action settings-restore-btn" type="button" aria-describedby="settings-restore-status">Restore Purchases</button>
         <span id="settings-restore-status" class="settings-restore-status" aria-live="polite">Restore No Ads purchases on this device.</span>
@@ -920,10 +905,6 @@ function renderSettingsRows(): string {
 }
 
 function wireSettingsPageListeners(page: HTMLElement): void {
-  page.querySelector<HTMLSelectElement>('#pickup-style')?.addEventListener('change', (event) => {
-    playUITap();
-    setPickupStylePreference((event.target as HTMLSelectElement).value as PickupStyle);
-  });
   page.querySelector('#settings-home-btn')?.addEventListener('click', () => {
     playUITap();
     closePage();
