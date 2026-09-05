@@ -66,6 +66,9 @@ os.environ["LEVELBUILDER_WORKSPACE"] = str(_WORKSPACE)
 os.environ["LEVELBUILDER_GAME_ROOT"] = str(_GAME_ROOT)
 os.environ["MERCEKA_COST_LEDGER"] = str(_TMP / "costs.jsonl")
 os.environ["FTD_GALLERY_PREWARM"] = "0"
+# A developer's cached rembg weights can hide a missing inference mock that
+# attempts a model download on a clean CI runner. Always start without weights.
+os.environ["U2NET_HOME"] = str(_TMP / "model-cache")
 
 
 def pytest_sessionfinish(session, exitstatus):

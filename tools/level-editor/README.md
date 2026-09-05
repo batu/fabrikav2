@@ -133,8 +133,8 @@ The gate uses Python 3.12 in its own temporary venv. It writes per-step logs,
 `backend.xml`, generated `requirements.txt`, screenshots, build output, and
 `results.json` under the reported directory. Every backend/browser failure or
 unexpected network/provider attempt fails the gate. Backend tests use temporary
-game/workspace/ledger roots, disable dotenv and startup model downloads, and
-block external network/CLI calls. Browser tests start their own loopback Vite
+game/workspace/ledger roots and an empty model cache, disable dotenv and startup
+model downloads, and block external network/CLI calls. Browser tests start their own loopback Vite
 server with no backend proxy and explicitly mock API responses. No operator
 service, real provider, physical device, or live publishing behavior is verified.
 

@@ -2,6 +2,12 @@
 
 Implementation checkpoint recorded on 2026-09-05, before the subsequent user-authorized merge and cleanup. All five selected repairs were implemented and automated verification passed, except the local audit exception described below. At this checkpoint changes were uncommitted in branch `fix/evaluation-repairs`; the evidence below describes that exact state.
 
+## Subsequent publication checks
+
+The user subsequently authorized push, merge and task cleanup. PR [#55](https://github.com/batu/fabrikav2/pull/55) rebases the repairs onto `b8c3a3909545b3cdcf1e229032bde754d3bc107b`. Local workspace checks then passed 3,638 Vitest and 130 Node tests (8 skips), typecheck, lint and repository audit. Only this task's copied ignored environment file was removed; its original was preserved.
+
+The first hosted generic-editor run exposed a stale sprite-sync mock: a 60px detection bypasses flat-key recreation and uses semantic extraction. Cached local rembg weights had hidden the missing mock; the clean runner attempted downloads and the network guard correctly failed the job. The test now injects the semantic extractor, and all backend tests use an empty model cache. The corrected backend passes 554 tests with zero skips. Hosted results and merge/cleanup evidence are retained under `/tmp/fabrikav2-merge-cleanup-20260905-NlzNQI/`. The remaining sections preserve the earlier implementation checkpoint and its original limitations.
+
 ## Source and scope
 
 - Worktree: `/Users/base/dev/appletolye/fabrikav2/.worktrees/evaluation-repairs`.
