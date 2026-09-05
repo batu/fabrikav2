@@ -1,0 +1,27 @@
+{
+  "historical_19_test_commit": "97d93b65c844041f9a415ae57abe7e081a7514b1",
+  "canonical_owner": "/Users/base/.hermes/scripts/",
+  "snapshot_role": "Evidence only; not a separately scheduled collector",
+  "corrected_offline_tests": 20,
+  "offline_rendering_cases": 6,
+  "files": {
+    "collector/find-games-daily-scorecard.mjs": {
+      "sha256": "7fac3765915c8b6435bb71475f1b9b1017e7d207796c1df39bf5e07764cc0af7",
+      "historical_19_test_sha256": "641367e3e565934c347a559dabc1b8b0391ab08aae5d374300216d8c77be3928"
+    },
+    "collector/find-games-daily-scorecard.test.mjs": {
+      "sha256": "6dc7148db363d9352749eec7ec691480880a4a8605c62163a83d8eeb8044dfaa",
+      "historical_19_test_sha256": "4d3bdc2c3fe045d43d2637bef1f56a7c3ad44df827d6f52c33cbe32681f1dfa0"
+    }
+  },
+  "handoff_evidence": "/Users/base/store-review/find-games/launch-blocker-fixes-20260905-rleTkK/closure/",
+  "live_dom_observation": {
+    "project_id": "350269",
+    "document": "Existing Dog live-events page",
+    "rawTextContainsDemo": true,
+    "visibleDemo": false,
+    "stableDocument": true,
+    "boundary": "Read-only DOM evaluation; no navigation or full collector/provider run; not proof of metric health"
+  },
+  "release_build_hold": true
+}

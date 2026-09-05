@@ -12,6 +12,43 @@ const pending: IapPurchaseResult = {
 };
 
 describe('pending purchase independent review regressions', () => {
+  it('bounds reconciliation when only acknowledgement writes fail', async () => {
+    let raw = JSON.stringify([pending]);
+    let failedAcknowledgements = 0;
+    const store = localStoragePendingPurchaseStore('pending', () => ({
+      getItem: () => raw,
+      setItem: (_key, value) => {
+        // Bound the fixture too: a live Map iterator would eventually clear the
+        // record after revisiting it, failing assertions instead of hanging CI.
+        if (value === '[]' && failedAcknowledgements < 3) {
+          failedAcknowledgements++;
+          throw new Error('acknowledgement storage unavailable');
+        }
+        raw = value;
+      },
+    }));
+    const provider = new FakePurchaseProvider({ products: [
+      { productId: product.productId, title: 'Hints', description: '', price: 1, priceString: '$1', currencyCode: 'USD' },
+    ] });
+    const service = new IapService({
+      isNativePlatform: () => true, platform: () => 'ios', apiKey: () => 'test_local',
+      catalogProducts: () => [product], provider: () => provider, operationTimeoutMs: () => 100,
+      pendingPurchaseStore: store,
+    });
+    let deliveries = 0;
+    service.setOnCompletedPurchase(() => { deliveries++; return true; });
+    await service.init();
+    expect(service.snapshot().state).toBe('ready');
+    expect(deliveries).toBe(1);
+    expect(failedAcknowledgements).toBe(1);
+    expect(store.load()).toEqual([pending]);
+    expect(service.snapshot().pendingPurchaseProductIds).toEqual([product.productId]);
+    expect(service.reconcilePendingPurchases()).toEqual([]);
+    expect(deliveries).toBe(2);
+    expect(store.load()).toEqual([pending]);
+    expect(provider.purchaseCalls).toEqual([]);
+  });
+
   it.each([
     { purchaseId: null, purchaseToken: null },
     { purchaseId: '', purchaseToken: null },

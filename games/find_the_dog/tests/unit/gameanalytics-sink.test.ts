@@ -69,6 +69,7 @@ describe('GameAnalytics AnalyticsSink', () => {
       }),
     };
     Object.assign(sdk.GameAnalytics, manual, {
+      isSdkReady: vi.fn(() => nativeSessionActive),
       // Faithfully model 4.4.7: initialize unconditionally creates a session,
       // regardless of setEnabledManualSessionHandling(true).
       initialize: vi.fn(() => {
@@ -297,8 +298,12 @@ describe('GameAnalytics AnalyticsSink', () => {
 
     sink.emit(event('dog_found', { dog_index: 0 }));
     await vi.waitFor(() => expect(loader).toHaveBeenCalledTimes(1));
+    // A later gameplay event arrives after the failed async attempt settles,
+    // not merely after the loader has been invoked.
+    await new Promise((resolve) => setTimeout(resolve, 0));
     sink.emit(event('dog_found', { dog_index: 1 }));
     await vi.waitFor(() => expect(loader).toHaveBeenCalledTimes(2));
+    await new Promise((resolve) => setTimeout(resolve, 0));
     sink.emit(event('dog_found', { dog_index: 2 }));
 
     expect(loader).toHaveBeenCalledTimes(2);
@@ -480,6 +485,118 @@ describe('GameAnalytics AnalyticsSink', () => {
   });
 });
 
+it('recovers after the polling budget without reinitialization or an unbounded suspend flush', async () => {
+  vi.useFakeTimers();
+  try {
+    let ready = false;
+    const sdk = gameAnalyticsSdk({ isSdkReady: vi.fn(() => ready) });
+    const sink = createGameAnalyticsSink(validConfig(), {
+      loader: async () => sdk, logger: { warn: vi.fn() },
+      readyTimeoutMs: 10, readyPollMs: 1, retryDelayMs: 1, maxInitAttempts: 3, maxQueueItems: 3,
+    });
+    sink.emit(event('session_start', { first_open: true }));
+    const flushing = sink.flush?.();
+    await vi.advanceTimersByTimeAsync(30);
+    await flushing;
+    expect(sink.diagnostics()).toMatchObject({ queued: 1, sent: 0, dropped: 0, retried: 2 });
+    expect(vi.getTimerCount()).toBe(0);
+
+    await vi.advanceTimersByTimeAsync(2);
+    sink.emit(event('dog_found', { dog_index: 0 }));
+    await sink.flush?.();
+    expect(vi.getTimerCount()).toBe(0);
+    expect(sink.diagnostics().queued).toBe(2);
+    ready = true;
+    await vi.advanceTimersByTimeAsync(2);
+    sink.emit(event('level_complete', { level_id: 'delayed-level' }));
+    await sink.flush?.();
+    expect(sdk.GameAnalytics.initialize).toHaveBeenCalledTimes(1);
+    expect(sdk.GameAnalytics.addDesignEvent).toHaveBeenCalledTimes(2);
+    expect(sdk.GameAnalytics.addProgressionEvent).toHaveBeenCalledTimes(1);
+    expect(sink.diagnostics()).toMatchObject({ queued: 0, sent: 3, dropped: 0, initializationFailure: null });
+  } finally { vi.useRealTimers(); }
+});
+
+it('retains resume events across a slow session request and exhausted polling budget', async () => {
+  vi.useFakeTimers();
+  try {
+    let ready = true;
+    const sdk = gameAnalyticsSdk({
+      isSdkReady: vi.fn(() => ready),
+      endSession: vi.fn(() => { setTimeout(() => { ready = false; }, 3); }),
+      startSession: vi.fn(() => { expect(ready).toBe(false); }),
+    });
+    const sink = createGameAnalyticsSink(validConfig(), {
+      loader: async () => sdk, logger: { warn: vi.fn() },
+      readyTimeoutMs: 10, readyPollMs: 1, retryDelayMs: 1, maxInitAttempts: 3,
+    });
+    sink.emit(event('session_start', { first_open: true }));
+    await sink.flush?.();
+    sink.emit(event('session_end', {}));
+    sink.emit(event('session_start', { first_open: false }));
+    sink.emit(event('app_foreground', {}));
+    sink.emit(event('level_complete', { level_id: 'resumed-level' }));
+    const flushing = sink.flush?.();
+    await vi.advanceTimersByTimeAsync(30);
+    await flushing;
+    expect(sdk.GameAnalytics.startSession).toHaveBeenCalledTimes(1);
+    expect(sdk.GameAnalytics.addDesignEvent).toHaveBeenCalledTimes(2);
+    expect(sdk.GameAnalytics.addProgressionEvent).not.toHaveBeenCalled();
+    expect(sink.diagnostics()).toMatchObject({ sent: 2, queued: 3, dropped: 0 });
+    expect(vi.getTimerCount()).toBe(0);
+    ready = true;
+    await sink.flush?.();
+    expect(sdk.GameAnalytics.initialize).toHaveBeenCalledTimes(1);
+    expect(sdk.GameAnalytics.startSession).toHaveBeenCalledTimes(1);
+    expect(sdk.GameAnalytics.addDesignEvent).toHaveBeenCalledTimes(4);
+    expect(sdk.GameAnalytics.addProgressionEvent).toHaveBeenCalledTimes(1);
+    expect(sink.diagnostics()).toMatchObject({ sent: 5, queued: 0, dropped: 0, initializationFailure: null });
+    // A successful zero-wait probe must release its promise ownership so a
+    // later lifecycle transition starts a fresh bounded attempt.
+    sink.emit(event('session_end', {}));
+    sink.emit(event('session_start', { first_open: false }));
+    await vi.advanceTimersByTimeAsync(4);
+    expect(sdk.GameAnalytics.startSession).toHaveBeenCalledTimes(2);
+    ready = true;
+    const nextFlush = sink.flush?.();
+    await vi.advanceTimersByTimeAsync(1);
+    await nextFlush;
+    expect(sink.diagnostics()).toMatchObject({ sent: 7, queued: 0, dropped: 0 });
+  } finally { vi.useRealTimers(); }
+});
+
+it.each([false, true])('serializes rapid lifecycle boundaries, including queued cold initialization=%s', async (holdColdStart) => {
+  vi.useFakeTimers();
+  try {
+    let ready = !holdColdStart;
+    const accepted: string[] = [];
+    const sdk = gameAnalyticsSdk({
+      isSdkReady: vi.fn(() => ready),
+      initialize: vi.fn(() => { if (holdColdStart) setTimeout(() => { ready = true; }, 2); }),
+      endSession: vi.fn(() => { setTimeout(() => { ready = false; }, 3); }),
+      startSession: vi.fn(() => {
+        expect(ready).toBe(false);
+        setTimeout(() => { ready = true; }, 5);
+      }),
+      addDesignEvent: vi.fn((name) => { expect(ready).toBe(true); accepted.push(name); }),
+    });
+    const sink = createGameAnalyticsSink(validConfig(), { loader: async () => sdk, readyTimeoutMs: 50, readyPollMs: 1 });
+    sink.emit(event('session_start', { first_open: true }));
+    if (!holdColdStart) await sink.flush?.();
+    for (const name of ['session_end', 'session_start', 'app_foreground', 'session_end', 'session_start', 'app_foreground']) {
+      sink.emit(event(name, {}));
+    }
+    const flushing = sink.flush?.();
+    await vi.advanceTimersByTimeAsync(50);
+    await flushing;
+    expect(accepted).toEqual(['session:start', 'session:end', 'session:start', 'app:foreground', 'session:end', 'session:start', 'app:foreground']);
+    expect(sdk.GameAnalytics.initialize).toHaveBeenCalledTimes(1);
+    expect(sdk.GameAnalytics.startSession).toHaveBeenCalledTimes(2);
+    expect(sink.diagnostics()).toMatchObject({ sent: 7, queued: 0, dropped: 0 });
+    expect(vi.getTimerCount()).toBe(0);
+  } finally { vi.useRealTimers(); }
+});
+
 function validConfig() {
   return { gameKey: 'g'.repeat(32), secretKey: 's'.repeat(40), verboseLogging: false };
 }
@@ -495,10 +612,7 @@ function gameAnalyticsSdk(overrides: Partial<GameAnalyticsSdk['GameAnalytics']> 
       initialize: vi.fn(),
       startSession: vi.fn(),
       endSession: vi.fn(),
-      isSdkReady: vi.fn()
-        .mockReturnValueOnce(true)
-        .mockReturnValueOnce(false)
-        .mockReturnValue(true),
+      isSdkReady: vi.fn(() => true),
       addProgressionEvent: vi.fn(),
       addDesignEvent: vi.fn(),
       addResourceEvent: vi.fn(),

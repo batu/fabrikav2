@@ -300,6 +300,7 @@ export function createSdkContext(deps: CreateSdkContextDependencies = {}): GameS
     platform: () => platform,
     apiKey: () => apiKey,
     provider: () => purchaseProvider,
+    preparePurchase: () => gameState.preparePurchase(),
   };
 
   const remoteConfigDisabled = parseBooleanEnv(env.VITE_FTD_DISABLE_REMOTE_CONFIG, false);

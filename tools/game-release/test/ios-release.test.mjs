@@ -98,6 +98,24 @@ describe('iOS exact release lane', () => {
     expect(() => validateReleaseEnvironment({ VITE_INSITU_TOUR: 'allstates' })).toThrow(/insitu/i);
   });
 
+  it.each(['https://unapproved.example', ' ', 'false'])('refuses the development shell flag %j before any release action', (url) => {
+    expect(() => validateReleaseEnvironment({ FTB_DEV_SHELL_URL: url })).toThrow(/development shell/i);
+    expect(() => executeIosRelease({ gameDir: '/tmp/game', bundleId: 'com.example.bird', version: '1.2.3',
+      attestation, env: { FTB_DEV_SHELL_URL: url } }, {})).toThrow(/development shell/i);
+  });
+
+  it('rejects packaged remote configuration independently of the launching environment', () => {
+    const fixture = fs.mkdtempSync(path.join(os.tmpdir(), 'release-capacitor-config-'));
+    try {
+      const file = path.join(fixture, 'capacitor.config.json');
+      fs.writeFileSync(file, JSON.stringify({ appId: 'com.example.bird', server: { url: 'https://unapproved.example' } }));
+      expect(() => inspectBundle(fixture)).toThrow(/development shell/i);
+      expect(() => inspectBundle(fixture, undefined, { payloadOnly: true })).toThrow(/development shell/i);
+      fs.writeFileSync(file, JSON.stringify({ appId: 'com.example.bird', server: { hostname: 'localhost' } }));
+      expect(inspectBundle(fixture).sizeBytes).toBeGreaterThan(0);
+    } finally { fs.rmSync(fixture, { recursive: true, force: true }); }
+  });
+
   it('rejects stale, simulator, browser, and harness evidence', () => {
     const expected = { ...attestation, bundleId: 'com.example.dog', version: '1.2.3' };
     const installed = { bundleId: 'com.example.dog', version: '1.2.3', buildId };

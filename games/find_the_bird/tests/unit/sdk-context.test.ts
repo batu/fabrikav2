@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { createSdkContext } from '../../src/sdk/SdkContext';
+import { gameState } from '../../src/core/GameState';
 import { gameConfig } from '../../game.config';
 import ownAdMobConfig from '../../config/admob.public.json';
 import otherAdMobConfig from '../../../find_the_dog/config/admob.public.json';
@@ -16,6 +17,15 @@ function adMobEnv(config: typeof ownAdMobConfig) {
 }
 
 describe('FTD SdkContext composition matrix', () => {
+  it('wires native purchase preflight to the production wallet', () => {
+    const prepare = vi.spyOn(gameState, 'preparePurchase').mockImplementation(() => { throw new Error('wallet unavailable'); });
+    try {
+      const context = createSdkContext({ buildEnv: 'production', platform: 'ios', isNativePlatform: true,
+        env: { VITE_REVENUECAT_IOS_API_KEY: 'appl_A1b2C3d4E5f6G7h8I9j0K1l2M3n' } });
+      expect(() => context.iapComposition.preparePurchase?.()).toThrow('wallet unavailable');
+      expect(prepare).toHaveBeenCalledTimes(1);
+    } finally { prepare.mockRestore(); }
+  });
   it('resolves environments once and keeps web/CI native loaders cold', () => {
     const resolve = vi.fn(() => ({
       analytics: 'development' as const,
