@@ -3,7 +3,10 @@
 Use the installed Agency CLI for task isolation. Choose `bird`, `dog`, or
 `find-games`; `full` is an explicit integration exception. Profiles include
 shared packages, shell-template fixtures, required tooling and governing docs.
-They exclude historical `docs/evidence` and unrelated game payloads.
+They exclude historical `docs/evidence` and unrelated game payloads. Bird and
+Dog each include the other game's small public `config` directory because the
+shared environment policy and identity tests compare both AdMob identities.
+This includes no other game's assets, levels or dependencies.
 
 ```sh
 agency workspace create --repo "$PWD" --path "$PWD/.worktrees/bird-task" \
