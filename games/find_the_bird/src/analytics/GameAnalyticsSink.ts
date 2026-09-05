@@ -1,4 +1,5 @@
 import type { AnalyticsEvent, AnalyticsSink } from '@fabrikav2/sdk/analytics';
+import { Capacitor } from '@capacitor/core';
 import {
   GAMEANALYTICS_RESOURCE_CURRENCIES,
   GAMEANALYTICS_RESOURCE_ITEM_TYPES,
@@ -89,7 +90,12 @@ export function createGameAnalyticsSink(
   let flushAttempts = 0;
   let nativeSessionActive = false;
   let initializationFailure: string | null = null;
+  let nativeIdentity: { native_app_version: string; native_build_number: string } | null = null;
   function send(loaded: GameAnalyticsSdk, event: AnalyticsEvent): void {
+    // Keep legacy app_version/build as source provenance. Native identity comes
+    // from the archived binary, including Xcode's late version/build overrides.
+    // Insert first for the GA field cap, then overwrite any caller-supplied values.
+    if (nativeIdentity !== null) event = { ...event, params: { ...nativeIdentity, ...event.params, ...nativeIdentity } };
     let tracked: boolean;
     if (event.name === 'session_start') {
       // gameanalytics@4.4.7 initialize() creates a native session even when
@@ -119,6 +125,10 @@ export function createGameAnalyticsSink(
     initPromise = (async (): Promise<void> => {
       try {
         if (loadingSdk === null) {
+          if (Capacitor.isNativePlatform() && nativeIdentity === null) {
+            const info = await readNativeAppInfo(readyTimeoutMs);
+            nativeIdentity = { native_app_version: info.version, native_build_number: info.build };
+          }
           const loaded = unwrapSdk(await loader());
           validateSdk(loaded);
           loaded.GameAnalytics.setEnabledInfoLog(config.verboseLogging);
@@ -204,6 +214,30 @@ export function createGameAnalyticsSink(
       };
     },
   };
+}
+
+// Do not silently label native events with package.json identity when the
+// bridge fails. The existing bounded initialization retry/queue policy applies.
+async function readNativeAppInfo(timeoutMs: number): Promise<{ version: string; build: string }> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    const info = await Promise.race([
+      import('@capacitor/app').then(({ App }) => App.getInfo()),
+      new Promise<never>((_resolve, reject) => {
+        timer = setTimeout(() => reject(new NativeAppInfoError('Native app info timed out')), timeoutMs);
+      }),
+    ]);
+    if (![info.version, info.build].every((value) => typeof value === 'string' && /^\d+(?:\.\d+){0,2}$/.test(value) && value.length <= 96)) {
+      throw new NativeAppInfoError('Native app version/build is invalid');
+    }
+    return info;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+class NativeAppInfoError extends Error {
+  override name = 'NativeAppInfoError';
 }
 
 class SdkReadyTimeout extends Error {

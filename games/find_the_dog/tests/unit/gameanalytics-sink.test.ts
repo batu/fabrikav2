@@ -1,4 +1,9 @@
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { Capacitor } from '@capacitor/core';
+import { App } from '@capacitor/app';
+
+vi.mock('@capacitor/app', () => ({ App: { getInfo: vi.fn() } }));
+afterEach(() => { vi.restoreAllMocks(); vi.clearAllMocks(); });
 import type { AnalyticsEvent } from '@fabrikav2/sdk/analytics';
 import { createGameAnalyticsSink, type GameAnalyticsSdk } from '../../src/analytics/GameAnalyticsSink';
 
@@ -7,6 +12,46 @@ function event(name: string, params: AnalyticsEvent['params']): AnalyticsEvent {
 }
 
 describe('GameAnalytics AnalyticsSink', () => {
+  it.each(['empty', 'rejected', 'timeout'])('does not emit unidentifiable native traffic when app info is %s', async (failure) => {
+    vi.spyOn(Capacitor, 'isNativePlatform').mockReturnValue(true);
+    vi.mocked(App.getInfo).mockImplementation(() => failure === 'timeout'
+      ? new Promise(() => {})
+      : failure === 'rejected' ? Promise.reject(new Error('bridge failed'))
+        : Promise.resolve({ name: 'Find', id: 'com.example.find', version: '', build: '' }));
+    const sdk = gameAnalyticsSdk();
+    const sink = createGameAnalyticsSink(validConfig(), {
+      loader: async () => sdk, logger: { warn: vi.fn() }, maxInitAttempts: 2, readyTimeoutMs: 5,
+    });
+    sink.emit(event('session_start', { build: '1.2.0+abc123' }));
+    await sink.flush?.();
+    expect(sdk.GameAnalytics.initialize).not.toHaveBeenCalled();
+    expect(sink.diagnostics()).toMatchObject({ sent: 0, dropped: 1, queued: 0, retried: 1 });
+    expect(App.getInfo).toHaveBeenCalledTimes(2);
+  }, 500);
+
+  it('stamps queued and subsequent GA events from native archive identity without replacing source provenance', async () => {
+    vi.spyOn(Capacitor, 'isNativePlatform').mockReturnValue(true);
+    let resolveInfo!: (info: Awaited<ReturnType<typeof App.getInfo>>) => void;
+    vi.mocked(App.getInfo).mockImplementation(() => new Promise((resolve) => { resolveInfo = resolve; }));
+    const sdk = gameAnalyticsSdk();
+    const sink = createGameAnalyticsSink(validConfig(), { loader: async () => sdk });
+    const params = { app_version: '1.2.0', build: '1.2.0+abc123-dirty', native_app_version: 'stale', native_build_number: '0' };
+    sink.emit(event('session_start', params));
+    await vi.waitFor(() => expect(App.getInfo).toHaveBeenCalledTimes(1));
+    expect(sdk.GameAnalytics.initialize).not.toHaveBeenCalled();
+    resolveInfo({ name: 'Find', id: 'com.example.find', version: '1.2.1', build: '35' });
+    await sink.flush?.();
+    sink.emit(event('dog_found', params));
+    for (const name of ['session:start', 'dog:found']) {
+      expect(sdk.GameAnalytics.addDesignEvent).toHaveBeenCalledWith(name, undefined, expect.objectContaining({
+        app_version: '1.2.0', build: '1.2.0+abc123-dirty',
+        native_app_version: '1.2.1', native_build_number: '35',
+      }));
+    }
+    expect(App.getInfo).toHaveBeenCalledTimes(1);
+    expect(params.native_build_number).toBe('0');
+  });
+
   it('adopts the native session created by gameanalytics@4.4.7 and only starts after a real end', async () => {
     const calls: string[] = [];
     let nativeSessionActive = false;
