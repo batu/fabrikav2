@@ -1,0 +1,39 @@
+{
+  "observed_at": "2026-09-05T11:23:23.778559+00:00",
+  "source": "live_api",
+  "app_id": "id6796698146",
+  "window": {
+    "from": "2026-09-05",
+    "to": "2026-09-05",
+    "timezone": "UTC"
+  },
+  "reports": {
+    "organic_installs_report": {
+      "row_count": 1,
+      "by_version": {
+        "1.2.1": 1
+      },
+      "by_event": {
+        "install": 1
+      },
+      "build_column_available": false
+    },
+    "installs_report": {
+      "row_count": 0,
+      "by_version": {},
+      "by_event": {},
+      "build_column_available": false
+    },
+    "in_app_events_report": {
+      "row_count": 0,
+      "by_version": {},
+      "by_event": {},
+      "build_column_available": false
+    },
+    "organic_in_app_events_report": {
+      "row_count": 0,
+      "by_version": {},
+      "by_event": {}
+    }
+  }
+}

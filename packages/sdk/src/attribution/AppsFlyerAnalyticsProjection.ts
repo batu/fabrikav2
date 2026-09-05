@@ -17,6 +17,7 @@ export function createAppsFlyerAnalyticsProjection(options: {
   return {
     name: 'appsflyer-projection',
     emit(event: AnalyticsEvent): void {
+      if (event.env !== 'production') return;
       if (event.name === 'level_complete') {
         const level = progressionLevel(event.params);
         if (level === null) return;
@@ -24,7 +25,7 @@ export function createAppsFlyerAnalyticsProjection(options: {
         if (PROGRESSION_MILESTONES.has(level)) forwardOnce(options, inFlight, metrics, `progression:${level}`, { type: 'progression_milestone', level });
         return;
       }
-      if (event.name === 'app_open') {
+      if (event.name === 'app_open' || event.name === 'app_foreground') {
         const openedAt = now();
         const firstSeen = readFirstSeen(options.storage, openedAt);
         const day = Math.floor((openedAt - firstSeen) / 86_400_000);
