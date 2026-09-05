@@ -1,4 +1,5 @@
 import crypto from 'node:crypto';
+import { runIosBuild } from '../../native-shell/src/build-output.mjs';
 import { execFileSync, spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -350,12 +351,11 @@ export function defaultDependencies({ execImpl = execFileSync, spawnImpl = spawn
       }
     },
     buildSignedApp(request) {
-      const derived = path.join(request.gameDir, 'ios', 'App', 'release-build');
       const project = path.join(request.gameDir, 'ios', 'App', 'App.xcodeproj');
       const settings = [`MARKETING_VERSION=${request.version}`];
       if (request.developmentTeam) settings.push('-allowProvisioningUpdates', `DEVELOPMENT_TEAM=${request.developmentTeam}`);
-      run('xcodebuild', ['-project', project, '-scheme', 'App', '-configuration', 'Release', '-destination', `id=${request.device.udid}`, '-derivedDataPath', derived, 'build', ...settings]);
-      const appPath = path.join(derived, 'Build', 'Products', 'Release-iphoneos', 'App.app');
+      const { appPath } = runIosBuild({ gameDir: request.gameDir, configuration: 'Release', run,
+        args: ['-project', project, '-scheme', 'App', '-configuration', 'Release', '-destination', `id=${request.device.udid}`, 'build', ...settings] });
       return { appPath, signingIdentity: inspectSignedIosApp(appPath, { expectedTeam: request.developmentTeam, spawnImpl }) };
     },
     uninstallApp(request) {

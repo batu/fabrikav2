@@ -187,11 +187,15 @@ describe('iOS exact release lane', () => {
 
   it('passes the requested marketing version to Xcode', () => {
     const root = fs.mkdtempSync(path.join(os.tmpdir(), 'ios-release-build-'));
-    const app = path.join(root, 'ios', 'App', 'release-build', 'Build', 'Products', 'Release-iphoneos', 'App.app');
+    const app = path.join(root, 'owned-output', 'DerivedData', 'Build', 'Products', 'Release-iphoneos', 'App.app');
     fs.mkdirSync(app, { recursive: true });
     const calls = [];
     const deps = defaultDependencies({
-      execImpl: (file, args) => { calls.push([file, args]); return ''; },
+      execImpl: (file, args) => {
+        calls.push([file, args]);
+        if (file === 'agency') fs.writeFileSync(args[args.indexOf('--result-file') + 1], JSON.stringify({ output_dir: path.join(root, 'owned-output') }));
+        return '';
+      },
       spawnImpl: (_file, args) => args[0] === '--verify'
         ? { status: 0, stdout: '', stderr: '' }
         : { status: 0, stdout: '', stderr: 'Authority=Apple Development: Example\nTeamIdentifier=TEAM123\n' },
@@ -199,7 +203,8 @@ describe('iOS exact release lane', () => {
 
     deps.buildSignedApp({ gameDir: root, version: '1.2.3', device: { udid: 'PHONE' }, developmentTeam: 'TEAM123' });
 
-    expect(calls[0][0]).toBe('xcodebuild');
+    expect(calls[0][0]).toBe('agency');
+    expect(calls[0][1]).toContain('durable');
     expect(calls[0][1]).toContain('MARKETING_VERSION=1.2.3');
   });
 
