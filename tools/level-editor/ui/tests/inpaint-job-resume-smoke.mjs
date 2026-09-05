@@ -1,8 +1,7 @@
-import { spawn } from 'node:child_process';
 import { createServer } from 'node:net';
 import process from 'node:process';
 import { URL } from 'node:url';
-import { chromium } from 'playwright';
+import { startSmokeVite, launchSmokeBrowser } from './smoke-support.mjs';
 
 const port = await freePort();
 const baseUrl = `http://127.0.0.1:${port}`;
@@ -100,15 +99,11 @@ function session(statuses) {
 }
 
 async function run() {
-  const vite = spawn(
-    process.platform === 'win32' ? 'npx.cmd' : 'npx',
-    ['vite', '--host', '127.0.0.1', '--port', String(port)],
-    { detached: process.platform !== 'win32', stdio: ['ignore', 'ignore', 'ignore'] },
-  );
+  const vite = startSmokeVite(port);
   let browser;
   try {
     await waitForServer();
-    browser = await chromium.launch({ headless: true });
+    browser = await launchSmokeBrowser(baseUrl);
     const page = await browser.newPage({ viewport: { width: 900, height: 700 } });
     let startPosts = 0;
     let legacyStreamRequests = 0;
@@ -134,7 +129,7 @@ async function run() {
         await route.fulfill({ status: 500, body: 'legacy stream should not be used' });
         return;
       }
-      await route.continue();
+      await route.fallback();
     });
 
     await page.goto(`${baseUrl}/tests/inpaint-job-resume-harness.html`);
@@ -174,7 +169,7 @@ async function run() {
         await route.fulfill({ status: 500, body: 'legacy stream should not be used' });
         return;
       }
-      await route.continue();
+      await route.fallback();
     });
     await resumePage.goto(`${baseUrl}/tests/inpaint-job-resume-harness.html?resume=1`);
     await resumePage.waitForSelector('text=idle 2/2');

@@ -2,7 +2,7 @@
  * IapService — game-agnostic purchase/restore service, generalized + re-seamed
  * from v1 `games/find_the_dog/src/shop/IapService.ts` (617 lines, READ-ONLY).
  *
- * Two changes from the v1 source, no more:
+ * Provider and recovery boundaries:
  *  1. RevenueCat is hidden behind a first-class `PurchaseProvider` port (v1's
  *     `RevenueCatPurchasesPort` was already a `Pick<PurchasesPlugin, …>`; here it
  *     is promoted to an interface with a RevenueCat impl and a scriptable Fake).
@@ -12,12 +12,13 @@
  *  2. The ~80 lines of `*ForTest` fields + `setStateForTest` are GONE. Behavior in
  *     tests comes from a real `FakePurchaseProvider` implementing the same port.
  *
- * The genuinely-hard logic — the single-flight guard, the user-cancel
- * classification, and the load-bearing late-settle restore machine — is carried
- * VERBATIM. It is subtle and battle-tested; do not "simplify" it.
+ * Native purchase/restore ownership survives caller timeouts. Late successful
+ * purchase results can be persisted and delivered through an acknowledging
+ * consumer; customer-info restore remains a distinct entitlement-only path.
  */
 import { assertUniqueCatalogProductIds, type CatalogProduct } from './catalog.ts';
 import { isTimeoutError, withTimeout } from '../with-timeout.ts';
+import type { PendingPurchaseStore } from './pending-purchases.ts';
 
 export type IapServiceState =
   | 'idle'
@@ -143,6 +144,7 @@ export interface IapServiceDependencies<TPayload = unknown> {
   provider: () => PurchaseProvider | Promise<PurchaseProvider>;
   operationTimeoutMs: () => number;
   purchaseTimeoutMs?: () => number;
+  pendingPurchaseStore?: PendingPurchaseStore;
   /** Optional purchase-pipeline observer (analytics). Must not throw; a throw is
    *  swallowed so telemetry can never break a purchase or init. */
   onEvent?: (event: IapServiceEvent) => void;
@@ -211,6 +213,9 @@ export class IapService<TPayload = unknown> {
    * the same product observes the real outcome instead of issuing a second
    * charge. Mirrors `completedRestoreResult` for the restore path. */
   private completedPurchaseResultsByProductId = new Map<string, IapPurchaseResult>();
+  private completedPurchaseHandler: ((result: IapPurchaseResult) => boolean) | null = null;
+  private pendingPurchasesLoaded = false;
+  private reconcilingPurchases = false;
   /** customerInfo-update handler set before init(). When set, init registers a
    * provider listener that calls it on every CustomerInfo change so deferred
    * non-consumable entitlements (e.g. an Ask-to-Buy no-ads purchase approved
@@ -247,7 +252,59 @@ export class IapService<TPayload = unknown> {
     if (this.initPromise === null || this.state === 'load-failed') {
       this.initPromise = this.initAsync();
     }
-    return this.initPromise;
+    return this.initPromise.then(() => { this.reconcilePendingPurchases(); });
+  }
+
+  /** Acknowledge only after a durable, idempotent wallet grant (or duplicate).
+   * This handles verified native results received after the UI timed out; it
+   * does not infer consumables from restore/customer-info product membership. */
+  setOnCompletedPurchase(handler: ((result: IapPurchaseResult) => boolean) | null): void {
+    this.completedPurchaseHandler = handler;
+    this.reconcilePendingPurchases();
+  }
+
+  /** Retry at startup/resume or after a wallet/storage failure. Never throws
+   * through a native promise observer, and never drops an unacknowledged result. */
+  reconcilePendingPurchases(): IapPurchaseResult[] {
+    if (this.state !== 'ready' || this.reconcilingPurchases) return [];
+    const delivered: IapPurchaseResult[] = [];
+    this.reconcilingPurchases = true;
+    try {
+      if (!this.pendingPurchasesLoaded) {
+        for (const result of this.dependencies.pendingPurchaseStore?.load() ?? []) {
+          this.completedPurchaseResultsByProductId.set(result.productId, result);
+        }
+        this.pendingPurchasesLoaded = true;
+      }
+      for (const [productId, result] of this.completedPurchaseResultsByProductId) {
+        if (result.status !== 'purchased') continue;
+        // Persist before attempting delivery, including when no UI is waiting.
+        this.persistPendingPurchases();
+        if (!this.completedPurchaseHandler?.(result)) continue;
+        this.completedPurchaseResultsByProductId.delete(productId);
+        try {
+          this.persistPendingPurchases();
+          delivered.push(result);
+        }
+        catch (err) {
+          // The wallet has already committed. Redelivery is safe only because
+          // the consumer acknowledges a durable transaction ledger duplicate.
+          this.completedPurchaseResultsByProductId.set(productId, result);
+          throw err;
+        }
+      }
+    } catch (err) {
+      this.lastErrorMessage = `pending purchase delivery: ${errorMessage(err)}`;
+    } finally {
+      this.reconcilingPurchases = false;
+    }
+    return delivered;
+  }
+
+  private persistPendingPurchases(): void {
+    this.dependencies.pendingPurchaseStore?.save(
+      [...this.completedPurchaseResultsByProductId.values()].filter((result) => result.status === 'purchased'),
+    );
   }
 
   snapshot(): IapSnapshot<TPayload> {
@@ -257,7 +314,10 @@ export class IapService<TPayload = unknown> {
         product,
         storeProduct: this.storeProductsById.get(product.productId) ?? null,
       })),
-      pendingPurchaseProductIds: this.activePurchaseProductId === null ? [] : [this.activePurchaseProductId],
+      pendingPurchaseProductIds: [...new Set([
+        ...(this.activePurchaseProductId === null ? [] : [this.activePurchaseProductId]),
+        ...[...this.completedPurchaseResultsByProductId.values()].filter((result) => result.status === 'purchased').map((result) => result.productId),
+      ])],
       purchaseInProgress: this.activePurchaseProductId !== null,
       restoreInProgress: this.restoreInProgress,
       nativeOperationInProgress: this.activePurchaseProductId !== null || this.restoreInProgress,
@@ -271,6 +331,9 @@ export class IapService<TPayload = unknown> {
   consumeCompletedPurchaseResult(productId: string): IapPurchaseResult | null {
     const result = this.completedPurchaseResultsByProductId.get(productId) ?? null;
     if (result === null) return null;
+    // Durable results belong to the acknowledging consumer. Legacy callers
+    // without a store keep the original one-shot banked-result behavior.
+    if (result.status === 'purchased' && this.dependencies.pendingPurchaseStore) return result;
     this.completedPurchaseResultsByProductId.delete(productId);
     return result;
   }
@@ -300,6 +363,16 @@ export class IapService<TPayload = unknown> {
     if (this.state !== 'ready') {
       return { status: 'unavailable', productId, purchaseId: null, purchaseToken: null, customerInfo: null, errorMessage: this.lastErrorMessage };
     }
+
+    const pendingBeforeRetry = this.completedPurchaseResultsByProductId.get(productId);
+    const deliveredOnRetry = this.reconcilePendingPurchases().find((result) => result.productId === productId);
+    if (!this.pendingPurchasesLoaded || (this.completedPurchaseHandler !== null
+      && this.completedPurchaseResultsByProductId.get(productId)?.status === 'purchased')) {
+      return { status: 'unavailable', productId, purchaseId: null, purchaseToken: null, customerInfo: null,
+        errorMessage: this.lastErrorMessage ?? 'purchase is awaiting wallet delivery' };
+    }
+    if (deliveredOnRetry) return deliveredOnRetry;
+    if (pendingBeforeRetry?.status === 'purchased' && this.completedPurchaseHandler !== null) return pendingBeforeRetry;
 
     // Single-flight guard: one native store operation at a time. A concurrent
     // purchase, or a purchase during restore, is rejected — not queued. The lock
@@ -346,6 +419,7 @@ export class IapService<TPayload = unknown> {
           this.completedPurchaseResultsByProductId.set(productId, this.purchasedResult(productId, transaction));
         }
         if (this.activePurchaseProductId === productId) this.activePurchaseProductId = null;
+        if (returnedBeforeNativeSettled) this.reconcilePendingPurchases();
       },
       (err: unknown) => {
         const message = errorMessage(err);

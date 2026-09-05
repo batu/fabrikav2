@@ -101,6 +101,7 @@ declare module '@capacitor-community/admob' {
   }
 
   export enum RewardAdPluginEvents {
+    Rewarded = 'onRewardedVideoAdReward',
     FailedToLoad = 'onRewardedVideoAdFailedToLoad',
     Dismissed = 'onRewardedVideoAdDismissed',
     FailedToShow = 'onRewardedVideoAdFailedToShow',

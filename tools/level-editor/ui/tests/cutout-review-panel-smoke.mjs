@@ -1,6 +1,5 @@
-import { spawn } from 'node:child_process';
 import { createServer } from 'node:net';
-import { chromium } from 'playwright';
+import { startSmokeVite, launchSmokeBrowser } from './smoke-support.mjs';
 
 const port = await freePort();
 const baseUrl = `http://127.0.0.1:${port}`;
@@ -54,15 +53,11 @@ function waitForServer() {
 }
 
 async function run() {
-  const vite = spawn(
-    process.platform === 'win32' ? '../../../node_modules/.bin/vite.cmd' : '../../../node_modules/.bin/vite',
-    ['--host', '127.0.0.1', '--port', String(port)],
-    { stdio: ['ignore', 'ignore', 'ignore'] },
-  );
+  const vite = startSmokeVite(port);
   let browser;
   try {
     await waitForServer();
-    browser = await chromium.launch({ headless: true });
+    browser = await launchSmokeBrowser(baseUrl);
     const page = await browser.newPage({ viewport: { width: 1200, height: 900 } });
     let completedRegens = 0;
     let batchSubmissions = 0;
@@ -83,6 +78,12 @@ async function run() {
     const promptRequests = new Map();
     await page.route('**/*', async (route) => {
       const url = new URL(route.request().url());
+      if (url.pathname.endsWith('/derived-crops')) {
+        // This fixture exercises manual padding review, which is enabled only
+        // when the server's derived-crop diff gate asks for human review.
+        await route.fulfill({ json: { crops: {}, needsReview: true } });
+        return;
+      }
       const isCandidateRequest =
         url.pathname === `/api/sessions/${sessionId}/sprite-candidates` ||
         url.pathname === `/api/sessions/${secondSessionId}/sprite-candidates`;
@@ -257,11 +258,10 @@ async function run() {
         await route.fulfill({ contentType: 'image/png', body: png(url.pathname.includes('dog_01') ? 'green' : url.pathname.includes('dog_02') ? 'blue' : 'red') });
         return;
       }
-      await route.continue();
+      await route.fallback();
     });
 
-    await page.goto(baseUrl);
-    await page.evaluate((key) => {
+    await page.addInitScript((key) => {
       window.localStorage.setItem(key, 'null');
     }, `ftd-cutout-review:${sessionId}`);
     await page.goto(`${baseUrl}/tests/cutout-review-panel-harness.html`);
@@ -270,7 +270,7 @@ async function run() {
     if ((candidateRequests.get(sessionId) ?? 0) !== 1) {
       throw new Error(`Revision callback caused a cutout refresh loop: ${JSON.stringify(Object.fromEntries(candidateRequests))}`);
     }
-    await page.screenshot({ path: '/tmp/ftb-cutout-inline-actions.png', fullPage: true });
+    await page.screenshot({ path: process.env.SMOKE_SHOT_DIR ? process.env.SMOKE_SHOT_DIR + '/ftb-cutout-inline-actions.png' : '/tmp/ftb-cutout-inline-actions.png', fullPage: true });
     if (await page.getByLabel('Model').inputValue() !== 'google/gemini-3.1-flash-image-preview') {
       throw new Error('Cutout model picker did not default to Gemini 3.1 Flash');
     }
@@ -415,7 +415,7 @@ async function run() {
         await firstCard.getByRole('button', { name: 'Regenerate', exact: true }).count() !== 1) {
       throw new Error('Per-cutout Extract and Regenerate actions are missing');
     }
-    await page.screenshot({ path: '/tmp/ftb-cutout-inline-actions.png', fullPage: true });
+    await page.screenshot({ path: process.env.SMOKE_SHOT_DIR ? process.env.SMOKE_SHOT_DIR + '/ftb-cutout-inline-actions.png' : '/tmp/ftb-cutout-inline-actions.png', fullPage: true });
     await page.getByText('Extraction prompt', { exact: true }).click();
     await page.getByText(/Extract and faithfully duplicate exactly ONE/).waitFor();
     const dogOneCard = page.locator('.cutout-review-card').nth(1);
@@ -455,7 +455,7 @@ async function run() {
       throw new Error(`Extracted dog did not refresh its active cutout candidate: ${refreshedLabel}`);
     }
     await firstCard.getByRole('tab', { name: 'Sprite' }).click();
-    await page.screenshot({ path: '/tmp/pcdNQRrf-cutout-review-panel.png', fullPage: true });
+    await page.screenshot({ path: process.env.SMOKE_SHOT_DIR ? process.env.SMOKE_SHOT_DIR + '/pcdNQRrf-cutout-review-panel.png' : '/tmp/pcdNQRrf-cutout-review-panel.png', fullPage: true });
     await page.locator('#switch-session').click();
     await page.waitForSelector('.cutout-review-card');
     await page.waitForTimeout(100);

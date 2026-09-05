@@ -11,10 +11,10 @@ import { createSdkContext, getSdkContext, installSdkContext } from './sdk/SdkCon
 import { initializeCohort } from './data/cohortContext';
 import { remoteConfigService } from './config/RemoteConfigService';
 import { iapService, ownedProductIdsFromCustomerInfo, type CustomerInfo } from './shop/IapService';
-import { restoreNonConsumableEntitlements } from './shop/PurchaseFulfillment';
+import { fulfillVerifiedPurchaseOnce, restoreNonConsumableEntitlements } from './shop/PurchaseFulfillment';
 import { buildFullShopCatalog } from './shop/ProductCatalog';
 import { installPortraitOrientationLock } from './platform/portraitOrientation';
-import { installGameLifecycle } from './platform/gameLifecycle';
+import { installGameLifecycle, registerLifecycleHooks } from './platform/gameLifecycle';
 import { notificationService } from './notifications/NotificationService';
 import { installAudioUnlock, installButtonVoiceEffects } from './audio/AudioManager';
 import { preloadIcons } from './ui/iconPreload';
@@ -72,7 +72,8 @@ void adConsentReady
 // no-ads; it must NOT re-fulfill consumables — on iOS the listener's
 // transaction ids (RevenueCat internal) ≠ the purchase path's ids (StoreKit),
 // so consumable reconciliation here would double-grant (see plan PR-6 spike).
-// Consumable recovery requires a server-side RevenueCat webhooks follow-up.
+// The handler below recovers late received purchase results. Consumables whose
+// original result never reaches JavaScript require provider/server reconciliation.
 function recoverDeferredNonConsumableEntitlements(customerInfo: CustomerInfo): void {
   const ownedProductIds = ownedProductIdsFromCustomerInfo(customerInfo);
   const grant = restoreNonConsumableEntitlements(ownedProductIds, buildFullShopCatalog().products, gameState);
@@ -82,6 +83,25 @@ function recoverDeferredNonConsumableEntitlements(customerInfo: CustomerInfo): v
 }
 
 iapService.setOnCustomerInfoUpdate(recoverDeferredNonConsumableEntitlements);
+// Late native results retain the original store transaction identity. Deliver
+// their wallet grant independently of the UI that timed out; never resume an
+// old level/offer from this callback.
+iapService.setOnCompletedPurchase((purchase) => {
+  const result = fulfillVerifiedPurchaseOnce(purchase, buildFullShopCatalog().products, gameState);
+  if (result.status === 'fulfilled' && result.grant !== null) {
+    void analytics.purchaseFulfilled({
+      product_id: result.productId, purchase_id: result.purchaseId,
+      no_ads: result.grant.noAds, hints: result.grant.hints, coins: result.grant.coins,
+      continue_level: false,
+    });
+  }
+  if (gameState.hasNoAdsEntitlement) void adService.hideBanner();
+  return result.status === 'fulfilled' || result.status === 'duplicate';
+});
+const releasePurchaseRecovery = registerLifecycleHooks('pending-purchases', {
+  onResume: () => iapService.reconcilePendingPurchases(),
+});
+game.events.once('destroy', releasePurchaseRecovery);
 
 void remoteConfigService.initAndWait().finally(() => {
   iapService.init();

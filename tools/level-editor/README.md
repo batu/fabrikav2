@@ -120,6 +120,39 @@ seeds still serve).
 
 ## Verification
 
+The dedicated CI job runs the Python backend suite and every `*-smoke.mjs`
+browser fixture, then builds the UI. To run the same gate locally after
+`npm ci` and `npx playwright install chromium`:
+
+```sh
+npm run editor2:ci -w @fabrikav2/level-editor-tool
+# Optional: EDITOR2_VERIFY_DIR=/tmp/my-editor-check to retain a named result.
+```
+
+The gate uses Python 3.12 in its own temporary venv. It writes per-step logs,
+`backend.xml`, generated `requirements.txt`, screenshots, build output, and
+`results.json` under the reported directory. Every backend/browser failure or
+unexpected network/provider attempt fails the gate. Backend tests use temporary
+game/workspace/ledger roots, disable dotenv and startup model downloads, and
+block external network/CLI calls. Browser tests start their own loopback Vite
+server with no backend proxy and explicitly mock API responses. No operator
+service, real provider, physical device, or live publishing behavior is verified.
+
+Normal development still uses the editable `../../../merceka-core` dependency.
+CI exports all other versions directly from `uv.lock` and installs public core
+commit `ccba881b3b1367fbb72ec1119a1bc553e09cc848` into the isolated venv. The
+editor already depends on the 30-line cost-attribution addition in local core
+commit `927f3f5402f10ee7227eabcb22a9965c74a0625c`; that commit is not published.
+`scripts/prepare-dependency.py` reproduces only its `costs.py` delta, validates
+the installed Git revision and exact before/after SHA-256 hashes, and refuses
+to touch editable/external sources. Attribution nesting, per-record overrides,
+exception cleanup, idempotence, and drift rejection have regression coverage.
+Remove this correction when the attribution API is available at a public pin.
+The golden dataset also reads rejected sprites from its immutable review-input
+revision `8a80bcfe2789015a330fd9e168e021f1b1d612f7`; CI fetches that commit explicitly.
+
+The existing operator/corpus commands remain separate:
+
 ```sh
 npm run editor2:verify          # from tools/level-editor: pytest + tsc + UI build
 npm run editor2:verify -w @fabrikav2/level-editor-tool   # from repo root

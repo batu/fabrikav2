@@ -1,7 +1,6 @@
-import { spawn } from 'node:child_process';
 import { createServer } from 'node:net';
 import process from 'node:process';
-import { chromium } from 'playwright';
+import { startSmokeVite, launchSmokeBrowser } from './smoke-support.mjs';
 
 const port = await freePort();
 const baseUrl = `http://127.0.0.1:${port}`;
@@ -81,11 +80,7 @@ const seededSession = {
 };
 
 async function run() {
-  const vite = spawn(
-    process.platform === 'win32' ? 'npx.cmd' : 'npx',
-    ['vite', '--host', '127.0.0.1', '--port', String(port)],
-    { detached: process.platform !== 'win32', stdio: ['ignore', 'ignore', 'ignore'] },
-  );
+  const vite = startSmokeVite(port);
   let browser;
   let releaseSession;
   let startJobCount = 0;
@@ -93,7 +88,7 @@ async function run() {
   let disconnectedJobPolls = 0;
   try {
     await waitForServer();
-    browser = await chromium.launch({ headless: true });
+    browser = await launchSmokeBrowser(baseUrl);
     const page = await browser.newPage({ viewport: { width: 900, height: 700 } });
 
     await page.route('**/api/sessions/bg_stream_cache_seed', async (route) => {
@@ -102,7 +97,7 @@ async function run() {
     });
     await page.route('**/api/sessions/bg_stream_cache_seed/background-generation/jobs', async (route) => {
       if (route.request().method() !== 'POST') {
-        await route.continue();
+        await route.fallback();
         return;
       }
       startJobCount += 1;

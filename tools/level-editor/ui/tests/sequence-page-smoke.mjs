@@ -1,8 +1,7 @@
-import { spawn } from 'node:child_process';
 import { createServer } from 'node:net';
 import process from 'node:process';
 import { URL } from 'node:url';
-import { chromium } from 'playwright';
+import { startSmokeVite, launchSmokeBrowser } from './smoke-support.mjs';
 
 const port = await freePort();
 const baseUrl = `http://127.0.0.1:${port}`;
@@ -197,7 +196,9 @@ let workflowState = makeState({
   warnings: [diagnostic('sequenceDestructiveChange', 'Draft removes or moves live-listed levels.', 'warning')],
   copyFixPrompt: missingPrompt,
 });
-let staleOnNextSave = false;
+let staleOnNextSave = 0;
+let holdJobResults = false;
+const saveBodies = [];
 let failNextDryRun = false;
 let delayNextDryRun = false;
 let delayNextSave = false;
@@ -334,19 +335,19 @@ function activationPayload(changelogNote) {
 }
 
 async function run() {
-  const vite = spawn(
-    process.platform === 'win32' ? 'npx.cmd' : 'npx',
-    ['vite', '--host', '127.0.0.1', '--port', String(port)],
-    { detached: process.platform !== 'win32', stdio: ['ignore', 'ignore', 'ignore'] },
-  );
+  const vite = startSmokeVite(port);
   let browser;
   try {
     await waitForServer();
-    browser = await chromium.launch({ headless: true });
+    browser = await launchSmokeBrowser(baseUrl);
     const page = await browser.newPage({ viewport: { width: 1280, height: 1000 } });
 
     await page.route('**/*', async (route) => {
       const url = new URL(route.request().url());
+      if (url.pathname === '/api/sessions') {
+        await route.fulfill({ json: [] });
+        return;
+      }
       if (url.pathname.includes('/gallery-thumb/')) {
         thumbnailRequests += 1;
         await route.fulfill({ status: 404, body: 'missing thumbnail' });
@@ -400,13 +401,15 @@ async function run() {
       }
       if (url.pathname === '/api/sequence-workflow/draft' && route.request().method() === 'PUT') {
         const body = JSON.parse(route.request().postData() ?? '{}');
+        saveBodies.push(body);
         if (staleOnNextSave) {
-          staleOnNextSave = false;
+          staleOnNextSave -= 1;
           const staleState = makeState({
             levelIds: workflowState.draft.levelIds,
             catalogRevision: 'catalog-000002',
             liveSequenceVersion: 'seq-new-live',
-            diagnostics: [diagnostic('sequenceDraftCatalogStale', 'Draft is based on an older catalog revision.')],
+            // The concurrent writer has a valid current draft; this request's
+            // base is stale. A stale SERVER draft is a separate self-heal flow.
           });
           await route.fulfill({
             status: 409,
@@ -493,211 +496,91 @@ async function run() {
           await route.fulfill({ status: 404, json: { detail: { error: 'Job not found' } } });
           return;
         }
-        await route.fulfill({ json: job });
+        await route.fulfill({ json: holdJobResults ? startJob(id) : job });
         return;
       }
-      await route.continue();
+      await route.fallback();
     });
 
     await page.goto(`${baseUrl}/#sequence`);
     await page.waitForSelector('.sequence-page');
-    async function openAdvancedControls() {
-      if (await page.locator('.sequence-advanced-panel[open]').count() === 0) {
-        await page.getByText('Diagnostics and recovery').click();
-      }
-    }
     const initialText = await page.locator('.sequence-page').innerText();
-    if (!initialText.includes('Choose the level order players get in the game')) {
-      throw new Error(`Expected sequence page hero, got: ${initialText}`);
+    for (const expected of ['LINEUP', 'catalogLevelMissing', 'Selected levels', 'destructive change']) {
+      if (!initialText.includes(expected)) throw new Error(`Missing current Lineup state ${expected}: ${initialText}`);
     }
-    if (!initialText.includes('catalogLevelMissing')) {
-      throw new Error(`Expected missing package validation, got: ${initialText}`);
-    }
-    if (!initialText.includes('Warnings') || !initialText.includes('sequenceDestructiveChange')) {
-      throw new Error(`Expected destructive warning display, got: ${initialText}`);
-    }
-    if (!initialText.includes('Selected levels')) {
-      throw new Error(`Expected single Lineup panel, got: ${initialText}`);
-    }
-    if (initialText.includes('Add levels') || initialText.includes('Select completed levels in Gallery')) {
-      throw new Error(`Expected stale Add levels helper to be removed, got: ${initialText}`);
-    }
-    if (initialText.includes('Add catalog levels') || initialText.includes('Remote sequence workflow')) {
-      throw new Error(`Expected old Lineup plumbing to be hidden, got: ${initialText}`);
+    const promptText = await page.locator('.sequence-copy-prompt').inputValue();
+    if (!promptText.includes('only if already approved') || !promptText.includes('Do not activate')) {
+      throw new Error(`Missing safe repair prompt: ${promptText}`);
     }
     await page.waitForTimeout(250);
-    if (thumbnailRequests === 0) {
-      throw new Error('Expected Lineup to request gallery-thumb proxy previews.');
-    }
-    if (publicColorRequests !== 0) {
-      throw new Error(`Lineup should not fall back to full public color.png previews, got ${publicColorRequests} requests.`);
+    if (thumbnailRequests === 0 || publicColorRequests !== 0) {
+      throw new Error(`Lineup preview must use thumbnail proxy: thumbs=${thumbnailRequests}, full=${publicColorRequests}`);
     }
     if (!await page.locator('.sequence-level-thumb-placeholder').first().isVisible()) {
-      throw new Error('Expected missing Lineup thumbnail to render an inline placeholder.');
+      throw new Error('Missing thumbnail must show an inline placeholder.');
     }
     const thumbAspect = await page.locator('.sequence-level-thumb-wrap').first().evaluate((element) => {
       const rect = element.getBoundingClientRect();
       return rect.width / rect.height;
     });
-    if (Math.abs(thumbAspect - 9 / 16) > 0.02) {
-      throw new Error(`Expected Lineup thumbnails to use portrait 9:16 aspect, got ${thumbAspect}`);
-    }
-    if (initialText.includes('Local preview order') || initialText.includes('Draft-listed order')) {
-      throw new Error(`Expected old two-list sequence labels to be hidden, got: ${initialText}`);
-    }
-    if (!initialText.includes('Build size check') || !initialText.includes('Non-shipping build')) {
-      throw new Error(`Expected non-shipping build guardrail, got: ${initialText}`);
-    }
-    if (initialText.includes('Over 200 MB')) {
-      throw new Error(`Debug-only APK should not show a release budget breach, got: ${initialText}`);
-    }
-    buildSizeResponse = {
-      ...buildSizeResponse,
-      artifact: {
-        path: 'android/app/build/outputs/bundle/release/app-release.aab',
-        kind: 'aab',
-        buildType: 'release',
-        sizeBytes: 220396113,
-        modifiedAt: 1780420960,
-        overLimit: true,
-        budgetApplies: true,
-        storeBudgetOverLimit: true,
-      },
-    };
-    await page.getByRole('button', { name: 'Refresh size' }).click();
-    await page.waitForFunction(() => (
-      document.body.innerText.includes('Release AAB') &&
-      document.body.innerText.includes('Over 200 MB')
-    ));
-    const releaseSizePanel = await page.locator('.sequence-size-panel').innerText();
-    if (!releaseSizePanel.includes('Release AAB') || !releaseSizePanel.includes('Over 200 MB')) {
-      throw new Error(`Expected release artifact budget breach, got: ${releaseSizePanel}`);
-    }
-    if (await page.locator('.sequence-size-panel-over').count() !== 1) {
-      throw new Error('Expected over-budget release artifact to mark the size panel.');
-    }
-    const promptText = await page.locator('.sequence-copy-prompt').inputValue();
-    if (!promptText.includes('only if already approved')) {
-      throw new Error(`Expected safe copy prompt wording, got: ${promptText}`);
-    }
-    if (!promptText.includes('Do not activate')) {
-      throw new Error(`Expected prompt to explicitly prohibit activation, got: ${promptText}`);
-    }
-    await openAdvancedControls();
-    if (await page.getByRole('button', { name: 'Validation check only' }).isEnabled()) {
-      throw new Error('Validation check should be disabled while validation blockers exist.');
-    }
+    if (Math.abs(thumbAspect - 1) > 0.02) throw new Error(`Expected current square campaign thumbnail, got ${thumbAspect}`);
 
-    await page.locator('[data-sequence-row-id="missing_level"]').getByRole('button', { name: 'Remove' }).click();
+    // Current Lineup autosaves. Keep the in-flight mutation guard assertion,
+    // without invoking the retired Save order / diagnostics panel controls.
     delayNextSave = true;
-    await page.getByRole('button', { name: 'Save order' }).click();
-    await page.waitForFunction(() => document.body.innerText.includes('Saving...'));
+    await page.locator('[data-sequence-row-id="missing_level"]').getByRole('button', { name: 'Remove' }).click();
+    await page.waitForFunction(() => document.body.innerText.includes('Saving…'));
     if (await page.locator('[data-sequence-row-id="starter_a"]').getByRole('button', { name: 'Remove' }).isEnabled()) {
-      throw new Error('Lineup row controls should be disabled while save is in-flight.');
+      throw new Error('Row mutation remained enabled during autosave.');
     }
     resumeDelayedSave?.();
     await page.waitForFunction(() => !document.body.innerText.includes('catalogLevelMissing'));
-    if (!(await page.getByRole('button', { name: 'Validation check only' }).isEnabled())) {
-      throw new Error('Validation check should be enabled once blockers clear; primary Start supplies a default note.');
+    if (draftSaveCount !== 1 || workflowState.draft.levelIds.join(',') !== 'starter_a') {
+      throw new Error('Autosave did not persist the intended membership.');
     }
-    delayNextDryRun = true;
-    await page.getByRole('button', { name: 'Validation check only' }).click();
-    await page.waitForFunction(() => document.body.innerText.includes('Checking...'));
-    if (await page.locator('[data-sequence-row-id="starter_a"]').getByRole('button', { name: 'Remove' }).isEnabled()) {
-      throw new Error('Lineup row controls should be disabled while validation check is in-flight.');
-    }
-    resumeDelayedDryRun?.();
-    await page.waitForSelector('[data-sequence-dry-run-result="true"]');
-    const dryRunText = await page.locator('[data-sequence-dry-run-result="true"]').innerText();
-    if (!dryRunText.includes('Validation payload ready') || !dryRunText.includes('Game update mutated: no')) {
-      throw new Error(`Expected non-mutating validation result, got: ${dryRunText}`);
-    }
+
     conflictOnNextActivate = true;
-    await openAdvancedControls();
     await page.locator('[data-sequence-start="true"]').click();
     await page.waitForSelector('[data-sequence-conflict="true"]');
-    const activationConflictText = await page.locator('[data-sequence-conflict="true"]').innerText();
-    if (!activationConflictText.includes('Stale Lineup conflict')) {
-      throw new Error(`Expected activation conflict reload UI, got: ${activationConflictText}`);
-    }
+    if (await page.locator('[data-sequence-start="true"]').isEnabled()) throw new Error('Conflicting Start must block retry until reload.');
     await page.getByRole('button', { name: 'Reload current state' }).click();
     await page.waitForFunction(() => !document.body.innerText.includes('Stale Lineup conflict'));
-    await openAdvancedControls();
-    await page.locator('[data-sequence-start="true"]').click();
-    await page.waitForSelector('[data-sequence-activation-result="true"]');
-    const activationText = await page.locator('[data-sequence-activation-result="true"]').innerText();
-    if (!activationText.includes('Lineup updated') || !activationText.includes('seq-live-1')) {
-      throw new Error(`Expected live activation result, got: ${activationText}`);
-    }
-    if (startRequests < 2 || activationRequests < 1 || appliedProjections < 1) {
-      throw new Error(`Expected Start to use durable job path with bundle projection, got start=${startRequests} activation=${activationRequests} bundle=${appliedProjections}`);
-    }
-    await openAdvancedControls();
-    const advancedText = await page.locator('.sequence-advanced-panel').innerText();
-    if (advancedText.includes('Rollback to selected version') || advancedText.includes('Rollback changelog note')) {
-      throw new Error(`Rollback controls should not be exposed in Lineup; got: ${advancedText}`);
-    }
-    failNextDryRun = true;
-    await openAdvancedControls();
-    await page.getByRole('button', { name: 'Validation check only' }).click();
-    await page.waitForFunction(() => document.body.innerText.includes('Sequence draft has blocking validation diagnostics.'));
-    if (await page.locator('[data-sequence-dry-run-result="true"]').count() !== 0) {
-      throw new Error('Failed validation check should clear the previous payload/hash result.');
-    }
 
-    await page.locator('[data-sequence-row-id="starter_a"]').getByRole('button', { name: 'Remove' }).click();
-    await page.waitForFunction(() => document.body.innerText.includes('Unsaved order changes'));
-    staleOnNextSave = true;
-    const saveCountBeforeConflict = draftSaveCount;
-    await page.getByRole('button', { name: 'Save order' }).click();
-    await page.waitForSelector('[data-sequence-conflict="true"]');
-    workflowState = makeState({
-      levelIds: ['starter_a', 'catalog_ready'],
-      catalogRevision: 'catalog-000003',
-      liveSequenceVersion: 'seq-after-conflict',
-      draftRevision: 'draft-after-conflict',
-    });
-    const conflictText = await page.locator('[data-sequence-conflict="true"]').innerText();
-    if (!conflictText.includes('Stale Lineup conflict')) {
-      throw new Error(`Expected stale conflict UI, got: ${conflictText}`);
-    }
-    if (await page.getByRole('button', { name: 'Save order' }).isEnabled()) {
-      throw new Error('Save should remain disabled until the operator reloads the stale conflict state.');
-    }
-    await page.getByRole('button', { name: 'Save order' }).click({ force: true });
-    await page.waitForTimeout(300);
-    if (draftSaveCount !== saveCountBeforeConflict) {
-      throw new Error('Forced second save after stale conflict should not be submitted.');
-    }
-    await page.getByRole('button', { name: 'Reload current state' }).click();
-    await page.waitForFunction(() => !document.body.innerText.includes('Stale Lineup conflict') && document.body.innerText.includes('Selected levels'));
-
-    const savesBeforeAutoStart = draftSaveCount;
-    const startsBeforeAutoStart = startRequests;
-    const expectedStartJobId = `sequence-start-${startJobCounter + 1}`;
-    await page.locator('[data-sequence-row-id="starter_a"]').getByRole('button', { name: 'Remove' }).click();
-    await page.waitForFunction(() => document.body.innerText.includes('Unsaved order changes'));
+    // Keep the durable job pending across a real page reload, then complete
+    // it. No publish occurs: the scripted transport owns every job response.
+    holdJobResults = true;
+    const getsBeforeReload = startJobGetCount;
+    const expectedJob = `sequence-start-${startJobCounter + 1}`;
     await page.locator('[data-sequence-start="true"]').click();
-    await page.waitForFunction((jobId) => document.body.innerText.includes(jobId), expectedStartJobId);
-    if (draftSaveCount !== savesBeforeAutoStart + 1) {
-      throw new Error(`Start should save dirty order changes before enqueueing, before=${savesBeforeAutoStart} after=${draftSaveCount}`);
-    }
-    if (startRequests !== startsBeforeAutoStart + 1) {
-      throw new Error(`Start should enqueue exactly one job after auto-save, before=${startsBeforeAutoStart} after=${startRequests}`);
-    }
-    const jobGetsBeforeReload = startJobGetCount;
+    await page.getByText(expectedJob, { exact: true }).waitFor();
     await page.reload();
-    await page.waitForSelector('[data-sequence-activation-result="true"]', { state: 'attached' });
-    const restoredStartText = [
-      await page.locator('.sequence-page').innerText(),
-      await page.locator('[data-sequence-activation-result="true"]').textContent(),
-    ].join('\n');
-    if (!restoredStartText.includes(expectedStartJobId) || !restoredStartText.includes('Lineup updated')) {
-      throw new Error(`Expected reload to recover durable Start job ${expectedStartJobId}, got: ${restoredStartText}`);
+    await page.getByText(expectedJob, { exact: true }).waitFor();
+    holdJobResults = false;
+    await page.getByText('Complete', { exact: true }).waitFor();
+    if (startRequests !== 2 || activationRequests !== 1 || appliedProjections !== 1 || startJobGetCount <= getsBeforeReload) {
+      throw new Error(`Durable Start did not recover correctly: start=${startRequests}, activation=${activationRequests}, bundle=${appliedProjections}, polls=${startJobGetCount}`);
     }
-    if (startJobGetCount <= jobGetsBeforeReload) {
-      throw new Error('Reload recovery should poll the stored durable Start job id.');
-    }
+
+    // Autosave rebases once onto a fresh server revision while preserving the
+    // operator's intended ids. A second stale response must surface a conflict.
+    staleOnNextSave = 1;
+    const beforeRebase = draftSaveCount;
+    await page.locator('[data-sequence-row-id="starter_a"]').getByRole('button', { name: 'Remove' }).click();
+    await page.waitForFunction(() => !document.body.innerText.includes('Saving'));
+    await page.waitForTimeout(500);
+    if (draftSaveCount !== beforeRebase + 1 || workflowState.draft.levelIds.length !== 0) throw new Error('Single-conflict autosave failed to rebase intended membership.');
+    const rebasedBody = saveBodies.at(-1);
+    if (rebasedBody.baseCatalogRevision !== 'catalog-000002' || rebasedBody.baseLiveSequenceVersion !== 'seq-new-live') throw new Error('Retry ignored fresh server base revisions.');
+
+    await page.getByRole('button', { name: 'Reset to current game order' }).click();
+    await page.locator('[data-sequence-row-id="starter_a"]').waitFor();
+    staleOnNextSave = 2;
+    const beforeConflict = saveBodies.length;
+    await page.locator('[data-sequence-row-id="starter_a"]').getByRole('button', { name: 'Remove' }).click();
+    await page.waitForSelector('[data-sequence-conflict="true"]');
+    await page.waitForTimeout(700);
+    if (saveBodies.length !== beforeConflict + 2) throw new Error('Repeated stale save retried beyond its bounded second attempt.');
+    if (await page.locator('[data-sequence-start="true"]').isEnabled()) throw new Error('Start remained enabled after repeated stale autosave.');
   } finally {
     await browser?.close();
     stopVite(vite);

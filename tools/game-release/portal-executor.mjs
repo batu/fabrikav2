@@ -7,7 +7,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 // This is deliberately explicit. Adding a runtime import or invoked release
 // tool requires updating this graph and its mutation tests before approval.
 const RUNTIME_SHA256 = Object.freeze({
-  'package.json': '2482093d087539fd63adb032b3dd950319ecd68f578b02cedf48cfe718ede6c4',
+  'package.json': 'c72c7a6f3ce175c92f12055873f33b68cf0ac26bde9a3d8706888af1f0bb2da6',
   'package-lock.json': '973f4c891a804a38fbbc7d6ba812d1341aeaae85bef6a7e058fdac231a6fd9d7',
   'games/find_the_dog/package.json': '3719ebf5cec411dfca16717214b53a6f99f21a01615ec7482a73522195843761',
   'games/find_the_dog/capacitor.config.ts': '749bdf8675c3bdd1af5d0c42f9411c40d75390a665badf05ea73af27f0f11b0c',
@@ -19,9 +19,10 @@ const RUNTIME_SHA256 = Object.freeze({
   'games/find_the_dog/src/ads/AdMobConfig.ts': 'bfedebdfdbd99272c596df80294c16b5bf4bf3f23490e40a051154f245526b4f',
   'configs/vite.base.ts': '0bc2142b5becd7c1cd0d5f6c78a6d83c8a02677ddaed20972646499309406e58',
   'tools/game-release/src/portal-executor.mjs': '233f55ca6443f33a37ba782ac681bf23a178272ae4fd0ef8a26ccd6f2dd9e0e0',
-  'tools/game-release/src/ios-release.mjs': '4e0fccd4eab13d1729c407409e5387d5b6e2947f26cc0c21f843e015a25feb52',
+  'tools/game-release/src/ios-release.mjs': 'a704df1fff4cffc92cb43a637c0d20274405bf85326075ddd03651fd3e23406f',
   'tools/game-release/src/manifest.mjs': '618ca664a49df83170580920a0268a4a9ecc22bf1a1e01491bb23d0c94d9d782',
   'tools/patch-gameanalytics-persistence.mjs': 'e73c6bbe8b1a63948a30ddcf7eac4e2782941a70e0860be63b28c8ee8a61e1bf',
+  'tools/patch-admob-ios-revenue.mjs': '38bad61707f2a4f4bd1ec1362137448f01a68a8689eb61aea545edcfe1c943e1',
   'tools/game-env/src/env.mjs': '4b4324cc2f368c7a7a0ab369778d63a9b75e6ba963a306a59fbbe402ae77e9fc',
   'tools/game-env/src/admob-identities.mjs': '0c719c8cc8adb8739e1525677718f3944a17035549a4eba19be8ff7ee3567e6c',
   'tools/game-env/src/policies.mjs': 'a9b7ec554f5d5d43421e18d69a5c48f33c3dbe475853e9f872100fad20ab256c',

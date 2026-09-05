@@ -14,7 +14,7 @@ const runtimeGraph = [
   'games/find_the_dog/vite.config.ts', 'games/find_the_dog/src/build/nativePublicBundle.ts', 'configs/vite.base.ts',
   'games/find_the_dog/src/sdk/includePlugins.ts', 'games/find_the_dog/src/ads/AdMobConfig.ts',
   'tools/game-release/src/portal-executor.mjs', 'tools/game-release/src/ios-release.mjs', 'tools/game-release/src/manifest.mjs',
-  'tools/patch-gameanalytics-persistence.mjs',
+  'tools/patch-gameanalytics-persistence.mjs', 'tools/patch-admob-ios-revenue.mjs',
   'tools/game-env/src/env.mjs', 'tools/game-env/src/admob-identities.mjs', 'tools/game-env/src/policies.mjs', 'tools/game-env/src/policies/find-the-bird.mjs', 'tools/game-env/src/policies/find-the-dog.mjs', 'tools/game-env/src/validate.mjs',
   'tools/game-env/validate.mjs', 'tools/native-shell/apply.mjs', 'tools/native-shell/validate.mjs', 'tools/native-shell/src/native-shell.mjs', 'tools/native-shell/src/cli.mjs',
   'tools/verify-device/src/devices.mjs', 'tools/verify-device/src/summary.mjs',

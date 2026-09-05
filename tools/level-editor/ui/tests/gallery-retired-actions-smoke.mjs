@@ -1,9 +1,8 @@
 import { Buffer } from 'node:buffer';
-import { spawn } from 'node:child_process';
 import { createServer } from 'node:net';
 import process from 'node:process';
 import { URL } from 'node:url';
-import { chromium } from 'playwright';
+import { startSmokeVite, launchSmokeBrowser } from './smoke-support.mjs';
 
 const transparentPng = Buffer.from(
   'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/p9sAAAAASUVORK5CYII=',
@@ -297,19 +296,27 @@ let levelImageRequests = 0;
 let geometryRequests = 0;
 
 async function run() {
-  const vite = spawn(
-    process.platform === 'win32' ? 'npx.cmd' : 'npx',
-    ['vite', '--host', '127.0.0.1', '--port', String(port)],
-    { detached: process.platform !== 'win32', stdio: ['ignore', 'ignore', 'ignore'] },
-  );
+  const vite = startSmokeVite(port);
   let browser;
   try {
     await waitForServer();
-    browser = await chromium.launch({ headless: true });
+    browser = await launchSmokeBrowser(baseUrl);
     const page = await browser.newPage({ viewport: { width: 1100, height: 900 } });
 
     await page.route('**/*', async (route) => {
       const url = new URL(route.request().url());
+      if (url.pathname === `/api/sessions/${sessionListItem.id}/derived-crops`) {
+        await route.fulfill({ json: { crops: {}, needsReview: false } });
+        return;
+      }
+      if (url.pathname === `/api/sessions/${sessionListItem.id}/visibility-check`) {
+        await route.fulfill({ json: { ok: true, issues: [], viewports: [] } });
+        return;
+      }
+      if (url.pathname === `/api/sessions/${sessionListItem.id}/cutout-extraction-prompt`) {
+        await route.fulfill({ json: { entity: 'dog', prompt: 'Extract the selected dog.' } });
+        return;
+      }
       if (url.pathname === '/api/config') {
         await route.fulfill({ json: config });
         return;
@@ -376,7 +383,7 @@ async function run() {
         await route.fulfill({ status: 200, contentType: 'image/png', body: transparentPng });
         return;
       }
-      await route.continue();
+      await route.fallback();
     });
 
     await page.goto(`${baseUrl}/#gallery`);
@@ -488,7 +495,7 @@ async function run() {
     assert(await page.locator('.level-canvas').count() > 0, 'Show map did not restore the scene pane.');
     await page.getByRole('button', { name: 'Hide map' }).click();
     assert(await page.locator('.level-canvas').count() === 0, 'Hide map did not collapse the scene pane.');
-    await page.screenshot({ path: '/tmp/ftd-cutout-expanded-review.png', fullPage: true });
+    await page.screenshot({ path: process.env.SMOKE_SHOT_DIR ? process.env.SMOKE_SHOT_DIR + '/ftd-cutout-expanded-review.png' : '/tmp/ftd-cutout-expanded-review.png', fullPage: true });
     // Batch selection was retired; with no cutout candidates there must be no
     // per-cutout generation actions to submit at all.
     assert(await page.getByRole('dialog').getByRole('button', { name: 'Regenerate', exact: true }).count() === 0, 'Empty focused cutout review must not offer regeneration.');

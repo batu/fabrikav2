@@ -98,6 +98,15 @@ function writeShellTemplate(root) {
     '<plist><string>Shell Template</string><string>com.basegamelab.shell_template.dev</string></plist>\n',
   );
   writeFileSync(
+    join(tpl, 'native-resources', 'ios', 'shell-manifest.json'),
+    JSON.stringify({
+      schemaVersion: 1,
+      game: 'shell_template',
+      capacitorAppId: 'com.basegamelab.shell_template.dev',
+      ios: { bundleId: 'com.basegamelab.shell_template.dev', displayName: 'Shell Template' },
+    }),
+  );
+  writeFileSync(
     join(tpl, 'tests', 'unit', 'smoke.test.ts'),
     'describe("shell_template config", () => { expect(gameConfig.id).toBe("shell_template"); });\n',
   );

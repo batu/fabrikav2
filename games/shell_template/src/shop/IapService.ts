@@ -1,5 +1,6 @@
 import {
   FakePurchaseProvider,
+  localStoragePendingPurchaseStore,
   IapService as SdkIapService,
   ownedProductIdsFromCustomerInfo,
   type CatalogProduct,
@@ -107,6 +108,7 @@ function toPurchaseTransaction(result: IapPurchaseResult): PurchaseTransaction {
 
 export class FindTheDogIapService {
   private readonly fakeProvider = new FakePurchaseProvider();
+  private completedPurchaseHandler: ((result: IapPurchaseResult) => boolean) | null = null;
   private service = this.createSdkService();
   private initPromise: Promise<void> | null = null;
 
@@ -123,6 +125,15 @@ export class FindTheDogIapService {
 
   setOnCustomerInfoUpdate(handler: ((customerInfo: CustomerInfoLike) => void) | null): void {
     this.service.setOnCustomerInfoUpdate(handler);
+  }
+
+  setOnCompletedPurchase(handler: ((result: IapPurchaseResult) => boolean) | null): void {
+    this.completedPurchaseHandler = handler;
+    this.service.setOnCompletedPurchase(handler);
+  }
+
+  reconcilePendingPurchases(): void {
+    this.service.reconcilePendingPurchases();
   }
 
   setStateForTest(state: IapTestState): void {
@@ -167,7 +178,7 @@ export class FindTheDogIapService {
   }
 
   private createSdkService(): SdkIapService<FtdIapGrant> {
-    return new SdkIapService<FtdIapGrant>({
+    const service = new SdkIapService<FtdIapGrant>({
       isNativePlatform: () => true,
       platform: () => 'ios',
       apiKey: () => SANDBOX_API_KEY,
@@ -175,7 +186,10 @@ export class FindTheDogIapService {
       provider: () => this.fakeProvider,
       operationTimeoutMs: () => 15_000,
       purchaseTimeoutMs: () => 60_000,
+      pendingPurchaseStore: localStoragePendingPurchaseStore('shell_template_pending_purchases_v1'),
     });
+    service.setOnCompletedPurchase(this.completedPurchaseHandler);
+    return service;
   }
 
   private defaultStoreProducts(): StoreProduct[] {
