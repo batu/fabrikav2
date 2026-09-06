@@ -1,0 +1,1329 @@
+{
+  "nativeBuild": 11,
+  "device": "iPhone 12 (iPhone13,2)",
+  "ios": "26.6.1",
+  "test": "HillFlowTests/testRealTouchFlow",
+  "result": "passed",
+  "samples": [
+    {
+      "label": "01-home-state",
+      "timestamp": 1788710362.897,
+      "phase": "home",
+      "paused": false,
+      "level": 1,
+      "wave": 1,
+      "hp": 100,
+      "maxHp": 100,
+      "enemies": 0,
+      "bullets": 0,
+      "effects": 0,
+      "shots": 0,
+      "peakEnemies": 0,
+      "kills": 0,
+      "xp": 0,
+      "rank": 1,
+      "pendingPicks": 0,
+      "aim": -1.5707963267948966,
+      "threatAngle": -1.5707963267948966,
+      "cards": [],
+      "offers": [],
+      "salvage": 66,
+      "earned": 0,
+      "towerHp": [
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90
+      ],
+      "droppedSpawns": 0,
+      "stress": false,
+      "save": {
+        "version": 1,
+        "salvage": 66,
+        "unlockedLevel": 1,
+        "best": [
+          2,
+          0
+        ],
+        "attempts": 2,
+        "character": 0,
+        "characters": [
+          0
+        ],
+        "weapons": [
+          0,
+          1
+        ],
+        "playerWeapon": 0,
+        "upgrades": {
+          "power": 0,
+          "learning": 0,
+          "fortune": 0,
+          "towers": 0
+        },
+        "layout": [
+          0,
+          -1,
+          -2,
+          -2,
+          -2,
+          -2,
+          -2,
+          -1
+        ]
+      },
+      "profile": "player",
+      "perf": {
+        "buckets": [],
+        "worstFrameMs": 0,
+        "frameCount": 0,
+        "frames": 0,
+        "medianFrameMs": 0,
+        "p95FrameMs": 0,
+        "p99FrameMs": 0,
+        "p95CpuMs": 0,
+        "over33ms": 0,
+        "enemies": 0,
+        "peakEnemies": 0,
+        "drawCalls": 1,
+        "dpr": 2,
+        "cardDefinitions": 27
+      },
+      "build": {
+        "sha": "c5a2d2ffce",
+        "dirty": true,
+        "version": "0.0.0",
+        "builtAt": "2026-09-06T15:58:27.077Z"
+      }
+    },
+    {
+      "label": "02-autofire-state",
+      "timestamp": 1788710368.744,
+      "phase": "combat",
+      "paused": false,
+      "level": 1,
+      "wave": 1,
+      "hp": 100,
+      "maxHp": 100,
+      "enemies": 18,
+      "bullets": 10,
+      "effects": 1,
+      "shots": 65,
+      "peakEnemies": 18,
+      "kills": 16,
+      "xp": 16,
+      "rank": 1,
+      "pendingPicks": 0,
+      "aim": -1.5707963267948966,
+      "threatAngle": -2.590223197329423,
+      "cards": [],
+      "offers": [],
+      "salvage": 66,
+      "earned": 0,
+      "towerHp": [
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90
+      ],
+      "droppedSpawns": 0,
+      "stress": false,
+      "save": {
+        "version": 1,
+        "salvage": 66,
+        "unlockedLevel": 1,
+        "best": [
+          2,
+          0
+        ],
+        "attempts": 3,
+        "character": 0,
+        "characters": [
+          0
+        ],
+        "weapons": [
+          0,
+          1
+        ],
+        "playerWeapon": 0,
+        "upgrades": {
+          "power": 0,
+          "learning": 0,
+          "fortune": 0,
+          "towers": 0
+        },
+        "layout": [
+          0,
+          -1,
+          -2,
+          -2,
+          -2,
+          -2,
+          -2,
+          -1
+        ]
+      },
+      "profile": "player",
+      "perf": {
+        "buckets": [
+          {
+            "label": ">=60",
+            "count": 83
+          },
+          {
+            "label": ">=30",
+            "count": 174
+          },
+          {
+            "label": "<20",
+            "count": 1
+          }
+        ],
+        "worstFrameMs": 134,
+        "frameCount": 258,
+        "frames": 258,
+        "medianFrameMs": 17,
+        "p95FrameMs": 17,
+        "p99FrameMs": 19,
+        "p95CpuMs": 1,
+        "over33ms": 1,
+        "enemies": 18,
+        "peakEnemies": 18,
+        "drawCalls": 1,
+        "dpr": 2,
+        "cardDefinitions": 27
+      },
+      "build": {
+        "sha": "c5a2d2ffce",
+        "dirty": true,
+        "version": "0.0.0",
+        "builtAt": "2026-09-06T15:58:27.077Z"
+      }
+    },
+    {
+      "label": "03-left-hand-aim-state",
+      "timestamp": 1788710380.254,
+      "phase": "combat",
+      "paused": false,
+      "level": 1,
+      "wave": 1,
+      "hp": 100,
+      "maxHp": 100,
+      "enemies": 23,
+      "bullets": 11,
+      "effects": 1,
+      "shots": 216,
+      "peakEnemies": 32,
+      "kills": 89,
+      "xp": 24,
+      "rank": 2,
+      "pendingPicks": 1,
+      "aim": -1.5707963267948966,
+      "threatAngle": -0.8305762878219195,
+      "cards": [],
+      "offers": [],
+      "salvage": 66,
+      "earned": 0,
+      "towerHp": [
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90
+      ],
+      "droppedSpawns": 0,
+      "stress": false,
+      "save": {
+        "version": 1,
+        "salvage": 66,
+        "unlockedLevel": 1,
+        "best": [
+          2,
+          0
+        ],
+        "attempts": 3,
+        "character": 0,
+        "characters": [
+          0
+        ],
+        "weapons": [
+          0,
+          1
+        ],
+        "playerWeapon": 0,
+        "upgrades": {
+          "power": 0,
+          "learning": 0,
+          "fortune": 0,
+          "towers": 0
+        },
+        "layout": [
+          0,
+          -1,
+          -2,
+          -2,
+          -2,
+          -2,
+          -2,
+          -1
+        ]
+      },
+      "profile": "player",
+      "perf": {
+        "buckets": [
+          {
+            "label": ">=60",
+            "count": 296
+          },
+          {
+            "label": ">=30",
+            "count": 559
+          },
+          {
+            "label": ">=20",
+            "count": 2
+          },
+          {
+            "label": "<20",
+            "count": 1
+          }
+        ],
+        "worstFrameMs": 134,
+        "frameCount": 858,
+        "frames": 858,
+        "medianFrameMs": 17,
+        "p95FrameMs": 18,
+        "p99FrameMs": 23,
+        "p95CpuMs": 1,
+        "over33ms": 3,
+        "enemies": 23,
+        "peakEnemies": 32,
+        "drawCalls": 1,
+        "dpr": 2,
+        "cardDefinitions": 27
+      },
+      "build": {
+        "sha": "c5a2d2ffce",
+        "dirty": true,
+        "version": "0.0.0",
+        "builtAt": "2026-09-06T15:58:27.077Z"
+      }
+    },
+    {
+      "label": "04-paused-state",
+      "timestamp": 1788710385.078,
+      "phase": "combat",
+      "paused": true,
+      "level": 1,
+      "wave": 1,
+      "hp": 100,
+      "maxHp": 100,
+      "enemies": 26,
+      "bullets": 13,
+      "effects": 2,
+      "shots": 259,
+      "peakEnemies": 32,
+      "kills": 104,
+      "xp": 39,
+      "rank": 2,
+      "pendingPicks": 1,
+      "aim": -1.5707963267948966,
+      "threatAngle": -2.463067839868354,
+      "cards": [],
+      "offers": [],
+      "salvage": 66,
+      "earned": 0,
+      "towerHp": [
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90
+      ],
+      "droppedSpawns": 0,
+      "stress": false,
+      "save": {
+        "version": 1,
+        "salvage": 66,
+        "unlockedLevel": 1,
+        "best": [
+          2,
+          0
+        ],
+        "attempts": 3,
+        "character": 0,
+        "characters": [
+          0
+        ],
+        "weapons": [
+          0,
+          1
+        ],
+        "playerWeapon": 0,
+        "upgrades": {
+          "power": 0,
+          "learning": 0,
+          "fortune": 0,
+          "towers": 0
+        },
+        "layout": [
+          0,
+          -1,
+          -2,
+          -2,
+          -2,
+          -2,
+          -2,
+          -1
+        ]
+      },
+      "profile": "player",
+      "perf": {
+        "buckets": [
+          {
+            "label": ">=60",
+            "count": 352
+          },
+          {
+            "label": ">=30",
+            "count": 673
+          },
+          {
+            "label": ">=20",
+            "count": 4
+          },
+          {
+            "label": "<20",
+            "count": 1
+          }
+        ],
+        "worstFrameMs": 134,
+        "frameCount": 1030,
+        "frames": 1030,
+        "medianFrameMs": 17,
+        "p95FrameMs": 18,
+        "p99FrameMs": 24,
+        "p95CpuMs": 1,
+        "over33ms": 5,
+        "enemies": 26,
+        "peakEnemies": 32,
+        "drawCalls": 1,
+        "dpr": 2,
+        "cardDefinitions": 27
+      },
+      "build": {
+        "sha": "c5a2d2ffce",
+        "dirty": true,
+        "version": "0.0.0",
+        "builtAt": "2026-09-06T15:58:27.077Z"
+      }
+    },
+    {
+      "label": "04-background-paused-state",
+      "timestamp": 1788710396.867,
+      "phase": "combat",
+      "paused": true,
+      "level": 1,
+      "wave": 1,
+      "hp": 100,
+      "maxHp": 100,
+      "enemies": 19,
+      "bullets": 11,
+      "effects": 1,
+      "shots": 275,
+      "peakEnemies": 32,
+      "kills": 111,
+      "xp": 46,
+      "rank": 2,
+      "pendingPicks": 1,
+      "aim": -1.5707963267948966,
+      "threatAngle": -0.5604496008987825,
+      "cards": [],
+      "offers": [],
+      "salvage": 66,
+      "earned": 0,
+      "towerHp": [
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90
+      ],
+      "droppedSpawns": 0,
+      "stress": false,
+      "save": {
+        "version": 1,
+        "salvage": 66,
+        "unlockedLevel": 1,
+        "best": [
+          2,
+          0
+        ],
+        "attempts": 3,
+        "character": 0,
+        "characters": [
+          0
+        ],
+        "weapons": [
+          0,
+          1
+        ],
+        "playerWeapon": 0,
+        "upgrades": {
+          "power": 0,
+          "learning": 0,
+          "fortune": 0,
+          "towers": 0
+        },
+        "layout": [
+          0,
+          -1,
+          -2,
+          -2,
+          -2,
+          -2,
+          -2,
+          -1
+        ]
+      },
+      "profile": "player",
+      "perf": {
+        "buckets": [
+          {
+            "label": ">=60",
+            "count": 376
+          },
+          {
+            "label": ">=30",
+            "count": 716
+          },
+          {
+            "label": ">=20",
+            "count": 4
+          },
+          {
+            "label": "<20",
+            "count": 1
+          }
+        ],
+        "worstFrameMs": 134,
+        "frameCount": 1097,
+        "frames": 1097,
+        "medianFrameMs": 17,
+        "p95FrameMs": 18,
+        "p99FrameMs": 24,
+        "p95CpuMs": 1,
+        "over33ms": 5,
+        "enemies": 19,
+        "peakEnemies": 32,
+        "drawCalls": 1,
+        "dpr": 2,
+        "cardDefinitions": 27
+      },
+      "build": {
+        "sha": "c5a2d2ffce",
+        "dirty": true,
+        "version": "0.0.0",
+        "builtAt": "2026-09-06T15:58:27.077Z"
+      }
+    },
+    {
+      "label": "06-repaired-wave-state",
+      "timestamp": 1788710405.168,
+      "phase": "ready",
+      "paused": false,
+      "level": 1,
+      "wave": 1,
+      "hp": 100,
+      "maxHp": 100,
+      "enemies": 0,
+      "bullets": 0,
+      "effects": 0,
+      "shots": 329,
+      "peakEnemies": 32,
+      "kills": 130,
+      "xp": 65,
+      "rank": 2,
+      "pendingPicks": 0,
+      "aim": -1.5707963267948966,
+      "threatAngle": -1.5707963267948966,
+      "cards": [
+        {
+          "id": "power",
+          "name": "Mean business",
+          "stat": "damage",
+          "scope": "all",
+          "rank": 0,
+          "amount": 0.12
+        }
+      ],
+      "offers": [],
+      "salvage": 81,
+      "earned": 15,
+      "towerHp": [
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90
+      ],
+      "droppedSpawns": 0,
+      "stress": false,
+      "save": {
+        "version": 1,
+        "salvage": 81,
+        "unlockedLevel": 1,
+        "best": [
+          2,
+          0
+        ],
+        "attempts": 3,
+        "character": 0,
+        "characters": [
+          0
+        ],
+        "weapons": [
+          0,
+          1
+        ],
+        "playerWeapon": 0,
+        "upgrades": {
+          "power": 0,
+          "learning": 0,
+          "fortune": 0,
+          "towers": 0
+        },
+        "layout": [
+          0,
+          -1,
+          -2,
+          -2,
+          -2,
+          -2,
+          -2,
+          -1
+        ]
+      },
+      "profile": "player",
+      "perf": {
+        "buckets": [
+          {
+            "label": ">=60",
+            "count": 452
+          },
+          {
+            "label": ">=30",
+            "count": 853
+          },
+          {
+            "label": ">=20",
+            "count": 4
+          },
+          {
+            "label": "<20",
+            "count": 1
+          }
+        ],
+        "worstFrameMs": 134,
+        "frameCount": 1310,
+        "frames": 1310,
+        "medianFrameMs": 17,
+        "p95FrameMs": 18,
+        "p99FrameMs": 24,
+        "p95CpuMs": 1,
+        "over33ms": 5,
+        "enemies": 0,
+        "peakEnemies": 32,
+        "drawCalls": 1,
+        "dpr": 2,
+        "cardDefinitions": 27
+      },
+      "build": {
+        "sha": "c5a2d2ffce",
+        "dirty": true,
+        "version": "0.0.0",
+        "builtAt": "2026-09-06T15:58:27.077Z"
+      }
+    },
+    {
+      "label": "05-card-draft-state",
+      "timestamp": 1788710434.622,
+      "phase": "cards",
+      "paused": false,
+      "level": 1,
+      "wave": 2,
+      "hp": 100,
+      "maxHp": 100,
+      "enemies": 0,
+      "bullets": 0,
+      "effects": 0,
+      "shots": 690,
+      "peakEnemies": 50,
+      "kills": 296,
+      "xp": 26,
+      "rank": 4,
+      "pendingPicks": 1,
+      "aim": 0.3142318990843383,
+      "threatAngle": 0.3142318990843383,
+      "cards": [
+        {
+          "id": "power",
+          "name": "Mean business",
+          "stat": "damage",
+          "scope": "all",
+          "rank": 0,
+          "amount": 0.12
+        },
+        {
+          "id": "power",
+          "name": "Mean business",
+          "stat": "damage",
+          "scope": "all",
+          "rank": 1,
+          "amount": 0.18
+        }
+      ],
+      "offers": [
+        {
+          "id": "luck",
+          "name": "Against the odds",
+          "stat": "luck",
+          "scope": "all",
+          "rank": 0,
+          "amount": 10
+        },
+        {
+          "id": "area",
+          "name": "Collateral damage",
+          "stat": "area",
+          "scope": "all",
+          "rank": 0,
+          "amount": 0.12
+        },
+        {
+          "id": "bullet-power",
+          "name": "Bullet specialist",
+          "stat": "damage",
+          "scope": "bullet",
+          "rank": 1,
+          "amount": 0.33
+        }
+      ],
+      "salvage": 99,
+      "earned": 33,
+      "towerHp": [
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90
+      ],
+      "droppedSpawns": 0,
+      "stress": false,
+      "save": {
+        "version": 1,
+        "salvage": 99,
+        "unlockedLevel": 1,
+        "best": [
+          2,
+          0
+        ],
+        "attempts": 3,
+        "character": 0,
+        "characters": [
+          0
+        ],
+        "weapons": [
+          0,
+          1
+        ],
+        "playerWeapon": 0,
+        "upgrades": {
+          "power": 0,
+          "learning": 0,
+          "fortune": 0,
+          "towers": 0
+        },
+        "layout": [
+          0,
+          -1,
+          -2,
+          -2,
+          -2,
+          -2,
+          -2,
+          -1
+        ]
+      },
+      "profile": "player",
+      "perf": {
+        "buckets": [
+          {
+            "label": ">=60",
+            "count": 960
+          },
+          {
+            "label": ">=30",
+            "count": 1784
+          },
+          {
+            "label": ">=20",
+            "count": 6
+          },
+          {
+            "label": "<20",
+            "count": 1
+          }
+        ],
+        "worstFrameMs": 134,
+        "frameCount": 2751,
+        "frames": 2751,
+        "medianFrameMs": 17,
+        "p95FrameMs": 18,
+        "p99FrameMs": 23,
+        "p95CpuMs": 1,
+        "over33ms": 7,
+        "enemies": 0,
+        "peakEnemies": 50,
+        "drawCalls": 1,
+        "dpr": 2,
+        "cardDefinitions": 27
+      },
+      "build": {
+        "sha": "c5a2d2ffce",
+        "dirty": true,
+        "version": "0.0.0",
+        "builtAt": "2026-09-06T15:58:27.077Z"
+      }
+    },
+    {
+      "label": "06-repaired-wave-state",
+      "timestamp": 1788710438.406,
+      "phase": "ready",
+      "paused": false,
+      "level": 1,
+      "wave": 2,
+      "hp": 100,
+      "maxHp": 100,
+      "enemies": 0,
+      "bullets": 0,
+      "effects": 0,
+      "shots": 690,
+      "peakEnemies": 50,
+      "kills": 296,
+      "xp": 26,
+      "rank": 4,
+      "pendingPicks": 0,
+      "aim": 0.3142318990843383,
+      "threatAngle": 0.3142318990843383,
+      "cards": [
+        {
+          "id": "power",
+          "name": "Mean business",
+          "stat": "damage",
+          "scope": "all",
+          "rank": 0,
+          "amount": 0.12
+        },
+        {
+          "id": "power",
+          "name": "Mean business",
+          "stat": "damage",
+          "scope": "all",
+          "rank": 1,
+          "amount": 0.18
+        },
+        {
+          "id": "luck",
+          "name": "Against the odds",
+          "stat": "luck",
+          "scope": "all",
+          "rank": 0,
+          "amount": 10
+        }
+      ],
+      "offers": [],
+      "salvage": 99,
+      "earned": 33,
+      "towerHp": [
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90
+      ],
+      "droppedSpawns": 0,
+      "stress": false,
+      "save": {
+        "version": 1,
+        "salvage": 99,
+        "unlockedLevel": 1,
+        "best": [
+          2,
+          0
+        ],
+        "attempts": 3,
+        "character": 0,
+        "characters": [
+          0
+        ],
+        "weapons": [
+          0,
+          1
+        ],
+        "playerWeapon": 0,
+        "upgrades": {
+          "power": 0,
+          "learning": 0,
+          "fortune": 0,
+          "towers": 0
+        },
+        "layout": [
+          0,
+          -1,
+          -2,
+          -2,
+          -2,
+          -2,
+          -2,
+          -1
+        ]
+      },
+      "profile": "player",
+      "perf": {
+        "buckets": [
+          {
+            "label": ">=60",
+            "count": 960
+          },
+          {
+            "label": ">=30",
+            "count": 1784
+          },
+          {
+            "label": ">=20",
+            "count": 6
+          },
+          {
+            "label": "<20",
+            "count": 1
+          }
+        ],
+        "worstFrameMs": 134,
+        "frameCount": 2751,
+        "frames": 2751,
+        "medianFrameMs": 17,
+        "p95FrameMs": 18,
+        "p99FrameMs": 23,
+        "p95CpuMs": 1,
+        "over33ms": 7,
+        "enemies": 0,
+        "peakEnemies": 50,
+        "drawCalls": 1,
+        "dpr": 2,
+        "cardDefinitions": 27
+      },
+      "build": {
+        "sha": "c5a2d2ffce",
+        "dirty": true,
+        "version": "0.0.0",
+        "builtAt": "2026-09-06T15:58:27.077Z"
+      }
+    },
+    {
+      "label": "08-run-state-state",
+      "timestamp": 1788710438.649,
+      "phase": "ready",
+      "paused": false,
+      "level": 1,
+      "wave": 2,
+      "hp": 100,
+      "maxHp": 100,
+      "enemies": 0,
+      "bullets": 0,
+      "effects": 0,
+      "shots": 690,
+      "peakEnemies": 50,
+      "kills": 296,
+      "xp": 26,
+      "rank": 4,
+      "pendingPicks": 0,
+      "aim": 0.3142318990843383,
+      "threatAngle": 0.3142318990843383,
+      "cards": [
+        {
+          "id": "power",
+          "name": "Mean business",
+          "stat": "damage",
+          "scope": "all",
+          "rank": 0,
+          "amount": 0.12
+        },
+        {
+          "id": "power",
+          "name": "Mean business",
+          "stat": "damage",
+          "scope": "all",
+          "rank": 1,
+          "amount": 0.18
+        },
+        {
+          "id": "luck",
+          "name": "Against the odds",
+          "stat": "luck",
+          "scope": "all",
+          "rank": 0,
+          "amount": 10
+        }
+      ],
+      "offers": [],
+      "salvage": 99,
+      "earned": 33,
+      "towerHp": [
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90
+      ],
+      "droppedSpawns": 0,
+      "stress": false,
+      "save": {
+        "version": 1,
+        "salvage": 99,
+        "unlockedLevel": 1,
+        "best": [
+          2,
+          0
+        ],
+        "attempts": 3,
+        "character": 0,
+        "characters": [
+          0
+        ],
+        "weapons": [
+          0,
+          1
+        ],
+        "playerWeapon": 0,
+        "upgrades": {
+          "power": 0,
+          "learning": 0,
+          "fortune": 0,
+          "towers": 0
+        },
+        "layout": [
+          0,
+          -1,
+          -2,
+          -2,
+          -2,
+          -2,
+          -2,
+          -1
+        ]
+      },
+      "profile": "player",
+      "perf": {
+        "buckets": [
+          {
+            "label": ">=60",
+            "count": 960
+          },
+          {
+            "label": ">=30",
+            "count": 1784
+          },
+          {
+            "label": ">=20",
+            "count": 6
+          },
+          {
+            "label": "<20",
+            "count": 1
+          }
+        ],
+        "worstFrameMs": 134,
+        "frameCount": 2751,
+        "frames": 2751,
+        "medianFrameMs": 17,
+        "p95FrameMs": 18,
+        "p99FrameMs": 23,
+        "p95CpuMs": 1,
+        "over33ms": 7,
+        "enemies": 0,
+        "peakEnemies": 50,
+        "drawCalls": 1,
+        "dpr": 2,
+        "cardDefinitions": 27
+      },
+      "build": {
+        "sha": "c5a2d2ffce",
+        "dirty": true,
+        "version": "0.0.0",
+        "builtAt": "2026-09-06T15:58:27.077Z"
+      }
+    },
+    {
+      "label": "09-returned-home-state",
+      "timestamp": 1788710443.541,
+      "phase": "home",
+      "paused": false,
+      "level": 1,
+      "wave": 2,
+      "hp": 100,
+      "maxHp": 100,
+      "enemies": 0,
+      "bullets": 0,
+      "effects": 0,
+      "shots": 690,
+      "peakEnemies": 50,
+      "kills": 296,
+      "xp": 26,
+      "rank": 4,
+      "pendingPicks": 0,
+      "aim": 0.3142318990843383,
+      "threatAngle": 0.3142318990843383,
+      "cards": [
+        {
+          "id": "power",
+          "name": "Mean business",
+          "stat": "damage",
+          "scope": "all",
+          "rank": 0,
+          "amount": 0.12
+        },
+        {
+          "id": "power",
+          "name": "Mean business",
+          "stat": "damage",
+          "scope": "all",
+          "rank": 1,
+          "amount": 0.18
+        },
+        {
+          "id": "luck",
+          "name": "Against the odds",
+          "stat": "luck",
+          "scope": "all",
+          "rank": 0,
+          "amount": 10
+        }
+      ],
+      "offers": [],
+      "salvage": 99,
+      "earned": 33,
+      "towerHp": [
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90
+      ],
+      "droppedSpawns": 0,
+      "stress": false,
+      "save": {
+        "version": 1,
+        "salvage": 99,
+        "unlockedLevel": 1,
+        "best": [
+          2,
+          0
+        ],
+        "attempts": 3,
+        "character": 0,
+        "characters": [
+          0
+        ],
+        "weapons": [
+          0,
+          1
+        ],
+        "playerWeapon": 0,
+        "upgrades": {
+          "power": 0,
+          "learning": 0,
+          "fortune": 0,
+          "towers": 0
+        },
+        "layout": [
+          0,
+          -1,
+          -2,
+          -2,
+          -2,
+          -2,
+          -2,
+          -1
+        ]
+      },
+      "profile": "player",
+      "perf": {
+        "buckets": [
+          {
+            "label": ">=60",
+            "count": 960
+          },
+          {
+            "label": ">=30",
+            "count": 1784
+          },
+          {
+            "label": ">=20",
+            "count": 6
+          },
+          {
+            "label": "<20",
+            "count": 1
+          }
+        ],
+        "worstFrameMs": 134,
+        "frameCount": 2751,
+        "frames": 2751,
+        "medianFrameMs": 17,
+        "p95FrameMs": 18,
+        "p99FrameMs": 23,
+        "p95CpuMs": 1,
+        "over33ms": 7,
+        "enemies": 0,
+        "peakEnemies": 50,
+        "drawCalls": 1,
+        "dpr": 2,
+        "cardDefinitions": 27
+      },
+      "build": {
+        "sha": "c5a2d2ffce",
+        "dirty": true,
+        "version": "0.0.0",
+        "builtAt": "2026-09-06T15:58:27.077Z"
+      }
+    },
+    {
+      "label": "10-save-reloaded-state",
+      "timestamp": 1788710449.381,
+      "phase": "home",
+      "paused": false,
+      "level": 1,
+      "wave": 1,
+      "hp": 100,
+      "maxHp": 100,
+      "enemies": 0,
+      "bullets": 0,
+      "effects": 0,
+      "shots": 0,
+      "peakEnemies": 0,
+      "kills": 0,
+      "xp": 0,
+      "rank": 1,
+      "pendingPicks": 0,
+      "aim": -1.5707963267948966,
+      "threatAngle": -1.5707963267948966,
+      "cards": [],
+      "offers": [],
+      "salvage": 99,
+      "earned": 0,
+      "towerHp": [
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90
+      ],
+      "droppedSpawns": 0,
+      "stress": false,
+      "save": {
+        "version": 1,
+        "salvage": 99,
+        "unlockedLevel": 1,
+        "best": [
+          2,
+          0
+        ],
+        "attempts": 3,
+        "character": 0,
+        "characters": [
+          0
+        ],
+        "weapons": [
+          0,
+          1
+        ],
+        "playerWeapon": 0,
+        "upgrades": {
+          "power": 0,
+          "learning": 0,
+          "fortune": 0,
+          "towers": 0
+        },
+        "layout": [
+          0,
+          -1,
+          -2,
+          -2,
+          -2,
+          -2,
+          -2,
+          -1
+        ]
+      },
+      "profile": "player",
+      "perf": {
+        "buckets": [],
+        "worstFrameMs": 0,
+        "frameCount": 0,
+        "frames": 0,
+        "medianFrameMs": 0,
+        "p95FrameMs": 0,
+        "p99FrameMs": 0,
+        "p95CpuMs": 0,
+        "over33ms": 0,
+        "enemies": 0,
+        "peakEnemies": 0,
+        "drawCalls": 1,
+        "dpr": 2,
+        "cardDefinitions": 27
+      },
+      "build": {
+        "sha": "c5a2d2ffce",
+        "dirty": true,
+        "version": "0.0.0",
+        "builtAt": "2026-09-06T15:58:27.077Z"
+      }
+    }
+  ]
+}

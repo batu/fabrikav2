@@ -1,0 +1,77 @@
+# Original game: source inspirations are documented in docs/design-references.md.
+# These are physical iPhone captures, not visual-matching targets from another game.
+game: hill_to_die_on
+
+# No reference-device captures were supplied for this original design.
+reference:
+  package: steam:4911450
+  version: unknown
+  device: unknown
+
+# V2 captures are from real iOS runs. Per-image build provenance is in evidence.
+v2:
+  package: com.basegamelab.hilltodieon
+  version: prototype
+  viewport: 390x844
+
+# Each lane needs either "offline" (a committed PNG) or an explicit "gap".
+states:
+  - name: home
+    reference:
+      gap: "no reference capture — fresh scaffold, nothing captured yet"
+    v2:
+      offline: evidence/2026-09-06-ios/home.png
+
+  - name: combat
+    reference:
+      gap: "no reference capture — fresh scaffold, nothing captured yet"
+    v2:
+      offline: evidence/2026-09-06-ios/combat.png
+
+  - name: cards
+    reference:
+      gap: "no reference capture — fresh scaffold, nothing captured yet"
+    v2:
+      offline: evidence/2026-09-06-ios/cards.png
+
+  - name: pause
+    reference:
+      gap: "no reference capture — fresh scaffold, nothing captured yet"
+    v2:
+      offline: evidence/2026-09-06-ios/pause.png
+
+  - name: victory
+    reference:
+      gap: "no reference capture — fresh scaffold, nothing captured yet"
+    v2:
+      offline: evidence/2026-09-06-ios/victory.png
+
+  - name: defeat
+    reference:
+      gap: "no reference capture — fresh scaffold, nothing captured yet"
+    v2:
+      offline: evidence/2026-09-06-ios/defeat.png
+
+  - name: ready
+    reference:
+      gap: "original game; no reference capture"
+    v2:
+      offline: evidence/2026-09-06-ios/ready.png
+
+  - name: stronghold
+    reference:
+      gap: "original game; no reference capture"
+    v2:
+      offline: evidence/2026-09-06-ios/stronghold.png
+
+  - name: upgrades
+    reference:
+      gap: "original game; no reference capture"
+    v2:
+      offline: evidence/2026-09-06-ios/upgrades.png
+
+  - name: characters
+    reference:
+      gap: "original game; no reference capture"
+    v2:
+      offline: evidence/2026-09-06-ios/characters.png

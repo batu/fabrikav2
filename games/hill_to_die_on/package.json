@@ -1,0 +1,23 @@
+{
+  "name": "@fabrikav2/hill_to_die_on",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "audit:kenney": "node tests/unit/audit-kenney-seed.mjs",
+    "typecheck": "tsc --noEmit",
+    "test:unit": "vitest run",
+    "lint": "eslint ."
+  },
+  "devDependencies": {
+    "@capacitor/cli": "8.4.1",
+    "@capacitor/ios": "8.4.1",
+    "@fabrikav2/kernel": "*",
+    "@fabrikav2/ui": "*",
+    "@fabrikav2/sdk": "*",
+    "@fabrikav2/testkit": "*"
+  },
+  "dependencies": { "@capacitor/core": "8.4.1" }
+}
