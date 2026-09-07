@@ -1,5 +1,6 @@
 import Capacitor
 import Foundation
+import UIKit
 import AppsFlyerLib
 
 @objc(AppsFlyerAttributionPlugin)
@@ -12,8 +13,20 @@ public final class AppsFlyerAttributionPlugin: CAPPlugin, CAPBridgedPlugin {
         CAPPluginMethod(name: "getStatus", returnType: CAPPluginReturnPromise),
     ]
     private var initialized = false
+    private var activeObserver: NSObjectProtocol?
+
+    deinit {
+        if let activeObserver {
+            NotificationCenter.default.removeObserver(activeObserver)
+        }
+    }
 
     @objc func initialize(_ call: CAPPluginCall) {
+        // Serialize initialization with UIKit lifecycle notifications.
+        DispatchQueue.main.async { self.initializeOnMain(call) }
+    }
+
+    private func initializeOnMain(_ call: CAPPluginCall) {
         guard !initialized else { call.resolve(["initialized": true]); return }
         guard let devKey = call.getString("devKey"), !devKey.isEmpty,
               let appleAppId = call.getString("appleAppId"), !appleAppId.isEmpty else {
@@ -27,8 +40,20 @@ public final class AppsFlyerAttributionPlugin: CAPPlugin, CAPBridgedPlugin {
         sdk.isDebug = call.getBool("debugLogging") ?? false
         // Privacy policy is applied before start. Empty means deny all partners.
         sdk.setSharingFilterForPartners(["all"])
-        sdk.start()
         initialized = true
+        activeObserver = NotificationCenter.default.addObserver(
+            forName: UIApplication.didBecomeActiveNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            guard self?.initialized == true else { return }
+            AppsFlyerLib.shared().start()
+        }
+        // The bridge can initialize after the first active notification. If it
+        // initializes while inactive, the observer supplies the first start.
+        if UIApplication.shared.applicationState == .active {
+            sdk.start()
+        }
         call.resolve(["initialized": true])
     }
 
