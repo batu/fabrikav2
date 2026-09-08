@@ -206,6 +206,13 @@ if (typeof window !== 'undefined') {
       }).catch((err: unknown): void => {
         console.warn('[insituTour] failed while running FTD tour', err);
       });
+      // Physical-device ad lifecycle proof drive (build-time gated, harness-only;
+      // see src/testing/AdLifecycleDrive.ts). Never present in store builds.
+      if (String(import.meta.env.VITE_FTD_AD_LIFECYCLE_DRIVE) === 'true') {
+        void import('./testing/AdLifecycleDrive').then(({ installAdLifecycleDrive }): void => {
+          installAdLifecycleDrive(harness);
+        });
+      }
       if (String(import.meta.env.VITE_FTD_SIM_AUTOPLAY) === 'true') {
         window.setTimeout((): void => {
           harness.gotoGameScene();
