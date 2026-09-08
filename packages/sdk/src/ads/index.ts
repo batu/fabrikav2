@@ -12,6 +12,7 @@ export {
   createAdMobProvider,
   createDefaultAdMobAdapter,
   type AdMobAdapter,
+  type AdMobAudience,
   type AdMobFormat,
   type AdMobLifecycleEvent,
   type AdMobLifecycleStage,

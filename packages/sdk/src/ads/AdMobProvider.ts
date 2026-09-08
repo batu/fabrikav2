@@ -105,6 +105,9 @@ export interface AdMobAdapter {
   requestConsentInfo: (options?: AdmobConsentRequestOptions) => Promise<AdmobConsentInfo>;
   showConsentForm: () => Promise<AdmobConsentInfo>;
   showPrivacyOptionsForm: () => Promise<void>;
+  /** iOS App Tracking Transparency prompt (no-op elsewhere). Optional for older fakes. */
+  requestTrackingAuthorization?: () => Promise<void>;
+  trackingAuthorizationStatus?: () => Promise<{ status: string }>;
   prepareInterstitial: (options: AdOptions) => Promise<void>;
   showInterstitial: () => Promise<void>;
   showBanner: (options: BannerAdOptions) => Promise<void>;
@@ -142,6 +145,15 @@ export const createDefaultAdMobAdapter = (): AdMobAdapter => ({
   showPrivacyOptionsForm: async () => {
     const { AdMob } = await import('@capacitor-community/admob');
     await AdMob.showPrivacyOptionsForm();
+  },
+  requestTrackingAuthorization: async (): Promise<void> => {
+    const { AdMob } = await import('@capacitor-community/admob');
+    await AdMob.requestTrackingAuthorization();
+  },
+  trackingAuthorizationStatus: async (): Promise<{ status: string }> => {
+    const { AdMob } = await import('@capacitor-community/admob');
+    const result = await AdMob.trackingAuthorizationStatus();
+    return { status: String(result.status) };
   },
   prepareInterstitial: async (options: AdOptions): Promise<void> => {
     const { AdMob } = await import('@capacitor-community/admob');
@@ -225,7 +237,17 @@ export interface AdMobProviderOptions {
    * format). Listener errors are swallowed; the provider never depends on it.
    */
   onAdEvent?: (event: AdMobLifecycleEvent) => void;
+  /**
+   * Audience treatment. `child` (default, the historical behaviour) tags every
+   * request child-directed + under-age-of-consent and forces non-personalized
+   * ads. `general` sends no age tags, lets UMP consent decide personalization,
+   * and on iOS requests App Tracking Transparency once consent is settled.
+   * Decision record: docs/evidence/2026-09-08-ftd-ads-lifecycle/audience-decision-memo.md.
+   */
+  audience?: AdMobAudience;
 }
+
+export type AdMobAudience = 'child' | 'general';
 
 /**
  * AdMob provider. Carries v1 core `AdService`'s full-screen ad state machine
@@ -247,6 +269,8 @@ export class AdMobProvider implements AdProvider {
   private readonly addAppResumeListener?: (onResume: () => void) => Promise<ListenerHandle>;
   private readonly onAdRevenuePaid?: (event: AdMobPaidImpression) => void;
   private readonly onAdEvent?: (event: AdMobLifecycleEvent) => void;
+  /** Audience treatment applied to initialization, consent and every request. */
+  readonly audience: AdMobAudience;
   private initialized = false;
   private interstitialLoaded = false;
   private rewardedLoaded = false;
@@ -303,6 +327,30 @@ export class AdMobProvider implements AdProvider {
     this.addAppResumeListener = options.addAppResumeListener;
     this.onAdRevenuePaid = options.onAdRevenuePaid;
     this.onAdEvent = options.onAdEvent;
+    this.audience = options.audience ?? 'child';
+  }
+
+  /** `npa` is forced only under child treatment; general audience lets UMP consent decide. */
+  private requestPersonalization(): { npa?: boolean } {
+    return this.audience === 'child' ? { npa: true } : {};
+  }
+
+  /**
+   * iOS App Tracking Transparency, general audience only, requested once
+   * consent is settled and before the SDK initializes. Refusal or absence of
+   * the prompt never blocks ads (`canRequestAds` is the only ad gate).
+   */
+  private async requestTrackingAuthorizationIfApplicable(): Promise<void> {
+    if (this.audience !== 'general' || this.adapter.requestTrackingAuthorization === undefined) return;
+    const platform = await this.adapter.getPlatform();
+    if (platform !== 'ios') return;
+    try {
+      await this.adapter.requestTrackingAuthorization();
+      const status = await this.adapter.trackingAuthorizationStatus?.();
+      this.log('tracking authorization', { status: status?.status ?? 'unknown' });
+    } catch (err: unknown) {
+      this.warn('tracking authorization request failed', err);
+    }
   }
 
   private log(message: string, details?: Record<string, unknown>): void {
@@ -499,18 +547,20 @@ export class AdMobProvider implements AdProvider {
         return;
       }
 
+      // Content suitability stays General for every audience (4+ apps); only
+      // the age tags and personalization differ by audience.
+      const child = this.audience === 'child';
       const initializeOptions: AdMobInitializationOptions = {
         initializeForTesting: this.config.isTesting,
         testingDevices: this.config.testingDevices,
-        tagForChildDirectedTreatment: true,
-        tagForUnderAgeOfConsent: true,
+        ...(child ? { tagForChildDirectedTreatment: true, tagForUnderAgeOfConsent: true } : {}),
         maxAdContentRating: MaxAdContentRating.General,
       };
 
       try {
         let consent = await this.adapter.requestConsentInfo({
           testDeviceIdentifiers: this.config.isTesting ? this.config.testingDevices : [],
-          tagForUnderAgeOfConsent: true,
+          tagForUnderAgeOfConsent: child,
         });
         if (!consent.canRequestAds && consent.isConsentFormAvailable) {
           consent = await this.adapter.showConsentForm();
@@ -519,7 +569,11 @@ export class AdMobProvider implements AdProvider {
           this.log('AdMob initialization blocked until consent permits ad requests');
           return;
         }
+        if (this.disposed || this.generation !== generation) return;
+        await this.requestTrackingAuthorizationIfApplicable();
+        if (this.disposed || this.generation !== generation) return;
         this.log('initializing AdMob', {
+          audience: this.audience,
           initializeForTesting: initializeOptions.initializeForTesting,
           testingDeviceCount: initializeOptions.testingDevices?.length ?? 0,
         });
@@ -608,7 +662,7 @@ export class AdMobProvider implements AdProvider {
       const interstitialOptions: AdOptions = {
         adId: getInterstitialUnitId(platform, this.config),
         isTesting: this.config.isTesting,
-        npa: true,
+        ...this.requestPersonalization(),
       };
 
       this.interstitialLoadAttempts += 1;
@@ -720,7 +774,7 @@ export class AdMobProvider implements AdProvider {
         adSize: BannerAdSize.ADAPTIVE_BANNER,
         position: BannerAdPosition.BOTTOM_CENTER,
         isTesting: this.config.isTesting,
-        npa: true,
+        ...this.requestPersonalization(),
       });
       this.log('banner requested');
       return true;
@@ -881,7 +935,7 @@ export class AdMobProvider implements AdProvider {
       const options: RewardAdOptions = {
         adId: getRewardedUnitId(platform, this.config),
         isTesting: this.config.isTesting,
-        npa: true,
+        ...this.requestPersonalization(),
       };
 
       const loadId = this.nextLoadId('rewarded');

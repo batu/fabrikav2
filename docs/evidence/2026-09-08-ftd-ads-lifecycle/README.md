@@ -49,6 +49,10 @@ Branch `fix/ftd-ads-lifecycle` (worktree `.worktrees/ftd-ads-lifecycle`, base `o
 - **No-ads entitled path on device**: Batu's device owns No-Ads, so run 4 (before the drive lifted the entitlement) is evidence that an entitled player triggers no ad requests; the lifted-entitlement runs exercise the ad paths.
 - AdMob serving-restriction / ATT / app-version cuts, GameAnalytics DAU/retention, RevenueCat net IAP: see `scorecard.md` §7.
 
+### Audience decision implemented (second PR, after owner review)
+
+Owner decision: **general audience for Find The Dog and Find The Bird** (Option C; Option B was recommended and overruled, risk recorded in `audience-decision-memo.md`). Implemented: `AdMobProvider.audience` (`child` default for other consumers, `general` for both Find games), no child/under-age tags, no forced NPA, General content rating kept, ATT requested on iOS after consent, `NSUserTrackingUsageDescription` + `NSPrivacyTracking=true` + `googleads.g.doubleclick.net` tracking domain in both native shells. Tests: SDK 396/396 (4 new audience tests), Dog and Bird SdkContext assert `audience === 'general'`, native-shell 17/17 with the identity pin updated. Device: see `device/attempt-15-general-audience.log` and `device/screenshots/att-prompt*.png` when present.
+
 ### Approval needed (nothing done)
 
 - Audience treatment: `audience-decision-memo.md` §4 gates (legal judgment, bridge API migration, consent tests, label update, product decision).

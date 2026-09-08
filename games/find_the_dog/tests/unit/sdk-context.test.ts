@@ -98,6 +98,8 @@ describe('FTD SdkContext composition matrix', () => {
     });
 
     expect(context.selection.iap).toBe('revenuecat');
+    // Owner decision 2026-09-08: general audience for the Find games (no child tags, ATT on iOS).
+    expect((context.ads as { audience?: string }).audience).toBe('general');
     expect(context.selection.remoteConfig).toBe('firebase');
     expect(context.selection.ads).toBe('admob');
     expect(context.selection.attribution).toBe('adjust-ios');
