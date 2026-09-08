@@ -3,6 +3,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
 import {
+  APPSFLYER_SKAN_POSTBACK_ENDPOINT,
   applyNativeShell,
   patchInfoPlist,
   patchPbxproj,
@@ -186,6 +187,24 @@ describe('native shell transforms', () => {
     expect(clean).not.toContain('SKAdNetworkIdentifier');
   });
 
+  it('declares the AppsFlyer SKAdNetwork postback-copy endpoint only when the bridge ships', () => {
+    const withAppsFlyer = manifest();
+    withAppsFlyer.ios.swiftSources = ['FindTheDogBridgeViewController.swift', 'AppsFlyerAttributionPlugin.swift'];
+    const entry = `<key>NSAdvertisingAttributionReportEndpoint</key>\n\t<string>${APPSFLYER_SKAN_POSTBACK_ENDPOINT}</string>`;
+    const once = patchInfoPlist(plist(), withAppsFlyer, catalog());
+    expect(APPSFLYER_SKAN_POSTBACK_ENDPOINT).toBe('https://appsflyer-skadnetwork.com/');
+    expect(once).toContain(entry);
+    expect(once.match(/NSAdvertisingAttributionReportEndpoint/g)).toHaveLength(1);
+    expect(patchInfoPlist(once, withAppsFlyer, catalog())).toBe(once);
+
+    const stale = once.replace(APPSFLYER_SKAN_POSTBACK_ENDPOINT, 'https://example.invalid/');
+    expect(patchInfoPlist(stale, withAppsFlyer, catalog())).toBe(once);
+
+    const withoutAppsFlyer = patchInfoPlist(once, manifest(), catalog());
+    expect(withoutAppsFlyer).not.toContain('NSAdvertisingAttributionReportEndpoint');
+    expect(patchInfoPlist(plist(), manifest(), catalog())).not.toContain('NSAdvertisingAttributionReportEndpoint');
+  });
+
   it('patches project and storyboard idempotently and rejects partial wiring', () => {
     const once = patchPbxproj(pbxproj(), manifest(), { googleServicePresent: false });
     expect(patchPbxproj(once, manifest(), { googleServicePresent: false })).toBe(once);
@@ -311,6 +330,13 @@ describe('native shell integration', () => {
     expect(secondApply.changed).toEqual([]);
     expect(validateGeneratedShell({ repoRoot, game: 'find_the_dog', allowMissingFirebase: true }).issues).toEqual([]);
     expect(validateGeneratedShell({ repoRoot, game: 'find_the_dog', allowMissingFirebase: false }).issues).toContainEqual(expect.stringMatching(/GoogleService-Info\.plist is missing/));
+    const plistPath = path.join(iosAppDir, 'App', 'Info.plist');
+    const generatedPlist = fs.readFileSync(plistPath, 'utf8');
+    expect(generatedPlist).not.toContain('NSAdvertisingAttributionReportEndpoint');
+    fs.writeFileSync(plistPath, generatedPlist.replace('</dict>\n</plist>', `\t<key>NSAdvertisingAttributionReportEndpoint</key>\n\t<string>${APPSFLYER_SKAN_POSTBACK_ENDPOINT}</string>\n</dict>\n</plist>`));
+    expect(validateGeneratedShell({ repoRoot, game: 'find_the_dog', allowMissingFirebase: true }).issues).toContainEqual(expect.stringMatching(/postback endpoint without the AppsFlyer bridge/));
+    expect(applyNativeShell({ repoRoot, game: 'find_the_dog' }).changed).toContain('App/Info.plist');
+    expect(fs.readFileSync(plistPath, 'utf8')).toBe(generatedPlist);
 
     fs.writeFileSync(path.join(iosAppDir, 'App', 'GoogleService-Info.plist'), '<plist><dict><key>BUNDLE_ID</key><string>com.baseardahan.hiddenobj</string><key>PROJECT_ID</key><string>find-the-dog-basegamelab</string><key>GOOGLE_APP_ID</key><string>1:123:ios:abcdef</string></dict></plist>');
     const firebaseApply = applyNativeShell({ repoRoot, game: 'find_the_dog' });

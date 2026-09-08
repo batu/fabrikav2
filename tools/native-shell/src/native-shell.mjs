@@ -371,8 +371,14 @@ function removePlistEntry(content, key) {
   return content.replace(pattern, '');
 }
 
+// AppsFlyer receives SKAdNetwork postback copies (iOS 15+) at this endpoint;
+// it must only be declared when the AppsFlyer bridge ships in the shell.
+export const APPSFLYER_SKAN_POSTBACK_ENDPOINT = 'https://appsflyer-skadnetwork.com/';
+const APPSFLYER_PLUGIN = 'AppsFlyerAttributionPlugin.swift';
+
 export function patchInfoPlist(content, manifest, skAdIds, { adMobApplicationId } = {}) {
   const usesAdNetworks = Boolean(manifest.ios.skAdNetworkCatalog);
+  const hasAppsFlyer = manifest.ios.swiftSources.includes(APPSFLYER_PLUGIN);
   const expectedCount = manifest.ios.skAdNetworkExpectedCount ?? 152;
   if (usesAdNetworks && (skAdIds.length !== expectedCount || new Set(skAdIds).size !== expectedCount)) {
     throw new Error(`SKAdNetwork catalog must contain exactly ${expectedCount} unique identifiers`);
@@ -398,6 +404,9 @@ export function patchInfoPlist(content, manifest, skAdIds, { adMobApplicationId 
   next = usesAdNetworks
     ? replacePlistEntry(next, 'SKAdNetworkItems', `<array>\n${items}\n\t</array>`)
     : removePlistEntry(next, 'SKAdNetworkItems');
+  next = hasAppsFlyer
+    ? replacePlistEntry(next, 'NSAdvertisingAttributionReportEndpoint', `<string>${APPSFLYER_SKAN_POSTBACK_ENDPOINT}</string>`)
+    : removePlistEntry(next, 'NSAdvertisingAttributionReportEndpoint');
   return next;
 }
 
@@ -679,6 +688,12 @@ export function validateGeneratedShell({ repoRoot, game, allowMissingFirebase = 
   if (manifest.ios.adMobApplicationIdEnv && !plist.includes(`<key>GADApplicationIdentifier</key>\n\t<string>${adMobApplicationId}</string>`)) issues.push('Info.plist AdMob application ID does not match the configured environment');
   for (const snippet of ['<key>ITSAppUsesNonExemptEncryption</key>\n\t<false/>', '<key>GOOGLE_ANALYTICS_IDFV_COLLECTION_ENABLED</key>\n\t<false/>', '<string>UIInterfaceOrientationPortrait</string>']) if (!plist.includes(snippet)) issues.push(`Info.plist is missing ${snippet}`);
   if (plist.includes('UIInterfaceOrientationLandscape')) issues.push('Info.plist contains a landscape orientation');
+  const postbackEntry = `<key>NSAdvertisingAttributionReportEndpoint</key>\n\t<string>${APPSFLYER_SKAN_POSTBACK_ENDPOINT}</string>`;
+  if (manifest.ios.swiftSources.includes(APPSFLYER_PLUGIN)) {
+    if (!plist.includes(postbackEntry)) issues.push('Info.plist is missing the AppsFlyer SKAdNetwork postback-copy endpoint');
+  } else if (plist.includes('NSAdvertisingAttributionReportEndpoint')) {
+    issues.push('Info.plist declares an attribution postback endpoint without the AppsFlyer bridge');
+  }
   const project = fs.readFileSync(required.project, 'utf8');
   for (const entry of fs.readdirSync(path.join(recipeDir, 'App'), { withFileTypes: true })) {
     if (!entry.isFile()) continue;
