@@ -1,0 +1,123 @@
+{
+  "schemaVersion": 2,
+  "assessment": "Astra interactive qualitative visual assessment",
+  "date": "2026-09-08",
+  "scope": "10-level pilot, not all 54 catalog levels",
+  "automatedProviderCalls": 0,
+  "productionOrderChanged": false,
+  "method": "Completion-bottleneck assessment. Previous full-scene and central-crop visual evidence reinterpreted around the hardest remaining finds; all 26 Waterfall target context crops additionally inspected. Waterfall hard classification also incorporates user feedback. Ordinal placements are qualitative, not computed from detector trials.",
+  "uncertainty": "Exact ordering within bands remains provisional. Other levels have not yet received the same exhaustive per-target crop audit as Waterfall. The numeric weighting applies to the CLI detector proxy, not numerical scores invented for these visual judgments.",
+  "ranking": [
+    {
+      "rank": 1,
+      "levelId": "school_world_library_reading_nook_dog_db41",
+      "name": "Library Reading Nook",
+      "band": "Easy",
+      "dogCount": 32,
+      "reason": "Large, clear faces sit along orderly aisles and on cushions. Most silhouettes are separated from the background.",
+      "lastFinds": "Shelves and reading props add a few less immediate finds.",
+      "colorImageSha256": "2f0def3fa5f2762d61e284ddcbb8c1a5c1e4ae8aaa8bfa0276452c69aa10b524"
+    },
+    {
+      "rank": 2,
+      "levelId": "playground_park_sports_corner_garden_dog_6f94",
+      "name": "Sports Corner Garden",
+      "band": "Easy",
+      "dogCount": 30,
+      "reason": "Large dogs and bright jerseys stand out against pale paths. Open space makes systematic scanning straightforward.",
+      "lastFinds": "Foliage and equipment racks conceal a minority of targets.",
+      "colorImageSha256": "6f4c7b8695a69ca99a02e9c7899ab76e568dc560a042e1f74899ebbd5a1de4cc"
+    },
+    {
+      "rank": 3,
+      "levelId": "alpine_meadow_wildflower_chalet_lane_dog_5b28",
+      "name": "Wildflower Chalet Lane",
+      "band": "Medium",
+      "dogCount": 36,
+      "reason": "Clear faces and open stone paths provide frequent visual anchors, despite the highest target count.",
+      "lastFinds": "Flowerbeds, fences and porches increase scanning work; green clothing blends into foliage.",
+      "colorImageSha256": "74ab1c5019d6b64569717190570e407e46f15dce500b70d7f22306fe20df0af1"
+    },
+    {
+      "rank": 4,
+      "levelId": "circus_fairground_night_lantern_circus_dog_d9c7",
+      "name": "Night Lantern Circus",
+      "band": "Medium",
+      "dogCount": 30,
+      "reason": "Costumed dogs are often obvious on paths and stages, but warm lighting reduces separation from wooden scenery.",
+      "lastFinds": "Dark dogs beside booths, crates and posts merge with shadows.",
+      "colorImageSha256": "f6e2299bad0e0e69cfc6b3e713b96fbb2b5358e97c9166047579c5165895749e"
+    },
+    {
+      "rank": 5,
+      "levelId": "coral_reef_coral_bommie_garden_dog_205d",
+      "name": "Coral Bommie Garden",
+      "band": "Medium+",
+      "dogCount": 35,
+      "reason": "Many dogs remain recognizable, but dense coral clusters and irregular overlapping shapes compete for attention.",
+      "lastFinds": "Goggles and teal outfits blend with water; shelves and recesses interrupt silhouettes.",
+      "colorImageSha256": "af856fe8dd759f42c6ecb701b2ba51c2528bebbb104c98759873a06f29da9424"
+    },
+    {
+      "rank": 6,
+      "levelId": "pirate_shipwreck_island_broken_bow_lagoon_dog_8cb1",
+      "name": "Broken Bow Lagoon",
+      "band": "Medium+",
+      "dogCount": 34,
+      "reason": "Sand and water expose several dogs clearly. Repeated ship timbers and crates make the remaining search less predictable.",
+      "lastFinds": "Brown and dark dogs blend with the hull, ribs and shadowed wooden edges.",
+      "colorImageSha256": "c208ed4ae7e4605d809c67d098383d80bdd715b00e07775654858f33e52728c5"
+    },
+    {
+      "rank": 7,
+      "levelId": "ancient_forest_creek_autumn_pond_reeds_dog_0a40",
+      "name": "Autumn Pond Reeds",
+      "band": "Hard",
+      "dogCount": 30,
+      "reason": "Ochre leaves, roots and banks share the dogs\u2019 brown palette. Dense leaf texture weakens visual separation.",
+      "lastFinds": "Fur and clothing blend into reeds and banks; water targets are easier than the last land targets.",
+      "colorImageSha256": "8eb1eb6414a72910119b49dfb39bc3c011d2c017834cd4000268d5200b292679"
+    },
+    {
+      "rank": 8,
+      "levelId": "hawaii_north_shore_surf_shack_dog_37b2",
+      "name": "North Shore Surf Shack",
+      "band": "Hard",
+      "dogCount": 30,
+      "reason": "Relatively small, natural-looking dogs blend into pale sand and brown structures, even where the scene feels open.",
+      "lastFinds": "Doorways, steps, plants and the truck create subtle partially hidden finds.",
+      "colorImageSha256": "bcf3b953b3a479423977938c8716aed4b27968732f5b03cb812c4fa219e97dcf"
+    },
+    {
+      "rank": 9,
+      "levelId": "hawaii_rainforest_waterfall_dog_a134",
+      "name": "Rainforest Waterfall",
+      "band": "Hard \u00b7 bottleneck confirmed visually",
+      "dogCount": 26,
+      "reason": "dog_03 blends into dark mossy rocks; dog_01 and dog_08 share vegetation and ground colors. Easy dogs do not offset these blockers.",
+      "lastFinds": "Primary candidate dog_03: muted face and body among dark mossy rocks. Secondary candidates dog_01 near the tiki and dog_08 beside the path. All 26 target crops inspected; exact hardest dog remains a visual judgment.",
+      "colorImageSha256": "ab7644a328f3618184341ca0eaf7a867abaa15975ae414e2826670ee491495a4"
+    },
+    {
+      "rank": 10,
+      "levelId": "italy_roman_ruins_piazza_dog_a243",
+      "name": "Roman Ruins Piazza",
+      "band": "Hardest",
+      "dogCount": 30,
+      "reason": "Pale dogs closely match stone columns and cobbles. Small silhouettes and low color contrast make recognition harder.",
+      "lastFinds": "Dogs lying along masonry edges and animal-shaped fountain decoration complicate the final search.",
+      "colorImageSha256": "2a9cd685dd77ff1c5cb480b70145585c4cfc3e33fe863616141e7137dc323be4"
+    }
+  ],
+  "scoreVersion": "completion-bottleneck-v2",
+  "weights": {
+    "hardestDog": 0.8,
+    "hardestThree": 0.15,
+    "overall": 0.05
+  },
+  "waterfallBottleneckCandidates": [
+    "dog_03",
+    "dog_01",
+    "dog_08"
+  ]
+}

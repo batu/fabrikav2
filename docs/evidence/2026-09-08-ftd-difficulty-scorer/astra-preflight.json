@@ -1,0 +1,240 @@
+{
+  "status": "dry_run",
+  "config": {
+    "version": "difficulty-v1",
+    "model": "openai/gpt-6-astra",
+    "repeats": 3,
+    "maxEdge": 1024,
+    "thinking": "low",
+    "maxTokens": 8192,
+    "temperature": null,
+    "prompt": "Find every dog visible in this illustrated scene. Return one tight bounding box per dog, including partially hidden dogs. Do not include other animals or dog-shaped scenery. Coordinates are [ymin, xmin, ymax, xmax], integers normalized to 0\u20131000 relative to the entire supplied image. Return JSON only, with a dogs array of objects containing box_2d.",
+    "schema": {
+      "$defs": {
+        "Detection": {
+          "additionalProperties": false,
+          "properties": {
+            "box_2d": {
+              "items": {
+                "type": "integer"
+              },
+              "maxItems": 4,
+              "minItems": 4,
+              "title": "Box 2D",
+              "type": "array"
+            }
+          },
+          "required": [
+            "box_2d"
+          ],
+          "title": "Detection",
+          "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "properties": {
+        "dogs": {
+          "items": {
+            "$ref": "#/$defs/Detection"
+          },
+          "maxItems": 300,
+          "title": "Dogs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "dogs"
+      ],
+      "title": "Detections",
+      "type": "object"
+    },
+    "view": "whole-scene aspect-preserving thumbnail; not a device capture",
+    "matching": "greedy one-to-one IoU >= 0.15 against sprite rectangles"
+  },
+  "manifestSha256": "6aacae54e0dfb9b89893f3b26b5d6f1056c36acc1849d705d48eb6794f33b0bf",
+  "plannedCalls": 30,
+  "ranking": null,
+  "paidCalls": 0,
+  "levels": [
+    {
+      "levelId": "hawaii_rainforest_waterfall_dog_a134",
+      "dogCount": 26,
+      "dimensions": [
+        2560,
+        5600
+      ],
+      "imageSize": [
+        468,
+        1024
+      ],
+      "imageSha256": "e3ac9957608b387af1469b4e2362f85c2000030a09719bf6ca5ef7ab4ce30aae",
+      "fingerprint": "bb62a1d91a7a1ed466cf487bc4c7fca17f8afd486ce23f970f67584d699d94f4",
+      "medianSpriteLinearFraction": 0.03416692021457322
+    },
+    {
+      "levelId": "coral_reef_coral_bommie_garden_dog_205d",
+      "dogCount": 35,
+      "dimensions": [
+        2560,
+        5600
+      ],
+      "imageSize": [
+        468,
+        1024
+      ],
+      "imageSha256": "bf97a752a29a67c5f290d4c1966f7d01659e92b0b65facf2f462fcc08a11ca45",
+      "fingerprint": "9ea97a1edeb981300c780e7924cc9d64fdaa2047743074c1598f463426491adc",
+      "medianSpriteLinearFraction": 0.03797320483860015
+    },
+    {
+      "levelId": "hawaii_north_shore_surf_shack_dog_37b2",
+      "dogCount": 30,
+      "dimensions": [
+        2560,
+        5600
+      ],
+      "imageSize": [
+        468,
+        1024
+      ],
+      "imageSha256": "18153ebb517389f6f765718e3fba1fc0cebb1c2dbb54a3466f50c92a41e8d513",
+      "fingerprint": "3ff3506a8b42a1267ae3aa7b3637997c320d2aef87e2753155ddd25ce31dce37",
+      "medianSpriteLinearFraction": 0.032449949886349305
+    },
+    {
+      "levelId": "pirate_shipwreck_island_broken_bow_lagoon_dog_8cb1",
+      "dogCount": 34,
+      "dimensions": [
+        2560,
+        5600
+      ],
+      "imageSize": [
+        468,
+        1024
+      ],
+      "imageSha256": "69996b11849fd97bf3b61837a215f44a98450fef7d181657feedbf5f4fd83d3e",
+      "fingerprint": "4523239e9bb4aad3216a5907c3fff413325245edde31b679d13021b4778fc2db",
+      "medianSpriteLinearFraction": 0.03853537799969628
+    },
+    {
+      "levelId": "ancient_forest_creek_autumn_pond_reeds_dog_0a40",
+      "dogCount": 30,
+      "dimensions": [
+        2560,
+        5600
+      ],
+      "imageSize": [
+        468,
+        1024
+      ],
+      "imageSha256": "45a8eb41d0428f6fb2199e2fe0034b1ed4346079c3782bd3c7ea6f3edf225bb7",
+      "fingerprint": "bbd6797917d251f31a71721aa86376033301a40397d5f2679acb30595f743464",
+      "medianSpriteLinearFraction": 0.038635046222688145
+    },
+    {
+      "levelId": "italy_roman_ruins_piazza_dog_a243",
+      "dogCount": 30,
+      "dimensions": [
+        2560,
+        5600
+      ],
+      "imageSize": [
+        468,
+        1024
+      ],
+      "imageSha256": "437433ca809c8f3c51d343f5465473aea0128035cc35af38421f6c6cc742136a",
+      "fingerprint": "81955f9939d9e69b45a75b8c39844a932f7b2fc4121f20aebf05275274473031",
+      "medianSpriteLinearFraction": 0.02953030987804292
+    },
+    {
+      "levelId": "playground_park_sports_corner_garden_dog_6f94",
+      "dogCount": 30,
+      "dimensions": [
+        2560,
+        5600
+      ],
+      "imageSize": [
+        468,
+        1024
+      ],
+      "imageSha256": "29088f8792ba613221894ec3f2e63b9936e374945c78d07762a7d5b1ce7cfcb8",
+      "fingerprint": "3b590b8a0c535f0423c0d5623a3561be0b6edc322a1cb617d5389efe9bfa1274",
+      "medianSpriteLinearFraction": 0.04051223984403701
+    },
+    {
+      "levelId": "alpine_meadow_wildflower_chalet_lane_dog_5b28",
+      "dogCount": 36,
+      "dimensions": [
+        2560,
+        5600
+      ],
+      "imageSize": [
+        468,
+        1024
+      ],
+      "imageSha256": "a167fdaa2938434098d88de3a0b275cd3777ab84c902b196d9b57ce78417182e",
+      "fingerprint": "570409a285f7c606f2cc7762bd8aba2f4d0e32b59b1b7c5383c1300d281c8735",
+      "medianSpriteLinearFraction": 0.03799937220186436
+    },
+    {
+      "levelId": "school_world_library_reading_nook_dog_db41",
+      "dogCount": 32,
+      "dimensions": [
+        2560,
+        5600
+      ],
+      "imageSize": [
+        468,
+        1024
+      ],
+      "imageSha256": "7640f64c0efaeeb07f19bb2aee86a0ad304ad2fb3c8975f437a4154baae04fd7",
+      "fingerprint": "d894f13bad1e83ea0986b054a782bec4e39ba26d7a8c0c675f3fd95cfff8acde",
+      "medianSpriteLinearFraction": 0.03920882686428896
+    },
+    {
+      "levelId": "circus_fairground_night_lantern_circus_dog_d9c7",
+      "dogCount": 30,
+      "dimensions": [
+        2560,
+        5600
+      ],
+      "imageSize": [
+        468,
+        1024
+      ],
+      "imageSha256": "2c18059b33972213403727b40b87370776b23a103810dcff05dfcfec50846d62",
+      "fingerprint": "7eeb32e83b8639bebe60df9f92be0b4ea9f57c0da312214db0cd59d83e35374e",
+      "medianSpriteLinearFraction": 0.0400032218521351
+    }
+  ],
+  "providerPreflight": {
+    "model": "openai/gpt-6-astra",
+    "pricing": {
+      "prompt": "0.00001",
+      "completion": "0.00005",
+      "web_search": "0.01",
+      "input_cache_read": "0.000001",
+      "input_cache_write": "0.0000125",
+      "overrides": [
+        {
+          "min_prompt_tokens": 272000,
+          "prompt": "0.00002",
+          "completion": "0.000075",
+          "input_cache_read": "0.000002",
+          "input_cache_write": "0.000025"
+        }
+      ]
+    },
+    "priceCaps": {
+      "prompt": 2e-05,
+      "completion": 7.5e-05,
+      "image": 0.0,
+      "internal_reasoning": 0.0,
+      "request": 0.0,
+      "input_cache_write": 2.5e-05
+    },
+    "contextLength": 1050000,
+    "perCallReserveUsd": 26.8644,
+    "accountAccessVerified": false
+  }
+}
