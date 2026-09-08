@@ -1,5 +1,6 @@
 import type { AnalyticsEvent, AnalyticsSink } from '@fabrikav2/sdk/analytics';
 import { Capacitor } from '@capacitor/core';
+import { REVEAL_PICKUP_DIMENSIONS, REVEAL_PICKUP_EXPERIMENT_ID } from '../data/revealPickupExperiment';
 import {
   GAMEANALYTICS_RESOURCE_CURRENCIES,
   GAMEANALYTICS_RESOURCE_ITEM_TYPES,
@@ -23,6 +24,8 @@ export interface GameAnalyticsSdk {
     setEnabledVerboseLog(flag: boolean): void;
     configureAvailableResourceCurrencies(values: string[]): void;
     configureAvailableResourceItemTypes(values: string[]): void;
+    configureAvailableCustomDimensions01?(values: string[]): void;
+    setCustomDimension01?(value: string): void;
     setEnabledManualSessionHandling(flag: boolean): void;
     initialize(gameKey: string, secretKey: string): void;
     startSession(): void;
@@ -92,6 +95,7 @@ export function createGameAnalyticsSink(
   let initializationFailure: string | null = null;
   let nativeIdentity: { native_app_version: string; native_build_number: string } | null = null;
   function send(loaded: GameAnalyticsSdk, event: AnalyticsEvent): void {
+    setExperimentDimension(loaded, event);
     // Keep legacy app_version/build as source provenance. Native identity comes
     // from the archived binary, including Xcode's late version/build overrides.
     // Insert first for the GA field cap, then overwrite any caller-supplied values.
@@ -135,6 +139,9 @@ export function createGameAnalyticsSink(
           loaded.GameAnalytics.setEnabledVerboseLog(config.verboseLogging);
           loaded.GameAnalytics.configureAvailableResourceCurrencies([...GAMEANALYTICS_RESOURCE_CURRENCIES]);
           loaded.GameAnalytics.configureAvailableResourceItemTypes([...GAMEANALYTICS_RESOURCE_ITEM_TYPES]);
+          loaded.GameAnalytics.configureAvailableCustomDimensions01?.([...REVEAL_PICKUP_DIMENSIONS]);
+          // initialize creates GA's first native session: set the arm before it.
+          setExperimentDimension(loaded, queue[0]);
           loaded.GameAnalytics.setEnabledManualSessionHandling(true);
           loaded.GameAnalytics.initialize(config.gameKey, config.secretKey);
           nativeSessionActive = true;
@@ -149,6 +156,7 @@ export function createGameAnalyticsSink(
           const event = queue[0];
           if (event === undefined) break;
           if (event.name === 'session_start' && !nativeSessionActive) {
+            setExperimentDimension(loadingSdk, event);
             // endSession/startSession run on GA's asynchronous thread. Wait
             // for the old session to close before requesting the new one, so
             // its still-ready state cannot falsely satisfy the next check.
@@ -272,6 +280,24 @@ async function readNativeAppInfo(timeoutMs: number): Promise<{ version: string; 
   } finally {
     clearTimeout(timer);
   }
+}
+
+function setExperimentDimension(sdk: GameAnalyticsSdk, event?: AnalyticsEvent): void {
+  const params = event?.params;
+  const variant = params?.experiment_id === REVEAL_PICKUP_EXPERIMENT_ID ? params.variant : undefined;
+  const qa = params?.experiment_population === 'qa';
+  const [reveal, pickup, notEnrolled, qaReveal, qaPickup] = REVEAL_PICKUP_DIMENSIONS;
+  let dimension: (typeof REVEAL_PICKUP_DIMENSIONS)[number] = notEnrolled;
+  if (variant === 'reveal') dimension = qa ? qaReveal : reveal;
+  else if (variant === 'pickup') dimension = qa ? qaPickup : pickup;
+  if (dimension !== notEnrolled && (sdk.GameAnalytics.setCustomDimension01 === undefined
+    || sdk.GameAnalytics.configureAvailableCustomDimensions01 === undefined)) {
+    throw new SdkShapeError('Experiment requires GameAnalytics custom dimension 01');
+  }
+  // GA 4.4.7 treats an empty pre-init dimension as "restore from storage".
+  // A nonempty sentinel prevents killed installs inheriting yesterday's arm
+  // on initialize()'s automatically created native session.
+  sdk.GameAnalytics.setCustomDimension01?.(dimension);
 }
 
 class NativeAppInfoError extends Error {

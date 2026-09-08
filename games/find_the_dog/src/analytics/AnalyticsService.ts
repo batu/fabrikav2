@@ -26,6 +26,7 @@ import type {
 } from '../achievements/AchievementAnalytics';
 
 export type FtdEvent =
+  | 'experiment_exposure'
   | 'app_open'
   | 'app_background'
   | 'app_foreground'
@@ -325,6 +326,10 @@ export class AnalyticsService {
 
   setCohortBucket(bucket: number): void {
     this.cohortBucket = bucket;
+  }
+
+  experimentExposure(params: Record<string, string | number | boolean>): void {
+    this.sdk.track('experiment_exposure', params);
   }
 
   ownedMirrorStats(): OwnedAnalyticsMirrorStats {

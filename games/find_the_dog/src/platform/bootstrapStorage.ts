@@ -41,8 +41,11 @@ export const bootstrapStorage: BootstrapStorage = {
 
 export function hasExistingInstallState(keys: readonly string[]): boolean {
   try {
-    return keys.some((key) => bootstrapStorage.getItem(key) !== null);
+    // Eligibility must distinguish a truly absent key from a failed read.
+    // The tolerant analytics facade intentionally cannot make that distinction.
+    if (typeof window === 'undefined') return true;
+    return keys.some((key) => window.localStorage.getItem(key) !== null);
   } catch {
-    return false;
+    return true; // Unknown install history is never a new-player cohort.
   }
 }

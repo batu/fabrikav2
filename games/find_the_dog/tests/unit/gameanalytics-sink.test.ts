@@ -12,6 +12,57 @@ function event(name: string, params: AnalyticsEvent['params']): AnalyticsEvent {
 }
 
 describe('GameAnalytics AnalyticsSink', () => {
+  it('sets the bounded experiment dimension before native first session and on resume', async () => {
+    const calls: string[] = [];
+    const sdk = gameAnalyticsSdk();
+    const configure = vi.fn(() => calls.push('configure'));
+    const dimension = vi.fn((value: string) => calls.push(`dimension:${value}`));
+    Object.assign(sdk.GameAnalytics, {
+      configureAvailableCustomDimensions01: configure,
+      setCustomDimension01: dimension,
+      isSdkReady: undefined,
+      initialize: vi.fn(() => calls.push('initialize')),
+      startSession: vi.fn(() => calls.push('startSession')),
+    });
+    const sink = createGameAnalyticsSink(validConfig(), { loader: async () => sdk });
+    const params = { experiment_id: 'ftd_ios_reveal_pickup_v1', variant: 'pickup' };
+    sink.emit(event('session_start', params));
+    await sink.flush?.();
+    expect(configure).toHaveBeenCalledWith(['rp_v1_reveal', 'rp_v1_pickup', 'rp_v1_not_enrolled', 'rp_v1_qa_reveal', 'rp_v1_qa_pickup']);
+    expect(calls.indexOf('configure')).toBeLessThan(calls.indexOf('initialize'));
+    expect(calls.indexOf('dimension:rp_v1_pickup')).toBeLessThan(calls.indexOf('initialize'));
+    sink.emit(event('session_end', params));
+    calls.length = 0;
+    sink.emit(event('session_start', params));
+    await sink.flush?.();
+    expect(calls).toEqual(['dimension:rp_v1_pickup', 'startSession', 'dimension:rp_v1_pickup']);
+    expect(sdk.GameAnalytics.startSession).toHaveBeenCalledTimes(1);
+    expect(dimension).toHaveBeenLastCalledWith('rp_v1_pickup');
+    sink.emit(event('experiment_exposure', { ...params, actual_mode: 'restoration', bucket: 50 }));
+    expect(sdk.GameAnalytics.addDesignEvent).toHaveBeenCalledWith('experiment:exposure', undefined,
+      expect.objectContaining({ variant: 'pickup', actual_mode: 'restoration', bucket: '50' }));
+    sink.emit(event('app_open', {}));
+    expect(dimension).toHaveBeenLastCalledWith('rp_v1_not_enrolled');
+    sink.emit(event('session_start', { ...params, experiment_population: 'qa' }));
+    await sink.flush?.();
+    expect(dimension).toHaveBeenLastCalledWith('rp_v1_qa_pickup');
+  });
+  it('sets the non-enrolled sentinel before initialize on a fresh sink', async () => {
+    const calls: string[] = [];
+    const sdk = gameAnalyticsSdk();
+    Object.assign(sdk.GameAnalytics, {
+      configureAvailableCustomDimensions01: vi.fn(() => calls.push('configure')),
+      setCustomDimension01: vi.fn((value: string) => calls.push(`dimension:${value}`)),
+      initialize: vi.fn(() => calls.push('initialize')),
+    });
+    const sink = createGameAnalyticsSink(validConfig(), { loader: async () => sdk });
+    sink.emit(event('session_start', { first_open: true }));
+    await sink.flush?.();
+    expect(calls).toEqual([
+      'configure', 'dimension:rp_v1_not_enrolled', 'initialize', 'dimension:rp_v1_not_enrolled',
+    ]);
+    expect(sdk.GameAnalytics.startSession).not.toHaveBeenCalled();
+  });
   it.each(['empty', 'rejected', 'timeout'])('does not emit unidentifiable native traffic when app info is %s', async (failure) => {
     vi.spyOn(Capacitor, 'isNativePlatform').mockReturnValue(true);
     vi.mocked(App.getInfo).mockImplementation(() => failure === 'timeout'
