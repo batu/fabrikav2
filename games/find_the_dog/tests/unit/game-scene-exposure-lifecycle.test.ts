@@ -67,7 +67,56 @@ function readyFixture() {
   return f;
 }
 
+describe('GameScene grayscale allocation', () => {
+  it('preserves grayscale pixels and alpha while bounding readbacks and keeping the texture static', () => {
+    const f = fixture();
+    const source = { width: 2, height: 130 };
+    const addFrame = vi.fn();
+    const create = vi.fn(() => ({ add: addFrame }));
+    Object.assign(f.scene, { textures: { exists: () => false, create } });
+    const internals = f.scene as unknown as { getCanvasSourceImage(key: string): CanvasImageSource };
+    vi.spyOn(internals, 'getCanvasSourceImage').mockReturnValue(source as CanvasImageSource);
+    const writes: Array<{ y: number; pixels: Uint8ClampedArray }> = [];
+    const output = { width: 0, height: 0, getContext: () => ({
+      putImageData: (data: ImageData, _x: number, y: number) => writes.push({ y, pixels: data.data.slice() }),
+    }) };
+    const reads: number[] = [];
+    const scratch = { width: 0, height: 0, getContext: () => ({
+      clearRect: vi.fn(), drawImage: vi.fn(),
+      getImageData: (_x: number, _y: number, width: number, height: number) => {
+        reads.push(height);
+        const data = new Uint8ClampedArray(width * height * 4);
+        for (let i = 0; i < data.length; i += 4) data.set([255, 0, 0, 123], i);
+        return { data };
+      },
+    }) };
+    vi.spyOn(document, 'createElement')
+      .mockReturnValueOnce(output as unknown as HTMLCanvasElement)
+      .mockReturnValueOnce(scratch as unknown as HTMLCanvasElement);
+    f.internals.generateGrayscaleTexture();
+    expect([output.width, output.height]).toEqual([2, 130]);
+    expect(Math.max(...reads)).toBeLessThanOrEqual(64);
+    expect(reads.reduce((sum, height) => sum + height, 0)).toBe(130);
+    expect(writes.map(({ y }) => y)).toEqual([0, 64, 128]);
+    for (const { pixels } of writes) {
+      for (let i = 0; i < pixels.length; i += 4) expect([...pixels.slice(i, i + 4)]).toEqual([54, 54, 54, 123]);
+    }
+    expect(create).toHaveBeenCalledWith('bw_generated', output);
+    expect(addFrame).toHaveBeenCalledWith('__BASE', 0, 0, 0, 2, 130);
+    expect([scratch.width, scratch.height]).toEqual([0, 0]);
+  });
+});
+
 describe('GameScene reveal exposure lifecycle', () => {
+  it('allows the GPU grayscale path to present using only its shared color source', () => {
+    const f = readyFixture();
+    Object.assign(f.scene, { usesGpuGrayscale: true });
+    f.textures.delete('bw_generated');
+    f.scene.create();
+    f.events.emit('postrender');
+    expect(revealPickupExperiment.exposure).toHaveBeenCalledTimes(1);
+  });
+
   it('waits for a visible, uncovered POST_RENDER then emits exactly once and removes both listeners', () => {
     const f = readyFixture();
     f.scene.create();
