@@ -1,0 +1,23 @@
+# device attempt 15: general-audience build (harness-free, AdMob test mode, AF/GA off) → ATT prompt capture 2026-09-08T19:18:21Z HEAD=daa496533d+dirty
+✓ built in 2.38s
+audience literal in bundle: /Users/base/dev/appletolye/fabrikav2/.worktrees/ftd-ads-lifecycle/games/find_the_dog/dist/assets/SdkContext-CjguC64h.js:audience:"general"
+[info] Sync finished in 0.111s
+Applied native shell for find_the_dog: CapApp-SPM/Package.swift (1 SKAdNetwork IDs; Firebase plist wired)
+Validated native shell for find_the_dog: generated project validated; 1 SKAdNetwork IDs; Firebase plist may be absent
+1
+** BUILD SUCCEEDED **
+bundle: {"sha":"daa496533d","dirty":true,"version":"0.0.0","builtAt":"2026-09-08T19:18:21.923Z"}
+• options: 
+install exit=0
+	 Executed 1 test, with 0 failures (0 unexpected) in 58.026 (58.036) seconds
+	 Executed 1 test, with 0 failures (0 unexpected) in 58.026 (58.038) seconds
+** TEST SUCCEEDED **
+Generated manifest file with attachment details: /Users/base/dev/appletolye/fabrikav2/.worktrees/ftd-ads-lifecycle/docs/evidence/2026-09-08-ftd-ads-lifecycle/device/att-attachments/manifest.json
+null -> 287C48BB-2720-4640-B9A7-4C7A6DF7D5F7.txt
+null -> E91FB10F-7574-479D-BA44-D4BE6F600D4E.png
+null -> 95E3EB01-547F-4DC3-BC8C-C023D53FFCB0.png
+null -> E776024C-D89D-41E1-97B2-9AF367752FD4.png
+# verification of the installed bundle (plutil): NSUserTrackingUsageDescription present; PrivacyInfo NSPrivacyTracking = true.
+# ATT prompt NOT observed: the QA phone owns No-Ads, so runtime.ts skips ad initialization (shouldInitializeAds=false)
+# and the ATT request lives inside AdMobProvider.init(). Screenshot 00-launch shows the restored owner state
+# (45 coins, 3 hints, No-Ads badge). ATT ordering (consent → ATT → initialize) is unit-tested only.
