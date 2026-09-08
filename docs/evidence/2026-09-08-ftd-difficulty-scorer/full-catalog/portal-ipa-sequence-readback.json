@@ -1,0 +1,56 @@
+{
+  "portalVersion": "1.0.3-19.2",
+  "createdAt": "2026-08-27T17:53:08.975053+00:00",
+  "ipaRecordedSha256": "f96d93ba107fdacce6282c6d590bcb47683ff12eb2031edf59d2fc5ffa746c84",
+  "manifestSha256": "45124ca90b350e0f52acf1999e58aa5ebb848f3e237e145ee073c164fec615d2",
+  "manifestRevision": 10,
+  "levels": [
+    {
+      "id": "hawaii_rainforest_waterfall_dog_a134",
+      "bundled": true
+    },
+    {
+      "id": "coral_reef_coral_bommie_garden_dog_205d",
+      "bundled": true
+    },
+    {
+      "id": "hawaii_north_shore_surf_shack_dog_37b2",
+      "bundled": true
+    },
+    {
+      "id": "pirate_shipwreck_island_broken_bow_lagoon_dog_8cb1",
+      "bundled": true
+    },
+    {
+      "id": "ancient_forest_creek_autumn_pond_reeds_dog_0a40",
+      "bundled": true
+    }
+  ],
+  "ipaActualSha256": "f96d93ba107fdacce6282c6d590bcb47683ff12eb2031edf59d2fc5ffa746c84",
+  "firebaseProjects": [
+    {
+      "projectId": "hidden-object-base",
+      "bundleId": "com.baseardahan.hiddenobj"
+    }
+  ],
+  "verifiedAt": "2026-09-08T11:17:55.232202+00:00",
+  "scope": "Latest Portal IPA; not asserted to be latest App Store binary",
+  "javascriptProjectEvidence": [
+    {
+      "file": "bootstrap-BwFQKIxd.js",
+      "projectIds": [
+        "hidden-object-base"
+      ],
+      "containsDogProject": false,
+      "containsLegacyProject": true
+    },
+    {
+      "file": "firebaseApp-D1-DJDFQ.js",
+      "projectIds": [
+        "hidden-object-base"
+      ],
+      "containsDogProject": false,
+      "containsLegacyProject": true
+    }
+  ]
+}

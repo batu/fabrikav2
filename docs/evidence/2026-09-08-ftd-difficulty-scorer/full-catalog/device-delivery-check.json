@@ -1,0 +1,28 @@
+{
+  "date": "2026-09-08",
+  "platform": "physical iPhone 12",
+  "before": {
+    "version": "1.0.5",
+    "build": "25",
+    "cdnEnabled": false,
+    "observed": "Old level 2 Coral Bommie Garden"
+  },
+  "installedCandidate": {
+    "version": "1.0.6",
+    "build": "26",
+    "cdnEnabled": true,
+    "source": "e5a2ed5e891cab35312d793f9166160ac1b2b1f1",
+    "executableSha256": "b1562de5d9b1f87e1409af5e6252c52b5fe5678673d1b1d7a31764ab58b11199",
+    "existingArchive": true,
+    "newBuild": false,
+    "uninstall": false,
+    "installSucceeded": true
+  },
+  "postInstallConflict": {
+    "observedVersion": "1.0",
+    "observedBuild": "1",
+    "activeTask": "ftd-ads-lifecycle",
+    "action": "Stopped device operations; no further replacement"
+  },
+  "newProgressionGameplayVerified": false
+}

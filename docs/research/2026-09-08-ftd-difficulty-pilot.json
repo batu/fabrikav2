@@ -1,0 +1,217 @@
+{
+  "schemaVersion": 1,
+  "status": "selected_not_scored",
+  "scope": "Local catalog snapshot; deployed sequence not verified",
+  "catalogRevision": "catalog-000052",
+  "catalogCount": 54,
+  "catalog": {
+    "path": "games/find_the_dog/public/levels/catalog-manifest.json",
+    "sha256": "9ab095635cc23cdb1752afccd3dc59520b2a139788035d2bc192342aa0d4e54e"
+  },
+  "bundledManifest": {
+    "path": "games/find_the_dog/public/levels/bundled-manifest.json",
+    "sha256": "45124ca90b350e0f52acf1999e58aa5ebb848f3e237e145ee073c164fec615d2"
+  },
+  "selectionMethod": "Five bundled anchors plus five metadata diversity picks; not difficulty order",
+  "limitations": [
+    "Sprite rectangle size is not visible painted size",
+    "Visual and device verification pending",
+    "Provider account availability and spending budget not established"
+  ],
+  "spriteHashMethod": "SHA256 of compact sorted-key JSON array in level dog order, each object containing dogId, repo-relative path and file sha256",
+  "proposedModel": "gemini-3.8-flash",
+  "proposedBlindRepeats": 3,
+  "paidCallsExecuted": 0,
+  "levels": [
+    {
+      "levelId": "hawaii_rainforest_waterfall_dog_a134",
+      "reason": "Bundled anchor",
+      "dogCount": 26,
+      "dimensions": [
+        2560,
+        5600
+      ],
+      "medianSpriteLinearFraction": 0.03416692021457322,
+      "levelJson": {
+        "path": "games/find_the_dog/public/levels/hawaii_rainforest_waterfall_dog_a134/level.json",
+        "sha256": "df4ce9bac6b74a7b971c209166db3b239a478befa3181ccb8de560d513656471"
+      },
+      "colorImage": {
+        "path": "games/find_the_dog/public/levels/hawaii_rainforest_waterfall_dog_a134/color.png",
+        "sha256": "ab7644a328f3618184341ca0eaf7a867abaa15975ae414e2826670ee491495a4"
+      },
+      "spriteSetSha256": "83bdc7af80cd7f5b824c7019893d3644d207765feb0fd896a4019d4caf1005af"
+    },
+    {
+      "levelId": "coral_reef_coral_bommie_garden_dog_205d",
+      "reason": "Bundled anchor",
+      "dogCount": 35,
+      "dimensions": [
+        2560,
+        5600
+      ],
+      "medianSpriteLinearFraction": 0.03797320483860015,
+      "levelJson": {
+        "path": "games/find_the_dog/public/levels/coral_reef_coral_bommie_garden_dog_205d/level.json",
+        "sha256": "13559396feb5bf14ab861bc4537e3e60006844eac0fa1a6b6c5fdc580d9fafd6"
+      },
+      "colorImage": {
+        "path": "games/find_the_dog/public/levels/coral_reef_coral_bommie_garden_dog_205d/color.png",
+        "sha256": "af856fe8dd759f42c6ecb701b2ba51c2528bebbb104c98759873a06f29da9424"
+      },
+      "spriteSetSha256": "640a4301274c29437a8bacb245a353b3c22a7a8bb4a8d95d22e3f24bc1288273"
+    },
+    {
+      "levelId": "hawaii_north_shore_surf_shack_dog_37b2",
+      "reason": "Bundled anchor",
+      "dogCount": 30,
+      "dimensions": [
+        2560,
+        5600
+      ],
+      "medianSpriteLinearFraction": 0.032449949886349305,
+      "levelJson": {
+        "path": "games/find_the_dog/public/levels/hawaii_north_shore_surf_shack_dog_37b2/level.json",
+        "sha256": "9e082bed09d57208b50762e12cc101314569c3dbe13191ce9db086fff54fbf80"
+      },
+      "colorImage": {
+        "path": "games/find_the_dog/public/levels/hawaii_north_shore_surf_shack_dog_37b2/color.png",
+        "sha256": "bcf3b953b3a479423977938c8716aed4b27968732f5b03cb812c4fa219e97dcf"
+      },
+      "spriteSetSha256": "7d6f46efedd8f1ff95fe70c32c164db0f36d6f3f765f35529e13743dd89da0d6"
+    },
+    {
+      "levelId": "pirate_shipwreck_island_broken_bow_lagoon_dog_8cb1",
+      "reason": "Bundled anchor",
+      "dogCount": 34,
+      "dimensions": [
+        2560,
+        5600
+      ],
+      "medianSpriteLinearFraction": 0.03853537799969628,
+      "levelJson": {
+        "path": "games/find_the_dog/public/levels/pirate_shipwreck_island_broken_bow_lagoon_dog_8cb1/level.json",
+        "sha256": "b56f7c7298545b805fc4db68ee7f07977ec0133bc462f962b9fd15e07b215d40"
+      },
+      "colorImage": {
+        "path": "games/find_the_dog/public/levels/pirate_shipwreck_island_broken_bow_lagoon_dog_8cb1/color.png",
+        "sha256": "c208ed4ae7e4605d809c67d098383d80bdd715b00e07775654858f33e52728c5"
+      },
+      "spriteSetSha256": "78e7dd08366a4cd5cda568ef342215c11138ca0076571a789d834450fecd2dbe"
+    },
+    {
+      "levelId": "ancient_forest_creek_autumn_pond_reeds_dog_0a40",
+      "reason": "Bundled anchor",
+      "dogCount": 30,
+      "dimensions": [
+        2560,
+        5600
+      ],
+      "medianSpriteLinearFraction": 0.038635046222688145,
+      "levelJson": {
+        "path": "games/find_the_dog/public/levels/ancient_forest_creek_autumn_pond_reeds_dog_0a40/level.json",
+        "sha256": "e2f8612b55c39f285def3ae60a03f69400e7bd9a0a7595de0098e7cd8c4a1d9c"
+      },
+      "colorImage": {
+        "path": "games/find_the_dog/public/levels/ancient_forest_creek_autumn_pond_reeds_dog_0a40/color.png",
+        "sha256": "8eb1eb6414a72910119b49dfb39bc3c011d2c017834cd4000268d5200b292679"
+      },
+      "spriteSetSha256": "50e3a1c7ca05a1ba9dfd8e228b3c8db0fc57d6b87d33b5988fdff6446dbd758e"
+    },
+    {
+      "levelId": "italy_roman_ruins_piazza_dog_a243",
+      "reason": "Smallest median sprite rectangle proxy",
+      "dogCount": 30,
+      "dimensions": [
+        2560,
+        5600
+      ],
+      "medianSpriteLinearFraction": 0.02953030987804292,
+      "levelJson": {
+        "path": "games/find_the_dog/public/levels/italy_roman_ruins_piazza_dog_a243/level.json",
+        "sha256": "fdf3de13525c884c0772530a21759d78433ccde86f908a74bed233e6bfb3aa9f"
+      },
+      "colorImage": {
+        "path": "games/find_the_dog/public/levels/italy_roman_ruins_piazza_dog_a243/color.png",
+        "sha256": "2a9cd685dd77ff1c5cb480b70145585c4cfc3e33fe863616141e7137dc323be4"
+      },
+      "spriteSetSha256": "a172b16010468841896c4cb7ea1cfeed2f9dcaabe4e182aa0d9b98f7de48ab91"
+    },
+    {
+      "levelId": "playground_park_sports_corner_garden_dog_6f94",
+      "reason": "Largest median sprite rectangle proxy",
+      "dogCount": 30,
+      "dimensions": [
+        2560,
+        5600
+      ],
+      "medianSpriteLinearFraction": 0.04051223984403701,
+      "levelJson": {
+        "path": "games/find_the_dog/public/levels/playground_park_sports_corner_garden_dog_6f94/level.json",
+        "sha256": "7588c8f756c6996c1d2f6f9fa188e2e32e0d3f4b71625cd0712d6ece870ca325"
+      },
+      "colorImage": {
+        "path": "games/find_the_dog/public/levels/playground_park_sports_corner_garden_dog_6f94/color.png",
+        "sha256": "6f4c7b8695a69ca99a02e9c7899ab76e568dc560a042e1f74899ebbd5a1de4cc"
+      },
+      "spriteSetSha256": "e39c8c575089f38e543c8f2d0801acc69c5934decfae9a8336f95d91f7de5962"
+    },
+    {
+      "levelId": "alpine_meadow_wildflower_chalet_lane_dog_5b28",
+      "reason": "Joint maximum dog count",
+      "dogCount": 36,
+      "dimensions": [
+        2560,
+        5600
+      ],
+      "medianSpriteLinearFraction": 0.03799937220186436,
+      "levelJson": {
+        "path": "games/find_the_dog/public/levels/alpine_meadow_wildflower_chalet_lane_dog_5b28/level.json",
+        "sha256": "2b2c4934beaa81dc5653fa63ef0350472780d68d252c116dc5e9b11daf0303e0"
+      },
+      "colorImage": {
+        "path": "games/find_the_dog/public/levels/alpine_meadow_wildflower_chalet_lane_dog_5b28/color.png",
+        "sha256": "74ab1c5019d6b64569717190570e407e46f15dce500b70d7f22306fe20df0af1"
+      },
+      "spriteSetSha256": "f139c9cbac54ee43a676ec5de0f9a73e4a530f4ccf9131646950186aa2a3390a"
+    },
+    {
+      "levelId": "school_world_library_reading_nook_dog_db41",
+      "reason": "Interior scene by name",
+      "dogCount": 32,
+      "dimensions": [
+        2560,
+        5600
+      ],
+      "medianSpriteLinearFraction": 0.03920882686428896,
+      "levelJson": {
+        "path": "games/find_the_dog/public/levels/school_world_library_reading_nook_dog_db41/level.json",
+        "sha256": "e461ef0f3140a845827d0dc0fb18305e24d5f463d63ea3a9f8b0aae008dd2ea5"
+      },
+      "colorImage": {
+        "path": "games/find_the_dog/public/levels/school_world_library_reading_nook_dog_db41/color.png",
+        "sha256": "2f0def3fa5f2762d61e284ddcbb8c1a5c1e4ae8aaa8bfa0276452c69aa10b524"
+      },
+      "spriteSetSha256": "5a5931e20e1645c1ec20dd26576dea500e1b39b127a169761b42b5055fcb32bd"
+    },
+    {
+      "levelId": "circus_fairground_night_lantern_circus_dog_d9c7",
+      "reason": "Night scene by name",
+      "dogCount": 30,
+      "dimensions": [
+        2560,
+        5600
+      ],
+      "medianSpriteLinearFraction": 0.0400032218521351,
+      "levelJson": {
+        "path": "games/find_the_dog/public/levels/circus_fairground_night_lantern_circus_dog_d9c7/level.json",
+        "sha256": "138bf2c834646da7cd1fa9d62061f73ba398c220c7681d38d34399fa33976040"
+      },
+      "colorImage": {
+        "path": "games/find_the_dog/public/levels/circus_fairground_night_lantern_circus_dog_d9c7/color.png",
+        "sha256": "f6e2299bad0e0e69cfc6b3e713b96fbb2b5358e97c9166047579c5165895749e"
+      },
+      "spriteSetSha256": "218a37f8b75e071b00e22e787782380d39605c323a4cf047350ff439864edd8c"
+    }
+  ]
+}
