@@ -352,10 +352,10 @@ describe('Find the Dog manifest contract', () => {
     });
     expect(actualManifest.ios.adMobEnabledEnv).toBe('VITE_ADMOB_IOS_ENABLED');
     expect(actualManifest.ios.adMobApplicationIdEnv).toBe('VITE_ADMOB_IOS_APP_ID');
-    expect(actualManifest.ios.trackingUsageDescription).toBeNull();
+    expect(actualManifest.ios.trackingUsageDescription).toBe('Your data will be used to show you ads that are more relevant to you and to measure how well they work.');
     const privacy = fs.readFileSync(new URL('App/PrivacyInfo.xcprivacy', recipeDir), 'utf8');
-    expect(privacy).toMatch(/<key>NSPrivacyTracking<\/key>\s*<false\/>/);
-    expect(privacy).not.toContain('NSPrivacyTrackingDomains');
+    expect(privacy).toMatch(/<key>NSPrivacyTracking<\/key>\s*<true\/>/);
+    expect(privacy).toContain('<string>googleads.g.doubleclick.net</string>');
     expect(actualCatalog.skadnetwork_ids.map((entry) => entry.skadnetwork_id)).toEqual(['cstr6suwn9.skadnetwork']);
   });
 });

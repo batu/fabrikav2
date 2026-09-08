@@ -163,6 +163,9 @@ export function createSdkContext(deps: CreateSdkContextDependencies = {}): GameS
     ? isNativePlatform && adMobConfig.enabled
       ? new AdMobProvider(adMobConfig.config, {
           lifecycle,
+          // General audience (owner decision 2026-09-08, stack-wide): no child /
+          // under-age tags, UMP consent decides personalization, ATT on iOS.
+          audience: 'general',
           ...createAdMobCompositionOptions({
             analytics,
             forwardAcquisitionValueEvent: (event) => forwardAcquisitionValueEvent(event),

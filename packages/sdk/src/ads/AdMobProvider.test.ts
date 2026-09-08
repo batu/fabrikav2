@@ -1215,3 +1215,80 @@ describe('AdMobProvider lifecycle telemetry seam (P3)', (): void => {
     await expect(provider.showRewardedAd()).resolves.toEqual({ granted: true });
   });
 });
+
+describe('AdMobProvider audience treatment (owner decision 2026-09-08)', (): void => {
+  const iosAdapter = (overrides: Partial<AdMobAdapter> = {}): FakeAdapter & { calls: string[] } => {
+    const calls: string[] = [];
+    const adapter = makeAdapter({
+      getPlatform: vi.fn(async (): Promise<'android' | 'ios' | 'web'> => 'ios'),
+      initialize: vi.fn(async (): Promise<void> => { calls.push('initialize'); }),
+      requestConsentInfo: vi.fn(async () => { calls.push('consent'); return { status: 'OBTAINED' as never, canRequestAds: true, privacyOptionsRequirementStatus: 'NOT_REQUIRED' as never }; }),
+      requestTrackingAuthorization: vi.fn(async (): Promise<void> => { calls.push('att'); }),
+      trackingAuthorizationStatus: vi.fn(async () => ({ status: 'authorized' })),
+      ...overrides,
+    });
+    return Object.assign(adapter, { calls });
+  };
+
+  it('defaults to child treatment: both age tags, under-age consent, npa on every request', async (): Promise<void> => {
+    const adapter = iosAdapter();
+    const provider = new AdMobProvider(config, { adapter, now, scheduleRetry });
+    await provider.init();
+    await flush();
+    expect(provider.audience).toBe('child');
+    expect(adapter.initialize).toHaveBeenCalledWith(expect.objectContaining({ tagForChildDirectedTreatment: true, tagForUnderAgeOfConsent: true, maxAdContentRating: 'General' }));
+    expect(adapter.requestConsentInfo).toHaveBeenCalledWith(expect.objectContaining({ tagForUnderAgeOfConsent: true }));
+    expect(adapter.requestTrackingAuthorization).not.toHaveBeenCalled();
+    expect(adapter.prepareInterstitial).toHaveBeenCalledWith(expect.objectContaining({ npa: true }));
+    await provider.showBanner();
+    await provider.preloadRewarded();
+    expect(adapter.showBanner).toHaveBeenCalledWith(expect.objectContaining({ npa: true }));
+    expect(adapter.prepareRewardVideoAd).toHaveBeenCalledWith(expect.objectContaining({ npa: true }));
+  });
+
+  it('general audience: no age tags, consent not under-age, ATT after consent and before initialize, no npa', async (): Promise<void> => {
+    const adapter = iosAdapter();
+    const provider = new AdMobProvider(config, { adapter, now, scheduleRetry, audience: 'general' });
+    await provider.init();
+    await flush();
+    expect(provider.audience).toBe('general');
+    const initOptions = (adapter.initialize as ReturnType<typeof vi.fn>).mock.calls[0][0] as Record<string, unknown>;
+    expect(initOptions).not.toHaveProperty('tagForChildDirectedTreatment');
+    expect(initOptions).not.toHaveProperty('tagForUnderAgeOfConsent');
+    expect(initOptions.maxAdContentRating).toBe('General');
+    expect(adapter.requestConsentInfo).toHaveBeenCalledWith(expect.objectContaining({ tagForUnderAgeOfConsent: false }));
+    expect(adapter.calls).toEqual(['consent', 'att', 'initialize']);
+    const interstitial = (adapter.prepareInterstitial as ReturnType<typeof vi.fn>).mock.calls[0][0] as Record<string, unknown>;
+    expect(interstitial).not.toHaveProperty('npa');
+    await provider.showBanner();
+    await provider.preloadRewarded();
+    expect((adapter.showBanner as ReturnType<typeof vi.fn>).mock.calls[0][0]).not.toHaveProperty('npa');
+    expect((adapter.prepareRewardVideoAd as ReturnType<typeof vi.fn>).mock.calls[0][0]).not.toHaveProperty('npa');
+  });
+
+  it('general audience: ATT refusal or failure never blocks initialization', async (): Promise<void> => {
+    const adapter = iosAdapter({
+      requestTrackingAuthorization: vi.fn(async (): Promise<void> => { throw new Error('prompt unavailable'); }),
+      trackingAuthorizationStatus: vi.fn(async () => ({ status: 'denied' })),
+    });
+    const provider = new AdMobProvider(config, { adapter, now, scheduleRetry, audience: 'general' });
+    await provider.init();
+    await flush();
+    expect(adapter.initialize).toHaveBeenCalledOnce();
+    expect(adapter.prepareInterstitial).toHaveBeenCalledOnce();
+  });
+
+  it('general audience: no ATT request on Android or when consent forbids ads', async (): Promise<void> => {
+    const android = iosAdapter({ getPlatform: vi.fn(async (): Promise<'android' | 'ios' | 'web'> => 'android') });
+    await new AdMobProvider(config, { adapter: android, now, scheduleRetry, audience: 'general' }).init();
+    expect(android.requestTrackingAuthorization).not.toHaveBeenCalled();
+    expect(android.initialize).toHaveBeenCalledOnce();
+
+    const blocked = iosAdapter({
+      requestConsentInfo: vi.fn(async () => ({ status: 'REQUIRED' as never, isConsentFormAvailable: false, canRequestAds: false, privacyOptionsRequirementStatus: 'REQUIRED' as never })),
+    });
+    await new AdMobProvider(config, { adapter: blocked, now, scheduleRetry, audience: 'general' }).init();
+    expect(blocked.requestTrackingAuthorization).not.toHaveBeenCalled();
+    expect(blocked.initialize).not.toHaveBeenCalled();
+  });
+});

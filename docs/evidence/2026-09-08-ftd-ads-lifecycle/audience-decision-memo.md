@@ -1,6 +1,19 @@
 # Find The Dog iOS — audience treatment decision memo
 
-Date: 2026-09-08. Status: **decision requested; nothing live changed.** This memo is evidence-backed but is not legal advice; the classification question below needs qualified legal judgment before any flag flip.
+Date: 2026-09-08. This memo is evidence-backed but is not legal advice.
+
+## Decision record (2026-09-08, after review)
+
+Batu chose **Option C — general audience**, for Find The Dog and Find The Bird, stating that the other games in the stack already run as general audience. The recommendation below (Option B) was presented and overruled; the concern in §2 (a puppy/bird finding game rated 4+ is close to the "directed to children" line and no audience-composition evidence exists) stands as a recorded risk, owner-accepted.
+
+Implemented on branch `fix/ftd-ads-lifecycle` (second PR):
+
+- `AdMobProvider` gained `audience: 'child' | 'general'` (default `child`, so marble_run / shell_template keep today's behaviour). Both Find games pass `general`.
+- General audience: no `tagForChildDirectedTreatment`, no `tagForUnderAgeOfConsent` (initialization and UMP consent request), no forced `npa` on any request (UMP consent decides personalization), `maxAdContentRating` stays **General** (content suitability unchanged), and on iOS `requestTrackingAuthorization` (ATT) is called once consent is settled and before the SDK initializes; refusal never blocks ads.
+- Native: `NSUserTrackingUsageDescription` set for both games through the shell manifest; `PrivacyInfo.xcprivacy` now declares `NSPrivacyTracking=true` with `NSPrivacyTrackingDomains` = `googleads.g.doubleclick.net` (the native-shell validator requires it once tracking is declared). This aligns the binary with the App Store privacy label, which already declared tracking.
+- Not changed: cadence, floors, hints, wallets, Remote Config, AppLovin/MAX (still not integrated; its child-audience gate no longer applies but nothing here adds it).
+
+Follow-ups that remain the owner's: confirm the App Store privacy label for Find The Bird matches (Dog's already declares tracking); expect the ATT prompt in App Review; consider whether GameAnalytics/AppsFlyer sharing settings should change now that tracking is declared (nothing here changes them).
 
 ## 1. What is declared and shipped today (verified)
 
