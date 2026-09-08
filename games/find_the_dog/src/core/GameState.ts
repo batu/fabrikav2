@@ -1598,6 +1598,21 @@ export class GameState {
     }
   }
 
+  /** Boot-only, after new-install eligibility has been proved. Never tops up a wallet. */
+  initializeExperimentHints(): boolean {
+    try {
+      if (localStorage.getItem(STORAGE_KEYS.HINTS) !== null
+        || localStorage.getItem(STORAGE_KEYS.PURCHASE_CHECKPOINT) !== null
+        || this._hintBalance !== GAMEPLAY.INITIAL_HINTS) return false;
+      localStorage.setItem(STORAGE_KEYS.HINTS, '10');
+      if (localStorage.getItem(STORAGE_KEYS.HINTS) !== '10') return false;
+      this._hintBalance = 10;
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
   load(): void {
     this._purchaseWalletCheckpointActive = false;
     this._purchaseWalletPersistenceReady = false;

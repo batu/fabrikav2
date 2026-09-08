@@ -32,6 +32,8 @@ import {
 } from '../ui/SceneTransitionCover';
 import { remoteConfigService } from '../config/RemoteConfigService';
 import { resolveGameplayMode } from '../config/gameplayModePolicy';
+import { revealPickupExperiment } from '../data/revealPickupExperiment';
+import { assertRestorationBackgroundTextures } from '../config/restorationAssetContract';
 import { buildFailContinueOffers, type FailContinueOfferSet, type FailContinueOption } from '../shop/FailContinueOffers';
 import { iapService } from '../shop/IapService';
 import { buildShopCatalog } from '../shop/ProductCatalog';
@@ -562,7 +564,39 @@ export class GameScene extends Phaser.Scene {
       this.loadLevelAndRestart();
       return;
     }
-    this.setupLevel();
+    try {
+      this.setupLevel();
+    } catch (error) {
+      // Phaser's loader may complete despite an individual image failure.
+      // Return to the map so Play can retry; never expose a placeholder or
+      // relabel a failed treatment as the other arm.
+      GameScene.lastLoadedLevelId = null;
+      console.error('Failed to set up level', error);
+      hideSceneTransitionCoverAfterPaint();
+      this.scene.start('HomeScene');
+      return;
+    }
+    // Observe a presented frame only after successful setup and cover removal.
+    const cleanupExposure = (): void => {
+      this.game.events.off(Phaser.Core.Events.POST_RENDER, observeExposure);
+      this.events.off('shutdown', cleanupExposure);
+    };
+    const observeExposure = (): void => {
+      if (this.isShuttingDown || !this.sys.isActive() || document.hidden
+        || document.getElementById('scene-transition-cover') !== null) return;
+      if (!this.isRestoration
+        && (!this.textures.exists('color') || !this.textures.exists('bw_generated'))) return;
+      // Detach before invoking telemetry: duplicate/reentrant frames must not
+      // repeat exposure, and a completed observer must not retain the scene.
+      cleanupExposure();
+      const actualMode = this.isRestoration ? 'restoration' : 'classic';
+      const exposure = revealPickupExperiment.exposure(actualMode);
+      if (exposure !== null) analytics.experimentExposure(exposure);
+    };
+    if (revealPickupExperiment.assignment() !== null) {
+      this.game.events.on(Phaser.Core.Events.POST_RENDER, observeExposure);
+      this.events.once('shutdown', cleanupExposure);
+    }
     this.scheduleNonCriticalPreloads();
   }
 
@@ -710,19 +744,6 @@ export class GameScene extends Phaser.Scene {
   private setupLevel(): void {
     if (!this.level) return;
 
-    if (gameState.settings.adsEnabled) {
-      void adService.showBanner().then((shown: boolean): void => {
-        if (!this.level) return;
-        if (shown) {
-          void analytics.adShown({ ad_type: 'banner', placement: 'gameplay' });
-        } else if (adService.enabled) {
-          // 38% of banner shows in the UA test failed invisibly — GA's native
-          // integration saw them, our owned funnel did not. Count them here.
-          void analytics.adShowFailed({ ad_type: 'banner', placement: 'gameplay', reason: 'not_shown' });
-        }
-      });
-    }
-
     const sections = this.level.sections;
     const isSectioned = Array.isArray(sections) && sections.length > 0;
 
@@ -758,6 +779,9 @@ export class GameScene extends Phaser.Scene {
     // only runs in preload (before this field exists) and here. See the
     // field's JSDoc for the mid-level-toggle rationale.
     this.isRestoration = this.isRestorationMode();
+    if (this.isRestoration) {
+      assertRestorationBackgroundTextures(this.level.bgImageUrls!, (key) => this.textures.exists(key));
+    }
     if (this.isRestoration && !this.hasLoadedRestorationSpriteTextures()) {
       throw new Error(`Restoration level ${this.level.id} is missing loaded dog sprite textures`);
     }
@@ -770,7 +794,25 @@ export class GameScene extends Phaser.Scene {
       for (let i = 0; i < bgCount; i += 1) this.capTextureLongEdge(`bg_${i}`);
     } else {
       this.generateGrayscaleTexture();
+      for (const key of ['color', 'bw_generated']) {
+        if (!this.textures.exists(key)) {
+          throw new Error(`Reveal level ${this.level.id} is missing loaded texture: ${key}`);
+        }
+      }
     }
+    if (gameState.settings.adsEnabled) {
+      void adService.showBanner().then((shown: boolean): void => {
+        if (!this.level) return;
+        if (shown) {
+          void analytics.adShown({ ad_type: 'banner', placement: 'gameplay' });
+        } else if (adService.enabled) {
+          // 38% of banner shows in the UA test failed invisibly — GA's native
+          // integration saw them, our owned funnel did not. Count them here.
+          void analytics.adShowFailed({ ad_type: 'banner', placement: 'gameplay', reason: 'not_shown' });
+        }
+      });
+    }
+
     this.classicRenderProbes = {
       ...this.classicRenderProbes,
       generatedBwTextureGrayscale: this.isGeneratedBwTextureGrayscale(),
@@ -1416,7 +1458,7 @@ export class GameScene extends Phaser.Scene {
     const revealContext = this.getClassicRevealContext(dog);
 
     let cellPolygon: Point[];
-    if (gameState.settings.voronoiReveal) {
+    if (revealPickupExperiment.assignment()?.variant === 'reveal' || gameState.settings.voronoiReveal) {
       cellPolygon = computeVoronoiCell({ x: dog.x, y: dog.y }, revealContext.otherSites, revealContext.bounds);
     } else {
       const r = Math.max(this.level!.width, this.level!.height) * 0.15;

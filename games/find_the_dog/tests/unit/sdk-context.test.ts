@@ -462,6 +462,34 @@ describe('FTD SdkContext composition matrix', () => {
     expect(JSON.stringify(context.analyticsDiagnostics())).not.toContain('secret-canary');
   });
 
+  it('stamps canonical first-session, exposure and return envelopes through the owned mirror', async () => {
+    const { revealPickupExperiment } = await import('../../src/data/revealPickupExperiment');
+    const params = { experiment_id: 'ftd_ios_reveal_pickup_v1', variant: 'reveal', enrollment_day: '2026-09-08', starting_hints: 10 };
+    const stamp = vi.spyOn(revealPickupExperiment, 'params').mockReturnValue(params);
+    const bodies: string[] = [];
+    try {
+      const context = createSdkContext({ buildEnv: 'development', platform: 'ios', isNativePlatform: false,
+        env: {
+          VITE_FTD_OWNED_ANALYTICS_MIRROR_URL: 'https://analytics.example.com/ingest',
+          VITE_FTD_OWNED_ANALYTICS_MIRROR_PUBLIC_CLIENT_KEY: 'public_client_key_1234',
+        },
+        mirrorTransport: async (request) => { bodies.push(request.body); return { ok: true, status: 200 }; },
+      });
+      context.analytics.sessionStart({ first_open: true });
+      context.analytics.track('experiment_exposure', { actual_mode: 'classic', bucket: 0 });
+      context.analytics.track('app_foreground');
+      await context.analytics.flush();
+      expect(bodies).toHaveLength(1);
+      const events = (JSON.parse(bodies[0]) as { events: { name: string; params: Record<string, unknown> }[] }).events;
+      expect(events).toHaveLength(3);
+      for (const event of events) {
+        expect(event.params).toMatchObject(params);
+        expect(event.params.environment).toBe('development');
+      }
+      expect(events.find((event) => event.name === 'experiment_exposure')?.params.actual_mode).toBe('classic');
+    } finally { stamp.mockRestore(); }
+  });
+
   it('blocks sensitive identifiers from the owned mirror canonical allowlist', async () => {
     const bodies: string[] = [];
     const context = createSdkContext({

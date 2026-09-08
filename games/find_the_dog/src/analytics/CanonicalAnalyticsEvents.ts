@@ -48,7 +48,7 @@ const levelAttributionFields = [
 
 const economyFields = ['flow_type', 'currency', 'amount', 'item_type', 'item_id', 'product_id', 'no_ads', 'hints', 'coins', 'continue_level', 'level_id'] as const;
 const adRevenueFields = ['ad_type', 'placement', 'provider', 'currency', 'precision', 'network_name'] as const;
-const runtimeIdentityFields = ['native_app_version', 'native_build_number', 'app_version', 'build', 'platform', 'game', 'environment', 'cohort_bucket'] as const;
+const runtimeIdentityFields = ['experiment_id', 'variant', 'experiment_population', 'enrollment_day', 'starting_hints', 'experiment_exposed', 'native_app_version', 'native_build_number', 'app_version', 'build', 'platform', 'game', 'environment', 'cohort_bucket'] as const;
 
 export const canonicalAnalyticsEvents = [
   {
@@ -104,8 +104,8 @@ export const canonicalAnalyticsEvents = [
     family: 'design',
     panel: 'retention',
     question: 'When users actually enter a level-set or UI experiment.',
-    primaryDimensions: ['experiment_id', 'bucket'],
-    instrumentationStatus: 'contract',
+    primaryDimensions: ['experiment_id', 'bucket', 'variant', 'actual_mode'],
+    instrumentationStatus: 'runtime',
     successBoundary: 'Player becomes eligible for and sees an experiment-controlled surface.',
   },
   {
@@ -702,6 +702,12 @@ const forbiddenAnalyticsIdentifierKeySet = new Set(forbiddenAnalyticsIdentifierK
 // throwing on import). The canonical-events test asserts the superset invariant so
 // a new primaryDimension can't drift out of this allowlist unnoticed.
 export const dashboardImportDimensionKeys = [
+  'experiment_population',
+  'variant',
+  'actual_mode',
+  'enrollment_day',
+  'starting_hints',
+  'experiment_exposed',
   'achievement_id',
   'action',
   'ad_type',

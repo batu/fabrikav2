@@ -10,6 +10,8 @@ export type RemoteConfigValueType = 'boolean' | 'number' | 'string';
 export type RemoteConfigPrimitive = boolean | number | string;
 
 export interface RemoteConfigValues {
+  revealPickupExperimentEnabled: boolean;
+  revealPickupExperimentKilled: boolean;
   progressionHomeEnabled: boolean;
   levelMapEnabled: boolean;
   levelSequencePayload: string;
@@ -81,6 +83,8 @@ export interface RemoteConfigDefinition<TKey extends RemoteConfigValueKey = Remo
 }
 
 export const REMOTE_CONFIG_DEFAULTS: RemoteConfigValues = {
+  revealPickupExperimentEnabled: false,
+  revealPickupExperimentKilled: false,
   progressionHomeEnabled: true,
   levelMapEnabled: true,
   levelSequencePayload: '',
@@ -156,6 +160,8 @@ type RemoteConfigDefinitionForKey<TKey extends RemoteConfigValueKey> = {
 export const REMOTE_CONFIG_DEFINITIONS_BY_KEY: {
   [TKey in RemoteConfigValueKey]: RemoteConfigDefinitionForKey<TKey>;
 } = {
+  revealPickupExperimentEnabled: { key: 'revealPickupExperimentEnabled', remoteKey: 'ftd_ios_reveal_pickup_v1_enabled', type: 'boolean', description: 'Enroll new iOS installs in 50/50 reveal/pickup with 10 initial hints. Enable only on the verified release. Existing assignments persist offline.' },
+  revealPickupExperimentKilled: { key: 'revealPickupExperimentKilled', remoteKey: 'ftd_ios_reveal_pickup_v1_killed', type: 'boolean', description: 'End reveal/pickup participation on next cold launch, preserving wallets. Sticky locally once observed; never switches a running session.' },
   progressionHomeEnabled: { key: 'progressionHomeEnabled', remoteKey: 'progression_home_enabled', type: 'boolean', description: 'Enable the home/progression shell.' },
   levelMapEnabled: { key: 'levelMapEnabled', remoteKey: 'level_map_enabled', type: 'boolean', description: 'Enable the vertical level-map screen.' },
   levelSequencePayload: { key: 'levelSequencePayload', remoteKey: 'level_sequence_payload', type: 'string', description: 'Complete V1 live level sequence JSON payload. Empty disables remote sequence activation.' },
@@ -272,6 +278,8 @@ export function mapRemoteConfigValues(
     rewardProgressEnabled: read('rewardProgressEnabled'),
     rewardProgressGoal: read('rewardProgressGoal'),
     rewardHintsAmount: read('rewardHintsAmount'),
+    revealPickupExperimentEnabled: read('revealPickupExperimentEnabled'),
+    revealPickupExperimentKilled: read('revealPickupExperimentKilled'),
     gameplayInitialHints: read('gameplayInitialHints'),
     gameplayModePolicy: read('gameplayModePolicy'),
     ratePromptEnabledDefault: read('ratePromptEnabledDefault'),
@@ -338,6 +346,8 @@ export function mapRemoteConfigSources<TSource>(
     rewardProgressEnabled: read('rewardProgressEnabled'),
     rewardProgressGoal: read('rewardProgressGoal'),
     rewardHintsAmount: read('rewardHintsAmount'),
+    revealPickupExperimentEnabled: read('revealPickupExperimentEnabled'),
+    revealPickupExperimentKilled: read('revealPickupExperimentKilled'),
     gameplayInitialHints: read('gameplayInitialHints'),
     gameplayModePolicy: read('gameplayModePolicy'),
     ratePromptEnabledDefault: read('ratePromptEnabledDefault'),

@@ -1,4 +1,5 @@
 import { Capacitor } from '@capacitor/core';
+import { revealPickupExperiment } from '../data/revealPickupExperiment';
 import {
   resolveSdkEnvironments,
   type SdkBuildEnv,
@@ -249,7 +250,10 @@ export function createSdkContext(deps: CreateSdkContextDependencies = {}): GameS
   analyticsFacade = createAnalytics<FtdEvent>({
     env: environments.analytics,
     sessionId: createFtdSessionId(),
-    sinks,
+    sinks: sinks.map((sink) => ({
+      ...sink,
+      emit: (event) => sink.emit({ ...event, params: { ...revealPickupExperiment.params(), ...event.params } }),
+    })),
     globalParams: {
       game: 'find_the_dog',
       environment: environments.analytics,

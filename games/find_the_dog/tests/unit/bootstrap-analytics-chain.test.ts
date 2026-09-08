@@ -1,6 +1,8 @@
 import { afterAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const startAnalyticsBootstrap = vi.hoisted(() => vi.fn(async () => undefined));
+const initializeGameplayExperiment = vi.hoisted(() => vi.fn(async (): Promise<void> => undefined));
+vi.mock('../../src/data/initializeGameplayExperiment', () => ({ initializeGameplayExperiment }));
 vi.mock('../../src/runtime', () => ({ startAnalyticsBootstrap }));
 const originalWindow = window;
 const originalStorageDescriptor = Object.getOwnPropertyDescriptor(window, 'localStorage');
@@ -15,6 +17,7 @@ const storage = {
 beforeEach(() => {
   vi.resetModules();
   startAnalyticsBootstrap.mockClear();
+  initializeGameplayExperiment.mockReset().mockResolvedValue(undefined);
   values.clear();
   Object.defineProperty(window, 'localStorage', { configurable: true, value: storage });
 });
@@ -25,6 +28,15 @@ afterAll(() => {
 });
 
 describe('production bootstrap install evidence', () => {
+  it('does not import/start the game runtime until assignment and wallet are ready', async () => {
+    let release!: () => void;
+    initializeGameplayExperiment.mockImplementation(() => new Promise<void>((resolve) => { release = resolve; }));
+    await import('../../src/bootstrap');
+    await vi.waitFor(() => expect(initializeGameplayExperiment).toHaveBeenCalledWith(false, 'durable'));
+    expect(startAnalyticsBootstrap).not.toHaveBeenCalled();
+    release();
+    await vi.waitFor(() => expect(startAnalyticsBootstrap).toHaveBeenCalledWith(false, 'durable'));
+  });
   it('classifies an empty install before eager runtime imports', async () => {
     await import('../../src/bootstrap');
     await vi.waitFor(() => expect(startAnalyticsBootstrap).toHaveBeenCalledWith(false, 'durable'));
@@ -46,7 +58,7 @@ describe('production bootstrap install evidence', () => {
     }));
     vi.resetModules();
     await import('../../src/bootstrap');
-    await vi.waitFor(() => expect(startAnalyticsBootstrap).toHaveBeenCalledWith(false, 'volatile'));
+    await vi.waitFor(() => expect(startAnalyticsBootstrap).toHaveBeenCalledWith(true, 'volatile'));
     vi.unstubAllGlobals();
   });
 });

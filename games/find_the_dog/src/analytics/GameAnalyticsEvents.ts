@@ -189,6 +189,7 @@ function canonicalEventIdForProgressionStatus(status: GameAnalyticsProgressionSt
 
 function canonicalEventIdForDesignEvent(eventId: string): CanonicalAnalyticsEventId | null {
   const normalized = eventId.trim().toLowerCase();
+  if (normalized === 'experiment:exposure') return 'experiment_exposure';
   if (normalized === 'session:start') return 'session_start';
   if (normalized === 'app:open') return 'app_open';
   if (normalized === 'app:background') return 'app_background';
