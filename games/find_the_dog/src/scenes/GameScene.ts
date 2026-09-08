@@ -164,6 +164,7 @@ export interface ClassicRenderDiagnosticsSnapshot {
 export class GameScene extends Phaser.Scene {
   private level: LevelData | null = null;
   private bwImage: Phaser.GameObjects.Image | null = null;
+  private usesGpuGrayscale = false;
   private colorImage: Phaser.GameObjects.Image | null = null;
   private runtimeTextureLongEdge = FALLBACK_RUNTIME_TEXTURE_LONG_EDGE;
 
@@ -585,7 +586,7 @@ export class GameScene extends Phaser.Scene {
       if (this.isShuttingDown || !this.sys.isActive() || document.hidden
         || document.getElementById('scene-transition-cover') !== null) return;
       if (!this.isRestoration
-        && (!this.textures.exists('color') || !this.textures.exists('bw_generated'))) return;
+        && (!this.textures.exists('color') || (!this.usesGpuGrayscale && !this.textures.exists('bw_generated')))) return;
       // Detach before invoking telemetry: duplicate/reentrant frames must not
       // repeat exposure, and a completed observer must not retain the scene.
       cleanupExposure();
@@ -787,14 +788,16 @@ export class GameScene extends Phaser.Scene {
     }
     const isRestoration = this.isRestoration;
     this.runtimeTextureLongEdge = GameScene.resolveRuntimeTextureLongEdge(this.game.renderer);
+    this.usesGpuGrayscale = !isRestoration && Capacitor.getPlatform() === 'ios'
+      && this.game.renderer.type === Phaser.WEBGL;
     this.capTextureLongEdge('color');
     if (isRestoration) {
       if (this.textures.exists('bw_generated')) this.textures.remove('bw_generated');
       const bgCount = this.level.bgImageUrls?.length ?? 0;
       for (let i = 0; i < bgCount; i += 1) this.capTextureLongEdge(`bg_${i}`);
     } else {
-      this.generateGrayscaleTexture();
-      for (const key of ['color', 'bw_generated']) {
+      if (!this.usesGpuGrayscale) this.generateGrayscaleTexture();
+      for (const key of this.usesGpuGrayscale ? ['color'] : ['color', 'bw_generated']) {
         if (!this.textures.exists(key)) {
           throw new Error(`Reveal level ${this.level.id} is missing loaded texture: ${key}`);
         }
@@ -860,7 +863,15 @@ export class GameScene extends Phaser.Scene {
     // Restoration mode skips the grayscale texture entirely: the bg layer is
     // the default view and the color layer (with dogs) dissolves away on find.
     if (!isRestoration) {
-      this.bwImage = this.add.image(0, 0, 'bw_generated');
+      this.bwImage = this.add.image(0, 0, this.usesGpuGrayscale ? 'color' : 'bw_generated');
+      // Reuse the full-resolution color source. A second 5600px canvas and
+      // texture can terminate WKWebView before the first presented frame.
+      if (this.usesGpuGrayscale) this.bwImage.postFX.addColorMatrix().set([
+        0.2126, 0.7152, 0.0722, 0, 0,
+        0.2126, 0.7152, 0.0722, 0, 0,
+        0.2126, 0.7152, 0.0722, 0, 0,
+        0, 0, 0, 1, 0,
+      ]);
       this.bwImage.setOrigin(0, 0);
       this.bwImage.setPosition(this.imgOffsetX, this.imgOffsetY);
       this.bwImage.setDisplaySize(this.level.width * this.imgScale, this.level.height * this.imgScale);
@@ -2868,9 +2879,10 @@ export class GameScene extends Phaser.Scene {
     canvas.width = Math.max(1, Math.ceil(extentW * density));
     canvas.height = Math.max(1, Math.ceil(extentH * density));
     if (this.textures.exists(CLASSIC_REVEALED_TEXTURE_KEY)) this.textures.remove(CLASSIC_REVEALED_TEXTURE_KEY);
-    this.textures.addCanvas(CLASSIC_REVEALED_TEXTURE_KEY, canvas);
-    const texture = this.textures.get(CLASSIC_REVEALED_TEXTURE_KEY) as Phaser.Textures.CanvasTexture;
-    this.classicRevealedCtx = texture.context;
+    // We draw through the canvas context directly, so CanvasTexture's extra
+    // full-image readback buffer would only duplicate this layer in memory.
+    this.classicRevealedCtx = canvas.getContext('2d');
+    this.registerCanvasSource(CLASSIC_REVEALED_TEXTURE_KEY, canvas);
     this.classicRevealedDensity = density;
     this.classicRevealedImage = this.add.image(0, 0, CLASSIC_REVEALED_TEXTURE_KEY);
     this.classicRevealedImage.setOrigin(0, 0);
@@ -3202,7 +3214,16 @@ export class GameScene extends Phaser.Scene {
     const tex = this.textures.get(textureKey);
     if (tex instanceof Phaser.Textures.CanvasTexture) {
       tex.refresh();
+    } else if (tex.source[0]?.isCanvas) {
+      tex.source[0].update();
     }
+  }
+
+  /** Ordinary canvas source, without CanvasTexture's retained CPU pixel copy. */
+  private registerCanvasSource(key: string, canvas: HTMLCanvasElement): void {
+    const texture = this.textures.create(key, canvas);
+    if (!texture) throw new Error(`Could not register canvas texture: ${key}`);
+    texture.add('__BASE', 0, 0, 0, canvas.width, canvas.height);
   }
 
   private capTextureLongEdge(textureKey: string): void {
@@ -3244,24 +3265,27 @@ export class GameScene extends Phaser.Scene {
     canvas.width = dimensions.width;
     canvas.height = dimensions.height;
 
-    // Desaturate at capped source resolution, then scale up — avoids a
-    // multi-megapixel getImageData pass on 4K logical level dimensions.
+    // Read only a small strip at a time. A full portrait ImageData plus a
+    // full-size scratch canvas can exhaust the iOS WebView before first paint.
     const scratch = document.createElement('canvas');
     scratch.width = sourceWidth;
-    scratch.height = sourceHeight;
+    scratch.height = Math.min(64, sourceHeight);
     const scratchCtx = scratch.getContext('2d', { willReadFrequently: true })!;
-    scratchCtx.drawImage(source, 0, 0, sourceWidth, sourceHeight);
-    const pixels = scratchCtx.getImageData(0, 0, sourceWidth, sourceHeight);
-    this.desaturateImageDataInPlace(pixels);
-    scratchCtx.putImageData(pixels, 0, 0);
-
     const ctx = canvas.getContext('2d')!;
-    ctx.imageSmoothingEnabled = true;
-    ctx.imageSmoothingQuality = 'high';
-    ctx.drawImage(scratch, 0, 0, canvas.width, canvas.height);
+    for (let y = 0; y < sourceHeight; y += scratch.height) {
+      const height = Math.min(scratch.height, sourceHeight - y);
+      scratchCtx.clearRect(0, 0, sourceWidth, scratch.height);
+      scratchCtx.drawImage(source, 0, y, sourceWidth, height, 0, 0, sourceWidth, height);
+      const pixels = scratchCtx.getImageData(0, 0, sourceWidth, height);
+      this.desaturateImageDataInPlace(pixels);
+      ctx.putImageData(pixels, 0, y);
+    }
+    scratch.width = 0;
+    scratch.height = 0;
 
-    this.textures.addCanvas('bw_generated', canvas);
-    this.refreshCanvasTexture('bw_generated');
+    // This texture never changes. addCanvas retains another full-image CPU
+    // pixel buffer for editing; an ordinary source avoids that copy.
+    this.registerCanvasSource('bw_generated', canvas);
   }
 
   private createPawTexture(): void {

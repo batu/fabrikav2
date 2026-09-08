@@ -1,4 +1,6 @@
 export const FALLBACK_RUNTIME_TEXTURE_LONG_EDGE = 2560;
+// Preserve the shipped scene detail while bounding iOS color/reveal texture memory.
+const IOS_RUNTIME_TEXTURE_LONG_EDGE = 5600;
 
 /** Use the renderer's real allocation limit; retain the shipped guard without WebGL capability. */
 export function resolveRuntimeTextureLongEdge(maxTextureSize: number | null): number {
@@ -14,7 +16,7 @@ export function resolvePlatformRuntimeTextureLongEdge(
 ): number {
   const capability = resolveRuntimeTextureLongEdge(maxTextureSize);
   return platform === 'ios'
-    ? Math.min(capability, FALLBACK_RUNTIME_TEXTURE_LONG_EDGE)
+    ? Math.min(capability, IOS_RUNTIME_TEXTURE_LONG_EDGE)
     : capability;
 }
 
@@ -34,7 +36,9 @@ export function selectRuntimeColorImageUrl(
   sourceWidth: number,
   sourceHeight: number,
   runtimeTextureLongEdge: number,
+  sourceImageAvailable = import.meta.env.MODE !== 'ios' && import.meta.env.MODE !== 'android',
 ): string {
+  if (!sourceImageAvailable) return fallbackUrl;
   const sourceLongEdge = Math.max(sourceWidth, sourceHeight);
   if (runtimeTextureLongEdge <= FALLBACK_RUNTIME_TEXTURE_LONG_EDGE) return fallbackUrl;
   if (sourceLongEdge <= FALLBACK_RUNTIME_TEXTURE_LONG_EDGE) return fallbackUrl;

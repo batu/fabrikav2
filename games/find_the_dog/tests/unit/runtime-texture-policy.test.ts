@@ -20,8 +20,11 @@ describe('resolveRuntimeTextureLongEdge', () => {
     expect(resolveRuntimeTextureLongEdge(0)).toBe(2560);
   });
 
-  it('uses the memory-safe runtime tier on iOS instead of the GPU allocation ceiling', () => {
-    expect(resolvePlatformRuntimeTextureLongEdge(16_384, 'ios')).toBe(2560);
+  it('preserves full-resolution portrait detail on iOS without using the full GPU ceiling', () => {
+    expect(resolvePlatformRuntimeTextureLongEdge(16_384, 'ios')).toBe(5600);
+    expect(resolvePlatformRuntimeTextureLongEdge(4096, 'ios')).toBe(4096);
+    expect(resolvePlatformRuntimeTextureLongEdge(2048, 'ios')).toBe(2048);
+    expect(resolvePlatformRuntimeTextureLongEdge(null, 'ios')).toBe(2560);
     expect(resolvePlatformRuntimeTextureLongEdge(8192, 'android')).toBe(8192);
     expect(resolvePlatformRuntimeTextureLongEdge(8192, 'web')).toBe(8192);
   });
@@ -32,6 +35,10 @@ describe('resolveRuntimeTextureLongEdge', () => {
 });
 
 describe('selectRuntimeColorImageUrl', () => {
+  it('uses packaged WebP in native builds even when the full-resolution PNG would fit', () => {
+    expect(selectRuntimeColorImageUrl('levels/level-a/color.webp', 2560, 5600, 5600, false))
+      .toBe('levels/level-a/color.webp');
+  });
   it('selects the bundled high-resolution source when WebGL can exceed the fallback tier', () => {
     expect(selectRuntimeColorImageUrl('levels/level-a/color.webp', 2560, 5600, 8192))
       .toBe('levels/level-a/color.png');
