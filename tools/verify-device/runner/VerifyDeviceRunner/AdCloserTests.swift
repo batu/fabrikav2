@@ -38,6 +38,13 @@ final class AdCloserTests: XCTestCase {
         add(attachment)
     }
 
+    override func setUp() {
+        super.setUp()
+        // A marker that vanishes between `exists` and `label` (scene change,
+        // modal hiding the body-level element) must not end the babysit.
+        continueAfterFailure = true
+    }
+
     func testCloseFullScreenAdsWhileDriveRuns() {
         guard let bundleId = ProcessInfo.processInfo.environment["TARGET_BUNDLE_ID"], !bundleId.isEmpty else {
             XCTFail("TARGET_BUNDLE_ID not set — pass TEST_RUNNER_TARGET_BUNDLE_ID=<appId> to xcodebuild test")
@@ -51,7 +58,6 @@ final class AdCloserTests: XCTestCase {
         RunLoop.current.run(until: Date().addingTimeInterval(8.0))
         shot("00-launch")
 
-        let markerQuery = app.staticTexts.matching(NSPredicate(format: "label BEGINSWITH 'addrive:'")).firstMatch
         let closePredicate = NSPredicate(format: "label CONTAINS[c] 'close' OR label CONTAINS[c] 'skip'")
         let deadline = Date().addingTimeInterval(seconds)
         var closes = 0
@@ -62,8 +68,7 @@ final class AdCloserTests: XCTestCase {
         while Date() < deadline {
             cycle += 1
             if cycle % 2 == 1 {
-                if markerQuery.exists {
-                    let label = markerQuery.label
+                if let label = app.staticTexts.matching(NSPredicate(format: "label BEGINSWITH 'addrive:'")).allElementsBoundByIndex.first?.label {
                     let parts = label.split(separator: ":", maxSplits: 2, omittingEmptySubsequences: false)
                     if parts.count == 3, let seq = Int(parts[1]), seq != lastSeq {
                         lastSeq = seq

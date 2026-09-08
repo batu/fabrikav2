@@ -54,6 +54,35 @@ function log(step: string, details?: unknown): void {
   marker.textContent = `addrive:${sequence}`;
 }
 
+const BASELINE_KEY = '__ad_drive_baseline__';
+interface DriveBaseline { levelIndex: number; coins: number; hints: number }
+
+function parseBaseline(raw: string | null | undefined): DriveBaseline | null {
+  if (!raw) return null;
+  try {
+    const value = JSON.parse(raw) as Partial<DriveBaseline>;
+    if (typeof value.levelIndex === 'number' && typeof value.coins === 'number' && typeof value.hints === 'number') {
+      return { levelIndex: value.levelIndex, coins: value.coins, hints: value.hints };
+    }
+  } catch { /* fall through */ }
+  return null;
+}
+
+/** Flag-supplied baseline (`true;baseline={"levelIndex":1,"coins":45,"hints":3}`) wins over the persisted one. */
+function readBaseline(): DriveBaseline | null {
+  const flag = String(import.meta.env.VITE_FTD_AD_LIFECYCLE_DRIVE ?? '');
+  const supplied = parseBaseline(flag.split(';baseline=')[1]);
+  if (supplied !== null) {
+    writeBaseline(supplied);
+    return supplied;
+  }
+  try { return parseBaseline(localStorage.getItem(BASELINE_KEY)); } catch { return null; }
+}
+
+function writeBaseline(baseline: DriveBaseline): void {
+  try { localStorage.setItem(BASELINE_KEY, JSON.stringify(baseline)); } catch { /* ignore */ }
+}
+
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => window.setTimeout(resolve, ms));
 }
@@ -81,6 +110,28 @@ export function installAdLifecycleDrive(harness: FindTheDogHarness): void {
 
   const run = async (): Promise<void> => {
     try { localStorage.removeItem(JOURNAL_KEY); } catch { /* ignore */ }
+    // Baseline = the device owner's real progress, captured once and restored
+    // at every drive start AND end, so interrupted runs (WebContent recycle,
+    // test-runner teardown) cannot leave the phone advanced. A baseline may
+    // be supplied through the flag value (`true;baseline={...}`) for a device
+    // whose first runs predate this persistence.
+    const baseline = readBaseline();
+    if (baseline !== null) {
+      harness.setState({ currentLevelIndex: baseline.levelIndex });
+      harness.setWallet({ coins: baseline.coins, hints: baseline.hints });
+      log('restored baseline at start', baseline);
+    } else {
+      writeBaseline({ levelIndex: gameState.currentLevelIndex, coins: harness.walletSnapshot().coins, hints: harness.walletSnapshot().hints });
+    }
+    // `true;restoreOnly;baseline={...}`: put the owner's state back (progress,
+    // wallet, No-Ads, ads and rate-prompt settings) and stop without playing.
+    if (String(import.meta.env.VITE_FTD_AD_LIFECYCLE_DRIVE ?? '').includes(';restoreOnly')) {
+      harness.setWallet({ noAds: true });
+      harness.setSettings({ adsEnabled: false, ratePromptEnabled: true });
+      void adService.hideBanner();
+      log('restore-only done', { levelIndex: gameState.currentLevelIndex, wallet: harness.walletSnapshot(), adsEnabled: gameState.settings.adsEnabled, noAds: gameState.hasNoAdsEntitlement, ratePromptEnabled: gameState.settings.ratePromptEnabled });
+      return;
+    }
     const startIndex = gameState.currentLevelIndex;
     const startWallet = harness.walletSnapshot();
     log('start', {
@@ -106,9 +157,17 @@ export function installAdLifecycleDrive(harness: FindTheDogHarness): void {
     // entitlement for the drive only, restore it in `finally`; the runtime's
     // RevenueCat customer-info recovery re-grants it on the next launch anyway.
     const liftedNoAds = gameState.hasNoAdsEntitlement || !gameState.settings.adsEnabled;
+    // The rate prompt opens on Next after the 5th completion and blocks the
+    // level transition; suppress it for the drive so no answer is recorded on
+    // the owner's behalf, then restore the setting.
+    const startRatePromptEnabled = gameState.settings.ratePromptEnabled;
+    harness.setSettings({ ratePromptEnabled: false });
     try {
       if (liftedNoAds) {
-        harness.setWallet({ noAds: false });
+        // The harness can only grant No-Ads (there is no product path that
+        // revokes it), so the drive clears the private flag directly and
+        // re-grants through the harness in `finally`.
+        (gameState as unknown as { _noAdsEntitlement: boolean })._noAdsEntitlement = false;
         harness.setSettings({ adsEnabled: true });
         log('temporarily lifted No-Ads entitlement for the drive', { adsEnabled: gameState.settings.adsEnabled, noAds: gameState.hasNoAdsEntitlement });
         // Boot skipped ad init for the entitled player; start it now like a
@@ -118,8 +177,16 @@ export function installAdLifecycleDrive(harness: FindTheDogHarness): void {
       }
       await sleep(6_000); // consent + init + prewarm + HUD rewarded preload
       dumpEvents('boot');
+      // In-memory, test-only cadence override so the FIRST Next is
+      // interstitial-eligible (the live value stays 3 and is logged above):
+      // completion 1 = claim-x2 rewarded + Next interstitial, completion 2 =
+      // the 120 s frequency-cap skip. Two level loads instead of three keeps
+      // the WebContent process under the iPhone 12 memory ceiling (run 5
+      // recycled it on the third rapid level load).
+      harness.setRemoteConfigValuesForTest({ interstitialEveryNLevels: 1 });
+      log('drive-only remote config override', { interstitialEveryNLevels: harness.remoteConfigSnapshot().active.interstitialEveryNLevels });
 
-      for (let completion = 1; completion <= 3; completion += 1) {
+      for (let completion = 1; completion <= 2; completion += 1) {
         log(`goto GameScene (completion ${completion})`);
         harness.gotoGameScene();
         const ready = await waitFor('gameplay dogs', () => {
@@ -136,27 +203,56 @@ export function installAdLifecycleDrive(harness: FindTheDogHarness): void {
         await sleep(1_500);
         dumpEvents(`complete-${completion}`);
 
-        if (completion === 1 && clickable('.fab-complete-claim-x2-btn')) {
-          log('tap claim x2 (rewarded)');
-          button('.fab-complete-claim-x2-btn')?.click();
-          // The rewarded test ad is on screen until the XCUITest closes it.
-          await waitFor('rewarded settled (next enabled)', () => clickable('.fab-complete-next-btn'), 120_000);
-        } else {
-          log('tap claim');
-          button('.fab-complete-claim-btn')?.click();
-          const nextReady = await waitFor('next enabled', () => clickable('.fab-complete-next-btn'), 45_000);
-          if (!nextReady) {
-            const next = button('.fab-complete-next-btn');
-            log('next button state', { exists: next !== null, disabled: next?.disabled, rects: next?.getClientRects().length, claimDisabled: button('.fab-complete-claim-btn')?.disabled });
-          }
+        const overlayState = (): Record<string, unknown> => {
+          const reward = document.querySelector('.fab-complete-reward, [class*="fab-complete-reward"]');
+          const next = button('.fab-complete-next-btn');
+          const claim = button('.fab-complete-claim-btn');
+          const x2 = button('.fab-complete-claim-x2-btn');
+          return {
+            claim: claim === null ? null : { disabled: claim.disabled, hidden: claim.hidden, rects: claim.getClientRects().length },
+            claimX2: x2 === null ? null : { disabled: x2.disabled, hidden: x2.hidden, rects: x2.getClientRects().length },
+            next: next === null ? null : { disabled: next.disabled, rects: next.getClientRects().length },
+            rewardClasses: reward?.className ?? null,
+            overlays: document.querySelectorAll('.fab-complete-claim-btn').length,
+            // Why claim-x2 may be absent: the GameScene gate reads these.
+            claimX2Gate: {
+              levelEndClaimX2Enabled: harness.remoteConfigSnapshot().active.levelEndClaimX2Enabled,
+              adsEnabled: gameState.settings.adsEnabled,
+              noAds: gameState.hasNoAdsEntitlement,
+              activeCompletionTransaction: harness.walletSnapshot().activeCompletionTransaction,
+            },
+          };
+        };
+        const useX2 = completion === 1 && clickable('.fab-complete-claim-x2-btn');
+        const selector = useX2 ? '.fab-complete-claim-x2-btn' : '.fab-complete-claim-btn';
+        // Retry the tap: the kit re-enables the claim buttons and resets when
+        // its coin-fly rejects, and a tap during the reveal can be ignored.
+        let nextReady = false;
+        for (let attempt = 1; attempt <= 3 && !nextReady; attempt += 1) {
+          log(`tap ${useX2 ? 'claim x2 (rewarded)' : 'claim'} attempt ${attempt}`, overlayState());
+          const target = button(selector);
+          target?.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+          // A rewarded test ad stays on screen until the XCUITest closes it.
+          nextReady = await waitFor('next enabled', () => clickable('.fab-complete-next-btn'), useX2 ? 120_000 : 20_000);
+          if (!nextReady) log('after claim attempt', overlayState());
         }
         await sleep(1_000);
         dumpEvents(`claimed-${completion}`);
 
-        log(`tap Next (completion ${completion}; interstitial gate eligible on every 3rd)`);
-        button('.fab-complete-next-btn')?.click();
+        log(`tap Next (completion ${completion}; interstitial gate per drive-only cadence override)`);
+        button('.fab-complete-next-btn')?.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
         // A cadence-eligible interstitial blocks here until the XCUITest closes it.
+        // Any in-app modal that Next awaits (rate prompt) is declined so the
+        // drive never leaves the device owner a pending dialog; each decline
+        // and the modal state are journaled.
         await waitFor('next level started', () => {
+          const modal = document.querySelector<HTMLElement>('[aria-modal="true"]');
+          if (modal !== null && !modal.classList.contains('fab-complete')) {
+            const decline = [...modal.querySelectorAll<HTMLButtonElement>('.fab-modal-actions button, button')]
+              .find((b) => /not really|later|no thanks|not now|close/i.test(b.textContent ?? ''));
+            log('modal during Next', { text: (modal.textContent ?? '').replace(/\s+/g, ' ').slice(0, 120), declined: decline?.textContent ?? null });
+            decline?.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+          }
           const snapshot = harness.snapshot();
           return snapshot.activeScene === 'GameScene' && !snapshot.levelCompleteOverlayVisible && snapshot.foundDogIds.length === 0;
         }, 120_000);
@@ -177,6 +273,7 @@ export function installAdLifecycleDrive(harness: FindTheDogHarness): void {
       dumpEvents('final');
       harness.setState({ currentLevelIndex: startIndex });
       harness.setWallet({ coins: startWallet.coins, hints: startWallet.hints });
+      harness.setSettings({ ratePromptEnabled: startRatePromptEnabled });
       if (liftedNoAds) {
         harness.setWallet({ noAds: startWallet.hasNoAdsEntitlement });
         harness.setSettings({ adsEnabled: false });

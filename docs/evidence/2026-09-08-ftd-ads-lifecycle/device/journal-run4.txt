@@ -1,0 +1,17 @@
+2026-09-08T13:18:06.778Z start {"build":"0.0.0+485450fe52-dirty","adsEnabled":false,"noAds":true,"levelIndex":1,"wallet":{"coins":45,"hints":3,"hasNoAdsEntitlement":true,"hasPremiumEntitlement":false,"rewardProgressCount":1,"processedPurchaseIds":[],"activeCompletionTransaction":null,"counters":{"coinsGranted":45,"coinsSpent":0,"hintsGranted":0,"hintsSpent":0,"levelCompleteCoinGrants":1,"rewardedHintGrants":0}},"remoteConfig":{"state":"ready","lastFetchStatus":"success","fetchTimeMillis":1788872255205,"interstitialEveryNLevels":[3,"remote"],"interstitialMinIntervalS":[120,"remote"],"interstitialMinLevel":[0,"remote"],"levelEndClaimX2Enabled":[true,"remote"],"hintRwEnabled":[true,"remote"]}}
+2026-09-08T13:18:12.779Z goto GameScene (completion 1)
+2026-09-08T13:18:25.544Z winLevel -> true
+2026-09-08T13:18:28.035Z tap claim
+2026-09-08T13:18:58.095Z wait timeout: next enabled
+2026-09-08T13:18:59.115Z tap Next (completion 1; interstitial gate eligible on every 3rd)
+2026-09-08T13:20:59.326Z wait timeout: next level started
+2026-09-08T13:21:01.337Z goto GameScene (completion 2)
+2026-09-08T13:21:15.719Z winLevel -> true
+2026-09-08T13:21:19.247Z tap claim
+2026-09-08T13:21:49.437Z wait timeout: next enabled
+2026-09-08T13:21:50.469Z tap Next (completion 2; interstitial gate eligible on every 3rd)
+2026-09-08T13:23:50.685Z wait timeout: next level started
+2026-09-08T13:23:52.701Z goto GameScene (completion 3)
+2026-09-08T13:24:05.090Z winLevel -> true
+2026-09-08T13:24:07.906Z tap claim
+

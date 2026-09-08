@@ -1,0 +1,10 @@
+# ad-closer xcuitest run 3 (drive build 485450fe52 dirty, builtAt 13:09:17Z) 2026-09-08T13:10:21Z
+Test Case '-[VerifyDeviceRunner.AdCloserTests testCloseFullScreenAdsWhileDriveRuns]' started.
+2026-09-08 16:10:30.853229+0300 VerifyDeviceRunner-Runner[3942:1103604] [ad-closer] 2026-09-08T13:10:30Z launched com.baseardahan.hiddenobj; babysitting for 380s
+2026-09-08 16:17:00.318326+0300 VerifyDeviceRunner-Runner[3942:1103604] [ad-closer] 2026-09-08T13:17:00Z done: closes=0 ticks=18 lastDriveSeq=0
+Test Case '-[VerifyDeviceRunner.AdCloserTests testCloseFullScreenAdsWhileDriveRuns]' passed (398.599 seconds).
+	 Executed 1 test, with 0 failures (0 unexpected) in 398.599 (398.601) seconds
+	 Executed 1 test, with 0 failures (0 unexpected) in 398.599 (398.604) seconds
+	 Executed 1 test, with 0 failures (0 unexpected) in 398.599 (398.606) seconds
+** TEST SUCCEEDED **
+exit=0

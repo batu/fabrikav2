@@ -7,7 +7,7 @@ Dog iOS only (App Store 6772100729, bundle `com.baseardahan.hiddenobj`, AdMob ap
 | Source | Method | File | Window / tz / currency |
 |---|---|---|---|
 | AdMob Ads Activity report, App = Dog, dimensions Ad unit × Format × Country | Batu's authenticated Chrome session via browser-harness (report UI, no export, no settings touched) | `admob-dog-adunit-by-country-20260901_07.json`, `admob-dog-country-format-summary.json`, screenshots | "Last 7 days" whose chart axis reads Sep 1 → Sep 7 2026; AdMob account timezone (not verified); USD |
-| AppsFlyer raw data (Pull API v5): `installs_report`, `organic_installs_report`, `in_app_events_report`, `organic_in_app_events_report` | Reporting token from the owner key store; `curl -L`, no cache | `af-dog-*-20260901_07.csv` | 2026-09-01..07, AppsFlyer app timezone (report default), USD revenue columns |
+| AppsFlyer raw data (Pull API v5): `installs_report`, `organic_installs_report`, `in_app_events_report`, `organic_in_app_events_report` | Reporting token from the owner key store; `curl -L`, no cache | `af-dog-*-20260901_07.csv` kept **outside git** (user-level rows: device ids, IPs) at `/Users/base/store-review/find-games/analytics/ftd-ads-lifecycle-20260908/scorecard/` | 2026-09-01..07, AppsFlyer app timezone (report default), USD revenue columns |
 | AppsFlyer aggregate (`partners_by_date`) via `tools/find-games-provider-ops` | CLI | `appsflyer-aggregate-2026-09-01_07.json` | **rate limited** (`Limit reached for partners-daily-report`), degraded |
 | Meta Marketing API v21: campaign objects + daily insights for the two Dog iOS campaigns | Token from owner key store, `GET /insights` with `time_range` + `time_increment=1` | `meta-campaign-*.json`, `meta-campaign-*-insights-daily-20260901_07.json` | 2026-09-01..07, ad-account timezone, **TRY** |
 | provider-ops live health | CLI | `provider-ops-health-live.json` | appsflyer healthy; admob/GA/RevenueCat/ASC degraded (browser fallback only); meta missing_credential for the CLI's locator |
@@ -62,9 +62,19 @@ What the country cut settles:
 
 ## 3. September 5 anomaly — Dog daily by ad unit
 
-Not retrieved. The AdMob UI rendered 19 rows (3 units × 7 days minus empties) for Ad unit × Format × Date but the row DOM never populated while the report tab was not the foreground tab; `admob-adunit-by-date-page1.png` shows the empty table. The account-level daily series in the audit remains the only daily view; it is Dog + Bird and cannot attribute the Sep 5 request spike to an app.
+Retrieved (`admob-dog-adunit-by-date-20260901_07.json`, `admob-dog-daily-summary.json`; the report tab had to be foregrounded and its table editor closed before the rows rendered):
 
-Export recipe (30 seconds in the UI, no settings touched): AdMob → Reports → AdMob Network → filter App = Find The Dog → dimensions Ad unit + Date → date range Sep 1–7 2026 → CSV download (⋮ menu). Then compare Sep 5 requests by unit against Sep 4/6; if the spike is banner-only and Philippines-heavy (see §2), it is a no-fill request loop from a low-fill market, not a serving restriction.
+| Date | Requests | Matched | Match | Impr. | Earnings | Notes |
+|---|---:|---:|---:|---:|---:|---|
+| Sep 1 | 5 | 5 | 100% | 0 | $0.00 | interstitial 4, rewarded 1 |
+| Sep 2 | 4 | 4 | 100% | 0 | $0.00 | interstitial 4; banner 0 |
+| Sep 3 | 42 | 42 | 100% | 11 | $0.00 | banner 11/11, interstitial 13, rewarded 18 |
+| Sep 4 | 309 | 201 | 65.0% | 121 | $0.18 | **banner 209 req / 101 matched (48.3%)**, interstitial 46 → 22 impr, rewarded 54 → 2 |
+| **Sep 5** | **137** | **137** | **100%** | 70 | $0.10 | banner 64/64/64, interstitial 30 → 3, rewarded 43 → 3 |
+| Sep 6 | 117 | 81 | 69.2% | 42 | $0.04 | banner 74 → 38 matched (51.4%), interstitial 18 → 4, rewarded 25 → 1 |
+| Sep 7 | 514 | 490 | 95.3% | 279 | $0.39 | banner 273 → 249 (91.2%), interstitial 96 → 19, rewarded 145 → 13 |
+
+**The September 5 account-level anomaly (760 requests, 19% match) is not Dog.** Dog made 137 requests on Sep 5 and every one matched; Dog's own unmatched days are Sep 4 and Sep 6, both banner-only (108 and 36 unmatched), consistent with the Philippines banner fill problem in §2. The account spike therefore belongs to Bird, and neither its cause nor any later Dog build has anything to do with it. Dog's Sep 5 dip is a volume dip (137 vs 309 requests), not a serving change.
 
 ## 4. AppsFlyer — installs, countries, events
 
@@ -102,7 +112,7 @@ With the country cut, the only defensible per-market framing is the US: blended 
 
 | Gap | Blocker | Exact next step |
 |---|---|---|
-| AdMob Date × Ad unit (Sep 5), Serving restriction × Format, ATT status × Format, App version × Ad unit | No AdMob reporting API credential exists (`FIND_GAMES_ADMOB_REPORTING_CREDENTIAL_FILE` unset; provider-ops reports `degraded`); UI table rendering stalled in a background tab | Either create a read-only AdMob API OAuth credential and store it at the provider-ops locator, or run the 30-second UI CSV export in §3 with the tab in the foreground |
+| AdMob Serving restriction × Format, ATT status × Format, App version × Ad unit | No AdMob reporting API credential exists (`FIND_GAMES_ADMOB_REPORTING_CREDENTIAL_FILE` unset; provider-ops reports `degraded`); each UI cut costs a foreground-tab session | Either create a read-only AdMob API OAuth credential and store it at the provider-ops locator, or add the three dimensions one at a time in the same report UI used for §2/§3 (foreground tab, table editor closed) |
 | Daily DAU, ad viewers, impressions/DAU, ARPDAU | GameAnalytics session KPI is quarantined (`daily-scorecard/latest.json` session_quality) and GA is browser-only for this tooling | Keep the two-clean-snapshot acceptance gate; until then report impressions and revenue per install-day cohort from AppsFlyer + AdMob, not per DAU |
 | D1/D3/D7 retention with eligible denominators | No retention source with a mature horizon was readable (GA quarantined; AppsFlyer cohort API not attempted because the aggregate endpoint is rate limited today) | Tomorrow: `cohort` report via AppsFlyer Master API or GA retention once un-quarantined; include zero-revenue installs |
 | Verified net IAP | RevenueCat key on file is rejected by API v2 (`Invalid API key.`) | Issue a v2 read-only secret key for the Dog project in RevenueCat and store it under `~/.config/base-game-lab/revenuecat/`; then pull `/v2/projects/{id}/…/overview` or export transactions and net of Apple commission/refunds |
