@@ -1,0 +1,15 @@
+2026-09-08T13:34:27.800Z start {"build":"0.0.0+7214730547-dirty","adsEnabled":false,"noAds":true,"levelIndex":6,"wallet":{"coins":635,"hints":3,"hasNoAdsEntitlement":true,"hasPremiumEntitlement":false,"rewardProgressCount":6,"processedPurchaseIds":[],"activeCompletionTransaction":null,"counters":{"coinsGranted":635,"coinsSpent":0,"hintsGranted":0,"hintsSpent":0,"levelCompleteCoinGrants":6,"rewardedHintGrants":0}},"remoteConfig":{"state":"ready","lastFetchStatus":"success","fetchTimeMillis":1788872255205,"interstitialEveryNLevels":[3,"remote"],"interstitialMinIntervalS":[120,"remote"],"interstitialMinLevel":[0,"remote"],"levelEndClaimX2Enabled":[true,"remote"],"hintRwEnabled":[true,"remote"]}}
+2026-09-08T13:34:27.802Z temporarily lifted No-Ads entitlement for the drive {"adsEnabled":true,"noAds":false}
+2026-09-08T13:34:32.802Z event:tick {"name":"ad_lifecycle","params":{"game":"find_the_dog","environment":"production","platform":"ios","build":"0.0.0+7214730547-dirty","app_version":"0.0.0","ad_type":"interstitial","placement":"between_levels","stage":"load_requested","load_id":"interstitial-0-1","attempt":1}}
+2026-09-08T13:34:32.803Z event:tick {"name":"ad_lifecycle","params":{"game":"find_the_dog","environment":"production","platform":"ios","build":"0.0.0+7214730547-dirty","app_version":"0.0.0","ad_type":"rewarded","placement":"rewarded","stage":"load_requested","load_id":"rewarded-0-2"}}
+2026-09-08T13:34:32.803Z event:tick {"name":"ad_lifecycle","params":{"game":"find_the_dog","environment":"production","platform":"ios","build":"0.0.0+7214730547-dirty","app_version":"0.0.0","ad_type":"interstitial","placement":"between_levels","stage":"loaded","load_id":"interstitial-0-1"}}
+2026-09-08T13:34:34.281Z drive-only remote config override {"interstitialEveryNLevels":1}
+2026-09-08T13:34:34.281Z goto GameScene (completion 1)
+2026-09-08T13:34:37.885Z event:tick {"name":"ad_lifecycle","params":{"game":"find_the_dog","environment":"production","platform":"ios","build":"0.0.0+7214730547-dirty","app_version":"0.0.0","ad_type":"rewarded","placement":"rewarded","stage":"loaded","load_id":"rewarded-0-2"}}
+2026-09-08T13:34:54.927Z winLevel -> true
+2026-09-08T13:34:58.126Z tap claim attempt 1 {"claim":{"disabled":false,"hidden":false,"rects":1},"claimX2":null,"next":{"disabled":true,"rects":1},"rewardClasses":"fab-complete-reward-zone","overlays":1}
+2026-09-08T13:35:18.344Z wait timeout: next enabled
+2026-09-08T13:35:18.348Z after claim attempt {"claim":{"disabled":false,"hidden":false,"rects":1},"claimX2":null,"next":{"disabled":true,"rects":1},"rewardClasses":"fab-complete-reward-zone","overlays":1}
+2026-09-08T13:35:18.349Z tap claim attempt 2 {"claim":{"disabled":false,"hidden":false,"rects":1},"claimX2":null,"next":{"disabled":true,"rects":1},"rewardClasses":"fab-complete-reward-zone","overlays":1}
+2026-09-08T13:35:20.773Z tap Next (completion 1; interstitial gate per drive-only cadence override)
+

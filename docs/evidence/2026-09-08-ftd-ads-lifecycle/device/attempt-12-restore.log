@@ -1,0 +1,28 @@
+# device attempt 12: restore-only (levelIndex 1, coins 45, hints 3, No-Ads re-granted, adsEnabled false, ratePromptEnabled true) 2026-09-08T13:50:54Z
+tsc-exit=0
+✓ built in 2.46s
+restoreOnly;baseline={"levelIndex":1,"coins":45,"hints":3}'.s
+[info] Sync finished in 0.097s
+Applied native shell for find_the_dog: CapApp-SPM/Package.swift (1 SKAdNetwork IDs; Firebase plist wired)
+xcodebuild: error: Timed out waiting for all destinations matching the provided destination specifier to become available
+		{ platform:iOS, arch:arm64, id:00008101-000410EC3EF9001E, name:Batu’s iPhone, error:An error occurred while communicating with a remote process. }
+bundle: {"sha":"7214730547","dirty":true,"version":"0.0.0","builtAt":"2026-09-08T13:41:48.226Z"}
+• options: 
+Launched application with com.baseardahan.hiddenobj bundle identifier.
+launched 13:52:16Z
+/tmp/claude-501/-Users-base-dev-appletolye/9a61df8b-3597-4112-975e-b29eeb7df804/scratchpad/c8
+2026-09-08T13:52:20.785Z restored baseline at start {"levelIndex":1,"coins":45,"hints":3}
+2026-09-08T13:52:20.786Z start {"build":"0.0.0+7214730547-dirty","adsEnabled":false,"noAds":true,"levelIndex":1,"wallet":{"coins":45,"hints":3,"hasNoAdsEntitlement":true,"hasPremiumEntitlement":false,"rewardProgressCount":11,"processedPurchaseIds":[],"activeCompletionTransaction":null,"counters":{"coinsGranted":1135,"coinsSpent":0,"hintsGranted":0,"hintsSpent":0,"levelCompleteCoinGrants":11,"rewardedHintGrants":0}},"remoteConfig":{"state":"ready","lastFetchStatus":"success","fetchTimeMillis":1788872255205,"interstitialEveryNLevels":[3,"remote"],"interstitialMinIntervalS":[120,"remote"],"interstitialMinLevel":[0,"remote"],"levelEndClaimX2Enabled":[true,"remote"],"hintRwEnabled":[true,"remote"]}}
+2026-09-08T13:52:20.786Z temporarily lifted No-Ads entitlement for the drive {"adsEnabled":true,"noAds":false}
+2026-09-08T13:52:25.787Z event:tick {"name":"ad_lifecycle","params":{"game":"find_the_dog","environment":"production","platform":"ios","build":"0.0.0+7214730547-dirty","app_version":"0.0.0","ad_type":"interstitial","placement":"between_levels","stage":"load_requested","load_id":"interstitial-0-1","attempt":1}}
+2026-09-08T13:52:25.788Z event:tick {"name":"ad_lifecycle","params":{"game":"find_the_dog","environment":"production","platform":"ios","build":"0.0.0+7214730547-dirty","app_version":"0.0.0","ad_type":"rewarded","placement":"rewarded","stage":"load_requested","load_id":"rewarded-0-2"}}
+2026-09-08T13:52:25.788Z event:tick {"name":"ad_lifecycle","params":{"game":"find_the_dog","environment":"production","platform":"ios","build":"0.0.0+7214730547-dirty","app_version":"0.0.0","ad_type":"interstitial","placement":"between_levels","stage":"loaded","load_id":"interstitial-0-1"}}
+2026-09-08T13:52:25.788Z event:tick {"name":"ad_lifecycle","params":{"game":"find_the_dog","environment":"production","platform":"ios","build":"0.0.0+7214730547-dirty","app_version":"0.0.0","ad_type":"rewarded","placement":"rewarded","stage":"loaded","load_id":"rewarded-0-2"}}
+2026-09-08T13:52:27.075Z drive-only remote config override {"interstitialEveryNLevels":1}
+2026-09-08T13:52:27.075Z goto GameScene (completion 1)
+2026-09-08T13:52:39.492Z winLevel -> true
+
+ftd_hints 3
+ftd_level 1
+ftd_settings {"voronoiReveal":true,"soundOn":true,"musicOn":true,"soundEffectsOn":true,"hapticsOn":true,"showDebugOverlay":false,"adsEnabled":false,"notificationsOn":true,"ratePromptEnabled":false,"tutorialEnabled
+ftd_wallet_no_ads_entitlement 1

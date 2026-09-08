@@ -65,6 +65,11 @@ function environmentKeysForMode(mode: string): string[] {
     if ((mode === 'ios' || mode === 'android') && key === 'VITE_ENABLE_TEST_HARNESS') {
       return process.env.VITE_ENABLE_TEST_HARNESS === 'true';
     }
+    // The ad-lifecycle device drive rides the same explicit harness opt-in and
+    // must additionally be requested from the shell; never from a persisted env.
+    if ((mode === 'ios' || mode === 'android') && key === 'VITE_FTD_AD_LIFECYCLE_DRIVE') {
+      return process.env.VITE_ENABLE_TEST_HARNESS === 'true' && (process.env.VITE_FTD_AD_LIFECYCLE_DRIVE ?? '').startsWith('true');
+    }
     return true;
   });
 }

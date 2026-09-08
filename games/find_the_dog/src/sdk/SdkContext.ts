@@ -44,6 +44,7 @@ import { setMusicPausedForAd } from '../audio/AudioManager';
 import { bootstrapStorage, type BootstrapStorage } from '../platform/bootstrapStorage';
 import { gameState } from '../core/GameState';
 import { readAdMobConfig } from '../ads/AdMobConfig';
+import { createAdMobCompositionOptions } from '../ads/adMobComposition';
 import { configureAdService } from '../ads/Service';
 import {
   analytics,
@@ -162,9 +163,9 @@ export function createSdkContext(deps: CreateSdkContextDependencies = {}): GameS
     ? isNativePlatform && adMobConfig.enabled
       ? new AdMobProvider(adMobConfig.config, {
           lifecycle,
-          onAdRevenuePaid: (event) => forwardAcquisitionValueEvent({
-            type: 'ad_revenue', revenue: event.revenue, currency: event.currency,
-            format: event.format, placement: event.placement, impressionId: event.impressionId,
+          ...createAdMobCompositionOptions({
+            analytics,
+            forwardAcquisitionValueEvent: (event) => forwardAcquisitionValueEvent(event),
           }),
         })
       : defaultAdProviderFactories.createDisabledProvider(`AdMob unavailable: ${adMobConfig.enabled ? 'not running on a native platform' : adMobConfig.reason}`)

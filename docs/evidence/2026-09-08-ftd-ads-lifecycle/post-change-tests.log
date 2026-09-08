@@ -1,0 +1,127 @@
+# post-change @ f61ac4a84+dirty 2026-09-08T12:43:49Z
+## test:unit games/find_the_dog
+     × does not add an iOS experiment config wait to android startup 2ms
+     × does not add an iOS experiment config wait to web startup 0ms
+     × awaits remote config, initializes the real wallet, and forces shared home/game policy 0ms
+     × bounds hung config startup at 5000ms without enrollment on late resolve 0ms
+     × bounds hung config startup at 5000ms without enrollment on late reject 0ms
+     × continues without enrollment when config startup fails by reject 0ms
+     × continues without enrollment when config startup fails by throw 0ms
+     × uses safe launch state after config timeout with assignment 0ms
+     × uses safe launch state after config timeout with cached-kill 0ms
+     × uses safe launch state after config timeout with durable-kill 0ms
+     × uses safe launch state after config reject with assignment 0ms
+     × uses safe launch state after config reject with cached-kill 0ms
+     × uses safe launch state after config reject with durable-kill 0ms
+     × clears the startup deadline after timely config success 0ms
+     × ships default-off without granting hints or enrolling 0ms
+     × reports only a matching rendered treatment once per launch and tags return events 2ms
+     × never resets an existing or corrupt wallet 0 3ms
+     × never resets an existing or corrupt wallet 2 0ms
+     × never resets an existing or corrupt wallet 27 0ms
+     × never resets an existing or corrupt wallet bad 0ms
+     × never resets an existing or corrupt wallet  0ms
+     × preserves the start above the unchanged free cap through spend/save/reload 0ms
+     × does not adopt an unpersisted starting grant 0ms
+     × rejects a purchase checkpoint even when the plain hint key is missing 0ms
+     × persists ten starting hints exactly once through the actual wallet 0ms
+     × assigns with the existing resolver and the actual wallet 3ms
+     × fails closed on corrupt enrollment garbage 0ms
+     × fails closed on corrupt enrollment {} 0ms
+     × fails closed on corrupt enrollment {"variant":"pickup"} 0ms
+     × rejects invalid resolver bucket -1 before wallet mutation 0ms
+     × rejects invalid resolver bucket 100 before wallet mutation 0ms
+     × rejects invalid resolver bucket 0.5 before wallet mutation 0ms
+     × rejects invalid resolver bucket NaN before wallet mutation 0ms
+     × does not trust a bucket that failed persistence 0ms
+     × splits bucket 0 to reveal and preserves it offline without a second grant 0ms
+     × splits bucket 49 to reveal and preserves it offline without a second grant 0ms
+     × splits bucket 50 to pickup and preserves it offline without a second grant 0ms
+     × splits bucket 99 to pickup and preserves it offline without a second grant 0ms
+     × fails closed on missing returning enrollment even when the old cohort key survives 0ms
+     × fails closed on a silent persistence failure and never grants 0ms
+     × never re-enrolls or regrants when the final enrollment write throws after the real grant 0ms
+     × never re-enrolls or regrants when the final enrollment write drops after the real grant 0ms
+     × fails closed on relaunch with pending and cohort surviving before the real wallet grant 0ms
+     × kills on the next launch, remains killed offline, and preserves the wallet 0ms
+     × shares concurrent initialization and grants once 0ms
+     × keeps QA out of production cohorts even on the same release binary 0ms
+     × does not enroll excluded installs {"enabled":false} 0ms
+     × does not enroll excluded installs {"platform":"android"} 0ms
+     × does not enroll excluded installs {"platform":"web"} 0ms
+     × does not enroll excluded installs {"durable":false} 0ms
+     × does not enroll excluded installs {"hadExistingState":true} 0ms
+     × does not enroll excluded installs {"killed":true} 0ms
+⎯⎯⎯⎯⎯⎯ Failed Tests 52 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  tests/unit/reveal-pickup-bootstrap.test.ts > production experiment preparation > does not add an iOS experiment config wait to android startup
+ FAIL  tests/unit/reveal-pickup-bootstrap.test.ts > production experiment preparation > does not add an iOS experiment config wait to web startup
+ FAIL  tests/unit/reveal-pickup-bootstrap.test.ts > production experiment preparation > awaits remote config, initializes the real wallet, and forces shared home/game policy
+ FAIL  tests/unit/reveal-pickup-bootstrap.test.ts > production experiment preparation > bounds hung config startup at 5000ms without enrollment on late resolve
+ FAIL  tests/unit/reveal-pickup-bootstrap.test.ts > production experiment preparation > bounds hung config startup at 5000ms without enrollment on late reject
+ FAIL  tests/unit/reveal-pickup-bootstrap.test.ts > production experiment preparation > continues without enrollment when config startup fails by reject
+ FAIL  tests/unit/reveal-pickup-bootstrap.test.ts > production experiment preparation > continues without enrollment when config startup fails by throw
+ FAIL  tests/unit/reveal-pickup-bootstrap.test.ts > production experiment preparation > uses safe launch state after config timeout with assignment
+ FAIL  tests/unit/reveal-pickup-bootstrap.test.ts > production experiment preparation > uses safe launch state after config timeout with cached-kill
+ FAIL  tests/unit/reveal-pickup-bootstrap.test.ts > production experiment preparation > uses safe launch state after config timeout with durable-kill
+ FAIL  tests/unit/reveal-pickup-bootstrap.test.ts > production experiment preparation > uses safe launch state after config reject with assignment
+ FAIL  tests/unit/reveal-pickup-bootstrap.test.ts > production experiment preparation > uses safe launch state after config reject with cached-kill
+ FAIL  tests/unit/reveal-pickup-bootstrap.test.ts > production experiment preparation > uses safe launch state after config reject with durable-kill
+ FAIL  tests/unit/reveal-pickup-bootstrap.test.ts > production experiment preparation > clears the startup deadline after timely config success
+ FAIL  tests/unit/reveal-pickup-bootstrap.test.ts > production experiment preparation > ships default-off without granting hints or enrolling
+ FAIL  tests/unit/reveal-pickup-experiment.test.ts > reveal pickup experiment > assigns with the existing resolver and the actual wallet
+ FAIL  tests/unit/reveal-pickup-experiment.test.ts > reveal pickup experiment > fails closed on corrupt enrollment garbage
+ FAIL  tests/unit/reveal-pickup-experiment.test.ts > reveal pickup experiment > fails closed on corrupt enrollment {}
+ FAIL  tests/unit/reveal-pickup-experiment.test.ts > reveal pickup experiment > fails closed on corrupt enrollment {"variant":"pickup"}
+ FAIL  tests/unit/reveal-pickup-experiment.test.ts > reveal pickup experiment > rejects invalid resolver bucket -1 before wallet mutation
+ FAIL  tests/unit/reveal-pickup-experiment.test.ts > reveal pickup experiment > rejects invalid resolver bucket 100 before wallet mutation
+ FAIL  tests/unit/reveal-pickup-experiment.test.ts > reveal pickup experiment > rejects invalid resolver bucket 0.5 before wallet mutation
+ FAIL  tests/unit/reveal-pickup-experiment.test.ts > reveal pickup experiment > rejects invalid resolver bucket NaN before wallet mutation
+ FAIL  tests/unit/reveal-pickup-experiment.test.ts > reveal pickup experiment > does not trust a bucket that failed persistence
+ FAIL  tests/unit/reveal-pickup-experiment.test.ts > reveal pickup experiment > splits bucket 0 to reveal and preserves it offline without a second grant
+ FAIL  tests/unit/reveal-pickup-experiment.test.ts > reveal pickup experiment > splits bucket 49 to reveal and preserves it offline without a second grant
+ FAIL  tests/unit/reveal-pickup-experiment.test.ts > reveal pickup experiment > splits bucket 50 to pickup and preserves it offline without a second grant
+## typecheck games/find_the_dog
+> @fabrikav2/find_the_dog@1.0.6 typecheck
+> tsc --noEmit
+
+typecheck-exit=0
+## lint games/find_the_dog
+> @fabrikav2/find_the_dog@1.0.6 lint
+> eslint .
+
+## sdk vitest
+ Test Files  40 passed (40)
+      Tests  392 passed (392)
+## sdk tsc
+sdk-tsc-exit=0
+## sibling: find_the_bird typecheck+test:unit
+> @fabrikav2/find_the_bird@1.2.1 typecheck
+> tsc --noEmit
+
+ Test Files  69 passed (69)
+      Tests  429 passed | 3 skipped (432)
+## sibling: marble_run + shell_template typecheck
+> @fabrikav2/marble_run@0.0.0 typecheck
+> tsc --noEmit
+
+> @fabrikav2/shell_template@0.0.0 typecheck
+> tsc --noEmit
+
+## dog test:unit totals (post-change)
+   1       Tests  52 failed | 373 passed | 2 skipped (427)
+  15  FAIL  tests/unit/reveal-pickup-bootstrap.test.ts
+  27  FAIL  tests/unit/reveal-pickup-experiment.test.ts
+   1  FAIL  tests/unit/reveal-pickup-telemetry.test.ts
+   9  FAIL  tests/unit/reveal-pickup-wallet.test.ts
+   1  Test Files  4 failed | 48 passed (52)
+   1 [insituTour] state=pause-FAILED scene=HomeScene
+   1 [insituTour] state=settings-FAILED scene=GameScene
+   1 [insituTour] state=settings-FAILED scene=HomeScene
+  12 stdout | tests/unit/insitu-tour.test.ts
+   3 stdout | tests/unit/test-harness-real-flow.test.ts
+   1 ··················stdout | tests/unit/test-harness-real-flow.test.ts
+   1 ⎯⎯⎯⎯⎯⎯ Failed Tests 52 ⎯⎯⎯⎯⎯⎯⎯
+## marble_run typecheck
+exit=0
+## shell_template typecheck
+exit=0

@@ -1,0 +1,31 @@
+2026-09-08T13:26:55Z launched com.baseardahan.hiddenobj; babysitting for 400s
+2026-09-08T13:27:04Z drive#6 2026-09-08T13:27:03.382Z event:tick {"name":"ad_lifecycle","params":{"game":"find_the_dog","environment":"production","platform":"ios","build":"0.0.0+7214730547-dirty","app_version":"0.0.0","ad_type":"rewarded","placement":"rewarded","stage":"loaded","load_id":"rewarded-0-2"}}
+2026-09-08T13:27:07Z drive#7 2026-09-08T13:27:04.570Z goto GameScene (completion 1)
+2026-09-08T13:27:17Z drive#8 2026-09-08T13:27:17.379Z winLevel -> true
+2026-09-08T13:27:20Z drive#9 2026-09-08T13:27:19.660Z tap claim attempt 1 {"claim":{"disabled":false,"hidden":false,"rects":1},"claimX2":null,"next":{"disabled":true,"rects":1},"rewardClasses":"fab-complete-reward-zone","overlays":1}
+2026-09-08T13:27:41Z drive#12 2026-09-08T13:27:39.705Z tap claim attempt 2 {"claim":{"disabled":false,"hidden":false,"rects":1},"claimX2":null,"next":{"disabled":true,"rects":1},"rewardClasses":"fab-complete-reward-zone","overlays":1}
+2026-09-08T13:27:44Z drive#13 2026-09-08T13:27:42.072Z tap Next (completion 1; interstitial gate eligible on every 3rd)
+2026-09-08T13:27:50Z drive#14 2026-09-08T13:27:44.952Z goto GameScene (completion 2)
+2026-09-08T13:28:05Z drive#15 2026-09-08T13:28:04.464Z winLevel -> true
+2026-09-08T13:28:23Z drive#18 2026-09-08T13:28:19.906Z goto GameScene (completion 3)
+2026-09-08T13:28:47Z drive#4 2026-09-08T13:28:46.714Z event:tick {"name":"ad_lifecycle","params":{"game":"find_the_dog","environment":"production","platform":"ios","build":"0.0.0+7214730547-dirty","app_version":"0.0.0","ad_type":"rewarded","placement":"rewarded","stage":"load_requested","load_id":"rewarded-0-2"}}
+2026-09-08T13:29:03Z drive#6 2026-09-08T13:28:56.830Z event:tick {"name":"ad_lifecycle","params":{"game":"find_the_dog","environment":"production","platform":"ios","build":"0.0.0+7214730547-dirty","app_version":"0.0.0","ad_type":"interstitial","placement":"between_levels","stage":"loaded","load_id":"interstitial-0-1"}}
+2026-09-08T13:29:17Z drive#7 2026-09-08T13:29:15.080Z winLevel -> true
+2026-09-08T13:29:21Z drive#8 2026-09-08T13:29:18.115Z tap claim attempt 1 {"claim":{"disabled":false,"hidden":false,"rects":1},"claimX2":null,"next":{"disabled":true,"rects":1},"rewardClasses":"fab-complete-reward-zone","overlays":1}
+2026-09-08T13:29:39Z drive#11 2026-09-08T13:29:38.257Z tap claim attempt 2 {"claim":{"disabled":false,"hidden":false,"rects":1},"claimX2":null,"next":{"disabled":true,"rects":1},"rewardClasses":"fab-complete-reward-zone","overlays":1}
+2026-09-08T13:29:42Z drive#12 2026-09-08T13:29:40.800Z tap Next (completion 1; interstitial gate eligible on every 3rd)
+2026-09-08T13:29:52Z drive#2 2026-09-08T13:29:49.024Z temporarily lifted No-Ads entitlement for the drive {"adsEnabled":true,"noAds":true}
+2026-09-08T13:29:58Z drive#7 2026-09-08T13:29:55.148Z goto GameScene (completion 1)
+2026-09-08T13:30:00Z drive#11 2026-09-08T13:29:59.027Z event:tick {"name":"ad_shown","params":{"game":"find_the_dog","environment":"production","platform":"ios","build":"0.0.0+7214730547-dirty","app_version":"0.0.0","ad_type":"banner","placement":"gameplay"}}
+2026-09-08T13:30:11Z drive#12 2026-09-08T13:30:09.369Z winLevel -> true
+2026-09-08T13:30:14Z drive#14 2026-09-08T13:30:11.968Z tap claim attempt 1 {"claim":{"disabled":false,"hidden":false,"rects":1},"claimX2":null,"next":{"disabled":true,"rects":1},"rewardClasses":"fab-complete-reward-zone","overlays":1}
+2026-09-08T13:30:33Z drive#17 2026-09-08T13:30:32.204Z tap claim attempt 2 {"claim":{"disabled":false,"hidden":false,"rects":1},"claimX2":null,"next":{"disabled":true,"rects":1},"rewardClasses":"fab-complete-reward-zone","overlays":1}
+2026-09-08T13:30:35Z drive#18 2026-09-08T13:30:34.477Z tap Next (completion 1; interstitial gate eligible on every 3rd)
+2026-09-08T13:32:36Z drive#19 2026-09-08T13:32:34.629Z wait timeout: next level started
+2026-09-08T13:32:40Z drive#21 2026-09-08T13:32:39.649Z event:tick {"name":"ad_lifecycle","params":{"game":"find_the_dog","environment":"production","platform":"ios","build":"0.0.0+7214730547-dirty","app_version":"0.0.0","ad_type":"banner","placement":"gameplay","stage":"load_requested","load_id":"banner-0-4"}}
+2026-09-08T13:32:44Z drive#24 2026-09-08T13:32:44.653Z event:tick {"name":"ad_shown","params":{"game":"find_the_dog","environment":"production","platform":"ios","build":"0.0.0+7214730547-dirty","app_version":"0.0.0","ad_type":"banner","placement":"gameplay"}}
+2026-09-08T13:32:52Z drive#25 2026-09-08T13:32:51.174Z winLevel -> true
+2026-09-08T13:32:55Z drive#27 2026-09-08T13:32:54.040Z tap claim attempt 1 {"claim":{"disabled":false,"hidden":false,"rects":1},"claimX2":null,"next":{"disabled":true,"rects":1},"rewardClasses":"fab-complete-reward-zone","overlays":1}
+2026-09-08T13:33:14Z drive#30 2026-09-08T13:33:14.295Z tap claim attempt 2 {"claim":{"disabled":false,"hidden":false,"rects":1},"claimX2":null,"next":{"disabled":true,"rects":1},"rewardClasses":"fab-complete-reward-zone","overlays":1}
+2026-09-08T13:33:17Z drive#31 2026-09-08T13:33:16.582Z tap Next (completion 2; interstitial gate eligible on every 3rd)
+2026-09-08T13:33:44Z done: closes=0 ticks=19 lastDriveSeq=31

@@ -1,0 +1,49 @@
+# device build attempt 3 (manual lane mirroring tools/native-shell/install.mjs; env policy advisory) 2026-09-08T12:55:58Z HEAD=485450fe52
+## overrides vs production env: ADMOB test mode + sample units, AppsFlyer OFF, Adjust OFF, GameAnalytics OFF, harness ON, ad-lifecycle drive ON
+## 1. game-env validate --warn (advisory)
+game-env: WARNING — ios environment validation failed.
+  Missing required keys: VITE_ADMOB_IOS_APP_ID, VITE_ADMOB_IOS_BANNER_ID, VITE_ADMOB_IOS_INTERSTITIAL_ID, VITE_ADMOB_IOS_REWARDED_ID
+  Missing or invalid intent keys: VITE_APPSFLYER_ENABLED, VITE_ATTRIBUTION_PROVIDER, VITE_FIREBASE_AUTH_DOMAIN, VITE_FIREBASE_PROJECT_ID, VITE_FIREBASE_STORAGE_BUCKET, VITE_FTD_STORE_LINK, VITE_GAMEANALYTICS_IOS_ENABLED
+  Fix games/find_the_dog/.env.ios.local; values are never printed.
+## 2. vite build --mode ios
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 2.47s
+{
+  "sha": "485450fe52",
+  "dirty": true,
+  "version": "0.0.0",
+  "builtAt": "2026-09-08T12:56:00.799Z"
+}
+
+dist levels:        8
+## 3. cap sync ios + native-shell apply/validate
+       @capacitor-community/admob@8.1.0
+✔ update ios in 7.44ms
+[info] Sync finished in 0.073s
+Applied native shell for find_the_dog: App/AdjustAttributionPlugin.swift, App/AppDelegate.swift, App/AppsFlyerAttributionPlugin.swift, App/Assets.xcassets/AppIcon.appiconset/AppIcon-512@2x.png, App/FindTheDogBridgeViewController.swift, App/GoogleService-Info.plist, App/PrivacyInfo.xcprivacy, App/Info.plist, App/Base.lproj/Main.storyboard, App.xcodeproj/project.pbxproj, CapApp-SPM/Package.swift (1 SKAdNetwork IDs; Firebase plist wired)
+Validated native shell for find_the_dog: generated project validated; 1 SKAdNetwork IDs; Firebase plist may be absent
+## 4. xcodebuild Debug device
+    Signing Identity:     "Apple Development: BATU AYTEMIZ (YU2AJP5RGS)"
+    Signing Identity:     "Apple Development: BATU AYTEMIZ (YU2AJP5RGS)"
+    Signing Identity:     "Apple Development: BATU AYTEMIZ (YU2AJP5RGS)"
+    Signing Identity:     "Apple Development: BATU AYTEMIZ (YU2AJP5RGS)"
+    Signing Identity:     "Apple Development: BATU AYTEMIZ (YU2AJP5RGS)"
+    Signing Identity:     "Apple Development: BATU AYTEMIZ (YU2AJP5RGS)"
+    Signing Identity:     "Apple Development: BATU AYTEMIZ (YU2AJP5RGS)"
+** BUILD SUCCEEDED **
+app=/private/tmp/claude-501/-Users-base-dev-appletolye/9a61df8b-3597-4112-975e-b29eeb7df804/scratchpad/DerivedData-ftd/Build/Products/Debug-iphoneos/App.app
+{
+  "sha": "485450fe52",
+  "dirty": true,
+  "version": "0.0.0",
+  "builtAt": "2026-09-08T12:56:00.799Z"
+}
+
+## 5. devicectl install (no launch; XCUITest launches)
+• launchServicesIdentifier: unknown
+• databaseUUID: EFDFD572-3A26-4A01-B752-9CF9B19C2398
+• databaseSequenceNumber: 2680
+• options: 
+exit=0

@@ -1,0 +1,15 @@
+# final regression @ 721473054+dirty 2026-09-08T13:57:29Z
+⎯⎯⎯⎯⎯⎯ Failed Tests 54 ⎯⎯⎯⎯⎯⎯⎯
+ Test Files  5 failed | 47 passed (52)
+      Tests  54 failed | 373 passed (427)
+ Test Files  40 passed (40)
+      Tests  392 passed (392)
+ Test Files  1 passed (1)
+      Tests  61 passed (61)
+dog typecheck exit=0
+dog lint exit=0
+# note: the two gameanalytics-config.test.ts failures were caused by the scratch device env file
+# (games/find_the_dog/.env.ios.local, carrying the legacy fabrika-keys GameAnalytics credential) that the
+# device lane copied into the worktree; the test is `it.runIf(fs.existsSync('.env.ios.local'))`. With the
+# scratch file removed: 1 passed file, 5 passed | 2 skipped. Remaining 52 failures = the 4 pre-existing
+# PR #61 reveal-pickup files, identical to baseline-tests.log.

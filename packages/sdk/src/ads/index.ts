@@ -8,9 +8,14 @@ export type {
 
 export {
   AdMobProvider,
+  FULL_SCREEN_AD_TTL_MS,
   createAdMobProvider,
   createDefaultAdMobAdapter,
   type AdMobAdapter,
+  type AdMobFormat,
+  type AdMobLifecycleEvent,
+  type AdMobLifecycleStage,
+  type AdMobPaidImpression,
   type AdMobProviderOptions,
 } from './AdMobProvider.ts';
 
