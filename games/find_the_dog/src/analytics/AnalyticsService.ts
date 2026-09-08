@@ -35,6 +35,7 @@ export type FtdEvent =
   | 'settings_changed'
   | 'ad_shown'
   | 'ad_show_failed'
+  | 'ad_lifecycle'
   | 'ad_revenue_paid'
   | 'resource_changed'
   | 'product_tapped'
@@ -98,6 +99,21 @@ interface AdShowFailedParams {
   ad_type: 'banner' | 'interstitial' | 'rewarded';
   placement: string;
   reason: string;
+}
+
+/**
+ * Provider-level lifecycle stage (load → show → impression → dismissal by
+ * format), correlated by `load_id`. Native SDK callbacks only; see
+ * docs/evidence/2026-09-08-ftd-ads-lifecycle/telemetry-contract.md.
+ */
+interface AdLifecycleParams {
+  ad_type: 'banner' | 'interstitial' | 'rewarded';
+  placement: string;
+  stage: string;
+  load_id?: string;
+  reason?: string;
+  attempt?: number;
+  cache_age_ms?: number;
 }
 
 interface AdRevenuePaidParams {
@@ -409,6 +425,11 @@ export class AnalyticsService {
 
   adShowFailed(params: AdShowFailedParams): Promise<void> {
     this.sdk.track('ad_show_failed', compactParams(params));
+    return Promise.resolve();
+  }
+
+  adLifecycle(params: AdLifecycleParams): Promise<void> {
+    this.sdk.track('ad_lifecycle', compactParams(params));
     return Promise.resolve();
   }
 

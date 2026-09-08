@@ -11,7 +11,6 @@ export interface RewardedAdResultForTest {
 
 class CompatibleAdProvider implements AdProvider {
   private delegate: ComposedAdProvider = new DisabledAdProvider('SdkContext has not installed an ad provider');
-  private bannerVisible = false;
 
   get providerName(): string {
     return this.delegate.providerName;
@@ -23,7 +22,6 @@ class CompatibleAdProvider implements AdProvider {
 
   install(provider: ComposedAdProvider): void {
     this.delegate = provider;
-    this.bannerVisible = false;
   }
 
   init(): Promise<void> {
@@ -38,15 +36,18 @@ class CompatibleAdProvider implements AdProvider {
     return this.delegate.maybeShowInterstitial(options);
   }
 
-  async showBanner(): Promise<boolean> {
-    if (this.bannerVisible) return true;
-    this.bannerVisible = await this.delegate.showBanner();
-    return this.bannerVisible;
+  /**
+   * Banner visibility is owned by the delegate, which observes the native
+   * load/failure callbacks. A wrapper-side "visible" boolean cannot see an
+   * asynchronous native load failure and would suppress the next request
+   * until a hide reset it, so none is kept here.
+   */
+  showBanner(): Promise<boolean> {
+    return this.delegate.showBanner();
   }
 
-  async hideBanner(): Promise<void> {
-    await this.delegate.hideBanner();
-    this.bannerVisible = false;
+  hideBanner(): Promise<void> {
+    return this.delegate.hideBanner();
   }
 
   preloadRewarded(): Promise<void> {

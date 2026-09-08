@@ -801,14 +801,14 @@ export class GameScene extends Phaser.Scene {
       }
     }
     if (gameState.settings.adsEnabled) {
-      void adService.showBanner().then((shown: boolean): void => {
+      // `shown` means the native request was accepted, not that a banner was
+      // rendered: banner ad_shown / ad_show_failed are emitted by the AdMob
+      // composition from the native loaded / impression / failed callbacks
+      // (src/ads/adMobComposition.ts). Only a rejected request is counted here.
+      void adService.showBanner().then((requested: boolean): void => {
         if (!this.level) return;
-        if (shown) {
-          void analytics.adShown({ ad_type: 'banner', placement: 'gameplay' });
-        } else if (adService.enabled) {
-          // 38% of banner shows in the UA test failed invisibly — GA's native
-          // integration saw them, our owned funnel did not. Count them here.
-          void analytics.adShowFailed({ ad_type: 'banner', placement: 'gameplay', reason: 'not_shown' });
+        if (!requested && adService.enabled) {
+          void analytics.adShowFailed({ ad_type: 'banner', placement: 'gameplay', reason: 'request_rejected' });
         }
       });
     }
