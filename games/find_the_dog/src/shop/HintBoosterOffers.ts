@@ -33,29 +33,24 @@ export function buildHintBoosterOffers(
   context: HintBoosterContext,
   reader: ConfigReader = remoteConfigService,
 ): HintBoosterOfferSet {
-  if (context.hints > 0) {
-    return {
-      mode: 'spend-existing-hint',
-      options: [{
-        kind: 'useHint',
-        status: 'available',
-        hintAmount: 1,
-        coinPrice: 0,
-        reason: 'Player has wallet-backed hints available.',
-      }],
-    };
-  }
-
   const options: HintBoosterOption[] = [];
+  if (context.hints > 0) {
+    options.push({
+      kind: 'useHint', status: 'available', hintAmount: 1, coinPrice: 0,
+      reason: 'Player has wallet-backed hints available.',
+    });
+  }
   if (reader.value('hintRwEnabled') && context.adsEnabled && !context.hasNoAdsEntitlement) {
     options.push({
       kind: 'rewardedAd',
       status: context.rewardedAdAvailable ? 'available' : 'disabled',
-      hintAmount: 1,
+      hintAmount: context.hints === 0 ? 2 : 1,
       coinPrice: 0,
-      reason: context.rewardedAdAvailable ? 'Rewarded ad can grant one hint.' : 'Rewarded ad is enabled but unavailable.',
+      reason: context.rewardedAdAvailable ? 'Rewarded ad can grant the offered hints.' : 'Rewarded ad is enabled but unavailable.',
     });
   }
+
+  if (context.hints > 0) return { mode: 'spend-existing-hint', options };
 
   const bundlePrice = reader.value('hintBoosterBundleCoinPrice');
   const bundleHints = reader.value('hintBoosterBundleHintAmount');

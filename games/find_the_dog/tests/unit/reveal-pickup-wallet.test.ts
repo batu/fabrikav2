@@ -16,9 +16,11 @@ describe('experiment starting wallet', () => {
     expect(state.initializeExperimentHints()).toBe(true);
     state.save();
     expect(new GameState().hintsRemaining).toBe(10);
-    expect(state.grantRewardedHint()).toBe(false);
-    expect(state.hintsRemaining).toBe(10);
-    for (let i = 0; i < 8; i++) expect(state.spendHint('gameplayHint')).toBe(true);
+    expect(state.grantHints(1, 'gameplayHint')).toBe(0);
+    expect(state.grantRewardedHint()).toBe(true);
+    expect(state.hintsRemaining).toBe(11);
+    expect(new GameState().hintsRemaining).toBe(11);
+    for (let i = 0; i < 9; i++) expect(state.spendHint('gameplayHint')).toBe(true);
     const reloaded = new GameState();
     expect(reloaded.hintsRemaining).toBe(2);
     expect(reloaded.initializeExperimentHints()).toBe(false);
