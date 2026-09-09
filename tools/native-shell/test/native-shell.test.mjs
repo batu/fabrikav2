@@ -320,7 +320,7 @@ describe('native shell integration', () => {
       '"levelFailed": ["level_id", "dogs_found"]',
       '"rewardedWatched": ["placement"]',
     ].join('\n'));
-    fs.writeFileSync(path.join(appRecipeDir, 'PrivacyInfo.xcprivacy'), '<?xml version="1.0"?><plist><dict><key>NSPrivacyTracking</key><true/><string>applovin.com</string><string>adjust.com</string><string>NSPrivacyCollectedDataTypeAdvertisingData</string></dict></plist>');
+    fs.writeFileSync(path.join(appRecipeDir, 'PrivacyInfo.xcprivacy'), '<?xml version="1.0"?><plist><dict><key>NSPrivacyTracking</key><true/><key>NSPrivacyTrackingDomains</key><array><string>applovin.com</string><string>adjust.com</string></array><string>NSPrivacyCollectedDataTypeAdvertisingData</string></dict></plist>');
     fs.writeFileSync(path.join(iosAppDir, 'App', 'Info.plist'), plist());
     fs.writeFileSync(path.join(iosAppDir, 'App', 'Base.lproj', 'Main.storyboard'), storyboard());
     fs.writeFileSync(path.join(iosAppDir, 'App.xcodeproj', 'project.pbxproj'), pbxproj());
@@ -423,7 +423,10 @@ describe('Find the Dog manifest contract', () => {
     const privacy = fs.readFileSync(new URL('App/PrivacyInfo.xcprivacy', recipeDir), 'utf8');
     expect(privacy).toMatch(/<key>NSPrivacyTracking<\/key>\s*<true\/>/);
     expect(privacy).toContain('NSPrivacyCollectedDataTypeDeviceID');
-    expect(privacy).not.toContain('NSPrivacyTrackingDomains');
+    // Apple (ITMS-91064): tracking=true needs a non-empty domain list; AppsFlyer's att.* hosts, never ad-serving domains.
+    expect(privacy).toContain('<key>NSPrivacyTrackingDomains</key>');
+    expect(privacy).toContain('<string>att.attr.appsflyersdk.com</string>');
+    expect(privacy).not.toContain('doubleclick.net');
     const catalogIds = actualCatalog.skadnetwork_ids.map((entry) => entry.skadnetwork_id);
     // Google's published AdMob buyer list (50 ids) so bidding partners can attribute; Google, Meta included.
     expect(catalogIds).toHaveLength(50);

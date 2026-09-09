@@ -615,10 +615,13 @@ function validateRecipeSources(recipeDir, manifest, issues) {
     : ['<key>NSPrivacyTracking</key>', '<false/>', '<key>NSPrivacyCollectedDataTypes</key>'];
   if (privacyTracking && hasAppLovin) privacySnippets.push('<string>applovin.com</string>');
   if (privacyTracking && hasAdjust) privacySnippets.push('<string>adjust.com</string>');
-  // AdMob's own privacy manifest declares its domains; listing ad domains in the app's
-  // NSPrivacyTrackingDomains would make iOS block ad requests for users who deny ATT.
-  // AppsFlyer shells prompt for ATT and forward device data to ad partners: that is tracking.
-  if (hasAppsFlyer) privacySnippets.push('<key>NSPrivacyTracking</key>\n\t<true/>', 'NSPrivacyCollectedDataTypeDeviceID');
+  // Apple rejects NSPrivacyTracking=true without a non-empty NSPrivacyTrackingDomains
+  // (ITMS-91064, Find games builds 36/37, 2026-09-09). AppsFlyer shells prompt for ATT and forward
+  // device data to ad partners: that is tracking, and the SDK's att.* hosts are the domains (the SDK
+  // routes ATT-denied traffic away from them). AdMob's own manifest declares its domains; listing
+  // ad-serving domains here would make iOS block ad requests for users who deny ATT.
+  if (privacyTracking && !/<key>NSPrivacyTrackingDomains<\/key>\s*<array>\s*<string>[^<]+<\/string>/.test(privacy)) issues.push('PrivacyInfo.xcprivacy sets NSPrivacyTracking without a non-empty NSPrivacyTrackingDomains');
+  if (hasAppsFlyer) privacySnippets.push('<key>NSPrivacyTracking</key>\n\t<true/>', 'NSPrivacyCollectedDataTypeDeviceID', '<string>att.attr.appsflyersdk.com</string>');
   for (const snippet of privacySnippets) if (!privacy.includes(snippet)) issues.push(`PrivacyInfo.xcprivacy is missing ${snippet}`);
   if (!hasTrackingProviders && /NSPrivacyCollectedDataType(?:UserID|PurchaseHistory|ProductInteraction|AdvertisingData)/.test(privacy)) issues.push('provider-free PrivacyInfo.xcprivacy declares collected data');
   const appsFlyer = hasAppsFlyer ? read('AppsFlyerAttributionPlugin.swift') : '';
