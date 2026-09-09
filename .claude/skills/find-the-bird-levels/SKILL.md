@@ -49,12 +49,22 @@ uv run level-editor author --session-id <sid> --start-from generate-bg \
 # 3. HITL GATE — Batu reviews hitboxes in the editor BEFORE cutout spend
 #    (gallery review modal; cutouts are billed, hitbox edits are free)
 
-# 4. Materialize cutouts, snap hitboxes to painted pixels
-uv run level-editor materialize-hitbox-sprites <sid>   # [--force]
-uv run level-editor recenter-hitboxes-local <sid> --prune-empty
+# 4. Cutouts: the editor's "Extract All" (durable job; the CLI has no verb yet)
+curl -s -X POST "$LEVEL_EDITOR_URL/api/sessions/<sid>/extract-all/jobs" ; poll /api/jobs/<id>
+#    Each bird: VLM-extent crop -> flat-key sticker -> pop guard (sticker kept
+#    only if it matches the painted bird within POP_GUARD_MAX, else the bird's
+#    own painted pixels ship) -> best-safe fit (2026-09-08).
 
-# 5. Approve (editor or `approve` verb); export runs the fail-closed gates
+# 5. Verify without looking at all 16: ship/amber/flag per bird + contact sheet
+uv run level-editor verify-cutouts --game find_the_bird --vlm <sid>
+#    -> <sid>/cutout_verification.json + pickup-sheet.png; look at amber/flag only
+
+# 6. "Mark cutouts reviewed" in the editor (server-enforced manual), then
+#    approve/export; export runs the fail-closed gates
 ```
+
+`materialize-hitbox-sprites` / `recenter-hitboxes-local` are legacy verbs
+(2026-08-13 one-path plan): Extract All is the only cutter in the lane.
 
 **Localization now runs inside the paint job** (detections are truth: VLM
 boxes → nearest-assignment id continuity → uniform radius; empty detection
@@ -106,13 +116,15 @@ count-16 session); the VLM pass + `--prune-empty` reconcile to actual birds.
 
 **Cost & audit**
 9. Cutouts are the billed step — never materialize before the hitbox HITL
-   gate passes. Cutout ladder is 3×3 grid → 2×2 → single (flash-lite);
-   4×4 visibly bleeds panels, capped at 3.
+   gate passes. Default is ONE call per bird (`DEFAULT_FLATKEY_GRID = 1`,
+   operator 2026-08-13, ~$0.55/level); grids (`FTD_FLATKEY_GRID=2|3`) are
+   the cheaper quality-matched option, 4×4 bleeds panels.
 10. VLM audit (`detect_birds_vlm`, ~$0.02/call) is operator policy, not
     code: first level of every batch, 1-in-10 after, plus any level with
     anomalous diff counts, large snaps, pruned hitboxes, or HITL concern.
-11. Expected total ≈ $0.22–0.25 and 4–6 min per level. If the ledger says
-    materially more, stop and find out why before batching.
+11. Expected total ≈ $1.24 and ~11 min per level with single-call cutouts
+    (measured 2026-09-08 over 6 levels; $0.22–0.25 was the grid era). If the
+    ledger says materially more, stop and find out why before batching.
 
 ## Verifying quality
 

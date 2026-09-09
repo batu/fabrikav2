@@ -1856,11 +1856,18 @@ def _save_sprite_assets(
     clean_crop: Image.Image | None = None,
     model: str | None = None,
     prevalidated: bool = False,
+    technique: str | None = None,
 ) -> dict | None:
-    """Save transparent pickup sprite + debug mask next to a dog variant."""
+    """Save transparent pickup sprite + debug mask next to a dog variant.
+
+    ``technique`` labels a prevalidated mask that is not a flat-key recreate
+    (the pop-guard diff-mask cut); the legacy provider-usability gate is
+    skipped for prevalidated masks because its radius-relative oversize caps
+    predate birds painted at 1.5-2x the disc."""
     alpha: Image.Image | None = None
     sprite_source: Image.Image | None = None
-    technique = "flatkey-recreate-v1" if prevalidated else "diff-mask-connected-components-v1"
+    if technique is None:
+        technique = "flatkey-recreate-v1" if prevalidated else "diff-mask-connected-components-v1"
     # SAM2-primary (plan 2026-07-31-002 U7): when a SAM2 predictor is reachable
     # (remote FTD_SAM2_URL or local checkpoint), segment the subject directly
     # instead of trusting the provider diff — the diff ships truncated birds
@@ -1876,6 +1883,11 @@ def _save_sprite_assets(
             technique = "sam2-primary-cutout-v1"
     if alpha is None:
         alpha = _clean_sprite_alpha(dog_mask, hitbox, box)
+        if technique == "diff-mask-popguard-v1":
+            filled = fill_small_holes(alpha)
+            if filled is not alpha:
+                alpha.close()
+                alpha = filled
     stats = _alpha_stats(alpha)
     if clean_crop is not None and stats["fullCropLike"]:
         alpha.close()
@@ -3777,12 +3789,206 @@ def localize_hitboxes_from_detections(session_id: str) -> dict[str, Any]:
         payload.append(entry)
     persisted = S.save_hitboxes(session_id, payload) or payload
     _resync_dogs_to_hitboxes(session_id, persisted)
+    # Keep the detection EXTENTS next to the hitboxes (2026-09-08): the
+    # hitbox radius is a tap-tolerance constant, not the bird's size. Extract
+    # All used to derive every cutout crop from r alone (a fixed 1.6r square),
+    # so birds the model painted larger than ~1.6x the disc were clipped and
+    # their stickers shrunk to fit. The boxes are re-matched to the current
+    # hitboxes at extract time by center proximity, so a human move that
+    # leaves the box behind falls back to the radius-derived square.
+    try:
+        _write_vlm_detections(session_id, detections)
+    except OSError:
+        pass
     carried = len(carried_ids)
     return {
         "detected": len(centers),
         "carried": carried,
         "added": len(centers) - carried,
         "pruned": len(existing) - carried,
+    }
+
+
+# Mean |RGB| (0-255) between the fitted sticker and the painted bird above
+# which the sticker is replaced by the painted pixels. Calibration
+# (2026-09-08, 193 stickers measured on changed pixels only): acceptable
+# stickers sit at 30-50 (median 41), the gross class (whole bird invented
+# for an occluded one, wrong subject) starts around 60. The operator prefers
+# the clean generated sticker whenever it is merely different, so the guard
+# catches only the gross class.
+POP_GUARD_MAX = 58.0
+_FIT_SCALES = tuple(round(0.6 + i * 0.05, 2) for i in range(17))  # 0.60 .. 1.40
+
+
+def fit_sprite_to_painted(sprite: Image.Image, painted: Image.Image,
+                          clean_crop: Image.Image | None = None) -> dict | None:
+    """Locate a recreated RGBA sticker inside its painted crop.
+
+    Masked template match (TM_SQDIFF_NORMED under the sticker's alpha) over
+    a scale ladder; returns the best placement in crop coordinates plus the
+    mean absolute RGB error under the alpha ("pop": what the player sees at
+    frame 0 of the pickup when the sticker replaces the painted bird).
+    With ``clean_crop`` the error is measured only where the paint actually
+    changed the scene (the bird), the same definition verify-cutouts uses:
+    a sticker whose silhouette overhangs the bird onto untouched background
+    is a placement question, not an appearance one, and counting those
+    pixels inflated pop to 35-80 for stickers the verifier scored 6-27
+    (2026-09-08, which made the guard discard nearly every sticker).
+    None when the sticker cannot be placed at any scale (larger than the crop).
+    """
+    import cv2
+
+    rgba = np.asarray(sprite.convert("RGBA"), dtype=np.uint8)
+    src_rgb, src_alpha = rgba[:, :, :3], rgba[:, :, 3]
+    scene = np.asarray(painted.convert("RGB"), dtype=np.uint8)
+    sh, sw = scene.shape[:2]
+    changed: np.ndarray | None = None
+    if clean_crop is not None:
+        clean = np.asarray(clean_crop.convert("RGB"), dtype=np.int16)
+        if clean.shape == scene.shape:
+            changed = np.abs(scene.astype(np.int16) - clean).sum(axis=2) > 40
+    best: tuple | None = None
+    for scale in _FIT_SCALES:
+        w = max(1, int(round(sprite.width * scale)))
+        h = max(1, int(round(sprite.height * scale)))
+        if w > sw or h > sh:
+            continue
+        rgb = cv2.resize(src_rgb, (w, h), interpolation=cv2.INTER_AREA)
+        alpha = cv2.resize(src_alpha, (w, h), interpolation=cv2.INTER_AREA)
+        mask = np.repeat((alpha > 8)[:, :, None], 3, axis=2).astype(np.uint8) * 255
+        if not mask.any():
+            continue
+        errors = cv2.matchTemplate(scene, rgb, cv2.TM_SQDIFF_NORMED, mask=mask)
+        errors = np.nan_to_num(errors, nan=1.0, posinf=1.0, neginf=1.0)
+        y, x = np.unravel_index(int(np.argmin(errors)), errors.shape)
+        err = float(errors[y, x])
+        cand = (1.0 - min(err, 1.0), scale, int(x), int(y), w, h)
+        if best is None or cand > best:
+            best = cand
+    if best is None:
+        return None
+    score, scale, x, y, w, h = best
+    rgb = cv2.resize(src_rgb, (w, h), interpolation=cv2.INTER_AREA).astype(np.int16)
+    alpha = cv2.resize(src_alpha, (w, h), interpolation=cv2.INTER_AREA) > 128
+    region = scene[y:y + h, x:x + w].astype(np.int16)
+    measure = alpha
+    if changed is not None:
+        on_bird = alpha & changed[y:y + h, x:x + w]
+        if on_bird.sum() >= max(64, 0.2 * alpha.sum()):
+            measure = on_bird
+    pop = float(np.abs(rgb[measure] - region[measure]).mean()) if measure.any() else 255.0
+    return {"score": round(score, 4), "scale": scale, "x": x, "y": y, "width": w, "height": h,
+            "pop": round(pop, 1)}
+
+
+def painted_diff_mask(painted: Image.Image, clean_crop: Image.Image, *, threshold: int = 40) -> Image.Image | None:
+    """Raw changed-pixel mask of a neighbor-free painted crop against the
+    aligned clean background: the bird's own painted pixels. Component
+    selection against the hitbox core and small-hole filling happen
+    downstream (_clean_sprite_alpha, fill_small_holes). A flat threshold is
+    deliberate: hysteresis growth into weakly changed pixels connected the
+    bird to the whole redrawn scene (~34 % drift on full-scene paint,
+    2026-09-08 attempt). None when nothing changed."""
+    a = np.asarray(painted.convert("RGB"), dtype=np.int16)
+    b = np.asarray(clean_crop.convert("RGB"), dtype=np.int16)
+    if a.shape != b.shape:
+        return None
+    changed = np.abs(a - b).sum(axis=2) > threshold
+    if not changed.any():
+        return None
+    return Image.fromarray((changed.astype(np.uint8) * 255), mode="L")
+
+
+def fill_small_holes(alpha: Image.Image, *, max_fraction: float = 0.12) -> Image.Image:
+    """Fill enclosed transparent holes smaller than max_fraction of the
+    visible area (a belly whose painted color happens to match the clean
+    background). Larger enclosed regions (gaps between legs, a loop of
+    branch) are kept."""
+    from scipy import ndimage as _ndi
+
+    arr = np.asarray(alpha.convert("L"), dtype=np.uint8) > 0
+    area = int(arr.sum())
+    if area == 0:
+        return alpha
+    filled = _ndi.binary_fill_holes(arr)
+    holes = filled & ~arr
+    if not holes.any():
+        return alpha
+    labels, count = _ndi.label(holes)
+    sizes = _ndi.sum(holes, labels, range(1, count + 1))
+    keep = [i + 1 for i, sz in enumerate(sizes) if sz <= max_fraction * area]
+    if not keep:
+        return alpha
+    out = arr | np.isin(labels, keep)
+    return Image.fromarray((out.astype(np.uint8) * 255), mode="L")
+
+
+def annotate_sprite_metadata(meta_path: Path, **fields: Any) -> None:
+    """Merge extra top-level fields into a sprite sidecar (best effort)."""
+    try:
+        data = json.loads(meta_path.read_text())
+    except (OSError, ValueError):
+        return
+    data.update(fields)
+    _atomic_write_json(data, meta_path)
+
+
+VLM_DETECTIONS_FILE = "vlm_detections.json"
+EXTENT_GROWTH = 1.3  # crop side = this x the detection long edge when that beats the radius square
+
+
+def _write_vlm_detections(session_id: str, detections: list[dict]) -> None:
+    payload = [
+        {"x": int(d["x"]), "y": int(d["y"]), "width": int(d["width"]), "height": int(d["height"])}
+        for d in detections
+    ]
+    _atomic_write_json(payload, S.session_dir(session_id) / VLM_DETECTIONS_FILE)
+
+
+def _load_vlm_detections(session_id: str) -> list[dict]:
+    path = S.session_dir(session_id) / VLM_DETECTIONS_FILE
+    if not path.exists():
+        return []
+    try:
+        data = json.loads(path.read_text())
+    except (OSError, ValueError):
+        return []
+    return [d for d in data if isinstance(d, dict)] if isinstance(data, list) else []
+
+
+def extract_box_for_hitbox(hitbox: dict, detections: list[dict], pad_factor: float) -> dict:
+    """The crop box Extract All cuts for one hitbox.
+
+    A square centered on the hitbox, side 2 * r * pad_factor (the legacy
+    1.6r square). When the VLM detection minted for this hitbox (center
+    within r) is larger than that square, the side grows to
+    EXTENT_GROWTH * the detection's long edge so a big bird is not clipped.
+    The square shape and the context around the bird are deliberate: a crop
+    cut tight to the detection produced stickers that matched the paint far
+    worse (verifier pop median 40 vs 19 on the same session, 2026-09-08),
+    so the extent only ever enlarges the square, never reshapes it.
+    """
+    r = float(hitbox.get("r") or hitbox.get("radius") or 57)
+    hx, hy = float(hitbox["x"]), float(hitbox["y"])
+    half = r * pad_factor
+    source = "radius"
+    best = None
+    for d in detections:
+        cx = d["x"] + d["width"] / 2.0
+        cy = d["y"] + d["height"] / 2.0
+        dist = ((cx - hx) ** 2 + (cy - hy) ** 2) ** 0.5
+        if dist <= r and (best is None or dist < best[0]):
+            best = (dist, d)
+    if best is not None:
+        long_edge = max(best[1]["width"], best[1]["height"])
+        grown = long_edge * EXTENT_GROWTH / 2.0
+        if grown > half:
+            half = grown
+            source = "vlm"
+    return {
+        "x": int(hx - half), "y": int(hy - half),
+        "width": int(2 * half), "height": int(2 * half),
+        "confidence": 1.0, "source": source,
     }
 
 
@@ -3873,14 +4079,14 @@ def _run_bulk_extract_job(job: JobRecord, store: JobStore) -> dict[str, Any]:
     if store is not None:
         # A crash from here on must NOT auto-replay: the calls below are paid.
         store.update_metadata(job.id, {"safeToRequeue": False, "providerSubmissionStarted": True})
-    detections = []
-    for hb in hitbox_list:
-        r = float(hb.get("r") or hb.get("radius") or 57)
-        pad = r * pad_factor
-        detections.append({
-            "x": int(hb["x"] - pad), "y": int(hb["y"] - pad),
-            "width": int(2 * pad), "height": int(2 * pad),
-            "confidence": 1.0,
+    vlm_boxes = _load_vlm_detections(session_id)
+    detections = [extract_box_for_hitbox(hb, vlm_boxes, pad_factor) for hb in hitbox_list]
+    if store is not None:
+        store.update_metadata(job.id, {
+            "boxSources": {
+                "vlm": sum(1 for d in detections if d.get("source") == "vlm"),
+                "radius": sum(1 for d in detections if d.get("source") == "radius"),
+            },
         })
     return S.materialize_detection_sprites(
         session_id,
@@ -5990,7 +6196,7 @@ def _band_feather_mask(size: tuple[int, int], feather: int = 48, *, sides: bool 
     return mask
 
 
-def detect_birds_vlm(session_id: str, *, model: str = "gemini-3.6-flash") -> list[dict]:
+def detect_birds_vlm(session_id: str, *, model: str = "gemini-3.8-flash") -> list[dict]:
     """VLM bounding-box bird detection — the calibration winner on the
     10-keeper ground truth (95.5% recall / 96.1% precision, ~53px center
     error before the local-diff snap). One metered call per scene; scales
