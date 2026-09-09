@@ -4556,6 +4556,11 @@ def materialize_detection_sprites(
             # nine birds; the ladder already retried failures at 2x2 and
             # single. Missing key -> free extractor chain below.
             sprite_rgba = prebatched.pop(index, None)
+            placement_check: dict | None = None
+            clean_crop_img: Image.Image | None = clean_bg.crop(box) if clean_bg is not None else None
+            dog_dir = dogs_dir(session_id) / f"dog_{folder_index[index]:02d}"
+            alpha: Image.Image | None = None
+            technique_override: str | None = None
             if sprite_rgba is not None:
                 # Fit the recreated sprite into the detection box (centered-x,
                 # bottom-anchored — same contract as the shipped corpus lane),
@@ -4568,16 +4573,69 @@ def materialize_detection_sprites(
                         (max(1, int(sprite_rgba.width * scale)), max(1, int(sprite_rgba.height * scale))),
                         Image.LANCZOS,
                     )
-                alpha = Image.new("L", painted.size, 0)
                 off_x = max(0, (detection["x"] - box[0]) + (target_w - sprite_rgba.width) // 2)
                 off_y = max(0, (detection["y"] - box[1]) + (target_h - sprite_rgba.height))
-                alpha.paste(sprite_rgba.getchannel("A"), (off_x, off_y))
-                # The sprite pixels must be the RECREATED bird, not scene
-                # pixels under its silhouette — composite it into the crop so
-                # the masked sprite equals the flat-key output exactly.
-                painted.paste(sprite_rgba.convert("RGB"), (off_x, off_y), sprite_rgba.getchannel("A"))
+                # Pop guard (2026-09-08): measure how well the sticker actually
+                # matches the painted bird before trusting it. The recreate
+                # invents a whole bird for a half-hidden one and drifts on
+                # small birds; downstream best-safe then accepted a low-score
+                # hybrid guess (six of six severe misplacements in the
+                # 2026-09-08 audit were hybrid fits at score < 0.46 with mean
+                # RGB error > 45). A sticker that cannot be aligned within
+                # POP_GUARD_MAX is replaced by the bird's own painted pixels
+                # (diff-mask cut), which are exact by construction.
+                fit = _inpaint.fit_sprite_to_painted(sprite_rgba, painted, clean_crop_img)
+                placement_check = {
+                    "recreatePop": None if fit is None else fit["pop"],
+                    "fitScale": None if fit is None else fit["scale"],
+                    "fitScore": None if fit is None else fit["score"],
+                    "chosen": "recreate-anchored",
+                }
+                guard_off = bool(os.environ.get("FTD_DISABLE_POP_GUARD"))
+                if clean_crop_img is not None and not guard_off and (fit is None or fit["pop"] > _inpaint.POP_GUARD_MAX):
+                    diff_alpha = _inpaint.painted_diff_mask(painted, clean_crop_img)
+                    if diff_alpha is not None:
+                        alpha = diff_alpha
+                        technique_override = "diff-mask-popguard-v1"
+                        placement_check["chosen"] = "diff-mask"
+                if alpha is None:
+                    # The runtime contract (and the canonical integrity gate)
+                    # require the hitbox center inside the sprite's box; a
+                    # measured fit that lands beside the hitbox is not usable
+                    # geometry (cleanup_misses_hitbox quarantine, 2026-09-08).
+                    fit_contains_hitbox = fit is not None and (
+                        fit["x"] <= hitbox.x - box[0] <= fit["x"] + fit["width"]
+                        and fit["y"] <= hitbox.y - box[1] <= fit["y"] + fit["height"]
+                    )
+                    if fit is not None and not fit_contains_hitbox:
+                        placement_check["fitRejected"] = "hitbox_outside_fit"
+                    if fit is not None and fit["pop"] <= _inpaint.POP_GUARD_MAX and fit_contains_hitbox:
+                        # Trust the measured fit over the bottom-anchor guess:
+                        # the generated geometry is then already aligned, so
+                        # promotion's best-safe only refines it.
+                        if fit["scale"] != 1.0:
+                            sprite_rgba = sprite_rgba.resize((fit["width"], fit["height"]), Image.LANCZOS)
+                        off_x, off_y = fit["x"], fit["y"]
+                        placement_check["chosen"] = "recreate-fitted"
+                    alpha = Image.new("L", painted.size, 0)
+                    alpha.paste(sprite_rgba.getchannel("A"), (off_x, off_y))
+                    # The sprite pixels must be the RECREATED bird, not scene
+                    # pixels under its silhouette — composite it into the crop so
+                    # the masked sprite equals the flat-key output exactly.
+                    painted.paste(sprite_rgba.convert("RGB"), (off_x, off_y), sprite_rgba.getchannel("A"))
                 sprite_rgba.close()
-            else:
+            if alpha is None and clean_crop_img is not None and not os.environ.get("FTD_DISABLE_POP_GUARD"):
+                # No usable sticker (small bird, provider refusal, gate
+                # failure): cut the painted pixels against the aligned clean
+                # bg instead of asking rembg to guess a silhouette — the
+                # free semantic chain shipped bird FRAGMENTS (coverage < 0.35
+                # on 4 of 13 such birds, 2026-09-08 iteration 2).
+                alpha = _inpaint.painted_diff_mask(painted, clean_crop_img)
+                if alpha is not None:
+                    technique_override = "diff-mask-popguard-v1"
+                    placement_check = {"recreatePop": None, "fitScale": None, "fitScore": None,
+                                       "chosen": "diff-mask-no-sticker"}
+            if alpha is None:
                 alpha = _inpaint._semantic_sprite_alpha(
                     None, painted, hitbox, box, relaxed=True
                 )
@@ -4591,12 +4649,13 @@ def materialize_detection_sprites(
                 )
             if alpha is None:
                 painted.close()
+                if clean_crop_img is not None:
+                    clean_crop_img.close()
                 return ("failed", {
                     "index": index,
                     "detectionIndex": detection["index"],
                     "reason": "extraction_failed",
                 })
-            dog_dir = dogs_dir(session_id) / f"dog_{folder_index[index]:02d}"
             dog_dir.mkdir(parents=True, exist_ok=True)
             variant_path = dog_dir / "variant_000.png"
             painted.save(variant_path)
@@ -4610,19 +4669,25 @@ def materialize_detection_sprites(
                 box=box,
                 model=raw.get("inpaint_model"),
                 prevalidated=True,
+                technique=technique_override,
             )
             alpha.close()
             painted.close()
+            if clean_crop_img is not None:
+                clean_crop_img.close()
             if metadata is None:
                 return ("failed", {
                     "index": index,
                     "detectionIndex": detection["index"],
                     "reason": "validation_failed",
                 })
+            if placement_check is not None:
+                _inpaint.annotate_sprite_metadata(dog_dir / "sprite_000.json", placementCheck=placement_check)
             return ("ok", {
                 "index": index,
                 "detectionIndex": detection["index"],
                 "spriteBox": metadata["spriteBox"],
+                **({"placementCheck": placement_check["chosen"]} if placement_check else {}),
             })
 
         folder_index = cutter_folder_indices(raw.get("dogs") or [], hitboxes)
@@ -4631,11 +4696,15 @@ def materialize_detection_sprites(
             meta_path = dogs_dir(session_id) / f"dog_{folder_index[index]:02d}" / "sprite_000.json"
             if meta_path.exists() and not force and not os.environ.get("FTD_SPRITE_FORCE"):
                 try:
-                    if json.loads(meta_path.read_text()).get("technique") == "flatkey-recreate-v1":
+                    _meta = json.loads(meta_path.read_text())
+                    # Skip a bird that already carries a lane-produced sprite:
+                    # flat-key recreate, or a pop-guard diff-mask cut (which
+                    # records its decision in placementCheck).
+                    if _meta.get("technique") == "flatkey-recreate-v1" or _meta.get("placementCheck"):
                         materialized.append({
                             "index": index,
                             "detectionIndex": detection_by_hitbox[index]["index"],
-                            "spriteBox": json.loads(meta_path.read_text()).get("spriteBox"),
+                            "spriteBox": _meta.get("spriteBox"),
                             "skipped": True,
                         })
                         continue
@@ -5522,10 +5591,27 @@ def _write_birdless_restore_bg(sdir: Path, dst: Path, raw: dict, level_data: dic
         if abs(dx) > 8 or abs(dy) > 8:
             dx = dy = 0
         shifted_clean = clean_arr if (dx == 0 and dy == 0) else _np.roll(clean_arr, (dy, dx), axis=(0, 1))
-        diff = _np.abs(color_arr[y0:y1, x0:x1] - shifted_clean[y0:y1, x0:x1]).sum(axis=2) > 45
-        diff = _ndi.binary_dilation(diff, iterations=4)
-        mask = Image.fromarray((diff * 255).astype("uint8")).filter(_IF.GaussianBlur(3))
-        patch = Image.fromarray(shifted_clean[y0:y1, x0:x1].astype("uint8"))
+        # Erase region (2026-09-08): the painted bird is usually LARGER than
+        # its sticker-derived cleanup rect (fitted sprites run 0.8-0.9x the
+        # painted bird), so feet, tail tips and shadows outside the rect
+        # stayed on screen after every pickup ("pickup residue", the
+        # operator's open device finding). Erase every changed-pixel
+        # component that touches the cleanup rect, bounded by the footprint
+        # the runtime actually reveals (CLEANUP_FOOTPRINT_SCALE = 2x, see
+        # cleanupGeometry.ts). Detached additions (a leaf the paint model
+        # dropped nearby) do not touch the rect and stay put; neighbouring
+        # birds are protected by the runtime's bisector clipping.
+        fx0, fy0 = max(0, x0 - w // 2), max(0, y0 - h // 2)
+        fx1, fy1 = min(out.width, x1 + w // 2), min(out.height, y1 + h // 2)
+        foot_diff = _np.abs(color_arr[fy0:fy1, fx0:fx1] - shifted_clean[fy0:fy1, fx0:fx1]).sum(axis=2) > 45
+        labels, _n = _ndi.label(foot_diff)
+        inside = labels[y0 - fy0:y1 - fy0, x0 - fx0:x1 - fx0]
+        touching = _np.unique(inside[inside > 0])
+        erase = _np.isin(labels, touching) if touching.size else _np.zeros_like(foot_diff)
+        erase = _ndi.binary_dilation(erase, iterations=4)
+        mask = Image.fromarray((erase * 255).astype("uint8")).filter(_IF.GaussianBlur(3))
+        patch = Image.fromarray(shifted_clean[fy0:fy1, fx0:fx1].astype("uint8"))
+        x0, y0, x1, y1 = fx0, fy0, fx1, fy1
         # Sharpness matching (2026-08-05, "the difference is resolution"):
         # the paint model outputs crisper high-frequency detail than the
         # lanczos-upscaled clean bg (measured 11.98 vs 8.64 gradient energy),

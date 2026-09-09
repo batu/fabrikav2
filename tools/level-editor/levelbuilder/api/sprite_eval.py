@@ -46,6 +46,8 @@ SPECK_MIN_AREA = 8
 ALIGNMENT_OUTLIER_SCORE = 0.55
 ALIGNMENT_ABSOLUTE_FLOOR = 0.25
 DEFAULT_MATCH_METHODS = ("color", "hybrid", "features", "orb", "chamfer", "best")
+# Minimum masked-template score for the color fallback to move a sprite.
+COLOR_ACCEPT_MIN = 0.6
 MANUAL_MATCH_METHOD = "manual"
 
 
@@ -602,7 +604,16 @@ def _best_match(results: dict[str, dict]) -> dict:
     if hybrid.get("verdict") == "pass" and hybrid.get("hitboxSafe") is True:
         return {**hybrid, "accepted": True, "method": "hybrid"}
     color = results.get("color", {})
-    return {**color, "accepted": color.get("verdict") == "pass", "method": "color"}
+    # fit_color reports "pass" for ANY placeable sprite (it is a ranking, not
+    # a gate), so before 2026-09-08 this fallback accepted every proposal —
+    # "best-safe" never actually preserved the generated geometry. A masked
+    # template match below COLOR_ACCEPT_MIN is a guess, not a fit.
+    color_score = float(color.get("score") or 0.0)
+    accepted = color.get("verdict") == "pass" and color_score >= COLOR_ACCEPT_MIN
+    return {
+        **color, "accepted": accepted, "method": "color",
+        **({} if accepted else {"evidence": f"color fit {color_score:.3f} below {COLOR_ACCEPT_MIN}"}),
+    }
 
 
 MATCHERS = {

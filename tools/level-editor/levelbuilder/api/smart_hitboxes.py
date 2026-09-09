@@ -27,7 +27,7 @@ logger = logging.getLogger(__name__)
 
 # Verified against the live OpenRouter catalog 2026-08-13. This model scores
 # numbered image candidates; deterministic geometry still selects hitboxes.
-SMART_PLACEMENT_MODEL = "google/gemini-3.6-flash"
+SMART_PLACEMENT_MODEL = "google/gemini-3.8-flash"
 DEFAULT_CANDIDATE_COUNT = 36
 DEFAULT_SCORE_THRESHOLD = 45
 SCORING_CHUNK_SIZE = 20

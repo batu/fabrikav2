@@ -916,6 +916,21 @@ def cmd_author(client: Client, args: argparse.Namespace) -> None:
                 job = _require_success(_wait_for_job(client, job.get("jobId") or job.get("id"),
                                                      timeout_s=args.inpaint_timeout, quiet=True))
                 note("inpaint", job.get("result", {}))
+                # The paint is paid and kept, but a level whose post-paint
+                # localization failed still carries the pre-paint dots: the
+                # birds sit NEAR them, not on them. Reporting success here
+                # let a lane bless + cut 32 sprites around stale dots
+                # (2026-09-08, provider 402). Fail loudly; the session resumes
+                # from here once localization is re-run.
+                localization_error = (job.get("result") or {}).get("localizationFailed")
+                if localization_error:
+                    raise CliError(
+                        "localization_failed",
+                        "Paint succeeded but post-paint localization failed: "
+                        f"{str(localization_error)[:200]}. Re-run localization "
+                        f"(place-hitboxes-vlm {session_id}) before blessing or extracting.",
+                        stage="inpaint",
+                    )
             elif step == "hitbox-review-checkpoint":
                 review = client.get(f"/api/sessions/{session_id}/hitbox-review") or {}
                 if review.get("approved") is not True:
@@ -1314,6 +1329,67 @@ def cmd_validate(args: argparse.Namespace) -> None:
             raise CliError("validation_failed", f"{name}: {error}", stage="validate") from error
         results.append({"game": name, "root": str(root), **summary})
     _emit(args, {"ok": True, "games": results})
+
+
+def cmd_verify_cutouts(args: argparse.Namespace) -> None:
+    # Local, server-free: pickup simulation + metrics per bird, optional one
+    # vision call per level over the contact sheet. Writes
+    # <session>/cutout_verification.json (+ sheet PNG) and prints the summary.
+    from levelbuilder import cutout_verify
+    from levelbuilder.settings import resolve_game
+
+    if not args.game:
+        raise CliError("game_required", "pass --game <name>")
+    profile = resolve_game(args.game)
+    levels_root = profile.workspace / "levels"
+    out_root = Path(args.out_dir) if args.out_dir else None
+    results = []
+    for session_id in args.session_id:
+        level_dir = levels_root / session_id
+        if not (level_dir / "color.png").is_file():
+            raise CliError("session_missing", f"no painted session at {level_dir}", stage="verify-cutouts")
+        sheet = out_root / f"{session_id}-pickup-sheet.png" if out_root else level_dir / "pickup-sheet.png"
+        try:
+            report = cutout_verify.verify_session_dir(level_dir, sheet)
+            if args.vlm:
+                entity = "bird"
+                try:
+                    entity = str(json.loads((level_dir / "session.json").read_text()).get("entity") or "bird")
+                except (OSError, ValueError):
+                    pass
+                # The VLM stage is advisory: a provider hiccup (empty
+                # response, unparsable JSON, ids matching nothing) must not
+                # abort a multi-session run or lose the deterministic verdicts.
+                # One retry, then record the failure on the report.
+                vlm_error = None
+                for _attempt in range(2):
+                    try:
+                        vlm = cutout_verify.vlm_review_sheet(sheet, entity=entity, model=args.vlm_model)
+                    except (ValueError, RuntimeError, OSError, KeyError) as error:
+                        vlm_error = str(error)[:200]
+                        continue
+                    merged = cutout_verify.merge_vlm(dict(report), vlm)
+                    if merged["birds"] and all((b.get("vlm") or {}).get("verdict") == "missing" for b in merged["birds"]):
+                        vlm_error = "vlm ids matched no bird"
+                        continue
+                    report = merged
+                    vlm_error = None
+                    break
+                if vlm_error:
+                    report["vlmError"] = vlm_error
+        except (OSError, ValueError, KeyError, RuntimeError) as error:
+            raise CliError("verify_failed", f"{session_id}: {error}", stage="verify-cutouts") from error
+        written = cutout_verify.write_report(level_dir, report)
+        results.append({
+            "sessionId": session_id, "summary": report["summary"], "report": str(written),
+            "sheet": str(sheet), **({"vlm": report.get("vlm")} if report.get("vlm") else {}),
+            "flagged": [
+                {"index": b["index"], "verdict": b["verdict"], "reasons": b.get("reasons"),
+                 **({"metrics": b["metrics"]} if b.get("metrics") else {})}
+                for b in report["birds"] if b["verdict"] != "ship"
+            ],
+        })
+    _emit(args, {"ok": True, "sessions": results})
 
 
 def cmd_evaluate_sprites(args: argparse.Namespace) -> None:
@@ -1894,6 +1970,13 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--game")
     p.add_argument("--all-games", action="store_true",
                    help="validate every game with a public/levels corpus")
+
+    p = verb("verify-cutouts", cmd_verify_cutouts, needs_client=False)
+    p.add_argument("session_id", nargs="+")
+    p.add_argument("--game", help="game name under games/ (workspace with .levelbuilder/levels)")
+    p.add_argument("--vlm", action="store_true", help="add one vision-model review call per level")
+    p.add_argument("--vlm-model", default="google/gemini-3.8-flash")
+    p.add_argument("--out-dir", help="write contact sheets here instead of the session directory")
 
     p = verb("evaluate-sprites", cmd_evaluate_sprites, needs_client=False)
     p.add_argument("--game")

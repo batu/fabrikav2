@@ -228,7 +228,7 @@ class OpenRouterJudge:
 
     name = "openrouter"
 
-    def __init__(self, model: str = "google/gemini-2.5-flash", entity: str = "bird"):
+    def __init__(self, model: str = "google/gemini-3.8-flash", entity: str = "bird"):
         self._prompt = prompt_template(entity)
         self.model = model
 
