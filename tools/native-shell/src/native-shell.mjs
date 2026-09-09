@@ -623,7 +623,7 @@ function validateRecipeSources(recipeDir, manifest, issues) {
   if (!hasTrackingProviders && /NSPrivacyCollectedDataType(?:UserID|PurchaseHistory|ProductInteraction|AdvertisingData)/.test(privacy)) issues.push('provider-free PrivacyInfo.xcprivacy declares collected data');
   const appsFlyer = hasAppsFlyer ? read('AppsFlyerAttributionPlugin.swift') : '';
   if (hasAppsFlyer) {
-    for (const snippet of ['import AppsFlyerLib', 'import AppTrackingTransparency', 'blockedPartners', 'waitForATTUserAuthorization(timeoutInterval: 60)', 'ATTrackingManager.requestTrackingAuthorization', 'sdk.start()', 'CAPPluginMethod(name: "getStatus"']) {
+    for (const snippet of ['import AppsFlyerLib', 'import AppTrackingTransparency', 'sdk.setSharingFilterForPartners(blockedPartners)', 'waitForATTUserAuthorization(timeoutInterval: 60)', 'ATTrackingManager.requestTrackingAuthorization', 'sdk.start()', 'CAPPluginMethod(name: "getStatus"']) {
       if (!appsFlyer.includes(snippet)) issues.push(`AppsFlyerAttributionPlugin.swift is missing ${snippet}`);
     }
     // General-audience policy: partners activated in the AppsFlyer dashboard receive postbacks.

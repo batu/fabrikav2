@@ -53,12 +53,12 @@
         ]
       },
       {
-        "name": "AppsFlyerFramework-Strict",
-        "url": "https://github.com/AppsFlyerSDK/AppsFlyerFramework-Strict",
+        "name": "AppsFlyerFramework",
+        "url": "https://github.com/AppsFlyerSDK/AppsFlyerFramework",
         "requirement": "from",
         "version": "6.17.5",
         "products": [
-          "AppsFlyerLib-Strict"
+          "AppsFlyerLib"
         ]
       }
     ],
@@ -71,7 +71,7 @@
     "adMobApplicationIdEnv": "VITE_ADMOB_IOS_APP_ID",
     "adMobPublicConfig": "../../config/admob.public.json",
     "skAdNetworkCatalog": "admob-skadnetwork-ids.json",
-    "skAdNetworkExpectedCount": 1,
+    "skAdNetworkExpectedCount": 50,
     "crashlyticsSymbolUpload": true,
     "firebaseProjectId": "find-the-dog-basegamelab"
   }
