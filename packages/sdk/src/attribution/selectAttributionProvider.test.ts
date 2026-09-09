@@ -11,6 +11,7 @@ const enabledAppsFlyer: AppsFlyerConfigResult = {
     appleAppId: '6793860059',
     debugLogging: false,
     blockedPartners: [],
+      requestTrackingAuthorization: true,
   },
 };
 

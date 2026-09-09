@@ -8,6 +8,7 @@ const config: AppsFlyerConfig = {
   appleAppId: '6793860059',
   debugLogging: false,
   blockedPartners: [],
+      requestTrackingAuthorization: true,
 };
 
 function makePlugin(overrides: Partial<AppsFlyerAttributionPlugin> = {}): AppsFlyerAttributionPlugin {
@@ -35,6 +36,7 @@ describe('AppsFlyerAttributionProvider', (): void => {
       appleAppId: config.appleAppId,
       debugLogging: false,
       blockedPartners: [],
+      requestTrackingAuthorization: true,
     });
   });
 

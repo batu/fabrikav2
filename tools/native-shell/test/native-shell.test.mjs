@@ -205,6 +205,15 @@ describe('native shell transforms', () => {
     expect(patchInfoPlist(plist(), manifest(), catalog())).not.toContain('NSAdvertisingAttributionReportEndpoint');
   });
 
+  it('weak-links the tracking frameworks for an AppsFlyer-only shell', () => {
+    const appsFlyerOnly = manifest();
+    appsFlyerOnly.ios.swiftSources = ['FindTheDogBridgeViewController.swift', 'AppsFlyerAttributionPlugin.swift'];
+    const wired = patchPbxproj(pbxproj(), appsFlyerOnly, { googleServicePresent: false });
+    for (const name of ['AdServices.framework', 'AppTrackingTransparency.framework', 'AdSupport.framework', 'StoreKit.framework']) expect(wired).toContain(`${name} in Frameworks`);
+    expect(wired).toContain('AppsFlyerAttributionPlugin.swift in Sources');
+    expect(patchPbxproj(wired, appsFlyerOnly, { googleServicePresent: false })).toBe(wired);
+  });
+
   it('patches project and storyboard idempotently and rejects partial wiring', () => {
     const once = patchPbxproj(pbxproj(), manifest(), { googleServicePresent: false });
     expect(patchPbxproj(once, manifest(), { googleServicePresent: false })).toBe(once);
@@ -378,9 +387,11 @@ describe('Find the Dog manifest contract', () => {
     });
     expect(actualManifest.ios.adMobEnabledEnv).toBe('VITE_ADMOB_IOS_ENABLED');
     expect(actualManifest.ios.adMobApplicationIdEnv).toBe('VITE_ADMOB_IOS_APP_ID');
-    expect(actualManifest.ios.trackingUsageDescription).toBeNull();
+    // General-audience release: the AppsFlyer bridge prompts for ATT and the app declares tracking.
+    expect(actualManifest.ios.trackingUsageDescription).toMatch(/measure which ads bring new players/);
     const privacy = fs.readFileSync(new URL('App/PrivacyInfo.xcprivacy', recipeDir), 'utf8');
-    expect(privacy).toMatch(/<key>NSPrivacyTracking<\/key>\s*<false\/>/);
+    expect(privacy).toMatch(/<key>NSPrivacyTracking<\/key>\s*<true\/>/);
+    expect(privacy).toContain('NSPrivacyCollectedDataTypeDeviceID');
     expect(privacy).not.toContain('NSPrivacyTrackingDomains');
     expect(actualCatalog.skadnetwork_ids.map((entry) => entry.skadnetwork_id)).toEqual(['cstr6suwn9.skadnetwork']);
   });

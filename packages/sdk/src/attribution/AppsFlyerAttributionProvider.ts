@@ -53,6 +53,7 @@ export class AppsFlyerAttributionProvider implements AttributionProvider {
           appleAppId: this.config.appleAppId,
           debugLogging: this.config.debugLogging,
           blockedPartners: [...this.config.blockedPartners],
+          requestTrackingAuthorization: this.config.requestTrackingAuthorization,
         });
         const result = await withTimeout(
           this.plugin.initialize({
@@ -60,6 +61,7 @@ export class AppsFlyerAttributionProvider implements AttributionProvider {
             appleAppId: this.config.appleAppId,
             debugLogging: this.config.debugLogging,
             blockedPartners: [...this.config.blockedPartners],
+            requestTrackingAuthorization: this.config.requestTrackingAuthorization,
           }),
           this.timeoutMs.init,
           'AppsFlyer initialization',

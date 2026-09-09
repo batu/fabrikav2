@@ -6,6 +6,8 @@ export interface AppsFlyerConfig {
   debugLogging: boolean;
   /** Partners the native SDK must not share with. Empty means every partner activated in the AppsFlyer dashboard receives postbacks. */
   blockedPartners: readonly string[];
+  /** Show the ATT prompt before the first SDK session. Default true; VITE_APPSFLYER_REQUEST_ATT=false disables it. */
+  requestTrackingAuthorization: boolean;
 }
 
 export type AppsFlyerConfigResult =
@@ -51,6 +53,7 @@ export function readAppsFlyerConfig(
   const devKey = envString(appsFlyerEnv.VITE_APPSFLYER_DEV_KEY);
   const appleAppId = envString(appsFlyerEnv.VITE_APPSFLYER_APPLE_APP_ID);
   const blockedPartners = readPartnerList(appsFlyerEnv.VITE_APPSFLYER_BLOCKED_PARTNERS);
+  const requestTrackingAuthorization = parseBooleanEnv(appsFlyerEnv.VITE_APPSFLYER_REQUEST_ATT, true);
 
   const missingKeys: string[] = [];
   if (devKey === null) missingKeys.push('VITE_APPSFLYER_DEV_KEY');
@@ -79,6 +82,7 @@ export function readAppsFlyerConfig(
       appleAppId: platform === 'ios' ? appleAppId : null,
       debugLogging: !isProductionBuild && parseBooleanEnv(appsFlyerEnv.VITE_APPSFLYER_DEBUG_LOGGING, false),
       blockedPartners,
+      requestTrackingAuthorization,
     },
   };
 }

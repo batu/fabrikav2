@@ -21,6 +21,7 @@ describe('readAppsFlyerConfig', (): void => {
         appleAppId: APPLE_APP_ID,
         debugLogging: false,
         blockedPartners: [],
+      requestTrackingAuthorization: true,
       },
     });
   });
@@ -29,7 +30,7 @@ describe('readAppsFlyerConfig', (): void => {
     const result = readAppsFlyerConfig('android', { VITE_APPSFLYER_ENABLED: 'true', VITE_APPSFLYER_DEV_KEY: DEV_KEY }, false);
     expect(result).toEqual({
       enabled: true,
-      config: { devKey: DEV_KEY, appleAppId: null, debugLogging: false, blockedPartners: [] },
+      config: { devKey: DEV_KEY, appleAppId: null, debugLogging: false, blockedPartners: [], requestTrackingAuthorization: true },
     });
   });
 
@@ -62,6 +63,11 @@ describe('readAppsFlyerConfig', (): void => {
     });
     expect(iosNoAppId).toMatchObject({ enabled: false, missingKeys: ['VITE_APPSFLYER_APPLE_APP_ID'] });
     expect(android).toMatchObject({ enabled: false, missingKeys: ['VITE_APPSFLYER_DEV_KEY'] });
+  });
+
+  it('requests ATT by default and honours an explicit opt-out', (): void => {
+    expect(readAppsFlyerConfig('ios', enabledEnv, false)).toMatchObject({ enabled: true, config: { requestTrackingAuthorization: true } });
+    expect(readAppsFlyerConfig('ios', { ...enabledEnv, VITE_APPSFLYER_REQUEST_ATT: 'false' }, false)).toMatchObject({ enabled: true, config: { requestTrackingAuthorization: false } });
   });
 
   it('passes an explicit partner blocklist through and blocks nobody by default', (): void => {

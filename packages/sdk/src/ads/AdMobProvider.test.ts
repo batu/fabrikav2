@@ -123,6 +123,9 @@ describe('UMP consent', () => {
     await provider.init();
     expect(adapter.showConsentForm).toHaveBeenCalledOnce();
     expect(adapter.initialize).toHaveBeenCalledOnce();
+    // General-audience apps: neither child-directed nor under-age-of-consent tagging.
+    expect(adapter.requestConsentInfo).toHaveBeenCalledWith(expect.objectContaining({ tagForUnderAgeOfConsent: false }));
+    expect(adapter.initialize).toHaveBeenCalledWith(expect.objectContaining({ tagForChildDirectedTreatment: false, tagForUnderAgeOfConsent: false, maxAdContentRating: 'General' }));
     await expect(provider.showPrivacyOptions()).resolves.toBe(true);
     expect(adapter.showPrivacyOptionsForm).toHaveBeenCalledOnce();
   });

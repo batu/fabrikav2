@@ -372,15 +372,16 @@ export class AdMobProvider implements AdProvider {
       const initializeOptions: AdMobInitializationOptions = {
         initializeForTesting: this.config.isTesting,
         testingDevices: this.config.testingDevices,
-        tagForChildDirectedTreatment: true,
-        tagForUnderAgeOfConsent: true,
+        // General-audience apps: no child-directed or under-age-of-consent tagging.
+        tagForChildDirectedTreatment: false,
+        tagForUnderAgeOfConsent: false,
         maxAdContentRating: MaxAdContentRating.General,
       };
 
       try {
         let consent = await this.adapter.requestConsentInfo({
           testDeviceIdentifiers: this.config.isTesting ? this.config.testingDevices : [],
-          tagForUnderAgeOfConsent: true,
+          tagForUnderAgeOfConsent: false,
         });
         if (!consent.canRequestAds && consent.isConsentFormAvailable) {
           consent = await this.adapter.showConsentForm();
