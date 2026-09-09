@@ -84,6 +84,9 @@ const googleServiceFile = {
   fileType: 'text.plist.xml',
 };
 
+// Bridges that read the ATT status or the AdServices token; their shells weak-link the tracking frameworks.
+const TRACKING_PROVIDER_SOURCES = ['AppLovinMaxPlugin.swift', 'AdjustAttributionPlugin.swift', 'MetaEventsPlugin.swift', 'AppsFlyerAttributionPlugin.swift'];
+
 const frameworks = [
   ['AdServices.framework', 'A11F00112FAD000000000011', 'A11F00132FAD000000000013'],
   ['StoreKit.framework', 'A11F00122FAD000000000012', 'A11F00142FAD000000000014'],
@@ -334,7 +337,7 @@ function ensureBuildSettings(content, manifest) {
 export function patchPbxproj(content, manifest, { googleServicePresent = false } = {}) {
   const desiredSources = new Set(nativeFilesFor(manifest).flatMap((file) => [file.buildId, file.refId]));
   const staleSourceIds = Object.values(nativeFileIds).flatMap((file) => [file.buildId, file.refId]).filter((id) => !desiredSources.has(id));
-  const hasTrackingProviders = manifest.ios.swiftSources.some((name) => ['AppLovinMaxPlugin.swift', 'AdjustAttributionPlugin.swift', 'MetaEventsPlugin.swift'].includes(name));
+  const hasTrackingProviders = manifest.ios.swiftSources.some((name) => TRACKING_PROVIDER_SOURCES.includes(name));
   let next = removeWiring(content, staleSourceIds);
   if (!hasTrackingProviders) next = removeWiring(next, frameworks.flatMap(([, buildId, refId]) => [buildId, refId]));
   for (const file of nativeFilesFor(manifest)) next = wireSource(next, file);
@@ -371,8 +374,14 @@ function removePlistEntry(content, key) {
   return content.replace(pattern, '');
 }
 
+// AppsFlyer receives SKAdNetwork postback copies (iOS 15+) at this endpoint;
+// it must only be declared when the AppsFlyer bridge ships in the shell.
+export const APPSFLYER_SKAN_POSTBACK_ENDPOINT = 'https://appsflyer-skadnetwork.com/';
+const APPSFLYER_PLUGIN = 'AppsFlyerAttributionPlugin.swift';
+
 export function patchInfoPlist(content, manifest, skAdIds, { adMobApplicationId } = {}) {
   const usesAdNetworks = Boolean(manifest.ios.skAdNetworkCatalog);
+  const hasAppsFlyer = manifest.ios.swiftSources.includes(APPSFLYER_PLUGIN);
   const expectedCount = manifest.ios.skAdNetworkExpectedCount ?? 152;
   if (usesAdNetworks && (skAdIds.length !== expectedCount || new Set(skAdIds).size !== expectedCount)) {
     throw new Error(`SKAdNetwork catalog must contain exactly ${expectedCount} unique identifiers`);
@@ -398,6 +407,9 @@ export function patchInfoPlist(content, manifest, skAdIds, { adMobApplicationId 
   next = usesAdNetworks
     ? replacePlistEntry(next, 'SKAdNetworkItems', `<array>\n${items}\n\t</array>`)
     : removePlistEntry(next, 'SKAdNetworkItems');
+  next = hasAppsFlyer
+    ? replacePlistEntry(next, 'NSAdvertisingAttributionReportEndpoint', `<string>${APPSFLYER_SKAN_POSTBACK_ENDPOINT}</string>`)
+    : removePlistEntry(next, 'NSAdvertisingAttributionReportEndpoint');
   return next;
 }
 
@@ -595,24 +607,31 @@ function validateRecipeSources(recipeDir, manifest, issues) {
   for (const forbidden of ['getBool("disableIdfaReading")', 'getBool("disableAppTrackingTransparencyUsage")', 'call.getString("eventToken")']) if (adjust.includes(forbidden)) issues.push(`AdjustAttributionPlugin.swift exposes unsafe bridge input: ${forbidden}`);
   }
   const privacy = read(manifest.ios.privacyManifest);
-  const hasTrackingProviders = hasAppLovin || hasAdjust || hasAdMob;
+  const hasAppsFlyer = manifest.ios.swiftSources.includes('AppsFlyerAttributionPlugin.swift');
+  const hasTrackingProviders = hasAppLovin || hasAdjust || hasAdMob || hasAppsFlyer;
   const privacyTracking = /<key>NSPrivacyTracking<\/key>\s*<true\/>/.test(privacy);
   const privacySnippets = hasTrackingProviders
     ? ['<key>NSPrivacyTracking</key>', 'NSPrivacyCollectedDataTypeAdvertisingData']
     : ['<key>NSPrivacyTracking</key>', '<false/>', '<key>NSPrivacyCollectedDataTypes</key>'];
   if (privacyTracking && hasAppLovin) privacySnippets.push('<string>applovin.com</string>');
   if (privacyTracking && hasAdjust) privacySnippets.push('<string>adjust.com</string>');
-  if (privacyTracking && hasAdMob) privacySnippets.push('<string>googleads.g.doubleclick.net</string>');
+  // AdMob's own privacy manifest declares its domains; listing ad domains in the app's
+  // NSPrivacyTrackingDomains would make iOS block ad requests for users who deny ATT.
+  // AppsFlyer shells prompt for ATT and forward device data to ad partners: that is tracking.
+  if (hasAppsFlyer) privacySnippets.push('<key>NSPrivacyTracking</key>\n\t<true/>', 'NSPrivacyCollectedDataTypeDeviceID');
   for (const snippet of privacySnippets) if (!privacy.includes(snippet)) issues.push(`PrivacyInfo.xcprivacy is missing ${snippet}`);
   if (!hasTrackingProviders && /NSPrivacyCollectedDataType(?:UserID|PurchaseHistory|ProductInteraction|AdvertisingData)/.test(privacy)) issues.push('provider-free PrivacyInfo.xcprivacy declares collected data');
-  const hasAppsFlyer = manifest.ios.swiftSources.includes('AppsFlyerAttributionPlugin.swift');
   const appsFlyer = hasAppsFlyer ? read('AppsFlyerAttributionPlugin.swift') : '';
   if (hasAppsFlyer) {
-    for (const snippet of ['import AppsFlyerLib', 'setSharingFilterForPartners', '["all"]', 'sdk.start()', 'CAPPluginMethod(name: "getStatus"']) {
+    for (const snippet of ['import AppsFlyerLib', 'import AppTrackingTransparency', 'sdk.setSharingFilterForPartners(blockedPartners)', 'waitForATTUserAuthorization(timeoutInterval: 60)', 'ATTrackingManager.requestTrackingAuthorization', 'sdk.start()', 'CAPPluginMethod(name: "getStatus"']) {
       if (!appsFlyer.includes(snippet)) issues.push(`AppsFlyerAttributionPlugin.swift is missing ${snippet}`);
     }
-    if (appsFlyer.indexOf('setSharingFilterForPartners') > appsFlyer.indexOf('sdk.start()')) issues.push('AppsFlyer sharing policy must be applied before start');
-    for (const forbidden of ['waitForATTUserAuthorization', 'AdSupport', 'requestTrackingAuthorization']) if (appsFlyer.includes(forbidden)) issues.push(`AppsFlyerAttributionPlugin.swift contains forbidden tracking source: ${forbidden}`);
+    // General-audience policy: partners activated in the AppsFlyer dashboard receive postbacks.
+    if (/setSharingFilterForPartners\(\["all"\]\)/.test(appsFlyer)) issues.push('AppsFlyerAttributionPlugin.swift still applies the deny-all partner filter');
+    if (appsFlyer.includes('setSharingFilterForPartners') && appsFlyer.indexOf('setSharingFilterForPartners') > appsFlyer.indexOf('sdk.start()')) issues.push('AppsFlyer sharing policy must be applied before start');
+    if (appsFlyer.indexOf('waitForATTUserAuthorization') > appsFlyer.indexOf('sdk.start()')) issues.push('AppsFlyer ATT wait must be configured before start');
+    if (appsFlyer.includes('AdSupport')) issues.push('AppsFlyerAttributionPlugin.swift must not read the IDFA outside the SDK (AdSupport)');
+    if (!manifest.ios.trackingUsageDescription) issues.push('AppsFlyer shell requires ios.trackingUsageDescription for the ATT prompt');
   }
   const joined = [appDelegate, bridge, appLovin, adjust, appsFlyer, privacy].join('\n');
   const secretPatterns = [
@@ -679,6 +698,12 @@ export function validateGeneratedShell({ repoRoot, game, allowMissingFirebase = 
   if (manifest.ios.adMobApplicationIdEnv && !plist.includes(`<key>GADApplicationIdentifier</key>\n\t<string>${adMobApplicationId}</string>`)) issues.push('Info.plist AdMob application ID does not match the configured environment');
   for (const snippet of ['<key>ITSAppUsesNonExemptEncryption</key>\n\t<false/>', '<key>GOOGLE_ANALYTICS_IDFV_COLLECTION_ENABLED</key>\n\t<false/>', '<string>UIInterfaceOrientationPortrait</string>']) if (!plist.includes(snippet)) issues.push(`Info.plist is missing ${snippet}`);
   if (plist.includes('UIInterfaceOrientationLandscape')) issues.push('Info.plist contains a landscape orientation');
+  const postbackEntry = `<key>NSAdvertisingAttributionReportEndpoint</key>\n\t<string>${APPSFLYER_SKAN_POSTBACK_ENDPOINT}</string>`;
+  if (manifest.ios.swiftSources.includes(APPSFLYER_PLUGIN)) {
+    if (!plist.includes(postbackEntry)) issues.push('Info.plist is missing the AppsFlyer SKAdNetwork postback-copy endpoint');
+  } else if (plist.includes('NSAdvertisingAttributionReportEndpoint')) {
+    issues.push('Info.plist declares an attribution postback endpoint without the AppsFlyer bridge');
+  }
   const project = fs.readFileSync(required.project, 'utf8');
   for (const entry of fs.readdirSync(path.join(recipeDir, 'App'), { withFileTypes: true })) {
     if (!entry.isFile()) continue;
@@ -695,7 +720,7 @@ export function validateGeneratedShell({ repoRoot, game, allowMissingFirebase = 
   for (const file of nativeFilesFor(manifest)) if (sourceWiringState(project, file.name) !== 'wired') issues.push(`${file.name} is not fully wired into App Sources`);
   const privacyFile = privacyFileFor(manifest);
   if (resourceWiringState(project, privacyFile.name) !== 'wired') issues.push(`${privacyFile.name} is not fully wired into App Resources`);
-  const hasTrackingProviders = manifest.ios.swiftSources.some((name) => ['AppLovinMaxPlugin.swift', 'AdjustAttributionPlugin.swift', 'MetaEventsPlugin.swift'].includes(name));
+  const hasTrackingProviders = manifest.ios.swiftSources.some((name) => TRACKING_PROVIDER_SOURCES.includes(name));
   for (const [name] of frameworks) {
     const state = frameworkWiringState(project, name);
     if (hasTrackingProviders && state !== 'wired') issues.push(`${name} is not fully weak-linked`);

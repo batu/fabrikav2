@@ -1,0 +1,16 @@
+# design/
+
+The template keeps a committed, curated bootstrap projection here so its generic
+shell is functional before any game-specific editor authority exists. This seed
+is editor-neutral and is not owned by Design Sheets. Its semantic asset bindings,
+manifest, and fixture bytes change together as one bootstrap contract.
+
+Later Grapes-authority proof games receive their git-committed runtime projection
+through the deterministic projector. Existing Design Sheets games retain their
+current generated-file contract until they are explicitly migrated; this template
+exception does not change their authority. `assets/` holds the committed fixture
+bytes named by their canonical asset slot and semantic identity. The seed
+manifest wraps the U1 `ShellAssetCatalog`; it does not define a parallel role
+compatibility map. `fonts/` holds the CC0 Kenney Future display pair copied from
+the same approved UI Pack; readable body copy uses the platform rounded stack.
+The font license is retained at `assets/LICENSE-KENNEY-UI-PACK.txt`.

@@ -238,7 +238,7 @@ export function validateTemplate(templatePath, policy) {
   const keys = [...parsed.values.keys()].sort();
   const expected = [...policy.canonicalKeys].sort();
   const assignmentsAreSafe = parsed.assignments.every(({ key, value }) =>
-    (key === 'VITE_APPSFLYER_SHARING_PARTNERS' && value === '')
+    (key === 'VITE_APPSFLYER_BLOCKED_PARTNERS' && value === '')
       || /^(?:auto|true|false|__[-A-Z0-9_]+__|https:\/\/example\.invalid(?:\/.*)?)$/.test(value),
   );
   const oneCommentPerAssignment = parsed.assignments.every(({ hasPurposeComment }) => hasPurposeComment);

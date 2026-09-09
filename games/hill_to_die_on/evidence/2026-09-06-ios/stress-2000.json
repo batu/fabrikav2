@@ -1,0 +1,226 @@
+{
+  "device": "iPhone 12 (iPhone13,2)",
+  "ios": "26.6.1",
+  "nativeBuild": 4,
+  "scenario": "Durable enemies approach and cluster at structures.",
+  "samples": [
+    {
+      "label": "stress-05s-state",
+      "timestamp": 1788708525.786,
+      "phase": "combat",
+      "paused": false,
+      "level": 1,
+      "wave": 1,
+      "hp": 100,
+      "enemies": 2000,
+      "bullets": 0,
+      "effects": 1,
+      "shots": 100,
+      "peakEnemies": 2000,
+      "kills": 0,
+      "xp": 0,
+      "rank": 1,
+      "pendingPicks": 0,
+      "aim": -1.5707963267948966,
+      "cards": [],
+      "offers": [],
+      "salvage": 33,
+      "earned": 0,
+      "towerHp": [
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90
+      ],
+      "droppedSpawns": 0,
+      "stress": true,
+      "perf": {
+        "buckets": [
+          {
+            "label": ">=60",
+            "count": 113
+          },
+          {
+            "label": ">=30",
+            "count": 232
+          },
+          {
+            "label": "<20",
+            "count": 1
+          }
+        ],
+        "worstFrameMs": 58,
+        "frameCount": 346,
+        "frames": 346,
+        "medianFrameMs": 17,
+        "p95FrameMs": 20,
+        "p99FrameMs": 29,
+        "p95CpuMs": 2,
+        "over33ms": 1,
+        "enemies": 2000,
+        "peakEnemies": 2000,
+        "drawCalls": 1,
+        "dpr": 2,
+        "cardDefinitions": 26
+      },
+      "build": {
+        "sha": "c5a2d2ffce",
+        "dirty": true,
+        "version": "0.0.0",
+        "builtAt": "2026-09-06T15:27:56.292Z"
+      }
+    },
+    {
+      "label": "stress-25s-state",
+      "timestamp": 1788708546.115,
+      "phase": "combat",
+      "paused": false,
+      "level": 1,
+      "wave": 1,
+      "hp": 100,
+      "enemies": 2000,
+      "bullets": 0,
+      "effects": 1,
+      "shots": 439,
+      "peakEnemies": 2000,
+      "kills": 0,
+      "xp": 0,
+      "rank": 1,
+      "pendingPicks": 0,
+      "aim": -1.5707963267948966,
+      "cards": [],
+      "offers": [],
+      "salvage": 33,
+      "earned": 0,
+      "towerHp": [
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90
+      ],
+      "droppedSpawns": 0,
+      "stress": true,
+      "perf": {
+        "buckets": [
+          {
+            "label": ">=60",
+            "count": 518
+          },
+          {
+            "label": ">=30",
+            "count": 1024
+          },
+          {
+            "label": ">=20",
+            "count": 1
+          },
+          {
+            "label": "<20",
+            "count": 1
+          }
+        ],
+        "worstFrameMs": 58,
+        "frameCount": 1544,
+        "frames": 1544,
+        "medianFrameMs": 17,
+        "p95FrameMs": 20,
+        "p99FrameMs": 22,
+        "p95CpuMs": 2,
+        "over33ms": 2,
+        "enemies": 2000,
+        "peakEnemies": 2000,
+        "drawCalls": 1,
+        "dpr": 2,
+        "cardDefinitions": 26
+      },
+      "build": {
+        "sha": "c5a2d2ffce",
+        "dirty": true,
+        "version": "0.0.0",
+        "builtAt": "2026-09-06T15:27:56.292Z"
+      }
+    },
+    {
+      "label": "stress-45s-state",
+      "timestamp": 1788708566.381,
+      "phase": "combat",
+      "paused": false,
+      "level": 1,
+      "wave": 1,
+      "hp": 100,
+      "enemies": 2000,
+      "bullets": 0,
+      "effects": 1,
+      "shots": 779,
+      "peakEnemies": 2000,
+      "kills": 0,
+      "xp": 0,
+      "rank": 1,
+      "pendingPicks": 0,
+      "aim": -1.5707963267948966,
+      "cards": [],
+      "offers": [],
+      "salvage": 33,
+      "earned": 0,
+      "towerHp": [
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90
+      ],
+      "droppedSpawns": 0,
+      "stress": true,
+      "perf": {
+        "buckets": [
+          {
+            "label": ">=60",
+            "count": 924
+          },
+          {
+            "label": ">=30",
+            "count": 1818
+          },
+          {
+            "label": ">=20",
+            "count": 1
+          },
+          {
+            "label": "<20",
+            "count": 1
+          }
+        ],
+        "worstFrameMs": 58,
+        "frameCount": 2744,
+        "frames": 2744,
+        "medianFrameMs": 17,
+        "p95FrameMs": 20,
+        "p99FrameMs": 22,
+        "p95CpuMs": 2,
+        "over33ms": 2,
+        "enemies": 2000,
+        "peakEnemies": 2000,
+        "drawCalls": 1,
+        "dpr": 2,
+        "cardDefinitions": 26
+      },
+      "build": {
+        "sha": "c5a2d2ffce",
+        "dirty": true,
+        "version": "0.0.0",
+        "builtAt": "2026-09-06T15:27:56.292Z"
+      }
+    }
+  ]
+}

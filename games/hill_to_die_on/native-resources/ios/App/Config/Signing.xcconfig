@@ -1,0 +1,9 @@
+// Included by the native-shell recipe, not a committed secret.
+// verify-device supplies DEVELOPMENT_TEAM as an xcodebuild build setting:
+//   DEVELOPMENT_TEAM=$DEVELOPMENT_TEAM xcodebuild ... -allowProvisioningUpdates
+//
+// If opening the generated Xcode project manually, set DEVELOPMENT_TEAM in the
+// environment or override it in an untracked local xcconfig. Do not hard-code a
+// team id in this committed recipe.
+CODE_SIGN_STYLE = Automatic
+DEVELOPMENT_TEAM = $(DEVELOPMENT_TEAM)

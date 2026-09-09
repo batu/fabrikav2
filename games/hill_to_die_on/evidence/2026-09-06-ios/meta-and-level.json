@@ -1,0 +1,5007 @@
+{
+  "nativeBuild": 7,
+  "profile": "Separate QA save; native purchases from a 1,000-salvage fixture, then real-time waves and native aim/card inputs.",
+  "samples": [
+    {
+      "label": "meta-01-upgrades-state",
+      "timestamp": 1788709479.38,
+      "phase": "home",
+      "paused": false,
+      "level": 1,
+      "wave": 1,
+      "hp": 100,
+      "maxHp": 100,
+      "enemies": 0,
+      "bullets": 0,
+      "effects": 0,
+      "shots": 0,
+      "peakEnemies": 0,
+      "kills": 0,
+      "xp": 0,
+      "rank": 1,
+      "pendingPicks": 0,
+      "aim": -1.5707963267948966,
+      "threatAngle": -1.5707963267948966,
+      "cards": [],
+      "offers": [],
+      "salvage": 508,
+      "earned": 0,
+      "towerHp": [
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90
+      ],
+      "droppedSpawns": 0,
+      "stress": false,
+      "save": {
+        "version": 1,
+        "salvage": 508,
+        "unlockedLevel": 1,
+        "best": [
+          9,
+          0
+        ],
+        "attempts": 1,
+        "character": 1,
+        "characters": [
+          0,
+          1,
+          2
+        ],
+        "weapons": [
+          0,
+          1,
+          3
+        ],
+        "playerWeapon": 1,
+        "upgrades": {
+          "power": 5,
+          "learning": 1,
+          "fortune": 1,
+          "towers": 2
+        },
+        "layout": [
+          0,
+          -2,
+          -2,
+          -1,
+          3,
+          -2,
+          -2,
+          -1
+        ]
+      },
+      "perf": {
+        "buckets": [],
+        "worstFrameMs": 0,
+        "frameCount": 0,
+        "frames": 0,
+        "medianFrameMs": 0,
+        "p95FrameMs": 0,
+        "p99FrameMs": 0,
+        "p95CpuMs": 0,
+        "over33ms": 0,
+        "enemies": 0,
+        "peakEnemies": 0,
+        "drawCalls": 1,
+        "dpr": 2,
+        "cardDefinitions": 27
+      },
+      "build": {
+        "sha": "c5a2d2ffce",
+        "dirty": true,
+        "version": "0.0.0",
+        "builtAt": "2026-09-06T15:43:28.123Z"
+      }
+    },
+    {
+      "label": "meta-02-engineer-state",
+      "timestamp": 1788709484.567,
+      "phase": "home",
+      "paused": false,
+      "level": 1,
+      "wave": 1,
+      "hp": 100,
+      "maxHp": 100,
+      "enemies": 0,
+      "bullets": 0,
+      "effects": 0,
+      "shots": 0,
+      "peakEnemies": 0,
+      "kills": 0,
+      "xp": 0,
+      "rank": 1,
+      "pendingPicks": 0,
+      "aim": -1.5707963267948966,
+      "threatAngle": -1.5707963267948966,
+      "cards": [],
+      "offers": [],
+      "salvage": 508,
+      "earned": 0,
+      "towerHp": [
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90
+      ],
+      "droppedSpawns": 0,
+      "stress": false,
+      "save": {
+        "version": 1,
+        "salvage": 508,
+        "unlockedLevel": 1,
+        "best": [
+          9,
+          0
+        ],
+        "attempts": 1,
+        "character": 2,
+        "characters": [
+          0,
+          1,
+          2
+        ],
+        "weapons": [
+          0,
+          1,
+          3
+        ],
+        "playerWeapon": 0,
+        "upgrades": {
+          "power": 5,
+          "learning": 1,
+          "fortune": 1,
+          "towers": 2
+        },
+        "layout": [
+          0,
+          -2,
+          -2,
+          -1,
+          3,
+          -2,
+          -2,
+          -1
+        ]
+      },
+      "perf": {
+        "buckets": [],
+        "worstFrameMs": 0,
+        "frameCount": 0,
+        "frames": 0,
+        "medianFrameMs": 0,
+        "p95FrameMs": 0,
+        "p99FrameMs": 0,
+        "p95CpuMs": 0,
+        "over33ms": 0,
+        "enemies": 0,
+        "peakEnemies": 0,
+        "drawCalls": 1,
+        "dpr": 2,
+        "cardDefinitions": 27
+      },
+      "build": {
+        "sha": "c5a2d2ffce",
+        "dirty": true,
+        "version": "0.0.0",
+        "builtAt": "2026-09-06T15:43:28.123Z"
+      }
+    },
+    {
+      "label": "meta-03-firebrand-state",
+      "timestamp": 1788709488.433,
+      "phase": "home",
+      "paused": false,
+      "level": 1,
+      "wave": 1,
+      "hp": 100,
+      "maxHp": 100,
+      "enemies": 0,
+      "bullets": 0,
+      "effects": 0,
+      "shots": 0,
+      "peakEnemies": 0,
+      "kills": 0,
+      "xp": 0,
+      "rank": 1,
+      "pendingPicks": 0,
+      "aim": -1.5707963267948966,
+      "threatAngle": -1.5707963267948966,
+      "cards": [],
+      "offers": [],
+      "salvage": 508,
+      "earned": 0,
+      "towerHp": [
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90
+      ],
+      "droppedSpawns": 0,
+      "stress": false,
+      "save": {
+        "version": 1,
+        "salvage": 508,
+        "unlockedLevel": 1,
+        "best": [
+          9,
+          0
+        ],
+        "attempts": 1,
+        "character": 1,
+        "characters": [
+          0,
+          1,
+          2
+        ],
+        "weapons": [
+          0,
+          1,
+          3
+        ],
+        "playerWeapon": 1,
+        "upgrades": {
+          "power": 5,
+          "learning": 1,
+          "fortune": 1,
+          "towers": 2
+        },
+        "layout": [
+          0,
+          -2,
+          -2,
+          -1,
+          3,
+          -2,
+          -2,
+          -1
+        ]
+      },
+      "perf": {
+        "buckets": [],
+        "worstFrameMs": 0,
+        "frameCount": 0,
+        "frames": 0,
+        "medianFrameMs": 0,
+        "p95FrameMs": 0,
+        "p99FrameMs": 0,
+        "p95CpuMs": 0,
+        "over33ms": 0,
+        "enemies": 0,
+        "peakEnemies": 0,
+        "drawCalls": 1,
+        "dpr": 2,
+        "cardDefinitions": 27
+      },
+      "build": {
+        "sha": "c5a2d2ffce",
+        "dirty": true,
+        "version": "0.0.0",
+        "builtAt": "2026-09-06T15:43:28.123Z"
+      }
+    },
+    {
+      "label": "meta-04-defense-placement-state",
+      "timestamp": 1788709519.658,
+      "phase": "home",
+      "paused": false,
+      "level": 1,
+      "wave": 1,
+      "hp": 100,
+      "maxHp": 100,
+      "enemies": 0,
+      "bullets": 0,
+      "effects": 0,
+      "shots": 0,
+      "peakEnemies": 0,
+      "kills": 0,
+      "xp": 0,
+      "rank": 1,
+      "pendingPicks": 0,
+      "aim": -1.5707963267948966,
+      "threatAngle": -1.5707963267948966,
+      "cards": [],
+      "offers": [],
+      "salvage": 453,
+      "earned": 0,
+      "towerHp": [
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90
+      ],
+      "droppedSpawns": 0,
+      "stress": false,
+      "save": {
+        "version": 1,
+        "salvage": 453,
+        "unlockedLevel": 1,
+        "best": [
+          9,
+          0
+        ],
+        "attempts": 1,
+        "character": 1,
+        "characters": [
+          0,
+          1,
+          2
+        ],
+        "weapons": [
+          0,
+          1,
+          3,
+          2
+        ],
+        "playerWeapon": 1,
+        "upgrades": {
+          "power": 5,
+          "learning": 1,
+          "fortune": 1,
+          "towers": 2
+        },
+        "layout": [
+          0,
+          -2,
+          2,
+          -1,
+          3,
+          -2,
+          -2,
+          -1
+        ]
+      },
+      "perf": {
+        "buckets": [],
+        "worstFrameMs": 0,
+        "frameCount": 0,
+        "frames": 0,
+        "medianFrameMs": 0,
+        "p95FrameMs": 0,
+        "p99FrameMs": 0,
+        "p95CpuMs": 0,
+        "over33ms": 0,
+        "enemies": 0,
+        "peakEnemies": 0,
+        "drawCalls": 1,
+        "dpr": 2,
+        "cardDefinitions": 27
+      },
+      "build": {
+        "sha": "c5a2d2ffce",
+        "dirty": true,
+        "version": "0.0.0",
+        "builtAt": "2026-09-06T15:43:28.123Z"
+      }
+    },
+    {
+      "label": "meta-05-persistent-loadout-state",
+      "timestamp": 1788709525.711,
+      "phase": "home",
+      "paused": false,
+      "level": 1,
+      "wave": 1,
+      "hp": 100,
+      "maxHp": 100,
+      "enemies": 0,
+      "bullets": 0,
+      "effects": 0,
+      "shots": 0,
+      "peakEnemies": 0,
+      "kills": 0,
+      "xp": 0,
+      "rank": 1,
+      "pendingPicks": 0,
+      "aim": -1.5707963267948966,
+      "threatAngle": -1.5707963267948966,
+      "cards": [],
+      "offers": [],
+      "salvage": 453,
+      "earned": 0,
+      "towerHp": [
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90
+      ],
+      "droppedSpawns": 0,
+      "stress": false,
+      "save": {
+        "version": 1,
+        "salvage": 453,
+        "unlockedLevel": 1,
+        "best": [
+          9,
+          0
+        ],
+        "attempts": 1,
+        "character": 1,
+        "characters": [
+          0,
+          1,
+          2
+        ],
+        "weapons": [
+          0,
+          1,
+          3,
+          2
+        ],
+        "playerWeapon": 1,
+        "upgrades": {
+          "power": 5,
+          "learning": 1,
+          "fortune": 1,
+          "towers": 2
+        },
+        "layout": [
+          0,
+          -2,
+          2,
+          -1,
+          3,
+          -2,
+          -2,
+          -1
+        ]
+      },
+      "perf": {
+        "buckets": [],
+        "worstFrameMs": 0,
+        "frameCount": 0,
+        "frames": 0,
+        "medianFrameMs": 0,
+        "p95FrameMs": 0,
+        "p99FrameMs": 0,
+        "p95CpuMs": 0,
+        "over33ms": 0,
+        "enemies": 0,
+        "peakEnemies": 0,
+        "drawCalls": 1,
+        "dpr": 2,
+        "cardDefinitions": 27
+      },
+      "build": {
+        "sha": "c5a2d2ffce",
+        "dirty": true,
+        "version": "0.0.0",
+        "builtAt": "2026-09-06T15:43:28.123Z"
+      }
+    },
+    {
+      "label": "level-combat-0-state",
+      "timestamp": 1788709534.478,
+      "phase": "combat",
+      "paused": false,
+      "level": 1,
+      "wave": 1,
+      "hp": 100,
+      "maxHp": 100,
+      "enemies": 5,
+      "bullets": 6,
+      "effects": 1,
+      "shots": 11,
+      "peakEnemies": 5,
+      "kills": 0,
+      "xp": 0,
+      "rank": 1,
+      "pendingPicks": 0,
+      "aim": -1.5707963267948966,
+      "threatAngle": -2.2746858609553304,
+      "cards": [],
+      "offers": [],
+      "salvage": 453,
+      "earned": 0,
+      "towerHp": [
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90
+      ],
+      "droppedSpawns": 0,
+      "stress": false,
+      "save": {
+        "version": 1,
+        "salvage": 453,
+        "unlockedLevel": 1,
+        "best": [
+          9,
+          0
+        ],
+        "attempts": 2,
+        "character": 1,
+        "characters": [
+          0,
+          1,
+          2
+        ],
+        "weapons": [
+          0,
+          1,
+          3,
+          2
+        ],
+        "playerWeapon": 1,
+        "upgrades": {
+          "power": 5,
+          "learning": 1,
+          "fortune": 1,
+          "towers": 2
+        },
+        "layout": [
+          0,
+          -2,
+          2,
+          -1,
+          3,
+          -2,
+          -2,
+          -1
+        ]
+      },
+      "perf": {
+        "buckets": [
+          {
+            "label": ">=60",
+            "count": 19
+          },
+          {
+            "label": ">=30",
+            "count": 20
+          },
+          {
+            "label": "<20",
+            "count": 1
+          }
+        ],
+        "worstFrameMs": 107,
+        "frameCount": 40,
+        "frames": 40,
+        "medianFrameMs": 17,
+        "p95FrameMs": 26,
+        "p99FrameMs": 107,
+        "p95CpuMs": 1,
+        "over33ms": 1,
+        "enemies": 5,
+        "peakEnemies": 5,
+        "drawCalls": 1,
+        "dpr": 2,
+        "cardDefinitions": 27
+      },
+      "build": {
+        "sha": "c5a2d2ffce",
+        "dirty": true,
+        "version": "0.0.0",
+        "builtAt": "2026-09-06T15:43:28.123Z"
+      }
+    },
+    {
+      "label": "level-repaired-wave-1-state",
+      "timestamp": 1788709557.832,
+      "phase": "ready",
+      "paused": false,
+      "level": 1,
+      "wave": 1,
+      "hp": 100,
+      "maxHp": 100,
+      "enemies": 0,
+      "bullets": 0,
+      "effects": 0,
+      "shots": 320,
+      "peakEnemies": 23,
+      "kills": 130,
+      "xp": 78.00000000000003,
+      "rank": 2,
+      "pendingPicks": 0,
+      "aim": -2.260442997296578,
+      "threatAngle": -2.260442997296578,
+      "cards": [
+        {
+          "id": "weapon-2",
+          "name": "Arc caster: heavy duty",
+          "stat": "damage",
+          "scope": 2,
+          "rank": 3,
+          "amount": 0.715
+        }
+      ],
+      "offers": [],
+      "salvage": 468,
+      "earned": 15,
+      "towerHp": [
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90
+      ],
+      "droppedSpawns": 0,
+      "stress": false,
+      "save": {
+        "version": 1,
+        "salvage": 468,
+        "unlockedLevel": 1,
+        "best": [
+          9,
+          0
+        ],
+        "attempts": 2,
+        "character": 1,
+        "characters": [
+          0,
+          1,
+          2
+        ],
+        "weapons": [
+          0,
+          1,
+          3,
+          2
+        ],
+        "playerWeapon": 1,
+        "upgrades": {
+          "power": 5,
+          "learning": 1,
+          "fortune": 1,
+          "towers": 2
+        },
+        "layout": [
+          0,
+          -2,
+          2,
+          -1,
+          3,
+          -2,
+          -2,
+          -1
+        ]
+      },
+      "perf": {
+        "buckets": [
+          {
+            "label": ">=60",
+            "count": 415
+          },
+          {
+            "label": ">=30",
+            "count": 771
+          },
+          {
+            "label": ">=20",
+            "count": 2
+          },
+          {
+            "label": "<20",
+            "count": 1
+          }
+        ],
+        "worstFrameMs": 107,
+        "frameCount": 1189,
+        "frames": 1189,
+        "medianFrameMs": 17,
+        "p95FrameMs": 18,
+        "p99FrameMs": 25,
+        "p95CpuMs": 1,
+        "over33ms": 3,
+        "enemies": 0,
+        "peakEnemies": 23,
+        "drawCalls": 1,
+        "dpr": 2,
+        "cardDefinitions": 27
+      },
+      "build": {
+        "sha": "c5a2d2ffce",
+        "dirty": true,
+        "version": "0.0.0",
+        "builtAt": "2026-09-06T15:43:28.123Z"
+      }
+    },
+    {
+      "label": "level-combat-12-state",
+      "timestamp": 1788709571.932,
+      "phase": "combat",
+      "paused": false,
+      "level": 1,
+      "wave": 2,
+      "hp": 100,
+      "maxHp": 100,
+      "enemies": 16,
+      "bullets": 7,
+      "effects": 2,
+      "shots": 535,
+      "peakEnemies": 23,
+      "kills": 235,
+      "xp": 103.49999999999982,
+      "rank": 3,
+      "pendingPicks": 1,
+      "aim": 0.8750448797189354,
+      "threatAngle": 1.0178936373906247,
+      "cards": [
+        {
+          "id": "weapon-2",
+          "name": "Arc caster: heavy duty",
+          "stat": "damage",
+          "scope": 2,
+          "rank": 3,
+          "amount": 0.715
+        }
+      ],
+      "offers": [],
+      "salvage": 468,
+      "earned": 15,
+      "towerHp": [
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90
+      ],
+      "droppedSpawns": 0,
+      "stress": false,
+      "save": {
+        "version": 1,
+        "salvage": 468,
+        "unlockedLevel": 1,
+        "best": [
+          9,
+          0
+        ],
+        "attempts": 2,
+        "character": 1,
+        "characters": [
+          0,
+          1,
+          2
+        ],
+        "weapons": [
+          0,
+          1,
+          3,
+          2
+        ],
+        "playerWeapon": 1,
+        "upgrades": {
+          "power": 5,
+          "learning": 1,
+          "fortune": 1,
+          "towers": 2
+        },
+        "layout": [
+          0,
+          -2,
+          2,
+          -1,
+          3,
+          -2,
+          -2,
+          -1
+        ]
+      },
+      "perf": {
+        "buckets": [
+          {
+            "label": ">=60",
+            "count": 667
+          },
+          {
+            "label": ">=30",
+            "count": 1281
+          },
+          {
+            "label": ">=20",
+            "count": 2
+          },
+          {
+            "label": "<20",
+            "count": 1
+          }
+        ],
+        "worstFrameMs": 107,
+        "frameCount": 1951,
+        "frames": 1951,
+        "medianFrameMs": 17,
+        "p95FrameMs": 18,
+        "p99FrameMs": 23,
+        "p95CpuMs": 1,
+        "over33ms": 3,
+        "enemies": 16,
+        "peakEnemies": 23,
+        "drawCalls": 1,
+        "dpr": 2,
+        "cardDefinitions": 27
+      },
+      "build": {
+        "sha": "c5a2d2ffce",
+        "dirty": true,
+        "version": "0.0.0",
+        "builtAt": "2026-09-06T15:43:28.123Z"
+      }
+    },
+    {
+      "label": "level-repaired-wave-2-state",
+      "timestamp": 1788709585.871,
+      "phase": "ready",
+      "paused": false,
+      "level": 1,
+      "wave": 2,
+      "hp": 100,
+      "maxHp": 100,
+      "enemies": 0,
+      "bullets": 0,
+      "effects": 0,
+      "shots": 650,
+      "peakEnemies": 23,
+      "kills": 296,
+      "xp": 55.599999999999795,
+      "rank": 4,
+      "pendingPicks": 0,
+      "aim": 0.5417800436487791,
+      "threatAngle": 0.5417800436487791,
+      "cards": [
+        {
+          "id": "weapon-2",
+          "name": "Arc caster: heavy duty",
+          "stat": "damage",
+          "scope": 2,
+          "rank": 3,
+          "amount": 0.715
+        },
+        {
+          "id": "explosive-rate",
+          "name": "Explosive overdrive",
+          "stat": "rate",
+          "scope": "explosive",
+          "rank": 1,
+          "amount": 0.33
+        },
+        {
+          "id": "weapon-1",
+          "name": "Flamethrower: heavy duty",
+          "stat": "damage",
+          "scope": 1,
+          "rank": 0,
+          "amount": 0.22
+        }
+      ],
+      "offers": [],
+      "salvage": 486,
+      "earned": 33,
+      "towerHp": [
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90
+      ],
+      "droppedSpawns": 0,
+      "stress": false,
+      "save": {
+        "version": 1,
+        "salvage": 486,
+        "unlockedLevel": 1,
+        "best": [
+          9,
+          0
+        ],
+        "attempts": 2,
+        "character": 1,
+        "characters": [
+          0,
+          1,
+          2
+        ],
+        "weapons": [
+          0,
+          1,
+          3,
+          2
+        ],
+        "playerWeapon": 1,
+        "upgrades": {
+          "power": 5,
+          "learning": 1,
+          "fortune": 1,
+          "towers": 2
+        },
+        "layout": [
+          0,
+          -2,
+          2,
+          -1,
+          3,
+          -2,
+          -2,
+          -1
+        ]
+      },
+      "perf": {
+        "buckets": [
+          {
+            "label": ">=60",
+            "count": 804
+          },
+          {
+            "label": ">=30",
+            "count": 1553
+          },
+          {
+            "label": ">=20",
+            "count": 2
+          },
+          {
+            "label": "<20",
+            "count": 1
+          }
+        ],
+        "worstFrameMs": 107,
+        "frameCount": 2360,
+        "frames": 2360,
+        "medianFrameMs": 17,
+        "p95FrameMs": 18,
+        "p99FrameMs": 23,
+        "p95CpuMs": 1,
+        "over33ms": 3,
+        "enemies": 0,
+        "peakEnemies": 23,
+        "drawCalls": 1,
+        "dpr": 2,
+        "cardDefinitions": 27
+      },
+      "build": {
+        "sha": "c5a2d2ffce",
+        "dirty": true,
+        "version": "0.0.0",
+        "builtAt": "2026-09-06T15:43:28.123Z"
+      }
+    },
+    {
+      "label": "level-combat-24-state",
+      "timestamp": 1788709609.162,
+      "phase": "combat",
+      "paused": false,
+      "level": 1,
+      "wave": 3,
+      "hp": 100,
+      "maxHp": 100,
+      "enemies": 1,
+      "bullets": 9,
+      "effects": 1,
+      "shots": 998,
+      "peakEnemies": 33,
+      "kills": 508,
+      "xp": 38.79999999999925,
+      "rank": 6,
+      "pendingPicks": 2,
+      "aim": 2.423508365985051,
+      "threatAngle": 1.0521355571060071,
+      "cards": [
+        {
+          "id": "weapon-2",
+          "name": "Arc caster: heavy duty",
+          "stat": "damage",
+          "scope": 2,
+          "rank": 3,
+          "amount": 0.715
+        },
+        {
+          "id": "explosive-rate",
+          "name": "Explosive overdrive",
+          "stat": "rate",
+          "scope": "explosive",
+          "rank": 1,
+          "amount": 0.33
+        },
+        {
+          "id": "weapon-1",
+          "name": "Flamethrower: heavy duty",
+          "stat": "damage",
+          "scope": 1,
+          "rank": 0,
+          "amount": 0.22
+        }
+      ],
+      "offers": [],
+      "salvage": 486,
+      "earned": 33,
+      "towerHp": [
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90
+      ],
+      "droppedSpawns": 0,
+      "stress": false,
+      "save": {
+        "version": 1,
+        "salvage": 486,
+        "unlockedLevel": 1,
+        "best": [
+          9,
+          0
+        ],
+        "attempts": 2,
+        "character": 1,
+        "characters": [
+          0,
+          1,
+          2
+        ],
+        "weapons": [
+          0,
+          1,
+          3,
+          2
+        ],
+        "playerWeapon": 1,
+        "upgrades": {
+          "power": 5,
+          "learning": 1,
+          "fortune": 1,
+          "towers": 2
+        },
+        "layout": [
+          0,
+          -2,
+          2,
+          -1,
+          3,
+          -2,
+          -2,
+          -1
+        ]
+      },
+      "perf": {
+        "buckets": [
+          {
+            "label": ">=60",
+            "count": 1230
+          },
+          {
+            "label": ">=30",
+            "count": 2366
+          },
+          {
+            "label": ">=20",
+            "count": 5
+          },
+          {
+            "label": "<20",
+            "count": 1
+          }
+        ],
+        "worstFrameMs": 107,
+        "frameCount": 3602,
+        "frames": 3600,
+        "medianFrameMs": 17,
+        "p95FrameMs": 18,
+        "p99FrameMs": 23,
+        "p95CpuMs": 1,
+        "over33ms": 5,
+        "enemies": 1,
+        "peakEnemies": 33,
+        "drawCalls": 1,
+        "dpr": 2,
+        "cardDefinitions": 27
+      },
+      "build": {
+        "sha": "c5a2d2ffce",
+        "dirty": true,
+        "version": "0.0.0",
+        "builtAt": "2026-09-06T15:43:28.123Z"
+      }
+    },
+    {
+      "label": "level-repaired-wave-3-state",
+      "timestamp": 1788709616.977,
+      "phase": "ready",
+      "paused": false,
+      "level": 1,
+      "wave": 3,
+      "hp": 100,
+      "maxHp": 100,
+      "enemies": 0,
+      "bullets": 0,
+      "effects": 0,
+      "shots": 1011,
+      "peakEnemies": 33,
+      "kills": 509,
+      "xp": 42.09999999999925,
+      "rank": 6,
+      "pendingPicks": 0,
+      "aim": 1.057544053928636,
+      "threatAngle": 1.057544053928636,
+      "cards": [
+        {
+          "id": "weapon-2",
+          "name": "Arc caster: heavy duty",
+          "stat": "damage",
+          "scope": 2,
+          "rank": 3,
+          "amount": 0.715
+        },
+        {
+          "id": "explosive-rate",
+          "name": "Explosive overdrive",
+          "stat": "rate",
+          "scope": "explosive",
+          "rank": 1,
+          "amount": 0.33
+        },
+        {
+          "id": "weapon-1",
+          "name": "Flamethrower: heavy duty",
+          "stat": "damage",
+          "scope": 1,
+          "rank": 0,
+          "amount": 0.22
+        },
+        {
+          "id": "beam-power",
+          "name": "Beam specialist",
+          "stat": "damage",
+          "scope": "beam",
+          "rank": 0,
+          "amount": 0.22
+        },
+        {
+          "id": "kinetic-power",
+          "name": "Kinetic specialist",
+          "stat": "damage",
+          "scope": "kinetic",
+          "rank": 0,
+          "amount": 0.22
+        }
+      ],
+      "offers": [],
+      "salvage": 507,
+      "earned": 54,
+      "towerHp": [
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90
+      ],
+      "droppedSpawns": 0,
+      "stress": false,
+      "save": {
+        "version": 1,
+        "salvage": 507,
+        "unlockedLevel": 1,
+        "best": [
+          9,
+          0
+        ],
+        "attempts": 2,
+        "character": 1,
+        "characters": [
+          0,
+          1,
+          2
+        ],
+        "weapons": [
+          0,
+          1,
+          3,
+          2
+        ],
+        "playerWeapon": 1,
+        "upgrades": {
+          "power": 5,
+          "learning": 1,
+          "fortune": 1,
+          "towers": 2
+        },
+        "layout": [
+          0,
+          -2,
+          2,
+          -1,
+          3,
+          -2,
+          -2,
+          -1
+        ]
+      },
+      "perf": {
+        "buckets": [
+          {
+            "label": ">=60",
+            "count": 1249
+          },
+          {
+            "label": ">=30",
+            "count": 2390
+          },
+          {
+            "label": ">=20",
+            "count": 5
+          },
+          {
+            "label": "<20",
+            "count": 1
+          }
+        ],
+        "worstFrameMs": 107,
+        "frameCount": 3645,
+        "frames": 3600,
+        "medianFrameMs": 17,
+        "p95FrameMs": 18,
+        "p99FrameMs": 23,
+        "p95CpuMs": 1,
+        "over33ms": 5,
+        "enemies": 0,
+        "peakEnemies": 33,
+        "drawCalls": 1,
+        "dpr": 2,
+        "cardDefinitions": 27
+      },
+      "build": {
+        "sha": "c5a2d2ffce",
+        "dirty": true,
+        "version": "0.0.0",
+        "builtAt": "2026-09-06T15:43:28.123Z"
+      }
+    },
+    {
+      "label": "level-repaired-wave-4-state",
+      "timestamp": 1788709645.405,
+      "phase": "ready",
+      "paused": false,
+      "level": 1,
+      "wave": 4,
+      "hp": 100,
+      "maxHp": 100,
+      "enemies": 0,
+      "bullets": 0,
+      "effects": 0,
+      "shots": 1375,
+      "peakEnemies": 51,
+      "kills": 782,
+      "xp": 209.59999999999835,
+      "rank": 7,
+      "pendingPicks": 0,
+      "aim": -2.8927604449906448,
+      "threatAngle": -2.8927604449906448,
+      "cards": [
+        {
+          "id": "weapon-2",
+          "name": "Arc caster: heavy duty",
+          "stat": "damage",
+          "scope": 2,
+          "rank": 3,
+          "amount": 0.715
+        },
+        {
+          "id": "explosive-rate",
+          "name": "Explosive overdrive",
+          "stat": "rate",
+          "scope": "explosive",
+          "rank": 1,
+          "amount": 0.33
+        },
+        {
+          "id": "weapon-1",
+          "name": "Flamethrower: heavy duty",
+          "stat": "damage",
+          "scope": 1,
+          "rank": 0,
+          "amount": 0.22
+        },
+        {
+          "id": "beam-power",
+          "name": "Beam specialist",
+          "stat": "damage",
+          "scope": "beam",
+          "rank": 0,
+          "amount": 0.22
+        },
+        {
+          "id": "kinetic-power",
+          "name": "Kinetic specialist",
+          "stat": "damage",
+          "scope": "kinetic",
+          "rank": 0,
+          "amount": 0.22
+        },
+        {
+          "id": "weapon-2",
+          "name": "Arc caster: heavy duty",
+          "stat": "damage",
+          "scope": 2,
+          "rank": 1,
+          "amount": 0.33
+        }
+      ],
+      "offers": [],
+      "salvage": 531,
+      "earned": 78,
+      "towerHp": [
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90
+      ],
+      "droppedSpawns": 0,
+      "stress": false,
+      "save": {
+        "version": 1,
+        "salvage": 531,
+        "unlockedLevel": 1,
+        "best": [
+          9,
+          0
+        ],
+        "attempts": 2,
+        "character": 1,
+        "characters": [
+          0,
+          1,
+          2
+        ],
+        "weapons": [
+          0,
+          1,
+          3,
+          2
+        ],
+        "playerWeapon": 1,
+        "upgrades": {
+          "power": 5,
+          "learning": 1,
+          "fortune": 1,
+          "towers": 2
+        },
+        "layout": [
+          0,
+          -2,
+          2,
+          -1,
+          3,
+          -2,
+          -2,
+          -1
+        ]
+      },
+      "perf": {
+        "buckets": [
+          {
+            "label": ">=60",
+            "count": 1734
+          },
+          {
+            "label": ">=30",
+            "count": 3336
+          },
+          {
+            "label": ">=20",
+            "count": 6
+          },
+          {
+            "label": "<20",
+            "count": 1
+          }
+        ],
+        "worstFrameMs": 107,
+        "frameCount": 5077,
+        "frames": 3600,
+        "medianFrameMs": 17,
+        "p95FrameMs": 18,
+        "p99FrameMs": 23,
+        "p95CpuMs": 1,
+        "over33ms": 4,
+        "enemies": 0,
+        "peakEnemies": 51,
+        "drawCalls": 1,
+        "dpr": 2,
+        "cardDefinitions": 27
+      },
+      "build": {
+        "sha": "c5a2d2ffce",
+        "dirty": true,
+        "version": "0.0.0",
+        "builtAt": "2026-09-06T15:43:28.123Z"
+      }
+    },
+    {
+      "label": "level-card-wave-5-state",
+      "timestamp": 1788709673.854,
+      "phase": "cards",
+      "paused": false,
+      "level": 1,
+      "wave": 5,
+      "hp": 100,
+      "maxHp": 100,
+      "enemies": 0,
+      "bullets": 0,
+      "effects": 0,
+      "shots": 1803,
+      "peakEnemies": 74,
+      "kills": 1131,
+      "xp": 249.59999999999746,
+      "rank": 9,
+      "pendingPicks": 2,
+      "aim": -2.4458412065138315,
+      "threatAngle": -2.4458412065138315,
+      "cards": [
+        {
+          "id": "weapon-2",
+          "name": "Arc caster: heavy duty",
+          "stat": "damage",
+          "scope": 2,
+          "rank": 3,
+          "amount": 0.715
+        },
+        {
+          "id": "explosive-rate",
+          "name": "Explosive overdrive",
+          "stat": "rate",
+          "scope": "explosive",
+          "rank": 1,
+          "amount": 0.33
+        },
+        {
+          "id": "weapon-1",
+          "name": "Flamethrower: heavy duty",
+          "stat": "damage",
+          "scope": 1,
+          "rank": 0,
+          "amount": 0.22
+        },
+        {
+          "id": "beam-power",
+          "name": "Beam specialist",
+          "stat": "damage",
+          "scope": "beam",
+          "rank": 0,
+          "amount": 0.22
+        },
+        {
+          "id": "kinetic-power",
+          "name": "Kinetic specialist",
+          "stat": "damage",
+          "scope": "kinetic",
+          "rank": 0,
+          "amount": 0.22
+        },
+        {
+          "id": "weapon-2",
+          "name": "Arc caster: heavy duty",
+          "stat": "damage",
+          "scope": 2,
+          "rank": 1,
+          "amount": 0.33
+        }
+      ],
+      "offers": [
+        {
+          "id": "health",
+          "name": "Dig in",
+          "stat": "health",
+          "scope": "all",
+          "rank": 1,
+          "amount": 0.18
+        },
+        {
+          "id": "area",
+          "name": "Collateral damage",
+          "stat": "area",
+          "scope": "all",
+          "rank": 2,
+          "amount": 0.27
+        },
+        {
+          "id": "explosive-rate",
+          "name": "Explosive overdrive",
+          "stat": "rate",
+          "scope": "explosive",
+          "rank": 0,
+          "amount": 0.22
+        }
+      ],
+      "salvage": 558,
+      "earned": 105,
+      "towerHp": [
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90
+      ],
+      "droppedSpawns": 0,
+      "stress": false,
+      "save": {
+        "version": 1,
+        "salvage": 558,
+        "unlockedLevel": 1,
+        "best": [
+          9,
+          0
+        ],
+        "attempts": 2,
+        "character": 1,
+        "characters": [
+          0,
+          1,
+          2
+        ],
+        "weapons": [
+          0,
+          1,
+          3,
+          2
+        ],
+        "playerWeapon": 1,
+        "upgrades": {
+          "power": 5,
+          "learning": 1,
+          "fortune": 1,
+          "towers": 2
+        },
+        "layout": [
+          0,
+          -2,
+          2,
+          -1,
+          3,
+          -2,
+          -2,
+          -1
+        ]
+      },
+      "perf": {
+        "buckets": [
+          {
+            "label": ">=60",
+            "count": 2249
+          },
+          {
+            "label": ">=30",
+            "count": 4301
+          },
+          {
+            "label": ">=20",
+            "count": 8
+          },
+          {
+            "label": "<20",
+            "count": 1
+          }
+        ],
+        "worstFrameMs": 107,
+        "frameCount": 6559,
+        "frames": 3600,
+        "medianFrameMs": 17,
+        "p95FrameMs": 18,
+        "p99FrameMs": 23,
+        "p95CpuMs": 1,
+        "over33ms": 5,
+        "enemies": 0,
+        "peakEnemies": 74,
+        "drawCalls": 1,
+        "dpr": 2,
+        "cardDefinitions": 27
+      },
+      "build": {
+        "sha": "c5a2d2ffce",
+        "dirty": true,
+        "version": "0.0.0",
+        "builtAt": "2026-09-06T15:43:28.123Z"
+      }
+    },
+    {
+      "label": "level-card-wave-5-state",
+      "timestamp": 1788709676.775,
+      "phase": "cards",
+      "paused": false,
+      "level": 1,
+      "wave": 5,
+      "hp": 100,
+      "maxHp": 100,
+      "enemies": 0,
+      "bullets": 0,
+      "effects": 0,
+      "shots": 1803,
+      "peakEnemies": 74,
+      "kills": 1131,
+      "xp": 249.59999999999746,
+      "rank": 9,
+      "pendingPicks": 1,
+      "aim": -2.4458412065138315,
+      "threatAngle": -2.4458412065138315,
+      "cards": [
+        {
+          "id": "weapon-2",
+          "name": "Arc caster: heavy duty",
+          "stat": "damage",
+          "scope": 2,
+          "rank": 3,
+          "amount": 0.715
+        },
+        {
+          "id": "explosive-rate",
+          "name": "Explosive overdrive",
+          "stat": "rate",
+          "scope": "explosive",
+          "rank": 1,
+          "amount": 0.33
+        },
+        {
+          "id": "weapon-1",
+          "name": "Flamethrower: heavy duty",
+          "stat": "damage",
+          "scope": 1,
+          "rank": 0,
+          "amount": 0.22
+        },
+        {
+          "id": "beam-power",
+          "name": "Beam specialist",
+          "stat": "damage",
+          "scope": "beam",
+          "rank": 0,
+          "amount": 0.22
+        },
+        {
+          "id": "kinetic-power",
+          "name": "Kinetic specialist",
+          "stat": "damage",
+          "scope": "kinetic",
+          "rank": 0,
+          "amount": 0.22
+        },
+        {
+          "id": "weapon-2",
+          "name": "Arc caster: heavy duty",
+          "stat": "damage",
+          "scope": 2,
+          "rank": 1,
+          "amount": 0.33
+        },
+        {
+          "id": "explosive-rate",
+          "name": "Explosive overdrive",
+          "stat": "rate",
+          "scope": "explosive",
+          "rank": 0,
+          "amount": 0.22
+        }
+      ],
+      "offers": [
+        {
+          "id": "rate",
+          "name": "No breathing room",
+          "stat": "rate",
+          "scope": "all",
+          "rank": 2,
+          "amount": 0.27
+        },
+        {
+          "id": "weapon-2",
+          "name": "Arc caster: heavy duty",
+          "stat": "damage",
+          "scope": 2,
+          "rank": 0,
+          "amount": 0.22
+        },
+        {
+          "id": "speed-0",
+          "name": "Rivet gun: hair trigger",
+          "stat": "rate",
+          "scope": 0,
+          "rank": 0,
+          "amount": 0.22
+        }
+      ],
+      "salvage": 558,
+      "earned": 105,
+      "towerHp": [
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90
+      ],
+      "droppedSpawns": 0,
+      "stress": false,
+      "save": {
+        "version": 1,
+        "salvage": 558,
+        "unlockedLevel": 1,
+        "best": [
+          9,
+          0
+        ],
+        "attempts": 2,
+        "character": 1,
+        "characters": [
+          0,
+          1,
+          2
+        ],
+        "weapons": [
+          0,
+          1,
+          3,
+          2
+        ],
+        "playerWeapon": 1,
+        "upgrades": {
+          "power": 5,
+          "learning": 1,
+          "fortune": 1,
+          "towers": 2
+        },
+        "layout": [
+          0,
+          -2,
+          2,
+          -1,
+          3,
+          -2,
+          -2,
+          -1
+        ]
+      },
+      "perf": {
+        "buckets": [
+          {
+            "label": ">=60",
+            "count": 2249
+          },
+          {
+            "label": ">=30",
+            "count": 4301
+          },
+          {
+            "label": ">=20",
+            "count": 8
+          },
+          {
+            "label": "<20",
+            "count": 1
+          }
+        ],
+        "worstFrameMs": 107,
+        "frameCount": 6559,
+        "frames": 3600,
+        "medianFrameMs": 17,
+        "p95FrameMs": 18,
+        "p99FrameMs": 23,
+        "p95CpuMs": 1,
+        "over33ms": 5,
+        "enemies": 0,
+        "peakEnemies": 74,
+        "drawCalls": 1,
+        "dpr": 2,
+        "cardDefinitions": 27
+      },
+      "build": {
+        "sha": "c5a2d2ffce",
+        "dirty": true,
+        "version": "0.0.0",
+        "builtAt": "2026-09-06T15:43:28.123Z"
+      }
+    },
+    {
+      "label": "level-repaired-wave-5-state",
+      "timestamp": 1788709679.725,
+      "phase": "ready",
+      "paused": false,
+      "level": 1,
+      "wave": 5,
+      "hp": 100,
+      "maxHp": 100,
+      "enemies": 0,
+      "bullets": 0,
+      "effects": 0,
+      "shots": 1803,
+      "peakEnemies": 74,
+      "kills": 1131,
+      "xp": 249.59999999999746,
+      "rank": 9,
+      "pendingPicks": 0,
+      "aim": -2.4458412065138315,
+      "threatAngle": -2.4458412065138315,
+      "cards": [
+        {
+          "id": "weapon-2",
+          "name": "Arc caster: heavy duty",
+          "stat": "damage",
+          "scope": 2,
+          "rank": 3,
+          "amount": 0.715
+        },
+        {
+          "id": "explosive-rate",
+          "name": "Explosive overdrive",
+          "stat": "rate",
+          "scope": "explosive",
+          "rank": 1,
+          "amount": 0.33
+        },
+        {
+          "id": "weapon-1",
+          "name": "Flamethrower: heavy duty",
+          "stat": "damage",
+          "scope": 1,
+          "rank": 0,
+          "amount": 0.22
+        },
+        {
+          "id": "beam-power",
+          "name": "Beam specialist",
+          "stat": "damage",
+          "scope": "beam",
+          "rank": 0,
+          "amount": 0.22
+        },
+        {
+          "id": "kinetic-power",
+          "name": "Kinetic specialist",
+          "stat": "damage",
+          "scope": "kinetic",
+          "rank": 0,
+          "amount": 0.22
+        },
+        {
+          "id": "weapon-2",
+          "name": "Arc caster: heavy duty",
+          "stat": "damage",
+          "scope": 2,
+          "rank": 1,
+          "amount": 0.33
+        },
+        {
+          "id": "explosive-rate",
+          "name": "Explosive overdrive",
+          "stat": "rate",
+          "scope": "explosive",
+          "rank": 0,
+          "amount": 0.22
+        },
+        {
+          "id": "rate",
+          "name": "No breathing room",
+          "stat": "rate",
+          "scope": "all",
+          "rank": 2,
+          "amount": 0.27
+        }
+      ],
+      "offers": [],
+      "salvage": 558,
+      "earned": 105,
+      "towerHp": [
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90
+      ],
+      "droppedSpawns": 0,
+      "stress": false,
+      "save": {
+        "version": 1,
+        "salvage": 558,
+        "unlockedLevel": 1,
+        "best": [
+          9,
+          0
+        ],
+        "attempts": 2,
+        "character": 1,
+        "characters": [
+          0,
+          1,
+          2
+        ],
+        "weapons": [
+          0,
+          1,
+          3,
+          2
+        ],
+        "playerWeapon": 1,
+        "upgrades": {
+          "power": 5,
+          "learning": 1,
+          "fortune": 1,
+          "towers": 2
+        },
+        "layout": [
+          0,
+          -2,
+          2,
+          -1,
+          3,
+          -2,
+          -2,
+          -1
+        ]
+      },
+      "perf": {
+        "buckets": [
+          {
+            "label": ">=60",
+            "count": 2249
+          },
+          {
+            "label": ">=30",
+            "count": 4301
+          },
+          {
+            "label": ">=20",
+            "count": 8
+          },
+          {
+            "label": "<20",
+            "count": 1
+          }
+        ],
+        "worstFrameMs": 107,
+        "frameCount": 6559,
+        "frames": 3600,
+        "medianFrameMs": 17,
+        "p95FrameMs": 18,
+        "p99FrameMs": 23,
+        "p95CpuMs": 1,
+        "over33ms": 5,
+        "enemies": 0,
+        "peakEnemies": 74,
+        "drawCalls": 1,
+        "dpr": 2,
+        "cardDefinitions": 27
+      },
+      "build": {
+        "sha": "c5a2d2ffce",
+        "dirty": true,
+        "version": "0.0.0",
+        "builtAt": "2026-09-06T15:43:28.123Z"
+      }
+    },
+    {
+      "label": "level-combat-48-state",
+      "timestamp": 1788709684.671,
+      "phase": "combat",
+      "paused": false,
+      "level": 1,
+      "wave": 6,
+      "hp": 100,
+      "maxHp": 100,
+      "enemies": 34,
+      "bullets": 9,
+      "effects": 3,
+      "shots": 1876,
+      "peakEnemies": 74,
+      "kills": 1165,
+      "xp": 26.39999999999764,
+      "rank": 10,
+      "pendingPicks": 1,
+      "aim": -1.0822428367738521,
+      "threatAngle": -1.2938338519257089,
+      "cards": [
+        {
+          "id": "weapon-2",
+          "name": "Arc caster: heavy duty",
+          "stat": "damage",
+          "scope": 2,
+          "rank": 3,
+          "amount": 0.715
+        },
+        {
+          "id": "explosive-rate",
+          "name": "Explosive overdrive",
+          "stat": "rate",
+          "scope": "explosive",
+          "rank": 1,
+          "amount": 0.33
+        },
+        {
+          "id": "weapon-1",
+          "name": "Flamethrower: heavy duty",
+          "stat": "damage",
+          "scope": 1,
+          "rank": 0,
+          "amount": 0.22
+        },
+        {
+          "id": "beam-power",
+          "name": "Beam specialist",
+          "stat": "damage",
+          "scope": "beam",
+          "rank": 0,
+          "amount": 0.22
+        },
+        {
+          "id": "kinetic-power",
+          "name": "Kinetic specialist",
+          "stat": "damage",
+          "scope": "kinetic",
+          "rank": 0,
+          "amount": 0.22
+        },
+        {
+          "id": "weapon-2",
+          "name": "Arc caster: heavy duty",
+          "stat": "damage",
+          "scope": 2,
+          "rank": 1,
+          "amount": 0.33
+        },
+        {
+          "id": "explosive-rate",
+          "name": "Explosive overdrive",
+          "stat": "rate",
+          "scope": "explosive",
+          "rank": 0,
+          "amount": 0.22
+        },
+        {
+          "id": "rate",
+          "name": "No breathing room",
+          "stat": "rate",
+          "scope": "all",
+          "rank": 2,
+          "amount": 0.27
+        }
+      ],
+      "offers": [],
+      "salvage": 558,
+      "earned": 105,
+      "towerHp": [
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90
+      ],
+      "droppedSpawns": 0,
+      "stress": false,
+      "save": {
+        "version": 1,
+        "salvage": 558,
+        "unlockedLevel": 1,
+        "best": [
+          9,
+          0
+        ],
+        "attempts": 2,
+        "character": 1,
+        "characters": [
+          0,
+          1,
+          2
+        ],
+        "weapons": [
+          0,
+          1,
+          3,
+          2
+        ],
+        "playerWeapon": 1,
+        "upgrades": {
+          "power": 5,
+          "learning": 1,
+          "fortune": 1,
+          "towers": 2
+        },
+        "layout": [
+          0,
+          -2,
+          2,
+          -1,
+          3,
+          -2,
+          -2,
+          -1
+        ]
+      },
+      "perf": {
+        "buckets": [
+          {
+            "label": ">=60",
+            "count": 2308
+          },
+          {
+            "label": ">=30",
+            "count": 4427
+          },
+          {
+            "label": ">=20",
+            "count": 8
+          },
+          {
+            "label": "<20",
+            "count": 1
+          }
+        ],
+        "worstFrameMs": 107,
+        "frameCount": 6744,
+        "frames": 3600,
+        "medianFrameMs": 17,
+        "p95FrameMs": 18,
+        "p99FrameMs": 22,
+        "p95CpuMs": 1,
+        "over33ms": 4,
+        "enemies": 34,
+        "peakEnemies": 74,
+        "drawCalls": 1,
+        "dpr": 2,
+        "cardDefinitions": 27
+      },
+      "build": {
+        "sha": "c5a2d2ffce",
+        "dirty": true,
+        "version": "0.0.0",
+        "builtAt": "2026-09-06T15:43:28.123Z"
+      }
+    },
+    {
+      "label": "level-repaired-wave-6-state",
+      "timestamp": 1788709713.929,
+      "phase": "ready",
+      "paused": false,
+      "level": 1,
+      "wave": 6,
+      "hp": 100,
+      "maxHp": 100,
+      "enemies": 0,
+      "bullets": 0,
+      "effects": 0,
+      "shots": 2382,
+      "peakEnemies": 74,
+      "kills": 1578,
+      "xp": 298.4999999999973,
+      "rank": 11,
+      "pendingPicks": 0,
+      "aim": -1.188817196697261,
+      "threatAngle": -1.188817196697261,
+      "cards": [
+        {
+          "id": "weapon-2",
+          "name": "Arc caster: heavy duty",
+          "stat": "damage",
+          "scope": 2,
+          "rank": 3,
+          "amount": 0.715
+        },
+        {
+          "id": "explosive-rate",
+          "name": "Explosive overdrive",
+          "stat": "rate",
+          "scope": "explosive",
+          "rank": 1,
+          "amount": 0.33
+        },
+        {
+          "id": "weapon-1",
+          "name": "Flamethrower: heavy duty",
+          "stat": "damage",
+          "scope": 1,
+          "rank": 0,
+          "amount": 0.22
+        },
+        {
+          "id": "beam-power",
+          "name": "Beam specialist",
+          "stat": "damage",
+          "scope": "beam",
+          "rank": 0,
+          "amount": 0.22
+        },
+        {
+          "id": "kinetic-power",
+          "name": "Kinetic specialist",
+          "stat": "damage",
+          "scope": "kinetic",
+          "rank": 0,
+          "amount": 0.22
+        },
+        {
+          "id": "weapon-2",
+          "name": "Arc caster: heavy duty",
+          "stat": "damage",
+          "scope": 2,
+          "rank": 1,
+          "amount": 0.33
+        },
+        {
+          "id": "explosive-rate",
+          "name": "Explosive overdrive",
+          "stat": "rate",
+          "scope": "explosive",
+          "rank": 0,
+          "amount": 0.22
+        },
+        {
+          "id": "rate",
+          "name": "No breathing room",
+          "stat": "rate",
+          "scope": "all",
+          "rank": 2,
+          "amount": 0.27
+        },
+        {
+          "id": "weapon-1",
+          "name": "Flamethrower: heavy duty",
+          "stat": "damage",
+          "scope": 1,
+          "rank": 2,
+          "amount": 0.495
+        },
+        {
+          "id": "rate",
+          "name": "No breathing room",
+          "stat": "rate",
+          "scope": "all",
+          "rank": 1,
+          "amount": 0.18
+        }
+      ],
+      "offers": [],
+      "salvage": 588,
+      "earned": 135,
+      "towerHp": [
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90
+      ],
+      "droppedSpawns": 0,
+      "stress": false,
+      "save": {
+        "version": 1,
+        "salvage": 588,
+        "unlockedLevel": 1,
+        "best": [
+          9,
+          0
+        ],
+        "attempts": 2,
+        "character": 1,
+        "characters": [
+          0,
+          1,
+          2
+        ],
+        "weapons": [
+          0,
+          1,
+          3,
+          2
+        ],
+        "playerWeapon": 1,
+        "upgrades": {
+          "power": 5,
+          "learning": 1,
+          "fortune": 1,
+          "towers": 2
+        },
+        "layout": [
+          0,
+          -2,
+          2,
+          -1,
+          3,
+          -2,
+          -2,
+          -1
+        ]
+      },
+      "perf": {
+        "buckets": [
+          {
+            "label": ">=60",
+            "count": 2753
+          },
+          {
+            "label": ">=30",
+            "count": 5283
+          },
+          {
+            "label": ">=20",
+            "count": 10
+          },
+          {
+            "label": "<20",
+            "count": 1
+          }
+        ],
+        "worstFrameMs": 107,
+        "frameCount": 8047,
+        "frames": 3600,
+        "medianFrameMs": 17,
+        "p95FrameMs": 18,
+        "p99FrameMs": 22,
+        "p95CpuMs": 1,
+        "over33ms": 5,
+        "enemies": 0,
+        "peakEnemies": 74,
+        "drawCalls": 1,
+        "dpr": 2,
+        "cardDefinitions": 27
+      },
+      "build": {
+        "sha": "c5a2d2ffce",
+        "dirty": true,
+        "version": "0.0.0",
+        "builtAt": "2026-09-06T15:43:28.123Z"
+      }
+    },
+    {
+      "label": "level-combat-60-state",
+      "timestamp": 1788709721.903,
+      "phase": "combat",
+      "paused": false,
+      "level": 1,
+      "wave": 7,
+      "hp": 100,
+      "maxHp": 100,
+      "enemies": 64,
+      "bullets": 8,
+      "effects": 11,
+      "shots": 2507,
+      "peakEnemies": 74,
+      "kills": 1650,
+      "xp": 69.29999999999774,
+      "rank": 12,
+      "pendingPicks": 1,
+      "aim": 1.7216416884158374,
+      "threatAngle": 2.999868501226877,
+      "cards": [
+        {
+          "id": "weapon-2",
+          "name": "Arc caster: heavy duty",
+          "stat": "damage",
+          "scope": 2,
+          "rank": 3,
+          "amount": 0.715
+        },
+        {
+          "id": "explosive-rate",
+          "name": "Explosive overdrive",
+          "stat": "rate",
+          "scope": "explosive",
+          "rank": 1,
+          "amount": 0.33
+        },
+        {
+          "id": "weapon-1",
+          "name": "Flamethrower: heavy duty",
+          "stat": "damage",
+          "scope": 1,
+          "rank": 0,
+          "amount": 0.22
+        },
+        {
+          "id": "beam-power",
+          "name": "Beam specialist",
+          "stat": "damage",
+          "scope": "beam",
+          "rank": 0,
+          "amount": 0.22
+        },
+        {
+          "id": "kinetic-power",
+          "name": "Kinetic specialist",
+          "stat": "damage",
+          "scope": "kinetic",
+          "rank": 0,
+          "amount": 0.22
+        },
+        {
+          "id": "weapon-2",
+          "name": "Arc caster: heavy duty",
+          "stat": "damage",
+          "scope": 2,
+          "rank": 1,
+          "amount": 0.33
+        },
+        {
+          "id": "explosive-rate",
+          "name": "Explosive overdrive",
+          "stat": "rate",
+          "scope": "explosive",
+          "rank": 0,
+          "amount": 0.22
+        },
+        {
+          "id": "rate",
+          "name": "No breathing room",
+          "stat": "rate",
+          "scope": "all",
+          "rank": 2,
+          "amount": 0.27
+        },
+        {
+          "id": "weapon-1",
+          "name": "Flamethrower: heavy duty",
+          "stat": "damage",
+          "scope": 1,
+          "rank": 2,
+          "amount": 0.495
+        },
+        {
+          "id": "rate",
+          "name": "No breathing room",
+          "stat": "rate",
+          "scope": "all",
+          "rank": 1,
+          "amount": 0.18
+        }
+      ],
+      "offers": [],
+      "salvage": 588,
+      "earned": 135,
+      "towerHp": [
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90
+      ],
+      "droppedSpawns": 0,
+      "stress": false,
+      "save": {
+        "version": 1,
+        "salvage": 588,
+        "unlockedLevel": 1,
+        "best": [
+          9,
+          0
+        ],
+        "attempts": 2,
+        "character": 1,
+        "characters": [
+          0,
+          1,
+          2
+        ],
+        "weapons": [
+          0,
+          1,
+          3,
+          2
+        ],
+        "playerWeapon": 1,
+        "upgrades": {
+          "power": 5,
+          "learning": 1,
+          "fortune": 1,
+          "towers": 2
+        },
+        "layout": [
+          0,
+          -2,
+          2,
+          -1,
+          3,
+          -2,
+          -2,
+          -1
+        ]
+      },
+      "perf": {
+        "buckets": [
+          {
+            "label": ">=60",
+            "count": 2852
+          },
+          {
+            "label": ">=30",
+            "count": 5483
+          },
+          {
+            "label": ">=20",
+            "count": 10
+          },
+          {
+            "label": "<20",
+            "count": 1
+          }
+        ],
+        "worstFrameMs": 107,
+        "frameCount": 8346,
+        "frames": 3600,
+        "medianFrameMs": 17,
+        "p95FrameMs": 18,
+        "p99FrameMs": 22,
+        "p95CpuMs": 1,
+        "over33ms": 4,
+        "enemies": 64,
+        "peakEnemies": 74,
+        "drawCalls": 1,
+        "dpr": 2,
+        "cardDefinitions": 27
+      },
+      "build": {
+        "sha": "c5a2d2ffce",
+        "dirty": true,
+        "version": "0.0.0",
+        "builtAt": "2026-09-06T15:43:28.123Z"
+      }
+    },
+    {
+      "label": "level-repaired-wave-7-state",
+      "timestamp": 1788709753.834,
+      "phase": "ready",
+      "paused": false,
+      "level": 1,
+      "wave": 7,
+      "hp": 100,
+      "maxHp": 100,
+      "enemies": 0,
+      "bullets": 0,
+      "effects": 0,
+      "shots": 3072,
+      "peakEnemies": 101,
+      "kills": 2150,
+      "xp": 37.49999999999954,
+      "rank": 14,
+      "pendingPicks": 0,
+      "aim": 2.5250263922034653,
+      "threatAngle": 2.5250263922034653,
+      "cards": [
+        {
+          "id": "weapon-2",
+          "name": "Arc caster: heavy duty",
+          "stat": "damage",
+          "scope": 2,
+          "rank": 3,
+          "amount": 0.715
+        },
+        {
+          "id": "explosive-rate",
+          "name": "Explosive overdrive",
+          "stat": "rate",
+          "scope": "explosive",
+          "rank": 1,
+          "amount": 0.33
+        },
+        {
+          "id": "weapon-1",
+          "name": "Flamethrower: heavy duty",
+          "stat": "damage",
+          "scope": 1,
+          "rank": 0,
+          "amount": 0.22
+        },
+        {
+          "id": "beam-power",
+          "name": "Beam specialist",
+          "stat": "damage",
+          "scope": "beam",
+          "rank": 0,
+          "amount": 0.22
+        },
+        {
+          "id": "kinetic-power",
+          "name": "Kinetic specialist",
+          "stat": "damage",
+          "scope": "kinetic",
+          "rank": 0,
+          "amount": 0.22
+        },
+        {
+          "id": "weapon-2",
+          "name": "Arc caster: heavy duty",
+          "stat": "damage",
+          "scope": 2,
+          "rank": 1,
+          "amount": 0.33
+        },
+        {
+          "id": "explosive-rate",
+          "name": "Explosive overdrive",
+          "stat": "rate",
+          "scope": "explosive",
+          "rank": 0,
+          "amount": 0.22
+        },
+        {
+          "id": "rate",
+          "name": "No breathing room",
+          "stat": "rate",
+          "scope": "all",
+          "rank": 2,
+          "amount": 0.27
+        },
+        {
+          "id": "weapon-1",
+          "name": "Flamethrower: heavy duty",
+          "stat": "damage",
+          "scope": 1,
+          "rank": 2,
+          "amount": 0.495
+        },
+        {
+          "id": "rate",
+          "name": "No breathing room",
+          "stat": "rate",
+          "scope": "all",
+          "rank": 1,
+          "amount": 0.18
+        },
+        {
+          "id": "fire-rate",
+          "name": "Fire overdrive",
+          "stat": "rate",
+          "scope": "fire",
+          "rank": 2,
+          "amount": 0.495
+        },
+        {
+          "id": "fire-rate",
+          "name": "Fire overdrive",
+          "stat": "rate",
+          "scope": "fire",
+          "rank": 0,
+          "amount": 0.22
+        },
+        {
+          "id": "speed-3",
+          "name": "Mortar: hair trigger",
+          "stat": "rate",
+          "scope": 3,
+          "rank": 0,
+          "amount": 0.22
+        }
+      ],
+      "offers": [],
+      "salvage": 621,
+      "earned": 168,
+      "towerHp": [
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90
+      ],
+      "droppedSpawns": 0,
+      "stress": false,
+      "save": {
+        "version": 1,
+        "salvage": 621,
+        "unlockedLevel": 1,
+        "best": [
+          9,
+          0
+        ],
+        "attempts": 2,
+        "character": 1,
+        "characters": [
+          0,
+          1,
+          2
+        ],
+        "weapons": [
+          0,
+          1,
+          3,
+          2
+        ],
+        "playerWeapon": 1,
+        "upgrades": {
+          "power": 5,
+          "learning": 1,
+          "fortune": 1,
+          "towers": 2
+        },
+        "layout": [
+          0,
+          -2,
+          2,
+          -1,
+          3,
+          -2,
+          -2,
+          -1
+        ]
+      },
+      "perf": {
+        "buckets": [
+          {
+            "label": ">=60",
+            "count": 3319
+          },
+          {
+            "label": ">=30",
+            "count": 6364
+          },
+          {
+            "label": ">=20",
+            "count": 13
+          },
+          {
+            "label": "<20",
+            "count": 1
+          }
+        ],
+        "worstFrameMs": 107,
+        "frameCount": 9697,
+        "frames": 3600,
+        "medianFrameMs": 17,
+        "p95FrameMs": 18,
+        "p99FrameMs": 23,
+        "p95CpuMs": 1,
+        "over33ms": 5,
+        "enemies": 0,
+        "peakEnemies": 101,
+        "drawCalls": 1,
+        "dpr": 2,
+        "cardDefinitions": 27
+      },
+      "build": {
+        "sha": "c5a2d2ffce",
+        "dirty": true,
+        "version": "0.0.0",
+        "builtAt": "2026-09-06T15:43:28.123Z"
+      }
+    },
+    {
+      "label": "level-combat-72-state",
+      "timestamp": 1788709758.76,
+      "phase": "combat",
+      "paused": false,
+      "level": 1,
+      "wave": 8,
+      "hp": 100,
+      "maxHp": 100,
+      "enemies": 86,
+      "bullets": 8,
+      "effects": 5,
+      "shots": 3154,
+      "peakEnemies": 101,
+      "kills": 2171,
+      "xp": 62.799999999999564,
+      "rank": 14,
+      "pendingPicks": 0,
+      "aim": -3.0860941483440754,
+      "threatAngle": -2.982127907453889,
+      "cards": [
+        {
+          "id": "weapon-2",
+          "name": "Arc caster: heavy duty",
+          "stat": "damage",
+          "scope": 2,
+          "rank": 3,
+          "amount": 0.715
+        },
+        {
+          "id": "explosive-rate",
+          "name": "Explosive overdrive",
+          "stat": "rate",
+          "scope": "explosive",
+          "rank": 1,
+          "amount": 0.33
+        },
+        {
+          "id": "weapon-1",
+          "name": "Flamethrower: heavy duty",
+          "stat": "damage",
+          "scope": 1,
+          "rank": 0,
+          "amount": 0.22
+        },
+        {
+          "id": "beam-power",
+          "name": "Beam specialist",
+          "stat": "damage",
+          "scope": "beam",
+          "rank": 0,
+          "amount": 0.22
+        },
+        {
+          "id": "kinetic-power",
+          "name": "Kinetic specialist",
+          "stat": "damage",
+          "scope": "kinetic",
+          "rank": 0,
+          "amount": 0.22
+        },
+        {
+          "id": "weapon-2",
+          "name": "Arc caster: heavy duty",
+          "stat": "damage",
+          "scope": 2,
+          "rank": 1,
+          "amount": 0.33
+        },
+        {
+          "id": "explosive-rate",
+          "name": "Explosive overdrive",
+          "stat": "rate",
+          "scope": "explosive",
+          "rank": 0,
+          "amount": 0.22
+        },
+        {
+          "id": "rate",
+          "name": "No breathing room",
+          "stat": "rate",
+          "scope": "all",
+          "rank": 2,
+          "amount": 0.27
+        },
+        {
+          "id": "weapon-1",
+          "name": "Flamethrower: heavy duty",
+          "stat": "damage",
+          "scope": 1,
+          "rank": 2,
+          "amount": 0.495
+        },
+        {
+          "id": "rate",
+          "name": "No breathing room",
+          "stat": "rate",
+          "scope": "all",
+          "rank": 1,
+          "amount": 0.18
+        },
+        {
+          "id": "fire-rate",
+          "name": "Fire overdrive",
+          "stat": "rate",
+          "scope": "fire",
+          "rank": 2,
+          "amount": 0.495
+        },
+        {
+          "id": "fire-rate",
+          "name": "Fire overdrive",
+          "stat": "rate",
+          "scope": "fire",
+          "rank": 0,
+          "amount": 0.22
+        },
+        {
+          "id": "speed-3",
+          "name": "Mortar: hair trigger",
+          "stat": "rate",
+          "scope": 3,
+          "rank": 0,
+          "amount": 0.22
+        }
+      ],
+      "offers": [],
+      "salvage": 621,
+      "earned": 168,
+      "towerHp": [
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90
+      ],
+      "droppedSpawns": 0,
+      "stress": false,
+      "save": {
+        "version": 1,
+        "salvage": 621,
+        "unlockedLevel": 1,
+        "best": [
+          9,
+          0
+        ],
+        "attempts": 2,
+        "character": 1,
+        "characters": [
+          0,
+          1,
+          2
+        ],
+        "weapons": [
+          0,
+          1,
+          3,
+          2
+        ],
+        "playerWeapon": 1,
+        "upgrades": {
+          "power": 5,
+          "learning": 1,
+          "fortune": 1,
+          "towers": 2
+        },
+        "layout": [
+          0,
+          -2,
+          2,
+          -1,
+          3,
+          -2,
+          -2,
+          -1
+        ]
+      },
+      "perf": {
+        "buckets": [
+          {
+            "label": ">=60",
+            "count": 3385
+          },
+          {
+            "label": ">=30",
+            "count": 6486
+          },
+          {
+            "label": ">=20",
+            "count": 14
+          },
+          {
+            "label": "<20",
+            "count": 1
+          }
+        ],
+        "worstFrameMs": 107,
+        "frameCount": 9886,
+        "frames": 3600,
+        "medianFrameMs": 17,
+        "p95FrameMs": 18,
+        "p99FrameMs": 23,
+        "p95CpuMs": 1,
+        "over33ms": 6,
+        "enemies": 86,
+        "peakEnemies": 101,
+        "drawCalls": 1,
+        "dpr": 2,
+        "cardDefinitions": 27
+      },
+      "build": {
+        "sha": "c5a2d2ffce",
+        "dirty": true,
+        "version": "0.0.0",
+        "builtAt": "2026-09-06T15:43:28.123Z"
+      }
+    },
+    {
+      "label": "level-repaired-wave-8-state",
+      "timestamp": 1788709791.336,
+      "phase": "ready",
+      "paused": false,
+      "level": 1,
+      "wave": 8,
+      "hp": 100,
+      "maxHp": 100,
+      "enemies": 0,
+      "bullets": 0,
+      "effects": 0,
+      "shots": 3901,
+      "peakEnemies": 168,
+      "kills": 2882,
+      "xp": 209.30000000000308,
+      "rank": 16,
+      "pendingPicks": 0,
+      "aim": 2.9985757786250464,
+      "threatAngle": 2.9985757786250464,
+      "cards": [
+        {
+          "id": "weapon-2",
+          "name": "Arc caster: heavy duty",
+          "stat": "damage",
+          "scope": 2,
+          "rank": 3,
+          "amount": 0.715
+        },
+        {
+          "id": "explosive-rate",
+          "name": "Explosive overdrive",
+          "stat": "rate",
+          "scope": "explosive",
+          "rank": 1,
+          "amount": 0.33
+        },
+        {
+          "id": "weapon-1",
+          "name": "Flamethrower: heavy duty",
+          "stat": "damage",
+          "scope": 1,
+          "rank": 0,
+          "amount": 0.22
+        },
+        {
+          "id": "beam-power",
+          "name": "Beam specialist",
+          "stat": "damage",
+          "scope": "beam",
+          "rank": 0,
+          "amount": 0.22
+        },
+        {
+          "id": "kinetic-power",
+          "name": "Kinetic specialist",
+          "stat": "damage",
+          "scope": "kinetic",
+          "rank": 0,
+          "amount": 0.22
+        },
+        {
+          "id": "weapon-2",
+          "name": "Arc caster: heavy duty",
+          "stat": "damage",
+          "scope": 2,
+          "rank": 1,
+          "amount": 0.33
+        },
+        {
+          "id": "explosive-rate",
+          "name": "Explosive overdrive",
+          "stat": "rate",
+          "scope": "explosive",
+          "rank": 0,
+          "amount": 0.22
+        },
+        {
+          "id": "rate",
+          "name": "No breathing room",
+          "stat": "rate",
+          "scope": "all",
+          "rank": 2,
+          "amount": 0.27
+        },
+        {
+          "id": "weapon-1",
+          "name": "Flamethrower: heavy duty",
+          "stat": "damage",
+          "scope": 1,
+          "rank": 2,
+          "amount": 0.495
+        },
+        {
+          "id": "rate",
+          "name": "No breathing room",
+          "stat": "rate",
+          "scope": "all",
+          "rank": 1,
+          "amount": 0.18
+        },
+        {
+          "id": "fire-rate",
+          "name": "Fire overdrive",
+          "stat": "rate",
+          "scope": "fire",
+          "rank": 2,
+          "amount": 0.495
+        },
+        {
+          "id": "fire-rate",
+          "name": "Fire overdrive",
+          "stat": "rate",
+          "scope": "fire",
+          "rank": 0,
+          "amount": 0.22
+        },
+        {
+          "id": "speed-3",
+          "name": "Mortar: hair trigger",
+          "stat": "rate",
+          "scope": 3,
+          "rank": 0,
+          "amount": 0.22
+        },
+        {
+          "id": "weapon-2",
+          "name": "Arc caster: heavy duty",
+          "stat": "damage",
+          "scope": 2,
+          "rank": 1,
+          "amount": 0.33
+        },
+        {
+          "id": "speed-1",
+          "name": "Flamethrower: hair trigger",
+          "stat": "rate",
+          "scope": 1,
+          "rank": 1,
+          "amount": 0.33
+        }
+      ],
+      "offers": [],
+      "salvage": 657,
+      "earned": 204,
+      "towerHp": [
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90
+      ],
+      "droppedSpawns": 0,
+      "stress": false,
+      "save": {
+        "version": 1,
+        "salvage": 657,
+        "unlockedLevel": 1,
+        "best": [
+          9,
+          0
+        ],
+        "attempts": 2,
+        "character": 1,
+        "characters": [
+          0,
+          1,
+          2
+        ],
+        "weapons": [
+          0,
+          1,
+          3,
+          2
+        ],
+        "playerWeapon": 1,
+        "upgrades": {
+          "power": 5,
+          "learning": 1,
+          "fortune": 1,
+          "towers": 2
+        },
+        "layout": [
+          0,
+          -2,
+          2,
+          -1,
+          3,
+          -2,
+          -2,
+          -1
+        ]
+      },
+      "perf": {
+        "buckets": [
+          {
+            "label": ">=60",
+            "count": 3919
+          },
+          {
+            "label": ">=30",
+            "count": 7512
+          },
+          {
+            "label": ">=20",
+            "count": 20
+          },
+          {
+            "label": "<20",
+            "count": 1
+          }
+        ],
+        "worstFrameMs": 107,
+        "frameCount": 11452,
+        "frames": 3600,
+        "medianFrameMs": 17,
+        "p95FrameMs": 18,
+        "p99FrameMs": 24,
+        "p95CpuMs": 1,
+        "over33ms": 10,
+        "enemies": 0,
+        "peakEnemies": 168,
+        "drawCalls": 1,
+        "dpr": 2,
+        "cardDefinitions": 27
+      },
+      "build": {
+        "sha": "c5a2d2ffce",
+        "dirty": true,
+        "version": "0.0.0",
+        "builtAt": "2026-09-06T15:43:28.123Z"
+      }
+    },
+    {
+      "label": "level-combat-84-state",
+      "timestamp": 1788709796.25,
+      "phase": "combat",
+      "paused": false,
+      "level": 1,
+      "wave": 9,
+      "hp": 100,
+      "maxHp": 100,
+      "enemies": 62,
+      "bullets": 8,
+      "effects": 5,
+      "shots": 3951,
+      "peakEnemies": 168,
+      "kills": 2892,
+      "xp": 220.30000000000302,
+      "rank": 16,
+      "pendingPicks": 0,
+      "aim": 2.9985757786250464,
+      "threatAngle": -1.290602177675205,
+      "cards": [
+        {
+          "id": "weapon-2",
+          "name": "Arc caster: heavy duty",
+          "stat": "damage",
+          "scope": 2,
+          "rank": 3,
+          "amount": 0.715
+        },
+        {
+          "id": "explosive-rate",
+          "name": "Explosive overdrive",
+          "stat": "rate",
+          "scope": "explosive",
+          "rank": 1,
+          "amount": 0.33
+        },
+        {
+          "id": "weapon-1",
+          "name": "Flamethrower: heavy duty",
+          "stat": "damage",
+          "scope": 1,
+          "rank": 0,
+          "amount": 0.22
+        },
+        {
+          "id": "beam-power",
+          "name": "Beam specialist",
+          "stat": "damage",
+          "scope": "beam",
+          "rank": 0,
+          "amount": 0.22
+        },
+        {
+          "id": "kinetic-power",
+          "name": "Kinetic specialist",
+          "stat": "damage",
+          "scope": "kinetic",
+          "rank": 0,
+          "amount": 0.22
+        },
+        {
+          "id": "weapon-2",
+          "name": "Arc caster: heavy duty",
+          "stat": "damage",
+          "scope": 2,
+          "rank": 1,
+          "amount": 0.33
+        },
+        {
+          "id": "explosive-rate",
+          "name": "Explosive overdrive",
+          "stat": "rate",
+          "scope": "explosive",
+          "rank": 0,
+          "amount": 0.22
+        },
+        {
+          "id": "rate",
+          "name": "No breathing room",
+          "stat": "rate",
+          "scope": "all",
+          "rank": 2,
+          "amount": 0.27
+        },
+        {
+          "id": "weapon-1",
+          "name": "Flamethrower: heavy duty",
+          "stat": "damage",
+          "scope": 1,
+          "rank": 2,
+          "amount": 0.495
+        },
+        {
+          "id": "rate",
+          "name": "No breathing room",
+          "stat": "rate",
+          "scope": "all",
+          "rank": 1,
+          "amount": 0.18
+        },
+        {
+          "id": "fire-rate",
+          "name": "Fire overdrive",
+          "stat": "rate",
+          "scope": "fire",
+          "rank": 2,
+          "amount": 0.495
+        },
+        {
+          "id": "fire-rate",
+          "name": "Fire overdrive",
+          "stat": "rate",
+          "scope": "fire",
+          "rank": 0,
+          "amount": 0.22
+        },
+        {
+          "id": "speed-3",
+          "name": "Mortar: hair trigger",
+          "stat": "rate",
+          "scope": 3,
+          "rank": 0,
+          "amount": 0.22
+        },
+        {
+          "id": "weapon-2",
+          "name": "Arc caster: heavy duty",
+          "stat": "damage",
+          "scope": 2,
+          "rank": 1,
+          "amount": 0.33
+        },
+        {
+          "id": "speed-1",
+          "name": "Flamethrower: hair trigger",
+          "stat": "rate",
+          "scope": 1,
+          "rank": 1,
+          "amount": 0.33
+        }
+      ],
+      "offers": [],
+      "salvage": 657,
+      "earned": 204,
+      "towerHp": [
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90
+      ],
+      "droppedSpawns": 0,
+      "stress": false,
+      "save": {
+        "version": 1,
+        "salvage": 657,
+        "unlockedLevel": 1,
+        "best": [
+          9,
+          0
+        ],
+        "attempts": 2,
+        "character": 1,
+        "characters": [
+          0,
+          1,
+          2
+        ],
+        "weapons": [
+          0,
+          1,
+          3,
+          2
+        ],
+        "playerWeapon": 1,
+        "upgrades": {
+          "power": 5,
+          "learning": 1,
+          "fortune": 1,
+          "towers": 2
+        },
+        "layout": [
+          0,
+          -2,
+          2,
+          -1,
+          3,
+          -2,
+          -2,
+          -1
+        ]
+      },
+      "perf": {
+        "buckets": [
+          {
+            "label": ">=60",
+            "count": 3951
+          },
+          {
+            "label": ">=30",
+            "count": 7583
+          },
+          {
+            "label": ">=20",
+            "count": 20
+          },
+          {
+            "label": "<20",
+            "count": 1
+          }
+        ],
+        "worstFrameMs": 107,
+        "frameCount": 11555,
+        "frames": 3600,
+        "medianFrameMs": 17,
+        "p95FrameMs": 18,
+        "p99FrameMs": 24,
+        "p95CpuMs": 1,
+        "over33ms": 10,
+        "enemies": 62,
+        "peakEnemies": 168,
+        "drawCalls": 1,
+        "dpr": 2,
+        "cardDefinitions": 27
+      },
+      "build": {
+        "sha": "c5a2d2ffce",
+        "dirty": true,
+        "version": "0.0.0",
+        "builtAt": "2026-09-06T15:43:28.123Z"
+      }
+    },
+    {
+      "label": "level-repaired-wave-9-state",
+      "timestamp": 1788709834.597,
+      "phase": "ready",
+      "paused": false,
+      "level": 1,
+      "wave": 9,
+      "hp": 100,
+      "maxHp": 100,
+      "enemies": 0,
+      "bullets": 0,
+      "effects": 0,
+      "shots": 4832,
+      "peakEnemies": 296,
+      "kills": 3819,
+      "xp": 126.60000000001156,
+      "rank": 19,
+      "pendingPicks": 0,
+      "aim": -2.367429972450307,
+      "threatAngle": -2.367429972450307,
+      "cards": [
+        {
+          "id": "weapon-2",
+          "name": "Arc caster: heavy duty",
+          "stat": "damage",
+          "scope": 2,
+          "rank": 3,
+          "amount": 0.715
+        },
+        {
+          "id": "explosive-rate",
+          "name": "Explosive overdrive",
+          "stat": "rate",
+          "scope": "explosive",
+          "rank": 1,
+          "amount": 0.33
+        },
+        {
+          "id": "weapon-1",
+          "name": "Flamethrower: heavy duty",
+          "stat": "damage",
+          "scope": 1,
+          "rank": 0,
+          "amount": 0.22
+        },
+        {
+          "id": "beam-power",
+          "name": "Beam specialist",
+          "stat": "damage",
+          "scope": "beam",
+          "rank": 0,
+          "amount": 0.22
+        },
+        {
+          "id": "kinetic-power",
+          "name": "Kinetic specialist",
+          "stat": "damage",
+          "scope": "kinetic",
+          "rank": 0,
+          "amount": 0.22
+        },
+        {
+          "id": "weapon-2",
+          "name": "Arc caster: heavy duty",
+          "stat": "damage",
+          "scope": 2,
+          "rank": 1,
+          "amount": 0.33
+        },
+        {
+          "id": "explosive-rate",
+          "name": "Explosive overdrive",
+          "stat": "rate",
+          "scope": "explosive",
+          "rank": 0,
+          "amount": 0.22
+        },
+        {
+          "id": "rate",
+          "name": "No breathing room",
+          "stat": "rate",
+          "scope": "all",
+          "rank": 2,
+          "amount": 0.27
+        },
+        {
+          "id": "weapon-1",
+          "name": "Flamethrower: heavy duty",
+          "stat": "damage",
+          "scope": 1,
+          "rank": 2,
+          "amount": 0.495
+        },
+        {
+          "id": "rate",
+          "name": "No breathing room",
+          "stat": "rate",
+          "scope": "all",
+          "rank": 1,
+          "amount": 0.18
+        },
+        {
+          "id": "fire-rate",
+          "name": "Fire overdrive",
+          "stat": "rate",
+          "scope": "fire",
+          "rank": 2,
+          "amount": 0.495
+        },
+        {
+          "id": "fire-rate",
+          "name": "Fire overdrive",
+          "stat": "rate",
+          "scope": "fire",
+          "rank": 0,
+          "amount": 0.22
+        },
+        {
+          "id": "speed-3",
+          "name": "Mortar: hair trigger",
+          "stat": "rate",
+          "scope": 3,
+          "rank": 0,
+          "amount": 0.22
+        },
+        {
+          "id": "weapon-2",
+          "name": "Arc caster: heavy duty",
+          "stat": "damage",
+          "scope": 2,
+          "rank": 1,
+          "amount": 0.33
+        },
+        {
+          "id": "speed-1",
+          "name": "Flamethrower: hair trigger",
+          "stat": "rate",
+          "scope": 1,
+          "rank": 1,
+          "amount": 0.33
+        },
+        {
+          "id": "weapon-1",
+          "name": "Flamethrower: heavy duty",
+          "stat": "damage",
+          "scope": 1,
+          "rank": 1,
+          "amount": 0.33
+        },
+        {
+          "id": "explosive-power",
+          "name": "Explosive specialist",
+          "stat": "damage",
+          "scope": "explosive",
+          "rank": 1,
+          "amount": 0.33
+        },
+        {
+          "id": "explosive-rate",
+          "name": "Explosive overdrive",
+          "stat": "rate",
+          "scope": "explosive",
+          "rank": 1,
+          "amount": 0.33
+        }
+      ],
+      "offers": [],
+      "salvage": 696,
+      "earned": 243,
+      "towerHp": [
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90
+      ],
+      "droppedSpawns": 0,
+      "stress": false,
+      "save": {
+        "version": 1,
+        "salvage": 696,
+        "unlockedLevel": 1,
+        "best": [
+          9,
+          0
+        ],
+        "attempts": 2,
+        "character": 1,
+        "characters": [
+          0,
+          1,
+          2
+        ],
+        "weapons": [
+          0,
+          1,
+          3,
+          2
+        ],
+        "playerWeapon": 1,
+        "upgrades": {
+          "power": 5,
+          "learning": 1,
+          "fortune": 1,
+          "towers": 2
+        },
+        "layout": [
+          0,
+          -2,
+          2,
+          -1,
+          3,
+          -2,
+          -2,
+          -1
+        ]
+      },
+      "perf": {
+        "buckets": [
+          {
+            "label": ">=60",
+            "count": 4583
+          },
+          {
+            "label": ">=30",
+            "count": 8792
+          },
+          {
+            "label": ">=20",
+            "count": 24
+          },
+          {
+            "label": "<20",
+            "count": 1
+          }
+        ],
+        "worstFrameMs": 107,
+        "frameCount": 13400,
+        "frames": 3600,
+        "medianFrameMs": 17,
+        "p95FrameMs": 18,
+        "p99FrameMs": 23,
+        "p95CpuMs": 1,
+        "over33ms": 11,
+        "enemies": 0,
+        "peakEnemies": 296,
+        "drawCalls": 1,
+        "dpr": 2,
+        "cardDefinitions": 27
+      },
+      "build": {
+        "sha": "c5a2d2ffce",
+        "dirty": true,
+        "version": "0.0.0",
+        "builtAt": "2026-09-06T15:43:28.123Z"
+      }
+    },
+    {
+      "label": "level-combat-108-state",
+      "timestamp": 1788709870.086,
+      "phase": "combat",
+      "paused": false,
+      "level": 1,
+      "wave": 10,
+      "hp": 94.57750000000408,
+      "maxHp": 100,
+      "enemies": 43,
+      "bullets": 1,
+      "effects": 3,
+      "shots": 5689,
+      "peakEnemies": 425,
+      "kills": 4975,
+      "xp": 74.10000000002248,
+      "rank": 22,
+      "pendingPicks": 3,
+      "aim": -0.3142318990843383,
+      "threatAngle": -1.4595322201127947,
+      "cards": [
+        {
+          "id": "weapon-2",
+          "name": "Arc caster: heavy duty",
+          "stat": "damage",
+          "scope": 2,
+          "rank": 3,
+          "amount": 0.715
+        },
+        {
+          "id": "explosive-rate",
+          "name": "Explosive overdrive",
+          "stat": "rate",
+          "scope": "explosive",
+          "rank": 1,
+          "amount": 0.33
+        },
+        {
+          "id": "weapon-1",
+          "name": "Flamethrower: heavy duty",
+          "stat": "damage",
+          "scope": 1,
+          "rank": 0,
+          "amount": 0.22
+        },
+        {
+          "id": "beam-power",
+          "name": "Beam specialist",
+          "stat": "damage",
+          "scope": "beam",
+          "rank": 0,
+          "amount": 0.22
+        },
+        {
+          "id": "kinetic-power",
+          "name": "Kinetic specialist",
+          "stat": "damage",
+          "scope": "kinetic",
+          "rank": 0,
+          "amount": 0.22
+        },
+        {
+          "id": "weapon-2",
+          "name": "Arc caster: heavy duty",
+          "stat": "damage",
+          "scope": 2,
+          "rank": 1,
+          "amount": 0.33
+        },
+        {
+          "id": "explosive-rate",
+          "name": "Explosive overdrive",
+          "stat": "rate",
+          "scope": "explosive",
+          "rank": 0,
+          "amount": 0.22
+        },
+        {
+          "id": "rate",
+          "name": "No breathing room",
+          "stat": "rate",
+          "scope": "all",
+          "rank": 2,
+          "amount": 0.27
+        },
+        {
+          "id": "weapon-1",
+          "name": "Flamethrower: heavy duty",
+          "stat": "damage",
+          "scope": 1,
+          "rank": 2,
+          "amount": 0.495
+        },
+        {
+          "id": "rate",
+          "name": "No breathing room",
+          "stat": "rate",
+          "scope": "all",
+          "rank": 1,
+          "amount": 0.18
+        },
+        {
+          "id": "fire-rate",
+          "name": "Fire overdrive",
+          "stat": "rate",
+          "scope": "fire",
+          "rank": 2,
+          "amount": 0.495
+        },
+        {
+          "id": "fire-rate",
+          "name": "Fire overdrive",
+          "stat": "rate",
+          "scope": "fire",
+          "rank": 0,
+          "amount": 0.22
+        },
+        {
+          "id": "speed-3",
+          "name": "Mortar: hair trigger",
+          "stat": "rate",
+          "scope": 3,
+          "rank": 0,
+          "amount": 0.22
+        },
+        {
+          "id": "weapon-2",
+          "name": "Arc caster: heavy duty",
+          "stat": "damage",
+          "scope": 2,
+          "rank": 1,
+          "amount": 0.33
+        },
+        {
+          "id": "speed-1",
+          "name": "Flamethrower: hair trigger",
+          "stat": "rate",
+          "scope": 1,
+          "rank": 1,
+          "amount": 0.33
+        },
+        {
+          "id": "weapon-1",
+          "name": "Flamethrower: heavy duty",
+          "stat": "damage",
+          "scope": 1,
+          "rank": 1,
+          "amount": 0.33
+        },
+        {
+          "id": "explosive-power",
+          "name": "Explosive specialist",
+          "stat": "damage",
+          "scope": "explosive",
+          "rank": 1,
+          "amount": 0.33
+        },
+        {
+          "id": "explosive-rate",
+          "name": "Explosive overdrive",
+          "stat": "rate",
+          "scope": "explosive",
+          "rank": 1,
+          "amount": 0.33
+        }
+      ],
+      "offers": [],
+      "salvage": 696,
+      "earned": 243,
+      "towerHp": [
+        0,
+        90,
+        0,
+        0,
+        76.3332290649414,
+        90,
+        90,
+        0
+      ],
+      "droppedSpawns": 0,
+      "stress": false,
+      "save": {
+        "version": 1,
+        "salvage": 696,
+        "unlockedLevel": 1,
+        "best": [
+          9,
+          0
+        ],
+        "attempts": 2,
+        "character": 1,
+        "characters": [
+          0,
+          1,
+          2
+        ],
+        "weapons": [
+          0,
+          1,
+          3,
+          2
+        ],
+        "playerWeapon": 1,
+        "upgrades": {
+          "power": 5,
+          "learning": 1,
+          "fortune": 1,
+          "towers": 2
+        },
+        "layout": [
+          0,
+          -2,
+          2,
+          -1,
+          3,
+          -2,
+          -2,
+          -1
+        ]
+      },
+      "perf": {
+        "buckets": [
+          {
+            "label": ">=60",
+            "count": 5248
+          },
+          {
+            "label": ">=30",
+            "count": 10079
+          },
+          {
+            "label": ">=20",
+            "count": 26
+          },
+          {
+            "label": "<20",
+            "count": 1
+          }
+        ],
+        "worstFrameMs": 107,
+        "frameCount": 15354,
+        "frames": 3600,
+        "medianFrameMs": 17,
+        "p95FrameMs": 18,
+        "p99FrameMs": 23,
+        "p95CpuMs": 1,
+        "over33ms": 5,
+        "enemies": 43,
+        "peakEnemies": 425,
+        "drawCalls": 1,
+        "dpr": 2,
+        "cardDefinitions": 27
+      },
+      "build": {
+        "sha": "c5a2d2ffce",
+        "dirty": true,
+        "version": "0.0.0",
+        "builtAt": "2026-09-06T15:43:28.123Z"
+      }
+    },
+    {
+      "label": "level-card-wave-10-state",
+      "timestamp": 1788709878.593,
+      "phase": "cards",
+      "paused": false,
+      "level": 1,
+      "wave": 10,
+      "hp": 91.35500000001377,
+      "maxHp": 100,
+      "enemies": 0,
+      "bullets": 0,
+      "effects": 0,
+      "shots": 5783,
+      "peakEnemies": 425,
+      "kills": 5018,
+      "xp": 158.80000000002235,
+      "rank": 22,
+      "pendingPicks": 2,
+      "aim": -0.7853981633974483,
+      "threatAngle": -0.7853981633974483,
+      "cards": [
+        {
+          "id": "weapon-2",
+          "name": "Arc caster: heavy duty",
+          "stat": "damage",
+          "scope": 2,
+          "rank": 3,
+          "amount": 0.715
+        },
+        {
+          "id": "explosive-rate",
+          "name": "Explosive overdrive",
+          "stat": "rate",
+          "scope": "explosive",
+          "rank": 1,
+          "amount": 0.33
+        },
+        {
+          "id": "weapon-1",
+          "name": "Flamethrower: heavy duty",
+          "stat": "damage",
+          "scope": 1,
+          "rank": 0,
+          "amount": 0.22
+        },
+        {
+          "id": "beam-power",
+          "name": "Beam specialist",
+          "stat": "damage",
+          "scope": "beam",
+          "rank": 0,
+          "amount": 0.22
+        },
+        {
+          "id": "kinetic-power",
+          "name": "Kinetic specialist",
+          "stat": "damage",
+          "scope": "kinetic",
+          "rank": 0,
+          "amount": 0.22
+        },
+        {
+          "id": "weapon-2",
+          "name": "Arc caster: heavy duty",
+          "stat": "damage",
+          "scope": 2,
+          "rank": 1,
+          "amount": 0.33
+        },
+        {
+          "id": "explosive-rate",
+          "name": "Explosive overdrive",
+          "stat": "rate",
+          "scope": "explosive",
+          "rank": 0,
+          "amount": 0.22
+        },
+        {
+          "id": "rate",
+          "name": "No breathing room",
+          "stat": "rate",
+          "scope": "all",
+          "rank": 2,
+          "amount": 0.27
+        },
+        {
+          "id": "weapon-1",
+          "name": "Flamethrower: heavy duty",
+          "stat": "damage",
+          "scope": 1,
+          "rank": 2,
+          "amount": 0.495
+        },
+        {
+          "id": "rate",
+          "name": "No breathing room",
+          "stat": "rate",
+          "scope": "all",
+          "rank": 1,
+          "amount": 0.18
+        },
+        {
+          "id": "fire-rate",
+          "name": "Fire overdrive",
+          "stat": "rate",
+          "scope": "fire",
+          "rank": 2,
+          "amount": 0.495
+        },
+        {
+          "id": "fire-rate",
+          "name": "Fire overdrive",
+          "stat": "rate",
+          "scope": "fire",
+          "rank": 0,
+          "amount": 0.22
+        },
+        {
+          "id": "speed-3",
+          "name": "Mortar: hair trigger",
+          "stat": "rate",
+          "scope": 3,
+          "rank": 0,
+          "amount": 0.22
+        },
+        {
+          "id": "weapon-2",
+          "name": "Arc caster: heavy duty",
+          "stat": "damage",
+          "scope": 2,
+          "rank": 1,
+          "amount": 0.33
+        },
+        {
+          "id": "speed-1",
+          "name": "Flamethrower: hair trigger",
+          "stat": "rate",
+          "scope": 1,
+          "rank": 1,
+          "amount": 0.33
+        },
+        {
+          "id": "weapon-1",
+          "name": "Flamethrower: heavy duty",
+          "stat": "damage",
+          "scope": 1,
+          "rank": 1,
+          "amount": 0.33
+        },
+        {
+          "id": "explosive-power",
+          "name": "Explosive specialist",
+          "stat": "damage",
+          "scope": "explosive",
+          "rank": 1,
+          "amount": 0.33
+        },
+        {
+          "id": "explosive-rate",
+          "name": "Explosive overdrive",
+          "stat": "rate",
+          "scope": "explosive",
+          "rank": 1,
+          "amount": 0.33
+        },
+        {
+          "id": "weapon-3",
+          "name": "Mortar: heavy duty",
+          "stat": "damage",
+          "scope": 3,
+          "rank": 0,
+          "amount": 0.22
+        }
+      ],
+      "offers": [
+        {
+          "id": "kinetic-power",
+          "name": "Kinetic specialist",
+          "stat": "damage",
+          "scope": "kinetic",
+          "rank": 0,
+          "amount": 0.22
+        },
+        {
+          "id": "power",
+          "name": "Mean business",
+          "stat": "damage",
+          "scope": "all",
+          "rank": 0,
+          "amount": 0.12
+        },
+        {
+          "id": "weapon-1",
+          "name": "Flamethrower: heavy duty",
+          "stat": "damage",
+          "scope": 1,
+          "rank": 2,
+          "amount": 0.495
+        }
+      ],
+      "salvage": 788,
+      "earned": 335,
+      "towerHp": [
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90
+      ],
+      "droppedSpawns": 0,
+      "stress": false,
+      "save": {
+        "version": 1,
+        "salvage": 788,
+        "unlockedLevel": 2,
+        "best": [
+          10,
+          0
+        ],
+        "attempts": 2,
+        "character": 1,
+        "characters": [
+          0,
+          1,
+          2
+        ],
+        "weapons": [
+          0,
+          1,
+          3,
+          2
+        ],
+        "playerWeapon": 1,
+        "upgrades": {
+          "power": 5,
+          "learning": 1,
+          "fortune": 1,
+          "towers": 2
+        },
+        "layout": [
+          0,
+          -2,
+          2,
+          -1,
+          3,
+          -2,
+          -2,
+          -1
+        ]
+      },
+      "perf": {
+        "buckets": [
+          {
+            "label": ">=60",
+            "count": 5371
+          },
+          {
+            "label": ">=30",
+            "count": 10316
+          },
+          {
+            "label": ">=20",
+            "count": 27
+          },
+          {
+            "label": "<20",
+            "count": 1
+          }
+        ],
+        "worstFrameMs": 107,
+        "frameCount": 15715,
+        "frames": 3600,
+        "medianFrameMs": 17,
+        "p95FrameMs": 18,
+        "p99FrameMs": 23,
+        "p95CpuMs": 1,
+        "over33ms": 5,
+        "enemies": 0,
+        "peakEnemies": 425,
+        "drawCalls": 1,
+        "dpr": 2,
+        "cardDefinitions": 27
+      },
+      "build": {
+        "sha": "c5a2d2ffce",
+        "dirty": true,
+        "version": "0.0.0",
+        "builtAt": "2026-09-06T15:43:28.123Z"
+      }
+    },
+    {
+      "label": "level-card-wave-10-state",
+      "timestamp": 1788709881.546,
+      "phase": "cards",
+      "paused": false,
+      "level": 1,
+      "wave": 10,
+      "hp": 91.35500000001377,
+      "maxHp": 100,
+      "enemies": 0,
+      "bullets": 0,
+      "effects": 0,
+      "shots": 5783,
+      "peakEnemies": 425,
+      "kills": 5018,
+      "xp": 158.80000000002235,
+      "rank": 22,
+      "pendingPicks": 1,
+      "aim": -0.7853981633974483,
+      "threatAngle": -0.7853981633974483,
+      "cards": [
+        {
+          "id": "weapon-2",
+          "name": "Arc caster: heavy duty",
+          "stat": "damage",
+          "scope": 2,
+          "rank": 3,
+          "amount": 0.715
+        },
+        {
+          "id": "explosive-rate",
+          "name": "Explosive overdrive",
+          "stat": "rate",
+          "scope": "explosive",
+          "rank": 1,
+          "amount": 0.33
+        },
+        {
+          "id": "weapon-1",
+          "name": "Flamethrower: heavy duty",
+          "stat": "damage",
+          "scope": 1,
+          "rank": 0,
+          "amount": 0.22
+        },
+        {
+          "id": "beam-power",
+          "name": "Beam specialist",
+          "stat": "damage",
+          "scope": "beam",
+          "rank": 0,
+          "amount": 0.22
+        },
+        {
+          "id": "kinetic-power",
+          "name": "Kinetic specialist",
+          "stat": "damage",
+          "scope": "kinetic",
+          "rank": 0,
+          "amount": 0.22
+        },
+        {
+          "id": "weapon-2",
+          "name": "Arc caster: heavy duty",
+          "stat": "damage",
+          "scope": 2,
+          "rank": 1,
+          "amount": 0.33
+        },
+        {
+          "id": "explosive-rate",
+          "name": "Explosive overdrive",
+          "stat": "rate",
+          "scope": "explosive",
+          "rank": 0,
+          "amount": 0.22
+        },
+        {
+          "id": "rate",
+          "name": "No breathing room",
+          "stat": "rate",
+          "scope": "all",
+          "rank": 2,
+          "amount": 0.27
+        },
+        {
+          "id": "weapon-1",
+          "name": "Flamethrower: heavy duty",
+          "stat": "damage",
+          "scope": 1,
+          "rank": 2,
+          "amount": 0.495
+        },
+        {
+          "id": "rate",
+          "name": "No breathing room",
+          "stat": "rate",
+          "scope": "all",
+          "rank": 1,
+          "amount": 0.18
+        },
+        {
+          "id": "fire-rate",
+          "name": "Fire overdrive",
+          "stat": "rate",
+          "scope": "fire",
+          "rank": 2,
+          "amount": 0.495
+        },
+        {
+          "id": "fire-rate",
+          "name": "Fire overdrive",
+          "stat": "rate",
+          "scope": "fire",
+          "rank": 0,
+          "amount": 0.22
+        },
+        {
+          "id": "speed-3",
+          "name": "Mortar: hair trigger",
+          "stat": "rate",
+          "scope": 3,
+          "rank": 0,
+          "amount": 0.22
+        },
+        {
+          "id": "weapon-2",
+          "name": "Arc caster: heavy duty",
+          "stat": "damage",
+          "scope": 2,
+          "rank": 1,
+          "amount": 0.33
+        },
+        {
+          "id": "speed-1",
+          "name": "Flamethrower: hair trigger",
+          "stat": "rate",
+          "scope": 1,
+          "rank": 1,
+          "amount": 0.33
+        },
+        {
+          "id": "weapon-1",
+          "name": "Flamethrower: heavy duty",
+          "stat": "damage",
+          "scope": 1,
+          "rank": 1,
+          "amount": 0.33
+        },
+        {
+          "id": "explosive-power",
+          "name": "Explosive specialist",
+          "stat": "damage",
+          "scope": "explosive",
+          "rank": 1,
+          "amount": 0.33
+        },
+        {
+          "id": "explosive-rate",
+          "name": "Explosive overdrive",
+          "stat": "rate",
+          "scope": "explosive",
+          "rank": 1,
+          "amount": 0.33
+        },
+        {
+          "id": "weapon-3",
+          "name": "Mortar: heavy duty",
+          "stat": "damage",
+          "scope": 3,
+          "rank": 0,
+          "amount": 0.22
+        },
+        {
+          "id": "weapon-1",
+          "name": "Flamethrower: heavy duty",
+          "stat": "damage",
+          "scope": 1,
+          "rank": 2,
+          "amount": 0.495
+        }
+      ],
+      "offers": [
+        {
+          "id": "speed-2",
+          "name": "Arc caster: hair trigger",
+          "stat": "rate",
+          "scope": 2,
+          "rank": 0,
+          "amount": 0.22
+        },
+        {
+          "id": "speed-3",
+          "name": "Mortar: hair trigger",
+          "stat": "rate",
+          "scope": 3,
+          "rank": 1,
+          "amount": 0.33
+        },
+        {
+          "id": "speed-0",
+          "name": "Rivet gun: hair trigger",
+          "stat": "rate",
+          "scope": 0,
+          "rank": 2,
+          "amount": 0.495
+        }
+      ],
+      "salvage": 788,
+      "earned": 335,
+      "towerHp": [
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90
+      ],
+      "droppedSpawns": 0,
+      "stress": false,
+      "save": {
+        "version": 1,
+        "salvage": 788,
+        "unlockedLevel": 2,
+        "best": [
+          10,
+          0
+        ],
+        "attempts": 2,
+        "character": 1,
+        "characters": [
+          0,
+          1,
+          2
+        ],
+        "weapons": [
+          0,
+          1,
+          3,
+          2
+        ],
+        "playerWeapon": 1,
+        "upgrades": {
+          "power": 5,
+          "learning": 1,
+          "fortune": 1,
+          "towers": 2
+        },
+        "layout": [
+          0,
+          -2,
+          2,
+          -1,
+          3,
+          -2,
+          -2,
+          -1
+        ]
+      },
+      "perf": {
+        "buckets": [
+          {
+            "label": ">=60",
+            "count": 5371
+          },
+          {
+            "label": ">=30",
+            "count": 10316
+          },
+          {
+            "label": ">=20",
+            "count": 27
+          },
+          {
+            "label": "<20",
+            "count": 1
+          }
+        ],
+        "worstFrameMs": 107,
+        "frameCount": 15715,
+        "frames": 3600,
+        "medianFrameMs": 17,
+        "p95FrameMs": 18,
+        "p99FrameMs": 23,
+        "p95CpuMs": 1,
+        "over33ms": 5,
+        "enemies": 0,
+        "peakEnemies": 425,
+        "drawCalls": 1,
+        "dpr": 2,
+        "cardDefinitions": 27
+      },
+      "build": {
+        "sha": "c5a2d2ffce",
+        "dirty": true,
+        "version": "0.0.0",
+        "builtAt": "2026-09-06T15:43:28.123Z"
+      }
+    },
+    {
+      "label": "level-victory-state",
+      "timestamp": 1788709884.488,
+      "phase": "victory",
+      "paused": false,
+      "level": 1,
+      "wave": 10,
+      "hp": 91.35500000001377,
+      "maxHp": 100,
+      "enemies": 0,
+      "bullets": 0,
+      "effects": 0,
+      "shots": 5783,
+      "peakEnemies": 425,
+      "kills": 5018,
+      "xp": 158.80000000002235,
+      "rank": 22,
+      "pendingPicks": 0,
+      "aim": -0.7853981633974483,
+      "threatAngle": -0.7853981633974483,
+      "cards": [
+        {
+          "id": "weapon-2",
+          "name": "Arc caster: heavy duty",
+          "stat": "damage",
+          "scope": 2,
+          "rank": 3,
+          "amount": 0.715
+        },
+        {
+          "id": "explosive-rate",
+          "name": "Explosive overdrive",
+          "stat": "rate",
+          "scope": "explosive",
+          "rank": 1,
+          "amount": 0.33
+        },
+        {
+          "id": "weapon-1",
+          "name": "Flamethrower: heavy duty",
+          "stat": "damage",
+          "scope": 1,
+          "rank": 0,
+          "amount": 0.22
+        },
+        {
+          "id": "beam-power",
+          "name": "Beam specialist",
+          "stat": "damage",
+          "scope": "beam",
+          "rank": 0,
+          "amount": 0.22
+        },
+        {
+          "id": "kinetic-power",
+          "name": "Kinetic specialist",
+          "stat": "damage",
+          "scope": "kinetic",
+          "rank": 0,
+          "amount": 0.22
+        },
+        {
+          "id": "weapon-2",
+          "name": "Arc caster: heavy duty",
+          "stat": "damage",
+          "scope": 2,
+          "rank": 1,
+          "amount": 0.33
+        },
+        {
+          "id": "explosive-rate",
+          "name": "Explosive overdrive",
+          "stat": "rate",
+          "scope": "explosive",
+          "rank": 0,
+          "amount": 0.22
+        },
+        {
+          "id": "rate",
+          "name": "No breathing room",
+          "stat": "rate",
+          "scope": "all",
+          "rank": 2,
+          "amount": 0.27
+        },
+        {
+          "id": "weapon-1",
+          "name": "Flamethrower: heavy duty",
+          "stat": "damage",
+          "scope": 1,
+          "rank": 2,
+          "amount": 0.495
+        },
+        {
+          "id": "rate",
+          "name": "No breathing room",
+          "stat": "rate",
+          "scope": "all",
+          "rank": 1,
+          "amount": 0.18
+        },
+        {
+          "id": "fire-rate",
+          "name": "Fire overdrive",
+          "stat": "rate",
+          "scope": "fire",
+          "rank": 2,
+          "amount": 0.495
+        },
+        {
+          "id": "fire-rate",
+          "name": "Fire overdrive",
+          "stat": "rate",
+          "scope": "fire",
+          "rank": 0,
+          "amount": 0.22
+        },
+        {
+          "id": "speed-3",
+          "name": "Mortar: hair trigger",
+          "stat": "rate",
+          "scope": 3,
+          "rank": 0,
+          "amount": 0.22
+        },
+        {
+          "id": "weapon-2",
+          "name": "Arc caster: heavy duty",
+          "stat": "damage",
+          "scope": 2,
+          "rank": 1,
+          "amount": 0.33
+        },
+        {
+          "id": "speed-1",
+          "name": "Flamethrower: hair trigger",
+          "stat": "rate",
+          "scope": 1,
+          "rank": 1,
+          "amount": 0.33
+        },
+        {
+          "id": "weapon-1",
+          "name": "Flamethrower: heavy duty",
+          "stat": "damage",
+          "scope": 1,
+          "rank": 1,
+          "amount": 0.33
+        },
+        {
+          "id": "explosive-power",
+          "name": "Explosive specialist",
+          "stat": "damage",
+          "scope": "explosive",
+          "rank": 1,
+          "amount": 0.33
+        },
+        {
+          "id": "explosive-rate",
+          "name": "Explosive overdrive",
+          "stat": "rate",
+          "scope": "explosive",
+          "rank": 1,
+          "amount": 0.33
+        },
+        {
+          "id": "weapon-3",
+          "name": "Mortar: heavy duty",
+          "stat": "damage",
+          "scope": 3,
+          "rank": 0,
+          "amount": 0.22
+        },
+        {
+          "id": "weapon-1",
+          "name": "Flamethrower: heavy duty",
+          "stat": "damage",
+          "scope": 1,
+          "rank": 2,
+          "amount": 0.495
+        },
+        {
+          "id": "speed-0",
+          "name": "Rivet gun: hair trigger",
+          "stat": "rate",
+          "scope": 0,
+          "rank": 2,
+          "amount": 0.495
+        }
+      ],
+      "offers": [],
+      "salvage": 788,
+      "earned": 335,
+      "towerHp": [
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90
+      ],
+      "droppedSpawns": 0,
+      "stress": false,
+      "save": {
+        "version": 1,
+        "salvage": 788,
+        "unlockedLevel": 2,
+        "best": [
+          10,
+          0
+        ],
+        "attempts": 2,
+        "character": 1,
+        "characters": [
+          0,
+          1,
+          2
+        ],
+        "weapons": [
+          0,
+          1,
+          3,
+          2
+        ],
+        "playerWeapon": 1,
+        "upgrades": {
+          "power": 5,
+          "learning": 1,
+          "fortune": 1,
+          "towers": 2
+        },
+        "layout": [
+          0,
+          -2,
+          2,
+          -1,
+          3,
+          -2,
+          -2,
+          -1
+        ]
+      },
+      "perf": {
+        "buckets": [
+          {
+            "label": ">=60",
+            "count": 5371
+          },
+          {
+            "label": ">=30",
+            "count": 10316
+          },
+          {
+            "label": ">=20",
+            "count": 27
+          },
+          {
+            "label": "<20",
+            "count": 1
+          }
+        ],
+        "worstFrameMs": 107,
+        "frameCount": 15715,
+        "frames": 3600,
+        "medianFrameMs": 17,
+        "p95FrameMs": 18,
+        "p99FrameMs": 23,
+        "p95CpuMs": 1,
+        "over33ms": 5,
+        "enemies": 0,
+        "peakEnemies": 425,
+        "drawCalls": 1,
+        "dpr": 2,
+        "cardDefinitions": 27
+      },
+      "build": {
+        "sha": "c5a2d2ffce",
+        "dirty": true,
+        "version": "0.0.0",
+        "builtAt": "2026-09-06T15:43:28.123Z"
+      }
+    },
+    {
+      "label": "level-two-unlocked-state",
+      "timestamp": 1788709893.605,
+      "phase": "combat",
+      "paused": false,
+      "level": 2,
+      "wave": 1,
+      "hp": 100,
+      "maxHp": 100,
+      "enemies": 26,
+      "bullets": 6,
+      "effects": 3,
+      "shots": 70,
+      "peakEnemies": 27,
+      "kills": 21,
+      "xp": 23.100000000000005,
+      "rank": 1,
+      "pendingPicks": 0,
+      "aim": -1.5707963267948966,
+      "threatAngle": -1.778246029706894,
+      "cards": [],
+      "offers": [],
+      "salvage": 788,
+      "earned": 0,
+      "towerHp": [
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90
+      ],
+      "droppedSpawns": 0,
+      "stress": false,
+      "save": {
+        "version": 1,
+        "salvage": 788,
+        "unlockedLevel": 2,
+        "best": [
+          10,
+          0
+        ],
+        "attempts": 3,
+        "character": 1,
+        "characters": [
+          0,
+          1,
+          2
+        ],
+        "weapons": [
+          0,
+          1,
+          3,
+          2
+        ],
+        "playerWeapon": 1,
+        "upgrades": {
+          "power": 5,
+          "learning": 1,
+          "fortune": 1,
+          "towers": 2
+        },
+        "layout": [
+          0,
+          -2,
+          2,
+          -1,
+          3,
+          -2,
+          -2,
+          -1
+        ]
+      },
+      "perf": {
+        "buckets": [
+          {
+            "label": ">=60",
+            "count": 87
+          },
+          {
+            "label": ">=30",
+            "count": 185
+          }
+        ],
+        "worstFrameMs": 21,
+        "frameCount": 272,
+        "frames": 272,
+        "medianFrameMs": 17,
+        "p95FrameMs": 17,
+        "p99FrameMs": 17,
+        "p95CpuMs": 1,
+        "over33ms": 0,
+        "enemies": 26,
+        "peakEnemies": 27,
+        "drawCalls": 1,
+        "dpr": 2,
+        "cardDefinitions": 27
+      },
+      "build": {
+        "sha": "c5a2d2ffce",
+        "dirty": true,
+        "version": "0.0.0",
+        "builtAt": "2026-09-06T15:43:28.123Z"
+      }
+    }
+  ]
+}

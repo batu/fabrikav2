@@ -3,6 +3,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
 import {
+  APPSFLYER_SKAN_POSTBACK_ENDPOINT,
   applyNativeShell,
   patchInfoPlist,
   patchPbxproj,
@@ -186,6 +187,33 @@ describe('native shell transforms', () => {
     expect(clean).not.toContain('SKAdNetworkIdentifier');
   });
 
+  it('declares the AppsFlyer SKAdNetwork postback-copy endpoint only when the bridge ships', () => {
+    const withAppsFlyer = manifest();
+    withAppsFlyer.ios.swiftSources = ['FindTheDogBridgeViewController.swift', 'AppsFlyerAttributionPlugin.swift'];
+    const entry = `<key>NSAdvertisingAttributionReportEndpoint</key>\n\t<string>${APPSFLYER_SKAN_POSTBACK_ENDPOINT}</string>`;
+    const once = patchInfoPlist(plist(), withAppsFlyer, catalog());
+    expect(APPSFLYER_SKAN_POSTBACK_ENDPOINT).toBe('https://appsflyer-skadnetwork.com/');
+    expect(once).toContain(entry);
+    expect(once.match(/NSAdvertisingAttributionReportEndpoint/g)).toHaveLength(1);
+    expect(patchInfoPlist(once, withAppsFlyer, catalog())).toBe(once);
+
+    const stale = once.replace(APPSFLYER_SKAN_POSTBACK_ENDPOINT, 'https://example.invalid/');
+    expect(patchInfoPlist(stale, withAppsFlyer, catalog())).toBe(once);
+
+    const withoutAppsFlyer = patchInfoPlist(once, manifest(), catalog());
+    expect(withoutAppsFlyer).not.toContain('NSAdvertisingAttributionReportEndpoint');
+    expect(patchInfoPlist(plist(), manifest(), catalog())).not.toContain('NSAdvertisingAttributionReportEndpoint');
+  });
+
+  it('weak-links the tracking frameworks for an AppsFlyer-only shell', () => {
+    const appsFlyerOnly = manifest();
+    appsFlyerOnly.ios.swiftSources = ['FindTheDogBridgeViewController.swift', 'AppsFlyerAttributionPlugin.swift'];
+    const wired = patchPbxproj(pbxproj(), appsFlyerOnly, { googleServicePresent: false });
+    for (const name of ['AdServices.framework', 'AppTrackingTransparency.framework', 'AdSupport.framework', 'StoreKit.framework']) expect(wired).toContain(`${name} in Frameworks`);
+    expect(wired).toContain('AppsFlyerAttributionPlugin.swift in Sources');
+    expect(patchPbxproj(wired, appsFlyerOnly, { googleServicePresent: false })).toBe(wired);
+  });
+
   it('patches project and storyboard idempotently and rejects partial wiring', () => {
     const once = patchPbxproj(pbxproj(), manifest(), { googleServicePresent: false });
     expect(patchPbxproj(once, manifest(), { googleServicePresent: false })).toBe(once);
@@ -311,6 +339,13 @@ describe('native shell integration', () => {
     expect(secondApply.changed).toEqual([]);
     expect(validateGeneratedShell({ repoRoot, game: 'find_the_dog', allowMissingFirebase: true }).issues).toEqual([]);
     expect(validateGeneratedShell({ repoRoot, game: 'find_the_dog', allowMissingFirebase: false }).issues).toContainEqual(expect.stringMatching(/GoogleService-Info\.plist is missing/));
+    const plistPath = path.join(iosAppDir, 'App', 'Info.plist');
+    const generatedPlist = fs.readFileSync(plistPath, 'utf8');
+    expect(generatedPlist).not.toContain('NSAdvertisingAttributionReportEndpoint');
+    fs.writeFileSync(plistPath, generatedPlist.replace('</dict>\n</plist>', `\t<key>NSAdvertisingAttributionReportEndpoint</key>\n\t<string>${APPSFLYER_SKAN_POSTBACK_ENDPOINT}</string>\n</dict>\n</plist>`));
+    expect(validateGeneratedShell({ repoRoot, game: 'find_the_dog', allowMissingFirebase: true }).issues).toContainEqual(expect.stringMatching(/postback endpoint without the AppsFlyer bridge/));
+    expect(applyNativeShell({ repoRoot, game: 'find_the_dog' }).changed).toContain('App/Info.plist');
+    expect(fs.readFileSync(plistPath, 'utf8')).toBe(generatedPlist);
 
     fs.writeFileSync(path.join(iosAppDir, 'App', 'GoogleService-Info.plist'), '<plist><dict><key>BUNDLE_ID</key><string>com.baseardahan.hiddenobj</string><key>PROJECT_ID</key><string>find-the-dog-basegamelab</string><key>GOOGLE_APP_ID</key><string>1:123:ios:abcdef</string></dict></plist>');
     const firebaseApply = applyNativeShell({ repoRoot, game: 'find_the_dog' });
@@ -320,18 +355,48 @@ describe('native shell integration', () => {
   });
 });
 
+describe('AppsFlyer recipe validation', () => {
+  function bridgeRecipeRepo(mutate) {
+    const repoRoot = makeRoot();
+    const gameDir = path.join(repoRoot, 'games', 'find_the_bird');
+    const recipeDir = path.join(gameDir, 'native-resources', 'ios');
+    fs.cpSync(new URL('../../../games/find_the_bird/native-resources/ios/', import.meta.url), recipeDir, { recursive: true });
+    fs.cpSync(new URL('../../../games/find_the_bird/config/', import.meta.url), path.join(gameDir, 'config'), { recursive: true });
+    fs.writeFileSync(path.join(gameDir, 'capacitor.config.ts'), 'const config = { appId: "com.basegamelab.findthebird" };\nexport default config;\n');
+    const bridge = path.join(recipeDir, 'App', 'AppsFlyerAttributionPlugin.swift');
+    fs.writeFileSync(bridge, mutate(fs.readFileSync(bridge, 'utf8')));
+    return repoRoot;
+  }
+
+  it('accepts the committed Bird bridge', () => {
+    expect(validateGeneratedShell({ repoRoot: bridgeRecipeRepo((source) => source), game: 'find_the_bird', allowMissingFirebase: true }).issues).toEqual([]);
+  });
+
+  it('rejects a bridge that reads blockedPartners but never applies the filter', () => {
+    const repoRoot = bridgeRecipeRepo((source) => source.replace('sdk.setSharingFilterForPartners(blockedPartners)', '_ = blockedPartners'));
+    expect(validateGeneratedShell({ repoRoot, game: 'find_the_bird', allowMissingFirebase: true }).issues).toContainEqual(expect.stringMatching(/setSharingFilterForPartners\(blockedPartners\)/));
+  });
+
+  it('rejects a bridge that reintroduces the deny-all filter or skips the ATT wait', () => {
+    const denyAll = bridgeRecipeRepo((source) => source.replace('sdk.setSharingFilterForPartners(blockedPartners)', 'sdk.setSharingFilterForPartners(["all"])'));
+    expect(validateGeneratedShell({ repoRoot: denyAll, game: 'find_the_bird', allowMissingFirebase: true }).issues).toContainEqual(expect.stringMatching(/deny-all/));
+    const noAtt = bridgeRecipeRepo((source) => source.replace('sdk.waitForATTUserAuthorization(timeoutInterval: 60)', ''));
+    expect(validateGeneratedShell({ repoRoot: noAtt, game: 'find_the_bird', allowMissingFirebase: true }).issues).toContainEqual(expect.stringMatching(/waitForATTUserAuthorization/));
+  });
+});
+
 describe('Find the Dog manifest contract', () => {
   it('pins the approved identities, Crashlytics-only Firebase graph, AdMob, and catalog', () => {
     const recipeDir = new URL('../../../games/find_the_dog/native-resources/ios/', import.meta.url);
     const actualManifest = JSON.parse(fs.readFileSync(new URL('shell-manifest.json', recipeDir), 'utf8'));
-    const actualCatalog = JSON.parse(fs.readFileSync(new URL('admob-skadnetwork-ids.json', recipeDir), 'utf8'));
+    const actualCatalog = JSON.parse(fs.readFileSync(new URL('attribution-skadnetwork-ids.json', recipeDir), 'utf8'));
     expect(actualManifest.capacitorAppId).toBe('com.basegamelab.findthedog');
     expect(actualManifest.ios.bundleId).toBe('com.baseardahan.hiddenobj');
     expect(actualManifest.ios.swiftToolsVersion).toBe('6.1');
     expect(actualManifest.ios.deploymentTarget).toBe('15');
     expect(Object.fromEntries(actualManifest.ios.remotePackages.map((pkg) => [pkg.name, pkg.version]))).toEqual({
       'capacitor-swift-pm': '8.4.1',
-      'AppsFlyerFramework-Strict': '6.17.5',
+      AppsFlyerFramework: '6.17.5',
     });
     expect(actualManifest.ios.localPackages.map((pkg) => pkg.name)).toEqual([
       'CapacitorApp',
@@ -346,16 +411,24 @@ describe('Find the Dog manifest contract', () => {
     expect(actualManifest.ios.firebaseProjectId).toBe('find-the-dog-basegamelab');
     expect(actualManifest.ios.swiftSources).toContain('AppsFlyerAttributionPlugin.swift');
     expect(actualManifest.ios.swiftSources).not.toContain('AdjustAttributionPlugin.swift');
+    // Standard (non-Strict) AppsFlyer package: the Strict variant strips IDFA collection, which the ATT prompt exists to enable.
     expect(actualManifest.ios.remotePackages[1]).toMatchObject({
-      url: 'https://github.com/AppsFlyerSDK/AppsFlyerFramework-Strict',
-      products: ['AppsFlyerLib-Strict'],
+      url: 'https://github.com/AppsFlyerSDK/AppsFlyerFramework',
+      products: ['AppsFlyerLib'],
     });
     expect(actualManifest.ios.adMobEnabledEnv).toBe('VITE_ADMOB_IOS_ENABLED');
     expect(actualManifest.ios.adMobApplicationIdEnv).toBe('VITE_ADMOB_IOS_APP_ID');
+    // General-audience release: the AppsFlyer bridge prompts for ATT and the app declares tracking.
     expect(actualManifest.ios.trackingUsageDescription).toBe('Your data will be used to show you ads that are more relevant to you and to measure how well they work.');
     const privacy = fs.readFileSync(new URL('App/PrivacyInfo.xcprivacy', recipeDir), 'utf8');
     expect(privacy).toMatch(/<key>NSPrivacyTracking<\/key>\s*<true\/>/);
-    expect(privacy).toContain('<string>googleads.g.doubleclick.net</string>');
-    expect(actualCatalog.skadnetwork_ids.map((entry) => entry.skadnetwork_id)).toEqual(['cstr6suwn9.skadnetwork']);
+    expect(privacy).toContain('NSPrivacyCollectedDataTypeDeviceID');
+    expect(privacy).not.toContain('NSPrivacyTrackingDomains');
+    const catalogIds = actualCatalog.skadnetwork_ids.map((entry) => entry.skadnetwork_id);
+    // Google's published AdMob buyer list (50 ids) so bidding partners can attribute; Google, Meta included.
+    expect(catalogIds).toHaveLength(50);
+    expect(new Set(catalogIds).size).toBe(50);
+    expect(catalogIds).toEqual(expect.arrayContaining(['cstr6suwn9.skadnetwork', 'v9wttpbfk9.skadnetwork', 'n38lu8286q.skadnetwork']));
+    expect(actualManifest.ios.skAdNetworkExpectedCount).toBe(50);
   });
 });
