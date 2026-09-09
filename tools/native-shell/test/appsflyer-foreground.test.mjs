@@ -37,14 +37,15 @@ class AppsFlyerLib {
     var appleAppID = ""
     var isDebug = false
     var starts = 0
-    var filters = 0
+    var filters: [[String]] = []
+    var startsWhenFiltered: [Int] = []
     func setSharingFilterForPartners(_ partners: [String]) {
-        precondition(partners == ["all"])
-        filters += 1
+        filters.append(partners)
+        startsWhenFiltered.append(starts)
     }
     func start() {
         precondition(Thread.isMainThread)
-        precondition(filters > 0 && !appsFlyerDevKey.isEmpty && appleAppID == "6796698146")
+        precondition(!appsFlyerDevKey.isEmpty && appleAppID == "6796698146")
         starts += 1
     }
     func logEvent(name: String, values: [String: Any], completion: (Any?, Any?) -> Void) {}
@@ -70,7 +71,7 @@ precondition(sdk.starts == 1, "Inactive initialization waits for activation")
 plugin!.initialize(CAPPluginCall())
 plugin!.initialize(CAPPluginCall())
 drain()
-precondition(sdk.starts == 1 && sdk.filters == 1, "Repeated initialization is idempotent")
+precondition(sdk.starts == 1 && sdk.filters.isEmpty, "Repeated initialization is idempotent and no partner is blocked by default")
 UIApplication.shared.applicationState = .background
 activate()
 precondition(sdk.starts == 2, "Resume records another session")
@@ -82,21 +83,22 @@ activePlugin!.initialize(CAPPluginCall())
 drain()
 precondition(sdk.starts == 3, "Already active initialization starts exactly once")
 activePlugin = nil
-let invalid = AppsFlyerAttributionPlugin()
-let invalidCall = CAPPluginCall()
-invalidCall.values["sharingPartners"] = ["facebook"]
-invalid.initialize(invalidCall)
+let blockingSdk = AppsFlyerLib.shared()
+let blocking = AppsFlyerAttributionPlugin()
+let blockingCall = CAPPluginCall()
+blockingCall.values["blockedPartners"] = ["facebook_int"]
+blocking.initialize(blockingCall)
 drain()
-activate()
-precondition(invalidCall.result?["initialized"] as? Bool == false && sdk.starts == 3)
-print("PASS: lifecycle, idempotence, cleanup, and privacy gate")
+precondition(blockingCall.result?["initialized"] as? Bool == true && blockingSdk.starts == 4, "Blocklisted initialization still starts")
+precondition(blockingSdk.filters == [["facebook_int"]] && blockingSdk.startsWhenFiltered == [3], "Only the explicit blocklist is applied, and before that plugin's start")
+print("PASS: lifecycle, idempotence, cleanup, and partner blocklist")
 `;
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'bird-appsflyer-foreground-'));
   try {
     const file = path.join(dir, 'main.swift');
     fs.writeFileSync(file, fixture);
     const output = execFileSync('xcrun', ['swift', '-swift-version', '5', file], { encoding: 'utf8' });
-    expect(output).toMatch(/PASS: lifecycle, idempotence, cleanup, and privacy gate/);
+    expect(output).toMatch(/PASS: lifecycle, idempotence, cleanup, and partner blocklist/);
   } finally {
     fs.rmSync(dir, { recursive: true, force: true });
   }

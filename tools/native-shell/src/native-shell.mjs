@@ -617,10 +617,12 @@ function validateRecipeSources(recipeDir, manifest, issues) {
   const hasAppsFlyer = manifest.ios.swiftSources.includes('AppsFlyerAttributionPlugin.swift');
   const appsFlyer = hasAppsFlyer ? read('AppsFlyerAttributionPlugin.swift') : '';
   if (hasAppsFlyer) {
-    for (const snippet of ['import AppsFlyerLib', 'setSharingFilterForPartners', '["all"]', 'sdk.start()', 'CAPPluginMethod(name: "getStatus"']) {
+    for (const snippet of ['import AppsFlyerLib', 'blockedPartners', 'sdk.start()', 'CAPPluginMethod(name: "getStatus"']) {
       if (!appsFlyer.includes(snippet)) issues.push(`AppsFlyerAttributionPlugin.swift is missing ${snippet}`);
     }
-    if (appsFlyer.indexOf('setSharingFilterForPartners') > appsFlyer.indexOf('sdk.start()')) issues.push('AppsFlyer sharing policy must be applied before start');
+    // General-audience policy: partners activated in the AppsFlyer dashboard receive postbacks.
+    if (/setSharingFilterForPartners\(\["all"\]\)/.test(appsFlyer)) issues.push('AppsFlyerAttributionPlugin.swift still applies the deny-all partner filter');
+    if (appsFlyer.includes('setSharingFilterForPartners') && appsFlyer.indexOf('setSharingFilterForPartners') > appsFlyer.indexOf('sdk.start()')) issues.push('AppsFlyer sharing policy must be applied before start');
     for (const forbidden of ['waitForATTUserAuthorization', 'AdSupport', 'requestTrackingAuthorization']) if (appsFlyer.includes(forbidden)) issues.push(`AppsFlyerAttributionPlugin.swift contains forbidden tracking source: ${forbidden}`);
   }
   const joined = [appDelegate, bridge, appLovin, adjust, appsFlyer, privacy].join('\n');

@@ -19,14 +19,17 @@ public final class AppsFlyerAttributionPlugin: CAPPlugin, CAPBridgedPlugin {
               let appleAppId = call.getString("appleAppId"), !appleAppId.isEmpty else {
             call.resolve(["initialized": false]); return
         }
-        let partners = call.getArray("sharingPartners", String.self) ?? []
-        guard partners.isEmpty else { call.resolve(["initialized": false]); return }
+        let blockedPartners = call.getArray("blockedPartners", String.self) ?? []
         let sdk = AppsFlyerLib.shared()
         sdk.appsFlyerDevKey = devKey
         sdk.appleAppID = appleAppId
         sdk.isDebug = call.getBool("debugLogging") ?? false
-        // Privacy policy is applied before start. Empty means deny all partners.
-        sdk.setSharingFilterForPartners(["all"])
+        // General-audience policy: partners activated in the AppsFlyer dashboard
+        // receive install and event postbacks. Only explicitly blocked partners
+        // are filtered, and the filter is applied before start.
+        if !blockedPartners.isEmpty {
+            sdk.setSharingFilterForPartners(blockedPartners)
+        }
         sdk.start()
         initialized = true
         call.resolve(["initialized": true])

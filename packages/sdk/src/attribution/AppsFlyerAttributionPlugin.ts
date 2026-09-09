@@ -5,8 +5,8 @@ export interface AppsFlyerInitializeOptions {
   /** Numeric App Store id; required on iOS, ignored on Android. */
   appleAppId: string | null;
   debugLogging: boolean;
-  /** Explicit partner allowlist. Empty means deny all. Applied before start. */
-  sharingPartners: readonly string[];
+  /** Partners the native SDK must not share with. Empty blocks nobody. Applied before start. */
+  blockedPartners: readonly string[];
 }
 
 export interface AppsFlyerBooleanResult {

@@ -20,7 +20,7 @@ describe('readAppsFlyerConfig', (): void => {
         devKey: DEV_KEY,
         appleAppId: APPLE_APP_ID,
         debugLogging: false,
-        sharingPartners: [],
+        blockedPartners: [],
       },
     });
   });
@@ -29,7 +29,7 @@ describe('readAppsFlyerConfig', (): void => {
     const result = readAppsFlyerConfig('android', { VITE_APPSFLYER_ENABLED: 'true', VITE_APPSFLYER_DEV_KEY: DEV_KEY }, false);
     expect(result).toEqual({
       enabled: true,
-      config: { devKey: DEV_KEY, appleAppId: null, debugLogging: false, sharingPartners: [] },
+      config: { devKey: DEV_KEY, appleAppId: null, debugLogging: false, blockedPartners: [] },
     });
   });
 
@@ -64,9 +64,11 @@ describe('readAppsFlyerConfig', (): void => {
     expect(android).toMatchObject({ enabled: false, missingKeys: ['VITE_APPSFLYER_DEV_KEY'] });
   });
 
-  it('fails closed when a partner allowlist is requested', (): void => {
-    const result = readAppsFlyerConfig('ios', { ...enabledEnv, VITE_APPSFLYER_SHARING_PARTNERS: 'meta' }, false);
-    expect(result).toMatchObject({ enabled: false, reason: expect.stringContaining('unsupported') });
+  it('passes an explicit partner blocklist through and blocks nobody by default', (): void => {
+    const blocked = readAppsFlyerConfig('ios', { ...enabledEnv, VITE_APPSFLYER_BLOCKED_PARTNERS: 'facebook_int, tiktok_int,facebook_int' }, false);
+    expect(blocked).toMatchObject({ enabled: true, config: { blockedPartners: ['facebook_int', 'tiktok_int'] } });
+    const open = readAppsFlyerConfig('ios', { ...enabledEnv, VITE_APPSFLYER_BLOCKED_PARTNERS: '' }, false);
+    expect(open).toMatchObject({ enabled: true, config: { blockedPartners: [] } });
   });
 
   it('rejects a non-numeric apple app id', (): void => {

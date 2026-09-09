@@ -4,8 +4,8 @@ export interface AppsFlyerConfig {
   devKey: string;
   appleAppId: string | null;
   debugLogging: boolean;
-  /** Explicit partner allowlist. Empty is the fail-closed deny-all policy. */
-  sharingPartners: readonly string[];
+  /** Partners the native SDK must not share with. Empty means every partner activated in the AppsFlyer dashboard receives postbacks. */
+  blockedPartners: readonly string[];
 }
 
 export type AppsFlyerConfigResult =
@@ -50,14 +50,7 @@ export function readAppsFlyerConfig(
 
   const devKey = envString(appsFlyerEnv.VITE_APPSFLYER_DEV_KEY);
   const appleAppId = envString(appsFlyerEnv.VITE_APPSFLYER_APPLE_APP_ID);
-  const sharingPartners = readSharingPartners(appsFlyerEnv.VITE_APPSFLYER_SHARING_PARTNERS);
-  if (sharingPartners.length > 0) {
-    return {
-      enabled: false,
-      reason: 'partner allowlisting is unsupported by the AppsFlyer native bridge; keep deny-all and activate reviewed partners in the dashboard',
-      missingKeys: [],
-    };
-  }
+  const blockedPartners = readPartnerList(appsFlyerEnv.VITE_APPSFLYER_BLOCKED_PARTNERS);
 
   const missingKeys: string[] = [];
   if (devKey === null) missingKeys.push('VITE_APPSFLYER_DEV_KEY');
@@ -85,7 +78,7 @@ export function readAppsFlyerConfig(
       devKey: requiredValue(devKey),
       appleAppId: platform === 'ios' ? appleAppId : null,
       debugLogging: !isProductionBuild && parseBooleanEnv(appsFlyerEnv.VITE_APPSFLYER_DEBUG_LOGGING, false),
-      sharingPartners: [],
+      blockedPartners,
     },
   };
 }
@@ -99,7 +92,7 @@ function productionDefault(appsFlyerEnv: AppsFlyerEnv): boolean {
   return typeof appsFlyerEnv.PROD === 'boolean' ? appsFlyerEnv.PROD : true;
 }
 
-function readSharingPartners(value: string | boolean | undefined): readonly string[] {
+function readPartnerList(value: string | boolean | undefined): readonly string[] {
   const raw = envString(value);
   if (raw === null) return [];
   return [...new Set(raw.split(',').map((partner) => partner.trim()).filter(Boolean))];
