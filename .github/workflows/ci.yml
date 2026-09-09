@@ -80,3 +80,35 @@ jobs:
       - uses: astral-sh/setup-uv@v6
       - run: npm ci
       - run: npm run editor:ci -w @fabrikav2/ftd-level-editor
+
+  # The generic editor owns a separate Python backend and browser fixture suite;
+  # npm's optional workspace unit script does not execute either of them.
+  level-editor:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # Golden cutout classification reads rejected sprites at this manifest
+      # revision. Fetch that immutable fixture only, not the entire history.
+      - run: git fetch --no-tags --depth=1 origin 8a80bcfe2789015a330fd9e168e021f1b1d612f7
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: '3.12'
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run editor2:ci -w @fabrikav2/level-editor-tool
+        env:
+          EDITOR2_VERIFY_DIR: ${{ runner.temp }}/editor2-verification
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: editor2-verification
+          path: |
+            ${{ runner.temp }}/editor2-verification/*.log
+            ${{ runner.temp }}/editor2-verification/*.xml
+            ${{ runner.temp }}/editor2-verification/results.json
+            ${{ runner.temp }}/editor2-verification/requirements.txt
+            ${{ runner.temp }}/editor2-verification/screenshots/

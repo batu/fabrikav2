@@ -52,6 +52,7 @@ floor (`LEVEL_EDITOR_DISK_FLOOR_GIB`, default 5).
 | `author --template T [--session-id S]` | resumable authoring flow; stops after painting for human hitbox blessing, then resumes through cutouts, recenter, and export |
 | `serve --game G [--port]` | run the backend for one game |
 | `doctor --game G` | server-free workspace census: orphans, stuck jobs, locks, disk |
+| `difficulty --manifest F [--preflight]` | server-free frozen Find the Dog difficulty experiment; offline dry-run by default |
 | `status` / `config` | server + generation status / full recipe catalog |
 | `sessions` / `session <id>` | gallery listing / one session |
 | `create --template T \| --setting --scene --style --view --entity --model` | new session (`--count` overrides bird count) |
@@ -64,7 +65,7 @@ floor (`LEVEL_EDITOR_DISK_FLOOR_GIB`, default 5).
 | `fix-hitboxes <id> [--max-offset]` | recenter hitboxes onto painted sprites (server-side) |
 | `repair-sprites <id> [--drop-unrepairable]` | regenerate birds missing a pickup sprite; explicit drop for hopeless placements |
 | `auto-place-sprites <id>` | run best-safe placement over ready cutouts; preserves human-confirmed geometry by default |
-| `visibility-check <id>` | contrast/visibility report |
+| `visibility-check <id>` | mobile viewport, crop, HUD and safe-area geometry report (not visual contrast) |
 | `inpaint <id> [--wait] [--hard-percent] [--retry-failed]` | paint all birds (durable job) |
 | `regenerate <id> --dog <stable-id>` | repaint one bird (note: stable dog id, not `dog_NN`) |
 | `cutouts <id> --dog <stable-id> [--dog ...] [--operation extract\|regenerate] [--crop-box ID=x0,y0,x1,y1] [--model M] [--wait]` | run the focused cutout flow for selected birds; both operations cut and Best-safe-place the resulting pickup sprite |
@@ -78,6 +79,112 @@ floor (`LEVEL_EDITOR_DISK_FLOOR_GIB`, default 5).
 | `jobs [--session]` / `job <id> [--events]` | durable job inspection |
 | `archive <id> [--restore]` | archive/unarchive a session |
 | `templates` / `prompts [kind]` | recipe templates / prompt library |
+
+## Difficulty scoring (Find the Dog)
+
+The scorer reads exported assets from an explicit frozen manifest. It never
+imports the live session store, switches games, edits artwork or hitboxes,
+approves content, or changes a sequence. It follows the server-free evaluation
+verbs, so no editor backend or restart is required.
+
+From `tools/level-editor`, inspect the existing 10-level pilot offline:
+
+```sh
+uv run level-editor difficulty \
+  --manifest ../../docs/research/2026-09-08-ftd-difficulty-pilot.json --json
+```
+
+Add `--preflight` to check the exact model's public OpenRouter catalog entry
+and obtain a conservative next-call spending reservation. This makes only a
+GET request, requires no key, and does not verify account access. The default
+is `google/gemini-3.8-flash`; there is no model or provider fallback.
+
+For Astra vision on the same frozen pilot, use a separate output directory:
+
+```sh
+uv run level-editor difficulty \
+  --manifest ../../docs/research/2026-09-08-ftd-difficulty-pilot.json \
+  --model openai/gpt-6-astra --preflight --json
+```
+
+Astra accepts the same image and detection schema. Its request omits
+`temperature` (unsupported), and preflight reserves against the highest
+published pricing tier, including cache writes. The full-context reservation
+is intentionally conservative and may be much larger than eventual metered
+spend; inspect it before choosing a budget. Model identity participates in
+cache keys, so Astra and Gemini trials cannot mix. Run them into separate
+directories and compare their `report.json` rankings. No combined consensus
+score is inferred when either model has not been run.
+
+Paid execution is opt-in and requires an exported `OPENROUTER_API_KEY`, an
+explicit cumulative budget, and an empty output directory (or the same
+scorer-owned directory when resuming). The command does not load `.env` files.
+For example, **only after authorizing the indicated budget**:
+
+```sh
+uv run level-editor difficulty \
+  --manifest ../../docs/research/2026-09-08-ftd-difficulty-pilot.json \
+  --execute --budget-usd 2 --out-dir ../../.work/ftd-difficulty-pilot --json
+```
+
+`--repeats` defaults to 3 (allowed 1–5); `--max-edge` defaults to 1024
+(allowed 256–2048). Each call receives only the unannotated scene and a fixed
+dog-detection prompt, with low thinking, temperature 1 and at most 8192 output
+tokens for Gemini (temperature omitted for Astra). Scene aspect ratio is preserved. These thumbnails are **not device
+captures**: their ranking is a whole-scene detector proxy, not proven phone
+gameplay difficulty. Ground-truth coordinates and dog counts are never sent.
+
+The scorer validates manifest, catalog, level JSON, artwork and sprite hashes
+before any provider request. Assets are capped at 64 MiB each, images at
+40 million pixels, and prepared thumbnails at 128 MiB total. Detection boxes
+must be valid normalized `[ymin, xmin, ymax, xmax]` coordinates. Greedy
+one-to-one matching requires IoU >= 0.15 against the existing sprite
+rectangles; duplicate guesses cannot inflate recall. Rectangle padding and
+occlusion can distort matching and need inspection during calibration.
+
+`report.json` contains the ascending proposed ranking and per-dog detection
+frequency. Its provisional score is:
+
+```text
+100 × (0.80 × worst dog miss fraction
+     + 0.15 × hardest-three mean miss fraction
+     + 0.05 × overall mean miss fraction)
+```
+
+Completion requires every dog: 24 easy dogs cannot dilute one never-found
+dog into an easy level. For fewer than three dogs, the tail uses all available
+dogs. Weights are provisional, not fitted to player data. Reports identify
+the bottleneck dogs and never-matched dogs. A never-matched dog is an unresolved
+bottleneck, not a precisely measured difficulty; inspect its context before
+ordering levels whose hardest dogs are all missed. Equal scores remain tied;
+level ID only stabilizes display order. `scoreVersion` distinguishes this
+completion-bottleneck-v2 aggregation from the previous average-based score.
+Existing detection caches can be reaggregated without fresh provider calls.
+The report flags repeat disagreement, low
+precision, and perfect detection (which may mean the model cannot distinguish
+the levels). It does not apply the proposed order.
+
+`state.json` and raw `response-*.json` retain completed trials and actual
+OpenRouter `usage.cost`; usage is also recorded through `merceka_core.costs`.
+A resumed run counts previous spend against the budget and skips completed
+calls. Fully cached reports regenerate offline without a key. Settings or
+input changes require a different output directory; cached trials never count
+as fresh independent observations.
+
+Before each new call, the scorer reserves the model's full context at the
+catalog rates plus bounded output/reasoning and request charges, and constrains
+provider prices. This intentionally conservative reservation is **not a spend
+estimate**; it may require more remaining budget than the call eventually
+costs. No automatic retry occurs. A timeout, missing cost, malformed output,
+or incomplete response leaves a pending entry and blocks further spending in
+that directory. Inspect the saved response and reconcile its outcome before
+continuing; do not delete pending entries to silently replay them. Different
+output directories have independent budgets.
+
+Provider contracts: [model specification](https://ai.google.dev/gemini-api/docs/models/gemini-3.8-flash),
+[structured output](https://ai.google.dev/gemini-api/docs/structured-output),
+[metered usage](https://openrouter.ai/docs/cookbook/administration/usage-accounting),
+[provider price limits](https://openrouter.ai/docs/guides/routing/provider-selection#max-price).
 
 ## The authoring flow that works
 
@@ -119,6 +226,39 @@ seeds still serve).
   `--root` parameterization of its corpus validator) are out of scope here.
 
 ## Verification
+
+The dedicated CI job runs the Python backend suite and every `*-smoke.mjs`
+browser fixture, then builds the UI. To run the same gate locally after
+`npm ci` and `npx playwright install chromium`:
+
+```sh
+npm run editor2:ci -w @fabrikav2/level-editor-tool
+# Optional: EDITOR2_VERIFY_DIR=/tmp/my-editor-check to retain a named result.
+```
+
+The gate uses Python 3.12 in its own temporary venv. It writes per-step logs,
+`backend.xml`, generated `requirements.txt`, screenshots, build output, and
+`results.json` under the reported directory. Every backend/browser failure or
+unexpected network/provider attempt fails the gate. Backend tests use temporary
+game/workspace/ledger roots and an empty model cache, disable dotenv and startup
+model downloads, and block external network/CLI calls. Browser tests start their own loopback Vite
+server with no backend proxy and explicitly mock API responses. No operator
+service, real provider, physical device, or live publishing behavior is verified.
+
+Normal development still uses the editable `../../../merceka-core` dependency.
+CI exports all other versions directly from `uv.lock` and installs public core
+commit `ccba881b3b1367fbb72ec1119a1bc553e09cc848` into the isolated venv. The
+editor already depends on the 30-line cost-attribution addition in local core
+commit `927f3f5402f10ee7227eabcb22a9965c74a0625c`; that commit is not published.
+`scripts/prepare-dependency.py` reproduces only its `costs.py` delta, validates
+the installed Git revision and exact before/after SHA-256 hashes, and refuses
+to touch editable/external sources. Attribution nesting, per-record overrides,
+exception cleanup, idempotence, and drift rejection have regression coverage.
+Remove this correction when the attribution API is available at a public pin.
+The golden dataset also reads rejected sprites from its immutable review-input
+revision `8a80bcfe2789015a330fd9e168e021f1b1d612f7`; CI fetches that commit explicitly.
+
+The existing operator/corpus commands remain separate:
 
 ```sh
 npm run editor2:verify          # from tools/level-editor: pytest + tsc + UI build

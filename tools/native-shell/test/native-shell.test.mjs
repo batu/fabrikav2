@@ -389,7 +389,7 @@ describe('Find the Dog manifest contract', () => {
   it('pins the approved identities, Crashlytics-only Firebase graph, AdMob, and catalog', () => {
     const recipeDir = new URL('../../../games/find_the_dog/native-resources/ios/', import.meta.url);
     const actualManifest = JSON.parse(fs.readFileSync(new URL('shell-manifest.json', recipeDir), 'utf8'));
-    const actualCatalog = JSON.parse(fs.readFileSync(new URL('admob-skadnetwork-ids.json', recipeDir), 'utf8'));
+    const actualCatalog = JSON.parse(fs.readFileSync(new URL('attribution-skadnetwork-ids.json', recipeDir), 'utf8'));
     expect(actualManifest.capacitorAppId).toBe('com.basegamelab.findthedog');
     expect(actualManifest.ios.bundleId).toBe('com.baseardahan.hiddenobj');
     expect(actualManifest.ios.swiftToolsVersion).toBe('6.1');
@@ -419,7 +419,7 @@ describe('Find the Dog manifest contract', () => {
     expect(actualManifest.ios.adMobEnabledEnv).toBe('VITE_ADMOB_IOS_ENABLED');
     expect(actualManifest.ios.adMobApplicationIdEnv).toBe('VITE_ADMOB_IOS_APP_ID');
     // General-audience release: the AppsFlyer bridge prompts for ATT and the app declares tracking.
-    expect(actualManifest.ios.trackingUsageDescription).toMatch(/measure which ads bring new players/);
+    expect(actualManifest.ios.trackingUsageDescription).toBe('Your data will be used to show you ads that are more relevant to you and to measure how well they work.');
     const privacy = fs.readFileSync(new URL('App/PrivacyInfo.xcprivacy', recipeDir), 'utf8');
     expect(privacy).toMatch(/<key>NSPrivacyTracking<\/key>\s*<true\/>/);
     expect(privacy).toContain('NSPrivacyCollectedDataTypeDeviceID');

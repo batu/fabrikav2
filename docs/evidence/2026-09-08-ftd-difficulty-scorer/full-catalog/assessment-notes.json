@@ -1,0 +1,938 @@
+[
+  {
+    "index": 0,
+    "base": 2,
+    "ratings": {
+      "10": 2.5,
+      "15": 2.5,
+      "19": 3,
+      "26": 4,
+      "28": 3.5,
+      "06": 3.5,
+      "03": 2.5
+    },
+    "reason": "The dark dog on the shaded staircase (26) merges with brown steps; the barrel recess (28) and dark face in foliage (06) add secondary blockers."
+  },
+  {
+    "index": 1,
+    "base": 2,
+    "ratings": {
+      "14": 2.5,
+      "15": 4,
+      "23": 3,
+      "25": 3,
+      "26": 3.5,
+      "32": 3.5,
+      "07": 3,
+      "00": 2.5
+    },
+    "reason": "The grey dog in the shed doorway (15) blends into the dark stone recess; dogs 26 and 32 merge into vegetation and masonry."
+  },
+  {
+    "index": 2,
+    "base": 2,
+    "ratings": {
+      "10": 3.5,
+      "15": 3,
+      "16": 3,
+      "20": 2.5,
+      "27": 2.5,
+      "02": 4,
+      "00": 2.5
+    },
+    "reason": "Dog 02 shares the baskets' brown-green palette and its face is obscured by flowers and a hat; dog 10 sits inside a dark crowded basket."
+  },
+  {
+    "index": 3,
+    "base": 2,
+    "ratings": {
+      "10": 2.5,
+      "11": 2.5,
+      "16": 2.5,
+      "22": 2.5,
+      "23": 3,
+      "29": 3.5,
+      "33": 2.5,
+      "04": 3.5
+    },
+    "reason": "Dog 29 sits in a shadowed patch against rocks; dog 04's dark face and green clothing merge with the flowerbed."
+  },
+  {
+    "index": 4,
+    "base": 2,
+    "ratings": {
+      "13": 3,
+      "17": 4,
+      "20": 3.5,
+      "25": 3,
+      "32": 2.5,
+      "35": 2.5,
+      "06": 3,
+      "07": 2.5
+    },
+    "reason": "Dog 17 is tucked into the dark porch plants in matching green clothing; dog 20's body disappears into the flowerbed."
+  },
+  {
+    "index": 5,
+    "base": 2.5,
+    "ratings": {
+      "10": 2,
+      "12": 3.5,
+      "15": 3.5,
+      "19": 4,
+      "23": 3.5,
+      "25": 3,
+      "27": 3.5,
+      "28": 1.5,
+      "05": 4.5,
+      "06": 3.5,
+      "07": 3.5,
+      "00": 3,
+      "09": 3,
+      "03": 1.5
+    },
+    "reason": "Dog 05's dark head and green clothes disappear into pond water and reeds; dog 19 shares the muted rocks and leaf palette."
+  },
+  {
+    "index": 6,
+    "base": 2.5,
+    "ratings": {
+      "10": 4,
+      "13": 4.5,
+      "18": 3,
+      "23": 3.5,
+      "24": 4,
+      "26": 3,
+      "28": 4.5,
+      "03": 3.5,
+      "07": 3.5,
+      "01": 3,
+      "02": 1.5,
+      "06": 1.5,
+      "08": 1.5
+    },
+    "reason": "Dogs 28 and 13 merge into shaded ravine walls and tree roots, with dark or faint outlines; dog 10 also blends into shaded steps."
+  },
+  {
+    "index": 7,
+    "base": 2.5,
+    "ratings": {
+      "13": 4.5,
+      "15": 1.5,
+      "17": 3.5,
+      "21": 4.5,
+      "25": 3.5,
+      "28": 1.5,
+      "29": 3.5,
+      "32": 4.5,
+      "04": 4,
+      "00": 4,
+      "07": 3.5,
+      "08": 3.5,
+      "09": 3,
+      "03": 1.5
+    },
+    "reason": "Dog 21's mottled body shares moss and rock textures; dogs 13 and 32 blend into grey-green rocks and the brown shop corner. Native zoom confirms some clear facial features."
+  },
+  {
+    "index": 8,
+    "base": 2.5,
+    "ratings": {
+      "12": 2,
+      "14": 4.5,
+      "15": 3.5,
+      "17": 1.5,
+      "18": 1.5,
+      "26": 4,
+      "28": 3.5,
+      "05": 3,
+      "02": 3,
+      "07": 3,
+      "08": 3
+    },
+    "reason": "Dog 14's dark body disappears inside the hollow log; dog 26 sits low in the shaded gap beside the bridge."
+  },
+  {
+    "index": 9,
+    "base": 2.5,
+    "ratings": {
+      "10": 4.5,
+      "16": 3,
+      "22": 4,
+      "23": 3.5,
+      "24": 3.5,
+      "27": 1.5,
+      "28": 3,
+      "32": 4,
+      "03": 3.5,
+      "07": 3,
+      "06": 1.5,
+      "08": 2
+    },
+    "reason": "Dog 10 blends into a dark log-storage recess; dog 22 hides in shadow below the platform and dog 32 has little separation from the tent interior."
+  },
+  {
+    "index": 10,
+    "base": 2,
+    "ratings": {
+      "12": 1.5,
+      "16": 3,
+      "18": 2.5,
+      "21": 3,
+      "24": 1.5,
+      "25": 3,
+      "26": 2.5,
+      "00": 3.5,
+      "03": 3.5,
+      "02": 3
+    },
+    "reason": "Dog 00's dark face sits under a hat against dense plants; dog 03 faces into foliage, reducing the familiar face cue."
+  },
+  {
+    "index": 11,
+    "base": 2,
+    "ratings": {
+      "11": 3,
+      "15": 3.5,
+      "16": 2.5,
+      "17": 2.5,
+      "20": 1.5,
+      "24": 3.5,
+      "29": 3,
+      "30": 1.5,
+      "00": 3.5,
+      "03": 3,
+      "01": 3
+    },
+    "reason": "Dog 24 sits among overlapping cactus pots; dog 00 blends into the cactus bed and dog 15 into the dark potting area."
+  },
+  {
+    "index": 12,
+    "base": 2,
+    "ratings": {
+      "10": 3.5,
+      "15": 1.5,
+      "17": 3,
+      "20": 2.5,
+      "23": 4.5,
+      "24": 1.5,
+      "27": 3.5,
+      "07": 3,
+      "02": 2.5
+    },
+    "reason": "Dog 23 is faint and dark against the pond; dog 27 sits in the shaded potting corner and dog 10 merges with the table and foliage."
+  },
+  {
+    "index": 13,
+    "base": 2,
+    "ratings": {
+      "10": 1.5,
+      "12": 3.5,
+      "15": 3,
+      "18": 3.5,
+      "20": 2.5,
+      "22": 2.5,
+      "05": 4.5,
+      "09": 4,
+      "00": 4
+    },
+    "reason": "Dog 05's dark face merges with the wagon wheel and plants; dog 09 is buried in green seedlings and dog 00 sits in a shaded pot."
+  },
+  {
+    "index": 14,
+    "base": 2.5,
+    "ratings": {
+      "12": 3.5,
+      "14": 2,
+      "19": 3.5,
+      "21": 4,
+      "25": 4,
+      "29": 3.5,
+      "33": 3.5,
+      "04": 4.5,
+      "08": 3.5,
+      "07": 3,
+      "03": 1.5,
+      "05": 1.5
+    },
+    "reason": "Dog 04 is surrounded and partly concealed by large dark leaves; dog 25 blends into shaded plants and dog 21 loses its face in the bench-side shadow."
+  },
+  {
+    "index": 15,
+    "base": 1.5,
+    "ratings": {
+      "13": 3.5,
+      "15": 3,
+      "20": 3.5,
+      "22": 2.5,
+      "24": 2,
+      "26": 3,
+      "30": 2.5,
+      "01": 3,
+      "09": 3,
+      "02": 2
+    },
+    "reason": "The narrow balancing dog 13 is small in the full scene; dog 20's side-facing head and body blend into the stairs and paving."
+  },
+  {
+    "index": 16,
+    "base": 2,
+    "ratings": {
+      "13": 3.5,
+      "18": 3.5,
+      "22": 2.5,
+      "24": 3,
+      "26": 4,
+      "09": 4,
+      "07": 3.5,
+      "02": 2.5
+    },
+    "reason": "Dog 26 sits against the black tent opening; the poodle 09 shares the hay bales' texture and color, while dog 13 is mostly contained in a boot."
+  },
+  {
+    "index": 17,
+    "base": 1.5,
+    "ratings": {
+      "15": 2.5,
+      "16": 3,
+      "20": 2.5,
+      "26": 2.5,
+      "27": 3,
+      "28": 2,
+      "08": 3.5,
+      "01": 3,
+      "04": 2
+    },
+    "reason": "Dog 08 has a dark face and red outfit against a shaded red stall; dog 27's side profile and dog 16's muted body offer weaker recognition cues."
+  },
+  {
+    "index": 18,
+    "base": 2,
+    "ratings": {
+      "12": 3.5,
+      "19": 4.5,
+      "21": 3.5,
+      "24": 2.5,
+      "25": 4.5,
+      "00": 4.5,
+      "04": 3,
+      "08": 3
+    },
+    "reason": "Dogs 25 and 00 nearly merge into brown crates and wall shadows; dog 19 has a faint brown outline against the booth. This target audit makes Night Circus harder than the initial overview suggested."
+  },
+  {
+    "index": 19,
+    "base": 2,
+    "ratings": {
+      "15": 4,
+      "18": 3,
+      "23": 3,
+      "25": 4,
+      "27": 3,
+      "00": 3.5,
+      "07": 3.5,
+      "02": 2.5,
+      "05": 2.5
+    },
+    "reason": "Dog 15 blends with the wagon wheel and trim; dog 25 sits under a table in similarly brown wood chips, while dog 00 is surrounded by coiled rope."
+  },
+  {
+    "index": 20,
+    "base": 2,
+    "ratings": {
+      "10": 4.5,
+      "14": 2.5,
+      "17": 3,
+      "23": 3,
+      "25": 3.5,
+      "27": 3.5,
+      "31": 4.5,
+      "02": 4,
+      "00": 3,
+      "09": 1.5
+    },
+    "reason": "Dog 10 is unusually faint beside the post and rock shelf; dog 31 has weak grey outlines against sand, while dog 02 is inside a dark stone opening."
+  },
+  {
+    "index": 21,
+    "base": 2,
+    "ratings": {
+      "10": 3,
+      "13": 4.5,
+      "19": 3.5,
+      "20": 3.5,
+      "21": 3,
+      "26": 4.5,
+      "01": 4,
+      "08": 2.5,
+      "03": 1.5
+    },
+    "reason": "Dog 26 shares the blue-green crevice and kelp colors; dog 13 is tucked into a dark pottery recess and dog 01 blends with purple stone."
+  },
+  {
+    "index": 22,
+    "base": 2,
+    "ratings": {
+      "13": 1.5,
+      "15": 3,
+      "18": 2.5,
+      "20": 3,
+      "21": 3.5,
+      "30": 3,
+      "04": 4,
+      "06": 4,
+      "05": 3.5,
+      "07": 3,
+      "09": 1.5
+    },
+    "reason": "Dogs 04 and 06 have faint, low-contrast outlines against sand and pale stone; dog 05's side profile blends into the stairs."
+  },
+  {
+    "index": 23,
+    "base": 2,
+    "ratings": {
+      "10": 3,
+      "13": 1.5,
+      "14": 4,
+      "18": 3,
+      "21": 4,
+      "27": 4.5,
+      "02": 4.5,
+      "03": 3.5,
+      "06": 3,
+      "04": 1.5
+    },
+    "reason": "Dog 27's dark body merges with water beside the wreck, although its face remains recognizable at native zoom; dog 02 merges into rock and kelp."
+  },
+  {
+    "index": 24,
+    "base": 2,
+    "ratings": {
+      "10": 3,
+      "14": 4.5,
+      "16": 3.5,
+      "22": 4,
+      "23": 3.5,
+      "25": 3,
+      "30": 3.5,
+      "32": 3.5,
+      "09": 2.5
+    },
+    "reason": "Dog 14 is faint against the pale rocks and board; dog 22's small, thin outline blends into the rock island and blue water."
+  },
+  {
+    "index": 25,
+    "base": 2.5,
+    "ratings": {
+      "10": 2,
+      "11": 5,
+      "14": 4,
+      "16": 3.5,
+      "17": 2,
+      "19": 3.5,
+      "22": 4,
+      "23": 4.5,
+      "26": 3,
+      "27": 3,
+      "28": 3.5,
+      "01": 4.5,
+      "07": 4,
+      "05": 4,
+      "04": 1.5
+    },
+    "reason": "Dog 11 is faint inside the deep shade beneath a shack; dog 01 is mostly hidden by leaves and dog 23 exposes only a small face among rocks and greenery."
+  },
+  {
+    "index": 26,
+    "base": 2,
+    "ratings": {
+      "13": 3.5,
+      "14": 1.5,
+      "18": 1.5,
+      "19": 2.5,
+      "20": 3,
+      "24": 2.5,
+      "03": 4.5,
+      "01": 4.5,
+      "08": 4.5,
+      "00": 4,
+      "06": 3.5,
+      "07": 3,
+      "04": 1.5
+    },
+    "reason": "Dog 03's face and faint body merge into mossy rocks; dog 01 blends with tiki-side leaves and dog 08 blends into the brown path. Waterfall remains hard despite its obvious dogs."
+  },
+  {
+    "index": 27,
+    "base": 3.5,
+    "ratings": {
+      "13": 4,
+      "14": 4.5,
+      "16": 2.5,
+      "18": 4,
+      "19": 4,
+      "20": 4.5,
+      "21": 5,
+      "24": 4,
+      "26": 4.5,
+      "28": 4,
+      "29": 4.5,
+      "02": 5,
+      "09": 4.5,
+      "06": 4.5,
+      "00": 4,
+      "04": 4,
+      "05": 4,
+      "08": 4
+    },
+    "reason": "Dogs 02 and 21 have extremely weak outlines against volcanic steps and earth. Several more expose only a head among dark rocks or ferns, making the final finds consistently difficult."
+  },
+  {
+    "index": 28,
+    "base": 3.5,
+    "ratings": {
+      "12": 4.5,
+      "15": 4,
+      "16": 5,
+      "18": 4,
+      "19": 4.5,
+      "20": 4.5,
+      "22": 4,
+      "23": 4,
+      "24": 5,
+      "25": 4,
+      "26": 4,
+      "29": 4.5,
+      "08": 5,
+      "02": 4.5,
+      "03": 4,
+      "05": 4,
+      "06": 4,
+      "09": 4
+    },
+    "reason": "Dog 24 is barely separated from the paving; dogs 08 and 16 reveal tiny faces beside columns. Pale fur, masonry and animal-shaped carvings create multiple severe last-find bottlenecks."
+  },
+  {
+    "index": 29,
+    "base": 2.5,
+    "ratings": {
+      "12": 4.5,
+      "14": 3.5,
+      "15": 1.5,
+      "16": 4.5,
+      "17": 4.5,
+      "18": 3.5,
+      "19": 5,
+      "21": 3,
+      "22": 1.5,
+      "24": 3,
+      "03": 4,
+      "06": 4,
+      "05": 3.5,
+      "02": 3.5
+    },
+    "reason": "Dog 19 reveals a very small dark face in a doorway; dog 16 is only a faint head on the steps and dog 17 blends into the bridge pillar."
+  },
+  {
+    "index": 30,
+    "base": 2,
+    "ratings": {
+      "11": 4,
+      "13": 4.5,
+      "25": 3,
+      "28": 3.5,
+      "29": 4,
+      "06": 3.5,
+      "00": 3,
+      "08": 3
+    },
+    "reason": "Dog 13 blends into the brown wreck planks; dog 11 is faint in the water and dog 29 has a dark face against vegetation beside a chest."
+  },
+  {
+    "index": 31,
+    "base": 2.5,
+    "ratings": {
+      "12": 1.5,
+      "13": 4.5,
+      "15": 1.5,
+      "20": 3.5,
+      "21": 4,
+      "25": 4,
+      "31": 3.5,
+      "32": 3.5,
+      "33": 3,
+      "04": 4,
+      "07": 3.5,
+      "00": 3.5
+    },
+    "reason": "Dog 13 is almost uniformly dark green against the tree and leaves; dog 21 blends into grey debris and dog 25 is a small dark figure below the dock."
+  },
+  {
+    "index": 32,
+    "base": 2,
+    "ratings": {
+      "10": 1.5,
+      "16": 4,
+      "18": 3,
+      "19": 2.5,
+      "20": 3.5,
+      "26": 3,
+      "27": 4,
+      "29": 4,
+      "33": 3,
+      "09": 3,
+      "02": 3
+    },
+    "reason": "Dog 16 matches shaded wooden structure, dog 29 sits in the cave entrance, and dog 27's bent side profile blends with pale water and rocks."
+  },
+  {
+    "index": 33,
+    "base": 2,
+    "ratings": {
+      "15": 3,
+      "16": 3,
+      "21": 4,
+      "27": 4,
+      "29": 4,
+      "31": 3.5,
+      "03": 4,
+      "04": 3.5,
+      "00": 2.5
+    },
+    "reason": "Dog 21 shares grey-brown barrel and stone colors, but native zoom preserves a recognizable face and striped shirt. Dogs 03, 27 and 29 blend into shaded timbers and scenery."
+  },
+  {
+    "index": 34,
+    "base": 2,
+    "ratings": {
+      "13": 4.5,
+      "21": 3.5,
+      "25": 3,
+      "27": 3,
+      "29": 4.5,
+      "32": 3.5,
+      "04": 4,
+      "00": 3
+    },
+    "reason": "Dog 29 is dark beneath the dock and its lower body blends into water; native zoom retains a clear face. Dog 13 has a weak grey silhouette against stone."
+  },
+  {
+    "index": 35,
+    "base": 2,
+    "ratings": {
+      "14": 3.5,
+      "16": 4,
+      "18": 3,
+      "22": 3.5,
+      "24": 3,
+      "25": 1.5,
+      "26": 3,
+      "27": 1.5,
+      "08": 4,
+      "03": 2.5,
+      "00": 2.5
+    },
+    "reason": "Dog 08's mottled coat blends with the shaded fence corner; dog 16 is embedded in dark tree foliage and dog 14 is faint against the paving."
+  },
+  {
+    "index": 36,
+    "base": 1.5,
+    "ratings": {
+      "10": 3,
+      "16": 2.5,
+      "19": 3.5,
+      "23": 2.5,
+      "24": 4,
+      "25": 2.5,
+      "27": 2.5,
+      "00": 3.5,
+      "01": 3,
+      "07": 3
+    },
+    "reason": "Dog 24 is faint and orange against its orange cushion; dog 19 has weak mottled outlines and dog 00's dark face sits inside flowers."
+  },
+  {
+    "index": 37,
+    "base": 1.5,
+    "ratings": {
+      "17": 2,
+      "18": 2.5,
+      "21": 2.5,
+      "22": 3,
+      "26": 2.5,
+      "29": 3,
+      "31": 3,
+      "04": 3,
+      "05": 3,
+      "09": 2.5
+    },
+    "reason": "The small, narrow dogs 29 and 22 are the main last-find candidates; most targets have clean separation from paving and water, without a severe camouflage outlier."
+  },
+  {
+    "index": 38,
+    "base": 1.5,
+    "ratings": {
+      "12": 3,
+      "18": 2.5,
+      "24": 3,
+      "25": 3.5,
+      "26": 2.5,
+      "04": 3.5,
+      "01": 3,
+      "00": 2.5
+    },
+    "reason": "Dog 04 is inside dark tree foliage and dog 25 is small beside the basketball post. They are subtler than the jersey-wearing dogs in the open, but retain recognizable faces."
+  },
+  {
+    "index": 39,
+    "base": 2,
+    "ratings": {
+      "11": 3,
+      "12": 2.5,
+      "13": 3,
+      "14": 3.5,
+      "18": 3,
+      "24": 3.5,
+      "25": 4,
+      "26": 2.5,
+      "30": 3.5,
+      "07": 3.5,
+      "05": 3.5
+    },
+    "reason": "Dog 25 blends into the brown woodchip ground; dog 07 shares nearby cut-log colors and dog 24 is visually tangled with a rope ladder."
+  },
+  {
+    "index": 40,
+    "base": 2,
+    "ratings": {
+      "14": 3.5,
+      "17": 3,
+      "18": 3,
+      "21": 4.5,
+      "22": 4,
+      "24": 3,
+      "26": 3,
+      "05": 4,
+      "01": 3.5,
+      "08": 3.5
+    },
+    "reason": "Dog 21 merges with dark stacked rails; dog 05 is shaded below a railway carriage and dog 22 blends into a densely planted corner."
+  },
+  {
+    "index": 41,
+    "base": 2.5,
+    "ratings": {
+      "13": 3.5,
+      "14": 3.5,
+      "16": 3.5,
+      "18": 1.5,
+      "19": 4.5,
+      "23": 3.5,
+      "24": 1.5,
+      "26": 4.5,
+      "27": 3,
+      "29": 3,
+      "02": 4.5,
+      "01": 4,
+      "06": 3.5
+    },
+    "reason": "Dog 26 is dark beneath the umbrella against luggage; dog 19 blends into brown railway sleepers and dog 02 has weak grey-green outlines beside the bench."
+  },
+  {
+    "index": 42,
+    "base": 2.5,
+    "ratings": {
+      "12": 1.5,
+      "13": 3,
+      "14": 4,
+      "15": 3,
+      "20": 4.5,
+      "27": 4.5,
+      "28": 4,
+      "03": 3.5,
+      "07": 3.5,
+      "02": 3,
+      "04": 3
+    },
+    "reason": "Dog 20 is dark beneath the wagon and dog 27 is tucked under the workbench; dog 14 is partly lost in flowers and dog 28 blends with equipment and paving."
+  },
+  {
+    "index": 43,
+    "base": 2.5,
+    "ratings": {
+      "10": 4,
+      "12": 3,
+      "14": 4,
+      "18": 3.5,
+      "20": 3.5,
+      "21": 4,
+      "27": 4.5,
+      "28": 2,
+      "02": 4.5,
+      "06": 3.5,
+      "09": 3.5,
+      "07": 2
+    },
+    "reason": "Dog 27's black face merges into the bench and post; dog 02 has weak grey outlines inside flowers, and dog 21 shares the shaded stone-wall palette."
+  },
+  {
+    "index": 44,
+    "base": 1.5,
+    "ratings": {
+      "16": 2.5,
+      "17": 3.5,
+      "19": 3,
+      "20": 2.5,
+      "28": 3,
+      "29": 2.5,
+      "05": 4,
+      "03": 3.5,
+      "06": 3,
+      "09": 2.5
+    },
+    "reason": "Dog 05 is inside a dark supply cubby; dog 17 blends into the shaded purple storage area and dog 03's thin mottled profile resembles the surrounding art furniture."
+  },
+  {
+    "index": 45,
+    "base": 1.5,
+    "ratings": {
+      "10": 3,
+      "11": 4,
+      "13": 3,
+      "15": 3,
+      "22": 3.5,
+      "24": 4,
+      "28": 3,
+      "09": 2.5,
+      "03": 2.5,
+      "06": 2.5
+    },
+    "reason": "Dog 24 has faint orange outlines against the orange seat; dog 11 is faint against the warm floor, and dog 22's mottled body sits in a shaded corner. Library is no longer the easiest after every target is checked."
+  },
+  {
+    "index": 46,
+    "base": 2,
+    "ratings": {
+      "10": 3.5,
+      "14": 3.5,
+      "20": 3,
+      "21": 4,
+      "23": 2.5,
+      "27": 4,
+      "02": 4,
+      "06": 3.5,
+      "09": 3.5,
+      "07": 1.5
+    },
+    "reason": "Dog 27 merges into the shaded blue-green bench; dog 02 blends into dark soil and leaves, and dog 21's side-facing head is surrounded by greenery."
+  },
+  {
+    "index": 47,
+    "base": 1.5,
+    "ratings": {
+      "14": 3,
+      "16": 3,
+      "17": 3,
+      "20": 3,
+      "26": 3,
+      "29": 2.5,
+      "09": 3.5,
+      "05": 3,
+      "07": 2.5
+    },
+    "reason": "Dog 09's dark face is embedded in the tree; small or pale dogs 05, 14 and 20 offer the weaker final-find cues. White coats keep most targets clearly separated."
+  },
+  {
+    "index": 48,
+    "base": 2,
+    "ratings": {
+      "10": 3.5,
+      "13": 3,
+      "21": 4,
+      "25": 3,
+      "28": 3,
+      "09": 4.5,
+      "03": 3.5,
+      "05": 3
+    },
+    "reason": "Dog 09 has a faint grey silhouette on grey stairs; dog 21 merges into a shaded planter corner."
+  },
+  {
+    "index": 49,
+    "base": 2,
+    "ratings": {
+      "12": 3,
+      "18": 3,
+      "22": 3.5,
+      "24": 3.5,
+      "26": 3.5,
+      "00": 4,
+      "09": 4,
+      "05": 3.5,
+      "01": 3
+    },
+    "reason": "Dogs 00 and 09 blend into dark greenhouse foliage and rails; several others follow the shapes of hoses and plants."
+  },
+  {
+    "index": 50,
+    "base": 2,
+    "ratings": {
+      "17": 4,
+      "18": 4,
+      "23": 3.5,
+      "29": 3,
+      "02": 3.5,
+      "06": 3,
+      "08": 3,
+      "03": 2.5
+    },
+    "reason": "Dogs 17 and 18 merge into shaded planting beds; dog 23 loses contrast against blue-green panels."
+  },
+  {
+    "index": 51,
+    "base": 2,
+    "ratings": {
+      "11": 3,
+      "12": 3.5,
+      "18": 4,
+      "26": 3,
+      "29": 3.5,
+      "01": 3.5,
+      "00": 3
+    },
+    "reason": "Dog 18 is a dark muted silhouette against the wall. Dogs 01 and 29 sit within dense plants and rocks."
+  },
+  {
+    "index": 52,
+    "base": 2.5,
+    "ratings": {
+      "11": 4,
+      "19": 4,
+      "22": 4.5,
+      "25": 4,
+      "28": 3.5,
+      "03": 3.5,
+      "07": 3.5,
+      "09": 3,
+      "04": 3
+    },
+    "reason": "Dog 22 nearly merges with the dark storage boxes; dogs 19, 11 and 25 have weak outlines against furnishings."
+  },
+  {
+    "index": 53,
+    "base": 2,
+    "ratings": {
+      "13": 2.5,
+      "14": 3,
+      "16": 3.5,
+      "17": 3,
+      "21": 3,
+      "22": 3.5,
+      "25": 3,
+      "26": 3,
+      "29": 3,
+      "04": 2.5
+    },
+    "reason": "Dogs 16 and 22 are small, muted shapes beside the riverbank; most other dogs have clear silhouettes."
+  }
+]

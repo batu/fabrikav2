@@ -12,6 +12,7 @@ export const FIND_THE_DOG_ENV_KEYS = Object.freeze([
   'VITE_FIREBASE_MEASUREMENT_ID',
   'VITE_FTD_DISABLE_REMOTE_CONFIG',
   'VITE_ENABLE_TEST_HARNESS',
+  'VITE_FTD_AD_LIFECYCLE_DRIVE',
   'VITE_INSITU_TOUR',
   'VITE_SDK_VERIFIER_AUTOMOUNT',
   'VITE_SDK_VERIFIER_AUTOCRASH',
@@ -141,13 +142,13 @@ function validateConditional({ values, mode, booleanValue, requireValue, invalid
     const key = 'VITE_REVENUECAT_ANDROID_API_KEY';
     requireValue(key);
     const value = values.get(key);
-    if (typeof value === 'string' && value.trim() !== '' && !/^goog_[A-Za-z0-9]{28}$/.test(value)) invalidKeys.push(key);
+    if (typeof value === 'string' && value.trim() !== '' && !/^goog_[A-Za-z0-9]{27,28}$/.test(value)) invalidKeys.push(key);
   }
 
   if (booleanValue(values.get('VITE_APPSFLYER_ENABLED')) === true) {
     requireValue('VITE_APPSFLYER_DEV_KEY');
     const devKey = values.get('VITE_APPSFLYER_DEV_KEY');
-    if (devKey && !/^[A-Za-z0-9]{20,32}$/.test(devKey.trim())) {
+    if (devKey && (!/^[A-Za-z0-9]{22}$/.test(devKey.trim()) || /diagnostic|notreal|placeholder|example|sample/i.test(devKey))) {
       invalidKeys.push('VITE_APPSFLYER_DEV_KEY');
     }
     if (mode === 'ios') {
@@ -274,7 +275,7 @@ function configureSyntheticFixture(values, mode, releaseIdentity) {
     values.set('VITE_GAMEANALYTICS_IOS_SECRET_KEY', 'b'.repeat(40));
     values.set('VITE_ATTRIBUTION_PROVIDER', 'appsflyer');
     values.set('VITE_APPSFLYER_ENABLED', 'true');
-    values.set('VITE_APPSFLYER_DEV_KEY', 'A1b2C3d4E5f6G7h8I9j0');
+    values.set('VITE_APPSFLYER_DEV_KEY', 'A1b2C3d4E5f6G7h8I9j0K1');
     values.set('VITE_APPSFLYER_APPLE_APP_ID', releaseIdentity.appsFlyerAppleAppId);
     values.set('VITE_FTD_OWNED_ANALYTICS_MIRROR_URL', 'https://example.invalid/analytics');
     values.set('VITE_FTD_OWNED_ANALYTICS_MIRROR_PUBLIC_CLIENT_KEY', 'synthetic-public-client-key');

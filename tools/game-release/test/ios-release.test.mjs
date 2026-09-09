@@ -98,6 +98,24 @@ describe('iOS exact release lane', () => {
     expect(() => validateReleaseEnvironment({ VITE_INSITU_TOUR: 'allstates' })).toThrow(/insitu/i);
   });
 
+  it.each(['https://unapproved.example', ' ', 'false'])('refuses the development shell flag %j before any release action', (url) => {
+    expect(() => validateReleaseEnvironment({ FTB_DEV_SHELL_URL: url })).toThrow(/development shell/i);
+    expect(() => executeIosRelease({ gameDir: '/tmp/game', bundleId: 'com.example.bird', version: '1.2.3',
+      attestation, env: { FTB_DEV_SHELL_URL: url } }, {})).toThrow(/development shell/i);
+  });
+
+  it('rejects packaged remote configuration independently of the launching environment', () => {
+    const fixture = fs.mkdtempSync(path.join(os.tmpdir(), 'release-capacitor-config-'));
+    try {
+      const file = path.join(fixture, 'capacitor.config.json');
+      fs.writeFileSync(file, JSON.stringify({ appId: 'com.example.bird', server: { url: 'https://unapproved.example' } }));
+      expect(() => inspectBundle(fixture)).toThrow(/development shell/i);
+      expect(() => inspectBundle(fixture, undefined, { payloadOnly: true })).toThrow(/development shell/i);
+      fs.writeFileSync(file, JSON.stringify({ appId: 'com.example.bird', server: { hostname: 'localhost' } }));
+      expect(inspectBundle(fixture).sizeBytes).toBeGreaterThan(0);
+    } finally { fs.rmSync(fixture, { recursive: true, force: true }); }
+  });
+
   it('rejects stale, simulator, browser, and harness evidence', () => {
     const expected = { ...attestation, bundleId: 'com.example.dog', version: '1.2.3' };
     const installed = { bundleId: 'com.example.dog', version: '1.2.3', buildId };
@@ -119,7 +137,7 @@ describe('iOS exact release lane', () => {
     expect(deps.queryInstalledApp({ bundleId: 'com.example.dog', device: { udid: 'PHONE' } })).toEqual({ bundleId: 'com.example.dog', version: '1.2.3', buildId });
   });
 
-  it('force-applies the exact GameAnalytics persistence patch before the iOS web build', () => {
+  it('verifies both dependency patches before the iOS web build', () => {
     const calls = [];
     const deps = defaultDependencies({
       execImpl: (file, args, options) => {
@@ -137,6 +155,11 @@ describe('iOS exact release lane', () => {
         cwd: '/repo',
       },
       {
+        file: 'node',
+        args: ['tools/patch-admob-ios-revenue.mjs', '--verify'],
+        cwd: '/repo',
+      },
+      {
         file: 'npm',
         args: ['run', 'build:ios'],
         cwd: '/repo/games/find_the_dog',
@@ -144,13 +167,35 @@ describe('iOS exact release lane', () => {
     ]);
   });
 
+  it.each(['tools/patch-gameanalytics-persistence.mjs', 'tools/patch-admob-ios-revenue.mjs'])(
+    'blocks the iOS web build when dependency verification fails: %s',
+    (failedPatch) => {
+      const calls = [];
+      const deps = defaultDependencies({
+        execImpl: (file, args) => {
+          calls.push({ file, args });
+          if (args[0] === failedPatch) throw new Error('dependency correction missing');
+          return '';
+        },
+      });
+
+      expect(() => deps.buildWeb({ gameDir: '/repo/games/find_the_dog', env: {} })).toThrow('dependency correction missing');
+      expect(calls.at(-1)).toEqual({ file: 'node', args: [failedPatch, '--verify'] });
+      expect(calls.some(({ file }) => file === 'npm')).toBe(false);
+    },
+  );
+
   it('passes the requested marketing version to Xcode', () => {
     const root = fs.mkdtempSync(path.join(os.tmpdir(), 'ios-release-build-'));
-    const app = path.join(root, 'ios', 'App', 'release-build', 'Build', 'Products', 'Release-iphoneos', 'App.app');
+    const app = path.join(root, 'owned-output', 'DerivedData', 'Build', 'Products', 'Release-iphoneos', 'App.app');
     fs.mkdirSync(app, { recursive: true });
     const calls = [];
     const deps = defaultDependencies({
-      execImpl: (file, args) => { calls.push([file, args]); return ''; },
+      execImpl: (file, args) => {
+        calls.push([file, args]);
+        if (file === 'agency') fs.writeFileSync(args[args.indexOf('--result-file') + 1], JSON.stringify({ output_dir: path.join(root, 'owned-output') }));
+        return '';
+      },
       spawnImpl: (_file, args) => args[0] === '--verify'
         ? { status: 0, stdout: '', stderr: '' }
         : { status: 0, stdout: '', stderr: 'Authority=Apple Development: Example\nTeamIdentifier=TEAM123\n' },
@@ -158,7 +203,8 @@ describe('iOS exact release lane', () => {
 
     deps.buildSignedApp({ gameDir: root, version: '1.2.3', device: { udid: 'PHONE' }, developmentTeam: 'TEAM123' });
 
-    expect(calls[0][0]).toBe('xcodebuild');
+    expect(calls[0][0]).toBe('agency');
+    expect(calls[0][1]).toContain('durable');
     expect(calls[0][1]).toContain('MARKETING_VERSION=1.2.3');
   });
 

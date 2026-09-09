@@ -1,0 +1,38 @@
+✔ paid totals require own identity and exclude test, contamination, pre-cutoff, foreign campaign and QA rows (4.419459ms)
+✔ a cohort cannot be approved without a valid UTC cutoff and complete QA exclusion policy (4.129709ms)
+✔ empty or malformed successful responses cannot masquerade as a healthy zero (1.461083ms)
+✖ canonical policy has no public paid T0 and never promotes FTB 1.2.1 (0.987625ms)
+✔ unavailable organic report leaves every organic aggregate unknown, not zero (0.872458ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 4
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 57.535
+
+✖ failing tests:
+
+test at .hermes/scripts/find-games-daily-scorecard.test.mjs:74:1
+✖ canonical policy has no public paid T0 and never promotes FTB 1.2.1 (0.987625ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + undefined
+  - null
+  
+      at TestContext.<anonymous> (file:///Users/base/.hermes/scripts/find-games-daily-scorecard.test.mjs:77:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1397:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:969:18)
+      at Test.postRun (node:internal/test_runner/test:1537:19)
+      at Test.run (node:internal/test_runner/test:1462:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:969:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: null,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

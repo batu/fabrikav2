@@ -290,8 +290,8 @@ export class AnalyticsService {
     const resume = (): void => {
       lifecycleState.current = 'active';
       if (initializing) return;
-      this.sdk.track('app_foreground');
       this.sdk.sessionStart({ first_open: false });
+      this.sdk.track('app_foreground');
     };
     registerLifecycleHooks('analytics-flush', {
       onSuspend: suspend,

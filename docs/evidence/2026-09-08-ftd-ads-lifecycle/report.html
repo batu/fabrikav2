@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Find The Dog iOS — monetization repair review (2026-09-08)</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+:root{--ink:#1f2328;--muted:#59636e;--line:#d9dee3;--ok:#1a7f37;--warn:#9a6700;--bad:#cf222e;--bg:#fff;--card:#f6f8fa}
+body{margin:0;padding:24px;font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg);max-width:1100px}
+h1{font-size:22px;margin:0 0 4px}h2{font-size:17px;margin:28px 0 8px;border-bottom:1px solid var(--line);padding-bottom:4px}h3{font-size:15px;margin:18px 0 6px}
+p,li{max-width:80ch}.muted{color:var(--muted)}
+table{border-collapse:collapse;width:100%;font-size:13.5px;margin:8px 0}th,td{border:1px solid var(--line);padding:5px 8px;text-align:left;vertical-align:top}th{background:var(--card)}td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
+.tag{display:inline-block;padding:1px 8px;border-radius:10px;font-size:12px;font-weight:600;color:#fff}.ok{background:var(--ok)}.warn{background:var(--warn)}.bad{background:var(--bad)}.info{background:#0969da}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}.card{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:12px 14px}
+code{background:var(--card);padding:1px 4px;border-radius:4px;font-size:13px}pre{background:var(--card);padding:10px;border-radius:6px;overflow:auto;font-size:12.5px}
+.ask{border-left:4px solid #0969da;background:#eef4fb;padding:10px 14px;margin:14px 0}
+img.shot{max-width:280px;border:1px solid var(--line);border-radius:6px;margin:6px 8px 6px 0}
+</style></head><body>
+<h1>Find The Dog iOS — ad lifecycle repair, telemetry, audience memo, scorecard</h1>
+<p class="muted">Branch <code>fix/ftd-ads-lifecycle</code> from <code>origin/main</code> f61ac4a84 (PR #61). Evidence directory <code>docs/evidence/2026-09-08-ftd-ads-lifecycle/</code>. States are kept separate: <b>source-ready</b> ≠ <b>device-verified</b> ≠ merged ≠ released ≠ live. Nothing here is merged, released or live.</p>
+
+<div class="ask"><b>Approval requested.</b> (1) Review and merge the PR (lifecycle fixes + telemetry contract + tests; no audience/privacy/cadence/floor changes). (2) Decide the audience-treatment direction from the memo (recommendation: prepare mixed-audience Option B; keep child treatment live until legal sign-off and the bridge API migration). (3) Reinstall the App Store build of Find The Dog on your iPhone from the store (the phone currently holds a harness-free branch build in AdMob test mode; over-installing keeps your data). (4) Optional: a TestFlight build of this branch with an AppsFlyer test device to close the <code>af_ad_revenue</code> receipt gap.</div>
+
+<h2>1. Status by state</h2>
+<div class="grid">
+<div class="card"><span class="tag ok">Implemented (source-ready)</span><ul>
+<li>AdMob provider: one-hour full-screen cache lifetime; rewarded preload preserves loaded inventory; banner desired-state tracking (hide during pending load wins, async failure clears state); <code>hideBanner</code> never initializes the SDK; resume re-arm replaces expired ads; <code>onAdEvent</code> lifecycle seam with per-load correlation ids.</li>
+<li>Dog composition: app-resume seam wired (exhausted interstitial retry budget recovers on foreground); banner <code>ad_shown</code> only from the native impression; owned <code>ad_revenue_paid</code>; new <code>ad_lifecycle</code> event.</li>
+<li>Device proof tooling (harness-only, shell-gated): in-app drive, ad-closer XCUITest, env policy key.</li></ul></div>
+<div class="card"><span class="tag ok">Verified</span><ul>
+<li>Unit: SDK 392/392 (+17), Dog 373 passing with the same 52 pre-existing PR #61 failures (+8 new), Bird 429/429, game-env 61/61, typecheck + lint clean.</li>
+<li>On device (iPhone 12, iOS 26.6.1, test ad units): banner native impression → <code>ad_shown</code>; interstitial prewarm <code>load_requested→loaded</code> on every boot; rewarded preload <code>loaded</code> once per boot; entitled (No-Ads) player makes no ad requests; effective live Remote Config read (<code>interstitial_every_n_levels=3</code>, <code>interstitial_min_interval_s=120</code>, <code>interstitial_min_level=0</code>, claim-x2 and hint rewarded enabled, all <code>remote</code>).</li></ul></div>
+<div class="card"><span class="tag warn">Blocked / unverified</span><ul>
+<li>Full-screen show → impression → reward → dismissal on the physical device: the claim-x2 tap fired once but the WebContent process was recycled under memory pressure 14× in five minutes during the drive; not observed.</li>
+<li>Backend receipt of <code>af_ad_revenue</code>: zero rows in production Sep 1–7 despite 523 impressions; device build ran with AppsFlyer off by design.</li>
+<li>No-fill → connectivity restored → resume recovery, and one-hour expiry: unit-tested only (no way to cut the phone's network or wait an hour in a run).</li>
+<li>AdMob serving-restriction / ATT / app-version cuts, GA DAU/retention (quarantined), RevenueCat net IAP (API key rejected).</li></ul></div>
+<div class="card"><span class="tag info">Approval needed / deferred</span><ul>
+<li>Audience treatment (memo §4 gates). Privacy label says "tracking" but the app never requests ATT.</li>
+<li>Proposed, not implemented: skip the Next interstitial when a rewarded ad was granted in the same completion; <code>ad_offer_shown/tapped</code> events; Bird resume-seam wiring.</li></ul></div>
+</div>
+
+<h2>2. Provenance</h2>
+<ul>
+<li>Shipped 1.0.6 (26) = <code>e5a2ed5e8</code> is on <code>origin/main</code>; the audit's "main lacks the rewarded fixes" was the local <code>main</code> checkout being behind origin. Shipped rewarded-terminal code is preserved unchanged.</li>
+<li>AdMob iOS revenue micros patch: applied in the 1.0.6 (26) submission install log; main checkout's <code>node_modules</code> is unpatched (do not build device/release binaries from it).</li>
+<li>PR #61 untouched; its 52 failing unit tests fail identically at baseline.</li>
+</ul>
+
+<h2>3. Dog-only economics (Sep 1–7, USD, AdMob account timezone unverified)</h2>
+<table><tr><th>Country</th><th class="n">Earnings</th><th class="n">Impr.</th><th class="n">Requests</th><th class="n">Matched</th><th class="n">Match</th><th class="n">Show</th><th class="n">Obs. eCPM</th></tr>
+<tr><td>United States</td><td class="n">$0.51</td><td class="n">368</td><td class="n">666</td><td class="n">654</td><td class="n">98.2%</td><td class="n">56.3%</td><td class="n">$1.39</td></tr>
+<tr><td>Philippines</td><td class="n">$0.07</td><td class="n">70</td><td class="n">280</td><td class="n">136</td><td class="n">48.6%</td><td class="n">51.5%</td><td class="n">$1.00</td></tr>
+<tr><td>Australia</td><td class="n">$0.10</td><td class="n">40</td><td class="n">56</td><td class="n">56</td><td class="n">100%</td><td class="n">71.4%</td><td class="n">$2.50</td></tr>
+<tr><td>United Kingdom</td><td class="n">$0.04</td><td class="n">27</td><td class="n">53</td><td class="n">53</td><td class="n">100%</td><td class="n">50.9%</td><td class="n">$1.48</td></tr>
+<tr><td>Türkiye + 6 others</td><td class="n">$0.00</td><td class="n">18</td><td class="n">73</td><td class="n">61</td><td class="n">83.6%</td><td class="n">29.5%</td><td class="n">—</td></tr>
+<tr><th>Total</th><th class="n">$0.73</th><th class="n">523</th><th class="n">1,128</th><th class="n">960</th><th class="n">85.1%</th><th class="n">54.5%</th><th class="n">$1.39</th></tr></table>
+<ul>
+<li><b>Unmatched requests are a Philippines banner problem</b> (144 of 168), not a Dog-wide fill issue; US banner match 96.5%. No floor change is justified.</li>
+<li><b>Sep 5 is not Dog.</b> Dog made 137 requests that day, all matched; Dog's own unmatched days are Sep 4 (banner 209→101) and Sep 6 (74→38). The account-level Sep 5 spike (760 requests, 19% match) belongs to Bird.</li>
+<li>US fullscreen prices under child treatment: interstitial $3.99 (30 impr.), rewarded $9.62 (9 impr.). Rewarded matched-never-shown inventory exists in every country (US 192→9, UK 16→0, AU 10→0).</li>
+<li>AppsFlyer: 83 unattributed installs (65% US), <b>0 attributed installs, 0 <code>af_ad_revenue</code> rows, 0 purchases</b>. Meta: the Dog creative-test campaign spent TRY 3,254.41 on two days with zero install actions (only <code>app_store_visit</code>). No CPI can be computed from meters; the "$1.75 CPI / 1,000 installs" figures are not reproducible.</li>
+</ul>
+
+<h2>4. Audience decision (summary of the memo)</h2>
+<p>Store: 4+, not Kids Category, general-audience copy ("unhurried", "relaxing", "brain"). Code: child-directed + under-age + General + NPA for everyone (Google says the two tags should not both be true; both are deprecated in favour of <code>ageRestrictedTreatment</code>, which the 8.1.0 bridge does not expose). Privacy label declares tracking that never happens. Recommendation: <b>keep Option A live; prepare Option B (mixed audience with a neutral age screen before SDK init: child / teen / adult treatment, unknown = child)</b>; gates are legal judgment on the "directed to children" totality test, bridge API migration, consent-lifecycle tests, label update, product decision. Option C (general audience, no screen) is rejected. No revenue uplift is claimed.</p>
+
+<h2>5. Device evidence (what was actually seen)</h2>
+<table><tr><th>Run</th><th>Build</th><th>Observed</th></tr>
+<tr><td>4</td><td>485450fe52</td><td>Effective Remote Config; No-Ads entitled device makes no ad requests; claim tap during reveal ignored.</td></tr>
+<tr><td>5</td><td>7214730547</td><td>Ads on: banner <code>ad_shown</code> from native impression (×2), rewarded <code>loaded</code>, interstitial <code>loaded</code>; WebContent recycled on the 3rd rapid level load.</td></tr>
+<tr><td>6</td><td>7214730547</td><td>Next blocked by the in-app rate prompt (screenshot); no show attempted.</td></tr>
+<tr><td>7</td><td>7214730547 (build 11)</td><td>Interstitial + rewarded loaded each boot; banner <code>ad_shown</code>; claim-x2 rendered once and tapped, then 14 WebContent recycles in 5 min — no full-screen show observed.</td></tr>
+<tr><td>12–13</td><td>restore-only</td><td>Owner state restored: level 1, 45 coins, 3 hints, No-Ads 1, ads off, rate prompt enabled and unanswered. Residuals: cumulative counters, total-levels-completed (rate prompt will offer itself next completion), best times, achievement progress.</td></tr>
+<tr><td>14</td><td>final</td><td>Harness-free, drive-free branch build in AdMob test mode installed; reinstall from the App Store to return to production.</td></tr></table>
+<p><img class="shot" src="03_run6-tick03-rate-prompt-blocking-next.png" alt="rate prompt blocking Next"><img class="shot" src="02_run4-tick01-level-complete-claim-after-programmatic-tap.png" alt="level complete overlay"></p>
+
+<h2>6. Risk and diff</h2>
+<ul>
+<li>Shared SDK change (<code>packages/sdk/src/ads/AdMobProvider.ts</code>) consumed by Bird, marble_run, shell_template: Bird unit suite green, sibling typechecks green; behaviour changes are additive except <code>hideBanner</code> no longer initializing the SDK and the one-hour expiry (an expired ad is re-armed, never shown).</li>
+<li>Dog analytics: banner <code>ad_shown</code> volume will drop to true native impressions (dashboards reading the old request-accepted count will see a step change). New event <code>ad_lifecycle</code> is Firebase-only; GA unaffected.</li>
+<li>Test tooling only: drive, XCUITest, env key (73-key contract, Bird template line). Never in store builds (shell-gated).</li>
+<li>Not touched: audience flags, cadence, floors, hints, wallets, experiments, Remote Config, live services.</li>
+</ul>
+<p class="muted">Files: <code>README.md</code> (index + states), <code>telemetry-contract.md</code>, <code>audience-decision-memo.md</code>, <code>scorecard.md</code> + <code>scorecard/*.json</code>, <code>device/*</code> (journals, attempt logs, filtered syslog, screenshots).</p>
+</body></html>

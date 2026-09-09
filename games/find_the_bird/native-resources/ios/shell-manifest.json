@@ -8,7 +8,7 @@
     "swiftToolsVersion": "6.1",
     "deploymentTarget": "15",
     "targetedDeviceFamily": "1",
-    "trackingUsageDescription": "Allowing tracking lets us measure which ads bring new players and keep the game free with relevant ads.",
+    "trackingUsageDescription": "Your data will be used to show you ads that are more relevant to you and to measure how well they work.",
     "localPackages": [
       {
         "name": "CapacitorApp",
@@ -70,7 +70,7 @@
     "adMobEnabledEnv": "VITE_ADMOB_IOS_ENABLED",
     "adMobApplicationIdEnv": "VITE_ADMOB_IOS_APP_ID",
     "adMobPublicConfig": "../../config/admob.public.json",
-    "skAdNetworkCatalog": "admob-skadnetwork-ids.json",
+    "skAdNetworkCatalog": "attribution-skadnetwork-ids.json",
     "skAdNetworkExpectedCount": 50,
     "crashlyticsSymbolUpload": true,
     "firebaseProjectId": "find-the-bird-basegamelab"

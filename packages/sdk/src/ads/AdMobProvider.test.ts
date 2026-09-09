@@ -7,7 +7,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 vi.mock('@capacitor-community/admob', () => ({
   BannerAdPluginEvents: { Loaded: 'bannerLoaded', FailedToLoad: 'bannerFailed', AdImpression: 'bannerImpression', AdPaid: 'bannerAdPaid' },
   InterstitialAdPluginEvents: { FailedToLoad: 'intFailed', Dismissed: 'intDismissed', FailedToShow: 'intFailedShow', AdImpression: 'intPaid' },
-  RewardAdPluginEvents: { FailedToLoad: 'rewFailed', Dismissed: 'rewDismissed', FailedToShow: 'rewFailedShow', AdImpression: 'rewPaid' },
+  RewardAdPluginEvents: { FailedToLoad: 'rewFailed', Dismissed: 'rewDismissed', FailedToShow: 'rewFailedShow', Rewarded: 'rewRewarded', AdImpression: 'rewPaid' },
   MaxAdContentRating: { General: 'General' },
   BannerAdSize: { ADAPTIVE_BANNER: 'ADAPTIVE_BANNER' },
   BannerAdPosition: { BOTTOM_CENTER: 'BOTTOM_CENTER' },
@@ -52,6 +52,7 @@ const makeAdapter = (overrides: Partial<AdMobAdapter> = {}): FakeAdapter => {
     hideBanner: vi.fn(async (): Promise<void> => {}),
     prepareRewardVideoAd: vi.fn(async (): Promise<void> => {}),
     showRewardVideoAd: vi.fn(async () => {
+      emit(RewardAdPluginEvents.Rewarded, { type: 'coins', amount: 1 });
       emit(RewardAdPluginEvents.Dismissed);
       return { type: 'coins', amount: 1 };
     }),
@@ -123,9 +124,6 @@ describe('UMP consent', () => {
     await provider.init();
     expect(adapter.showConsentForm).toHaveBeenCalledOnce();
     expect(adapter.initialize).toHaveBeenCalledOnce();
-    // General-audience apps: neither child-directed nor under-age-of-consent tagging.
-    expect(adapter.requestConsentInfo).toHaveBeenCalledWith(expect.objectContaining({ tagForUnderAgeOfConsent: false }));
-    expect(adapter.initialize).toHaveBeenCalledWith(expect.objectContaining({ tagForChildDirectedTreatment: false, tagForUnderAgeOfConsent: false, maxAdContentRating: 'General' }));
     await expect(provider.showPrivacyOptions()).resolves.toBe(true);
     expect(adapter.showPrivacyOptionsForm).toHaveBeenCalledOnce();
   });
@@ -138,10 +136,191 @@ describe('UMP consent', () => {
   });
 });
 afterEach(() => {
+  vi.useRealTimers();
   vi.restoreAllMocks();
 });
 
+describe('AdMobProvider rewarded native terminal contract', () => {
+  it.each([RewardAdPluginEvents.Dismissed, RewardAdPluginEvents.FailedToShow])(
+    'settles without reward on %s even when the native show promise stays pending, then allows the next ad',
+    async (terminal) => {
+      const finish = vi.fn();
+      const adapter = makeAdapter({ showRewardVideoAd: vi.fn(() => new Promise<never>(() => {})) });
+      const provider = new AdMobProvider(config, { adapter, scheduleRetry, lifecycle: { onFullScreenAdFinished: finish } });
+      await provider.preloadRewarded();
+      let result: { granted: boolean } | null = null;
+      void provider.showRewardedAd().then((value) => { result = value; });
+      await flush();
+      expect(adapter.showRewardVideoAd).toHaveBeenCalledOnce();
+      adapter.__emit(terminal);
+      await flush();
+      expect(result).toEqual({ granted: false });
+      expect(finish).toHaveBeenCalledOnce();
+      expect(await provider.maybeShowInterstitial()).toBe(true);
+      await provider.dispose();
+    },
+  );
+
+  it('observes earned reward before dismissal independently of native promise completion', async () => {
+    const adapter = makeAdapter({ showRewardVideoAd: vi.fn(() => new Promise<never>(() => {})) });
+    const provider = new AdMobProvider(config, { adapter, scheduleRetry });
+    await provider.preloadRewarded();
+    let result: { granted: boolean } | null = null;
+    void provider.showRewardedAd().then((value) => { result = value; });
+    await flush();
+    adapter.__emit(RewardAdPluginEvents.Rewarded, { type: 'coins', amount: 1 });
+    await flush();
+    expect(result).toBeNull();
+    adapter.__emit(RewardAdPluginEvents.Dismissed);
+    await flush();
+    expect(result).toEqual({ granted: true });
+    await provider.dispose();
+  });
+
+  it('never resumes an earned reward before the real dismissal, including after 30 seconds', async () => {
+    vi.useFakeTimers();
+    const adapter = makeAdapter({ showRewardVideoAd: vi.fn(async () => ({ type: 'coins', amount: 1 })) });
+    const provider = new AdMobProvider(config, { adapter, scheduleRetry });
+    await provider.preloadRewarded();
+    let result: { granted: boolean } | null = null;
+    void provider.showRewardedAd().then((value) => { result = value; });
+    await flush();
+    await vi.advanceTimersByTimeAsync(35_000);
+    expect(result).toBeNull();
+    adapter.__emit(RewardAdPluginEvents.Dismissed);
+    await flush();
+    expect(result).toEqual({ granted: true });
+    await provider.dispose();
+  });
+
+  it('holds exclusive fullscreen ownership across rewarded presentation and ignores late reward after dismissal', async () => {
+    let resolveNative!: (reward: { type: string; amount: number }) => void;
+    const adapter = makeAdapter({ showRewardVideoAd: vi.fn(() => new Promise<{ type: string; amount: number }>((resolve) => { resolveNative = resolve; })) });
+    const provider = new AdMobProvider(config, { adapter, scheduleRetry });
+    await provider.preloadRewarded();
+    let first: { granted: boolean } | null = null;
+    let second: { granted: boolean } | null = null;
+    void provider.showRewardedAd().then((value) => { first = value; });
+    await flush();
+    void provider.showRewardedAd().then((value) => { second = value; });
+    await flush();
+    expect(second).toEqual({ granted: false });
+    expect(await provider.maybeShowInterstitial()).toBe(false);
+    expect(adapter.showRewardVideoAd).toHaveBeenCalledOnce();
+    adapter.__emit(RewardAdPluginEvents.Dismissed);
+    await flush();
+    expect(first).toEqual({ granted: false });
+    resolveNative({ type: 'coins', amount: 1 });
+    await flush();
+    expect(first).toEqual({ granted: false });
+    await provider.dispose();
+  });
+
+  it('disposal settles an active rewarded show once without waiting for the native promise', async () => {
+    const finish = vi.fn();
+    const adapter = makeAdapter({ showRewardVideoAd: vi.fn(() => new Promise<never>(() => {})) });
+    const provider = new AdMobProvider(config, { adapter, scheduleRetry, lifecycle: { onFullScreenAdFinished: finish } });
+    await provider.preloadRewarded();
+    let result: { granted: boolean } | null = null;
+    void provider.showRewardedAd().then((value) => { result = value; });
+    await flush();
+    await provider.dispose();
+    await flush();
+    expect(result).toEqual({ granted: false });
+    expect(finish).toHaveBeenCalledOnce();
+    expect(await provider.showRewardedAd()).toEqual({ granted: false });
+  });
+
+  it('cannot attribute an old native promise reward to a later fullscreen owner', async () => {
+    const nativeRewards: ((reward: { type: string; amount: number }) => void)[] = [];
+    const adapter = makeAdapter({
+      showRewardVideoAd: vi.fn(() => new Promise<{ type: string; amount: number }>((resolve) => { nativeRewards.push(resolve); })),
+    });
+    const provider = new AdMobProvider(config, { adapter, scheduleRetry });
+    await provider.preloadRewarded();
+    const first = provider.showRewardedAd();
+    await flush();
+    adapter.__emit(RewardAdPluginEvents.Dismissed);
+    expect(await first).toEqual({ granted: false });
+    await provider.preloadRewarded();
+    const second = provider.showRewardedAd();
+    await flush();
+    expect(nativeRewards).toHaveLength(2);
+    nativeRewards[0]({ type: 'coins', amount: 1 });
+    await flush();
+    adapter.__emit(RewardAdPluginEvents.Dismissed);
+    expect(await second).toEqual({ granted: false });
+    await provider.dispose();
+  });
+
+  it('disposal also releases a pending preload and prevents late native presentation', async () => {
+    let releasePreload!: () => void;
+    const adapter = makeAdapter({ prepareRewardVideoAd: vi.fn(() => new Promise<void>((resolve) => { releasePreload = resolve; })) });
+    const provider = new AdMobProvider(config, { adapter, scheduleRetry });
+    await provider.init();
+    let result: { granted: boolean } | null = null;
+    void provider.showRewardedAd().then((value) => { result = value; });
+    await flush();
+    await provider.dispose();
+    await flush();
+    expect(result).toEqual({ granted: false });
+    releasePreload();
+    await flush();
+    expect(adapter.showRewardVideoAd).not.toHaveBeenCalled();
+  });
+
+  it('requires every terminal listener and cleans up partial registration before allowing a retry', async () => {
+    const adapter = makeAdapter();
+    const addListener = adapter.addListener;
+    const removed = vi.fn();
+    let failRegistration = true;
+    adapter.addListener = vi.fn(async (event, callback) => {
+      if (event === RewardAdPluginEvents.FailedToShow && failRegistration) throw new Error('bridge listener failed');
+      const handle = await addListener(event, callback);
+      return { remove: async () => { removed(event); await handle.remove(); } };
+    });
+    const provider = new AdMobProvider(config, { adapter, scheduleRetry });
+    expect(await provider.showRewardedAd()).toEqual({ granted: false });
+    expect(adapter.showRewardVideoAd).not.toHaveBeenCalled();
+    expect(removed).toHaveBeenCalledWith(RewardAdPluginEvents.Rewarded);
+    expect(removed).toHaveBeenCalledWith(RewardAdPluginEvents.Dismissed);
+    failRegistration = false;
+    expect(await provider.showRewardedAd()).toEqual({ granted: true });
+    await provider.dispose();
+  });
+
+  it('finishes lifecycle and releases the gate even if listener removal rejects', async () => {
+    const adapter = makeAdapter();
+    const addListener = adapter.addListener;
+    adapter.addListener = vi.fn(async (event, callback) => {
+      const handle = await addListener(event, callback);
+      return { remove: async () => { await handle.remove(); throw new Error('remove failed'); } };
+    });
+    const finish = vi.fn();
+    const provider = new AdMobProvider(config, { adapter, scheduleRetry, lifecycle: { onFullScreenAdFinished: finish } });
+    expect(await provider.showRewardedAd()).toEqual({ granted: true });
+    expect(finish).toHaveBeenCalledOnce();
+    expect(await provider.showRewardedAd()).toEqual({ granted: true });
+    expect(adapter.prepareRewardVideoAd).toHaveBeenCalledTimes(2);
+    await provider.dispose();
+  });
+});
+
 describe('AdMobProvider lifecycle', (): void => {
+  it.each([
+    ['bannerAdPaid', 'banner', 5_000, 0.005],
+    ['interstitialAdImpression', 'interstitial', 12_500, 0.0125],
+    ['onRewardedVideoAdImpression', 'rewarded', 1_500_000, 1.5],
+  ] as const)('preserves decimal revenue from corrected %s native micros', async (event, format, valueMicros, revenue) => {
+    const adapter = makeAdapter();
+    const paid = vi.fn();
+    const provider = new AdMobProvider(config, { adapter, onAdRevenuePaid: paid });
+    await provider.init();
+    adapter.__emit(event, { valueMicros, currencyCode: 'USD', precision: 3, networkName: 'Google', impressionId: 'fractional-impression' });
+    expect(paid).toHaveBeenCalledWith(expect.objectContaining({ revenue, currency: 'USD', format }));
+    await provider.dispose();
+  });
+
   it('forwards paid impressions with normalized required fields', async () => {
     const adapter = makeAdapter();
     const paid = vi.fn();
@@ -716,5 +895,400 @@ describe('AdMobProvider dispose (U6)', (): void => {
     await expect(pendingShow).resolves.toBe(false);
     expect(baseAdapter.showInterstitial).not.toHaveBeenCalled();
     expect(lateHandleRemove).toHaveBeenCalledTimes(1);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// 2026-09-08 Find The Dog monetization repair: cache lifetime, banner state,
+// exhausted-retry recovery and the lifecycle telemetry seam.
+// ---------------------------------------------------------------------------
+
+type LifecycleEvent = { format: string; stage: string; reason?: string; loadId?: string; attempt?: number; cacheAgeMs?: number };
+const HOUR = 60 * 60 * 1_000;
+
+const makeResumeSeam = (): {
+  addAppResumeListener: (onResume: () => void) => Promise<{ remove: () => Promise<void> }>;
+  fire: () => void;
+} => {
+  let handler: (() => void) | null = null;
+  return {
+    addAppResumeListener: async (onResume) => {
+      handler = onResume;
+      return { remove: async (): Promise<void> => {} };
+    },
+    fire: (): void => handler?.(),
+  };
+};
+
+describe('AdMobProvider rewarded cache reuse (P2)', (): void => {
+  it('keeps a loaded rewarded ad across repeated preload calls until it is consumed', async (): Promise<void> => {
+    const adapter = makeAdapter();
+    const provider = new AdMobProvider(config, { adapter, now, scheduleRetry });
+    await provider.preloadRewarded();
+    await provider.preloadRewarded();
+    await Promise.all([provider.preloadRewarded(), provider.preloadRewarded()]);
+    expect(adapter.prepareRewardVideoAd).toHaveBeenCalledTimes(1);
+
+    // Consumption frees the slot; the next preload loads fresh inventory.
+    await expect(provider.showRewardedAd()).resolves.toEqual({ granted: true });
+    expect(adapter.prepareRewardVideoAd).toHaveBeenCalledTimes(1); // cached ad was shown, not re-prepared
+    await provider.preloadRewarded();
+    expect(adapter.prepareRewardVideoAd).toHaveBeenCalledTimes(2);
+  });
+
+  it('deduplicates concurrent rewarded preloads into a single native prepare', async (): Promise<void> => {
+    let release: () => void = (): void => {};
+    const adapter = makeAdapter({
+      prepareRewardVideoAd: vi.fn(() => new Promise<void>((resolve) => { release = resolve; })),
+    });
+    const provider = new AdMobProvider(config, { adapter, now, scheduleRetry });
+    const first = provider.preloadRewarded();
+    const second = provider.preloadRewarded();
+    await flush();
+    expect(adapter.prepareRewardVideoAd).toHaveBeenCalledTimes(1);
+    release();
+    await Promise.all([first, second]);
+    expect(adapter.prepareRewardVideoAd).toHaveBeenCalledTimes(1);
+  });
+
+  it('reloads a rewarded ad older than one hour before presenting instead of showing stale inventory', async (): Promise<void> => {
+    const adapter = makeAdapter();
+    const events: LifecycleEvent[] = [];
+    const provider = new AdMobProvider(config, { adapter, now, scheduleRetry, onAdEvent: (e) => events.push(e) });
+    await provider.preloadRewarded();
+    clock += HOUR + 1;
+    await provider.preloadRewarded(); // expiry frees the slot and reloads
+    expect(adapter.prepareRewardVideoAd).toHaveBeenCalledTimes(2);
+    expect(events.filter((e) => e.stage === 'expired')).toHaveLength(1);
+
+    clock += HOUR + 1;
+    await expect(provider.showRewardedAd()).resolves.toEqual({ granted: true });
+    // Stale ad from the second load was replaced by a third load before show.
+    expect(adapter.prepareRewardVideoAd).toHaveBeenCalledTimes(3);
+    expect(adapter.showRewardVideoAd).toHaveBeenCalledTimes(1);
+    const shown = events.find((e) => e.stage === 'show_requested');
+    expect(shown?.cacheAgeMs).toBe(0);
+  });
+
+  it('a rewarded ad within its lifetime is reused with its cache age reported', async (): Promise<void> => {
+    const adapter = makeAdapter();
+    const events: LifecycleEvent[] = [];
+    const provider = new AdMobProvider(config, { adapter, now, scheduleRetry, onAdEvent: (e) => events.push(e) });
+    await provider.preloadRewarded();
+    clock += 10 * 60 * 1_000;
+    await expect(provider.showRewardedAd()).resolves.toEqual({ granted: true });
+    expect(adapter.prepareRewardVideoAd).toHaveBeenCalledTimes(1);
+    expect(events.find((e) => e.stage === 'show_requested')?.cacheAgeMs).toBe(10 * 60 * 1_000);
+  });
+});
+
+describe('AdMobProvider interstitial cache lifetime (P2)', (): void => {
+  it('never presents an interstitial older than one hour; it re-arms and reports expiry instead', async (): Promise<void> => {
+    const adapter = makeAdapter();
+    const events: LifecycleEvent[] = [];
+    const provider = new AdMobProvider(config, { adapter, now, scheduleRetry, onAdEvent: (e) => events.push(e) });
+    await provider.init();
+    await flush();
+    expect(adapter.prepareInterstitial).toHaveBeenCalledTimes(1);
+
+    clock += HOUR + 1;
+    await expect(provider.maybeShowInterstitial()).resolves.toBe(false);
+    await flush();
+    expect(adapter.showInterstitial).not.toHaveBeenCalled();
+    expect(adapter.prepareInterstitial).toHaveBeenCalledTimes(2);
+    expect(events.map((e) => e.stage)).toContain('expired');
+    expect(events.find((e) => e.stage === 'skipped')?.reason).toBe('not_loaded');
+
+    // The replacement ad is fresh and shows at the next eligible gate.
+    await expect(provider.maybeShowInterstitial()).resolves.toBe(true);
+    expect(adapter.showInterstitial).toHaveBeenCalledTimes(1);
+  });
+
+  it('preload preserves a loaded, fresh interstitial', async (): Promise<void> => {
+    const adapter = makeAdapter();
+    const provider = new AdMobProvider(config, { adapter, now, scheduleRetry });
+    await provider.init();
+    await flush();
+    await provider.preloadInterstitial();
+    await provider.preloadInterstitial();
+    expect(adapter.prepareInterstitial).toHaveBeenCalledTimes(1);
+  });
+
+  it('resume replaces an expired cached interstitial and keeps a fresh one', async (): Promise<void> => {
+    const seam = makeResumeSeam();
+    const adapter = makeAdapter();
+    const provider = new AdMobProvider(config, { adapter, now, scheduleRetry, addAppResumeListener: seam.addAppResumeListener });
+    await provider.init();
+    await flush();
+    seam.fire();
+    await flush();
+    expect(adapter.prepareInterstitial).toHaveBeenCalledTimes(1);
+    clock += HOUR + 1;
+    seam.fire();
+    await flush();
+    expect(adapter.prepareInterstitial).toHaveBeenCalledTimes(2);
+    expect(adapter.showInterstitial).not.toHaveBeenCalled();
+  });
+});
+
+describe('AdMobProvider interstitial recovery after exhausted retries (P2)', (): void => {
+  it('three consecutive load failures stop loading; a foreground resume re-opens exactly one bounded budget', async (): Promise<void> => {
+    const seam = makeResumeSeam();
+    let failing = true;
+    const adapter = makeAdapter({
+      prepareInterstitial: vi.fn(async (): Promise<void> => {
+        if (failing) throw new Error('no fill');
+      }),
+    });
+    const events: LifecycleEvent[] = [];
+    const provider = new AdMobProvider(config, { adapter, now, scheduleRetry, addAppResumeListener: seam.addAppResumeListener, onAdEvent: (e) => events.push(e) });
+    await provider.init();
+    await flush();
+    await flushRetry();
+    await flush();
+    await flushRetry();
+    await flush();
+    expect(adapter.prepareInterstitial).toHaveBeenCalledTimes(3);
+    expect(scheduledRetries.filter((r) => !r.cancelled)).toHaveLength(0);
+
+    // Eligible gates while exhausted: no storm, no show, reason is explicit.
+    clock += 200_000;
+    await expect(provider.maybeShowInterstitial()).resolves.toBe(false);
+    await expect(provider.maybeShowInterstitial()).resolves.toBe(false);
+    await flush();
+    expect(adapter.prepareInterstitial).toHaveBeenCalledTimes(3);
+    expect(events.filter((e) => e.stage === 'skipped').map((e) => e.reason)).toEqual(['load_budget_exhausted', 'load_budget_exhausted']);
+
+    // Connectivity restored + foreground resume: one fresh attempt succeeds and
+    // the next eligible gate presents.
+    failing = false;
+    seam.fire();
+    await flush();
+    expect(adapter.prepareInterstitial).toHaveBeenCalledTimes(4);
+    await expect(provider.maybeShowInterstitial()).resolves.toBe(true);
+    expect(adapter.showInterstitial).toHaveBeenCalledTimes(1);
+    expect(events.filter((e) => e.stage === 'load_failed').map((e) => e.attempt)).toEqual([1, 2, 3]);
+    expect(events.filter((e) => e.stage === 'load_failed').every((e) => e.reason === 'no fill')).toBe(true);
+  });
+
+  it('a resume while a backoff retry is pending does not add a second load', async (): Promise<void> => {
+    const seam = makeResumeSeam();
+    const adapter = makeAdapter({ prepareInterstitial: vi.fn(async (): Promise<void> => { throw new Error('no fill'); }) });
+    const provider = new AdMobProvider(config, { adapter, now, scheduleRetry, addAppResumeListener: seam.addAppResumeListener });
+    await provider.init();
+    await flush();
+    expect(adapter.prepareInterstitial).toHaveBeenCalledTimes(1);
+    seam.fire();
+    seam.fire();
+    await flush();
+    expect(adapter.prepareInterstitial).toHaveBeenCalledTimes(1);
+    expect(scheduledRetries.filter((r) => !r.cancelled)).toHaveLength(1);
+  });
+});
+
+describe('AdMobProvider banner state (P2)', (): void => {
+  it('an asynchronous load failure clears state so the next showBanner requests again', async (): Promise<void> => {
+    const adapter = makeAdapter();
+    const events: LifecycleEvent[] = [];
+    const provider = new AdMobProvider(config, { adapter, now, scheduleRetry, onAdEvent: (e) => events.push(e) });
+    await provider.init();
+    await expect(provider.showBanner()).resolves.toBe(true);
+    adapter.__emit('bannerFailed', { code: 3, message: 'No ad to show' });
+    await expect(provider.showBanner()).resolves.toBe(true);
+    expect(adapter.showBanner).toHaveBeenCalledTimes(2);
+    const failed = events.find((e) => e.stage === 'load_failed');
+    expect(failed).toMatchObject({ format: 'banner', reason: 'native_3' });
+    expect(events.filter((e) => e.format === 'banner' && e.stage === 'load_requested').map((e) => e.loadId)).toHaveLength(2);
+  });
+
+  it('request acceptance is never reported as an impression; the native impression callback is', async (): Promise<void> => {
+    const adapter = makeAdapter();
+    const events: LifecycleEvent[] = [];
+    const provider = new AdMobProvider(config, { adapter, now, scheduleRetry, onAdEvent: (e) => events.push(e) });
+    await provider.init();
+    await provider.showBanner();
+    const banner = (): LifecycleEvent[] => events.filter((e) => e.format === 'banner');
+    expect(banner().map((e) => e.stage)).toEqual(['load_requested']);
+    adapter.__emit('bannerLoaded');
+    adapter.__emit('bannerImpression');
+    expect(banner().map((e) => e.stage)).toEqual(['load_requested', 'loaded', 'impression']);
+    expect(new Set(banner().map((e) => e.loadId)).size).toBe(1);
+  });
+
+  it('hide during a pending load wins: the late Loaded is re-hidden and never marks the banner visible', async (): Promise<void> => {
+    const adapter = makeAdapter();
+    const events: LifecycleEvent[] = [];
+    const provider = new AdMobProvider(config, { adapter, now, scheduleRetry, onAdEvent: (e) => events.push(e) });
+    await provider.init();
+    await provider.showBanner();
+    await provider.hideBanner();
+    expect(adapter.hideBanner).toHaveBeenCalledTimes(1);
+    adapter.__emit('bannerLoaded');
+    await flush();
+    expect(adapter.hideBanner).toHaveBeenCalledTimes(2);
+    expect(provider['bannerVisible']).toBe(false);
+    expect(events.filter((e) => e.stage === 'hidden').map((e) => e.reason)).toContain('loaded_after_hide');
+    // A later show is a fresh request, not a suppressed "already visible".
+    await expect(provider.showBanner()).resolves.toBe(true);
+    expect(adapter.showBanner).toHaveBeenCalledTimes(2);
+  });
+
+  it('hide that lands while init is still pending prevents the banner request entirely', async (): Promise<void> => {
+    let releaseInit: () => void = (): void => {};
+    const adapter = makeAdapter({ initialize: vi.fn(() => new Promise<void>((resolve) => { releaseInit = resolve; })) });
+    const provider = new AdMobProvider(config, { adapter, now, scheduleRetry });
+    const show = provider.showBanner();
+    await flush();
+    await provider.hideBanner();
+    releaseInit();
+    await expect(show).resolves.toBe(false);
+    expect(adapter.showBanner).not.toHaveBeenCalled();
+  });
+
+  it('hideBanner never initializes the SDK (no consent, init or prewarm for an entitled player)', async (): Promise<void> => {
+    const adapter = makeAdapter();
+    const provider = new AdMobProvider(config, { adapter, now, scheduleRetry });
+    await provider.hideBanner();
+    await flush();
+    expect(adapter.requestConsentInfo).not.toHaveBeenCalled();
+    expect(adapter.initialize).not.toHaveBeenCalled();
+    expect(adapter.prepareInterstitial).not.toHaveBeenCalled();
+    expect(adapter.hideBanner).not.toHaveBeenCalled();
+  });
+});
+
+describe('AdMobProvider lifecycle telemetry seam (P3)', (): void => {
+  it('emits a correlated load → show → impression → dismissal sequence for an interstitial', async (): Promise<void> => {
+    const events: LifecycleEvent[] = [];
+    const adapter = makeAdapter({
+      showInterstitial: vi.fn(async (): Promise<void> => {}),
+    });
+    const provider = new AdMobProvider(config, { adapter, now, scheduleRetry, onAdEvent: (e) => events.push(e) });
+    await provider.init();
+    await flush();
+    const show = provider.maybeShowInterstitial();
+    await flush();
+    adapter.__emit('interstitialAdImpression', { adUnitId: 'i-int', valueMicros: 1200, currencyCode: 'USD', precision: 3, networkName: 'g', impressionId: 'imp-1' });
+    adapter.__emit('intDismissed');
+    await expect(show).resolves.toBe(true);
+    await flush();
+    const stages = events.filter((e) => e.format === 'interstitial').map((e) => e.stage);
+    expect(stages).toEqual(['load_requested', 'loaded', 'show_requested', 'shown', 'impression', 'dismissed', 'load_requested', 'loaded']);
+    const firstLoad = events[0].loadId;
+    expect(events.slice(0, 6).every((e) => e.loadId === firstLoad)).toBe(true);
+    expect(events[6].loadId).not.toBe(firstLoad);
+  });
+
+  it('reports reward_earned before dismissal and a closed_before_reward dismissal otherwise', async (): Promise<void> => {
+    const events: LifecycleEvent[] = [];
+    const adapter = makeAdapter({
+      showRewardVideoAd: vi.fn(async () => {
+        emitRewarded(adapter, false);
+        return { type: 'coins', amount: 0 };
+      }),
+    });
+    const emitRewarded = (a: FakeAdapter, earned: boolean): void => {
+      if (earned) a.__emit(RewardAdPluginEvents.Rewarded, { type: 'coins', amount: 1 });
+      a.__emit(RewardAdPluginEvents.Dismissed);
+    };
+    const provider = new AdMobProvider(config, { adapter, now, scheduleRetry, onAdEvent: (e) => events.push(e) });
+    await expect(provider.showRewardedAd()).resolves.toEqual({ granted: false });
+    expect(events.filter((e) => e.format === 'rewarded').map((e) => e.stage)).toEqual(['load_requested', 'loaded', 'show_requested', 'dismissed']);
+    expect(events.find((e) => e.stage === 'dismissed')?.reason).toBe('closed_before_reward');
+
+    events.length = 0;
+    (adapter.showRewardVideoAd as ReturnType<typeof vi.fn>).mockImplementation(async () => {
+      emitRewarded(adapter, true);
+      return { type: 'coins', amount: 1 };
+    });
+    await expect(provider.showRewardedAd()).resolves.toEqual({ granted: true });
+    expect(events.map((e) => e.stage)).toEqual(['load_requested', 'loaded', 'show_requested', 'reward_earned', 'dismissed']);
+  });
+
+  it('a throwing event listener never affects ad flow', async (): Promise<void> => {
+    const adapter = makeAdapter();
+    const provider = new AdMobProvider(config, { adapter, now, scheduleRetry, onAdEvent: () => { throw new Error('sink down'); } });
+    await provider.init();
+    await flush();
+    await expect(provider.maybeShowInterstitial()).resolves.toBe(true);
+    await expect(provider.showBanner()).resolves.toBe(true);
+    await expect(provider.showRewardedAd()).resolves.toEqual({ granted: true });
+  });
+});
+
+describe('AdMobProvider audience treatment (owner decision 2026-09-08)', (): void => {
+  const iosAdapter = (overrides: Partial<AdMobAdapter> = {}): FakeAdapter & { calls: string[] } => {
+    const calls: string[] = [];
+    const adapter = makeAdapter({
+      getPlatform: vi.fn(async (): Promise<'android' | 'ios' | 'web'> => 'ios'),
+      initialize: vi.fn(async (): Promise<void> => { calls.push('initialize'); }),
+      requestConsentInfo: vi.fn(async () => { calls.push('consent'); return { status: 'OBTAINED' as never, canRequestAds: true, privacyOptionsRequirementStatus: 'NOT_REQUIRED' as never }; }),
+      requestTrackingAuthorization: vi.fn(async (): Promise<void> => { calls.push('att'); }),
+      trackingAuthorizationStatus: vi.fn(async () => ({ status: 'authorized' })),
+      ...overrides,
+    });
+    return Object.assign(adapter, { calls });
+  };
+
+  it('defaults to child treatment: both age tags, under-age consent, npa on every request', async (): Promise<void> => {
+    const adapter = iosAdapter();
+    const provider = new AdMobProvider(config, { adapter, now, scheduleRetry });
+    await provider.init();
+    await flush();
+    expect(provider.audience).toBe('child');
+    expect(adapter.initialize).toHaveBeenCalledWith(expect.objectContaining({ tagForChildDirectedTreatment: true, tagForUnderAgeOfConsent: true, maxAdContentRating: 'General' }));
+    expect(adapter.requestConsentInfo).toHaveBeenCalledWith(expect.objectContaining({ tagForUnderAgeOfConsent: true }));
+    expect(adapter.requestTrackingAuthorization).not.toHaveBeenCalled();
+    expect(adapter.prepareInterstitial).toHaveBeenCalledWith(expect.objectContaining({ npa: true }));
+    await provider.showBanner();
+    await provider.preloadRewarded();
+    expect(adapter.showBanner).toHaveBeenCalledWith(expect.objectContaining({ npa: true }));
+    expect(adapter.prepareRewardVideoAd).toHaveBeenCalledWith(expect.objectContaining({ npa: true }));
+  });
+
+  it('general audience: no age tags, consent not under-age, ATT after consent and before initialize, no npa', async (): Promise<void> => {
+    const adapter = iosAdapter();
+    const provider = new AdMobProvider(config, { adapter, now, scheduleRetry, audience: 'general' });
+    await provider.init();
+    await flush();
+    expect(provider.audience).toBe('general');
+    const initOptions = (adapter.initialize as ReturnType<typeof vi.fn>).mock.calls[0][0] as Record<string, unknown>;
+    expect(initOptions).not.toHaveProperty('tagForChildDirectedTreatment');
+    expect(initOptions).not.toHaveProperty('tagForUnderAgeOfConsent');
+    expect(initOptions.maxAdContentRating).toBe('General');
+    expect(adapter.requestConsentInfo).toHaveBeenCalledWith(expect.objectContaining({ tagForUnderAgeOfConsent: false }));
+    expect(adapter.calls).toEqual(['consent', 'att', 'initialize']);
+    const interstitial = (adapter.prepareInterstitial as ReturnType<typeof vi.fn>).mock.calls[0][0] as Record<string, unknown>;
+    expect(interstitial).not.toHaveProperty('npa');
+    await provider.showBanner();
+    await provider.preloadRewarded();
+    expect((adapter.showBanner as ReturnType<typeof vi.fn>).mock.calls[0][0]).not.toHaveProperty('npa');
+    expect((adapter.prepareRewardVideoAd as ReturnType<typeof vi.fn>).mock.calls[0][0]).not.toHaveProperty('npa');
+  });
+
+  it('general audience: ATT refusal or failure never blocks initialization', async (): Promise<void> => {
+    const adapter = iosAdapter({
+      requestTrackingAuthorization: vi.fn(async (): Promise<void> => { throw new Error('prompt unavailable'); }),
+      trackingAuthorizationStatus: vi.fn(async () => ({ status: 'denied' })),
+    });
+    const provider = new AdMobProvider(config, { adapter, now, scheduleRetry, audience: 'general' });
+    await provider.init();
+    await flush();
+    expect(adapter.initialize).toHaveBeenCalledOnce();
+    expect(adapter.prepareInterstitial).toHaveBeenCalledOnce();
+  });
+
+  it('general audience: no ATT request on Android or when consent forbids ads', async (): Promise<void> => {
+    const android = iosAdapter({ getPlatform: vi.fn(async (): Promise<'android' | 'ios' | 'web'> => 'android') });
+    await new AdMobProvider(config, { adapter: android, now, scheduleRetry, audience: 'general' }).init();
+    expect(android.requestTrackingAuthorization).not.toHaveBeenCalled();
+    expect(android.initialize).toHaveBeenCalledOnce();
+
+    const blocked = iosAdapter({
+      requestConsentInfo: vi.fn(async () => ({ status: 'REQUIRED' as never, isConsentFormAvailable: false, canRequestAds: false, privacyOptionsRequirementStatus: 'REQUIRED' as never })),
+    });
+    await new AdMobProvider(config, { adapter: blocked, now, scheduleRetry, audience: 'general' }).init();
+    expect(blocked.requestTrackingAuthorization).not.toHaveBeenCalled();
+    expect(blocked.initialize).not.toHaveBeenCalled();
   });
 });

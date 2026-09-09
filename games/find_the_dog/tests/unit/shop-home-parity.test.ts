@@ -1,4 +1,4 @@
-import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('../../src/config/RemoteConfigService', async () => {
   const { REMOTE_CONFIG_DEFAULTS } = await import('../../src/config/remoteConfigSchema');
@@ -36,6 +36,14 @@ function purchaseButton(id: string): HTMLButtonElement {
 
 describe('shop and Settings parity', () => {
   beforeAll(async () => {
+    // Supply deterministic browser storage independently of Node's globals.
+    const storage = new Map<string, string>();
+    vi.stubGlobal('localStorage', {
+      getItem: (key: string) => storage.get(key) ?? null,
+      setItem: (key: string, value: string) => { storage.set(key, value); },
+      removeItem: (key: string) => { storage.delete(key); },
+      clear: () => storage.clear(),
+    });
     iapService.setStateForTest({
       state: 'ready',
       purchaseDelayMsByProductId: {
@@ -50,6 +58,7 @@ describe('shop and Settings parity', () => {
     setHomeCallback(null);
     vi.restoreAllMocks();
   });
+  afterAll(() => vi.unstubAllGlobals());
 
   it('renders the premium icon and exhaustive image-badge policy with rationed accents', () => {
     openPage('shop');

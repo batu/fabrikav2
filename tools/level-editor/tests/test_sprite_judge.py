@@ -68,7 +68,9 @@ def test_last_codex_message_extracts_final_text():
 
 def test_codex_missing_cli_returns_structured_failure(monkeypatch):
     judge = CodexExecJudge()
-    monkeypatch.setenv("PATH", "/nonexistent")
+    def missing_cli(*args, **kwargs):
+        raise FileNotFoundError("scripted missing codex")
+    monkeypatch.setattr("levelbuilder.api.sprite_judge.subprocess.run", missing_cli)
     verdict = judge.judge(_case())
     assert isinstance(verdict, JudgeVerdict)
     assert verdict.ok is False
@@ -83,6 +85,12 @@ def test_ollama_backend_registered_with_env_url(monkeypatch):
 
 
 def test_ollama_unreachable_returns_structured_failure(monkeypatch):
+    import httpx
+
+    def unreachable(*args, **kwargs):
+        raise httpx.ConnectError("scripted connection refused")
+
+    monkeypatch.setattr(httpx, "post", unreachable)
     monkeypatch.setenv("LEVEL_EDITOR_OLLAMA_URL", "http://127.0.0.1:1")
     backend = make_backend("ollama", timeout_s=2.0)
     verdict = backend.judge(_case())

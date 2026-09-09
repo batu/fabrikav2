@@ -32,6 +32,8 @@ import {
 } from '../ui/SceneTransitionCover';
 import { remoteConfigService } from '../config/RemoteConfigService';
 import { resolveGameplayMode } from '../config/gameplayModePolicy';
+import { revealPickupExperiment } from '../data/revealPickupExperiment';
+import { assertRestorationBackgroundTextures } from '../config/restorationAssetContract';
 import { buildFailContinueOffers, type FailContinueOfferSet, type FailContinueOption } from '../shop/FailContinueOffers';
 import { iapService } from '../shop/IapService';
 import { buildShopCatalog } from '../shop/ProductCatalog';
@@ -162,6 +164,7 @@ export interface ClassicRenderDiagnosticsSnapshot {
 export class GameScene extends Phaser.Scene {
   private level: LevelData | null = null;
   private bwImage: Phaser.GameObjects.Image | null = null;
+  private usesGpuGrayscale = false;
   private colorImage: Phaser.GameObjects.Image | null = null;
   private runtimeTextureLongEdge = FALLBACK_RUNTIME_TEXTURE_LONG_EDGE;
 
@@ -562,7 +565,39 @@ export class GameScene extends Phaser.Scene {
       this.loadLevelAndRestart();
       return;
     }
-    this.setupLevel();
+    try {
+      this.setupLevel();
+    } catch (error) {
+      // Phaser's loader may complete despite an individual image failure.
+      // Return to the map so Play can retry; never expose a placeholder or
+      // relabel a failed treatment as the other arm.
+      GameScene.lastLoadedLevelId = null;
+      console.error('Failed to set up level', error);
+      hideSceneTransitionCoverAfterPaint();
+      this.scene.start('HomeScene');
+      return;
+    }
+    // Observe a presented frame only after successful setup and cover removal.
+    const cleanupExposure = (): void => {
+      this.game.events.off(Phaser.Core.Events.POST_RENDER, observeExposure);
+      this.events.off('shutdown', cleanupExposure);
+    };
+    const observeExposure = (): void => {
+      if (this.isShuttingDown || !this.sys.isActive() || document.hidden
+        || document.getElementById('scene-transition-cover') !== null) return;
+      if (!this.isRestoration
+        && (!this.textures.exists('color') || (!this.usesGpuGrayscale && !this.textures.exists('bw_generated')))) return;
+      // Detach before invoking telemetry: duplicate/reentrant frames must not
+      // repeat exposure, and a completed observer must not retain the scene.
+      cleanupExposure();
+      const actualMode = this.isRestoration ? 'restoration' : 'classic';
+      const exposure = revealPickupExperiment.exposure(actualMode);
+      if (exposure !== null) analytics.experimentExposure(exposure);
+    };
+    if (revealPickupExperiment.assignment() !== null) {
+      this.game.events.on(Phaser.Core.Events.POST_RENDER, observeExposure);
+      this.events.once('shutdown', cleanupExposure);
+    }
     this.scheduleNonCriticalPreloads();
   }
 
@@ -710,19 +745,6 @@ export class GameScene extends Phaser.Scene {
   private setupLevel(): void {
     if (!this.level) return;
 
-    if (gameState.settings.adsEnabled) {
-      void adService.showBanner().then((shown: boolean): void => {
-        if (!this.level) return;
-        if (shown) {
-          void analytics.adShown({ ad_type: 'banner', placement: 'gameplay' });
-        } else if (adService.enabled) {
-          // 38% of banner shows in the UA test failed invisibly — GA's native
-          // integration saw them, our owned funnel did not. Count them here.
-          void analytics.adShowFailed({ ad_type: 'banner', placement: 'gameplay', reason: 'not_shown' });
-        }
-      });
-    }
-
     const sections = this.level.sections;
     const isSectioned = Array.isArray(sections) && sections.length > 0;
 
@@ -758,19 +780,42 @@ export class GameScene extends Phaser.Scene {
     // only runs in preload (before this field exists) and here. See the
     // field's JSDoc for the mid-level-toggle rationale.
     this.isRestoration = this.isRestorationMode();
+    if (this.isRestoration) {
+      assertRestorationBackgroundTextures(this.level.bgImageUrls!, (key) => this.textures.exists(key));
+    }
     if (this.isRestoration && !this.hasLoadedRestorationSpriteTextures()) {
       throw new Error(`Restoration level ${this.level.id} is missing loaded dog sprite textures`);
     }
     const isRestoration = this.isRestoration;
     this.runtimeTextureLongEdge = GameScene.resolveRuntimeTextureLongEdge(this.game.renderer);
+    this.usesGpuGrayscale = !isRestoration && Capacitor.getPlatform() === 'ios'
+      && this.game.renderer.type === Phaser.WEBGL;
     this.capTextureLongEdge('color');
     if (isRestoration) {
       if (this.textures.exists('bw_generated')) this.textures.remove('bw_generated');
       const bgCount = this.level.bgImageUrls?.length ?? 0;
       for (let i = 0; i < bgCount; i += 1) this.capTextureLongEdge(`bg_${i}`);
     } else {
-      this.generateGrayscaleTexture();
+      if (!this.usesGpuGrayscale) this.generateGrayscaleTexture();
+      for (const key of this.usesGpuGrayscale ? ['color'] : ['color', 'bw_generated']) {
+        if (!this.textures.exists(key)) {
+          throw new Error(`Reveal level ${this.level.id} is missing loaded texture: ${key}`);
+        }
+      }
     }
+    if (gameState.settings.adsEnabled) {
+      // `shown` means the native request was accepted, not that a banner was
+      // rendered: banner ad_shown / ad_show_failed are emitted by the AdMob
+      // composition from the native loaded / impression / failed callbacks
+      // (src/ads/adMobComposition.ts). Only a rejected request is counted here.
+      void adService.showBanner().then((requested: boolean): void => {
+        if (!this.level) return;
+        if (!requested && adService.enabled) {
+          void analytics.adShowFailed({ ad_type: 'banner', placement: 'gameplay', reason: 'request_rejected' });
+        }
+      });
+    }
+
     this.classicRenderProbes = {
       ...this.classicRenderProbes,
       generatedBwTextureGrayscale: this.isGeneratedBwTextureGrayscale(),
@@ -818,7 +863,15 @@ export class GameScene extends Phaser.Scene {
     // Restoration mode skips the grayscale texture entirely: the bg layer is
     // the default view and the color layer (with dogs) dissolves away on find.
     if (!isRestoration) {
-      this.bwImage = this.add.image(0, 0, 'bw_generated');
+      this.bwImage = this.add.image(0, 0, this.usesGpuGrayscale ? 'color' : 'bw_generated');
+      // Reuse the full-resolution color source. A second 5600px canvas and
+      // texture can terminate WKWebView before the first presented frame.
+      if (this.usesGpuGrayscale) this.bwImage.postFX.addColorMatrix().set([
+        0.2126, 0.7152, 0.0722, 0, 0,
+        0.2126, 0.7152, 0.0722, 0, 0,
+        0.2126, 0.7152, 0.0722, 0, 0,
+        0, 0, 0, 1, 0,
+      ]);
       this.bwImage.setOrigin(0, 0);
       this.bwImage.setPosition(this.imgOffsetX, this.imgOffsetY);
       this.bwImage.setDisplaySize(this.level.width * this.imgScale, this.level.height * this.imgScale);
@@ -1416,7 +1469,7 @@ export class GameScene extends Phaser.Scene {
     const revealContext = this.getClassicRevealContext(dog);
 
     let cellPolygon: Point[];
-    if (gameState.settings.voronoiReveal) {
+    if (revealPickupExperiment.assignment()?.variant === 'reveal' || gameState.settings.voronoiReveal) {
       cellPolygon = computeVoronoiCell({ x: dog.x, y: dog.y }, revealContext.otherSites, revealContext.bounds);
     } else {
       const r = Math.max(this.level!.width, this.level!.height) * 0.15;
@@ -2125,6 +2178,10 @@ export class GameScene extends Phaser.Scene {
         wallet: gameState,
       }),
     );
+    if (resolved.status === 'fulfilled' || resolved.status === 'duplicate') iapService.acknowledgePurchase(purchase);
+    if (resolved.status === 'delivery-pending') {
+      return { resumed: false, message: 'Purchase received. Reward delivery is pending.' };
+    }
     if (resolved.status !== 'fulfilled' || resolved.grant?.continueLevel !== true) {
       return { resumed: false, message: 'Purchase could not continue this level.' };
     }
@@ -2822,9 +2879,10 @@ export class GameScene extends Phaser.Scene {
     canvas.width = Math.max(1, Math.ceil(extentW * density));
     canvas.height = Math.max(1, Math.ceil(extentH * density));
     if (this.textures.exists(CLASSIC_REVEALED_TEXTURE_KEY)) this.textures.remove(CLASSIC_REVEALED_TEXTURE_KEY);
-    this.textures.addCanvas(CLASSIC_REVEALED_TEXTURE_KEY, canvas);
-    const texture = this.textures.get(CLASSIC_REVEALED_TEXTURE_KEY) as Phaser.Textures.CanvasTexture;
-    this.classicRevealedCtx = texture.context;
+    // We draw through the canvas context directly, so CanvasTexture's extra
+    // full-image readback buffer would only duplicate this layer in memory.
+    this.classicRevealedCtx = canvas.getContext('2d');
+    this.registerCanvasSource(CLASSIC_REVEALED_TEXTURE_KEY, canvas);
     this.classicRevealedDensity = density;
     this.classicRevealedImage = this.add.image(0, 0, CLASSIC_REVEALED_TEXTURE_KEY);
     this.classicRevealedImage.setOrigin(0, 0);
@@ -3156,7 +3214,16 @@ export class GameScene extends Phaser.Scene {
     const tex = this.textures.get(textureKey);
     if (tex instanceof Phaser.Textures.CanvasTexture) {
       tex.refresh();
+    } else if (tex.source[0]?.isCanvas) {
+      tex.source[0].update();
     }
+  }
+
+  /** Ordinary canvas source, without CanvasTexture's retained CPU pixel copy. */
+  private registerCanvasSource(key: string, canvas: HTMLCanvasElement): void {
+    const texture = this.textures.create(key, canvas);
+    if (!texture) throw new Error(`Could not register canvas texture: ${key}`);
+    texture.add('__BASE', 0, 0, 0, canvas.width, canvas.height);
   }
 
   private capTextureLongEdge(textureKey: string): void {
@@ -3198,24 +3265,27 @@ export class GameScene extends Phaser.Scene {
     canvas.width = dimensions.width;
     canvas.height = dimensions.height;
 
-    // Desaturate at capped source resolution, then scale up — avoids a
-    // multi-megapixel getImageData pass on 4K logical level dimensions.
+    // Read only a small strip at a time. A full portrait ImageData plus a
+    // full-size scratch canvas can exhaust the iOS WebView before first paint.
     const scratch = document.createElement('canvas');
     scratch.width = sourceWidth;
-    scratch.height = sourceHeight;
+    scratch.height = Math.min(64, sourceHeight);
     const scratchCtx = scratch.getContext('2d', { willReadFrequently: true })!;
-    scratchCtx.drawImage(source, 0, 0, sourceWidth, sourceHeight);
-    const pixels = scratchCtx.getImageData(0, 0, sourceWidth, sourceHeight);
-    this.desaturateImageDataInPlace(pixels);
-    scratchCtx.putImageData(pixels, 0, 0);
-
     const ctx = canvas.getContext('2d')!;
-    ctx.imageSmoothingEnabled = true;
-    ctx.imageSmoothingQuality = 'high';
-    ctx.drawImage(scratch, 0, 0, canvas.width, canvas.height);
+    for (let y = 0; y < sourceHeight; y += scratch.height) {
+      const height = Math.min(scratch.height, sourceHeight - y);
+      scratchCtx.clearRect(0, 0, sourceWidth, scratch.height);
+      scratchCtx.drawImage(source, 0, y, sourceWidth, height, 0, 0, sourceWidth, height);
+      const pixels = scratchCtx.getImageData(0, 0, sourceWidth, height);
+      this.desaturateImageDataInPlace(pixels);
+      ctx.putImageData(pixels, 0, y);
+    }
+    scratch.width = 0;
+    scratch.height = 0;
 
-    this.textures.addCanvas('bw_generated', canvas);
-    this.refreshCanvasTexture('bw_generated');
+    // This texture never changes. addCanvas retains another full-image CPU
+    // pixel buffer for editing; an ordinary source avoids that copy.
+    this.registerCanvasSource('bw_generated', canvas);
   }
 
   private createPawTexture(): void {

@@ -5,7 +5,12 @@ import { EXISTING_FIND_THE_DOG_STATE_KEYS } from './analytics/installState';
 // default achievement state as an eager module side effect.
 const hadExistingStateAtBootstrap = hasExistingInstallState(EXISTING_FIND_THE_DOG_STATE_KEYS);
 
-void import('./runtime').then(({ startAnalyticsBootstrap }) =>
+void import('./data/initializeGameplayExperiment')
+  .then(({ initializeGameplayExperiment }) => initializeGameplayExperiment(hadExistingStateAtBootstrap, bootstrapStorage.durability))
+  .catch((err: unknown) => {
+    console.warn('[experiment] initialization failed; continuing without enrollment', err);
+  })
+  .then(() => import('./runtime')).then(({ startAnalyticsBootstrap }) =>
   startAnalyticsBootstrap(hadExistingStateAtBootstrap, bootstrapStorage.durability),
 ).catch((err: unknown): void => {
   console.warn('[bootstrap] runtime initialization failed', err);

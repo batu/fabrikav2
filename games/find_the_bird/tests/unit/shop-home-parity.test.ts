@@ -1,5 +1,7 @@
-import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
+// Durability detection has separate storage-fallback/volatile-IAP coverage.
+vi.mock('../../src/platform/storageFallback', () => ({ runtimeStorageDurability: 'durable' }));
 vi.mock('../../src/config/RemoteConfigService', async () => {
   const { REMOTE_CONFIG_DEFAULTS } = await import('../../src/config/remoteConfigSchema');
   return {
@@ -20,11 +22,6 @@ vi.mock('../../src/audio/AudioManager', () => ({
 import { analytics } from '../../src/analytics/AnalyticsService';
 import { REMOTE_CONFIG_DEFAULTS } from '../../src/config/remoteConfigSchema';
 import { iapService } from '../../src/shop/IapService';
-import {
-  getPickupStylePreference,
-  registerPickupStyleApplier,
-  setPickupStylePreference,
-} from '../../src/settings/pickupStylePreference';
 import { openPage, setHomeCallback } from '../../src/ui/HUD';
 
 function productCard(id: string): HTMLElement {
@@ -41,6 +38,14 @@ function purchaseButton(id: string): HTMLButtonElement {
 
 describe('shop and Settings parity', () => {
   beforeAll(async () => {
+    // Supply deterministic browser storage independently of Node's globals.
+    const storage = new Map<string, string>();
+    vi.stubGlobal('localStorage', {
+      getItem: (key: string) => storage.get(key) ?? null,
+      setItem: (key: string, value: string) => { storage.set(key, value); },
+      removeItem: (key: string) => { storage.delete(key); },
+      clear: () => storage.clear(),
+    });
     iapService.setStateForTest({
       state: 'ready',
       purchaseDelayMsByProductId: {
@@ -53,32 +58,15 @@ describe('shop and Settings parity', () => {
   beforeEach(() => {
     document.body.innerHTML = '<div id="hud-overlay"><div id="home-shell"></div></div>';
     setHomeCallback(null);
-    setPickupStylePreference('dissolve');
-    registerPickupStyleApplier(null);
     vi.restoreAllMocks();
   });
+  afterAll(() => vi.unstubAllGlobals());
 
-  it('lets players switch pickup presentation from Settings for the current session', () => {
-    const apply = vi.fn();
-    registerPickupStyleApplier(apply);
-    expect(getPickupStylePreference()).toBe('dissolve');
-
+  it('does not expose the internal pickup presentation selector in Settings', () => {
     openPage('settings');
 
-    const select = document.querySelector<HTMLSelectElement>('#pickup-style');
-    expect(select?.getAttribute('aria-label')).toBe('Pickup style');
-    expect([...select!.options].map((option) => option.value)).toEqual([
-      // 2026-08-07: three juice proposals added for review (flashbulb/burst/
-      // tumble). Shipping default is unchanged.
-      'classic', 'dissolve', 'feathers', 'flashbulb', 'burst', 'tumble',
-    ]);
-    expect(select?.querySelector('option[value="dissolve"]')?.hasAttribute('selected')).toBe(true);
-
-    select!.value = 'feathers';
-    select!.dispatchEvent(new Event('change', { bubbles: true }));
-
-    expect(getPickupStylePreference()).toBe('feathers');
-    expect(apply).toHaveBeenCalledWith('feathers');
+    expect(document.querySelector('#pickup-style')).toBeNull();
+    expect(document.body.textContent).not.toContain('Pickup Style');
   });
 
   it('renders the premium icon and exhaustive live-text badge policy with rationed accents', () => {

@@ -1,4 +1,12 @@
 export const EXISTING_FIND_THE_DOG_STATE_KEYS = [
+  'analytics-first-open-claimed:find_the_dog',
+  'ftd_reveal_pickup_v1',
+  'ftd_wallet_purchase_checkpoint_v1',
+  'ftd_wallet_coins',
+  'ftd_wallet_counters',
+  'ftd_wallet_no_ads_entitlement',
+  'ftd_wallet_premium_entitlement',
+  'ftd_wallet_reward_progress_count',
   'ftd_anon_id',
   'ftd_level',
   'ftd_settings',

@@ -1,8 +1,61 @@
 import os
+import re
+import socket
+import subprocess
+import sys
 import tempfile
 from pathlib import Path
 
 import pytest
+import dotenv
+
+# Install before ANY editor/provider import, including collection-time imports.
+# Tests use scripted providers and in-process ASGI clients; an unexpected attempt
+# must fail the suite even if application error handling catches the exception.
+_UNEXPECTED_EXTERNAL_CALLS: list[str] = []
+_isolation = pytest.MonkeyPatch()
+_isolation.setattr(dotenv, "load_dotenv", lambda *args, **kwargs: False)
+os.environ["PYTHON_DOTENV_DISABLED"] = "1"
+os.environ["LITELLM_LOCAL_MODEL_COST_MAP"] = "True"
+for _key in list(os.environ):
+    if re.search(r"(?:KEY|TOKEN|SECRET|PASSWORD|CREDENTIAL)", _key):
+        os.environ.pop(_key)
+
+_connect = socket.socket.connect
+_connect_ex = socket.socket.connect_ex
+
+
+def _guard_connect(original):
+    def connect(sock, address):
+        if sock.family in (socket.AF_INET, socket.AF_INET6):
+            _UNEXPECTED_EXTERNAL_CALLS.append("network connection")
+            raise RuntimeError("Editor tests prohibit network connections; inject a transport")
+        return original(sock, address)
+    return connect
+
+
+_isolation.setattr(socket.socket, "connect", _guard_connect(_connect))
+_isolation.setattr(socket.socket, "connect_ex", _guard_connect(_connect_ex))
+_popen = subprocess.Popen
+
+
+def _guard_popen(args, *positional, **kwargs):
+    # Frozen golden fixtures deliberately read a pinned historical sprite.
+    git_read = isinstance(args, (list, tuple)) and (
+        (len(args) == 5 and args[:2] == ["git", "-C"] and args[3:] == ["rev-parse", "--show-toplevel"])
+        or (len(args) == 3 and args[:2] == ["git", "show"] and re.match(r"^[0-9a-f]{40}:games/find_the_bird/public/levels/", args[2]))
+    )
+    # The security regression launches only this exact import-failure probe.
+    # Allowing arbitrary Python would bypass this process's socket guard.
+    import_probe = args == [sys.executable, "-c", "import levelbuilder.api.session"]
+    # Real provider/model CLIs and shell commands have no place in this suite.
+    if (not import_probe and not git_read) or kwargs.get("shell"):
+        _UNEXPECTED_EXTERNAL_CALLS.append("external subprocess")
+        raise RuntimeError("Editor tests prohibit external CLIs; inject a runner")
+    return _popen(args, *positional, **kwargs)
+
+
+_isolation.setattr(subprocess, "Popen", _guard_popen)
 
 _TMP = Path(tempfile.mkdtemp(prefix="level-editor-tests-"))
 _WORKSPACE = _TMP / ".levelbuilder"
@@ -11,6 +64,23 @@ _GAME_ROOT = _TMP / "game"
 # roots at import time from these variables.
 os.environ["LEVELBUILDER_WORKSPACE"] = str(_WORKSPACE)
 os.environ["LEVELBUILDER_GAME_ROOT"] = str(_GAME_ROOT)
+os.environ["MERCEKA_COST_LEDGER"] = str(_TMP / "costs.jsonl")
+os.environ["FTD_GALLERY_PREWARM"] = "0"
+# A developer's cached rembg weights can hide a missing inference mock that
+# attempts a model download on a clean CI runner. Always start without weights.
+os.environ["U2NET_HOME"] = str(_TMP / "model-cache")
+
+
+def pytest_sessionfinish(session, exitstatus):
+    if _UNEXPECTED_EXTERNAL_CALLS:
+        session.exitstatus = 1
+        reporter = session.config.pluginmanager.get_plugin("terminalreporter")
+        if reporter:
+            reporter.write_sep("!", f"Blocked {len(_UNEXPECTED_EXTERNAL_CALLS)} unexpected network/provider calls")
+
+
+def pytest_unconfigure(config):
+    _isolation.undo()
 
 
 @pytest.fixture(scope="session")
@@ -22,9 +92,18 @@ def workspace_roots() -> tuple[Path, Path]:
 def app_client():
     from fastapi.testclient import TestClient
     from levelbuilder.api.server import app
+    from levelbuilder.api import server
 
-    with TestClient(app) as client:
+    # Image-model warmup is a live-provider/device concern. Keep all API/job
+    # lifecycle behavior, but never download weights during the fixture boot.
+    client = TestClient(app)
+    with pytest.MonkeyPatch.context() as startup:
+        startup.setattr(server, "_start_sprite_model_prewarm", lambda: None)
+        client.__enter__()
+    try:
         yield client
+    finally:
+        client.__exit__(None, None, None)
 
 
 @pytest.fixture

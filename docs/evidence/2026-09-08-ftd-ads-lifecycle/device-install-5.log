@@ -1,0 +1,21 @@
+# device build attempt 5 (VITE_ENABLE_TEST_HARNESS exported in shell; vite.config reads it from process.env in ios mode) 2026-09-08T13:06:15Z HEAD=485450fe52
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 2.48s
+/Users/base/dev/appletolye/fabrikav2/.worktrees/ftd-ads-lifecycle/games/find_the_dog/dist/assets/index-D0CyKt-p.js:0
+/Users/base/dev/appletolye/fabrikav2/.worktrees/ftd-ads-lifecycle/games/find_the_dog/dist/assets/index-BGMa6WoK.js:0
+/Users/base/dev/appletolye/fabrikav2/.worktrees/ftd-ads-lifecycle/games/find_the_dog/dist/assets/index-cSSLGo00.js:0
+/Users/base/dev/appletolye/fabrikav2/.worktrees/ftd-ads-lifecycle/games/find_the_dog/dist/assets/index-BuMoFCVH.js:0
+{
+  "sha": "485450fe52",
+  "dirty": true,
+  "version": "0.0.0",
+  "builtAt": "2026-09-08T13:06:15.816Z"
+}
+
+[info] Sync finished in 0.097s
+Applied native shell for find_the_dog: CapApp-SPM/Package.swift (1 SKAdNetwork IDs; Firebase plist wired)
+Validated native shell for find_the_dog: generated project validated; 1 SKAdNetwork IDs; Firebase plist may be absent
+** BUILD SUCCEEDED **
+• databaseSequenceNumber: 2720
+• options: 
+install exit=0

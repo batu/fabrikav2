@@ -1284,8 +1284,10 @@ async function purchaseShopProduct(
         wallet: gameState,
       }),
     );
+    if (resolved.status === 'fulfilled' || resolved.status === 'duplicate') iapService.acknowledgePurchase(purchase);
     if (resolved.status !== 'fulfilled') {
-      action.textContent = resolved.status === 'duplicate' ? 'Already granted' : 'Not verified';
+      action.textContent = resolved.status === 'duplicate' ? 'Already granted'
+        : resolved.status === 'delivery-pending' ? 'Reward pending' : 'Not verified';
       return;
     }
 

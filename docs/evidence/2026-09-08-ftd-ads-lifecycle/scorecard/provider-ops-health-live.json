@@ -1,0 +1,450 @@
+{
+  "schema_version": 1,
+  "observed_at": "2026-09-08T12:45:45.376Z",
+  "browser": {
+    "status": "degraded",
+    "window_count": 1,
+    "tab_count": 15,
+    "expected_window_count": 1,
+    "expected_tab_count": 9
+  },
+  "providers": [
+    {
+      "observed_at": "2026-09-08T12:45:45.376Z",
+      "provider": "appsflyer",
+      "status": "healthy",
+      "source": {
+        "kind": "live_api",
+        "provenance": "appsflyer"
+      },
+      "freshness": {
+        "observed_at": "2026-09-08T12:45:45.376Z",
+        "window": {
+          "from": "2026-09-08",
+          "to": "2026-09-08"
+        }
+      },
+      "games": [
+        {
+          "id": "find_the_dog",
+          "app_store_id": "6772100729",
+          "appsflyer_app_id": "id6772100729",
+          "bundle_id": "com.baseardahan.hiddenobj",
+          "gameanalytics_project_id": "350269"
+        },
+        {
+          "id": "find_the_bird",
+          "app_store_id": "6796698146",
+          "appsflyer_app_id": "id6796698146",
+          "bundle_id": "com.basegamelab.findthebird",
+          "gameanalytics_project_id": "351396",
+          "appsflyer_contamination": {
+            "foreign_game": "find_the_dog",
+            "foreign_app_versions": [
+              "1.0.4"
+            ],
+            "hardened_release_at": "2026-09-03T05:03:10Z"
+          }
+        }
+      ],
+      "credentials": [
+        {
+          "kind": "sdk_ingestion",
+          "status": "missing_credential",
+          "locator": "env:FIND_GAMES_APPSFLYER_DEV_KEY"
+        },
+        {
+          "kind": "reporting_api",
+          "status": "available",
+          "locator": "path_env:FIND_GAMES_APPSFLYER_REPORTING_TOKEN_FILE",
+          "exists": true,
+          "mode": "0600"
+        }
+      ],
+      "error": null
+    },
+    {
+      "observed_at": "2026-09-08T12:45:45.376Z",
+      "provider": "admob",
+      "status": "degraded",
+      "source": {
+        "kind": "authenticated_browser",
+        "provenance": "admob"
+      },
+      "freshness": {
+        "observed_at": "2026-09-08T12:45:45.376Z",
+        "window": null
+      },
+      "games": [
+        {
+          "id": "find_the_dog",
+          "app_store_id": "6772100729",
+          "appsflyer_app_id": "id6772100729",
+          "bundle_id": "com.baseardahan.hiddenobj",
+          "gameanalytics_project_id": "350269"
+        },
+        {
+          "id": "find_the_bird",
+          "app_store_id": "6796698146",
+          "appsflyer_app_id": "id6796698146",
+          "bundle_id": "com.basegamelab.findthebird",
+          "gameanalytics_project_id": "351396",
+          "appsflyer_contamination": {
+            "foreign_game": "find_the_dog",
+            "foreign_app_versions": [
+              "1.0.4"
+            ],
+            "hardened_release_at": "2026-09-03T05:03:10Z"
+          }
+        }
+      ],
+      "credentials": [
+        {
+          "kind": "reporting_api",
+          "status": "missing_credential",
+          "locator": "path_env:FIND_GAMES_ADMOB_REPORTING_CREDENTIAL_FILE",
+          "exists": false
+        }
+      ],
+      "error": {
+        "category": "missing_credential"
+      }
+    },
+    {
+      "observed_at": "2026-09-08T12:45:45.376Z",
+      "provider": "google_play",
+      "status": "degraded",
+      "source": {
+        "kind": "authenticated_browser",
+        "provenance": "google_play"
+      },
+      "freshness": {
+        "observed_at": "2026-09-08T12:45:45.376Z",
+        "window": null
+      },
+      "games": [
+        {
+          "id": "find_the_dog",
+          "app_store_id": "6772100729",
+          "appsflyer_app_id": "id6772100729",
+          "bundle_id": "com.baseardahan.hiddenobj",
+          "gameanalytics_project_id": "350269"
+        },
+        {
+          "id": "find_the_bird",
+          "app_store_id": "6796698146",
+          "appsflyer_app_id": "id6796698146",
+          "bundle_id": "com.basegamelab.findthebird",
+          "gameanalytics_project_id": "351396",
+          "appsflyer_contamination": {
+            "foreign_game": "find_the_dog",
+            "foreign_app_versions": [
+              "1.0.4"
+            ],
+            "hardened_release_at": "2026-09-03T05:03:10Z"
+          }
+        }
+      ],
+      "credentials": [
+        {
+          "kind": "reporting_api",
+          "status": "missing_credential",
+          "locator": "path_env:FIND_GAMES_GOOGLE_PLAY_REPORTING_CREDENTIAL_FILE",
+          "exists": false
+        }
+      ],
+      "error": {
+        "category": "missing_credential"
+      }
+    },
+    {
+      "observed_at": "2026-09-08T12:45:45.376Z",
+      "provider": "gameanalytics",
+      "status": "degraded",
+      "source": {
+        "kind": "authenticated_browser",
+        "provenance": "gameanalytics"
+      },
+      "freshness": {
+        "observed_at": "2026-09-08T12:45:45.376Z",
+        "window": null
+      },
+      "games": [
+        {
+          "id": "find_the_dog",
+          "app_store_id": "6772100729",
+          "appsflyer_app_id": "id6772100729",
+          "bundle_id": "com.baseardahan.hiddenobj",
+          "gameanalytics_project_id": "350269"
+        },
+        {
+          "id": "find_the_bird",
+          "app_store_id": "6796698146",
+          "appsflyer_app_id": "id6796698146",
+          "bundle_id": "com.basegamelab.findthebird",
+          "gameanalytics_project_id": "351396",
+          "appsflyer_contamination": {
+            "foreign_game": "find_the_dog",
+            "foreign_app_versions": [
+              "1.0.4"
+            ],
+            "hardened_release_at": "2026-09-03T05:03:10Z"
+          }
+        }
+      ],
+      "credentials": [
+        {
+          "kind": "reporting_api",
+          "status": "missing_credential",
+          "locator": "env:FIND_GAMES_GAMEANALYTICS_REPORTING_TOKEN"
+        }
+      ],
+      "error": {
+        "category": "browser_tab_duplicate"
+      }
+    },
+    {
+      "observed_at": "2026-09-08T12:45:45.376Z",
+      "provider": "revenuecat",
+      "status": "degraded",
+      "source": {
+        "kind": "authenticated_browser",
+        "provenance": "revenuecat"
+      },
+      "freshness": {
+        "observed_at": "2026-09-08T12:45:45.376Z",
+        "window": null
+      },
+      "games": [
+        {
+          "id": "find_the_dog",
+          "app_store_id": "6772100729",
+          "appsflyer_app_id": "id6772100729",
+          "bundle_id": "com.baseardahan.hiddenobj",
+          "gameanalytics_project_id": "350269"
+        },
+        {
+          "id": "find_the_bird",
+          "app_store_id": "6796698146",
+          "appsflyer_app_id": "id6796698146",
+          "bundle_id": "com.basegamelab.findthebird",
+          "gameanalytics_project_id": "351396",
+          "appsflyer_contamination": {
+            "foreign_game": "find_the_dog",
+            "foreign_app_versions": [
+              "1.0.4"
+            ],
+            "hardened_release_at": "2026-09-03T05:03:10Z"
+          }
+        }
+      ],
+      "credentials": [
+        {
+          "kind": "reporting_api",
+          "status": "missing_credential",
+          "locator": "env:FIND_GAMES_REVENUECAT_REPORTING_TOKEN"
+        }
+      ],
+      "error": {
+        "category": "missing_credential"
+      }
+    },
+    {
+      "observed_at": "2026-09-08T12:45:45.376Z",
+      "provider": "meta",
+      "status": "missing_credential",
+      "source": {
+        "kind": "none",
+        "provenance": "meta"
+      },
+      "freshness": {
+        "observed_at": "2026-09-08T12:45:45.376Z",
+        "window": null
+      },
+      "games": [
+        {
+          "id": "find_the_dog",
+          "app_store_id": "6772100729",
+          "appsflyer_app_id": "id6772100729",
+          "bundle_id": "com.baseardahan.hiddenobj",
+          "gameanalytics_project_id": "350269"
+        },
+        {
+          "id": "find_the_bird",
+          "app_store_id": "6796698146",
+          "appsflyer_app_id": "id6796698146",
+          "bundle_id": "com.basegamelab.findthebird",
+          "gameanalytics_project_id": "351396",
+          "appsflyer_contamination": {
+            "foreign_game": "find_the_dog",
+            "foreign_app_versions": [
+              "1.0.4"
+            ],
+            "hardened_release_at": "2026-09-03T05:03:10Z"
+          }
+        }
+      ],
+      "credentials": [
+        {
+          "kind": "reporting_api",
+          "status": "missing_credential",
+          "locator": "env:FIND_GAMES_META_REPORTING_TOKEN"
+        }
+      ],
+      "error": {
+        "category": "missing_credential"
+      }
+    },
+    {
+      "observed_at": "2026-09-08T12:45:45.376Z",
+      "provider": "app_store_connect",
+      "status": "degraded",
+      "source": {
+        "kind": "authenticated_browser",
+        "provenance": "app_store_connect"
+      },
+      "freshness": {
+        "observed_at": "2026-09-08T12:45:45.376Z",
+        "window": null
+      },
+      "games": [
+        {
+          "id": "find_the_dog",
+          "app_store_id": "6772100729",
+          "appsflyer_app_id": "id6772100729",
+          "bundle_id": "com.baseardahan.hiddenobj",
+          "gameanalytics_project_id": "350269"
+        },
+        {
+          "id": "find_the_bird",
+          "app_store_id": "6796698146",
+          "appsflyer_app_id": "id6796698146",
+          "bundle_id": "com.basegamelab.findthebird",
+          "gameanalytics_project_id": "351396",
+          "appsflyer_contamination": {
+            "foreign_game": "find_the_dog",
+            "foreign_app_versions": [
+              "1.0.4"
+            ],
+            "hardened_release_at": "2026-09-03T05:03:10Z"
+          }
+        }
+      ],
+      "credentials": [
+        {
+          "kind": "reporting_api",
+          "status": "missing_credential",
+          "locator": "env:FIND_GAMES_ASC_ISSUER_ID"
+        },
+        {
+          "kind": "reporting_api",
+          "status": "missing_credential",
+          "locator": "env:FIND_GAMES_ASC_KEY_ID"
+        },
+        {
+          "kind": "reporting_api",
+          "status": "missing_credential",
+          "locator": "path_env:FIND_GAMES_ASC_PRIVATE_KEY_FILE",
+          "exists": false
+        }
+      ],
+      "error": {
+        "category": "missing_credential"
+      }
+    },
+    {
+      "observed_at": "2026-09-08T12:45:45.376Z",
+      "provider": "firebase",
+      "status": "degraded",
+      "source": {
+        "kind": "authenticated_browser",
+        "provenance": "firebase"
+      },
+      "freshness": {
+        "observed_at": "2026-09-08T12:45:45.376Z",
+        "window": null
+      },
+      "games": [
+        {
+          "id": "find_the_dog",
+          "app_store_id": "6772100729",
+          "appsflyer_app_id": "id6772100729",
+          "bundle_id": "com.baseardahan.hiddenobj",
+          "gameanalytics_project_id": "350269"
+        },
+        {
+          "id": "find_the_bird",
+          "app_store_id": "6796698146",
+          "appsflyer_app_id": "id6796698146",
+          "bundle_id": "com.basegamelab.findthebird",
+          "gameanalytics_project_id": "351396",
+          "appsflyer_contamination": {
+            "foreign_game": "find_the_dog",
+            "foreign_app_versions": [
+              "1.0.4"
+            ],
+            "hardened_release_at": "2026-09-03T05:03:10Z"
+          }
+        }
+      ],
+      "credentials": [
+        {
+          "kind": "reporting_api",
+          "status": "missing_credential",
+          "locator": "path_env:FIND_GAMES_FIREBASE_REPORTING_CREDENTIAL_FILE",
+          "exists": false
+        }
+      ],
+      "error": {
+        "category": "missing_credential"
+      }
+    },
+    {
+      "observed_at": "2026-09-08T12:45:45.376Z",
+      "provider": "google_drive",
+      "status": "degraded",
+      "source": {
+        "kind": "authenticated_browser",
+        "provenance": "google_drive"
+      },
+      "freshness": {
+        "observed_at": "2026-09-08T12:45:45.376Z",
+        "window": null
+      },
+      "games": [
+        {
+          "id": "find_the_dog",
+          "app_store_id": "6772100729",
+          "appsflyer_app_id": "id6772100729",
+          "bundle_id": "com.baseardahan.hiddenobj",
+          "gameanalytics_project_id": "350269"
+        },
+        {
+          "id": "find_the_bird",
+          "app_store_id": "6796698146",
+          "appsflyer_app_id": "id6796698146",
+          "bundle_id": "com.basegamelab.findthebird",
+          "gameanalytics_project_id": "351396",
+          "appsflyer_contamination": {
+            "foreign_game": "find_the_dog",
+            "foreign_app_versions": [
+              "1.0.4"
+            ],
+            "hardened_release_at": "2026-09-03T05:03:10Z"
+          }
+        }
+      ],
+      "credentials": [
+        {
+          "kind": "reporting_api",
+          "status": "missing_credential",
+          "locator": "path_env:FIND_GAMES_DRIVE_REPORTING_CREDENTIAL_FILE",
+          "exists": false
+        }
+      ],
+      "error": {
+        "category": "missing_credential"
+      }
+    }
+  ]
+}

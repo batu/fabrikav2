@@ -1,7 +1,6 @@
 /* global MessageEvent, URL, process */
-import { spawn } from 'node:child_process';
 import { createServer } from 'node:net';
-import { chromium } from 'playwright';
+import { startSmokeVite, launchSmokeBrowser } from './smoke-support.mjs';
 
 const port = await freePort();
 const baseUrl = `http://127.0.0.1:${port}`;
@@ -529,15 +528,11 @@ const createBodies = [];
 const draftSaveBodies = [];
 
 async function run() {
-  const vite = spawn(
-    process.platform === 'win32' ? 'npx.cmd' : 'npx',
-    ['vite', '--host', '127.0.0.1', '--port', String(port)],
-    { detached: process.platform !== 'win32', stdio: ['ignore', 'ignore', 'ignore'] },
-  );
+  const vite = startSmokeVite(port);
   let browser;
   try {
     await waitForServer();
-    browser = await chromium.launch({ headless: true });
+    browser = await launchSmokeBrowser(baseUrl);
     const page = await browser.newPage({ viewport: { width: 1280, height: 1000 } });
     const browserDiagnostics = [];
     page.on('console', (message) => {
@@ -577,6 +572,26 @@ async function run() {
     await page.route('**/*', async (route) => {
       const url = new URL(route.request().url());
       const method = route.request().method();
+      if (url.pathname.endsWith('/derived-crops')) {
+        await route.fulfill({ json: { crops: {}, needsReview: false } });
+        return;
+      }
+      if (url.pathname.endsWith('/sprite-candidates')) {
+        await route.fulfill({ json: { candidates: [] } });
+        return;
+      }
+      if (url.pathname.endsWith('/cutout-extraction-prompt')) {
+        await route.fulfill({ json: { entity: 'dog', prompt: 'Extract the selected dog.' } });
+        return;
+      }
+      if (url.pathname.endsWith('/visibility-check')) {
+        await route.fulfill({ json: { ok: true, issues: [], viewports: [] } });
+        return;
+      }
+      if (url.pathname.endsWith('/recomposite-preview') || url.pathname.includes('/sprite-candidate/')) {
+        await route.fulfill({ contentType: 'image/png', body: png });
+        return;
+      }
 
       if (url.pathname.startsWith('/levels/') && url.pathname.endsWith('/color.png')) {
         fullColorRequests += 1;
@@ -856,7 +871,7 @@ async function run() {
         return;
       }
 
-      await route.continue();
+      await route.fallback();
     });
 
     await page.goto(baseUrl);
@@ -932,12 +947,15 @@ async function run() {
     assert(selectedIds.length === 2, `Expected two completed sessions for Lineup selection, got ${JSON.stringify(completedIds)}.`);
     await page.getByRole('button', { name: 'Lineup', exact: true }).click();
     await page.waitForSelector('.sequence-page');
-    // Lineup membership moved to the Lineup page catalog picker (ff2d11258).
+    // Current Lineup membership comes from the session library and autosaves.
     for (const id of selectedIds) {
-      await page.getByTitle(`Append ${id} to the draft lineup`).click();
+      await page.locator('.sequence-level-card')
+        .filter({ has: page.getByText(sessions.get(id).name, { exact: true }) })
+        .filter({ has: page.getByRole('button', { name: '+ Add to lineup', exact: true }) })
+        .first().getByRole('button', { name: '+ Add to lineup', exact: true }).click();
       await page.waitForSelector(`[data-sequence-card-id="${id}"]`);
+      await page.waitForFunction(() => !document.body.innerText.includes('Saving'));
     }
-    await page.getByRole('button', { name: 'Save order' }).click();
     const saveDeadline = Date.now() + 10_000;
     while (JSON.stringify(draftIds) !== JSON.stringify(selectedIds) && Date.now() < saveDeadline) {
       await new Promise((resolve) => setTimeout(resolve, 100));
@@ -953,24 +971,20 @@ async function run() {
       `[data-sequence-card-id="${selectedIds[1]}"]`,
       `[data-sequence-card-id="${selectedIds[0]}"]`,
     );
-    await page.waitForFunction(() => document.body.innerText.includes('Unsaved order changes'));
-    await page.getByRole('button', { name: 'Save order' }).click();
-    await page.waitForFunction(() => !document.body.innerText.includes('Unsaved order changes'));
+    await page.waitForFunction(() => !document.body.innerText.includes('Saving'));
+    const reorderDeadline = Date.now() + 10_000;
+    while (draftIds[0] !== selectedIds[1] && Date.now() < reorderDeadline) {
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    }
     assert(JSON.stringify(draftIds) === JSON.stringify([selectedIds[1], selectedIds[0]]), `Expected reordered Lineup draft, got ${JSON.stringify(draftIds)}.`);
     assert(JSON.stringify(draftSaveBodies.at(-1).levelIds) === JSON.stringify(draftIds), 'Expected reordered draft body to be persisted.');
-
-    await page.getByText('Diagnostics and recovery').click();
-    await page.getByRole('button', { name: 'Validation check only' }).click();
-    await page.waitForSelector('[data-sequence-dry-run-result="true"]');
-    const dryRunText = await page.locator('[data-sequence-dry-run-result="true"]').innerText();
-    assert(dryRunText.includes('Validation payload ready'), `Expected validation result, got: ${dryRunText}`);
 
     await page.locator('[data-sequence-start="true"]').click();
     await page.waitForSelector('text=journey-start-1');
     await page.reload();
-    await page.waitForSelector('[data-sequence-activation-result="true"]', { state: 'attached' });
-    const activationText = await page.locator('[data-sequence-activation-result="true"]').textContent() ?? '';
-    assert(activationText.includes('Lineup updated.'), `Expected recovered Start activation result, got: ${activationText}`);
+    await page.getByText('Complete', { exact: true }).waitFor();
+    const renderedOrder = await page.locator('[data-sequence-draft-list] [data-sequence-card-id]').evaluateAll((cards) => cards.map((card) => card.getAttribute('data-sequence-card-id')));
+    assert(JSON.stringify(renderedOrder) === JSON.stringify(draftIds), 'Recovered Start did not retain the submitted order.');
     assert(startRequests === 1, `Expected one Start request, got ${startRequests}.`);
     assert(startJobGets >= 2, `Expected reload/poll recovery through durable job GETs, got ${startJobGets}.`);
     assert(galleryPreviewRequests === 0, `Normal selection/order flow should not fetch full gallery previews, got ${galleryPreviewRequests}.`);

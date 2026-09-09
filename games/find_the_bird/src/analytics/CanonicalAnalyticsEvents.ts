@@ -48,7 +48,7 @@ const levelAttributionFields = [
 
 const economyFields = ['flow_type', 'currency', 'amount', 'item_type', 'item_id', 'product_id', 'no_ads', 'hints', 'coins', 'continue_level', 'level_id'] as const;
 const adRevenueFields = ['ad_type', 'placement', 'provider', 'currency', 'precision', 'network_name'] as const;
-const runtimeIdentityFields = ['app_version', 'build', 'platform', 'game', 'environment', 'cohort_bucket'] as const;
+const runtimeIdentityFields = ['native_app_version', 'native_build_number', 'app_version', 'build', 'platform', 'game', 'environment', 'cohort_bucket'] as const;
 
 export const canonicalAnalyticsEvents = [
   {

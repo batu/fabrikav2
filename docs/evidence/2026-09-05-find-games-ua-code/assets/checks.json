@@ -1,0 +1,32 @@
+[
+  {
+    "command": "npm run test:unit -w packages/sdk",
+    "exit_code": 0,
+    "log": "assets/check-1.log"
+  },
+  {
+    "command": "npm run test:unit -w games/find_the_bird",
+    "exit_code": 0,
+    "log": "assets/check-2.log"
+  },
+  {
+    "command": "npm run test:unit -w games/find_the_dog",
+    "exit_code": 0,
+    "log": "assets/check-3.log"
+  },
+  {
+    "command": "npm run typecheck -w packages/sdk",
+    "exit_code": 0,
+    "log": "assets/check-4.log"
+  },
+  {
+    "command": "npm run typecheck -w games/find_the_bird",
+    "exit_code": 0,
+    "log": "assets/check-5.log"
+  },
+  {
+    "command": "npm run lint -w packages/sdk",
+    "exit_code": 0,
+    "log": "assets/check-6.log"
+  }
+]

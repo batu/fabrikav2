@@ -55,6 +55,7 @@ describe('buildAndInstallApp', () => {
     const calls = [];
     const shImpl = (file, args, opts = {}) => {
       calls.push({ file, args, opts });
+      if (file === 'agency') fs.writeFileSync(args[args.indexOf('--result-file') + 1], JSON.stringify({ output_dir: path.join(gameDir, 'owned-output') }));
       return '';
     };
 
@@ -62,7 +63,9 @@ describe('buildAndInstallApp', () => {
       const appBundleId = buildAndInstallApp(gameDir, 'DEVICE', 'com.example.game', { shImpl });
 
       expect(appBundleId).toBe('com.example.game');
-      const xcodebuild = calls.find((c) => c.file === 'xcodebuild');
+      const xcodebuild = calls.find((c) => c.file === 'agency');
+      expect(xcodebuild.args).toContain('xcodebuild');
+      expect(calls.at(-1).args.at(-1)).toContain('owned-output/DerivedData/Build/Products/Debug-iphoneos/App.app');
       expect(xcodebuild.args).toContain('-allowProvisioningUpdates');
       expect(xcodebuild.args).toContain('DEVELOPMENT_TEAM=TEAM123');
     } finally {
@@ -78,13 +81,14 @@ describe('buildAndInstallApp', () => {
     const calls = [];
     const shImpl = (file, args, opts = {}) => {
       calls.push({ file, args, opts });
+      if (file === 'agency') fs.writeFileSync(args[args.indexOf('--result-file') + 1], JSON.stringify({ output_dir: path.join(gameDir, 'owned-output') }));
       return '';
     };
 
     try {
       buildAndInstallApp(gameDir, 'DEVICE', 'com.example.game', { shImpl });
 
-      const xcodebuild = calls.find((c) => c.file === 'xcodebuild');
+      const xcodebuild = calls.find((c) => c.file === 'agency');
       expect(xcodebuild.args).not.toContain('-allowProvisioningUpdates');
       expect(xcodebuild.args.some((a) => a.startsWith('DEVELOPMENT_TEAM='))).toBe(false);
     } finally {

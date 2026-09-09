@@ -4,14 +4,14 @@ import { prefersReducedMotion } from '@fabrikav2/ui';
 import { COLORS, GAME, GAMEPLAY, TEST_HARNESS_ENABLED, TIMING } from '../core/Constants';
 import { gameState } from '../core/GameState';
 import {
-  DEFAULT_PICKUP_STYLE,
   getPickupStylePreference,
   registerPickupStyleApplier,
+  resolvePickupStyle,
   type PickupStyle,
 } from '../settings/pickupStylePreference';
 import { disposeLevelUrls, getLevelIndex, loadLevel, loadLevelForProgression, releaseLevelSceneResources, withDirectSelectServingAttempt } from '../data/levels';
 import type { LevelData, LevelDog, LevelSection } from '../data/levels';
-import { playFind, playWrongTap, preloadDogFoundSounds } from '../audio/AudioManager';
+import { playFind, playWrongTap, preloadBirdFoundSounds } from '../audio/AudioManager';
 import { crossfadeTo as crossfadeAmbient, presetForLevel } from '../audio/AmbientManager';
 import { adService, showRewardedAdForEconomy } from '../ads/Service';
 import { trackRewardedWatchedIfGranted } from '../attribution/RewardedAttribution';
@@ -568,7 +568,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   create(): void {
-    // Settings live-applies pickup presentation to the running scene; the
+    // The test harness can live-apply experimental pickup presentations; the
     // registration is scene-scoped and cleared on shutdown.
     registerPickupStyleApplier((style) => this.setPickupStyleForTest(style));
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => registerPickupStyleApplier(null));
@@ -585,7 +585,7 @@ export class GameScene extends Phaser.Scene {
     const run = (): void => {
       if (this.isShuttingDown || !this.sys.isActive()) return;
       void preloadLevelCompleteAssets();
-      if (hasUserActivated()) void preloadDogFoundSounds();
+      if (hasUserActivated()) void preloadBirdFoundSounds();
     };
 
     if (FAST_E2E_UI) {
@@ -2175,6 +2175,10 @@ export class GameScene extends Phaser.Scene {
         wallet: gameState,
       }),
     );
+    if (resolved.status === 'fulfilled' || resolved.status === 'duplicate') iapService.acknowledgePurchase(purchase);
+    if (resolved.status === 'delivery-pending') {
+      return { resumed: false, message: 'Purchase received. Reward delivery is pending.' };
+    }
     if (resolved.status !== 'fulfilled' || resolved.grant?.continueLevel !== true) {
       return { resumed: false, message: 'Purchase could not continue this level.' };
     }
@@ -2436,10 +2440,10 @@ export class GameScene extends Phaser.Scene {
   // localStorage deliberately NOT consulted: a style cycled during an earlier
   // build's evaluation persisted and silently overrode the shipped default on
   // device (observed on build 6).
-  private pickupStyle: PickupStyle =
-    (new URLSearchParams(globalThis.location?.search ?? '').get('pickupStyle') as PickupStyle | null)
-    ?? getPickupStylePreference()
-    ?? DEFAULT_PICKUP_STYLE;
+  private pickupStyle: PickupStyle = resolvePickupStyle(
+    new URLSearchParams(globalThis.location?.search ?? '').get('pickupStyle')
+      ?? getPickupStylePreference(),
+  );
 
   setPickupStyleForTest(style: PickupStyle): void {
     this.pickupStyle = style;

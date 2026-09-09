@@ -57,7 +57,7 @@ describe('FTD IAP provider selection', () => {
       buildEnv: 'production',
       platform: 'android',
       isNativePlatform: true,
-      env: { VITE_REVENUECAT_ANDROID_API_KEY: `goog_${'a'.repeat(28)}` },
+      env: { VITE_REVENUECAT_ANDROID_API_KEY: `goog_${'a'.repeat(27)}` },
     });
     expect(android.selection.iap).toBe('revenuecat');
     expect(android.iapComposition.platform()).toBe('android');

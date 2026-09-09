@@ -2,7 +2,7 @@
  * IapService — game-agnostic purchase/restore service, generalized + re-seamed
  * from v1 `games/find_the_dog/src/shop/IapService.ts` (617 lines, READ-ONLY).
  *
- * Two changes from the v1 source, no more:
+ * Provider and recovery boundaries:
  *  1. RevenueCat is hidden behind a first-class `PurchaseProvider` port (v1's
  *     `RevenueCatPurchasesPort` was already a `Pick<PurchasesPlugin, …>`; here it
  *     is promoted to an interface with a RevenueCat impl and a scriptable Fake).
@@ -12,12 +12,13 @@
  *  2. The ~80 lines of `*ForTest` fields + `setStateForTest` are GONE. Behavior in
  *     tests comes from a real `FakePurchaseProvider` implementing the same port.
  *
- * The genuinely-hard logic — the single-flight guard, the user-cancel
- * classification, and the load-bearing late-settle restore machine — is carried
- * VERBATIM. It is subtle and battle-tested; do not "simplify" it.
+ * Native purchase/restore ownership survives caller timeouts. Received successful
+ * purchase results can be persisted and delivered through an acknowledging
+ * consumer; customer-info restore remains a distinct entitlement-only path.
  */
 import { assertUniqueCatalogProductIds, type CatalogProduct } from './catalog.ts';
 import { isTimeoutError, withTimeout } from '../with-timeout.ts';
+import type { PendingPurchaseStore } from './pending-purchases.ts';
 
 export type IapServiceState =
   | 'idle'
@@ -143,6 +144,10 @@ export interface IapServiceDependencies<TPayload = unknown> {
   provider: () => PurchaseProvider | Promise<PurchaseProvider>;
   operationTimeoutMs: () => number;
   purchaseTimeoutMs?: () => number;
+  pendingPurchaseStore?: PendingPurchaseStore;
+  /** Check the game's durable wallet before requesting a new store purchase.
+   * Throw to refuse a charge when fulfillment is already known unavailable. */
+  preparePurchase?: () => void;
   /** Optional purchase-pipeline observer (analytics). Must not throw; a throw is
    *  swallowed so telemetry can never break a purchase or init. */
   onEvent?: (event: IapServiceEvent) => void;
@@ -206,11 +211,12 @@ export class IapService<TPayload = unknown> {
   private activePurchaseProductId: string | null = null;
   private restoreInProgress = false;
   private completedRestoreResult: IapRestoreResult | null = null;
-  /** A purchase result whose native promise settled AFTER its caller-facing
-   * timeout returned. Banked here — never discarded — so the next purchase() of
-   * the same product observes the real outcome instead of issuing a second
-   * charge. Mirrors `completedRestoreResult` for the restore path. */
+  /** Received successes remain owned here until the wallet acknowledges them.
+   * Without a durable store, legacy callers retain late-result banking only. */
   private completedPurchaseResultsByProductId = new Map<string, IapPurchaseResult>();
+  private completedPurchaseHandler: ((result: IapPurchaseResult) => boolean) | null = null;
+  private pendingPurchasesLoaded = false;
+  private reconcilingPurchases = false;
   /** customerInfo-update handler set before init(). When set, init registers a
    * provider listener that calls it on every CustomerInfo change so deferred
    * non-consumable entitlements (e.g. an Ask-to-Buy no-ads purchase approved
@@ -247,7 +253,67 @@ export class IapService<TPayload = unknown> {
     if (this.initPromise === null || this.state === 'load-failed') {
       this.initPromise = this.initAsync();
     }
-    return this.initPromise;
+    return this.initPromise.then(() => { this.reconcilePendingPurchases(); });
+  }
+
+  /** Recover received purchases after timeout, interruption or wallet failure.
+   * Acknowledge only a durable grant/duplicate, never product membership alone. */
+  setOnCompletedPurchase(handler: ((result: IapPurchaseResult) => boolean) | null): void {
+    this.completedPurchaseHandler = handler;
+    this.reconcilePendingPurchases();
+  }
+
+  /** Retry at startup/resume or after a wallet/storage failure. Never throws
+   * through a native promise observer, and never drops an unacknowledged result. */
+  reconcilePendingPurchases(): IapPurchaseResult[] {
+    if (this.state !== 'ready' || this.reconcilingPurchases) return [];
+    const delivered: IapPurchaseResult[] = [];
+    this.reconcilingPurchases = true;
+    try {
+      if (!this.pendingPurchasesLoaded) {
+        for (const result of this.dependencies.pendingPurchaseStore?.load() ?? []) {
+          this.completedPurchaseResultsByProductId.set(result.productId, result);
+        }
+        this.pendingPurchasesLoaded = true;
+      }
+      // A failed acknowledgement restores its map entry. Snapshot the pass so
+      // that reinsertion cannot revisit the same purchase without yielding.
+      for (const result of [...this.completedPurchaseResultsByProductId.values()]) {
+        if (result.status !== 'purchased') continue;
+        // Persist before attempting delivery, including when no UI is waiting.
+        this.persistPendingPurchases();
+        if (!this.completedPurchaseHandler?.(result)) continue;
+        if (this.acknowledgePurchase(result)) delivered.push(result);
+      }
+    } catch (err) {
+      this.lastErrorMessage = `pending purchase delivery: ${errorMessage(err)}`;
+    } finally {
+      this.reconcilingPurchases = false;
+    }
+    return delivered;
+  }
+
+  private persistPendingPurchases(): void {
+    this.dependencies.pendingPurchaseStore?.save(
+      [...this.completedPurchaseResultsByProductId.values()].filter((result) => result.status === 'purchased'),
+    );
+  }
+
+  /** The waiting caller uses this only after a durable grant or ledger duplicate.
+   * A failed journal update retains ownership, so recovery cannot charge again. */
+  acknowledgePurchase(result: IapPurchaseResult): boolean {
+    const pending = this.completedPurchaseResultsByProductId.get(result.productId);
+    if (result.status !== 'purchased' || pending?.status !== 'purchased'
+      || (pending.purchaseToken ?? pending.purchaseId) !== (result.purchaseToken ?? result.purchaseId)) return false;
+    this.completedPurchaseResultsByProductId.delete(result.productId);
+    try {
+      this.persistPendingPurchases();
+      return true;
+    } catch (err) {
+      this.completedPurchaseResultsByProductId.set(result.productId, pending);
+      this.lastErrorMessage = `pending purchase acknowledgement: ${errorMessage(err)}`;
+      return false;
+    }
   }
 
   snapshot(): IapSnapshot<TPayload> {
@@ -257,7 +323,10 @@ export class IapService<TPayload = unknown> {
         product,
         storeProduct: this.storeProductsById.get(product.productId) ?? null,
       })),
-      pendingPurchaseProductIds: this.activePurchaseProductId === null ? [] : [this.activePurchaseProductId],
+      pendingPurchaseProductIds: [...new Set([
+        ...(this.activePurchaseProductId === null ? [] : [this.activePurchaseProductId]),
+        ...[...this.completedPurchaseResultsByProductId.values()].filter((result) => result.status === 'purchased').map((result) => result.productId),
+      ])],
       purchaseInProgress: this.activePurchaseProductId !== null,
       restoreInProgress: this.restoreInProgress,
       nativeOperationInProgress: this.activePurchaseProductId !== null || this.restoreInProgress,
@@ -271,6 +340,9 @@ export class IapService<TPayload = unknown> {
   consumeCompletedPurchaseResult(productId: string): IapPurchaseResult | null {
     const result = this.completedPurchaseResultsByProductId.get(productId) ?? null;
     if (result === null) return null;
+    // Durable results belong to the acknowledging consumer. Legacy callers
+    // without a store keep the original one-shot banked-result behavior.
+    if (result.status === 'purchased' && this.dependencies.pendingPurchaseStore) return result;
     this.completedPurchaseResultsByProductId.delete(productId);
     return result;
   }
@@ -301,6 +373,16 @@ export class IapService<TPayload = unknown> {
       return { status: 'unavailable', productId, purchaseId: null, purchaseToken: null, customerInfo: null, errorMessage: this.lastErrorMessage };
     }
 
+    const pendingBeforeRetry = this.completedPurchaseResultsByProductId.get(productId);
+    const deliveredOnRetry = this.reconcilePendingPurchases().find((result) => result.productId === productId);
+    if (!this.pendingPurchasesLoaded || (this.completedPurchaseHandler !== null
+      && this.completedPurchaseResultsByProductId.get(productId)?.status === 'purchased')) {
+      return { status: 'unavailable', productId, purchaseId: null, purchaseToken: null, customerInfo: null,
+        errorMessage: this.lastErrorMessage ?? 'purchase is awaiting wallet delivery' };
+    }
+    if (deliveredOnRetry) return deliveredOnRetry;
+    if (pendingBeforeRetry?.status === 'purchased' && this.completedPurchaseHandler !== null) return pendingBeforeRetry;
+
     // Single-flight guard: one native store operation at a time. A concurrent
     // purchase, or a purchase during restore, is rejected — not queued. The lock
     // is held until the RAW native promise settles (see below), so a retry after a
@@ -329,9 +411,20 @@ export class IapService<TPayload = unknown> {
       return { status: 'unavailable', productId, purchaseId: null, purchaseToken: null, customerInfo: null, errorMessage: 'IAP not initialized' };
     }
 
+    try {
+      this.dependencies.preparePurchase?.();
+      // A readable journal may still be unwritable. Check before opening the
+      // store, preserving any existing unacknowledged results in the same record.
+      this.persistPendingPurchases();
+    } catch (err) {
+      this.lastErrorMessage = `purchase storage unavailable: ${errorMessage(err)}`;
+      return { status: 'unavailable', productId, purchaseId: null, purchaseToken: null, customerInfo: null, errorMessage: this.lastErrorMessage };
+    }
+
     this.activePurchaseProductId = productId;
     this.emitEvent({ type: 'purchase_dispatched', productId });
     let returnedBeforeNativeSettled = false;
+    let receivedPurchasePersisted = false;
     // Observe the RAW native promise, NOT the caller-facing `withTimeout` race. A
     // JavaScript timeout does not cancel the native store operation, so releasing
     // the lock when the timer wins (the old `finally`) let a retry start a second
@@ -342,10 +435,17 @@ export class IapService<TPayload = unknown> {
     const purchasePromise = Promise.resolve().then(() => provider.purchaseProduct(productId));
     void purchasePromise.then(
       (transaction) => {
-        if (returnedBeforeNativeSettled) {
+        if (returnedBeforeNativeSettled || this.dependencies.pendingPurchaseStore) {
           this.completedPurchaseResultsByProductId.set(productId, this.purchasedResult(productId, transaction));
+          try {
+            this.persistPendingPurchases();
+            receivedPurchasePersisted = true;
+          } catch (err) {
+            this.lastErrorMessage = `purchase received; delivery pending: ${errorMessage(err)}`;
+          }
         }
         if (this.activePurchaseProductId === productId) this.activePurchaseProductId = null;
+        if (returnedBeforeNativeSettled) this.reconcilePendingPurchases();
       },
       (err: unknown) => {
         const message = errorMessage(err);
@@ -359,6 +459,11 @@ export class IapService<TPayload = unknown> {
 
     try {
       const transaction = await withTimeout(purchasePromise, this.purchaseTimeoutMs(), 'purchaseProduct');
+      if (this.dependencies.pendingPurchaseStore && !receivedPurchasePersisted) {
+        // Keep the received result in memory for journal/recovery retry. Do not
+        // start caller fulfillment before the pending record can be committed.
+        return { status: 'unavailable', productId, purchaseId: null, purchaseToken: null, customerInfo: null, errorMessage: this.lastErrorMessage };
+      }
       return this.purchasedResult(productId, transaction);
     } catch (err) {
       const message = errorMessage(err);

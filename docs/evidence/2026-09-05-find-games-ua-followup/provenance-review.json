@@ -1,0 +1,40 @@
+{
+  "status": "complete",
+  "verdict": "No actionable findings",
+  "scope": {
+    "base": "c641bd71c6404bfd2326d9b671c5de392111061d",
+    "branch": "audit/find-games-ua-cutover",
+    "files_changed": 7,
+    "description": "Six tracked provenance changes plus the explicitly requested untracked integration test."
+  },
+  "findings": [],
+  "actionable_findings": [],
+  "verified": [
+    "Inspected production wiring: SdkContext creates the GA sink and retains buildStamp-derived build/app_version; the release pipeline compiles web assets before native version/build stamping.",
+    "Native identity is acquired before GA initialization, cached, stamped onto queued and subsequent events without mutating the original envelope, and prioritized before the existing 20-field compaction limit. Existing per-event allowlists and forbidden-identifier filtering remain in place.",
+    "App-info rejection, invalid identity, and timeout use the existing bounded retry/drop policy. Queue bounds, SDK-candidate reuse, session adoption, and truthful flush diagnostics remain intact.",
+    "The integration test passed for both games. Replaying the baseline sink/allowlist failed for both at native-analytics-provenance.integration.mjs:116 because native_app_version was undefined. This is a meaningful regression test, not an assertion that merely validates its fixtures.",
+    "Analytics-focused tests: Dog 70 passed, 2 skipped; Bird 69 passed, 3 skipped. git diff --check passed."
+  ],
+  "testing_gaps": [
+    {
+      "location": "tools/game-release/test/native-analytics-provenance.integration.mjs:105-109",
+      "detail": "The test manually composes the facade and source stamp rather than invoking production SdkContext/buildStamp. It proves compiled sink/mapper/Capacitor-JS propagation, not full bootstrap or archive fidelity.",
+      "suggested_test": "Add a compiled production-composition assertion if this test is later used as a bootstrap/source-stamp regression gate."
+    },
+    {
+      "location": "games/find_the_dog/tests/unit/gameanalytics-sink.test.ts:15-52 and corresponding Bird tests",
+      "detail": "Optional hardening: cover failed-then-successful App.getInfo recovery with queued session_start/session_end/session_start, and a crowded allowed-field payload that retains native plus source identity while remaining within 20 fields."
+    }
+  ],
+  "coverage": {
+    "lenses": "Correctness, testing, API compatibility, reliability, adversarial fidelity, project standards, and ce-simplify-code reuse/quality/efficiency.",
+    "limitation": "All lenses ran inline. Child reviewers, independent validators, and cross-model review were unavailable under the delegated no-children constraint.",
+    "simplification": "No behavior-preserving simplification worth expanding this surgical diff was identified.",
+    "known_pattern": "Checked docs/solutions/logic-errors/gameanalytics-wkwebview-session-runtime.md against retry/session behavior.",
+    "test_limitations": "Existing skipped tests and Node localStorage experimental warnings remain. No device, signing, release, provider-delivery, or real Info.plist execution was performed; physical proof remains Store-owned."
+  },
+  "files_created_or_modified": [],
+  "artifact_path": null,
+  "artifact_note": "No review artifact was written, honoring the explicit read-only/no-edits request."
+}

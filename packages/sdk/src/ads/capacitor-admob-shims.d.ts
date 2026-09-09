@@ -101,6 +101,7 @@ declare module '@capacitor-community/admob' {
   }
 
   export enum RewardAdPluginEvents {
+    Rewarded = 'onRewardedVideoAdReward',
     FailedToLoad = 'onRewardedVideoAdFailedToLoad',
     Dismissed = 'onRewardedVideoAdDismissed',
     FailedToShow = 'onRewardedVideoAdFailedToShow',
@@ -111,6 +112,8 @@ declare module '@capacitor-community/admob' {
     requestConsentInfo: (options?: AdmobConsentRequestOptions) => Promise<AdmobConsentInfo>;
     showConsentForm: () => Promise<AdmobConsentInfo>;
     showPrivacyOptionsForm: () => Promise<void>;
+    requestTrackingAuthorization: () => Promise<void>;
+    trackingAuthorizationStatus: () => Promise<{ status: string }>;
     prepareInterstitial: (options: AdOptions) => Promise<void>;
     showInterstitial: () => Promise<void>;
     showBanner: (options: BannerAdOptions) => Promise<void>;

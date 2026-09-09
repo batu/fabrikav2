@@ -6,7 +6,7 @@ from PIL import Image
 def test_materialize_and_best_safe_keep_workspace_and_public_levels_in_sync(
     isolated_session, monkeypatch,
 ):
-    from levelbuilder.api import flatkey, inpaint, sprite_eval
+    from levelbuilder.api import inpaint, sprite_eval
 
     session_id = "sprite_level_sync"
     session_dir = isolated_session.LEVELS_DIR / session_id
@@ -31,11 +31,16 @@ def test_materialize_and_best_safe_keep_workspace_and_public_levels_in_sync(
         "dogs": [{"id": "bird-0", "index": 0, "activeVariant": None}],
     }))
     isolated_session.set_hitbox_review(session_id, True, source="test")
-    monkeypatch.setattr(
-        flatkey,
-        "flatkey_recreate_sprites_batch",
-        lambda *_args, **_kwargs: {0: Image.new("RGBA", (40, 40), (220, 80, 30, 255))},
-    )
+    # Detections below 110px bypass flat-key recreation. Inject the semantic
+    # extractor actually used here; model caches must not make this test pass.
+    def fake_semantic_alpha(clean_crop, painted, hitbox, box, *, relaxed):
+        alpha = Image.new("L", painted.size, 0)
+        x = painted.width // 2 - 20
+        y = painted.height // 2 - 20
+        alpha.paste(255, (x, y, x + 40, y + 40))
+        return alpha
+
+    monkeypatch.setattr(inpaint, "_semantic_sprite_alpha", fake_semantic_alpha)
 
     result = isolated_session.materialize_detection_sprites(
         session_id,

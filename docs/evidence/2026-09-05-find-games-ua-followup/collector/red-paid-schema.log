@@ -1,0 +1,33 @@
+✔ paid totals require own identity and exclude test, contamination, pre-cutoff, foreign campaign and QA rows (3.494958ms)
+✔ a cohort cannot be approved without a valid UTC cutoff and complete QA exclusion policy (3.574083ms)
+✔ empty or malformed successful responses cannot masquerade as a healthy zero (1.529334ms)
+✔ canonical policy has no public paid T0 and never promotes FTB 1.2.1 (0.389833ms)
+✖ paid header-only exports missing identity or cohort columns are incomplete (0.735541ms)
+✔ unavailable organic report leaves every organic aggregate unknown, not zero (0.970291ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 5
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 60.257959
+
+✖ failing tests:
+
+test at .hermes/scripts/find-games-daily-scorecard.test.mjs:86:1
+✖ paid header-only exports missing identity or cohort columns are incomplete (0.735541ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  0 !== null
+  
+      at TestContext.<anonymous> (file:///Users/base/.hermes/scripts/find-games-daily-scorecard.test.mjs:89:10)
+      at async Test.run (node:internal/test_runner/test:1404:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:969:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: null,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

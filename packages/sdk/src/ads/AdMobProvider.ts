@@ -50,10 +50,45 @@ export interface AdMobPaidImpression {
   precision: string;
   networkName: string;
 }
+export type AdMobFormat = AdMobPaidImpression['format'];
+export type AdMobLifecycleStage =
+  | 'load_requested'
+  | 'loaded'
+  | 'load_failed'
+  | 'expired'
+  | 'skipped'
+  | 'show_requested'
+  | 'shown'
+  | 'show_failed'
+  | 'impression'
+  | 'reward_earned'
+  | 'dismissed'
+  | 'hidden';
+/**
+ * Provider-level lifecycle telemetry. Every stage carries the format; `loadId`
+ * correlates the load that produced a later show/impression/dismissal so a
+ * consumer can deduplicate and compute cache age without wrapper booleans.
+ * `impression` is the native SDK impression callback — request acceptance is
+ * never reported as an impression.
+ */
+export interface AdMobLifecycleEvent {
+  format: AdMobFormat;
+  stage: AdMobLifecycleStage;
+  /** Correlates load → show → impression → dismissal for one native ad object. */
+  loadId?: string;
+  /** Failure or skip reason (`native_<code>`, `frequency_cap`, `not_loaded`, ...). */
+  reason?: string;
+  /** Load attempt number within the current failure streak (interstitial). */
+  attempt?: number;
+  /** Age of the cached ad at show/expiry time. */
+  cacheAgeMs?: number;
+}
 type AdEventListener = (info: AdEventInfo) => void;
 type ListenerHandle = { remove: () => Promise<void> };
-type FullScreenAdDismissalWaiter = {
-  wait: () => Promise<void>;
+type RewardedTerminalWaiter = {
+  wait: () => Promise<RewardedAdResult>;
+  reward: (info: AdEventInfo) => void;
+  fail: () => void;
   cleanup: () => Promise<void>;
 };
 
@@ -70,6 +105,9 @@ export interface AdMobAdapter {
   requestConsentInfo: (options?: AdmobConsentRequestOptions) => Promise<AdmobConsentInfo>;
   showConsentForm: () => Promise<AdmobConsentInfo>;
   showPrivacyOptionsForm: () => Promise<void>;
+  /** iOS App Tracking Transparency prompt (no-op elsewhere). Optional for older fakes. */
+  requestTrackingAuthorization?: () => Promise<void>;
+  trackingAuthorizationStatus?: () => Promise<{ status: string }>;
   prepareInterstitial: (options: AdOptions) => Promise<void>;
   showInterstitial: () => Promise<void>;
   showBanner: (options: BannerAdOptions) => Promise<void>;
@@ -107,6 +145,15 @@ export const createDefaultAdMobAdapter = (): AdMobAdapter => ({
   showPrivacyOptionsForm: async () => {
     const { AdMob } = await import('@capacitor-community/admob');
     await AdMob.showPrivacyOptionsForm();
+  },
+  requestTrackingAuthorization: async (): Promise<void> => {
+    const { AdMob } = await import('@capacitor-community/admob');
+    await AdMob.requestTrackingAuthorization();
+  },
+  trackingAuthorizationStatus: async (): Promise<{ status: string }> => {
+    const { AdMob } = await import('@capacitor-community/admob');
+    const result = await AdMob.trackingAuthorizationStatus();
+    return { status: String(result.status) };
   },
   prepareInterstitial: async (options: AdOptions): Promise<void> => {
     const { AdMob } = await import('@capacitor-community/admob');
@@ -149,6 +196,13 @@ const MAX_INTERSTITIAL_LOAD_ATTEMPTS = 3;
 /** Backoff base for the first retry; doubles per attempt, capped. */
 const INTERSTITIAL_BACKOFF_BASE_MS = 2_000;
 const INTERSTITIAL_BACKOFF_CAP_MS = 30_000;
+/**
+ * Google Mobile Ads: "Because ads expire after an hour, you should clear this
+ * cache and reload with new ads every hour" (iOS interstitial + rewarded
+ * guides, updated 2026-09-03). A cached full-screen ad older than this is
+ * treated as stale: it is never presented, and the slot is re-armed instead.
+ */
+export const FULL_SCREEN_AD_TTL_MS = 60 * 60 * 1_000;
 
 /** Cancels a scheduled retry (returned by an injectable `scheduleRetry`). */
 type CancelRetry = () => void;
@@ -178,7 +232,22 @@ export interface AdMobProviderOptions {
    */
   addAppResumeListener?: (onResume: () => void) => Promise<ListenerHandle>;
   onAdRevenuePaid?: (event: AdMobPaidImpression) => void;
+  /**
+   * Lifecycle telemetry seam (load/show/impression/dismissal/failure by
+   * format). Listener errors are swallowed; the provider never depends on it.
+   */
+  onAdEvent?: (event: AdMobLifecycleEvent) => void;
+  /**
+   * Audience treatment. `child` (default, the historical behaviour) tags every
+   * request child-directed + under-age-of-consent and forces non-personalized
+   * ads. `general` sends no age tags, lets UMP consent decide personalization,
+   * and on iOS requests App Tracking Transparency once consent is settled.
+   * Decision record: docs/evidence/2026-09-08-ftd-ads-lifecycle/audience-decision-memo.md.
+   */
+  audience?: AdMobAudience;
 }
+
+export type AdMobAudience = 'child' | 'general';
 
 /**
  * AdMob provider. Carries v1 core `AdService`'s full-screen ad state machine
@@ -199,10 +268,27 @@ export class AdMobProvider implements AdProvider {
   private readonly scheduleRetry: (fn: () => void, delayMs: number) => CancelRetry;
   private readonly addAppResumeListener?: (onResume: () => void) => Promise<ListenerHandle>;
   private readonly onAdRevenuePaid?: (event: AdMobPaidImpression) => void;
+  private readonly onAdEvent?: (event: AdMobLifecycleEvent) => void;
+  /** Audience treatment applied to initialization, consent and every request. */
+  readonly audience: AdMobAudience;
   private initialized = false;
   private interstitialLoaded = false;
   private rewardedLoaded = false;
+  /** Load timestamps (injected clock) for the one-hour full-screen cache lifetime. */
+  private interstitialLoadedAt = 0;
+  private rewardedLoadedAt = 0;
+  /** Per-load correlation ids surfaced through `onAdEvent`. */
+  private loadCounter = 0;
+  private interstitialLoadId = '';
+  private rewardedLoadId = '';
+  private bannerLoadId = '';
   private bannerVisible = false;
+  /**
+   * Desired banner state. `showBanner` sets it before any await; `hideBanner`
+   * clears it. A native `Loaded` that lands after a hide re-hides instead of
+   * surfacing a banner on a screen that no longer wants one.
+   */
+  private bannerWanted = false;
   private initPromise: Promise<void> | null = null;
   private preloadPromise: Promise<void> | null = null;
   private rewardedPreloadPromise: Promise<void> | null = null;
@@ -240,6 +326,31 @@ export class AdMobProvider implements AdProvider {
       });
     this.addAppResumeListener = options.addAppResumeListener;
     this.onAdRevenuePaid = options.onAdRevenuePaid;
+    this.onAdEvent = options.onAdEvent;
+    this.audience = options.audience ?? 'child';
+  }
+
+  /** `npa` is forced only under child treatment; general audience lets UMP consent decide. */
+  private requestPersonalization(): { npa?: boolean } {
+    return this.audience === 'child' ? { npa: true } : {};
+  }
+
+  /**
+   * iOS App Tracking Transparency, general audience only, requested once
+   * consent is settled and before the SDK initializes. Refusal or absence of
+   * the prompt never blocks ads (`canRequestAds` is the only ad gate).
+   */
+  private async requestTrackingAuthorizationIfApplicable(): Promise<void> {
+    if (this.audience !== 'general' || this.adapter.requestTrackingAuthorization === undefined) return;
+    const platform = await this.adapter.getPlatform();
+    if (platform !== 'ios') return;
+    try {
+      await this.adapter.requestTrackingAuthorization();
+      const status = await this.adapter.trackingAuthorizationStatus?.();
+      this.log('tracking authorization', { status: status?.status ?? 'unknown' });
+    } catch (err: unknown) {
+      this.warn('tracking authorization request failed', err);
+    }
   }
 
   private log(message: string, details?: Record<string, unknown>): void {
@@ -248,6 +359,54 @@ export class AdMobProvider implements AdProvider {
 
   private warn(message: string, err: unknown): void {
     console.warn(`[ads:admob] ${message}`, err);
+  }
+
+  private emit(event: AdMobLifecycleEvent): void {
+    if (this.onAdEvent === undefined) return;
+    try {
+      this.onAdEvent(event);
+    } catch (err: unknown) {
+      this.warn('ad event listener failed', err);
+    }
+  }
+
+  private nextLoadId(format: AdMobFormat): string {
+    this.loadCounter += 1;
+    return `${format}-${this.generation}-${this.loadCounter}`;
+  }
+
+  /** Bounded, identifier-free failure reason for telemetry. */
+  private static failureReason(info: unknown): string {
+    if (typeof info === 'object' && info !== null) {
+      const record = info as { code?: unknown; message?: unknown };
+      if (typeof record.code === 'number' || typeof record.code === 'string') return `native_${String(record.code)}`;
+      if (typeof record.message === 'string' && record.message.length > 0) return record.message.slice(0, 80);
+    }
+    if (typeof info === 'string' && info.length > 0) return info.slice(0, 80);
+    return 'unknown';
+  }
+
+  private isFresh(loadedAt: number): boolean {
+    return this.now() - loadedAt < FULL_SCREEN_AD_TTL_MS;
+  }
+
+  private hasFreshRewarded(): boolean {
+    return this.rewardedLoaded && this.isFresh(this.rewardedLoadedAt);
+  }
+
+  /** Drop a loaded-but-expired full-screen ad (never presented) and report it. */
+  private expireStaleInterstitial(): void {
+    if (!this.interstitialLoaded || this.isFresh(this.interstitialLoadedAt)) return;
+    this.interstitialLoaded = false;
+    this.log('interstitial cache expired');
+    this.emit({ format: 'interstitial', stage: 'expired', loadId: this.interstitialLoadId, cacheAgeMs: this.now() - this.interstitialLoadedAt });
+  }
+
+  private expireStaleRewarded(): void {
+    if (!this.rewardedLoaded || this.isFresh(this.rewardedLoadedAt)) return;
+    this.rewardedLoaded = false;
+    this.log('rewarded cache expired');
+    this.emit({ format: 'rewarded', stage: 'expired', loadId: this.rewardedLoadId, cacheAgeMs: this.now() - this.rewardedLoadedAt });
   }
 
   private beginFullScreenAd(adType: FullScreenAdType): () => void {
@@ -295,27 +454,46 @@ export class AdMobProvider implements AdProvider {
       const handles = await Promise.all([
         this.adapter.addListener(BannerAdPluginEvents.Loaded, (): void => {
           if (this.disposed || this.generation !== generation) return;
-          this.bannerVisible = true;
           this.bannerRequestInFlight = false;
+          if (!this.bannerWanted) {
+            // Hidden while the request was pending: the native view attaches
+            // on load, so hide it again rather than surfacing it unexpectedly.
+            this.bannerVisible = false;
+            this.log('banner loaded after hide; re-hiding');
+            void this.adapter.hideBanner().catch((err: unknown): void => this.warn('late banner hide failed', err));
+            this.emit({ format: 'banner', stage: 'hidden', loadId: this.bannerLoadId, reason: 'loaded_after_hide' });
+            return;
+          }
+          this.bannerVisible = true;
           this.log('banner loaded');
+          this.emit({ format: 'banner', stage: 'loaded', loadId: this.bannerLoadId });
         }),
         this.adapter.addListener(BannerAdPluginEvents.FailedToLoad, (info: AdEventInfo): void => {
           if (this.disposed || this.generation !== generation) return;
           this.bannerVisible = false;
           this.bannerRequestInFlight = false;
           this.warn('banner load failed', info);
+          this.emit({ format: 'banner', stage: 'load_failed', loadId: this.bannerLoadId, reason: AdMobProvider.failureReason(info) });
         }),
+        // Native `bannerViewDidRecordImpression` — the only banner impression evidence.
         this.adapter.addListener(BannerAdPluginEvents.AdImpression, (): void => {
           if (this.disposed || this.generation !== generation) return;
           this.log('banner impression recorded');
+          this.emit({ format: 'banner', stage: 'impression', loadId: this.bannerLoadId });
         }),
         this.adapter.addListener('bannerAdPaid' as AdEventName, (info: AdEventInfo): void => {
           this.forwardPaidImpression(info, 'banner', 'banner', generation);
         }),
+        // Plugin 8.1.0 emits the full-screen "AdImpression" events from the
+        // native paidEventHandler; they carry the impression id and value.
         this.adapter.addListener('interstitialAdImpression' as AdEventName, (info: AdEventInfo): void => {
+          if (this.disposed || this.generation !== generation) return;
+          this.emit({ format: 'interstitial', stage: 'impression', loadId: this.interstitialLoadId });
           this.forwardPaidImpression(info, 'interstitial', 'interstitial', generation);
         }),
         this.adapter.addListener('onRewardedVideoAdImpression' as AdEventName, (info: AdEventInfo): void => {
+          if (this.disposed || this.generation !== generation) return;
+          this.emit({ format: 'rewarded', stage: 'impression', loadId: this.rewardedLoadId });
           this.forwardPaidImpression(info, 'rewarded', 'rewarded', generation);
         }),
         this.adapter.addListener(InterstitialAdPluginEvents.FailedToLoad, (info: AdEventInfo): void => {
@@ -369,19 +547,20 @@ export class AdMobProvider implements AdProvider {
         return;
       }
 
+      // Content suitability stays General for every audience (4+ apps); only
+      // the age tags and personalization differ by audience.
+      const child = this.audience === 'child';
       const initializeOptions: AdMobInitializationOptions = {
         initializeForTesting: this.config.isTesting,
         testingDevices: this.config.testingDevices,
-        // General-audience apps: no child-directed or under-age-of-consent tagging.
-        tagForChildDirectedTreatment: false,
-        tagForUnderAgeOfConsent: false,
+        ...(child ? { tagForChildDirectedTreatment: true, tagForUnderAgeOfConsent: true } : {}),
         maxAdContentRating: MaxAdContentRating.General,
       };
 
       try {
         let consent = await this.adapter.requestConsentInfo({
           testDeviceIdentifiers: this.config.isTesting ? this.config.testingDevices : [],
-          tagForUnderAgeOfConsent: false,
+          tagForUnderAgeOfConsent: child,
         });
         if (!consent.canRequestAds && consent.isConsentFormAvailable) {
           consent = await this.adapter.showConsentForm();
@@ -390,7 +569,11 @@ export class AdMobProvider implements AdProvider {
           this.log('AdMob initialization blocked until consent permits ad requests');
           return;
         }
+        if (this.disposed || this.generation !== generation) return;
+        await this.requestTrackingAuthorizationIfApplicable();
+        if (this.disposed || this.generation !== generation) return;
         this.log('initializing AdMob', {
+          audience: this.audience,
           initializeForTesting: initializeOptions.initializeForTesting,
           testingDeviceCount: initializeOptions.testingDevices?.length ?? 0,
         });
@@ -436,7 +619,12 @@ export class AdMobProvider implements AdProvider {
   /** Foreground re-arm: reload a stale interstitial on resume; never shows. */
   private onAppResume(generation: number): void {
     if (this.disposed || this.generation !== generation) return;
-    if (this.interstitialLoaded || this.showInProgress) return;
+    if (this.showInProgress) return;
+    // A cached ad older than the one-hour lifetime is dropped here so the
+    // foreground re-arm replaces it; a fresh one is kept.
+    this.expireStaleInterstitial();
+    this.expireStaleRewarded();
+    if (this.interstitialLoaded) return;
     // A pending backoff retry owns the schedule; don't bypass its delay.
     if (this.pendingRetryCancel !== null) return;
     // Only a resume after an exhausted streak opens a fresh attempt budget.
@@ -455,6 +643,9 @@ export class AdMobProvider implements AdProvider {
     if (this.preloadPromise) {
       return this.preloadPromise;
     }
+    // Preserve a loaded, still-valid ad; only a stale one is replaced.
+    this.expireStaleInterstitial();
+    if (this.interstitialLoaded) return;
 
     const generation = this.generation;
     this.preloadPromise = (async (): Promise<void> => {
@@ -471,10 +662,12 @@ export class AdMobProvider implements AdProvider {
       const interstitialOptions: AdOptions = {
         adId: getInterstitialUnitId(platform, this.config),
         isTesting: this.config.isTesting,
-        npa: true,
+        ...this.requestPersonalization(),
       };
 
       this.interstitialLoadAttempts += 1;
+      const loadId = this.nextLoadId('interstitial');
+      this.interstitialLoadId = loadId;
       try {
         this.log('preloading interstitial', {
           platform,
@@ -482,15 +675,19 @@ export class AdMobProvider implements AdProvider {
           isTesting: interstitialOptions.isTesting,
           attempt: this.interstitialLoadAttempts,
         });
+        this.emit({ format: 'interstitial', stage: 'load_requested', loadId, attempt: this.interstitialLoadAttempts });
         await this.adapter.prepareInterstitial(interstitialOptions);
         if (this.disposed || this.generation !== generation) return;
         this.interstitialLoaded = true;
+        this.interstitialLoadedAt = this.now();
         this.interstitialLoadAttempts = 0;
         this.clearPendingRetry();
         this.log('interstitial preloaded');
+        this.emit({ format: 'interstitial', stage: 'loaded', loadId });
       } catch (err: unknown) {
         this.interstitialLoaded = false;
         this.warn('interstitial preload failed', err);
+        this.emit({ format: 'interstitial', stage: 'load_failed', loadId, attempt: this.interstitialLoadAttempts, reason: AdMobProvider.failureReason(err) });
         this.scheduleInterstitialRetry(generation);
       }
     })();
@@ -529,10 +726,24 @@ export class AdMobProvider implements AdProvider {
     }, delay);
   }
 
+  /**
+   * Request the gameplay banner. Resolves `true` when the native request was
+   * accepted or a banner is already visible/loading — this is NOT an
+   * impression; observe `onAdEvent` (`loaded` / `impression` / `load_failed`)
+   * for delivery truth. A `hideBanner` that lands while the request is pending
+   * wins: the late-loaded view is re-hidden instead of surfacing.
+   */
   async showBanner(): Promise<boolean> {
+    if (this.disposed) return false;
+    this.bannerWanted = true;
+    const generation = this.generation;
     await this.init();
-    if (!this.initialized) {
+    if (!this.initialized || this.disposed || this.generation !== generation) {
       this.log('banner skipped; AdMob not initialized');
+      return false;
+    }
+    if (!this.bannerWanted) {
+      this.log('banner skipped; hidden before request');
       return false;
     }
     if (this.bannerVisible || this.bannerRequestInFlight) {
@@ -545,18 +756,25 @@ export class AdMobProvider implements AdProvider {
       this.log('banner skipped; web platform');
       return false;
     }
+    if (!this.bannerWanted || this.disposed || this.generation !== generation) {
+      this.log('banner skipped; hidden before request');
+      return false;
+    }
 
+    const loadId = this.nextLoadId('banner');
+    this.bannerLoadId = loadId;
     try {
       const { BannerAdSize, BannerAdPosition } = await import('@capacitor-community/admob');
       const adId = getBannerUnitId(platform, this.config);
       this.log('showing banner', { platform, adId, isTesting: this.config.isTesting });
       this.bannerRequestInFlight = true;
+      this.emit({ format: 'banner', stage: 'load_requested', loadId });
       await this.adapter.showBanner({
         adId,
         adSize: BannerAdSize.ADAPTIVE_BANNER,
         position: BannerAdPosition.BOTTOM_CENTER,
         isTesting: this.config.isTesting,
-        npa: true,
+        ...this.requestPersonalization(),
       });
       this.log('banner requested');
       return true;
@@ -565,13 +783,23 @@ export class AdMobProvider implements AdProvider {
       this.bannerRequestInFlight = false;
       this.bannerVisible = false;
       this.warn('banner show failed', err);
+      this.emit({ format: 'banner', stage: 'load_failed', loadId, reason: AdMobProvider.failureReason(err) });
       return false;
     }
   }
 
+  /**
+   * Hide the banner. Never initializes the SDK: a no-ads entitled player who
+   * reaches home (which hides the banner) must not trigger consent, native
+   * initialization or an interstitial prewarm just to hide nothing.
+   */
   async hideBanner(): Promise<void> {
-    await this.init();
-    if (!this.initialized) return;
+    this.bannerWanted = false;
+    if (!this.initialized) {
+      this.bannerVisible = false;
+      return;
+    }
+    const hadBanner = this.bannerVisible || this.bannerRequestInFlight;
     try {
       await this.adapter.hideBanner();
     } catch (err: unknown) {
@@ -579,6 +807,7 @@ export class AdMobProvider implements AdProvider {
       this.warn('banner hide failed', err);
     } finally {
       this.bannerVisible = false;
+      if (hadBanner) this.emit({ format: 'banner', stage: 'hidden', loadId: this.bannerLoadId });
     }
   }
 
@@ -597,6 +826,7 @@ export class AdMobProvider implements AdProvider {
     // the caller's break has passed.
     if (!this.initialized) {
       void this.init();
+      this.emit({ format: 'interstitial', stage: 'skipped', reason: 'not_initialized' });
       return false;
     }
 
@@ -604,23 +834,35 @@ export class AdMobProvider implements AdProvider {
     // interval (Families policy: ads must not interfere with app use).
     const now = this.now();
     if (now - this.lastInterstitialShownAt < (options?.minIntervalMs ?? MIN_INTERSTITIAL_INTERVAL_MS)) {
+      this.emit({ format: 'interstitial', stage: 'skipped', reason: 'frequency_cap', loadId: this.interstitialLoadId });
       return false;
     }
 
     // Concurrent-show guard: a second call while the first ad is still onscreen
     // (present through terminal dismissal) must not arm or present again (KTD2).
     if (this.showInProgress) {
+      this.emit({ format: 'interstitial', stage: 'skipped', reason: 'show_in_progress' });
       return false;
     }
+
+    // A loaded ad past its one-hour lifetime is never presented; drop it and
+    // re-arm like a not-loaded gate (no forced show to lift a dashboard ratio).
+    this.expireStaleInterstitial();
 
     // Show only an already-loaded ad; otherwise background-arm the next gate
     // and return immediately (AppLovin parity).
     if (!this.interstitialLoaded) {
+      const reason = this.interstitialLoadAttempts >= MAX_INTERSTITIAL_LOAD_ATTEMPTS
+        ? 'load_budget_exhausted'
+        : this.pendingRetryCancel !== null ? 'retry_pending' : 'not_loaded';
       void this.preloadInterstitial();
+      this.emit({ format: 'interstitial', stage: 'skipped', reason });
       return false;
     }
 
     const generation = this.generation;
+    const loadId = this.interstitialLoadId;
+    const cacheAgeMs = this.now() - this.interstitialLoadedAt;
     this.showInProgress = true;
 
     // Always create the interstitial-only terminal waiter (Dismissed /
@@ -628,22 +870,26 @@ export class AdMobProvider implements AdProvider {
     // native show resolves on PRESENT, so the guard and re-arm must span through
     // a terminal event (KTD1). Both listeners are required — if either fails to
     // register we do not present and leave the ready state retryable.
-    const waiter = await this.createInterstitialTerminalWaiter(generation);
+    const waiter = await this.createInterstitialTerminalWaiter(generation, loadId);
     if (waiter === null) {
       this.showInProgress = false;
+      this.emit({ format: 'interstitial', stage: 'skipped', reason: 'terminal_listener_registration', loadId });
       return false;
     }
     this.activeShowSettle = waiter.settle;
 
     const finishFullScreenAd = this.beginFullScreenAd('interstitial');
+    this.emit({ format: 'interstitial', stage: 'show_requested', loadId, cacheAgeMs });
     try {
       await this.adapter.showInterstitial();
       this.lastInterstitialShownAt = this.now();
+      this.emit({ format: 'interstitial', stage: 'shown', loadId, cacheAgeMs });
       await waiter.wait();
       return true;
     } catch (err: unknown) {
       // Keep flow non-blocking; ad failures should never affect gameplay.
       this.warn('interstitial show failed', err);
+      this.emit({ format: 'interstitial', stage: 'show_failed', loadId, reason: AdMobProvider.failureReason(err) });
       return false;
     } finally {
       // Cleanup must never throw the safe-value contract; swallow removal errors
@@ -668,35 +914,49 @@ export class AdMobProvider implements AdProvider {
    * blocked by an ad load.
    */
   async preloadRewarded(): Promise<void> {
+    if (this.disposed) return;
     if (this.rewardedPreloadPromise) {
       return this.rewardedPreloadPromise;
     }
+    // Keep a loaded, still-valid rewarded ad: repeated preload calls (HUD
+    // initialization, post-earn re-arm) must not replace unshown inventory.
+    // Only consumption (`showRewardedAd`) or the one-hour expiry frees the slot.
+    this.expireStaleRewarded();
+    if (this.rewardedLoaded) return;
 
+    const generation = this.generation;
     this.rewardedPreloadPromise = (async (): Promise<void> => {
       await this.init();
-      if (!this.initialized) return;
+      if (this.disposed || this.generation !== generation || !this.initialized) return;
 
       const platform: RuntimePlatform = await this.adapter.getPlatform();
-      if (platform === 'web') return;
+      if (this.disposed || this.generation !== generation || platform === 'web') return;
 
       const options: RewardAdOptions = {
         adId: getRewardedUnitId(platform, this.config),
         isTesting: this.config.isTesting,
-        npa: true,
+        ...this.requestPersonalization(),
       };
 
+      const loadId = this.nextLoadId('rewarded');
+      this.rewardedLoadId = loadId;
       try {
         this.log('preloading rewarded ad', {
           platform,
           adId: options.adId,
           isTesting: options.isTesting,
         });
+        this.emit({ format: 'rewarded', stage: 'load_requested', loadId });
         await this.adapter.prepareRewardVideoAd(options);
+        if (this.disposed || this.generation !== generation) return;
         this.rewardedLoaded = true;
+        this.rewardedLoadedAt = this.now();
         this.log('rewarded ad preloaded');
+        this.emit({ format: 'rewarded', stage: 'loaded', loadId });
       } catch (err: unknown) {
         this.rewardedLoaded = false;
         this.warn('rewarded preload failed', err);
+        this.emit({ format: 'rewarded', stage: 'load_failed', loadId, reason: AdMobProvider.failureReason(err) });
       }
     })();
 
@@ -713,41 +973,64 @@ export class AdMobProvider implements AdProvider {
    * (cancelled, failed to load, web platform, ads disabled).
    */
   async showRewardedAd(): Promise<RewardedAdResult> {
-    await this.init();
-    if (!this.initialized) return { granted: false };
-
-    const platform: RuntimePlatform = await this.adapter.getPlatform();
-    if (platform === 'web') return { granted: false };
-
-    if (!this.rewardedLoaded) {
-      await this.preloadRewarded();
-    }
-    if (!this.rewardedLoaded) return { granted: false };
-
-    const dismissal = await this.createFullScreenAdDismissalWaiter(
-      RewardAdPluginEvents.Dismissed,
-      RewardAdPluginEvents.FailedToShow,
-      'rewarded',
-    );
-    const finishFullScreenAd = this.beginFullScreenAd('rewarded');
+    if (this.disposed || this.showInProgress) return { granted: false };
+    // Own the same fullscreen gate as interstitials, including preparation.
+    this.showInProgress = true;
+    const generation = this.generation;
+    let cancelShow: () => void = (): void => {};
+    const cancelled = new Promise<undefined>((resolve) => {
+      cancelShow = (): void => resolve(undefined);
+    });
+    this.activeShowSettle = cancelShow;
+    const isCurrent = (): boolean => !this.disposed && this.generation === generation;
+    let terminal: RewardedTerminalWaiter | null = null;
+    let finishFullScreenAd = (): void => {};
     try {
-      // Adapter contract: resolves with an AdMobRewardItem iff the player
-      // completed the video; rejects on cancel / load failure. The reward can
-      // arrive before the full-screen ad is dismissed, so wait for Dismissed
-      // before returning to callers that animate rewards into the game UI.
-      const reward = await this.adapter.showRewardVideoAd();
-      const granted = reward.amount > 0;
-      await dismissal.wait();
-      return { granted };
+      // Disposal must release the caller even when a bridge load is pending.
+      await Promise.race([this.init(), cancelled]);
+      if (!isCurrent() || !this.initialized) return { granted: false };
+      const platform = await Promise.race([this.adapter.getPlatform(), cancelled]);
+      if (!isCurrent() || platform === undefined || platform === 'web') return { granted: false };
+      // A stale cached ad is reloaded before presenting; a fresh one is reused.
+      if (!this.hasFreshRewarded()) await Promise.race([this.preloadRewarded(), cancelled]);
+      if (!isCurrent() || !this.rewardedLoaded) {
+        this.emit({ format: 'rewarded', stage: 'skipped', reason: 'not_loaded', loadId: this.rewardedLoadId });
+        return { granted: false };
+      }
+      const loadId = this.rewardedLoadId;
+      const cacheAgeMs = this.now() - this.rewardedLoadedAt;
+
+      terminal = await Promise.race([this.createRewardedTerminalWaiter(generation, loadId), cancelled]) ?? null;
+      if (terminal === null || !isCurrent()) {
+        this.emit({ format: 'rewarded', stage: 'skipped', reason: 'terminal_listener_registration', loadId });
+        return { granted: false };
+      }
+      finishFullScreenAd = this.beginFullScreenAd('rewarded');
+      const owner = terminal;
+      this.emit({ format: 'rewarded', stage: 'show_requested', loadId, cacheAgeMs });
+      // AdMob 8.1.0 resolves the native promise only on earned reward. Closing
+      // without reward merely emits Dismissed; do not await that promise ahead
+      // of the terminal event. Observe rejection as well as the reward event.
+      void Promise.resolve().then(() => isCurrent() ? this.adapter.showRewardVideoAd() : undefined).then(
+        (reward) => { if (reward !== undefined) owner.reward(reward); },
+        (err: unknown) => {
+          this.warn('rewarded native show failed', err);
+          this.emit({ format: 'rewarded', stage: 'show_failed', loadId, reason: AdMobProvider.failureReason(err) });
+          owner.fail();
+        },
+      );
+      return await Promise.race([owner.wait(), cancelled.then(() => ({ granted: false }))]);
     } catch (err: unknown) {
       this.warn('rewarded show failed', err);
       return { granted: false };
     } finally {
-      await dismissal.cleanup();
+      await terminal?.cleanup();
+      if (this.activeShowSettle === cancelShow) this.activeShowSettle = null;
       finishFullScreenAd();
       // One rewarded show consumes the preloaded ad — always mark as
       // consumed so the next showRewardedAd triggers a fresh preload.
       this.rewardedLoaded = false;
+      this.showInProgress = false;
     }
   }
 
@@ -777,6 +1060,8 @@ export class AdMobProvider implements AdProvider {
     this.generation += 1;
     this.clearPendingRetry();
     this.interstitialLoaded = false;
+    this.rewardedLoaded = false;
+    this.bannerWanted = false;
     // Unblock a show that is awaiting a terminal event whose listeners we are
     // about to remove; its finally finishes lifecycle once and skips re-arm
     // (generation advanced above).
@@ -795,10 +1080,9 @@ export class AdMobProvider implements AdProvider {
    * Interstitial-only terminal waiter (Dismissed / FailedToShow, no synthetic
    * timeout). Both listeners are required; returns null (and cleans up any
    * partially registered handle) if either cannot be registered, so the caller
-   * does not present. Distinct from `createFullScreenAdDismissalWaiter`, which
-   * keeps its 30-second timeout for rewarded ads.
+   * does not present. Rewarded ads also require terminal listeners before show.
    */
-  private async createInterstitialTerminalWaiter(generation: number): Promise<{
+  private async createInterstitialTerminalWaiter(generation: number, loadId: string): Promise<{
     wait: () => Promise<void>;
     settle: () => void;
     cleanup: () => Promise<void>;
@@ -814,13 +1098,19 @@ export class AdMobProvider implements AdProvider {
       };
     });
 
-    const onTerminal = (): void => {
+    const onDismissed = (): void => {
       if (this.disposed || this.generation !== generation) return;
+      if (!settled) this.emit({ format: 'interstitial', stage: 'dismissed', loadId });
+      resolveWait();
+    };
+    const onFailedToShow = (info: AdEventInfo): void => {
+      if (this.disposed || this.generation !== generation) return;
+      if (!settled) this.emit({ format: 'interstitial', stage: 'show_failed', loadId, reason: AdMobProvider.failureReason(info) });
       resolveWait();
     };
 
     try {
-      const dismissedHandle = await this.adapter.addListener(InterstitialAdPluginEvents.Dismissed, onTerminal);
+      const dismissedHandle = await this.adapter.addListener(InterstitialAdPluginEvents.Dismissed, onDismissed);
       if (this.disposed || this.generation !== generation) {
         await this.removeHandleSafely(dismissedHandle);
         return null;
@@ -829,7 +1119,7 @@ export class AdMobProvider implements AdProvider {
 
       const failedToShowHandle = await this.adapter.addListener(
         InterstitialAdPluginEvents.FailedToShow,
-        onTerminal,
+        onFailedToShow,
       );
       if (this.disposed || this.generation !== generation) {
         await this.removeHandleSafely(failedToShowHandle);
@@ -862,59 +1152,64 @@ export class AdMobProvider implements AdProvider {
     };
   }
 
-  private async createFullScreenAdDismissalWaiter(
-    dismissedEventName: AdEventName,
-    failedToShowEventName: AdEventName,
-    adType: FullScreenAdType,
-    timeoutMs = 30_000,
-  ): Promise<FullScreenAdDismissalWaiter> {
+  private async createRewardedTerminalWaiter(generation: number, loadId: string): Promise<RewardedTerminalWaiter | null> {
     const handles: ListenerHandle[] = [];
-    let timeout: ReturnType<typeof setTimeout> | null = null;
     let settled = false;
-    let resolveWait: () => void = (): void => {};
-
-    const waitPromise = new Promise<void>((resolve) => {
-      resolveWait = (): void => {
-        if (settled) return;
-        settled = true;
-        if (timeout !== null) clearTimeout(timeout);
-        resolve();
-      };
-      timeout = setTimeout(resolveWait, timeoutMs);
+    let earned = false;
+    let resolveWait: (result: RewardedAdResult) => void = (): void => {};
+    const waitPromise = new Promise<RewardedAdResult>((resolve) => {
+      resolveWait = resolve;
     });
-
-    try {
-      handles.push(await this.adapter.addListener(dismissedEventName, resolveWait));
-    } catch (err: unknown) {
-      this.warn(`${adType} dismissal listener registration failed`, err);
-    }
-
-    try {
-      handles.push(await this.adapter.addListener(failedToShowEventName, resolveWait));
-    } catch (err: unknown) {
-      this.warn(`${adType} failed-to-show listener registration failed`, err);
-    }
-
-    if (handles.length === 0) {
-      resolveWait();
-    }
-
-    return {
-      wait: (): Promise<void> => waitPromise,
-      cleanup: async (): Promise<void> => {
-        if (timeout !== null) {
-          clearTimeout(timeout);
-          timeout = null;
-        }
-        resolveWait();
-        while (handles.length > 0) {
-          const handle = handles.pop();
-          if (handle !== undefined) {
-            await handle.remove();
-          }
-        }
-      },
+    const isCurrent = (): boolean => !settled && !this.disposed && this.generation === generation;
+    const settle = (granted: boolean): void => {
+      if (settled) return;
+      settled = true;
+      resolveWait({ granted });
     };
+    const reward = (info: AdEventInfo): void => {
+      if (!isCurrent() || typeof info !== 'object' || info === null || !('amount' in info)) return;
+      if (Number.isFinite(info.amount) && info.amount > 0 && !earned) {
+        earned = true;
+        this.emit({ format: 'rewarded', stage: 'reward_earned', loadId });
+      }
+    };
+    const cleanup = async (): Promise<void> => {
+      settle(false);
+      while (handles.length > 0) {
+        const handle = handles.pop();
+        if (handle !== undefined) await this.removeHandleSafely(handle);
+      }
+    };
+    // Google ads emit Rewarded before Dismissed. A mediation integration with
+    // different ordering needs correlated native events; this plugin's global
+    // reward event contains no ad/show ID to attribute a post-dismissal reward.
+    const listeners: [AdEventName, AdEventListener][] = [
+      [RewardAdPluginEvents.Rewarded, reward],
+      [RewardAdPluginEvents.Dismissed, () => {
+        if (!isCurrent()) return;
+        this.emit({ format: 'rewarded', stage: 'dismissed', loadId, reason: earned ? undefined : 'closed_before_reward' });
+        settle(earned);
+      }],
+      [RewardAdPluginEvents.FailedToShow, (info) => {
+        if (!isCurrent()) return;
+        this.emit({ format: 'rewarded', stage: 'show_failed', loadId, reason: AdMobProvider.failureReason(info) });
+        settle(false);
+      }],
+    ];
+    try {
+      for (const [event, listener] of listeners) {
+        handles.push(await this.adapter.addListener(event, listener));
+        if (this.disposed || this.generation !== generation) {
+          await cleanup();
+          return null;
+        }
+      }
+    } catch (err: unknown) {
+      this.warn('rewarded terminal listener registration failed', err);
+      await cleanup();
+      return null;
+    }
+    return { wait: () => waitPromise, reward, fail: () => settle(false), cleanup };
   }
 }
 

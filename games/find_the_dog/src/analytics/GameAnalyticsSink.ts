@@ -1,4 +1,6 @@
 import type { AnalyticsEvent, AnalyticsSink } from '@fabrikav2/sdk/analytics';
+import { Capacitor } from '@capacitor/core';
+import { REVEAL_PICKUP_DIMENSIONS, REVEAL_PICKUP_EXPERIMENT_ID } from '../data/revealPickupExperiment';
 import {
   GAMEANALYTICS_RESOURCE_CURRENCIES,
   GAMEANALYTICS_RESOURCE_ITEM_TYPES,
@@ -22,6 +24,8 @@ export interface GameAnalyticsSdk {
     setEnabledVerboseLog(flag: boolean): void;
     configureAvailableResourceCurrencies(values: string[]): void;
     configureAvailableResourceItemTypes(values: string[]): void;
+    configureAvailableCustomDimensions01?(values: string[]): void;
+    setCustomDimension01?(value: string): void;
     setEnabledManualSessionHandling(flag: boolean): void;
     initialize(gameKey: string, secretKey: string): void;
     startSession(): void;
@@ -89,14 +93,17 @@ export function createGameAnalyticsSink(
   let flushAttempts = 0;
   let nativeSessionActive = false;
   let initializationFailure: string | null = null;
+  let nativeIdentity: { native_app_version: string; native_build_number: string } | null = null;
   function send(loaded: GameAnalyticsSdk, event: AnalyticsEvent): void {
+    setExperimentDimension(loaded, event);
+    // Keep legacy app_version/build as source provenance. Native identity comes
+    // from the archived binary, including Xcode's late version/build overrides.
+    // Insert first for the GA field cap, then overwrite any caller-supplied values.
+    if (nativeIdentity !== null) event = { ...event, params: { ...nativeIdentity, ...event.params, ...nativeIdentity } };
     let tracked: boolean;
     if (event.name === 'session_start') {
-      // gameanalytics@4.4.7 initialize() creates a native session even when
-      // manual handling is enabled. Adopt that first session instead of
-      // startSession() ending it and creating a cold-start phantom session.
-      if (!nativeSessionActive) loaded.GameAnalytics.startSession();
-      nativeSessionActive = true;
+      // initialize() creates the first GA session. Subsequent sessions are
+      // started and readiness-checked before this event leaves our queue.
       tracked = trackDesign(loaded, designEvent(gameAnalyticsDesignEventId(event.name, event.params), event.params));
     } else if (event.name === 'session_end') {
       // Preserve the canonical close event before ending the native session.
@@ -114,26 +121,57 @@ export function createGameAnalyticsSink(
     if (sdk !== null || disabled) return;
     if (initPromise !== null) return initPromise;
     if (Date.now() < nextRetryAt && !forceRetry) return;
+    // Once polling is exhausted, later events/resumes only probe the retained
+    // SDK. Its original request may still complete; do not reinitialize it.
+    const probeOnly = loadingSdk !== null && initAttempts >= maxInitAttempts;
     if (initAttempts > 0) retried += 1;
     initAttempts += 1;
     initPromise = (async (): Promise<void> => {
       try {
         if (loadingSdk === null) {
+          if (Capacitor.isNativePlatform() && nativeIdentity === null) {
+            const info = await readNativeAppInfo(readyTimeoutMs);
+            nativeIdentity = { native_app_version: info.version, native_build_number: info.build };
+          }
           const loaded = unwrapSdk(await loader());
           validateSdk(loaded);
           loaded.GameAnalytics.setEnabledInfoLog(config.verboseLogging);
           loaded.GameAnalytics.setEnabledVerboseLog(config.verboseLogging);
           loaded.GameAnalytics.configureAvailableResourceCurrencies([...GAMEANALYTICS_RESOURCE_CURRENCIES]);
           loaded.GameAnalytics.configureAvailableResourceItemTypes([...GAMEANALYTICS_RESOURCE_ITEM_TYPES]);
+          loaded.GameAnalytics.configureAvailableCustomDimensions01?.([...REVEAL_PICKUP_DIMENSIONS]);
+          // initialize creates GA's first native session: set the arm before it.
+          setExperimentDimension(loaded, queue[0]);
           loaded.GameAnalytics.setEnabledManualSessionHandling(true);
           loaded.GameAnalytics.initialize(config.gameKey, config.secretKey);
           nativeSessionActive = true;
           loadingSdk = loaded;
         }
-        await waitForSdkReady(loadingSdk.GameAnalytics, readyTimeoutMs, readyPollMs);
+        const deadline = Date.now() + (probeOnly ? 0 : readyTimeoutMs);
+        const remainingMs = () => Math.max(0, deadline - Date.now());
+        if (queue.length === 0 && nativeSessionActive) {
+          await waitForSdkReady(loadingSdk.GameAnalytics, remainingMs(), readyPollMs);
+        }
         while (queue.length > 0) {
-          const event = queue.shift();
+          const event = queue[0];
           if (event === undefined) break;
+          if (event.name === 'session_start' && !nativeSessionActive) {
+            setExperimentDimension(loadingSdk, event);
+            // endSession/startSession run on GA's asynchronous thread. Wait
+            // for the old session to close before requesting the new one, so
+            // its still-ready state cannot falsely satisfy the next check.
+            if (loadingSdk.GameAnalytics.isSdkReady?.(true, false) === true) {
+              await waitForSdkReady(loadingSdk.GameAnalytics, remainingMs(), readyPollMs, false);
+            }
+            loadingSdk.GameAnalytics.startSession();
+            nativeSessionActive = true;
+          }
+          if (nativeSessionActive && loadingSdk.GameAnalytics.isSdkReady?.(true, false) === false) {
+            await waitForSdkReady(loadingSdk.GameAnalytics, remainingMs(), readyPollMs);
+          }
+          // Queue overflow may have evicted the event while readiness waited.
+          if (queue[0] !== event) continue;
+          queue.shift();
           try {
             send(loadingSdk, event);
           } catch (error) {
@@ -150,17 +188,20 @@ export function createGameAnalyticsSink(
         logger.warn(`[analytics:gameanalytics] initialization failed (${initializationFailure})`);
         const retryable = error instanceof SdkReadyTimeout
           || (loadingSdk === null && !(error instanceof SdkShapeError));
-        if (retryable && initAttempts < maxInitAttempts) {
+        if ((error instanceof SdkReadyTimeout && loadingSdk !== null)
+          || (retryable && initAttempts < maxInitAttempts)) {
           nextRetryAt = Date.now() + retryDelayMs;
         } else {
           disabled = true;
           dropped += queue.length;
           queue.length = 0;
         }
-      } finally {
-        initPromise = null;
       }
-    })();
+    })().finally(() => {
+      // A ready retained-SDK probe can complete without awaiting. Clear after
+      // assignment, so its resolved promise cannot lock the next transition.
+      initPromise = null;
+    });
     return initPromise;
   }
 
@@ -172,13 +213,23 @@ export function createGameAnalyticsSink(
         return;
       }
       if (sdk !== null) {
-        try {
-          send(sdk, event);
-        } catch (error) {
-          dropped += 1;
-          throw error;
+        const needsSessionWait = (event.name === 'session_start' && !nativeSessionActive)
+          || (nativeSessionActive && sdk.GameAnalytics.isSdkReady?.(true, false) === false);
+        if (!needsSessionWait) {
+          try {
+            send(sdk, event);
+          } catch (error) {
+            dropped += 1;
+            throw error;
+          }
+          return;
         }
-        return;
+        // Reuse the bounded queue/probes for every manual session transition,
+        // without reloading or reinitializing the retained SDK.
+        loadingSdk = sdk;
+        sdk = null;
+        initAttempts = 0;
+        nextRetryAt = 0;
       }
       if (queue.length >= maxQueueItems) {
         queue.shift();
@@ -189,7 +240,12 @@ export function createGameAnalyticsSink(
     },
     async flush(): Promise<void> {
       flushAttempts += 1;
-      while (sdk === null && !disabled) await init(true);
+      while (sdk === null && !disabled) {
+        await init(true);
+        // A suspend flush is bounded even if initialization is still pending.
+        // Later events/resumes may probe readiness and drain the retained queue.
+        if (initAttempts >= maxInitAttempts) break;
+      }
     },
     diagnostics() {
       return {
@@ -206,6 +262,48 @@ export function createGameAnalyticsSink(
   };
 }
 
+// Do not silently label native events with package.json identity when the
+// bridge fails. The existing bounded initialization retry/queue policy applies.
+async function readNativeAppInfo(timeoutMs: number): Promise<{ version: string; build: string }> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    const info = await Promise.race([
+      import('@capacitor/app').then(({ App }) => App.getInfo()),
+      new Promise<never>((_resolve, reject) => {
+        timer = setTimeout(() => reject(new NativeAppInfoError('Native app info timed out')), timeoutMs);
+      }),
+    ]);
+    if (![info.version, info.build].every((value) => typeof value === 'string' && /^\d+(?:\.\d+){0,2}$/.test(value) && value.length <= 96)) {
+      throw new NativeAppInfoError('Native app version/build is invalid');
+    }
+    return info;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+function setExperimentDimension(sdk: GameAnalyticsSdk, event?: AnalyticsEvent): void {
+  const params = event?.params;
+  const variant = params?.experiment_id === REVEAL_PICKUP_EXPERIMENT_ID ? params.variant : undefined;
+  const qa = params?.experiment_population === 'qa';
+  const [reveal, pickup, notEnrolled, qaReveal, qaPickup] = REVEAL_PICKUP_DIMENSIONS;
+  let dimension: (typeof REVEAL_PICKUP_DIMENSIONS)[number] = notEnrolled;
+  if (variant === 'reveal') dimension = qa ? qaReveal : reveal;
+  else if (variant === 'pickup') dimension = qa ? qaPickup : pickup;
+  if (dimension !== notEnrolled && (sdk.GameAnalytics.setCustomDimension01 === undefined
+    || sdk.GameAnalytics.configureAvailableCustomDimensions01 === undefined)) {
+    throw new SdkShapeError('Experiment requires GameAnalytics custom dimension 01');
+  }
+  // GA 4.4.7 treats an empty pre-init dimension as "restore from storage".
+  // A nonempty sentinel prevents killed installs inheriting yesterday's arm
+  // on initialize()'s automatically created native session.
+  sdk.GameAnalytics.setCustomDimension01?.(dimension);
+}
+
+class NativeAppInfoError extends Error {
+  override name = 'NativeAppInfoError';
+}
+
 class SdkReadyTimeout extends Error {
   override name = 'SdkReadyTimeout';
 }
@@ -218,10 +316,11 @@ async function waitForSdkReady(
   api: GameAnalyticsSdk['GameAnalytics'],
   timeoutMs: number,
   pollMs: number,
+  ready = true,
 ): Promise<void> {
   if (api.isSdkReady === undefined) return;
   const deadline = Date.now() + timeoutMs;
-  while (!api.isSdkReady(true, false)) {
+  while (api.isSdkReady(true, false) !== ready) {
     if (Date.now() >= deadline) throw new SdkReadyTimeout('GameAnalytics SDK readiness timed out');
     await new Promise((resolve) => setTimeout(resolve, pollMs));
   }

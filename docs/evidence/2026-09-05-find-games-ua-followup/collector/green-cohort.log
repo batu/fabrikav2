@@ -1,0 +1,11 @@
+✔ paid totals require own identity and exclude test, contamination, pre-cutoff, foreign campaign and QA rows (2.55075ms)
+✔ a cohort cannot be approved without a valid UTC cutoff and complete QA exclusion policy (3.046625ms)
+✔ unavailable organic report leaves every organic aggregate unknown, not zero (0.571209ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 44.484458

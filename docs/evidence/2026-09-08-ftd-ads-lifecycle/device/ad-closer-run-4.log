@@ -1,0 +1,23 @@
+# ad-closer xcuitest run 4 (drive build 485450fe52 dirty, builtAt 13:17:13Z, drive gate folded in) 2026-09-08T13:17:54Z
+Test Case '-[VerifyDeviceRunner.AdCloserTests testCloseFullScreenAdsWhileDriveRuns]' started.
+2026-09-08 16:18:03.213386+0300 VerifyDeviceRunner-Runner[4065:1108060] [ad-closer] 2026-09-08T13:18:03Z launched com.baseardahan.hiddenobj; babysitting for 380s
+2026-09-08 16:18:11.742061+0300 VerifyDeviceRunner-Runner[4065:1108060] [ad-closer] 2026-09-08T13:18:11Z drive#1 2026-09-08T13:18:06.778Z start {"build":"0.0.0+485450fe52-dirty","adsEnabled":false,"noAds":true,"levelIndex":1,"wallet":{"coins":45,"hints":3,"hasNoAdsEntitlement":true,"hasPremiumEntitlement":false,"rewardProgressCount":1,"processedPurchaseIds":[],"activeCompletionTransaction":null,"counters":{"coinsGranted":45,"coinsSpent":0,"hintsGranted":0,"hintsSpent":0,"levelCompleteCoinGrants":1,"rewardedHintGrants":0}},"remoteConfig":{"state":"ready","lastFetchStatus":"success","fetchTimeMillis":1788872255205,"interstitialEveryNLevels":[3,"remote"],"interstitialMinIntervalS":[120,"remote"],"interstitialMinLevel":[0,"remote"],"levelEndClaimX2Enabled":[true,"remote"],"hintRwEnabled":[true,"remote"]}}
+2026-09-08 16:18:14.996521+0300 VerifyDeviceRunner-Runner[4065:1108060] [ad-closer] 2026-09-08T13:18:14Z drive#2 2026-09-08T13:18:12.779Z goto GameScene (completion 1)
+2026-09-08 16:18:26.521966+0300 VerifyDeviceRunner-Runner[4065:1108060] [ad-closer] 2026-09-08T13:18:26Z drive#3 2026-09-08T13:18:25.544Z winLevel -> true
+2026-09-08 16:18:29.264862+0300 VerifyDeviceRunner-Runner[4065:1108060] [ad-closer] 2026-09-08T13:18:29Z drive#4 2026-09-08T13:18:28.035Z tap claim
+2026-09-08 16:18:58.483143+0300 VerifyDeviceRunner-Runner[4065:1108060] [ad-closer] 2026-09-08T13:18:58Z drive#5 2026-09-08T13:18:58.095Z wait timeout: next enabled
+2026-09-08 16:19:01.071993+0300 VerifyDeviceRunner-Runner[4065:1108060] [ad-closer] 2026-09-08T13:19:01Z drive#6 2026-09-08T13:18:59.115Z tap Next (completion 1; interstitial gate eligible on every 3rd)
+2026-09-08 16:21:01.575713+0300 VerifyDeviceRunner-Runner[4065:1108060] [ad-closer] 2026-09-08T13:21:01Z drive#8 2026-09-08T13:21:01.337Z goto GameScene (completion 2)
+2026-09-08 16:21:16.876245+0300 VerifyDeviceRunner-Runner[4065:1108060] [ad-closer] 2026-09-08T13:21:16Z drive#9 2026-09-08T13:21:15.719Z winLevel -> true
+2026-09-08 16:21:22.856439+0300 VerifyDeviceRunner-Runner[4065:1108060] [ad-closer] 2026-09-08T13:21:22Z drive#10 2026-09-08T13:21:19.247Z tap claim
+2026-09-08 16:21:51.702736+0300 VerifyDeviceRunner-Runner[4065:1108060] [ad-closer] 2026-09-08T13:21:51Z drive#12 2026-09-08T13:21:50.469Z tap Next (completion 2; interstitial gate eligible on every 3rd)
+2026-09-08 16:23:53.202597+0300 VerifyDeviceRunner-Runner[4065:1108060] [ad-closer] 2026-09-08T13:23:53Z drive#14 2026-09-08T13:23:52.701Z goto GameScene (completion 3)
+2026-09-08 16:24:05.342804+0300 VerifyDeviceRunner-Runner[4065:1108060] [ad-closer] 2026-09-08T13:24:05Z drive#15 2026-09-08T13:24:05.090Z winLevel -> true
+2026-09-08 16:24:08.794954+0300 VerifyDeviceRunner-Runner[4065:1108060] [ad-closer] 2026-09-08T13:24:08Z drive#16 2026-09-08T13:24:07.906Z tap claim
+2026-09-08 16:24:32.392163+0300 VerifyDeviceRunner-Runner[4065:1108060] [ad-closer] 2026-09-08T13:24:32Z done: closes=0 ticks=18 lastDriveSeq=16
+Test Case '-[VerifyDeviceRunner.AdCloserTests testCloseFullScreenAdsWhileDriveRuns]' passed (398.517 seconds).
+	 Executed 1 test, with 0 failures (0 unexpected) in 398.517 (398.523) seconds
+	 Executed 1 test, with 0 failures (0 unexpected) in 398.517 (398.525) seconds
+	 Executed 1 test, with 0 failures (0 unexpected) in 398.517 (398.528) seconds
+** TEST SUCCEEDED **
+exit=0

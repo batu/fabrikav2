@@ -11,6 +11,7 @@ import {
   patchCrashlyticsAppGradle,
   patchCrashlyticsRootGradle,
   resolveReleaseIdentity,
+  verifyJarSignatureOutput,
   validateGeneratedAndroidProject,
   validateRecipe,
 } from '../src/release.mjs';
@@ -33,7 +34,7 @@ function productionEnv(overrides = {}) {
     PLAY_VERSION_NAME: '1.2.3',
     VITE_REVENUECAT_ANDROID_API_KEY: `goog_${'a'.repeat(28)}`,
     VITE_APPSFLYER_ENABLED: 'true',
-    VITE_APPSFLYER_DEV_KEY: 'owner-key-for-test',
+    VITE_APPSFLYER_DEV_KEY: 'ownerKeyForTest0000000',
     VITE_ATTRIBUTION_PROVIDER: 'appsflyer',
     VITE_ADMOB_ANDROID_ENABLED: 'true',
     VITE_ADMOB_ANDROID_APP_ID: 'ca-app-pub-1234567890123456~4444444444',
@@ -54,6 +55,25 @@ function productionEnv(overrides = {}) {
 }
 
 describe('Google Play release gates', () => {
+  it('requires strict jarsigner verification and rejects genuinely unsigned entries', () => {
+    const expectedStrictAabOutput = [
+      'jar verified, with signer errors.',
+      '',
+      'Error:',
+      'This jar contains entries whose certificate chain is invalid. Reason: PKIX path building failed',
+      'This jar contains entries whose signer certificate is self-signed.',
+      '',
+      'Warning:',
+      'This jar contains signatures that do not include a timestamp.',
+      '- Entry base/manifest/AndroidManifest.xml is signed in JarFile but is not signed in JarInputStream',
+    ].join('\n');
+    expect(() => verifyJarSignatureOutput('jar is unsigned.', 0)).toThrow(/not verified/);
+    expect(() => verifyJarSignatureOutput(`${expectedStrictAabOutput}\nThis jar contains unsigned entries which have not been integrity-checked.`, 4)).toThrow(/unsigned entries/);
+    expect(() => verifyJarSignatureOutput('jar verified.\nWarning: certificate chain is invalid.', 4)).toThrow(/strict verification/);
+    expect(verifyJarSignatureOutput(expectedStrictAabOutput, 4)).toBe(true);
+    expect(verifyJarSignatureOutput('jar verified.', 0)).toBe(true);
+  });
+
   it('rejects an AAB manifest with the wrong identity, debug mode, or version', () => {
     expect(() => inspectBundleManifest('<manifest package="com.bad"><uses-sdk/></manifest>', {
       packageId: 'com.basegamelab.findthedog', versionCode: 1, versionName: '1.0.0',
@@ -70,6 +90,15 @@ describe('Google Play release gates', () => {
     expect(() => materializeFirebaseConfig(source, path.join(dir, 'out.json'), 'com.basegamelab.findthebird')).toThrow(/package/);
   });
 
+  it('accepts current 27-character RevenueCat Google Play key suffixes', () => {
+    const issues = validateRecipe({
+      packageId: 'com.basegamelab.findthebird', versionCode: 1, versionName: '1.0.0',
+      env: productionEnv({ VITE_REVENUECAT_ANDROID_API_KEY: `goog_${'a'.repeat(27)}` }),
+      files: new Set(['AppsFlyerAttributionPlugin.java', 'AndroidManifest.xml']),
+    });
+    expect(issues.join('\n')).not.toMatch(/RevenueCat/);
+  });
+
   it('validates production identity and rejects selected-but-absent providers', () => {
     const issues = validateRecipe({
       packageId: 'com.basegamelab.findthebird', versionCode: 1, versionName: '1.0.0',
@@ -77,6 +106,23 @@ describe('Google Play release gates', () => {
     });
     expect(issues.join('\n')).toMatch(/AppsFlyer.*bridge/);
     expect(issues.join('\n')).toMatch(/RevenueCat/);
+  });
+
+  it('rejects diagnostic and placeholder AppsFlyer dev keys in production Android', () => {
+    for (const bad of ['DIAGNOSTICnotRealDevKey00', 'not-a-real-key-000000', 'placeholder-dev-key-1', '__SET_ME__abcdefghijk']) {
+      const issues = validateRecipe({
+        packageId: 'com.basegamelab.findthedog', versionCode: 1, versionName: '1.0.5',
+        env: productionEnv({ VITE_APPSFLYER_DEV_KEY: bad }),
+        files: new Set(['AppsFlyerAttributionPlugin.java', 'AndroidManifest.xml']),
+      });
+      expect(issues.join('\n'), bad).toMatch(/AppsFlyer dev key/);
+    }
+    const ok = validateRecipe({
+      packageId: 'com.basegamelab.findthedog', versionCode: 1, versionName: '1.0.5',
+      env: productionEnv({ VITE_APPSFLYER_DEV_KEY: 'a1B2c3D4e5F6g7H8i9J0kL' }),
+      files: new Set(['AppsFlyerAttributionPlugin.java', 'AndroidManifest.xml']),
+    });
+    expect(ok.join('\n')).not.toMatch(/AppsFlyer dev key/);
   });
 
   it('requires Android manifest wiring when AdMob is selected', () => {

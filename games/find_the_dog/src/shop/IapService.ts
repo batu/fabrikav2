@@ -1,5 +1,6 @@
 import {
   FakePurchaseProvider,
+  localStoragePendingPurchaseStore,
   IapService as SdkIapService,
   ownedProductIdsFromCustomerInfo,
   type CatalogProduct,
@@ -68,6 +69,7 @@ export interface FindTheDogIapComposition {
   readonly platform: () => 'android' | 'ios' | 'web';
   readonly apiKey: () => string | null;
   readonly provider: () => PurchaseProvider | Promise<PurchaseProvider>;
+  readonly preparePurchase?: () => void;
 }
 
 export function ftdCatalogProduct(product: ShopCatalogProduct, tier: number): CatalogProduct<FtdIapGrant> {
@@ -116,6 +118,7 @@ function toPurchaseTransaction(result: IapPurchaseResult): PurchaseTransaction {
 
 export class FindTheDogIapService {
   private readonly fakeProvider = new FakePurchaseProvider();
+  private completedPurchaseHandler: ((result: IapPurchaseResult) => boolean) | null = null;
   private composition: FindTheDogIapComposition;
   private service: SdkIapService<FtdIapGrant>;
   private initPromise: Promise<void> | null = null;
@@ -150,6 +153,19 @@ export class FindTheDogIapService {
 
   setOnCustomerInfoUpdate(handler: ((customerInfo: CustomerInfoLike) => void) | null): void {
     this.service.setOnCustomerInfoUpdate(handler);
+  }
+
+  setOnCompletedPurchase(handler: ((result: IapPurchaseResult) => boolean) | null): void {
+    this.completedPurchaseHandler = handler;
+    this.service.setOnCompletedPurchase(handler);
+  }
+
+  reconcilePendingPurchases(): void {
+    this.service.reconcilePendingPurchases();
+  }
+
+  acknowledgePurchase(purchase: IapPurchaseResult): boolean {
+    return this.service.acknowledgePurchase(purchase);
   }
 
   setStateForTest(state: IapTestState): void {
@@ -199,14 +215,16 @@ export class FindTheDogIapService {
   }
 
   private createSdkService(): SdkIapService<FtdIapGrant> {
-    return new SdkIapService<FtdIapGrant>({
+    const service = new SdkIapService<FtdIapGrant>({
       isNativePlatform: this.composition.isNativePlatform,
       platform: this.composition.platform,
       apiKey: this.composition.apiKey,
       catalogProducts: () => buildShopCatalog().products.map(ftdCatalogProduct),
       provider: this.composition.provider,
+      preparePurchase: this.composition.preparePurchase,
       operationTimeoutMs: () => 15_000,
       purchaseTimeoutMs: () => 60_000,
+      pendingPurchaseStore: localStoragePendingPurchaseStore('find_the_dog_pending_purchases_v1'),
       onEvent: (event) => {
         if (event.type === 'state_changed') {
           void analytics.iapStateChanged({ state: event.state, reason: event.reason });
@@ -215,6 +233,8 @@ export class FindTheDogIapService {
         }
       },
     });
+    service.setOnCompletedPurchase(this.completedPurchaseHandler);
+    return service;
   }
 
   private fakeComposition(): FindTheDogIapComposition {

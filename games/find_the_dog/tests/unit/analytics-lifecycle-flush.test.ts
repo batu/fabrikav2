@@ -228,6 +228,8 @@ describe('analytics lifecycle flush (session_end loss fix)', () => {
 
     expect(track).toHaveBeenCalledWith('app_foreground');
     expect(sessionStart).toHaveBeenCalledTimes(1);
+    const foregroundCall = track.mock.calls.findIndex(([name]) => name === 'app_foreground');
+    expect(sessionStart.mock.invocationCallOrder[0]).toBeLessThan(track.mock.invocationCallOrder[foregroundCall]);
     setLifecycleForTest('active');
     expect(sessionStart).toHaveBeenCalledTimes(1);
   });

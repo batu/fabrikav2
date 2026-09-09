@@ -1,0 +1,29 @@
+{
+  "project": "find-the-dog-basegamelab",
+  "version": {
+    "versionNumber": null,
+    "updateTime": null,
+    "updateOrigin": null,
+    "updateType": null
+  },
+  "parameters": {
+    "level_sequence_payload": {
+      "defaultValue": {
+        "value": ""
+      },
+      "description": "Complete V1 live level sequence JSON payload. Empty disables remote sequence activation.",
+      "valueType": "STRING"
+    },
+    "level_sequence_sha256": {
+      "defaultValue": {
+        "value": ""
+      },
+      "description": "SHA-256 hex digest for level_sequence_payload. Required when payload is non-empty.",
+      "valueType": "STRING"
+    }
+  },
+  "totalParameters": 59,
+  "verifiedAt": "2026-09-08T11:17:55.232500+00:00",
+  "method": "Authenticated firebase remoteconfig:get via existing Portal read_template helper; read-only",
+  "conditionalSequenceOverrides": false
+}

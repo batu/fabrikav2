@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 // Keep purchase-funnel coverage focused on analytics; the real remote-config
 // composition and storage guards have dedicated coverage.
@@ -28,6 +28,17 @@ function trackSpy(): ReturnType<typeof vi.spyOn> {
 
 afterEach(() => {
   vi.restoreAllMocks();
+  vi.unstubAllGlobals();
+});
+beforeEach(() => {
+  const storage = new Map<string, string>();
+  vi.stubGlobal('localStorage', {
+    getItem: (key: string) => storage.get(key) ?? null,
+    setItem: (key: string, value: string) => { storage.set(key, value); },
+    removeItem: (key: string) => { storage.delete(key); },
+    clear: () => storage.clear(),
+  });
+  localStorage.clear();
 });
 
 describe('canonical event contract', () => {

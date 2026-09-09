@@ -1,0 +1,20 @@
+✔ paid totals require own identity and exclude test, contamination, pre-cutoff, foreign campaign and QA rows (4.863333ms)
+✔ paid installs cannot occur after the snapshot observation instant (3.024209ms)
+✔ install timestamps require full calendar-valid time without invented precision (5.553375ms)
+✔ a cohort cannot be approved without a valid UTC cutoff and complete QA exclusion policy (2.883333ms)
+✔ empty or malformed successful responses cannot masquerade as a healthy zero (1.442458ms)
+✔ canonical policy has no public paid T0 and never promotes FTB 1.2.1 (0.378708ms)
+✔ paid header-only exports missing identity or cohort columns are incomplete (0.307375ms)
+✔ healthy organic counts retain existing version quarantine and successful empty means zero (0.349ms)
+✔ unknown paid row dimensions never become a partial clean total (5.768833ms)
+✔ paid report failures remain incomplete even with an approved cohort (0.617584ms)
+✔ blank organic version provenance makes all aggregates incomplete even with known rows (1.579208ms)
+✔ unavailable organic report leaves every organic aggregate unknown, not zero (0.514083ms)
+ℹ tests 12
+ℹ suites 0
+ℹ pass 12
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 103.406292

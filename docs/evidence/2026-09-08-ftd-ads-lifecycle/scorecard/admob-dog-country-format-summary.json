@@ -1,0 +1,457 @@
+{
+ "window": "2026-09-01..2026-09-07",
+ "currency": "USD",
+ "note": "Earnings are rounded to cents per row by AdMob UI; country eCPM derived from rounded earnings is imprecise for sub-cent rows.",
+ "by_country": {
+  "United States": {
+   "earnings": 0.51,
+   "impressions": 368,
+   "requests": 666,
+   "matched": 654,
+   "match_rate_pct": 98.2,
+   "show_rate_pct": 56.27,
+   "observed_ecpm_usd": 1.39
+  },
+  "Philippines": {
+   "earnings": 0.07,
+   "impressions": 70,
+   "requests": 280,
+   "matched": 136,
+   "match_rate_pct": 48.57,
+   "show_rate_pct": 51.47,
+   "observed_ecpm_usd": 1.0
+  },
+  "Australia": {
+   "earnings": 0.1,
+   "impressions": 40,
+   "requests": 56,
+   "matched": 56,
+   "match_rate_pct": 100.0,
+   "show_rate_pct": 71.43,
+   "observed_ecpm_usd": 2.5
+  },
+  "United Kingdom": {
+   "earnings": 0.04,
+   "impressions": 27,
+   "requests": 53,
+   "matched": 53,
+   "match_rate_pct": 100.0,
+   "show_rate_pct": 50.94,
+   "observed_ecpm_usd": 1.48
+  },
+  "T\u00fcrkiye": {
+   "earnings": 0.0,
+   "impressions": 7,
+   "requests": 43,
+   "matched": 31,
+   "match_rate_pct": 72.09,
+   "show_rate_pct": 22.58,
+   "observed_ecpm_usd": 0.0
+  },
+  "Portugal": {
+   "earnings": 0.0,
+   "impressions": 5,
+   "requests": 8,
+   "matched": 8,
+   "match_rate_pct": 100.0,
+   "show_rate_pct": 62.5,
+   "observed_ecpm_usd": 0.0
+  },
+  "Canada": {
+   "earnings": 0.0,
+   "impressions": 2,
+   "requests": 5,
+   "matched": 5,
+   "match_rate_pct": 100.0,
+   "show_rate_pct": 40.0,
+   "observed_ecpm_usd": 0.0
+  },
+  "Malaysia": {
+   "earnings": 0.0,
+   "impressions": 2,
+   "requests": 6,
+   "matched": 6,
+   "match_rate_pct": 100.0,
+   "show_rate_pct": 33.33,
+   "observed_ecpm_usd": 0.0
+  },
+  "Ireland": {
+   "earnings": 0.0,
+   "impressions": 1,
+   "requests": 3,
+   "matched": 3,
+   "match_rate_pct": 100.0,
+   "show_rate_pct": 33.33,
+   "observed_ecpm_usd": 0.0
+  },
+  "Kuwait": {
+   "earnings": 0.0,
+   "impressions": 1,
+   "requests": 6,
+   "matched": 6,
+   "match_rate_pct": 100.0,
+   "show_rate_pct": 16.67,
+   "observed_ecpm_usd": 0.0
+  },
+  "Romania": {
+   "earnings": 0.0,
+   "impressions": 0,
+   "requests": 2,
+   "matched": 2,
+   "match_rate_pct": 100.0,
+   "show_rate_pct": 0.0,
+   "observed_ecpm_usd": null
+  }
+ },
+ "by_format": {
+  "Banner": {
+   "earnings": 0.43,
+   "impressions": 456,
+   "requests": 631,
+   "matched": 463,
+   "match_rate_pct": 73.38,
+   "show_rate_pct": 98.49,
+   "observed_ecpm_usd": 0.94
+  },
+  "Interstitial": {
+   "earnings": 0.18,
+   "impressions": 48,
+   "requests": 211,
+   "matched": 211,
+   "match_rate_pct": 100.0,
+   "show_rate_pct": 22.75,
+   "observed_ecpm_usd": 3.75
+  },
+  "Rewarded": {
+   "earnings": 0.11,
+   "impressions": 19,
+   "requests": 286,
+   "matched": 286,
+   "match_rate_pct": 100.0,
+   "show_rate_pct": 6.64,
+   "observed_ecpm_usd": 5.79
+  }
+ },
+ "rows": [
+  {
+   "unit": "find-the-dog-ios-banner",
+   "format": "Banner",
+   "country": "United States",
+   "earnings": 0.3,
+   "impressions": 329,
+   "requests": 346,
+   "match_rate": 96.53,
+   "matched": 334
+  },
+  {
+   "unit": "find-the-dog-ios-interstitial",
+   "format": "Interstitial",
+   "country": "United States",
+   "earnings": 0.12,
+   "impressions": 30,
+   "requests": 128,
+   "match_rate": 100.0,
+   "matched": 128
+  },
+  {
+   "unit": "find-the-dog-ios-rewarded",
+   "format": "Rewarded",
+   "country": "United States",
+   "earnings": 0.09,
+   "impressions": 9,
+   "requests": 192,
+   "match_rate": 100.0,
+   "matched": 192
+  },
+  {
+   "unit": "find-the-dog-ios-banner",
+   "format": "Banner",
+   "country": "Australia",
+   "earnings": 0.06,
+   "impressions": 36,
+   "requests": 36,
+   "match_rate": 100.0,
+   "matched": 36
+  },
+  {
+   "unit": "find-the-dog-ios-banner",
+   "format": "Banner",
+   "country": "United Kingdom",
+   "earnings": 0.04,
+   "impressions": 26,
+   "requests": 26,
+   "match_rate": 100.0,
+   "matched": 26
+  },
+  {
+   "unit": "find-the-dog-ios-interstitial",
+   "format": "Interstitial",
+   "country": "Australia",
+   "earnings": 0.04,
+   "impressions": 4,
+   "requests": 10,
+   "match_rate": 100.0,
+   "matched": 10
+  },
+  {
+   "unit": "find-the-dog-ios-banner",
+   "format": "Banner",
+   "country": "Philippines",
+   "earnings": 0.03,
+   "impressions": 49,
+   "requests": 194,
+   "match_rate": 25.77,
+   "matched": 50
+  },
+  {
+   "unit": "find-the-dog-ios-interstitial",
+   "format": "Interstitial",
+   "country": "Philippines",
+   "earnings": 0.02,
+   "impressions": 11,
+   "requests": 38,
+   "match_rate": 100.0,
+   "matched": 38
+  },
+  {
+   "unit": "find-the-dog-ios-rewarded",
+   "format": "Rewarded",
+   "country": "Philippines",
+   "earnings": 0.02,
+   "impressions": 10,
+   "requests": 48,
+   "match_rate": 100.0,
+   "matched": 48
+  },
+  {
+   "unit": "find-the-dog-ios-interstitial",
+   "format": "Interstitial",
+   "country": "United Kingdom",
+   "earnings": 0.0,
+   "impressions": 1,
+   "requests": 11,
+   "match_rate": 100.0,
+   "matched": 11
+  },
+  {
+   "unit": "find-the-dog-ios-interstitial",
+   "format": "Interstitial",
+   "country": "Portugal",
+   "earnings": 0.0,
+   "impressions": 1,
+   "requests": 2,
+   "match_rate": 100.0,
+   "matched": 2
+  },
+  {
+   "unit": "find-the-dog-ios-banner",
+   "format": "Banner",
+   "country": "Canada",
+   "earnings": 0.0,
+   "impressions": 2,
+   "requests": 2,
+   "match_rate": 100.0,
+   "matched": 2
+  },
+  {
+   "unit": "find-the-dog-ios-banner",
+   "format": "Banner",
+   "country": "T\u00fcrkiye",
+   "earnings": 0.0,
+   "impressions": 6,
+   "requests": 19,
+   "match_rate": 36.84,
+   "matched": 7
+  },
+  {
+   "unit": "find-the-dog-ios-interstitial",
+   "format": "Interstitial",
+   "country": "T\u00fcrkiye",
+   "earnings": 0.0,
+   "impressions": 1,
+   "requests": 15,
+   "match_rate": 100.0,
+   "matched": 15
+  },
+  {
+   "unit": "find-the-dog-ios-banner",
+   "format": "Banner",
+   "country": "Portugal",
+   "earnings": 0.0,
+   "impressions": 4,
+   "requests": 4,
+   "match_rate": 100.0,
+   "matched": 4
+  },
+  {
+   "unit": "find-the-dog-ios-banner",
+   "format": "Banner",
+   "country": "Malaysia",
+   "earnings": 0.0,
+   "impressions": 2,
+   "requests": 2,
+   "match_rate": 100.0,
+   "matched": 2
+  },
+  {
+   "unit": "find-the-dog-ios-banner",
+   "format": "Banner",
+   "country": "Ireland",
+   "earnings": 0.0,
+   "impressions": 1,
+   "requests": 1,
+   "match_rate": 100.0,
+   "matched": 1
+  },
+  {
+   "unit": "find-the-dog-ios-banner",
+   "format": "Banner",
+   "country": "Kuwait",
+   "earnings": 0.0,
+   "impressions": 1,
+   "requests": 1,
+   "match_rate": 100.0,
+   "matched": 1
+  },
+  {
+   "unit": "find-the-dog-ios-interstitial",
+   "format": "Interstitial",
+   "country": "Canada",
+   "earnings": 0.0,
+   "impressions": 0,
+   "requests": 1,
+   "match_rate": 100.0,
+   "matched": 1
+  },
+  {
+   "unit": "find-the-dog-ios-interstitial",
+   "format": "Interstitial",
+   "country": "Ireland",
+   "earnings": 0.0,
+   "impressions": 0,
+   "requests": 1,
+   "match_rate": 100.0,
+   "matched": 1
+  },
+  {
+   "unit": "find-the-dog-ios-interstitial",
+   "format": "Interstitial",
+   "country": "Kuwait",
+   "earnings": 0.0,
+   "impressions": 0,
+   "requests": 2,
+   "match_rate": 100.0,
+   "matched": 2
+  },
+  {
+   "unit": "find-the-dog-ios-interstitial",
+   "format": "Interstitial",
+   "country": "Malaysia",
+   "earnings": 0.0,
+   "impressions": 0,
+   "requests": 2,
+   "match_rate": 100.0,
+   "matched": 2
+  },
+  {
+   "unit": "find-the-dog-ios-interstitial",
+   "format": "Interstitial",
+   "country": "Romania",
+   "earnings": 0.0,
+   "impressions": 0,
+   "requests": 1,
+   "match_rate": 100.0,
+   "matched": 1
+  },
+  {
+   "unit": "find-the-dog-ios-rewarded",
+   "format": "Rewarded",
+   "country": "Australia",
+   "earnings": 0.0,
+   "impressions": 0,
+   "requests": 10,
+   "match_rate": 100.0,
+   "matched": 10
+  },
+  {
+   "unit": "find-the-dog-ios-rewarded",
+   "format": "Rewarded",
+   "country": "Canada",
+   "earnings": 0.0,
+   "impressions": 0,
+   "requests": 2,
+   "match_rate": 100.0,
+   "matched": 2
+  },
+  {
+   "unit": "find-the-dog-ios-rewarded",
+   "format": "Rewarded",
+   "country": "United Kingdom",
+   "earnings": 0.0,
+   "impressions": 0,
+   "requests": 16,
+   "match_rate": 100.0,
+   "matched": 16
+  },
+  {
+   "unit": "find-the-dog-ios-rewarded",
+   "format": "Rewarded",
+   "country": "Ireland",
+   "earnings": 0.0,
+   "impressions": 0,
+   "requests": 1,
+   "match_rate": 100.0,
+   "matched": 1
+  },
+  {
+   "unit": "find-the-dog-ios-rewarded",
+   "format": "Rewarded",
+   "country": "Kuwait",
+   "earnings": 0.0,
+   "impressions": 0,
+   "requests": 3,
+   "match_rate": 100.0,
+   "matched": 3
+  },
+  {
+   "unit": "find-the-dog-ios-rewarded",
+   "format": "Rewarded",
+   "country": "Malaysia",
+   "earnings": 0.0,
+   "impressions": 0,
+   "requests": 2,
+   "match_rate": 100.0,
+   "matched": 2
+  },
+  {
+   "unit": "find-the-dog-ios-rewarded",
+   "format": "Rewarded",
+   "country": "Portugal",
+   "earnings": 0.0,
+   "impressions": 0,
+   "requests": 2,
+   "match_rate": 100.0,
+   "matched": 2
+  },
+  {
+   "unit": "find-the-dog-ios-rewarded",
+   "format": "Rewarded",
+   "country": "Romania",
+   "earnings": 0.0,
+   "impressions": 0,
+   "requests": 1,
+   "match_rate": 100.0,
+   "matched": 1
+  },
+  {
+   "unit": "find-the-dog-ios-rewarded",
+   "format": "Rewarded",
+   "country": "T\u00fcrkiye",
+   "earnings": 0.0,
+   "impressions": 0,
+   "requests": 9,
+   "match_rate": 100.0,
+   "matched": 9
+  }
+ ]
+}

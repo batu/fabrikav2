@@ -169,6 +169,9 @@ export function createSdkContext(deps: CreateSdkContextDependencies = {}): GameS
     ? isNativePlatform && adMobConfig.enabled
       ? new AdMobProvider(adMobConfig.config, {
           lifecycle,
+          // General audience (owner decision 2026-09-08, stack-wide): no child /
+          // under-age tags, UMP consent decides personalization, ATT on iOS.
+          audience: 'general',
           onAdRevenuePaid: (event) => forwardAcquisitionValueEvent({
             type: 'ad_revenue', revenue: event.revenue, currency: event.currency,
             format: event.format, placement: event.placement, impressionId: event.impressionId,
@@ -280,7 +283,7 @@ export function createSdkContext(deps: CreateSdkContextDependencies = {}): GameS
     throw new Error('Production native iOS requires owner-controlled VITE_REVENUECAT_IOS_API_KEY');
   }
   if (platform === 'android' && isNativePlatform && revenueCatKey !== null && !isRevenueCatAndroidPublicKey(rawRevenueCatKey)) {
-    throw new Error('Native Android requires a valid RevenueCat Android public key (goog_ plus 28 alphanumeric characters)');
+    throw new Error('Native Android requires a valid RevenueCat Android public key (goog_ plus 27 or 28 alphanumeric characters)');
   }
   if (buildEnv === 'production' && platform === 'android' && isNativePlatform && revenueCatKey === null) {
     throw new Error('Production native Android requires owner-controlled VITE_REVENUECAT_ANDROID_API_KEY');
@@ -310,6 +313,7 @@ export function createSdkContext(deps: CreateSdkContextDependencies = {}): GameS
     platform: () => platform,
     apiKey: () => apiKey,
     provider: () => purchaseProvider,
+    preparePurchase: () => gameState.preparePurchase(),
   };
 
   const firebaseRemoteProvider = platform === 'ios' && isNativePlatform
@@ -420,7 +424,7 @@ async function fetchMirrorTransport(request: Parameters<MirrorTransport>[0]): Pr
 }
 
 function isRevenueCatAndroidPublicKey(value: string | null | undefined): value is string {
-  return typeof value === 'string' && /^goog_[A-Za-z0-9]{28}$/.test(value);
+  return typeof value === 'string' && /^goog_[A-Za-z0-9]{27,28}$/.test(value);
 }
 
 function createLazyRevenueCatPlugin(loader: RevenueCatLoader): RevenueCatPurchasesPlugin {

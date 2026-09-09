@@ -168,6 +168,12 @@ export function createGame({ name, repoRoot, from = TEMPLATE_NAME }) {
   pkg.name = packageName;
   delete pkg.description; // the template's "copied by create-game" note no longer applies
   pkg.devDependencies = gameDevDependencies(pkg.devDependencies);
+  if (from === SHELL_TEMPLATE_NAME) {
+    pkg.scripts = Object.fromEntries(Object.entries(pkg.scripts ?? {}).map(([script, command]) => [
+      script,
+      command.replace(/(--game(?:=|\s+))shell_template(?=$|\s|[;&|])/g, `$1${name}`),
+    ]));
+  }
   writeFileSync(pkgPath, JSON.stringify(pkg, null, 2) + '\n');
 
   if (from === SHELL_TEMPLATE_NAME) {
@@ -176,6 +182,15 @@ export function createGame({ name, repoRoot, from = TEMPLATE_NAME }) {
     // a drifted shell fails loudly (substitute() skips missing files but the
     // smoke test below pins the id).
     const appId = `com.basegamelab.${appIdSegment(name)}.dev`;
+    const shellManifestPath = join(targetDir, 'native-resources', 'ios', 'shell-manifest.json');
+    const shellManifest = JSON.parse(readFileSync(shellManifestPath, 'utf8'));
+    shellManifest.game = name;
+    shellManifest.capacitorAppId = appId;
+    shellManifest.ios.bundleId = appId;
+    shellManifest.ios.displayName = title;
+    // Bridge class names and provider recipes are reusable implementation
+    // identities; only the application's identity changes when stamping.
+    writeFileSync(shellManifestPath, JSON.stringify(shellManifest, null, 2) + '\n');
     substitute(join(targetDir, 'game.config.ts'), [['id: "shell_template"', `id: "${name}"`]]);
     substitute(join(targetDir, 'design', 'copy.ts'), [
       ['"game.title": "Test Game"', `"game.title": "${title}"`],
@@ -200,6 +215,7 @@ export function createGame({ name, repoRoot, from = TEMPLATE_NAME }) {
     ]);
     substitute(join(targetDir, 'refs', 'manifest.yaml'), [
       ['game: shell_template', `game: ${name}`],
+      ['package: com.basegamelab.shell_template.dev', `package: ${appId}`],
     ]);
     mkdirSync(join(targetDir, 'evidence'), { recursive: true });
     writeFileSync(join(targetDir, 'README.md'), generatedReadme({ name, packageName, title }));

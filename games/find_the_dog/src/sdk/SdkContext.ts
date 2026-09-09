@@ -1,4 +1,5 @@
 import { Capacitor } from '@capacitor/core';
+import { revealPickupExperiment } from '../data/revealPickupExperiment';
 import {
   resolveSdkEnvironments,
   type SdkBuildEnv,
@@ -43,6 +44,7 @@ import { setMusicPausedForAd } from '../audio/AudioManager';
 import { bootstrapStorage, type BootstrapStorage } from '../platform/bootstrapStorage';
 import { gameState } from '../core/GameState';
 import { readAdMobConfig } from '../ads/AdMobConfig';
+import { createAdMobCompositionOptions } from '../ads/adMobComposition';
 import { configureAdService } from '../ads/Service';
 import {
   analytics,
@@ -161,9 +163,12 @@ export function createSdkContext(deps: CreateSdkContextDependencies = {}): GameS
     ? isNativePlatform && adMobConfig.enabled
       ? new AdMobProvider(adMobConfig.config, {
           lifecycle,
-          onAdRevenuePaid: (event) => forwardAcquisitionValueEvent({
-            type: 'ad_revenue', revenue: event.revenue, currency: event.currency,
-            format: event.format, placement: event.placement, impressionId: event.impressionId,
+          // General audience (owner decision 2026-09-08, stack-wide): no child /
+          // under-age tags, UMP consent decides personalization, ATT on iOS.
+          audience: 'general',
+          ...createAdMobCompositionOptions({
+            analytics,
+            forwardAcquisitionValueEvent: (event) => forwardAcquisitionValueEvent(event),
           }),
         })
       : defaultAdProviderFactories.createDisabledProvider(`AdMob unavailable: ${adMobConfig.enabled ? 'not running on a native platform' : adMobConfig.reason}`)
@@ -249,7 +254,10 @@ export function createSdkContext(deps: CreateSdkContextDependencies = {}): GameS
   analyticsFacade = createAnalytics<FtdEvent>({
     env: environments.analytics,
     sessionId: createFtdSessionId(),
-    sinks,
+    sinks: sinks.map((sink) => ({
+      ...sink,
+      emit: (event) => sink.emit({ ...event, params: { ...revealPickupExperiment.params(), ...event.params } }),
+    })),
     globalParams: {
       game: 'find_the_dog',
       environment: environments.analytics,
@@ -270,7 +278,7 @@ export function createSdkContext(deps: CreateSdkContextDependencies = {}): GameS
     throw new Error('Production native iOS requires owner-controlled VITE_REVENUECAT_IOS_API_KEY');
   }
   if (platform === 'android' && isNativePlatform && revenueCatKey !== null && !isRevenueCatAndroidPublicKey(rawRevenueCatKey)) {
-    throw new Error('Native Android requires a valid RevenueCat Android public key (goog_ plus 28 alphanumeric characters)');
+    throw new Error('Native Android requires a valid RevenueCat Android public key (goog_ plus 27 or 28 alphanumeric characters)');
   }
   if (buildEnv === 'production' && platform === 'android' && isNativePlatform && revenueCatKey === null) {
     throw new Error('Production native Android requires owner-controlled VITE_REVENUECAT_ANDROID_API_KEY');
@@ -300,6 +308,7 @@ export function createSdkContext(deps: CreateSdkContextDependencies = {}): GameS
     platform: () => platform,
     apiKey: () => apiKey,
     provider: () => purchaseProvider,
+    preparePurchase: () => gameState.preparePurchase(),
   };
 
   const remoteConfigDisabled = parseBooleanEnv(env.VITE_FTD_DISABLE_REMOTE_CONFIG, false);
@@ -406,7 +415,7 @@ function envString(value: string | boolean | undefined): string | null {
 }
 
 function isRevenueCatAndroidPublicKey(value: string | null | undefined): value is string {
-  return typeof value === 'string' && /^goog_[A-Za-z0-9]{28}$/.test(value);
+  return typeof value === 'string' && /^goog_[A-Za-z0-9]{27,28}$/.test(value);
 }
 
 async function fetchMirrorTransport(request: Parameters<MirrorTransport>[0]): Promise<{ ok: boolean; status: number }> {

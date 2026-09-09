@@ -1,4 +1,5 @@
 import crypto from 'node:crypto';
+import { runIosBuild } from '../../native-shell/src/build-output.mjs';
 import { execFileSync, spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -10,6 +11,7 @@ const FORBIDDEN = [/3940256099942544/, /applovin/i, /VITE_ENABLE_TEST_HARNESS/, 
 const SHA256 = /^[a-f0-9]{64}$/;
 
 export function validateReleaseEnvironment(env = {}) {
+  if (env.FTB_DEV_SHELL_URL) throw new Error('release mode refuses a remote development shell');
   if (truthy(env.VITE_ENABLE_TEST_HARNESS)) throw new Error('release mode refuses the test harness');
   if (env.VITE_INSITU_TOUR && String(env.VITE_INSITU_TOUR).trim()) throw new Error('release mode refuses the insitu tour');
 }
@@ -195,6 +197,12 @@ export function inspectBundle(appPath, maxBytes = 250 * 1024 * 1024, { payloadOn
     const relative = path.relative(appPath, file);
     if (payloadOnly && (relative.startsWith('_CodeSignature/') || relative === 'embedded.mobileprovision')) continue;
     const rawContent = type === 'symlink' ? Buffer.from(fs.readlinkSync(file)) : fs.readFileSync(file);
+    if (path.basename(file) === 'capacitor.config.json') {
+      const config = JSON.parse(rawContent.toString('utf8'));
+      if (config?.server && Object.hasOwn(config.server, 'url')) {
+        throw new Error(`release bundle contains a remote development shell: ${relative}`);
+      }
+    }
     const hashContent = payloadOnly && relative === 'Info.plist' ? canonicalInfoPlist(file, execImpl) : rawContent;
     size += rawContent.length;
     hash.update(type); hash.update('\0'); hash.update(relative); hash.update('\0'); hash.update(hashContent);
@@ -326,6 +334,7 @@ export function defaultDependencies({ execImpl = execFileSync, spawnImpl = spawn
     buildWeb(request) {
       const root = repoRoot(request);
       run('node', ['tools/patch-gameanalytics-persistence.mjs', '--verify'], { cwd: root, env: childEnv(request) });
+      run('node', ['tools/patch-admob-ios-revenue.mjs', '--verify'], { cwd: root, env: childEnv(request) });
       run('npm', ['run', 'build:ios'], { cwd: request.gameDir, env: childEnv(request) });
     },
     syncNative(request) {
@@ -342,12 +351,11 @@ export function defaultDependencies({ execImpl = execFileSync, spawnImpl = spawn
       }
     },
     buildSignedApp(request) {
-      const derived = path.join(request.gameDir, 'ios', 'App', 'release-build');
       const project = path.join(request.gameDir, 'ios', 'App', 'App.xcodeproj');
       const settings = [`MARKETING_VERSION=${request.version}`];
       if (request.developmentTeam) settings.push('-allowProvisioningUpdates', `DEVELOPMENT_TEAM=${request.developmentTeam}`);
-      run('xcodebuild', ['-project', project, '-scheme', 'App', '-configuration', 'Release', '-destination', `id=${request.device.udid}`, '-derivedDataPath', derived, 'build', ...settings]);
-      const appPath = path.join(derived, 'Build', 'Products', 'Release-iphoneos', 'App.app');
+      const { appPath } = runIosBuild({ gameDir: request.gameDir, configuration: 'Release', run,
+        args: ['-project', project, '-scheme', 'App', '-configuration', 'Release', '-destination', `id=${request.device.udid}`, 'build', ...settings] });
       return { appPath, signingIdentity: inspectSignedIosApp(appPath, { expectedTeam: request.developmentTeam, spawnImpl }) };
     },
     uninstallApp(request) {

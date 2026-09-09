@@ -48,7 +48,7 @@ const levelAttributionFields = [
 
 const economyFields = ['flow_type', 'currency', 'amount', 'item_type', 'item_id', 'product_id', 'no_ads', 'hints', 'coins', 'continue_level', 'level_id'] as const;
 const adRevenueFields = ['ad_type', 'placement', 'provider', 'currency', 'precision', 'network_name'] as const;
-const runtimeIdentityFields = ['app_version', 'build', 'platform', 'game', 'environment', 'cohort_bucket'] as const;
+const runtimeIdentityFields = ['experiment_id', 'variant', 'experiment_population', 'enrollment_day', 'starting_hints', 'experiment_exposed', 'native_app_version', 'native_build_number', 'app_version', 'build', 'platform', 'game', 'environment', 'cohort_bucket'] as const;
 
 export const canonicalAnalyticsEvents = [
   {
@@ -104,8 +104,8 @@ export const canonicalAnalyticsEvents = [
     family: 'design',
     panel: 'retention',
     question: 'When users actually enter a level-set or UI experiment.',
-    primaryDimensions: ['experiment_id', 'bucket'],
-    instrumentationStatus: 'contract',
+    primaryDimensions: ['experiment_id', 'bucket', 'variant', 'actual_mode'],
+    instrumentationStatus: 'runtime',
     successBoundary: 'Player becomes eligible for and sees an experiment-controlled surface.',
   },
   {
@@ -432,6 +432,18 @@ export const canonicalAnalyticsEvents = [
     alertWhen: 'Repeated show failures on rewarded placements.',
   },
   {
+    id: 'ad_lifecycle',
+    firebaseName: 'ad_lifecycle',
+    gameAnalyticsName: 'Firebase only',
+    family: 'ad',
+    panel: 'ads',
+    question: 'Provider-level ad lifecycle by format: load, show, native impression, dismissal, reward, expiry and skip reasons.',
+    primaryDimensions: ['ad_type', 'placement', 'stage', 'reason'],
+    instrumentationStatus: 'runtime',
+    successBoundary: 'Emitted from native SDK callbacks through the AdMob provider seam; request acceptance is never an impression.',
+    alertWhen: 'load_failed or skipped stages dominate an eligible placement, or impressions lag shown.',
+  },
+  {
     id: 'rewarded_ad_granted',
     firebaseName: 'rewarded_ad_granted',
     gameAnalyticsName: 'Ad reward_received',
@@ -702,6 +714,12 @@ const forbiddenAnalyticsIdentifierKeySet = new Set(forbiddenAnalyticsIdentifierK
 // throwing on import). The canonical-events test asserts the superset invariant so
 // a new primaryDimension can't drift out of this allowlist unnoticed.
 export const dashboardImportDimensionKeys = [
+  'experiment_population',
+  'variant',
+  'actual_mode',
+  'enrollment_day',
+  'starting_hints',
+  'experiment_exposed',
   'achievement_id',
   'action',
   'ad_type',
@@ -753,6 +771,7 @@ export const dashboardImportDimensionKeys = [
   'served_level_id',
   'setting_name',
   'severity',
+  'stage',
   'state',
   'surface',
   'failure_kind',

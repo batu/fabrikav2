@@ -1,0 +1,681 @@
+{
+  "scope": "Current repository resolver with candidate 54-level live CDN manifest, Portal IPA catalog, and captured Firebase values. No installed-device behavior claimed.",
+  "results": [
+    {
+      "project": "hidden-object-base",
+      "source": "default",
+      "levelIds": [
+        "playground_park_splash_pad_planters_dog_daef",
+        "circus_fairground_carnival_booth_loop_dog_6492",
+        "school_world_science_lab_garden_dog_9990",
+        "playground_park_sports_corner_garden_dog_6f94",
+        "circus_fairground_acrobat_props_yard_dog_718c",
+        "alpine_meadow_snowmelt_creek_bridges_dog_89a8",
+        "botanical_greenhouse_butterfly_garden_no_butterflies_dog_82b1",
+        "v5it01_04",
+        "botanical_greenhouse_cactus_conservatory_dog_8ebf",
+        "alpine_meadow_wildflower_chalet_lane_dog_5b28",
+        "ancient_forest_creek_mushroom_grove_dog_d31e",
+        "alpine_meadow_herb_market_garden_dog_288a",
+        "playground_park_picnic_play_lawn_dog_4b41",
+        "school_world_art_room_cubbies_dog_e869",
+        "alpine_meadow_cheese_farm_courtyard_dog_dc3e",
+        "ancient_forest_creek_autumn_pond_reeds_dog_0a40",
+        "alpine_meadow_goat_pasture_terraces_dog_27e2",
+        "spaceship_habitat_moonbase_garden_dome_dog_a049",
+        "playground_park_treehouse_rope_play_dog_88c7",
+        "school_world_library_reading_nook_dog_db41",
+        "coral_reef_kelp_coral_arches_dog_cbc6",
+        "playground_park_leafy_slide_garden_dog_2616",
+        "coral_reef_lagoon_ruin_reef_dog_7cf9",
+        "circus_fairground_big_top_backlot_dog_794e",
+        "spaceship_habitat_hydroponic_ring_dog_5894",
+        "hawaii_rainforest_waterfall_dog_a134",
+        "circus_fairground_traveling_circus_storage_dog_595e",
+        "spaceship_habitat_cargo_pod_greenhouse_dog_ecd5",
+        "pirate_shipwreck_island_jungle_cave_shore_dog_9c25",
+        "pirate_shipwreck_island_palm_root_ship_ribs_dog_52d1",
+        "ancient_forest_creek_mossy_stream_roots_dog_afe3",
+        "school_world_school_garden_courtyard_dog_53b5",
+        "botanical_greenhouse_orchid_mist_room_dog_d1ab",
+        "spaceship_habitat_asteroid_research_nook_dog_8c9d",
+        "coral_reef_tidal_pool_labyrinth_dog_9690",
+        "hawaii_north_shore_surf_shack_dog_37b2",
+        "botanical_greenhouse_plant_nursery_maze_dog_c857",
+        "pirate_shipwreck_island_broken_bow_lagoon_dog_8cb1",
+        "railway_roundhouse_garden_rail_museum_dog_48b6",
+        "ancient_forest_creek_redwood_camp_clearing_dog_f0b9",
+        "italy_venice_canal_morning_dog_d570",
+        "botanical_greenhouse_victorian_glasshouse_dog_aacc",
+        "pirate_shipwreck_island_dock_fragment_hideout_dog_f604",
+        "spaceship_habitat_starship_common_room_dog_8e43",
+        "coral_reef_coral_bommie_garden_dog_205d",
+        "hawaii_volcano_national_park_dog_7368",
+        "pirate_shipwreck_island_treasure_cove_camp_dog_643e",
+        "coral_reef_shipwreck_reef_camp_dog_61e7",
+        "ancient_forest_creek_fern_ravine_bridge_dog_9957",
+        "railway_roundhouse_maintenance_courtyard_loop_dog_297f",
+        "italy_roman_ruins_piazza_dog_a243",
+        "railway_roundhouse_sleepy_mountain_rail_stop_dog_4b13",
+        "circus_fairground_night_lantern_circus_dog_d9c7",
+        "railway_roundhouse_luggage_island_depot_dog_4f8d"
+      ],
+      "sequenceVersion": null,
+      "catalogRevision": "catalog-000052",
+      "diagnostics": [
+        {
+          "code": "catalogSnapshotUnavailable",
+          "severity": "error",
+          "blocking": true,
+          "message": "Catalog snapshot catalog-001683 is not available."
+        },
+        {
+          "code": "catalogLevelMissing",
+          "severity": "error",
+          "blocking": true,
+          "message": "Listed level hawaii_rainforest_waterfall_bird_0f98 is missing from the catalog snapshot.",
+          "levelId": "hawaii_rainforest_waterfall_bird_0f98"
+        },
+        {
+          "code": "catalogLevelMissing",
+          "severity": "error",
+          "blocking": true,
+          "message": "Listed level american_southwest_sw_canyon_river_camp_bird_6221 is missing from the catalog snapshot.",
+          "levelId": "american_southwest_sw_canyon_river_camp_bird_6221"
+        },
+        {
+          "code": "catalogLevelMissing",
+          "severity": "error",
+          "blocking": true,
+          "message": "Listed level greece_santorini_steps_bird_4634 is missing from the catalog snapshot.",
+          "levelId": "greece_santorini_steps_bird_4634"
+        },
+        {
+          "code": "catalogLevelMissing",
+          "severity": "error",
+          "blocking": true,
+          "message": "Listed level alpine_meadow_cheese_farm_courtyard_bird_aba2 is missing from the catalog snapshot.",
+          "levelId": "alpine_meadow_cheese_farm_courtyard_bird_aba2"
+        },
+        {
+          "code": "catalogLevelMissing",
+          "severity": "error",
+          "blocking": true,
+          "message": "Listed level american_southwest_sw_adobe_courtyard_bird_419b is missing from the catalog snapshot.",
+          "levelId": "american_southwest_sw_adobe_courtyard_bird_419b"
+        },
+        {
+          "code": "catalogLevelMissing",
+          "severity": "error",
+          "blocking": true,
+          "message": "Listed level american_southwest_sw_cactus_garden_ranch_bird_19f1 is missing from the catalog snapshot.",
+          "levelId": "american_southwest_sw_cactus_garden_ranch_bird_19f1"
+        },
+        {
+          "code": "catalogLevelMissing",
+          "severity": "error",
+          "blocking": true,
+          "message": "Listed level american_southwest_sw_desert_trading_post_bird_7396 is missing from the catalog snapshot.",
+          "levelId": "american_southwest_sw_desert_trading_post_bird_7396"
+        },
+        {
+          "code": "catalogLevelMissing",
+          "severity": "error",
+          "blocking": true,
+          "message": "Listed level cozy_interiors_cozy_attic_workshop_bird_6acc is missing from the catalog snapshot.",
+          "levelId": "cozy_interiors_cozy_attic_workshop_bird_6acc"
+        },
+        {
+          "code": "catalogLevelMissing",
+          "severity": "error",
+          "blocking": true,
+          "message": "Listed level fairytale_forest_giant_hollow_tree_library_bird_de8f is missing from the catalog snapshot.",
+          "levelId": "fairytale_forest_giant_hollow_tree_library_bird_de8f"
+        },
+        {
+          "code": "catalogLevelMissing",
+          "severity": "error",
+          "blocking": true,
+          "message": "Listed level fairytale_forest_mushroom_cottage_glade_bird_94ca is missing from the catalog snapshot.",
+          "levelId": "fairytale_forest_mushroom_cottage_glade_bird_94ca"
+        },
+        {
+          "code": "catalogLevelMissing",
+          "severity": "error",
+          "blocking": true,
+          "message": "Listed level fairytale_forest_witches_herb_hut_bird_1a72 is missing from the catalog snapshot.",
+          "levelId": "fairytale_forest_witches_herb_hut_bird_1a72"
+        },
+        {
+          "code": "catalogLevelMissing",
+          "severity": "error",
+          "blocking": true,
+          "message": "Listed level france_provence_lavender_village_bird_54c3 is missing from the catalog snapshot.",
+          "levelId": "france_provence_lavender_village_bird_54c3"
+        },
+        {
+          "code": "catalogLevelMissing",
+          "severity": "error",
+          "blocking": true,
+          "message": "Listed level greece_hilltop_windmills_bird_b89d is missing from the catalog snapshot.",
+          "levelId": "greece_hilltop_windmills_bird_b89d"
+        },
+        {
+          "code": "catalogLevelMissing",
+          "severity": "error",
+          "blocking": true,
+          "message": "Listed level greece_agora_ruins_garden_bird_8978 is missing from the catalog snapshot.",
+          "levelId": "greece_agora_ruins_garden_bird_8978"
+        },
+        {
+          "code": "catalogLevelMissing",
+          "severity": "error",
+          "blocking": true,
+          "message": "Listed level greece_harbor_taverna_morning_bird_3d5d is missing from the catalog snapshot.",
+          "levelId": "greece_harbor_taverna_morning_bird_3d5d"
+        },
+        {
+          "code": "catalogLevelMissing",
+          "severity": "error",
+          "blocking": true,
+          "message": "Listed level hawaii_luau_sunset_courtyard_bird_5251 is missing from the catalog snapshot.",
+          "levelId": "hawaii_luau_sunset_courtyard_bird_5251"
+        },
+        {
+          "code": "catalogLevelMissing",
+          "severity": "error",
+          "blocking": true,
+          "message": "Listed level hawaii_north_shore_surf_shack_bird_4fc5 is missing from the catalog snapshot.",
+          "levelId": "hawaii_north_shore_surf_shack_bird_4fc5"
+        },
+        {
+          "code": "catalogLevelMissing",
+          "severity": "error",
+          "blocking": true,
+          "message": "Listed level hawaii_waikiki_beach_market_bird_dee6 is missing from the catalog snapshot.",
+          "levelId": "hawaii_waikiki_beach_market_bird_dee6"
+        },
+        {
+          "code": "catalogLevelMissing",
+          "severity": "error",
+          "blocking": true,
+          "message": "Listed level japan_morning_market_bird_f461 is missing from the catalog snapshot.",
+          "levelId": "japan_morning_market_bird_f461"
+        },
+        {
+          "code": "catalogLevelMissing",
+          "severity": "error",
+          "blocking": true,
+          "message": "Listed level mexico_oaxaca_market_bird_fb10 is missing from the catalog snapshot.",
+          "levelId": "mexico_oaxaca_market_bird_fb10"
+        },
+        {
+          "code": "catalogLevelMissing",
+          "severity": "error",
+          "blocking": true,
+          "message": "Listed level nordic_cold_bergen_harbor_bird_d303 is missing from the catalog snapshot.",
+          "levelId": "nordic_cold_bergen_harbor_bird_d303"
+        },
+        {
+          "code": "catalogLevelMissing",
+          "severity": "error",
+          "blocking": true,
+          "message": "Listed level pirate_shipwreck_island_broken_bow_lagoon_bird_6be6 is missing from the catalog snapshot.",
+          "levelId": "pirate_shipwreck_island_broken_bow_lagoon_bird_6be6"
+        },
+        {
+          "code": "catalogLevelMissing",
+          "severity": "error",
+          "blocking": true,
+          "message": "Listed level pirate_shipwreck_island_dock_fragment_hideout_bird_e76a is missing from the catalog snapshot.",
+          "levelId": "pirate_shipwreck_island_dock_fragment_hideout_bird_e76a"
+        },
+        {
+          "code": "catalogLevelMissing",
+          "severity": "error",
+          "blocking": true,
+          "message": "Listed level pirate_shipwreck_island_treasure_cove_camp_bird_cca3 is missing from the catalog snapshot.",
+          "levelId": "pirate_shipwreck_island_treasure_cove_camp_bird_cca3"
+        },
+        {
+          "code": "catalogLevelMissing",
+          "severity": "error",
+          "blocking": true,
+          "message": "Listed level railway_roundhouse_garden_rail_museum_bird_1bc3 is missing from the catalog snapshot.",
+          "levelId": "railway_roundhouse_garden_rail_museum_bird_1bc3"
+        },
+        {
+          "code": "catalogLevelMissing",
+          "severity": "error",
+          "blocking": true,
+          "message": "Listed level southeast_asia_sea_floating_market_bird_2fa8 is missing from the catalog snapshot.",
+          "levelId": "southeast_asia_sea_floating_market_bird_2fa8"
+        },
+        {
+          "code": "catalogLevelMissing",
+          "severity": "error",
+          "blocking": true,
+          "message": "Listed level southeast_asia_sea_jungle_temple_ruins_bird_6a6b is missing from the catalog snapshot.",
+          "levelId": "southeast_asia_sea_jungle_temple_ruins_bird_6a6b"
+        },
+        {
+          "code": "catalogLevelMissing",
+          "severity": "error",
+          "blocking": true,
+          "message": "Listed level southeast_asia_sea_rice_terrace_village_bird_19f9 is missing from the catalog snapshot.",
+          "levelId": "southeast_asia_sea_rice_terrace_village_bird_19f9"
+        },
+        {
+          "code": "catalogLevelMissing",
+          "severity": "error",
+          "blocking": true,
+          "message": "Listed level southeast_asia_sea_stilt_village_shore_bird_3df8 is missing from the catalog snapshot.",
+          "levelId": "southeast_asia_sea_stilt_village_shore_bird_3df8"
+        },
+        {
+          "code": "catalogLevelMissing",
+          "severity": "error",
+          "blocking": true,
+          "message": "Listed level turkey_cappadocia_balloon_dawn_bird_b03c is missing from the catalog snapshot.",
+          "levelId": "turkey_cappadocia_balloon_dawn_bird_b03c"
+        },
+        {
+          "code": "catalogLevelMissing",
+          "severity": "error",
+          "blocking": true,
+          "message": "Listed level ad_campaigns_ad_farm_orchard_bird_33ca is missing from the catalog snapshot.",
+          "levelId": "ad_campaigns_ad_farm_orchard_bird_33ca"
+        },
+        {
+          "code": "catalogLevelMissing",
+          "severity": "error",
+          "blocking": true,
+          "message": "Listed level american_southwest_sw_mesa_campground_bird_563d is missing from the catalog snapshot.",
+          "levelId": "american_southwest_sw_mesa_campground_bird_563d"
+        },
+        {
+          "code": "catalogLevelMissing",
+          "severity": "error",
+          "blocking": true,
+          "message": "Listed level japan_night_harbor_bird_7fea is missing from the catalog snapshot.",
+          "levelId": "japan_night_harbor_bird_7fea"
+        },
+        {
+          "code": "catalogLevelMissing",
+          "severity": "error",
+          "blocking": true,
+          "message": "Listed level japan_temple_garden_bird_e0ef is missing from the catalog snapshot.",
+          "levelId": "japan_temple_garden_bird_e0ef"
+        },
+        {
+          "code": "catalogLevelMissing",
+          "severity": "error",
+          "blocking": true,
+          "message": "Listed level ad_campaigns_ad_castle_market_bird_9721 is missing from the catalog snapshot.",
+          "levelId": "ad_campaigns_ad_castle_market_bird_9721"
+        },
+        {
+          "code": "catalogLevelMissing",
+          "severity": "error",
+          "blocking": true,
+          "message": "Listed level alpine_meadow_goat_pasture_terraces_bird_6dff is missing from the catalog snapshot.",
+          "levelId": "alpine_meadow_goat_pasture_terraces_bird_6dff"
+        },
+        {
+          "code": "catalogLevelMissing",
+          "severity": "error",
+          "blocking": true,
+          "message": "Listed level hawaii_rainforest_waterfall_bird_4453 is missing from the catalog snapshot.",
+          "levelId": "hawaii_rainforest_waterfall_bird_4453"
+        },
+        {
+          "code": "catalogLevelMissing",
+          "severity": "error",
+          "blocking": true,
+          "message": "Listed level ad_campaigns_ad_cozy_library_bird_e654 is missing from the catalog snapshot.",
+          "levelId": "ad_campaigns_ad_cozy_library_bird_e654"
+        },
+        {
+          "code": "catalogLevelMissing",
+          "severity": "error",
+          "blocking": true,
+          "message": "Listed level ad_campaigns_ad_snowy_chalet_bird_c64d is missing from the catalog snapshot.",
+          "levelId": "ad_campaigns_ad_snowy_chalet_bird_c64d"
+        },
+        {
+          "code": "catalogLevelMissing",
+          "severity": "error",
+          "blocking": true,
+          "message": "Listed level ad_campaigns_ad_treehouse_village_bird_30fd is missing from the catalog snapshot.",
+          "levelId": "ad_campaigns_ad_treehouse_village_bird_30fd"
+        },
+        {
+          "code": "catalogLevelMissing",
+          "severity": "error",
+          "blocking": true,
+          "message": "Listed level ancient_egyptian_compounds_scribes_workyard_bird_5094 is missing from the catalog snapshot.",
+          "levelId": "ancient_egyptian_compounds_scribes_workyard_bird_5094"
+        },
+        {
+          "code": "catalogLevelMissing",
+          "severity": "error",
+          "blocking": true,
+          "message": "Listed level aquarium_halls_kelp_gallery_bird_c7fa is missing from the catalog snapshot.",
+          "levelId": "aquarium_halls_kelp_gallery_bird_c7fa"
+        },
+        {
+          "code": "catalogLevelMissing",
+          "severity": "error",
+          "blocking": true,
+          "message": "Listed level below_decks_captains_cabin_bird_3b68 is missing from the catalog snapshot.",
+          "levelId": "below_decks_captains_cabin_bird_3b68"
+        },
+        {
+          "code": "catalogLevelMissing",
+          "severity": "error",
+          "blocking": true,
+          "message": "Listed level below_decks_galley_bird_6b76 is missing from the catalog snapshot.",
+          "levelId": "below_decks_galley_bird_6b76"
+        },
+        {
+          "code": "catalogLevelMissing",
+          "severity": "error",
+          "blocking": true,
+          "message": "Listed level castle_keep_great_hall_bird_a6ff is missing from the catalog snapshot.",
+          "levelId": "castle_keep_great_hall_bird_a6ff"
+        },
+        {
+          "code": "catalogLevelMissing",
+          "severity": "error",
+          "blocking": true,
+          "message": "Listed level circus_service_compounds_wagon_court_bird_2242 is missing from the catalog snapshot.",
+          "levelId": "circus_service_compounds_wagon_court_bird_2242"
+        },
+        {
+          "code": "catalogLevelMissing",
+          "severity": "error",
+          "blocking": true,
+          "message": "Listed level clockwork_workyards_automaton_assembly_bird_e6bf is missing from the catalog snapshot.",
+          "levelId": "clockwork_workyards_automaton_assembly_bird_e6bf"
+        },
+        {
+          "code": "catalogLevelMissing",
+          "severity": "error",
+          "blocking": true,
+          "message": "Listed level coral_reef_coral_bommie_garden_bird_86ae is missing from the catalog snapshot.",
+          "levelId": "coral_reef_coral_bommie_garden_bird_86ae"
+        },
+        {
+          "code": "catalogLevelMissing",
+          "severity": "error",
+          "blocking": true,
+          "message": "Listed level france_alsace_wine_village_bird_1d5c is missing from the catalog snapshot.",
+          "levelId": "france_alsace_wine_village_bird_1d5c"
+        },
+        {
+          "code": "catalogLevelMissing",
+          "severity": "error",
+          "blocking": true,
+          "message": "Listed level france_mont_saint_michel_causeway_bird_3e43 is missing from the catalog snapshot.",
+          "levelId": "france_mont_saint_michel_causeway_bird_3e43"
+        },
+        {
+          "code": "catalogLevelMissing",
+          "severity": "error",
+          "blocking": true,
+          "message": "Listed level france_montmartre_cafe_terrace_bird_a9c4 is missing from the catalog snapshot.",
+          "levelId": "france_montmartre_cafe_terrace_bird_a9c4"
+        },
+        {
+          "code": "catalogLevelMissing",
+          "severity": "error",
+          "blocking": true,
+          "message": "Listed level grand_interiors_opera_backstage_bird_dd52 is missing from the catalog snapshot.",
+          "levelId": "grand_interiors_opera_backstage_bird_dd52"
+        },
+        {
+          "code": "catalogLevelMissing",
+          "severity": "error",
+          "blocking": true,
+          "message": "Listed level grand_interiors_reading_room_bird_0feb is missing from the catalog snapshot.",
+          "levelId": "grand_interiors_reading_room_bird_0feb"
+        },
+        {
+          "code": "catalogLevelMissing",
+          "severity": "error",
+          "blocking": true,
+          "message": "Listed level indian_craft_bazaars_block_printing_quarter_bird_7a65 is missing from the catalog snapshot.",
+          "levelId": "indian_craft_bazaars_block_printing_quarter_bird_7a65"
+        },
+        {
+          "code": "catalogLevelMissing",
+          "severity": "error",
+          "blocking": true,
+          "message": "Listed level italy_venice_canal_morning_bird_437e is missing from the catalog snapshot.",
+          "levelId": "italy_venice_canal_morning_bird_437e"
+        },
+        {
+          "code": "catalogLevelMissing",
+          "severity": "error",
+          "blocking": true,
+          "message": "Listed level japan_festival_grounds_bird_12fb is missing from the catalog snapshot.",
+          "levelId": "japan_festival_grounds_bird_12fb"
+        },
+        {
+          "code": "catalogLevelMissing",
+          "severity": "error",
+          "blocking": true,
+          "message": "Listed level mexico_dia_de_muertos_plaza_bird_66a9 is missing from the catalog snapshot.",
+          "levelId": "mexico_dia_de_muertos_plaza_bird_66a9"
+        },
+        {
+          "code": "catalogLevelMissing",
+          "severity": "error",
+          "blocking": true,
+          "message": "Listed level mexico_guanajuato_rainbow_alley_bird_1872 is missing from the catalog snapshot.",
+          "levelId": "mexico_guanajuato_rainbow_alley_bird_1872"
+        },
+        {
+          "code": "catalogLevelMissing",
+          "severity": "error",
+          "blocking": true,
+          "message": "Listed level municipal_service_yards_firehouse_court_bird_1d4e is missing from the catalog snapshot.",
+          "levelId": "municipal_service_yards_firehouse_court_bird_1d4e"
+        },
+        {
+          "code": "catalogLevelMissing",
+          "severity": "error",
+          "blocking": true,
+          "message": "Listed level nordic_cold_icelandic_geothermal_town_bird_09ae is missing from the catalog snapshot.",
+          "levelId": "nordic_cold_icelandic_geothermal_town_bird_09ae"
+        },
+        {
+          "code": "catalogLevelMissing",
+          "severity": "error",
+          "blocking": true,
+          "message": "Listed level pirate_shipwreck_island_jungle_cave_shore_bird_1c98 is missing from the catalog snapshot.",
+          "levelId": "pirate_shipwreck_island_jungle_cave_shore_bird_1c98"
+        },
+        {
+          "code": "catalogLevelMissing",
+          "severity": "error",
+          "blocking": true,
+          "message": "Listed level prehistoric_dig_enclosures_fossil_pit_bird_f78c is missing from the catalog snapshot.",
+          "levelId": "prehistoric_dig_enclosures_fossil_pit_bird_f78c"
+        },
+        {
+          "code": "catalogLevelMissing",
+          "severity": "error",
+          "blocking": true,
+          "message": "Listed level railway_roundhouse_sleepy_mountain_rail_stop_bird_e325 is missing from the catalog snapshot.",
+          "levelId": "railway_roundhouse_sleepy_mountain_rail_stop_bird_e325"
+        },
+        {
+          "code": "catalogLevelMissing",
+          "severity": "error",
+          "blocking": true,
+          "message": "Listed level space_colony_modules_hydroponics_bay_bird_c63a is missing from the catalog snapshot.",
+          "levelId": "space_colony_modules_hydroponics_bay_bird_c63a"
+        },
+        {
+          "code": "catalogLevelMissing",
+          "severity": "error",
+          "blocking": true,
+          "message": "Listed level sweet_factory_chocolate_hall_bird_950a is missing from the catalog snapshot.",
+          "levelId": "sweet_factory_chocolate_hall_bird_950a"
+        },
+        {
+          "code": "catalogLevelMissing",
+          "severity": "error",
+          "blocking": true,
+          "message": "Listed level turkey_bodrum_marina_sunset_bird_0e4f is missing from the catalog snapshot.",
+          "levelId": "turkey_bodrum_marina_sunset_bird_0e4f"
+        },
+        {
+          "code": "catalogLevelMissing",
+          "severity": "error",
+          "blocking": true,
+          "message": "Listed level turkey_grand_bazaar_corridor_bird_2dd8 is missing from the catalog snapshot.",
+          "levelId": "turkey_grand_bazaar_corridor_bird_2dd8"
+        },
+        {
+          "code": "catalogLevelMissing",
+          "severity": "error",
+          "blocking": true,
+          "message": "Listed level uk_london_high_street_bird_06d0 is missing from the catalog snapshot.",
+          "levelId": "uk_london_high_street_bird_06d0"
+        },
+        {
+          "code": "catalogLevelMissing",
+          "severity": "error",
+          "blocking": true,
+          "message": "Listed level uk_seaside_pier_bird_4b96 is missing from the catalog snapshot.",
+          "levelId": "uk_seaside_pier_bird_4b96"
+        },
+        {
+          "code": "catalogLevelMissing",
+          "severity": "error",
+          "blocking": true,
+          "message": "Listed level underground_crystal_grotto_bird_43ad is missing from the catalog snapshot.",
+          "levelId": "underground_crystal_grotto_bird_43ad"
+        },
+        {
+          "code": "catalogLevelMissing",
+          "severity": "error",
+          "blocking": true,
+          "message": "Listed level underground_wine_cellars_bird_2c71 is missing from the catalog snapshot.",
+          "levelId": "underground_wine_cellars_bird_2c71"
+        },
+        {
+          "code": "catalogLevelMissing",
+          "severity": "error",
+          "blocking": true,
+          "message": "Listed level walled_gardens_cloister_herbarium_bird_1c66 is missing from the catalog snapshot.",
+          "levelId": "walled_gardens_cloister_herbarium_bird_1c66"
+        },
+        {
+          "code": "catalogLevelMissing",
+          "severity": "error",
+          "blocking": true,
+          "message": "Listed level walled_gardens_kitchen_garden_bird_3118 is missing from the catalog snapshot.",
+          "levelId": "walled_gardens_kitchen_garden_bird_3118"
+        },
+        {
+          "code": "catalogLevelMissing",
+          "severity": "error",
+          "blocking": true,
+          "message": "Listed level cozy_interiors_cozy_toymaker_workshop_bird_4e44 is missing from the catalog snapshot.",
+          "levelId": "cozy_interiors_cozy_toymaker_workshop_bird_4e44"
+        },
+        {
+          "code": "starterPrefixMismatch",
+          "severity": "error",
+          "blocking": true,
+          "message": "The first sequence positions must exactly match the bundled starter set.",
+          "details": {
+            "expectedStarterIds": [
+              "ancient_forest_creek_autumn_pond_reeds_dog_0a40",
+              "coral_reef_coral_bommie_garden_dog_205d",
+              "hawaii_north_shore_surf_shack_dog_37b2",
+              "hawaii_rainforest_waterfall_dog_a134",
+              "pirate_shipwreck_island_broken_bow_lagoon_dog_8cb1"
+            ],
+            "actualPrefixIds": [
+              "hawaii_rainforest_waterfall_bird_0f98",
+              "american_southwest_sw_canyon_river_camp_bird_6221",
+              "greece_santorini_steps_bird_4634",
+              "alpine_meadow_cheese_farm_courtyard_bird_aba2",
+              "american_southwest_sw_adobe_courtyard_bird_419b"
+            ]
+          }
+        }
+      ],
+      "nextStoredSequence": null
+    },
+    {
+      "project": "find-the-dog-basegamelab",
+      "source": "default",
+      "levelIds": [
+        "playground_park_splash_pad_planters_dog_daef",
+        "circus_fairground_carnival_booth_loop_dog_6492",
+        "school_world_science_lab_garden_dog_9990",
+        "playground_park_sports_corner_garden_dog_6f94",
+        "circus_fairground_acrobat_props_yard_dog_718c",
+        "alpine_meadow_snowmelt_creek_bridges_dog_89a8",
+        "botanical_greenhouse_butterfly_garden_no_butterflies_dog_82b1",
+        "v5it01_04",
+        "botanical_greenhouse_cactus_conservatory_dog_8ebf",
+        "alpine_meadow_wildflower_chalet_lane_dog_5b28",
+        "ancient_forest_creek_mushroom_grove_dog_d31e",
+        "alpine_meadow_herb_market_garden_dog_288a",
+        "playground_park_picnic_play_lawn_dog_4b41",
+        "school_world_art_room_cubbies_dog_e869",
+        "alpine_meadow_cheese_farm_courtyard_dog_dc3e",
+        "ancient_forest_creek_autumn_pond_reeds_dog_0a40",
+        "alpine_meadow_goat_pasture_terraces_dog_27e2",
+        "spaceship_habitat_moonbase_garden_dome_dog_a049",
+        "playground_park_treehouse_rope_play_dog_88c7",
+        "school_world_library_reading_nook_dog_db41",
+        "coral_reef_kelp_coral_arches_dog_cbc6",
+        "playground_park_leafy_slide_garden_dog_2616",
+        "coral_reef_lagoon_ruin_reef_dog_7cf9",
+        "circus_fairground_big_top_backlot_dog_794e",
+        "spaceship_habitat_hydroponic_ring_dog_5894",
+        "hawaii_rainforest_waterfall_dog_a134",
+        "circus_fairground_traveling_circus_storage_dog_595e",
+        "spaceship_habitat_cargo_pod_greenhouse_dog_ecd5",
+        "pirate_shipwreck_island_jungle_cave_shore_dog_9c25",
+        "pirate_shipwreck_island_palm_root_ship_ribs_dog_52d1",
+        "ancient_forest_creek_mossy_stream_roots_dog_afe3",
+        "school_world_school_garden_courtyard_dog_53b5",
+        "botanical_greenhouse_orchid_mist_room_dog_d1ab",
+        "spaceship_habitat_asteroid_research_nook_dog_8c9d",
+        "coral_reef_tidal_pool_labyrinth_dog_9690",
+        "hawaii_north_shore_surf_shack_dog_37b2",
+        "botanical_greenhouse_plant_nursery_maze_dog_c857",
+        "pirate_shipwreck_island_broken_bow_lagoon_dog_8cb1",
+        "railway_roundhouse_garden_rail_museum_dog_48b6",
+        "ancient_forest_creek_redwood_camp_clearing_dog_f0b9",
+        "italy_venice_canal_morning_dog_d570",
+        "botanical_greenhouse_victorian_glasshouse_dog_aacc",
+        "pirate_shipwreck_island_dock_fragment_hideout_dog_f604",
+        "spaceship_habitat_starship_common_room_dog_8e43",
+        "coral_reef_coral_bommie_garden_dog_205d",
+        "hawaii_volcano_national_park_dog_7368",
+        "pirate_shipwreck_island_treasure_cove_camp_dog_643e",
+        "coral_reef_shipwreck_reef_camp_dog_61e7",
+        "ancient_forest_creek_fern_ravine_bridge_dog_9957",
+        "railway_roundhouse_maintenance_courtyard_loop_dog_297f",
+        "italy_roman_ruins_piazza_dog_a243",
+        "railway_roundhouse_sleepy_mountain_rail_stop_dog_4b13",
+        "circus_fairground_night_lantern_circus_dog_d9c7",
+        "railway_roundhouse_luggage_island_depot_dog_4f8d"
+      ],
+      "sequenceVersion": null,
+      "catalogRevision": "catalog-000052",
+      "diagnostics": [],
+      "nextStoredSequence": null,
+      "explicitRemoteDisable": true
+    }
+  ]
+}

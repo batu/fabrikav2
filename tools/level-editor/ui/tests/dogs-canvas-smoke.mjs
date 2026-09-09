@@ -6,9 +6,8 @@
 //   - double-click a dog -> DELETE /dogs/by-id/{that id} fires.
 //   - the strip labels each dog by its stable creation index ("dog N").
 // No real backend / no wizard / no tunnel -> none of the live-harness gremlins.
-import { spawn } from 'node:child_process';
 import { createServer } from 'node:net';
-import { chromium } from 'playwright';
+import { startSmokeVite, launchSmokeBrowser } from './smoke-support.mjs';
 
 const port = await freePort();
 const baseUrl = `http://127.0.0.1:${port}`;
@@ -97,11 +96,7 @@ async function gesture(page, kind, imgX, imgY, imgX2 = imgX, imgY2 = imgY) {
 function assert(cond, msg) { if (!cond) throw new Error('ASSERT FAILED: ' + msg); }
 
 async function run() {
-  const vite = spawn(
-    process.platform === 'win32' ? 'npx.cmd' : 'npx',
-    ['vite', '--host', '127.0.0.1', '--port', String(port)],
-    { detached: process.platform !== 'win32', stdio: ['ignore', 'ignore', 'ignore'] },
-  );
+  const vite = startSmokeVite(port);
   const postBodies = [];
   const deleteUrls = [];
   let bgPreviewRequests = 0;
@@ -120,7 +115,7 @@ async function run() {
   let browser;
   try {
     await waitForServer();
-    browser = await chromium.launch({ headless: true });
+    browser = await launchSmokeBrowser(baseUrl);
     const page = await browser.newPage({ viewport: { width: 700, height: 1100 } });
 
     // ── Mock the API ────────────────────────────────────────────────────────
@@ -171,6 +166,8 @@ async function run() {
     });
     await page.route('**/api/sessions/test-session', (route) =>
       route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(currentSession()) }));
+    await page.route('**/api/sessions/test-session/sprite-candidate/**', (route) =>
+      route.fulfill({ contentType: 'image/png', body: transparentPng }));
     await page.route('**/levels/**', (route) => {
       const url = new URL(route.request().url());
       if (url.pathname.endsWith('/color.png')) fullColorRequests += 1;
@@ -188,7 +185,7 @@ async function run() {
     assert(labels.length === 3, `expected 3 strip cells, got ${labels.length}`);
     // labels are the stable creation index dog.index (non-contiguous here) — never
     // the array position. (The 3rd dog is index 4, not 2.)
-    assert(labels.join(',') === 'dog 0,dog 2,dog 4', `strip labels = ${labels.join(',')}`);
+    assert(labels.join(',') === 'entity 0,entity 2,entity 4', `strip labels = ${labels.join(',')}`);
 
     // ── 2. Drag dog 1 (middle) -> only dog 1 changes in the saved payload ────
     await gesture(page, 'drag', 500, 600, 700, 600); // move id-1 +200px in x
@@ -218,7 +215,7 @@ async function run() {
     await gesture(page, 'drag', 800, 900, 800, 900); // click-select the position-2 hitbox
     await page.waitForTimeout(300);
     const railText = await page.getByTestId('dog-rail').innerText();
-    assert(/dog 4/.test(railText), `gap-select hit the wrong dog: rail="${railText.replace(/\n/g, ' ')}" (expected "dog 4")`);
+    assert(/entity 4/.test(railText), `gap-select hit the wrong entity: rail="${railText.replace(/\n/g, ' ')}" (expected "entity 4")`);
 
     // ── 5. Delete dog 0 -> DELETE fires AND the strip drops to 2 (no resurrect) ─
     // The STATEFUL mock removes id-0 from the GET, so the post-DELETE invalidate
@@ -231,7 +228,7 @@ async function run() {
     assert(deleteUrls.some((u) => u.endsWith('/dogs/by-id/id-0')), `no DELETE for id-0: ${JSON.stringify(deleteUrls)}`);
     const afterDelete = await page.locator('.dog-strip-label').allInnerTexts();
     assert(afterDelete.length === 2, `strip did not drop to 2 after delete (resurrection?): ${afterDelete.join(',')}`);
-    assert(!afterDelete.includes('dog 0'), `'dog 0' resurrected after delete: ${afterDelete.join(',')}`);
+    assert(!afterDelete.includes('entity 0'), `'entity 0' resurrected after delete: ${afterDelete.join(',')}`);
     // NON-VACUOUS check (final-rereview iter3): the delete-then-flush re-save must
     // NOT contain the deleted id — assert on the POST body, which the stateful GET
     // can't mask. A resurrecting re-save (or one keyed on a stale snapshot) fails.

@@ -1,0 +1,25 @@
+{
+  "candidatesChecked": 82251,
+  "strictlyEasierFeasible": 45695,
+  "challengeDifficultyRanks": [
+    31,
+    32,
+    40,
+    48,
+    50,
+    51,
+    52,
+    53,
+    54
+  ],
+  "minimumRecoveryGap": 1.9545454545454533,
+  "allGapsAtLeastTwoPossible": false,
+  "constraints": [
+    "First ten difficulty ranks remain opening",
+    "Nine escalating challenges",
+    "Recovery ranks rise",
+    "All four severe levels and Waterfall are challenges",
+    "Each level appears exactly once"
+  ],
+  "tieBreak": "Minimize total challenge rank movement from prior draft; then earlier ranks"
+}

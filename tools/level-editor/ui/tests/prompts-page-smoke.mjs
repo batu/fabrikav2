@@ -1,9 +1,8 @@
 // PromptsPage smoke (D1, plan 2026-06-10-002): boots vite on a free port,
 // mocks /api/prompts*, opens #prompts, and exercises list → edit → save →
 // set-default against a STATEFUL mock (a save must appear in the list).
-import { spawn } from 'node:child_process';
 import { createServer } from 'node:net';
-import { chromium } from 'playwright';
+import { startSmokeVite, launchSmokeBrowser } from './smoke-support.mjs';
 
 const port = await freePort();
 const baseUrl = `http://127.0.0.1:${port}`;
@@ -38,15 +37,11 @@ function waitForServer() {
 }
 
 async function run() {
-  const vite = spawn(
-    process.platform === 'win32' ? 'npx.cmd' : 'npx',
-    ['vite', '--host', '127.0.0.1', '--port', String(port)],
-    { detached: process.platform !== 'win32', stdio: ['ignore', 'ignore', 'ignore'] },
-  );
+  const vite = startSmokeVite(port);
   let browser;
   try {
     await waitForServer();
-    browser = await chromium.launch({ headless: true });
+    browser = await launchSmokeBrowser(baseUrl);
     const page = await browser.newPage({ viewport: { width: 1100, height: 800 } });
     page.on('console', (m) => { if (m.type() === 'error') console.error('CONSOLE:', m.text().slice(0, 300)); });
     page.on('pageerror', (e) => console.error('PAGEERROR:', String(e).slice(0, 400)));

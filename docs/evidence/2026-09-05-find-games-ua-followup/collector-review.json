@@ -1,0 +1,76 @@
+{
+  "status": "complete",
+  "verdict": "Ready with fixes",
+  "scope": {
+    "files": [
+      "/Users/base/.hermes/scripts/find-games-daily-scorecard.mjs",
+      "/Users/base/.hermes/scripts/find-games-daily-scorecard.test.mjs"
+    ],
+    "base": "/Users/base/store-review/find-games/analytics/collector-fix-2026-09-05/find-games-daily-scorecard.before.mjs",
+    "collector_sha256": "a75ee5a107bda9632ea093533b0bb7bfc3af66dd6be18dc0b4fd60487a6c4329",
+    "tests_sha256": "b9959e3cb48a0f9e8e94ec9291f3349e1c49a9c26a1d3de4356ff308231ea8c0"
+  },
+  "findings": [
+    {
+      "#": 1,
+      "severity": "P2",
+      "file": "/Users/base/.hermes/scripts/find-games-daily-scorecard.mjs",
+      "line": "171-179",
+      "title": "Unknown organic versions still become complete zero totals",
+      "evidence": "A structurally valid organic CSV row with App ID=id6796698146 and an empty App Version produces organic_status=complete and all three organic aggregates=0. countBy puts the row in unknown, but organicComplete checks only report health.",
+      "suggested_fix": "Treat missing/blank version provenance as incomplete classification and leave affected organic aggregates null while retaining diagnostic row counts.",
+      "suggested_test": "Add blank and whitespace-only App Version fixtures, alone and mixed with a known clean row; assert unknown is never reported as a complete zero or partial total.",
+      "note": "The zero behavior existed before; the correction leaves it unresolved and adds an incorrect complete status."
+    },
+    {
+      "#": 2,
+      "severity": "P2",
+      "file": "/Users/base/.hermes/scripts/find-games-daily-scorecard.mjs",
+      "line": 136,
+      "title": "Future installs within the observation day count as paid",
+      "evidence": "With the VM clock frozen at 2026-09-05T12:00:00Z, an otherwise eligible install at 2026-09-05 23:59:00 produces paid_status=complete and paid_attributed_installs=1. The upper bound is end-of-day, not observedAt.",
+      "suggested_fix": "Reject installs later than the snapshot observation timestamp.",
+      "suggested_test": "Freeze the clock and test observedAt, observedAt plus one second, and tomorrow. The latter two must never increment accepted."
+    },
+    {
+      "#": 3,
+      "severity": "P2",
+      "file": "/Users/base/.hermes/scripts/find-games-daily-scorecard.mjs",
+      "line": "127-131",
+      "title": "Date-only install values acquire invented midnight precision",
+      "evidence": "Install Time=2026-09-04 is parsed successfully and counted as one complete paid install. Missing time-of-day cannot establish eligibility against a same-day cutoff or QA window; interpreting it as midnight can bypass QA exclusion.",
+      "suggested_fix": "Require a supported full timestamp and validate its calendar/time components before comparison; classify insufficient or malformed timestamps as unknown.",
+      "suggested_test": "Use a date-only install on a day containing an excluded QA window and assert paid_status=incomplete, total=null. Also cover impossible calendar dates and valid AppsFlyer space-separated timestamps."
+    },
+    {
+      "#": 4,
+      "severity": "P2",
+      "file": "/Users/base/.hermes/scripts/find-games-daily-scorecard.mjs",
+      "line": "129-137",
+      "title": "Whitespace-only media source passes paid provenance validation",
+      "evidence": "An otherwise eligible row with Media Source containing three spaces produces paid_status=complete and paid_attributed_installs=1. The nonempty check accepts whitespace, and the organic comparison does not reject it.",
+      "suggested_fix": "Validate required dimensions as nonblank after trimming without silently repairing identifiers; classify missing provenance as unknown.",
+      "suggested_test": "Extend the missing-dimension test at test.mjs:108-118 with whitespace-only values, especially Media Source; assert incomplete/null rather than accepted or complete zero."
+    }
+  ],
+  "verification": {
+    "existing_tests": "9 passed, 0 failed",
+    "syntax": "node --check passed",
+    "additional_checks": "All four findings reproduced using synthetic responses in a VM with no live fetch. Baseline comparison passed for legacy root keys/schema version, report diagnostics, healthy organic aggregates and version classifications.",
+    "covered_successfully": [
+      "Own-app/campaign paid filtering",
+      "Test, contaminated, pre-cutoff and QA-window exclusions",
+      "Canonical paid cohorts remain null; no preselected T0",
+      "Organic HTTP failures remain null",
+      "Malformed report bodies fail closed",
+      "Healthy empty exports can produce genuine zero"
+    ]
+  },
+  "coverage": {
+    "lenses": "Correctness, testing, reliability, adversarial, standards, legacy contract; read-only reuse, quality and efficiency.",
+    "simplification": "No additional actionable behavior-preserving simplification findings.",
+    "limitations": "Performed lenses inline because delegation was unavailable; no independent cross-model pass. No applicable ancestor AGENTS.md/CLAUDE.md found for these canonical scripts. Collector main, network, browser, cron and providers were not exercised or mutated."
+  },
+  "files_created_or_modified": [],
+  "artifact_path": null
+}

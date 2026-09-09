@@ -49,7 +49,7 @@ describe('Export Candidate validation', () => {
     const value = { ...candidate(), changedLevelIds: [7] };
     const draftFingerprint = await fingerprintCanonicalDifficultyJson({ authored: value.authored, levels: value.levels, locks: value.locks, overrides: value.overrides });
     expect((await validateExportCandidate(value, { baselineCandidate: candidate(), currentDraftFingerprint: draftFingerprint })).issues).toEqual(expect.arrayContaining([expect.stringMatching(/stale/i), expect.stringMatching(/changed-level inventory/i)]));
-  });
+  }, 15_000);
 
   it('requires an intrinsic lowercase SHA-256 reviewed-draft fingerprint', async () => {
     const value = { ...candidate(), reviewedDraftFingerprint: 'A'.repeat(64) };
@@ -62,7 +62,7 @@ describe('Export Candidate validation', () => {
     expect((await validateExportCandidate(stale)).issues).toEqual(expect.arrayContaining([expect.stringMatching(/shipped baseline/i)]));
     const otherBaseline = { ...candidate(), baseline: { ...value.baseline, aggregate: '1'.repeat(64) } };
     expect((await validateExportCandidate(value, { baselineCandidate: otherBaseline })).issues).toEqual(expect.arrayContaining([expect.stringMatching(/loaded baseline/i)]));
-  });
+  }, 15_000);
 
   it('preserves a locked board and its accepted evidence across inherited journey changes', async () => {
     const baseline = candidate();

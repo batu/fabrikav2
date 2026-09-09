@@ -9,6 +9,7 @@
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
+import { runIosBuild } from './src/build-output.mjs';
 import {
   prepareValidatedIosWebBuildEnvironment,
   runValidatedIosWebBuild,
@@ -60,19 +61,18 @@ run('native-shell apply', 'node', [path.join(repoRoot, 'tools', 'native-shell', 
 run('native-shell validate', 'node', [path.join(repoRoot, 'tools', 'native-shell', 'validate.mjs'), '--game', game], { cwd: repoRoot });
 
 // 4. xcodebuild — output captured whole, success asserted on the marker
-const derived = path.join(gameDir, 'ios', 'App', 'build');
-const xcOut = run('xcodebuild (Debug, device)', 'xcodebuild', [
+const built = runIosBuild({ gameDir, configuration: 'Debug', run: (file, args) => run('owned iOS build', file, args), args: [
   '-project', path.join(gameDir, 'ios', 'App', 'App.xcodeproj'), '-scheme', 'App',
-  '-configuration', 'Debug', '-destination', `id=${device}`, '-derivedDataPath', derived,
+  '-configuration', 'Debug', '-destination', `id=${device}`,
   '-allowProvisioningUpdates', `DEVELOPMENT_TEAM=${team}`, 'build',
-]);
-if (!xcOut.includes('** BUILD SUCCEEDED **')) {
+] });
+if (!built.stdout.includes('** BUILD SUCCEEDED **')) {
   console.error('install: FAILED — xcodebuild did not report BUILD SUCCEEDED');
   process.exit(1);
 }
 
 // 5. the BUILT APP's bundled build-info must also match HEAD (kills stale App.app)
-const appPath = path.join(derived, 'Build', 'Products', 'Debug-iphoneos', 'App.app');
+const appPath = built.appPath;
 const appInfo = JSON.parse(fs.readFileSync(path.join(appPath, 'public', 'build-info.json'), 'utf8'));
 if (appInfo.sha !== head) {
   console.error(`install: FAILED — App.app carries sha ${appInfo.sha}, HEAD is ${head} (stale product)`);

@@ -1611,6 +1611,30 @@ def cmd_prompts(client: Client, args: argparse.Namespace) -> None:
 # ── wiring ───────────────────────────────────────────────────────────────────
 
 
+def cmd_difficulty(args: argparse.Namespace) -> None:
+    """Server-free evaluation of a frozen exported-level manifest."""
+    from levelbuilder import difficulty
+    from levelbuilder.settings import repo_root
+
+    try:
+        root = (args.repo_root or repo_root() or Path.cwd()).resolve()
+        model = difficulty.DEFAULT_MODEL if args.model is None else args.model
+        prepared = difficulty.prepare(args.manifest, root, model=model,
+                                      repeats=args.repeats, max_edge=args.max_edge)
+        if args.execute:
+            if args.out_dir is None or args.budget_usd is None:
+                raise difficulty.DifficultyError("--execute requires --out-dir and --budget-usd")
+            report = difficulty.execute(prepared, root, args.out_dir, args.budget_usd)
+        else:
+            report = difficulty.plan_report(prepared)
+            if args.preflight:
+                with httpx.Client(timeout=30) as network:
+                    report["providerPreflight"] = difficulty.model_preflight(network, prepared["config"])
+        _emit(args, report)
+    except (ValueError, OSError, KeyError, TypeError, IndexError, AttributeError) as error:
+        raise CliError("difficulty_invalid", str(error), stage="difficulty") from error
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="level-editor", description=__doc__)
     parser.add_argument("--url", default=DEFAULT_URL)
@@ -1629,6 +1653,20 @@ def build_parser() -> argparse.ArgumentParser:
 
     p = verb("doctor", cmd_doctor, needs_client=False)
     p.add_argument("--game", required=True)
+
+    p = verb("difficulty", cmd_difficulty, needs_client=False)
+    p.add_argument("--json", action="store_true", default=argparse.SUPPRESS)
+    p.add_argument("--manifest", type=Path, required=True, help="frozen pilot JSON manifest")
+    p.add_argument("--repo-root", type=Path, help="root used for manifest-relative asset paths")
+    p.add_argument("--model", help="OpenRouter Gemini ID or openai/gpt-6-astra (default: Gemini 3.8 Flash)")
+    p.add_argument("--repeats", type=int, default=3)
+    p.add_argument("--max-edge", type=int, default=1024, help="aspect-preserving thumbnail maximum edge")
+    mode = p.add_mutually_exclusive_group()
+    mode.add_argument("--execute", action="store_true", help="make metered provider calls")
+    mode.add_argument("--dry-run", action="store_true", help="offline request plan (default)")
+    mode.add_argument("--preflight", action="store_true", help="also GET the model catalog; no generation")
+    p.add_argument("--budget-usd", type=float, help="cumulative budget for this output directory")
+    p.add_argument("--out-dir", type=Path, help="empty or scorer-owned output/cache directory")
 
     p = verb("eval-compare", cmd_eval_compare, needs_client=False)
     p.add_argument("--runs", default="vlm-snap,ensF2hi-snap",

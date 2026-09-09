@@ -1,0 +1,64 @@
+
+> @fabrikav2/find_the_bird@1.2.0 test:unit
+> vitest run tests/unit/gameanalytics-sink.test.ts
+
+
+ RUN  v4.1.9 /Users/base/dev/appletolye/fabrikav2/.worktrees/ua-code-audit/games/find_the_bird
+
+ ❯ tests/unit/gameanalytics-sink.test.ts (24 tests | 2 failed) 662ms
+     × does not emit unidentifiable native traffic when app info is empty 5ms
+     × does not emit unidentifiable native traffic when app info is timeout 504ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/unit/gameanalytics-sink.test.ts > GameAnalytics AnalyticsSink > does not emit unidentifiable native traffic when app info is empty
+AssertionError: expected "vi.fn()" to not be called at all, but actually been called 1 times
+
+Received:
+
+  1st vi.fn() call:
+
+    Array [
+      "gggggggggggggggggggggggggggggggg",
+      "ssssssssssssssssssssssssssssssssssssssss",
+    ]
+
+
+Number of calls: 1
+
+ ❯ tests/unit/gameanalytics-sink.test.ts:27:46
+     25|     sink.emit(event('session_start', { build: '1.2.0+abc123' }));
+     26|     await sink.flush?.();
+     27|     expect(sdk.GameAnalytics.initialize).not.toHaveBeenCalled();
+       |                                              ^
+     28|     expect(sink.diagnostics()).toMatchObject({ sent: 0, dropped: 1, qu…
+     29|     expect(App.getInfo).toHaveBeenCalledTimes(2);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  tests/unit/gameanalytics-sink.test.ts > GameAnalytics AnalyticsSink > does not emit unidentifiable native traffic when app info is timeout
+Error: Test timed out in 500ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/unit/gameanalytics-sink.test.ts:15:43
+     13|
+     14| describe('GameAnalytics AnalyticsSink', () => {
+     15|   it.each(['empty', 'rejected', 'timeout'])('does not emit unidentifia…
+       |                                           ^
+     16|     vi.spyOn(Capacitor, 'isNativePlatform').mockReturnValue(true);
+     17|     vi.mocked(App.getInfo).mockImplementation(() => failure === 'timeo…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 22 passed (24)
+   Start at  14:49:41
+   Duration  948ms (transform 49ms, setup 0ms, import 60ms, tests 662ms, environment 150ms)
+
+npm error Lifecycle script `test:unit` failed with error:
+npm error code 1
+npm error path /Users/base/dev/appletolye/fabrikav2/.worktrees/ua-code-audit/games/find_the_bird
+npm error workspace @fabrikav2/find_the_bird@1.2.0
+npm error location /Users/base/dev/appletolye/fabrikav2/.worktrees/ua-code-audit/games/find_the_bird
+npm error command failed
+npm error command sh -c vitest run tests/unit/gameanalytics-sink.test.ts

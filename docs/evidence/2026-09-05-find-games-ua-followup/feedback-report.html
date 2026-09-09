@@ -1,0 +1,167 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Find Games UA follow-up</title><style>body{margin:0;background:#f6f4ef;color:#242b29;font:17px/1.55 Georgia,serif}main{max-width:1000px;margin:auto;padding:36px 24px}h1,h2,summary{font-family:system-ui,sans-serif}h1{font-size:34px;line-height:1.2}section,details{border-top:1px solid #a5afa9;padding:20px 0}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#e9e8e1;padding:18px;font:13px/1.55 monospace}a{color:#165943}summary{cursor:pointer;font-weight:600}a:focus,summary:focus{outline:3px solid #165943}table{border-collapse:collapse;width:100%}td,th{text-align:left;padding:9px;border-bottom:1px solid #bec4be}</style><main><p>2026-09-05 · Local code-review evidence · Not published</p><h1>Source verified. Relaunch remains gated.</h1><p>Native GA provenance and fail-closed collector corrections are ready for source review. Build34 remains diagnostic only. No merge, release, spend, sharing expansion or device action.</p><section><h2>What changed</h2><table><tr><th>Before</th><th>After</th></tr><tr><td>Late Xcode identity absent from GA fields</td><td>Native version/build appended; legacy source fields preserved</td></tr><tr><td>Unavailable organic could appear as zero; paid total was raw row count</td><td>Unknown/incomplete stays null; paid cohort must be explicitly approved and filtered</td></tr><tr><td>Sharing policy could be confused with SKAN transport</td><td>Keep deny-all; installs-only SKAN is a separately gated route, not AEM</td></tr></table></section><section><h2>Executed verification</h2><p>SDK 345 passed · Bird 408 passed / 3 skipped · Dog 326 passed / 2 skipped · production propagation 2 passed · collector 12 passed. Typechecks and both game linters passed.</p><p>Native identity fixtures prove compiled JS propagation, not a released binary or backend receipt. Store retains exclusive device ownership. Canonical collector was changed in place; existing schedule may pick it up. Cron config and reports were not changed.</p></section><section><h2>Approval gates</h2><p>Review first. Separate approval for merge and next release; Store exact artifact/device evidence; provider receipts; Ads mode, QA exclusions, public T0 and bounded spend decision. Privacy publication and widening remain unauthorized. Portal access verification is deferred, not a blocker to this work.</p></section><details><summary>Actual provenance diff</summary><pre>diff --git a/games/find_the_bird/src/analytics/CanonicalAnalyticsEvents.ts b/games/find_the_bird/src/analytics/CanonicalAnalyticsEvents.ts
+index 145943adc..3c02a1ed4 100644
+--- a/games/find_the_bird/src/analytics/CanonicalAnalyticsEvents.ts
++++ b/games/find_the_bird/src/analytics/CanonicalAnalyticsEvents.ts
+@@ -48,7 +48,7 @@ const levelAttributionFields = [
+ 
+ const economyFields = [&#x27;flow_type&#x27;, &#x27;currency&#x27;, &#x27;amount&#x27;, &#x27;item_type&#x27;, &#x27;item_id&#x27;, &#x27;product_id&#x27;, &#x27;no_ads&#x27;, &#x27;hints&#x27;, &#x27;coins&#x27;, &#x27;continue_level&#x27;, &#x27;level_id&#x27;] as const;
+ const adRevenueFields = [&#x27;ad_type&#x27;, &#x27;placement&#x27;, &#x27;provider&#x27;, &#x27;currency&#x27;, &#x27;precision&#x27;, &#x27;network_name&#x27;] as const;
+-const runtimeIdentityFields = [&#x27;app_version&#x27;, &#x27;build&#x27;, &#x27;platform&#x27;, &#x27;game&#x27;, &#x27;environment&#x27;, &#x27;cohort_bucket&#x27;] as const;
++const runtimeIdentityFields = [&#x27;native_app_version&#x27;, &#x27;native_build_number&#x27;, &#x27;app_version&#x27;, &#x27;build&#x27;, &#x27;platform&#x27;, &#x27;game&#x27;, &#x27;environment&#x27;, &#x27;cohort_bucket&#x27;] as const;
+ 
+ export const canonicalAnalyticsEvents = [
+   {
+diff --git a/games/find_the_bird/src/analytics/GameAnalyticsSink.ts b/games/find_the_bird/src/analytics/GameAnalyticsSink.ts
+index a8b1f9685..29487d816 100644
+--- a/games/find_the_bird/src/analytics/GameAnalyticsSink.ts
++++ b/games/find_the_bird/src/analytics/GameAnalyticsSink.ts
+@@ -1,4 +1,5 @@
+ import type { AnalyticsEvent, AnalyticsSink } from &#x27;@fabrikav2/sdk/analytics&#x27;;
++import { Capacitor } from &#x27;@capacitor/core&#x27;;
+ import {
+   GAMEANALYTICS_RESOURCE_CURRENCIES,
+   GAMEANALYTICS_RESOURCE_ITEM_TYPES,
+@@ -89,7 +90,12 @@ export function createGameAnalyticsSink(
+   let flushAttempts = 0;
+   let nativeSessionActive = false;
+   let initializationFailure: string | null = null;
++  let nativeIdentity: { native_app_version: string; native_build_number: string } | null = null;
+   function send(loaded: GameAnalyticsSdk, event: AnalyticsEvent): void {
++    // Keep legacy app_version/build as source provenance. Native identity comes
++    // from the archived binary, including Xcode&#x27;s late version/build overrides.
++    // Insert first for the GA field cap, then overwrite any caller-supplied values.
++    if (nativeIdentity !== null) event = { ...event, params: { ...nativeIdentity, ...event.params, ...nativeIdentity } };
+     let tracked: boolean;
+     if (event.name === &#x27;session_start&#x27;) {
+       // gameanalytics@4.4.7 initialize() creates a native session even when
+@@ -119,6 +125,10 @@ export function createGameAnalyticsSink(
+     initPromise = (async (): Promise&lt;void&gt; =&gt; {
+       try {
+         if (loadingSdk === null) {
++          if (Capacitor.isNativePlatform() &amp;&amp; nativeIdentity === null) {
++            const info = await readNativeAppInfo(readyTimeoutMs);
++            nativeIdentity = { native_app_version: info.version, native_build_number: info.build };
++          }
+           const loaded = unwrapSdk(await loader());
+           validateSdk(loaded);
+           loaded.GameAnalytics.setEnabledInfoLog(config.verboseLogging);
+@@ -206,6 +216,30 @@ export function createGameAnalyticsSink(
+   };
+ }
+ 
++// Do not silently label native events with package.json identity when the
++// bridge fails. The existing bounded initialization retry/queue policy applies.
++async function readNativeAppInfo(timeoutMs: number): Promise&lt;{ version: string; build: string }&gt; {
++  let timer: ReturnType&lt;typeof setTimeout&gt; | undefined;
++  try {
++    const info = await Promise.race([
++      import(&#x27;@capacitor/app&#x27;).then(({ App }) =&gt; App.getInfo()),
++      new Promise&lt;never&gt;((_resolve, reject) =&gt; {
++        timer = setTimeout(() =&gt; reject(new NativeAppInfoError(&#x27;Native app info timed out&#x27;)), timeoutMs);
++      }),
++    ]);
++    if (![info.version, info.build].every((value) =&gt; typeof value === &#x27;string&#x27; &amp;&amp; /^\d+(?:\.\d+){0,2}$/.test(value) &amp;&amp; value.length &lt;= 96)) {
++      throw new NativeAppInfoError(&#x27;Native app version/build is invalid&#x27;);
++    }
++    return info;
++  } finally {
++    clearTimeout(timer);
++  }
++}
++
++class NativeAppInfoError extends Error {
++  override name = &#x27;NativeAppInfoError&#x27;;
++}
++
+ class SdkReadyTimeout extends Error {
+   override name = &#x27;SdkReadyTimeout&#x27;;
+ }
+</pre></details><details><summary>Actual production regression output</summary><pre>{&quot;game&quot;:&quot;find_the_bird&quot;,&quot;production&quot;:true,&quot;sourceStamp&quot;:&quot;1.2.0+c641bd71c6-dirty&quot;,&quot;version&quot;:&quot;1.2.1&quot;,&quot;build&quot;:&quot;35&quot;,&quot;nativeFields&quot;:{&quot;native_app_version&quot;:&quot;1.2.1&quot;,&quot;native_build_number&quot;:&quot;35&quot;,&quot;game&quot;:&quot;find_the_bird&quot;,&quot;platform&quot;:&quot;ios&quot;,&quot;environment&quot;:&quot;production&quot;,&quot;app_version&quot;:&quot;1.2.0&quot;,&quot;build&quot;:&quot;1.2.0+c641bd71c6-dirty&quot;,&quot;first_open&quot;:&quot;false&quot;}}
+{&quot;game&quot;:&quot;find_the_bird&quot;,&quot;production&quot;:true,&quot;sourceStamp&quot;:&quot;1.2.0+c641bd71c6-dirty&quot;,&quot;version&quot;:&quot;1.2.2&quot;,&quot;build&quot;:&quot;36&quot;,&quot;nativeFields&quot;:{&quot;native_app_version&quot;:&quot;1.2.2&quot;,&quot;native_build_number&quot;:&quot;36&quot;,&quot;game&quot;:&quot;find_the_bird&quot;,&quot;platform&quot;:&quot;ios&quot;,&quot;environment&quot;:&quot;production&quot;,&quot;app_version&quot;:&quot;1.2.0&quot;,&quot;build&quot;:&quot;1.2.0+c641bd71c6-dirty&quot;,&quot;first_open&quot;:&quot;false&quot;}}
+✔ find_the_bird: production compile preserves source identity across late native overrides (368.947042ms)
+{&quot;game&quot;:&quot;find_the_dog&quot;,&quot;production&quot;:true,&quot;sourceStamp&quot;:&quot;1.0.5+c641bd71c6-dirty&quot;,&quot;version&quot;:&quot;1.2.1&quot;,&quot;build&quot;:&quot;35&quot;,&quot;nativeFields&quot;:{&quot;native_app_version&quot;:&quot;1.2.1&quot;,&quot;native_build_number&quot;:&quot;35&quot;,&quot;game&quot;:&quot;find_the_dog&quot;,&quot;platform&quot;:&quot;ios&quot;,&quot;environment&quot;:&quot;production&quot;,&quot;app_version&quot;:&quot;1.0.5&quot;,&quot;build&quot;:&quot;1.0.5+c641bd71c6-dirty&quot;,&quot;first_open&quot;:&quot;false&quot;}}
+{&quot;game&quot;:&quot;find_the_dog&quot;,&quot;production&quot;:true,&quot;sourceStamp&quot;:&quot;1.0.5+c641bd71c6-dirty&quot;,&quot;version&quot;:&quot;1.2.2&quot;,&quot;build&quot;:&quot;36&quot;,&quot;nativeFields&quot;:{&quot;native_app_version&quot;:&quot;1.2.2&quot;,&quot;native_build_number&quot;:&quot;36&quot;,&quot;game&quot;:&quot;find_the_dog&quot;,&quot;platform&quot;:&quot;ios&quot;,&quot;environment&quot;:&quot;production&quot;,&quot;app_version&quot;:&quot;1.0.5&quot;,&quot;build&quot;:&quot;1.0.5+c641bd71c6-dirty&quot;,&quot;first_open&quot;:&quot;false&quot;}}
+✔ find_the_dog: production compile preserves source identity across late native overrides (248.057333ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 2
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 745.801916
+</pre></details><details><summary>Full evidence and backend limitations</summary><pre># Find Games UA follow-up — 2026-09-05
+
+Status: **partial — code and offline regression evidence passed; native distribution/backend evidence remains Store/provider-owned.** Suitable for source review, not release or relaunch approval.
+
+## Decision and scope
+
+Continue `audit/find-games-ua-cutover` from `c641bd71c6404bfd2326d9b671c5de392111061d`. The previous warm-return and non-production projection fixes remain included, but neither they nor this provenance correction are in build34. Build34 remains diagnostic only. No merge, release, deployment, campaign mutation, privacy-policy publication, partner-sharing expansion, device action, or analytics-history deletion occurred. Pending review and paused/archived campaigns were not touched. Portal report-view verification remains deferred after Ads received Wrong passphrase; no broad blocked alert was sent.
+
+The supplied `/Users/base/store-review/find-games/coordination-store-result.txt` was empty when read. The existing `store-agent-ftb-1.2.1-result.txt` records the earlier build34 WAITING_FOR_REVIEW / AFTER_APPROVAL submission; this is not a new live Store observation.
+
+## Provenance correction and why
+
+The actual saved build34 archive command applied `MARKETING_VERSION=1.2.1 CURRENT_PROJECT_VERSION=34` after web compilation. `tools/game-release/src/ios-release.mjs` likewise compiles web assets before native stamping. A package.json/Vite-only correction would not reliably capture late Xcode overrides.
+
+Both Find GA sinks now obtain `App.getInfo()` from the installed native binary before GA initialization. Queued and subsequent mapped GA events carry `native_app_version` and `native_build_number`. Existing `app_version` and `build` retain package/source-stamp semantics without rewriting history. The safe mapper explicitly allows the new fields and the sink prioritizes them under GA&#x27;s field cap. No device/user/session identifier is added. Failed, invalid or timed-out native identity uses the existing bounded initialization/queue failure policy rather than emitting misleading native provenance.
+
+Production regression compiles the real sink, canonical mapper, analytics facade, Capacitor JS and build-info plugin using each game&#x27;s iOS production Vite configuration. Identical compiled bytes receive two late native identity fixtures (1.2.1/35 and 1.2.2/36); the GA fields change with native identity while source fields remain unchanged. These are TEST FIXTURES, not chosen release numbers or produced binaries. Baseline replay fails at missing `native_app_version` for both games; corrected code passes.
+
+Limits: this is a production-compiled JS/bridge-contract test, not Xcode archive execution, real Info.plist runtime, complete SdkContext bootstrap, physical-device proof or GA ingestion. Store exclusively owns the next physical window and actual binary numbering.
+
+## Collector correction and authority
+
+Canonical collector: `/Users/base/.hermes/scripts/find-games-daily-scorecard.mjs`, located via the existing clean-measurement baseline and adjacent shell wrapper. It is not in a Git repository; no separate repo/worktree was invented. `collector/` is a review/reproduction snapshot, not a replacement canonical collector.
+
+The canonical active script was edited in place; the existing schedule may use it on its next invocation. No cron config/wrapper was modified and the collector main/network/browser/publication path was not run. No existing report or latest.json was rewritten by this work.
+
+- Missing/failed/malformed organic exports and blank version provenance produce null aggregates with incomplete status, never zero.
+- Paid report row_count stays diagnostic. Paid acquisition requires exact app/version/campaign, complete timestamp and media provenance, approved UTC cohort, observed-time bounds and complete QA exclusion policy. Ambiguous rows yield incomplete/null rather than a partial clean total.
+- Both paid cohorts remain null. No public T0 or version promotion was selected. Existing organic version quarantine is retained.
+- Independent review reproduced four P2 edges: blank organic version, future same-day paid time, date-only/calendar-invalid install time, and whitespace-only dimensions. All were corrected tests-first; no actionable residual findings remain.
+
+See `collector/README.md`, `collector/REVIEW-FOLLOWUP.md`, baseline, patch and portable tests. Parent verified snapshot/canonical bytes match and reran the canonical suite. The patch reproduces the canonical corrected source from the exact backup. Applying/merging this repository PR does not install the external collector.
+
+## Authoritative verification
+
+Parent ran on the final behavior-bearing tree:
+
+| Command | Result |
+| --- | --- |
+| `npm run test:unit -w @fabrikav2/sdk` | 345 passed |
+| `npm run test:unit -w @fabrikav2/find_the_bird` | 408 passed, 3 skipped |
+| `npm run test:unit -w @fabrikav2/find_the_dog` | 326 passed, 2 skipped |
+| `node --test tools/game-release/test/native-analytics-provenance.integration.mjs` | 2 passed; both games, two override fixtures each |
+| `node --test /Users/base/.hermes/scripts/find-games-daily-scorecard.test.mjs` | 12 passed |
+| SDK, Bird and Dog `npm run typecheck` | all exit 0 |
+| `npx eslint .` in each Find game | both exit 0 |
+| `git diff --check` | exit 0 |
+
+Raw parent logs and command exit codes: `assets/verification.json`, `assets/sdk-suite.log`, `assets/ftb-suite.log`, `assets/ftd-suite.log`, `assets/production-propagation.log`, `assets/collector.log`. Worker logs preserve RED/GREEN chronology; exploratory failed test-harness/lint attempts are not final verification. Existing skipped credential/config tests and Node localStorage warnings remain visible.
+
+Independent review: `provenance-review.json` (no actionable findings), `collector-review.json` (four findings, all resolved as documented). Correctness/testing/reliability/adversarial/API/standards and simplification lenses ran in independent worker contexts, inline per reviewer because nested delegation was unavailable. No cross-model review is claimed. Optional further tests: full production bootstrap composition, queued native-identity recovery across lifecycle, crowded field cap.
+
+## Sharing/SKAN recommendation
+
+Keep native `setSharingFilterForPartners([&quot;all&quot;])` before start. It is a partner exclusion filter, not Apple&#x27;s SKAN disable control. Passing an SDK empty list clears the filter; passing `[&quot;facebook_int&quot;]` excludes Meta rather than allowing it. Do not use either as a workaround.
+
+- Own-app AppsFlyer ingestion: keep deny-all; still require actual backend receipt.
+- SKAN installs-only: preferred mode to investigate for a separately approved bounded diagnostic; verify Apple registration, Meta advertised-app/mode/OS and delayed aggregate evidence. No approval to activate is provided here.
+- Inbound Meta SKAN reporting into AppsFlyer: separate integration/authorization readback needed; not equivalent to outbound user-level sharing.
+- SKAN post-install optimization: exact CV schema/mapping/import required. AppsFlyer documents mandatory in-app postback configuration and a possible MMP-event bootstrap trap; no privacy widening to unlock it. Verify compatibility under deny-all or get vendor confirmation and remain installs-only/not ready.
+- MMP user-level forwarding and AEM/Advanced Data Sharing: not authorized and not compatible with claiming current deny-all allows forwarding. AEM is not a privacy-equivalent fallback.
+
+Primary URLs, exact code/header/IPA evidence and mode-specific gates are in `appsflyer-sharing-skan-audit.md`. Parent re-read AppsFlyer privacy and SKAN interoperability primary pages. Exact effect of the native filter on AppsFlyer-generated decoded outbound SKAN postbacks is not explicitly resolved by consulted documentation; vendor/account evidence remains necessary if that route is relied upon.
+
+## Backend limitations and approval gates
+
+1. Native `tracked=true` still means immediate SDK handoff; callback errors are discarded. No exactly-once/backend-success claim and no unsafe timeout retry was introduced.
+2. No exact-device GA/AF receipt or authoritative non-demo GA export is supplied by this follow-up. New fields are demonstrated at the GA SDK API boundary, not reporting backend.
+3. Production TestFlight and public traffic still share environment; native version/build alone cannot exclude QA on the same binary. Ads must approve public T0 and device/window/cohort exclusions only after Store evidence.
+4. Build34 has no optional developer-copy SKAN endpoint. Apple-to-network transport is distinct from AF report visibility. SKAN is delayed/aggregate/privacy-suppressed and cannot be deterministically joined to a native build or GA user/session. Null CVs are not zero gameplay/revenue.
+5. Collector tests use labeled synthetic HTTP responses; live provider schema, truncation limits, scheduled execution, downstream null handling and current backend receipts remain unverified. Existing raw diagnostic report breakdowns are not approved paid metrics.
+6. Separate approval is required for merge, next binary/release and privacy-policy publication. Store retains pending review and exclusively owns physical proof, including AdMob. Ads owns attribution-mode choice, partner configuration scope, actual public T0 and a bounded paid pilot. No spend/quality claim before these gates, absent an explicit named measurement override.
+
+Next action: review the source PR without merging; after explicit merge/release approval, Store proves an exact new binary and the provider owner obtains native/source-matched product receipts and mode-appropriate aggregate attribution. Preserve all history and paused campaigns throughout.
+</pre></details></main></html>

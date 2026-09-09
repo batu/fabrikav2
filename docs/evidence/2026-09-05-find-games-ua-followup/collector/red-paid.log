@@ -1,0 +1,29 @@
+✖ paid totals require own identity and exclude test, contamination, pre-cutoff, foreign campaign and QA rows (3.98175ms)
+✔ unavailable organic report leaves every organic aggregate unknown, not zero (0.734083ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 1
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 41.566916
+
+✖ failing tests:
+
+test at .hermes/scripts/find-games-daily-scorecard.test.mjs:31:1
+✖ paid totals require own identity and exclude test, contamination, pre-cutoff, foreign campaign and QA rows (3.98175ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  8 !== 1
+  
+      at TestContext.<anonymous> (file:///Users/base/.hermes/scripts/find-games-daily-scorecard.test.mjs:41:10)
+      at async Test.run (node:internal/test_runner/test:1404:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 8,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
