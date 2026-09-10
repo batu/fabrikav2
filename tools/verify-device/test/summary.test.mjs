@@ -138,6 +138,18 @@ describe('buildSummary', () => {
     expect(formatSummaryTable(summary)).not.toContain('__run');
   });
 
+  it('carries the iOS memory gate on __run only when it ran', () => {
+    const runVerdict = {
+      kind: 'verified-pass', enforcement: 'strict', exitCode: 0, applicableCount: 1,
+      fidelitySource: 'panel', reason: 'ok', summary: 'VERIFIED-PASS [STRICT] — ok',
+    };
+    const gate = { status: 'pass', peakMb: 960, limitMb: 1024, sampleCount: 40, reason: 'peak 960 MB ≤ 1024 MB' };
+    const withGate = buildSummary({ panel: { states: [] }, phashVerdict: null, runVerdict: { ...runVerdict, memoryGate: gate } });
+    expect(withGate.__run.memoryGate).toEqual(gate);
+    const without = buildSummary({ panel: { states: [] }, phashVerdict: null, runVerdict });
+    expect('memoryGate' in without.__run).toBe(false);
+  });
+
   it('omits __run entirely when no run verdict is supplied (legacy behavior)', () => {
     const summary = buildSummary({
       panel: { states: [{ state: 'menu', score: 90, status: 'pass', consensus: [] }] },

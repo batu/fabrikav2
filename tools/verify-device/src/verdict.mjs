@@ -128,6 +128,9 @@ export function normalizeStateEvidence(row) {
  * @param {object|null} [params.panel] runPanel result (has `.states` when it ran).
  * @param {object|null} [params.phashVerdict] computeVerdict result (advisory only).
  * @param {boolean} [params.viewportMetricsPass] manifest viewport assertions passed.
+ * @param {{status:string,reason?:string,required?:boolean}|null} [params.memoryGate] device
+ *   memory gate result (src/memoryGate.mjs): `fail` is a verified failure; `unavailable`
+ *   with `required` is too (unmeasured is not a pass); null = gate skipped.
  * @param {string|null} [params.captureFailure] hard capture-runner failure.
  * @param {string[]} [params.ungatedCaptureStates] blind (marker-never-appeared) states.
  * @param {boolean} [params.allowUngated] operator override for blind captures.
@@ -145,6 +148,7 @@ export function classifyRunVerdict({
   panel = null,
   phashVerdict = null,
   viewportMetricsPass = true,
+  memoryGate = null,
   captureFailure = null,
   ungatedCaptureStates = [],
   allowUngated = false,
@@ -177,6 +181,7 @@ export function classifyRunVerdict({
       ignoredPanelStates: [],
       coverageGaps: [],
       hardIntegrity,
+      memoryGate: memoryGate || null,
       ...partial,
       blockingReasons: [...(partial.blockingReasons || []), ...hardIntegrity],
     };
@@ -291,6 +296,10 @@ export function classifyRunVerdict({
   if (missing.length) failReasons.push(`missing capture: ${missing.map((s) => s.state).join(', ')}`);
   if (panelFailures.length) failReasons.push(`panel fidelity fail: ${panelFailures.join(', ')}`);
   if (viewportMetricsPass === false) failReasons.push('viewport metric assertion failed');
+  if (memoryGate && memoryGate.status === 'fail') failReasons.push(`memory gate: ${memoryGate.reason || 'over limit'}`);
+  if (memoryGate && memoryGate.status === 'unavailable' && memoryGate.required !== false) {
+    failReasons.push(`${memoryGate.reason || 'memory gate unavailable'} (pass --skip-memory-gate to waive)`);
+  }
   if (failReasons.length) {
     return finalize({ ...rich, kind: 'verified-fail', reason: failReasons.join('; ') });
   }
