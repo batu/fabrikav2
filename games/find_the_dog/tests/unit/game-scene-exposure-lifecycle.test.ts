@@ -2,6 +2,7 @@ import { EventEmitter } from 'node:events';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('phaser', () => ({ default: { Scene: class {}, Core: { Events: { POST_RENDER: 'postrender' } } } }));
+vi.mock('../../../shared/ClassicGpuReveal', () => ({ ClassicGpuReveal: class {} }));
 vi.mock('../../src/core/GameState', () => ({ gameState: { settings: { adsEnabled: false } } }));
 vi.mock('../../src/analytics/AnalyticsService', () => ({ analytics: { experimentExposure: vi.fn() } }));
 vi.mock('../../src/data/revealPickupExperiment', () => ({ revealPickupExperiment: {

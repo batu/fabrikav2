@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { ClassicGpuReveal } from '../../../shared/ClassicGpuReveal';
 import { Capacitor } from '@capacitor/core';
 import { COLORS, GAME, GAMEPLAY, TEST_HARNESS_ENABLED, TIMING } from '../core/Constants';
 import { gameState } from '../core/GameState';
@@ -92,7 +93,7 @@ const NONCRITICAL_PRELOAD_IDLE_TIMEOUT_MS = 5_000;
 const AMBIENT_START_DELAY_MS = 1_500;
 const AMBIENT_IDLE_TIMEOUT_MS = 3_000;
 
-type ClassicRenderPath = 'bitmap-mask' | 'cpu-composite' | 'patch-composite' | 'restoration-bitmap-mask';
+type ClassicRenderPath = 'gpu-cell-reveal' | 'bitmap-mask' | 'cpu-composite' | 'patch-composite' | 'restoration-bitmap-mask';
 
 interface DirtyRect {
   x: number;
@@ -194,6 +195,7 @@ export class GameScene extends Phaser.Scene {
   private classicRevealedCtx: CanvasRenderingContext2D | null = null;
   private classicRevealedImage: Phaser.GameObjects.Image | null = null;
   private classicRevealedDensity: number = 1;
+  private classicGpuReveal: ClassicGpuReveal | null = null;
   private classicPatchImages: Phaser.GameObjects.Image[] = [];
   private classicPatchTextureKeys: string[] = [];
   private classicPatchTextureCounter: number = 0;
@@ -933,13 +935,17 @@ export class GameScene extends Phaser.Scene {
     const isIosClassic = !isRestoration && Capacitor.getPlatform() === 'ios';
     this.classicUsesPatchComposite = isIosClassic;
     this.classicUsesCpuComposite = isIosClassic && !this.classicUsesPatchComposite;
-    this.classicRenderPath = isRestoration
-      ? 'restoration-bitmap-mask'
-      : this.classicUsesPatchComposite
-        ? 'patch-composite'
-        : this.classicUsesCpuComposite
-          ? 'cpu-composite'
-          : 'bitmap-mask';
+    if (isIosClassic && this.getRendererKind() === 'webgl') {
+      this.classicGpuReveal = new ClassicGpuReveal(this, {
+        x: this.imgOffsetX, y: this.imgOffsetY,
+        width: this.level.width * this.imgScale, height: this.level.height * this.imgScale,
+      }, CLASSIC_REVEAL_EDGE_FEATHER_PX);
+    }
+    if (isRestoration) this.classicRenderPath = 'restoration-bitmap-mask';
+    else if (this.classicGpuReveal) this.classicRenderPath = 'gpu-cell-reveal';
+    else if (this.classicUsesPatchComposite) this.classicRenderPath = 'patch-composite';
+    else if (this.classicUsesCpuComposite) this.classicRenderPath = 'cpu-composite';
+    else this.classicRenderPath = 'bitmap-mask';
     this.refreshRevealMask();
 
     if (isRestoration) {
@@ -950,7 +956,7 @@ export class GameScene extends Phaser.Scene {
       this.colorImage.setMask(bitmapMask);
     } else if (this.classicUsesPatchComposite) {
       this.colorImage.setVisible(false).setActive(false);
-      this.createClassicRevealedLayer(colorExtentW, colorExtentH);
+      if (!this.classicGpuReveal) this.createClassicRevealedLayer(colorExtentW, colorExtentH);
     } else if (this.classicUsesCpuComposite) {
       this.compositeCanvas = document.createElement('canvas');
       this.compositeCanvas.width = colorExtentW;
@@ -1146,6 +1152,8 @@ export class GameScene extends Phaser.Scene {
       this.classicRenderPath = 'bitmap-mask';
       this.classicUsesCpuComposite = false;
       this.classicUsesPatchComposite = false;
+      this.classicGpuReveal?.destroy();
+      this.classicGpuReveal = null;
       this.classicActivePatch = null;
       for (const textureKey of this.classicPatchTextureKeys) {
         if (this.textures.exists(textureKey)) this.textures.remove(textureKey);
@@ -2262,6 +2270,13 @@ export class GameScene extends Phaser.Scene {
 
   private startClassicPatch(screenPoints: Phaser.Geom.Point[]): void {
     if (!this.classicUsesPatchComposite) return;
+    if (this.classicGpuReveal && this.activeRevealCenter) {
+      this.classicGpuReveal.start(screenPoints, {
+        x: this.imgOffsetX + this.activeRevealCenter.x * this.imgScale,
+        y: this.imgOffsetY + this.activeRevealCenter.y * this.imgScale,
+      });
+      return;
+    }
 
     const rect = this.getPolygonDirtyRect(screenPoints, CLASSIC_REVEAL_EDGE_FEATHER_PX + 4);
     if (!rect) return;
@@ -2661,6 +2676,11 @@ export class GameScene extends Phaser.Scene {
    */
   private redrawComposite(dirtyRect: DirtyRect | null): void {
     const frameStartedAt = performance.now();
+    if (this.classicGpuReveal) {
+      const timings = this.refreshRevealMask(dirtyRect);
+      this.recordRevealFrame(frameStartedAt, 0, timings.maskRefreshMs, timings.cpuCompositeMs, 0);
+      return;
+    }
     const ctx = this.maskCtx;
     if (!ctx || !this.maskCanvas || !this.permanentCanvas) return;
 
@@ -2811,6 +2831,10 @@ export class GameScene extends Phaser.Scene {
   }
 
   private syncClassicPatch(): void {
+    if (this.classicGpuReveal) {
+      this.classicGpuReveal.update(this.activeRevealCenter ? this.activeRevealRadius : null);
+      return;
+    }
     const patch = this.classicActivePatch;
     const level = this.level;
     if (!patch || !level || !this.textures.exists('color')) return;
