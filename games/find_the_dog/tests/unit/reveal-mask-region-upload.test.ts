@@ -72,7 +72,9 @@ function fixture() {
     globalCompositeOperation: 'source-over', globalAlpha: 1, fillStyle: '',
   };
   const permanentCanvas = { width: 200, height: 300 };
-  const revealMask = new Phaser.Textures.CanvasTexture(maskCanvas);
+  // The runtime is the vi.mock above; the cast satisfies Phaser's real constructor type.
+  const MockCanvasTexture = Phaser.Textures.CanvasTexture as unknown as new (canvas: unknown) => { canvas: unknown; refresh: ReturnType<typeof vi.fn> };
+  const revealMask = new MockCanvasTexture(maskCanvas);
   Object.assign(scene, {
     level: { id: 'level-1', width: 200, height: 300, dogs: [] },
     game: { events: { on: vi.fn(), off: vi.fn(), once: vi.fn() }, renderer: { type: 2 } },

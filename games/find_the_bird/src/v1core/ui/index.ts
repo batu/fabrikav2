@@ -451,8 +451,18 @@ function addCompletionSideConfetti(
   overlay: HTMLElement,
   reducedMotion: boolean,
   scheduleTimeout: (cb: () => void, ms: number) => void,
+  registerCleanup: (cleanup: () => void) => void,
 ): void {
   const layer = document.createElement('div');
+  // Every piece animation is cancelled AND has its effect detached on
+  // teardown. WebKit (iOS 26) keeps every animation ever created on the page
+  // in its timeline, together with each keyframe's full style record: ~90 KB
+  // per piece, 80–90 MB per completed level on an iPhone 12 (2026-09-10),
+  // until the page reloads. Removing the layer, cancelling, dropping every JS
+  // reference and forcing GC did not release them (simulator heap counts,
+  // 2026-09-10); `effect = null` frees the keyframes and leaves a ~300 B
+  // shell per piece.
+  const animations: Animation[] = [];
   layer.className = 'fab-complete-side-confetti';
   layer.setAttribute('aria-hidden', 'true');
 
@@ -516,16 +526,29 @@ function addCompletionSideConfetti(
         opacity: t > 0.85 ? (1 - t) / 0.15 : 1,
       });
     }
-    piece.animate(frames, {
+    animations.push(piece.animate(frames, {
       duration: durationMs * rand(0.8, 1.2),
       delay: rand(0, maxDelayMs),
       easing: 'linear',
       fill: 'both',
-    });
+    }));
   }
 
+  let tornDown = false;
+  const teardown = (): void => {
+    if (tornDown) return;
+    tornDown = true;
+    for (const animation of animations) {
+      animation.cancel();
+      animation.effect = null;
+    }
+    animations.length = 0;
+    layer.remove();
+  };
+
   overlay.prepend(layer);
-  scheduleTimeout(() => layer.remove(), durationMs * 1.2 + maxDelayMs + 260);
+  registerCleanup(teardown);
+  scheduleTimeout(teardown, durationMs * 1.2 + maxDelayMs + 260);
 }
 
 /** Build the 2x-button copy (label + sublabel) via createElement — never
@@ -721,7 +744,7 @@ export function mountLevelComplete(opts: LevelCompleteOptions): UiHandle {
   }
 
   // --- Sequencing ----------------------------------------------------------
-  addCompletionSideConfetti(el, reducedMotion, scheduleTimeout);
+  addCompletionSideConfetti(el, reducedMotion, scheduleTimeout, registerCleanup);
 
   const showActions = (): void => {
     if (signal.aborted) return;

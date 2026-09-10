@@ -58,7 +58,7 @@ describe("level-complete confetti", () => {
       value: vi.fn(() => []),
     });
     originalAnimate = Object.getOwnPropertyDescriptor(HTMLElement.prototype, "animate");
-    animate = vi.fn(() => ({ cancel: vi.fn() } as unknown as Animation));
+    animate = vi.fn(() => ({ cancel: vi.fn(), effect: {} } as unknown as Animation));
     Object.defineProperty(HTMLElement.prototype, "animate", {
       configurable: true,
       writable: true,
@@ -112,6 +112,34 @@ describe("level-complete confetti", () => {
 
     vi.advanceTimersByTime(CONFETTI_CLEANUP_FULL_MS);
     expect(handle.el.querySelector(".fab-complete-side-confetti")).toBeNull();
+  });
+
+  // 2026-09-10 iPhone memory growth: WebKit keeps every animation created on
+  // the page in its timeline, with every keyframe's style record (~90 KB per
+  // piece, 80–90 MB per completed level). Removing the layer and cancelling
+  // are not enough; each animation must also have its effect detached, on the
+  // scheduled teardown AND on an early dismiss that skips the scheduled timer.
+  it("cancels every piece animation on scheduled teardown", () => {
+    setReducedMotion(false);
+    mountCompletion();
+    const cancels = animate.mock.results.map((r) => (r.value as { cancel: ReturnType<typeof vi.fn> }).cancel);
+    expect(cancels.length).toBeGreaterThan(0);
+    expect(cancels.every((c) => c.mock.calls.length === 0)).toBe(true);
+    vi.advanceTimersByTime(CONFETTI_CLEANUP_FULL_MS);
+    expect(cancels.every((c) => c.mock.calls.length === 1)).toBe(true);
+    expect(animate.mock.results.every((r) => (r.value as Animation).effect === null)).toBe(true);
+  });
+
+  it("cancels every piece animation on early dismiss", () => {
+    setReducedMotion(false);
+    const handle = mountCompletion();
+    const cancels = animate.mock.results.map((r) => (r.value as { cancel: ReturnType<typeof vi.fn> }).cancel);
+    handle.dismiss();
+    expect(cancels.every((c) => c.mock.calls.length === 1)).toBe(true);
+    expect(animate.mock.results.every((r) => (r.value as Animation).effect === null)).toBe(true);
+    // The scheduled teardown must not cancel a second time.
+    vi.advanceTimersByTime(CONFETTI_CLEANUP_FULL_MS * 2);
+    expect(cancels.every((c) => c.mock.calls.length === 1)).toBe(true);
   });
 
   it("uses the bounded reduced-motion treatment and removes it on schedule", () => {
