@@ -90,6 +90,14 @@ Options:
                        by the SAME panel but stamped lane=browser and marked
                        DEVICE-UNVERIFIED (safe-area/notch fidelity is device-only).
                        Explicit only — the default lane stays device.
+  --memory-limit-mb <n> iOS only: fail the run when the game's WebContent process
+                       footprint (pymobiledevice3 sysmon physFootprint, the number
+                       iOS jetsam uses) exceeds n MB at any sample during the tour
+                       (default 1024; the 2026-09-10 kills happened at ~1.7 GB, the
+                       fixed build peaks ~980 MB on an iPhone 12). Needs
+                       'sudo pymobiledevice3 remote tunneld' running; without it the
+                       gate is UNAVAILABLE, which strict treats as a failure.
+  --skip-memory-gate   waive the memory gate (recorded as skipped, never as pass).
   --budget-floor <n>   OpenRouter credit floor in USD (default 5). Before every
                        billable model call, remaining credit is checked; below
                        the floor that judge/state is recorded as budget-halted
@@ -133,6 +141,12 @@ the only strict exit 0), verified-fail, unverified, skipped, no-applicable-evide
  *   skipDevice:boolean, lane:'device'|'browser', budgetFloor:number, compare?:string,
  *   portalStream?:string, help:boolean}}
  */
+export function parseMemoryLimitMb(raw) {
+  const n = Number(raw);
+  if (!Number.isFinite(n) || n <= 0) throw new Error(`--memory-limit-mb must be a positive number, got ${raw}`);
+  return n;
+}
+
 export function parseArgs(argv) {
   const args = {
     platform: 'auto',
@@ -145,6 +159,8 @@ export function parseArgs(argv) {
     skipDevice: false,
     lane: 'device',
     budgetFloor: 5,
+    memoryLimitMb: 1024,
+    skipMemoryGate: false,
     help: false,
   };
   for (let i = 0; i < argv.length; i++) {
@@ -172,6 +188,8 @@ export function parseArgs(argv) {
     else if (a === '--skip-device') args.skipDevice = true;
     else if (a === '--lane') args.lane = parseLane(req(argv, ++i, a));
     else if (a === '--budget-floor') args.budgetFloor = parseBudgetFloor(req(argv, ++i, a));
+    else if (a === '--memory-limit-mb') args.memoryLimitMb = parseMemoryLimitMb(req(argv, ++i, a));
+    else if (a === '--skip-memory-gate') args.skipMemoryGate = true;
     else if (a === '--compare') args.compare = req(argv, ++i, a);
     else if (a === '--portal-stream') args.portalStream = req(argv, ++i, a);
     else if (a === '--help' || a === '-h') args.help = true;

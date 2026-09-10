@@ -38,6 +38,7 @@ import { extractFromExportDir, loadCapturesDir } from './src/attachments.mjs';
 import { buildRows } from './src/compare.mjs';
 import { writeCropArtifacts } from './src/crops.mjs';
 import { classifyRunVerdict, computeVerdict } from './src/verdict.mjs';
+import { evaluateMemoryGate, formatMemoryGate, startMemorySampler } from './src/memoryGate.mjs';
 import { buildGridHtml } from './src/grid.mjs';
 import { runPanel, withPanelMetadata } from './src/panel.mjs';
 import { loadRegistry, resolveJudges } from './src/judges.mjs';
@@ -179,15 +180,33 @@ function runIosDevicePath(args, manifest, date, deviceConfig = {}) {
   steps.buildAndInstallApp(manifest.gameDir, device.udid, appBundleId, {
     developmentTeam: process.env.DEVELOPMENT_TEAM,
   });
-  const { exportDir, testError } = steps.runXcuiTestAndExport({
-    runnerDir: RUNNER_DIR, deviceUdid: device.udid, appBundleId, outDir,
-    developmentTeam: process.env.DEVELOPMENT_TEAM,
-  });
+  // MEMORY GATE: sample the game's WebContent footprint while the tour runs
+  // (menu -> level -> ...). The runner blocks synchronously, so the sampler is
+  // a child process. See src/memoryGate.mjs for why this lives on the device.
+  const sampler = args.skipMemoryGate
+    ? null
+    : startMemorySampler({ outFile: path.join(outDir, 'memory-samples.jsonl') });
+  let exportDir;
+  let testError;
+  let samples = [];
+  try {
+    ({ exportDir, testError } = steps.runXcuiTestAndExport({
+      runnerDir: RUNNER_DIR, deviceUdid: device.udid, appBundleId, outDir,
+      developmentTeam: process.env.DEVELOPMENT_TEAM,
+    }));
+  } finally {
+    if (sampler) samples = sampler.stop();
+  }
+  const memoryGate = sampler
+    ? { ...evaluateMemoryGate({ samples, limitMb: args.memoryLimitMb }), required: true }
+    : null;
+  if (memoryGate) fs.writeFileSync(path.join(outDir, 'memory.json'), `${JSON.stringify(memoryGate, null, 2)}\n`);
   const { byState, captureByState, viewportMetrics } = extractFromExportDir(exportDir, manifestStateNames(manifest));
   return {
     captures: byState,
     captureByState,
     viewportMetrics,
+    memoryGate,
     provenance: 'live-device',
     deviceLabel: `${deviceConfig.name ? `${deviceConfig.name}: ` : ''}${device.name} (${device.udid})`,
     captureFailure: testError ? `xcodebuild test failed: ${testError.message}` : null,
@@ -400,6 +419,7 @@ async function main() {
     panel,
     phashVerdict,
     viewportMetricsPass: viewportMetricAssertionsPass(viewportMetricAssertions),
+    memoryGate: resolved.memoryGate ?? null,
     captureFailure: resolved.captureFailure,
     ungatedCaptureStates: blindCaptureStates,
     allowUngated: args.allowUngated,
@@ -473,6 +493,8 @@ async function main() {
     `  phash (advisory): ${phashVerdict.summary}\n` +
     (panel.verdict ? `  panel (primary fidelity): ${panel.verdict.summary}\n`
       : `  panel: SKIPPED — ${panel.skipped} (on-device fidelity UNVERIFIED)\n`) +
+    (resolved.provenance === 'live-device' && platform === 'ios'
+      ? formatMemoryGate(resolved.memoryGate ?? null) : '') +
     `  run verdict: ${runVerdict.summary}\n` +
     `  grid: ${path.relative(REPO_ROOT, outFile)}\n` +
     `  summary: ${path.relative(REPO_ROOT, summaryFile)}\n` +

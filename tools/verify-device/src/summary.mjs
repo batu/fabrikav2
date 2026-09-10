@@ -104,6 +104,14 @@ function summarizeRunVerdict(runVerdict) {
     fidelitySource: runVerdict.fidelitySource || null,
     reason: String(runVerdict.reason || ''),
     summary: String(runVerdict.summary || ''),
+    // Additive: present only when the iOS memory gate ran (src/memoryGate.mjs).
+    ...(runVerdict.memoryGate ? { memoryGate: {
+      status: String(runVerdict.memoryGate.status),
+      peakMb: runVerdict.memoryGate.peakMb ?? null,
+      limitMb: runVerdict.memoryGate.limitMb ?? null,
+      sampleCount: runVerdict.memoryGate.sampleCount ?? 0,
+      reason: String(runVerdict.memoryGate.reason || ''),
+    } } : {}),
   };
 }
 

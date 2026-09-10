@@ -51,6 +51,27 @@ npm run verify-device -- --game marble_run
 7. **Print the grid path, summary path, crop directory when present, one-line
    per-state table, and verdict.**
 
+## Memory gate (iOS)
+
+While the XCUITest tour runs, `verify-device` samples the game's WebContent
+process footprint on the phone every 3 s (`pymobiledevice3 developer dvt sysmon
+process single`, `physFootprint` — the number iOS jetsam uses; the game page is
+the largest `com.apple.WebKit.WebContent`, ad WebViews sit near 50 MB). Samples
+land in `<out>/memory-samples.jsonl`, the evaluation in `<out>/memory.json`, and
+the result rides on the run verdict (`summary.json` `__run.memoryGate`).
+
+- `--memory-limit-mb <n>` (default 1024): any sample above n MB is a
+  `verified-fail`. Context: on 2026-09-10 Find the Dog/Bird shipped with the web
+  process at ~1.3 GB before a level and got killed at ~1.7 GB; the fixed build
+  peaks ~980 MB on an iPhone 12 at the completion card.
+- `UNAVAILABLE` (no usable samples: tunnel down, `pymobiledevice3` missing) is
+  **not** a pass — strict fails with the reason. Run
+  `sudo pymobiledevice3 remote tunneld` first, or waive with
+  `--skip-memory-gate`, which is recorded as skipped.
+- Only the states the tour visits are sampled (menu → level → settings → win →
+  fail → pause). This is the boot and first-level ceiling, not a five-level
+  soak; a per-level soak stays a manual drive with the same sampler.
+
 ## Strict verification & the typed run verdict (minimum proof)
 
 `verify-device` emits ONE typed run verdict (`tools/verify-device/src/verdict.mjs`,

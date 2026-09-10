@@ -268,6 +268,21 @@ describe('classifyRunVerdict — evidence composition × enforcement', () => {
       kind: 'unverified', strictExit: 1, exploratoryExit: 0,
     },
     {
+      name: 'memory gate over limit on otherwise-verified evidence → verified-fail',
+      input: { provenance: LIVE, rows: [capturedRow('menu')], panel: panelWith([['menu', 'pass']]), memoryGate: { status: 'fail', reason: 'peak 1682 MB > 1024 MB', required: true } },
+      kind: 'verified-fail', strictExit: 1, exploratoryExit: 0,
+    },
+    {
+      name: 'memory gate unavailable (tunnel down) is not a pass → verified-fail',
+      input: { provenance: LIVE, rows: [capturedRow('menu')], panel: panelWith([['menu', 'pass']]), memoryGate: { status: 'unavailable', reason: 'memory gate unavailable — no samples', required: true } },
+      kind: 'verified-fail', strictExit: 1, exploratoryExit: 0,
+    },
+    {
+      name: 'memory gate pass keeps a verified pass and is carried on the verdict',
+      input: { provenance: LIVE, rows: [capturedRow('menu')], panel: panelWith([['menu', 'pass']]), memoryGate: { status: 'pass', reason: 'peak 960 MB ≤ 1024 MB', peakMb: 960, required: true } },
+      kind: 'verified-pass', strictExit: 0, exploratoryExit: 0,
+    },
+    {
       name: 'AE12 viewport assertion failure on otherwise-verified evidence → verified-fail',
       input: { provenance: LIVE, rows: [capturedRow('menu')], panel: panelWith([['menu', 'pass']]), viewportMetricsPass: false },
       kind: 'verified-fail', strictExit: 1, exploratoryExit: 0,
