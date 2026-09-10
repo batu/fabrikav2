@@ -93,8 +93,8 @@ Options:
   --memory-limit-mb <n> iOS only: fail the run when the game's WebContent process
                        footprint (pymobiledevice3 sysmon physFootprint, the number
                        iOS jetsam uses) exceeds n MB at any sample during the tour
-                       (default 1024; the 2026-09-10 kills happened at ~1.7 GB, the
-                       fixed build peaks ~980 MB on an iPhone 12). Needs
+                       (default 1280; the 2026-09-10 kills happened at 1.5–1.7 GB, the
+                       fixed build peaks ~1140 MB at the win card on an iPhone 12). Needs
                        'sudo pymobiledevice3 remote tunneld' running; without it the
                        gate is UNAVAILABLE, which strict treats as a failure.
   --skip-memory-gate   waive the memory gate (recorded as skipped, never as pass).
@@ -159,7 +159,7 @@ export function parseArgs(argv) {
     skipDevice: false,
     lane: 'device',
     budgetFloor: 5,
-    memoryLimitMb: 1024,
+    memoryLimitMb: 1280,
     skipMemoryGate: false,
     help: false,
   };

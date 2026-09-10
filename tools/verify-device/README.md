@@ -60,10 +60,11 @@ the largest `com.apple.WebKit.WebContent`, ad WebViews sit near 50 MB). Samples
 land in `<out>/memory-samples.jsonl`, the evaluation in `<out>/memory.json`, and
 the result rides on the run verdict (`summary.json` `__run.memoryGate`).
 
-- `--memory-limit-mb <n>` (default 1024): any sample above n MB is a
+- `--memory-limit-mb <n>` (default 1280): any sample above n MB is a
   `verified-fail`. Context: on 2026-09-10 Find the Dog/Bird shipped with the web
-  process at ~1.3 GB before a level and got killed at ~1.7 GB; the fixed build
-  peaks ~980 MB on an iPhone 12 at the completion card.
+  process at ~1.3 GB before a level and got killed at 1.5–1.7 GB; the fixed build
+  boots at ~640 MB, plays at ~850 MB, and spikes to ~1140 MB at the win card on
+  an iPhone 12 (live lane run, 162 samples).
 - `UNAVAILABLE` (no usable samples: tunnel down, `pymobiledevice3` missing) is
   **not** a pass — strict fails with the reason. Run
   `sudo pymobiledevice3 remote tunneld` first, or waive with

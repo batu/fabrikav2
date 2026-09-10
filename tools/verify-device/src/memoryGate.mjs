@@ -16,7 +16,11 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-export const DEFAULT_MEMORY_LIMIT_MB = 1024;
+// 1280 MB: above the fixed build's worst transient (1143 MB at the win card on
+// an iPhone 12, live lane run 2026-09-10) and ~16% under the lowest footprint at
+// which WebKit killed the shipped build (1520 MB). A returning Pre FX ladder
+// (+625 MB at boot) trips it immediately.
+export const DEFAULT_MEMORY_LIMIT_MB = 1280;
 export const DEFAULT_SAMPLE_INTERVAL_MS = 3000;
 export const WEBCONTENT_PROCESS_NAME = 'com.apple.WebKit.WebContent';
 export const SYSMON_ARGS = ['developer', 'dvt', 'sysmon', 'process', 'single'];

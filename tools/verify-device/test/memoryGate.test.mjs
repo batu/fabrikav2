@@ -54,7 +54,7 @@ describe('evaluateMemoryGate', () => {
     ] });
     expect(gate.status).toBe('fail');
     expect(gate.peakMb).toBe(1682);
-    expect(gate.reason).toContain('> 1024 MB');
+    expect(gate.reason).toContain('> 1280 MB');
   });
 
   it('is unavailable, not a pass, when the tunnel is down or samples are missing', () => {
