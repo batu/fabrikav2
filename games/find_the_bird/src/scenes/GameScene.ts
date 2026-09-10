@@ -55,6 +55,7 @@ import { SectionController } from './SectionController';
 import { PinchZoom } from './PinchZoom';
 import { pulseHighFrameRate, settleFrameRate } from '../core/FrameRateGovernor';
 import { ClassicGpuReveal } from '../../../shared/ClassicGpuReveal';
+import { uploadCanvasTextureRegion } from '../../../shared/CanvasTextureRegion';
 import { MicroAnimationLayer, type MicroAnimationSnapshot } from '../effects/MicroAnimationLayer';
 import {
   FALLBACK_RUNTIME_TEXTURE_LONG_EDGE,
@@ -952,7 +953,7 @@ export class GameScene extends Phaser.Scene {
     else if (this.classicUsesPatchComposite) this.classicRenderPath = 'patch-composite';
     else if (this.classicUsesCpuComposite) this.classicRenderPath = 'cpu-composite';
     else this.classicRenderPath = 'bitmap-mask';
-    this.refreshRevealMask();
+    this.refreshRevealMask(null);
 
     if (isRestoration) {
       this.maskImage = this.add.image(0, 0, 'reveal_mask');
@@ -2256,13 +2257,27 @@ export class GameScene extends Phaser.Scene {
     ctx.restore();
   }
 
-  /** Copy the persistent restoration mask to the live mask texture after instant carves. */
-  private syncRestorationMaskTexture(): void {
+  /**
+   * Copy the persistent restoration mask to the live mask texture after
+   * instant carves. With `region` (the carved area), only that rectangle is
+   * copied and uploaded; without it the whole mask is copied and re-uploaded.
+   */
+  private syncRestorationMaskTexture(region: DirtyRect | null = null): void {
     const ctx = this.maskCtx;
     if (!ctx || !this.maskCanvas || !this.permanentCanvas) return;
+    if (region) {
+      ctx.clearRect(region.x, region.y, region.w, region.h);
+      ctx.drawImage(
+        this.permanentCanvas,
+        region.x, region.y, region.w, region.h,
+        region.x, region.y, region.w, region.h,
+      );
+      this.refreshRevealMask(region);
+      return;
+    }
     ctx.clearRect(0, 0, this.maskCanvas.width, this.maskCanvas.height);
     ctx.drawImage(this.permanentCanvas, 0, 0);
-    this.refreshRevealMask();
+    this.refreshRevealMask(null);
   }
 
   private startClassicPatch(screenPoints: Phaser.Geom.Point[]): void {
@@ -3190,12 +3205,16 @@ export class GameScene extends Phaser.Scene {
     this.lastRestorationDissolveBounds = bounds;
     // Instant carve. A 50ms cross-fade was tried on 2026-08-07 and read as
     // mush on device — the swap is cleaner when it is immediate.
+    const carvedPoints: Phaser.Geom.Point[] = [];
     for (const polygon of erasePolygons) {
       const screenPoints = this.levelPolygonToScreenPoints(polygon);
       this.dissolveCompletedCells.push({ polygon });
       this.carvePermanentDissolveCell(screenPoints);
+      carvedPoints.push(...screenPoints);
     }
-    this.syncRestorationMaskTexture();
+    // Only the carved rectangle changed; upload just that (2532² full uploads
+    // measured 120–160 ms per find on iPhone 12, 2026-09-10).
+    this.syncRestorationMaskTexture(this.getPolygonDirtyRect(carvedPoints, 4));
     this.onRevealedCellComplete();
   }
 
@@ -3274,7 +3293,7 @@ export class GameScene extends Phaser.Scene {
       }
       ctx.restore();
       const redrawMs = performance.now() - frameStartedAt;
-      const timings = this.refreshRevealMask(null);
+      const timings = this.refreshRevealMask({ x: rx, y: ry, w: rw, h: rh });
       this.recordRevealFrame(frameStartedAt, redrawMs, timings.maskRefreshMs, timings.cpuCompositeMs, rw * rh);
       return;
     }
@@ -3350,7 +3369,7 @@ export class GameScene extends Phaser.Scene {
       cpuCompositeMs = performance.now() - startedAt;
     } else if (this.isRestoration || !this.classicUsesCpuComposite) {
       const startedAt = performance.now();
-      this.refreshCanvasTexture('reveal_mask');
+      this.refreshCanvasTexture('reveal_mask', dirtyRect);
       maskRefreshMs = performance.now() - startedAt;
     }
     if (!this.isRestoration && this.classicUsesCpuComposite) {
@@ -3681,12 +3700,18 @@ export class GameScene extends Phaser.Scene {
   }
 
   /** Upload a canvas-backed texture to the GPU (required on iOS WebGL after every CPU-side edit). */
-  private refreshCanvasTexture(textureKey: string): void {
+  /**
+   * Push a CanvasTexture's pixels to the GPU. When `region` bounds every
+   * pixel changed since the last upload, only that rectangle is uploaded
+   * (see shared/CanvasTextureRegion); otherwise, or when a partial upload is
+   * not possible, the whole canvas is re-uploaded as before.
+   */
+  private refreshCanvasTexture(textureKey: string, region: DirtyRect | null = null): void {
     if (!this.textures.exists(textureKey)) return;
     const tex = this.textures.get(textureKey);
-    if (tex instanceof Phaser.Textures.CanvasTexture) {
-      tex.refresh();
-    }
+    if (!(tex instanceof Phaser.Textures.CanvasTexture)) return;
+    if (region && uploadCanvasTextureRegion(this.textures, this.game.renderer, textureKey, tex.canvas, region)) return;
+    tex.refresh();
   }
 
   private capTextureLongEdge(textureKey: string): void {
