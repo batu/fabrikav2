@@ -2463,11 +2463,10 @@ export class GameScene extends Phaser.Scene {
       .setScrollFactor(0)
       .setDepth(85);
 
-    // White sticker outline so the picked-up dog pops off the busy board
-    // while it flies to the counter. preFX is WebGL-only and undefined on
-    // the canvas renderer, where the pickup stays outline-less.
-    image.preFX?.setPadding(12);
-    image.preFX?.addGlow(0xffffff, 6, 2);
+    // Pre FX is disabled game-wide (see GameConfig.disablePreFX): Phaser still
+    // creates the per-object effect controller, so any glow added here would
+    // route the sprite to a pipeline that does not exist and throw inside
+    // render, freezing the loop. No outline on the flying pickup by design.
 
     image.setDisplaySize(sprite.width * this.imgScale, sprite.height * this.imgScale);
     const startScaleX = image.scaleX;
