@@ -80,6 +80,51 @@ floor (`LEVEL_EDITOR_DISK_FLOOR_GIB`, default 5).
 | `archive <id> [--restore]` | archive/unarchive a session |
 | `templates` / `prompts [kind]` | recipe templates / prompt library |
 
+## Sprite positioning and pickup residue (Find the Bird)
+
+`evaluate-placements` reads the exported catalog without changing levels,
+sprites, review assertions, or publication state. It produces per-bird JSON
+measurements and an HTML ranking with scene, pickup overlay, estimated bird
+mask, picked-first, all-picked, and residue-candidate panels.
+
+The Ubuntu GPU host already has SAM3 installed under `~/sam3-ticket26`.
+Copy the stateless worker into a dedicated job directory; existing services
+do not need a restart:
+
+```sh
+ssh ubuntu-server 'mkdir -p ~/ftb-placement-evaluation'
+scp scripts/pato-judge/placement_subjects.py ubuntu-server:ftb-placement-evaluation/
+uv run level-editor --json evaluate-placements --game find_the_bird \
+  --out /tmp/ftb-placement-audit \
+  --sam3-command 'ssh -o BatchMode=yes ubuntu-server /home/batu/.local/bin/uv run --no-project --python /home/batu/sam3-ticket26/.venv/bin/python python /home/batu/ftb-placement-evaluation/placement_subjects.py'
+```
+
+Use `--level <id>` repeatedly for a pilot, or `--catalog <manifest.json>`
+to select another catalog. The default evaluates every entry in the local
+`catalog-manifest.json`, including any experimental entries still registered
+there; it does not enumerate unregistered drafts or query the live CDN.
+Rerun with the same output directory to reuse content-addressed mask results.
+Inputs and the installed model checkpoint are hashed. A source change during
+evaluation refuses the final result. Output must remain outside `public/levels`.
+
+The score is bird-body silhouette IoU at the actual runtime anchor/flip pose,
+averaged over confident masks. It is not a fit proposal. Center displacement,
+width/height ratios, the weakest decile, uncertainty coverage, and possible
+whole-level mean bounds are recorded separately. Props held by the sprite are
+excluded from the SAM3 body score; full-cutout overlap remains a diagnostic.
+Levels with less than 80% scored coverage remain unranked.
+
+Residue checks reuse `cleanup_geometry.py`, including 2x cleanup expansion
+and neighbor clipping. They compare the estimated subject against the local
+restoration image after (a) picking that bird first and (b) collecting every
+bird in array order. Outside-cleanup pixels and matching restored pixels are
+reported separately. Connected fragments of at least 12 pixels are retained;
+at least 24 pixels and 1% of subject area trigger a review flag. Similar colors,
+occlusion, and semantic mask mistakes can cause false positives or misses.
+These are automatic review diagnostics, not human approval or on-device
+animation proof. A failed segmentation stays uncertain; execution/data errors
+produce a partial report and CLI exit code 2.
+
 ## Difficulty scoring (Find the Dog)
 
 The scorer reads exported assets from an explicit frozen manifest. It never
