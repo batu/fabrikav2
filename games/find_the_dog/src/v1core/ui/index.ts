@@ -454,11 +454,14 @@ function addCompletionSideConfetti(
   registerCleanup: (cleanup: () => void) => void,
 ): void {
   const layer = document.createElement('div');
-  // Every piece animation is cancelled on teardown. WebKit keeps a finished,
-  // filled animation alive on a detached element together with each
-  // keyframe's full style record: ~90 KB per piece, 80–90 MB per completed
-  // level on an iPhone 12 (2026-09-10), until the page reloads. Removing the
-  // layer alone does not release them; `cancel()` does.
+  // Every piece animation is cancelled AND has its effect detached on
+  // teardown. WebKit (iOS 26) keeps every animation ever created on the page
+  // in its timeline, together with each keyframe's full style record: ~90 KB
+  // per piece, 80–90 MB per completed level on an iPhone 12 (2026-09-10),
+  // until the page reloads. Removing the layer, cancelling, dropping every JS
+  // reference and forcing GC did not release them (simulator heap counts,
+  // 2026-09-10); `effect = null` frees the keyframes and leaves a ~300 B
+  // shell per piece.
   const animations: Animation[] = [];
   layer.className = 'fab-complete-side-confetti';
   layer.setAttribute('aria-hidden', 'true');
@@ -535,7 +538,10 @@ function addCompletionSideConfetti(
   const teardown = (): void => {
     if (tornDown) return;
     tornDown = true;
-    for (const animation of animations) animation.cancel();
+    for (const animation of animations) {
+      animation.cancel();
+      animation.effect = null;
+    }
     animations.length = 0;
     layer.remove();
   };
