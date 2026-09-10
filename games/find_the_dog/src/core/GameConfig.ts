@@ -16,6 +16,13 @@ export const GameConfig: Phaser.Types.Core.GameConfig = {
   backgroundColor: COLORS.BG,
   roundPixels: true,
   antialias: true,
+  // Phaser pre-allocates the Pre FX render-target ladder at boot (three targets
+  // per 32px step up to the shorter canvas edge, each with a depth-stencil
+  // buffer). On an iPhone 12 that ladder alone held ~625 MB of GPU memory and
+  // pushed the WebContent process to its kill limit before any level loaded
+  // (2026-09-10). The only Pre FX use is an optional pickup glow behind
+  // `preFX?.`, so disabling it costs nothing visible.
+  disablePreFX: true,
   // Cap the render loop at 30fps. FTD is a mostly-static hidden-object game —
   // long scrutiny windows with brief reveals — so 60/120Hz mostly burns GPU
   // for nothing. Apple WWDC22 cites up to ~20% battery from a single animation

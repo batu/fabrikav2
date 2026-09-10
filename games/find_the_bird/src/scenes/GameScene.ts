@@ -2535,8 +2535,10 @@ export class GameScene extends Phaser.Scene {
     const size = Math.max(image.displayWidth, image.displayHeight, 1);
     const land = Phaser.Math.Clamp(GAMEPLAY.RESTORATION_PICKUP_LANDING_SIZE_PX / size, 0.22, 0.72);
     this.pickupCoverFlash(start.x, start.y, size * 0.6, 0xfff4c9);
-    image.preFX?.setPadding(14);
-    image.preFX?.addGlow(0xffffff, 7, 2);
+    // Pre FX is disabled game-wide (see GameConfig.disablePreFX): Phaser still
+    // creates the per-object effect controller, so any glow added here would
+    // route the sprite to a pipeline that does not exist and throw inside
+    // render, freezing the loop. No outline on the flying pickup by design.
     this.pickupAnimationsActive += 1;
 
     // Beat 1: punch to 1.22x while the flash is still bright — the size the
@@ -2784,7 +2786,6 @@ export class GameScene extends Phaser.Scene {
         { scale: image.scaleX * 1.18, duration: reducedMotion ? 0 : 90, ease: 'Back.easeOut' },
         { scale: image.scaleX * 0.05, alpha: 0, angle: 20, duration: reducedMotion ? 140 : 210, ease: 'Back.easeIn' },
       ],
-      onStart: () => { image.preFX?.setPadding(10); image.preFX?.addGlow(0xffffff, 10, 3); },
       onComplete: () => {
         burst.explode(reducedMotion ? 8 : 26);
         feathers.explode(reducedMotion ? 3 : 9);
@@ -2952,11 +2953,10 @@ export class GameScene extends Phaser.Scene {
       .setScrollFactor(0)
       .setDepth(85);
 
-    // White sticker outline so the picked-up dog pops off the busy board
-    // while it flies to the counter. preFX is WebGL-only and undefined on
-    // the canvas renderer, where the pickup stays outline-less.
-    image.preFX?.setPadding(12);
-    image.preFX?.addGlow(0xffffff, 6, 2);
+    // Pre FX is disabled game-wide (see GameConfig.disablePreFX): Phaser still
+    // creates the per-object effect controller, so any glow added here would
+    // route the sprite to a pipeline that does not exist and throw inside
+    // render, freezing the loop. No outline on the flying pickup by design.
 
     image.setDisplaySize(sprite.width * this.imgScale, sprite.height * this.imgScale);
     image.setFlip(sprite.flipX ?? false, sprite.flipY ?? false);
