@@ -44,6 +44,7 @@ The initial SAM2 pilot could include surrounding books instead of the bird. SAM3
 - Integer polygon rasterization and bilinear restoration scaling approximate runtime texture sampling. Fractional edges can differ on device.
 - Residue flags are candidates: similar scenery colors can cause false positives, altered-color fragments can be missed, and unreliable subject masks remain uncertain. No automatic repair or human approval is performed.
 - Individual-first and fixed array-order all-collected scenarios do not exhaust every pickup ordering.
+- GitHub PR #73 cannot be merged with green CI yet: `npm ci` fails because workspace entries are missing from the root lockfile. The same error occurs on main run `34455523869`; this branch changes neither root package manifest nor lockfile. Local evaluator checks and its live run passed independently.
 
 ## Next Action
 

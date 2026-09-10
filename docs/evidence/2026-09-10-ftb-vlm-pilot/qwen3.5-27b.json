@@ -1,0 +1,90 @@
+{
+  "prompt": "Compare two images of the same game scene crop. Image 1 is BEFORE a pickup; image 2 is AFTER. The target bird is at the center of image 1. Only that bird should disappear; other birds and scenery should remain. Is any visible part of the target bird still left in image 2 (tail, feather, feet, outline, body fragment)? Distinguish actual target fragments from nearby birds, leaves, branches, shadows, and normal scenery. Do not assume there is residue. Return JSON only: {\"residue\":\"yes|no|uncertain\",\"location\":\"where in image 2, or none\",\"evidence\":\"brief concrete visual comparison\"}.",
+  "model": "qwen3.5:27b",
+  "results": [
+    {
+      "levelId": "hawaii_rainforest_waterfall_bird_0f98",
+      "dogId": "dog_12",
+      "elapsedSeconds": 33.1,
+      "response": {
+        "model": "qwen3.5:27b",
+        "created_at": "2026-09-10T08:30:34.341143433Z",
+        "message": {
+          "role": "assistant",
+          "content": "```json\n{\n\"residue\": \"no\",\n\"location\": \"none\",\n\"evidence\": \"The central brown and white bird present in Image 1 is completely absent in Image 2. The area where the bird was standing is now empty ground, showing only the background texture and leaves. There are no visible fragments of the bird's body, tail, or feet remaining.\"\n}\n```"
+        },
+        "done": true,
+        "done_reason": "stop",
+        "total_duration": 28590863554,
+        "load_duration": 17734031636,
+        "prompt_eval_count": 544,
+        "prompt_eval_duration": 887072937,
+        "eval_count": 86,
+        "eval_duration": 9523891362
+      }
+    },
+    {
+      "levelId": "hawaii_rainforest_waterfall_bird_0f98",
+      "dogId": "dog_04",
+      "elapsedSeconds": 29.98,
+      "response": {
+        "model": "qwen3.5:27b",
+        "created_at": "2026-09-10T08:31:04.565947407Z",
+        "message": {
+          "role": "assistant",
+          "content": "```json\n{\n\"residue\": \"no\",\n\"location\": \"none\",\n\"evidence\": \"The red bird with the yellow crest located in the center of image 1 is completely absent in image 2. The area where the bird was standing is now empty, showing only the green grass and grey rock face. There are no visible fragments, outlines, or colors remaining from the removed bird.\"\n}\n```"
+        },
+        "done": true,
+        "done_reason": "stop",
+        "total_duration": 29090002549,
+        "load_duration": 17548959408,
+        "prompt_eval_count": 544,
+        "prompt_eval_duration": 984981048,
+        "eval_count": 90,
+        "eval_duration": 10051500246
+      }
+    },
+    {
+      "levelId": "ad_campaigns_ad_cozy_library_bird_e654",
+      "dogId": "dog_12",
+      "elapsedSeconds": 28.29,
+      "response": {
+        "model": "qwen3.5:27b",
+        "created_at": "2026-09-10T08:31:33.314175195Z",
+        "message": {
+          "role": "assistant",
+          "content": "```json\n{\n\"residue\": \"no\",\n\"location\": \"none\",\n\"evidence\": \"The bird that was standing on the scroll in the center of image 1 is completely absent in image 2. The scroll and the floor area where the bird was standing are now empty, with no visible feathers, feet, or body fragments remaining.\"\n}\n```"
+        },
+        "done": true,
+        "done_reason": "stop",
+        "total_duration": 26615871401,
+        "load_duration": 16256097887,
+        "prompt_eval_count": 544,
+        "prompt_eval_duration": 834500135,
+        "eval_count": 80,
+        "eval_duration": 9093970720
+      }
+    },
+    {
+      "levelId": "ad_campaigns_ad_cozy_library_bird_e654",
+      "dogId": "dog_09",
+      "elapsedSeconds": 27.7,
+      "response": {
+        "model": "qwen3.5:27b",
+        "created_at": "2026-09-10T08:32:01.314430906Z",
+        "message": {
+          "role": "assistant",
+          "content": "```json\n{\n\"residue\": \"no\",\n\"location\": \"none\",\n\"evidence\": \"The grey bird perched on the ladder in the center of image 1 is completely absent in image 2. The ladder rungs and the bookshelf behind it are fully visible with no remaining feathers, outline, or body fragments.\"\n}\n```"
+        },
+        "done": true,
+        "done_reason": "stop",
+        "total_duration": 26662881746,
+        "load_duration": 16385676576,
+        "prompt_eval_count": 544,
+        "prompt_eval_duration": 886105322,
+        "eval_count": 77,
+        "eval_duration": 8974619449
+      }
+    }
+  ]
+}

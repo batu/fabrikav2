@@ -1,0 +1,29 @@
+{
+  "model": "qwen3.8:27b",
+  "prompt": "These are matching BEFORE and AFTER detail crops around a possible bird-removal residue candidate. Does image 2 retain a part of the same bird visible in image 1, or is it only background scenery? Do not assume the candidate is a defect. Compare the contours carefully. Return JSON only: {\"residue\":\"yes|no|uncertain\",\"evidence\":\"concrete visual evidence\",\"location\":\"where\"}.",
+  "cropBox": [
+    90,
+    85,
+    200,
+    180
+  ],
+  "selection": "manually inspected candidate; diagnostic, not blind benchmark",
+  "elapsedSeconds": 22.25,
+  "response": {
+    "model": "qwen3.8:27b",
+    "created_at": "2026-09-10T08:35:55.142226026Z",
+    "message": {
+      "role": "assistant",
+      "content": "{\"residue\": \"no\", \"evidence\": \"Image 2 shows a smooth, uniform brown surface where the distinct, outlined feathers and beak of the bird were present in Image 1. The specific contours of the bird's head and neck have been completely removed and replaced with a generic color fill, leaving no trace of the original bird's shape.\", \"location\": \"center\"}"
+    },
+    "done": true,
+    "done_reason": "stop",
+    "total_duration": 21860368165,
+    "load_duration": 17366256340,
+    "prompt_eval_count": 856,
+    "prompt_eval_cached_count": 0,
+    "prompt_eval_duration": 1279363000,
+    "eval_count": 80,
+    "eval_duration": 3166508000
+  }
+}

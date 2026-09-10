@@ -1,0 +1,29 @@
+{
+  "model": "muse-glimmer:30b",
+  "prompt": "These are matching BEFORE and AFTER detail crops around a possible bird-removal residue candidate. Does image 2 retain a part of the same bird visible in image 1, or is it only background scenery? Do not assume the candidate is a defect. Compare the contours carefully. Return JSON only: {\"residue\":\"yes|no|uncertain\",\"evidence\":\"concrete visual evidence\",\"location\":\"where\"}.",
+  "cropBox": [
+    90,
+    85,
+    200,
+    180
+  ],
+  "selection": "manually inspected candidate; diagnostic, not blind benchmark",
+  "elapsedSeconds": 19.97,
+  "response": {
+    "model": "muse-glimmer:30b",
+    "created_at": "2026-09-10T08:43:30.852170319Z",
+    "message": {
+      "role": "assistant",
+      "content": "{\"residue\":\"yes\",\"evidence\":\"The brown bird-like shape in the lower right of image 1 is partially occluded in image 2 by a lighter brown overlay that follows the same contour as the bird\u2019s head/neck, indicating the same bird is still present but partially covered; the eye and eyebrow line remain aligned with the original shape, showing continuity of the same subject rather than pure background.\",\"location\":\"lower right of the crop, over the bird\u2019s head/neck area\"}<|eot|>"
+    },
+    "done": true,
+    "done_reason": "stop",
+    "total_duration": 19628739828,
+    "load_duration": 16726864970,
+    "prompt_eval_count": 1062,
+    "prompt_eval_cached_count": 0,
+    "prompt_eval_duration": 762167000,
+    "eval_count": 100,
+    "eval_duration": 2079989000
+  }
+}

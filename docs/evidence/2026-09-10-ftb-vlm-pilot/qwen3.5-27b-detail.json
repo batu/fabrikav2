@@ -1,0 +1,28 @@
+{
+  "model": "qwen3.5:27b",
+  "prompt": "These are matching BEFORE and AFTER detail crops around a possible bird-removal residue candidate. Does image 2 retain a part of the same bird visible in image 1, or is it only background scenery? Do not assume the candidate is a defect. Compare the contours carefully. Return JSON only: {\"residue\":\"yes|no|uncertain\",\"evidence\":\"concrete visual evidence\",\"location\":\"where\"}.",
+  "cropBox": [
+    90,
+    85,
+    200,
+    180
+  ],
+  "selection": "manually inspected candidate; diagnostic, not blind benchmark",
+  "elapsedSeconds": 28.12,
+  "response": {
+    "model": "qwen3.5:27b",
+    "created_at": "2026-09-10T08:35:32.886300888Z",
+    "message": {
+      "role": "assistant",
+      "content": "{\n\"residue\": \"yes\",\n\"evidence\": \"Image 1 shows a distinct, light-colored, elongated shape with a black outline that resembles a bird's wing or body part. In Image 2, this specific shape is still clearly visible in the same location, confirming it is a retained object and not just background scenery.\",\n\"location\": \"center-right\"\n}"
+    },
+    "done": true,
+    "done_reason": "stop",
+    "total_duration": 27644220497,
+    "load_duration": 16455713623,
+    "prompt_eval_count": 856,
+    "prompt_eval_duration": 1347588523,
+    "eval_count": 82,
+    "eval_duration": 9409252572
+  }
+}
