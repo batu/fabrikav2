@@ -114,6 +114,32 @@ describe("level-complete confetti", () => {
     expect(handle.el.querySelector(".fab-complete-side-confetti")).toBeNull();
   });
 
+  // 2026-09-10 iPhone memory growth: WebKit keeps a finished, filled animation
+  // on a detached element alive with every keyframe's style record (~90 KB per
+  // piece, 80–90 MB per completed level). Removing the layer is not enough;
+  // each animation must be cancelled, on the scheduled teardown AND on an
+  // early dismiss that skips the scheduled timer.
+  it("cancels every piece animation on scheduled teardown", () => {
+    setReducedMotion(false);
+    mountCompletion();
+    const cancels = animate.mock.results.map((r) => (r.value as { cancel: ReturnType<typeof vi.fn> }).cancel);
+    expect(cancels.length).toBeGreaterThan(0);
+    expect(cancels.every((c) => c.mock.calls.length === 0)).toBe(true);
+    vi.advanceTimersByTime(CONFETTI_CLEANUP_FULL_MS);
+    expect(cancels.every((c) => c.mock.calls.length === 1)).toBe(true);
+  });
+
+  it("cancels every piece animation on early dismiss", () => {
+    setReducedMotion(false);
+    const handle = mountCompletion();
+    const cancels = animate.mock.results.map((r) => (r.value as { cancel: ReturnType<typeof vi.fn> }).cancel);
+    handle.dismiss();
+    expect(cancels.every((c) => c.mock.calls.length === 1)).toBe(true);
+    // The scheduled teardown must not cancel a second time.
+    vi.advanceTimersByTime(CONFETTI_CLEANUP_FULL_MS * 2);
+    expect(cancels.every((c) => c.mock.calls.length === 1)).toBe(true);
+  });
+
   it("uses the bounded reduced-motion treatment and removes it on schedule", () => {
     setReducedMotion(true);
     vi.spyOn(Math, "random").mockReturnValue(1);
