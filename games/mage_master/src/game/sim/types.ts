@@ -10,19 +10,22 @@ export interface Vec {
   y: number;
 }
 
-export type StatusKind = "burn" | "chill";
+export type StatusKind = "burn" | "chill" | "expose";
 
 export interface Status {
   kind: StatusKind;
   /** Seconds remaining. */
   remaining: number;
-  /** burn: damage per tick and tick cadence. */
-  perTick?: number;
+  /** burn: Elemental Damage of the applier, active stacks, and tick cadence (damage per tick = elem × rate × stacks). */
+  elem?: number;
+  stacks?: number;
   tickEvery?: number;
   nextTick?: number;
   sourceId?: string;
   /** chill: fractional slow applied to attack and move speed. */
   slow?: number;
+  /** expose: extra damage the target takes from every source (0.15 = +15%). */
+  amount?: number;
 }
 
 export interface Unit {
@@ -60,8 +63,9 @@ export interface Projectile {
   readonly from: Vec;
   readonly element: Element | null;
   readonly pattern: AttackPattern;
-  /** Attacker power snapshot at launch. */
+  /** Attacker power snapshot at launch (crit is the rating; elem is Elemental Damage). */
   readonly atk: number;
+  readonly elem: number;
   readonly critChance: number;
   readonly critDamage: number;
   readonly speed: number;

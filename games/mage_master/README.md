@@ -9,7 +9,10 @@ and pitch), storyboard in `refs/art/`, research in `docs/research.md`, plan in
 ## Layout
 
 - `content/` — every tunable as data: mages, enemies, levels, rarity ages, item
-  rolls, Rift odds and timers, currencies, arena geometry.
+  rolls, Rift odds and timers, currencies, arena geometry. `content/combat.ts`
+  is the combat math (`refs/balance/mage-masters-combat-math.xlsx` v0.2):
+  rating→chance conversion, block reduction, element constants, and the
+  closed-form DPS / Effective Health / Time to Kill the tests check the sim against.
 - `src/game/sim/` — pure battle simulation (fixed 30 Hz tick, seeded RNG,
   projectiles, burn/chill/chain/pierce, stage advance). No DOM, no Phaser.
 - `src/game/economy/` — pure meta: items and loadouts, save reducers (energy,
@@ -39,8 +42,9 @@ Two skins over one DOM, switched by the `minimalUi` save setting (Settings →
 
 New enemy: one row in `content/enemies.ts` + `design/assets/unit-<kind>.png`.
 New level tuning: `content/levels.ts` and `LEVEL_SCALING` in `content/enemies.ts`.
-New element or status: `ELEMENT_EFFECTS` in `content/items.ts` and the matching
-branch in `src/game/sim/battle.ts`. Rarity ages, odds, timers: `content/rarity.ts`,
+New element or status: `ELEMENTS_MATH` in `content/combat.ts` and the matching
+branch in `src/game/sim/battle.ts`. Combat knobs (rating softness, caps, block
+reduction): `COMBAT` in `content/combat.ts`. Rarity ages, odds, timers: `content/rarity.ts`,
 `content/rift.ts`.
 
 ## Checks

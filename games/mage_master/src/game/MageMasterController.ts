@@ -21,6 +21,7 @@ import {
   enterLevel,
   failLevel,
   isValidSave,
+  migrateSave,
   pull,
   setSetting,
   withSettingsDefaults,
@@ -154,7 +155,9 @@ export function createMageMasterController(options: ControllerOptions = {}): Mag
   });
   const listeners = new Set<() => void>();
 
-  let save: SaveState = withSettingsDefaults(loadPersistedJson(storageKey, () => defaultSave(now()), isValidSave));
+  let save: SaveState = withSettingsDefaults(
+    migrateSave(loadPersistedJson(storageKey, () => defaultSave(now()), (parsed) => isValidSave(migrateSave(parsed)))),
+  );
   save = tick(save, now());
   const offlineResult = applyOffline(save, now());
   save = offlineResult.state;

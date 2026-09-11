@@ -1,7 +1,8 @@
 import { mulberry32 } from "@fabrikav2/kernel";
 import { ARENA } from "../../../content/economy.ts";
 import { LEVEL_SCALING, enemyDefinition, type EnemyKind } from "../../../content/enemies.ts";
-import { AOE, ELEMENT_EFFECTS, PROJECTILE_SPEED, WEAPON_REACH, type AttackPattern, type Element, type WeaponRange } from "../../../content/items.ts";
+import { COMBAT, ELEMENTS_MATH, blockChance, chainDamage, chillSlow, critChance, dodgeChance, exposeAmount } from "../../../content/combat.ts";
+import { AOE, PROJECTILE_SPEED, WEAPON_REACH, type AttackPattern, type Element, type WeaponRange } from "../../../content/items.ts";
 import { MAGES, type MageClass } from "../../../content/mages.ts";
 import { levelExponent, levelSpec, type LevelSpec, type StageSpec } from "../../../content/levels.ts";
 import type { StatBlock } from "../../../content/stats.ts";
@@ -57,7 +58,6 @@ function scaledEnemyStats(kind: EnemyKind, level: number, stage: number): { stat
     ...def.base,
     hp,
     atk: Math.round(def.base.atk * LEVEL_SCALING.atkPerLevel ** exponent * stageMult),
-    def: Math.round(def.base.def * LEVEL_SCALING.defPerLevel ** exponent),
   };
   return { stats, hp };
 }
@@ -206,24 +206,37 @@ export function createBattle(options: BattleOptions): Battle {
     emit({ type: "death", unitId: unit.id, loot: drops });
   };
 
+  /** Expose Damage Multiplier on the target: 1 + Expose Amount, from the strongest active mark. */
+  const exposeMult = (target: Unit): number => {
+    let amount = 0;
+    for (const s of target.statuses) if (s.kind === "expose" && s.amount) amount = Math.max(amount, s.amount);
+    return 1 + amount;
+  };
+
+  /**
+   * One swing, resolved in the workbook's order (How Combat Works, step 1):
+   * crit is already in `raw`; then Block (reduce), then Dodge (zero). Burn
+   * ticks and chain arcs are not swings (`avoidable` false): they land as-is.
+   * There is no armor: what lands is real damage, times the target's Expose.
+   */
   const applyDamage = (
     target: Unit,
     source: Unit | null,
     raw: number,
     element: Element | null,
     kind: "damage" | "burn" | "chain" | "aoe",
-    opts: { crit: boolean; allowDodge: boolean; pierce: number },
+    opts: { crit: boolean; avoidable: boolean },
   ): number => {
     if (!target.alive) return 0;
     const sourceId = source?.id ?? "world";
-    if (opts.allowDodge && rand() < target.stats.dodge) {
+    const blocked = opts.avoidable && rand() < blockChance(target.stats.block);
+    if (opts.avoidable && rand() < dodgeChance(target.stats.dodge)) {
       emit({ type: "dodge", targetId: target.id, sourceId });
       return 0;
     }
-    const blocked = opts.allowDodge && rand() < target.stats.block;
-    const effectiveDef = target.stats.def * (1 - opts.pierce);
-    let amount = raw * (100 / (100 + effectiveDef));
-    if (blocked) amount *= 0.5;
+    let amount = raw;
+    if (blocked) amount *= 1 - COMBAT.blockReduction;
+    amount *= exposeMult(target);
     amount = Math.max(MIN_DAMAGE, Math.round(amount));
     target.hp = Math.max(0, target.hp - amount);
     emit({ type: "hit", targetId: target.id, sourceId, amount, crit: opts.crit, blocked, element, kind });
@@ -231,25 +244,37 @@ export function createBattle(options: BattleOptions): Battle {
     return amount;
   };
 
-  const applyElement = (target: Unit, source: Unit | null, atk: number, element: Element | null): void => {
-    if (!element || !target.alive) return;
+  /** The element's status, scaled by the weapon's Elemental Damage (step 6). Lightning is handled at the hit. */
+  const applyElement = (target: Unit, source: Unit | null, elem: number, element: Element | null): void => {
+    if (!element || !target.alive || elem <= 0) return;
     if (element === "fire") {
-      const fx = ELEMENT_EFFECTS.fire;
+      const fx = ELEMENTS_MATH.fire;
       const existing = target.statuses.find((s) => s.kind === "burn");
-      const status: Status = existing ?? { kind: "burn", remaining: 0 };
-      status.remaining = fx.ticks * fx.tickSec;
-      status.perTick = Math.max(1, Math.round(atk * fx.atkRatioPerTick));
-      status.tickEvery = fx.tickSec;
-      status.nextTick = fx.tickSec;
+      const status: Status = existing ?? { kind: "burn", remaining: 0, stacks: 0, tickEvery: fx.tickSec, nextTick: fx.tickSec };
+      status.remaining = fx.durationSec;
+      status.stacks = Math.min(fx.maxStacks, (status.stacks ?? 0) + 1);
+      status.elem = Math.max(status.elem ?? 0, elem);
       status.sourceId = source?.id;
       if (!existing) target.statuses.push(status);
       emit({ type: "status", targetId: target.id, kind: "burn" });
     } else if (element === "ice") {
-      const fx = ELEMENT_EFFECTS.ice;
+      const fx = ELEMENTS_MATH.ice;
+      const slow = chillSlow(elem);
       const existing = target.statuses.find((s) => s.kind === "chill");
-      if (existing) existing.remaining = fx.durationSec;
-      else target.statuses.push({ kind: "chill", remaining: fx.durationSec, slow: fx.slow });
+      if (existing) {
+        existing.remaining = fx.durationSec;
+        existing.slow = Math.max(existing.slow ?? 0, slow);
+      } else target.statuses.push({ kind: "chill", remaining: fx.durationSec, slow });
       emit({ type: "status", targetId: target.id, kind: "chill" });
+    } else if (element === "arcane") {
+      const fx = ELEMENTS_MATH.arcane;
+      const amount = exposeAmount(elem);
+      const existing = target.statuses.find((s) => s.kind === "expose");
+      if (existing) {
+        existing.remaining = fx.durationSec;
+        existing.amount = Math.max(existing.amount ?? 0, amount);
+      } else target.statuses.push({ kind: "expose", remaining: fx.durationSec, amount });
+      emit({ type: "status", targetId: target.id, kind: "expose" });
     }
   };
 
@@ -258,41 +283,37 @@ export function createBattle(options: BattleOptions): Battle {
     source: Unit | null,
     target: Unit,
     atk: number,
-    critChance: number,
+    elem: number,
+    critRating: number,
     critDamage: number,
     element: Element | null,
     pattern: AttackPattern,
   ): void => {
     if (!target.alive) return;
-    const crit = rand() < critChance;
+    // Step 1: start with Attack Power; roll the crit; block and dodge follow inside applyDamage.
+    const crit = rand() < critChance(critRating);
     const power = crit ? atk * critDamage : atk;
-    const pierce = element === "arcane" ? ELEMENT_EFFECTS.arcane.defIgnored : 0;
     const primaryPos = { ...target.pos };
-    applyDamage(target, source, power, element, "damage", { crit, allowDodge: true, pierce });
-    applyElement(target, source, atk, element);
+    applyDamage(target, source, power, element, "damage", { crit, avoidable: true });
+    applyElement(target, source, elem, element);
 
     if (pattern === "aoe") {
       const foes = living(target.side).filter((u) => u.id !== target.id && dist(u.pos, primaryPos) <= AOE.radius);
       for (const foe of foes) {
-        applyDamage(foe, source, power * AOE.damageRatio, element, "aoe", { crit, allowDodge: true, pierce });
-        applyElement(foe, source, atk, element);
+        applyDamage(foe, source, power * AOE.damageRatio, element, "aoe", { crit, avoidable: true });
+        applyElement(foe, source, elem, element);
       }
     }
-    if (element === "lightning") {
-      const fx = ELEMENT_EFFECTS.lightning;
-      const others = living(target.side).filter((u) => u.id !== target.id && dist(u.pos, primaryPos) <= fx.radius);
-      let arc: Unit | null = null;
-      let arcD = Number.POSITIVE_INFINITY;
-      for (const u of others) {
-        const d = dist(u.pos, primaryPos);
-        if (d < arcD) {
-          arcD = d;
-          arc = u;
-        }
-      }
-      if (arc) {
+    if (element === "lightning" && elem > 0) {
+      // Chain: Elemental Damage × Chain Fraction arcs to the nearest OTHER enemies.
+      const fx = ELEMENTS_MATH.lightning;
+      const others = living(target.side)
+        .filter((u) => u.id !== target.id && dist(u.pos, primaryPos) <= fx.radius)
+        .sort((a, b) => dist(a.pos, primaryPos) - dist(b.pos, primaryPos))
+        .slice(0, fx.nearbyCount);
+      for (const arc of others) {
         emit({ type: "chain", fromId: target.id, toId: arc.id });
-        applyDamage(arc, source, power * fx.damageRatio, element, "chain", { crit: false, allowDodge: false, pierce });
+        applyDamage(arc, source, chainDamage(elem), element, "chain", { crit: false, avoidable: false });
       }
     }
   };
@@ -312,6 +333,7 @@ export function createBattle(options: BattleOptions): Battle {
         element: unit.element,
         pattern: unit.pattern,
         atk: unit.stats.atk,
+        elem: unit.stats.elem,
         critChance: unit.stats.critChance,
         critDamage: unit.stats.critDamage,
         speed,
@@ -322,7 +344,7 @@ export function createBattle(options: BattleOptions): Battle {
       emit({ type: "projectile", projectileId: projectile.id, sourceId: unit.id, targetId: target.id, element: unit.element, seconds });
       return;
     }
-    resolveHit(unit, target, unit.stats.atk, unit.stats.critChance, unit.stats.critDamage, unit.element, unit.pattern);
+    resolveHit(unit, target, unit.stats.atk, unit.stats.elem, unit.stats.critChance, unit.stats.critDamage, unit.element, unit.pattern);
   };
 
   const bodyRadius = (unit: Unit): number => ARENA.bodyRadius * unit.scale;
@@ -349,7 +371,9 @@ export function createBattle(options: BattleOptions): Battle {
         if (s.nextTick <= 0 && unit.alive) {
           s.nextTick += s.tickEvery;
           const source = s.sourceId ? (units.find((u) => u.id === s.sourceId) ?? null) : null;
-          applyDamage(unit, source, s.perTick ?? 1, "fire", "burn", { crit: false, allowDodge: false, pierce: 1 });
+          // Burn Damage per Second = Elemental Damage × Burn Rate × Stacks (one tick per second).
+          const perTick = (s.elem ?? 0) * ELEMENTS_MATH.fire.burnRate * (s.stacks ?? 1) * s.tickEvery;
+          applyDamage(unit, source, perTick, "fire", "burn", { crit: false, avoidable: false });
         }
       }
     }
@@ -413,7 +437,7 @@ export function createBattle(options: BattleOptions): Battle {
       const source = units.find((u) => u.id === p.sourceId) ?? null;
       const target = units.find((u) => u.id === p.targetId);
       if (!target || !target.alive) continue;
-      resolveHit(source, target, p.atk, p.critChance, p.critDamage, p.element, p.pattern);
+      resolveHit(source, target, p.atk, p.elem, p.critChance, p.critDamage, p.element, p.pattern);
     }
   };
 

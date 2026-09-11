@@ -18,7 +18,8 @@ import { enemyDefinition, type EnemyKind } from "../../content/enemies.ts";
 import { MAGE_CLASSES, type MageClass } from "../../content/mages.ts";
 import { MAX_RIFT_TIER, PULL_COST_CRYSTALS, oddsFor, riftTier } from "../../content/rift.ts";
 import { GEM_GROUP, gemsForProductId, type GemGrant } from "../../content/shop.ts";
-import { PERCENT_STATS, STAT_KEYS, type StatKey } from "../../content/stats.ts";
+import { blockChance, critChance, dodgeChance } from "../../content/combat.ts";
+import { PERCENT_STATS, RATING_STATS, STAT_KEYS, type StatKey } from "../../content/stats.ts";
 import { armorIcon, assetUrls, chromeIcon, currencyIcon, frame, lettering, magesIcon, riftPortal, scene, shopIcon, shopNavIcon, unitSprite, weaponIcon } from "../../design/assets.ts";
 import { copy, fill, type CopyKey } from "../../design/copy.ts";
 import { createBattleRenderer, type BattleRenderer } from "../battle/BattleScene.ts";
@@ -94,6 +95,12 @@ function formatStat(key: StatKey, value: number): string {
   if (key === "atkSpeed") return `${value.toFixed(2)}/s`;
   if (key === "hpRegen") return `${value.toFixed(1)}/s`;
   return String(Math.round(value));
+}
+
+/** A mage's total rating, with the chance it buys (rating / (rating + softness), capped). */
+function formatRating(key: StatKey, value: number): string {
+  const chance = key === "critChance" ? critChance(value) : key === "dodge" ? dodgeChance(value) : blockChance(value);
+  return fill("stat.rating", { points: formatStat(key, value), percent: String(Math.round(chance * 100)) });
 }
 
 function pageFor(surface: Surface): Page {
@@ -496,6 +503,7 @@ export function mountMageMasterScreen(opts: MageMasterScreenOptions): MageMaster
       stats.append(row);
     };
     addRow(item.primary.stat, item.primary.value, true);
+    if (item.elemental) addRow(item.elemental.stat, item.elemental.value, true);
     for (const s of item.substats) addRow(s.stat, s.value, false);
     card.append(stats);
     const power = el("p", "mm-item__power", `${copy["mages.power"]} ${itemPower(item)}${compare ? ` (${itemPower(compare)})` : ""}`);
@@ -597,7 +605,8 @@ export function mountMageMasterScreen(opts: MageMasterScreenOptions): MageMaster
       const grid = el("dl", "mm-mage__stats");
       for (const key of STAT_KEYS) {
         const row = el("div", "mm-mage__stat");
-        row.append(el("dt", undefined, copy[`stat.${key}`]), el("dd", undefined, formatStat(key, stats[key])));
+        const shown = RATING_STATS.has(key) ? formatRating(key, stats[key]) : formatStat(key, stats[key]);
+        row.append(el("dt", undefined, copy[`stat.${key}`]), el("dd", undefined, shown));
         grid.append(row);
       }
       card.append(grid);

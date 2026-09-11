@@ -16,22 +16,27 @@ export interface MageDefinition {
 
 /**
  * The fixed party. Mages never level; all power = base + equipped gear.
- * Tank buys time (HP/DEF/block), Warrior spends it (ATK/speed/crit), Support
+ * Tank buys time (HP/block), Warrior spends it (ATK/speed/crit), Support
  * refills it (regen + heal pulse).
+ *
+ * Crit, dodge and block are RATING points (combat math v0.2): chance =
+ * rating / (rating + 100), capped. The ratings below reproduce the class
+ * chances the previous percent-based tuning had (25 → 20% block, 33 → 25%
+ * crit). Health absorbs the removed DEF stat (HP × (100 + DEF) / 100).
  */
 export const MAGES: readonly MageDefinition[] = [
   {
     id: "tank",
     nameKey: "mage.tank.name",
     base: {
-      hp: 900,
+      hp: 1305,
       hpRegen: 4,
-      dodge: 0.03,
-      block: 0.2,
+      dodge: 3,
+      block: 25,
       atk: 30,
-      def: 45,
+      elem: 0,
       atkSpeed: 0.8,
-      critChance: 0.05,
+      critChance: 5,
       critDamage: 1.5,
       moveSpeed: 90,
     },
@@ -41,14 +46,14 @@ export const MAGES: readonly MageDefinition[] = [
     id: "warrior",
     nameKey: "mage.warrior.name",
     base: {
-      hp: 420,
+      hp: 470,
       hpRegen: 1,
-      dodge: 0.1,
+      dodge: 11,
       block: 0,
       atk: 75,
-      def: 12,
+      elem: 0,
       atkSpeed: 1.5,
-      critChance: 0.25,
+      critChance: 33,
       critDamage: 2,
       moveSpeed: 130,
     },
@@ -58,14 +63,14 @@ export const MAGES: readonly MageDefinition[] = [
     id: "support",
     nameKey: "mage.support.name",
     base: {
-      hp: 600,
+      hp: 750,
       hpRegen: 6,
-      dodge: 0.06,
-      block: 0.08,
+      dodge: 6,
+      block: 9,
       atk: 45,
-      def: 25,
+      elem: 0,
       atkSpeed: 1,
-      critChance: 0.1,
+      critChance: 11,
       critDamage: 1.6,
       moveSpeed: 110,
     },

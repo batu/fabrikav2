@@ -1,6 +1,7 @@
-import { ELEMENTS, PATTERNS, PRIMARY_BASE, PRIMARY_ROLL, RANGES, STARTER_WEAPON, SUBSTAT_POOL, type AttackPattern, type Element, type ItemSlot, type WeaponRange } from "../../../content/items.ts";
+import { blockChance, critChance, dodgeChance } from "../../../content/combat.ts";
+import { ELEMENTS, PATTERNS, PRIMARY_BASE, RANGES, STARTER_WEAPON, SUBSTAT_POOL, WEAPON_ELEMENTAL_BASE, type AttackPattern, type Element, type ItemSlot, type WeaponRange } from "../../../content/items.ts";
 import { MAGE_CLASSES, mageDefinition, type MageClass } from "../../../content/mages.ts";
-import { RARITIES, rarityDefinition, type Rarity } from "../../../content/rarity.ts";
+import { RARITIES, RARITY_RULES, rarityDefinition, type Rarity } from "../../../content/rarity.ts";
 import { addStats, type StatBlock, type StatKey } from "../../../content/stats.ts";
 
 export interface ItemStat {
@@ -20,6 +21,8 @@ export interface Item {
   readonly cls: MageClass;
   readonly rarity: Rarity;
   readonly primary: ItemStat;
+  /** Weapons only: the Elemental Damage stat that drives the weapon's element. */
+  readonly elemental?: ItemStat;
   readonly substats: readonly ItemStat[];
   /** Present on weapons only. */
   readonly weapon?: WeaponTraits;
@@ -46,32 +49,38 @@ export interface RollItemOptions {
   readonly traits?: WeaponTraits;
 }
 
+/** A stat rolls between Roll Floor × ceiling and the ceiling (Rarity & Gear tab). */
+function rollInBand(rand: Rng, ceiling: number): number {
+  return ceiling * (RARITY_RULES.rollFloor + rand() * (1 - RARITY_RULES.rollFloor));
+}
+
 export function rollItem(rand: Rng, opts: RollItemOptions): Item {
   const rarity = rarityDefinition(opts.rarity);
   const base = PRIMARY_BASE[opts.slot];
-  const roll = 1 - PRIMARY_ROLL + rand() * PRIMARY_ROLL * 2;
-  const primary: ItemStat = { stat: base.stat, value: Math.round(base.value * rarity.magnitude * roll) };
+  const primary: ItemStat = { stat: base.stat, value: Math.round(rollInBand(rand, base.value * rarity.magnitude)) };
+  const elemental: ItemStat | undefined =
+    opts.slot === "weapon" ? { stat: "elem", value: Math.round(rollInBand(rand, WEAPON_ELEMENTAL_BASE * rarity.magnitude)) } : undefined;
   const pool = [...SUBSTAT_POOL[opts.slot]];
   const substats: ItemStat[] = [];
   for (let i = 0; i < rarity.substats && pool.length > 0; i += 1) {
     const index = Math.floor(rand() * pool.length);
     const spec = pool.splice(index, 1)[0];
     if (!spec) break;
-    const raw = spec.min + rand() * (spec.max - spec.min);
-    const value = spec.scales ? Math.round(raw * rarity.magnitude) : round2(raw);
-    substats.push({ stat: spec.stat, value });
+    const raw = rollInBand(rand, spec.scales ? spec.base * rarity.magnitude : spec.base);
+    substats.push({ stat: spec.stat, value: spec.scales ? Math.round(raw) : round2(raw) });
   }
   const weapon: WeaponTraits | undefined =
     opts.slot === "weapon"
       ? (opts.traits ?? { range: pick(rand, RANGES), pattern: pick(rand, PATTERNS), element: pick(rand, ELEMENTS) })
       : undefined;
-  return weapon
-    ? { id: opts.id, slot: opts.slot, cls: opts.cls, rarity: opts.rarity, primary, substats, weapon }
+  return weapon && elemental
+    ? { id: opts.id, slot: opts.slot, cls: opts.cls, rarity: opts.rarity, primary, elemental, substats, weapon }
     : { id: opts.id, slot: opts.slot, cls: opts.cls, rarity: opts.rarity, primary, substats };
 }
 
 export function itemStats(item: Item): Partial<StatBlock> {
   const out: Partial<Record<StatKey, number>> = { [item.primary.stat]: item.primary.value };
+  if (item.elemental) out[item.elemental.stat] = (out[item.elemental.stat] ?? 0) + item.elemental.value;
   for (const s of item.substats) out[s.stat] = (out[s.stat] ?? 0) + s.value;
   return out;
 }
@@ -86,7 +95,10 @@ export function mageStats(cls: MageClass, loadout: Loadout): StatBlock {
   return addStats(addStats(base, itemStats(loadout.weapon)), itemStats(loadout.armor));
 }
 
-/** A rough single-number power score for comparisons in the UI. */
+/**
+ * A rough single-number power score for comparisons in the UI. Ratings score
+ * by the chance they buy (so the diminishing returns show), not by raw points.
+ */
 export function itemPower(item: Item): number {
   const stats = itemStats(item);
   let score = 0;
@@ -95,11 +107,11 @@ export function itemPower(item: Item): number {
       case "atk":
         score += value * 4;
         break;
+      case "elem":
+        score += value * 1.2;
+        break;
       case "hp":
         score += value * 0.5;
-        break;
-      case "def":
-        score += value * 2;
         break;
       case "hpRegen":
         score += value * 6;
@@ -108,14 +120,16 @@ export function itemPower(item: Item): number {
         score += value * 120;
         break;
       case "critChance":
-        score += value * 200;
+        score += critChance(value) * 200;
         break;
       case "critDamage":
         score += value * 80;
         break;
       case "dodge":
+        score += dodgeChance(value) * 150;
+        break;
       case "block":
-        score += value * 150;
+        score += blockChance(value) * 150;
         break;
       case "moveSpeed":
         score += value * 0.5;

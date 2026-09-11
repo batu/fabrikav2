@@ -4,6 +4,7 @@ import { MAGE_CLASSES, type MageClass } from "../../../content/mages.ts";
 import { rarityDefinition } from "../../../content/rarity.ts";
 import { MAX_RIFT_TIER, PULL_COST_CRYSTALS, SKIP_SECONDS_PER_GEM, riftTier } from "../../../content/rift.ts";
 import type { Loot } from "../sim/types.ts";
+import { mulberry32 } from "@fabrikav2/kernel";
 import { rarityFromOdds, rollItem, starterLoadouts, type Item, type Loadout, type Rng } from "./items.ts";
 
 export interface SaveSettings {
@@ -14,8 +15,11 @@ export interface SaveSettings {
   readonly minimalUi: boolean;
 }
 
+/** Bumped to 2 with combat math v0.2: items carry ratings and Elemental Damage, no DEF. */
+export const SAVE_VERSION = 2;
+
 export interface SaveState {
-  readonly version: 1;
+  readonly version: typeof SAVE_VERSION;
   readonly energy: number;
   /** Epoch ms of the last energy accrual. */
   readonly energyAt: number;
@@ -35,7 +39,7 @@ export interface SaveState {
 
 export function defaultSave(now: number): SaveState {
   return {
-    version: 1,
+    version: SAVE_VERSION,
     energy: STARTING_BALANCE.energy,
     energyAt: now,
     gold: STARTING_BALANCE.gold,
@@ -57,9 +61,30 @@ export function withSettingsDefaults(state: SaveState): SaveState {
   return { ...state, settings: { ...defaultSave(state.lastSeenAt).settings, ...state.settings } };
 }
 
+/**
+ * Version-1 saves (percent chances, DEF substats, no Elemental Damage) keep
+ * their progress: every stored item is re-rolled at its own slot, class,
+ * rarity and weapon traits under the current stat model.
+ */
+type AnyVersionSave = Partial<Omit<SaveState, "version">> & { readonly version?: number };
+
+export function migrateSave<T extends AnyVersionSave>(value: T): T {
+  if (value.version !== 1 || !value.loadout) return value;
+  const rand = mulberry32(value.pulls ?? 0);
+  const reroll = (item: Item): Item =>
+    rollItem(rand, { slot: item.slot, cls: item.cls, rarity: item.rarity, id: item.id, ...(item.weapon ? { traits: item.weapon } : {}) });
+  const loadout = {} as Record<MageClass, Loadout>;
+  for (const cls of MAGE_CLASSES) {
+    const l = value.loadout[cls];
+    if (!l?.weapon || !l.armor) return value;
+    loadout[cls] = { weapon: reroll(l.weapon), armor: reroll(l.armor) };
+  }
+  return { ...value, version: SAVE_VERSION, loadout, pending: value.pending ? reroll(value.pending) : null } as T;
+}
+
 export function isValidSave(value: Partial<SaveState>): boolean {
   return (
-    value.version === 1 &&
+    value.version === SAVE_VERSION &&
     typeof value.energy === "number" &&
     typeof value.gold === "number" &&
     typeof value.crystals === "number" &&
