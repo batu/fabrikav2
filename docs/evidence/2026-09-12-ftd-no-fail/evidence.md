@@ -22,6 +22,7 @@ The production archive's gameplay payload preserves play after twenty empty taps
 - Source: `2e63afa5f50ae0c8e89a95b30cf07f60df3624c1`.
 - Native identity: `com.baseardahan.hiddenobj`, 1.0.10 build 40; iPhone 12, device `2D894791-A5A3-58BE-9C88-AE0AF08B8C09`.
 - XCUITest: twenty empty taps preserve `0/31`; hearts stay absent; a correct tap reaches `1/31`; Settings opens. Initial harness and production archive replays both pass.
+- Additional production check: returning from Settings preserves `1/31`, and a second valid dog tap reaches `2/31` (`settings-return.log`, `settings-return-captures/`).
 - The development export of the production archive and the App Store archive have identical web payloads: 317 files. The installed-app query confirms 1.0.10 (40).
 - All 442 FTD unit tests pass under Node 22 with canonical dependency patches. Typecheck and game ESLint pass. Added tests exercise default no-penalty behavior, HUD visibility, and re-enabled penalties.
 - Firebase project `find-the-dog-basegamelab`, template version 3: live `gameplay_mistakes_enabled=false`; structural comparison proves every other parameter/group remained unchanged. The false local default also covers unavailable configuration.
@@ -47,4 +48,6 @@ Relevant files: `release-no-fail.log`, `release-no-fail.xcresult`, `release-capt
 
 ## Next Action
 
-Complete App Store processing and submission readback; retain provider receipts separately from gameplay verification.
+App Store submission completed at 2026-09-12 11:08 UTC. Version 1.0.10 (40), build ID `85ef90c0-2e24-45dc-8e51-52181d93e75b`, and submission `4c2312e8-7ccc-4ada-a600-de40c2c6f559` read back as `WAITING_FOR_REVIEW`. Release type remains `AFTER_APPROVAL`. Provider receipts are `dog/submission-final-readback.json` and `dog/version-final-readback.json` under the private evidence root.
+
+Source PR: https://github.com/batu/fabrikav2/pull/75. Merge remains subject to repository checks; no audit bypass is authorized or applied.
