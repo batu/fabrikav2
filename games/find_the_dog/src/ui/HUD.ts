@@ -59,43 +59,59 @@ function openLegalLink(key: keyof LegalLinks): void {
   openExternalUrl(links[key]);
 }
 
-/** Handle a tap on the hint button when hintsRemaining === 0 but a rewarded ad is available. */
-async function handleRewardedHintTap(hintBtn: HTMLButtonElement): Promise<void> {
+/** The displayed offer is fixed; only a successful, locally settled ad earns hints. */
+async function handleRewardedHintTap(hintBtn: HTMLButtonElement, amount: number, useImmediately: boolean): Promise<void> {
   if (hintBtn.dataset.pending === '1') return;
+  const offered = currentHintBoosterOffers().options.find((option) => option.kind === 'rewardedAd');
+  if (offered?.status !== 'available') return;
+  const finish = gameState.beginRewardedHint(amount);
+  if (!finish) return;
+  const callback = useImmediately ? hintCallback : null;
   hintBtn.dataset.pending = '1';
   const originalLabel = hintBtn.innerHTML;
   hintBtn.innerHTML = `${rewardedAdIconMarkup('hint-booster-ad-icon')}<span class="hint-booster-action-copy"><span>Loading...</span><small>Opening ad</small></span>`;
   hintBtn.disabled = true;
   try {
     const { granted } = await showRewardedAdForEconomy();
-    if (granted) {
-      const source = document.getElementById('hint-booster-watch-ad') ?? hintBtn;
-      const hintGranted = trackRewardedWatchedAfterGrant(
-        { granted },
-        'hint_button',
-        () => gameState.grantRewardedHint(),
-      );
-      if (!hintGranted) return;
-      playHint();
-      void animateHintsToBalance({ amount: 1, source });
-      void analytics.rewardedAdGranted({ placement: 'hint_button' });
-      void analytics.resourceChanged({
-        flow_type: 'source',
-        currency: 'hints',
-        amount: 1,
-        item_type: 'rewarded',
-        item_id: 'rewarded_hint',
-      });
-      hintCallback?.();
-      void analytics.settingsChanged({ setting_name: 'rewardedHintGranted', new_value: String(gameState.rewardedHintsToday) });
-    }
+    let grantedAmount = 0;
+    const hintGranted = trackRewardedWatchedAfterGrant(
+      { granted },
+      'hint_button',
+      () => { grantedAmount = finish(true); return grantedAmount > 0; },
+    );
+    if (!hintGranted) return;
+    playHint();
+    void animateHintsToBalance({ amount: grantedAmount, source: hintBtn });
+    void analytics.rewardedAdGranted({ placement: 'hint_button' });
+    void analytics.resourceChanged({
+      flow_type: 'source', currency: 'hints', amount: grantedAmount,
+      item_type: 'rewarded', item_id: 'rewarded_hint',
+    });
+    // Do not spend the earned hint in a different scene after asynchronous navigation.
+    if (callback && callback === hintCallback) callback();
+    void analytics.settingsChanged({ setting_name: 'rewardedHintGranted', new_value: String(gameState.rewardedHintsToday) });
+  } catch {
+    // A rejected native show is a failed attempt, never a reward.
   } finally {
+    finish(false);
     delete hintBtn.dataset.pending;
     hintBtn.innerHTML = originalLabel;
+    hintBtn.disabled = false;
     updateHUD(lastKnownTotalDogs, lastKnownRestorationActive);
-    // Preload the next one so a rapid second earn is still fast.
+    const page = document.getElementById('home-page-overlay');
+    if (page) renderPageShopProducts(page);
     schedulePreloadIfRewardedPathAvailable();
   }
+}
+
+function currentHintBoosterOffers(): ReturnType<typeof buildHintBoosterOffers> {
+  return buildHintBoosterOffers({
+    hints: gameState.hintsRemaining,
+    coins: gameState.coinBalance,
+    adsEnabled: gameState.settings.adsEnabled,
+    hasNoAdsEntitlement: gameState.hasNoAdsEntitlement,
+    rewardedAdAvailable: gameState.canStartRewardedHint(),
+  });
 }
 
 export function initHUD(): void {
@@ -268,13 +284,7 @@ function showHintBoosterModal(): void {
   const overlay = document.getElementById('hud-overlay');
   if (!overlay || document.getElementById('hint-booster-modal')) return;
 
-  const offers = buildHintBoosterOffers({
-    hints: gameState.hintsRemaining,
-    coins: gameState.coinBalance,
-    adsEnabled: gameState.settings.adsEnabled,
-    hasNoAdsEntitlement: gameState.hasNoAdsEntitlement,
-    rewardedAdAvailable: !gameState.isRewardedHintCapped(),
-  });
+  const offers = currentHintBoosterOffers();
   const bundle = offers.options.find((option) => option.kind === 'coinBundle');
   const coinSingle = offers.options.find((option) => option.kind === 'coinSingle');
   const rewardedAd = offers.options.find((option) => option.kind === 'rewardedAd');
@@ -302,7 +312,7 @@ function showHintBoosterModal(): void {
             ${rewardedAdIconMarkup('hint-booster-ad-icon')}
             <span class="hint-booster-action-copy">
               <span>Watch Ad</span>
-              <small>+${rewardedAd.hintAmount} hint</small>
+              <small>+${rewardedAd.hintAmount} ${rewardedAd.hintAmount === 1 ? 'hint' : 'hints'}</small>
             </span>
           </button>
         ` : ''}
@@ -389,7 +399,7 @@ function showHintBoosterModal(): void {
   modal.querySelector('#hint-booster-watch-ad')?.addEventListener('click', () => {
     const button = modal.querySelector<HTMLButtonElement>('#hint-booster-watch-ad');
     if (!button || rewardedAd?.status !== 'available') return;
-    void handleRewardedHintTap(button).finally(() => closeHintBoosterModal());
+    void handleRewardedHintTap(button, rewardedAd.hintAmount, true).finally(() => closeHintBoosterModal());
   });
   modal.querySelector('#hint-booster-shop')?.addEventListener('click', () => {
     closeHintBoosterModal();
@@ -781,8 +791,27 @@ function renderGridCard(
   return wrapper;
 }
 
+function renderShopRewardedHint(page: HTMLElement): void {
+  const section = page.querySelector('#shop-page-hints');
+  if (!section) return;
+  const existing = section.querySelector<HTMLButtonElement>('#shop-watch-ad-hint');
+  if (existing?.dataset.pending === '1') return;
+  existing?.remove();
+  const offer = currentHintBoosterOffers().options.find((option) => option.kind === 'rewardedAd');
+  if (!offer) return;
+  const button = document.createElement('button');
+  button.id = 'shop-watch-ad-hint';
+  button.className = 'hint-booster-secondary rewarded-ad-button';
+  button.type = 'button';
+  button.disabled = offer.status !== 'available';
+  button.innerHTML = `${rewardedAdIconMarkup('hint-booster-ad-icon')}<span class="hint-booster-action-copy"><span>Watch Ad</span><small>+${offer.hintAmount} ${offer.hintAmount === 1 ? 'hint' : 'hints'}</small></span>`;
+  button.addEventListener('click', () => { void handleRewardedHintTap(button, offer.hintAmount, false); });
+  section.appendChild(button);
+}
+
 function renderPageShopProducts(page: HTMLElement): void {
   updateShopHeaderBalances(page);
+  renderShopRewardedHint(page);
   const iapSnapshot = iapService.snapshot();
   // Mirror the old modal renderer: while a native store operation is in flight,
   // keep polling so purchase buttons re-enable once it clears (the idle/init
