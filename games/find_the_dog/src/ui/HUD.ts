@@ -1,5 +1,6 @@
 import { Capacitor } from '@capacitor/core';
 import { gameState } from '../core/GameState';
+import { remoteConfigService } from '../config/RemoteConfigService';
 import { GAMEPLAY } from '../core/Constants';
 import { playUITap, playHint, setMusicEnabled, setSoundEffectsEnabled } from '../audio/AudioManager';
 import { syncAmbientMusicPreference } from '../audio/AmbientManager';
@@ -107,7 +108,7 @@ export function initHUD(): void {
     <div class="hud-top-bar">
       <div class="hud-left">
         <div id="dog-counter" class="hud-pill">🐾 <span class="count">0/0</span></div>
-        <div id="hearts" class="hud-pill" aria-label="Lives"></div>
+        <div id="hearts" class="hud-pill" aria-label="Lives" style="display: ${remoteConfigService.value('gameplayMistakesEnabled') ? 'flex' : 'none'}"></div>
       </div>
       <div class="hud-right">
         <div id="coin-pill" class="hud-pill" data-economy-target="coins" aria-label="Coin balance">
@@ -207,6 +208,7 @@ export function updateHUD(totalDogs: number, restorationActive: boolean = false)
   // Hearts
   const heartsEl = document.getElementById('hearts');
   if (heartsEl) {
+    heartsEl.style.display = remoteConfigService.value('gameplayMistakesEnabled') ? 'flex' : 'none';
     const hearts: string[] = [];
     for (let i = 0; i < GAMEPLAY.LIVES_PER_LEVEL; i++) {
       if (i < gameState.lives) {
