@@ -4,9 +4,10 @@ import { gameState } from '../core/GameState';
 import { GAMEPLAY } from '../core/Constants';
 import { playUITap, playHint, setMusicEnabled, setSoundEffectsEnabled } from '../audio/AudioManager';
 import { syncAmbientMusicPreference } from '../audio/AmbientManager';
-import { analytics } from '../analytics/AnalyticsService';
+import { analytics, type OfferOutcomeParams } from '../analytics/AnalyticsService';
 import { trackRewardedWatchedAfterGrant } from '../attribution/RewardedAttribution';
-import { adService, showRewardedAdForEconomy } from '../ads/Service';
+import { adService } from '../ads/Service';
+import { economyContext, showTrackedEconomyReward } from '../analytics/EconomyTelemetry';
 import { iapService, type IapRestoreResult, type IapServiceState, type IapSnapshot, type IapStoreProductSnapshot } from '../shop/IapService';
 import { buildHintBoosterOffers } from '../shop/HintBoosterOffers';
 import { buildFullShopCatalog, buildShopCatalog, type ShopCatalogProduct } from '../shop/ProductCatalog';
@@ -69,7 +70,7 @@ async function handleRewardedHintTap(hintBtn: HTMLButtonElement): Promise<void> 
   hintBtn.innerHTML = `${rewardedAdIconMarkup('hint-booster-ad-icon')}<span class="hint-booster-action-copy"><span>Loading...</span><small>Opening ad</small></span>`;
   hintBtn.disabled = true;
   try {
-    const { granted } = await showRewardedAdForEconomy();
+    const { granted } = await showTrackedEconomyReward('hint_button');
     if (granted) {
       const source = document.getElementById('hint-booster-watch-ad') ?? hintBtn;
       const hintGranted = trackRewardedWatchedAfterGrant(
@@ -286,6 +287,16 @@ function showHintBoosterModal(): void {
   const coinSingle = offers.options.find((option) => option.kind === 'coinSingle');
   const rewardedAd = offers.options.find((option) => option.kind === 'rewardedAd');
   const shopTopUp = offers.options.find((option) => option.kind === 'shopTopUp');
+  let outcomeRecorded = false;
+  const recordOutcome = (offerType: OfferOutcomeParams['offer_type'], outcome: OfferOutcomeParams['outcome']) => {
+    if (outcomeRecorded) return;
+    outcomeRecorded = true;
+    void analytics.offerOutcome({ offer_type: offerType, placement: 'hint_button', outcome, ...economyContext() });
+  };
+  const decline = () => {
+    recordOutcome('hint_booster', 'declined');
+    closeHintBoosterModal();
+  };
 
   const modal = document.createElement('div');
   modal.id = 'hint-booster-modal';
@@ -330,11 +341,12 @@ function showHintBoosterModal(): void {
   `;
 
   modal.addEventListener('click', (event) => {
-    if (event.target === modal) closeHintBoosterModal();
+    if (event.target === modal) decline();
   });
-  modal.querySelector('#hint-booster-close')?.addEventListener('click', closeHintBoosterModal);
+  modal.querySelector('#hint-booster-close')?.addEventListener('click', decline);
   modal.querySelector('#hint-booster-buy-bundle')?.addEventListener('click', () => {
     if (!bundle || bundle.status !== 'available') return;
+    recordOutcome('coinBundle', 'selected');
     const spent = gameState.spendCoins(bundle.coinPrice, 'shop');
     if (!spent) {
       updateHUD(lastKnownTotalDogs, lastKnownRestorationActive);
@@ -365,6 +377,7 @@ function showHintBoosterModal(): void {
   });
   modal.querySelector('#hint-booster-buy-single')?.addEventListener('click', () => {
     if (!coinSingle || coinSingle.status !== 'available') return;
+    recordOutcome('coinSingle', 'selected');
     const spent = gameState.spendCoins(coinSingle.coinPrice, 'shop');
     if (!spent) {
       updateHUD(lastKnownTotalDogs, lastKnownRestorationActive);
@@ -396,14 +409,25 @@ function showHintBoosterModal(): void {
   modal.querySelector('#hint-booster-watch-ad')?.addEventListener('click', () => {
     const button = modal.querySelector<HTMLButtonElement>('#hint-booster-watch-ad');
     if (!button || rewardedAd?.status !== 'available') return;
+    if (button.dataset.pending === '1') return;
+    recordOutcome('rewardedAd', 'selected');
     void handleRewardedHintTap(button).finally(() => closeHintBoosterModal());
   });
   modal.querySelector('#hint-booster-shop')?.addEventListener('click', () => {
+    recordOutcome('shopTopUp', 'selected');
     closeHintBoosterModal();
     openPage('shop', { scrollTo: 'hints' });
   });
 
   overlay.appendChild(modal);
+  const context = economyContext();
+  void analytics.economySnapshot({ reason: 'hint_offer', ...context });
+  for (const option of offers.options) {
+    void analytics.offerShown({
+      offer_type: option.kind, placement: 'hint_button', status: option.status,
+      coin_price: option.coinPrice, hint_amount: option.hintAmount, ...context,
+    });
+  }
 }
 
 function closeHintBoosterModal(): void {

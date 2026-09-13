@@ -195,6 +195,10 @@ function canonicalEventIdForDesignEvent(eventId: string): CanonicalAnalyticsEven
   if (normalized === 'app:foreground') return 'app_foreground';
   if (normalized === 'dog:found') return 'dog_found';
   if (normalized === 'hint:used') return 'hint_used';
+  if (normalized === 'offer:shown') return 'offer_shown';
+  if (normalized === 'offer:outcome') return 'offer_outcome';
+  if (normalized === 'economy:snapshot') return 'economy_snapshot';
+  if (normalized === 'rewarded:attempt') return 'rewarded_attempt';
   if (normalized === 'store:product_tap') return 'product_tapped';
   if (normalized === 'purchase:initiated') return 'purchase_initiated';
   if (normalized === 'purchase:sheet_shown') return 'purchase_sheet_shown';

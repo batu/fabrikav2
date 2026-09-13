@@ -1,6 +1,7 @@
 import { setMusicPausedForAd } from '../audio/AudioManager';
 import type { AdProvider } from './AdProvider';
 import { DisabledAdProvider } from './DisabledAdProvider';
+import { areAutomaticAdsAllowed } from './sessionAdPolicy';
 
 type ComposedAdProvider = Omit<AdProvider, 'enabled'> & { readonly enabled?: boolean };
 
@@ -31,14 +32,17 @@ class CompatibleAdProvider implements AdProvider {
   }
 
   preloadInterstitial(): Promise<void> {
+    if (!areAutomaticAdsAllowed()) return Promise.resolve();
     return this.delegate.preloadInterstitial();
   }
 
   maybeShowInterstitial(options?: Parameters<AdProvider['maybeShowInterstitial']>[0]): Promise<boolean> {
+    if (!areAutomaticAdsAllowed()) return Promise.resolve(false);
     return this.delegate.maybeShowInterstitial(options);
   }
 
   async showBanner(): Promise<boolean> {
+    if (!areAutomaticAdsAllowed()) return false;
     if (this.bannerVisible) return true;
     this.bannerVisible = await this.delegate.showBanner();
     return this.bannerVisible;

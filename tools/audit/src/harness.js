@@ -61,6 +61,8 @@ export function lintHarness(root) {
   const violations = [];
 
   for (const gameDir of listDirs(join(root, 'games'))) {
+    // Shared rendering utilities have no standalone gameplay harness.
+    if (gameDir === join(root, 'games', 'shared')) continue;
     const game = rel(root, gameDir);
     const srcFiles = walkFiles(join(gameDir, 'src'), { exts: SOURCE_EXTS });
 
