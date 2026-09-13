@@ -13,7 +13,8 @@ import { disposeLevelUrls, getLevelIndex, loadLevel, loadLevelForProgression, re
 import type { LevelData, LevelDog, LevelSection } from '../data/levels';
 import { playFind, playWrongTap, preloadBirdFoundSounds } from '../audio/AudioManager';
 import { crossfadeTo as crossfadeAmbient, presetForLevel } from '../audio/AmbientManager';
-import { adService, showRewardedAdForEconomy } from '../ads/Service';
+import { adService } from '../ads/Service';
+import { showTrackedEconomyReward, trackEconomySnapshot } from '../analytics/EconomyTelemetry';
 import { updateLevelBanner } from '../ads/levelBannerPolicy';
 import { areAutomaticAdsAllowed } from '../ads/sessionAdPolicy';
 import { trackRewardedWatchedIfGranted } from '../attribution/RewardedAttribution';
@@ -725,6 +726,7 @@ export class GameScene extends Phaser.Scene {
       level_name: level.name,
       ...(levelAttribution ?? {}),
     });
+    trackEconomySnapshot('level_start');
   }
 
   private async trackLevelComplete(timeSeconds: number): Promise<void> {
@@ -759,6 +761,7 @@ export class GameScene extends Phaser.Scene {
   private trackHintUsedAnalytics(): void {
     if (!this.level) return;
     void analytics.hintUsed(buildHintUsedAnalyticsParams(this.level, gameState.foundDogIds.size));
+    trackEconomySnapshot('hint_used');
   }
 
   private resolveCurrentLevelAnalyticsAttribution(level: LevelData): AnalyticsLevelAttribution | null {
@@ -1802,7 +1805,7 @@ export class GameScene extends Phaser.Scene {
         coinBalance: gameState.coinBalance,
         claimX2Available,
         onClaimX2: async () => {
-          const adResult = await showRewardedAdForEconomy();
+          const adResult = await showTrackedEconomyReward('level_complete_double');
           if (!adResult.granted) {
             void analytics.settingsChanged({ setting_name: 'claimX2', new_value: 'ad-unavailable' });
             return { granted: false, coinBalance: gameState.coinBalance };

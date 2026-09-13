@@ -14,6 +14,7 @@ import type { PurchaseUnfulfilledOutcome } from '../shop/PurchaseFulfillment';
 import type { AnalyticsLevelAttribution } from './AnalyticsEventContract';
 import { bootstrapStorage } from '../platform/bootstrapStorage';
 import { EXISTING_FIND_THE_BIRD_STATE_KEYS } from './installState';
+import type { HintBoosterOptionKind, HintBoosterOptionStatus } from '../shop/HintBoosterOffers';
 import type {
   AchievementPageViewedPayload,
   AchievementProgressPayload,
@@ -31,6 +32,10 @@ export type FtdEvent =
   | 'app_foreground'
   | 'dog_found'
   | 'hint_used'
+  | 'offer_shown'
+  | 'offer_outcome'
+  | 'economy_snapshot'
+  | 'rewarded_attempt'
   | 'settings_changed'
   | 'ad_shown'
   | 'ad_show_failed'
@@ -54,6 +59,35 @@ export type FtdEvent =
   | 'achievement_page_viewed';
 
 type LevelAttributionParams = Partial<AnalyticsLevelAttribution>;
+
+export interface EconomyContext {
+  display_level_number: number;
+  coins: number;
+  hints: number;
+  total_completions: number;
+  rewarded_hint_capped: boolean;
+  rewarded_hints_today: number;
+}
+export type RewardPlacement = 'hint_button' | 'level_complete_double';
+export interface OfferShownParams extends EconomyContext {
+  offer_type: HintBoosterOptionKind;
+  placement: 'hint_button';
+  status: HintBoosterOptionStatus;
+  coin_price: number;
+  hint_amount: number;
+}
+export interface OfferOutcomeParams extends EconomyContext {
+  offer_type: HintBoosterOptionKind | 'hint_booster';
+  placement: 'hint_button';
+  outcome: 'selected' | 'declined';
+}
+export interface EconomySnapshotParams extends EconomyContext {
+  reason: 'level_start' | 'hint_used' | 'hint_offer';
+}
+export interface RewardedAttemptParams extends EconomyContext {
+  placement: RewardPlacement;
+  outcome: 'requested' | 'provider_granted' | 'not_granted' | 'failed';
+}
 
 interface LevelStartParams extends LevelAttributionParams {
   level_id: string;
@@ -387,6 +421,26 @@ export class AnalyticsService {
 
   settingsChanged(params: SettingsChangedParams): Promise<void> {
     this.sdk.track('settings_changed', compactParams(params));
+    return Promise.resolve();
+  }
+
+  offerShown(params: OfferShownParams): Promise<void> {
+    this.sdk.track('offer_shown', compactParams({ ...params }));
+    return Promise.resolve();
+  }
+
+  offerOutcome(params: OfferOutcomeParams): Promise<void> {
+    this.sdk.track('offer_outcome', compactParams({ ...params }));
+    return Promise.resolve();
+  }
+
+  economySnapshot(params: EconomySnapshotParams): Promise<void> {
+    this.sdk.track('economy_snapshot', compactParams({ ...params }));
+    return Promise.resolve();
+  }
+
+  rewardedAttempt(params: RewardedAttemptParams): Promise<void> {
+    this.sdk.track('rewarded_attempt', compactParams({ ...params }));
     return Promise.resolve();
   }
 
