@@ -37,6 +37,55 @@ level and the other 25 excluded levels were not individually device-tested.
 
 ## Verification
 
+### Follow-up verification and economy telemetry
+
+- Normal-player iOS 1.2.4 (39) was built from `f7ed93546`, with the harness
+  disabled and production configuration validated, installed on the physical
+  iPhone, and driven into cactus-ranch gameplay using the native XCTest runner.
+  Inspected captures show the previously covered bird collected (0/15 to 1/15)
+  without the banner. The first-launch policy still has automated coverage;
+  the existing phone save was preserved.
+- All 459 Bird unit tests passed (3 pre-existing skips); typecheck and lint passed.
+  The prior GameAnalytics failure was an unapplied local postinstall patch.
+  The attribution test now checks catalog cardinality, uniqueness and required
+  AdMob/Meta entries instead of requiring an obsolete three-entry catalog.
+- Restored missing workspace entries in the npm lockfile; an isolated
+  `npm ci --dry-run --ignore-scripts` passed. Remote CI remains a separate gate.
+- Initial remote CI passed the Bird workspace. Two baseline gate repairs were
+  then required: exclude the shared rendering-library directory from game-only
+  structure/harness checks, and rebuild five stale Dog catalog package records
+  after images changed in historical commit `3f3427618`. The latter uses the
+  existing public-level exporter and a new catalog snapshot; old snapshots,
+  image bytes, geometry, level identity/order, cohorts and retention are preserved.
+  Public-corpus validation passed for 104 packages; audit unit tests passed (60).
+  No CDN, Remote Config or editor production state was published.
+- Economy telemetry records visible hint options, affordability, option selection
+  or decline, wallet snapshots at level start/hint use/offer display, and
+  rewarded-provider outcomes before local grants. Coin prices, rewards and caps
+  are unchanged. Selection is not proof of payment or grant; a provider
+  `not_granted` result is not proof of video dismissal or no-fill.
+- DOM tests exercise offer exposure, decline, coin purchase and wallet/callback
+  preservation. Provider tests exercise granted, not-granted and thrown-error
+  results; GA sink tests prove zero balances and boolean dimensions survive the
+  SDK boundary. Authenticated analytics backend receipt is not yet verified.
+- Independent reuse, quality and efficiency reviewers ran. Applied parameter
+  normalization, explicit payload types and one shared modal-open snapshot;
+  clarified selection semantics separately from successful resource grants.
+
+### Post-release measurement
+
+Use verified native version/build dimensions to isolate this release. Exclude
+QA, historical identity-contaminated builds and unknown versions. Inspect raw
+sample sizes before percentages. Measure zero-hint encounters before completion
+6, single-hint affordability, rewarded-hint cap encounters, balances at level
+starts 1/3/6/12, and requested/provider-result/local-grant counts separately for
+hint and completion placements. Join ordered player activity where reporting
+allows it; pooled event ratios are not player conversion rates. Historical
+economy conclusions remain unavailable until authenticated reporting access is
+restored. New telemetry cannot reconstruct events that were never collected.
+
+### Initial verification (before follow-up)
+
 - Focused Vitest suite: 37 tests passed across session/banner policy, bootstrap,
   ad event, and SDK composition tests. Covers allowed/excluded/allowed transitions,
   delayed show, delayed hide, disabled ads, no-fill, native failure recovery,
