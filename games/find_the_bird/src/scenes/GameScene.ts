@@ -14,6 +14,8 @@ import type { LevelData, LevelDog, LevelSection } from '../data/levels';
 import { playFind, playWrongTap, preloadBirdFoundSounds } from '../audio/AudioManager';
 import { crossfadeTo as crossfadeAmbient, presetForLevel } from '../audio/AmbientManager';
 import { adService, showRewardedAdForEconomy } from '../ads/Service';
+import { updateLevelBanner } from '../ads/levelBannerPolicy';
+import { areAutomaticAdsAllowed } from '../ads/sessionAdPolicy';
 import { trackRewardedWatchedIfGranted } from '../attribution/RewardedAttribution';
 import { analytics } from '../analytics/AnalyticsService';
 import { resolveAnalyticsLevelAttributionFromServingAttempt, type AnalyticsLevelAttribution } from '../analytics/AnalyticsEventContract';
@@ -776,9 +778,9 @@ export class GameScene extends Phaser.Scene {
   private setupLevel(): void {
     if (!this.level) return;
 
-    if (gameState.settings.adsEnabled) {
-      void adService.showBanner().then((shown: boolean): void => {
-        if (!this.level) return;
+    void updateLevelBanner(adService, this.level.id, gameState.settings.adsEnabled && areAutomaticAdsAllowed())
+      .then((shown): void => {
+        if (!this.level || shown === null) return;
         if (shown) {
           void analytics.adShown({ ad_type: 'banner', placement: 'gameplay' });
         } else if (adService.enabled) {
@@ -787,7 +789,6 @@ export class GameScene extends Phaser.Scene {
           void analytics.adShowFailed({ ad_type: 'banner', placement: 'gameplay', reason: 'not_shown' });
         }
       });
-    }
 
     const sections = this.level.sections;
     const isSectioned = Array.isArray(sections) && sections.length > 0;
@@ -1863,7 +1864,7 @@ export class GameScene extends Phaser.Scene {
               : ({} as GameSceneData),
           );
         };
-        if (shouldTry && gameState.settings.adsEnabled) {
+        if (shouldTry && gameState.settings.adsEnabled && areAutomaticAdsAllowed()) {
           // The next level must not start under the ad: the restart is
           // sequenced after the show promise settles (= ad dismissed; the
           // provider resolves immediately when no ad is preloaded).

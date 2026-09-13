@@ -5,6 +5,31 @@ evidence-backed; the experiments and their numbers are on the Portal stream
 `find-the-bird-reskin-0728` and summarized at the bottom. **Do not change a
 constant here without re-running the alignment gate evidence for it.**
 
+## Banner clearance for future levels (2026-09-13)
+
+Keep the complete painted bird, pickup sprite, and tappable target clear of
+the gameplay banner, including feet, tails, and carried props. A safe hitbox
+center alone is insufficient. Check the rendered footprint after cover scaling
+and throughout reachable camera positions on supported phone aspect ratios.
+
+On the captured iPhone 12 (390 × 844 points), the visible banner occupied
+approximately x=35–355, y=755–805: 320 × 50 points, or 6.4:1. It overlaid
+the scene rather than reserving layout space. Treat those coordinates as one
+measured example, not a universal banner size; adaptive banners and device
+safe areas can differ. For default-zoom horizontal panning, reserve the banner's
+vertical band across the full level width, with clearance around the artwork.
+Also review zoomed/panned positions on device before approving a new level.
+
+This is a generation/review requirement, not a newly implemented export gate.
+Existing deadzones must be checked against actual native banner bounds rather
+than assumed sufficient. The temporary runtime exclusion list lives in
+`games/find_the_bird/src/ads/levelBannerPolicy.ts`: 26 stable IDs selected from
+the saved 44-level serving manifest using a conservative local sprite-overlap
+audit. Other local catalog folders were not included. Keep these exclusions
+until corrected artwork or a viewport fix has physical-device evidence;
+sequence reordering alone does not remove an exclusion. Interstitial and
+rewarded ads are outside this mitigation.
+
 ## The recipe
 
 ```
