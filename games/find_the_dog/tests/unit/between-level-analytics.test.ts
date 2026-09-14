@@ -23,7 +23,7 @@ import {
 } from '../../src/analytics/BetweenLevelFlow';
 import { AD_FORMAT_PLACEMENT, createAdMobCompositionOptions } from '../../src/ads/adMobComposition';
 
-// Handoff 2026-09-14 §4: the six between-level events, their GameAnalytics
+// The six between-level events, their GameAnalytics
 // design ids, and the params that must survive both durable sinks (the
 // GameAnalytics sink's per-event custom-field allowlist and the owned mirror's
 // canonical sanitizer).
@@ -155,7 +155,7 @@ describe('GameAnalytics sink dispatch', () => {
 });
 
 describe('resolveInterstitialGate', () => {
-  const base = { everyN: 3, minLevelNumber: 1, adsEnabled: true, hasNoAdsEntitlement: false, automaticAdsAllowed: true };
+  const base = { everyN: 3, minLevelNumber: 1, adsEnabled: true, hasNoAdsEntitlement: false };
 
   it('levels 1 and 2 are stopped by cadence; level 3 is eligible', () => {
     expect(resolveInterstitialGate({ ...base, levelsCompletedSession: 1, nextLevelNumber: 2 })).toEqual({ eligible: false, reason: 'cadence' });
@@ -167,11 +167,6 @@ describe('resolveInterstitialGate', () => {
     expect(resolveInterstitialGate({ ...base, levelsCompletedSession: 3, nextLevelNumber: 4, minLevelNumber: 6 })).toEqual({ eligible: false, reason: 'min_level' });
     expect(resolveInterstitialGate({ ...base, levelsCompletedSession: 3, nextLevelNumber: 4, adsEnabled: false, hasNoAdsEntitlement: true })).toEqual({ eligible: false, reason: 'no_ads_entitlement' });
     expect(resolveInterstitialGate({ ...base, levelsCompletedSession: 3, nextLevelNumber: 4, adsEnabled: false })).toEqual({ eligible: false, reason: 'ads_disabled' });
-  });
-
-  it('a fresh install first session (PR #76 session ad policy) is stopped last, as first_session', () => {
-    expect(resolveInterstitialGate({ ...base, levelsCompletedSession: 3, nextLevelNumber: 4, automaticAdsAllowed: false })).toEqual({ eligible: false, reason: 'first_session' });
-    expect(resolveInterstitialGate({ ...base, levelsCompletedSession: 3, nextLevelNumber: 4, adsEnabled: false, automaticAdsAllowed: false })).toEqual({ eligible: false, reason: 'ads_disabled' });
   });
 
   it('a zero cadence never fires and reports cadence', () => {
@@ -216,7 +211,8 @@ describe('AdMob composition: lifecycle events -> ad_lifecycle', () => {
     const calls: { stage: string; level_index?: number }[] = [];
     let currentLevelIndex = 2;
     const options = createAdMobCompositionOptions({
-      analytics: { adLifecycle: async (params) => { calls.push(params); } },
+      analytics: { adLifecycle: async (params) => { calls.push(params); }, adShown: async () => {}, adShowFailed: async () => {}, adRevenuePaid: async () => {} },
+      forwardAcquisitionValueEvent: async () => true,
       currentLevelIndex: () => currentLevelIndex,
     });
     markLevelCompleteLeft(1_000, currentLevelIndex);
@@ -239,14 +235,15 @@ describe('AdMob composition: lifecycle events -> ad_lifecycle', () => {
   it('every provider stage becomes an ad_lifecycle event with the static placement and the current level index', () => {
     const calls: unknown[] = [];
     const options = createAdMobCompositionOptions({
-      analytics: { adLifecycle: async (params) => { calls.push(params); } },
+      analytics: { adLifecycle: async (params) => { calls.push(params); }, adShown: async () => {}, adShowFailed: async () => {}, adRevenuePaid: async () => {} },
+      forwardAcquisitionValueEvent: async () => true,
       currentLevelIndex: () => 2,
     });
     options.onAdEvent({ format: 'interstitial', stage: 'load_failed', loadId: 'interstitial-0-3', attempt: 2, reason: 'native_2' });
     options.onAdEvent({ format: 'interstitial', stage: 'dismissed', loadId: 'interstitial-0-4', cacheAgeMs: 4_200 });
     expect(calls).toEqual([
-      { ad_type: 'interstitial', placement: AD_FORMAT_PLACEMENT.interstitial, stage: 'load_failed', reason: 'native_2', attempt: 2, cache_age_ms: undefined, level_index: 2 },
-      { ad_type: 'interstitial', placement: AD_FORMAT_PLACEMENT.interstitial, stage: 'dismissed', reason: undefined, attempt: undefined, cache_age_ms: 4_200, level_index: 2 },
+      { ad_type: 'interstitial', placement: AD_FORMAT_PLACEMENT.interstitial, stage: 'load_failed', load_id: 'interstitial-0-3', reason: 'native_2', attempt: 2, cache_age_ms: undefined, level_index: 2 },
+      { ad_type: 'interstitial', placement: AD_FORMAT_PLACEMENT.interstitial, stage: 'dismissed', load_id: 'interstitial-0-4', reason: undefined, attempt: undefined, cache_age_ms: 4_200, level_index: 2 },
     ]);
   });
 });

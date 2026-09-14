@@ -1,4 +1,5 @@
 import type { AdMobLifecycleEvent, AdMobPaidImpression, AdMobProviderOptions } from '@fabrikav2/sdk/ads';
+import { pendingInterstitialLevelIndex } from '../analytics/BetweenLevelFlow';
 import { registerLifecycleHooks } from '../platform/gameLifecycle';
 
 /**
@@ -38,6 +39,7 @@ export interface AdLifecycleAnalyticsParams {
   reason?: string;
   attempt?: number;
   cache_age_ms?: number;
+  level_index?: number;
 }
 
 /** Static placement per format; rewarded placements are reported by the game-level grant events. */
@@ -55,6 +57,7 @@ export function createAdMobCompositionOptions(deps: {
     type: 'ad_revenue'; revenue: number; currency: string; format: string; placement: string; impressionId: string;
   }) => Promise<boolean>;
   registerHooks?: typeof registerLifecycleHooks;
+  currentLevelIndex?: () => number;
 }): AdMobCompositionOptions {
   const registerHooks = deps.registerHooks ?? registerLifecycleHooks;
   return {
@@ -72,6 +75,12 @@ export function createAdMobCompositionOptions(deps: {
         reason: event.reason,
         attempt: event.attempt,
         cache_age_ms: event.cacheAgeMs,
+        // Loading can re-arm before dismissal resolves; only presentation
+        // stages inherit the completed-level context.
+        level_index: event.format === 'interstitial'
+          && ['show_requested', 'shown', 'impression', 'dismissed', 'show_failed', 'skipped'].includes(event.stage)
+          ? pendingInterstitialLevelIndex() ?? deps.currentLevelIndex?.()
+          : deps.currentLevelIndex?.(),
       });
       // The banner has no game-level show/terminal path; its canonical
       // ad_shown / ad_show_failed come from the native callbacks alone.

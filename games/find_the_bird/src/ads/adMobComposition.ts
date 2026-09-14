@@ -1,4 +1,5 @@
 import type { AdMobLifecycleEvent, AdMobProviderOptions } from '@fabrikav2/sdk/ads';
+import { pendingInterstitialLevelIndex } from '../analytics/BetweenLevelFlow';
 
 /**
  * Find the Bird's AdMob lifecycle seam, ported from Find the Dog
@@ -47,7 +48,12 @@ export function createAdMobCompositionOptions(deps: {
         reason: event.reason,
         attempt: event.attempt,
         cache_age_ms: event.cacheAgeMs,
-        level_index: deps.currentLevelIndex(),
+        // Loading can re-arm before dismissal resolves; only presentation
+        // stages inherit the completed-level context.
+        level_index: event.format === 'interstitial'
+          && ['show_requested', 'shown', 'impression', 'dismissed', 'show_failed', 'skipped'].includes(event.stage)
+          ? pendingInterstitialLevelIndex() ?? deps.currentLevelIndex()
+          : deps.currentLevelIndex(),
       });
     },
   };

@@ -117,12 +117,15 @@ export function createGameAnalyticsSink(
   async function init(forceRetry = false): Promise<void> {
     if (sdk !== null || disabled) return;
     if (initPromise !== null) return initPromise;
+    // Waiting for the app to resume is not a failed readiness attempt.
+    if (loadingSdk !== null && !nativeSessionActive && !queue.some((event) => event.name === 'session_start')) return;
     if (Date.now() < nextRetryAt && !forceRetry) return;
     // Once polling is exhausted, later events/resumes only probe the retained
     // SDK. Its original request may still complete; do not reinitialize it.
     const probeOnly = loadingSdk !== null && initAttempts >= maxInitAttempts;
     if (initAttempts > 0) retried += 1;
     initAttempts += 1;
+    let waitingForSession = false;
     initPromise = (async (): Promise<void> => {
       try {
         if (loadingSdk === null) {
@@ -147,6 +150,16 @@ export function createGameAnalyticsSink(
           await waitForSdkReady(loadingSdk.GameAnalytics, remainingMs(), readyPollMs);
         }
         while (queue.length > 0) {
+          if (!nativeSessionActive) {
+            // StoreKit can resolve while the app is still backgrounded. Keep
+            // those events until the next canonical session boundary arrives.
+            const resumeIndex = queue.findIndex((item) => item.name === 'session_start');
+            if (resumeIndex < 0) {
+              waitingForSession = true;
+              return;
+            }
+            if (resumeIndex > 0) queue.unshift(...queue.splice(resumeIndex, 1));
+          }
           const event = queue[0];
           if (event === undefined) break;
           if (event.name === 'session_start' && !nativeSessionActive) {
@@ -194,6 +207,9 @@ export function createGameAnalyticsSink(
       // A ready retained-SDK probe can complete without awaiting. Clear after
       // assignment, so its resolved promise cannot lock the next transition.
       initPromise = null;
+      // A resume may arrive synchronously after the paused drain returns but
+      // before this promise releases ownership.
+      if (waitingForSession && queue.some((item) => item.name === 'session_start')) void init(true);
     });
     return initPromise;
   }
@@ -206,7 +222,7 @@ export function createGameAnalyticsSink(
         return;
       }
       if (sdk !== null) {
-        const needsSessionWait = (event.name === 'session_start' && !nativeSessionActive)
+        const needsSessionWait = !nativeSessionActive
           || (nativeSessionActive && sdk.GameAnalytics.isSdkReady?.(true, false) === false);
         if (!needsSessionWait) {
           try {
@@ -235,6 +251,7 @@ export function createGameAnalyticsSink(
       flushAttempts += 1;
       while (sdk === null && !disabled) {
         await init(true);
+        if (loadingSdk !== null && !nativeSessionActive && !queue.some((item) => item.name === 'session_start')) break;
         // A suspend flush is bounded even if initialization is still pending.
         // Later events/resumes may probe readiness and drain the retained queue.
         if (initAttempts >= maxInitAttempts) break;

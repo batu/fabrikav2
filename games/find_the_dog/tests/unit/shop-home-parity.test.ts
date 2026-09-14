@@ -18,6 +18,7 @@ vi.mock('../../src/audio/AudioManager', () => ({
 }));
 
 import { analytics } from '../../src/analytics/AnalyticsService';
+import { gameState } from '../../src/core/GameState';
 import { REMOTE_CONFIG_DEFAULTS } from '../../src/config/remoteConfigSchema';
 import { iapService } from '../../src/shop/IapService';
 import { openPage, setHomeCallback } from '../../src/ui/HUD';
@@ -35,6 +36,51 @@ function purchaseButton(id: string): HTMLButtonElement {
 }
 
 describe('shop and Settings parity', () => {
+  it.each(['cancelled', 'failed'] as const)('holds %s feedback through refresh and clears it on the next tap', async (status) => {
+    vi.useFakeTimers();
+    try {
+      const purchase = vi.spyOn(iapService, 'purchase').mockResolvedValue({
+        status, productId: REMOTE_CONFIG_DEFAULTS.hintPack10ProductId,
+        customerInfo: null, purchaseId: null, purchaseToken: null, errorMessage: null,
+      });
+      openPage('shop');
+      const button = purchaseButton('hint-pack-10');
+      const price = button.textContent;
+      button.click();
+      await vi.advanceTimersByTimeAsync(600);
+      const label = status === 'cancelled' ? 'Cancelled' : "Couldn't complete";
+      expect(button.textContent).toBe(label);
+      expect(button.getAttribute('aria-label')).toContain(label);
+      await vi.advanceTimersByTimeAsync(1800);
+      expect(button.textContent).toBe(label);
+      // A fresh tap clears the feedback immediately while its result is pending.
+      purchase.mockImplementationOnce(() => new Promise(() => {}));
+      button.click();
+      expect(button.textContent).toBe(price);
+      expect(purchase).toHaveBeenCalledTimes(2);
+    } finally { vi.clearAllTimers(); vi.useRealTimers(); }
+  });
+
+  it('refreshes Home and shop hint balances when a verified purchase fulfills', async () => {
+    vi.useFakeTimers();
+    try {
+      const productId = REMOTE_CONFIG_DEFAULTS.hintPack10ProductId;
+      vi.spyOn(iapService, 'purchase').mockResolvedValue({
+        status: 'purchased', productId, purchaseId: 'hint-balance-test',
+        purchaseToken: null, errorMessage: null,
+        customerInfo: { allPurchasedProductIdentifiers: [productId], nonSubscriptionTransactions: [{ productIdentifier: productId }] },
+      });
+      const before = gameState.hintsRemaining;
+      document.querySelector('#home-shell')!.innerHTML = '<div class="home-hint-pill" data-economy-target="hints"><span>stale</span></div>';
+      openPage('shop');
+      purchaseButton('hint-pack-10').click();
+      await vi.advanceTimersByTimeAsync(0);
+      expect(gameState.hintsRemaining).toBe(before + 10);
+      expect(document.querySelector('.home-hint-pill > span')?.textContent).toBe(String(before + 10));
+      expect(document.querySelector('.shop-header-hint-count')?.textContent).toBe(String(before + 10));
+    } finally { vi.clearAllTimers(); vi.useRealTimers(); }
+  });
+
   beforeAll(async () => {
     // Supply deterministic browser storage independently of Node's globals.
     const storage = new Map<string, string>();
@@ -50,6 +96,7 @@ describe('shop and Settings parity', () => {
         [REMOTE_CONFIG_DEFAULTS.hintPack50ProductId]: 1_000,
       },
     });
+    gameState.load();
     await iapService.initPromiseValue;
   });
 

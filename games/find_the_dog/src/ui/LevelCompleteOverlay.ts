@@ -7,6 +7,10 @@ import { animateCoinsToBalance } from './EconomyTransfer';
 import { showSceneTransitionCover } from './SceneTransitionCover';
 import { mountLevelComplete, type CoinTransfer, type ThemeTokens, type UiHandle } from '../v1core/ui';
 import { FTD_UI_THEME } from './ftdTheme';
+import { analytics } from '../analytics/AnalyticsService';
+import type { AnalyticsLevelAttribution } from '../analytics/AnalyticsEventContract';
+import { createLevelCompleteActionTracker, markLevelCompleteLeft, type LevelCompleteActionRecord } from '../analytics/BetweenLevelFlow';
+import { registerLifecycleHooks } from '../platform/gameLifecycle';
 
 export interface LevelCompleteOverlayOptions {
   /** Seconds this attempt took. Required — drives the ⏱ readout. */
@@ -25,6 +29,22 @@ export interface LevelCompleteOverlayOptions {
    * opens and with `null` when it closes.
    */
   onRatePromptHandle?: (handle: RatePromptHandle | null) => void;
+  /**
+   * Between-level analytics context. When present the
+   * wrapper emits `level_complete_shown` on mount and one
+   * `level_complete_action` for the path that leaves the overlay.
+   */
+  telemetry?: LevelCompleteOverlayTelemetry;
+}
+
+export interface LevelCompleteOverlayTelemetry {
+  /** Zero-based index of the completed level. */
+  level_index: number;
+  /** Session completions including this one. */
+  levels_completed_session: number;
+  /** Milliseconds since this level's `level_start`. */
+  duration_ms: number;
+  attribution: Partial<AnalyticsLevelAttribution>;
 }
 
 export interface LevelCompleteOverlayResult {
@@ -170,6 +190,38 @@ export function showLevelCompleteOverlay(
     resolvePublic = resolve;
   });
 
+  // Between-level telemetry. The action tracker owns once-only semantics; the
+  // reward-reveal flag is observed on core's data attribute because the DOM is
+  // gone by the time a shutdown dismiss resolves.
+  const telemetry = options.telemetry;
+  const actionTracker = createLevelCompleteActionTracker(Date.now());
+  let rewardRevealed = false;
+  let rewardRevealObserver: MutationObserver | null = null;
+  let claimX2Granted = false;
+  const reportAction = (record: LevelCompleteActionRecord | null): void => {
+    if (telemetry === undefined || record === null) return;
+    void analytics.levelCompleteAction({
+      level_id: levelId,
+      ...telemetry.attribution,
+      level_index: telemetry.level_index,
+      action: record.action,
+      dwell_ms: record.dwell_ms,
+      reward_revealed: rewardRevealed,
+    });
+  };
+  const releaseSuspendHook = telemetry === undefined
+    ? (): void => {}
+    : registerLifecycleHooks('level-complete-overlay', {
+        onSuspend: (): void => reportAction(actionTracker.background()),
+      });
+  const onClaimX2 = options.onClaimX2 === undefined
+    ? undefined
+    : async (): Promise<{ granted: boolean; coinBalance: number }> => {
+        const result = await options.onClaimX2!();
+        if (result.granted) claimX2Granted = true;
+        return result;
+      };
+
   const handle = mountLevelComplete({
     mountInto: overlay,
     id: OVERLAY_ID,
@@ -212,9 +264,18 @@ export function showLevelCompleteOverlay(
           reducedMotion: transfer.reducedMotion,
         });
       },
-      onClaimDouble: options.onClaimX2,
+      onClaimDouble: onClaimX2,
       onNext: async (signal: AbortSignal): Promise<void> => {
         nextClicked = true;
+        // The leave action is attributed before any await so a shutdown
+        // mid-rate-prompt cannot turn a Next tap into dismissed_by_shutdown.
+        const willShowRatePrompt = gameState.shouldShowRatePrompt();
+        const leftAt = Date.now();
+        markLevelCompleteLeft(leftAt, gameState.currentLevelIndex);
+        reportAction(actionTracker.leave(
+          willShowRatePrompt ? 'rate_prompt' : claimX2Granted ? 'claim_x2' : 'next',
+          leftAt,
+        ));
 
         // Advance + persist the level index IMMEDIATELY on Next-Level click.
         // Rationale: the click itself is the player's consent to advance. If
@@ -254,6 +315,26 @@ export function showLevelCompleteOverlay(
   });
   activeLevelCompleteHandle = handle;
 
+  if (telemetry !== undefined) {
+    void analytics.levelCompleteShown({
+      level_id: levelId,
+      ...telemetry.attribution,
+      level_index: telemetry.level_index,
+      levels_completed_session: telemetry.levels_completed_session,
+      duration_ms: telemetry.duration_ms,
+    });
+    const root = document.getElementById(OVERLAY_ID);
+    if (root !== null && typeof MutationObserver !== 'undefined') {
+      rewardRevealObserver = new MutationObserver((): void => {
+        if (root.dataset.rewardReveal !== 'complete') return;
+        rewardRevealed = true;
+        rewardRevealObserver?.disconnect();
+        rewardRevealObserver = null;
+      });
+      rewardRevealObserver.observe(root, { attributes: true, attributeFilter: ['data-reward-reveal'] });
+    }
+  }
+
   // Public result resolves exactly once, on the Next path, after core closes
   // and resolves `dismissed`. Bare dismiss (no Next) → nextClicked false →
   // stays pending (parity with pre-extraction). Drop completion-mode here so a
@@ -262,6 +343,10 @@ export function showLevelCompleteOverlay(
   void handle.dismissed.then(() => {
     if (activeLevelCompleteHandle === handle) activeLevelCompleteHandle = null;
     overlay.classList.remove('completion-mode');
+    rewardRevealObserver?.disconnect();
+    rewardRevealObserver = null;
+    releaseSuspendHook();
+    if (!nextClicked) reportAction(actionTracker.leave('dismissed_by_shutdown'));
     if (nextClicked) resolvePublic({ nextLevelData: null });
   });
 

@@ -12,6 +12,62 @@ function event(name: string, params: AnalyticsEvent['params']): AnalyticsEvent {
 }
 
 describe('GameAnalytics AnalyticsSink', () => {
+  it('preserves the readiness budget across background events before an asynchronous resume', async () => {
+    vi.useFakeTimers();
+    try {
+      let ready = true;
+      const sdk = gameAnalyticsSdk({
+        isSdkReady: vi.fn(() => ready),
+        endSession: vi.fn(() => { ready = false; }),
+        startSession: vi.fn(() => { setTimeout(() => { ready = true; }, 5); }),
+      });
+      const sink = createGameAnalyticsSink(validConfig(), { loader: async () => sdk, readyTimeoutMs: 20, readyPollMs: 1 });
+      sink.emit(event('session_start', {}));
+      await sink.flush?.();
+      sink.emit(event('session_end', {}));
+      for (let i = 0; i < 4; i += 1) {
+        sink.emit(event('purchase_cancelled', { product_id: 'hints_pack', surface: 'shop' }));
+        await sink.flush?.();
+      }
+      expect(sdk.GameAnalytics.addDesignEvent).toHaveBeenCalledTimes(2);
+      sink.emit(event('session_start', {}));
+      await vi.advanceTimersByTimeAsync(10);
+      expect(sdk.GameAnalytics.addDesignEvent).toHaveBeenCalledTimes(7);
+      expect(sink.diagnostics()).toMatchObject({ queued: 0, dropped: 0, initializationFailure: null });
+    } finally { vi.useRealTimers(); }
+  });
+
+  it.each([false, true])('delivers a purchase between sessions once after resume (background flush=%s)', async (backgroundFlush) => {
+    let active = true;
+    const delivered: string[] = [];
+    const calls: string[] = [];
+    const sdk = gameAnalyticsSdk({
+      isSdkReady: vi.fn(() => active),
+      endSession: vi.fn(() => { active = false; calls.push('end'); }),
+      startSession: vi.fn(() => { active = true; calls.push('start'); }),
+      addDesignEvent: vi.fn((name) => {
+        // The real SDK silently rejects events outside an active session.
+        if (active) { delivered.push(name); calls.push(name); }
+      }),
+    });
+    const sink = createGameAnalyticsSink(validConfig(), { loader: async () => sdk });
+    sink.emit(event('session_start', {}));
+    await sink.flush?.();
+    sink.emit(event('session_end', {}));
+    sink.emit(event('purchase_cancelled', { product_id: 'hints_pack', surface: 'shop' }));
+    expect(delivered).not.toContain('purchase:cancelled');
+    if (backgroundFlush) {
+      await sink.flush?.();
+      expect(sink.diagnostics()).toMatchObject({ queued: 1, dropped: 0 });
+      expect(sdk.GameAnalytics.startSession).not.toHaveBeenCalled();
+    }
+    sink.emit(event('session_start', {}));
+    await sink.flush?.();
+    await sink.flush?.();
+    expect(delivered.filter((name) => name === 'purchase:cancelled')).toHaveLength(1);
+    expect(calls.indexOf('purchase:cancelled')).toBeGreaterThan(calls.indexOf('start'));
+  });
+
   it('preserves economy funnel dimensions and zero balances at the GA SDK boundary', async () => {
     const sdk = gameAnalyticsSdk();
     const sink = createGameAnalyticsSink(validConfig(), { loader: async () => sdk });
@@ -221,7 +277,9 @@ describe('GameAnalytics AnalyticsSink', () => {
   it.each([
     ['purchase_initiated', 'purchase:initiated', { product_id: 'hints_pack', surface: 'shop' }],
     ['purchase_cancelled', 'purchase:cancelled', { product_id: 'hints_pack', surface: 'fail_continue' }],
-    ['purchase_failed', 'purchase:failed', { product_id: 'hints_pack', surface: 'shop', reason: 'failed', failure_kind: 'timeout' }],
+    ['purchase_failed', 'purchase:failed:timeout', { product_id: 'hints_pack', surface: 'shop', reason: 'failed', failure_kind: 'timeout' }],
+    ['purchase_failed', 'purchase:failed:store_error', { product_id: 'hints_pack', surface: 'fail_continue', reason: 'failed', failure_kind: 'store-error' }],
+    ['purchase_failed', 'purchase:failed:unavailable', { product_id: 'hints_pack', surface: 'shop', reason: 'unavailable' }],
   ])('maps %s with declared dimensions while rejecting arbitrary params', async (name, wireName, dimensions) => {
     const addDesignEvent = vi.fn();
     const sink = createGameAnalyticsSink(validConfig(), {
