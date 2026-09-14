@@ -5739,8 +5739,18 @@
 }
 #tutorial-overlay[data-stage="pan-left"] .tutorial-hand { animation: tutorial-pan-left 1.5s ease-in-out infinite; }
 #tutorial-overlay[data-stage="pan-right"] .tutorial-hand { animation: tutorial-pan-right 1.5s ease-in-out infinite; }
-@keyframes tutorial-pan-left { 0% { translate: 48px 0; } 66.667%, 100% { translate: -48px 0; } }
-@keyframes tutorial-pan-right { 0% { translate: -48px 0; } 66.667%, 100% { translate: 48px 0; } }
+@keyframes tutorial-pan-left {
+  0%, 100% { translate: 48px 0; opacity: 0; }
+  12% { translate: 48px 0; opacity: 1; }
+  62% { translate: -48px 0; opacity: 1; }
+  76% { translate: -48px 0; opacity: 0; }
+}
+@keyframes tutorial-pan-right {
+  0%, 100% { translate: -48px 0; opacity: 0; }
+  12% { translate: -48px 0; opacity: 1; }
+  62% { translate: 48px 0; opacity: 1; }
+  76% { translate: 48px 0; opacity: 0; }
+}
 @media (prefers-reduced-motion: reduce) { #tutorial-overlay .tutorial-hand { animation: none; } }
 #tutorial-overlay [hidden] { display: none !important; }
 .tutorial-counter-highlight { position: relative; z-index: 51; outline: 3px solid #ffe09a; box-shadow: 0 0 18px #ffe09a; }

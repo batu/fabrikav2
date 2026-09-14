@@ -36,11 +36,11 @@ interface GlTextureLike {
 const FULL_REFRESH_AREA_FRACTION = 0.9;
 
 let scratch: HTMLCanvasElement | null = null;
+let uploadBytes = new Uint8Array(0);
 
 function scratchCanvas(w: number, h: number): HTMLCanvasElement {
   if (scratch === null) scratch = document.createElement('canvas');
-  // texSubImage2D uploads the whole source element, so the scratch must be
-  // exactly the region size. Resizing also clears it.
+  // Keep readback bounded to the region. Resizing also clears the scratch.
   if (scratch.width !== w) scratch.width = w;
   if (scratch.height !== h) scratch.height = h;
   return scratch;
@@ -75,23 +75,46 @@ export function uploadCanvasTextureRegion(
   if (w * h >= canvas.width * canvas.height * FULL_REFRESH_AREA_FRACTION) return false;
 
   const view = scratchCanvas(w, h);
-  const ctx = view.getContext('2d');
+  // Android's canvas-source texSubImage2D path can invalidate pixels outside
+  // the upload rectangle. Use explicit bytes, not a canvas/GPU copy, below.
+  const ctx = view.getContext('2d', { willReadFrequently: true });
   if (!ctx) return false;
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   ctx.globalCompositeOperation = 'copy';
   ctx.drawImage(canvas, x, y, w, h, 0, 0, w, h);
   ctx.globalCompositeOperation = 'source-over';
 
+  const rgba = ctx.getImageData(0, 0, w, h).data;
+  // Retain capacity as a reveal grows rather than allocating a second pixel
+  // array every animation frame. getImageData already owns the source copy.
+  if (uploadBytes.length < rgba.length) uploadBytes = new Uint8Array(2 ** Math.ceil(Math.log2(rgba.length)));
+  const pixels = uploadBytes.subarray(0, rgba.length);
+  // WebGL unpack flip/premultiply flags apply to DOM sources, not raw bytes.
+  // Preserve the wrapper's orientation and alpha convention explicitly.
+  for (let row = 0; row < h; row++) {
+    const targetRow = wrapper.flipY ? h - row - 1 : row;
+    for (let col = 0; col < w; col++) {
+      const sourceIndex = (row * w + col) * 4;
+      const targetIndex = (targetRow * w + col) * 4;
+      const alpha = rgba[sourceIndex + 3];
+      const factor = wrapper.pma ? alpha / 255 : 1;
+      pixels[targetIndex] = Math.round(rgba[sourceIndex] * factor);
+      pixels[targetIndex + 1] = Math.round(rgba[sourceIndex + 1] * factor);
+      pixels[targetIndex + 2] = Math.round(rgba[sourceIndex + 2] * factor);
+      pixels[targetIndex + 3] = alpha;
+    }
+  }
+
   // Mirror WebGLTextureWrapper._processTexture: unit 0, remember the binding,
-  // set unpack state from the wrapper, restore the binding afterwards.
+  // use raw-byte unpack state, restore the binding afterwards.
   gl.activeTexture(gl.TEXTURE0);
   const previous = gl.getParameter(gl.TEXTURE_BINDING_2D) as WebGLTexture | null;
   gl.bindTexture(gl.TEXTURE_2D, wrapper.webGLTexture);
-  gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, wrapper.pma);
-  gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, wrapper.flipY);
+  gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
+  gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
   // With flipY the texture rows are bottom-up; convert the top-left canvas y.
   const destY = wrapper.flipY ? canvas.height - y - h : y;
-  gl.texSubImage2D(gl.TEXTURE_2D, wrapper.mipLevel, x, destY, gl.RGBA, gl.UNSIGNED_BYTE, view);
+  gl.texSubImage2D(gl.TEXTURE_2D, wrapper.mipLevel, x, destY, w, h, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
   if (isPowerOfTwo(canvas.width) && isPowerOfTwo(canvas.height)) {
     // Phaser generated mipmaps for POT canvases at creation; keep them coherent.
     gl.generateMipmap(gl.TEXTURE_2D);
@@ -103,4 +126,5 @@ export function uploadCanvasTextureRegion(
 /** Test-only: drop the cached scratch canvas. */
 export function resetCanvasTextureRegionScratchForTest(): void {
   scratch = null;
+  uploadBytes = new Uint8Array(0);
 }
