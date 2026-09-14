@@ -1,0 +1,2053 @@
+[
+ {
+  "t": 1789376853165,
+  "name": "iap_state_changed",
+  "p": {
+   "state": "initializing"
+  }
+ },
+ {
+  "t": 1789376853165,
+  "name": "session_start",
+  "p": {
+   "first_open": false
+  }
+ },
+ {
+  "t": 1789376853165,
+  "name": "app_open",
+  "p": {
+   "cohort_bucket": 22
+  }
+ },
+ {
+  "t": 1789376853165,
+  "name": "ad_lifecycle",
+  "p": {
+   "ad_type": "interstitial",
+   "placement": "between_levels",
+   "stage": "load_requested",
+   "attempt": 1,
+   "level_index": 0
+  }
+ },
+ {
+  "t": 1789376853165,
+  "name": "ad_lifecycle",
+  "p": {
+   "ad_type": "rewarded",
+   "placement": "rewarded",
+   "stage": "load_requested",
+   "level_index": 0
+  }
+ },
+ {
+  "t": 1789376853165,
+  "name": "iap_state_changed",
+  "p": {
+   "state": "ready"
+  }
+ },
+ {
+  "t": 1789376853165,
+  "name": "ad_lifecycle",
+  "p": {
+   "ad_type": "rewarded",
+   "placement": "rewarded",
+   "stage": "loaded",
+   "level_index": 0
+  }
+ },
+ {
+  "t": 1789376853165,
+  "name": "ad_lifecycle",
+  "p": {
+   "ad_type": "interstitial",
+   "placement": "between_levels",
+   "stage": "loaded",
+   "level_index": 0
+  }
+ },
+ {
+  "t": 1789376853165,
+  "name": "level_start",
+  "p": {
+   "level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "level_index": 0
+  }
+ },
+ {
+  "t": 1789376853165,
+  "name": "ad_lifecycle",
+  "p": {
+   "ad_type": "banner",
+   "placement": "gameplay",
+   "stage": "load_requested",
+   "level_index": 0
+  }
+ },
+ {
+  "t": 1789376853564,
+  "name": "ad_impression",
+  "p": {
+   "ad_format": "banner",
+   "placement": "gameplay",
+   "provider": "admob"
+  }
+ },
+ {
+  "t": 1789376853564,
+  "name": "ad_shown",
+  "p": {
+   "ad_type": "banner",
+   "placement": "gameplay"
+  }
+ },
+ {
+  "t": 1789376854765,
+  "name": "ad_lifecycle",
+  "p": {
+   "ad_type": "banner",
+   "placement": "gameplay",
+   "stage": "loaded",
+   "level_index": 0
+  }
+ },
+ {
+  "t": 1789376854765,
+  "name": "ad_lifecycle",
+  "p": {
+   "ad_type": "banner",
+   "placement": "gameplay",
+   "stage": "impression",
+   "level_index": 0
+  }
+ },
+ {
+  "t": 1789376856016,
+  "name": "dog_found",
+  "p": {
+   "level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "dog_index": 0,
+   "time_since_start": 3,
+   "sequence_slot": 1,
+   "display_level_number": 1,
+   "intended_level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "served_level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "sequence_source": "default",
+   "catalog_revision": "catalog-000996"
+  }
+ },
+ {
+  "t": 1789376856856,
+  "name": "dog_found",
+  "p": {
+   "level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "dog_index": 1,
+   "time_since_start": 3,
+   "sequence_slot": 1,
+   "display_level_number": 1,
+   "intended_level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "served_level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "sequence_source": "default",
+   "catalog_revision": "catalog-000996"
+  }
+ },
+ {
+  "t": 1789376857297,
+  "name": "dog_found",
+  "p": {
+   "level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "dog_index": 2,
+   "time_since_start": 4,
+   "sequence_slot": 1,
+   "display_level_number": 1,
+   "intended_level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "served_level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "sequence_source": "default",
+   "catalog_revision": "catalog-000996"
+  }
+ },
+ {
+  "t": 1789376858117,
+  "name": "dog_found",
+  "p": {
+   "level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "dog_index": 3,
+   "time_since_start": 5,
+   "sequence_slot": 1,
+   "display_level_number": 1,
+   "intended_level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "served_level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "sequence_source": "default",
+   "catalog_revision": "catalog-000996"
+  }
+ },
+ {
+  "t": 1789376858955,
+  "name": "dog_found",
+  "p": {
+   "level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "dog_index": 4,
+   "time_since_start": 6,
+   "sequence_slot": 1,
+   "display_level_number": 1,
+   "intended_level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "served_level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "sequence_source": "default",
+   "catalog_revision": "catalog-000996"
+  }
+ },
+ {
+  "t": 1789376859375,
+  "name": "dog_found",
+  "p": {
+   "level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "dog_index": 5,
+   "time_since_start": 6,
+   "sequence_slot": 1,
+   "display_level_number": 1,
+   "intended_level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "served_level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "sequence_source": "default",
+   "catalog_revision": "catalog-000996"
+  }
+ },
+ {
+  "t": 1789376860218,
+  "name": "dog_found",
+  "p": {
+   "level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "dog_index": 6,
+   "time_since_start": 7,
+   "sequence_slot": 1,
+   "display_level_number": 1,
+   "intended_level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "served_level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "sequence_source": "default",
+   "catalog_revision": "catalog-000996"
+  }
+ },
+ {
+  "t": 1789376861055,
+  "name": "dog_found",
+  "p": {
+   "level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "dog_index": 7,
+   "time_since_start": 8,
+   "sequence_slot": 1,
+   "display_level_number": 1,
+   "intended_level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "served_level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "sequence_source": "default",
+   "catalog_revision": "catalog-000996"
+  }
+ },
+ {
+  "t": 1789376861476,
+  "name": "dog_found",
+  "p": {
+   "level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "dog_index": 8,
+   "time_since_start": 8,
+   "sequence_slot": 1,
+   "display_level_number": 1,
+   "intended_level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "served_level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "sequence_source": "default",
+   "catalog_revision": "catalog-000996"
+  }
+ },
+ {
+  "t": 1789376862319,
+  "name": "dog_found",
+  "p": {
+   "level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "dog_index": 9,
+   "time_since_start": 9,
+   "sequence_slot": 1,
+   "display_level_number": 1,
+   "intended_level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "served_level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "sequence_source": "default",
+   "catalog_revision": "catalog-000996"
+  }
+ },
+ {
+  "t": 1789376863155,
+  "name": "dog_found",
+  "p": {
+   "level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "dog_index": 10,
+   "time_since_start": 10,
+   "sequence_slot": 1,
+   "display_level_number": 1,
+   "intended_level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "served_level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "sequence_source": "default",
+   "catalog_revision": "catalog-000996"
+  }
+ },
+ {
+  "t": 1789376863576,
+  "name": "dog_found",
+  "p": {
+   "level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "dog_index": 11,
+   "time_since_start": 10,
+   "sequence_slot": 1,
+   "display_level_number": 1,
+   "intended_level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "served_level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "sequence_source": "default",
+   "catalog_revision": "catalog-000996"
+  }
+ },
+ {
+  "t": 1789376864420,
+  "name": "dog_found",
+  "p": {
+   "level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "dog_index": 12,
+   "time_since_start": 11,
+   "sequence_slot": 1,
+   "display_level_number": 1,
+   "intended_level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "served_level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "sequence_source": "default",
+   "catalog_revision": "catalog-000996"
+  }
+ },
+ {
+  "t": 1789376865255,
+  "name": "dog_found",
+  "p": {
+   "level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "dog_index": 13,
+   "time_since_start": 12,
+   "sequence_slot": 1,
+   "display_level_number": 1,
+   "intended_level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "served_level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "sequence_source": "default",
+   "catalog_revision": "catalog-000996"
+  }
+ },
+ {
+  "t": 1789376865675,
+  "name": "dog_found",
+  "p": {
+   "level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "dog_index": 14,
+   "time_since_start": 12,
+   "sequence_slot": 1,
+   "display_level_number": 1,
+   "intended_level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "served_level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "sequence_source": "default",
+   "catalog_revision": "catalog-000996"
+  }
+ },
+ {
+  "t": 1789376866516,
+  "name": "dog_found",
+  "p": {
+   "level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "dog_index": 15,
+   "time_since_start": 13,
+   "sequence_slot": 1,
+   "display_level_number": 1,
+   "intended_level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "served_level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "sequence_source": "default",
+   "catalog_revision": "catalog-000996"
+  }
+ },
+ {
+  "t": 1789376866951,
+  "name": "dog_found",
+  "p": {
+   "level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "dog_index": 16,
+   "time_since_start": 14,
+   "sequence_slot": 1,
+   "display_level_number": 1,
+   "intended_level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "served_level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "sequence_source": "default",
+   "catalog_revision": "catalog-000996"
+  }
+ },
+ {
+  "t": 1789376867784,
+  "name": "dog_found",
+  "p": {
+   "level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "dog_index": 17,
+   "time_since_start": 14,
+   "sequence_slot": 1,
+   "display_level_number": 1,
+   "intended_level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "served_level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "sequence_source": "default",
+   "catalog_revision": "catalog-000996"
+  }
+ },
+ {
+  "t": 1789376868616,
+  "name": "dog_found",
+  "p": {
+   "level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "dog_index": 18,
+   "time_since_start": 15,
+   "sequence_slot": 1,
+   "display_level_number": 1,
+   "intended_level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "served_level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "sequence_source": "default",
+   "catalog_revision": "catalog-000996"
+  }
+ },
+ {
+  "t": 1789376868616,
+  "name": "level_complete",
+  "p": {
+   "level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "level_index": 0,
+   "duration_ms": 15000
+  }
+ },
+ {
+  "t": 1789376869035,
+  "name": "level_complete_shown",
+  "p": {
+   "level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "sequence_slot": 1,
+   "display_level_number": 1,
+   "intended_level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "served_level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "sequence_source": "default",
+   "catalog_revision": "catalog-000996",
+   "level_index": 0,
+   "levels_completed_session": 1,
+   "duration_ms": 15463
+  }
+ },
+ {
+  "t": 1789376869035,
+  "name": "ad_lifecycle",
+  "p": {
+   "ad_type": "banner",
+   "placement": "gameplay",
+   "stage": "hidden",
+   "level_index": 0
+  }
+ },
+ {
+  "t": 1789376964988,
+  "name": "level_complete_action",
+  "p": {
+   "level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "sequence_slot": 1,
+   "display_level_number": 1,
+   "intended_level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "served_level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "sequence_source": "default",
+   "catalog_revision": "catalog-000996",
+   "level_index": 0,
+   "action": "dismissed_by_shutdown",
+   "dwell_ms": 95978,
+   "reward_revealed": true
+  }
+ },
+ {
+  "t": 1789376964988,
+  "name": "level_start",
+  "p": {
+   "level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "level_index": 0
+  }
+ },
+ {
+  "t": 1789376964988,
+  "name": "ad_lifecycle",
+  "p": {
+   "ad_type": "banner",
+   "placement": "gameplay",
+   "stage": "load_requested",
+   "level_index": 0
+  }
+ },
+ {
+  "t": 1789376965396,
+  "name": "ad_impression",
+  "p": {
+   "ad_format": "banner",
+   "placement": "gameplay",
+   "provider": "admob"
+  }
+ },
+ {
+  "t": 1789376965396,
+  "name": "ad_shown",
+  "p": {
+   "ad_type": "banner",
+   "placement": "gameplay"
+  }
+ },
+ {
+  "t": 1789376966655,
+  "name": "ad_lifecycle",
+  "p": {
+   "ad_type": "banner",
+   "placement": "gameplay",
+   "stage": "loaded",
+   "level_index": 0
+  }
+ },
+ {
+  "t": 1789376966655,
+  "name": "ad_lifecycle",
+  "p": {
+   "ad_type": "banner",
+   "placement": "gameplay",
+   "stage": "impression",
+   "level_index": 0
+  }
+ },
+ {
+  "t": 1789376967915,
+  "name": "dog_found",
+  "p": {
+   "level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "dog_index": 0,
+   "time_since_start": 3,
+   "sequence_slot": 1,
+   "display_level_number": 1,
+   "intended_level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "served_level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "sequence_source": "default",
+   "catalog_revision": "catalog-000996"
+  }
+ },
+ {
+  "t": 1789376968755,
+  "name": "dog_found",
+  "p": {
+   "level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "dog_index": 1,
+   "time_since_start": 3,
+   "sequence_slot": 1,
+   "display_level_number": 1,
+   "intended_level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "served_level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "sequence_source": "default",
+   "catalog_revision": "catalog-000996"
+  }
+ },
+ {
+  "t": 1789376969175,
+  "name": "dog_found",
+  "p": {
+   "level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "dog_index": 2,
+   "time_since_start": 4,
+   "sequence_slot": 1,
+   "display_level_number": 1,
+   "intended_level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "served_level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "sequence_source": "default",
+   "catalog_revision": "catalog-000996"
+  }
+ },
+ {
+  "t": 1789376970015,
+  "name": "dog_found",
+  "p": {
+   "level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "dog_index": 3,
+   "time_since_start": 5,
+   "sequence_slot": 1,
+   "display_level_number": 1,
+   "intended_level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "served_level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "sequence_source": "default",
+   "catalog_revision": "catalog-000996"
+  }
+ },
+ {
+  "t": 1789376970451,
+  "name": "dog_found",
+  "p": {
+   "level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "dog_index": 4,
+   "time_since_start": 6,
+   "sequence_slot": 1,
+   "display_level_number": 1,
+   "intended_level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "served_level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "sequence_source": "default",
+   "catalog_revision": "catalog-000996"
+  }
+ },
+ {
+  "t": 1789376971275,
+  "name": "dog_found",
+  "p": {
+   "level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "dog_index": 5,
+   "time_since_start": 6,
+   "sequence_slot": 1,
+   "display_level_number": 1,
+   "intended_level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "served_level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "sequence_source": "default",
+   "catalog_revision": "catalog-000996"
+  }
+ },
+ {
+  "t": 1789376972117,
+  "name": "dog_found",
+  "p": {
+   "level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "dog_index": 6,
+   "time_since_start": 7,
+   "sequence_slot": 1,
+   "display_level_number": 1,
+   "intended_level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "served_level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "sequence_source": "default",
+   "catalog_revision": "catalog-000996"
+  }
+ },
+ {
+  "t": 1789376972534,
+  "name": "dog_found",
+  "p": {
+   "level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "dog_index": 7,
+   "time_since_start": 8,
+   "sequence_slot": 1,
+   "display_level_number": 1,
+   "intended_level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "served_level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "sequence_source": "default",
+   "catalog_revision": "catalog-000996"
+  }
+ },
+ {
+  "t": 1789376973375,
+  "name": "dog_found",
+  "p": {
+   "level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "dog_index": 8,
+   "time_since_start": 8,
+   "sequence_slot": 1,
+   "display_level_number": 1,
+   "intended_level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "served_level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "sequence_source": "default",
+   "catalog_revision": "catalog-000996"
+  }
+ },
+ {
+  "t": 1789376974216,
+  "name": "dog_found",
+  "p": {
+   "level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "dog_index": 9,
+   "time_since_start": 9,
+   "sequence_slot": 1,
+   "display_level_number": 1,
+   "intended_level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "served_level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "sequence_source": "default",
+   "catalog_revision": "catalog-000996"
+  }
+ },
+ {
+  "t": 1789376974637,
+  "name": "dog_found",
+  "p": {
+   "level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "dog_index": 10,
+   "time_since_start": 10,
+   "sequence_slot": 1,
+   "display_level_number": 1,
+   "intended_level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "served_level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "sequence_source": "default",
+   "catalog_revision": "catalog-000996"
+  }
+ },
+ {
+  "t": 1789376975475,
+  "name": "dog_found",
+  "p": {
+   "level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "dog_index": 11,
+   "time_since_start": 10,
+   "sequence_slot": 1,
+   "display_level_number": 1,
+   "intended_level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "served_level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "sequence_source": "default",
+   "catalog_revision": "catalog-000996"
+  }
+ },
+ {
+  "t": 1789376976315,
+  "name": "dog_found",
+  "p": {
+   "level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "dog_index": 12,
+   "time_since_start": 11,
+   "sequence_slot": 1,
+   "display_level_number": 1,
+   "intended_level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "served_level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "sequence_source": "default",
+   "catalog_revision": "catalog-000996"
+  }
+ },
+ {
+  "t": 1789376976735,
+  "name": "dog_found",
+  "p": {
+   "level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "dog_index": 13,
+   "time_since_start": 12,
+   "sequence_slot": 1,
+   "display_level_number": 1,
+   "intended_level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "served_level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "sequence_source": "default",
+   "catalog_revision": "catalog-000996"
+  }
+ },
+ {
+  "t": 1789376977575,
+  "name": "dog_found",
+  "p": {
+   "level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "dog_index": 14,
+   "time_since_start": 12,
+   "sequence_slot": 1,
+   "display_level_number": 1,
+   "intended_level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "served_level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "sequence_source": "default",
+   "catalog_revision": "catalog-000996"
+  }
+ },
+ {
+  "t": 1789376978415,
+  "name": "dog_found",
+  "p": {
+   "level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "dog_index": 15,
+   "time_since_start": 13,
+   "sequence_slot": 1,
+   "display_level_number": 1,
+   "intended_level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "served_level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "sequence_source": "default",
+   "catalog_revision": "catalog-000996"
+  }
+ },
+ {
+  "t": 1789376978835,
+  "name": "dog_found",
+  "p": {
+   "level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "dog_index": 16,
+   "time_since_start": 14,
+   "sequence_slot": 1,
+   "display_level_number": 1,
+   "intended_level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "served_level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "sequence_source": "default",
+   "catalog_revision": "catalog-000996"
+  }
+ },
+ {
+  "t": 1789376979675,
+  "name": "dog_found",
+  "p": {
+   "level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "dog_index": 17,
+   "time_since_start": 14,
+   "sequence_slot": 1,
+   "display_level_number": 1,
+   "intended_level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "served_level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "sequence_source": "default",
+   "catalog_revision": "catalog-000996"
+  }
+ },
+ {
+  "t": 1789376980110,
+  "name": "dog_found",
+  "p": {
+   "level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "dog_index": 18,
+   "time_since_start": 15,
+   "sequence_slot": 1,
+   "display_level_number": 1,
+   "intended_level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "served_level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "sequence_source": "default",
+   "catalog_revision": "catalog-000996"
+  }
+ },
+ {
+  "t": 1789376980110,
+  "name": "level_complete",
+  "p": {
+   "level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "level_index": 0,
+   "duration_ms": 15000
+  }
+ },
+ {
+  "t": 1789376980515,
+  "name": "level_complete_shown",
+  "p": {
+   "level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "sequence_slot": 1,
+   "display_level_number": 1,
+   "intended_level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "served_level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "sequence_source": "default",
+   "catalog_revision": "catalog-000996",
+   "level_index": 0,
+   "levels_completed_session": 1,
+   "duration_ms": 15459
+  }
+ },
+ {
+  "t": 1789376980515,
+  "name": "ad_lifecycle",
+  "p": {
+   "ad_type": "banner",
+   "placement": "gameplay",
+   "stage": "hidden",
+   "level_index": 0
+  }
+ },
+ {
+  "t": 1789376984483,
+  "name": "level_complete_action",
+  "p": {
+   "level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "sequence_slot": 1,
+   "display_level_number": 1,
+   "intended_level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "served_level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "sequence_source": "default",
+   "catalog_revision": "catalog-000996",
+   "level_index": 0,
+   "action": "next",
+   "dwell_ms": 3517,
+   "reward_revealed": true
+  }
+ },
+ {
+  "t": 1789376984483,
+  "name": "interstitial_gate",
+  "p": {
+   "level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "sequence_slot": 1,
+   "display_level_number": 1,
+   "intended_level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "served_level_id": "hawaii_rainforest_waterfall_bird_0f98",
+   "sequence_source": "default",
+   "catalog_revision": "catalog-000996",
+   "level_index": 0,
+   "eligible": false,
+   "reason": "cadence",
+   "every_n": 3,
+   "levels_completed_session": 1
+  }
+ },
+ {
+  "t": 1789376984483,
+  "name": "level_start",
+  "p": {
+   "level_id": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+   "level_index": 1
+  }
+ },
+ {
+  "t": 1789376984483,
+  "name": "ad_lifecycle",
+  "p": {
+   "ad_type": "banner",
+   "placement": "gameplay",
+   "stage": "load_requested",
+   "level_index": 1
+  }
+ },
+ {
+  "t": 1789376984483,
+  "name": "next_level_ready",
+  "p": {
+   "level_id": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+   "sequence_slot": 2,
+   "display_level_number": 2,
+   "intended_level_id": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+   "served_level_id": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+   "sequence_source": "default",
+   "catalog_revision": "catalog-000996",
+   "level_index": 1,
+   "gap_ms": 548,
+   "after_interstitial": false
+  }
+ },
+ {
+  "t": 1789376984483,
+  "name": "ad_impression",
+  "p": {
+   "ad_format": "banner",
+   "placement": "gameplay",
+   "provider": "admob"
+  }
+ },
+ {
+  "t": 1789376984483,
+  "name": "ad_shown",
+  "p": {
+   "ad_type": "banner",
+   "placement": "gameplay"
+  }
+ },
+ {
+  "t": 1789376985315,
+  "name": "ad_lifecycle",
+  "p": {
+   "ad_type": "banner",
+   "placement": "gameplay",
+   "stage": "loaded",
+   "level_index": 1
+  }
+ },
+ {
+  "t": 1789376985315,
+  "name": "ad_lifecycle",
+  "p": {
+   "ad_type": "banner",
+   "placement": "gameplay",
+   "stage": "impression",
+   "level_index": 1
+  }
+ },
+ {
+  "t": 1789376986155,
+  "name": "dog_found",
+  "p": {
+   "level_id": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+   "dog_index": 0,
+   "time_since_start": 2,
+   "sequence_slot": 2,
+   "display_level_number": 2,
+   "intended_level_id": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+   "served_level_id": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+   "sequence_source": "default",
+   "catalog_revision": "catalog-000996"
+  }
+ },
+ {
+  "t": 1789376986995,
+  "name": "dog_found",
+  "p": {
+   "level_id": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+   "dog_index": 1,
+   "time_since_start": 2,
+   "sequence_slot": 2,
+   "display_level_number": 2,
+   "intended_level_id": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+   "served_level_id": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+   "sequence_source": "default",
+   "catalog_revision": "catalog-000996"
+  }
+ },
+ {
+  "t": 1789376987427,
+  "name": "dog_found",
+  "p": {
+   "level_id": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+   "dog_index": 2,
+   "time_since_start": 3,
+   "sequence_slot": 2,
+   "display_level_number": 2,
+   "intended_level_id": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+   "served_level_id": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+   "sequence_source": "default",
+   "catalog_revision": "catalog-000996"
+  }
+ },
+ {
+  "t": 1789376988255,
+  "name": "dog_found",
+  "p": {
+   "level_id": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+   "dog_index": 3,
+   "time_since_start": 4,
+   "sequence_slot": 2,
+   "display_level_number": 2,
+   "intended_level_id": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+   "served_level_id": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+   "sequence_source": "default",
+   "catalog_revision": "catalog-000996"
+  }
+ },
+ {
+  "t": 1789376989097,
+  "name": "dog_found",
+  "p": {
+   "level_id": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+   "dog_index": 4,
+   "time_since_start": 4,
+   "sequence_slot": 2,
+   "display_level_number": 2,
+   "intended_level_id": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+   "served_level_id": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+   "sequence_source": "default",
+   "catalog_revision": "catalog-000996"
+  }
+ },
+ {
+  "t": 1789376989518,
+  "name": "dog_found",
+  "p": {
+   "level_id": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+   "dog_index": 5,
+   "time_since_start": 5,
+   "sequence_slot": 2,
+   "display_level_number": 2,
+   "intended_level_id": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+   "served_level_id": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+   "sequence_source": "default",
+   "catalog_revision": "catalog-000996"
+  }
+ },
+ {
+  "t": 1789376990354,
+  "name": "dog_found",
+  "p": {
+   "level_id": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+   "dog_index": 6,
+   "time_since_start": 6,
+   "sequence_slot": 2,
+   "display_level_number": 2,
+   "intended_level_id": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+   "served_level_id": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+   "sequence_source": "default",
+   "catalog_revision": "catalog-000996"
+  }
+ },
+ {
+  "t": 1789376991195,
+  "name": "dog_found",
+  "p": {
+   "level_id": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+   "dog_index": 7,
+   "time_since_start": 6,
+   "sequence_slot": 2,
+   "display_level_number": 2,
+   "intended_level_id": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+   "served_level_id": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+   "sequence_source": "default",
+   "catalog_revision": "catalog-000996"
+  }
+ },
+ {
+  "t": 1789376991619,
+  "name": "dog_found",
+  "p": {
+   "level_id": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+   "dog_index": 8,
+   "time_since_start": 7,
+   "sequence_slot": 2,
+   "display_level_number": 2,
+   "intended_level_id": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+   "served_level_id": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+   "sequence_source": "default",
+   "catalog_revision": "catalog-000996"
+  }
+ },
+ {
+  "t": 1789376992455,
+  "name": "dog_found",
+  "p": {
+   "level_id": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+   "dog_index": 9,
+   "time_since_start": 8,
+   "sequence_slot": 2,
+   "display_level_number": 2,
+   "intended_level_id": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+   "served_level_id": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+   "sequence_source": "default",
+   "catalog_revision": "catalog-000996"
+  }
+ },
+ {
+  "t": 1789376993299,
+  "name": "dog_found",
+  "p": {
+   "level_id": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+   "dog_index": 10,
+   "time_since_start": 8,
+   "sequence_slot": 2,
+   "display_level_number": 2,
+   "intended_level_id": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+   "served_level_id": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+   "sequence_source": "default",
+   "catalog_revision": "catalog-000996"
+  }
+ },
+ {
+  "t": 1789376993715,
+  "name": "dog_found",
+  "p": {
+   "level_id": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+   "dog_index": 11,
+   "time_since_start": 9,
+   "sequence_slot": 2,
+   "display_level_number": 2,
+   "intended_level_id": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+   "served_level_id": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+   "sequence_source": "default",
+   "catalog_revision": "catalog-000996"
+  }
+ },
+ {
+  "t": 1789376994555,
+  "name": "dog_found",
+  "p": {
+   "level_id": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+   "dog_index": 12,
+   "time_since_start": 10,
+   "sequence_slot": 2,
+   "display_level_number": 2,
+   "intended_level_id": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+   "served_level_id": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+   "sequence_source": "default",
+   "catalog_revision": "catalog-000996"
+  }
+ },
+ {
+  "t": 1789376995395,
+  "name": "dog_found",
+  "p": {
+   "level_id": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+   "dog_index": 13,
+   "time_since_start": 11,
+   "sequence_slot": 2,
+   "display_level_number": 2,
+   "intended_level_id": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+   "served_level_id": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+   "sequence_source": "default",
+   "catalog_revision": "catalog-000996"
+  }
+ },
+ {
+  "t": 1789376995816,
+  "name": "dog_found",
+  "p": {
+   "level_id": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+   "dog_index": 14,
+   "time_since_start": 11,
+   "sequence_slot": 2,
+   "display_level_number": 2,
+   "intended_level_id": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+   "served_level_id": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+   "sequence_source": "default",
+   "catalog_revision": "catalog-000996"
+  }
+ },
+ {
+  "t": 1789376996655,
+  "name": "dog_found",
+  "p": {
+   "level_id": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+   "dog_index": 15,
+   "time_since_start": 12,
+   "sequence_slot": 2,
+   "display_level_number": 2,
+   "intended_level_id": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+   "served_level_id": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+   "sequence_source": "default",
+   "catalog_revision": "catalog-000996"
+  }
+ },
+ {
+  "t": 1789376997089,
+  "name": "dog_found",
+  "p": {
+   "level_id": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+   "dog_index": 16,
+   "time_since_start": 13,
+   "sequence_slot": 2,
+   "display_level_number": 2,
+   "intended_level_id": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+   "served_level_id": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+   "sequence_source": "default",
+   "catalog_revision": "catalog-000996"
+  }
+ },
+ {
+  "t": 1789376997917,
+  "name": "dog_found",
+  "p": {
+   "level_id": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+   "dog_index": 17,
+   "time_since_start": 13,
+   "sequence_slot": 2,
+   "display_level_number": 2,
+   "intended_level_id": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+   "served_level_id": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+   "sequence_source": "default",
+   "catalog_revision": "catalog-000996"
+  }
+ },
+ {
+  "t": 1789376997917,
+  "name": "level_complete",
+  "p": {
+   "level_id": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+   "level_index": 1,
+   "duration_ms": 13000
+  }
+ },
+ {
+  "t": 1789376997917,
+  "name": "resource_changed",
+  "p": {
+   "flow_type": "source",
+   "currency": "coins",
+   "amount": 45,
+   "item_type": "level",
+   "item_id": "level_complete",
+   "level_id": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+   "transaction_id": "completion:46:1:cozy_interiors_cozy_toymaker_workshop_bird_4e44"
+  }
+ },
+ {
+  "t": 1789376997917,
+  "name": "achievement_progress",
+  "p": {
+   "event_id": "ach:3620:progress:first_completion",
+   "achievement_id": "first_completion",
+   "occurrence_id": "completion:46:1:cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+   "category": "completion",
+   "progress": 46,
+   "threshold": 1
+  }
+ },
+ {
+  "t": 1789376997917,
+  "name": "achievement_progress",
+  "p": {
+   "event_id": "ach:3621:progress:completions_10",
+   "achievement_id": "completions_10",
+   "occurrence_id": "completion:46:1:cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+   "category": "completion",
+   "progress": 46,
+   "threshold": 10
+  }
+ },
+ {
+  "t": 1789376997917,
+  "name": "achievement_progress",
+  "p": {
+   "event_id": "ach:3622:progress:completions_25",
+   "achievement_id": "completions_25",
+   "occurrence_id": "completion:46:1:cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+   "category": "completion",
+   "progress": 46,
+   "threshold": 25
+  }
+ },
+ {
+  "t": 1789376997917,
+  "name": "achievement_progress",
+  "p": {
+   "event_id": "ach:3623:progress:completions_50",
+   "achievement_id": "completions_50",
+   "occurrence_id": "completion:46:1:cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+   "category": "completion",
+   "progress": 46,
+   "threshold": 50
+  }
+ },
+ {
+  "t": 1789376997917,
+  "name": "achievement_progress",
+  "p": {
+   "event_id": "ach:3624:progress:completions_100",
+   "achievement_id": "completions_100",
+   "occurrence_id": "completion:46:1:cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+   "category": "completion",
+   "progress": 46,
+   "threshold": 100
+  }
+ },
+ {
+  "t": 1789376998335,
+  "name": "level_complete_shown",
+  "p": {
+   "level_id": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+   "sequence_slot": 2,
+   "display_level_number": 2,
+   "intended_level_id": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+   "served_level_id": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+   "sequence_source": "default",
+   "catalog_revision": "catalog-000996",
+   "level_index": 1,
+   "levels_completed_session": 2,
+   "duration_ms": 13612
+  }
+ },
+ {
+  "t": 1789376998335,
+  "name": "ad_lifecycle",
+  "p": {
+   "ad_type": "banner",
+   "placement": "gameplay",
+   "stage": "hidden",
+   "level_index": 1
+  }
+ },
+ {
+  "t": 1789377000015,
+  "name": "app_background",
+  "p": {}
+ },
+ {
+  "t": 1789377000015,
+  "name": "session_end",
+  "p": {}
+ },
+ {
+  "t": 1789377000015,
+  "name": "level_complete_action",
+  "p": {
+   "level_id": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+   "sequence_slot": 2,
+   "display_level_number": 2,
+   "intended_level_id": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+   "served_level_id": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+   "sequence_source": "default",
+   "catalog_revision": "catalog-000996",
+   "level_index": 1,
+   "action": "background",
+   "dwell_ms": 1629,
+   "reward_revealed": false
+  }
+ },
+ {
+  "t": 1789377001288,
+  "name": "session_start",
+  "p": {
+   "first_open": false
+  }
+ },
+ {
+  "t": 1789377001288,
+  "name": "app_foreground",
+  "p": {}
+ },
+ {
+  "t": 1789377002606,
+  "name": "level_complete_action",
+  "p": {
+   "level_id": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+   "sequence_slot": 2,
+   "display_level_number": 2,
+   "intended_level_id": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+   "served_level_id": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+   "sequence_source": "default",
+   "catalog_revision": "catalog-000996",
+   "level_index": 1,
+   "action": "next",
+   "dwell_ms": 4381,
+   "reward_revealed": true
+  }
+ },
+ {
+  "t": 1789377002606,
+  "name": "interstitial_gate",
+  "p": {
+   "level_id": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+   "sequence_slot": 2,
+   "display_level_number": 2,
+   "intended_level_id": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+   "served_level_id": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+   "sequence_source": "default",
+   "catalog_revision": "catalog-000996",
+   "level_index": 1,
+   "eligible": false,
+   "reason": "cadence",
+   "every_n": 3,
+   "levels_completed_session": 2
+  }
+ },
+ {
+  "t": 1789377003015,
+  "name": "level_start",
+  "p": {
+   "level_id": "ad_campaigns_ad_cozy_library_bird_e654",
+   "level_index": 2
+  }
+ },
+ {
+  "t": 1789377003015,
+  "name": "ad_lifecycle",
+  "p": {
+   "ad_type": "banner",
+   "placement": "gameplay",
+   "stage": "load_requested",
+   "level_index": 2
+  }
+ },
+ {
+  "t": 1789377003015,
+  "name": "next_level_ready",
+  "p": {
+   "level_id": "ad_campaigns_ad_cozy_library_bird_e654",
+   "sequence_slot": 3,
+   "display_level_number": 3,
+   "intended_level_id": "ad_campaigns_ad_cozy_library_bird_e654",
+   "served_level_id": "ad_campaigns_ad_cozy_library_bird_e654",
+   "sequence_source": "default",
+   "catalog_revision": "catalog-000996",
+   "level_index": 2,
+   "gap_ms": 526,
+   "after_interstitial": false
+  }
+ },
+ {
+  "t": 1789377003015,
+  "name": "ad_impression",
+  "p": {
+   "ad_format": "banner",
+   "placement": "gameplay",
+   "provider": "admob"
+  }
+ },
+ {
+  "t": 1789377003015,
+  "name": "ad_shown",
+  "p": {
+   "ad_type": "banner",
+   "placement": "gameplay"
+  }
+ },
+ {
+  "t": 1789377003855,
+  "name": "ad_lifecycle",
+  "p": {
+   "ad_type": "banner",
+   "placement": "gameplay",
+   "stage": "loaded",
+   "level_index": 2
+  }
+ },
+ {
+  "t": 1789377003855,
+  "name": "ad_lifecycle",
+  "p": {
+   "ad_type": "banner",
+   "placement": "gameplay",
+   "stage": "impression",
+   "level_index": 2
+  }
+ },
+ {
+  "t": 1789377004695,
+  "name": "dog_found",
+  "p": {
+   "level_id": "ad_campaigns_ad_cozy_library_bird_e654",
+   "dog_index": 0,
+   "time_since_start": 2,
+   "sequence_slot": 3,
+   "display_level_number": 3,
+   "intended_level_id": "ad_campaigns_ad_cozy_library_bird_e654",
+   "served_level_id": "ad_campaigns_ad_cozy_library_bird_e654",
+   "sequence_source": "default",
+   "catalog_revision": "catalog-000996"
+  }
+ },
+ {
+  "t": 1789377005538,
+  "name": "dog_found",
+  "p": {
+   "level_id": "ad_campaigns_ad_cozy_library_bird_e654",
+   "dog_index": 1,
+   "time_since_start": 2,
+   "sequence_slot": 3,
+   "display_level_number": 3,
+   "intended_level_id": "ad_campaigns_ad_cozy_library_bird_e654",
+   "served_level_id": "ad_campaigns_ad_cozy_library_bird_e654",
+   "sequence_source": "default",
+   "catalog_revision": "catalog-000996"
+  }
+ },
+ {
+  "t": 1789377005954,
+  "name": "dog_found",
+  "p": {
+   "level_id": "ad_campaigns_ad_cozy_library_bird_e654",
+   "dog_index": 2,
+   "time_since_start": 3,
+   "sequence_slot": 3,
+   "display_level_number": 3,
+   "intended_level_id": "ad_campaigns_ad_cozy_library_bird_e654",
+   "served_level_id": "ad_campaigns_ad_cozy_library_bird_e654",
+   "sequence_source": "default",
+   "catalog_revision": "catalog-000996"
+  }
+ },
+ {
+  "t": 1789377006795,
+  "name": "dog_found",
+  "p": {
+   "level_id": "ad_campaigns_ad_cozy_library_bird_e654",
+   "dog_index": 3,
+   "time_since_start": 4,
+   "sequence_slot": 3,
+   "display_level_number": 3,
+   "intended_level_id": "ad_campaigns_ad_cozy_library_bird_e654",
+   "served_level_id": "ad_campaigns_ad_cozy_library_bird_e654",
+   "sequence_source": "default",
+   "catalog_revision": "catalog-000996"
+  }
+ },
+ {
+  "t": 1789377007640,
+  "name": "dog_found",
+  "p": {
+   "level_id": "ad_campaigns_ad_cozy_library_bird_e654",
+   "dog_index": 4,
+   "time_since_start": 4,
+   "sequence_slot": 3,
+   "display_level_number": 3,
+   "intended_level_id": "ad_campaigns_ad_cozy_library_bird_e654",
+   "served_level_id": "ad_campaigns_ad_cozy_library_bird_e654",
+   "sequence_source": "default",
+   "catalog_revision": "catalog-000996"
+  }
+ },
+ {
+  "t": 1789377008061,
+  "name": "dog_found",
+  "p": {
+   "level_id": "ad_campaigns_ad_cozy_library_bird_e654",
+   "dog_index": 5,
+   "time_since_start": 5,
+   "sequence_slot": 3,
+   "display_level_number": 3,
+   "intended_level_id": "ad_campaigns_ad_cozy_library_bird_e654",
+   "served_level_id": "ad_campaigns_ad_cozy_library_bird_e654",
+   "sequence_source": "default",
+   "catalog_revision": "catalog-000996"
+  }
+ },
+ {
+  "t": 1789377008894,
+  "name": "dog_found",
+  "p": {
+   "level_id": "ad_campaigns_ad_cozy_library_bird_e654",
+   "dog_index": 6,
+   "time_since_start": 6,
+   "sequence_slot": 3,
+   "display_level_number": 3,
+   "intended_level_id": "ad_campaigns_ad_cozy_library_bird_e654",
+   "served_level_id": "ad_campaigns_ad_cozy_library_bird_e654",
+   "sequence_source": "default",
+   "catalog_revision": "catalog-000996"
+  }
+ },
+ {
+  "t": 1789377009327,
+  "name": "dog_found",
+  "p": {
+   "level_id": "ad_campaigns_ad_cozy_library_bird_e654",
+   "dog_index": 7,
+   "time_since_start": 6,
+   "sequence_slot": 3,
+   "display_level_number": 3,
+   "intended_level_id": "ad_campaigns_ad_cozy_library_bird_e654",
+   "served_level_id": "ad_campaigns_ad_cozy_library_bird_e654",
+   "sequence_source": "default",
+   "catalog_revision": "catalog-000996"
+  }
+ },
+ {
+  "t": 1789377010155,
+  "name": "dog_found",
+  "p": {
+   "level_id": "ad_campaigns_ad_cozy_library_bird_e654",
+   "dog_index": 8,
+   "time_since_start": 7,
+   "sequence_slot": 3,
+   "display_level_number": 3,
+   "intended_level_id": "ad_campaigns_ad_cozy_library_bird_e654",
+   "served_level_id": "ad_campaigns_ad_cozy_library_bird_e654",
+   "sequence_source": "default",
+   "catalog_revision": "catalog-000996"
+  }
+ },
+ {
+  "t": 1789377010995,
+  "name": "dog_found",
+  "p": {
+   "level_id": "ad_campaigns_ad_cozy_library_bird_e654",
+   "dog_index": 9,
+   "time_since_start": 8,
+   "sequence_slot": 3,
+   "display_level_number": 3,
+   "intended_level_id": "ad_campaigns_ad_cozy_library_bird_e654",
+   "served_level_id": "ad_campaigns_ad_cozy_library_bird_e654",
+   "sequence_source": "default",
+   "catalog_revision": "catalog-000996"
+  }
+ },
+ {
+  "t": 1789377011414,
+  "name": "dog_found",
+  "p": {
+   "level_id": "ad_campaigns_ad_cozy_library_bird_e654",
+   "dog_index": 10,
+   "time_since_start": 8,
+   "sequence_slot": 3,
+   "display_level_number": 3,
+   "intended_level_id": "ad_campaigns_ad_cozy_library_bird_e654",
+   "served_level_id": "ad_campaigns_ad_cozy_library_bird_e654",
+   "sequence_source": "default",
+   "catalog_revision": "catalog-000996"
+  }
+ },
+ {
+  "t": 1789377012255,
+  "name": "dog_found",
+  "p": {
+   "level_id": "ad_campaigns_ad_cozy_library_bird_e654",
+   "dog_index": 11,
+   "time_since_start": 9,
+   "sequence_slot": 3,
+   "display_level_number": 3,
+   "intended_level_id": "ad_campaigns_ad_cozy_library_bird_e654",
+   "served_level_id": "ad_campaigns_ad_cozy_library_bird_e654",
+   "sequence_source": "default",
+   "catalog_revision": "catalog-000996"
+  }
+ },
+ {
+  "t": 1789377013096,
+  "name": "dog_found",
+  "p": {
+   "level_id": "ad_campaigns_ad_cozy_library_bird_e654",
+   "dog_index": 12,
+   "time_since_start": 10,
+   "sequence_slot": 3,
+   "display_level_number": 3,
+   "intended_level_id": "ad_campaigns_ad_cozy_library_bird_e654",
+   "served_level_id": "ad_campaigns_ad_cozy_library_bird_e654",
+   "sequence_source": "default",
+   "catalog_revision": "catalog-000996"
+  }
+ },
+ {
+  "t": 1789377013546,
+  "name": "dog_found",
+  "p": {
+   "level_id": "ad_campaigns_ad_cozy_library_bird_e654",
+   "dog_index": 13,
+   "time_since_start": 11,
+   "sequence_slot": 3,
+   "display_level_number": 3,
+   "intended_level_id": "ad_campaigns_ad_cozy_library_bird_e654",
+   "served_level_id": "ad_campaigns_ad_cozy_library_bird_e654",
+   "sequence_source": "default",
+   "catalog_revision": "catalog-000996"
+  }
+ },
+ {
+  "t": 1789377014385,
+  "name": "dog_found",
+  "p": {
+   "level_id": "ad_campaigns_ad_cozy_library_bird_e654",
+   "dog_index": 14,
+   "time_since_start": 11,
+   "sequence_slot": 3,
+   "display_level_number": 3,
+   "intended_level_id": "ad_campaigns_ad_cozy_library_bird_e654",
+   "served_level_id": "ad_campaigns_ad_cozy_library_bird_e654",
+   "sequence_source": "default",
+   "catalog_revision": "catalog-000996"
+  }
+ },
+ {
+  "t": 1789377015224,
+  "name": "dog_found",
+  "p": {
+   "level_id": "ad_campaigns_ad_cozy_library_bird_e654",
+   "dog_index": 15,
+   "time_since_start": 12,
+   "sequence_slot": 3,
+   "display_level_number": 3,
+   "intended_level_id": "ad_campaigns_ad_cozy_library_bird_e654",
+   "served_level_id": "ad_campaigns_ad_cozy_library_bird_e654",
+   "sequence_source": "default",
+   "catalog_revision": "catalog-000996"
+  }
+ },
+ {
+  "t": 1789377015645,
+  "name": "dog_found",
+  "p": {
+   "level_id": "ad_campaigns_ad_cozy_library_bird_e654",
+   "dog_index": 16,
+   "time_since_start": 13,
+   "sequence_slot": 3,
+   "display_level_number": 3,
+   "intended_level_id": "ad_campaigns_ad_cozy_library_bird_e654",
+   "served_level_id": "ad_campaigns_ad_cozy_library_bird_e654",
+   "sequence_source": "default",
+   "catalog_revision": "catalog-000996"
+  }
+ },
+ {
+  "t": 1789377016485,
+  "name": "dog_found",
+  "p": {
+   "level_id": "ad_campaigns_ad_cozy_library_bird_e654",
+   "dog_index": 17,
+   "time_since_start": 13,
+   "sequence_slot": 3,
+   "display_level_number": 3,
+   "intended_level_id": "ad_campaigns_ad_cozy_library_bird_e654",
+   "served_level_id": "ad_campaigns_ad_cozy_library_bird_e654",
+   "sequence_source": "default",
+   "catalog_revision": "catalog-000996"
+  }
+ },
+ {
+  "t": 1789377017325,
+  "name": "dog_found",
+  "p": {
+   "level_id": "ad_campaigns_ad_cozy_library_bird_e654",
+   "dog_index": 18,
+   "time_since_start": 14,
+   "sequence_slot": 3,
+   "display_level_number": 3,
+   "intended_level_id": "ad_campaigns_ad_cozy_library_bird_e654",
+   "served_level_id": "ad_campaigns_ad_cozy_library_bird_e654",
+   "sequence_source": "default",
+   "catalog_revision": "catalog-000996"
+  }
+ },
+ {
+  "t": 1789377017826,
+  "name": "dog_found",
+  "p": {
+   "level_id": "ad_campaigns_ad_cozy_library_bird_e654",
+   "dog_index": 19,
+   "time_since_start": 15,
+   "sequence_slot": 3,
+   "display_level_number": 3,
+   "intended_level_id": "ad_campaigns_ad_cozy_library_bird_e654",
+   "served_level_id": "ad_campaigns_ad_cozy_library_bird_e654",
+   "sequence_source": "default",
+   "catalog_revision": "catalog-000996"
+  }
+ },
+ {
+  "t": 1789377017826,
+  "name": "level_complete",
+  "p": {
+   "level_id": "ad_campaigns_ad_cozy_library_bird_e654",
+   "level_index": 2,
+   "duration_ms": 15000
+  }
+ },
+ {
+  "t": 1789377017826,
+  "name": "resource_changed",
+  "p": {
+   "flow_type": "source",
+   "currency": "coins",
+   "amount": 45,
+   "item_type": "level",
+   "item_id": "level_complete",
+   "level_id": "ad_campaigns_ad_cozy_library_bird_e654",
+   "transaction_id": "completion:47:2:ad_campaigns_ad_cozy_library_bird_e654"
+  }
+ },
+ {
+  "t": 1789377017826,
+  "name": "achievement_progress",
+  "p": {
+   "event_id": "ach:3625:progress:first_completion",
+   "achievement_id": "first_completion",
+   "occurrence_id": "completion:47:2:ad_campaigns_ad_cozy_library_bird_e654",
+   "category": "completion",
+   "progress": 47,
+   "threshold": 1
+  }
+ },
+ {
+  "t": 1789377017826,
+  "name": "achievement_progress",
+  "p": {
+   "event_id": "ach:3626:progress:completions_10",
+   "achievement_id": "completions_10",
+   "occurrence_id": "completion:47:2:ad_campaigns_ad_cozy_library_bird_e654",
+   "category": "completion",
+   "progress": 47,
+   "threshold": 10
+  }
+ },
+ {
+  "t": 1789377017826,
+  "name": "achievement_progress",
+  "p": {
+   "event_id": "ach:3627:progress:completions_25",
+   "achievement_id": "completions_25",
+   "occurrence_id": "completion:47:2:ad_campaigns_ad_cozy_library_bird_e654",
+   "category": "completion",
+   "progress": 47,
+   "threshold": 25
+  }
+ },
+ {
+  "t": 1789377017826,
+  "name": "achievement_progress",
+  "p": {
+   "event_id": "ach:3628:progress:completions_50",
+   "achievement_id": "completions_50",
+   "occurrence_id": "completion:47:2:ad_campaigns_ad_cozy_library_bird_e654",
+   "category": "completion",
+   "progress": 47,
+   "threshold": 50
+  }
+ },
+ {
+  "t": 1789377017826,
+  "name": "achievement_progress",
+  "p": {
+   "event_id": "ach:3629:progress:completions_100",
+   "achievement_id": "completions_100",
+   "occurrence_id": "completion:47:2:ad_campaigns_ad_cozy_library_bird_e654",
+   "category": "completion",
+   "progress": 47,
+   "threshold": 100
+  }
+ },
+ {
+  "t": 1789377018257,
+  "name": "level_complete_shown",
+  "p": {
+   "level_id": "ad_campaigns_ad_cozy_library_bird_e654",
+   "sequence_slot": 3,
+   "display_level_number": 3,
+   "intended_level_id": "ad_campaigns_ad_cozy_library_bird_e654",
+   "served_level_id": "ad_campaigns_ad_cozy_library_bird_e654",
+   "sequence_source": "default",
+   "catalog_revision": "catalog-000996",
+   "level_index": 2,
+   "levels_completed_session": 3,
+   "duration_ms": 15096
+  }
+ },
+ {
+  "t": 1789377018257,
+  "name": "ad_lifecycle",
+  "p": {
+   "ad_type": "banner",
+   "placement": "gameplay",
+   "stage": "hidden",
+   "level_index": 2
+  }
+ },
+ {
+  "t": 1789377021614,
+  "name": "level_complete_action",
+  "p": {
+   "level_id": "ad_campaigns_ad_cozy_library_bird_e654",
+   "sequence_slot": 3,
+   "display_level_number": 3,
+   "intended_level_id": "ad_campaigns_ad_cozy_library_bird_e654",
+   "served_level_id": "ad_campaigns_ad_cozy_library_bird_e654",
+   "sequence_source": "default",
+   "catalog_revision": "catalog-000996",
+   "level_index": 2,
+   "action": "next",
+   "dwell_ms": 3323,
+   "reward_revealed": true
+  }
+ },
+ {
+  "t": 1789377021614,
+  "name": "interstitial_gate",
+  "p": {
+   "level_id": "ad_campaigns_ad_cozy_library_bird_e654",
+   "sequence_slot": 3,
+   "display_level_number": 3,
+   "intended_level_id": "ad_campaigns_ad_cozy_library_bird_e654",
+   "served_level_id": "ad_campaigns_ad_cozy_library_bird_e654",
+   "sequence_source": "default",
+   "catalog_revision": "catalog-000996",
+   "level_index": 2,
+   "eligible": true,
+   "reason": "cadence",
+   "every_n": 3,
+   "levels_completed_session": 3
+  }
+ },
+ {
+  "t": 1789377021614,
+  "name": "ad_lifecycle",
+  "p": {
+   "ad_type": "interstitial",
+   "placement": "between_levels",
+   "stage": "show_requested",
+   "cache_age_ms": 184950,
+   "level_index": 3
+  }
+ },
+ {
+  "t": 1789377021614,
+  "name": "ad_lifecycle",
+  "p": {
+   "ad_type": "interstitial",
+   "placement": "between_levels",
+   "stage": "shown",
+   "cache_age_ms": 184950,
+   "level_index": 3
+  }
+ },
+ {
+  "t": 1789377023166,
+  "name": "app_background",
+  "p": {}
+ },
+ {
+  "t": 1789377023166,
+  "name": "session_end",
+  "p": {}
+ },
+ {
+  "t": 1789377587657,
+  "name": "session_start",
+  "p": {
+   "first_open": false
+  }
+ },
+ {
+  "t": 1789377587657,
+  "name": "app_foreground",
+  "p": {}
+ },
+ {
+  "t": 1789377588253,
+  "name": "ad_lifecycle",
+  "p": {
+   "ad_type": "interstitial",
+   "placement": "between_levels",
+   "stage": "dismissed",
+   "level_index": 3
+  }
+ },
+ {
+  "t": 1789377588253,
+  "name": "ad_impression",
+  "p": {
+   "ad_format": "interstitial",
+   "placement": "between_levels",
+   "provider": "admob"
+  }
+ },
+ {
+  "t": 1789377588253,
+  "name": "ad_shown",
+  "p": {
+   "ad_type": "interstitial",
+   "placement": "between_levels"
+  }
+ },
+ {
+  "t": 1789377588253,
+  "name": "ad_lifecycle",
+  "p": {
+   "ad_type": "interstitial",
+   "placement": "between_levels",
+   "stage": "load_requested",
+   "attempt": 1,
+   "level_index": 3
+  }
+ },
+ {
+  "t": 1789377588253,
+  "name": "level_start",
+  "p": {
+   "level_id": "greece_santorini_steps_bird_4634",
+   "level_index": 3
+  }
+ },
+ {
+  "t": 1789377588253,
+  "name": "ad_lifecycle",
+  "p": {
+   "ad_type": "banner",
+   "placement": "gameplay",
+   "stage": "load_requested",
+   "level_index": 3
+  }
+ },
+ {
+  "t": 1789377588677,
+  "name": "next_level_ready",
+  "p": {
+   "level_id": "greece_santorini_steps_bird_4634",
+   "sequence_slot": 4,
+   "display_level_number": 4,
+   "intended_level_id": "greece_santorini_steps_bird_4634",
+   "served_level_id": "greece_santorini_steps_bird_4634",
+   "sequence_source": "default",
+   "catalog_revision": "catalog-000996",
+   "level_index": 3,
+   "gap_ms": 566875,
+   "after_interstitial": true
+  }
+ },
+ {
+  "t": 1789377588677,
+  "name": "ad_impression",
+  "p": {
+   "ad_format": "banner",
+   "placement": "gameplay",
+   "provider": "admob"
+  }
+ },
+ {
+  "t": 1789377588677,
+  "name": "ad_shown",
+  "p": {
+   "ad_type": "banner",
+   "placement": "gameplay"
+  }
+ },
+ {
+  "t": 1789377589517,
+  "name": "ad_lifecycle",
+  "p": {
+   "ad_type": "interstitial",
+   "placement": "between_levels",
+   "stage": "loaded",
+   "level_index": 3
+  }
+ }
+]

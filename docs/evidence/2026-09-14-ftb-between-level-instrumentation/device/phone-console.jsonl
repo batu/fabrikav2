@@ -1,0 +1,243 @@
+{"at": 1789375498.6672, "level": "hello", "t": 1789375498358, "args": ["capacitor://localhost", "Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148"]}
+{"at": 1789375499.250077, "level": "log", "t": 1789375499042, "args": ["%c %c %c %c %c Phaser v3.90.0 (WebGL | Web Audio) %c https://phaser.io/v390", "background: #ff0000", "background: #ffff00", "background: #00ff00", "background: #00ffff", "color: #ffffff; background: #000000", "background: transparent"]}
+{"at": 1789375499.267974, "level": "info", "t": 1789375499145, "args": ["[attribution:appsflyer] AppsFlyer initialized", ""]}
+{"at": 1789375499.2770948, "level": "info", "t": 1789375499064, "args": ["[ads:disabled] AdMob unavailable: invalid AdMob iOS config: VITE_ADMOB_IOS_BANNER_ID, VITE_ADMOB_IOS_INTERSTITIAL_ID, VITE_ADMOB_IOS_REWARDED_ID, VITE_ADMOB_IOS_BANNER_ID, VITE_ADMOB_IOS_INTERSTITIAL_ID, VITE_ADMOB_IOS_REWARDED_ID"]}
+{"at": 1789375499.277198, "level": "info", "t": 1789375499068, "args": ["[attribution:appsflyer] initializing AppsFlyer", "{\"devKey\":\"<redacted:DVka>\",\"appleAppId\":\"6796698146\",\"debugLogging\":false,\"blockedPartners\":[],\"requestTrackingAuthorization\":true}"]}
+{"at": 1789375499.4266539, "level": "info", "t": 1789375499327, "args": ["[attribution:appsflyer] legacy event ignored by AppsFlyer projection: appOpen", ""]}
+{"at": 1789375500.3652108, "level": "warn", "t": 1789375500283, "args": ["Using a callback as the 'options' parameter of 'nativeCallback()' is deprecated."]}
+{"at": 1789375560.046829, "level": "hello", "t": 1789375559919, "args": ["capacitor://localhost", "Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148"]}
+{"at": 1789375560.304949, "level": "log", "t": 1789375560203, "args": ["%c %c %c %c %c Phaser v3.90.0 (WebGL | Web Audio) %c https://phaser.io/v390", "background: #ff0000", "background: #ffff00", "background: #00ff00", "background: #00ffff", "color: #ffffff; background: #000000", "background: transparent"]}
+{"at": 1789375560.7763772, "level": "info", "t": 1789375560534, "args": ["[ads:admob] tracking authorization", "{\"status\":\"authorized\"}"]}
+{"at": 1789375560.94788, "level": "info", "t": 1789375560534, "args": ["[ads:admob] initializing AdMob", "{\"audience\":\"general\",\"initializeForTesting\":false,\"testingDeviceCount\":0}"]}
+{"at": 1789375560.9481988, "level": "info", "t": 1789375560556, "args": ["[ads:admob] AdMob initialized", ""]}
+{"at": 1789375560.948566, "level": "info", "t": 1789375560558, "args": ["[ads:admob] preloading rewarded ad", "{\"platform\":\"ios\",\"adId\":\"ca-app-pub-1033305870982415/5014061011\",\"isTesting\":false}"]}
+{"at": 1789375560.949109, "level": "info", "t": 1789375560557, "args": ["[attribution:appsflyer] legacy event ignored by AppsFlyer projection: appOpen", ""]}
+{"at": 1789375560.9495308, "level": "info", "t": 1789375560557, "args": ["[attribution:appsflyer] initializing AppsFlyer", "{\"devKey\":\"<redacted:DVka>\",\"appleAppId\":\"6796698146\",\"debugLogging\":false,\"blockedPartners\":[],\"requestTrackingAuthorization\":true}"]}
+{"at": 1789375560.9751759, "level": "info", "t": 1789375560557, "args": ["[ads:admob] preloading interstitial", "{\"platform\":\"ios\",\"adId\":\"ca-app-pub-1033305870982415/2579469367\",\"isTesting\":false,\"attempt\":1}"]}
+{"at": 1789375561.1231868, "level": "info", "t": 1789375560645, "args": ["[attribution:appsflyer] AppsFlyer initialized", ""]}
+{"at": 1789375561.124456, "level": "warn", "t": 1789375560679, "args": ["Using a callback as the 'options' parameter of 'nativeCallback()' is deprecated."]}
+{"at": 1789375563.372322, "level": "info", "t": 1789375563287, "args": ["[ads:admob] interstitial preloaded", ""]}
+{"at": 1789375563.591945, "level": "info", "t": 1789375563510, "args": ["[ads:admob] rewarded ad preloaded", ""]}
+{"at": 1789375831.799615, "level": "hello", "t": 1789375831648, "args": ["capacitor://localhost", "Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148"]}
+{"at": 1789375832.567866, "level": "log", "t": 1789375832513, "args": ["%c %c %c %c %c Phaser v3.90.0 (WebGL | Web Audio) %c https://phaser.io/v390", "background: #ff0000", "background: #ffff00", "background: #00ff00", "background: #00ffff", "color: #ffffff; background: #000000", "background: transparent"]}
+{"at": 1789375833.3624902, "level": "info", "t": 1789375832994, "args": ["[ads:admob] tracking authorization", "{\"status\":\"authorized\"}"]}
+{"at": 1789375833.383689, "level": "info", "t": 1789375832994, "args": ["[ads:admob] initializing AdMob", "{\"audience\":\"general\",\"initializeForTesting\":false,\"testingDeviceCount\":0}"]}
+{"at": 1789375833.384219, "level": "info", "t": 1789375832998, "args": ["[ads:admob] AdMob initialized", ""]}
+{"at": 1789375833.38446, "level": "info", "t": 1789375832999, "args": ["[attribution:appsflyer] legacy event ignored by AppsFlyer projection: appOpen", ""]}
+{"at": 1789375833.399275, "level": "info", "t": 1789375832999, "args": ["[attribution:appsflyer] initializing AppsFlyer", "{\"devKey\":\"<redacted:DVka>\",\"appleAppId\":\"6796698146\",\"debugLogging\":false,\"blockedPartners\":[],\"requestTrackingAuthorization\":true}"]}
+{"at": 1789375833.3995159, "level": "info", "t": 1789375832999, "args": ["[ads:admob] preloading interstitial", "{\"platform\":\"ios\",\"adId\":\"ca-app-pub-1033305870982415/2579469367\",\"isTesting\":false,\"attempt\":1}"]}
+{"at": 1789375833.639462, "level": "info", "t": 1789375833000, "args": ["[ads:admob] preloading rewarded ad", "{\"platform\":\"ios\",\"adId\":\"ca-app-pub-1033305870982415/5014061011\",\"isTesting\":false}"]}
+{"at": 1789375833.645938, "level": "info", "t": 1789375833054, "args": ["[attribution:appsflyer] AppsFlyer initialized", ""]}
+{"at": 1789375833.646106, "level": "warn", "t": 1789375833205, "args": ["Using a callback as the 'options' parameter of 'nativeCallback()' is deprecated."]}
+{"at": 1789375835.2232478, "level": "info", "t": 1789375835121, "args": ["[ads:admob] interstitial preloaded", ""]}
+{"at": 1789375835.6821709, "level": "info", "t": 1789375835630, "args": ["[ads:admob] rewarded ad preloaded", ""]}
+{"at": 1789375890.247016, "level": "hello", "t": 1789375890050, "args": ["capacitor://localhost", "Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148"]}
+{"at": 1789375891.056503, "level": "log", "t": 1789375890963, "args": ["%c %c %c %c %c Phaser v3.90.0 (WebGL | Web Audio) %c https://phaser.io/v390", "background: #ff0000", "background: #ffff00", "background: #00ff00", "background: #00ffff", "color: #ffffff; background: #000000", "background: transparent"]}
+{"at": 1789375891.6884868, "level": "info", "t": 1789375891561, "args": ["[ads:admob] tracking authorization", "{\"status\":\"authorized\"}"]}
+{"at": 1789375892.047308, "level": "info", "t": 1789375891561, "args": ["[ads:admob] initializing AdMob", "{\"audience\":\"general\",\"initializeForTesting\":false,\"testingDeviceCount\":0}"]}
+{"at": 1789375892.077795, "level": "info", "t": 1789375891628, "args": ["[attribution:appsflyer] legacy event ignored by AppsFlyer projection: appOpen", ""]}
+{"at": 1789375892.0779011, "level": "info", "t": 1789375891626, "args": ["[ads:admob] AdMob initialized", ""]}
+{"at": 1789375892.078201, "level": "info", "t": 1789375891628, "args": ["[attribution:appsflyer] initializing AppsFlyer", "{\"devKey\":\"<redacted:DVka>\",\"appleAppId\":\"6796698146\",\"debugLogging\":false,\"blockedPartners\":[],\"requestTrackingAuthorization\":true}"]}
+{"at": 1789375892.369278, "level": "info", "t": 1789375891629, "args": ["[ads:admob] preloading interstitial", "{\"platform\":\"ios\",\"adId\":\"ca-app-pub-1033305870982415/2579469367\",\"isTesting\":false,\"attempt\":1}"]}
+{"at": 1789375892.369643, "level": "info", "t": 1789375891630, "args": ["[ads:admob] preloading rewarded ad", "{\"platform\":\"ios\",\"adId\":\"ca-app-pub-1033305870982415/5014061011\",\"isTesting\":false}"]}
+{"at": 1789375892.3696692, "level": "info", "t": 1789375891725, "args": ["[attribution:appsflyer] AppsFlyer initialized", ""]}
+{"at": 1789375892.373342, "level": "warn", "t": 1789375891745, "args": ["Using a callback as the 'options' parameter of 'nativeCallback()' is deprecated."]}
+{"at": 1789375894.188894, "level": "info", "t": 1789375894002, "args": ["[ads:admob] rewarded ad preloaded", ""]}
+{"at": 1789375894.36147, "level": "info", "t": 1789375894297, "args": ["[ads:admob] interstitial preloaded", ""]}
+{"at": 1789375898.431328, "level": "log", "t": 1789375898325, "args": ["[drive] backup keys=33"]}
+{"at": 1789376208.660769, "level": "hello", "t": 1789376208452, "args": ["capacitor://localhost", "Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148"]}
+{"at": 1789376209.617228, "level": "log", "t": 1789376209514, "args": ["%c %c %c %c %c Phaser v3.90.0 (WebGL | Web Audio) %c https://phaser.io/v390", "background: #ff0000", "background: #ffff00", "background: #00ff00", "background: #00ffff", "color: #ffffff; background: #000000", "background: transparent"]}
+{"at": 1789376210.7827652, "level": "info", "t": 1789376210072, "args": ["[ads:admob] tracking authorization", "{\"status\":\"authorized\"}"]}
+{"at": 1789376210.819254, "level": "info", "t": 1789376210116, "args": ["[ads:admob] AdMob initialized", ""]}
+{"at": 1789376210.819284, "level": "info", "t": 1789376210073, "args": ["[ads:admob] initializing AdMob", "{\"audience\":\"general\",\"initializeForTesting\":false,\"testingDeviceCount\":0}"]}
+{"at": 1789376210.8195012, "level": "info", "t": 1789376210118, "args": ["[attribution:appsflyer] legacy event ignored by AppsFlyer projection: appOpen", ""]}
+{"at": 1789376210.819693, "level": "info", "t": 1789376210119, "args": ["[attribution:appsflyer] initializing AppsFlyer", "{\"devKey\":\"<redacted:DVka>\",\"appleAppId\":\"6796698146\",\"debugLogging\":false,\"blockedPartners\":[],\"requestTrackingAuthorization\":true}"]}
+{"at": 1789376211.0531762, "level": "info", "t": 1789376210119, "args": ["[ads:admob] preloading interstitial", "{\"platform\":\"ios\",\"adId\":\"ca-app-pub-1033305870982415/2579469367\",\"isTesting\":false,\"attempt\":1}"]}
+{"at": 1789376211.053364, "level": "info", "t": 1789376210121, "args": ["[ads:admob] preloading rewarded ad", "{\"platform\":\"ios\",\"adId\":\"ca-app-pub-1033305870982415/5014061011\",\"isTesting\":false}"]}
+{"at": 1789376211.053406, "level": "info", "t": 1789376210373, "args": ["[attribution:appsflyer] AppsFlyer initialized", ""]}
+{"at": 1789376211.480512, "level": "warn", "t": 1789376211277, "args": ["Using a callback as the 'options' parameter of 'nativeCallback()' is deprecated."]}
+{"at": 1789376213.81442, "level": "info", "t": 1789376213616, "args": ["[ads:admob] rewarded ad preloaded", ""]}
+{"at": 1789376214.288813, "level": "info", "t": 1789376214224, "args": ["[ads:admob] interstitial preloaded", ""]}
+{"at": 1789376296.693656, "level": "hello", "t": 1789376296548, "args": ["capacitor://localhost", "Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148"]}
+{"at": 1789376297.083942, "level": "log", "t": 1789376297010, "args": ["%c %c %c %c %c Phaser v3.90.0 (WebGL | Web Audio) %c https://phaser.io/v390", "background: #ff0000", "background: #ffff00", "background: #00ff00", "background: #00ffff", "color: #ffffff; background: #000000", "background: transparent"]}
+{"at": 1789376297.6318002, "level": "info", "t": 1789376297379, "args": ["[ads:admob] tracking authorization", "{\"status\":\"authorized\"}"]}
+{"at": 1789376297.731988, "level": "info", "t": 1789376297380, "args": ["[ads:admob] initializing AdMob", "{\"audience\":\"general\",\"initializeForTesting\":false,\"testingDeviceCount\":0}"]}
+{"at": 1789376297.7706041, "level": "info", "t": 1789376297430, "args": ["[attribution:appsflyer] legacy event ignored by AppsFlyer projection: appOpen", ""]}
+{"at": 1789376297.7708852, "level": "info", "t": 1789376297425, "args": ["[ads:admob] AdMob initialized", ""]}
+{"at": 1789376297.771017, "level": "info", "t": 1789376297426, "args": ["[attribution:appsflyer] initializing AppsFlyer", "{\"devKey\":\"<redacted:DVka>\",\"appleAppId\":\"6796698146\",\"debugLogging\":false,\"blockedPartners\":[],\"requestTrackingAuthorization\":true}"]}
+{"at": 1789376297.771363, "level": "info", "t": 1789376297427, "args": ["[ads:admob] preloading interstitial", "{\"platform\":\"ios\",\"adId\":\"ca-app-pub-1033305870982415/2579469367\",\"isTesting\":false,\"attempt\":1}"]}
+{"at": 1789376297.7713768, "level": "info", "t": 1789376297428, "args": ["[ads:admob] preloading rewarded ad", "{\"platform\":\"ios\",\"adId\":\"ca-app-pub-1033305870982415/5014061011\",\"isTesting\":false}"]}
+{"at": 1789376297.778966, "level": "info", "t": 1789376297485, "args": ["[attribution:appsflyer] AppsFlyer initialized", ""]}
+{"at": 1789376297.934242, "level": "warn", "t": 1789376297806, "args": ["Using a callback as the 'options' parameter of 'nativeCallback()' is deprecated."]}
+{"at": 1789376299.9608629, "level": "info", "t": 1789376299891, "args": ["[ads:admob] interstitial preloaded", ""]}
+{"at": 1789376300.630195, "level": "info", "t": 1789376300560, "args": ["[ads:admob] rewarded ad preloaded", ""]}
+{"at": 1789376305.886629, "level": "log", "t": 1789376305707, "args": ["[drive] backup keys=33"]}
+{"at": 1789376305.888108, "level": "log", "t": 1789376305753, "args": ["[drive] startLevel(1) -> undefined"]}
+{"at": 1789376305.894797, "level": "log", "t": 1789376305710, "args": ["[drive] reset done idx=0 adsEnabled=true noAds=false rc={\"state\":\"fetch-failed\",\"defaults\":{\"progressionHomeEnabled\":true,\"levelMapEnabled\":true,\"levelSequencePayload\":\"\",\"levelSequenceSha256\":\"\",\"rewardProgressEnabled\":true,\"rewardProgressGoal\":6,\"rewardHintsAmount\":4,\"gameplayInitialHints\":3,\"ratePromptEnabledDefault\":true,\"findMomentBurstEnabled\":true"]}
+{"at": 1789376306.2065, "level": "info", "t": 1789376306124, "args": ["[ftd-classic-render-diagnostics]", "{\"platform\":\"ios\",\"renderer\":\"webgl\",\"classicRenderPath\":\"restoration-bitmap-mask\",\"maskCanvas\":{\"width\":2532,\"height\":2532},\"compositeCanvas\":null,\"probes\":{\"canvasFilterGrayscale\":false,\"generatedBwTextureGrayscale\":null,\"sourceInEmptyMaskHidesColor\":true,\"destinationInEmptyMaskHidesColor\":true,\"bitmapMaskPipelineAvailable\":true},\"lastReveal\":{\"frames\":0,\"totalMaskRedrawMs\":0,\"totalMaskRefreshMs\":0,\"totalCpuCompositeMs\":0,\"maxFrameMs\":0,\"lastDirtyArea\":0}}"]}
+{"at": 1789376306.218768, "level": "info", "t": 1789376306124, "args": ["[attribution:appsflyer] legacy event ignored by AppsFlyer projection: levelStart", ""]}
+{"at": 1789376306.219007, "level": "info", "t": 1789376306125, "args": ["[ads:admob] showing banner", "{\"platform\":\"ios\",\"adId\":\"ca-app-pub-1033305870982415/6518714377\",\"isTesting\":false}"]}
+{"at": 1789376306.23622, "level": "info", "t": 1789376306128, "args": ["[ads:admob] banner requested", ""]}
+{"at": 1789376307.208131, "level": "info", "t": 1789376307142, "args": ["[ads:admob] banner loaded", ""]}
+{"at": 1789376307.2180102, "level": "info", "t": 1789376307143, "args": ["[ads:admob] banner impression recorded", ""]}
+{"at": 1789376308.915702, "level": "log", "t": 1789376308833, "args": ["[drive] level 1 id=hawaii_rainforest_waterfall_bird_0f98 idx=0 birds=19 sessionDone=0"]}
+{"at": 1789376321.358721, "level": "info", "t": 1789376321265, "args": ["[attribution:appsflyer] legacy event ignored by AppsFlyer projection: levelComplete", ""]}
+{"at": 1789376322.018997, "level": "log", "t": 1789376321935, "args": ["[drive] level 1 complete overlay visible; claim-btn:enabled claim-x2-btn:enabled next-btn:disabled"]}
+{"at": 1789376322.036383, "level": "log", "t": 1789376321938, "args": ["[drive] clicked claim L1"]}
+{"at": 1789376358.305515, "level": "warn", "t": 1789376357664, "args": ["Warning/GameAnalytics: Could not add design event: Session has not started yet"]}
+{"at": 1789376367.230197, "level": "log", "t": 1789376367100, "args": ["[drive] TIMEOUT next L1 snap={\"scene\":\"GameScene\",\"levelId\":\"hawaii_rainforest_waterfall_bird_0f98\",\"dogs\":19,\"found\":19,\"lc\":true,\"actions\":true,\"susp\":true}"]}
+{"at": 1789376379.3739588, "level": "hello", "t": 1789376379208, "args": ["capacitor://localhost", "Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148"]}
+{"at": 1789376380.2925172, "level": "log", "t": 1789376380224, "args": ["%c %c %c %c %c Phaser v3.90.0 (WebGL | Web Audio) %c https://phaser.io/v390", "background: #ff0000", "background: #ffff00", "background: #00ff00", "background: #00ffff", "color: #ffffff; background: #000000", "background: transparent"]}
+{"at": 1789376380.747128, "level": "info", "t": 1789376380666, "args": ["[ads:admob] tracking authorization", "{\"status\":\"authorized\"}"]}
+{"at": 1789376381.2920089, "level": "info", "t": 1789376380668, "args": ["[ads:admob] initializing AdMob", "{\"audience\":\"general\",\"initializeForTesting\":false,\"testingDeviceCount\":0}"]}
+{"at": 1789376381.292096, "level": "info", "t": 1789376380715, "args": ["[ads:admob] AdMob initialized", ""]}
+{"at": 1789376381.3019881, "level": "info", "t": 1789376380717, "args": ["[attribution:appsflyer] legacy event ignored by AppsFlyer projection: appOpen", ""]}
+{"at": 1789376381.3024042, "level": "info", "t": 1789376380718, "args": ["[attribution:appsflyer] initializing AppsFlyer", "{\"devKey\":\"<redacted:DVka>\",\"appleAppId\":\"6796698146\",\"debugLogging\":false,\"blockedPartners\":[],\"requestTrackingAuthorization\":true}"]}
+{"at": 1789376381.302923, "level": "info", "t": 1789376380719, "args": ["[ads:admob] preloading interstitial", "{\"platform\":\"ios\",\"adId\":\"ca-app-pub-1033305870982415/2579469367\",\"isTesting\":false,\"attempt\":1}"]}
+{"at": 1789376381.331687, "level": "info", "t": 1789376380720, "args": ["[ads:admob] preloading rewarded ad", "{\"platform\":\"ios\",\"adId\":\"ca-app-pub-1033305870982415/5014061011\",\"isTesting\":false}"]}
+{"at": 1789376381.602887, "level": "info", "t": 1789376380820, "args": ["[attribution:appsflyer] AppsFlyer initialized", ""]}
+{"at": 1789376381.606121, "level": "warn", "t": 1789376381279, "args": ["Using a callback as the 'options' parameter of 'nativeCallback()' is deprecated."]}
+{"at": 1789376383.672802, "level": "info", "t": 1789376383552, "args": ["[ads:admob] interstitial preloaded", ""]}
+{"at": 1789376384.024278, "level": "info", "t": 1789376383941, "args": ["[ads:admob] rewarded ad preloaded", ""]}
+{"at": 1789376417.472218, "level": "hello", "t": 1789376417325, "args": ["capacitor://localhost", "Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148"]}
+{"at": 1789376417.782889, "level": "log", "t": 1789376417696, "args": ["%c %c %c %c %c Phaser v3.90.0 (WebGL | Web Audio) %c https://phaser.io/v390", "background: #ff0000", "background: #ffff00", "background: #00ff00", "background: #00ffff", "color: #ffffff; background: #000000", "background: transparent"]}
+{"at": 1789376418.255811, "level": "info", "t": 1789376418010, "args": ["[ads:admob] tracking authorization", "{\"status\":\"authorized\"}"]}
+{"at": 1789376418.298052, "level": "info", "t": 1789376418010, "args": ["[ads:admob] initializing AdMob", "{\"audience\":\"general\",\"initializeForTesting\":false,\"testingDeviceCount\":0}"]}
+{"at": 1789376418.298366, "level": "info", "t": 1789376418019, "args": ["[ads:admob] preloading rewarded ad", "{\"platform\":\"ios\",\"adId\":\"ca-app-pub-1033305870982415/5014061011\",\"isTesting\":false}"]}
+{"at": 1789376418.298506, "level": "info", "t": 1789376418016, "args": ["[ads:admob] AdMob initialized", ""]}
+{"at": 1789376418.298742, "level": "info", "t": 1789376418018, "args": ["[attribution:appsflyer] legacy event ignored by AppsFlyer projection: appOpen", ""]}
+{"at": 1789376418.299005, "level": "info", "t": 1789376418018, "args": ["[attribution:appsflyer] initializing AppsFlyer", "{\"devKey\":\"<redacted:DVka>\",\"appleAppId\":\"6796698146\",\"debugLogging\":false,\"blockedPartners\":[],\"requestTrackingAuthorization\":true}"]}
+{"at": 1789376418.36517, "level": "info", "t": 1789376418018, "args": ["[ads:admob] preloading interstitial", "{\"platform\":\"ios\",\"adId\":\"ca-app-pub-1033305870982415/2579469367\",\"isTesting\":false,\"attempt\":1}"]}
+{"at": 1789376418.384077, "level": "info", "t": 1789376418096, "args": ["[attribution:appsflyer] AppsFlyer initialized", ""]}
+{"at": 1789376418.384157, "level": "warn", "t": 1789376418174, "args": ["Using a callback as the 'options' parameter of 'nativeCallback()' is deprecated."]}
+{"at": 1789376419.613132, "level": "info", "t": 1789376419506, "args": ["[ads:admob] rewarded ad preloaded", ""]}
+{"at": 1789376420.079648, "level": "info", "t": 1789376420025, "args": ["[ads:admob] interstitial preloaded", ""]}
+{"at": 1789376475.4413068, "level": "warn", "t": 1789376474229, "args": ["[audio] lifecycle resume failed", "{}"]}
+{"at": 1789376833.897702, "level": "hello", "t": 1789376833654, "args": ["capacitor://localhost", "Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148"]}
+{"at": 1789376834.0692968, "level": "log", "t": 1789376833945, "args": ["%c %c %c %c %c Phaser v3.90.0 (WebGL | Web Audio) %c https://phaser.io/v390", "background: #ff0000", "background: #ffff00", "background: #00ff00", "background: #00ffff", "color: #ffffff; background: #000000", "background: transparent"]}
+{"at": 1789376834.425008, "level": "info", "t": 1789376834207, "args": ["[ads:admob] tracking authorization", "{\"status\":\"authorized\"}"]}
+{"at": 1789376834.5804338, "level": "info", "t": 1789376834210, "args": ["[ads:admob] AdMob initialized", ""]}
+{"at": 1789376834.580539, "level": "info", "t": 1789376834207, "args": ["[ads:admob] initializing AdMob", "{\"audience\":\"general\",\"initializeForTesting\":false,\"testingDeviceCount\":0}"]}
+{"at": 1789376834.581321, "level": "info", "t": 1789376834210, "args": ["[attribution:appsflyer] legacy event ignored by AppsFlyer projection: appOpen", ""]}
+{"at": 1789376834.58205, "level": "info", "t": 1789376834211, "args": ["[attribution:appsflyer] initializing AppsFlyer", "{\"devKey\":\"<redacted:DVka>\",\"appleAppId\":\"6796698146\",\"debugLogging\":false,\"blockedPartners\":[],\"requestTrackingAuthorization\":true}"]}
+{"at": 1789376834.582325, "level": "info", "t": 1789376834211, "args": ["[ads:admob] preloading interstitial", "{\"platform\":\"ios\",\"adId\":\"ca-app-pub-1033305870982415/2579469367\",\"isTesting\":false,\"attempt\":1}"]}
+{"at": 1789376834.7662752, "level": "info", "t": 1789376834211, "args": ["[ads:admob] preloading rewarded ad", "{\"platform\":\"ios\",\"adId\":\"ca-app-pub-1033305870982415/5014061011\",\"isTesting\":false}"]}
+{"at": 1789376834.76643, "level": "info", "t": 1789376834267, "args": ["[attribution:appsflyer] AppsFlyer initialized", ""]}
+{"at": 1789376834.917768, "level": "warn", "t": 1789376834709, "args": ["Using a callback as the 'options' parameter of 'nativeCallback()' is deprecated."]}
+{"at": 1789376835.458488, "level": "info", "t": 1789376835306, "args": ["[ads:admob] rewarded ad preloaded", ""]}
+{"at": 1789376836.523154, "level": "info", "t": 1789376836449, "args": ["[ads:admob] interstitial preloaded", ""]}
+{"at": 1789376852.900799, "level": "log", "t": 1789376852708, "args": ["[drive] backup keys=35"]}
+{"at": 1789376852.925782, "level": "log", "t": 1789376852771, "args": ["[drive] startLevel(1) -> undefined"]}
+{"at": 1789376852.949754, "level": "log", "t": 1789376852718, "args": ["[drive] reset done idx=0 adsEnabled=true noAds=false rc={\"state\":\"fetch-failed\",\"defaults\":{\"progressionHomeEnabled\":true,\"levelMapEnabled\":true,\"levelSequencePayload\":\"\",\"levelSequenceSha256\":\"\",\"rewardProgressEnabled\":true,\"rewardProgressGoal\":6,\"rewardHintsAmount\":4,\"gameplayInitialHints\":3,\"ratePromptEnabledDefault\":true,\"findMomentBurstEnabled\":true"]}
+{"at": 1789376853.25372, "level": "info", "t": 1789376853158, "args": ["[ftd-classic-render-diagnostics]", "{\"platform\":\"ios\",\"renderer\":\"webgl\",\"classicRenderPath\":\"restoration-bitmap-mask\",\"maskCanvas\":{\"width\":2532,\"height\":2532},\"compositeCanvas\":null,\"probes\":{\"canvasFilterGrayscale\":false,\"generatedBwTextureGrayscale\":null,\"sourceInEmptyMaskHidesColor\":true,\"destinationInEmptyMaskHidesColor\":true,\"bitmapMaskPipelineAvailable\":true},\"lastReveal\":{\"frames\":0,\"totalMaskRedrawMs\":0,\"totalMaskRefreshMs\":0,\"totalCpuCompositeMs\":0,\"maxFrameMs\":0,\"lastDirtyArea\":0}}"]}
+{"at": 1789376853.263936, "level": "info", "t": 1789376853159, "args": ["[attribution:appsflyer] legacy event ignored by AppsFlyer projection: levelStart", ""]}
+{"at": 1789376853.268136, "level": "info", "t": 1789376853159, "args": ["[ads:admob] showing banner", "{\"platform\":\"ios\",\"adId\":\"ca-app-pub-1033305870982415/6518714377\",\"isTesting\":false}"]}
+{"at": 1789376853.2690098, "level": "info", "t": 1789376853178, "args": ["[ads:admob] banner requested", ""]}
+{"at": 1789376854.513948, "level": "info", "t": 1789376854437, "args": ["[ads:admob] banner loaded", ""]}
+{"at": 1789376854.521257, "level": "info", "t": 1789376854451, "args": ["[ads:admob] banner impression recorded", ""]}
+{"at": 1789376855.9583628, "level": "log", "t": 1789376855873, "args": ["[drive] level 1 id=hawaii_rainforest_waterfall_bird_0f98 idx=0 birds=19 sessionDone=0"]}
+{"at": 1789376868.4398851, "level": "info", "t": 1789376868331, "args": ["[attribution:appsflyer] legacy event ignored by AppsFlyer projection: levelComplete", ""]}
+{"at": 1789376869.097813, "level": "log", "t": 1789376869007, "args": ["[drive] level 1 complete overlay visible; claim-btn:enabled claim-x2-btn:enabled next-btn:disabled"]}
+{"at": 1789376869.107446, "level": "log", "t": 1789376869009, "args": ["[drive] clicked claim L1"]}
+{"at": 1789376914.297772, "level": "log", "t": 1789376914187, "args": ["[drive] TIMEOUT next L1 snap={\"scene\":\"GameScene\",\"levelId\":\"hawaii_rainforest_waterfall_bird_0f98\",\"dogs\":19,\"found\":19,\"lc\":true,\"actions\":true,\"susp\":false}"]}
+{"at": 1789376964.652906, "level": "log", "t": 1789376964556, "args": ["[drive] reset done idx=0 adsEnabled=true noAds=false rc={\"state\":\"fetch-failed\",\"defaults\":{\"progressionHomeEnabled\":true,\"levelMapEnabled\":true,\"levelSequencePayload\":\"\",\"levelSequenceSha256\":\"\",\"rewardProgressEnabled\":true,\"rewardProgressGoal\":6,\"rewardHintsAmount\":4,\"gameplayInitialHints\":3,\"ratePromptEnabledDefault\":true,\"findMomentBurstEnabled\":true"]}
+{"at": 1789376964.683854, "level": "log", "t": 1789376964601, "args": ["[drive] startLevel(1) -> undefined"]}
+{"at": 1789376965.0282738, "level": "info", "t": 1789376964930, "args": ["[ftd-classic-render-diagnostics]", "{\"platform\":\"ios\",\"renderer\":\"webgl\",\"classicRenderPath\":\"restoration-bitmap-mask\",\"maskCanvas\":{\"width\":2532,\"height\":2532},\"compositeCanvas\":null,\"probes\":{\"canvasFilterGrayscale\":false,\"generatedBwTextureGrayscale\":null,\"sourceInEmptyMaskHidesColor\":true,\"destinationInEmptyMaskHidesColor\":true,\"bitmapMaskPipelineAvailable\":true},\"lastReveal\":{\"frames\":0,\"totalMaskRedrawMs\":0,\"totalMaskRefreshMs\":0,\"totalCpuCompositeMs\":0,\"maxFrameMs\":0,\"lastDirtyArea\":0}}"]}
+{"at": 1789376965.040086, "level": "info", "t": 1789376964931, "args": ["[ads:admob] showing banner", "{\"platform\":\"ios\",\"adId\":\"ca-app-pub-1033305870982415/6518714377\",\"isTesting\":false}"]}
+{"at": 1789376965.0401468, "level": "info", "t": 1789376964931, "args": ["[attribution:appsflyer] legacy event ignored by AppsFlyer projection: levelStart", ""]}
+{"at": 1789376965.110603, "level": "info", "t": 1789376965005, "args": ["[ads:admob] banner requested", ""]}
+{"at": 1789376966.418588, "level": "info", "t": 1789376966341, "args": ["[ads:admob] banner loaded", ""]}
+{"at": 1789376966.4262578, "level": "info", "t": 1789376966342, "args": ["[ads:admob] banner impression recorded", ""]}
+{"at": 1789376967.789134, "level": "log", "t": 1789376967700, "args": ["[drive] level 1 id=hawaii_rainforest_waterfall_bird_0f98 idx=0 birds=19 sessionDone=0"]}
+{"at": 1789376980.2115781, "level": "info", "t": 1789376980110, "args": ["[attribution:appsflyer] legacy event ignored by AppsFlyer projection: levelComplete", ""]}
+{"at": 1789376980.863928, "level": "log", "t": 1789376980790, "args": ["[drive] level 1 complete overlay visible; claim-btn:enabled claim-x2-btn:enabled next-btn:disabled"]}
+{"at": 1789376982.7857962, "level": "log", "t": 1789376982713, "args": ["[drive] clicked claim L1"]}
+{"at": 1789376983.133028, "level": "log", "t": 1789376983047, "args": ["[drive] after claim: claim-btn:disabled claim-x2-btn:disabled next-btn:disabled"]}
+{"at": 1789376983.987061, "level": "log", "t": 1789376983909, "args": ["[drive] clicked next L1"]}
+{"at": 1789376984.579083, "level": "info", "t": 1789376984453, "args": ["[ftd-classic-render-diagnostics]", "{\"platform\":\"ios\",\"renderer\":\"webgl\",\"classicRenderPath\":\"restoration-bitmap-mask\",\"maskCanvas\":{\"width\":2532,\"height\":2532},\"compositeCanvas\":null,\"probes\":{\"canvasFilterGrayscale\":false,\"generatedBwTextureGrayscale\":null,\"sourceInEmptyMaskHidesColor\":true,\"destinationInEmptyMaskHidesColor\":true,\"bitmapMaskPipelineAvailable\":true},\"lastReveal\":{\"frames\":0,\"totalMaskRedrawMs\":0,\"totalMaskRefreshMs\":0,\"totalCpuCompositeMs\":0,\"maxFrameMs\":0,\"lastDirtyArea\":0}}"]}
+{"at": 1789376984.591236, "level": "info", "t": 1789376984453, "args": ["[attribution:appsflyer] legacy event ignored by AppsFlyer projection: levelStart", ""]}
+{"at": 1789376984.591629, "level": "info", "t": 1789376984482, "args": ["[ads:admob] banner requested", ""]}
+{"at": 1789376984.592076, "level": "info", "t": 1789376984453, "args": ["[ads:admob] showing banner", "{\"platform\":\"ios\",\"adId\":\"ca-app-pub-1033305870982415/6518714377\",\"isTesting\":false}"]}
+{"at": 1789376984.592269, "level": "log", "t": 1789376984490, "args": ["[drive] after next L1: next level up in 569 ms; {\"scene\":\"GameScene\",\"levelId\":\"cozy_interiors_cozy_toymaker_workshop_bird_4e44\",\"dogs\":18,\"found\":0,\"lc\":false,\"actions\":false,\"susp\":false}"]}
+{"at": 1789376985.243246, "level": "info", "t": 1789376985154, "args": ["[ads:admob] banner loaded", ""]}
+{"at": 1789376985.24904, "level": "info", "t": 1789376985154, "args": ["[ads:admob] banner impression recorded", ""]}
+{"at": 1789376986.098123, "level": "log", "t": 1789376986010, "args": ["[drive] level 2 id=cozy_interiors_cozy_toymaker_workshop_bird_4e44 idx=1 birds=18 sessionDone=1"]}
+{"at": 1789376997.887851, "level": "info", "t": 1789376997788, "args": ["[attribution:appsflyer] legacy event ignored by AppsFlyer projection: levelComplete", ""]}
+{"at": 1789376998.536118, "level": "log", "t": 1789376998464, "args": ["[drive] level 2 complete overlay visible; claim-btn:enabled claim-x2-btn:enabled next-btn:disabled"]}
+{"at": 1789376999.757714, "level": "log", "t": 1789376999686, "args": ["[drive] backgrounding on completion screen"]}
+{"at": 1789376999.86722, "level": "warn", "t": 1789376999787, "args": ["Warning/GameAnalytics: Could not add design event: Session has not started yet"]}
+{"at": 1789377001.353229, "level": "log", "t": 1789377001261, "args": ["[drive] resumed"]}
+{"at": 1789377001.367538, "level": "log", "t": 1789377001268, "args": ["[drive] clicked claim L2"]}
+{"at": 1789377001.670824, "level": "log", "t": 1789377001587, "args": ["[drive] after claim: claim-btn:disabled claim-x2-btn:disabled next-btn:disabled"]}
+{"at": 1789377002.517597, "level": "log", "t": 1789377002446, "args": ["[drive] clicked next L2"]}
+{"at": 1789377003.123608, "level": "info", "t": 1789377002965, "args": ["[ftd-classic-render-diagnostics]", "{\"platform\":\"ios\",\"renderer\":\"webgl\",\"classicRenderPath\":\"restoration-bitmap-mask\",\"maskCanvas\":{\"width\":2532,\"height\":2532},\"compositeCanvas\":null,\"probes\":{\"canvasFilterGrayscale\":false,\"generatedBwTextureGrayscale\":null,\"sourceInEmptyMaskHidesColor\":true,\"destinationInEmptyMaskHidesColor\":true,\"bitmapMaskPipelineAvailable\":true},\"lastReveal\":{\"frames\":0,\"totalMaskRedrawMs\":0,\"totalMaskRefreshMs\":0,\"totalCpuCompositeMs\":0,\"maxFrameMs\":0,\"lastDirtyArea\":0}}"]}
+{"at": 1789377003.1576169, "level": "info", "t": 1789377003007, "args": ["[ads:admob] banner requested", ""]}
+{"at": 1789377003.16121, "level": "info", "t": 1789377002965, "args": ["[attribution:appsflyer] legacy event ignored by AppsFlyer projection: levelStart", ""]}
+{"at": 1789377003.161592, "level": "info", "t": 1789377002966, "args": ["[ads:admob] showing banner", "{\"platform\":\"ios\",\"adId\":\"ca-app-pub-1033305870982415/6518714377\",\"isTesting\":false}"]}
+{"at": 1789377003.1616142, "level": "log", "t": 1789377002968, "args": ["[drive] after next L2: next level up in 512 ms; {\"scene\":\"GameScene\",\"levelId\":\"ad_campaigns_ad_cozy_library_bird_e654\",\"dogs\":20,\"found\":0,\"lc\":false,\"actions\":false,\"susp\":false}"]}
+{"at": 1789377003.722, "level": "info", "t": 1789377003650, "args": ["[ads:admob] banner loaded", ""]}
+{"at": 1789377003.729717, "level": "info", "t": 1789377003653, "args": ["[ads:admob] banner impression recorded", ""]}
+{"at": 1789377004.575464, "level": "log", "t": 1789377004486, "args": ["[drive] level 3 id=ad_campaigns_ad_cozy_library_bird_e654 idx=2 birds=20 sessionDone=2"]}
+{"at": 1789377017.9141262, "level": "info", "t": 1789377017826, "args": ["[attribution:appsflyer] legacy event ignored by AppsFlyer projection: levelComplete", ""]}
+{"at": 1789377018.5731359, "level": "log", "t": 1789377018496, "args": ["[drive] level 3 complete overlay visible; claim-btn:enabled claim-x2-btn:enabled next-btn:disabled"]}
+{"at": 1789377020.285908, "level": "log", "t": 1789377020214, "args": ["[drive] clicked claim L3"]}
+{"at": 1789377020.616631, "level": "log", "t": 1789377020535, "args": ["[drive] after claim: claim-btn:disabled claim-x2-btn:disabled next-btn:disabled"]}
+{"at": 1789377021.4626, "level": "log", "t": 1789377021384, "args": ["[drive] clicked next L3"]}
+{"at": 1789377587.4069529, "level": "log", "t": 1789377587245, "args": ["[drive] TIMEOUT level 4 after next snap={\"scene\":\"GameScene\",\"levelId\":\"ad_campaigns_ad_cozy_library_bird_e654\",\"dogs\":20,\"found\":20,\"lc\":false,\"actions\":false,\"susp\":true}"]}
+{"at": 1789377587.4408388, "level": "log", "t": 1789377587248, "args": ["[drive] after next L3: no next level in 565849 ms; {\"scene\":\"GameScene\",\"levelId\":\"ad_campaigns_ad_cozy_library_bird_e654\",\"dogs\":20,\"found\":20,\"lc\":false,\"actions\":false,\"susp\":true}"]}
+{"at": 1789377587.774199, "level": "info", "t": 1789377587693, "args": ["[ads:admob] preloading interstitial", "{\"platform\":\"ios\",\"adId\":\"ca-app-pub-1033305870982415/2579469367\",\"isTesting\":false,\"attempt\":1}"]}
+{"at": 1789377588.374187, "level": "info", "t": 1789377588252, "args": ["[ftd-classic-render-diagnostics]", "{\"platform\":\"ios\",\"renderer\":\"webgl\",\"classicRenderPath\":\"restoration-bitmap-mask\",\"maskCanvas\":{\"width\":2532,\"height\":2532},\"compositeCanvas\":null,\"probes\":{\"canvasFilterGrayscale\":false,\"generatedBwTextureGrayscale\":null,\"sourceInEmptyMaskHidesColor\":true,\"destinationInEmptyMaskHidesColor\":true,\"bitmapMaskPipelineAvailable\":true},\"lastReveal\":{\"frames\":0,\"totalMaskRedrawMs\":0,\"totalMaskRefreshMs\":0,\"totalCpuCompositeMs\":0,\"maxFrameMs\":0,\"lastDirtyArea\":0}}"]}
+{"at": 1789377588.38672, "level": "info", "t": 1789377588252, "args": ["[attribution:appsflyer] legacy event ignored by AppsFlyer projection: levelStart", ""]}
+{"at": 1789377588.387178, "level": "info", "t": 1789377588252, "args": ["[ads:admob] showing banner", "{\"platform\":\"ios\",\"adId\":\"ca-app-pub-1033305870982415/6518714377\",\"isTesting\":false}"]}
+{"at": 1789377588.387315, "level": "info", "t": 1789377588291, "args": ["[ads:admob] banner requested", ""]}
+{"at": 1789377589.543177, "level": "info", "t": 1789377589477, "args": ["[ads:admob] interstitial preloaded", ""]}
+{"at": 1789377590.658716, "level": "info", "t": 1789377590561, "args": ["[ads:admob] banner loaded", ""]}
+{"at": 1789377590.676136, "level": "info", "t": 1789377590562, "args": ["[ads:admob] banner impression recorded", ""]}
+{"at": 1789377661.877028, "level": "info", "t": 1789377661775, "args": ["[ads:admob] banner loaded", ""]}
+{"at": 1789377661.885501, "level": "info", "t": 1789377661784, "args": ["[ads:admob] banner impression recorded", ""]}
+{"at": 1789377680.14467, "level": "log", "t": 1789377680041, "args": ["[drive] adsEnabled=false idx=3 sessionDone=3"]}
+{"at": 1789377681.637291, "level": "log", "t": 1789377681550, "args": ["[drive] level 4 id=greece_santorini_steps_bird_4634 idx=3 birds=21 sessionDone=3"]}
+{"at": 1789377694.419389, "level": "info", "t": 1789377694306, "args": ["[attribution:appsflyer] legacy event ignored by AppsFlyer projection: levelComplete", ""]}
+{"at": 1789377695.699682, "level": "log", "t": 1789377695628, "args": ["[drive] level 4 complete overlay visible; claim-btn:enabled claim-x2-btn:absent next-btn:disabled"]}
+{"at": 1789377696.964467, "level": "log", "t": 1789377696891, "args": ["[drive] clicked claim L4"]}
+{"at": 1789377697.2980502, "level": "log", "t": 1789377697221, "args": ["[drive] after claim: claim-btn:disabled claim-x2-btn:absent next-btn:disabled"]}
+{"at": 1789377698.17773, "level": "log", "t": 1789377698095, "args": ["[drive] clicked next L4"]}
+{"at": 1789377698.761201, "level": "log", "t": 1789377698664, "args": ["[drive] after next L4: next level up in 556 ms; {\"scene\":\"GameScene\",\"levelId\":\"alpine_meadow_cheese_farm_courtyard_bird_aba2\",\"dogs\":21,\"found\":0,\"lc\":false,\"actions\":false,\"susp\":false}"]}
+{"at": 1789377698.7616, "level": "info", "t": 1789377698635, "args": ["[attribution:appsflyer] legacy event ignored by AppsFlyer projection: levelStart", ""]}
+{"at": 1789377698.8215628, "level": "info", "t": 1789377698634, "args": ["[ftd-classic-render-diagnostics]", "{\"platform\":\"ios\",\"renderer\":\"webgl\",\"classicRenderPath\":\"restoration-bitmap-mask\",\"maskCanvas\":{\"width\":2532,\"height\":2532},\"compositeCanvas\":null,\"probes\":{\"canvasFilterGrayscale\":false,\"generatedBwTextureGrayscale\":null,\"sourceInEmptyMaskHidesColor\":true,\"destinationInEmptyMaskHidesColor\":true,\"bitmapMaskPipelineAvailable\":true},\"lastReveal\":{\"frames\":0,\"totalMaskRedrawMs\":0,\"totalMaskRefreshMs\":0,\"totalCpuCompositeMs\":0,\"maxFrameMs\":0,\"lastDirtyArea\":0}}"]}
+{"at": 1789377700.299202, "level": "log", "t": 1789377700189, "args": ["[drive] level 5 id=alpine_meadow_cheese_farm_courtyard_bird_aba2 idx=4 birds=21 sessionDone=4"]}
+{"at": 1789377714.109843, "level": "info", "t": 1789377714006, "args": ["[attribution:appsflyer] legacy event ignored by AppsFlyer projection: levelComplete", ""]}
+{"at": 1789377714.749272, "level": "log", "t": 1789377714679, "args": ["[drive] level 5 complete overlay visible; claim-btn:enabled claim-x2-btn:absent next-btn:disabled"]}
+{"at": 1789377716.6670039, "level": "log", "t": 1789377716598, "args": ["[drive] clicked claim L5"]}
+{"at": 1789377716.9983418, "level": "log", "t": 1789377716927, "args": ["[drive] after claim: claim-btn:disabled claim-x2-btn:absent next-btn:disabled"]}
+{"at": 1789377717.866354, "level": "log", "t": 1789377717798, "args": ["[drive] clicked next L5"]}
+{"at": 1789377718.590901, "level": "info", "t": 1789377718506, "args": ["[ftd-classic-render-diagnostics]", "{\"platform\":\"ios\",\"renderer\":\"webgl\",\"classicRenderPath\":\"restoration-bitmap-mask\",\"maskCanvas\":{\"width\":2532,\"height\":2532},\"compositeCanvas\":null,\"probes\":{\"canvasFilterGrayscale\":false,\"generatedBwTextureGrayscale\":null,\"sourceInEmptyMaskHidesColor\":true,\"destinationInEmptyMaskHidesColor\":true,\"bitmapMaskPipelineAvailable\":true},\"lastReveal\":{\"frames\":0,\"totalMaskRedrawMs\":0,\"totalMaskRefreshMs\":0,\"totalCpuCompositeMs\":0,\"maxFrameMs\":0,\"lastDirtyArea\":0}}"]}
+{"at": 1789377718.6020539, "level": "info", "t": 1789377718506, "args": ["[attribution:appsflyer] legacy event ignored by AppsFlyer projection: levelStart", ""]}
+{"at": 1789377718.60239, "level": "log", "t": 1789377718511, "args": ["[drive] after next L5: next level up in 703 ms; {\"scene\":\"GameScene\",\"levelId\":\"american_southwest_sw_adobe_courtyard_bird_419b\",\"dogs\":14,\"found\":0,\"lc\":false,\"actions\":false,\"susp\":false}"]}
+{"at": 1789377720.1250648, "level": "log", "t": 1789377720019, "args": ["[drive] level 6 id=american_southwest_sw_adobe_courtyard_bird_419b idx=5 birds=14 sessionDone=5"]}
+{"at": 1789377729.086006, "level": "info", "t": 1789377729012, "args": ["[attribution:appsflyer] legacy event ignored by AppsFlyer projection: levelComplete", ""]}
+{"at": 1789377729.7290628, "level": "log", "t": 1789377729678, "args": ["[drive] level 6 complete overlay visible; claim-btn:enabled claim-x2-btn:absent next-btn:disabled"]}
+{"at": 1789377731.450148, "level": "log", "t": 1789377731400, "args": ["[drive] clicked claim L6"]}
+{"at": 1789377731.775231, "level": "log", "t": 1789377731717, "args": ["[drive] after claim: claim-btn:disabled claim-x2-btn:absent next-btn:disabled"]}
+{"at": 1789377732.64048, "level": "log", "t": 1789377732589, "args": ["[drive] clicked next L6"]}
+{"at": 1789377733.158827, "level": "info", "t": 1789377733111, "args": ["[ftd-classic-render-diagnostics]", "{\"platform\":\"ios\",\"renderer\":\"webgl\",\"classicRenderPath\":\"restoration-bitmap-mask\",\"maskCanvas\":{\"width\":2532,\"height\":2532},\"compositeCanvas\":null,\"probes\":{\"canvasFilterGrayscale\":false,\"generatedBwTextureGrayscale\":null,\"sourceInEmptyMaskHidesColor\":true,\"destinationInEmptyMaskHidesColor\":true,\"bitmapMaskPipelineAvailable\":true},\"lastReveal\":{\"frames\":0,\"totalMaskRedrawMs\":0,\"totalMaskRefreshMs\":0,\"totalCpuCompositeMs\":0,\"maxFrameMs\":0,\"lastDirtyArea\":0}}"]}
+{"at": 1789377733.167122, "level": "info", "t": 1789377733112, "args": ["[attribution:appsflyer] legacy event ignored by AppsFlyer projection: levelStart", ""]}
+{"at": 1789377733.196335, "level": "log", "t": 1789377733138, "args": ["[drive] after next L6: next level up in 538 ms; {\"scene\":\"GameScene\",\"levelId\":\"american_southwest_sw_cactus_garden_ranch_bird_19f1\",\"dogs\":15,\"found\":0,\"lc\":false,\"actions\":false,\"susp\":false}"]}
+{"at": 1789377736.809519, "level": "log", "t": 1789377736727, "args": ["[drive] level 7 american_southwest_sw_cactus_garden_ranch_bird_19f1 found 3 of 15; backgrounding mid-level"]}
+{"at": 1789377737.4810922, "level": "warn", "t": 1789377737423, "args": ["Warning/GameAnalytics: Could not add design event: Session has not started yet"]}
+{"at": 1789377738.365561, "level": "log", "t": 1789377738314, "args": ["[drive] resumed mid-level"]}
+{"at": 1789377739.186634, "level": "log", "t": 1789377739127, "args": ["[drive] going home mid-level"]}
+{"at": 1789377741.7083259, "level": "log", "t": 1789377741649, "args": ["[drive] home: {\"scene\":\"HomeScene\",\"levelId\":\"american_southwest_sw_cactus_garden_ranch_bird_19f1\",\"dogs\":15,\"found\":3,\"lc\":false,\"actions\":false,\"susp\":false}"]}
+{"at": 1789377771.361238, "level": "hello", "t": 1789377771274, "args": ["capacitor://localhost", "Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148"]}
+{"at": 1789377771.5190258, "level": "log", "t": 1789377771472, "args": ["%c %c %c %c %c Phaser v3.90.0 (WebGL | Web Audio) %c https://phaser.io/v390", "background: #ff0000", "background: #ffff00", "background: #00ff00", "background: #00ffff", "color: #ffffff; background: #000000", "background: transparent"]}
+{"at": 1789377771.696364, "level": "warn", "t": 1789377771654, "args": ["Using a callback as the 'options' parameter of 'nativeCallback()' is deprecated."]}
+{"at": 1789377771.814291, "level": "info", "t": 1789377771700, "args": ["[ads:admob] tracking authorization", "{\"status\":\"authorized\"}"]}
+{"at": 1789377771.827826, "level": "info", "t": 1789377771700, "args": ["[ads:admob] initializing AdMob", "{\"audience\":\"general\",\"initializeForTesting\":false,\"testingDeviceCount\":0}"]}
+{"at": 1789377771.828032, "level": "info", "t": 1789377771701, "args": ["[ads:admob] AdMob initialized", ""]}
+{"at": 1789377771.828244, "level": "info", "t": 1789377771703, "args": ["[attribution:appsflyer] legacy event ignored by AppsFlyer projection: appOpen", ""]}
+{"at": 1789377771.828455, "level": "info", "t": 1789377771704, "args": ["[attribution:appsflyer] initializing AppsFlyer", "{\"devKey\":\"<redacted:DVka>\",\"appleAppId\":\"6796698146\",\"debugLogging\":false,\"blockedPartners\":[],\"requestTrackingAuthorization\":true}"]}
+{"at": 1789377771.828578, "level": "info", "t": 1789377771704, "args": ["[ads:admob] preloading interstitial", "{\"platform\":\"ios\",\"adId\":\"ca-app-pub-1033305870982415/2579469367\",\"isTesting\":false,\"attempt\":1}"]}
+{"at": 1789377771.838068, "level": "info", "t": 1789377771705, "args": ["[ads:admob] preloading rewarded ad", "{\"platform\":\"ios\",\"adId\":\"ca-app-pub-1033305870982415/5014061011\",\"isTesting\":false}"]}
+{"at": 1789377771.8516438, "level": "info", "t": 1789377771718, "args": ["[attribution:appsflyer] AppsFlyer initialized", ""]}
+{"at": 1789377772.7520719, "level": "info", "t": 1789377772717, "args": ["[ads:admob] interstitial preloaded", ""]}
+{"at": 1789377774.374229, "level": "info", "t": 1789377774337, "args": ["[ads:admob] rewarded ad preloaded", ""]}
