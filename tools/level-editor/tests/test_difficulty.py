@@ -67,6 +67,46 @@ def test_stale_input_fails_before_network(pilot, capsys):
     assert json.loads(capsys.readouterr().out)["error"]["code"] == "difficulty_invalid"
 
 
+def test_bird_manifest_selects_bird_prompt_and_preserves_frozen_assets(pilot, tmp_path, metering):
+    from levelbuilder import difficulty as d
+
+    root, path = pilot
+    (root / "games/find_the_dog").rename(root / "games/find_the_bird")
+    manifest = json.loads(path.read_text().replace("find_the_dog", "find_the_bird"))
+    manifest["game"] = "find_the_bird"
+    sprites = [{"dogId": bird_id, "path": "games/find_the_bird/public/levels/demo/sprite.png",
+                "sha256": digest((root / "games/find_the_bird/public/levels/demo/sprite.png").read_bytes())}
+               for bird_id in ("a", "b")]
+    manifest["levels"][0]["spriteSetSha256"] = d.sha(d.canonical(sprites))
+    path.write_text(json.dumps(manifest))
+    prepared = d.prepare(path, root, model=d.DEFAULT_MODEL, repeats=5, max_edge=2048)
+    assert prepared["config"]["game"] == "find_the_bird"
+    assert "Find every bird" in prepared["config"]["prompt"]
+    assert "Find every dog" not in prepared["config"]["prompt"]
+    calls = []
+    with mock_network(lambda r: httpx.Response(200, json=completion()), calls) as network:
+        report = d.execute(prepared, root, tmp_path / "bird-out", 1, client=network)
+        assert report["config"]["game"] == "find_the_bird"
+        assert report["paidCalls"] == 5
+        assert d.execute(prepared, root, tmp_path / "bird-out", 1, client=network)["paidCalls"] == 0
+    payload = json.loads(next(r.content for r in calls if r.method == "POST"))
+    assert payload["messages"][0]["content"][0]["text"] == d.BIRD_PROMPT
+    (root / "games/find_the_bird/public/levels/demo/sprite.png").write_bytes(b"changed")
+    with pytest.raises(d.DifficultyError, match="sprite set changed"):
+        d.prepare(path, root, model=d.DEFAULT_MODEL, repeats=5, max_edge=2048)
+
+
+def test_unknown_game_is_rejected(pilot):
+    from levelbuilder import difficulty as d
+
+    root, path = pilot
+    manifest = json.loads(path.read_text())
+    manifest["game"] = "../find_the_dog"
+    path.write_text(json.dumps(manifest))
+    with pytest.raises(d.DifficultyError, match="game must"):
+        d.prepare(path, root, model=d.DEFAULT_MODEL, repeats=3, max_edge=1024)
+
+
 @pytest.fixture
 def prepared(pilot):
     from levelbuilder import difficulty as d

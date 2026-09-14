@@ -1,0 +1,106 @@
+{
+  "status": "dry_run",
+  "config": {
+    "version": "difficulty-v1",
+    "model": "google/gemini-3.8-flash",
+    "repeats": 5,
+    "maxEdge": 2048,
+    "thinking": "low",
+    "maxTokens": 8192,
+    "temperature": 1,
+    "prompt": "Find every bird visible in this illustrated scene. Return one tight bounding box per bird, including partially hidden birds. Do not include other animals or bird-shaped scenery. Coordinates are [ymin, xmin, ymax, xmax], integers normalized to 0\u20131000 relative to the entire supplied image. Return JSON only, with a dogs array of objects containing box_2d. The array key dogs is a legacy schema name; every detection must be a bird.",
+    "schema": {
+      "$defs": {
+        "Detection": {
+          "additionalProperties": false,
+          "properties": {
+            "box_2d": {
+              "items": {
+                "type": "integer"
+              },
+              "maxItems": 4,
+              "minItems": 4,
+              "title": "Box 2D",
+              "type": "array"
+            }
+          },
+          "required": [
+            "box_2d"
+          ],
+          "title": "Detection",
+          "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "properties": {
+        "dogs": {
+          "items": {
+            "$ref": "#/$defs/Detection"
+          },
+          "maxItems": 300,
+          "title": "Dogs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "dogs"
+      ],
+      "title": "Detections",
+      "type": "object"
+    },
+    "view": "whole-scene aspect-preserving thumbnail; not a device capture",
+    "matching": "greedy one-to-one IoU >= 0.15 against sprite rectangles",
+    "game": "find_the_bird"
+  },
+  "manifestSha256": "657f433b2003005460c078afe7dd8d058ea532fbe665baac8e332753a8da678c",
+  "plannedCalls": 15,
+  "ranking": null,
+  "paidCalls": 0,
+  "levels": [
+    {
+      "levelId": "square_hawaii_waterfall_flash_4k",
+      "dogCount": 15,
+      "dimensions": [
+        4096,
+        4096
+      ],
+      "imageSize": [
+        2048,
+        2048
+      ],
+      "imageSha256": "66d1c92f77d39fcbeee009e08618b7e7424e52b56388363bb7b95e3afda5c8de",
+      "fingerprint": "d515700aabf2e760bf2c78c55ef83fdcafd1c3f06c19fff0650f8285603ec097",
+      "medianSpriteLinearFraction": 0.07274735184401823
+    },
+    {
+      "levelId": "turkey_cappadocia_balloon_dawn_bird_b03c",
+      "dogCount": 16,
+      "dimensions": [
+        2688,
+        2688
+      ],
+      "imageSize": [
+        2048,
+        2048
+      ],
+      "imageSha256": "d23e11f0e05c433d8209a8355b193372bf79efa412abbfa666af9e294b455ec4",
+      "fingerprint": "60309b2fa704c9bbec688568eb9f7fef8bfa2552b438a97c3699e3efabd3f937",
+      "medianSpriteLinearFraction": 0.08323591941376615
+    },
+    {
+      "levelId": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+      "dogCount": 18,
+      "dimensions": [
+        2688,
+        2688
+      ],
+      "imageSize": [
+        2048,
+        2048
+      ],
+      "imageSha256": "faf79b8e54b6dc466c7f43f387e3496886d7ed7cdb4e6e18c172328503e2a38b",
+      "fingerprint": "457580404b42dd8e7755e04d0a9b94667f592d61ac6cd08699f2de75b32932e9",
+      "medianSpriteLinearFraction": 0.06722224587805789
+    }
+  ]
+}

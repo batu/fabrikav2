@@ -1,15 +1,14 @@
 import { prefersReducedMotion } from '@fabrikav2/ui';
+import type { FindPraisePhrase } from './FindPraisePolicy';
 
-export const FIND_PRAISE = { phrases: ['Found It!', 'Good!', 'Incredible!'], maxActive: 2, durationMs: 1300 } as const;
+export const FIND_PRAISE = { maxActive: 2, durationMs: 1300 } as const;
 
 /** Screen-space feedback; never participates in hit testing or scoring. */
 export class FindPraise {
-  private index = 0;
   private active = new Map<HTMLElement, ReturnType<typeof setTimeout>>();
 
-  show(x: number, y: number): void {
+  show(x: number, y: number, phrase: FindPraisePhrase): void {
     while (this.active.size >= FIND_PRAISE.maxActive) this.remove(this.active.keys().next().value!);
-    const phrase = FIND_PRAISE.phrases[this.index++ % FIND_PRAISE.phrases.length];
     const el = document.createElement('div');
     el.className = 'find-praise';
     el.dataset.reducedMotion = String(prefersReducedMotion());
@@ -17,7 +16,7 @@ export class FindPraise {
     label.className = 'find-praise-word';
     label.textContent = phrase;
     el.appendChild(label);
-    if (phrase === 'Incredible!') {
+    if (phrase !== 'Good!') {
       const stars = document.createElement('span');
       stars.className = 'find-praise-stars';
       stars.textContent = '★ ★ ★';

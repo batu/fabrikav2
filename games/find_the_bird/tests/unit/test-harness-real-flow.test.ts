@@ -271,7 +271,7 @@ function createFakeGame(options: { deferHomeRender?: boolean } = {}) {
     getSectionSnapshot: vi.fn(() => null),
     enableMicroAnimationsForTest: vi.fn(),
     restorationMaskAlphaAtLevelPoint: vi.fn(() => null),
-    cameras: { main: { scrollX: 0, scrollY: 0, setZoom: vi.fn() } },
+    cameras: { main: { x: 0, y: 0, zoom: 1, worldView: { x: 0, y: 0 }, scrollX: 0, scrollY: 0, setZoom: vi.fn() } },
   };
 
   const renderHome = (): void => {
@@ -529,11 +529,29 @@ describe("find_the_dog TestHarness real-flow wiring", () => {
     const { createFindTheDogHarness } = await import("../../src/testing/TestHarness");
     const fixture = createFakeGame();
     fixture.fakeGameScene.cameras.main.scrollX = 50;
+    fixture.fakeGameScene.cameras.main.worldView.x = 50;
     const harness = createFindTheDogHarness(fixture.game as never);
     await harness.verbs.startLevel.run();
 
     expect(harness.findDog("dog-a")).toEqual({ found: true, totalFound: 1 });
+    expect(fixture.fakeGameScene.taps).toContainEqual(expect.objectContaining({
+      screenX: levelData.dogs[0].x - 50, screenY: levelData.dogs[0].y,
+    }));
     expect(mocks.gameState.lives).toBe(3);
+  });
+
+  it("findDog does not press a HUD button covering a target before its deterministic fallback", async () => {
+    const { createFindTheDogHarness } = await import("../../src/testing/TestHarness");
+    const fixture = createFakeGame();
+    const harness = createFindTheDogHarness(fixture.game as never);
+    await harness.verbs.startLevel.run();
+    const button = document.createElement("button");
+    const clicked = vi.fn();
+    button.addEventListener("click", clicked);
+    document.body.appendChild(button);
+    vi.spyOn(document, "elementFromPoint").mockReturnValue(button);
+    expect(harness.findDog("dog-a")).toEqual({ found: true, totalFound: 1 });
+    expect(clicked).not.toHaveBeenCalled();
   });
 
   it("temporarily enables health so failLevel remains reachable when health is disabled", async () => {

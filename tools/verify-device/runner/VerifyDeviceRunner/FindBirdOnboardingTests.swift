@@ -102,6 +102,30 @@ final class FindBirdOnboardingTests: XCTestCase {
         settledShot("returning-player")
     }
 
+    func testEarnedPraiseWithPhysicalInput() throws {
+        let env = ProcessInfo.processInfo.environment
+        guard env["FTB_EARNED_PRAISE_QA"] == "1",
+              let bundle = env["TARGET_BUNDLE_ID"],
+              ["com.basegamelab.findthebird.onboardingqa", "com.basegamelab.findthebird.onboardingfresh"].contains(bundle) else {
+            throw XCTSkip("Requires dedicated QA app on the untouched waterfall level")
+        }
+        continueAfterFailure = false
+        let app = XCUIApplication(bundleIdentifier: bundle)
+        app.activate()
+        XCTAssertTrue(text(app, "0/19").waitForExistence(timeout: 10))
+        // Two exposed birds, then the reviewed bird behind rocks. Keep the
+        // physical taps consecutive; the test-plan video retains the transient
+        // feedback for visual review without screenshot calls delaying the combo.
+        for point in [(0.75, 0.52), (0.19, 0.52), (0.59, 0.32)] {
+            app.coordinate(withNormalizedOffset: CGVector(dx: point.0, dy: point.1)).tap()
+        }
+        let start = app.coordinate(withNormalizedOffset: CGVector(dx: 0.50, dy: 0.60))
+        let end = app.coordinate(withNormalizedOffset: CGVector(dx: 0.25, dy: 0.60))
+        start.press(forDuration: 0.05, thenDragTo: end, withVelocity: .slow, thenHoldForDuration: 0)
+        XCTAssertTrue(text(app, "3/19").exists, "Three physical taps must collect three birds")
+        settledShot("earned-praise-cleanup")
+    }
+
     func testOrdinaryFeedbackAndSettings() throws {
         let env = ProcessInfo.processInfo.environment
         guard env["FTB_ORDINARY_QA"] == "1",

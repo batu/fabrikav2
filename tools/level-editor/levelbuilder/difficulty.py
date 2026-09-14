@@ -38,6 +38,14 @@ PROMPT = (
     "normalized to 0–1000 relative to the entire supplied image. "
     "Return JSON only, with a dogs array of objects containing box_2d."
 )
+BIRD_PROMPT = (
+    "Find every bird visible in this illustrated scene. Return one tight bounding "
+    "box per bird, including partially hidden birds. Do not include other animals "
+    "or bird-shaped scenery. Coordinates are [ymin, xmin, ymax, xmax], integers "
+    "normalized to 0–1000 relative to the entire supplied image. "
+    "Return JSON only, with a dogs array of objects containing box_2d. "
+    "The array key dogs is a legacy schema name; every detection must be a bird."
+)
 
 
 class DifficultyError(ValueError):
@@ -109,15 +117,22 @@ def prepare(manifest_path: Path, root: Path, *, model: str, repeats: int, max_ed
         raise DifficultyError("manifest must be a JSON object")
     if manifest.get("schemaVersion") != 1 or not 1 <= len(manifest.get("levels", [])) <= 100:
         raise DifficultyError("expected a schemaVersion 1 manifest with 1–100 levels")
+    game = manifest.get("game", "find_the_dog")
+    if game not in ("find_the_dog", "find_the_bird"):
+        raise DifficultyError("game must be find_the_dog or find_the_bird")
     for key in ("catalog", "bundledManifest"):
         if key in manifest:
             checked_asset(root, manifest[key])
     config = {"version": VERSION, "model": model, "repeats": repeats,
               "maxEdge": max_edge, "thinking": "low", "maxTokens": 8192,
               "temperature": None if model == ASTRA_MODEL else 1,
-              "prompt": PROMPT, "schema": Detections.model_json_schema(),
+              "prompt": BIRD_PROMPT if game == "find_the_bird" else PROMPT,
+              "schema": Detections.model_json_schema(),
               "view": "whole-scene aspect-preserving thumbnail; not a device capture",
               "matching": "greedy one-to-one IoU >= 0.15 against sprite rectangles"}
+    # Preserve existing Dog fingerprints/caches; Bird explicitly identifies the game.
+    if game == "find_the_bird":
+        config["game"] = game
     levels = []
     ids = set()
     sprite_digests = {}
@@ -130,10 +145,10 @@ def prepare(manifest_path: Path, root: Path, *, model: str, repeats: int, max_ed
                 or "/" in level_id or "\\" in level_id or level_id in ids or level["id"] != level_id):
             raise DifficultyError("duplicate or mismatched level identity")
         ids.add(level_id)
-        # Only exported Find the Dog inputs are accepted, independent of selected game.
-        public = (root / "games/find_the_dog/public").resolve()
+        # Both games use the legacy dogs/sprite schema in their exported levels.
+        public = (root / f"games/{game}/public").resolve()
         if level_path != inside(public, f"levels/{level_id}/level.json"):
-            raise DifficultyError("pilot level is not an exported Find the Dog level")
+            raise DifficultyError(f"pilot level is not an exported {game} level")
         image_path, image_raw = checked_asset(root, row["colorImage"])
         if image_path != inside(public, level["colorImage"]):
             raise DifficultyError("pilot artwork does not match level.json")

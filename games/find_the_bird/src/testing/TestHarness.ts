@@ -189,6 +189,7 @@ async function clickWhenHittable(selector: string | readonly string[], pollMs: n
 export interface FindTheDogSnapshot {
   tutorial: { stage: string | null; targetId: string | null; completed: boolean; hintAllowanceUsed: boolean };
   praiseActive: number;
+  praise: Array<{ phrase: string; left: string; top: string }>;
   trackingExplanationVisible: boolean;
   /** Visible scene/surface inferred from DOM plus Phaser. */
   activeScene: string;
@@ -486,6 +487,9 @@ export function createFindTheDogHarness(game: Phaser.Game): FindTheDogHarness {
       return true;
     }
 
+    // findDog must not spend a hint or open a menu when HUD covers its target.
+    // The deterministic fallback owns off-canvas/occluded test targets.
+    if (document.elementFromPoint(point.x, point.y) !== game.canvas) return false;
     const { hitTarget } = driveInputAt(point);
     return hitTarget === game.canvas;
   }
@@ -648,6 +652,9 @@ export function createFindTheDogHarness(game: Phaser.Game): FindTheDogHarness {
         hintAllowanceUsed: gameState.tutorialHintUsed,
       },
       praiseActive: document.querySelectorAll('.find-praise').length,
+      praise: [...document.querySelectorAll<HTMLElement>('.find-praise')].map((el) => ({
+        phrase: el.querySelector('.find-praise-word')?.textContent ?? '', left: el.style.left, top: el.style.top,
+      })),
       trackingExplanationVisible: document.getElementById('tracking-explanation') !== null,
       activeScene,
       phaserActiveScene,
@@ -804,7 +811,12 @@ export function createFindTheDogHarness(game: Phaser.Game): FindTheDogHarness {
         ? false
         : tryDriveGameplayTap(scene, canvasX, canvasY);
       if (cameraChangesWorldPoint || !reachedCanvas) {
-        scene.handleTap({ worldX: canvasX, worldY: canvasY, screenX: canvasX, screenY: canvasY });
+        // This game's camera does not rotate; worldView includes its zoom origin.
+        const screen = {
+          x: camera.x + (canvasX - camera.worldView.x) * camera.zoom,
+          y: camera.y + (canvasY - camera.worldView.y) * camera.zoom,
+        };
+        scene.handleTap({ worldX: canvasX, worldY: canvasY, screenX: screen.x, screenY: screen.y });
       }
 
       return {
