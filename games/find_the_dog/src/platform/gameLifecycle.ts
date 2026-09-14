@@ -4,6 +4,9 @@ import { Capacitor } from '@capacitor/core';
 export type SuspendReason = 'capacitor' | 'visibility';
 
 export interface LifecycleHooks {
+  /** Flush hooks start after every observation hook has synchronously emitted.
+   * Async work remains part of the suspend promise; resume is not delayed. */
+  suspendPhase?: 'observe' | 'flush';
   onSuspend?: () => void | Promise<void>;
   onResume?: (elapsedMs: number) => void;
 }
@@ -116,7 +119,11 @@ export function suspendGame(_reason: SuspendReason): Promise<void> {
   suspended = true;
   suspendedAtMs = Date.now();
   game?.loop.sleep();
-  const pending = Promise.all(hooks.map(async (entry) => {
+  const suspendHooks = [
+    ...hooks.filter((entry) => entry.hooks.suspendPhase !== 'flush'),
+    ...hooks.filter((entry) => entry.hooks.suspendPhase === 'flush'),
+  ];
+  const pending = Promise.all(suspendHooks.map(async (entry) => {
     try {
       await entry.hooks.onSuspend?.();
     } catch (err: unknown) {

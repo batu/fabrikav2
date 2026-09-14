@@ -388,6 +388,7 @@ export class AnalyticsService {
       this.sdk.track('app_foreground');
     };
     registerLifecycleHooks('analytics-flush', {
+      suspendPhase: 'flush',
       onSuspend: suspend,
       onResume: resume,
     });
