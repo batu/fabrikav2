@@ -30,6 +30,7 @@ import {
   setHomeCallback,
   setGameModeChangeCallback,
 } from '../ui/HUD';
+import { FindPraise } from '../ui/FindPraise';
 import { showTutorialOverlay, phaserPointToCssPoint, type TutorialHandle } from '../ui/TutorialOverlay';
 import { preloadLevelCompleteAssets, showLevelCompleteOverlay, dismissLevelCompleteOverlay } from '../ui/LevelCompleteOverlay';
 import { presentAchievementUnlocks } from '../ui/AchievementToast';
@@ -283,6 +284,7 @@ export class GameScene extends Phaser.Scene {
 
   /** Active tutorial handle (field-tracked so shutdown can dismiss cleanly without leaking DOM). */
   private tutorialHandle: TutorialHandle | null = null;
+  private findPraise = new FindPraise();
   /** Active tutorial highlight ring. Null when tutorial not shown. */
   /** The bird the state-1 tutorial ring points at (NOT necessarily dogs[0] —
    *  the prompt picks the nearest bird visible in the starting viewport). */
@@ -295,10 +297,7 @@ export class GameScene extends Phaser.Scene {
   private lastGovernorScrollY = Number.NaN;
   private lastGovernorZoom = Number.NaN;
   /** Last worldView the tutorial overlay was positioned for (dirty gate). */
-  private lastTutorialView: { l: number; t: number; w: number } | null = null;
-  /** Bird the tutorial's real hint pointed at; picking it up starts the
-   *  zoom lesson. Null outside that window. */
-  private tutorialHintedDogId: string | null = null;
+  private lastTutorialView: { l: number; t: number; w: number; viewportW: number; viewportH: number } | null = null;
   /** Zoom-lesson watch: camera zoom captured at zoom-step entry. */
   private tutorialZoomBaseline: number | null = null;
 
@@ -639,10 +638,11 @@ export class GameScene extends Phaser.Scene {
     if (
       this.tutorialHandle &&
       this.tutorialZoomBaseline !== null &&
+      this.pinchZoom?.isPinching === true &&
       this.cameras.main.zoom > this.tutorialZoomBaseline + TUTORIAL_ZOOM_COMPLETE_DELTA
     ) {
       this.tutorialZoomBaseline = null;
-      this.tutorialHandle.dismiss(true);
+      this.tutorialHandle.zoomed();
     }
 
     this.updateHintEdgeArrow();
@@ -658,9 +658,11 @@ export class GameScene extends Phaser.Scene {
       const moved = this.lastTutorialView === null
         || this.lastTutorialView.l !== v.left
         || this.lastTutorialView.t !== v.top
-        || this.lastTutorialView.w !== v.width;
+        || this.lastTutorialView.w !== v.width
+        || this.lastTutorialView.viewportW !== window.innerWidth
+        || this.lastTutorialView.viewportH !== window.innerHeight;
       if (canvas && moved) {
-        this.lastTutorialView = { l: v.left, t: v.top, w: v.width };
+        this.lastTutorialView = { l: v.left, t: v.top, w: v.width, viewportW: window.innerWidth, viewportH: window.innerHeight };
         const view = this.cameras.main.worldView;
         const css = phaserPointToCssPoint(
           canvas,
@@ -1151,13 +1153,6 @@ export class GameScene extends Phaser.Scene {
       !gameState.tutorialShown &&
       this.level.dogs.length > 0
     ) {
-      // Tutorial state 2 ("try a hint") requires hintsRemaining > 0 to
-      // be reachable — a 0-hint user softlocks on the bubble because
-      // the hint button is disabled (or asks for an ad). Top up here
-      // so the tutorial can always complete its flow.
-      if (gameState.hintsRemaining <= 0) {
-        gameState.ensureMinimumHints(GAMEPLAY.INITIAL_HINTS, 'tutorial');
-      }
       this.time.delayedCall(TUTORIAL_PROMPT_DELAY_MS, () => {
         if (this.isShuttingDown || !this.level) return;
         // Square levels pan: dogs[0] can sit outside the initial viewport
@@ -1263,6 +1258,7 @@ export class GameScene extends Phaser.Scene {
       // (LevelCompleteOverlay's Next-Level click path) unblocks — but
       // the .then() at the awaiter must itself guard on isShuttingDown
       // to avoid running scene mutations on a dying scene.
+      this.findPraise.clear();
       this.tutorialHandle?.dismiss(false);
       this.tutorialHandle = null;
       this.ratePromptHandle?.dismiss();
@@ -1399,6 +1395,8 @@ export class GameScene extends Phaser.Scene {
       return;
     }
 
+    if (this.tutorialHandle && ['zoom', 'hint', 'objective'].includes(this.tutorialHandle.stage)) return;
+
     // First-time tutorial, "Tap the bird" phase (pulsing ring up): only the
     // spotlighted target is interactive. Taps on other birds and wrong-tap
     // penalties are swallowed — the overlay is pointing at ONE bird, so
@@ -1505,13 +1503,15 @@ export class GameScene extends Phaser.Scene {
     if (this.isRestoration) this.assertRestorationDogReady(dog);
 
     gameState.foundDogIds.add(dog.id);
+    if (this.tutorialHandle?.stage === 'hinted-find' && dog.id === this.tutorialTargetDogId) {
+      this.dismissHintCircle();
+    }
     playFind();
     hapticFound();
     updateHUD(this.level!.dogs.length, this.isRestoration);
-    // Tutorial's zoom lesson waits for the HINTED bird to be picked up.
-    if (this.tutorialHandle && this.tutorialHintedDogId === dog.id) {
-      this.tutorialHintedDogId = null;
-      this.tutorialHandle.advanceToZoomState();
+    if (!this.tutorialHandle) {
+      const css = phaserPointToCssPoint(this.scale.canvas, GAME.WIDTH, GAME.HEIGHT, canvasX, canvasY);
+      this.findPraise.show(css.x, css.y);
     }
 
     // Tutorial points its pulsing ring at the bird chosen at prompt time
@@ -1519,7 +1519,7 @@ export class GameScene extends Phaser.Scene {
     // THAT bird — if their eye catches a different one first, leave the ring
     // intact so the contract holds.
     if (dog.id === this.tutorialTargetDogId) {
-      this.advanceTutorial();
+      this.advanceTutorial(dog.id);
     }
 
     const dogIndex = this.level!.dogs.findIndex((d) => d.id === dog.id);
@@ -2011,29 +2011,32 @@ export class GameScene extends Phaser.Scene {
     });
   }
 
-  /**
-   * Show the first-time tutorial with a pulsing highlight ring around the
-   * target dog. Ring persists until the player taps "Got it!", then fades
-   * out. Without the ring, the bubble arrow points at a visually identical
-   * patch of B&W — players can't tell where "the dog" actually is.
-   *
-   * CSS coords are derived via getBoundingClientRect, which is the only
-   * robust conversion from Phaser internal (DPR-scaled) coords to viewport
-   * CSS pixels under FIT + zoom=1/DPR scaling.
-   */
-  /**
-   * Advance the tutorial from state 1 (dog bubble) to state 2 (hint
-   * bubble) and tear down the pulsing ring that anchored the dog bubble.
-   * Final dismissal happens via the hint-button capture listener inside
-   * TutorialOverlay.
-   */
-  private advanceTutorial(): void {
-    if (!this.tutorialHandle) return;
-    this.tutorialTargetDogId = null;
-    this.tutorialAnchorWorld = null;
-    // Now on the "try a hint" step — arm hint suppression so the tap that
-    // advances to the zoom step neither fires a hint nor draws a hint circle.
-    this.tutorialHandle.advanceToHintState();
+  /** Advance only after the designated bird is found; choose another real target. */
+  private advanceTutorial(foundId: string): void {
+    if (!this.tutorialHandle || !this.level) return;
+    const view = this.cameras.main.worldView;
+    const next = this.level.dogs.filter((d) => !gameState.foundDogIds.has(d.id))
+      .sort((a, b) => Math.hypot(this.imgOffsetX + a.x * this.imgScale - view.centerX, this.imgOffsetY + a.y * this.imgScale - view.centerY)
+        - Math.hypot(this.imgOffsetX + b.x * this.imgScale - view.centerX, this.imgOffsetY + b.y * this.imgScale - view.centerY))[0];
+    this.tutorialHandle.found(foundId, next?.id ?? null);
+  }
+
+  private anchorTutorialTarget(id: string | null): void {
+    this.tutorialTargetDogId = id;
+    const dog = this.level?.dogs.find((d) => d.id === id);
+    if (!dog) { this.tutorialAnchorWorld = null; return; }
+    this.tutorialAnchorWorld = { x: this.imgOffsetX + dog.x * this.imgScale, y: this.imgOffsetY + dog.y * this.imgScale };
+    this.tutorialAnchorRadiusCss = resolveRuntimeHitRadius(dog, this.level!.dogs, this.level!.width === this.level!.height, this.level!.width)
+      * this.imgScale * this.scale.canvas.getBoundingClientRect().width / GAME.WIDTH;
+    this.lastTutorialView = null;
+    const p = this.tutorialAnchorWorld;
+    const v = this.cameras.main.worldView;
+    // Reserve screen space for the bubble, hand and magnifier, not merely
+    // the hit circle. Fixed world-unit margins shrink under a real pinch.
+    if (p.x < v.left + v.width * 0.22 || p.x > v.right - v.width * 0.22
+      || p.y < v.top + v.height * 0.24 || p.y > v.bottom - v.height * 0.28) {
+      this.cameras.main.pan(p.x, p.y, 350, 'Sine.easeInOut');
+    }
   }
 
   private showFirstTimeTutorial(dog: LevelDog, phaserX: number, phaserY: number): void {
@@ -2075,6 +2078,10 @@ export class GameScene extends Phaser.Scene {
     this.tutorialHandle = showTutorialOverlay({
       dogScreen,
       dogRadius: dogRadiusCss,
+      targetId: dog.id,
+      available: this.level!.dogs.filter((d) => !gameState.foundDogIds.has(d.id)).length,
+      total: this.level!.dogs.length,
+      onStageChanged: (_stage, id) => this.anchorTutorialTarget(id),
       onZoomStateEntered: () => {
         this.tutorialZoomBaseline = this.cameras.main.zoom;
       },
@@ -2083,7 +2090,6 @@ export class GameScene extends Phaser.Scene {
       // Null the handle on any dismissal path so a later bird-tap cannot
       // re-advance a dead tutorial; clear gesture watches so update() stops.
       this.tutorialZoomBaseline = null;
-      this.tutorialHintedDogId = null;
       this.tutorialHandle = null;
       this.tutorialTargetDogId = null;
       this.tutorialAnchorWorld = null;
@@ -2094,6 +2100,7 @@ export class GameScene extends Phaser.Scene {
    *  mid-session OS toggle is honored; cheap enough to call per interaction. */
   /** Wrong tap. With healthBarEnabled off this is silent: counter only. */
   private onWrongTap(worldX: number, worldY: number, canvasX: number, canvasY: number): void {
+    if (this.tutorialHandle) return;
     const now = Date.now();
     if (now < gameState.penaltyCooldownUntil) return;
 
@@ -3942,7 +3949,9 @@ export class GameScene extends Phaser.Scene {
     // Tutorial step 2 → 3: the hint tap advances to the zoom lesson (handled
     // by TutorialOverlay) AND fires a real hint — the old suppression taught
     // players that the hint button does nothing (2026-08-06 device review).
-    if (!this.level || gameState.hintCircleActive || gameState.hintsRemaining <= 0) return;
+    const tutorialHint = this.tutorialHandle?.stage === 'hint';
+    if (this.tutorialHandle && !tutorialHint) return;
+    if (!this.level || gameState.hintCircleActive || (!tutorialHint && gameState.hintsRemaining <= 0)) return;
 
     const unfound = this.level.dogs.filter((d) => !gameState.foundDogIds.has(d.id));
     if (unfound.length === 0) return;
@@ -3970,10 +3979,15 @@ export class GameScene extends Phaser.Scene {
         return Math.hypot(pa.x - view.centerX, pa.y - view.centerY)
           - Math.hypot(pb.x - view.centerX, pb.y - view.centerY);
       })[0];
-    if (!gameState.spendHint('gameplayHint')) return;
-    // Remember the hinted bird while a tutorial is live: picking THIS bird up
-    // is what starts the zoom lesson.
-    if (this.tutorialHandle !== null) this.tutorialHintedDogId = dog.id;
+    if (tutorialHint) {
+      // Rebuilding an interrupted tour may repeat the lesson, never grant wallet hints.
+      // The allowance is recorded once; replaying its visual lesson has no economy effect.
+      gameState.consumeTutorialHint();
+    } else if (!gameState.spendHint('gameplayHint')) return;
+    // Only finding this genuinely hinted bird completes the hint lesson.
+    if (tutorialHint) {
+      this.tutorialHandle?.hinted(dog.id);
+    }
     gameState.hintCircleActive = true;
     gameState.save();
     this.hintsUsedThisLevel += 1;

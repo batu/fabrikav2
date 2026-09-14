@@ -141,9 +141,11 @@ export function initHUD(): void {
 
   const hintBtn = document.getElementById('hint-btn') as HTMLButtonElement | null;
   hintBtn?.addEventListener('click', () => {
+    const tutorialStage = document.getElementById('tutorial-overlay')?.dataset.stage;
+    if (tutorialStage !== undefined && tutorialStage !== 'hint') return;
     playUITap();
     if (gameState.hintCircleActive) return;
-    if (gameState.hintsRemaining > 0) {
+    if (tutorialStage === 'hint' || gameState.hintsRemaining > 0) {
       playHint();
       hintCallback?.();
       return;

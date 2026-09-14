@@ -2531,7 +2531,7 @@
      taps. Critically: a tap landing on a dog must reach the Phaser canvas
      so the player can learn by doing. */
   pointer-events: none;
-  position: absolute;
+  position: fixed;
   inset: 0;
   z-index: 50;
 }
@@ -2549,7 +2549,7 @@
 }
 
 .tutorial-bubble {
-  pointer-events: auto;
+  pointer-events: none;
 }
 
 .tutorial-bubble {
@@ -2563,7 +2563,7 @@
   box-shadow: 0 4px 18px rgba(0, 0, 0, 0.25);
   max-width: 220px;
   text-align: center;
-  animation: tutorial-bounce 2.4s ease-in-out infinite;
+  border: 2px solid #987c40;
 }
 
 .tutorial-bubble-dog {
@@ -5716,3 +5716,26 @@
 #scene-transition-cover[data-transition-state="clearing"] .play-entry-home-shell .home-nav-bar {
   opacity: 0;
 }
+/* Reference-led tutorial and successful-find feedback. */
+.tutorial-magnifier { position: absolute; pointer-events: none; object-fit: contain; }
+#tutorial-overlay .tutorial-dismiss { pointer-events: auto; }
+#tracking-explanation { position: fixed; inset: 0; z-index: 10000; background: rgba(30, 32, 48, .76); padding: max(24px, env(safe-area-inset-top)) 18px max(24px, env(safe-area-inset-bottom)); box-sizing: border-box; }
+#tracking-explanation .tracking-explanation-card { width: min(100%, 380px); max-height: 90dvh; overflow: auto; box-sizing: border-box; border: 4px solid #7b70a5; border-radius: 30px; background: #faf5ef; padding: 24px 20px; text-align: center; }
+#tracking-explanation .fab-modal-title { color: #62538c; font-size: 27px; font-weight: 900; }
+.tracking-explanation-body img { display: block; width: min(220px, 70%); height: auto; margin: 12px auto; }
+.tracking-explanation-body p { font-size: 19px; line-height: 1.45; color: #39334e; }
+#tracking-explanation button { width: 100%; min-height: 56px; background: #39a825; color: white; font-size: 23px; border-radius: 24px; }
+ #tutorial-overlay .tutorial-spotlight { border: 3px solid #ffe09a; border-radius: 50%; box-sizing: border-box; transition: none; }
+.tutorial-hand { position: absolute; width: 160px; height: 160px; object-fit: contain; pointer-events: none; }
+#tutorial-overlay .tutorial-bubble { box-sizing: border-box; max-width: none; background: #fff9eb; color: #45352e; line-height: 1.35; }
+#tutorial-overlay [hidden] { display: none !important; }
+.tutorial-counter-highlight { position: relative; z-index: 51; outline: 3px solid #ffe09a; box-shadow: 0 0 18px #ffe09a; }
+.find-praise { position: fixed; z-index: 45; width: 210px; text-align: center; pointer-events: none; transform: translate(-50%, -50%); animation: find-praise-pop 1.3s both; }
+.find-praise-word { display: block; font-size: 29px; font-weight: 900; color: #ffd34d; -webkit-text-stroke: 1px #fff4be; paint-order: stroke fill; text-shadow: 2px 2px 0 #674326, -2px -2px 0 #674326, 2px -2px 0 #674326, -2px 2px 0 #674326, 0 4px 0 #674326; }
+.find-praise-stars { position: absolute; left: 0; right: 0; top: -32px; font-size: 26px; color: #ffcf42; text-shadow: 0 2px 1px #704623; }
+.find-praise-spark { position: absolute; color: #fff5c6; font-size: 20px; left: calc(12% + var(--spark-index, 0) * 24%); top: -12px; animation: find-praise-spark 1.3s both; }
+@keyframes find-praise-pop { 0% { opacity: 0; transform: translate(-50%, -50%) scale(.3) rotate(-5deg); } 18% { opacity: 1; transform: translate(-50%, -50%) scale(1.16) rotate(-3deg); } 32%, 73% { opacity: 1; transform: translate(-50%, -50%) scale(1) rotate(-3deg); } 100% { opacity: 0; transform: translate(-50%, -60%) scale(.45); } }
+@keyframes find-praise-spark { 0% { opacity: 0; transform: scale(.1); } 25% { opacity: 1; transform: translateY(-10px) scale(1.2); } 100% { opacity: 0; transform: translateY(-35px) scale(.2); } }
+.find-praise[data-reduced-motion="true"] { animation: none; }
+.find-praise[data-reduced-motion="true"] .find-praise-spark { display: none; }
+body:has(#home-page-overlay) #tutorial-overlay { display: none; }

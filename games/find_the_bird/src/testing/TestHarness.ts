@@ -187,6 +187,9 @@ async function clickWhenHittable(selector: string | readonly string[], pollMs: n
 }
 
 export interface FindTheDogSnapshot {
+  tutorial: { stage: string | null; targetId: string | null; completed: boolean; hintAllowanceUsed: boolean };
+  praiseActive: number;
+  trackingExplanationVisible: boolean;
   /** Visible scene/surface inferred from DOM plus Phaser. */
   activeScene: string;
   /** Raw Phaser scene key, retained to expose visible/engine divergence. */
@@ -638,6 +641,14 @@ export function createFindTheDogHarness(game: Phaser.Game): FindTheDogHarness {
     const levelFailed = visibleGameScene && (levelFailedOverlayVisible || gameState.lives <= 0);
 
     return {
+      tutorial: {
+        stage: document.getElementById('tutorial-overlay')?.dataset.stage ?? null,
+        targetId: document.getElementById('tutorial-overlay')?.dataset.targetId || null,
+        completed: gameState.tutorialShown,
+        hintAllowanceUsed: gameState.tutorialHintUsed,
+      },
+      praiseActive: document.querySelectorAll('.find-praise').length,
+      trackingExplanationVisible: document.getElementById('tracking-explanation') !== null,
       activeScene,
       phaserActiveScene,
       status: isGameSuspended()

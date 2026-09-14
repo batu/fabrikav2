@@ -23,6 +23,30 @@ beforeEach(() => {
 afterEach(() => { vi.restoreAllMocks(); vi.unstubAllGlobals(); setRewardedAdResultForTest(null); document.body.innerHTML = ''; });
 
 describe('hint offer telemetry', () => {
+  it.each(['guided', 'zoom', 'zoomed-find', 'hinted-find', 'objective'])('keeps the shop closed during tutorial %s', (stage) => {
+    initHUD();
+    const tutorial = document.createElement('div');
+    tutorial.id = 'tutorial-overlay';
+    tutorial.dataset.stage = stage;
+    document.getElementById('hud-overlay')!.appendChild(tutorial);
+    const callback = vi.fn();
+    setHintCallback(callback);
+    document.getElementById('hint-btn')!.click();
+    expect(document.getElementById('hint-booster-modal')).toBeNull();
+    expect(document.getElementById('hint-booster-close')).toBeNull();
+    expect(callback).not.toHaveBeenCalled();
+  });
+
+  it('routes the actual zero-balance tutorial hint button to gameplay', () => {
+    initHUD();
+    const tutorial = document.createElement('div');
+    tutorial.id = 'tutorial-overlay'; tutorial.dataset.stage = 'hint';
+    document.getElementById('hud-overlay')!.appendChild(tutorial);
+    const callback = vi.fn(); setHintCallback(callback);
+    document.getElementById('hint-btn')!.click();
+    expect(callback).toHaveBeenCalledOnce();
+    expect(gameState.hintsRemaining).toBe(0);
+  });
   it('records visible options once, including zero balance, affordability and cap status', () => {
     const shown = vi.spyOn(analytics, 'offerShown');
     const snapshot = vi.spyOn(analytics, 'economySnapshot');
