@@ -538,7 +538,7 @@ def evaluate_catalog(
     progress: Callable[[str], None] = print,
 ) -> dict:
     root, out = root.resolve(), out.resolve()
-    if out.is_relative_to(root):
+    if out.is_relative_to(root) or root.is_relative_to(out):
         raise ValueError("audit output must be outside the levels directory")
     manifest_bytes = catalog.read_bytes()
     entries = json.loads(manifest_bytes)["levels"]

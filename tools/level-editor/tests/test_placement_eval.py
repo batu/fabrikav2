@@ -3,9 +3,8 @@ import json
 
 import numpy as np
 import pytest
-from PIL import Image
-
 from levelbuilder.api.placement_eval import (
+    evaluate_catalog,
     evaluate_level,
     mask_metrics,
     residue_metrics,
@@ -13,6 +12,15 @@ from levelbuilder.api.placement_eval import (
     select_subject,
     summarize,
 )
+from PIL import Image
+
+
+@pytest.mark.parametrize("output", ["levels", "levels/audit", "."])
+def test_report_output_cannot_overlap_input_tree(tmp_path, output):
+    root = tmp_path / "levels"
+    root.mkdir()
+    with pytest.raises(ValueError, match="outside the levels directory"):
+        evaluate_catalog(root, tmp_path / "catalog.json", tmp_path / output, "unused")
 
 
 def test_position_and_scale_errors_reduce_current_overlap():

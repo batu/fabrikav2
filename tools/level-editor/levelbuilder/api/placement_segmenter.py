@@ -1,9 +1,11 @@
 """Adapter for an existing GPU environment's SAM3 JSON-lines worker."""
 
 import json
+import os
 import select
 import shlex
 import subprocess
+import time
 import uuid
 from contextlib import suppress
 
@@ -16,6 +18,7 @@ class Sam3Process:
     def __init__(self, command: str, response_timeout: float = 120):
         self.response_timeout = response_timeout
         self.failed = False
+        self._response_buffer = b""
         self.process = subprocess.Popen(
             shlex.split(command),
             stdin=subprocess.PIPE,
@@ -33,11 +36,18 @@ class Sam3Process:
             raise
 
     def _read(self):
-        if not select.select([self.process.stdout], [], [], self.response_timeout)[0]:
-            raise SegmenterUnavailable("GPU subject worker timed out")
-        line = self.process.stdout.readline()
-        if not line:
-            raise SegmenterUnavailable("GPU subject worker exited before responding")
+        deadline = time.monotonic() + self.response_timeout
+        while b"\n" not in self._response_buffer:
+            remaining = deadline - time.monotonic()
+            if remaining <= 0 or not select.select(
+                [self.process.stdout], [], [], remaining
+            )[0]:
+                raise SegmenterUnavailable("GPU subject worker timed out")
+            chunk = os.read(self.process.stdout.fileno(), 65536)
+            if not chunk:
+                raise SegmenterUnavailable("GPU subject worker exited before responding")
+            self._response_buffer += chunk
+        line, _, self._response_buffer = self._response_buffer.partition(b"\n")
         result = json.loads(line)
         if not isinstance(result, dict):
             raise SegmenterUnavailable(

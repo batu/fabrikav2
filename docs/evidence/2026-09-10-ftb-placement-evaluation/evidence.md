@@ -7,6 +7,22 @@ mode: pipeline
 
 # Evidence: FTB placement and pickup residue
 
+## Integration review follow-up (2026-09-14)
+
+Review found a partial-line worker timeout hole: readiness only bounded the first
+byte, after which readline could block. The reader now enforces a monotonic
+deadline through the newline and retains buffered responses. A real-pipe
+regression failed before correction and passes afterward. Output ancestors are
+also rejected because generated `out/levels` checkpoints could otherwise land
+inside the input tree. The overlap regression failed before correction.
+Independent follow-up review found no remaining defect.
+
+The canonical isolated editor lane passed all six stages: pinned dependencies,
+dependency correction, 630 backend tests, typecheck, 15 browser smokes, and build.
+Ruff and diff whitespace checks passed. An exploratory run against the shared
+developer environment had a dependency-hash mismatch; no shared dependency was
+modified. No GPU inference or provider action was run during this follow-up.
+
 ## Verdict
 
 The final CLI run evaluated all 101 catalog levels (1,904 birds), exited 0, and verified every input hash unchanged. It scored 1,376 birds, marked 528 uncertain, and recorded zero execution errors. Fifty-one levels meet the 80% coverage gate for ranking. Residue candidates: 472 individual-first and 452 all-collected flags.
