@@ -2099,6 +2099,7 @@ export class GameScene extends Phaser.Scene {
 
   /** Wrong tap — show red X, decrement lives. */
   private onWrongTap(canvasX: number, canvasY: number): void {
+    if (!remoteConfigService.value('gameplayMistakesEnabled')) return;
     const now = Date.now();
     if (now < gameState.penaltyCooldownUntil) return;
 
