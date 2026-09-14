@@ -1279,7 +1279,7 @@ async function purchaseShopProduct(
     const purchase = await purchasePromise;
     action.classList.remove('shop-btn-purchasing');
     if (purchase.status !== 'purchased') {
-      action.textContent = purchase.status === 'cancelled' ? 'Cancelled' : 'Unavailable';
+      action.textContent = purchase.status === 'cancelled' ? 'Cancelled' : "Couldn't complete";
       if (purchase.status === 'cancelled') {
         void analytics.purchaseCancelled({ product_id: product.productId, surface: 'shop' });
       } else {

@@ -425,6 +425,20 @@ describe('IapService.purchase — failureKind classification', () => {
     expect(result.failureKind).toBe('store-error');
   });
 
+  it('classifies a raw Capacitor bridge cancel rejection (string code "1", message only) as cancelled', async () => {
+    // The shape the iOS bridge delivers when the provider did not normalize it.
+    const bridgeCancel = Object.assign(new Error('Purchase was cancelled.'), { errorMessage: 'Purchase was cancelled.', code: '1' });
+    const bridgeStoreError = Object.assign(new Error('There was a problem with the App Store.'), { code: '2' });
+    const { service } = await readyService({ purchaseErrors: { [NO_ADS]: bridgeCancel, [HINTS_10]: bridgeStoreError } });
+    const cancelled = await service.purchase(NO_ADS);
+    expect(cancelled.status).toBe('cancelled');
+    expect(cancelled.failureKind).toBeUndefined();
+    const failed = await service.purchase(HINTS_10);
+    expect(failed.status).toBe('failed');
+    expect(failed.failureKind).toBe('store-error');
+    expect(failed.errorMessage).toBe('There was a problem with the App Store.');
+  });
+
   it('a user cancel carries no failureKind', async () => {
     const { service } = await readyService({ purchaseErrors: { [NO_ADS]: { userCancelled: true } } });
     const result = await service.purchase(NO_ADS);

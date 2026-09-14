@@ -134,6 +134,10 @@ export function gameAnalyticsDesignEventId(
   if (eventName === 'product_tapped') return 'store:product_tap';
   if (eventName === 'purchase_sheet_shown') return 'purchase:sheet_shown';
   if (eventName === 'iap_state_changed') return 'iap:state_changed';
+  // Failure kind rides in the event id so the cancel/timeout/store-error split
+  // is readable from the GameAnalytics event list alone (custom fields are not
+  // queryable on the current plan; Firebase Analytics is not a sink).
+  if (eventName === 'purchase_failed') return `purchase:failed:${String(fields.failure_kind ?? fields.reason ?? 'unknown')}`;
   if (eventName === 'ad_revenue_paid') return 'ad:revenue';
   if (eventName === 'settings_changed') return `settings:${String(fields.setting_name ?? 'unknown')}`;
   return eventName.replace(/_/g, ':');
@@ -203,7 +207,7 @@ function canonicalEventIdForDesignEvent(eventId: string): CanonicalAnalyticsEven
   if (normalized === 'purchase:initiated') return 'purchase_initiated';
   if (normalized === 'purchase:sheet_shown') return 'purchase_sheet_shown';
   if (normalized === 'purchase:cancelled') return 'purchase_cancelled';
-  if (normalized === 'purchase:failed') return 'purchase_failed';
+  if (normalized === 'purchase:failed' || normalized.startsWith('purchase:failed:')) return 'purchase_failed';
   if (normalized === 'iap:state_changed') return 'iap_state_changed';
   if (normalized.startsWith('settings:')) return 'settings_changed';
   if (normalized === 'purchase:fulfilled') return 'purchase_fulfilled';
