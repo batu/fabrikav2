@@ -4,7 +4,9 @@ import { App } from '@capacitor/app';
 
 vi.mock('@capacitor/app', () => ({ App: { getInfo: vi.fn() } }));
 afterEach(() => { vi.restoreAllMocks(); vi.clearAllMocks(); });
-import type { AnalyticsEvent } from '@fabrikav2/sdk/analytics';
+import { createAnalytics, type AnalyticsEvent } from '@fabrikav2/sdk/analytics';
+import { AnalyticsService } from '../../src/analytics/AnalyticsService';
+import { registerLifecycleHooks, resetGameLifecycleForTest, setLifecycleForTest } from '../../src/platform/gameLifecycle';
 import { createGameAnalyticsSink, type GameAnalyticsSdk } from '../../src/analytics/GameAnalyticsSink';
 
 function event(name: string, params: AnalyticsEvent['params']): AnalyticsEvent {
@@ -12,6 +14,43 @@ function event(name: string, params: AnalyticsEvent['params']): AnalyticsEvent {
 }
 
 describe('GameAnalytics AnalyticsSink', () => {
+  it('delivers departure observations before closing the session without requiring resume', async () => {
+    resetGameLifecycleForTest();
+    try {
+      let active = true;
+      const calls: string[] = [];
+      const native = gameAnalyticsSdk({
+        isSdkReady: vi.fn(() => active),
+        endSession: vi.fn(() => { active = false; calls.push('END'); }),
+        startSession: vi.fn(() => { active = true; }),
+        addDesignEvent: vi.fn((name) => { if (active) calls.push(name); }),
+      });
+      const sink = createGameAnalyticsSink(validConfig(), { loader: async () => native });
+      const values = new Map<string, string>();
+      const service = new AnalyticsService({
+        sdk: createAnalytics({ env: 'test', sessionId: 'session', sinks: [sink] }),
+        storage: { getItem: (key) => values.get(key) ?? null, setItem: (key, value) => { values.set(key, value); } },
+        storageDurability: 'durable',
+        firstOpenLocks: { request: async (_name, callback) => callback() },
+      });
+      await service.init(); // Analytics registers before gameplay in production.
+      await sink.flush?.();
+      registerLifecycleHooks('game-scene', { onSuspend: () => {
+        void service.levelAbandoned({ level_id: 'test-level', level_index: 2, reason: 'background', elapsed_ms: 100, found_count: 1, total_count: 5 });
+      } });
+      registerLifecycleHooks('completion-overlay', { onSuspend: () => {
+        void service.levelCompleteAction({ level_id: 'test-level', level_index: 2, action: 'background', dwell_ms: 100, reward_revealed: true });
+      } });
+      await setLifecycleForTest('inactive');
+      expect(calls).toContain('level:abandoned');
+      expect(calls).toContain('level_complete:action');
+      expect(calls.indexOf('level:abandoned')).toBeLessThan(calls.indexOf('END'));
+      expect(calls.indexOf('level_complete:action')).toBeLessThan(calls.indexOf('END'));
+      expect(sink.diagnostics()).toMatchObject({ queued: 0, dropped: 0 });
+      expect(native.GameAnalytics.startSession).not.toHaveBeenCalled();
+    } finally { resetGameLifecycleForTest(); }
+  });
+
   it('preserves the readiness budget across background events before an asynchronous resume', async () => {
     vi.useFakeTimers();
     try {

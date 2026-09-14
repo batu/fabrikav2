@@ -16,7 +16,12 @@ it('Got it advances the pinch alternative without marking the whole tutorial com
   document.querySelector<HTMLButtonElement>('.tutorial-dismiss')!.click();
   expect(tour.stage).toBe('pan-left');
   expect(hand.getAttribute('src')).toBe('/ui/tutorial/tap.png');
-  tour.panned('left'); tour.panned('right');
+  const alternative = document.querySelector<HTMLButtonElement>('.tutorial-dismiss')!;
+  expect(alternative.hidden).toBe(false);
+  alternative.click();
+  expect(tour.stage).toBe('pan-right');
+  expect(alternative.hidden).toBe(false);
+  alternative.click();
   expect(tour.stage).toBe('zoomed-find');
   tour.found('d', 'e');
   document.getElementById('hint-btn')!.click();

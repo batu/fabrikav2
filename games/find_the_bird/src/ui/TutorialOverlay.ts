@@ -107,7 +107,7 @@ export function showTutorialOverlay(anchor: TutorialAnchor): TutorialHandle {
       case 'hinted-find': text.textContent = 'Tap the bird inside the hint'; break;
       default: text.textContent = `Find all ${anchor.total} birds. Enjoy the scene!`;
     }
-    button.hidden = stage !== 'zoom' && stage !== 'objective';
+    button.hidden = !['zoom', 'pan-left', 'pan-right', 'objective'].includes(stage);
     button.textContent = stage === 'objective' ? 'Let’s play' : 'Got it';
     hand.hidden = stage === 'objective';
     magnifier.hidden = stage !== 'hinted-find';
@@ -118,7 +118,17 @@ export function showTutorialOverlay(anchor: TutorialAnchor): TutorialHandle {
     if (stage === 'zoom') anchor.onZoomStateEntered();
   };
   const zoomed = (): void => { if (sequence.stage !== 'zoom') return; sequence.zoomed(); render(); };
-  button.addEventListener('click', () => { if (sequence.stage === 'zoom') { anchor.onZoomAlternative?.(); zoomed(); } else dismiss(); });
+  button.addEventListener('click', () => {
+    if (sequence.stage === 'zoom') {
+      anchor.onZoomAlternative?.();
+      zoomed();
+    } else if (sequence.stage === 'pan-left' || sequence.stage === 'pan-right') {
+      sequence.panned(sequence.stage === 'pan-left' ? 'left' : 'right');
+      render();
+    } else {
+      dismiss();
+    }
+  });
   window.addEventListener('resize', layout);
   document.addEventListener('visibilitychange', refreshGesture);
   render();

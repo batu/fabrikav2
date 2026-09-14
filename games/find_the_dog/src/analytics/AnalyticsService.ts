@@ -358,6 +358,7 @@ export class AnalyticsService {
     // Register before the asynchronous atomic claim. Lifecycle transitions are
     // deferred while the claim is pending and reconciled to the latest state.
     registerLifecycleHooks('analytics-flush', {
+      suspendPhase: 'flush',
       onSuspend: suspend,
       onResume: resume,
     });
