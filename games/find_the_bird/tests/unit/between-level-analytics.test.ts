@@ -212,6 +212,30 @@ describe('next_level_ready pending state', () => {
 });
 
 describe('AdMob composition: lifecycle events -> ad_lifecycle', () => {
+  it('keeps interstitial presentation on the completed level after Next advances', () => {
+    const calls: { stage: string; level_index?: number }[] = [];
+    let currentLevelIndex = 2;
+    const options = createAdMobCompositionOptions({
+      analytics: { adLifecycle: async (params) => { calls.push(params); } },
+      currentLevelIndex: () => currentLevelIndex,
+    });
+    markLevelCompleteLeft(1_000, currentLevelIndex);
+    currentLevelIndex = 3;
+    for (const stage of ['show_requested', 'shown', 'impression', 'dismissed', 'show_failed', 'skipped'] as const) {
+      options.onAdEvent({ format: 'interstitial', stage });
+    }
+    expect(calls.map((call) => call.level_index)).toEqual([2, 2, 2, 2, 2, 2]);
+    options.onAdEvent({ format: 'interstitial', stage: 'load_requested' });
+    options.onAdEvent({ format: 'interstitial', stage: 'loaded' });
+    options.onAdEvent({ format: 'interstitial', stage: 'load_failed' });
+    options.onAdEvent({ format: 'rewarded', stage: 'shown' });
+    options.onAdEvent({ format: 'banner', stage: 'impression' });
+    expect(calls.slice(6).map((call) => call.level_index)).toEqual([3, 3, 3, 3, 3]);
+    consumeNextLevelReady(2_000);
+    options.onAdEvent({ format: 'interstitial', stage: 'show_requested' });
+    expect(calls.at(-1)?.level_index).toBe(3);
+  });
+
   it('every provider stage becomes an ad_lifecycle event with the static placement and the current level index', () => {
     const calls: unknown[] = [];
     const options = createAdMobCompositionOptions({
