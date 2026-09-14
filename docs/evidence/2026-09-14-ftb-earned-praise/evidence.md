@@ -31,6 +31,7 @@ Evidence root: `/Users/base/store-review/find-games/ftb-earned-praise-20260915/`
 - `start.json`: current served waterfall JSON/artwork identities match the reviewed ledger.
 - Ordinary `com.basegamelab.findthebird` app rebuilt without the test harness/relay, signature verified, installed at `4490963E-C942-4638-AB3B-567AFD229B0D/App.app`, launched, and its home screen inspected (`ordinary-installed.png`). Existing native shell reused because all production changes are web resources. `save-comparison.json` preserves all 35 keys: progress/wallet unchanged; only three analytics entries, notification launch count, and the midnight hint-date marker changed.
 - Hosted native recording: https://portal.basegamelab.com/media/p_c7cebc/01_recording.html . No App Store/TestFlight submission or Android install was performed.
+- Hosted video readback/playback verified: 810,731 bytes, SHA-256 `7153aeb8669085dcc0fb30ad8b310252f2cd145f660c2ee28154cb12e47bb2ec`, 720px wide, 5.338667 seconds. Hosted report inspected at playback 3.01 seconds.
 
 ## Checks and review
 
@@ -38,6 +39,7 @@ Evidence root: `/Users/base/store-review/find-games/ftb-earned-praise-20260915/`
 - Typecheck and scoped ESLint pass. Existing difficulty scorer's **40 focused tests pass**, covering Bird selection and legacy Dog/cache/cost compatibility.
 - Local root audit reports only three pre-existing ignored `.env*` files as structure errors. No secrets are staged. CI audit runs against tracked source.
 - Independent correctness review: no actionable findings. Native motion and gameplay evidence reviewers: passed, no findings. Review artifacts: `/private/tmp/compound-engineering/ce-code-review/ftb-earned-praise-20260915/`, `/private/tmp/ftb-earned-praise-motion-review.json`, `/private/tmp/ftb-earned-praise-gameplay-review.json`.
+- PR #92 delivery checkpoint: hosted CI is queued on `ubuntu-latest`, as are older repository runs. GitHub reports no required checks and main has no branch protection. Local and physical results above are the acceptance evidence; hosted CI is not claimed green.
 
 ## Coverage limits
 
