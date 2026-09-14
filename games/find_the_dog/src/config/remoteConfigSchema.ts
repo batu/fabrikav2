@@ -20,6 +20,7 @@ export interface RemoteConfigValues {
   rewardProgressGoal: number;
   rewardHintsAmount: number;
   gameplayInitialHints: number;
+  gameplayMistakesEnabled: boolean;
   gameplayModePolicy: GameplayModePolicy;
   ratePromptEnabledDefault: boolean;
   findMomentBurstEnabled: boolean;
@@ -93,6 +94,7 @@ export const REMOTE_CONFIG_DEFAULTS: RemoteConfigValues = {
   rewardProgressGoal: 6,
   rewardHintsAmount: 4,
   gameplayInitialHints: 3,
+  gameplayMistakesEnabled: false,
   gameplayModePolicy: 'classic',
   ratePromptEnabledDefault: true,
   findMomentBurstEnabled: true,
@@ -170,6 +172,7 @@ export const REMOTE_CONFIG_DEFINITIONS_BY_KEY: {
   rewardProgressGoal: { key: 'rewardProgressGoal', remoteKey: 'reward_progress_goal', type: 'number', description: 'Level completions required for the home reward.' },
   rewardHintsAmount: { key: 'rewardHintsAmount', remoteKey: 'reward_hints_amount', type: 'number', description: 'Hints granted when reward progress completes.' },
   gameplayInitialHints: { key: 'gameplayInitialHints', remoteKey: 'gameplay_initial_hints', type: 'number', description: 'Default starting hints for new players.' },
+  gameplayMistakesEnabled: { key: 'gameplayMistakesEnabled', remoteKey: 'gameplay_mistakes_enabled', type: 'boolean', description: 'Enable wrong-tap penalties, hearts, and level failure.' },
   gameplayModePolicy: { key: 'gameplayModePolicy', remoteKey: 'gameplay_mode_policy', type: 'string', description: 'Force Classic or Restoration gameplay, or defer to the saved player setting with player.' },
   ratePromptEnabledDefault: { key: 'ratePromptEnabledDefault', remoteKey: 'rate_prompt_enabled_default', type: 'boolean', description: 'Default rate prompt availability for fresh installs.' },
   findMomentBurstEnabled: { key: 'findMomentBurstEnabled', remoteKey: 'find_moment_burst_enabled', type: 'boolean', description: 'Enable small find-moment burst feedback.' },
@@ -281,6 +284,7 @@ export function mapRemoteConfigValues(
     revealPickupExperimentEnabled: read('revealPickupExperimentEnabled'),
     revealPickupExperimentKilled: read('revealPickupExperimentKilled'),
     gameplayInitialHints: read('gameplayInitialHints'),
+    gameplayMistakesEnabled: read('gameplayMistakesEnabled'),
     gameplayModePolicy: read('gameplayModePolicy'),
     ratePromptEnabledDefault: read('ratePromptEnabledDefault'),
     findMomentBurstEnabled: read('findMomentBurstEnabled'),
@@ -349,6 +353,7 @@ export function mapRemoteConfigSources<TSource>(
     revealPickupExperimentEnabled: read('revealPickupExperimentEnabled'),
     revealPickupExperimentKilled: read('revealPickupExperimentKilled'),
     gameplayInitialHints: read('gameplayInitialHints'),
+    gameplayMistakesEnabled: read('gameplayMistakesEnabled'),
     gameplayModePolicy: read('gameplayModePolicy'),
     ratePromptEnabledDefault: read('ratePromptEnabledDefault'),
     findMomentBurstEnabled: read('findMomentBurstEnabled'),
