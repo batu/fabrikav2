@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FTB between-level instrumentation</title>
+<style>
+body{margin:0;background:#f7f7f5;color:#1c1c1a;font:14px/1.5 -apple-system,Segoe UI,Helvetica,Arial,sans-serif}
+main{max-width:980px;margin:0 auto;padding:24px 20px 60px}
+.eyebrow{text-transform:uppercase;letter-spacing:.08em;font-size:11px;color:#6b6b66;margin:0}
+h1{font-size:24px;margin:4px 0 8px}h2{font-size:17px;margin:28px 0 8px;border-bottom:1px solid #ddd;padding-bottom:4px}
+.summary{font-size:15px;margin:0 0 16px}
+.card{background:#fff;border:1px solid #e2e2de;border-radius:8px;padding:14px 16px;margin:10px 0}
+.tag{display:inline-block;font-size:11px;font-weight:600;padding:2px 8px;border-radius:999px;margin-right:6px}
+.ok{background:#e3f4e6;color:#1b6b2f}.warn{background:#fff1d6;color:#8a5a00}.bad{background:#fde3e3;color:#9b1c1c}.info{background:#e6eefc;color:#1f47a3}
+table{border-collapse:collapse;width:100%;margin:8px 0;font-size:13px}th,td{text-align:left;padding:6px 8px;border-bottom:1px solid #eee;vertical-align:top}th{background:#f0f0ec;font-weight:600}
+code{font:12px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;background:#f0f0ec;padding:1px 4px;border-radius:3px}
+pre{font:12px/1.45 ui-monospace,Menlo,monospace;background:#1f1f1d;color:#eaeae4;padding:12px;border-radius:6px;overflow-x:auto}
+ul{margin:6px 0 6px 18px;padding:0}li{margin:3px 0}
+details{margin:8px 0}summary{cursor:pointer;font-weight:600}
+.bar{display:flex;align-items:center;gap:8px;margin:3px 0}.bar span.b{display:inline-block;height:12px;background:#4a76d9;border-radius:2px}
+</style>
+</head>
+<body><main>
+<header>
+<p class="eyebrow">Report · Find the Bird · 2026-09-14</p>
+<h1>Between-level instrumentation: built, proven on the phone, arriving in GameAnalytics; store submission is gated on your go</h1>
+<p class="summary">Six events now attribute the level-complete flow. Device sequence for levels 1 → 4 including the interstitial is captured; all six ids appear in GameAnalytics today. Production never reads Remote Config, so the interstitial test must ship as builds, not a config experiment.</p>
+</header>
+
+<section><h2>Answer first: does production read Firebase Remote Config?</h2>
+<div class="card"><span class="tag bad">No</span> <b>Find the Bird production runs on static defaults.</b>
+<ul>
+<li><code>games/find_the_bird/src/sdk/SdkContext.ts</code> builds the Firebase provider on native iOS and never reads <code>VITE_FTD_DISABLE_REMOTE_CONFIG</code> (the flag in <code>.env</code> is dead for FTB; FTD reads it).</li>
+<li><code>games/find_the_bird/src/analytics/firebaseApp.ts</code> is a stub: <code>getFirebaseApp()</code> returns <code>null</code>. The provider throws "Firebase app is unavailable" and <code>REMOTE_CONFIG_DEFAULTS</code> win. On the phone the snapshot reports <code>state: "fetch-failed"</code>.</li>
+<li>The release lane's custody env does set the Firebase keys and <code>VITE_FTD_DISABLE_REMOTE_CONFIG=false</code>; that changes nothing for FTB.</li>
+</ul>
+<b>Consequence:</b> the §6 interstitial test is a build-per-arm test today. Making it a config experiment needs a small code change first (port FTD's <code>firebaseApp.ts</code>, FTD commit 12d018d08) plus a store build; recommended before the second experiment, not the first.</div>
+</section>
+
+<section><h2>Status</h2>
+<table><tr><th>Item</th><th>State</th><th>Evidence</th></tr>
+<tr><td>Six events in contract, emitters, GameAnalytics mapping, owned-mirror sanitizer, tests</td><td><span class="tag ok">Done</span></td><td>PR #79 (branch <code>ftb-between-level-instrumentation</code>, merged with today's main); 34 new tests, suite 500/500 green, typecheck and eslint clean</td></tr>
+<tr><td>Device sequence levels 1 → 4 with interstitial, background on the card, muted-ads case, level_abandoned</td><td><span class="tag ok">Captured</span></td><td>iPhone 12, Debug build of the branch with the production iOS env + harness; <code>docs/evidence/2026-09-14-ftb-between-level-instrumentation/device/</code></td></tr>
+<tr><td>Events arrive in GameAnalytics</td><td><span class="tag ok">Confirmed</span></td><td>Query tool, project 351396, 2026-09-14 UTC, design events by id: shown 8 · action 7 · gate 6 · next_ready 6 · abandoned 1 · ad:lifecycle 87 (all from the device runs; app_version 0.0.0)</td></tr>
+<tr><td>Store submission through the release lane</td><td><span class="tag warn">Gated</span></td><td>No store mutation without your go. Another lane already exported Bird 1.2.5 (40) today from the IAP cancel fix; this change ships as the next build on top of it (see Ship plan)</td></tr>
+<tr><td>Attributed production funnel (users per step, 3 → 4 cut by gate and ad stage)</td><td><span class="tag warn">Not yet</span></td><td>Needs 24 h of a store build carrying the events; the funnel below is the pre-instrumentation baseline</td></tr>
+<tr><td>Find the Dog parity</td><td><span class="tag info">Follow-up</span></td><td>Same events, separate PR, per the handoff</td></tr>
+</table></section>
+
+<section><h2>What the phone recorded (levels 1 → 4, ads on)</h2>
+<div class="card">
+<pre>15.9s  level_complete_shown    L1  levels_completed_session=1 duration_ms=15463
+131.3s level_complete_action   L1  action=next dwell_ms=3517 reward_revealed=true
+131.3s interstitial_gate       L1  eligible=false reason=cadence every_n=3
+131.3s next_level_ready        L2  gap_ms=548 after_interstitial=false
+145.2s level_complete_shown    L2
+146.8s level_complete_action   L2  action=background dwell_ms=1629 reward_revealed=false
+149.4s level_complete_action   L2  action=next dwell_ms=4381 reward_revealed=true
+149.4s interstitial_gate       L2  eligible=false reason=cadence
+149.8s next_level_ready        L3  gap_ms=526 after_interstitial=false
+165.1s level_complete_shown    L3  levels_completed_session=3
+168.4s level_complete_action   L3  action=next dwell_ms=3323
+168.4s interstitial_gate       L3  eligible=true  reason=cadence
+168.4s ad_lifecycle            interstitial show_requested cache_age_ms=184950
+168.4s ad_lifecycle            interstitial shown
+735.1s ad_lifecycle            interstitial dismissed
+735.1s level_start             L4 (greece_santorini)
+735.5s next_level_ready        L4  gap_ms=566875 after_interstitial=true</pre>
+<ul>
+<li>Earlier in the same session the first attempt's card was torn down by a scene restart: <code>level_complete_action action=dismissed_by_shutdown dwell_ms=95978</code>. That path is real, not synthetic.</li>
+<li><b>Caveat, stated plainly:</b> the interstitial stayed open 9.4 minutes and was dismissed when the XCUITest session ended, not by a close tap. The dismissal callback and the resume path are what the events show; a human close tap is unproven on this lane. The XCUITest ad-closer died on every attempt that queried the WebView tree (documented in memory for the next run).</li>
+<li>Ads were the real production units on your own device (demo units are rejected by production identity enforcement). No ad was tapped. Two interstitial preloads and one show happened.</li>
+</ul></div>
+<div class="card"><b>Muted ads (settings.adsEnabled=false), completions 4 → 6:</b> <code>interstitial_gate</code> on the sixth completion reports <code>eligible=false reason=ads_disabled</code>; no interstitial lifecycle stage was emitted (only banner <code>hidden</code>). <b>Abandon:</b> backgrounding mid-level gives <code>level_abandoned reason=background found_count=3 total_count=15 elapsed_ms=3626</code>; leaving via the Home scene-start path gives <code>reason=shutdown found_count=1 total_count=19</code>.</div>
+<div class="card"><b>Your save:</b> backed up before the run and restored after (level index 44, coins 2155, hints 25, ads on). Verified by re-reading the state after reload.</div>
+</section>
+
+<section><h2>The events</h2>
+<table><tr><th>id · GA design id</th><th>When</th><th>Params (all carry level_index)</th></tr>
+<tr><td><code>level_complete_shown</code> · <code>level_complete:shown</code></td><td>overlay mounted</td><td>level_id, sequence_slot, levels_completed_session, duration_ms (GA value)</td></tr>
+<tr><td><code>level_complete_action</code> · <code>level_complete:action</code></td><td>leaves the overlay</td><td>action ∈ next · claim_x2 · rate_prompt · background · dismissed_by_shutdown, dwell_ms (GA value), reward_revealed</td></tr>
+<tr><td><code>interstitial_gate</code> · <code>interstitial:gate</code></td><td>cadence decision on Next</td><td>eligible, reason ∈ cadence · min_level · no_ads_entitlement · ads_disabled · <b>first_session</b>, every_n, levels_completed_session</td></tr>
+<tr><td><code>ad_lifecycle</code> · <code>ad:lifecycle</code></td><td>AdMob provider callbacks (ported from FTD)</td><td>ad_type, placement, stage, reason, attempt, cache_age_ms (GA value)</td></tr>
+<tr><td><code>next_level_ready</code> · <code>level:next_ready</code></td><td>first rendered frame of the next level</td><td>gap_ms since the leave action (GA value), after_interstitial</td></tr>
+<tr><td><code>level_abandoned</code> · <code>level:abandoned</code></td><td>background or shutdown with an unfinished level</td><td>reason ∈ background · shutdown, elapsed_ms (GA value), found_count, total_count</td></tr>
+</table>
+<p><b>Note on <code>first_session</code>:</b> PR #76 (merged to main today) turns automatic ads off for a fresh install's entire first launch. That silently vetoes the level-3 interstitial for every new user, below the cadence check. The gate now names it, otherwise the funnel would show <code>eligible=true</code> with no ad. It also means 1.2.5+ already runs "no interstitial in session 1" for new installs; the first week of data will show it as a natural split.</p>
+</section>
+
+<section><h2>Baseline funnel (GameAnalytics 2026-09-01 → 09-13, before instrumentation)</h2>
+<div class="card">
+<div class="bar"><span style="width:110px">L1 Hawaii</span><span class="b" style="width:388px"></span> 97</div>
+<div class="bar"><span style="width:110px">L2 Toymaker</span><span class="b" style="width:316px"></span> 79 (−19%)</div>
+<div class="bar"><span style="width:110px">L3 Cozy library</span><span class="b" style="width:276px"></span> 69 (−13%)</div>
+<div class="bar"><span style="width:110px">L4 Santorini</span><span class="b" style="width:204px"></span> 51 (<b>−26%</b>)</div>
+<div class="bar"><span style="width:110px">L5 Alpine</span><span class="b" style="width:168px"></span> 42 (−18%)</div>
+<p>Within-level completion is 94–98%; the loss is between levels. The 3 → 4 step coincides with the interstitial cadence (<code>interstitialEveryNLevels=3</code>). Once a store build with the events has 24 h of users, this page's successor cuts 3 → 4 by <code>interstitial_gate.reason</code> (first_session vs cadence), <code>ad_lifecycle.stage</code> reached, <code>level_complete_action</code> (background / dismissed vs next), and <code>next_level_ready.gap_ms</code>.</p></div>
+</section>
+
+<section><h2>Proposal for the first experiment</h2>
+<div class="card">
+<p><b>Hypothesis:</b> the interstitial after the third completion is where the 3 → 4 drop happens.</p>
+<p><b>Read the week before choosing the arm.</b> Because PR #76 already removes session-1 automatic ads for new installs, the first week of 1.2.5+ data is itself a comparison: new users' third completion in session 1 will log <code>interstitial_gate reason=first_session</code> (no ad), while returning-session completions log <code>cadence</code> + <code>ad_lifecycle shown</code>. Compare "users starting L4 / users completing L3" between those two groups and against the 69 → 51 baseline.</p>
+<ul>
+<li><b>If the drop closes for first_session users:</b> the ad is the cause. Arm A (build): raise <code>interstitialMinLevel</code> to 6 for all sessions vs control (default). Two store builds, since Remote Config is not read. Success: L3→L4 continuation and D1 retention of the exposed cohort; guard: interstitials per DAU and AdMob revenue per DAU reported side by side.</li>
+<li><b>If the drop persists without an ad:</b> the completion screen is the suspect. Look at <code>level_complete_action</code> on L3: long <code>dwell_ms</code>, <code>background</code>, <code>dismissed_by_shutdown</code>, and <code>reward_revealed=false</code>. Arm B (build): shorten the coin reveal (4200 ms → 1200 ms, the core default) or auto-advance; same metrics.</li>
+<li><b>If <code>next_level_ready.gap_ms</code> is large or missing after L3:</b> the level-4 load is the suspect (CDN level); check <code>level_abandoned</code> on L4 and the prefetch change in PR #77.</li>
+</ul>
+<p><b>Before any config experiment:</b> port FTD's <code>firebaseApp.ts</code> so FTB reads Remote Config; then <code>experiment_exposure</code> and the reveal-vs-pickup pattern apply as the handoff describes.</p></div>
+</section>
+
+<section><h2>Ship plan (needs your go)</h2>
+<div class="card">
+<ol>
+<li>Merge PR #79 (branch already carries today's main, incl. #76/#77 and the IAP cancel fix once that PR lands).</li>
+<li>Release lane as on 2026-09-10 from a clean worktree at the merge commit: Bird 1.2.6 (41) — 1.2.5 (40) is the IAP lane's build exported today in <code>~/store-review/find-games/ios-submission-20260914</code>. I overwrote that lane's <code>build-ios.py</code> by mistake at 12:28 (after its export had completed) and reconstructed it from the 0910 template with its own parameters; header comment says so. Verify before reuse.</li>
+<li>After 24 h on the store build: rerun the GameAnalytics query, post the attributed funnel to this stream, and pick the arm per the proposal.</li>
+</ol>
+<p>Paid calls this session: none (no Gemini/LLM review, no paid APIs). Device ads: real units on your device, two preloads, one show, no taps.</p></div>
+</section>
+
+<details><summary>Appendix: files</summary>
+<ul>
+<li>Contract: <code>games/find_the_bird/src/analytics/CanonicalAnalyticsEvents.ts</code>; emitters: <code>AnalyticsService.ts</code>; GA mapping: <code>GameAnalyticsEvents.ts</code>, <code>GameAnalyticsSink.ts</code>; helpers: <code>BetweenLevelFlow.ts</code>; seam: <code>src/ads/adMobComposition.ts</code>; wiring: <code>src/ui/LevelCompleteOverlay.ts</code>, <code>src/scenes/GameScene.ts</code>, <code>src/sdk/SdkContext.ts</code>; tests: <code>tests/unit/between-level-analytics.test.ts</code>.</li>
+<li>Device evidence: <code>docs/evidence/2026-09-14-ftb-between-level-instrumentation/device/</code> (event JSON, drive scripts, relay, XCUITest, phone console).</li>
+<li>Commits: 9c56c1b1c instrumentation · 013bf83c9 merge main · 975442e99 first_session reason.</li>
+</ul></details>
+</main></body></html>

@@ -139,9 +139,37 @@ export function gameAnalyticsDesignEventId(
   // queryable on the current plan; Firebase Analytics is not a sink).
   if (eventName === 'purchase_failed') return `purchase:failed:${String(fields.failure_kind ?? fields.reason ?? 'unknown')}`;
   if (eventName === 'ad_revenue_paid') return 'ad:revenue';
+  if (eventName === 'ad_lifecycle') return 'ad:lifecycle';
+  // Between-level flow: explicit ids because the underscore fallback would
+  // split level_complete_shown into level:complete:shown.
+  if (eventName === 'level_complete_shown') return 'level_complete:shown';
+  if (eventName === 'level_complete_action') return 'level_complete:action';
+  if (eventName === 'interstitial_gate') return 'interstitial:gate';
+  if (eventName === 'next_level_ready') return 'level:next_ready';
+  if (eventName === 'level_abandoned') return 'level:abandoned';
   if (eventName === 'settings_changed') return `settings:${String(fields.setting_name ?? 'unknown')}`;
   return eventName.replace(/_/g, ':');
 }
+
+/** The numeric metric a canonical design event carries in GameAnalytics'
+ * design-event `value` slot. Custom fields are stringified dimensions, so a
+ * duration has to ride here to be aggregable (mean/percentile) in GA. */
+export function gameAnalyticsDesignEventValue(
+  eventName: string,
+  fields: GameAnalyticsCustomFields,
+): number | undefined {
+  const key = designEventValueKeys[eventName];
+  const value = key === undefined ? fields.value ?? fields.revenue_usd : fields[key];
+  return typeof value === 'number' && Number.isFinite(value) ? value : undefined;
+}
+
+const designEventValueKeys: Readonly<Record<string, string>> = {
+  level_complete_shown: 'duration_ms',
+  level_complete_action: 'dwell_ms',
+  next_level_ready: 'gap_ms',
+  level_abandoned: 'elapsed_ms',
+  ad_lifecycle: 'cache_age_ms',
+};
 
 function eventPath(value: string): string {
   return value
@@ -213,6 +241,12 @@ function canonicalEventIdForDesignEvent(eventId: string): CanonicalAnalyticsEven
   if (normalized === 'purchase:fulfilled') return 'purchase_fulfilled';
   if (normalized === 'purchase:unfulfilled') return 'purchase_unfulfilled';
   if (normalized === 'ad:revenue') return 'ad_revenue_paid';
+  if (normalized === 'ad:lifecycle') return 'ad_lifecycle';
+  if (normalized === 'level_complete:shown') return 'level_complete_shown';
+  if (normalized === 'level_complete:action') return 'level_complete_action';
+  if (normalized === 'interstitial:gate') return 'interstitial_gate';
+  if (normalized === 'level:next_ready') return 'next_level_ready';
+  if (normalized === 'level:abandoned') return 'level_abandoned';
   // Achievement events (card ACH-1). `gameAnalyticsDesignEventId` converts every
   // underscore to a colon, so `achievement_reward_granted` -> `achievement:reward:granted`
   // (two colons). Without these the sink's fall-through zeroes their customFields.
