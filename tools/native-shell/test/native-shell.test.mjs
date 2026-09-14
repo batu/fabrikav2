@@ -399,6 +399,7 @@ describe('Find the Dog manifest contract', () => {
       AppsFlyerFramework: '6.17.5',
     });
     expect(actualManifest.ios.localPackages.map((pkg) => pkg.name)).toEqual([
+      'CapacitorFirebaseAnalytics',
       'CapacitorApp',
       'CapacitorHaptics',
       'CapacitorLocalNotifications',
@@ -406,7 +407,7 @@ describe('Find the Dog manifest contract', () => {
       'RevenuecatPurchasesCapacitor',
       'CapacitorCommunityAdmob',
     ]);
-    expect(actualManifest.ios.localPackages.some((pkg) => pkg.name === 'CapacitorFirebaseAnalytics')).toBe(false);
+    expect(actualManifest.ios.localPackages.find((pkg) => pkg.name === 'CapacitorFirebaseAnalytics').traits).toEqual(['AnalyticsWithoutAdIdSupport']);
     expect(actualManifest.ios.crashlyticsSymbolUpload).toBe(true);
     expect(actualManifest.ios.firebaseProjectId).toBe('find-the-dog-basegamelab');
     expect(actualManifest.ios.swiftSources).toContain('AppsFlyerAttributionPlugin.swift');

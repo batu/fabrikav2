@@ -38,8 +38,10 @@ describe('capacitor includePlugins allowlist', () => {
     })).toContain('@capacitor-community/admob');
   });
 
-  it('never includes Firebase Analytics, even when legacy Firebase env is complete', () => {
-    expect(computeIncludePlugins(completeFirebaseEnv)).not.toContain('@capacitor-firebase/analytics');
+  it('includes Firebase Analytics only with complete config', () => {
+    expect(computeIncludePlugins(completeFirebaseEnv)).toContain('@capacitor-firebase/analytics');
+    expect(computeIncludePlugins({})).not.toContain('@capacitor-firebase/analytics');
+    expect(computeIncludePlugins({ VITE_FIREBASE_API_KEY: 'key' })).not.toContain('@capacitor-firebase/analytics');
   });
 
   it('includes Crashlytics only when explicitly enabled and Firebase config is complete', () => {

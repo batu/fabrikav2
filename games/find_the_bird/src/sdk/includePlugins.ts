@@ -4,7 +4,7 @@ import { adMobIosConfigPresent, readAdMobConfig, type AdMobIosPublicConfig } fro
 // Firebase native plugins configure FirebaseApp during native startup and can
 // abort when GoogleService-Info.plist is absent. Gating JavaScript is not
 // enough: each Firebase plugin must be explicitly selected for the native build.
-// Find releases permit Crashlytics only; Firebase Analytics is never selected. capacitor.config.ts is TS executed by
+// Firebase Analytics requires complete config. capacitor.config.ts is TS executed by
 // the Capacitor CLI, so it can read process.env at sync time to compute an
 // explicit includePlugins allowlist.
 //
@@ -34,10 +34,11 @@ export function firebaseConfigPresentInEnv(env: EnvLike): boolean {
     && present(env.VITE_FIREBASE_APP_ID);
 }
 
-/** Compute the native plugin allowlist. Crashlytics requires both explicit
- * enablement and complete Firebase config. Analytics is deliberately absent. */
+/** Compute the native plugin allowlist. Analytics requires complete config;
+ * Crashlytics additionally requires explicit enablement. */
 export function computeIncludePlugins(env: EnvLike, adMobPublicConfig?: AdMobIosPublicConfig): string[] {
   const plugins = [...ALWAYS_INCLUDED_PLUGINS];
+  if (firebaseConfigPresentInEnv(env)) plugins.push('@capacitor-firebase/analytics');
   if (adMobIosConfigPresent(env, adMobPublicConfig) || readAdMobConfig('android', env).enabled) {
     plugins.push('@capacitor-community/admob');
   }
