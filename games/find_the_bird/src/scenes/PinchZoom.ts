@@ -258,7 +258,7 @@ export class PinchZoom {
     this.setCameraScroll(x.position, y.position);
   };
 
-  private stopInertia(): void {
+  stopInertia(): void {
     this.panVelocity = { x: 0, y: 0 };
   }
 

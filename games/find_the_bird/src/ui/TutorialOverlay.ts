@@ -9,7 +9,6 @@ export interface TutorialAnchor {
   available: number;
   total: number;
   onZoomStateEntered: () => void;
-  onZoomAlternative?: () => void;
   onStageChanged: (stage: TutorialStage, targetId: string | null) => void;
 }
 
@@ -74,14 +73,16 @@ export function showTutorialOverlay(anchor: TutorialAnchor): TutorialHandle {
     Object.assign(spotlight.style, { left: `${center.x - r}px`, top: `${center.y - r}px`, width: `${r * 2}px`, height: `${r * 2}px` });
     const width = Math.min(240, window.innerWidth - 32);
     const left = Math.max(16, Math.min(window.innerWidth - width - 16, center.x - width / 2));
-    // Keep the hand upright: reflect horizontally, never flip both axes
-    // (equivalent to a 180-degree rotation). Shift upward near the bottom edge.
-    const flipX = !gestureLesson && center.x + r * 0.55 + 123 > window.innerWidth - 8;
-    const handX = gestureLesson ? center.x - 80 : center.x + (flipX ? -1 : 1) * r * 0.55 - (flipX ? 123 : 37);
-    const handY = gestureLesson ? center.y - 40 : Math.min(center.y + r * 0.55 - 29, window.innerHeight - 270);
-    Object.assign(hand.style, { left: `${handX}px`, top: `${handY}px`, transform: `scaleX(${flipX ? -1 : 1})` });
+    // The fingertip in the 160px artwork is at (37, 29). Anchor that point,
+    // not the image box. At bottom targets, point downward from above instead
+    // of moving an upward-pointing hand away from the button it demonstrates.
+    const flipX = !gestureLesson && center.x + 131 > window.innerWidth - 8;
+    const flipY = !gestureLesson && center.y + 139 > window.innerHeight - 8;
+    const handX = gestureLesson ? center.x - 80 : center.x + (flipX ? -8 : 8) - (flipX ? 123 : 37);
+    const handY = gestureLesson ? center.y - 40 : center.y + (flipY ? -8 : 8) - (flipY ? 131 : 29);
+    Object.assign(hand.style, { left: `${handX}px`, top: `${handY}px`, transform: `scale(${flipX ? -1 : 1}, ${flipY ? -1 : 1})` });
     hand.style.setProperty('--tap-x', `${flipX ? 6 : -6}px`);
-    hand.style.setProperty('--tap-y', '-6px');
+    hand.style.setProperty('--tap-y', `${flipY ? 6 : -6}px`);
     // Reserve the entire animated hand canvas, including mirrored poses.
     // Text also paints above artwork during camera recentering between stages.
     const above = Math.min(center.y - r - 90, handY - 90);
@@ -120,7 +121,6 @@ export function showTutorialOverlay(anchor: TutorialAnchor): TutorialHandle {
   const zoomed = (): void => { if (sequence.stage !== 'zoom') return; sequence.zoomed(); render(); };
   button.addEventListener('click', () => {
     if (sequence.stage === 'zoom') {
-      anchor.onZoomAlternative?.();
       zoomed();
     } else if (sequence.stage === 'pan-left' || sequence.stage === 'pan-right') {
       sequence.panned(sequence.stage === 'pan-left' ? 'left' : 'right');

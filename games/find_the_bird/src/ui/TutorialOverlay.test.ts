@@ -49,10 +49,17 @@ it.each([60, 300, 650])('keeps instruction text clear of the hand near vertical 
   tour.dismiss(false);
 });
 
-it('mirrors horizontally at the bottom-right corner without turning the hand upside down', () => {
-  const tour = showTutorialOverlay({ dogScreen: { x: window.innerWidth - 30, y: window.innerHeight - 90 }, dogRadius: 30, targetId: 'a', available: 5, total: 5, onZoomStateEntered: vi.fn(), onStageChanged: vi.fn() });
+it.each([
+  [150, 300, false, false],
+  [window.innerWidth - 30, 300, true, false],
+  [window.innerWidth - 30, window.innerHeight - 90, true, true],
+])('keeps the fingertip inside the target at %s,%s', (x, y, flipX, flipY) => {
+  const tour = showTutorialOverlay({ dogScreen: { x: Number(x), y: Number(y) }, dogRadius: 30, targetId: 'a', available: 5, total: 5, onZoomStateEntered: vi.fn(), onStageChanged: vi.fn() });
   const hand = document.querySelector<HTMLElement>('.tutorial-hand')!;
-  expect(hand.style.transform).toBe('scaleX(-1)');
-  expect(parseFloat(hand.style.top) + 160).toBeLessThanOrEqual(window.innerHeight - 110);
+  expect(hand.style.transform).toBe(`scale(${flipX ? -1 : 1}, ${flipY ? -1 : 1})`);
+  const tipX = parseFloat(hand.style.left) + (flipX ? 123 : 37);
+  const tipY = parseFloat(hand.style.top) + (flipY ? 131 : 29);
+  expect(Math.hypot(tipX - Number(x), tipY - Number(y))).toBeLessThan(16);
+  expect(parseFloat(hand.style.top) + 160).toBeLessThanOrEqual(window.innerHeight - 8);
   tour.dismiss(false);
 });

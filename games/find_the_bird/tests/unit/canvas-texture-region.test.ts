@@ -20,7 +20,7 @@ interface FakeGl {
   generateMipmap(target: number): void;
 }
 
-function fixture(options: { width?: number; height?: number; flipY?: boolean; lost?: boolean; webgl?: boolean } = {}) {
+function fixture(options: { width?: number; height?: number; flipY?: boolean; pma?: boolean; lost?: boolean; webgl?: boolean } = {}) {
   const width = options.width ?? 2532;
   const height = options.height ?? 2532;
   const previousBinding = { id: 'previous' };
@@ -38,7 +38,7 @@ function fixture(options: { width?: number; height?: number; flipY?: boolean; lo
     generateMipmap: (target) => { gl.calls.push(['generateMipmap', target]); },
   };
   const canvas = { width, height } as HTMLCanvasElement;
-  const wrapper = { webGLTexture, flipY: options.flipY ?? false, pma: false, mipLevel: 0, width, height };
+  const wrapper = { webGLTexture, flipY: options.flipY ?? false, pma: options.pma ?? false, mipLevel: 0, width, height };
   const textures = {
     exists: (key: string) => key === 'reveal_mask',
     get: () => ({ source: [{ glTexture: wrapper }] }),
@@ -55,23 +55,26 @@ describe('uploadCanvasTextureRegion', () => {
   it('uploads only the clipped region and restores the previous texture binding', () => {
     const f = fixture();
     const scratchDraw = vi.fn();
+    const getContext = vi.fn(() => ({
+      setTransform: vi.fn(), drawImage: scratchDraw, globalCompositeOperation: 'source-over',
+      getImageData: (_x: number, _y: number, w: number, h: number) => ({ data: new Uint8ClampedArray(w * h * 4) }),
+    }));
     vi.spyOn(document, 'createElement').mockImplementation(() => ({
       width: 0,
       height: 0,
-      getContext: () => ({
-        setTransform: vi.fn(),
-        drawImage: scratchDraw,
-        globalCompositeOperation: 'source-over',
-      }),
+      getContext,
     }) as unknown as HTMLCanvasElement);
 
     const ok = uploadCanvasTextureRegion(f.textures, f.renderer, 'reveal_mask', f.canvas, { x: -3.5, y: 10.2, w: 100, h: 50.4 });
 
     expect(ok).toBe(true);
+    expect(getContext).toHaveBeenCalledWith('2d', { willReadFrequently: true });
     // Clipped to the canvas: x from -3.5 -> 0, width shrinks accordingly.
     expect(scratchDraw).toHaveBeenCalledWith(f.canvas, 0, 10, 97, 51, 0, 0, 97, 51);
     const sub = f.gl.calls.find((c) => c[0] === 'texSubImage2D');
     expect(sub?.slice(1, 5)).toEqual([f.gl.TEXTURE_2D, 0, 0, 10]);
+    expect(sub?.slice(5, 9)).toEqual([97, 51, f.gl.RGBA, f.gl.UNSIGNED_BYTE]);
+    expect(sub?.[9]).toBeInstanceOf(Uint8Array);
     const binds = f.gl.calls.filter((c) => c[0] === 'bindTexture').map((c) => c[2]);
     expect(binds).toEqual([f.webGLTexture, f.previousBinding]);
     // Non power-of-two canvas: no mipmap regeneration.
@@ -83,11 +86,28 @@ describe('uploadCanvasTextureRegion', () => {
     const f = fixture({ flipY: true, width: 1000, height: 800 });
     vi.spyOn(document, 'createElement').mockImplementation(() => ({
       width: 0, height: 0,
-      getContext: () => ({ setTransform: vi.fn(), drawImage: vi.fn(), globalCompositeOperation: 'source-over' }),
+      getContext: () => ({ setTransform: vi.fn(), drawImage: vi.fn(), globalCompositeOperation: 'source-over', getImageData: (_x: number, _y: number, w: number, h: number) => ({ data: new Uint8ClampedArray(w * h * 4) }) }),
     }) as unknown as HTMLCanvasElement);
     expect(uploadCanvasTextureRegion(f.textures, f.renderer, 'reveal_mask', f.canvas, { x: 10, y: 20, w: 30, h: 40 })).toBe(true);
     const sub = f.gl.calls.find((c) => c[0] === 'texSubImage2D');
     expect(sub?.slice(3, 5)).toEqual([10, 800 - 20 - 40]);
+    vi.restoreAllMocks();
+  });
+
+  it.each([false, true])('uploads exact RGBA bytes with premultiplication and flipped rows=%s', (flipY) => {
+    const f = fixture({ flipY, pma: true, width: 100, height: 100 });
+    const rgba = new Uint8ClampedArray([200, 100, 50, 128, 20, 40, 60, 255]);
+    vi.spyOn(document, 'createElement').mockImplementation(() => ({
+      width: 0, height: 0,
+      getContext: () => ({ setTransform: vi.fn(), drawImage: vi.fn(), getImageData: () => ({ data: rgba }), globalCompositeOperation: 'source-over' }),
+    }) as unknown as HTMLCanvasElement);
+    uploadCanvasTextureRegion(f.textures, f.renderer, 'reveal_mask', f.canvas, { x: 3, y: 4, w: 1, h: 2 });
+    const upload = f.gl.calls.find((c) => c[0] === 'texSubImage2D')!;
+    expect(Array.from(upload[9] as Uint8Array)).toEqual(flipY
+      ? [20, 40, 60, 255, 100, 50, 25, 128]
+      : [100, 50, 25, 128, 20, 40, 60, 255]);
+    expect(upload.slice(3, 7)).toEqual([3, flipY ? 94 : 4, 1, 2]);
+    expect(Array.from(rgba)).toEqual([200, 100, 50, 128, 20, 40, 60, 255]);
     vi.restoreAllMocks();
   });
 

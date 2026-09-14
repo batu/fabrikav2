@@ -647,16 +647,7 @@ export class GameScene extends Phaser.Scene {
       this.tutorialHandle.zoomed();
     }
 
-    const panStage = this.tutorialHandle?.stage;
-    if (panStage === 'pan-left' || panStage === 'pan-right') {
-      const scroll = this.cameras.main.scrollX;
-      if (this.pinchZoom?.isPanning && !this.pinchZoom.isPinching && this.tutorialPanPrevious !== null) {
-        const cssDelta = (scroll - this.tutorialPanPrevious) / this.cameras.main.worldView.width * window.innerWidth;
-        this.tutorialPanDistance = Math.max(0, this.tutorialPanDistance + cssDelta * (panStage === 'pan-left' ? 1 : -1));
-        if (this.tutorialPanDistance >= 48) this.tutorialHandle?.panned(panStage === 'pan-left' ? 'left' : 'right');
-      }
-      this.tutorialPanPrevious = scroll;
-    }
+    this.updateTutorialPan();
 
     this.updateHintEdgeArrow();
 
@@ -2034,6 +2025,23 @@ export class GameScene extends Phaser.Scene {
     this.tutorialHandle.found(foundId, next?.id ?? null);
   }
 
+  private updateTutorialPan(): void {
+    const panStage = this.tutorialHandle?.stage;
+    if (panStage !== 'pan-left' && panStage !== 'pan-right') return;
+    const scroll = this.cameras.main.scrollX;
+    if (this.pinchZoom?.isPanning && !this.pinchZoom.isPinching && this.tutorialPanPrevious !== null) {
+      const cssDelta = (scroll - this.tutorialPanPrevious) / this.cameras.main.worldView.width * window.innerWidth;
+      this.tutorialPanDistance = Math.max(0, this.tutorialPanDistance + cssDelta * (panStage === 'pan-left' ? 1 : -1));
+    }
+    this.tutorialPanPrevious = scroll;
+    if (this.tutorialPanDistance >= 48 && !this.pinchZoom?.isPanning && !this.pinchZoom?.isPinching) {
+      // A stage change can pan to the next bird. Do not let that camera
+      // movement fight the still-held drag or its release inertia.
+      this.pinchZoom?.stopInertia();
+      this.tutorialHandle?.panned(panStage === 'pan-left' ? 'left' : 'right');
+    }
+  }
+
   private anchorTutorialTarget(id: string | null): void {
     this.tutorialTargetDogId = id;
     const dog = this.level?.dogs.find((d) => d.id === id);
@@ -2101,12 +2109,12 @@ export class GameScene extends Phaser.Scene {
           // A minimal qualifying pinch can leave <48 CSS px of total travel.
           // Prepare room in both directions after the pinch has been released.
           const camera = this.cameras.main;
-          camera.setZoom(Math.max(camera.zoom, 1.6));
-          camera.centerOnX(camera.getBounds().centerX);
+          this.pinchZoom?.stopInertia();
+          camera.zoomTo(Math.max(camera.zoom, 1.6), 300, 'Sine.easeInOut');
+          camera.pan(camera.getBounds().centerX, camera.worldView.centerY, 300, 'Sine.easeInOut');
         }
         this.anchorTutorialTarget(stage.startsWith('pan-') ? null : id);
       },
-      onZoomAlternative: () => this.cameras.main.setZoom(1.6),
       onZoomStateEntered: () => {
         this.tutorialZoomBaseline = this.cameras.main.zoom;
       },

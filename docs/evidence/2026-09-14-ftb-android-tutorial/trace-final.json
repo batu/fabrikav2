@@ -1,0 +1,321 @@
+[
+  {
+    "name": "guided-0",
+    "seconds": 2.311,
+    "tutorial": {
+      "stage": "guided",
+      "targetId": "dog_08",
+      "completed": false,
+      "hintAllowanceUsed": false
+    },
+    "found": [],
+    "camera": {
+      "x": 660,
+      "y": 0,
+      "zoom": 1
+    },
+    "hand": {
+      "x": 181.0654754638672,
+      "y": 451.1071472167969,
+      "width": 160,
+      "height": 160,
+      "top": 451.1071472167969,
+      "right": 341.0654754638672,
+      "bottom": 611.1071472167969,
+      "left": 181.0654754638672
+    }
+  },
+  {
+    "name": "guided-1",
+    "seconds": 6.151,
+    "tutorial": {
+      "stage": "guided",
+      "targetId": "dog_03",
+      "completed": false,
+      "hintAllowanceUsed": false
+    },
+    "found": [
+      "dog_08"
+    ],
+    "camera": {
+      "x": 660,
+      "y": 0,
+      "zoom": 1
+    },
+    "hand": {
+      "x": 131.9523162841797,
+      "y": 311.89874267578125,
+      "width": 160.8692169189453,
+      "height": 160.8692169189453,
+      "top": 311.89874267578125,
+      "right": 292.821533203125,
+      "bottom": 472.76795959472656,
+      "left": 131.9523162841797
+    }
+  },
+  {
+    "name": "guided-2",
+    "seconds": 9.831,
+    "tutorial": {
+      "stage": "guided",
+      "targetId": "dog_07",
+      "completed": false,
+      "hintAllowanceUsed": false
+    },
+    "found": [
+      "dog_08",
+      "dog_03"
+    ],
+    "camera": {
+      "x": 312,
+      "y": 0,
+      "zoom": 1
+    },
+    "hand": {
+      "x": 176.9166717529297,
+      "y": 454.5059509277344,
+      "width": 160,
+      "height": 160,
+      "top": 454.5059509277344,
+      "right": 336.9166717529297,
+      "bottom": 614.5059509277344,
+      "left": 176.9166717529297
+    }
+  },
+  {
+    "name": "zoom",
+    "seconds": 13.56,
+    "tutorial": {
+      "stage": "zoom",
+      "targetId": "dog_01",
+      "completed": false,
+      "hintAllowanceUsed": false
+    },
+    "found": [
+      "dog_08",
+      "dog_03",
+      "dog_07"
+    ],
+    "camera": {
+      "x": 312,
+      "y": 0,
+      "zoom": 1
+    },
+    "hand": {
+      "x": 125.5,
+      "y": 371.2976379394531,
+      "width": 160,
+      "height": 160,
+      "top": 371.2976379394531,
+      "right": 285.5,
+      "bottom": 531.2976379394531,
+      "left": 125.5
+    }
+  },
+  {
+    "name": "pan-left",
+    "seconds": 21.344,
+    "tutorial": {
+      "stage": "pan-left",
+      "targetId": "dog_01",
+      "completed": false,
+      "hintAllowanceUsed": false
+    },
+    "found": [
+      "dog_08",
+      "dog_03",
+      "dog_07"
+    ],
+    "camera": {
+      "x": 660,
+      "y": -72,
+      "zoom": 1.6933334350585945
+    },
+    "hand": {
+      "x": 86.61239624023438,
+      "y": 371.2976379394531,
+      "width": 160,
+      "height": 160,
+      "top": 371.2976379394531,
+      "right": 246.61239624023438,
+      "bottom": 531.2976379394531,
+      "left": 86.61239624023438
+    }
+  },
+  {
+    "name": "pan-right",
+    "seconds": 26.785,
+    "tutorial": {
+      "stage": "pan-right",
+      "targetId": "dog_01",
+      "completed": false,
+      "hintAllowanceUsed": false
+    },
+    "found": [
+      "dog_08",
+      "dog_03",
+      "dog_07"
+    ],
+    "camera": {
+      "x": 954,
+      "y": -72,
+      "zoom": 1.6933334350585945
+    },
+    "hand": {
+      "x": 164.39109802246094,
+      "y": 371.2976379394531,
+      "width": 160,
+      "height": 160,
+      "top": 371.2976379394531,
+      "right": 324.39109802246094,
+      "bottom": 531.2976379394531,
+      "left": 164.39109802246094
+    }
+  },
+  {
+    "name": "zoomed-find",
+    "seconds": 30.075,
+    "tutorial": {
+      "stage": "zoomed-find",
+      "targetId": "dog_01",
+      "completed": false,
+      "hintAllowanceUsed": false
+    },
+    "found": [
+      "dog_08",
+      "dog_03",
+      "dog_07"
+    ],
+    "camera": {
+      "x": 79,
+      "y": -412,
+      "zoom": 1.6933334350585945
+    },
+    "hand": {
+      "x": 175.30313110351562,
+      "y": 434.6364440917969,
+      "width": 155.72686767578125,
+      "height": 155.72689819335938,
+      "top": 434.6364440917969,
+      "right": 331.0299987792969,
+      "bottom": 590.3633422851562,
+      "left": 175.30313110351562
+    }
+  },
+  {
+    "name": "hint",
+    "seconds": 32.209,
+    "tutorial": {
+      "stage": "hint",
+      "targetId": null,
+      "completed": false,
+      "hintAllowanceUsed": false
+    },
+    "found": [
+      "dog_08",
+      "dog_03",
+      "dog_07",
+      "dog_01"
+    ],
+    "camera": {
+      "x": 79,
+      "y": -412,
+      "zoom": 1.6933334350585945
+    },
+    "hand": {
+      "x": 228.85189819335938,
+      "y": 661.5126342773438,
+      "width": 158.4508514404297,
+      "height": 158.4508514404297,
+      "top": 661.5126342773438,
+      "right": 387.30274963378906,
+      "bottom": 819.9634857177734,
+      "left": 228.85189819335938
+    }
+  },
+  {
+    "name": "hinted-find",
+    "seconds": 36.289,
+    "tutorial": {
+      "stage": "hinted-find",
+      "targetId": "dog_02",
+      "completed": false,
+      "hintAllowanceUsed": true
+    },
+    "found": [
+      "dog_08",
+      "dog_03",
+      "dog_07",
+      "dog_01"
+    ],
+    "camera": {
+      "x": -130,
+      "y": -256,
+      "zoom": 1.6933334350585945
+    },
+    "hand": {
+      "x": 176.70237731933594,
+      "y": 436.625,
+      "width": 160,
+      "height": 160,
+      "top": 436.625,
+      "right": 336.70237731933594,
+      "bottom": 596.625,
+      "left": 176.70237731933594
+    }
+  },
+  {
+    "name": "objective",
+    "seconds": 38.801,
+    "tutorial": {
+      "stage": "objective",
+      "targetId": null,
+      "completed": false,
+      "hintAllowanceUsed": true
+    },
+    "found": [
+      "dog_08",
+      "dog_03",
+      "dog_07",
+      "dog_01",
+      "dog_02"
+    ],
+    "camera": {
+      "x": -130,
+      "y": -256,
+      "zoom": 1.6933334350585945
+    },
+    "hand": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0,
+      "top": 0,
+      "right": 0,
+      "bottom": 0,
+      "left": 0
+    }
+  },
+  {
+    "name": "finished",
+    "seconds": 40.935,
+    "tutorial": {
+      "stage": null,
+      "targetId": null,
+      "completed": true,
+      "hintAllowanceUsed": true
+    },
+    "found": [
+      "dog_08",
+      "dog_03",
+      "dog_07",
+      "dog_01",
+      "dog_02"
+    ],
+    "camera": {
+      "x": -130,
+      "y": -256,
+      "zoom": 1.6933334350585945
+    }
+  }
+]

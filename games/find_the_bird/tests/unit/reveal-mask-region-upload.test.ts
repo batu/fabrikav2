@@ -49,6 +49,24 @@ import { uploadCanvasTextureRegion } from '../../../shared/CanvasTextureRegion';
 
 interface Rect { x: number; y: number; w: number; h: number }
 
+it('finishes a pan lesson only after release, before recentering the next target', () => {
+  const scene = new GameScene();
+  const panned = vi.fn();
+  const pinchZoom = { isPanning: true, isPinching: false, stopInertia: vi.fn() };
+  Object.assign(scene, {
+    tutorialHandle: { stage: 'pan-right', panned },
+    tutorialPanPrevious: 100, tutorialPanDistance: 0, pinchZoom,
+    cameras: { main: { scrollX: 30, worldView: { width: window.innerWidth } } },
+  });
+  const update = () => (scene as unknown as { updateTutorialPan(): void }).updateTutorialPan();
+  update();
+  expect(panned).not.toHaveBeenCalled();
+  pinchZoom.isPanning = false;
+  update();
+  expect(pinchZoom.stopInertia).toHaveBeenCalledOnce();
+  expect(panned).toHaveBeenCalledWith('right');
+});
+
 it('clears the real hint on the tutorial target tap before handing off', () => {
   const scene = new GameScene();
   const dog = { id: 'hint-target', x: 50, y: 50, r: 10 };
