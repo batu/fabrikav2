@@ -3,10 +3,12 @@ import XCTest
 /// Opt-in physical-input journey. Never runs against the installed player identity.
 final class FindBirdOnboardingTests: XCTestCase {
     private func shot(_ name: String) {
-        let attachment = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
-        attachment.name = name
-        attachment.lifetime = .keepAlways
-        add(attachment)
+        autoreleasepool {
+            let attachment = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+            attachment.name = name
+            attachment.lifetime = .keepAlways
+            add(attachment)
+        }
     }
 
     private func motion(_ name: String) {
