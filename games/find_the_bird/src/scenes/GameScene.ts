@@ -1399,7 +1399,7 @@ export class GameScene extends Phaser.Scene {
       return;
     }
 
-    if (this.tutorialHandle && ['zoom', 'pan-left', 'pan-right', 'hint', 'objective'].includes(this.tutorialHandle.stage)) return;
+    if (this.tutorialHandle && ['zoom', 'pan-left', 'hint', 'objective'].includes(this.tutorialHandle.stage)) return;
 
     // First-time tutorial, "Tap the bird" phase (pulsing ring up): only the
     // spotlighted target is interactive. Taps on other birds and wrong-tap
@@ -2027,18 +2027,18 @@ export class GameScene extends Phaser.Scene {
 
   private updateTutorialPan(): void {
     const panStage = this.tutorialHandle?.stage;
-    if (panStage !== 'pan-left' && panStage !== 'pan-right') return;
+    if (panStage !== 'pan-left') return;
     const scroll = this.cameras.main.scrollX;
     if (this.pinchZoom?.isPanning && !this.pinchZoom.isPinching && this.tutorialPanPrevious !== null) {
       const cssDelta = (scroll - this.tutorialPanPrevious) / this.cameras.main.worldView.width * window.innerWidth;
-      this.tutorialPanDistance = Math.max(0, this.tutorialPanDistance + cssDelta * (panStage === 'pan-left' ? 1 : -1));
+      this.tutorialPanDistance = Math.max(0, this.tutorialPanDistance + cssDelta);
     }
     this.tutorialPanPrevious = scroll;
     if (this.tutorialPanDistance >= 48 && !this.pinchZoom?.isPanning && !this.pinchZoom?.isPinching) {
       // A stage change can pan to the next bird. Do not let that camera
       // movement fight the still-held drag or its release inertia.
       this.pinchZoom?.stopInertia();
-      this.tutorialHandle?.panned(panStage === 'pan-left' ? 'left' : 'right');
+      this.tutorialHandle?.panned('left');
     }
   }
 

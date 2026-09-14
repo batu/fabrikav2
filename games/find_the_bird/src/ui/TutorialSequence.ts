@@ -1,4 +1,4 @@
-export type TutorialStage = 'guided' | 'zoom' | 'pan-left' | 'pan-right' | 'zoomed-find' | 'hint' | 'hinted-find' | 'objective' | 'dismissed';
+export type TutorialStage = 'guided' | 'zoom' | 'pan-left' | 'hint' | 'hinted-find' | 'objective' | 'dismissed';
 
 /** Input-driven tour. Artwork timing never advances the lesson. */
 export class TutorialSequence {
@@ -9,7 +9,7 @@ export class TutorialSequence {
 
   constructor(firstTarget: string, available: number) {
     this.targetId = firstTarget;
-    this.guidedCount = Math.min(3, Math.max(0, available - 2));
+    this.guidedCount = Math.min(3, Math.max(0, available - 1));
     if (this.guidedCount === 0) this.stage = 'zoom';
   }
 
@@ -19,9 +19,6 @@ export class TutorialSequence {
       this.guidedFound++;
       this.targetId = next;
       if (this.guidedFound >= this.guidedCount || next === null) this.stage = 'zoom';
-    } else if (this.stage === 'zoomed-find') {
-      this.targetId = null;
-      this.stage = next === null ? 'objective' : 'hint';
     } else if (this.stage === 'hinted-find') {
       this.targetId = null;
       this.stage = 'objective';
@@ -34,8 +31,9 @@ export class TutorialSequence {
   }
 
   panned(direction: 'left' | 'right'): void {
-    if (this.stage === 'pan-left' && direction === 'left') this.stage = 'pan-right';
-    else if (this.stage === 'pan-right' && direction === 'right') this.stage = 'zoomed-find';
+    if (this.stage !== 'pan-left' || direction !== 'left') return;
+    this.stage = this.targetId === null ? 'objective' : 'hint';
+    this.targetId = null;
   }
 
   hinted(id: string): void {

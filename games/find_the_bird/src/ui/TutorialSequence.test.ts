@@ -14,20 +14,19 @@ describe('tutorial progression', () => {
     expect(tour.stage).toBe('pan-left');
     expect(tour.found('d', 'e')).toBe(false);
     tour.panned('left');
-    expect(tour.stage).toBe('pan-right');
-    tour.panned('left');
-    expect(tour.stage).toBe('pan-right');
-    tour.panned('right'); tour.found('d', 'e');
     expect(tour.stage).toBe('hint');
+    expect(tour.targetId).toBeNull();
+    expect(tour.found('d', 'e')).toBe(false);
     tour.hinted('f');
     expect(tour.found('e', null)).toBe(false);
     tour.found('f', null);
     expect(tour.stage).toBe('objective');
   });
-  it('reserves scarce targets for gesture and hint lessons', () => {
+  it('reserves one remaining target for the hint lesson', () => {
     const tour = new TutorialSequence('a', 2);
+    tour.found('a', 'b');
     expect(tour.stage).toBe('zoom');
-    tour.zoomed(); tour.panned('left'); tour.panned('right'); tour.found('a', 'b'); tour.hinted('b'); tour.found('b', null);
+    tour.zoomed(); tour.panned('left'); tour.hinted('b'); tour.found('b', null);
     expect(tour.stage).toBe('objective');
   });
 });

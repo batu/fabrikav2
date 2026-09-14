@@ -27,7 +27,7 @@ export function showTutorialOverlay(anchor: TutorialAnchor): TutorialHandle {
   const sequence = new TutorialSequence(anchor.targetId, anchor.available);
   const overlay = document.createElement('div');
   overlay.id = 'tutorial-overlay';
-  overlay.innerHTML = '<div class="tutorial-spotlight"></div><img class="tutorial-magnifier" src="/ui/tutorial/magnifier.png" alt="" aria-hidden="true"><div class="tutorial-bubble" role="status"><span class="tutorial-text"></span></div><img class="tutorial-hand" alt="" aria-hidden="true"><button class="tutorial-dismiss" type="button">Got it</button>';
+  overlay.innerHTML = '<div class="tutorial-spotlight"></div><img class="tutorial-magnifier" src="/ui/tutorial/magnifier.png" alt="" aria-hidden="true"><div class="tutorial-bubble" role="status"><span class="tutorial-text"></span></div><div class="tutorial-hand" aria-hidden="true"><div class="tutorial-hand-tap"><span class="tutorial-hand-left"><img src="/ui/tutorial/tap.png" alt=""></span><span class="tutorial-hand-right"><img src="/ui/tutorial/tap.png" alt=""></span></div><div class="tutorial-hand-pan"><img src="/ui/tutorial/tap.png" alt=""></div><img class="tutorial-hand-pinch" alt=""></div><button class="tutorial-dismiss" type="button">Got it</button>';
   (document.getElementById('hud-overlay') ?? document.body).appendChild(overlay);
   const spotlight = overlay.querySelector<HTMLElement>('.tutorial-spotlight')!;
   // Native runner reads the real target bounds, then injects a physical tap.
@@ -37,7 +37,8 @@ export function showTutorialOverlay(anchor: TutorialAnchor): TutorialHandle {
   }
   const bubble = overlay.querySelector<HTMLElement>('.tutorial-bubble')!;
   const text = overlay.querySelector<HTMLElement>('.tutorial-text')!;
-  const hand = overlay.querySelector<HTMLImageElement>('.tutorial-hand')!;
+  const hand = overlay.querySelector<HTMLElement>('.tutorial-hand')!;
+  const pinchHand = overlay.querySelector<HTMLImageElement>('.tutorial-hand-pinch')!;
   const magnifier = overlay.querySelector<HTMLImageElement>('.tutorial-magnifier')!;
   const button = overlay.querySelector<HTMLButtonElement>('button')!;
   let point = anchor.dogScreen;
@@ -55,10 +56,9 @@ export function showTutorialOverlay(anchor: TutorialAnchor): TutorialHandle {
     resolve();
   };
   const refreshGesture = (): void => {
-    const name = sequence.stage === 'zoom' ? 'pinch' : 'tap';
-    const still = name === 'tap' || document.hidden || prefersReducedMotion();
-    hand.src = `/ui/tutorial/${name}.${still ? 'png' : 'webp'}`;
-    hand.style.animationPlayState = document.hidden ? 'paused' : '';
+    const still = document.hidden || prefersReducedMotion();
+    pinchHand.src = `/ui/tutorial/pinch.${still ? 'png' : 'webp'}`;
+    overlay.dataset.paused = String(document.hidden);
   };
   const layout = (): void => {
     const stage = sequence.stage;
@@ -73,20 +73,18 @@ export function showTutorialOverlay(anchor: TutorialAnchor): TutorialHandle {
     Object.assign(spotlight.style, { left: `${center.x - r}px`, top: `${center.y - r}px`, width: `${r * 2}px`, height: `${r * 2}px` });
     const width = Math.min(240, window.innerWidth - 32);
     const left = Math.max(16, Math.min(window.innerWidth - width - 16, center.x - width / 2));
-    // The fingertip in the 160px artwork is at (37, 29). Anchor that point,
-    // not the image box. At bottom targets, point downward from above instead
-    // of moving an upward-pointing hand away from the button it demonstrates.
-    const flipX = !gestureLesson && center.x + 131 > window.innerWidth - 8;
-    const flipY = !gestureLesson && center.y + 139 > window.innerHeight - 8;
-    const handX = gestureLesson ? center.x - 80 : center.x + (flipX ? -8 : 8) - (flipX ? 123 : 37);
-    const handY = gestureLesson ? center.y - 40 : center.y + (flipY ? -8 : 8) - (flipY ? 131 : 29);
-    Object.assign(hand.style, { left: `${handX}px`, top: `${handY}px`, transform: `scale(${flipX ? -1 : 1}, ${flipY ? -1 : 1})` });
-    hand.style.setProperty('--tap-x', `${flipX ? 6 : -6}px`);
-    hand.style.setProperty('--tap-y', `${flipY ? 6 : -6}px`);
+    // Keep the fingertip anchored and the wrist below it, even at the hint.
+    // Fit the upright artwork into the remaining room instead of inverting it.
+    const size = gestureLesson ? 160 : Math.min(160, Math.max(32, (window.innerHeight - center.y - 16) * 160 / 131));
+    const flipX = !gestureLesson && center.x + 8 + size * 123 / 160 > window.innerWidth - 8;
+    const handX = gestureLesson ? center.x - 80 : center.x + (flipX ? -8 : 8) - size * (flipX ? 123 : 37) / 160;
+    const handY = gestureLesson ? center.y - 40 : center.y + 8 - size * 29 / 160;
+    hand.dataset.flipped = String(flipX);
+    Object.assign(hand.style, { left: `${handX}px`, top: `${handY}px`, width: `${size}px`, height: `${size}px` });
     // Reserve the entire animated hand canvas, including mirrored poses.
     // Text also paints above artwork during camera recentering between stages.
     const above = Math.min(center.y - r - 90, handY - 90);
-    const below = Math.max(center.y + r + 18, handY + 172);
+    const below = Math.max(center.y + r + 18, handY + size + 12);
     const bubbleY = above >= 85 ? above : below;
     Object.assign(bubble.style, { width: `${width}px`, left: `${left}px`, top: `${Math.max(85, Math.min(window.innerHeight - 180, bubbleY))}px` });
     const lensSize = r / 0.28;
@@ -102,15 +100,12 @@ export function showTutorialOverlay(anchor: TutorialAnchor): TutorialHandle {
         break;
       case 'zoom': text.textContent = 'Need a closer look? Pinch to zoom in'; break;
       case 'pan-left': text.textContent = 'Drag left to explore the scene'; break;
-      case 'pan-right': text.textContent = 'Now drag right'; break;
-      case 'zoomed-find': text.textContent = 'Now tap this bird'; break;
       case 'hint': text.textContent = 'Need help? Tap the hint'; break;
       case 'hinted-find': text.textContent = 'Tap the bird inside the hint'; break;
       default: text.textContent = `Find all ${anchor.total} birds. Enjoy the scene!`;
     }
-    button.hidden = !['zoom', 'pan-left', 'pan-right', 'objective'].includes(stage);
+    button.hidden = !['zoom', 'pan-left', 'objective'].includes(stage);
     button.textContent = stage === 'objective' ? 'Let’s play' : 'Got it';
-    hand.hidden = stage === 'objective';
     magnifier.hidden = stage !== 'hinted-find';
     refreshGesture();
     document.getElementById('dog-counter')?.classList.toggle('tutorial-counter-highlight', stage === 'guided' && sequence.guidedFound === 2);
@@ -122,8 +117,8 @@ export function showTutorialOverlay(anchor: TutorialAnchor): TutorialHandle {
   button.addEventListener('click', () => {
     if (sequence.stage === 'zoom') {
       zoomed();
-    } else if (sequence.stage === 'pan-left' || sequence.stage === 'pan-right') {
-      sequence.panned(sequence.stage === 'pan-left' ? 'left' : 'right');
+    } else if (sequence.stage === 'pan-left') {
+      sequence.panned('left');
       render();
     } else {
       dismiss();
@@ -141,7 +136,7 @@ export function showTutorialOverlay(anchor: TutorialAnchor): TutorialHandle {
     updateAnchor: (next, nextRadius) => {
       point = next;
       radius = nextRadius;
-      if (sequence.stage === 'guided' || sequence.stage === 'zoomed-find' || sequence.stage === 'hinted-find') layout();
+      if (sequence.stage === 'guided' || sequence.stage === 'hinted-find') layout();
     },
   };
 }
