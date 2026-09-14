@@ -44,6 +44,8 @@ let lastKnownRestorationActive = false;
 type RestoreUiState = 'idle' | 'initializing' | 'busy' | 'unavailable' | 'pending' | 'restored' | 'empty' | 'failed';
 
 const IAP_CONTROL_REFRESH_MS = 250;
+const IAP_RESULT_HOLD_MS = 2500;
+const shopPurchaseFeedback = new WeakMap<HTMLButtonElement, { label: string; until: number }>();
 
 let restoreUiState: RestoreUiState = 'idle';
 let activeRestorePromise: Promise<RestoreUiState> | null = null;
@@ -208,6 +210,10 @@ export function updateHUD(totalDogs: number, restorationActive: boolean = false)
 
   const coinCount = document.querySelector('#coin-pill .coin-count');
   if (coinCount) coinCount.textContent = String(gameState.coinBalance);
+  const homeCoins = document.querySelector('.home-coin-pill > span');
+  if (homeCoins) homeCoins.textContent = String(gameState.coinBalance);
+  const homeHints = document.querySelector('.home-hint-pill > span');
+  if (homeHints) homeHints.textContent = String(gameState.hintsRemaining);
 
   // Hearts
   const heartsEl = document.getElementById('hearts');
@@ -1203,6 +1209,12 @@ function applyShopPurchaseButtonState(
   const isAvailable = !isOwnedNoAdsProduct && iapState === 'ready' && storeProduct !== null;
   action.disabled = !isAvailable;
   action.classList.toggle('shop-btn-purchasing', isPendingProduct);
+  const feedback = shopPurchaseFeedback.get(action);
+  if (feedback !== undefined && Date.now() < feedback.until && !isPendingProduct) {
+    action.textContent = feedback.label;
+    action.setAttribute('aria-label', `${product.title} ${price}. ${feedback.label}.`);
+    return;
+  }
   action.textContent = isOwnedNoAdsProduct ? 'Active' : isAvailable ? price : 'Unavailable';
   action.setAttribute('aria-label', `${product.title} ${price}. ${isAvailable ? (isPendingProduct ? 'Purchasing' : 'Purchase') : isOwnedNoAdsProduct ? 'Already active' : 'Unavailable'}.`);
 }
@@ -1268,6 +1280,7 @@ async function purchaseShopProduct(
   price: string,
 ): Promise<void> {
   if (action.disabled || iapService.snapshot().nativeOperationInProgress) return;
+  shopPurchaseFeedback.delete(action);
   playUITap();
   void analytics.productTapped({ product_id: product.productId });
   void analytics.purchaseInitiated({ product_id: product.productId, surface: 'shop' });
@@ -1281,7 +1294,9 @@ async function purchaseShopProduct(
     const purchase = await purchasePromise;
     action.classList.remove('shop-btn-purchasing');
     if (purchase.status !== 'purchased') {
-      action.textContent = purchase.status === 'cancelled' ? 'Cancelled' : 'Unavailable';
+      action.textContent = purchase.status === 'cancelled' ? 'Cancelled' : "Couldn't complete";
+      shopPurchaseFeedback.set(action, { label: action.textContent, until: Date.now() + IAP_RESULT_HOLD_MS });
+      action.setAttribute('aria-label', `${product.title} ${price}. ${action.textContent}.`);
       if (purchase.status === 'cancelled') {
         void analytics.purchaseCancelled({ product_id: product.productId, surface: 'shop' });
       } else {
@@ -1354,7 +1369,7 @@ async function purchaseShopProduct(
         iapSnapshot.nativeOperationInProgress,
         iapSnapshot.pendingPurchaseProductIds,
       );
-    }, 1400);
+    }, IAP_RESULT_HOLD_MS);
   }
 }
 

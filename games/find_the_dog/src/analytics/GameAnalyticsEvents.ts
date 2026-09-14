@@ -134,10 +134,40 @@ export function gameAnalyticsDesignEventId(
   if (eventName === 'product_tapped') return 'store:product_tap';
   if (eventName === 'purchase_sheet_shown') return 'purchase:sheet_shown';
   if (eventName === 'iap_state_changed') return 'iap:state_changed';
+  if (eventName === 'level_abandoned') return 'level:abandoned';
+  if (eventName === 'level_complete_shown') return 'level_complete:shown';
+  if (eventName === 'level_complete_action') return 'level_complete:action';
+  if (eventName === 'interstitial_gate') return 'interstitial:gate';
+  if (eventName === 'ad_lifecycle') return 'ad:lifecycle';
+  if (eventName === 'next_level_ready') return 'level:next_ready';
+  // Failure kind rides in the event id so the cancel/timeout/store-error split
+  // is readable from the GameAnalytics event list alone (custom fields are not
+  // queryable on the current plan; Firebase Analytics is not a sink).
+  if (eventName === 'purchase_failed') return `purchase:failed:${String(fields.failure_kind ?? fields.reason ?? 'unknown')}`;
   if (eventName === 'ad_revenue_paid') return 'ad:revenue';
   if (eventName === 'settings_changed') return `settings:${String(fields.setting_name ?? 'unknown')}`;
   return eventName.replace(/_/g, ':');
 }
+
+/** The numeric metric a canonical design event carries in GameAnalytics'
+ * design-event `value` slot. Custom fields are stringified dimensions, so a
+ * duration has to ride here to be aggregable (mean/percentile) in GA. */
+export function gameAnalyticsDesignEventValue(
+  eventName: string,
+  fields: GameAnalyticsCustomFields,
+): number | undefined {
+  const key = designEventValueKeys[eventName];
+  const value = key === undefined ? fields.value ?? fields.revenue_usd : fields[key];
+  return typeof value === 'number' && Number.isFinite(value) ? value : undefined;
+}
+
+const designEventValueKeys: Readonly<Record<string, string>> = {
+  level_complete_shown: 'duration_ms',
+  level_complete_action: 'dwell_ms',
+  next_level_ready: 'gap_ms',
+  level_abandoned: 'elapsed_ms',
+  ad_lifecycle: 'cache_age_ms',
+};
 
 function eventPath(value: string): string {
   return value
@@ -200,11 +230,17 @@ function canonicalEventIdForDesignEvent(eventId: string): CanonicalAnalyticsEven
   if (normalized === 'purchase:initiated') return 'purchase_initiated';
   if (normalized === 'purchase:sheet_shown') return 'purchase_sheet_shown';
   if (normalized === 'purchase:cancelled') return 'purchase_cancelled';
-  if (normalized === 'purchase:failed') return 'purchase_failed';
+  if (normalized === 'purchase:failed' || normalized.startsWith('purchase:failed:')) return 'purchase_failed';
   if (normalized === 'iap:state_changed') return 'iap_state_changed';
   if (normalized.startsWith('settings:')) return 'settings_changed';
   if (normalized === 'purchase:fulfilled') return 'purchase_fulfilled';
   if (normalized === 'purchase:unfulfilled') return 'purchase_unfulfilled';
+  if (normalized === 'level:abandoned') return 'level_abandoned';
+  if (normalized === 'level_complete:shown') return 'level_complete_shown';
+  if (normalized === 'level_complete:action') return 'level_complete_action';
+  if (normalized === 'interstitial:gate') return 'interstitial_gate';
+  if (normalized === 'ad:lifecycle') return 'ad_lifecycle';
+  if (normalized === 'level:next_ready') return 'next_level_ready';
   if (normalized === 'ad:revenue') return 'ad_revenue_paid';
   // Achievement events (card ACH-1). `gameAnalyticsDesignEventId` converts every
   // underscore to a colon, so `achievement_reward_granted` -> `achievement:reward:granted`

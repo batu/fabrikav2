@@ -1,5 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import {
+  RevenueCatPurchaseError,
+  isRevenueCatUserCancelledError,
   RevenueCatProvider,
   type RevenueCatCustomerInfo,
   type RevenueCatPurchasesPlugin,
@@ -22,6 +24,7 @@ class FakeRcPlugin implements RevenueCatPurchasesPlugin {
       products?: RevenueCatStoreProduct[];
       offeringProducts?: RevenueCatStoreProduct[];
       getProductsThrows?: boolean;
+      purchaseRejectsWith?: unknown;
     } = {},
   ) {}
   configure(): Promise<void> { return Promise.resolve(); }
@@ -36,6 +39,7 @@ class FakeRcPlugin implements RevenueCatPurchasesPlugin {
   }
   purchaseStoreProduct(opts: { product: RevenueCatStoreProduct }): ReturnType<RevenueCatPurchasesPlugin['purchaseStoreProduct']> {
     this.lastPurchasedProduct = opts.product;
+    if (this.opts.purchaseRejectsWith !== undefined) return Promise.reject(this.opts.purchaseRejectsWith);
     return Promise.resolve({
       productIdentifier: opts.product.identifier,
       transaction: { transactionIdentifier: 'txn', purchaseToken: 'token' },
@@ -104,5 +108,66 @@ describe('RevenueCatProvider — sandbox test-store alias seam', () => {
     const provider = new RevenueCatProvider({ plugin, catalogProducts: () => ftdCatalogProducts });
     await provider.configure({ apiKey: 'appl_live_key' });
     await expect(provider.getProducts([NO_ADS])).rejects.toThrow('store unavailable');
+  });
+});
+
+/** Exact shape the Capacitor iOS bridge hands JS for a RevenueCat rejection:
+ *  `PurchasesPlugin.rejectWithErrorContainer` → `call.reject(message, "\(code)", nsError)`
+ *  → `JSResultError.jsonPayload()` `{ message, errorMessage, code }` → native-bridge
+ *  copies those keys onto a `CapacitorException`. No `userCancelled`, no
+ *  `readableErrorCode`, and `code` is the numeric RevenueCat code as a STRING. */
+function bridgeRejection(message: string, code: string): Error {
+  return Object.assign(new Error(message), { errorMessage: message, code });
+}
+
+describe('RevenueCatProvider — purchase rejection classification', () => {
+  async function providerWith(purchaseRejectsWith: unknown) {
+    const plugin = new FakeRcPlugin({ products: [rcProduct(NO_ADS)], purchaseRejectsWith });
+    const provider = new RevenueCatProvider({ plugin, catalogProducts: () => ftdCatalogProducts });
+    await provider.configure({ apiKey: 'appl_live' });
+    await provider.getProducts([NO_ADS]);
+    return provider;
+  }
+
+  it('classifies the iOS bridge shape of a user cancel (string code "1", no userCancelled)', async () => {
+    const provider = await providerWith(bridgeRejection('Purchase was cancelled.', '1'));
+    const err = await provider.purchaseProduct(NO_ADS).catch((e: unknown) => e);
+    expect(err).toBeInstanceOf(RevenueCatPurchaseError);
+    expect((err as RevenueCatPurchaseError).userCancelled).toBe(true);
+    expect((err as RevenueCatPurchaseError).message).toBe('Purchase was cancelled.');
+    expect((err as RevenueCatPurchaseError).code).toBe('1');
+  });
+
+  it('classifies the documented PurchasesError shape of a user cancel', async () => {
+    const provider = await providerWith({
+      code: 1,
+      message: 'Purchase was cancelled.',
+      readableErrorCode: 'PURCHASE_CANCELLED_ERROR',
+      userCancelled: true,
+      underlyingErrorMessage: '',
+    });
+    const err = await provider.purchaseProduct(NO_ADS).catch((e: unknown) => e);
+    expect((err as RevenueCatPurchaseError).userCancelled).toBe(true);
+    expect((err as RevenueCatPurchaseError).readableErrorCode).toBe('PURCHASE_CANCELLED_ERROR');
+  });
+
+  it('keeps a real store error as a non-cancel with its message and code', async () => {
+    const provider = await providerWith(bridgeRejection('There was a problem with the App Store.', '2'));
+    const err = await provider.purchaseProduct(NO_ADS).catch((e: unknown) => e);
+    expect(err).toBeInstanceOf(RevenueCatPurchaseError);
+    expect((err as RevenueCatPurchaseError).userCancelled).toBe(false);
+    expect((err as RevenueCatPurchaseError).message).toBe('There was a problem with the App Store.');
+    expect((err as RevenueCatPurchaseError).code).toBe('2');
+  });
+
+  it('does not treat unrelated codes or messages as cancels', () => {
+    expect(isRevenueCatUserCancelledError(bridgeRejection('The product is not available for purchase.', '5'))).toBe(false);
+    expect(isRevenueCatUserCancelledError(new Error('network down'))).toBe(false);
+    expect(isRevenueCatUserCancelledError('1')).toBe(false);
+    expect(isRevenueCatUserCancelledError({ code: 10 })).toBe(false);
+  });
+
+  it('reads a cancel nested under a bridge data payload', () => {
+    expect(isRevenueCatUserCancelledError({ message: 'x', code: 'PLUGIN', data: { readableErrorCode: 'PURCHASE_CANCELLED' } })).toBe(true);
   });
 });

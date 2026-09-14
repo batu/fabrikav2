@@ -103,7 +103,7 @@ describe('FTD SdkContext composition matrix', () => {
     expect(context.selection.remoteConfig).toBe('firebase');
     expect(context.selection.ads).toBe('admob');
     expect(context.selection.attribution).toBe('adjust-ios');
-    expect(context.selection.analyticsSinks).toEqual(['ring-buffer', 'gameanalytics']);
+    expect(context.selection.analyticsSinks).toEqual(['ring-buffer', 'gameanalytics', 'firebase']);
     expect(context.environments.adjust).toBe('production');
     expect(firebase).not.toHaveBeenCalled();
     expect(revenuecat).not.toHaveBeenCalled();
@@ -166,13 +166,16 @@ describe('FTD SdkContext composition matrix', () => {
     expect(context.selection.ads).toBe('disabled');
   });
 
-  it('keeps Firebase Analytics absent even with complete Firebase config', async () => {
-    const loader = vi.fn();
+  it('composes Firebase Analytics with complete native config and sends canonical params', async () => {
+    const logEvent = vi.fn(async (_options: { name: string; params?: object }) => undefined);
+    const loader = vi.fn(async () => ({ FirebaseAnalytics: { logEvent } }));
     const context = createSdkContext({ buildEnv: 'development', platform: 'ios', isNativePlatform: true, env: { VITE_FIREBASE_API_KEY: 'configured', VITE_FIREBASE_PROJECT_ID: 'configured', VITE_FIREBASE_APP_ID: 'configured' }, firebaseAnalyticsLoader: loader });
-    expect(context.selection.analyticsSinks).not.toContain('firebase');
-    context.analytics.track('dog_found', { dog_index: 0, no_ads: false });
-    await Promise.resolve();
-    expect(loader).not.toHaveBeenCalled();
+    expect(context.selection.analyticsSinks).toContain('firebase');
+    context.analytics.track('purchase_fulfilled', { product_id: 'hints_pack', hints: 0, no_ads: false, purchase_id: 'private-id' });
+    await vi.waitFor(() => expect(logEvent).toHaveBeenCalled());
+    expect(logEvent).toHaveBeenCalledWith({ name: 'purchase_fulfilled', params: expect.objectContaining({ product_id: 'hints_pack', hints: 0, no_ads: 'false', env: 'development' }) });
+    expect(logEvent.mock.calls[0]?.[0]).not.toHaveProperty('params.purchase_id');
+    expect(loader).toHaveBeenCalledTimes(1);
   });
 
   it('omits the Firebase sink and never touches the plugin when config is absent on native iOS', async () => {

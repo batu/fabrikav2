@@ -53,6 +53,8 @@ import {
   type OwnedAnalyticsMirrorStats,
 } from '../analytics/AnalyticsService';
 import { createGameAnalyticsSink, type GameAnalyticsSdkLoader } from '../analytics/GameAnalyticsSink';
+import { createFirebaseAnalyticsSink, type FirebaseAnalyticsLoader } from '../analytics/FirebaseAnalyticsSink';
+import { firebaseConfigPresentInEnv } from './includePlugins';
 import { readGameAnalyticsIosConfig, type GameAnalyticsIdentityPolicy } from '../analytics/GameAnalyticsConfig';
 import { sanitizeCanonicalAnalyticsParams } from '../analytics/CanonicalAnalyticsEvents';
 import { readOwnedAnalyticsMirrorConfig, type OwnedMirrorIdentityPolicy } from '../analytics/OwnedAnalyticsMirrorConfig';
@@ -133,8 +135,7 @@ export interface CreateSdkContextDependencies {
   readonly isNativePlatform?: boolean;
   readonly env?: Env;
   readonly resolveEnvironments?: (buildEnv: SdkBuildEnv) => SdkEnvironments;
-  /** Deprecated test seam; Firebase Analytics is intentionally never composed. */
-  readonly firebaseAnalyticsLoader?: () => Promise<unknown>;
+  readonly firebaseAnalyticsLoader?: FirebaseAnalyticsLoader;
   readonly revenueCatLoader?: RevenueCatLoader;
   readonly gameAnalyticsLoader?: GameAnalyticsSdkLoader;
   readonly gameAnalyticsIdentityPolicy?: GameAnalyticsIdentityPolicy;
@@ -292,6 +293,10 @@ export function createSdkContext(deps: CreateSdkContextDependencies = {}): GameS
   }
 
   const analyticsBuild = buildStamp();
+  if (isNativePlatform && (platform === 'ios' || platform === 'android')
+    && firebaseConfigPresentInEnv(env)) {
+    sinks.push(createFirebaseAnalyticsSink(deps.firebaseAnalyticsLoader));
+  }
   const analyticsAppVersion = analyticsBuild?.split('+', 1)[0] ?? null;
   analyticsFacade = createAnalytics<FtdEvent>({
     env: environments.analytics,

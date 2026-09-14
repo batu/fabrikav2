@@ -169,11 +169,16 @@ function errorMessage(err: unknown): string {
   return err instanceof Error ? err.message : String(err);
 }
 
+/** Provider-agnostic cancel detection. Providers should normalize their native
+ *  rejection into `userCancelled: true` (see `RevenueCatProvider`); the extra
+ *  checks here cover a raw bridge rejection that skipped normalization. */
 function isUserCancelled(err: unknown): boolean {
   if (typeof err !== 'object' || err === null) return false;
-  const maybe = err as { userCancelled?: unknown; code?: unknown };
+  const maybe = err as { userCancelled?: unknown; code?: unknown; readableErrorCode?: unknown; message?: unknown };
   if (maybe.userCancelled === true) return true;
-  return typeof maybe.code === 'string' && maybe.code.toLowerCase().includes('cancel');
+  if (typeof maybe.readableErrorCode === 'string' && maybe.readableErrorCode.toUpperCase().includes('CANCEL')) return true;
+  if (typeof maybe.code === 'string' && maybe.code.toLowerCase().includes('cancel')) return true;
+  return typeof maybe.message === 'string' && /\bcancel/i.test(maybe.message);
 }
 
 export function ownedProductIdsFromCustomerInfo(customerInfo: CustomerInfoLike): string[] {
