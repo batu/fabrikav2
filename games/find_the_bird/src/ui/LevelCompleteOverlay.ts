@@ -271,7 +271,7 @@ export function showLevelCompleteOverlay(
         // mid-rate-prompt cannot turn a Next tap into dismissed_by_shutdown.
         const willShowRatePrompt = gameState.shouldShowRatePrompt();
         const leftAt = Date.now();
-        markLevelCompleteLeft(leftAt);
+        markLevelCompleteLeft(leftAt, gameState.currentLevelIndex);
         reportAction(actionTracker.leave(
           willShowRatePrompt ? 'rate_prompt' : claimX2Granted ? 'claim_x2' : 'next',
           leftAt,

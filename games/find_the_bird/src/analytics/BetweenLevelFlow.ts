@@ -87,12 +87,19 @@ export function createLevelCompleteActionTracker(mountedAt: number): LevelComple
 interface PendingNextLevel {
   leftAt: number;
   afterInterstitial: boolean;
+  completedLevelIndex?: number;
 }
 
 let pendingNextLevel: PendingNextLevel | null = null;
 
-export function markLevelCompleteLeft(leftAt: number): void {
-  pendingNextLevel = { leftAt, afterInterstitial: false };
+export function markLevelCompleteLeft(leftAt: number, completedLevelIndex?: number): void {
+  pendingNextLevel = { leftAt, afterInterstitial: false, completedLevelIndex };
+}
+
+/** Presentation belongs to the completed level even after Next persists advancement.
+ * The next scene consumes this context only after the interstitial has settled. */
+export function pendingInterstitialLevelIndex(): number | undefined {
+  return pendingNextLevel?.completedLevelIndex;
 }
 
 export function markInterstitialShownBeforeNextLevel(): void {
