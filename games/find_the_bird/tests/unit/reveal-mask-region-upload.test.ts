@@ -54,9 +54,9 @@ it('finishes a pan lesson only after release, before recentering the next target
   const panned = vi.fn();
   const pinchZoom = { isPanning: true, isPinching: false, stopInertia: vi.fn() };
   Object.assign(scene, {
-    tutorialHandle: { stage: 'pan-right', panned },
+    tutorialHandle: { stage: 'pan-left', panned },
     tutorialPanPrevious: 100, tutorialPanDistance: 0, pinchZoom,
-    cameras: { main: { scrollX: 30, worldView: { width: window.innerWidth } } },
+    cameras: { main: { scrollX: 170, worldView: { width: window.innerWidth } } },
   });
   const update = () => (scene as unknown as { updateTutorialPan(): void }).updateTutorialPan();
   update();
@@ -64,7 +64,7 @@ it('finishes a pan lesson only after release, before recentering the next target
   pinchZoom.isPanning = false;
   update();
   expect(pinchZoom.stopInertia).toHaveBeenCalledOnce();
-  expect(panned).toHaveBeenCalledWith('right');
+  expect(panned).toHaveBeenCalledWith('left');
 });
 
 it('clears the real hint on the tutorial target tap before handing off', () => {
