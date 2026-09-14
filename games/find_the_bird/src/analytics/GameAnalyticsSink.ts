@@ -6,6 +6,7 @@ import {
   adEvent,
   designEvent,
   gameAnalyticsDesignEventId,
+  gameAnalyticsDesignEventValue,
   levelProgressionEvent,
   resourceEvent,
   type GameAnalyticsAdEvent,
@@ -349,7 +350,7 @@ function dispatch(sdk: GameAnalyticsSdk, event: AnalyticsEvent): boolean {
   return trackDesign(sdk, designEvent(
     gameAnalyticsDesignEventId(event.name, params),
     params,
-    numberParam(params.value ?? params.revenue_usd),
+    gameAnalyticsDesignEventValue(event.name, params),
   ));
 }
 

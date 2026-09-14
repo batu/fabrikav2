@@ -49,6 +49,11 @@ import {
   runWhenVisibleAndIdle,
 } from '../platform/browserScheduling';
 import { registerLifecycleHooks } from '../platform/gameLifecycle';
+import {
+  consumeNextLevelReady,
+  markInterstitialShownBeforeNextLevel,
+  resolveInterstitialGate,
+} from '../analytics/BetweenLevelFlow';
 import { computeVoronoiCell, maxDistToPolygon, pointInPolygon } from '../utils/voronoi';
 import type { Point } from '../utils/voronoi';
 import { SectionController } from './SectionController';
@@ -749,6 +754,27 @@ export class GameScene extends Phaser.Scene {
     });
   }
 
+  /**
+   * Soft churn inside an active level (handoff 2026-09-14): the app went to
+   * the background or the scene is being torn down while the level is
+   * started, not complete, and not failed. A same-level restart (game-mode
+   * change) is not an abandonment.
+   */
+  private trackLevelAbandoned(reason: 'background' | 'shutdown'): void {
+    if (!this.level || !this.levelDataReady || this.levelComplete) return;
+    if (gameState.lives <= 0 || this.preserveLevelUrlsOnShutdown) return;
+    const level = this.level;
+    void analytics.levelAbandoned({
+      level_id: level.id,
+      ...(this.resolveCurrentLevelAnalyticsAttribution(level) ?? {}),
+      level_index: gameState.currentLevelIndex,
+      reason,
+      elapsed_ms: Math.max(0, Date.now() - this.levelStartedAt),
+      found_count: gameState.foundDogIds.size,
+      total_count: level.dogs.length,
+    });
+  }
+
   private trackDogFoundAnalytics(dogIndex: number, timeSinceStart: number): void {
     if (!this.level) return;
     void analytics.dogFound(buildDogFoundAnalyticsParams(this.level, dogIndex, timeSinceStart));
@@ -1087,6 +1113,20 @@ export class GameScene extends Phaser.Scene {
     this.startMicroAnimationsIfEnabled();
     this.levelDataReady = true;
     this.publishClassicRenderDiagnostics();
+    this.events.once(Phaser.Scenes.Events.RENDER, (): void => {
+      // First frame of a level reached through the completion screen: report
+      // the gap since the Next tap (handoff 2026-09-14). Fresh launches and
+      // level selects leave nothing pending and emit nothing.
+      const ready = consumeNextLevelReady(Date.now());
+      if (ready === null || !this.level) return;
+      void analytics.nextLevelReady({
+        level_id: this.level.id,
+        ...(this.resolveCurrentLevelAnalyticsAttribution(this.level) ?? {}),
+        level_index: gameState.currentLevelIndex,
+        gap_ms: ready.gap_ms,
+        after_interstitial: ready.after_interstitial,
+      });
+    });
 
     // Crossfade to the ambient track for this level (no-op if the level
     // has no mapping — e.g. legacy levels, random pixelart levels).
@@ -1152,6 +1192,9 @@ export class GameScene extends Phaser.Scene {
     }
 
     this.events.once('shutdown', () => {
+      // Abandonment is read before the flag flips: it only needs the level
+      // and counters, and emitting is fire-and-forget.
+      this.trackLevelAbandoned('shutdown');
       // Flag first: any microtasks queued by handle dismissals below
       // check this and bail before touching the dying scene.
       this.isShuttingDown = true;
@@ -1252,6 +1295,7 @@ export class GameScene extends Phaser.Scene {
     this.unregisterLifecycleHooks = registerLifecycleHooks('game-scene', {
       onSuspend: (): void => {
         if (this.isShuttingDown || !this.sys.isActive()) return;
+        this.trackLevelAbandoned('background');
 
         this.cancelNonCriticalPreloadSchedule?.();
         this.cancelNonCriticalPreloadSchedule = null;
@@ -1793,7 +1837,15 @@ export class GameScene extends Phaser.Scene {
         !completion.transaction.bonusCoinsGranted &&
         !completion.transaction.advanced;
 
+      const completedLevelIndex = gameState.currentLevelIndex;
+      const completedLevelAttribution = this.resolveCurrentLevelAnalyticsAttribution(this.level!) ?? {};
       const overlayPromise = showLevelCompleteOverlay(this.level!.id, {
+        telemetry: {
+          level_index: completedLevelIndex,
+          levels_completed_session: gameState.levelsCompletedThisSession + 1,
+          duration_ms: Math.max(0, Date.now() - this.levelStartedAt),
+          attribution: completedLevelAttribution,
+        },
         timeSeconds: displayTimeSeconds,
         newBest,
         previousBest,
@@ -1855,6 +1907,25 @@ export class GameScene extends Phaser.Scene {
           everyNLevels > 0 &&
           gameState.levelsCompletedThisSession % everyNLevels === 0 &&
           gameState.currentLevelIndex + 1 >= minLevelNumber;
+        // Attribute the decision above (handoff 2026-09-14). The decision
+        // itself is unchanged; this names the first check that stopped it.
+        const gate = resolveInterstitialGate({
+          everyN: everyNLevels,
+          minLevelNumber,
+          levelsCompletedSession: gameState.levelsCompletedThisSession,
+          nextLevelNumber: gameState.currentLevelIndex + 1,
+          adsEnabled: gameState.settings.adsEnabled,
+          hasNoAdsEntitlement: gameState.hasNoAdsEntitlement,
+        });
+        void analytics.interstitialGate({
+          level_id: this.level!.id,
+          ...completedLevelAttribution,
+          level_index: completedLevelIndex,
+          eligible: gate.eligible,
+          reason: gate.reason,
+          every_n: everyNLevels,
+          levels_completed_session: gameState.levelsCompletedThisSession,
+        });
         const restartToNextLevel = (): void => {
           if (this.isShuttingDown || !this.sys.isActive()) return;
           this.scene.restart(
@@ -1871,6 +1942,7 @@ export class GameScene extends Phaser.Scene {
             .maybeShowInterstitial({ minIntervalMs: remoteConfigService.value('interstitialMinIntervalS') * 1000 })
             .then((shown: boolean): void => {
               if (shown) {
+                markInterstitialShownBeforeNextLevel();
                 void analytics.adShown({ ad_type: 'interstitial', placement: 'between_levels' });
               } else if (adService.enabled) {
                 void analytics.adShowFailed({ ad_type: 'interstitial', placement: 'between_levels', reason: 'not_shown' });
@@ -2172,7 +2244,7 @@ export class GameScene extends Phaser.Scene {
           error_message: purchase.errorMessage,
         });
       }
-      return { resumed: false, message: purchase.status === 'cancelled' ? 'Purchase cancelled.' : 'Purchase unavailable.' };
+      return { resumed: false, message: purchase.status === 'cancelled' ? 'Purchase cancelled.' : "Purchase couldn't complete. Try again." };
     }
     const fulfillment = fulfillVerifiedPurchaseOnce(purchase, buildShopCatalog().products, gameState);
     const resolved = await reportUnfulfilledPurchase(

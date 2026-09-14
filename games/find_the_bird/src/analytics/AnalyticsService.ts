@@ -34,7 +34,13 @@ export type FtdEvent =
   | 'settings_changed'
   | 'ad_shown'
   | 'ad_show_failed'
+  | 'ad_lifecycle'
   | 'ad_revenue_paid'
+  | 'level_abandoned'
+  | 'level_complete_shown'
+  | 'level_complete_action'
+  | 'interstitial_gate'
+  | 'next_level_ready'
   | 'resource_changed'
   | 'product_tapped'
   | 'purchase_initiated'
@@ -97,6 +103,60 @@ interface AdShowFailedParams {
   ad_type: 'banner' | 'interstitial' | 'rewarded';
   placement: string;
   reason: string;
+}
+
+/**
+ * Provider-level lifecycle stage (load -> show -> impression -> dismissal by
+ * format). Native SDK callbacks only, through the AdMob composition seam.
+ * Ported from Find the Dog (handoff 2026-09-14).
+ */
+interface AdLifecycleParams {
+  ad_type: 'banner' | 'interstitial' | 'rewarded';
+  placement: string;
+  stage: string;
+  reason?: string;
+  attempt?: number;
+  cache_age_ms?: number;
+  level_index?: number;
+}
+
+export type LevelCompleteAction = 'next' | 'claim_x2' | 'rate_prompt' | 'background' | 'dismissed_by_shutdown';
+export type InterstitialGateReason = 'cadence' | 'min_level' | 'ads_disabled' | 'no_ads_entitlement';
+export type LevelAbandonedReason = 'background' | 'shutdown';
+
+interface BetweenLevelParams extends LevelAttributionParams {
+  level_id: string;
+  level_index: number;
+}
+
+interface LevelCompleteShownParams extends BetweenLevelParams {
+  levels_completed_session: number;
+  duration_ms: number;
+}
+
+interface LevelCompleteActionParams extends BetweenLevelParams {
+  action: LevelCompleteAction;
+  dwell_ms: number;
+  reward_revealed: boolean;
+}
+
+interface InterstitialGateParams extends BetweenLevelParams {
+  eligible: boolean;
+  reason: InterstitialGateReason;
+  every_n: number;
+  levels_completed_session: number;
+}
+
+interface NextLevelReadyParams extends BetweenLevelParams {
+  gap_ms: number;
+  after_interstitial: boolean;
+}
+
+interface LevelAbandonedParams extends BetweenLevelParams {
+  reason: LevelAbandonedReason;
+  elapsed_ms: number;
+  found_count: number;
+  total_count: number;
 }
 
 interface AdRevenuePaidParams {
@@ -405,8 +465,40 @@ export class AnalyticsService {
     return Promise.resolve();
   }
 
+  adLifecycle(params: AdLifecycleParams): Promise<void> {
+    this.sdk.track('ad_lifecycle', compactParams(params));
+    return Promise.resolve();
+  }
+
   adRevenuePaid(params: AdRevenuePaidParams): Promise<void> {
     this.sdk.track('ad_revenue_paid', compactParams(params));
+    return Promise.resolve();
+  }
+
+  // Between-level flow (handoff 2026-09-14). Level attribution rides along so
+  // sequence_slot cuts the funnel the same way level_start/level_complete do.
+  levelCompleteShown(params: LevelCompleteShownParams): Promise<void> {
+    this.sdk.track('level_complete_shown', compactParams(params));
+    return Promise.resolve();
+  }
+
+  levelCompleteAction(params: LevelCompleteActionParams): Promise<void> {
+    this.sdk.track('level_complete_action', compactParams(params));
+    return Promise.resolve();
+  }
+
+  interstitialGate(params: InterstitialGateParams): Promise<void> {
+    this.sdk.track('interstitial_gate', compactParams(params));
+    return Promise.resolve();
+  }
+
+  nextLevelReady(params: NextLevelReadyParams): Promise<void> {
+    this.sdk.track('next_level_ready', compactParams(params));
+    return Promise.resolve();
+  }
+
+  levelAbandoned(params: LevelAbandonedParams): Promise<void> {
+    this.sdk.track('level_abandoned', compactParams(params));
     return Promise.resolve();
   }
 
