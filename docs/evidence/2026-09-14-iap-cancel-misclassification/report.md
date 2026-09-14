@@ -80,7 +80,7 @@ reinstalled; XCUITest driver `PurchaseFlowTests.swift` (scratch copy of `tools/v
 |---|---|
 | Cancel (sheet close) | GameAnalytics request body on device: `purchase:initiated`, `purchase:sheet_shown`, **`purchase:cancelled`**; no `purchase:failed`. Raw rejection logged as above. Repeated 3x (runs 7, 9, 10). |
 | Interrupted (app killed while the sandbox password prompt was up, relaunched) | App relaunches to Home, hint balance unchanged (3), no pending-purchase fulfillment, no `purchase:failed` / `purchase:fulfilled`; shop shows the product purchasable again. |
-| Complete (sandbox) | Sheet reached and `Purchase` tapped; the sandbox asks for the password of the phone's Apple ID (`03-sandbox-password-prompt.png`). Not entered by the agent. **Pending Batu** (asked on Telegram); the relay keeps recording. |
+| Complete (sandbox) | Batu authorized entering the stored Apple ID password (12:45 UTC). XCUITest typed it on the sandbox sheet and tapped Confirm; the bridge hook logged `RC_RESOLVE purchaseStoreProduct` with the customer info, the wallet went from 3 to 13 hints, transaction id `2000001235965576` was added to `ftd_wallet_processed_purchase_ids`, and `find_the_dog_pending_purchases_v1` is `[]` (`05-sandbox-purchase-complete.png`). No charge (sandbox). Finding: no GameAnalytics purchase events reached the network for this flow because the SDK logged `Could not add design event: Session has not started yet` after the app returned from the password sheet, so `purchase:fulfilled` can be dropped when a purchase spans a backgrounding. Not fixed here; follow-up. Also the Home hint pill stays stale (3) behind the open shop until `updateHUD` runs, while the shop header pill shows 13. |
 
 Screenshots: `01-sandbox-sheet-10-hints.png`, `02-post-cancel-0.6s.png`, `03-sandbox-password-prompt.png`,
 `04-buy-attempt-bird-foregrounded.png` (first buy attempt: Find the Bird came to the foreground and the sheet was
@@ -89,15 +89,20 @@ cancelled; a second run after terminating Bird reached the password prompt).
 Note: the "Cancelled" button label is visible for under a second; `applyShopPurchaseButtonState` re-renders the
 control on the next refresh tick. Not changed in this PR.
 
+## Done after the PR (Batu: "all but 1, you do", 12:40 UTC)
+
+- Firebase: Google Analytics enabled on `find-the-bird-basegamelab` (property under "Default Account for Firebase"; dashboard renders with zeros). Still inert until the stub sink is replaced.
+- RevenueCat, via new v2 secret keys `offerings-tidy-2026-09-14` (Project configuration read & write; stored at `~/.config/base-game-lab/revenuecat/find-the-{dog,bird}-v2-secret`, 0600):
+  - FTD `default` offering (`ofrnge96bb3d071`): the App Store product attached to all 10 packages (Test Store attachment kept), plus new packages `custom_com.baseardahan.hiddenobj.hints10x` / `hints25x`; all 12 App Store products now served.
+  - FTB `default` offering created (`ofrng6fb29d4014`, current) with 12 packages, one per App Store product (`$rc_lifetime` = noads).
+  - Note: attach is `POST /packages/{id}/actions/attach_products`; `PATCH /offerings/{id}` is not allowed on v2 (the first offering becomes current automatically).
+
 ## Not done / open
 
 - Find the Bird was not exercised on the device; it shares `packages/sdk` and its HUD/GameScene code is identical
   to Dog's at the changed lines (diffed).
-- Sandbox complete-purchase proof needs Batu's Apple ID password on the phone.
-- Firebase: Batu must enable Google Analytics on `find-the-bird-basegamelab` (Firebase mutation; not done). Even
-  then nothing reaches Firebase Analytics until the stub sink is replaced, which this PR does not do.
-- RevenueCat tidy-ups (FTB has no offering; FTD default offering points at Test Store products) are dashboard
-  mutations awaiting Batu's go; they do not affect purchases (`getProducts` by id).
+- GameAnalytics drops purchase events when the purchase spans a backgrounding (session not restarted); see the Complete row.
+- The phone still carries the instrumented Dog debug build (console relay + ATS exception); reinstall the store build or run install.mjs without the relay before any measurement.
 - Store ship: see the session report for the version plan; ASC state at 12:25 UTC: Dog 1.0.10 (40) READY_FOR_SALE,
   Bird 1.2.4 (39) WAITING_FOR_REVIEW.
 - Follow-up read date: 7 days after the fixed builds are live, expect `purchase:cancelled` > 0 and
