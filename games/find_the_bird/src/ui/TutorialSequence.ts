@@ -1,4 +1,4 @@
-export type TutorialStage = 'guided' | 'zoom' | 'pan-left' | 'hint' | 'hinted-find' | 'objective' | 'dismissed';
+export type TutorialStage = 'guided' | 'zoom' | 'pan' | 'hint' | 'hinted-find' | 'dismissed';
 
 /** Input-driven tour. Artwork timing never advances the lesson. */
 export class TutorialSequence {
@@ -21,18 +21,18 @@ export class TutorialSequence {
       if (this.guidedFound >= this.guidedCount || next === null) this.stage = 'zoom';
     } else if (this.stage === 'hinted-find') {
       this.targetId = null;
-      this.stage = 'objective';
+      this.stage = 'dismissed';
     } else return false;
     return true;
   }
 
   zoomed(): void {
-    if (this.stage === 'zoom') this.stage = this.targetId === null ? 'objective' : 'pan-left';
+    if (this.stage === 'zoom') this.stage = this.targetId === null ? 'dismissed' : 'pan';
   }
 
-  panned(direction: 'left' | 'right'): void {
-    if (this.stage !== 'pan-left' || direction !== 'left') return;
-    this.stage = this.targetId === null ? 'objective' : 'hint';
+  panned(_direction: 'left' | 'right'): void {
+    if (this.stage !== 'pan') return;
+    this.stage = this.targetId === null ? 'dismissed' : 'hint';
     this.targetId = null;
   }
 

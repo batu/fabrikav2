@@ -49,14 +49,14 @@ import { uploadCanvasTextureRegion } from '../../../shared/CanvasTextureRegion';
 
 interface Rect { x: number; y: number; w: number; h: number }
 
-it('finishes a pan lesson only after release, before recentering the next target', () => {
+it.each([[170, 'left'], [30, 'right']] as const)('finishes a pan lesson at scroll %s only after release', (scrollX, direction) => {
   const scene = new GameScene();
   const panned = vi.fn();
   const pinchZoom = { isPanning: true, isPinching: false, stopInertia: vi.fn() };
   Object.assign(scene, {
-    tutorialHandle: { stage: 'pan-left', panned },
+    tutorialHandle: { stage: 'pan', panned },
     tutorialPanPrevious: 100, tutorialPanDistance: 0, pinchZoom,
-    cameras: { main: { scrollX: 170, worldView: { width: window.innerWidth } } },
+    cameras: { main: { scrollX, worldView: { width: window.innerWidth } } },
   });
   const update = () => (scene as unknown as { updateTutorialPan(): void }).updateTutorialPan();
   update();
@@ -64,7 +64,7 @@ it('finishes a pan lesson only after release, before recentering the next target
   pinchZoom.isPanning = false;
   update();
   expect(pinchZoom.stopInertia).toHaveBeenCalledOnce();
-  expect(panned).toHaveBeenCalledWith('left');
+  expect(panned).toHaveBeenCalledWith(direction);
 });
 
 it('clears the real hint on the tutorial target tap before handing off', () => {

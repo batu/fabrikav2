@@ -7,7 +7,6 @@ export interface TutorialAnchor {
   dogRadius: number;
   targetId: string;
   available: number;
-  total: number;
   onZoomStateEntered: () => void;
   onStageChanged: (stage: TutorialStage, targetId: string | null) => void;
 }
@@ -44,9 +43,11 @@ export function showTutorialOverlay(anchor: TutorialAnchor): TutorialHandle {
   let point = anchor.dogScreen;
   let radius = anchor.dogRadius;
   let resolve!: () => void;
+  let closed = false;
   const dismissed = new Promise<void>((done) => { resolve = done; });
   const dismiss = (markShown = true): void => {
-    if (sequence.stage === 'dismissed') return;
+    if (closed) return;
+    closed = true;
     sequence.stage = 'dismissed';
     if (markShown) { gameState.tutorialShown = true; gameState.save(); }
     document.getElementById('dog-counter')?.classList.remove('tutorial-counter-highlight');
@@ -62,14 +63,14 @@ export function showTutorialOverlay(anchor: TutorialAnchor): TutorialHandle {
   };
   const layout = (): void => {
     const stage = sequence.stage;
-    const gestureLesson = stage === 'zoom' || stage.startsWith('pan-');
+    const gestureLesson = stage === 'zoom' || stage === 'pan';
     const hint = stage === 'hint' ? document.getElementById('hint-btn')?.getBoundingClientRect() : undefined;
     const center = stage === 'hint' && hint
       ? { x: hint.left + hint.width / 2, y: hint.top + hint.height / 2 }
-      : gestureLesson || stage === 'objective'
+      : gestureLesson
         ? { x: window.innerWidth / 2, y: window.innerHeight * 0.45 } : point;
     const r = stage === 'hint' && hint ? Math.max(hint.width, hint.height) / 2 + 8 : Math.max(22, radius + 8);
-    spotlight.hidden = gestureLesson || stage === 'objective';
+    spotlight.hidden = gestureLesson;
     Object.assign(spotlight.style, { left: `${center.x - r}px`, top: `${center.y - r}px`, width: `${r * 2}px`, height: `${r * 2}px` });
     const width = Math.min(240, window.innerWidth - 32);
     const left = Math.max(16, Math.min(window.innerWidth - width - 16, center.x - width / 2));
@@ -92,6 +93,7 @@ export function showTutorialOverlay(anchor: TutorialAnchor): TutorialHandle {
   };
   const render = (): void => {
     const stage = sequence.stage;
+    if (stage === 'dismissed') { dismiss(); return; }
     overlay.dataset.stage = stage;
     overlay.dataset.targetId = sequence.targetId ?? '';
     switch (stage) {
@@ -99,13 +101,11 @@ export function showTutorialOverlay(anchor: TutorialAnchor): TutorialHandle {
         text.textContent = ['Tap this bird', 'Can you find this one?', 'Each bird you find counts here'][sequence.guidedFound];
         break;
       case 'zoom': text.textContent = 'Need a closer look? Pinch to zoom in'; break;
-      case 'pan-left': text.textContent = 'Drag left to explore the scene'; break;
+      case 'pan': text.textContent = 'Drag to move the camera'; break;
       case 'hint': text.textContent = 'Need help? Tap the hint'; break;
       case 'hinted-find': text.textContent = 'Tap the bird inside the hint'; break;
-      default: text.textContent = `Find all ${anchor.total} birds. Enjoy the scene!`;
     }
-    button.hidden = !['zoom', 'pan-left', 'objective'].includes(stage);
-    button.textContent = stage === 'objective' ? 'Let’s play' : 'Got it';
+    button.hidden = !['zoom', 'pan'].includes(stage);
     magnifier.hidden = stage !== 'hinted-find';
     refreshGesture();
     document.getElementById('dog-counter')?.classList.toggle('tutorial-counter-highlight', stage === 'guided' && sequence.guidedFound === 2);
@@ -117,7 +117,7 @@ export function showTutorialOverlay(anchor: TutorialAnchor): TutorialHandle {
   button.addEventListener('click', () => {
     if (sequence.stage === 'zoom') {
       zoomed();
-    } else if (sequence.stage === 'pan-left') {
+    } else if (sequence.stage === 'pan') {
       sequence.panned('left');
       render();
     } else {

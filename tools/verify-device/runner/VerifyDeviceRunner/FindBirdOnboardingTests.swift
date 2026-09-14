@@ -74,20 +74,23 @@ final class FindBirdOnboardingTests: XCTestCase {
         XCTAssertTrue(text(app, "Need a closer look? Pinch to zoom in").waitForExistence(timeout: 10))
         motion("pinch-instruction")
         app.webViews.firstMatch.pinch(withScale: 2.0, velocity: 1.0)
-        XCTAssertTrue(text(app, "Drag left to explore the scene").waitForExistence(timeout: 10))
-        motion("pan-left-instruction")
-        app.coordinate(withNormalizedOffset: CGVector(dx: 0.75, dy: 0.55)).press(forDuration: 0.1, thenDragTo: app.coordinate(withNormalizedOffset: CGVector(dx: 0.25, dy: 0.55)))
-        XCTAssertTrue(text(app, "Need help? Tap the hint").waitForExistence(timeout: 10), "One leftward drag must advance directly to the hint")
+        XCTAssertTrue(text(app, "Drag to move the camera").waitForExistence(timeout: 10))
+        motion("pan-instruction")
+        let dragRight = env["FTB_PAN_DIRECTION"] == "right"
+        let startX = dragRight ? 0.25 : 0.75
+        let endX = dragRight ? 0.75 : 0.25
+        app.coordinate(withNormalizedOffset: CGVector(dx: startX, dy: 0.55)).press(forDuration: 0.1, thenDragTo: app.coordinate(withNormalizedOffset: CGVector(dx: endX, dy: 0.55)))
+        XCTAssertTrue(text(app, "Need help? Tap the hint").waitForExistence(timeout: 10), "One drag in either direction must advance directly to the hint")
         shot("hint-lesson")
         target.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
         XCTAssertTrue(text(app, "Tap the bird inside the hint").waitForExistence(timeout: 10))
         motion("hinted-target")
         target.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
-        let handoff = app.buttons["Let’s play"]
-        XCTAssertTrue(handoff.waitForExistence(timeout: 10))
-        shot("objective")
-        handoff.tap()
+        let finished = NSPredicate { _, _ in !target.exists }
+        XCTAssertEqual(XCTWaiter.wait(for: [expectation(for: finished, evaluatedWith: nil)], timeout: 10), .completed)
         XCTAssertFalse(target.exists)
+        XCTAssertFalse(app.buttons["Let’s play"].exists)
+        XCTAssertFalse(text(app, "Find all 19 birds. Enjoy the scene!").exists)
         shot("normal-gameplay")
         app.terminate()
         app.launch()
