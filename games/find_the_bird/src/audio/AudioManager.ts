@@ -150,22 +150,41 @@ export function installAudioUnlock(): void {
 
 // ---- Bird-found samples ----
 // Ten short bird chirp/whistle one-shots (chirp, peep, whistle, tweet, warble,
-// quick pair, song note, two-note, double). On each pickup we play a random
-// sample at a random playback rate in [0.9, 1.1] so repeated finds don't
-// sound identical. Decoded buffers are cached after the first load.
+// quick pair, song note, two-note, double). Consume a shuffled bag before
+// refilling, with an independent playback rate in [0.8, 1.2] on every pickup.
+// Buffers and selection state survive level changes for this app launch.
 const BIRD_FOUND_SAMPLE_COUNT = 10;
 const BIRD_FOUND_SAMPLE_URLS: string[] = Array.from(
   { length: BIRD_FOUND_SAMPLE_COUNT },
   (_, i): string => `/audio/bird-found/bird-found-${i + 1}.wav`,
 );
 let birdFoundBuffersPromise: Promise<AudioBuffer[]> | null = null;
+let birdFoundBag: AudioBuffer[] = [];
+let lastBirdFoundBuffer: AudioBuffer | undefined;
+
+function nextBirdFoundBuffer(buffers: readonly AudioBuffer[]): AudioBuffer | undefined {
+  if (birdFoundBag.length === 0) {
+    birdFoundBag = [...buffers];
+    for (let i = birdFoundBag.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [birdFoundBag[i], birdFoundBag[j]] = [birdFoundBag[j], birdFoundBag[i]];
+    }
+    const last = birdFoundBag.length - 1;
+    if (last > 0 && birdFoundBag[last] === lastBirdFoundBuffer) {
+      [birdFoundBag[0], birdFoundBag[last]] = [birdFoundBag[last], birdFoundBag[0]];
+    }
+  }
+  const buffer = birdFoundBag.pop();
+  if (buffer) lastBirdFoundBuffer = buffer;
+  return buffer;
+}
 
 /** Fetch + decode every bird-found sample once. Safe to call repeatedly —
  *  the work is memoized. Kick this off when a level loads so buffers are
  *  ready by the time the player taps a bird. */
 export function preloadBirdFoundSounds(): Promise<AudioBuffer[]> {
   const ctx = getAudioContext();
-  birdFoundBuffersPromise ??= Promise.all(
+  birdFoundBuffersPromise ??= Promise.allSettled(
     BIRD_FOUND_SAMPLE_URLS.map((url: string): Promise<AudioBuffer> =>
       fetch(url)
         .then((response: Response): Promise<ArrayBuffer> => {
@@ -181,11 +200,16 @@ export function preloadBirdFoundSounds(): Promise<AudioBuffer[]> {
         })
         .then((data: ArrayBuffer): Promise<AudioBuffer> => ctx.decodeAudioData(data)),
     ),
-  ).catch((error: unknown): never => {
-    // Don't poison the whole session on a transient load/decode failure —
-    // clear the memo so a later pickup can retry the fetch + decode.
-    birdFoundBuffersPromise = null;
-    throw error;
+  ).then((results): AudioBuffer[] => {
+    const buffers: AudioBuffer[] = [];
+    for (const result of results) {
+      if (result.status === 'fulfilled') buffers.push(result.value);
+      else console.warn('[audio] bird-found sample unavailable', result.reason);
+    }
+    // Keep usable samples if only some assets fail. If none loaded, allow a
+    // later preload/pickup to retry without rejecting a fire-and-forget preload.
+    if (buffers.length === 0) birdFoundBuffersPromise = null;
+    return buffers;
   });
   return birdFoundBuffersPromise;
 }
@@ -297,8 +321,8 @@ function playVoiceBlip(): void {
 }
 
 export function playFind(): void {
-  // Play a random bird chirp sample with a random playback rate in
-  // [0.9, 1.1] so repeated pickups vary in pitch. Wait for both the unlock
+  // Play the next shuffled chirp with an independent playback rate in
+  // [0.8, 1.2] so repeated pickups vary in pitch. Wait for both the unlock
   // and the decoded buffers before start() — on iOS a buffer source started
   // on a suspended context never produces sound. Both promises resolve
   // instantly in steady state. Surface load/decode failures instead of
@@ -306,10 +330,11 @@ export function playFind(): void {
   void Promise.all([ensureAudioUnlocked(), preloadBirdFoundSounds()])
     .then(([, buffers]: [void, AudioBuffer[]]): void => {
       const ctx = getAudioContext();
-      const buffer = buffers[Math.floor(Math.random() * buffers.length)];
+      const buffer = nextBirdFoundBuffer(buffers);
+      if (!buffer) return;
       const source = ctx.createBufferSource();
       source.buffer = buffer;
-      source.playbackRate.value = 0.9 + Math.random() * 0.2;
+      source.playbackRate.value = 0.8 + Math.random() * 0.4;
       source.connect(getSoundEffectsOutput());
       source.start(ctx.currentTime);
     })
