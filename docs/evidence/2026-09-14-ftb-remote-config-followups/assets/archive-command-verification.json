@@ -1,0 +1,23 @@
+{
+  "verifiedAt": "2026-09-14T13:23:19.510605+00:00",
+  "scriptSha256": "9cf09bdb0e10a499c70054fbcf4dfce3c7f748321563215c083ab4c2073c3f47",
+  "method": "AST evaluate archive argument tuple and literal game matrix only; no build script execution",
+  "games": {
+    "bird": {
+      "exactMatch": true,
+      "argumentCount": 19,
+      "diff": [],
+      "recordSha256": "d11313736389160ed5af3f52712b80b034ebed50378ebf3172db763a903ee711",
+      "source": "ca47f3425",
+      "recordedExitCode": 0
+    },
+    "dog": {
+      "exactMatch": true,
+      "argumentCount": 19,
+      "diff": [],
+      "recordSha256": "daa8ebe564f91032ddf46abb763f3bc7c6c87067cfb3e9db981406098523aad7",
+      "source": "ca47f3425",
+      "recordedExitCode": 0
+    }
+  }
+}
