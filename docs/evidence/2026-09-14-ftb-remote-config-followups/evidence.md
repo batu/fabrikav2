@@ -25,6 +25,8 @@ The original phone WebKit container was backed up before installation, and 34 lo
 
 At conflict discovery, `/Users/base/dev/appletolye/.twf-device/physical-device.lock` was held by `ftb-onboarding-layer`, owner PID 95584, with an active `FindBirdOnboardingTests` process. The lease had already existed when this lane started; checking only active build/test processes missed it. Device interaction stopped immediately after discovery. The lane's relay on port 5322 was stopped; other agents' runners, relay, worktrees, and files were not stopped or reverted.
 
+On the next continuation, a nonblocking `flock` probe confirmed the lease was still actively held. Reading the owner's evidence clarified that it uses `com.basegamelab.findthebird.onboardingfresh`, a separate QA identity, and did not replace the original Bird app. The conflict was foreground/device ownership, not an established overwrite of the original installed bundle. The rejected screenshot still cannot prove this lane's close sequence.
+
 **The original save has not yet been restored.** Restoration now requires the device owner to release the phone. Private `RESTORATION-PENDING.md`, `save-backup-manifest.json`, and `restore-localstorage-private.js` make this obligation recoverable. The restoration script has not run and contains private data; never commit it. After acquiring the lease, restore the backed-up values and verify persisted game state after reload before further reset-based testing.
 
 ## Capture and review limits
