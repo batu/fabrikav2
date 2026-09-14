@@ -17,6 +17,8 @@ export interface InterstitialGateInput {
   nextLevelNumber: number;
   adsEnabled: boolean;
   hasNoAdsEntitlement: boolean;
+  /** `areAutomaticAdsAllowed()`: false for a fresh install's first launch (PR #76). */
+  automaticAdsAllowed: boolean;
 }
 
 export interface InterstitialGateDecision {
@@ -25,7 +27,8 @@ export interface InterstitialGateDecision {
 }
 
 /**
- * Mirrors GameScene's `shouldTry && settings.adsEnabled` decision and names the
+ * Mirrors GameScene's `shouldTry && settings.adsEnabled && areAutomaticAdsAllowed()`
+ * decision and names the
  * first failing check. An eligible decision reports `cadence` (the rule that
  * let it through). The runtime decision itself stays in GameScene; this only
  * attributes it.
@@ -36,6 +39,7 @@ export function resolveInterstitialGate(input: InterstitialGateInput): Interstit
   if (input.nextLevelNumber < input.minLevelNumber) return { eligible: false, reason: 'min_level' };
   if (input.hasNoAdsEntitlement) return { eligible: false, reason: 'no_ads_entitlement' };
   if (!input.adsEnabled) return { eligible: false, reason: 'ads_disabled' };
+  if (!input.automaticAdsAllowed) return { eligible: false, reason: 'first_session' };
   return { eligible: true, reason: 'cadence' };
 }
 

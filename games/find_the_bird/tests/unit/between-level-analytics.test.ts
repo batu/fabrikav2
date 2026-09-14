@@ -155,7 +155,7 @@ describe('GameAnalytics sink dispatch', () => {
 });
 
 describe('resolveInterstitialGate', () => {
-  const base = { everyN: 3, minLevelNumber: 1, adsEnabled: true, hasNoAdsEntitlement: false };
+  const base = { everyN: 3, minLevelNumber: 1, adsEnabled: true, hasNoAdsEntitlement: false, automaticAdsAllowed: true };
 
   it('levels 1 and 2 are stopped by cadence; level 3 is eligible', () => {
     expect(resolveInterstitialGate({ ...base, levelsCompletedSession: 1, nextLevelNumber: 2 })).toEqual({ eligible: false, reason: 'cadence' });
@@ -167,6 +167,11 @@ describe('resolveInterstitialGate', () => {
     expect(resolveInterstitialGate({ ...base, levelsCompletedSession: 3, nextLevelNumber: 4, minLevelNumber: 6 })).toEqual({ eligible: false, reason: 'min_level' });
     expect(resolveInterstitialGate({ ...base, levelsCompletedSession: 3, nextLevelNumber: 4, adsEnabled: false, hasNoAdsEntitlement: true })).toEqual({ eligible: false, reason: 'no_ads_entitlement' });
     expect(resolveInterstitialGate({ ...base, levelsCompletedSession: 3, nextLevelNumber: 4, adsEnabled: false })).toEqual({ eligible: false, reason: 'ads_disabled' });
+  });
+
+  it('a fresh install first session (PR #76 session ad policy) is stopped last, as first_session', () => {
+    expect(resolveInterstitialGate({ ...base, levelsCompletedSession: 3, nextLevelNumber: 4, automaticAdsAllowed: false })).toEqual({ eligible: false, reason: 'first_session' });
+    expect(resolveInterstitialGate({ ...base, levelsCompletedSession: 3, nextLevelNumber: 4, adsEnabled: false, automaticAdsAllowed: false })).toEqual({ eligible: false, reason: 'ads_disabled' });
   });
 
   it('a zero cadence never fires and reports cadence', () => {

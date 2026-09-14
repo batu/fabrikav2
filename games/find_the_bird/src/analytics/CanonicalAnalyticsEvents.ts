@@ -192,7 +192,7 @@ export const canonicalAnalyticsEvents = [
     gameAnalyticsName: 'interstitial:gate',
     family: 'ad',
     panel: 'ads',
-    question: 'Whether the between-level interstitial cadence fired after a completion, and why not.',
+    question: 'Whether the between-level interstitial cadence fired after a completion, and why not (cadence, min_level, no_ads_entitlement, ads_disabled, first_session).',
     primaryDimensions: ['level_id', 'sequence_slot', 'eligible', 'reason'],
     instrumentationStatus: 'runtime',
     successBoundary: 'GameScene evaluates the interstitial cadence on the Next path.',

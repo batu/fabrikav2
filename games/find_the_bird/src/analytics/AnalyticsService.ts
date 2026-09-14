@@ -155,7 +155,7 @@ interface AdLifecycleParams {
 }
 
 export type LevelCompleteAction = 'next' | 'claim_x2' | 'rate_prompt' | 'background' | 'dismissed_by_shutdown';
-export type InterstitialGateReason = 'cadence' | 'min_level' | 'ads_disabled' | 'no_ads_entitlement';
+export type InterstitialGateReason = 'cadence' | 'min_level' | 'ads_disabled' | 'no_ads_entitlement' | 'first_session';
 export type LevelAbandonedReason = 'background' | 'shutdown';
 
 interface BetweenLevelParams extends LevelAttributionParams {

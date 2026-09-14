@@ -1920,6 +1920,7 @@ export class GameScene extends Phaser.Scene {
           nextLevelNumber: gameState.currentLevelIndex + 1,
           adsEnabled: gameState.settings.adsEnabled,
           hasNoAdsEntitlement: gameState.hasNoAdsEntitlement,
+          automaticAdsAllowed: areAutomaticAdsAllowed(),
         });
         void analytics.interstitialGate({
           level_id: this.level!.id,
