@@ -17,6 +17,17 @@ function adMobEnv(config: typeof ownAdMobConfig) {
 }
 
 describe('FTD SdkContext composition matrix', () => {
+  it.each([
+    [undefined, 'firebase'], ['false', 'firebase'], [false, 'firebase'],
+    ['true', 'static'], [true, 'static'],
+  ])('honors the Remote Config disable flag %s', (flag, expected) => {
+    const context = createSdkContext({
+      buildEnv: 'production', platform: 'ios', isNativePlatform: true,
+      env: { VITE_FTD_DISABLE_REMOTE_CONFIG: flag, VITE_REVENUECAT_IOS_API_KEY: 'appl_A1b2C3d4E5f6G7h8I9j0K1l2M3n' },
+    });
+    expect(context.selection.remoteConfig).toBe(expected);
+  });
+
   it('wires native purchase preflight to the production wallet', () => {
     const prepare = vi.spyOn(gameState, 'preparePurchase').mockImplementation(() => { throw new Error('wallet unavailable'); });
     try {
