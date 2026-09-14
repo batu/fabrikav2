@@ -5,6 +5,7 @@ from __future__ import annotations
 import io
 import os
 import time
+from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -410,6 +411,8 @@ def generate_layer_sprite_animation(
     motion_preset: str | None = None,
     duration_seconds: float = 3.0,
     fps: int = 24,
+    idempotency_key: str | None = None,
+    on_submitted: Callable[[dict[str, str]], None] | None = None,
 ) -> LayerAnimationResult:
     token = layer_token()
     if token is None:
@@ -423,9 +426,12 @@ def generate_layer_sprite_animation(
     with httpx.Client(timeout=timeout) as client:
         workspace_id = _workspace_id(client, token)
         file_id = _upload_file(client, token, workspace_id, source_image_path, "image/png")
+        headers = _headers(token)
+        if idempotency_key:
+            headers["Idempotency-Key"] = idempotency_key
         created = client.post(
             f"{LAYER_API_BASE}/v1/workspaces/{workspace_id}/inferences",
-            headers=_headers(token),
+            headers=headers,
             json={
                 "model_id": model_id,
                 "prompt": prompt,
@@ -436,12 +442,14 @@ def generate_layer_sprite_animation(
                 "guidance_files": [
                     {"file_id": file_id, "type": "first_frame", "weight": 1.0},
                 ],
-                "session_name": f"find-the-dog sprite animation {motion_preset or 'custom'}",
+                "session_name": f"sprite animation {motion_preset or 'custom'}",
             },
         )
         created.raise_for_status()
         payload = created.json()
         inference_id = _inference_id(payload)
+        if on_submitted is not None:
+            on_submitted({"providerJobId": inference_id, "workspaceId": workspace_id, "uploadedFileId": file_id})
         payload = _poll_inference(client, token, workspace_id, inference_id, payload)
         output = _output_from_inference(payload, kind="animation")
         downloaded = _download_output(client, output)

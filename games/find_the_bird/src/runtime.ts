@@ -19,6 +19,7 @@ import { buildFullShopCatalog } from './shop/ProductCatalog';
 import { installPortraitOrientationLock } from './platform/portraitOrientation';
 import { installGameLifecycle, registerLifecycleHooks } from './platform/gameLifecycle';
 import { notificationService } from './notifications/NotificationService';
+import { setNotificationPromptReady } from './privacy/TrackingExplanation';
 import { installAudioUnlock, installButtonVoiceEffects } from './audio/AudioManager';
 import { getSdkContext } from './sdk/SdkContext';
 import { preloadIcons } from './ui/iconPreload';
@@ -60,7 +61,7 @@ installGameLifecycle(game);
 // permission prompt fires on the second app open — never on first launch,
 // never mid-gameplay.
 notificationService.install();
-void notificationService.maybePromptOnLaunch();
+setNotificationPromptReady(notificationService.maybePromptOnLaunch());
 const shouldInitializeAds = gameState.settings.adsEnabled && !gameState.hasNoAdsEntitlement;
 const adConsentReady = shouldInitializeAds ? adService.init() : Promise.resolve();
 configureAttributionStartupGate(adConsentReady);

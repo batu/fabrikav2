@@ -35,6 +35,7 @@ const STORAGE_KEYS = {
   LEVEL_ORDER_REVISION: 'ftd_level_order_revision',
   SETTINGS: 'ftd_settings',
   TUTORIAL_SHOWN: 'ftd_tutorial_shown',
+  TUTORIAL_HINT_USED: 'ftb_tutorial_hint_used',
   REWARDED_HINTS_TODAY: 'ftd_rewarded_hints_today',
   REWARDED_HINTS_DATE: 'ftd_rewarded_hints_date',
   STREAK_DAYS: 'ftd_streak_days',
@@ -596,6 +597,15 @@ export class GameState {
   };
   penaltyCooldownUntil: number = 0;
   tutorialShown: boolean = false;
+  tutorialHintUsed = false;
+
+  /** Tutorial-only allowance: no currency grant, persisted before revealing. */
+  consumeTutorialHint(): boolean {
+    if (this.tutorialShown || this.tutorialHintUsed) return false;
+    this.tutorialHintUsed = true;
+    this.save();
+    return true;
+  }
   /** Session-only: counter for interstitial cadence. Resets every app launch. */
   levelsCompletedThisSession: number = 0;
   private levelIndexWasPersisted: boolean = false;
@@ -1622,6 +1632,7 @@ export class GameState {
       localStorage.setItem(STORAGE_KEYS.LEVEL, String(this.currentLevelIndex));
       localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(this.settings));
       localStorage.setItem(STORAGE_KEYS.TUTORIAL_SHOWN, this.tutorialShown ? '1' : '0');
+      localStorage.setItem(STORAGE_KEYS.TUTORIAL_HINT_USED, this.tutorialHintUsed ? '1' : '0');
       localStorage.setItem(STORAGE_KEYS.REWARDED_HINTS_TODAY, String(this._rewardedHintsToday));
       localStorage.setItem(STORAGE_KEYS.REWARDED_HINTS_DATE, this._rewardedHintsDate);
       localStorage.setItem(STORAGE_KEYS.STREAK_DAYS, String(this._streakDays));
@@ -1664,6 +1675,7 @@ export class GameState {
       this.currentLevelIndex = safeParseInt(persistedLevelIndex, 0);
 
       this.tutorialShown = localStorage.getItem(STORAGE_KEYS.TUTORIAL_SHOWN) === '1';
+      this.tutorialHintUsed = localStorage.getItem(STORAGE_KEYS.TUTORIAL_HINT_USED) === '1';
 
       this._rewardedHintsToday = safeParseNonNegativeInteger(
         localStorage.getItem(STORAGE_KEYS.REWARDED_HINTS_TODAY),

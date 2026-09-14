@@ -27,7 +27,10 @@ vi.mock('phaser', () => {
 });
 vi.mock('../../../shared/ClassicGpuReveal', () => ({ ClassicGpuReveal: class {} }));
 vi.mock('../../../shared/CanvasTextureRegion', () => ({ uploadCanvasTextureRegion: vi.fn(() => true) }));
-vi.mock('../../src/core/GameState', () => ({ gameState: { settings: { adsEnabled: false } } }));
+vi.mock('../../src/core/GameState', () => ({ gameState: { settings: { adsEnabled: false }, foundDogIds: new Set(), hintCircleActive: false, recordDogFound: vi.fn(), drainAnalyticsOutbox: vi.fn() } }));
+vi.mock('../../src/ui/HUD', () => ({ updateHUD: vi.fn() }));
+vi.mock('../../src/haptics/HapticsManager', () => ({ hapticFound: vi.fn() }));
+vi.mock('../../src/ui/AchievementToast', () => ({ presentAchievementUnlocks: vi.fn() }));
 vi.mock('../../src/analytics/AnalyticsService', () => ({ analytics: { experimentExposure: vi.fn() } }));
 vi.mock('../../src/ads/Service', () => ({ adService: {}, showRewardedAdForEconomy: vi.fn() }));
 vi.mock('../../src/audio/AudioManager', () => ({ playFind: vi.fn(), playWrongTap: vi.fn(), preloadBirdFoundSounds: vi.fn() }));
@@ -41,9 +44,34 @@ vi.mock('../../src/ui/SceneTransitionCover', () => ({
 
 import Phaser from 'phaser';
 import { GameScene } from '../../src/scenes/GameScene';
+import { gameState } from '../../src/core/GameState';
 import { uploadCanvasTextureRegion } from '../../../shared/CanvasTextureRegion';
 
 interface Rect { x: number; y: number; w: number; h: number }
+
+it('clears the real hint on the tutorial target tap before handing off', () => {
+  const scene = new GameScene();
+  const dog = { id: 'hint-target', x: 50, y: 50, r: 10 };
+  const gfx = { destroy: vi.fn() };
+  const tween = { destroy: vi.fn() };
+  const advance = vi.fn(() => expect(gameState.hintCircleActive).toBe(false));
+  gameState.foundDogIds.clear();
+  gameState.hintCircleActive = true;
+  Object.assign(scene, {
+    level: { id: 'fixture', dogs: [dog] }, levelComplete: false,
+    imgOffsetX: 0, imgOffsetY: 0, imgScale: 1,
+    tutorialHandle: { stage: 'hinted-find' }, tutorialTargetDogId: dog.id,
+    hintCircleGfx: gfx, hintCircleTween: tween,
+    findClosestUnfoundDogInSet: () => dog,
+    isRestoration: true, assertRestorationDogReady: vi.fn(), advanceTutorial: advance,
+    trackDogFoundAnalytics: vi.fn(), playRestorationPickupAnimation: vi.fn(), spawnRestorationDissolve: vi.fn(), pickupStyle: 'none',
+  });
+  scene.handleTap({ worldX: 50, worldY: 50, screenX: 50, screenY: 50 });
+  expect(gfx.destroy).toHaveBeenCalledOnce();
+  expect(tween.destroy).toHaveBeenCalledOnce();
+  expect(gameState.hintCircleActive).toBe(false);
+  expect(advance).toHaveBeenCalledWith(dog.id);
+});
 
 interface Internals {
   syncRestorationMaskTexture(region?: Rect | null): void;

@@ -1,4 +1,5 @@
 import { Capacitor } from '@capacitor/core';
+import { createTrackingRequest, showTrackingExplanation } from '../privacy/TrackingExplanation';
 import {
   resolveSdkEnvironments,
   type SdkBuildEnv,
@@ -7,6 +8,7 @@ import {
 import { envString, isRevenueCatIosPublicKey } from '@fabrikav2/sdk/config-env';
 import {
   AdMobProvider,
+  createDefaultAdMobAdapter,
   defaultAdProviderFactories,
   type AdProvider as SdkAdProvider,
   type AdProviderFactories,
@@ -163,6 +165,17 @@ export function createSdkContext(deps: CreateSdkContextDependencies = {}): GameS
     platform === 'ios' ? adMobPublicConfig : undefined,
     buildEnv === 'production' && platform === 'ios',
   );
+  const nativeAds = createDefaultAdMobAdapter();
+  let trackingStatus = { status: 'unknown' };
+  const trackingRequest = createTrackingRequest({
+    platform: isNativePlatform ? platform : 'web',
+    status: async () => {
+      trackingStatus = await nativeAds.trackingAuthorizationStatus!();
+      return trackingStatus;
+    },
+    explain: showTrackingExplanation,
+    request: () => nativeAds.requestTrackingAuthorization!(),
+  });
   const lifecycle = {
     onFullScreenAdStarted: (): void => setMusicPausedForAd(true),
     onFullScreenAdFinished: (): void => setMusicPausedForAd(false),
@@ -171,6 +184,14 @@ export function createSdkContext(deps: CreateSdkContextDependencies = {}): GameS
     ? isNativePlatform && adMobConfig.enabled
       ? new AdMobProvider(adMobConfig.config, {
           lifecycle,
+          adapter: {
+            ...nativeAds,
+            // Run before UMP too: a configured UMP IDFA message may itself request ATT.
+            requestConsentInfo: async (options) => { await trackingRequest(); return nativeAds.requestConsentInfo(options); },
+            requestTrackingAuthorization: trackingRequest,
+            // The owner bounds native status calls; telemetry must not add an unbounded one.
+            trackingAuthorizationStatus: async () => trackingStatus,
+          },
           // General audience (owner decision 2026-09-08, stack-wide): no child /
           // under-age tags, UMP consent decides personalization, ATT on iOS.
           audience: 'general',
@@ -192,12 +213,19 @@ export function createSdkContext(deps: CreateSdkContextDependencies = {}): GameS
     ? { ...adjustConfig, config: { ...adjustConfig.config, environment: environments.adjust } }
     : adjustConfig;
   const attributionChoice = readAttributionProviderChoice(env.VITE_ATTRIBUTION_PROVIDER);
+  const appsFlyerConfig = readAppsFlyerConfig(platform, env, buildEnv === 'production');
   const attributionProvider = selectAttributionProvider({
     platform,
     preferred: attributionChoice,
     adjustConfig: resolvedAdjustConfig,
-    appsFlyerConfig: readAppsFlyerConfig(platform, env, buildEnv === 'production'),
+    appsFlyerConfig: appsFlyerConfig.enabled && platform === 'ios'
+      ? { ...appsFlyerConfig, config: { ...appsFlyerConfig.config, requestTrackingAuthorization: false } }
+      : appsFlyerConfig,
   });
+  if (attributionProvider.providerName === 'appsflyer' && appsFlyerConfig.enabled && appsFlyerConfig.config.requestTrackingAuthorization) {
+    const initializeAttribution = attributionProvider.init.bind(attributionProvider);
+    attributionProvider.init = async () => { await trackingRequest(); await initializeAttribution(); };
+  }
   const attributionService = new SdkAttributionService(attributionProvider);
   const appsFlyerDedupe = createLocalStorageDedupeStore(storage);
   const appsFlyerMapper = new AppsFlyerEventMapper(appsFlyerDedupe);
