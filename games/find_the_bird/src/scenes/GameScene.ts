@@ -2172,7 +2172,7 @@ export class GameScene extends Phaser.Scene {
           error_message: purchase.errorMessage,
         });
       }
-      return { resumed: false, message: purchase.status === 'cancelled' ? 'Purchase cancelled.' : 'Purchase unavailable.' };
+      return { resumed: false, message: purchase.status === 'cancelled' ? 'Purchase cancelled.' : "Purchase couldn't complete. Try again." };
     }
     const fulfillment = fulfillVerifiedPurchaseOnce(purchase, buildShopCatalog().products, gameState);
     const resolved = await reportUnfulfilledPurchase(

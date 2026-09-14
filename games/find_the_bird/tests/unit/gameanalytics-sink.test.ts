@@ -209,7 +209,9 @@ describe('GameAnalytics AnalyticsSink', () => {
   it.each([
     ['purchase_initiated', 'purchase:initiated', { product_id: 'hints_pack', surface: 'shop' }],
     ['purchase_cancelled', 'purchase:cancelled', { product_id: 'hints_pack', surface: 'fail_continue' }],
-    ['purchase_failed', 'purchase:failed', { product_id: 'hints_pack', surface: 'shop', reason: 'failed', failure_kind: 'timeout' }],
+    ['purchase_failed', 'purchase:failed:timeout', { product_id: 'hints_pack', surface: 'shop', reason: 'failed', failure_kind: 'timeout' }],
+    ['purchase_failed', 'purchase:failed:store_error', { product_id: 'hints_pack', surface: 'fail_continue', reason: 'failed', failure_kind: 'store-error' }],
+    ['purchase_failed', 'purchase:failed:unavailable', { product_id: 'hints_pack', surface: 'shop', reason: 'unavailable' }],
   ])('maps %s with declared dimensions while rejecting arbitrary params', async (name, wireName, dimensions) => {
     const addDesignEvent = vi.fn();
     const sink = createGameAnalyticsSink(validConfig(), {

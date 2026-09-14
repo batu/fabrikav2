@@ -107,6 +107,80 @@ function catalogFallbackProduct<TPayload>(product: CatalogProduct<TPayload>): Re
   };
 }
 
+/** RevenueCat `PurchasesErrorCode.purchaseCancelledError` (purchases-ios
+ *  `ErrorCode.swift`, hybrid-common `PURCHASES_ERROR_CODE`). */
+const REVENUECAT_PURCHASE_CANCELLED_CODE = 1;
+
+/** Error surfaced to the service for a failed `purchaseStoreProduct` call.
+ *  `userCancelled` is the provider-agnostic signal `IapService` classifies on. */
+export class RevenueCatPurchaseError extends Error {
+  constructor(
+    message: string,
+    readonly userCancelled: boolean,
+    readonly code: string | number | null,
+    readonly readableErrorCode: string | null,
+  ) {
+    super(message);
+    this.name = 'RevenueCatPurchaseError';
+  }
+}
+
+/**
+ * The Capacitor iOS bridge does NOT deliver the plugin's `PurchasesError` shape.
+ * `PurchasesPlugin.rejectWithErrorContainer` calls
+ * `call.reject(message, "\(code)", nsError)` with no data payload, so the JS
+ * side receives a `CapacitorException` with `message`, `errorMessage` and a
+ * STRING `code` holding the numeric RevenueCat code (`"1"` for a user cancel).
+ * `userCancelled` / `readableErrorCode` are absent on that path. Classify from
+ * every shape the plugin can produce (direct `PurchasesError`, bridge
+ * exception, nested `data`) so a user cancel never reads as a store error.
+ */
+export function isRevenueCatUserCancelledError(err: unknown): boolean {
+  if (typeof err !== 'object' || err === null) return false;
+  const maybe = err as {
+    userCancelled?: unknown;
+    code?: unknown;
+    readableErrorCode?: unknown;
+    readable_error_code?: unknown;
+    message?: unknown;
+    data?: unknown;
+  };
+  if (maybe.userCancelled === true) return true;
+  const readable = maybe.readableErrorCode ?? maybe.readable_error_code;
+  if (typeof readable === 'string' && readable.toUpperCase().includes('CANCEL')) return true;
+  if (maybe.code === REVENUECAT_PURCHASE_CANCELLED_CODE) return true;
+  if (typeof maybe.code === 'string') {
+    const code = maybe.code.trim();
+    if (code === String(REVENUECAT_PURCHASE_CANCELLED_CODE) || code.toLowerCase().includes('cancel')) return true;
+  }
+  if (typeof maybe.message === 'string' && /cancel/i.test(maybe.message)) return true;
+  return maybe.data !== undefined && maybe.data !== maybe && isRevenueCatUserCancelledError(maybe.data);
+}
+
+export function normalizeRevenueCatPurchaseError(err: unknown): RevenueCatPurchaseError {
+  if (err instanceof RevenueCatPurchaseError) return err;
+  const maybe = (typeof err === 'object' && err !== null ? err : {}) as {
+    message?: unknown;
+    errorMessage?: unknown;
+    code?: unknown;
+    readableErrorCode?: unknown;
+    readable_error_code?: unknown;
+  };
+  const message = typeof maybe.message === 'string' && maybe.message.length > 0
+    ? maybe.message
+    : typeof maybe.errorMessage === 'string' && maybe.errorMessage.length > 0
+      ? maybe.errorMessage
+      : err instanceof Error ? err.message : String(err);
+  const code = typeof maybe.code === 'string' || typeof maybe.code === 'number' ? maybe.code : null;
+  const readable = maybe.readableErrorCode ?? maybe.readable_error_code;
+  return new RevenueCatPurchaseError(
+    message,
+    isRevenueCatUserCancelledError(err),
+    code,
+    typeof readable === 'string' ? readable : null,
+  );
+}
+
 export class RevenueCatProvider<TPayload = unknown> implements PurchaseProvider {
   private apiKey: string | null = null;
   /** Concrete store products to CHARGE, keyed by CATALOG productId. Under the
@@ -147,7 +221,12 @@ export class RevenueCatProvider<TPayload = unknown> implements PurchaseProvider 
     if (product === undefined) {
       throw new Error(`RevenueCatProvider: no store product for '${productId}'`);
     }
-    const result = await this.options.plugin.purchaseStoreProduct({ product });
+    let result: RevenueCatPurchaseResult;
+    try {
+      result = await this.options.plugin.purchaseStoreProduct({ product });
+    } catch (err) {
+      throw normalizeRevenueCatPurchaseError(err);
+    }
     const transactionId = result.transaction.transactionIdentifier ?? result.transaction.purchaseToken;
     if (transactionId !== null && product.price > 0 && /^[A-Z]{3}$/.test(product.currencyCode)) {
       this.options.onVerifiedPurchase?.({ productId: result.productIdentifier, revenue: product.price, currency: product.currencyCode, transactionId });
