@@ -169,7 +169,7 @@ describe('achievement collection page', () => {
     });
     document.querySelector<HTMLButtonElement>('[data-claim-achievement="a"]')!.click();
 
-    await vi.waitFor(() => expect(document.querySelector('[data-achievement-id="a"]')?.textContent).toContain('Reward collected'));
+    await vi.waitFor(() => expect(document.querySelector('[data-achievement-id="a"]')?.textContent).toContain('All tiers complete'));
     expect(gameState.claimAchievementReward).toHaveBeenCalledTimes(2);
   });
 
@@ -188,5 +188,106 @@ describe('achievement collection page', () => {
 
     await vi.waitFor(() => expect(button.disabled).toBe(false));
     expect(gameState.claimAchievementReward).toHaveBeenCalledTimes(2);
+  });
+
+  it('reveals the next earned tier after claiming without reopening or resetting scroll', async () => {
+    const achievements = [1, 2].map((threshold) => ({
+      id: `tier-${threshold}`, name: `Tier ${threshold}`, description: 'Desc', category: 'completion' as const,
+      milestoneKind: 'occurrence-count' as const, threshold, progressSource: 'totalCompletions' as const,
+      order: threshold, progress: 2, rewardStatus: 'unlocked-reward-claimable' as const,
+      entitledReward: { coins: 25 },
+    }));
+    const claimed = new Set<string>();
+    vi.spyOn(gameState, 'achievementReadProjection').mockImplementation(() => ({
+      status: 'ready', achievements: achievements.map((a) => ({ ...a, rewardStatus: claimed.has(a.id) ? 'reward-claimed' : a.rewardStatus })),
+    }));
+    vi.spyOn(gameState, 'walletSnapshot').mockImplementation(() => wallet(100 + claimed.size * 25, 5));
+    const allocate = vi.spyOn(gameState, 'allocateAchievementViewEvent').mockReturnValue(null);
+    vi.spyOn(gameState, 'drainAnalyticsOutbox').mockImplementation(() => undefined);
+    const claim = vi.spyOn(gameState, 'claimAchievementReward').mockImplementation((id) => {
+      if (claimed.has(id)) return null;
+      claimed.add(id);
+      return { achievementId: id, coins: 25, hints: 0 };
+    });
+    openPage('achievements');
+    const allocations = allocate.mock.calls.length;
+    const body = document.querySelector<HTMLElement>('.home-page-body')!;
+    body.scrollTop = 120;
+    const first = document.querySelector<HTMLButtonElement>('[data-claim-achievement="tier-1"]')!;
+    first.click(); first.click();
+    await vi.waitFor(() => expect(document.querySelector('[data-claim-achievement="tier-2"]')).not.toBeNull());
+    expect(document.querySelector('.home-page-body')).toBe(body);
+    expect(body.scrollTop).toBe(120);
+    document.querySelector<HTMLButtonElement>('[data-claim-achievement="tier-2"]')!.click();
+    await vi.waitFor(() => expect(document.querySelectorAll('[data-claim-achievement]')).toHaveLength(0));
+    expect(claim).toHaveBeenCalledTimes(2);
+    expect(allocate).toHaveBeenCalledTimes(allocations);
+    expect(document.querySelector('.achievement-header-coin-count')?.textContent).toBe('150');
+  });
+
+  it.each([false, true])('settles overlapping claims safely with page reopened=%s', async (reopen) => {
+    const claimed = new Set<string>();
+    const achievements = (['completion', 'dogs'] as const).flatMap((category) => [1, 2].map((threshold) => ({
+      id: `${category}-${threshold}`, name: `Tier ${threshold}`, description: 'Desc', category,
+      milestoneKind: 'occurrence-count' as const, threshold, progressSource: 'totalCompletions' as const,
+      order: threshold, progress: 2, rewardStatus: 'unlocked-reward-claimable' as const,
+      entitledReward: { coins: 25 },
+    })));
+    vi.spyOn(gameState, 'achievementReadProjection').mockImplementation(() => ({
+      status: 'ready', achievements: achievements.map((a) => ({ ...a, rewardStatus: claimed.has(a.id) ? 'reward-claimed' : a.rewardStatus })),
+    }));
+    vi.spyOn(gameState, 'walletSnapshot').mockImplementation(() => wallet(100 + claimed.size * 25, 5));
+    vi.spyOn(gameState, 'allocateAchievementViewEvent').mockReturnValue(null);
+    vi.spyOn(gameState, 'drainAnalyticsOutbox').mockImplementation(() => undefined);
+    const claim = vi.spyOn(gameState, 'claimAchievementReward').mockImplementation((id) => {
+      if (claimed.has(id)) return null;
+      claimed.add(id);
+      return { achievementId: id, coins: 25, hints: 0 };
+    });
+    const settle: Array<() => void> = [];
+    vi.mocked(animateCoinsToBalance)
+      .mockImplementationOnce(() => new Promise<void>((resolve) => settle.push(resolve)))
+      .mockImplementationOnce(() => new Promise<void>((resolve) => settle.push(resolve)));
+    openPage('achievements');
+    const oldPage = document.querySelector<HTMLElement>('#home-page-overlay')!;
+    const completion = oldPage.querySelector<HTMLButtonElement>('[data-claim-achievement="completion-1"]')!;
+    const birds = oldPage.querySelector<HTMLButtonElement>('[data-claim-achievement="dogs-1"]')!;
+    completion.click(); birds.click(); completion.click(); birds.click();
+    expect(claim).toHaveBeenCalledTimes(2);
+    expect(settle).toHaveLength(2);
+    if (reopen) {
+      closePage();
+      await vi.waitFor(() => expect(oldPage.isConnected).toBe(false), { timeout: 1000 });
+      openPage('achievements');
+    }
+    const page = document.querySelector<HTMLElement>('#home-page-overlay')!;
+    const completionBeforeSettlement = page.querySelector('.achievement-category');
+    // Finish the later-started transfer first: it must not replace the other ladder.
+    settle[1]();
+    await vi.waitFor(() => expect(page.querySelector('[data-claim-achievement="dogs-2"]')).not.toBeNull());
+    expect(page.querySelector('.achievement-category')).toBe(completionBeforeSettlement);
+    if (!reopen) expect(completion.isConnected && completion.disabled).toBe(true);
+    settle[0]();
+    await vi.waitFor(() => expect(page.querySelector('[data-claim-achievement="completion-2"]')).not.toBeNull());
+    expect(document.querySelector('#home-page-overlay')).toBe(page);
+    expect(page.querySelectorAll('[data-claim-achievement]')).toHaveLength(2);
+    expect(page.querySelector('.achievement-header-coin-count')?.textContent).toBe('150');
+    expect(claim).toHaveBeenCalledTimes(2);
+  });
+
+  it('keeps achievements open when scrolling the body but permits a header dismissal swipe', async () => {
+    vi.spyOn(gameState, 'achievementReadProjection').mockReturnValue({ status: 'ready', achievements: [] });
+    vi.spyOn(gameState, 'allocateAchievementViewEvent').mockReturnValue(null);
+    openPage('achievements');
+    const page = document.querySelector<HTMLElement>('#home-page-overlay')!;
+    await vi.waitFor(() => expect(page.classList.contains('home-page-overlay--open')).toBe(true));
+    const swipe = (target: Element) => {
+      target.dispatchEvent(new TouchEvent('touchstart', { bubbles: true, touches: [{ clientY: 100 } as Touch] }));
+      target.dispatchEvent(new TouchEvent('touchend', { bubbles: true, changedTouches: [{ clientY: 220 } as Touch] }));
+    };
+    swipe(page.querySelector('.home-page-body')!);
+    expect(page.classList.contains('home-page-overlay--open')).toBe(true);
+    swipe(page.querySelector('.home-page-header')!);
+    expect(page.classList.contains('home-page-overlay--open')).toBe(false);
   });
 });

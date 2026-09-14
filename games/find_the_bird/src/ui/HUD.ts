@@ -497,7 +497,7 @@ export function openPage(
     touchStartedInScrollableBody = e.target instanceof Element && e.target.closest('.home-page-body') !== null;
   }, { passive: true });
   page.addEventListener('touchend', (e) => {
-    if (id === 'shop' && touchStartedInScrollableBody) return;
+    if ((id === 'shop' || id === 'achievements') && touchStartedInScrollableBody) return;
     if (e.changedTouches[0].clientY - touchStartY >= 80) closePage();
   }, { passive: true });
 
