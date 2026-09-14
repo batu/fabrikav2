@@ -168,6 +168,7 @@ export function createSdkContext(deps: CreateSdkContextDependencies = {}): GameS
           audience: 'general',
           ...createAdMobCompositionOptions({
             analytics,
+            currentLevelIndex: () => gameState.currentLevelIndex,
             forwardAcquisitionValueEvent: (event) => forwardAcquisitionValueEvent(event),
           }),
         })
