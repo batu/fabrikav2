@@ -11,6 +11,12 @@
     "trackingUsageDescription": "Your data will be used to show you ads that are more relevant to you and to measure how well they work.",
     "localPackages": [
       {
+        "name": "CapacitorFirebaseAnalytics",
+        "path": "../../../../../node_modules/@capacitor-firebase/analytics",
+        "product": "CapacitorFirebaseAnalytics",
+        "traits": ["AnalyticsWithoutAdIdSupport"]
+      },
+      {
         "name": "CapacitorApp",
         "path": "../../../../../node_modules/@capacitor/app",
         "product": "CapacitorApp"
