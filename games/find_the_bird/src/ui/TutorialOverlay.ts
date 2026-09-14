@@ -9,6 +9,7 @@ export interface TutorialAnchor {
   available: number;
   total: number;
   onZoomStateEntered: () => void;
+  onZoomAlternative?: () => void;
   onStageChanged: (stage: TutorialStage, targetId: string | null) => void;
 }
 
@@ -17,6 +18,7 @@ export interface TutorialHandle {
   dismiss: (markShown?: boolean) => void;
   found: (id: string, next: string | null) => void;
   zoomed: () => void;
+  panned: (direction: 'left' | 'right') => void;
   hinted: (id: string) => void;
   readonly stage: TutorialStage;
   updateAnchor: (point: { x: number; y: number }, radius: number) => void;
@@ -55,30 +57,37 @@ export function showTutorialOverlay(anchor: TutorialAnchor): TutorialHandle {
   };
   const refreshGesture = (): void => {
     const name = sequence.stage === 'zoom' ? 'pinch' : 'tap';
-    const still = document.hidden || prefersReducedMotion();
+    const still = name === 'tap' || document.hidden || prefersReducedMotion();
     hand.src = `/ui/tutorial/${name}.${still ? 'png' : 'webp'}`;
+    hand.style.animationPlayState = document.hidden ? 'paused' : '';
   };
   const layout = (): void => {
     const stage = sequence.stage;
+    const gestureLesson = stage === 'zoom' || stage.startsWith('pan-');
     const hint = stage === 'hint' ? document.getElementById('hint-btn')?.getBoundingClientRect() : undefined;
     const center = stage === 'hint' && hint
       ? { x: hint.left + hint.width / 2, y: hint.top + hint.height / 2 }
-      : stage === 'zoom' || stage === 'objective'
+      : gestureLesson || stage === 'objective'
         ? { x: window.innerWidth / 2, y: window.innerHeight * 0.45 } : point;
     const r = stage === 'hint' && hint ? Math.max(hint.width, hint.height) / 2 + 8 : Math.max(22, radius + 8);
-    spotlight.hidden = stage === 'zoom' || stage === 'objective';
+    spotlight.hidden = gestureLesson || stage === 'objective';
     Object.assign(spotlight.style, { left: `${center.x - r}px`, top: `${center.y - r}px`, width: `${r * 2}px`, height: `${r * 2}px` });
     const width = Math.min(240, window.innerWidth - 32);
     const left = Math.max(16, Math.min(window.innerWidth - width - 16, center.x - width / 2));
-    const bubbleY = center.y - r - 90 < 85 ? center.y + r + 18 : center.y - r - 90;
+    // Keep the hand upright: reflect horizontally, never flip both axes
+    // (equivalent to a 180-degree rotation). Shift upward near the bottom edge.
+    const flipX = !gestureLesson && center.x + r * 0.55 + 123 > window.innerWidth - 8;
+    const handX = gestureLesson ? center.x - 80 : center.x + (flipX ? -1 : 1) * r * 0.55 - (flipX ? 123 : 37);
+    const handY = gestureLesson ? center.y - 40 : Math.min(center.y + r * 0.55 - 29, window.innerHeight - 270);
+    Object.assign(hand.style, { left: `${handX}px`, top: `${handY}px`, transform: `scaleX(${flipX ? -1 : 1})` });
+    hand.style.setProperty('--tap-x', `${flipX ? 6 : -6}px`);
+    hand.style.setProperty('--tap-y', '-6px');
+    // Reserve the entire animated hand canvas, including mirrored poses.
+    // Text also paints above artwork during camera recentering between stages.
+    const above = Math.min(center.y - r - 90, handY - 90);
+    const below = Math.max(center.y + r + 18, handY + 172);
+    const bubbleY = above >= 85 ? above : below;
     Object.assign(bubble.style, { width: `${width}px`, left: `${left}px`, top: `${Math.max(85, Math.min(window.innerHeight - 180, bubbleY))}px` });
-    // Source canvas padding: fingertip at 23%, 18%. Mirror toward free space
-    // near viewport edges so the hand remains beside, rather than over, its target.
-    const flipX = center.x + r * 0.55 + 123 > window.innerWidth - 8;
-    const flipY = center.y + r * 0.55 + 131 > window.innerHeight - 110;
-    const handX = center.x + (flipX ? -1 : 1) * r * 0.55 - (flipX ? 123 : 37);
-    const handY = center.y + (flipY ? -1 : 1) * r * 0.55 - (flipY ? 131 : 29);
-    Object.assign(hand.style, { left: `${handX}px`, top: `${handY}px`, transform: `scale(${flipX ? -1 : 1}, ${flipY ? -1 : 1})` });
     const lensSize = r / 0.28;
     Object.assign(magnifier.style, { width: `${lensSize}px`, height: `${lensSize}px`, left: `${center.x - lensSize * 0.43}px`, top: `${center.y - lensSize * 0.41}px` });
   };
@@ -91,6 +100,8 @@ export function showTutorialOverlay(anchor: TutorialAnchor): TutorialHandle {
         text.textContent = ['Tap this bird', 'Can you find this one?', 'Each bird you find counts here'][sequence.guidedFound];
         break;
       case 'zoom': text.textContent = 'Need a closer look? Pinch to zoom in'; break;
+      case 'pan-left': text.textContent = 'Drag left to explore the scene'; break;
+      case 'pan-right': text.textContent = 'Now drag right'; break;
       case 'zoomed-find': text.textContent = 'Now tap this bird'; break;
       case 'hint': text.textContent = 'Need help? Tap the hint'; break;
       case 'hinted-find': text.textContent = 'Tap the bird inside the hint'; break;
@@ -107,12 +118,13 @@ export function showTutorialOverlay(anchor: TutorialAnchor): TutorialHandle {
     if (stage === 'zoom') anchor.onZoomStateEntered();
   };
   const zoomed = (): void => { if (sequence.stage !== 'zoom') return; sequence.zoomed(); render(); };
-  button.addEventListener('click', () => { if (sequence.stage === 'zoom') zoomed(); else dismiss(); });
+  button.addEventListener('click', () => { if (sequence.stage === 'zoom') { anchor.onZoomAlternative?.(); zoomed(); } else dismiss(); });
   window.addEventListener('resize', layout);
   document.addEventListener('visibilitychange', refreshGesture);
   render();
   return {
     dismissed, dismiss, zoomed,
+    panned: (direction) => { const before = sequence.stage; sequence.panned(direction); if (sequence.stage !== before) render(); },
     get stage() { return sequence.stage; },
     found: (id, next) => { if (sequence.found(id, next)) render(); },
     hinted: (id) => { sequence.hinted(id); render(); },

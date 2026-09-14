@@ -1,4 +1,4 @@
-export type TutorialStage = 'guided' | 'zoom' | 'zoomed-find' | 'hint' | 'hinted-find' | 'objective' | 'dismissed';
+export type TutorialStage = 'guided' | 'zoom' | 'pan-left' | 'pan-right' | 'zoomed-find' | 'hint' | 'hinted-find' | 'objective' | 'dismissed';
 
 /** Input-driven tour. Artwork timing never advances the lesson. */
 export class TutorialSequence {
@@ -30,7 +30,12 @@ export class TutorialSequence {
   }
 
   zoomed(): void {
-    if (this.stage === 'zoom') this.stage = this.targetId === null ? 'objective' : 'zoomed-find';
+    if (this.stage === 'zoom') this.stage = this.targetId === null ? 'objective' : 'pan-left';
+  }
+
+  panned(direction: 'left' | 'right'): void {
+    if (this.stage === 'pan-left' && direction === 'left') this.stage = 'pan-right';
+    else if (this.stage === 'pan-right' && direction === 'right') this.stage = 'zoomed-find';
   }
 
   hinted(id: string): void {

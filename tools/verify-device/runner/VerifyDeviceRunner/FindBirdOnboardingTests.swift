@@ -12,10 +12,16 @@ final class FindBirdOnboardingTests: XCTestCase {
     }
 
     private func motion(_ name: String) {
-        for frame in 0..<16 {
+        for frame in 0..<8 {
             shot("\(name)-\(String(format: "%02d", frame))")
             RunLoop.current.run(until: Date().addingTimeInterval(0.12))
         }
+    }
+
+    private func settledShot(_ name: String) {
+        // Existing page rows stagger for up to 1.2 s; camera recenter takes 350 ms.
+        RunLoop.current.run(until: Date().addingTimeInterval(1.5))
+        shot(name)
     }
 
     private func text(_ app: XCUIApplication, _ label: String) -> XCUIElement {
@@ -38,7 +44,7 @@ final class FindBirdOnboardingTests: XCTestCase {
         if notifications.waitForExistence(timeout: 3) { shot("notification-permission"); notifications.tap() }
         let explanation = text(app, "PERSONALIZED ADS")
         if explanation.waitForExistence(timeout: 8) {
-            shot("01-tracking-explanation")
+            settledShot("01-tracking-explanation")
             app.buttons["Continue"].coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
             let deny = springboard.buttons["Ask App Not to Track"]
             if deny.waitForExistence(timeout: 8) { shot("02-native-att"); deny.tap() }
@@ -68,8 +74,14 @@ final class FindBirdOnboardingTests: XCTestCase {
         XCTAssertTrue(text(app, "Need a closer look? Pinch to zoom in").waitForExistence(timeout: 10))
         motion("pinch-instruction")
         app.webViews.firstMatch.pinch(withScale: 2.0, velocity: 1.0)
+        XCTAssertTrue(text(app, "Drag left to explore the scene").waitForExistence(timeout: 10))
+        motion("pan-left-instruction")
+        app.coordinate(withNormalizedOffset: CGVector(dx: 0.75, dy: 0.55)).press(forDuration: 0.1, thenDragTo: app.coordinate(withNormalizedOffset: CGVector(dx: 0.25, dy: 0.55)))
+        XCTAssertTrue(text(app, "Now drag right").waitForExistence(timeout: 10), "Actual leftward drag must advance")
+        motion("pan-right-instruction")
+        app.coordinate(withNormalizedOffset: CGVector(dx: 0.25, dy: 0.55)).press(forDuration: 0.1, thenDragTo: app.coordinate(withNormalizedOffset: CGVector(dx: 0.75, dy: 0.55)))
         XCTAssertTrue(text(app, "Now tap this bird").waitForExistence(timeout: 10), "Real pinch must advance lesson")
-        shot("zoomed-target")
+        settledShot("zoomed-target")
         target.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
         XCTAssertTrue(text(app, "Need help? Tap the hint").waitForExistence(timeout: 10))
         shot("hint-lesson")
@@ -90,7 +102,7 @@ final class FindBirdOnboardingTests: XCTestCase {
         play.tap()
         XCTAssertTrue(text(app, "0/19").waitForExistence(timeout: 40), "Returning player must actually enter gameplay")
         XCTAssertFalse(text(app, "Tap this bird").exists, "Completed player must skip tutorial on relaunch")
-        shot("returning-player")
+        settledShot("returning-player")
     }
 
     func testOrdinaryFeedbackAndSettings() throws {
@@ -117,7 +129,7 @@ final class FindBirdOnboardingTests: XCTestCase {
             XCTAssertTrue(text(app, "\(index + 1)/19").exists, "Physical tap must find the visible bird")
         }
         app.buttons["Settings"].tap()
-        shot("settings-open")
+        settledShot("settings-open")
         XCTAssertTrue(text(app, "Settings").waitForExistence(timeout: 5))
         app.buttons["Go back"].tap()
         // Existing page-close behavior returns to Home, then starts a new level attempt.
@@ -129,7 +141,7 @@ final class FindBirdOnboardingTests: XCTestCase {
         shot("ordinary-hint")
         app.buttons["Buy more coins"].tap()
         XCTAssertTrue(text(app, "Shop").waitForExistence(timeout: 5))
-        shot("shop-open")
+        settledShot("shop-open")
         app.buttons["Go back"].tap()
         XCTAssertTrue(play.waitForExistence(timeout: 5))
         shot("shop-return")

@@ -300,6 +300,8 @@ export class GameScene extends Phaser.Scene {
   private lastTutorialView: { l: number; t: number; w: number; viewportW: number; viewportH: number } | null = null;
   /** Zoom-lesson watch: camera zoom captured at zoom-step entry. */
   private tutorialZoomBaseline: number | null = null;
+  private tutorialPanPrevious: number | null = null;
+  private tutorialPanDistance = 0;
 
   /** Active rate-prompt handle. Set while a rate prompt is on screen. */
   ratePromptHandle: RatePromptHandle | null = null;
@@ -638,11 +640,22 @@ export class GameScene extends Phaser.Scene {
     if (
       this.tutorialHandle &&
       this.tutorialZoomBaseline !== null &&
-      this.pinchZoom?.isPinching === true &&
+      this.pinchZoom?.isPinching === false &&
       this.cameras.main.zoom > this.tutorialZoomBaseline + TUTORIAL_ZOOM_COMPLETE_DELTA
     ) {
       this.tutorialZoomBaseline = null;
       this.tutorialHandle.zoomed();
+    }
+
+    const panStage = this.tutorialHandle?.stage;
+    if (panStage === 'pan-left' || panStage === 'pan-right') {
+      const scroll = this.cameras.main.scrollX;
+      if (this.pinchZoom?.isPanning && !this.pinchZoom.isPinching && this.tutorialPanPrevious !== null) {
+        const cssDelta = (scroll - this.tutorialPanPrevious) / this.cameras.main.worldView.width * window.innerWidth;
+        this.tutorialPanDistance = Math.max(0, this.tutorialPanDistance + cssDelta * (panStage === 'pan-left' ? 1 : -1));
+        if (this.tutorialPanDistance >= 48) this.tutorialHandle?.panned(panStage === 'pan-left' ? 'left' : 'right');
+      }
+      this.tutorialPanPrevious = scroll;
     }
 
     this.updateHintEdgeArrow();
@@ -1395,7 +1408,7 @@ export class GameScene extends Phaser.Scene {
       return;
     }
 
-    if (this.tutorialHandle && ['zoom', 'hint', 'objective'].includes(this.tutorialHandle.stage)) return;
+    if (this.tutorialHandle && ['zoom', 'pan-left', 'pan-right', 'hint', 'objective'].includes(this.tutorialHandle.stage)) return;
 
     // First-time tutorial, "Tap the bird" phase (pulsing ring up): only the
     // spotlighted target is interactive. Taps on other birds and wrong-tap
@@ -2081,7 +2094,19 @@ export class GameScene extends Phaser.Scene {
       targetId: dog.id,
       available: this.level!.dogs.filter((d) => !gameState.foundDogIds.has(d.id)).length,
       total: this.level!.dogs.length,
-      onStageChanged: (_stage, id) => this.anchorTutorialTarget(id),
+      onStageChanged: (stage, id) => {
+        this.tutorialPanPrevious = null;
+        this.tutorialPanDistance = 0;
+        if (stage === 'pan-left') {
+          // A minimal qualifying pinch can leave <48 CSS px of total travel.
+          // Prepare room in both directions after the pinch has been released.
+          const camera = this.cameras.main;
+          camera.setZoom(Math.max(camera.zoom, 1.6));
+          camera.centerOnX(camera.getBounds().centerX);
+        }
+        this.anchorTutorialTarget(stage.startsWith('pan-') ? null : id);
+      },
+      onZoomAlternative: () => this.cameras.main.setZoom(1.6),
       onZoomStateEntered: () => {
         this.tutorialZoomBaseline = this.cameras.main.zoom;
       },

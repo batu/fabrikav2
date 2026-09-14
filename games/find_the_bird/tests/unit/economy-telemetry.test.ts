@@ -23,7 +23,7 @@ beforeEach(() => {
 afterEach(() => { vi.restoreAllMocks(); vi.unstubAllGlobals(); setRewardedAdResultForTest(null); document.body.innerHTML = ''; });
 
 describe('hint offer telemetry', () => {
-  it.each(['guided', 'zoom', 'zoomed-find', 'hinted-find', 'objective'])('keeps the shop closed during tutorial %s', (stage) => {
+  it.each(['guided', 'zoom', 'pan-left', 'pan-right', 'zoomed-find', 'hinted-find', 'objective'])('keeps the shop closed during tutorial %s', (stage) => {
     initHUD();
     const tutorial = document.createElement('div');
     tutorial.id = 'tutorial-overlay';
