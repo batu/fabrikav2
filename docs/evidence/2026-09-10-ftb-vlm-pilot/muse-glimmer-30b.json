@@ -1,0 +1,94 @@
+{
+  "prompt": "Compare two images of the same game scene crop. Image 1 is BEFORE a pickup; image 2 is AFTER. The target bird is at the center of image 1. Only that bird should disappear; other birds and scenery should remain. Is any visible part of the target bird still left in image 2 (tail, feather, feet, outline, body fragment)? Distinguish actual target fragments from nearby birds, leaves, branches, shadows, and normal scenery. Do not assume there is residue. Return JSON only: {\"residue\":\"yes|no|uncertain\",\"location\":\"where in image 2, or none\",\"evidence\":\"brief concrete visual comparison\"}.",
+  "model": "muse-glimmer:30b",
+  "results": [
+    {
+      "levelId": "hawaii_rainforest_waterfall_bird_0f98",
+      "dogId": "dog_12",
+      "elapsedSeconds": 27.49,
+      "response": {
+        "model": "muse-glimmer:30b",
+        "created_at": "2026-09-10T08:41:56.741885617Z",
+        "message": {
+          "role": "assistant",
+          "content": "{\"residue\":\"no\",\"location\":\"none\",\"evidence\":\"The central sparrow-like bird with brown wings, white belly, speckled chest, and brown tail is fully present in image 1 and is completely absent in image 2. Its tail, wings, feet, and body outline are gone, leaving only the brown ground, leaves, and flowers. The red-cheeked bird at top left and the partial bird on the right remain unchanged, confirming no fragment of the target bird persists.\"}<|eot|>"
+        },
+        "done": true,
+        "done_reason": "stop",
+        "total_duration": 27083794644,
+        "load_duration": 18347384214,
+        "prompt_eval_count": 773,
+        "prompt_eval_cached_count": 0,
+        "prompt_eval_duration": 6580374000,
+        "eval_count": 102,
+        "eval_duration": 2102940000
+      }
+    },
+    {
+      "levelId": "hawaii_rainforest_waterfall_bird_0f98",
+      "dogId": "dog_04",
+      "elapsedSeconds": 19.47,
+      "response": {
+        "model": "muse-glimmer:30b",
+        "created_at": "2026-09-10T08:42:16.50038289Z",
+        "message": {
+          "role": "assistant",
+          "content": "{\"residue\":\"no\",\"location\":\"none\",\"evidence\":\"The red-crested bird peeking from the rock crevice in image 1 is completely absent in image 2; the green moss, plant stem, rock edge and the two other birds remain unchanged with no outline, feather or body fragment left behind.\"}<|eot|>"
+        },
+        "done": true,
+        "done_reason": "stop",
+        "total_duration": 19159120165,
+        "load_duration": 17113714771,
+        "prompt_eval_count": 773,
+        "prompt_eval_cached_count": 0,
+        "prompt_eval_duration": 661125000,
+        "eval_count": 66,
+        "eval_duration": 1327267000
+      }
+    },
+    {
+      "levelId": "ad_campaigns_ad_cozy_library_bird_e654",
+      "dogId": "dog_12",
+      "elapsedSeconds": 21.3,
+      "response": {
+        "model": "muse-glimmer:30b",
+        "created_at": "2026-09-10T08:42:38.076602284Z",
+        "message": {
+          "role": "assistant",
+          "content": "{\"residue\":\"no\",\"location\":\"none\",\"evidence\":\"The bird that is standing on the scroll in image 1 is completely absent in image 2. The scroll is now empty, the floor area where the bird\u2019s body, head, beak, feet and tail were is clear, and no outline or fragment remains. All other elements\u2014books on the shelf, the stacked books on the floor, the open book in the foreground, the scroll itself\u2014are unchanged.\"}<|eot|>"
+        },
+        "done": true,
+        "done_reason": "stop",
+        "total_duration": 20809608439,
+        "load_duration": 18070795221,
+        "prompt_eval_count": 773,
+        "prompt_eval_cached_count": 0,
+        "prompt_eval_duration": 656586000,
+        "eval_count": 98,
+        "eval_duration": 2026174000
+      }
+    },
+    {
+      "levelId": "ad_campaigns_ad_cozy_library_bird_e654",
+      "dogId": "dog_09",
+      "elapsedSeconds": 20.42,
+      "response": {
+        "model": "muse-glimmer:30b",
+        "created_at": "2026-09-10T08:42:58.72799373Z",
+        "message": {
+          "role": "assistant",
+          "content": "{\"residue\":\"no\",\"location\":\"none\",\"evidence\":\"The bird perched on the library ladder in the center of image 1 is completely absent in image 2. The ladder rungs, bookshelf, lamp, armchair bird, and lower bird remain unchanged; no tail, feather, outline, or body fragment of the ladder bird persists in image 2.\"}<|eot|>"
+        },
+        "done": true,
+        "done_reason": "stop",
+        "total_duration": 20077742415,
+        "load_duration": 17774732588,
+        "prompt_eval_count": 773,
+        "prompt_eval_cached_count": 0,
+        "prompt_eval_duration": 659804000,
+        "eval_count": 77,
+        "eval_duration": 1584824000
+      }
+    }
+  ]
+}

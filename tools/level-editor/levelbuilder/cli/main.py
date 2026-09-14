@@ -1392,6 +1392,28 @@ def cmd_verify_cutouts(args: argparse.Namespace) -> None:
     _emit(args, {"ok": True, "sessions": results})
 
 
+def cmd_evaluate_placements(args: argparse.Namespace) -> None:
+    from levelbuilder.api.placement_eval import evaluate_catalog
+    from levelbuilder.settings import resolve_game
+
+    root = resolve_game(args.game).game_root / "public" / "levels"
+    try:
+        report = evaluate_catalog(
+            root, Path(args.catalog) if args.catalog else root / "catalog-manifest.json",
+            Path(args.out), args.sam3_command, args.level,
+            progress=lambda message: print(message, file=sys.stderr),
+        )
+    except (OSError, ValueError, KeyError, RuntimeError) as error:
+        raise CliError("placement_audit_failed", str(error)) from error
+    result = {"out": args.out, "levels": len(report["levels"]),
+              "inputsUnchanged": report["inputsUnchanged"],
+              "report": str(Path(args.out) / "report" / "index.html")}
+    failures = sum(level["summary"]["errors"] for level in report["levels"])
+    if failures:
+        raise CliError("placement_audit_partial", f"{failures} birds have evaluation errors", context=result)
+    _emit(args, result)
+
+
 def cmd_evaluate_sprites(args: argparse.Namespace) -> None:
     # Local, server-free: deterministic sprite-quality axes over an exported corpus.
     from levelbuilder.api.sprite_eval import evaluate_corpus, evaluate_level_dir
@@ -1977,6 +1999,13 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--vlm", action="store_true", help="add one vision-model review call per level")
     p.add_argument("--vlm-model", default="google/gemini-3.8-flash")
     p.add_argument("--out-dir", help="write contact sheets here instead of the session directory")
+
+    p = verb("evaluate-placements", cmd_evaluate_placements, needs_client=False)
+    p.add_argument("--game", required=True)
+    p.add_argument("--out", required=True, help="output directory outside the levels tree")
+    p.add_argument("--sam3-command", required=True, help="JSON-lines GPU worker command; no local shell expansion")
+    p.add_argument("--catalog", help="catalog manifest (default: game's catalog-manifest.json)")
+    p.add_argument("--level", action="append", help="limit to selected catalog level IDs")
 
     p = verb("evaluate-sprites", cmd_evaluate_sprites, needs_client=False)
     p.add_argument("--game")
