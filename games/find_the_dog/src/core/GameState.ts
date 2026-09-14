@@ -792,9 +792,9 @@ export class GameState {
       hintsGranted = this.applyHintGrant(safeHintRewardAmount, 'reward hint grant amount');
       // Only consume the cycle when the reward actually lands (or there is
       // nothing to land). When the player is at MAX_HINT_BALANCE the grant
-      // yields 0; holding the accumulated count (>= goal) until there is
-      // room mirrors grantRewardedHint, which does not consume its daily
-      // slot when applyHintGrant yields 0. Without this guard the count
+      // yields 0; hold the accumulated count (>= goal) until there is
+      // room for this ordinary free grant. Rewarded ads settle separately
+      // without this balance cap. Without this guard the count
       // was wiped to 0 on every goal-crossing while capped — a live bug
       // for hint-hoarding players, who start at the cap by default.
       if (hintsGranted > 0 || safeHintRewardAmount === 0) {
@@ -1062,19 +1062,38 @@ export class GameState {
     return this._rewardedHintsToday >= MAX_REWARDED_HINTS_PER_DAY;
   }
 
-  /**
-   * Grant +1 hint from a watched rewarded ad. Rolls over the daily counter
-   * if we've crossed midnight since the last grant. Returns false if already capped.
-   */
+  private rewardedHintPending = false;
+
+  canStartRewardedHint(amount: number = this.hintsRemaining === 0 ? 2 : 1): boolean {
+    if (amount !== 1 && amount !== 2) return false;
+    return !this.rewardedHintPending && !this.isRewardedHintCapped();
+  }
+
+  /** Reserve one ad opportunity before showing it. The returned settlement is one-shot. */
+  beginRewardedHint(amount: number): ((granted: boolean) => number) | null {
+    if (!this.canStartRewardedHint(amount)) return null;
+    this.rewardedHintPending = true;
+    let settled = false;
+    return (granted: boolean): number => {
+      if (settled) return 0;
+      settled = true;
+      this.rewardedHintPending = false;
+      if (!granted) return 0;
+      this.rolloverRewardedIfNeeded();
+      // Rewarded top-ups are independent of ordinary free-accrual balance caps.
+      // Settle the captured promise in full, even after a concurrent balance change.
+      this._hintBalance += amount;
+      this._walletCounters.hintsGranted += amount;
+      this._walletCounters.rewardedHintGrants += amount;
+      this._rewardedHintsToday += 1;
+      this.save();
+      return amount;
+    };
+  }
+
+  /** Immediate grant used by the test harness; runtime ads reserve before awaiting. */
   grantRewardedHint(): boolean {
-    this.rolloverRewardedIfNeeded();
-    if (this._rewardedHintsToday >= MAX_REWARDED_HINTS_PER_DAY) return false;
-    const appliedHintAmount = this.applyHintGrant(1, 'rewarded hint grant amount');
-    if (appliedHintAmount === 0) return false;
-    this._walletCounters.rewardedHintGrants += appliedHintAmount;
-    this._rewardedHintsToday += 1;
-    this.save();
-    return true;
+    return (this.beginRewardedHint(this.hintsRemaining === 0 ? 2 : 1)?.(true) ?? 0) > 0;
   }
 
   /**
