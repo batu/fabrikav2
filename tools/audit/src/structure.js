@@ -162,6 +162,8 @@ export function lintStructure(root) {
   const workOk = workIsGitignored(root);
 
   for (const gameDir of listDirs(join(root, 'games'))) {
+    // Shared rendering utilities are library code, not a playable game root.
+    if (gameDir === join(root, 'games', 'shared')) continue;
     const game = rel(root, gameDir);
     let entries;
     try {
