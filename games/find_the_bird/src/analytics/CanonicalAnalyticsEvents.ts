@@ -47,6 +47,7 @@ const levelAttributionFields = [
 ] as const;
 
 const economyFields = ['flow_type', 'currency', 'amount', 'item_type', 'item_id', 'product_id', 'no_ads', 'hints', 'coins', 'continue_level', 'level_id'] as const;
+const economySnapshotFields = ['display_level_number', 'coins', 'hints', 'total_completions', 'rewarded_hint_capped', 'rewarded_hints_today'] as const;
 const adRevenueFields = ['ad_type', 'placement', 'provider', 'currency', 'precision', 'network_name'] as const;
 const runtimeIdentityFields = ['native_app_version', 'native_build_number', 'app_version', 'build', 'platform', 'game', 'environment', 'cohort_bucket'] as const;
 
@@ -424,10 +425,11 @@ export const canonicalAnalyticsEvents = [
     gameAnalyticsName: 'offer:shown',
     family: 'design',
     panel: 'store',
-    question: 'Hint booster and continue offer exposure.',
+    question: 'Hint booster offer exposure and affordability.',
     primaryDimensions: ['offer_type', 'placement'],
-    instrumentationStatus: 'contract',
+    instrumentationStatus: 'runtime',
     successBoundary: 'Offer UI becomes visible.',
+    allowedGameAnalyticsCustomFields: ['offer_type', 'placement', 'status', 'coin_price', 'hint_amount', ...economySnapshotFields],
   },
   {
     id: 'offer_outcome',
@@ -435,10 +437,35 @@ export const canonicalAnalyticsEvents = [
     gameAnalyticsName: 'offer:outcome',
     family: 'design',
     panel: 'store',
-    question: 'Offer acceptance or decline.',
+    question: 'Hint offer selection or decline, independent of transaction success.',
     primaryDimensions: ['offer_type', 'outcome'],
-    instrumentationStatus: 'contract',
-    successBoundary: 'Player accepts or declines an offer.',
+    instrumentationStatus: 'runtime',
+    successBoundary: 'Player selects an enabled hint option or dismisses the chooser. Selection does not imply successful payment or grant; resource events record those.',
+    allowedGameAnalyticsCustomFields: ['offer_type', 'placement', 'outcome', ...economySnapshotFields],
+  },
+  {
+    id: 'economy_snapshot',
+    firebaseName: 'economy_snapshot',
+    gameAnalyticsName: 'economy:snapshot',
+    family: 'design',
+    panel: 'economy',
+    question: 'Observed wallet balances at level start, hint use and zero-hint encounters.',
+    primaryDimensions: ['reason', 'display_level_number'],
+    instrumentationStatus: 'runtime',
+    successBoundary: 'Runtime reads the wallet at the named boundary.',
+    allowedGameAnalyticsCustomFields: ['reason', ...economySnapshotFields],
+  },
+  {
+    id: 'rewarded_attempt',
+    firebaseName: 'rewarded_attempt',
+    gameAnalyticsName: 'rewarded:attempt',
+    family: 'design',
+    panel: 'ads',
+    question: 'Optional reward attempts and provider results before local grants.',
+    primaryDimensions: ['placement', 'outcome'],
+    instrumentationStatus: 'runtime',
+    successBoundary: 'Player requests a reward; provider resolves granted/not_granted or throws. Not independent video-completion evidence.',
+    allowedGameAnalyticsCustomFields: ['placement', 'outcome', ...economySnapshotFields],
   },
   {
     id: 'ad_requested',

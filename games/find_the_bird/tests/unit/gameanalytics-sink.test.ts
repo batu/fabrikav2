@@ -12,6 +12,18 @@ function event(name: string, params: AnalyticsEvent['params']): AnalyticsEvent {
 }
 
 describe('GameAnalytics AnalyticsSink', () => {
+  it('preserves economy funnel dimensions and zero balances at the GA SDK boundary', async () => {
+    const sdk = gameAnalyticsSdk();
+    const sink = createGameAnalyticsSink(validConfig(), { loader: async () => sdk });
+    for (const name of ['offer_shown', 'offer_outcome', 'economy_snapshot', 'rewarded_attempt']) {
+      sink.emit(event(name, { coins: 0, hints: 0, rewarded_hint_capped: false, placement: 'hint_button', outcome: 'not_granted', status: 'insufficientCoins', reason: 'hint_offer' }));
+    }
+    await sink.flush?.();
+    for (const name of ['offer:shown', 'offer:outcome', 'economy:snapshot', 'rewarded:attempt']) {
+      expect(sdk.GameAnalytics.addDesignEvent).toHaveBeenCalledWith(name, undefined, expect.objectContaining({ coins: '0', hints: '0', rewarded_hint_capped: 'false' }));
+    }
+    expect(sdk.GameAnalytics.addDesignEvent).toHaveBeenCalledWith('rewarded:attempt', undefined, expect.objectContaining({ placement: 'hint_button', outcome: 'not_granted' }));
+  });
   it.each(['empty', 'rejected', 'timeout'])('does not emit unidentifiable native traffic when app info is %s', async (failure) => {
     vi.spyOn(Capacitor, 'isNativePlatform').mockReturnValue(true);
     vi.mocked(App.getInfo).mockImplementation(() => failure === 'timeout'

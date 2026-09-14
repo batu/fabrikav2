@@ -161,7 +161,6 @@ const LEVEL_ASSET_CACHE_DB_NAME = 'ftd-level-assets-v2';
 const LEGACY_ASSET_CACHE_DB_NAMES = ['ftd-assets', 'ftd-assets-blobs', 'ftd-assets-index'];
 const ROLLING_CACHE_SYNC_DELAY_MS = 5_000;
 const ROLLING_CACHE_IDLE_TIMEOUT_MS = 10_000;
-const RUNTIME_ROLLING_CACHE_LOOKAHEAD_COUNT = 2;
 let legacyAssetCacheCleanupStarted = false;
 let cachedIndex: LevelIndexEntry[] | null = null;
 let levelIndexPromise: Promise<LevelIndexEntry[]> | null = null;
@@ -763,7 +762,11 @@ async function startRollingCacheSync(
     catalog,
     cache: getAssetCache(),
     fetchAsset: fetchPackageAssetForCache,
-    lookaheadCount: RUNTIME_ROLLING_CACHE_LOOKAHEAD_COUNT,
+    // Match the download lead to this app's playable starter bundle, not the
+    // CDN's bundled flags (which may describe a different app build).
+    lookaheadCount: bundledManifestSnapshot?.levels.filter((level) => (
+      level.bundled && isPlayableLevelAspect(level.width, level.height)
+    )).length ?? 0,
   });
   lastPackageRetentionPlan = result.retentionPlan;
 }

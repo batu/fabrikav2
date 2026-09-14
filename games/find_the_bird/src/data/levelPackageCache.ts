@@ -268,17 +268,21 @@ function descriptorFromCatalogEntry(
   manifestEntry: ManifestLevelEntry,
   catalogEntry: RuntimeCatalogManifestLevel,
   catalogRevision: string,
+  hasServingManifestEntry: boolean,
 ): LevelPackageDescriptor | null {
   if (typeof catalogEntry.packageId !== 'string' || catalogEntry.packageId.trim().length === 0) return null;
   const manifestAssetsList = manifestAssets(manifestEntry);
   const requiredAssetResult = catalogRequiredAssets(catalogEntry, manifestEntry);
   const useManifestAssets = requiredAssetResult.allResolved
     && catalogAssetHashesDifferFromManifest(requiredAssetResult.assets, manifestAssetsList);
-  const requiredAssets = useManifestAssets
-    ? replaceStaleCatalogAssetsWithManifest(requiredAssetResult.assets, manifestAssetsList)
-    : requiredAssetResult.assets;
+  // A serving manifest describes the complete asset set used by this runtime.
+  // Old catalog packages can still list generated bw.png or removed sprites;
+  // retaining those requirements makes prefetch abort on files the game never loads.
+  let requiredAssets = requiredAssetResult.assets;
+  if (hasServingManifestEntry) requiredAssets = manifestAssetsList;
+  else if (useManifestAssets) requiredAssets = replaceStaleCatalogAssetsWithManifest(requiredAssetResult.assets, manifestAssetsList);
   const complete = catalogEntry.package?.complete === true
-    && (useManifestAssets || requiredAssetResult.allResolved)
+    && (hasServingManifestEntry || useManifestAssets || requiredAssetResult.allResolved)
     && requiredAssets.length > 0;
   return {
     levelId: catalogEntry.id,
@@ -303,9 +307,10 @@ export function buildPackageCatalogSnapshot(
 
   if (catalogManifest !== null && catalogManifest !== undefined) {
     for (const catalogEntry of catalogManifest.levels) {
-      const manifestEntry = manifestById.get(catalogEntry.id) ?? manifestEntryFromCatalogLevel(catalogEntry);
+      const servingManifestEntry = manifestById.get(catalogEntry.id);
+      const manifestEntry = servingManifestEntry ?? manifestEntryFromCatalogLevel(catalogEntry);
       if (manifestEntry === null || manifestEntry === undefined) continue;
-      const descriptor = descriptorFromCatalogEntry(manifestEntry, catalogEntry, catalogManifest.catalogRevision);
+      const descriptor = descriptorFromCatalogEntry(manifestEntry, catalogEntry, catalogManifest.catalogRevision, servingManifestEntry !== undefined);
       if (descriptor !== null) packagesByLevelId.set(descriptor.levelId, descriptor);
     }
     return {
