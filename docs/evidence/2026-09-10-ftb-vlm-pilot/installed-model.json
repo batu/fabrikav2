@@ -1,0 +1,71 @@
+{
+  "runtimeVersion": "0.34.0",
+  "models": [
+    {
+      "name": "muse-glimmer:30b",
+      "model": "muse-glimmer:30b",
+      "modified_at": "2026-09-10T01:40:59.590528641-07:00",
+      "size": 18157010252,
+      "digest": "de878ce33ad81d060001db1469a02eebe4d86f0ad58cfe52dc062fdcbe4464c1",
+      "details": {
+        "parent_model": "muse-glimmer:30b-q4_K_M",
+        "format": "gguf",
+        "family": "muse-glimmer",
+        "families": [
+          "muse-glimmer"
+        ],
+        "parameter_size": "27.9B",
+        "quantization_level": "Q4_K_M",
+        "context_length": 131072,
+        "embedding_length": 6656
+      },
+      "capabilities": [
+        "completion",
+        "tools",
+        "thinking",
+        "vision"
+      ]
+    },
+    {
+      "name": "qwen3.8:27b",
+      "model": "qwen3.8:27b",
+      "modified_at": "2026-09-10T01:32:04.947963406-07:00",
+      "size": 17741872154,
+      "digest": "22130167c4c20e20c7b71454612966ca8e8171e9b3cc8ab6ce8aa6cbfec79643",
+      "details": {
+        "parent_model": "qwen3.8:27b-q4_K_M",
+        "format": "gguf",
+        "family": "qwen35",
+        "families": [
+          "qwen35"
+        ],
+        "parameter_size": "27.3B",
+        "quantization_level": "Q4_K_M",
+        "context_length": 262144,
+        "embedding_length": 5120
+      },
+      "capabilities": [
+        "completion",
+        "tools",
+        "thinking",
+        "vision"
+      ]
+    }
+  ],
+  "details": {
+    "parent_model": "qwen3.8:27b-q4_K_M",
+    "format": "gguf",
+    "family": "qwen35",
+    "families": [
+      "qwen35"
+    ],
+    "parameter_size": "27.3B",
+    "quantization_level": "Q4_K_M"
+  },
+  "capabilities": [
+    "completion",
+    "vision",
+    "tools",
+    "thinking"
+  ]
+}
