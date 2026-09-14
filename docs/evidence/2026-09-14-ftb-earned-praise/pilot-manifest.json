@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "game": "find_the_bird",
+  "catalog": {
+    "path": "games/find_the_bird/public/levels/catalog-manifest.json",
+    "sha256": "bc445ae97ac8985e1295a25e0c4212f9506e51b67862819e88acafbdcdd5e9f7"
+  },
+  "bundledManifest": {
+    "path": "games/find_the_bird/public/levels/bundled-manifest.json",
+    "sha256": "8cf5a2815312fe8ee66aeccd460752b98c17bbfe25704194ed7b0cdc62bb1e08"
+  },
+  "levels": [
+    {
+      "levelId": "square_hawaii_waterfall_flash_4k",
+      "levelJson": {
+        "path": "games/find_the_bird/public/levels/square_hawaii_waterfall_flash_4k/level.json",
+        "sha256": "41c3c4fac8a192be060306b5143d87eb8e11895fa33e9cf0159dce798072c330"
+      },
+      "colorImage": {
+        "path": "games/find_the_bird/public/levels/square_hawaii_waterfall_flash_4k/color.png",
+        "sha256": "a85b616fccee4f580c5ff178ab7a048cfbc53ad00cf30ba932350cd846593ab6"
+      },
+      "spriteSetSha256": "b2dd67c570b80fe619e710812d6012b957d530512bcb67c06a66b8c877559461"
+    },
+    {
+      "levelId": "turkey_cappadocia_balloon_dawn_bird_b03c",
+      "levelJson": {
+        "path": "games/find_the_bird/public/levels/turkey_cappadocia_balloon_dawn_bird_b03c/level.json",
+        "sha256": "2738d204693679bb80b86f7bc91a7bd60b7f62035b064490228ffff1ef3a4c92"
+      },
+      "colorImage": {
+        "path": "games/find_the_bird/public/levels/turkey_cappadocia_balloon_dawn_bird_b03c/color.png",
+        "sha256": "e9aff3e9b3550d2b6b7b157f3782d8f8aa3121dab72274a02f0da64864340233"
+      },
+      "spriteSetSha256": "839d8fe862580ccaee4de1f1f3067b77bf5f9f7aaa13019eec375f8c97eb619e"
+    },
+    {
+      "levelId": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+      "levelJson": {
+        "path": "games/find_the_bird/public/levels/cozy_interiors_cozy_toymaker_workshop_bird_4e44/level.json",
+        "sha256": "8e75e9a9af4677e4e8726f230261318b55b449f25dbc1d3200e31f14c0c7bbd2"
+      },
+      "colorImage": {
+        "path": "games/find_the_bird/public/levels/cozy_interiors_cozy_toymaker_workshop_bird_4e44/color.png",
+        "sha256": "cc3539da85a3d283d463e922b73f9344e63b0fb284f42d931f9385a12c7b3b8f"
+      },
+      "spriteSetSha256": "c75ab6daeef58cc902e34063b0606dde72822706322f3e8a7e775f84301a9e95"
+    }
+  ]
+}

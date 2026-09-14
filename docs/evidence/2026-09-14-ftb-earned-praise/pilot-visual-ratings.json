@@ -1,0 +1,393 @@
+{
+  "schemaVersion": 1,
+  "method": "subjective visual context review; existing Dog 1\u20135 half-step methodology",
+  "reviewedAt": "2026-09-15",
+  "blindDetection": false,
+  "humanCalibration": "pending",
+  "providerCalls": 0,
+  "hardThreshold": 4,
+  "reviewScope": "Four scene overviews and all 68 target context crops; current served WebP for bundled scenes, mapped from level coordinates to resized artwork. Physical device zoom confirmation pending.",
+  "sourceMethodology": "docs/evidence/2026-09-08-ftd-difficulty-scorer/full-catalog/evidence.md",
+  "levels": [
+    {
+      "levelId": "square_hawaii_waterfall_flash_4k",
+      "levelJsonSha256": "41c3c4fac8a192be060306b5143d87eb8e11895fa33e9cf0159dce798072c330",
+      "artworkPath": "games/find_the_bird/public/levels/square_hawaii_waterfall_flash_4k/color.png",
+      "artworkSha256": "a85b616fccee4f580c5ff178ab7a048cfbc53ad00cf30ba932350cd846593ab6",
+      "targetCount": 15,
+      "targets": [
+        {
+          "id": "dog_00",
+          "rating": 2,
+          "reason": "Green wing shares foliage tones; complete outline on an open path."
+        },
+        {
+          "id": "dog_01",
+          "rating": 1,
+          "reason": "Large white body contrasts strongly with dark green rock."
+        },
+        {
+          "id": "dog_02",
+          "rating": 1.5,
+          "reason": "Blue silhouette stands out against the brown ground."
+        },
+        {
+          "id": "dog_03",
+          "rating": 2,
+          "reason": "Brown plumage shares earth tones but large body and pale breast remain clear."
+        },
+        {
+          "id": "dog_04",
+          "rating": 1,
+          "reason": "Purple body isolated on bridge planks."
+        },
+        {
+          "id": "dog_05",
+          "rating": 2,
+          "reason": "Small dark bird shares shaded rock tones, but pale face and book make it readable."
+        },
+        {
+          "id": "dog_06",
+          "rating": 1,
+          "reason": "Bright yellow bird isolated on open path."
+        },
+        {
+          "id": "dog_07",
+          "rating": 2,
+          "reason": "Grey/green body partly blends with leaves; yellow breast and open outline remain visible."
+        },
+        {
+          "id": "dog_08",
+          "rating": 1.5,
+          "reason": "Orange body contrasts with foliage and water."
+        },
+        {
+          "id": "dog_09",
+          "rating": 1.5,
+          "reason": "Small blue bird with conspicuous easel and white eyes."
+        },
+        {
+          "id": "dog_10",
+          "rating": 1,
+          "reason": "Bright red/yellow silhouette on green rock."
+        },
+        {
+          "id": "dog_11",
+          "rating": 2.5,
+          "reason": "Green/teal tones blend with water and moss; exposed outline remains legible."
+        },
+        {
+          "id": "dog_12",
+          "rating": 1.5,
+          "reason": "Brown body contrasts with pale waterfall and water."
+        },
+        {
+          "id": "dog_13",
+          "rating": 2.5,
+          "reason": "Speckled brown body shares riverbank pebble texture; complete silhouette and pale breast remain visible."
+        },
+        {
+          "id": "dog_14",
+          "rating": 3,
+          "reason": "Muted grey/green translucent-looking body has weak outlines against water, but is isolated in the open center."
+        }
+      ],
+      "hardBirdIds": []
+    },
+    {
+      "levelId": "turkey_cappadocia_balloon_dawn_bird_b03c",
+      "levelJsonSha256": "2738d204693679bb80b86f7bc91a7bd60b7f62035b064490228ffff1ef3a4c92",
+      "artworkPath": "games/find_the_bird/public/levels/turkey_cappadocia_balloon_dawn_bird_b03c/color.webp",
+      "artworkSha256": "d2a39c22ea597593769a05d1065e326eaf3babbf556b65cf0fa19bc92d99782b",
+      "targetCount": 16,
+      "targets": [
+        {
+          "id": "dog_00",
+          "rating": 2,
+          "reason": "Grey pigeon blends modestly with distant rock tones; fully exposed."
+        },
+        {
+          "id": "dog_01",
+          "rating": 1.5,
+          "reason": "Red head, pale face and map contrast against rock."
+        },
+        {
+          "id": "dog_02",
+          "rating": 2,
+          "reason": "Green body echoes shrubs but outline is exposed on wall."
+        },
+        {
+          "id": "dog_03",
+          "rating": 2,
+          "reason": "Blue/brown body shares pot and wall tones; head and long bill remain clear."
+        },
+        {
+          "id": "dog_04",
+          "rating": 1.5,
+          "reason": "Blue crest and pale face stand out against vines."
+        },
+        {
+          "id": "dog_05",
+          "rating": 1,
+          "reason": "Bright blue body isolated on open path."
+        },
+        {
+          "id": "dog_06",
+          "rating": 1.5,
+          "reason": "Black/yellow/red contrast against pale rock."
+        },
+        {
+          "id": "dog_07",
+          "rating": 1.5,
+          "reason": "Red wings and pale chest stand out by blossoms."
+        },
+        {
+          "id": "dog_08",
+          "rating": 2.5,
+          "reason": "Peach/tan body matches wall and rug; face and entire contour are visible."
+        },
+        {
+          "id": "dog_09",
+          "rating": 2,
+          "reason": "Small brown bird on tan stone, visible cream breast and silhouette."
+        },
+        {
+          "id": "dog_10",
+          "rating": 1.5,
+          "reason": "Orange chest isolated against light path."
+        },
+        {
+          "id": "dog_11",
+          "rating": 2.5,
+          "reason": "Small grey body aligned with cave ledge, but cream face and belly are clear."
+        },
+        {
+          "id": "dog_12",
+          "rating": 2,
+          "reason": "Dark bird contrasts with light mortar despite nearby stove."
+        },
+        {
+          "id": "dog_13",
+          "rating": 1.5,
+          "reason": "Black-and-white swallow contrasts with pale entryway."
+        },
+        {
+          "id": "dog_14",
+          "rating": 2,
+          "reason": "Brown markings blend with wall/rug; white face and chest aid recognition."
+        },
+        {
+          "id": "dog_15",
+          "rating": 2.5,
+          "reason": "Brown body shares wooden door color and hanging props, but orange cheek and feet remain visible."
+        }
+      ],
+      "hardBirdIds": []
+    },
+    {
+      "levelId": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+      "levelJsonSha256": "8e75e9a9af4677e4e8726f230261318b55b449f25dbc1d3200e31f14c0c7bbd2",
+      "artworkPath": "games/find_the_bird/public/levels/cozy_interiors_cozy_toymaker_workshop_bird_4e44/color.webp",
+      "artworkSha256": "d945627ee62d015ecd482522a1c7a0b5f6f27f89dc7c74574b79d8db83cfa4b9",
+      "targetCount": 18,
+      "targets": [
+        {
+          "id": "dog_00",
+          "rating": 2.5,
+          "reason": "Brown bird partly behind window frame; face and speckled breast remain exposed."
+        },
+        {
+          "id": "dog_01",
+          "rating": 2,
+          "reason": "Small brown silhouette contrasts against pale window."
+        },
+        {
+          "id": "dog_02",
+          "rating": 2,
+          "reason": "Small grey silhouette contrasts against pale window."
+        },
+        {
+          "id": "dog_03",
+          "rating": 1.5,
+          "reason": "Blue/yellow body contrasts with wooden wall."
+        },
+        {
+          "id": "dog_04",
+          "rating": 1.5,
+          "reason": "Orange chest and pale belly stand out on bench."
+        },
+        {
+          "id": "dog_05",
+          "rating": 3,
+          "reason": "Brown body blends with wood and tool clutter, but red cap and eye make it readable."
+        },
+        {
+          "id": "dog_06",
+          "rating": 2.5,
+          "reason": "Grey feathers share vice/tool values; pale facial marking remains clear."
+        },
+        {
+          "id": "dog_07",
+          "rating": 2,
+          "reason": "Green body contrasts against brown rocking horse."
+        },
+        {
+          "id": "dog_08",
+          "rating": 1.5,
+          "reason": "Blue/orange bird contrasts against wall and shelf."
+        },
+        {
+          "id": "dog_09",
+          "rating": 2.5,
+          "reason": "Green bird blends with train and block colors, but complete bird silhouette remains obvious."
+        },
+        {
+          "id": "dog_10",
+          "rating": 2.5,
+          "reason": "Body partly concealed by box; bright orange breast and face remain exposed."
+        },
+        {
+          "id": "dog_11",
+          "rating": 1.5,
+          "reason": "Blue body isolated against orange floor."
+        },
+        {
+          "id": "dog_12",
+          "rating": 1.5,
+          "reason": "Large purple/grey body contrasts with table."
+        },
+        {
+          "id": "dog_13",
+          "rating": 2.5,
+          "reason": "Brown speckles share wood-shaving texture; pale breast and contour remain visible."
+        },
+        {
+          "id": "dog_14",
+          "rating": 2.5,
+          "reason": "Brown bird near table underside/stool blends with wooden shapes; white face is conspicuous."
+        },
+        {
+          "id": "dog_15",
+          "rating": 3,
+          "reason": "Brown body and markings blend with wood grain/shavings, but full silhouette and face remain readable."
+        },
+        {
+          "id": "dog_16",
+          "rating": 2.5,
+          "reason": "Small grey body in table shadow; light face and paint puddle context keep it readable."
+        },
+        {
+          "id": "dog_17",
+          "rating": 3,
+          "reason": "Brown bird aligns with hanging wooden puppets; pale face/chest and complete outline remain recognizable."
+        }
+      ],
+      "hardBirdIds": []
+    },
+    {
+      "levelId": "hawaii_rainforest_waterfall_bird_0f98",
+      "levelJsonSha256": "c376092bda3e529f018b38e6243eaca3a7a59c05befcccd68573917bea8471cd",
+      "targetCount": 19,
+      "targets": [
+        {
+          "id": "dog_00",
+          "rating": 2.5,
+          "reason": "Green body overlaps tropical foliage, but exposed head, backpack and pale map remain readable."
+        },
+        {
+          "id": "dog_01",
+          "rating": 1.5,
+          "reason": "White body and dark outline remain clear against water and rocks."
+        },
+        {
+          "id": "dog_02",
+          "rating": 1.5,
+          "reason": "Orange/yellow body contrasts with green fern."
+        },
+        {
+          "id": "dog_03",
+          "rating": 3,
+          "reason": "Green/brown body echoes moss and rock tones; rope pose, pale cheek and complete outline remain visible."
+        },
+        {
+          "id": "dog_04",
+          "rating": 3.5,
+          "reason": "Body hidden behind rock; visible red head and yellow crest provide strong recognition cues, so not severe."
+        },
+        {
+          "id": "dog_05",
+          "rating": 2.5,
+          "reason": "Brown speckled bird near waterfall shares rock tones, but pale belly and eye are clear."
+        },
+        {
+          "id": "dog_06",
+          "rating": 1.5,
+          "reason": "Purple body, glasses and pale feather stand out against rock."
+        },
+        {
+          "id": "dog_07",
+          "rating": 1.5,
+          "reason": "Bright blue/orange body isolated on rock."
+        },
+        {
+          "id": "dog_08",
+          "rating": 2,
+          "reason": "Brown/cream body isolated against water with conspicuous woven object."
+        },
+        {
+          "id": "dog_09",
+          "rating": 3,
+          "reason": "Small grey bird blends with rocks and shaded bank; head and fishing rod remain recognizable."
+        },
+        {
+          "id": "dog_10",
+          "rating": 2,
+          "reason": "Body beneath flower umbrella, whose saturated colors draw attention; face and map exposed."
+        },
+        {
+          "id": "dog_11",
+          "rating": 3.5,
+          "reason": "Most body concealed by overlapping leaves and green plumage blends with them; bright red face and visible eye lower severity after zoom inspection."
+        },
+        {
+          "id": "dog_12",
+          "rating": 2.5,
+          "reason": "Brown body shares earth tones and nearby plant clutter; pale breast and face remain visible."
+        },
+        {
+          "id": "dog_13",
+          "rating": 1.5,
+          "reason": "Pink body and pale face contrast with dark soil."
+        },
+        {
+          "id": "dog_14",
+          "rating": 1,
+          "reason": "Bright yellow silhouette isolated over brown path."
+        },
+        {
+          "id": "dog_15",
+          "rating": 2.5,
+          "reason": "Green body and leaf prop share surrounding foliage color; visible feet, beak and eye remain readable."
+        },
+        {
+          "id": "dog_16",
+          "rating": 2.5,
+          "reason": "Teal/brown bird below bridge shares bank/water tones; face and complete silhouette visible."
+        },
+        {
+          "id": "dog_17",
+          "rating": 2.5,
+          "reason": "Lower body behind bridge rail, but purple head and bright candle stand out."
+        },
+        {
+          "id": "dog_18",
+          "rating": 3,
+          "reason": "Small brown bird on rock shares brown/olive scene colors; pale eye patch and exposed outline remain readable."
+        }
+      ],
+      "hardBirdIds": [],
+      "artworkPath": "games/find_the_bird/public/levels/hawaii_rainforest_waterfall_bird_0f98/color.webp",
+      "artworkSha256": "5ad82deb8cbe4ee62c96cefadcfadd43619d73bb5b83a608a6f87020db64cf49"
+    }
+  ]
+}

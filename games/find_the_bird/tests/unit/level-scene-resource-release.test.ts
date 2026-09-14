@@ -99,6 +99,7 @@ describe('level scene resource release', () => {
     }));
 
     const first = await loadLevel(id);
+    expect(first.sourceHashes).toEqual({ levelJson: entry.assets.levelJson.hash, colorImage: entry.assets.colorImage.hash });
     releaseLevelSceneResources(id);
     const second = await loadLevel(id);
 

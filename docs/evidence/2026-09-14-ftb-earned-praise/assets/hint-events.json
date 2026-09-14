@@ -1,0 +1,125 @@
+{
+  "at": 1789421137.3069189,
+  "id": 21,
+  "ok": true,
+  "value": [
+    {
+      "label": "two-before-hint",
+      "found": [
+        "dog_01",
+        "dog_02"
+      ],
+      "praise": [],
+      "hintCircle": false,
+      "hints": 1,
+      "point": null
+    },
+    {
+      "label": "hinted-bird-dog_11",
+      "found": [
+        "dog_01",
+        "dog_02"
+      ],
+      "praise": [],
+      "hintCircle": true,
+      "hints": 0,
+      "point": {
+        "x": 508.6607142857143,
+        "y": 1922.549107142857
+      }
+    },
+    {
+      "label": "dismiss-via-other-find",
+      "found": [
+        "dog_01",
+        "dog_02",
+        "dog_00"
+      ],
+      "praise": [],
+      "hintCircle": false,
+      "hints": 0,
+      "point": null
+    },
+    {
+      "label": "hinted-found",
+      "found": [
+        "dog_01",
+        "dog_02",
+        "dog_00",
+        "dog_11"
+      ],
+      "praise": [],
+      "hintCircle": false,
+      "hints": 0,
+      "point": null
+    },
+    {
+      "label": "first-after-hinted",
+      "found": [
+        "dog_01",
+        "dog_02",
+        "dog_00",
+        "dog_11",
+        "dog_07"
+      ],
+      "praise": [],
+      "hintCircle": false,
+      "hints": 0,
+      "point": null
+    },
+    {
+      "label": "second-after-hinted",
+      "found": [
+        "dog_01",
+        "dog_02",
+        "dog_00",
+        "dog_11",
+        "dog_07",
+        "dog_09"
+      ],
+      "praise": [],
+      "hintCircle": false,
+      "hints": 0,
+      "point": null
+    },
+    {
+      "label": "third-after-hinted",
+      "found": [
+        "dog_01",
+        "dog_02",
+        "dog_00",
+        "dog_11",
+        "dog_07",
+        "dog_09",
+        "dog_10"
+      ],
+      "praise": [
+        {
+          "phrase": "Combo!",
+          "left": "261.044643px",
+          "top": "552.205357px"
+        }
+      ],
+      "hintCircle": false,
+      "hints": 0,
+      "point": null
+    },
+    {
+      "label": "cleaned",
+      "found": [
+        "dog_01",
+        "dog_02",
+        "dog_00",
+        "dog_11",
+        "dog_07",
+        "dog_09",
+        "dog_10"
+      ],
+      "praise": [],
+      "hintCircle": false,
+      "hints": 0,
+      "point": null
+    }
+  ],
+  "t": 1789421137396
+}

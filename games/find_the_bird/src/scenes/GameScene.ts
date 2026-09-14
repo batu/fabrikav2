@@ -31,6 +31,8 @@ import {
   setGameModeChangeCallback,
 } from '../ui/HUD';
 import { FindPraise } from '../ui/FindPraise';
+import { FindPraisePolicy } from '../ui/FindPraisePolicy';
+import { isHardBird } from '../data/birdDifficulty';
 import { showTutorialOverlay, phaserPointToCssPoint, type TutorialHandle } from '../ui/TutorialOverlay';
 import { preloadLevelCompleteAssets, showLevelCompleteOverlay, dismissLevelCompleteOverlay } from '../ui/LevelCompleteOverlay';
 import { presentAchievementUnlocks } from '../ui/AchievementToast';
@@ -285,6 +287,7 @@ export class GameScene extends Phaser.Scene {
   /** Active tutorial handle (field-tracked so shutdown can dismiss cleanly without leaking DOM). */
   private tutorialHandle: TutorialHandle | null = null;
   private findPraise = new FindPraise();
+  private findPraisePolicy = new FindPraisePolicy();
   /** Active tutorial highlight ring. Null when tutorial not shown. */
   /** The bird the state-1 tutorial ring points at (NOT necessarily dogs[0] —
    *  the prompt picks the nearest bird visible in the starting viewport). */
@@ -1263,6 +1266,7 @@ export class GameScene extends Phaser.Scene {
       // the .then() at the awaiter must itself guard on isShuttingDown
       // to avoid running scene mutations on a dying scene.
       this.findPraise.clear();
+      this.findPraisePolicy.reset();
       this.tutorialHandle?.dismiss(false);
       this.tutorialHandle = null;
       this.ratePromptHandle?.dismiss();
@@ -1300,6 +1304,8 @@ export class GameScene extends Phaser.Scene {
       onSuspend: (): void => {
         if (this.isShuttingDown || !this.sys.isActive()) return;
         this.trackLevelAbandoned('background');
+        this.findPraisePolicy.interrupt();
+        this.findPraise.clear();
 
         this.cancelNonCriticalPreloadSchedule?.();
         this.cancelNonCriticalPreloadSchedule = null;
@@ -1513,9 +1519,10 @@ export class GameScene extends Phaser.Scene {
     playFind();
     hapticFound();
     updateHUD(this.level!.dogs.length, this.isRestoration);
-    if (!this.tutorialHandle) {
+    const praise = this.findPraisePolicy.find(dog.id, performance.now(), isHardBird(this.level!, dog.id), this.tutorialHandle !== null);
+    if (praise) {
       const css = phaserPointToCssPoint(this.scale.canvas, GAME.WIDTH, GAME.HEIGHT, canvasX, canvasY);
-      this.findPraise.show(css.x, css.y);
+      this.findPraise.show(css.x, css.y, praise);
     }
 
     // Tutorial points its pulsing ring at the bird chosen at prompt time
@@ -2133,6 +2140,7 @@ export class GameScene extends Phaser.Scene {
   /** Wrong tap. With healthBarEnabled off this is silent: counter only. */
   private onWrongTap(worldX: number, worldY: number, canvasX: number, canvasY: number): void {
     if (this.tutorialHandle) return;
+    this.findPraisePolicy.interrupt();
     const now = Date.now();
     if (now < gameState.penaltyCooldownUntil) return;
 
@@ -4016,6 +4024,7 @@ export class GameScene extends Phaser.Scene {
       // The allowance is recorded once; replaying its visual lesson has no economy effect.
       gameState.consumeTutorialHint();
     } else if (!gameState.spendHint('gameplayHint')) return;
+    this.findPraisePolicy.markHinted(dog.id);
     // Only finding this genuinely hinted bird completes the hint lesson.
     if (tutorialHint) {
       this.tutorialHandle?.hinted(dog.id);

@@ -126,6 +126,8 @@ export interface LevelServingAttempt {
  */
 export type LevelData = Omit<LevelFileV1, 'bwImage' | 'tags'> & {
   servingAttempt?: LevelServingAttempt;
+  /** Identity of the artwork and target layout actually loaded, including fallback. */
+  sourceHashes?: { levelJson: string; colorImage: string };
   bgImageUrls?: string[];
 };
 // Note: `extension` (from LevelFileV1) is intentionally NOT consumed at runtime.
@@ -1132,6 +1134,7 @@ async function loadLevelFromEntry(id: string, entry: ManifestLevelEntry, useCach
 
   const data: LevelData = {
     id: parsedJson.id,
+    sourceHashes: { levelJson: entry.assets.levelJson.hash, colorImage: styleAsset.hash },
     name: parsedJson.name,
     width: parsedJson.width,
     height: parsedJson.height,
