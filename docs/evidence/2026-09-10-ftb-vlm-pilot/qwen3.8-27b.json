@@ -1,0 +1,94 @@
+{
+  "prompt": "Compare two images of the same game scene crop. Image 1 is BEFORE a pickup; image 2 is AFTER. The target bird is at the center of image 1. Only that bird should disappear; other birds and scenery should remain. Is any visible part of the target bird still left in image 2 (tail, feather, feet, outline, body fragment)? Distinguish actual target fragments from nearby birds, leaves, branches, shadows, and normal scenery. Do not assume there is residue. Return JSON only: {\"residue\":\"yes|no|uncertain\",\"location\":\"where in image 2, or none\",\"evidence\":\"brief concrete visual comparison\"}.",
+  "model": "qwen3.8:27b",
+  "results": [
+    {
+      "levelId": "hawaii_rainforest_waterfall_bird_0f98",
+      "dogId": "dog_12",
+      "elapsedSeconds": 73.51,
+      "response": {
+        "model": "qwen3.8:27b",
+        "created_at": "2026-09-10T08:33:39.138715575Z",
+        "message": {
+          "role": "assistant",
+          "content": "{\"residue\":\"no\",\"location\":\"none\",\"evidence\":\"The central brown and white bird from image 1 is completely absent in image 2. The area where it stood now shows only the brown ground, some leaves, and the red flowers. No parts of the bird (tail, feathers, feet, or outline) remain.\"}"
+        },
+        "done": true,
+        "done_reason": "stop",
+        "total_duration": 72463518679,
+        "load_duration": 46449445131,
+        "prompt_eval_count": 544,
+        "prompt_eval_cached_count": 0,
+        "prompt_eval_duration": 22369087000,
+        "eval_count": 70,
+        "eval_duration": 3585921000
+      }
+    },
+    {
+      "levelId": "hawaii_rainforest_waterfall_bird_0f98",
+      "dogId": "dog_04",
+      "elapsedSeconds": 21.82,
+      "response": {
+        "model": "qwen3.8:27b",
+        "created_at": "2026-09-10T08:34:01.212513176Z",
+        "message": {
+          "role": "assistant",
+          "content": "{\"residue\": \"no\", \"location\": \"none\", \"evidence\": \"The red and yellow bird that was visible in the center of the first image is completely absent in the second image. The area where it was located now shows only the green grass and grey rock background, with no remaining fragments of the bird's body, feathers, or outline.\"}"
+        },
+        "done": true,
+        "done_reason": "stop",
+        "total_duration": 21416534802,
+        "load_duration": 18241179504,
+        "prompt_eval_count": 544,
+        "prompt_eval_cached_count": 0,
+        "prompt_eval_duration": 1144051000,
+        "eval_count": 75,
+        "eval_duration": 1969639000
+      }
+    },
+    {
+      "levelId": "ad_campaigns_ad_cozy_library_bird_e654",
+      "dogId": "dog_12",
+      "elapsedSeconds": 23.3,
+      "response": {
+        "model": "qwen3.8:27b",
+        "created_at": "2026-09-10T08:34:24.783433143Z",
+        "message": {
+          "role": "assistant",
+          "content": "{\"residue\":\"no\",\"location\":\"none\",\"evidence\":\"The gray bird that was perched on the scroll in image 1 is completely absent in image 2. The scroll remains in the same position, but there are no bird parts (feet, tail, body) or specific shadows left behind on the scroll or the table surface. The surrounding scenery (books, shelves) is unchanged.\"}"
+        },
+        "done": true,
+        "done_reason": "stop",
+        "total_duration": 22854042990,
+        "load_duration": 19145230441,
+        "prompt_eval_count": 544,
+        "prompt_eval_cached_count": 0,
+        "prompt_eval_duration": 1134885000,
+        "eval_count": 83,
+        "eval_duration": 2517024000
+      }
+    },
+    {
+      "levelId": "ad_campaigns_ad_cozy_library_bird_e654",
+      "dogId": "dog_09",
+      "elapsedSeconds": 22.92,
+      "response": {
+        "model": "qwen3.8:27b",
+        "created_at": "2026-09-10T08:34:47.925806924Z",
+        "message": {
+          "role": "assistant",
+          "content": "{\"residue\":\"no\",\"location\":\"none\",\"evidence\":\"The gray bird that was perched on the ladder in image 1 is completely absent in image 2. The ladder rungs and the books behind it are now fully visible in that spot, with no remaining outline, feathers, or body fragments of the target bird.\"}"
+        },
+        "done": true,
+        "done_reason": "stop",
+        "total_duration": 22415734139,
+        "load_duration": 19397399217,
+        "prompt_eval_count": 544,
+        "prompt_eval_cached_count": 0,
+        "prompt_eval_duration": 1134766000,
+        "eval_count": 69,
+        "eval_duration": 1815216000
+      }
+    }
+  ]
+}
