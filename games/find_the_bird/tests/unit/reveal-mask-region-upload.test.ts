@@ -125,6 +125,9 @@ function fixture() {
     isRestoration: true, classicUsesPatchComposite: false, classicUsesCpuComposite: false,
     classicGpuReveal: null, imgOffsetX: 0, imgOffsetY: 0, imgScale: 1,
     dissolveActiveCells: [], dissolveCompletedCells: [],
+    // The carve cross-fade (2026-09-16) commits from a tween; run it to completion synchronously.
+    sys: { isActive: () => true },
+    tweens: { add: (cfg: { onUpdate?: () => void; onComplete?: () => void }) => { cfg.onUpdate?.(); cfg.onComplete?.(); return {}; } },
   });
   const internals = scene as unknown as Internals;
   vi.spyOn(internals, 'recordRevealFrame').mockImplementation(() => {});
