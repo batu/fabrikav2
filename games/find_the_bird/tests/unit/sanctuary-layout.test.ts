@@ -94,18 +94,12 @@ describe('layoutSanctuary', () => {
     expect(layout.plotMarker.width).toBeGreaterThan(0);
   });
 
-  it('sits the house bbox bottom-centre on the manifest anchor', () => {
+  it('stands the house on the branch anchor', () => {
     const layout = layoutSanctuary(manifest, 1, VIEWPORT);
-    const tier = manifest.houseTiers[0];
-    const houseScale = layout.scale * manifest.houseAnchor.scale;
-    const anchorX = layout.background.left + manifest.houseAnchor.x * layout.scale;
+    const houseScale = layout.house!.width / manifest.houseTiers[0].size[0];
     const anchorY = layout.background.top + manifest.houseAnchor.bottom * layout.scale;
-    const [x0, , x1, y1] = tier.bbox;
-
-    const bboxCentreX = layout.house!.left + ((x0 + x1) / 2) * houseScale;
-    const bboxBottomY = layout.house!.top + y1 * houseScale;
-    expect(bboxCentreX).toBeCloseTo(anchorX, 6);
-    expect(bboxBottomY).toBeCloseTo(anchorY, 6);
+    const [, , , y1] = manifest.houseTiers[0].bbox;
+    expect(layout.house!.top + y1 * houseScale).toBeCloseTo(anchorY, 6);
   });
 
   it('uses one scale for every tier, so the house never jumps size on upgrade', () => {
@@ -114,11 +108,35 @@ describe('layoutSanctuary', () => {
     expect(widths[1]).toBeCloseTo(widths[2], 6);
   });
 
+  // Found on device: the background is cover-fitted, so on a tall phone it is
+  // much wider than the screen, and a house scaled purely to it ran off the
+  // right edge — tier 3 lost its deck and third perch.
+  it.each([
+    ['iPhone 12/13/14', { width: 390, height: 844 }],
+    ['iPhone SE', { width: 375, height: 667 }],
+    ['iPhone Pro Max', { width: 430, height: 932 }],
+  ])('keeps every tier and its perches on screen at %s size', (_name, viewport) => {
+    for (const tier of [1, 2, 3]) {
+      const layout = layoutSanctuary(manifest, tier, viewport);
+      const entry = manifest.houseTiers[tier - 1];
+      const houseScale = layout.house!.width / entry.size[0];
+      const [x0, , x1] = entry.bbox;
+      const bboxLeft = layout.house!.left + x0 * houseScale;
+      const bboxRight = layout.house!.left + x1 * houseScale;
+      expect(bboxLeft).toBeGreaterThanOrEqual(-0.5);
+      expect(bboxRight).toBeLessThanOrEqual(viewport.width + 0.5);
+      for (const pedestal of layout.pedestals) {
+        expect(pedestal.anchor.x).toBeGreaterThan(0);
+        expect(pedestal.anchor.x).toBeLessThan(viewport.width);
+      }
+    }
+  });
+
   it('reproduces each manifest pedestal anchor in CSS pixels', () => {
     for (const tier of [1, 2, 3]) {
       const layout = layoutSanctuary(manifest, tier, VIEWPORT);
       const entry = manifest.houseTiers[tier - 1];
-      const houseScale = layout.scale * manifest.houseAnchor.scale;
+      const houseScale = layout.house!.width / entry.size[0];
       expect(layout.pedestals).toHaveLength(entry.pedestals.length);
       entry.pedestals.forEach((pedestal, index) => {
         const actual = layout.pedestals[index];

@@ -55,6 +55,9 @@ export interface SanctuaryLayout {
 
 const COIN_PILE_BG_WIDTH = 170;
 const PLOT_MARKER_BG_WIDTH = 300;
+/** Widest a house may draw, as a fraction of the viewport, so a wide tier keeps
+ *  its perches on screen with a little breathing room at the edges. */
+const HOUSE_VIEWPORT_FRACTION = 0.92;
 
 /** Map a point in manifest background px to CSS px. */
 function toCss(point: ManifestPoint, bg: Rect, scale: number): ManifestPoint {
@@ -93,7 +96,7 @@ export function layoutSanctuary(
 ): SanctuaryLayout {
   const { rect: background, scale } = fitBackground(manifest, viewport);
   const anchor = manifest.houseAnchor;
-  const houseScale = scale * anchor.scale;
+  const uncappedHouseScale = scale * anchor.scale;
 
   const plotWidth = PLOT_MARKER_BG_WIDTH * scale;
   const plotAnchor = toCss({ x: anchor.x, y: anchor.bottom }, background, scale);
@@ -126,10 +129,30 @@ export function layoutSanctuary(
   // bottom-centre is what sits on the branch, not the canvas centre.
   const [spriteW, spriteH] = entry.size;
   const [x0, , x1, y1] = entry.bbox;
+
+  // The background is cover-fitted, so on a tall phone it is far wider than the
+  // screen and a house scaled purely to it runs off the edge: tier 3's deck and
+  // third perch were cropped away on device. Clamp the scale so the widest tier
+  // fits the viewport, and clamp the position so it cannot drift off either
+  // side. Every tier shares one scale, so the clamp is computed from the widest
+  // tier and the house never changes size when it is upgraded.
+  const widestBboxSprite = manifest.houseTiers.reduce(
+    (widest, candidate) => Math.max(widest, candidate.bbox[2] - candidate.bbox[0]),
+    1,
+  );
+  const maxHouseWidth = viewport.width * HOUSE_VIEWPORT_FRACTION;
+  const houseScale = Math.min(uncappedHouseScale, maxHouseWidth / widestBboxSprite);
+
+  const bboxWidth = (x1 - x0) * houseScale;
   const bboxCentreX = ((x0 + x1) / 2) * houseScale;
   const bboxBottomY = y1 * houseScale;
+  const margin = (viewport.width - maxHouseWidth) / 2;
+  const centreX = Math.min(
+    Math.max(plotAnchor.x, margin + bboxWidth / 2),
+    viewport.width - margin - bboxWidth / 2,
+  );
   const house: Rect = {
-    left: plotAnchor.x - bboxCentreX,
+    left: centreX - bboxCentreX,
     top: plotAnchor.y - bboxBottomY,
     width: spriteW * houseScale,
     height: spriteH * houseScale,
