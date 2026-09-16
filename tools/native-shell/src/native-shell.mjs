@@ -651,6 +651,37 @@ function validatePackage(content, manifest, issues) {
   for (const legacy of ['.product(name: "Admob"', 'CapacitorFilesystem', 'CapacitorPreferences', 'CapacitorShare']) if (content.includes(legacy)) issues.push(`Package.swift contains legacy product ${legacy}`);
 }
 
+const FIREBASE_PLUGIN_CLASSES = { CapacitorFirebaseAnalytics: 'FirebaseAnalyticsPlugin', CapacitorFirebaseCrashlytics: 'FirebaseCrashlyticsPlugin' };
+
+/** `cap sync` registers a plugin only when the game's capacitor.config
+ * `includePlugins` names it, and that list is computed from process.env at
+ * sync time (VITE_FIREBASE_API_KEY / PROJECT_ID / APP_ID). A sync run without
+ * those exported links the Firebase framework but never registers the plugin:
+ * every JS call then resolves `{"code":"UNIMPLEMENTED"}` and no analytics
+ * reach Firebase, with nothing failing at build time (device run 2026-09-16). */
+function validateFirebasePluginRegistration(iosRoot, manifest, issues) {
+  const configPath = path.join(iosRoot, 'App', 'capacitor.config.json');
+  if (!fs.existsSync(configPath)) return;
+  let registered;
+  try {
+    registered = JSON.parse(fs.readFileSync(configPath, 'utf8')).packageClassList;
+  } catch {
+    issues.push('generated App/capacitor.config.json is not valid JSON');
+    return;
+  }
+  if (!Array.isArray(registered)) {
+    issues.push('generated App/capacitor.config.json has no packageClassList; run `npx cap sync ios`');
+    return;
+  }
+  for (const pkg of manifest.ios.localPackages) {
+    const pluginClass = FIREBASE_PLUGIN_CLASSES[pkg.name];
+    if (pluginClass === undefined || registered.includes(pluginClass)) continue;
+    issues.push(`${pkg.name} is linked but ${pluginClass} is not registered in App/capacitor.config.json packageClassList: `
+      + 're-run `npx cap sync ios` with VITE_FIREBASE_API_KEY, VITE_FIREBASE_PROJECT_ID and VITE_FIREBASE_APP_ID exported '
+      + '(includePlugins is computed from process.env at sync time; without them every Firebase call returns UNIMPLEMENTED)');
+  }
+}
+
 function validateFirebaseIdentity(gameDir, manifest, { allowMissingFirebase }, issues) {
   const iosPlist = path.join(gameDir, 'ios', 'App', 'App', FIREBASE_PLIST);
   if (!fs.existsSync(iosPlist)) {
@@ -692,6 +723,7 @@ export function validateGeneratedShell({ repoRoot, game, allowMissingFirebase = 
   };
   for (const [label, file] of Object.entries(required)) if (!fs.existsSync(file)) issues.push(`generated iOS project is missing ${label}: ${file}`);
   if (issues.some((issue) => issue.startsWith('generated iOS project is missing'))) return { issues, generatedPresent: true, skAdNetworkCount: ids.length };
+  if (usesFirebase) validateFirebasePluginRegistration(iosRoot, manifest, issues);
   const plist = fs.readFileSync(required.plist, 'utf8');
   const plistIds = [...plist.matchAll(/<key>SKAdNetworkIdentifier<\/key>\s*<string>([^<]+)<\/string>/g)].map((match) => match[1]);
   if (plistIds.length !== ids.length || new Set(plistIds).size !== ids.length || [...plistIds].sort().join('\n') !== [...ids].sort().join('\n')) issues.push('Info.plist SKAdNetworkItems must equal the configured catalog exactly');
