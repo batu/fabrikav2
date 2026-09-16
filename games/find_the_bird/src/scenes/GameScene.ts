@@ -3134,7 +3134,9 @@ export class GameScene extends Phaser.Scene {
     // pickup; Settings > Debug can pin one in harness builds).
     if (!prefersReducedMotion() && DEBUG_OVERRIDES.pickupFx !== 'none') {
       const kind = DEBUG_OVERRIDES.pickupFx === 'random' ? pickRandomPickupFx() : DEBUG_OVERRIDES.pickupFx;
-      playPickupParticles(this, kind, this.imgOffsetX + dog.x * this.imgScale, this.imgOffsetY + dog.y * this.imgScale);
+      // Spawn toward the bottom of the hitbox (r = 57 level px) so the
+      // feathers read as shed from the bird's body, not its head.
+      playPickupParticles(this, kind, this.imgOffsetX + dog.x * this.imgScale, this.imgOffsetY + (dog.y + 57 * 0.8) * this.imgScale);
     }
     const startScaleX = image.scaleX;
     const startScaleY = image.scaleY;

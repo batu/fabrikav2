@@ -143,7 +143,7 @@ function featherDrift(scene: Phaser.Scene, px: number, py: number): Runner {
   const parts = Array.from({ length: 21 }, (_, i) => {
     const key = keys.length ? keys[i % keys.length] : 'pickup-feather';
     return {
-      ox: (r() * 220 - 110) * K, delay: r() * 0.2, sway: 1.5 + r() * 1.5, ph: r() * 6, oy: (r() * 50 - 40) * K,
+      ox: (r() * 220 - 110) * K, delay: r() * 0.25, sway: 1.5 + r() * 1.5, ph: r() * 6, oy: (r() * 150 - 100) * K, lift: 80 + r() * 90, drop: 240 + r() * 180,
       img: scene.add.image(px, py, key).setScrollFactor(1).setDepth(DEPTH + (i % 2)).setAlpha(0),
     };
   });
@@ -159,7 +159,7 @@ function featherDrift(scene: Phaser.Scene, px: number, py: number): Runner {
       for (const p of parts) {
         const tt = t - p.delay;
         if (tt < 0) { p.img.setAlpha(0); continue; }
-        const y = py + p.oy - 120 * tt * K + 330 * tt * tt * K;
+        const y = py + p.oy - p.lift * tt * K + p.drop * tt * tt * K;
         const x = px + p.ox * (1 + tt * 0.8) + 26 * K * Math.sin(p.ph + tt * p.sway * 3.14);
         p.img.setPosition(x, y);
         p.img.setRotation(0.5 * Math.sin(p.ph + tt * p.sway * 3.14));
@@ -215,5 +215,7 @@ export function playPickupParticles(scene: Phaser.Scene, kind: PickupFx, x: numb
 }
 
 export function pickRandomPickupFx(): PickupFx {
-  return PICKUP_FX_KINDS[Math.floor(Math.random() * PICKUP_FX_KINDS.length)];
+  // Batu 2026-09-16 device review: feathers only. The other kinds stay
+  // reachable from Settings > Debug.
+  return 'feathers';
 }
