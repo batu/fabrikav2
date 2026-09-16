@@ -46,6 +46,7 @@ const TEMPLATE_GROUPS: readonly RemoteConfigTemplateGroup[] = [
       'rewardHintsAmount',
       'gameplayInitialHints',
       'ratePromptEnabledDefault',
+      'achievementsEnabled',
     ],
   },
   {

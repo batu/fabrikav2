@@ -114,7 +114,9 @@ describe("home menu polish regressions", () => {
     expect(CSS_TEXT).toContain("width: 82px;");
     expect(CSS_TEXT).toContain("height: 82px;");
     expect(HOME_SCENE_TEXT).not.toContain('id="home-nav-play"');
-    expect(HOME_SCENE_TEXT).toContain('id="home-nav-achievements"');
+    expect(HOME_SCENE_TEXT).toContain('id="home-nav-sanctuary"');
+    expect(HOME_SCENE_TEXT).toContain('id="home-nav-collection"');
+    expect(HOME_SCENE_TEXT).toContain('id="home-nav-settings" class="home-settings-corner"');
 
     const play = window.getComputedStyle(element("#home-play-now"));
     expect(play.backgroundImage).toContain("/ui/home/play-level-button-runtime.png");

@@ -3482,9 +3482,10 @@
   }
 }
 
-/* Richer bottom nav: Achievements · Shop · Settings */
-/* 3-tile bar in the reference structure, FTD warm palette: divided slots that
-   fill the full width, with a raised highlighted center. */
+/* Richer bottom nav: Sanctuary · Collection · Shop (Achievements joins as a
+   fourth slot only when the achievementsEnabled flag is on). Settings lives in
+   the top-right corner above the brand banner. Divided equal slots that fill
+   the full width on the 3- or 4-frame nav-bar art. */
 #home-shell .home-nav-bar {
   align-items: stretch;
   justify-content: stretch;
@@ -3502,12 +3503,51 @@
   min-height: 134px;
 }
 
+#home-shell .home-nav-bar[data-slots="4"] {
+  background:
+    url('/ui/navigation/nav-bar-4.png') center bottom / 100% 100% no-repeat;
+}
+
 #home-shell .home-nav-bar > button {
   box-sizing: border-box;
   flex: 0 0 calc(100% / 3);
   width: calc(100% / 3);
   max-width: calc(100% / 3);
   align-items: center;
+}
+#home-shell .home-nav-bar[data-slots="4"] > button {
+  flex: 0 0 calc(100% / 4);
+  width: calc(100% / 4);
+  max-width: calc(100% / 4);
+}
+
+/* Settings: icon-only corner button above the brand banner (2026-09-16, the
+   nav row went to Sanctuary · Collection · Shop). Same id as before so the
+   home routing and the test harness keep working unchanged. */
+#home-shell .home-settings-corner {
+  position: absolute;
+  top: calc(env(safe-area-inset-top, 0px) + 6px);
+  right: 10px;
+  z-index: 6;
+  width: 52px;
+  height: 52px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  transform-origin: 50% 50%;
+}
+#home-shell .home-settings-corner img {
+  display: block;
+  width: 48px;
+  height: 48px;
+  margin: auto;
+  object-fit: contain;
+  filter:
+    drop-shadow(1.5px 0 0 #fff) drop-shadow(-1.5px 0 0 #fff)
+    drop-shadow(0 1.5px 0 #fff) drop-shadow(0 -1.5px 0 #fff)
+    drop-shadow(0 3px 4px rgba(70, 36, 10, 0.45));
+  pointer-events: none;
 }
 
 /* Side slots — equal thirds, divider lines between, icon + label centered. */
@@ -3553,8 +3593,55 @@
 
 /* Pull the side slots a few px toward the middle (A2/A3, build-18 device
    review). `translate` composes with the tap-bounce scale animation. */
-#home-shell #home-nav-achievements { translate: 6px 0; }
-#home-shell #home-nav-settings { translate: -6px 0; }
+#home-shell .home-nav-bar > .home-nav-btn:first-child { translate: 6px 0; }
+#home-shell .home-nav-bar > .home-nav-btn:last-child { translate: -6px 0; }
+
+/* Locked tiles (Sanctuary, Birds until their features ship): desaturated art
+   with the shared padlock at the icon's bottom-right, same treatment as the
+   sibling games. Disabled buttons keep the label colour; no tap bounce. */
+#home-shell .home-nav-btn--locked {
+  cursor: default;
+  color: #33423d;
+}
+/* Tap on a locked tile: a roll that rocks the whole tile (icon, label and
+   padlock together) about its base. Replaces the tap bounce, which locked
+   tiles never get. */
+#home-shell .home-nav-btn--shake {
+  animation: homeNavLockedRoll 560ms cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+  transform-origin: 50% 88%;
+}
+@keyframes homeNavLockedRoll {
+  0%   { transform: rotate(0deg) translateX(0); }
+  15%  { transform: rotate(-9deg) translateX(-5px); }
+  30%  { transform: rotate(8deg) translateX(5px); }
+  45%  { transform: rotate(-6deg) translateX(-4px); }
+  60%  { transform: rotate(4deg) translateX(3px); }
+  75%  { transform: rotate(-2deg) translateX(-1px); }
+  100% { transform: rotate(0deg) translateX(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  #home-shell .home-nav-btn--shake { animation: none; }
+}
+#home-shell .home-nav-btn--locked img {
+  filter:
+    grayscale(1) brightness(0.95)
+    drop-shadow(1.5px 0 0 #fff) drop-shadow(-1.5px 0 0 #fff)
+    drop-shadow(0 1.5px 0 #fff) drop-shadow(0 -1.5px 0 #fff)
+    drop-shadow(1.06px 1.06px 0 #fff) drop-shadow(-1.06px 1.06px 0 #fff)
+    drop-shadow(1.06px -1.06px 0 #fff) drop-shadow(-1.06px -1.06px 0 #fff)
+    drop-shadow(0 4px 5px rgba(70, 36, 10, 0.5));
+}
+#home-shell .home-nav-btn--locked::after {
+  content: "";
+  position: absolute;
+  width: 32px;
+  height: 32px;
+  left: calc(50% + 12px);
+  bottom: calc(env(safe-area-inset-bottom, 0px) * 0.55 + 30px);
+  background: url('/ui/sanctuary/padlock.png') center / contain no-repeat;
+  filter: drop-shadow(0 2px 3px rgba(70, 36, 10, 0.45));
+  pointer-events: none;
+}
 
 #home-shell .home-nav-btn > span {
   position: absolute;
