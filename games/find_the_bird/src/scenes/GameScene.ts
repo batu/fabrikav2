@@ -3349,19 +3349,58 @@ export class GameScene extends Phaser.Scene {
       throw new Error(`Restoration dog ${dog.id} has no valid sprite cleanup area`);
     }
     this.lastRestorationDissolveBounds = bounds;
-    // Instant carve. A 50ms cross-fade was tried on 2026-08-07 and read as
-    // mush on device — the swap is cleaner when it is immediate.
-    const carvedPoints: Phaser.Geom.Point[] = [];
-    for (const polygon of erasePolygons) {
-      const screenPoints = this.levelPolygonToScreenPoints(polygon);
-      this.dissolveCompletedCells.push({ polygon });
-      this.carvePermanentDissolveCell(screenPoints);
-      carvedPoints.push(...screenPoints);
+    const cells = erasePolygons.map((polygon) => ({
+      dogId: dog.id,
+      polygon,
+      screenPoints: this.levelPolygonToScreenPoints(polygon),
+      alpha: 1,
+    }));
+    const carvedPoints: Phaser.Geom.Point[] = cells.flatMap((cell) => cell.screenPoints);
+
+    const commit = (): void => {
+      for (const cell of cells) {
+        const index = this.dissolveActiveCells.indexOf(cell);
+        if (index >= 0) this.dissolveActiveCells.splice(index, 1);
+        this.dissolveCompletedCells.push({ polygon: cell.polygon });
+        this.carvePermanentDissolveCell(cell.screenPoints);
+      }
+      // Only the carved rectangle changed; upload just that (2532² full uploads
+      // measured 120–160 ms per find on iPhone 12, 2026-09-10).
+      this.syncRestorationMaskTexture(this.getPolygonDirtyRect(carvedPoints, 4));
+      this.onRevealedCellComplete();
+    };
+
+    // Reduced motion (and a dead tween manager during teardown) keep the
+    // instant carve.
+    if (prefersReducedMotion() || this.isShuttingDown || !this.sys.isActive()) {
+      commit();
+      return;
     }
-    // Only the carved rectangle changed; upload just that (2532² full uploads
-    // measured 120–160 ms per find on iPhone 12, 2026-09-10).
-    this.syncRestorationMaskTexture(this.getPolygonDirtyRect(carvedPoints, 4));
-    this.onRevealedCellComplete();
+
+    // Cross-fade the cleared area from painted to restored over
+    // RESTORATION_DISSOLVE_MS: the active-cell path carves with alpha
+    // (1 - cell.alpha), so tweening alpha 1 -> 0 settles the carve instead of
+    // snapping it. The sprite covers the bird itself and is already flying;
+    // this only softens the shadow/prop paint around it. Hit-testing treats
+    // active cells as revealed, so a tap mid-fade is safe. Driven by wall
+    // clock so a slow frame degrades to a softer snap, not a stutter.
+    this.dissolveActiveCells.push(...cells);
+    const startedAt = performance.now();
+    const durationMs = Math.max(1, TIMING.RESTORATION_DISSOLVE_MS);
+    const fade = { t: 0 };
+    this.tweens.add({
+      targets: fade,
+      t: 1,
+      duration: durationMs,
+      ease: 'Linear',
+      onUpdate: () => {
+        const linear = Math.min(1, (performance.now() - startedAt) / durationMs);
+        const eased = 1 - (1 - linear) ** 3; // Cubic.easeOut
+        for (const cell of cells) cell.alpha = 1 - eased;
+        this.activeRevealDirty = true;
+      },
+      onComplete: commit,
+    });
   }
 
   /**
