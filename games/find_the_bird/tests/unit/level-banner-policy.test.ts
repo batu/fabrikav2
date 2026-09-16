@@ -58,7 +58,9 @@ describe('gameplay banner exclusions', () => {
       showBanner: vi.fn(async () => { visible = true; return true; }),
       hideBanner: vi.fn(async () => { visible = false; }),
     };
-    const allowed = 'american_southwest_sw_desert_trading_post_bird_7396';
+    // Deepest bird sits at 0.839 of level height, the largest banner clearance
+    // in the serving list — a stable stand-in for "not excluded".
+    const allowed = 'nordic_cold_bergen_harbor_bird_d303';
     expect(await updateLevelBanner(provider, allowed, true)).toBe(true);
     expect(visible).toBe(true);
     expect(await updateLevelBanner(provider, 'american_southwest_sw_cactus_garden_ranch_bird_19f1', true)).toBeNull();
