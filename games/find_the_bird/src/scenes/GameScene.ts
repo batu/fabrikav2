@@ -2597,15 +2597,6 @@ export class GameScene extends Phaser.Scene {
     return this.microAnimationLayer?.snapshot() ?? { activeObjects: 0, activeTweens: 0 };
   }
 
-  /** 40 ms white flash on the counter when a pickup lands (juice pass, 2026-09-16). */
-  private flashDogCounter(): void {
-    const counter = document.getElementById('dog-counter');
-    if (!counter) return;
-    counter.classList.remove('pickup-flash');
-    void counter.offsetWidth;
-    counter.classList.add('pickup-flash');
-  }
-
   private pulseDogCounter(): void {
     const counter = document.getElementById('dog-counter');
     if (!counter) return;
@@ -3167,73 +3158,34 @@ export class GameScene extends Phaser.Scene {
     };
     const progress = { t: 0 };
     const reducedMotion = prefersReducedMotion();
-    const juice = DEBUG_OVERRIDES.flyJuice && !reducedMotion;
 
     this.pickupAnimationsActive += 1;
-    const featherKeys = PICKUP_FEATHER_KEYS.filter((k) => this.textures.exists(k));
-    let lastTrailAt = 0;
-    let lastX = start.x;
-    let lastY = start.y;
-    const fly = (): void => { this.tweens.add({
+    this.tweens.add({
       targets: progress,
       t: 1,
       duration: reducedMotion ? 260 : TIMING.RESTORATION_PICKUP_FLY_MS,
-      // Thrown, not drifted: a small pull-back at launch and a slight overshoot
-      // into the counter (Back in-out, 2026-09-16 juice pass).
-      ease: juice ? 'Back.easeInOut' : 'Cubic.easeInOut',
-      easeParams: juice ? [1.15] : undefined,
+      ease: 'Cubic.easeInOut',
       onUpdate: () => {
         const t = progress.t;
         const inv = 1 - t;
-        const x = inv * inv * start.x + 2 * inv * t * control.x + t * t * target.x;
-        const y = inv * inv * start.y + 2 * inv * t * control.y + t * t * target.y;
-        image.setPosition(x, y);
+        image.setPosition(
+          inv * inv * start.x + 2 * inv * t * control.x + t * t * target.x,
+          inv * inv * start.y + 2 * inv * t * control.y + t * t * target.y,
+        );
         image.setScale(
           Phaser.Math.Linear(startScaleX, targetScaleX, t),
           Phaser.Math.Linear(startScaleY, targetScaleY, t),
         );
-        if (juice) {
-          // Nose follows the arc tangent (capped), blended toward the fixed tilt at the end.
-          const dx = 2 * inv * (control.x - start.x) + 2 * t * (target.x - control.x);
-          const dy = 2 * inv * (control.y - start.y) + 2 * t * (target.y - control.y);
-          const tangent = Phaser.Math.Clamp(Phaser.Math.RadToDeg(Math.atan2(dy, Math.abs(dx))) * 0.35, -25, 25);
-          image.setAngle(Phaser.Math.Linear(tangent, -8, t * t));
-          // Trail: a faint feather peels off behind the sprite every ~70 ms mid-flight.
-          const now = performance.now();
-          if (featherKeys.length && t > 0.08 && t < 0.85 && now - lastTrailAt > 70) {
-            lastTrailAt = now;
-            const key = featherKeys[Math.floor(Math.random() * featherKeys.length)];
-            const trail = this.add.image(lastX, lastY, key).setScrollFactor(0).setDepth(84).setAlpha(0.7)
-              .setScale((22 * this.imgScale) / Math.max(1, this.textures.get(key).getSourceImage().height))
-              .setAngle(Math.random() * 60 - 30);
-            this.tweens.add({
-              targets: trail, alpha: 0, y: lastY + 18, angle: trail.angle + 40, duration: 320, ease: 'Sine.easeOut',
-              onComplete: () => trail.destroy(),
-            });
-          }
-          lastX = x; lastY = y;
-        } else {
-          image.setAngle(Phaser.Math.Linear(0, -8, t));
-        }
+        // The flying sprite stays fully opaque (Batu 2026-09-16); only the
+        // carved area under it cross-fades.
+        image.setAngle(Phaser.Math.Linear(0, -8, t));
       },
       onComplete: () => {
         this.pickupAnimationsActive = Math.max(0, this.pickupAnimationsActive - 1);
         this.pickupAnimationsCompleted += 1;
         image.destroy();
         this.pulseDogCounter();
-        if (juice) this.flashDogCounter();
       },
-    }); };
-    if (!juice) { fly(); return; }
-    // Anticipation: a 90 ms squash on the spot, then the launch.
-    this.tweens.add({
-      targets: image,
-      scaleX: startScaleX * 1.12,
-      scaleY: startScaleY * 0.82,
-      duration: 45,
-      yoyo: true,
-      ease: 'Sine.easeOut',
-      onComplete: () => { image.setScale(startScaleX, startScaleY); fly(); },
     });
   }
 
