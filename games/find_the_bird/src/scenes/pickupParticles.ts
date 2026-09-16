@@ -4,7 +4,8 @@ import Phaser from 'phaser';
  *  Motion ported from the 2026-09-16 procedural candidates Batu picked
  *  (leaf swirl, star ring, feather drift, confetti). One tween per effect
  *  drives every particle from a shared progress value; all coordinates are
- *  scroll-factor-0 screen pixels. */
+ *  WORLD pixels (scroll factor 1) so the burst stays anchored to the scene
+ *  when the camera pans or zooms. */
 
 export type PickupFx = 'leaf' | 'stars' | 'feathers' | 'confetti';
 export const PICKUP_FX_KINDS: readonly PickupFx[] = ['leaf', 'stars', 'feathers', 'confetti'];
@@ -19,6 +20,13 @@ const K = 0.7;
 const DEPTH = 86;
 
 const easeOut = (t: number): number => 1 - (1 - t) ** 3;
+/** Pull a tint toward neutral grey (Batu 2026-09-16: particles too saturated on device). */
+function desaturate(colour: number, amount = 0.45): number {
+  const r = (colour >> 16) & 0xff; const g = (colour >> 8) & 0xff; const b = colour & 0xff;
+  const grey = 0.3 * r + 0.59 * g + 0.11 * b;
+  const mix = (c: number): number => Math.round(c + (grey - c) * amount);
+  return (mix(r) << 16) | (mix(g) << 8) | mix(b);
+}
 const clamp01 = (t: number): number => Math.max(0, Math.min(1, t));
 
 /** Deterministic per-effect randomness so a given seed always looks the same. */
@@ -73,11 +81,11 @@ interface Runner {
 function leafSwirl(scene: Phaser.Scene, px: number, py: number): Runner {
   const r = rng(1);
   const colours = [0x78c85a, 0xe6aa3c, 0xf07850, 0xa0dc78];
-  const parts = Array.from({ length: 14 }, (_, i) => ({
+  const parts = Array.from({ length: 42 }, (_, i) => ({
     ph: r() * 6.28, sp: 0.6 + r() * 0.5, colour: colours[Math.floor(r() * colours.length)], delay: r() * 0.08,
-    img: scene.add.image(px, py, 'pfx-leaf').setScrollFactor(0).setDepth(DEPTH + (i % 2)).setAlpha(0),
+    img: scene.add.image(px, py, 'pfx-leaf').setScrollFactor(1).setDepth(DEPTH + (i % 2)).setAlpha(0),
   }));
-  for (const p of parts) p.img.setTint(p.colour);
+  for (const p of parts) p.img.setTint(desaturate(p.colour));
   return {
     images: parts.map((p) => p.img),
     durationMs: 800,
@@ -100,9 +108,10 @@ function leafSwirl(scene: Phaser.Scene, px: number, py: number): Runner {
 }
 
 function starRing(scene: Phaser.Scene, px: number, py: number): Runner {
-  const parts = Array.from({ length: 9 }, (_, i) => ({
-    a: (i * 6.28) / 9 - 1.57, delay: i * 0.02,
-    img: scene.add.image(px, py, 'pfx-star').setScrollFactor(0).setDepth(DEPTH).setAlpha(0).setTint(i % 2 ? 0xffe650 : 0xffffff),
+  const r = rng(3);
+  const parts = Array.from({ length: 27 }, (_, i) => ({
+    a: (i * 6.28) / 27 - 1.57, delay: (i % 9) * 0.02, ring: 0.7 + (Math.floor(i / 9)) * 0.3, jitter: r() * 0.3,
+    img: scene.add.image(px, py, 'pfx-star').setScrollFactor(1).setDepth(DEPTH).setAlpha(0).setTint(i % 2 ? desaturate(0xffe650, 0.35) : 0xf4f1e8),
   }));
   return {
     images: parts.map((p) => p.img),
@@ -113,14 +122,14 @@ function starRing(scene: Phaser.Scene, px: number, py: number): Runner {
         const tt = t - p.delay;
         if (tt < 0) { p.img.setAlpha(0); continue; }
         const pop = easeOut(clamp01(tt / 0.25));
-        const rad = (20 + pop * 70) * K;
+        const rad = (20 + pop * 70) * K * (p.ring + p.jitter);
         const fall = Math.max(0, tt - 0.3);
         p.img.setPosition(
           px + rad * Math.cos(p.a) + fall * 20 * Math.cos(p.a) * K,
           py + rad * Math.sin(p.a) + 220 * fall * fall * K,
         );
         const size = (6 + 18 * pop) * (tt < 0.3 ? 1 : Math.max(0.25, 1 - (tt - 0.3) * 1.6));
-        p.img.setScale((size / 17) * K * 1.3);
+        p.img.setScale((size / 17) * K * 1.1);
         p.img.setRotation(tt * 5);
         p.img.setAlpha(fade);
       }
@@ -131,11 +140,11 @@ function starRing(scene: Phaser.Scene, px: number, py: number): Runner {
 function featherDrift(scene: Phaser.Scene, px: number, py: number): Runner {
   const r = rng(5);
   const keys = PICKUP_FEATHER_KEYS.filter((k) => scene.textures.exists(k));
-  const parts = Array.from({ length: 7 }, (_, i) => {
+  const parts = Array.from({ length: 21 }, (_, i) => {
     const key = keys.length ? keys[i % keys.length] : 'pickup-feather';
     return {
-      ox: (r() * 180 - 90) * K, delay: r() * 0.1, sway: 1.5 + r() * 1.5, ph: r() * 6, oy: (r() * 50 - 40) * K,
-      img: scene.add.image(px, py, key).setScrollFactor(0).setDepth(DEPTH + (i % 2)).setAlpha(0),
+      ox: (r() * 220 - 110) * K, delay: r() * 0.2, sway: 1.5 + r() * 1.5, ph: r() * 6, oy: (r() * 50 - 40) * K,
+      img: scene.add.image(px, py, key).setScrollFactor(1).setDepth(DEPTH + (i % 2)).setAlpha(0),
     };
   });
   for (const p of parts) {
@@ -163,11 +172,11 @@ function featherDrift(scene: Phaser.Scene, px: number, py: number): Runner {
 function confetti(scene: Phaser.Scene, px: number, py: number): Runner {
   const r = rng(6);
   const colours = [0xff5a5a, 0x5ab4ff, 0xffdc3c, 0x78dc78, 0xe678e6];
-  const parts = Array.from({ length: 18 }, (_, i) => ({
-    a: r() * 6.28, v: (100 + r() * 100) * K * 1.4, colour: colours[Math.floor(r() * colours.length)],
-    img: scene.add.image(px, py, 'pfx-chip').setScrollFactor(0).setDepth(DEPTH + (i % 2)).setAlpha(0),
+  const parts = Array.from({ length: 54 }, (_, i) => ({
+    a: r() * 6.28, v: (60 + r() * 140) * K * 1.4, colour: colours[Math.floor(r() * colours.length)],
+    img: scene.add.image(px, py, 'pfx-chip').setScrollFactor(1).setDepth(DEPTH + (i % 2)).setAlpha(0),
   }));
-  for (const p of parts) p.img.setTint(p.colour).setScale(1.4 * K);
+  for (const p of parts) p.img.setTint(desaturate(p.colour)).setScale(1.4 * K);
   return {
     images: parts.map((p) => p.img),
     durationMs: 800,
@@ -186,7 +195,7 @@ function confetti(scene: Phaser.Scene, px: number, py: number): Runner {
   };
 }
 
-/** Play one effect at a scroll-factor-0 screen point. Returns immediately; particles self-destroy. */
+/** Play one effect at a world point. Returns immediately; particles self-destroy. */
 export function playPickupParticles(scene: Phaser.Scene, kind: PickupFx, x: number, y: number): void {
   ensureShapeTextures(scene);
   const runner = kind === 'leaf' ? leafSwirl(scene, x, y)

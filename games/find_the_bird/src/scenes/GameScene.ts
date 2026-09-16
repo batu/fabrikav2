@@ -429,6 +429,11 @@ export class GameScene extends Phaser.Scene {
     if (!this.textures.exists('hint_point')) {
       this.load.image('hint_point', 'ui/effects/hint_point_right.png');
     }
+    // Same magnifier art as the tutorial's hinted-find lesson (TutorialOverlay),
+    // reused here so every hint — tutorial or wallet-spent — reads the same way.
+    if (!this.textures.exists('hint_magnifier')) {
+      this.load.image('hint_magnifier', 'ui/tutorial/magnifier.png');
+    }
     // Pickup feather particles — four painted cutouts, level-independent.
     for (const name of FEATHER_PARTICLE_KEYS) {
       if (!this.textures.exists(name)) this.load.image(name, `ui/effects/${name}.png`);
@@ -3129,7 +3134,7 @@ export class GameScene extends Phaser.Scene {
     // pickup; Settings > Debug can pin one in harness builds).
     if (!prefersReducedMotion() && DEBUG_OVERRIDES.pickupFx !== 'none') {
       const kind = DEBUG_OVERRIDES.pickupFx === 'random' ? pickRandomPickupFx() : DEBUG_OVERRIDES.pickupFx;
-      playPickupParticles(this, kind, start.x, start.y);
+      playPickupParticles(this, kind, this.imgOffsetX + dog.x * this.imgScale, this.imgOffsetY + dog.y * this.imgScale);
     }
     const startScaleX = image.scaleX;
     const startScaleY = image.scaleY;
@@ -4040,6 +4045,7 @@ export class GameScene extends Phaser.Scene {
 
   private hintCircleGfx: Phaser.GameObjects.Graphics | null = null;
   private hintCircleTween: Phaser.Tweens.Tween | null = null;
+  private hintMagnifierImg: Phaser.GameObjects.Image | null = null;
 
   private onHintRequested(): void {
     // Tutorial step 2 → 3: the hint tap advances to the zoom lesson (handled
@@ -4102,6 +4108,11 @@ export class GameScene extends Phaser.Scene {
 
     this.hintCircleGfx = this.add.graphics();
     this.hintCircleGfx.setDepth(50);
+    // Same magnifier-glass sell as the tutorial's hinted-find lesson (lensSize
+    // = radius / 0.28, see TutorialOverlay.layout) so a wallet-spent hint
+    // reads identically to the one players were taught during onboarding.
+    this.hintMagnifierImg = this.add.image(sx, sy, 'hint_magnifier');
+    this.hintMagnifierImg.setDepth(51);
 
     const drawHintCircle = (scale: number): void => {
       if (!this.hintCircleGfx) return;
@@ -4117,6 +4128,10 @@ export class GameScene extends Phaser.Scene {
       this.hintCircleGfx.strokeCircle(sx, sy, radius);
       this.hintCircleGfx.lineStyle(3, 0xffffff, 0.95);
       this.hintCircleGfx.strokeCircle(sx, sy, radius - 6);
+      if (this.hintMagnifierImg) {
+        const lensSize = radius / 0.28;
+        this.hintMagnifierImg.setDisplaySize(lensSize, lensSize);
+      }
     };
 
     drawHintCircle(1);
@@ -4190,6 +4205,10 @@ export class GameScene extends Phaser.Scene {
     if (this.hintCircleGfx) {
       this.hintCircleGfx.destroy();
       this.hintCircleGfx = null;
+    }
+    if (this.hintMagnifierImg) {
+      this.hintMagnifierImg.destroy();
+      this.hintMagnifierImg = null;
     }
     gameState.hintCircleActive = false;
     if (this.level) updateHUD(this.level.dogs.length, this.isRestoration);
