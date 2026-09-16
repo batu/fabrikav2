@@ -5,17 +5,17 @@ import { mountRatePrompt } from '../v1core/ui';
 import { FTD_UI_THEME } from './ftdTheme';
 
 /**
- * One-shot rate-me prompt — find_the_dog wiring of the shared
+ * One-shot rating prompt — Find the Bird wiring of the shared
  * `../v1core/ui` component (A-UI0).
  *
  * The reusable structure/look/behavior lives in core (`mountRatePrompt`); this
- * file injects only the FTD-specific bits: copy, theme tokens, and the side
+ * file injects only the game-specific bits: copy, artwork, theme tokens, and the side
  * effects (gameState marks, store deep-link, tap sound). The env-reading
  * `getStoreMetadata` stays here on purpose — core must not import
  * `import.meta.env`.
  *
  * UX contract (per ZJRPOiTP): caller decides when to show (after the 5th
- * level-complete); Yes → open store + mark `ratePromptShown`; Not really →
+ * level-complete); Rate the game → open store + mark `ratePromptShown`; No thanks →
  * mark `rateDeclined` (never re-prompts). `dismissed` resolves on every path so
  * the caller can sequence it against scene transitions.
  */
@@ -33,10 +33,11 @@ export function showRatePromptWithHandle(): RatePromptHandle {
     id: 'rate-prompt-overlay',
     theme: FTD_UI_THEME,
     content: {
-      title: 'Enjoying Find the Bird?',
-      subtitle: 'A quick rating helps other players find us.',
-      acceptLabel: 'Yes, rate it',
-      declineLabel: 'Not really',
+      illustration: { src: 'ui/rating/bird-please.png', alt: 'Our bird detective, asking with hopeful eyes' },
+      title: 'A little favor?',
+      subtitle: 'Your honest rating helps more players find our little flock.',
+      acceptLabel: 'Rate the game',
+      declineLabel: 'No thanks',
     },
     actions: {
       onInteract: playUITap,

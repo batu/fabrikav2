@@ -14,6 +14,7 @@ import { setRewardedAdResultForTest, type RewardedAdResultForTest } from '../ads
 import { isGameSuspended, setLifecycleForTest } from '../platform/gameLifecycle';
 import { initHUD, openPage } from '../ui/HUD';
 import { setFailOverlayPendingRecoveryMsForTest } from '../ui/LevelFailedOverlay';
+import { showRatePromptWithHandle } from '../ui/RatePrompt';
 import { setPickupStylePreference, type PickupStyle } from '../settings/pickupStylePreference';
 import { getSdkContext } from '../sdk/SdkContext';
 import {
@@ -311,6 +312,8 @@ export interface FindTheDogHarness extends GameHarness<FindTheDogVerb> {
   setLifecycleForTest(state: 'active' | 'inactive'): void;
   drainEvents(): AnalyticsEvent[];
   setFailOverlayPendingRecoveryMsForTest(ms: number | null): void;
+  /** Preview the real modal without editing rating eligibility or progression. */
+  showRatePromptForTest(): boolean;
   enableMicroAnimationsForTest(): void;
   setPickupStyleForTest(style: PickupStyle): void;
   /**
@@ -728,6 +731,18 @@ export function createFindTheDogHarness(game: Phaser.Game): FindTheDogHarness {
 
   const harness = {
     enabled: true,
+
+    showRatePromptForTest(): boolean {
+      const scene = getGameScene();
+      if (!scene) return false;
+      scene.ratePromptHandle?.dismiss();
+      const handle = showRatePromptWithHandle();
+      scene.ratePromptHandle = handle;
+      void handle.dismissed.then(() => {
+        if (scene.ratePromptHandle === handle) scene.ratePromptHandle = null;
+      });
+      return document.getElementById('rate-prompt-overlay') !== null;
+    },
 
     verbs: {
       gotoHome: { run: gotoHome },
