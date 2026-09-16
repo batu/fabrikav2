@@ -3019,7 +3019,7 @@
   width: min(100%, 300px);
   /* Pulled up toward the current level node while retaining the compact
      a39c67fb layout footprint. */
-  margin: -40px auto 20px;
+  margin: -52px auto 6px;
   height: 94px;
   min-height: 94px;
   border: 0;
@@ -3028,7 +3028,7 @@
   box-shadow: none;
   color: #fff;
   font-family: 'Nunito', sans-serif;
-  font-size: 25px;
+  font-size: 50px;
   font-weight: 900;
   line-height: 1;
   letter-spacing: 0.02em;
@@ -3078,7 +3078,9 @@
       Now dock, side rail, richer bottom bar ─────────────────────────── */
 
 #home-shell.home-progression-shell {
-  padding: calc(env(safe-area-inset-top, 0px) + 10px) 12px 0;
+  /* +26px top (2026-09-16): breathing room for the corner settings gear above
+     the banner; everything below shifts down with it. */
+  padding: calc(env(safe-area-inset-top, 0px) + 36px) 12px 0;
   gap: 6px;
 }
 
@@ -3217,8 +3219,8 @@
   display: grid;
   place-items: center;
   flex-shrink: 0;
-  margin-top: 8px;
-  margin-bottom: 2px;
+  margin-top: 0;
+  margin-bottom: 0;
   pointer-events: auto;
 }
 
