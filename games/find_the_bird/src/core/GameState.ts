@@ -54,6 +54,9 @@ const STORAGE_KEYS = {
   ACTIVE_COMPLETION_TRANSACTION: 'ftd_active_completion_transaction',
   COMPLETION_SEQUENCE: 'ftd_completion_sequence',
   ACHIEVEMENTS: 'ftd_achievements',
+  BIRD_COUNTS: 'ftb_bird_counts',
+  COLLECTION_META: 'ftb_collection_meta',
+  SANCTUARY: 'ftb_sanctuary',
 } as const;
 
 const CURRENT_LEVEL_ORDER_REVISION = 'bundled-v2';
@@ -125,6 +128,44 @@ export function dailyStreakRewardForDay(streakDay: number): { coins: number; hin
   return { coins: Math.min(day, 5) * 10, hints: day % 5 === 0 ? 1 : 0 };
 }
 
+/** Per-species pickup counters that drive the Collection cards. Open-ended so
+ *  new species need no migration. */
+export type BirdCounts = Record<string, number>;
+
+/** One-shot presentation flags for the Collection. Not progress — losing them
+ *  only replays an animation. */
+export interface CollectionMeta {
+  tileUnlockPopShown: boolean;
+  plainFlipShown: boolean;
+}
+
+export type SanctuaryHouseTier = 0 | 1 | 2 | 3;
+
+export interface SanctuaryState {
+  /** 0 = no house built yet. */
+  houseTier: SanctuaryHouseTier;
+  /** pedestal index -> bird type living on it. */
+  placed: Record<number, string>;
+  /** ISO timestamp the current accrual window opened, null when nothing accrues. */
+  accrualStartedAt: string | null;
+  /** Coins earned but not yet collected. Fractional; displayed floored. */
+  pendingCoins: number;
+  tileUnlockPopShown: boolean;
+}
+
+export const EMPTY_COLLECTION_META: CollectionMeta = {
+  tileUnlockPopShown: false,
+  plainFlipShown: false,
+};
+
+export const EMPTY_SANCTUARY_STATE: SanctuaryState = {
+  houseTier: 0,
+  placed: {},
+  accrualStartedAt: null,
+  pendingCoins: 0,
+  tileUnlockPopShown: false,
+};
+
 export type WalletMutationSource =
   | 'gameplayHint'
   | 'levelComplete'
@@ -135,6 +176,8 @@ export type WalletMutationSource =
   | 'tutorial'
   | 'achievement'
   | 'streakReward'
+  | 'sanctuaryHouse'
+  | 'sanctuaryCollect'
   | 'test';
 
 export interface WalletCounters {
@@ -357,6 +400,61 @@ function parseStringArray(value: string | null): string[] {
 
 function nonNegativeIntegerOrZero(value: unknown): number {
   return typeof value === 'number' && Number.isSafeInteger(value) && value >= 0 ? value : 0;
+}
+
+function parseBirdCounts(value: string | null): BirdCounts {
+  const parsed = parseRecord(value);
+  if (parsed === null) return {};
+  const counts: BirdCounts = {};
+  for (const [type, raw] of Object.entries(parsed)) {
+    if (typeof type !== 'string' || type.length === 0) continue;
+    const count = nonNegativeIntegerOrZero(raw);
+    if (count > 0) counts[type] = count;
+  }
+  return counts;
+}
+
+function parseCollectionMeta(value: string | null): CollectionMeta {
+  const parsed = parseRecord(value);
+  if (parsed === null) return { ...EMPTY_COLLECTION_META };
+  return {
+    tileUnlockPopShown: parsed.tileUnlockPopShown === true,
+    plainFlipShown: parsed.plainFlipShown === true,
+  };
+}
+
+function parseHouseTier(value: unknown): SanctuaryHouseTier {
+  return value === 1 || value === 2 || value === 3 ? value : 0;
+}
+
+/** A finite, non-negative float. Coin accrual is fractional between collects. */
+function nonNegativeFloatOrZero(value: unknown): number {
+  return typeof value === 'number' && Number.isFinite(value) && value >= 0 ? value : 0;
+}
+
+function parseSanctuaryState(value: string | null): SanctuaryState {
+  const parsed = parseRecord(value);
+  if (parsed === null) return { ...EMPTY_SANCTUARY_STATE, placed: {} };
+  const placed: Record<number, string> = {};
+  const placedRaw = parsed.placed;
+  if (placedRaw !== null && typeof placedRaw === 'object' && !Array.isArray(placedRaw)) {
+    for (const [index, bird] of Object.entries(placedRaw as Record<string, unknown>)) {
+      const slot = Number(index);
+      if (!Number.isSafeInteger(slot) || slot < 0) continue;
+      if (typeof bird === 'string' && bird.length > 0) placed[slot] = bird;
+    }
+  }
+  const startedAt = typeof parsed.accrualStartedAt === 'string' && parsed.accrualStartedAt.length > 0
+    && Number.isFinite(Date.parse(parsed.accrualStartedAt))
+    ? parsed.accrualStartedAt
+    : null;
+  return {
+    houseTier: parseHouseTier(parsed.houseTier),
+    placed,
+    accrualStartedAt: startedAt,
+    pendingCoins: nonNegativeFloatOrZero(parsed.pendingCoins),
+    tileUnlockPopShown: parsed.tileUnlockPopShown === true,
+  };
 }
 
 function parseWalletCounters(value: string | null): WalletCounters {
@@ -634,6 +732,9 @@ export class GameState {
   private _totalLevelsCompleted: number = 0;
   private _ratePromptShown: boolean = false;
   private _rateDeclined: boolean = false;
+  private _birdCounts: BirdCounts = {};
+  private _collectionMeta: CollectionMeta = { ...EMPTY_COLLECTION_META };
+  private _sanctuary: SanctuaryState = { ...EMPTY_SANCTUARY_STATE, placed: {} };
   private _achievementRecord: AchievementRecord = emptyAchievementRecord();
   /** The record snapshot that always equals what storage last committed — the
    *  rollback target for a record-write throw (KTD2). */
@@ -682,6 +783,124 @@ export class GameState {
   }
   get rateDeclined(): boolean {
     return this._rateDeclined;
+  }
+
+  // ── Collection: per-species pickup counters ──────────────────────
+  get birdCounts(): Readonly<BirdCounts> {
+    return this._birdCounts;
+  }
+
+  birdCount(type: string): number {
+    return this._birdCounts[type] ?? 0;
+  }
+
+  /**
+   * Count one pickup and persist it immediately — NOT at level complete.
+   * A crash, a kill or a backgrounded app mid-level must not cost the player
+   * birds they already found. Uses a targeted write so a pickup never pays for
+   * the broad save; a storage failure leaves the in-memory count standing.
+   */
+  incrementBirdCount(type: string): number {
+    if (typeof type !== 'string' || type.length === 0) return 0;
+    const next = this.birdCount(type) + 1;
+    this._birdCounts = { ...this._birdCounts, [type]: next };
+    try {
+      localStorage.setItem(STORAGE_KEYS.BIRD_COUNTS, JSON.stringify(this._birdCounts));
+    } catch {
+      // localStorage unavailable — the session keeps counting in memory.
+    }
+    return next;
+  }
+
+  setBirdCountForTest(type: string, count: number): void {
+    this._birdCounts = { ...this._birdCounts, [type]: nonNegativeInteger(count, 'test bird count') };
+    this.save();
+  }
+
+  get collectionMeta(): Readonly<CollectionMeta> {
+    return this._collectionMeta;
+  }
+
+  /** One-shot: the Collection tile has played its unlock pop. */
+  markCollectionTileUnlockShown(): void {
+    if (this._collectionMeta.tileUnlockPopShown) return;
+    this._collectionMeta = { ...this._collectionMeta, tileUnlockPopShown: true };
+    this.save();
+  }
+
+  /** One-shot: the sparrow card has played its silhouette-to-plain flip. */
+  markPlainFlipShown(): void {
+    if (this._collectionMeta.plainFlipShown) return;
+    this._collectionMeta = { ...this._collectionMeta, plainFlipShown: true };
+    this.save();
+  }
+
+  // ── Sanctuary ────────────────────────────────────────────────────
+  get sanctuary(): Readonly<SanctuaryState> {
+    return this._sanctuary;
+  }
+
+  /** One-shot: the Sanctuary tile has played its unlock pop. */
+  markSanctuaryTileUnlockShown(): void {
+    if (this._sanctuary.tileUnlockPopShown) return;
+    this._sanctuary = { ...this._sanctuary, tileUnlockPopShown: true };
+    this.save();
+  }
+
+  /**
+   * Buy or upgrade the house. Spends first and only advances the tier when the
+   * spend succeeded, so a refused purchase can never hand out a house. Tiers
+   * move one step at a time and never backwards.
+   */
+  purchaseHouseTier(tier: SanctuaryHouseTier, price: number): boolean {
+    if (tier !== this._sanctuary.houseTier + 1) return false;
+    if (!this.spendCoins(price, 'sanctuaryHouse')) return false;
+    this._sanctuary = { ...this._sanctuary, houseTier: tier };
+    this.save();
+    return true;
+  }
+
+  /** Move a bird onto a pedestal. Starts the accrual clock on the first tenant. */
+  placeBird(pedestalIndex: number, bird: string, now: Date = new Date()): boolean {
+    if (!Number.isSafeInteger(pedestalIndex) || pedestalIndex < 0) return false;
+    if (typeof bird !== 'string' || bird.length === 0) return false;
+    if (this._sanctuary.houseTier === 0) return false;
+    const placed = { ...this._sanctuary.placed, [pedestalIndex]: bird };
+    const accrualStartedAt = this._sanctuary.accrualStartedAt ?? now.toISOString();
+    this._sanctuary = { ...this._sanctuary, placed, accrualStartedAt };
+    this.save();
+    return true;
+  }
+
+  /** Replace the whole record after the pure accrual settle. */
+  commitSanctuaryState(next: SanctuaryState): void {
+    this._sanctuary = {
+      ...next,
+      houseTier: parseHouseTier(next.houseTier),
+      placed: { ...next.placed },
+      pendingCoins: nonNegativeFloatOrZero(next.pendingCoins),
+    };
+    this.save();
+  }
+
+  /**
+   * Bank the whole pending coins into the wallet. Returns the granted amount
+   * (floored); the fractional remainder stays pending so no coin is lost.
+   */
+  collectSanctuaryCoins(): number {
+    const whole = Math.floor(this._sanctuary.pendingCoins);
+    if (whole <= 0) return 0;
+    this._sanctuary = {
+      ...this._sanctuary,
+      pendingCoins: this._sanctuary.pendingCoins - whole,
+    };
+    this.grantCoins(whole, 'sanctuaryCollect');
+    return whole;
+  }
+
+  setSanctuaryForTest(next: Partial<SanctuaryState>): void {
+    this._sanctuary = { ...this._sanctuary, ...next, placed: { ...(next.placed ?? this._sanctuary.placed) } };
+    this.save();
   }
 
   constructor() {
@@ -1672,6 +1891,9 @@ export class GameState {
       }
       localStorage.setItem(STORAGE_KEYS.COMPLETION_SEQUENCE, String(this._completionSequence));
       localStorage.setItem(STORAGE_KEYS.WALLET_COUNTERS, JSON.stringify(this._walletCounters));
+      localStorage.setItem(STORAGE_KEYS.BIRD_COUNTS, JSON.stringify(this._birdCounts));
+      localStorage.setItem(STORAGE_KEYS.COLLECTION_META, JSON.stringify(this._collectionMeta));
+      localStorage.setItem(STORAGE_KEYS.SANCTUARY, JSON.stringify(this._sanctuary));
       if (this._achievementPersistenceReady) {
         localStorage.setItem(STORAGE_KEYS.ACHIEVEMENTS, JSON.stringify(this._achievementRecord));
       }
@@ -1728,6 +1950,9 @@ export class GameState {
         );
       }
       this._walletCounters = parseWalletCounters(localStorage.getItem(STORAGE_KEYS.WALLET_COUNTERS));
+      this._birdCounts = parseBirdCounts(localStorage.getItem(STORAGE_KEYS.BIRD_COUNTS));
+      this._collectionMeta = parseCollectionMeta(localStorage.getItem(STORAGE_KEYS.COLLECTION_META));
+      this._sanctuary = parseSanctuaryState(localStorage.getItem(STORAGE_KEYS.SANCTUARY));
 
       const bestTimes = parseRecord(localStorage.getItem(STORAGE_KEYS.BEST_TIMES));
       if (bestTimes !== null) {
