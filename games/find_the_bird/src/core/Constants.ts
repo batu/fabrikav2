@@ -50,6 +50,11 @@ export const TIMING = {
   PENALTY_COOLDOWN_MS: 300,
   LEVEL_COMPLETE_DELAY_MS: 300,
   RESTORATION_PICKUP_FLY_MS: 680,
+  // Carve cross-fade under the pickup: the cleared area settles from painted to
+  // restored instead of snapping. 50 ms read as mush on 2026-08-07 (stickers
+  // then did not match the paint at frame 0); retried at 240 ms on 2026-09-16
+  // once sprites were pixel-exact with the paint.
+  RESTORATION_DISSOLVE_MS: 240,
   // Miss-juice: gentle board wobble + dust poof. Reduced-motion uses the
   // shorter shake; the poof is skipped entirely under reduced-motion.
   MISS_SHAKE_MS: 130,
