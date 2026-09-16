@@ -3267,6 +3267,8 @@
 .home-no-ads-btn {
   position: relative;
   width: 82px;
+  /* Sits a little lower under the streak pill (2026-09-16). */
+  margin-top: 14px;
 }
 .home-no-ads-btn::before {
   content: "";

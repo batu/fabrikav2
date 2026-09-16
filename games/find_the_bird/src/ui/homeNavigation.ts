@@ -14,6 +14,7 @@ export interface HomeNavigationDeps {
   openPage?: typeof openPage;
 }
 
+
 /**
  * Wire the home overlay's navigation: page buttons (settings / shop /
  * achievements), the shop deep-link shortcuts, and the Play Now trigger.
@@ -66,8 +67,16 @@ export function bindHomeNavigation(overlay: HTMLElement, deps: HomeNavigationDep
   const shopShortcuts: Array<[string, 'coins' | 'hints' | 'entitlements']> = [
     ['#home-coin-plus', 'coins'],
     ['#home-hint-plus', 'hints'],
-    ['#home-no-ads', 'entitlements'],
   ];
+  // Home No Ads badge: straight into the Remove Ads purchase (shop opens
+  // behind the native sheet so a cancel lands somewhere sensible).
+  overlay.querySelector<HTMLButtonElement>('#home-no-ads')?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (document.getElementById('home-page-overlay')) return;
+    deps.triggerNavBounce(e.currentTarget as HTMLButtonElement);
+    open('shop', { scrollTo: 'entitlements', purchase: 'no-ads' });
+  });
+
   for (const [id, scrollTo] of shopShortcuts) {
     overlay.querySelector<HTMLButtonElement>(id)?.addEventListener('click', (e) => {
       e.stopPropagation();
