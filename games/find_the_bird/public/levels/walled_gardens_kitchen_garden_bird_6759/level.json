@@ -247,27 +247,34 @@
       "r": 57,
       "sprite": {
         "image": "levels/walled_gardens_kitchen_garden_bird_6759/dogs/dog_22/sprite_000.png",
-        "height": 321,
-        "width": 248,
-        "x": 613,
-        "y": 1883,
+        "height": 208,
+        "width": 200,
+        "x": 652,
+        "y": 1973,
         "cleanup": {
-          "x": 596,
-          "y": 1855,
-          "width": 285,
-          "height": 369
+          "x": 614,
+          "y": 1943,
+          "width": 230,
+          "height": 239
         },
-        "anchorX": 0.4637,
-        "anchorY": 0.5701,
+        "anchorX": 0.505,
+        "anchorY": 0.5,
         "flipX": false,
         "flipY": false,
         "refit": {
-          "scale": 1.0,
-          "ratio": 0.95,
-          "pop": 35.2,
-          "dx": 1,
-          "dy": -2
-        }
+          "scale": 1.2,
+          "ratio": 1.0,
+          "pop": 21.1,
+          "dx": -22,
+          "dy": -14
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.6329,
+          "pop": 45.5,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
       }
     },
     {
@@ -278,27 +285,34 @@
       "r": 57,
       "sprite": {
         "image": "levels/walled_gardens_kitchen_garden_bird_6759/dogs/dog_23/sprite_000.png",
-        "height": 273,
-        "width": 317,
-        "x": 865,
-        "y": 2173,
+        "height": 191,
+        "width": 174,
+        "x": 899,
+        "y": 2208,
         "cleanup": {
-          "x": 842,
-          "y": 2152,
-          "width": 364,
-          "height": 313
+          "x": 884,
+          "y": 2186,
+          "width": 200,
+          "height": 219
         },
-        "anchorX": 0.3785,
-        "anchorY": 0.4652,
+        "anchorX": 0.5057,
+        "anchorY": 0.5183,
         "flipX": false,
         "flipY": false,
         "refit": {
-          "scale": 1.0,
+          "scale": 1.05,
           "ratio": 1.0,
-          "pop": 29.3,
+          "pop": 33.7,
           "dx": 0,
-          "dy": 0
-        }
+          "dy": -6
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.6412,
+          "pop": 48.7,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
       }
     },
     {

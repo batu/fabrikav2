@@ -94,27 +94,34 @@
       "r": 57,
       "sprite": {
         "image": "levels/indian_craft_bazaars_puppet_workshop_bird_08b8/dogs/dog_07/sprite_000.png",
-        "height": 204,
-        "width": 268,
-        "x": 780,
-        "y": 1033,
+        "height": 193,
+        "width": 258,
+        "x": 787,
+        "y": 1038,
         "cleanup": {
-          "x": 759,
-          "y": 1017,
-          "width": 308,
-          "height": 234
+          "x": 767,
+          "y": 1023,
+          "width": 296,
+          "height": 221
         },
-        "anchorX": 0.5261,
-        "anchorY": 0.4706,
+        "anchorX": 0.5194,
+        "anchorY": 0.4715,
         "flipX": false,
         "flipY": false,
         "refit": {
           "scale": 1.0,
           "ratio": 1.0,
-          "pop": 18.6,
+          "pop": 16.1,
           "dx": 0,
           "dy": 0
-        }
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.9653,
+          "pop": 16.1,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
       }
     },
     {
@@ -125,27 +132,34 @@
       "r": 57,
       "sprite": {
         "image": "levels/indian_craft_bazaars_puppet_workshop_bird_08b8/dogs/dog_08/sprite_000.png",
-        "height": 238,
-        "width": 280,
-        "x": 701,
-        "y": 1507,
+        "height": 230,
+        "width": 270,
+        "x": 707,
+        "y": 1511,
         "cleanup": {
-          "x": 680,
-          "y": 1489,
-          "width": 322,
-          "height": 273
+          "x": 686,
+          "y": 1493,
+          "width": 310,
+          "height": 264
         },
-        "anchorX": 0.5,
-        "anchorY": 0.5168,
+        "anchorX": 0.4963,
+        "anchorY": 0.5174,
         "flipX": false,
         "flipY": false,
         "refit": {
           "scale": 1.0,
           "ratio": 1.0,
-          "pop": 10.3,
+          "pop": 13.1,
           "dx": 0,
           "dy": 0
-        }
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.9371,
+          "pop": 13.1,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
       }
     },
     {
@@ -156,27 +170,34 @@
       "r": 57,
       "sprite": {
         "image": "levels/indian_craft_bazaars_puppet_workshop_bird_08b8/dogs/dog_10/sprite_000.png",
-        "height": 194,
-        "width": 266,
-        "x": 1031,
-        "y": 1246,
+        "height": 172,
+        "width": 250,
+        "x": 1036,
+        "y": 1256,
         "cleanup": {
-          "x": 1011,
-          "y": 1230,
-          "width": 305,
-          "height": 223
+          "x": 1022,
+          "y": 1241,
+          "width": 287,
+          "height": 197
         },
-        "anchorX": 0.5639,
-        "anchorY": 0.4845,
+        "anchorX": 0.56,
+        "anchorY": 0.4942,
         "flipX": false,
         "flipY": false,
         "refit": {
           "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 30.0,
-          "dx": 0,
-          "dy": 0
-        }
+          "ratio": 0.95,
+          "pop": 26.2,
+          "dx": 4,
+          "dy": -2
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.8745,
+          "pop": 28.7,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
       }
     },
     {
@@ -225,27 +246,34 @@
       "r": 57,
       "sprite": {
         "image": "levels/indian_craft_bazaars_puppet_workshop_bird_08b8/dogs/dog_22/sprite_000.png",
-        "height": 252,
-        "width": 334,
-        "x": 1466,
-        "y": 1458,
+        "height": 249,
+        "width": 342,
+        "x": 1460,
+        "y": 1461,
         "cleanup": {
-          "x": 1440,
-          "y": 1439,
-          "width": 384,
-          "height": 289
+          "x": 1434,
+          "y": 1442,
+          "width": 393,
+          "height": 286
         },
-        "anchorX": 0.5479,
-        "anchorY": 0.5397,
+        "anchorX": 0.5526,
+        "anchorY": 0.5341,
         "flipX": false,
         "flipY": false,
         "refit": {
           "scale": 1.0,
           "ratio": 1.0,
-          "pop": 22.4,
+          "pop": 9.1,
           "dx": 0,
           "dy": 0
-        }
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.9323,
+          "pop": 9.7,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
       }
     },
     {
@@ -363,65 +391,35 @@
       "r": 57,
       "sprite": {
         "image": "levels/indian_craft_bazaars_puppet_workshop_bird_08b8/dogs/dog_26/sprite_000.png",
-        "height": 218,
-        "width": 266,
-        "x": 1147,
-        "y": 1999,
+        "height": 222,
+        "width": 238,
+        "x": 1145,
+        "y": 1996,
         "cleanup": {
-          "x": 1127,
-          "y": 1982,
-          "width": 305,
-          "height": 250
+          "x": 1144,
+          "y": 1996,
+          "width": 425,
+          "height": 222
         },
-        "anchorX": 0.4173,
-        "anchorY": 0.5413,
+        "anchorX": 0.4748,
+        "anchorY": 0.545,
         "flipX": false,
         "flipY": false,
         "refit": {
           "scale": 1.0,
           "ratio": 1.0,
-          "pop": 11.5,
+          "pop": 15.5,
           "dx": 0,
           "dy": 0
         },
         "regen": {
           "pass": "crop",
-          "score": 0.9606,
-          "pop": 11.5,
-          "why": "T3+refit refused"
+          "score": 0.9091,
+          "pop": 15.4,
+          "why": "T4"
         },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
-      }
-    },
-    {
-      "id": "1ac075e3-d0b5-4b26-b123-cddf187ff0c3",
-      "compatibilitySlot": "dog_27",
-      "x": 1428,
-      "y": 2117,
-      "r": 57,
-      "sprite": {
-        "image": "levels/indian_craft_bazaars_puppet_workshop_bird_08b8/dogs/dog_27/sprite_000.png",
-        "height": 171,
-        "width": 199,
-        "x": 1373,
-        "y": 2027,
-        "cleanup": {
-          "x": 1358,
-          "y": 2014,
-          "width": 228,
-          "height": 196
-        },
-        "anchorX": 0.2764,
-        "anchorY": 0.5263,
-        "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 26.2,
-          "dx": 0,
-          "dy": 0
-        }
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "cleanupNote": "merged with the string partner (Batu 2026-09-16)"
       }
     },
     {
@@ -432,32 +430,32 @@
       "r": 57,
       "sprite": {
         "image": "levels/indian_craft_bazaars_puppet_workshop_bird_08b8/dogs/dog_28/sprite_000.png",
-        "height": 271,
-        "width": 271,
+        "height": 266,
+        "width": 269,
         "x": 2096,
-        "y": 2129,
+        "y": 2132,
         "cleanup": {
           "x": 2075,
-          "y": 2108,
-          "width": 311,
-          "height": 311
+          "y": 2112,
+          "width": 309,
+          "height": 305
         },
-        "anchorX": 0.4133,
-        "anchorY": 0.5535,
+        "anchorX": 0.4164,
+        "anchorY": 0.5526,
         "flipX": false,
         "flipY": false,
         "refit": {
           "scale": 1.0,
           "ratio": 1.0,
-          "pop": 17.9,
+          "pop": 13.3,
           "dx": 0,
           "dy": 0
         },
         "regen": {
           "pass": "crop",
-          "score": 0.9159,
-          "pop": 17.9,
-          "why": "T3"
+          "score": 0.9589,
+          "pop": 13.3,
+          "why": "T4"
         },
         "technique": "gpt-image-2.5-sunburst-low-visible-only"
       }

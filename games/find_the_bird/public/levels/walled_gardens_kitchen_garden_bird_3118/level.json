@@ -134,27 +134,34 @@
       "r": 69,
       "sprite": {
         "image": "levels/walled_gardens_kitchen_garden_bird_3118/dogs/dog_23/sprite_000.png",
-        "height": 252,
-        "width": 322,
-        "x": 805,
-        "y": 1612,
+        "height": 220,
+        "width": 216,
+        "x": 839,
+        "y": 1619,
         "cleanup": {
-          "x": 780,
-          "y": 1592,
-          "width": 370,
-          "height": 289
+          "x": 822,
+          "y": 1602,
+          "width": 248,
+          "height": 253
         },
-        "anchorX": 0.4534,
-        "anchorY": 0.4762,
+        "anchorX": 0.5185,
+        "anchorY": 0.5091,
         "flipX": false,
         "flipY": false,
         "refit": {
           "scale": 1.0,
           "ratio": 1.0,
-          "pop": 23.4,
+          "pop": 11.4,
           "dx": 0,
-          "dy": -1
-        }
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.8552,
+          "pop": 11.4,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
       }
     },
     {
@@ -351,27 +358,34 @@
       "r": 69,
       "sprite": {
         "image": "levels/walled_gardens_kitchen_garden_bird_3118/dogs/dog_30/sprite_000.png",
-        "height": 366,
-        "width": 355,
-        "x": 1808,
-        "y": 1228,
+        "height": 164,
+        "width": 216,
+        "x": 1804,
+        "y": 1413,
         "cleanup": {
-          "x": 1781,
-          "y": 1200,
-          "width": 408,
-          "height": 420
+          "x": 1773,
+          "y": 1385,
+          "width": 248,
+          "height": 201
         },
-        "anchorX": 0.262,
-        "anchorY": 0.6175,
+        "anchorX": 0.5139,
+        "anchorY": 0.2683,
         "flipX": false,
         "flipY": false,
         "refit": {
-          "scale": 1.0,
+          "scale": 1.1,
           "ratio": 1.0,
-          "pop": 0.0,
-          "dx": 0,
-          "dy": 0
-        }
+          "pop": 22.9,
+          "dx": -13,
+          "dy": -2
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.6422,
+          "pop": 50.9,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
       }
     },
     {

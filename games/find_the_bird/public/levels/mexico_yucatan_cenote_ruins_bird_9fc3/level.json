@@ -126,27 +126,34 @@
       "r": 57,
       "sprite": {
         "image": "levels/mexico_yucatan_cenote_ruins_bird_9fc3/dogs/dog_20/sprite_000.png",
-        "height": 403,
-        "width": 242,
-        "x": 422,
-        "y": 1026,
+        "height": 182,
+        "width": 180,
+        "x": 437,
+        "y": 1127,
         "cleanup": {
-          "x": 403,
-          "y": 995,
-          "width": 278,
-          "height": 463
+          "x": 423,
+          "y": 1113,
+          "width": 207,
+          "height": 209
         },
-        "anchorX": 0.4463,
-        "anchorY": 0.4814,
+        "anchorX": 0.5167,
+        "anchorY": 0.511,
         "flipX": false,
         "flipY": false,
         "refit": {
           "scale": 1.0,
           "ratio": 1.0,
-          "pop": 29.3,
+          "pop": 22.9,
           "dx": 0,
           "dy": 0
-        }
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.891,
+          "pop": 22.8,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
       }
     },
     {
@@ -219,27 +226,34 @@
       "r": 57,
       "sprite": {
         "image": "levels/mexico_yucatan_cenote_ruins_bird_9fc3/dogs/dog_23/sprite_000.png",
-        "height": 190,
-        "width": 274,
-        "x": 1547,
-        "y": 910,
+        "height": 174,
+        "width": 191,
+        "x": 1584,
+        "y": 920,
         "cleanup": {
-          "x": 1526,
-          "y": 895,
-          "width": 315,
-          "height": 218
+          "x": 1563,
+          "y": 903,
+          "width": 219,
+          "height": 200
         },
-        "anchorX": 0.4745,
-        "anchorY": 0.5368,
+        "anchorX": 0.5183,
+        "anchorY": 0.546,
         "flipX": false,
         "flipY": false,
         "refit": {
-          "scale": 1.0,
+          "scale": 1.05,
           "ratio": 1.0,
-          "pop": 26.9,
-          "dx": 0,
-          "dy": 0
-        }
+          "pop": 23.6,
+          "dx": -5,
+          "dy": -3
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.8121,
+          "pop": 37.1,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
       }
     },
     {
@@ -250,27 +264,34 @@
       "r": 57,
       "sprite": {
         "image": "levels/mexico_yucatan_cenote_ruins_bird_9fc3/dogs/dog_24/sprite_000.png",
-        "height": 296,
-        "width": 511,
-        "x": 1313,
-        "y": 1039,
+        "height": 169,
+        "width": 191,
+        "x": 1465,
+        "y": 1148,
         "cleanup": {
-          "x": 1274,
-          "y": 1016,
-          "width": 587,
-          "height": 340
+          "x": 1446,
+          "y": 1130,
+          "width": 219,
+          "height": 194
         },
-        "anchorX": 0.4775,
-        "anchorY": 0.625,
+        "anchorX": 0.5026,
+        "anchorY": 0.4793,
         "flipX": false,
         "flipY": false,
         "refit": {
-          "scale": 1.0,
+          "scale": 1.05,
           "ratio": 1.0,
-          "pop": 0.0,
-          "dx": 0,
-          "dy": 0
-        }
+          "pop": 35.1,
+          "dx": -3,
+          "dy": -5
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.643,
+          "pop": 50.1,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
       }
     },
     {
@@ -312,18 +333,18 @@
       "r": 57,
       "sprite": {
         "image": "levels/mexico_yucatan_cenote_ruins_bird_9fc3/dogs/dog_26/sprite_000.png",
-        "height": 231,
-        "width": 305,
-        "x": 1326,
-        "y": 1459,
+        "height": 182,
+        "width": 182,
+        "x": 1391,
+        "y": 1472,
         "cleanup": {
-          "x": 1295,
-          "y": 1445,
-          "width": 350,
-          "height": 265
+          "x": 1377,
+          "y": 1458,
+          "width": 209,
+          "height": 209
         },
-        "anchorX": 0.541,
-        "anchorY": 0.4372,
+        "anchorX": 0.5055,
+        "anchorY": 0.5055,
         "flipX": false,
         "flipY": false,
         "refit": {
@@ -332,7 +353,14 @@
           "pop": 41.0,
           "dx": -8,
           "dy": 4
-        }
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.0,
+          "pop": 25.1,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
       }
     },
     {
@@ -343,27 +371,34 @@
       "r": 57,
       "sprite": {
         "image": "levels/mexico_yucatan_cenote_ruins_bird_9fc3/dogs/dog_27/sprite_000.png",
-        "height": 392,
-        "width": 426,
-        "x": 803,
-        "y": 1887,
+        "height": 182,
+        "width": 182,
+        "x": 919,
+        "y": 1984,
         "cleanup": {
-          "x": 771,
-          "y": 1857,
-          "width": 489,
-          "height": 450
+          "x": 904,
+          "y": 1969,
+          "width": 209,
+          "height": 209
         },
-        "anchorX": 0.4906,
-        "anchorY": 0.4847,
+        "anchorX": 0.5165,
+        "anchorY": 0.5165,
         "flipX": false,
         "flipY": false,
         "refit": {
           "scale": 1.0,
           "ratio": 1.0,
-          "pop": 16.7,
+          "pop": 15.9,
           "dx": 0,
           "dy": 0
-        }
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.8313,
+          "pop": 18.1,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
       }
     },
     {
@@ -374,27 +409,34 @@
       "r": 57,
       "sprite": {
         "image": "levels/mexico_yucatan_cenote_ruins_bird_9fc3/dogs/dog_28/sprite_000.png",
-        "height": 181,
-        "width": 266,
-        "x": 1360,
-        "y": 1964,
+        "height": 161,
+        "width": 195,
+        "x": 1408,
+        "y": 1990,
         "cleanup": {
-          "x": 1340,
-          "y": 1950,
-          "width": 305,
-          "height": 208
+          "x": 1370,
+          "y": 1961,
+          "width": 224,
+          "height": 185
         },
-        "anchorX": 0.5113,
-        "anchorY": 0.6519,
+        "anchorX": 0.5692,
+        "anchorY": 0.6708,
         "flipX": false,
         "flipY": false,
         "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 16.9,
-          "dx": 0,
-          "dy": 0
-        }
+          "scale": 1.2,
+          "ratio": 0.95,
+          "pop": 14.9,
+          "dx": -23,
+          "dy": -15
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.741,
+          "pop": 47.0,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
       }
     },
     {
@@ -436,27 +478,34 @@
       "r": 57,
       "sprite": {
         "image": "levels/mexico_yucatan_cenote_ruins_bird_9fc3/dogs/dog_30/sprite_000.png",
-        "height": 184,
-        "width": 257,
-        "x": 2059,
-        "y": 1785,
+        "height": 177,
+        "width": 191,
+        "x": 2069,
+        "y": 1794,
         "cleanup": {
-          "x": 2039,
-          "y": 1771,
-          "width": 295,
-          "height": 211
+          "x": 2052,
+          "y": 1777,
+          "width": 219,
+          "height": 203
         },
-        "anchorX": 0.3969,
-        "anchorY": 0.5163,
+        "anchorX": 0.4921,
+        "anchorY": 0.5028,
         "flipX": false,
         "flipY": false,
         "refit": {
-          "scale": 1.0,
+          "scale": 1.05,
           "ratio": 1.0,
-          "pop": 20.6,
-          "dx": 0,
-          "dy": 0
-        }
+          "pop": 18.9,
+          "dx": -1,
+          "dy": -2
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.8071,
+          "pop": 26.7,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
       }
     },
     {
@@ -467,27 +516,34 @@
       "r": 57,
       "sprite": {
         "image": "levels/mexico_yucatan_cenote_ruins_bird_9fc3/dogs/dog_31/sprite_000.png",
-        "height": 227,
-        "width": 286,
-        "x": 1886,
-        "y": 2029,
+        "height": 202,
+        "width": 211,
+        "x": 1997,
+        "y": 2076,
         "cleanup": {
-          "x": 1864,
-          "y": 2011,
-          "width": 328,
-          "height": 261
+          "x": 1927,
+          "y": 2030,
+          "width": 242,
+          "height": 232
         },
-        "anchorX": 0.5874,
-        "anchorY": 0.5727,
+        "anchorX": 0.5261,
+        "anchorY": 0.5594,
         "flipX": false,
         "flipY": false,
         "refit": {
-          "scale": 1.0,
+          "scale": 1.55,
           "ratio": 1.0,
-          "pop": 23.2,
-          "dx": 0,
-          "dy": 0
-        }
+          "pop": 20.6,
+          "dx": -54,
+          "dy": -29
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.626,
+          "pop": 48.8,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
       }
     },
     {
@@ -498,27 +554,34 @@
       "r": 57,
       "sprite": {
         "image": "levels/mexico_yucatan_cenote_ruins_bird_9fc3/dogs/dog_32/sprite_000.png",
-        "height": 324,
-        "width": 365,
-        "x": 2000,
-        "y": 1333,
+        "height": 115,
+        "width": 162,
+        "x": 2073,
+        "y": 1407,
         "cleanup": {
-          "x": 1972,
-          "y": 1308,
-          "width": 419,
-          "height": 372
+          "x": 2060,
+          "y": 1398,
+          "width": 186,
+          "height": 132
         },
-        "anchorX": 0.4548,
-        "anchorY": 0.4074,
+        "anchorX": 0.5741,
+        "anchorY": 0.5043,
         "flipX": false,
         "flipY": false,
         "refit": {
           "scale": 1.0,
           "ratio": 1.0,
-          "pop": 0.1,
+          "pop": 14.3,
           "dx": 0,
           "dy": 0
-        }
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.9771,
+          "pop": 14.3,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
       }
     },
     {

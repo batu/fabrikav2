@@ -32,27 +32,34 @@
       "r": 69,
       "sprite": {
         "image": "levels/hawaii_volcano_national_park_bird_3900/dogs/dog_00/sprite_000.png",
-        "height": 247,
-        "width": 347,
-        "x": 352,
-        "y": 2058,
+        "height": 213,
+        "width": 220,
+        "x": 446,
+        "y": 2062,
         "cleanup": {
-          "x": 325,
-          "y": 2040,
-          "width": 399,
-          "height": 284
+          "x": 429,
+          "y": 2046,
+          "width": 253,
+          "height": 244
         },
-        "anchorX": 0.5908,
-        "anchorY": 0.4332,
+        "anchorX": 0.5045,
+        "anchorY": 0.4883,
         "flipX": false,
         "flipY": false,
         "refit": {
           "scale": 1.0,
           "ratio": 1.0,
-          "pop": 19.2,
+          "pop": 11.4,
           "dx": 0,
           "dy": 0
-        }
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.8557,
+          "pop": 11.3,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
       }
     },
     {
@@ -63,27 +70,34 @@
       "r": 69,
       "sprite": {
         "image": "levels/hawaii_volcano_national_park_bird_3900/dogs/dog_01/sprite_000.png",
-        "height": 274,
-        "width": 315,
-        "x": 833,
-        "y": 1856,
+        "height": 250,
+        "width": 240,
+        "x": 927,
+        "y": 1904,
         "cleanup": {
-          "x": 809,
-          "y": 1835,
-          "width": 362,
-          "height": 315
+          "x": 859,
+          "y": 1840,
+          "width": 276,
+          "height": 287
         },
-        "anchorX": 0.5651,
-        "anchorY": 0.4854,
+        "anchorX": 0.5542,
+        "anchorY": 0.52,
         "flipX": false,
         "flipY": false,
         "refit": {
-          "scale": 1.0,
+          "scale": 1.35,
           "ratio": 1.0,
-          "pop": 29.9,
-          "dx": 0,
-          "dy": 0
-        }
+          "pop": 33.2,
+          "dx": -49,
+          "dy": -44
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.5856,
+          "pop": 63.2,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
       }
     },
     {
@@ -512,32 +526,32 @@
       "r": 69,
       "sprite": {
         "image": "levels/hawaii_volcano_national_park_bird_3900/dogs/dog_14/sprite_000.png",
-        "height": 238,
-        "width": 315,
-        "x": 2019,
-        "y": 1434,
+        "height": 212,
+        "width": 220,
+        "x": 2037,
+        "y": 1436,
         "cleanup": {
-          "x": 1995,
-          "y": 1416,
-          "width": 362,
-          "height": 273
+          "x": 2019,
+          "y": 1422,
+          "width": 253,
+          "height": 243
         },
-        "anchorX": 0.4127,
-        "anchorY": 0.4454,
+        "anchorX": 0.5136,
+        "anchorY": 0.4811,
         "flipX": false,
         "flipY": false,
         "refit": {
           "scale": 1.0,
           "ratio": 1.0,
-          "pop": 25.0,
+          "pop": 28.9,
           "dx": 0,
-          "dy": 0
+          "dy": 2
         },
         "regen": {
           "pass": "crop2",
-          "score": 0.8732,
-          "pop": 24.4,
-          "why": "T3+refit refused"
+          "score": 0.7572,
+          "pop": 35.0,
+          "why": "T4"
         },
         "technique": "gpt-image-2.5-sunburst-low-visible-only"
       }

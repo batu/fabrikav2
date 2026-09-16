@@ -323,27 +323,34 @@
       "r": 57,
       "sprite": {
         "image": "levels/aquarium_halls_kelp_gallery_bird_c7fa/dogs/dog_30/sprite_000.png",
-        "height": 195,
-        "width": 273,
-        "x": 1043,
-        "y": 1576,
+        "height": 175,
+        "width": 171,
+        "x": 1090,
+        "y": 1611,
         "cleanup": {
-          "x": 1022,
-          "y": 1561,
-          "width": 313,
-          "height": 224
+          "x": 1054,
+          "y": 1569,
+          "width": 196,
+          "height": 201
         },
-        "anchorX": 0.4945,
-        "anchorY": 0.6051,
+        "anchorX": 0.6491,
+        "anchorY": 0.6343,
         "flipX": false,
         "flipY": false,
         "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 20.6,
-          "dx": 0,
-          "dy": 0
-        }
+          "scale": 1.8499999999999999,
+          "ratio": 0.95,
+          "pop": 14.8,
+          "dx": -23,
+          "dy": -27
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.6669,
+          "pop": 21.9,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
       }
     },
     {
@@ -416,27 +423,34 @@
       "r": 57,
       "sprite": {
         "image": "levels/aquarium_halls_kelp_gallery_bird_c7fa/dogs/dog_33/sprite_000.png",
-        "height": 182,
-        "width": 289,
-        "x": 815,
-        "y": 1986,
+        "height": 163,
+        "width": 220,
+        "x": 854,
+        "y": 2007,
         "cleanup": {
-          "x": 793,
-          "y": 1973,
-          "width": 332,
-          "height": 209
+          "x": 820,
+          "y": 1982,
+          "width": 252,
+          "height": 187
         },
-        "anchorX": 0.4325,
-        "anchorY": 0.5714,
+        "anchorX": 0.4682,
+        "anchorY": 0.589,
         "flipX": false,
         "flipY": false,
         "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 9.8,
-          "dx": 0,
-          "dy": 0
-        }
+          "scale": 1.25,
+          "ratio": 1.05,
+          "pop": 18.3,
+          "dx": -17,
+          "dy": -11
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.5838,
+          "pop": 47.1,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
       }
     },
     {
@@ -447,27 +461,34 @@
       "r": 57,
       "sprite": {
         "image": "levels/aquarium_halls_kelp_gallery_bird_c7fa/dogs/dog_34/sprite_000.png",
-        "height": 308,
-        "width": 308,
-        "x": 363,
-        "y": 1942,
+        "height": 182,
+        "width": 182,
+        "x": 456,
+        "y": 1986,
         "cleanup": {
-          "x": 339,
-          "y": 1918,
-          "width": 354,
-          "height": 354
+          "x": 442,
+          "y": 1972,
+          "width": 209,
+          "height": 209
         },
-        "anchorX": 0.6039,
-        "anchorY": 0.4448,
+        "anchorX": 0.511,
+        "anchorY": 0.511,
         "flipX": false,
         "flipY": false,
         "refit": {
           "scale": 1.0,
           "ratio": 1.0,
-          "pop": 18.0,
+          "pop": 14.5,
           "dx": 0,
           "dy": 0
-        }
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.8032,
+          "pop": 14.8,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
       }
     },
     {

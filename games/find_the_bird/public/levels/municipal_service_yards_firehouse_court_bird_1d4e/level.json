@@ -67,27 +67,35 @@
       "r": 57,
       "sprite": {
         "image": "levels/municipal_service_yards_firehouse_court_bird_1d4e/dogs/dog_47/sprite_000.png",
-        "height": 372,
-        "width": 306,
-        "x": 1069,
-        "y": 620,
+        "height": 141,
+        "width": 87,
+        "x": 1171,
+        "y": 626,
         "cleanup": {
-          "x": 1046,
-          "y": 592,
-          "width": 351,
-          "height": 427
+          "x": 1068,
+          "y": 620,
+          "width": 306,
+          "height": 372
         },
-        "anchorX": 0.5752,
-        "anchorY": 0.25,
+        "anchorX": 0.8506,
+        "anchorY": 0.617,
         "flipX": false,
         "flipY": false,
         "refit": {
           "scale": 1.0,
           "ratio": 1.0,
-          "pop": 2.6,
+          "pop": 15.8,
           "dx": 0,
           "dy": 0
-        }
+        },
+        "cleanupNote": "tight (Batu 2026-09-16)",
+        "regen": {
+          "pass": "crop",
+          "score": 0.956,
+          "pop": 15.9,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
       }
     },
     {
@@ -129,27 +137,35 @@
       "r": 57,
       "sprite": {
         "image": "levels/municipal_service_yards_firehouse_court_bird_1d4e/dogs/dog_49/sprite_000.png",
-        "height": 309,
-        "width": 248,
-        "x": 1069,
-        "y": 732,
+        "height": 125,
+        "width": 152,
+        "x": 1137,
+        "y": 888,
         "cleanup": {
-          "x": 1050,
-          "y": 708,
-          "width": 285,
-          "height": 355
+          "x": 1068,
+          "y": 731,
+          "width": 248,
+          "height": 309
         },
-        "anchorX": 0.5363,
-        "anchorY": 0.7023,
+        "anchorX": 0.4276,
+        "anchorY": 0.488,
         "flipX": false,
         "flipY": false,
         "refit": {
           "scale": 1.0,
           "ratio": 1.0,
-          "pop": 0.8,
+          "pop": 17.6,
           "dx": 0,
           "dy": 0
-        }
+        },
+        "cleanupNote": "tight (Batu 2026-09-16)",
+        "regen": {
+          "pass": "crop",
+          "score": 0.928,
+          "pop": 17.5,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
       }
     },
     {
@@ -222,32 +238,32 @@
       "r": 57,
       "sprite": {
         "image": "levels/municipal_service_yards_firehouse_court_bird_1d4e/dogs/dog_52/sprite_000.png",
-        "height": 47,
-        "width": 63,
+        "height": 44,
+        "width": 59,
         "x": 1138,
-        "y": 1264,
+        "y": 1267,
         "cleanup": {
-          "x": 1148,
-          "y": 1264,
-          "width": 115,
-          "height": 114
+          "x": 1141,
+          "y": 1261,
+          "width": 122,
+          "height": 117
         },
-        "anchorX": 0.5238,
-        "anchorY": 0.5106,
+        "anchorX": 0.6441,
+        "anchorY": 0.5682,
         "flipX": false,
         "flipY": false,
         "refit": {
           "scale": 0.5499999999999999,
-          "ratio": 1.15,
-          "pop": 18.9,
-          "dx": 35,
-          "dy": 34
+          "ratio": 1.1,
+          "pop": 17.8,
+          "dx": 30,
+          "dy": 30
         },
         "regen": {
           "pass": "crop",
-          "score": 0.6427,
-          "pop": 21.3,
-          "why": "T3"
+          "score": 0.6586,
+          "pop": 20.9,
+          "why": "T4"
         },
         "technique": "gpt-image-2.5-sunburst-low-visible-only"
       }
@@ -291,27 +307,34 @@
       "r": 57,
       "sprite": {
         "image": "levels/municipal_service_yards_firehouse_court_bird_1d4e/dogs/dog_54/sprite_000.png",
-        "height": 189,
-        "width": 418,
-        "x": 425,
-        "y": 1177,
+        "height": 160,
+        "width": 182,
+        "x": 613,
+        "y": 1196,
         "cleanup": {
-          "x": 393,
-          "y": 1162,
-          "width": 480,
-          "height": 217
+          "x": 599,
+          "y": 1184,
+          "width": 209,
+          "height": 184
         },
-        "anchorX": 0.6722,
-        "anchorY": 0.4762,
+        "anchorX": 0.511,
+        "anchorY": 0.4437,
         "flipX": false,
         "flipY": false,
         "refit": {
           "scale": 1.0,
           "ratio": 1.0,
-          "pop": 0.0,
+          "pop": 15.9,
           "dx": 0,
           "dy": 0
-        }
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.9412,
+          "pop": 15.7,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
       }
     },
     {
@@ -353,27 +376,34 @@
       "r": 57,
       "sprite": {
         "image": "levels/municipal_service_yards_firehouse_court_bird_1d4e/dogs/dog_56/sprite_000.png",
-        "height": 331,
-        "width": 250,
-        "x": 317,
-        "y": 1858,
+        "height": 147,
+        "width": 138,
+        "x": 405,
+        "y": 1967,
         "cleanup": {
-          "x": 298,
-          "y": 1833,
-          "width": 287,
-          "height": 380
+          "x": 389,
+          "y": 1945,
+          "width": 162,
+          "height": 169
         },
-        "anchorX": 0.516,
-        "anchorY": 0.4955,
+        "anchorX": 0.3116,
+        "anchorY": 0.4422,
         "flipX": false,
         "flipY": false,
         "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 0.0,
-          "dx": 0,
-          "dy": 0
-        }
+          "scale": 1.1,
+          "ratio": 0.95,
+          "pop": 17.9,
+          "dx": -2,
+          "dy": -9
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.7056,
+          "pop": 43.3,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
       }
     },
     {
@@ -384,27 +414,35 @@
       "r": 57,
       "sprite": {
         "image": "levels/municipal_service_yards_firehouse_court_bird_1d4e/dogs/dog_57/sprite_000.png",
-        "height": 341,
-        "width": 309,
-        "x": 992,
-        "y": 1728,
+        "height": 186,
+        "width": 136,
+        "x": 1088,
+        "y": 1766,
         "cleanup": {
-          "x": 968,
-          "y": 1702,
-          "width": 355,
-          "height": 392
+          "x": 991,
+          "y": 1727,
+          "width": 309,
+          "height": 341
         },
-        "anchorX": 0.5405,
-        "anchorY": 0.3754,
+        "anchorX": 0.6691,
+        "anchorY": 0.5914,
         "flipX": false,
         "flipY": false,
         "refit": {
-          "scale": 1.0,
+          "scale": 1.3,
           "ratio": 1.0,
-          "pop": 0.0,
-          "dx": 0,
-          "dy": 0
-        }
+          "pop": 21.9,
+          "dx": -19,
+          "dy": -19
+        },
+        "cleanupNote": "tight (Batu 2026-09-16)",
+        "regen": {
+          "pass": "crop2",
+          "score": 0.601,
+          "pop": 55.2,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
       }
     },
     {
@@ -477,27 +515,34 @@
       "r": 57,
       "sprite": {
         "image": "levels/municipal_service_yards_firehouse_court_bird_1d4e/dogs/dog_60/sprite_000.png",
-        "height": 331,
-        "width": 217,
-        "x": 1988,
-        "y": 1672,
+        "height": 119,
+        "width": 165,
+        "x": 2005,
+        "y": 1779,
         "cleanup": {
-          "x": 1971,
-          "y": 1647,
-          "width": 249,
-          "height": 380
+          "x": 1985,
+          "y": 1768,
+          "width": 189,
+          "height": 136
         },
-        "anchorX": 0.5069,
-        "anchorY": 0.5166,
+        "anchorX": 0.6061,
+        "anchorY": 0.5546,
         "flipX": false,
         "flipY": false,
         "refit": {
-          "scale": 1.0,
+          "scale": 1.05,
           "ratio": 1.0,
-          "pop": 0.0,
-          "dx": 0,
-          "dy": 0
-        }
+          "pop": 27.4,
+          "dx": -6,
+          "dy": -1
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.7105,
+          "pop": 55.1,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
       }
     },
     {
@@ -508,27 +553,34 @@
       "r": 57,
       "sprite": {
         "image": "levels/municipal_service_yards_firehouse_court_bird_1d4e/dogs/dog_61/sprite_000.png",
-        "height": 240,
-        "width": 266,
-        "x": 1840,
-        "y": 1865,
+        "height": 144,
+        "width": 150,
+        "x": 1950,
+        "y": 1947,
         "cleanup": {
-          "x": 1820,
-          "y": 1847,
-          "width": 305,
-          "height": 276
+          "x": 1925,
+          "y": 1918,
+          "width": 173,
+          "height": 165
         },
-        "anchorX": 0.5338,
-        "anchorY": 0.6375,
+        "anchorX": 0.3,
+        "anchorY": 0.6181,
         "flipX": false,
         "flipY": false,
         "refit": {
-          "scale": 1.0,
+          "scale": 1.25,
           "ratio": 1.0,
-          "pop": 0.0,
-          "dx": 0,
-          "dy": 0
-        }
+          "pop": 20.9,
+          "dx": -12,
+          "dy": -17
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.7345,
+          "pop": 39.0,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
       }
     },
     {
@@ -544,10 +596,10 @@
         "x": 1829,
         "y": 2163,
         "cleanup": {
-          "x": 1820,
-          "y": 2149,
-          "width": 141,
-          "height": 120
+          "x": 1828,
+          "y": 2163,
+          "width": 107,
+          "height": 87
         },
         "anchorX": 0.7103,
         "anchorY": 0.5747,
@@ -566,7 +618,8 @@
           "pop": 28.3,
           "why": "T3"
         },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "cleanupNote": "tight (Batu 2026-09-16)"
       }
     },
     {

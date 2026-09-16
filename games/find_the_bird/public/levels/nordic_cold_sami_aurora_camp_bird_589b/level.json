@@ -62,27 +62,34 @@
       "r": 82,
       "sprite": {
         "image": "levels/nordic_cold_sami_aurora_camp_bird_589b/dogs/dog_01/sprite_000.png",
-        "height": 304,
-        "width": 410,
-        "x": 464,
-        "y": 1880,
+        "height": 195,
+        "width": 224,
+        "x": 644,
+        "y": 1950,
         "cleanup": {
-          "x": 433,
-          "y": 1857,
-          "width": 471,
-          "height": 349
+          "x": 627,
+          "y": 1935,
+          "width": 257,
+          "height": 224
         },
-        "anchorX": 0.7073,
-        "anchorY": 0.6316,
+        "anchorX": 0.4911,
+        "anchorY": 0.6256,
         "flipX": false,
         "flipY": false,
         "refit": {
           "scale": 1.0,
           "ratio": 1.0,
-          "pop": 3.1,
+          "pop": 13.5,
           "dx": 0,
           "dy": 0
-        }
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.9166,
+          "pop": 13.5,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
       }
     },
     {
@@ -93,27 +100,34 @@
       "r": 82,
       "sprite": {
         "image": "levels/nordic_cold_sami_aurora_camp_bird_589b/dogs/dog_02/sprite_000.png",
-        "height": 297,
-        "width": 392,
-        "x": 437,
-        "y": 1879,
+        "height": 152,
+        "width": 183,
+        "x": 443,
+        "y": 1885,
         "cleanup": {
-          "x": 407,
-          "y": 1856,
-          "width": 450,
-          "height": 341
+          "x": 429,
+          "y": 1873,
+          "width": 210,
+          "height": 174
         },
-        "anchorX": 0.2653,
-        "anchorY": 0.2795,
+        "anchorX": 0.5355,
+        "anchorY": 0.5066,
         "flipX": false,
         "flipY": false,
         "refit": {
           "scale": 1.0,
           "ratio": 1.0,
-          "pop": 1.3,
+          "pop": 15.5,
           "dx": 0,
           "dy": 0
-        }
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.8837,
+          "pop": 15.5,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
       }
     },
     {
@@ -124,27 +138,34 @@
       "r": 82,
       "sprite": {
         "image": "levels/nordic_cold_sami_aurora_camp_bird_589b/dogs/dog_03/sprite_000.png",
-        "height": 288,
-        "width": 444,
-        "x": 397,
-        "y": 2190,
+        "height": 158,
+        "width": 192,
+        "x": 576,
+        "y": 2268,
         "cleanup": {
-          "x": 363,
-          "y": 2168,
-          "width": 510,
-          "height": 331
+          "x": 515,
+          "y": 2244,
+          "width": 257,
+          "height": 220
         },
-        "anchorX": 0.4505,
-        "anchorY": 0.6701,
+        "anchorX": 0.1615,
+        "anchorY": 0.8038,
         "flipX": false,
         "flipY": false,
         "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 0.3,
-          "dx": 0,
-          "dy": 0
-        }
+          "scale": 1.35,
+          "ratio": 0.95,
+          "pop": 34.6,
+          "dx": -10,
+          "dy": -11
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.5825,
+          "pop": 54.9,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
       }
     },
     {
@@ -155,27 +176,34 @@
       "r": 82,
       "sprite": {
         "image": "levels/nordic_cold_sami_aurora_camp_bird_589b/dogs/dog_04/sprite_000.png",
-        "height": 376,
-        "width": 301,
-        "x": 1573,
-        "y": 1410,
+        "height": 241,
+        "width": 164,
+        "x": 1586,
+        "y": 1417,
         "cleanup": {
-          "x": 1550,
-          "y": 1381,
-          "width": 346,
-          "height": 432
+          "x": 1573,
+          "y": 1398,
+          "width": 188,
+          "height": 277
         },
-        "anchorX": 0.3422,
-        "anchorY": 0.3218,
+        "anchorX": 0.5488,
+        "anchorY": 0.473,
         "flipX": false,
         "flipY": false,
         "refit": {
           "scale": 1.0,
           "ratio": 1.0,
-          "pop": 1.0,
+          "pop": 14.8,
           "dx": 0,
           "dy": 0
-        }
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.9663,
+          "pop": 14.8,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
       }
     },
     {
@@ -186,27 +214,34 @@
       "r": 82,
       "sprite": {
         "image": "levels/nordic_cold_sami_aurora_camp_bird_589b/dogs/dog_05/sprite_000.png",
-        "height": 407,
-        "width": 408,
-        "x": 1635,
-        "y": 1423,
+        "height": 238,
+        "width": 172,
+        "x": 1864,
+        "y": 1585,
         "cleanup": {
-          "x": 1604,
-          "y": 1392,
-          "width": 469,
-          "height": 468
+          "x": 1849,
+          "y": 1567,
+          "width": 199,
+          "height": 273
         },
-        "anchorX": 0.7255,
-        "anchorY": 0.7248,
+        "anchorX": 0.3895,
+        "anchorY": 0.5588,
         "flipX": false,
         "flipY": false,
         "refit": {
           "scale": 1.0,
           "ratio": 1.0,
-          "pop": 3.9,
+          "pop": 13.7,
           "dx": 0,
           "dy": 0
-        }
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.9293,
+          "pop": 13.7,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
       }
     },
     {

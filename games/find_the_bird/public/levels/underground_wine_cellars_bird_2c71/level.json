@@ -63,27 +63,34 @@
       "r": 57,
       "sprite": {
         "image": "levels/underground_wine_cellars_bird_2c71/dogs/dog_10/sprite_000.png",
-        "height": 203,
-        "width": 278,
-        "x": 813,
-        "y": 582,
+        "height": 171,
+        "width": 185,
+        "x": 855,
+        "y": 596,
         "cleanup": {
-          "x": 792,
-          "y": 566,
-          "width": 319,
-          "height": 233
+          "x": 842,
+          "y": 578,
+          "width": 212,
+          "height": 196
         },
-        "anchorX": 0.464,
-        "anchorY": 0.5271,
+        "anchorX": 0.4649,
+        "anchorY": 0.5731,
         "flipX": false,
         "flipY": false,
         "refit": {
-          "scale": 1.0,
+          "scale": 1.05,
           "ratio": 1.0,
-          "pop": 24.9,
+          "pop": 23.8,
           "dx": 0,
-          "dy": 0
-        }
+          "dy": -4
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.7273,
+          "pop": 42.6,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
       }
     },
     {
@@ -132,18 +139,18 @@
       "r": 57,
       "sprite": {
         "image": "levels/underground_wine_cellars_bird_2c71/dogs/dog_19/sprite_000.png",
-        "height": 206,
-        "width": 349,
-        "x": 2003,
-        "y": 588,
+        "height": 109,
+        "width": 109,
+        "x": 2132,
+        "y": 625,
         "cleanup": {
-          "x": 1978,
-          "y": 577,
-          "width": 401,
-          "height": 236
+          "x": 2112,
+          "y": 616,
+          "width": 137,
+          "height": 146
         },
-        "anchorX": 0.4699,
-        "anchorY": 0.5485,
+        "anchorX": 0.3394,
+        "anchorY": 0.7431,
         "flipX": false,
         "flipY": false,
         "refit": {
@@ -152,7 +159,14 @@
           "pop": 20.6,
           "dx": 1,
           "dy": 5
-        }
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.5416,
+          "pop": 19.5,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
       }
     },
     {
@@ -401,32 +415,32 @@
       "r": 57,
       "sprite": {
         "image": "levels/underground_wine_cellars_bird_2c71/dogs/dog_27/sprite_000.png",
-        "height": 164,
-        "width": 294,
-        "x": 1413,
-        "y": 2093,
+        "height": 168,
+        "width": 200,
+        "x": 1422,
+        "y": 2099,
         "cleanup": {
-          "x": 1384,
-          "y": 2079,
-          "width": 338,
-          "height": 188
+          "x": 1403,
+          "y": 2081,
+          "width": 230,
+          "height": 193
         },
-        "anchorX": 0.3639,
-        "anchorY": 0.5732,
+        "anchorX": 0.48,
+        "anchorY": 0.5476,
         "flipX": false,
         "flipY": false,
         "refit": {
-          "scale": 1.05,
-          "ratio": 1.05,
-          "pop": 16.0,
-          "dx": -5,
-          "dy": 0
+          "scale": 1.1,
+          "ratio": 1.0,
+          "pop": 18.4,
+          "dx": -3,
+          "dy": -5
         },
         "regen": {
-          "pass": "crop2",
-          "score": 0.8156,
-          "pop": 22.3,
-          "why": "T3+refit refused"
+          "pass": "crop",
+          "score": 0.5576,
+          "pop": 36.6,
+          "why": "T4"
         },
         "technique": "gpt-image-2.5-sunburst-low-visible-only"
       }
@@ -439,27 +453,34 @@
       "r": 57,
       "sprite": {
         "image": "levels/underground_wine_cellars_bird_2c71/dogs/dog_28/sprite_000.png",
-        "height": 194,
-        "width": 307,
-        "x": 1569,
-        "y": 1603,
+        "height": 176,
+        "width": 196,
+        "x": 1615,
+        "y": 1633,
         "cleanup": {
-          "x": 1545,
-          "y": 1588,
-          "width": 353,
-          "height": 223
+          "x": 1585,
+          "y": 1601,
+          "width": 225,
+          "height": 202
         },
-        "anchorX": 0.4463,
-        "anchorY": 0.5412,
+        "anchorX": 0.5408,
+        "anchorY": 0.5284,
         "flipX": false,
         "flipY": false,
         "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 24.4,
-          "dx": 0,
-          "dy": 0
-        }
+          "scale": 1.2,
+          "ratio": 0.9,
+          "pop": 20.9,
+          "dx": -14,
+          "dy": -17
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.7398,
+          "pop": 42.8,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
       }
     },
     {

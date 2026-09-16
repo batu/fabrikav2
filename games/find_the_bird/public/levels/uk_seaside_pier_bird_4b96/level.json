@@ -464,27 +464,34 @@
       "r": 57,
       "sprite": {
         "image": "levels/uk_seaside_pier_bird_4b96/dogs/dog_02/sprite_000.png",
-        "height": 285,
-        "width": 178,
-        "x": 755,
-        "y": 1856,
+        "height": 179,
+        "width": 83,
+        "x": 815,
+        "y": 1948,
         "cleanup": {
-          "x": 741,
-          "y": 1834,
-          "width": 204,
-          "height": 327
+          "x": 799,
+          "y": 1934,
+          "width": 114,
+          "height": 205
         },
-        "anchorX": 0.573,
-        "anchorY": 0.6351,
+        "anchorX": 0.506,
+        "anchorY": 0.4972,
         "flipX": false,
         "flipY": false,
         "refit": {
           "scale": 1.0,
           "ratio": 1.0,
-          "pop": 0.0,
+          "pop": 18.3,
           "dx": 0,
           "dy": 0
-        }
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.8633,
+          "pop": 17.5,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
       }
     },
     {

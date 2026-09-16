@@ -562,27 +562,34 @@
       "r": 57,
       "sprite": {
         "image": "levels/space_colony_modules_hydroponics_bay_bird_c63a/dogs/dog_06/sprite_000.png",
-        "height": 326,
-        "width": 383,
-        "x": 839,
-        "y": 1766,
+        "height": 140,
+        "width": 103,
+        "x": 932,
+        "y": 1787,
         "cleanup": {
-          "x": 810,
-          "y": 1741,
-          "width": 440,
-          "height": 374
+          "x": 924,
+          "y": 1776,
+          "width": 118,
+          "height": 161
         },
-        "anchorX": 0.376,
-        "anchorY": 0.2669,
+        "anchorX": 0.4951,
+        "anchorY": 0.4714,
         "flipX": false,
         "flipY": false,
         "refit": {
           "scale": 1.0,
           "ratio": 1.0,
-          "pop": 2.3,
+          "pop": 12.4,
           "dx": 0,
           "dy": 0
-        }
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.9384,
+          "pop": 12.2,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
       }
     },
     {

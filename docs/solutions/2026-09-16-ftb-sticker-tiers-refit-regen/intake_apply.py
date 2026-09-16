@@ -15,16 +15,20 @@ for k in sys.argv[1:]:
         best=min(range(len(work['dogs'])),key=lambda i:(work['dogs'][i]['x']-d['x'])**2+(work['dogs'][i]['y']-d['y'])**2)
         wdg=work['dogs'][best]; return best if ((wdg['x']-d['x'])**2+(wdg['y']-d['y'])**2)**0.5<=d.get('r',57) else None
     match={d['id']:near(d) for d in level['dogs']}
-    unmatched=[d['compatibilitySlot'] for d in level['dogs'] if match[d['id']] is None]
+    unmatched=[d['compatibilitySlot'] for d in level['dogs'] if match[d['id']] is None and not str(d.get('compatibilitySlot','')).startswith('dog_added')]
     assert not unmatched, f'{k}: export hitboxes without a session match: {unmatched}'
     summ=SCRATCH/'intake'/k/'summary.json'; missing=set(json.load(open(summ)).get('missing',[])) if summ.exists() else set()
     n_regen=n_refit=0
     for d in level['dogs']:
+        if match[d['id']] is None: continue   # hand-added bird (intake_add_bird.py), export only
         w=work['dogs'][match[d['id']]]
         if not w.get('sprite') or not d.get('sprite'): continue
         sp=d['sprite']; ws=w['sprite']
         for f in FIELDS:
             if f in ws: sp[f]=ws[f]
+        if sp.get('cleanupNote'):   # hand-set by Batu's review: keep it, only grow it to cover a regenerated sprite box
+            c=sp['cleanup']; x,y,w,h=sprite_xy(d); x0=min(c['x'],x); y0=min(c['y'],y); x1=max(c['x']+c['width'],x+w); y1=max(c['y']+c['height'],y+h)
+            sp['cleanup']={'x':int(x0),'y':int(y0),'width':int(x1-x0),'height':int(y1-y0)}; continue
         # cleanup follows the final sprite box (x1.15, min 2r, always containing the hitbox disc) — fix2 rule
         r=d.get('r',57); W,H=level['width'],level['height']; x,y,w,h=sprite_xy(d); cx,cy=x+w/2,y+h/2; pw,ph=max(w*1.15,2*r),max(h*1.15,2*r)
         if not (x<=d['x']<=x+w and y<=d['y']<=y+h): cx,cy=d['x'],d['y']

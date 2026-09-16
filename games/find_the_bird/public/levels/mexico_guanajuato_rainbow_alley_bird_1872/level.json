@@ -70,27 +70,34 @@
       "r": 57,
       "sprite": {
         "image": "levels/mexico_guanajuato_rainbow_alley_bird_1872/dogs/dog_11/sprite_000.png",
-        "height": 322,
-        "width": 232,
-        "x": 545,
-        "y": 532,
+        "height": 113,
+        "width": 175,
+        "x": 558,
+        "y": 610,
         "cleanup": {
-          "x": 527,
-          "y": 507,
-          "width": 266,
-          "height": 370
+          "x": 544,
+          "y": 599,
+          "width": 201,
+          "height": 132
         },
-        "anchorX": 0.4397,
-        "anchorY": 0.3851,
+        "anchorX": 0.5086,
+        "anchorY": 0.4071,
         "flipX": false,
         "flipY": false,
         "refit": {
           "scale": 1.0,
           "ratio": 1.0,
-          "pop": 0.0,
+          "pop": 14.9,
           "dx": 0,
           "dy": 0
-        }
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.9692,
+          "pop": 14.4,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
       }
     },
     {
@@ -101,27 +108,34 @@
       "r": 57,
       "sprite": {
         "image": "levels/mexico_guanajuato_rainbow_alley_bird_1872/dogs/dog_15/sprite_000.png",
-        "height": 353,
-        "width": 231,
-        "x": 341,
-        "y": 784,
+        "height": 150,
+        "width": 174,
+        "x": 375,
+        "y": 795,
         "cleanup": {
-          "x": 323,
-          "y": 757,
-          "width": 265,
-          "height": 405
+          "x": 365,
+          "y": 779,
+          "width": 200,
+          "height": 172
         },
-        "anchorX": 0.5325,
-        "anchorY": 0.2833,
+        "anchorX": 0.4885,
+        "anchorY": 0.62,
         "flipX": false,
         "flipY": false,
         "refit": {
           "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 0.0,
-          "dx": 0,
-          "dy": 0
-        }
+          "ratio": 0.95,
+          "pop": 28.3,
+          "dx": 3,
+          "dy": -3
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.7465,
+          "pop": 32.0,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
       }
     },
     {
@@ -132,27 +146,34 @@
       "r": 57,
       "sprite": {
         "image": "levels/mexico_guanajuato_rainbow_alley_bird_1872/dogs/dog_18/sprite_000.png",
-        "height": 236,
-        "width": 300,
-        "x": 383,
-        "y": 1280,
+        "height": 166,
+        "width": 137,
+        "x": 445,
+        "y": 1343,
         "cleanup": {
-          "x": 360,
-          "y": 1262,
-          "width": 345,
-          "height": 271
+          "x": 432,
+          "y": 1322,
+          "width": 157,
+          "height": 190
         },
-        "anchorX": 0.3567,
-        "anchorY": 0.5466,
+        "anchorX": 0.3431,
+        "anchorY": 0.4458,
         "flipX": false,
         "flipY": false,
         "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 0.0,
-          "dx": 0,
-          "dy": 0
-        }
+          "scale": 1.05,
+          "ratio": 0.95,
+          "pop": 24.0,
+          "dx": -2,
+          "dy": -7
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.8325,
+          "pop": 34.0,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
       }
     },
     {
@@ -194,18 +215,18 @@
       "r": 57,
       "sprite": {
         "image": "levels/mexico_guanajuato_rainbow_alley_bird_1872/dogs/dog_28/sprite_000.png",
-        "height": 271,
-        "width": 157,
-        "x": 480,
-        "y": 1962,
+        "height": 106,
+        "width": 62,
+        "x": 526,
+        "y": 2007,
         "cleanup": {
-          "x": 466,
-          "y": 1930,
-          "width": 180,
-          "height": 311
+          "x": 492,
+          "y": 1999,
+          "width": 121,
+          "height": 139
         },
-        "anchorX": 0.4522,
-        "anchorY": 0.4834,
+        "anchorX": 0.371,
+        "anchorY": 0.7075,
         "flipX": false,
         "flipY": false,
         "refit": {
@@ -214,7 +235,14 @@
           "pop": 24.4,
           "dx": -1,
           "dy": -10
-        }
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.7564,
+          "pop": 37.0,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
       }
     },
     {
@@ -463,27 +491,34 @@
       "r": 57,
       "sprite": {
         "image": "levels/mexico_guanajuato_rainbow_alley_bird_1872/dogs/dog_36/sprite_000.png",
-        "height": 234,
-        "width": 305,
-        "x": 1627,
-        "y": 2242,
+        "height": 119,
+        "width": 158,
+        "x": 1737,
+        "y": 2320,
         "cleanup": {
-          "x": 1604,
-          "y": 2224,
-          "width": 350,
-          "height": 269
+          "x": 1725,
+          "y": 2311,
+          "width": 181,
+          "height": 136
         },
-        "anchorX": 0.5869,
-        "anchorY": 0.5855,
+        "anchorX": 0.4367,
+        "anchorY": 0.4958,
         "flipX": false,
         "flipY": false,
         "refit": {
           "scale": 1.0,
           "ratio": 1.0,
-          "pop": 0.0,
+          "pop": 13.0,
           "dx": 0,
           "dy": 0
-        }
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.9732,
+          "pop": 12.7,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
       }
     },
     {
@@ -525,20 +560,35 @@
       "r": 57,
       "sprite": {
         "image": "levels/mexico_guanajuato_rainbow_alley_bird_1872/dogs/dog_38/sprite_000.png",
-        "height": 345,
-        "width": 305,
-        "x": 1756,
-        "y": 1649,
+        "height": 114,
+        "width": 176,
+        "x": 1841,
+        "y": 1837,
         "cleanup": {
-          "x": 1733,
-          "y": 1623,
-          "width": 350,
-          "height": 396
+          "x": 1756,
+          "y": 1648,
+          "width": 305,
+          "height": 345
         },
-        "anchorX": 0.5672,
-        "anchorY": 0.6609,
+        "anchorX": 0.5,
+        "anchorY": 0.3509,
         "flipX": false,
-        "flipY": false
+        "flipY": false,
+        "cleanupNote": "tight, no carpet (Batu 2026-09-16)",
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 25.6,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.884,
+          "pop": 25.6,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
       }
     },
     {
@@ -649,27 +699,34 @@
       "r": 57,
       "sprite": {
         "image": "levels/mexico_guanajuato_rainbow_alley_bird_1872/dogs/dog_42/sprite_000.png",
-        "height": 285,
-        "width": 222,
-        "x": 1882,
-        "y": 617,
+        "height": 128,
+        "width": 122,
+        "x": 1953,
+        "y": 623,
         "cleanup": {
-          "x": 1865,
-          "y": 595,
-          "width": 255,
-          "height": 327
+          "x": 1943,
+          "y": 613,
+          "width": 146,
+          "height": 147
         },
-        "anchorX": 0.6802,
-        "anchorY": 0.2877,
+        "anchorX": 0.6557,
+        "anchorY": 0.5938,
         "flipX": false,
         "flipY": false,
         "refit": {
           "scale": 1.0,
           "ratio": 1.0,
-          "pop": 0.0,
+          "pop": 19.0,
           "dx": 0,
           "dy": 0
-        }
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.9276,
+          "pop": 18.8,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
       }
     },
     {

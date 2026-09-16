@@ -63,32 +63,32 @@
       "r": 57,
       "sprite": {
         "image": "levels/walled_gardens_riad_courtyard_bird_5a77/dogs/dog_04/sprite_000.png",
-        "height": 304,
-        "width": 206,
-        "x": 1460,
-        "y": 876,
+        "height": 302,
+        "width": 205,
+        "x": 1458,
+        "y": 877,
         "cleanup": {
-          "x": 1444,
-          "y": 853,
-          "width": 236,
-          "height": 349
+          "x": 1442,
+          "y": 854,
+          "width": 235,
+          "height": 347
         },
-        "anchorX": 0.5243,
+        "anchorX": 0.5366,
         "anchorY": 0.5066,
         "flipX": false,
         "flipY": false,
         "refit": {
           "scale": 1.0,
           "ratio": 1.0,
-          "pop": 24.5,
+          "pop": 23.8,
           "dx": 0,
           "dy": 0
         },
         "regen": {
           "pass": "crop",
-          "score": 0.8621,
-          "pop": 24.1,
-          "why": "T3+refit refused"
+          "score": 0.8653,
+          "pop": 23.2,
+          "why": "T4"
         },
         "technique": "gpt-image-2.5-sunburst-low-visible-only"
       }
@@ -101,27 +101,34 @@
       "r": 57,
       "sprite": {
         "image": "levels/walled_gardens_riad_courtyard_bird_5a77/dogs/dog_18/sprite_000.png",
-        "height": 280,
-        "width": 281,
-        "x": 945,
+        "height": 274,
+        "width": 269,
+        "x": 952,
         "y": 958,
         "cleanup": {
-          "x": 923,
-          "y": 936,
-          "width": 323,
-          "height": 322
+          "x": 931,
+          "y": 937,
+          "width": 309,
+          "height": 315
         },
-        "anchorX": 0.5125,
-        "anchorY": 0.4857,
+        "anchorX": 0.5093,
+        "anchorY": 0.4927,
         "flipX": false,
         "flipY": false,
         "refit": {
           "scale": 1.0,
           "ratio": 1.0,
-          "pop": 19.0,
+          "pop": 11.0,
           "dx": 0,
-          "dy": -1
-        }
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.9222,
+          "pop": 10.4,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
       }
     },
     {
@@ -363,27 +370,34 @@
       "r": 57,
       "sprite": {
         "image": "levels/walled_gardens_riad_courtyard_bird_5a77/dogs/dog_26/sprite_000.png",
-        "height": 185,
-        "width": 361,
-        "x": 1202,
-        "y": 2301,
+        "height": 172,
+        "width": 348,
+        "x": 1208,
+        "y": 2309,
         "cleanup": {
-          "x": 1174,
-          "y": 2287,
-          "width": 415,
-          "height": 212
+          "x": 1181,
+          "y": 2296,
+          "width": 400,
+          "height": 197
         },
-        "anchorX": 0.4681,
-        "anchorY": 0.373,
+        "anchorX": 0.4684,
+        "anchorY": 0.3547,
         "flipX": false,
         "flipY": false,
         "refit": {
           "scale": 1.0,
           "ratio": 1.0,
-          "pop": 0.0,
+          "pop": 16.6,
           "dx": 0,
           "dy": 0
-        }
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.8701,
+          "pop": 16.9,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
       }
     },
     {

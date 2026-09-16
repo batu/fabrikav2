@@ -158,27 +158,34 @@
       "r": 57,
       "sprite": {
         "image": "levels/southeast_asia_sea_floating_market_bird_8d44/dogs/dog_22/sprite_000.png",
-        "height": 267,
-        "width": 360,
-        "x": 1529,
-        "y": 1073,
+        "height": 148,
+        "width": 148,
+        "x": 1687,
+        "y": 1104,
         "cleanup": {
-          "x": 1501,
-          "y": 1052,
-          "width": 414,
-          "height": 307
+          "x": 1665,
+          "y": 1076,
+          "width": 170,
+          "height": 174
         },
-        "anchorX": 0.5528,
-        "anchorY": 0.4532,
+        "anchorX": 0.3446,
+        "anchorY": 0.7162,
         "flipX": false,
         "flipY": false,
         "refit": {
-          "scale": 1.0,
+          "scale": 1.15,
           "ratio": 1.0,
-          "pop": 0.0,
-          "dx": 0,
-          "dy": 0
-        }
+          "pop": 16.9,
+          "dx": -10,
+          "dy": -15
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.701,
+          "pop": 54.4,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
       }
     },
     {
@@ -282,27 +289,34 @@
       "r": 57,
       "sprite": {
         "image": "levels/southeast_asia_sea_floating_market_bird_8d44/dogs/dog_26/sprite_000.png",
-        "height": 193,
-        "width": 269,
-        "x": 677,
-        "y": 1499,
+        "height": 184,
+        "width": 198,
+        "x": 714,
+        "y": 1562,
         "cleanup": {
-          "x": 656,
-          "y": 1484,
-          "width": 309,
-          "height": 221
+          "x": 680,
+          "y": 1490,
+          "width": 227,
+          "height": 211
         },
-        "anchorX": 0.4833,
-        "anchorY": 0.5803,
+        "anchorX": 0.5657,
+        "anchorY": 0.5815,
         "flipX": false,
         "flipY": false,
         "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 21.3,
-          "dx": 0,
-          "dy": 0
-        }
+          "scale": 1.95,
+          "ratio": 0.95,
+          "pop": 15.1,
+          "dx": -19,
+          "dy": -58
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.8672,
+          "pop": 29.0,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
       }
     },
     {
@@ -375,27 +389,35 @@
       "r": 57,
       "sprite": {
         "image": "levels/southeast_asia_sea_floating_market_bird_8d44/dogs/dog_29/sprite_000.png",
-        "height": 330,
-        "width": 319,
-        "x": 1106,
-        "y": 1867,
+        "height": 174,
+        "width": 176,
+        "x": 1114,
+        "y": 1882,
         "cleanup": {
-          "x": 1082,
-          "y": 1842,
-          "width": 366,
-          "height": 379
+          "x": 1106,
+          "y": 1867,
+          "width": 319,
+          "height": 330
         },
-        "anchorX": 0.2978,
-        "anchorY": 0.3242,
+        "anchorX": 0.4943,
+        "anchorY": 0.5287,
         "flipX": false,
         "flipY": false,
         "refit": {
           "scale": 1.0,
           "ratio": 1.0,
-          "pop": 1.8,
+          "pop": 21.0,
           "dx": 0,
           "dy": 0
-        }
+        },
+        "cleanupNote": "tight, boat pair (Batu 2026-09-16)",
+        "regen": {
+          "pass": "crop",
+          "score": 0.8802,
+          "pop": 20.9,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
       }
     },
     {
@@ -411,10 +433,10 @@
         "x": 1234,
         "y": 1961,
         "cleanup": {
-          "x": 1273,
-          "y": 1983,
-          "width": 270,
-          "height": 249
+          "x": 1290,
+          "y": 1999,
+          "width": 235,
+          "height": 217
         },
         "anchorX": 0.5149,
         "anchorY": 0.5484,
@@ -426,7 +448,8 @@
           "pop": 25.7,
           "dx": 57,
           "dy": 38
-        }
+        },
+        "cleanupNote": "tight, boat pair (Batu 2026-09-16)"
       }
     },
     {

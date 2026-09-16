@@ -11,8 +11,11 @@ old=[k for k in old if k not in removed]
 new=[k for k in open(SCRATCH/'intake'/'ids60.txt').read().split() if (ROOT/'public/levels'/k/'level.json').exists() and k not in old and k not in removed]
 def size(k):
     d=ROOT/'public/levels'/k; return sum(f.stat().st_size for f in d.rglob('*') if f.is_file() and f.suffix in ('.webp','.json') or (f.suffix=='.png' and 'dogs' in f.parts))
+order=old+new
+# Batu 2026-09-16: move sequence levels 3, 4, 5 (1-based) to position 67
+mv=order[2:5]; rest=order[:2]+order[5:]; order=rest[:66]+mv+rest[66:]
 entries=[]; used=0.0; bundled=0
-for k in old+new:
+for k in order:
     e=P.public_level_manifest_entry(S.GAME_PUBLIC_LEVELS,k); mb=size(k)/1e6
     e['bundled']=used+mb<=budget
     if e['bundled']: used+=mb; bundled+=1

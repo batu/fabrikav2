@@ -35,32 +35,32 @@
       "r": 57,
       "sprite": {
         "image": "levels/france_montmartre_cafe_terrace_bird_a9c4/dogs/dog_16/sprite_000.png",
-        "height": 206,
-        "width": 283,
-        "x": 460,
-        "y": 589,
+        "height": 182,
+        "width": 182,
+        "x": 504,
+        "y": 599,
         "cleanup": {
-          "x": 438,
-          "y": 573,
-          "width": 325,
-          "height": 236
+          "x": 490,
+          "y": 585,
+          "width": 209,
+          "height": 209
         },
-        "anchorX": 0.4841,
-        "anchorY": 0.5,
+        "anchorX": 0.511,
+        "anchorY": 0.511,
         "flipX": false,
         "flipY": false,
         "refit": {
           "scale": 1.0,
           "ratio": 1.0,
-          "pop": 14.8,
+          "pop": 19.7,
           "dx": 0,
           "dy": 0
         },
         "regen": {
           "pass": "crop2",
-          "score": 0.9496,
-          "pop": 14.7,
-          "why": "T3+refit refused"
+          "score": 0.8746,
+          "pop": 18.5,
+          "why": "T4"
         },
         "technique": "gpt-image-2.5-sunburst-low-visible-only"
       }
@@ -225,27 +225,34 @@
       "r": 57,
       "sprite": {
         "image": "levels/france_montmartre_cafe_terrace_bird_a9c4/dogs/dog_03/sprite_000.png",
-        "height": 264,
-        "width": 282,
-        "x": 532,
-        "y": 1915,
+        "height": 187,
+        "width": 192,
+        "x": 641,
+        "y": 1995,
         "cleanup": {
-          "x": 510,
-          "y": 1895,
-          "width": 324,
-          "height": 303
+          "x": 577,
+          "y": 1933,
+          "width": 220,
+          "height": 215
         },
-        "anchorX": 0.5496,
-        "anchorY": 0.5114,
+        "anchorX": 0.4948,
+        "anchorY": 0.5455,
         "flipX": false,
         "flipY": false,
         "refit": {
-          "scale": 1.0,
+          "scale": 1.85,
           "ratio": 1.0,
-          "pop": 0.0,
-          "dx": 0,
-          "dy": 0
-        }
+          "pop": 30.5,
+          "dx": -49,
+          "dy": -46
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.5972,
+          "pop": 72.9,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
       }
     },
     {
@@ -256,27 +263,34 @@
       "r": 57,
       "sprite": {
         "image": "levels/france_montmartre_cafe_terrace_bird_a9c4/dogs/dog_06/sprite_000.png",
-        "height": 227,
-        "width": 292,
-        "x": 1191,
-        "y": 1528,
+        "height": 56,
+        "width": 64,
+        "x": 1316,
+        "y": 1584,
         "cleanup": {
-          "x": 1169,
-          "y": 1510,
-          "width": 335,
-          "height": 261
+          "x": 1270,
+          "y": 1578,
+          "width": 130,
+          "height": 131
         },
-        "anchorX": 0.5205,
-        "anchorY": 0.4714,
+        "anchorX": 0.75,
+        "anchorY": 0.1786,
         "flipX": false,
         "flipY": false,
         "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 22.9,
-          "dx": 0,
-          "dy": 0
-        }
+          "scale": 0.5499999999999999,
+          "ratio": 1.15,
+          "pop": 16.6,
+          "dx": -21,
+          "dy": 41
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.571,
+          "pop": 21.4,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
       }
     },
     {
@@ -401,18 +415,18 @@
       "r": 57,
       "sprite": {
         "image": "levels/france_montmartre_cafe_terrace_bird_a9c4/dogs/dog_19/sprite_000.png",
-        "height": 317,
-        "width": 153,
-        "x": 1684,
-        "y": 691,
+        "height": 106,
+        "width": 57,
+        "x": 1694,
+        "y": 785,
         "cleanup": {
-          "x": 1672,
-          "y": 667,
-          "width": 175,
-          "height": 364
+          "x": 1697,
+          "y": 788,
+          "width": 114,
+          "height": 121
         },
-        "anchorX": 0.4575,
-        "anchorY": 0.4984,
+        "anchorX": 1.0526,
+        "anchorY": 0.6038,
         "flipX": false,
         "flipY": false,
         "refit": {
@@ -423,10 +437,10 @@
           "dy": 0
         },
         "regen": {
-          "pass": "crop2",
-          "score": 0.8763,
-          "pop": 27.6,
-          "why": "T3+refit refused"
+          "pass": "crop",
+          "score": 0.66,
+          "pop": 60.9,
+          "why": "T4"
         },
         "technique": "gpt-image-2.5-sunburst-low-visible-only"
       }
@@ -439,27 +453,34 @@
       "r": 57,
       "sprite": {
         "image": "levels/france_montmartre_cafe_terrace_bird_a9c4/dogs/dog_11/sprite_000.png",
-        "height": 337,
-        "width": 238,
-        "x": 1652,
-        "y": 1100,
+        "height": 181,
+        "width": 104,
+        "x": 1713,
+        "y": 1122,
         "cleanup": {
-          "x": 1634,
-          "y": 1074,
-          "width": 273,
-          "height": 387
+          "x": 1702,
+          "y": 1108,
+          "width": 122,
+          "height": 208
         },
-        "anchorX": 0.4496,
-        "anchorY": 0.3353,
+        "anchorX": 0.4423,
+        "anchorY": 0.5028,
         "flipX": false,
         "flipY": false,
         "refit": {
           "scale": 1.0,
           "ratio": 1.0,
-          "pop": 0.0,
+          "pop": 12.5,
           "dx": 0,
           "dy": 0
-        }
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.9496,
+          "pop": 12.2,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
       }
     },
     {
@@ -501,27 +522,34 @@
       "r": 57,
       "sprite": {
         "image": "levels/france_montmartre_cafe_terrace_bird_a9c4/dogs/dog_13/sprite_000.png",
-        "height": 182,
-        "width": 257,
-        "x": 1972,
-        "y": 1285,
+        "height": 172,
+        "width": 176,
+        "x": 2039,
+        "y": 1287,
         "cleanup": {
-          "x": 1952,
-          "y": 1271,
-          "width": 295,
-          "height": 209
+          "x": 2025,
+          "y": 1274,
+          "width": 202,
+          "height": 197
         },
-        "anchorX": 0.5992,
-        "anchorY": 0.522,
+        "anchorX": 0.4943,
+        "anchorY": 0.5407,
         "flipX": false,
         "flipY": false,
         "refit": {
           "scale": 1.0,
           "ratio": 1.0,
-          "pop": 23.6,
+          "pop": 11.0,
           "dx": 0,
           "dy": 0
-        }
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.9059,
+          "pop": 11.0,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
       }
     },
     {

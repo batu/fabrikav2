@@ -69,27 +69,34 @@
       "r": 57,
       "sprite": {
         "image": "levels/prehistoric_dig_enclosures_fossil_pit_bird_f78c/dogs/dog_07/sprite_000.png",
-        "height": 195,
-        "width": 259,
-        "x": 378,
-        "y": 1248,
+        "height": 186,
+        "width": 199,
+        "x": 446,
+        "y": 1271,
         "cleanup": {
-          "x": 358,
-          "y": 1232,
-          "width": 297,
-          "height": 224
+          "x": 415,
+          "y": 1241,
+          "width": 228,
+          "height": 213
         },
-        "anchorX": 0.6216,
-        "anchorY": 0.5538,
+        "anchorX": 0.5477,
+        "anchorY": 0.5376,
         "flipX": false,
         "flipY": false,
         "refit": {
-          "scale": 1.0,
+          "scale": 1.15,
           "ratio": 1.0,
-          "pop": 25.5,
-          "dx": 0,
-          "dy": -1
-        }
+          "pop": 19.9,
+          "dx": -15,
+          "dy": -16
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.6648,
+          "pop": 49.4,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
       }
     },
     {
@@ -169,27 +176,34 @@
       "r": 57,
       "sprite": {
         "image": "levels/prehistoric_dig_enclosures_fossil_pit_bird_f78c/dogs/dog_26/sprite_000.png",
-        "height": 148,
-        "width": 265,
-        "x": 1231,
-        "y": 811,
+        "height": 134,
+        "width": 205,
+        "x": 1270,
+        "y": 834,
         "cleanup": {
-          "x": 1207,
-          "y": 801,
-          "width": 304,
-          "height": 177
+          "x": 1233,
+          "y": 810,
+          "width": 235,
+          "height": 168
         },
-        "anchorX": 0.5019,
-        "anchorY": 0.7365,
+        "anchorX": 0.5415,
+        "anchorY": 0.7537,
         "flipX": false,
         "flipY": false,
         "refit": {
-          "scale": 1.0,
-          "ratio": 1.05,
-          "pop": 36.0,
-          "dx": -3,
-          "dy": 2
-        }
+          "scale": 1.2,
+          "ratio": 1.0,
+          "pop": 20.2,
+          "dx": -21,
+          "dy": -13
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.6332,
+          "pop": 63.3,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
       }
     },
     {
@@ -200,27 +214,34 @@
       "r": 57,
       "sprite": {
         "image": "levels/prehistoric_dig_enclosures_fossil_pit_bird_f78c/dogs/dog_27/sprite_000.png",
-        "height": 243,
-        "width": 304,
-        "x": 975,
-        "y": 1275,
+        "height": 148,
+        "width": 158,
+        "x": 989,
+        "y": 1285,
         "cleanup": {
-          "x": 952,
-          "y": 1256,
-          "width": 349,
-          "height": 279
+          "x": 977,
+          "y": 1273,
+          "width": 181,
+          "height": 170
         },
-        "anchorX": 0.352,
-        "anchorY": 0.3992,
+        "anchorX": 0.5886,
+        "anchorY": 0.5878,
         "flipX": false,
         "flipY": false,
         "refit": {
           "scale": 1.0,
           "ratio": 1.0,
-          "pop": 0.0,
+          "pop": 22.2,
           "dx": 0,
           "dy": 0
-        }
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.9209,
+          "pop": 22.1,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
       }
     },
     {
@@ -493,27 +514,34 @@
       "r": 57,
       "sprite": {
         "image": "levels/prehistoric_dig_enclosures_fossil_pit_bird_f78c/dogs/dog_36/sprite_000.png",
-        "height": 181,
-        "width": 269,
-        "x": 407,
-        "y": 1866,
+        "height": 163,
+        "width": 207,
+        "x": 440,
+        "y": 1877,
         "cleanup": {
-          "x": 386,
-          "y": 1853,
-          "width": 309,
-          "height": 208
+          "x": 418,
+          "y": 1861,
+          "width": 238,
+          "height": 187
         },
-        "anchorX": 0.4647,
-        "anchorY": 0.5028,
+        "anchorX": 0.4734,
+        "anchorY": 0.5153,
         "flipX": false,
         "flipY": false,
         "refit": {
-          "scale": 1.0,
+          "scale": 1.15,
           "ratio": 1.0,
-          "pop": 33.3,
-          "dx": 0,
-          "dy": 1
-        }
+          "pop": 20.6,
+          "dx": -6,
+          "dy": -3
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.7046,
+          "pop": 48.1,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
       }
     },
     {
@@ -524,27 +552,34 @@
       "r": 57,
       "sprite": {
         "image": "levels/prehistoric_dig_enclosures_fossil_pit_bird_f78c/dogs/dog_37/sprite_000.png",
-        "height": 244,
-        "width": 336,
-        "x": 428,
-        "y": 2115,
+        "height": 124,
+        "width": 148,
+        "x": 583,
+        "y": 2141,
         "cleanup": {
-          "x": 402,
-          "y": 2096,
-          "width": 386,
-          "height": 280
+          "x": 568,
+          "y": 2122,
+          "width": 170,
+          "height": 152
         },
-        "anchorX": 0.5952,
-        "anchorY": 0.4221,
+        "anchorX": 0.3243,
+        "anchorY": 0.6935,
         "flipX": false,
         "flipY": false,
         "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 0.0,
-          "dx": 0,
-          "dy": 0
-        }
+          "scale": 1.15,
+          "ratio": 0.95,
+          "pop": 23.6,
+          "dx": -3,
+          "dy": -9
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.6424,
+          "pop": 47.3,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
       }
     },
     {
@@ -586,18 +621,18 @@
       "r": 57,
       "sprite": {
         "image": "levels/prehistoric_dig_enclosures_fossil_pit_bird_f78c/dogs/dog_39/sprite_000.png",
-        "height": 214,
-        "width": 290,
-        "x": 1209,
-        "y": 1982,
+        "height": 85,
+        "width": 107,
+        "x": 1315,
+        "y": 2027,
         "cleanup": {
-          "x": 1187,
-          "y": 1965,
-          "width": 333,
-          "height": 246
+          "x": 1306,
+          "y": 2012,
+          "width": 125,
+          "height": 155
         },
-        "anchorX": 0.5724,
-        "anchorY": 0.6028,
+        "anchorX": 0.5607,
+        "anchorY": 0.9882,
         "flipX": false,
         "flipY": false,
         "refit": {
@@ -606,7 +641,14 @@
           "pop": 16.5,
           "dx": 0,
           "dy": 0
-        }
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.6493,
+          "pop": 59.3,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
       }
     },
     {
@@ -617,18 +659,18 @@
       "r": 57,
       "sprite": {
         "image": "levels/prehistoric_dig_enclosures_fossil_pit_bird_f78c/dogs/dog_40/sprite_000.png",
-        "height": 198,
-        "width": 285,
-        "x": 1720,
-        "y": 1530,
+        "height": 89,
+        "width": 109,
+        "x": 1820,
+        "y": 1565,
         "cleanup": {
-          "x": 1704,
-          "y": 1513,
-          "width": 327,
-          "height": 227
+          "x": 1811,
+          "y": 1552,
+          "width": 125,
+          "height": 135
         },
-        "anchorX": 0.5193,
-        "anchorY": 0.5202,
+        "anchorX": 0.4954,
+        "anchorY": 0.7416,
         "flipX": false,
         "flipY": false,
         "refit": {
@@ -637,7 +679,14 @@
           "pop": 22.9,
           "dx": 6,
           "dy": -2
-        }
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.6717,
+          "pop": 20.3,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
       }
     },
     {

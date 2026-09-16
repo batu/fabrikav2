@@ -136,32 +136,32 @@
       "r": 57,
       "sprite": {
         "image": "levels/ancient_egyptian_compounds_scribes_workyard_bird_5094/dogs/dog_14/sprite_000.png",
-        "height": 292,
-        "width": 327,
-        "x": 870,
-        "y": 880,
+        "height": 181,
+        "width": 176,
+        "x": 982,
+        "y": 918,
         "cleanup": {
-          "x": 845,
-          "y": 858,
-          "width": 376,
-          "height": 335
+          "x": 968,
+          "y": 904,
+          "width": 202,
+          "height": 208
         },
-        "anchorX": 0.6086,
-        "anchorY": 0.4486,
+        "anchorX": 0.4943,
+        "anchorY": 0.5138,
         "flipX": false,
         "flipY": false,
         "refit": {
           "scale": 1.0,
           "ratio": 1.0,
-          "pop": 22.5,
+          "pop": 15.4,
           "dx": 0,
           "dy": 0
         },
         "regen": {
           "pass": "crop2",
-          "score": 0.7808,
-          "pop": 22.7,
-          "why": "T3"
+          "score": 0.8357,
+          "pop": 15.5,
+          "why": "T4"
         },
         "technique": "gpt-image-2.5-sunburst-low-visible-only"
       }
@@ -571,27 +571,34 @@
       "r": 57,
       "sprite": {
         "image": "levels/ancient_egyptian_compounds_scribes_workyard_bird_5094/dogs/dog_37/sprite_000.png",
-        "height": 255,
-        "width": 400,
-        "x": 1496,
-        "y": 1921,
+        "height": 199,
+        "width": 198,
+        "x": 1611,
+        "y": 1962,
         "cleanup": {
-          "x": 1466,
-          "y": 1901,
-          "width": 460,
-          "height": 293
+          "x": 1581,
+          "y": 1937,
+          "width": 227,
+          "height": 228
         },
-        "anchorX": 0.52,
-        "anchorY": 0.5255,
+        "anchorX": 0.5455,
+        "anchorY": 0.5176,
         "flipX": false,
         "flipY": false,
         "refit": {
-          "scale": 1.0,
+          "scale": 1.1,
           "ratio": 1.0,
-          "pop": 21.7,
-          "dx": 0,
-          "dy": 0
-        }
+          "pop": 21.8,
+          "dx": -14,
+          "dy": -10
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.6585,
+          "pop": 45.9,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
       }
     },
     {
@@ -723,37 +730,6 @@
           "why": "T3"
         },
         "technique": "gpt-image-2.5-sunburst-low-visible-only"
-      }
-    },
-    {
-      "id": "42ab0896-5201-4a6c-b825-142de639689e",
-      "compatibilitySlot": "dog_added_01",
-      "x": 2210,
-      "y": 620,
-      "r": 57,
-      "sprite": {
-        "image": "levels/ancient_egyptian_compounds_scribes_workyard_bird_5094/dogs/dog_added_01/sprite_000.png",
-        "x": 2162,
-        "y": 570,
-        "width": 79,
-        "height": 137,
-        "cleanup": {
-          "x": 2144,
-          "y": 559,
-          "width": 122,
-          "height": 157
-        },
-        "anchorX": 0.6076,
-        "anchorY": 0.365,
-        "flipX": false,
-        "flipY": false,
-        "technique": "gpt-image-2.5-sunburst-low-visible-only",
-        "regen": {
-          "pass": "manual-add",
-          "score": 0.9101,
-          "pop": 25.5,
-          "why": "added by Batu"
-        }
       }
     }
   ]

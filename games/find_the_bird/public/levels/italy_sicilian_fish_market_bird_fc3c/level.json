@@ -60,27 +60,34 @@
       "r": 57,
       "sprite": {
         "image": "levels/italy_sicilian_fish_market_bird_fc3c/dogs/dog_77/sprite_000.png",
-        "height": 250,
-        "width": 290,
-        "x": 457,
-        "y": 2039,
+        "height": 200,
+        "width": 206,
+        "x": 514,
+        "y": 2076,
         "cleanup": {
-          "x": 435,
-          "y": 2020,
-          "width": 333,
-          "height": 287
+          "x": 480,
+          "y": 2036,
+          "width": 236,
+          "height": 230
         },
-        "anchorX": 0.5034,
-        "anchorY": 0.46,
+        "anchorX": 0.5194,
+        "anchorY": 0.515,
         "flipX": false,
         "flipY": false,
         "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 29.9,
-          "dx": 0,
-          "dy": 0
-        }
+          "scale": 1.25,
+          "ratio": 1.05,
+          "pop": 31.2,
+          "dx": -17,
+          "dy": -25
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.7073,
+          "pop": 55.4,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
       }
     },
     {
@@ -91,27 +98,34 @@
       "r": 57,
       "sprite": {
         "image": "levels/italy_sicilian_fish_market_bird_fc3c/dogs/dog_78/sprite_000.png",
-        "height": 308,
-        "width": 453,
-        "x": 1852,
-        "y": 2174,
+        "height": 182,
+        "width": 176,
+        "x": 1983,
+        "y": 2219,
         "cleanup": {
-          "x": 1818,
-          "y": 2150,
-          "width": 520,
-          "height": 354
+          "x": 1969,
+          "y": 2205,
+          "width": 202,
+          "height": 209
         },
-        "anchorX": 0.479,
-        "anchorY": 0.4448,
+        "anchorX": 0.4886,
+        "anchorY": 0.5055,
         "flipX": false,
         "flipY": false,
         "refit": {
           "scale": 1.0,
           "ratio": 1.0,
-          "pop": 0.0,
+          "pop": 10.3,
           "dx": 0,
           "dy": 0
-        }
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.9343,
+          "pop": 10.5,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
       }
     },
     {
@@ -191,27 +205,34 @@
       "r": 57,
       "sprite": {
         "image": "levels/italy_sicilian_fish_market_bird_fc3c/dogs/dog_81/sprite_000.png",
-        "height": 222,
-        "width": 267,
-        "x": 1471,
-        "y": 2055,
+        "height": 175,
+        "width": 212,
+        "x": 1543,
+        "y": 2078,
         "cleanup": {
-          "x": 1450,
-          "y": 2038,
-          "width": 307,
-          "height": 255
+          "x": 1486,
+          "y": 2051,
+          "width": 243,
+          "height": 201
         },
-        "anchorX": 0.5169,
-        "anchorY": 0.3468,
+        "anchorX": 0.5047,
+        "anchorY": 0.3829,
         "flipX": false,
         "flipY": false,
         "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 30.6,
-          "dx": 0,
-          "dy": 0
-        }
+          "scale": 2.05,
+          "ratio": 0.95,
+          "pop": 36.0,
+          "dx": -41,
+          "dy": -13
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.7011,
+          "pop": 62.2,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
       }
     },
     {
@@ -436,32 +457,32 @@
       "r": 57,
       "sprite": {
         "image": "levels/italy_sicilian_fish_market_bird_fc3c/dogs/dog_89/sprite_000.png",
-        "height": 260,
-        "width": 412,
-        "x": 508,
-        "y": 1466,
+        "height": 182,
+        "width": 182,
+        "x": 596,
+        "y": 1484,
         "cleanup": {
-          "x": 477,
-          "y": 1446,
-          "width": 473,
-          "height": 299
+          "x": 582,
+          "y": 1470,
+          "width": 209,
+          "height": 209
         },
-        "anchorX": 0.4393,
-        "anchorY": 0.4269,
+        "anchorX": 0.511,
+        "anchorY": 0.511,
         "flipX": false,
         "flipY": false,
         "refit": {
           "scale": 1.0,
           "ratio": 1.0,
-          "pop": 30.5,
+          "pop": 14.9,
           "dx": 0,
           "dy": 0
         },
         "regen": {
           "pass": "crop2",
-          "score": 0.8691,
-          "pop": 30.4,
-          "why": "T3+refit refused"
+          "score": 0.6713,
+          "pop": 14.4,
+          "why": "T4"
         },
         "technique": "gpt-image-2.5-sunburst-low-visible-only"
       }

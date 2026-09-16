@@ -461,32 +461,32 @@
       "r": 57,
       "sprite": {
         "image": "levels/cozy_interiors_cozy_village_bakery_kitchen_bird_3830/dogs/dog_29/sprite_000.png",
-        "height": 174,
-        "width": 263,
-        "x": 1704,
-        "y": 760,
+        "height": 152,
+        "width": 159,
+        "x": 1737,
+        "y": 765,
         "cleanup": {
-          "x": 1684,
-          "y": 746,
-          "width": 302,
-          "height": 200
+          "x": 1718,
+          "y": 751,
+          "width": 182,
+          "height": 174
         },
-        "anchorX": 0.4715,
-        "anchorY": 0.5172,
+        "anchorX": 0.6164,
+        "anchorY": 0.5724,
         "flipX": false,
         "flipY": false,
         "refit": {
-          "scale": 1.0,
+          "scale": 1.05,
           "ratio": 1.0,
-          "pop": 16.8,
-          "dx": 0,
-          "dy": 0
+          "pop": 19.7,
+          "dx": -7,
+          "dy": -2
         },
         "regen": {
           "pass": "crop2",
-          "score": 0.9615,
-          "pop": 16.7,
-          "why": "T4+refit refused"
+          "score": 0.8307,
+          "pop": 35.9,
+          "why": "T4"
         },
         "technique": "gpt-image-2.5-sunburst-low-visible-only"
       }

@@ -77,32 +77,32 @@
       "r": 57,
       "sprite": {
         "image": "levels/below_decks_captains_cabin_bird_3b68/dogs/dog_01/sprite_000.png",
-        "height": 211,
-        "width": 266,
-        "x": 1992,
-        "y": 1643,
+        "height": 182,
+        "width": 182,
+        "x": 2037,
+        "y": 1648,
         "cleanup": {
-          "x": 1972,
-          "y": 1627,
-          "width": 305,
-          "height": 242
+          "x": 2023,
+          "y": 1634,
+          "width": 209,
+          "height": 209
         },
-        "anchorX": 0.515,
-        "anchorY": 0.4597,
+        "anchorX": 0.5055,
+        "anchorY": 0.5055,
         "flipX": false,
         "flipY": false,
         "refit": {
           "scale": 1.0,
           "ratio": 1.0,
-          "pop": 26.5,
+          "pop": 15.3,
           "dx": 0,
           "dy": 0
         },
         "regen": {
-          "pass": "crop2",
-          "score": 0.886,
-          "pop": 25.5,
-          "why": "T4+refit refused"
+          "pass": "crop",
+          "score": 0.8542,
+          "pop": 15.2,
+          "why": "T4"
         },
         "technique": "gpt-image-2.5-sunburst-low-visible-only"
       }
@@ -115,27 +115,34 @@
       "r": 57,
       "sprite": {
         "image": "levels/below_decks_captains_cabin_bird_3b68/dogs/dog_02/sprite_000.png",
-        "height": 212,
-        "width": 376,
-        "x": 317,
-        "y": 910,
+        "height": 162,
+        "width": 156,
+        "x": 329,
+        "y": 931,
         "cleanup": {
-          "x": 288,
-          "y": 894,
-          "width": 432,
-          "height": 243
+          "x": 317,
+          "y": 918,
+          "width": 179,
+          "height": 186
         },
-        "anchorX": 0.2739,
-        "anchorY": 0.4387,
+        "anchorX": 0.5833,
+        "anchorY": 0.4444,
         "flipX": false,
         "flipY": false,
         "refit": {
           "scale": 1.0,
           "ratio": 1.0,
-          "pop": 0.0,
+          "pop": 18.7,
           "dx": 0,
           "dy": 0
-        }
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.9416,
+          "pop": 18.7,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
       }
     },
     {
@@ -177,27 +184,34 @@
       "r": 57,
       "sprite": {
         "image": "levels/below_decks_captains_cabin_bird_3b68/dogs/dog_04/sprite_000.png",
-        "height": 212,
-        "width": 305,
-        "x": 436,
-        "y": 1577,
+        "height": 182,
+        "width": 182,
+        "x": 463,
+        "y": 1587,
         "cleanup": {
-          "x": 413,
-          "y": 1561,
-          "width": 350,
-          "height": 243
+          "x": 448,
+          "y": 1573,
+          "width": 209,
+          "height": 209
         },
-        "anchorX": 0.3902,
-        "anchorY": 0.4811,
+        "anchorX": 0.511,
+        "anchorY": 0.5055,
         "flipX": false,
         "flipY": false,
         "refit": {
           "scale": 1.0,
           "ratio": 1.0,
-          "pop": 33.3,
+          "pop": 17.6,
           "dx": 0,
           "dy": 0
-        }
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.8416,
+          "pop": 19.7,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
       }
     },
     {
@@ -315,27 +329,34 @@
       "r": 57,
       "sprite": {
         "image": "levels/below_decks_captains_cabin_bird_3b68/dogs/dog_08/sprite_000.png",
-        "height": 302,
-        "width": 102,
-        "x": 2067,
-        "y": 551,
+        "height": 182,
+        "width": 155,
+        "x": 2030,
+        "y": 602,
         "cleanup": {
-          "x": 2053,
-          "y": 528,
-          "width": 123,
-          "height": 347
+          "x": 2018,
+          "y": 588,
+          "width": 178,
+          "height": 209
         },
-        "anchorX": 0.4216,
-        "anchorY": 0.4735,
+        "anchorX": 0.5161,
+        "anchorY": 0.5055,
         "flipX": false,
         "flipY": false,
         "refit": {
           "scale": 1.0,
           "ratio": 1.0,
-          "pop": 18.9,
+          "pop": 9.7,
           "dx": 0,
           "dy": 0
-        }
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.8444,
+          "pop": 9.8,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
       }
     },
     {
@@ -415,27 +436,34 @@
       "r": 57,
       "sprite": {
         "image": "levels/below_decks_captains_cabin_bird_3b68/dogs/dog_12/sprite_000.png",
-        "height": 236,
-        "width": 284,
-        "x": 1824,
-        "y": 2176,
+        "height": 213,
+        "width": 217,
+        "x": 1897,
+        "y": 2227,
         "cleanup": {
-          "x": 1801,
-          "y": 2158,
-          "width": 326,
-          "height": 271
+          "x": 1861,
+          "y": 2170,
+          "width": 249,
+          "height": 244
         },
-        "anchorX": 0.5528,
-        "anchorY": 0.4831,
+        "anchorX": 0.47,
+        "anchorY": 0.4883,
         "flipX": false,
         "flipY": false,
         "refit": {
-          "scale": 1.0,
+          "scale": 1.4,
           "ratio": 1.0,
-          "pop": 32.8,
-          "dx": 0,
-          "dy": 0
-        }
+          "pop": 19.7,
+          "dx": -18,
+          "dy": -40
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.465,
+          "pop": 64.9,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
       }
     },
     {
@@ -560,27 +588,34 @@
       "r": 57,
       "sprite": {
         "image": "levels/below_decks_captains_cabin_bird_3b68/dogs/dog_16/sprite_000.png",
-        "height": 276,
-        "width": 214,
-        "x": 1512,
-        "y": 2167,
+        "height": 232,
+        "width": 193,
+        "x": 1542,
+        "y": 2219,
         "cleanup": {
-          "x": 1495,
-          "y": 2146,
-          "width": 246,
-          "height": 317
+          "x": 1506,
+          "y": 2169,
+          "width": 221,
+          "height": 266
         },
-        "anchorX": 0.4533,
-        "anchorY": 0.4855,
+        "anchorX": 0.456,
+        "anchorY": 0.4914,
         "flipX": false,
         "flipY": false,
         "refit": {
-          "scale": 1.0,
+          "scale": 1.4,
           "ratio": 1.0,
-          "pop": 26.4,
-          "dx": 0,
-          "dy": 0
-        }
+          "pop": 27.5,
+          "dx": -21,
+          "dy": -31
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.6723,
+          "pop": 53.5,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
       }
     },
     {
@@ -629,20 +664,34 @@
       "r": 57,
       "sprite": {
         "image": "levels/below_decks_captains_cabin_bird_3b68/dogs/dog_19/sprite_000.png",
-        "height": 343,
-        "width": 340,
-        "x": 1588,
-        "y": 484,
+        "height": 182,
+        "width": 182,
+        "x": 2092,
+        "y": 2038,
         "cleanup": {
-          "x": 1931,
-          "y": 1893,
-          "width": 391,
-          "height": 394
+          "x": 2079,
+          "y": 2024,
+          "width": 209,
+          "height": 209
         },
-        "anchorX": 0.6706,
-        "anchorY": 0.6181,
+        "anchorX": 0.5055,
+        "anchorY": 0.511,
         "flipX": false,
-        "flipY": false
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 33.5,
+          "dx": 1,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.1891,
+          "pop": 45.3,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
       }
     },
     {
@@ -653,32 +702,32 @@
       "r": 57,
       "sprite": {
         "image": "levels/below_decks_captains_cabin_bird_3b68/dogs/dog_20/sprite_000.png",
-        "height": 209,
-        "width": 257,
-        "x": 1815,
-        "y": 1415,
+        "height": 182,
+        "width": 182,
+        "x": 1849,
+        "y": 1418,
         "cleanup": {
-          "x": 1800,
-          "y": 1396,
-          "width": 295,
-          "height": 240
+          "x": 1835,
+          "y": 1404,
+          "width": 209,
+          "height": 209
         },
-        "anchorX": 0.4708,
-        "anchorY": 0.4689,
+        "anchorX": 0.5055,
+        "anchorY": 0.5055,
         "flipX": false,
         "flipY": false,
         "refit": {
           "scale": 1.0,
-          "ratio": 0.95,
-          "pop": 23.3,
-          "dx": 5,
-          "dy": -2
+          "ratio": 1.0,
+          "pop": 14.1,
+          "dx": 0,
+          "dy": 0
         },
         "regen": {
-          "pass": "crop2",
-          "score": 0.8581,
-          "pop": 24.0,
-          "why": "T4+refit refused"
+          "pass": "crop",
+          "score": 0.8579,
+          "pop": 14.0,
+          "why": "T4"
         },
         "technique": "gpt-image-2.5-sunburst-low-visible-only"
       }
@@ -729,20 +778,34 @@
       "r": 57,
       "sprite": {
         "image": "levels/below_decks_captains_cabin_bird_3b68/dogs/dog_22/sprite_000.png",
-        "height": 328,
-        "width": 363,
-        "x": 1518,
-        "y": 484,
+        "height": 177,
+        "width": 177,
+        "x": 1958,
+        "y": 985,
         "cleanup": {
-          "x": 1844,
-          "y": 953,
-          "width": 417,
-          "height": 377
+          "x": 1947,
+          "y": 970,
+          "width": 203,
+          "height": 203
         },
-        "anchorX": 0.4931,
-        "anchorY": 0.2774,
+        "anchorX": 0.5085,
+        "anchorY": 0.4802,
         "flipX": false,
-        "flipY": false
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 0.95,
+          "pop": 16.9,
+          "dx": 3,
+          "dy": -1
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.8045,
+          "pop": 28.0,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
       }
     },
     {

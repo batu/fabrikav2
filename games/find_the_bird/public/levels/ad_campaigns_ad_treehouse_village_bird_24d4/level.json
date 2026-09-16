@@ -67,27 +67,34 @@
       "r": 57,
       "sprite": {
         "image": "levels/ad_campaigns_ad_treehouse_village_bird_24d4/dogs/dog_21/sprite_000.png",
-        "height": 221,
-        "width": 379,
-        "x": 802,
-        "y": 720,
+        "height": 177,
+        "width": 176,
+        "x": 881,
+        "y": 749,
         "cleanup": {
-          "x": 773,
-          "y": 703,
-          "width": 435,
-          "height": 254
+          "x": 857,
+          "y": 719,
+          "width": 202,
+          "height": 203
         },
-        "anchorX": 0.4354,
-        "anchorY": 0.552,
+        "anchorX": 0.5455,
+        "anchorY": 0.6158,
         "flipX": false,
         "flipY": false,
         "refit": {
-          "scale": 1.0,
+          "scale": 1.15,
           "ratio": 1.0,
-          "pop": 0.0,
-          "dx": 0,
-          "dy": 0
-        }
+          "pop": 15.5,
+          "dx": -9,
+          "dy": -15
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.7263,
+          "pop": 38.5,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
       }
     },
     {
@@ -129,27 +136,34 @@
       "r": 57,
       "sprite": {
         "image": "levels/ad_campaigns_ad_treehouse_village_bird_24d4/dogs/dog_23/sprite_000.png",
-        "height": 257,
-        "width": 172,
-        "x": 1305,
-        "y": 689,
+        "height": 144,
+        "width": 147,
+        "x": 1314,
+        "y": 728,
         "cleanup": {
-          "x": 1292,
-          "y": 669,
-          "width": 197,
-          "height": 295
+          "x": 1302,
+          "y": 717,
+          "width": 169,
+          "height": 165
         },
-        "anchorX": 0.5581,
-        "anchorY": 0.428,
+        "anchorX": 0.5918,
+        "anchorY": 0.4931,
         "flipX": false,
         "flipY": false,
         "refit": {
           "scale": 1.0,
           "ratio": 1.0,
-          "pop": 0.0,
+          "pop": 17.2,
           "dx": 0,
           "dy": 0
-        }
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.9259,
+          "pop": 17.0,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
       }
     },
     {
@@ -367,27 +381,34 @@
       "r": 57,
       "sprite": {
         "image": "levels/ad_campaigns_ad_treehouse_village_bird_24d4/dogs/dog_30/sprite_000.png",
-        "height": 263,
-        "width": 307,
-        "x": 738,
-        "y": 1404,
+        "height": 128,
+        "width": 174,
+        "x": 858,
+        "y": 1423,
         "cleanup": {
-          "x": 714,
-          "y": 1384,
-          "width": 353,
-          "height": 302
+          "x": 844,
+          "y": 1413,
+          "width": 200,
+          "height": 151
         },
-        "anchorX": 0.6775,
-        "anchorY": 0.3954,
+        "anchorX": 0.5057,
+        "anchorY": 0.6641,
         "flipX": false,
         "flipY": false,
         "refit": {
           "scale": 1.0,
           "ratio": 1.0,
-          "pop": 0.7,
+          "pop": 18.3,
           "dx": 0,
           "dy": 0
-        }
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.9342,
+          "pop": 18.3,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
       }
     },
     {
@@ -560,27 +581,34 @@
       "r": 57,
       "sprite": {
         "image": "levels/ad_campaigns_ad_treehouse_village_bird_24d4/dogs/dog_36/sprite_000.png",
-        "height": 246,
-        "width": 271,
-        "x": 2079,
-        "y": 1580,
+        "height": 143,
+        "width": 169,
+        "x": 2149,
+        "y": 1662,
         "cleanup": {
-          "x": 2058,
-          "y": 1561,
-          "width": 311,
-          "height": 282
+          "x": 2136,
+          "y": 1651,
+          "width": 194,
+          "height": 164
         },
-        "anchorX": 0.5498,
-        "anchorY": 0.5935,
+        "anchorX": 0.4675,
+        "anchorY": 0.4476,
         "flipX": false,
         "flipY": false,
         "refit": {
           "scale": 1.0,
           "ratio": 1.0,
-          "pop": 0.0,
+          "pop": 11.1,
           "dx": 0,
           "dy": 0
-        }
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.9704,
+          "pop": 11.1,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
       }
     },
     {
@@ -591,32 +619,32 @@
       "r": 57,
       "sprite": {
         "image": "levels/ad_campaigns_ad_treehouse_village_bird_24d4/dogs/dog_37/sprite_000.png",
-        "height": 196,
-        "width": 276,
-        "x": 1076,
-        "y": 2067,
+        "height": 194,
+        "width": 199,
+        "x": 1111,
+        "y": 2085,
         "cleanup": {
-          "x": 1055,
-          "y": 2052,
-          "width": 317,
-          "height": 225
+          "x": 1089,
+          "y": 2054,
+          "width": 228,
+          "height": 223
         },
-        "anchorX": 0.442,
-        "anchorY": 0.5663,
+        "anchorX": 0.4724,
+        "anchorY": 0.5619,
         "flipX": false,
         "flipY": false,
         "refit": {
-          "scale": 1.0,
+          "scale": 1.15,
           "ratio": 1.0,
-          "pop": 35.8,
-          "dx": 0,
-          "dy": 0
+          "pop": 20.2,
+          "dx": -6,
+          "dy": -15
         },
         "regen": {
           "pass": "crop2",
-          "score": 0.8156,
-          "pop": 34.6,
-          "why": "refit refused"
+          "score": 0.6088,
+          "pop": 58.4,
+          "why": "T4"
         },
         "technique": "gpt-image-2.5-sunburst-low-visible-only"
       }
