@@ -1,0 +1,679 @@
+{
+  "id": "japan_river_bridge_district_bird_0027",
+  "name": "Level japan_river_bridge_district_bird_0027",
+  "width": 2688,
+  "height": 2688,
+  "colorImage": "levels/japan_river_bridge_district_bird_0027/color.png",
+  "artifactRevision": "sha256:7666aaf57dffd63a5a0d8ad55a88519aeabdb53187b25ce0641dbacbce2bf360",
+  "compatibilityAliases": {
+    "dog_00": "2fd52865-3b5d-41ea-a5fc-df49321c88d1",
+    "dog_01": "1feeaf77-8e6b-4854-bd31-40ebc12903c4",
+    "dog_02": "34a52b7d-ca4b-45f5-a54b-7516c64d4379",
+    "dog_04": "e8f96964-ba4e-4186-9e47-cd8d4722ebc7",
+    "dog_05": "4b8a6fe7-b9fb-4a49-b319-1c02ca2e6e93",
+    "dog_06": "8dc7f694-7052-4db5-bffc-bb572a18cfd2",
+    "dog_07": "97c27b51-1751-4695-ae7d-1a5a40aacd64",
+    "dog_08": "a1a5ce06-aece-47c5-9e65-84f62f6b5737",
+    "dog_09": "a52af5d9-0a11-47ee-a003-47ec82657f5c",
+    "dog_10": "70e5635a-9801-4013-8194-0b593c5e2378",
+    "dog_11": "1440f6d0-765c-4261-8c6e-5876038073a2",
+    "dog_12": "7a8fadd5-60b5-4233-a350-4b5113a16fb5",
+    "dog_13": "28d5a733-41e8-47c9-8333-6ef1d2ca0b69",
+    "dog_14": "50340b49-6757-4ab4-a8bd-97989788e28c",
+    "dog_15": "b966aef1-8ba7-464d-97ca-a0ff28e3314a",
+    "dog_16": "d0377785-367e-4c6a-9a36-c96ba8fd54be",
+    "dog_18": "cd6e08cf-3d26-4506-93c3-cff56c48ac67",
+    "dog_19": "80e8954e-67d1-45d7-bd64-7121d745ac51"
+  },
+  "dogs": [
+    {
+      "id": "2fd52865-3b5d-41ea-a5fc-df49321c88d1",
+      "compatibilitySlot": "dog_00",
+      "x": 754,
+      "y": 1778,
+      "r": 69,
+      "sprite": {
+        "image": "levels/japan_river_bridge_district_bird_0027/dogs/dog_00/sprite_000.png",
+        "height": 195,
+        "width": 180,
+        "x": 650,
+        "y": 1678,
+        "cleanup": {
+          "x": 632,
+          "y": 1661,
+          "width": 215,
+          "height": 230
+        },
+        "anchorX": 0.5778,
+        "anchorY": 0.5128,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 25.5,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "1feeaf77-8e6b-4854-bd31-40ebc12903c4",
+      "compatibilitySlot": "dog_01",
+      "x": 1793,
+      "y": 1981,
+      "r": 69,
+      "sprite": {
+        "image": "levels/japan_river_bridge_district_bird_0027/dogs/dog_01/sprite_000.png",
+        "height": 186,
+        "width": 189,
+        "x": 1649,
+        "y": 1903,
+        "cleanup": {
+          "x": 1600,
+          "y": 1864,
+          "width": 266,
+          "height": 250
+        },
+        "anchorX": 0.7407,
+        "anchorY": 0.4301,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 0.95,
+          "pop": 32.9,
+          "dx": 4,
+          "dy": -2
+        }
+      }
+    },
+    {
+      "id": "34a52b7d-ca4b-45f5-a54b-7516c64d4379",
+      "compatibilitySlot": "dog_02",
+      "x": 2158,
+      "y": 2157,
+      "r": 69,
+      "sprite": {
+        "image": "levels/japan_river_bridge_district_bird_0027/dogs/dog_02/sprite_000.png",
+        "height": 201,
+        "width": 270,
+        "x": 2020,
+        "y": 2067,
+        "cleanup": {
+          "x": 2004,
+          "y": 2049,
+          "width": 305,
+          "height": 237
+        },
+        "anchorX": 0.5111,
+        "anchorY": 0.4478,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 23.4,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "e8f96964-ba4e-4186-9e47-cd8d4722ebc7",
+      "compatibilitySlot": "dog_04",
+      "x": 1853,
+      "y": 954,
+      "r": 69,
+      "sprite": {
+        "image": "levels/japan_river_bridge_district_bird_0027/dogs/dog_04/sprite_000.png",
+        "height": 152,
+        "width": 214,
+        "x": 1745,
+        "y": 873,
+        "cleanup": {
+          "x": 1727,
+          "y": 856,
+          "width": 250,
+          "height": 187
+        },
+        "anchorX": 0.5047,
+        "anchorY": 0.5263,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 16.9,
+          "dx": 0,
+          "dy": 1
+        }
+      }
+    },
+    {
+      "id": "4b8a6fe7-b9fb-4a49-b319-1c02ca2e6e93",
+      "compatibilitySlot": "dog_05",
+      "x": 1852,
+      "y": 1366,
+      "r": 69,
+      "sprite": {
+        "image": "levels/japan_river_bridge_district_bird_0027/dogs/dog_05/sprite_000.png",
+        "height": 206,
+        "width": 163,
+        "x": 1766,
+        "y": 1302,
+        "cleanup": {
+          "x": 1712,
+          "y": 841,
+          "width": 280,
+          "height": 594
+        },
+        "anchorX": 0.5276,
+        "anchorY": 0.3107,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 36.8,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.8267,
+          "pop": 34.9,
+          "why": "T3+refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "8dc7f694-7052-4db5-bffc-bb572a18cfd2",
+      "compatibilitySlot": "dog_06",
+      "x": 1534,
+      "y": 1542,
+      "r": 69,
+      "sprite": {
+        "image": "levels/japan_river_bridge_district_bird_0027/dogs/dog_06/sprite_000.png",
+        "height": 149,
+        "width": 185,
+        "x": 1452,
+        "y": 1474,
+        "cleanup": {
+          "x": 1465,
+          "y": 824,
+          "width": 544,
+          "height": 787
+        },
+        "anchorX": 0.4432,
+        "anchorY": 0.4564,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 23.1,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.93,
+          "pop": 23.1,
+          "why": "T3+refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "97c27b51-1751-4695-ae7d-1a5a40aacd64",
+      "compatibilitySlot": "dog_07",
+      "x": 1042,
+      "y": 1843,
+      "r": 69,
+      "sprite": {
+        "image": "levels/japan_river_bridge_district_bird_0027/dogs/dog_07/sprite_000.png",
+        "height": 141,
+        "width": 170,
+        "x": 973,
+        "y": 1770,
+        "cleanup": {
+          "x": 952,
+          "y": 1750,
+          "width": 212,
+          "height": 181
+        },
+        "anchorX": 0.4059,
+        "anchorY": 0.5177,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 22.5,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.9511,
+          "pop": 22.4,
+          "why": "T3+refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "a1a5ce06-aece-47c5-9e65-84f62f6b5737",
+      "compatibilitySlot": "dog_08",
+      "x": 436,
+      "y": 957,
+      "r": 69,
+      "sprite": {
+        "image": "levels/japan_river_bridge_district_bird_0027/dogs/dog_08/sprite_000.png",
+        "height": 170,
+        "width": 209,
+        "x": 336,
+        "y": 888,
+        "cleanup": {
+          "x": 367,
+          "y": 888,
+          "width": 810,
+          "height": 1056
+        },
+        "anchorX": 0.4737,
+        "anchorY": 0.4059,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 19.5,
+          "dx": 1,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.9217,
+          "pop": 21.3,
+          "why": "T3+refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "a52af5d9-0a11-47ee-a003-47ec82657f5c",
+      "compatibilitySlot": "dog_09",
+      "x": 1644,
+      "y": 2341,
+      "r": 69,
+      "sprite": {
+        "image": "levels/japan_river_bridge_district_bird_0027/dogs/dog_09/sprite_000.png",
+        "height": 183,
+        "width": 193,
+        "x": 1537,
+        "y": 2220,
+        "cleanup": {
+          "x": 925,
+          "y": 1723,
+          "width": 788,
+          "height": 687
+        },
+        "anchorX": 0.5389,
+        "anchorY": 0.623,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 0.95,
+          "ratio": 1.05,
+          "pop": 24.8,
+          "dx": 2,
+          "dy": 6
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.8199,
+          "pop": 22.9,
+          "why": "T3+refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "70e5635a-9801-4013-8194-0b593c5e2378",
+      "compatibilitySlot": "dog_10",
+      "x": 560,
+      "y": 1441,
+      "r": 69,
+      "sprite": {
+        "image": "levels/japan_river_bridge_district_bird_0027/dogs/dog_10/sprite_000.png",
+        "height": 155,
+        "width": 168,
+        "x": 467,
+        "y": 1380,
+        "cleanup": {
+          "x": 491,
+          "y": 1372,
+          "width": 716,
+          "height": 602
+        },
+        "anchorX": 0.5417,
+        "anchorY": 0.4065,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 0.95,
+          "pop": 22.1,
+          "dx": 2,
+          "dy": -1
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.8535,
+          "pop": 27.0,
+          "why": "T3+refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "1440f6d0-765c-4261-8c6e-5876038073a2",
+      "compatibilitySlot": "dog_11",
+      "x": 1323,
+      "y": 841,
+      "r": 69,
+      "sprite": {
+        "image": "levels/japan_river_bridge_district_bird_0027/dogs/dog_11/sprite_000.png",
+        "height": 151,
+        "width": 149,
+        "x": 1254,
+        "y": 756,
+        "cleanup": {
+          "x": 891,
+          "y": 772,
+          "width": 501,
+          "height": 1220
+        },
+        "anchorX": 0.443,
+        "anchorY": 0.5762,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 0.95,
+          "pop": 21.1,
+          "dx": 3,
+          "dy": -2
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.9231,
+          "pop": 23.7,
+          "why": "T3+refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "7a8fadd5-60b5-4233-a350-4b5113a16fb5",
+      "compatibilitySlot": "dog_12",
+      "x": 1420,
+      "y": 1136,
+      "r": 69,
+      "sprite": {
+        "image": "levels/japan_river_bridge_district_bird_0027/dogs/dog_12/sprite_000.png",
+        "height": 150,
+        "width": 189,
+        "x": 1310,
+        "y": 1073,
+        "cleanup": {
+          "x": 871,
+          "y": 1067,
+          "width": 618,
+          "height": 945
+        },
+        "anchorX": 0.6455,
+        "anchorY": 0.4667,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.1,
+          "ratio": 1.0,
+          "pop": 14.6,
+          "dx": -12,
+          "dy": -7
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.7554,
+          "pop": 43.4,
+          "why": "T3+refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "28d5a733-41e8-47c9-8333-6ef1d2ca0b69",
+      "compatibilitySlot": "dog_13",
+      "x": 586,
+      "y": 2246,
+      "r": 69,
+      "sprite": {
+        "image": "levels/japan_river_bridge_district_bird_0027/dogs/dog_13/sprite_000.png",
+        "height": 191,
+        "width": 235,
+        "x": 496,
+        "y": 2138,
+        "cleanup": {
+          "x": 517,
+          "y": 1647,
+          "width": 750,
+          "height": 668
+        },
+        "anchorX": 0.3787,
+        "anchorY": 0.5654,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 29.7,
+          "dx": 1,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.8479,
+          "pop": 28.8,
+          "why": "T3+refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "50340b49-6757-4ab4-a8bd-97989788e28c",
+      "compatibilitySlot": "dog_14",
+      "x": 1021,
+      "y": 669,
+      "r": 69,
+      "sprite": {
+        "image": "levels/japan_river_bridge_district_bird_0027/dogs/dog_14/sprite_000.png",
+        "height": 137,
+        "width": 185,
+        "x": 912,
+        "y": 613,
+        "cleanup": {
+          "x": 849,
+          "y": 441,
+          "width": 302,
+          "height": 365
+        },
+        "anchorX": 0.5892,
+        "anchorY": 0.4088,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 20.3,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.9425,
+          "pop": 20.3,
+          "why": "T3+refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "b966aef1-8ba7-464d-97ca-a0ff28e3314a",
+      "compatibilitySlot": "dog_15",
+      "x": 719,
+      "y": 732,
+      "r": 69,
+      "sprite": {
+        "image": "levels/japan_river_bridge_district_bird_0027/dogs/dog_15/sprite_000.png",
+        "height": 177,
+        "width": 200,
+        "x": 595,
+        "y": 633,
+        "cleanup": {
+          "x": 576,
+          "y": 612,
+          "width": 241,
+          "height": 222
+        },
+        "anchorX": 0.62,
+        "anchorY": 0.5593,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 30.4,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.9183,
+          "pop": 28.9,
+          "why": "T3+refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "d0377785-367e-4c6a-9a36-c96ba8fd54be",
+      "compatibilitySlot": "dog_16",
+      "x": 1338,
+      "y": 1314,
+      "r": 69,
+      "sprite": {
+        "image": "levels/japan_river_bridge_district_bird_0027/dogs/dog_16/sprite_000.png",
+        "height": 152,
+        "width": 190,
+        "x": 1232,
+        "y": 1235,
+        "cleanup": {
+          "x": 562,
+          "y": 598,
+          "width": 845,
+          "height": 785
+        },
+        "anchorX": 0.5579,
+        "anchorY": 0.5197,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 18.0,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.9539,
+          "pop": 18.0,
+          "why": "T3+refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "cd6e08cf-3d26-4506-93c3-cff56c48ac67",
+      "compatibilitySlot": "dog_18",
+      "x": 1366,
+      "y": 1693,
+      "r": 69,
+      "sprite": {
+        "image": "levels/japan_river_bridge_district_bird_0027/dogs/dog_18/sprite_000.png",
+        "height": 189,
+        "width": 166,
+        "x": 1276,
+        "y": 1622,
+        "cleanup": {
+          "x": 546,
+          "y": 582,
+          "width": 889,
+          "height": 1180
+        },
+        "anchorX": 0.5422,
+        "anchorY": 0.3757,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 19.7,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.9319,
+          "pop": 19.7,
+          "why": "T3+refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "80e8954e-67d1-45d7-bd64-7121d745ac51",
+      "compatibilitySlot": "dog_19",
+      "x": 2124,
+      "y": 567,
+      "r": 69,
+      "sprite": {
+        "image": "levels/japan_river_bridge_district_bird_0027/dogs/dog_19/sprite_000.png",
+        "height": 154,
+        "width": 180,
+        "x": 2033,
+        "y": 499,
+        "cleanup": {
+          "x": 2018,
+          "y": 486,
+          "width": 209,
+          "height": 183
+        },
+        "anchorX": 0.5056,
+        "anchorY": 0.4351,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 18.9,
+          "dx": 0,
+          "dy": 1
+        }
+      }
+    }
+  ]
+}

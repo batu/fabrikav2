@@ -33,11 +33,13 @@ def judge(k, panels, tiers_path, only=None):
     return json.load(open(tiers_path))
 for k in sys.argv[1:]:
     w=init(k); S=SCRATCH/'intake'/k; S.mkdir(parents=True,exist_ok=True)
-    print(tag(k),'panels',flush=True); sh('tierpanels.py',f'intake/{k}/panels',k)
+    print(tag(k),'panels',flush=True); sh('tierpanels.py',f'intake/{k}/panels',k,NO_REFIT=1)
     tiers=judge(k,S/'panels',S/'tiers.json'); n=len(tiers[k]); regen_j={i for i,v in tiers[k].items() if v.get('tier') in (3,4)}
     print(tag(k),'judge: keep',n-len(regen_j),'regenerate',len(regen_j),flush=True)
     out=sh('refit_all.py',k); rows=json.load(open(SCRATCH/f'refit-rows-{k}.json')); shutil.copy2(SCRATCH/f'refit-rows-{k}.json',S/'refit1.json')
     refused={str(r['bird']) for r in rows if r['status']!='applied'}
+    strong={str(r['bird']) for r in rows if r['status']=='applied' and r.get('pop',99)<=25}
+    regen_j={b for b in regen_j if not (tiers[k][b].get('tier')==3 and b in strong)}
     print(tag(k),'refit: applied',n-len(refused),'refused',sorted(refused,key=int),flush=True)
     missing={i for i,v in tiers[k].items() if v.get('tier') in (3,4) and MISSING.search(str(v.get('why','')))}
     regen=sorted((regen_j|refused)-missing,key=int)
@@ -48,12 +50,13 @@ for k in sys.argv[1:]:
         rows_f=[r for r in rows if str(r['bird']) not in missing]; json.dump(rows_f,open(S/'refit1_regen.json','w'))
         sh('intake_regen.py',S/'tiers_regen.json',S/'refit1_regen.json',k,REGEN_OUT=S/'regen.json')
         recs=json.load(open(S/'regen.json')); done={str(r['bird']) for r in recs if r.get('sprite')}
-        out=sh('refit_all.py',k); rows2=json.load(open(SCRATCH/f'refit-rows-{k}.json')); shutil.copy2(SCRATCH/f'refit-rows-{k}.json',S/'refit2.json')
+        out=sh('refit_all.py',k,ONLY=','.join(sorted(done))); rows2=json.load(open(SCRATCH/f'refit-rows-{k}.json')); shutil.copy2(SCRATCH/f'refit-rows-{k}.json',S/'refit2.json')
         refused2={str(r['bird']) for r in rows2 if r['status']!='applied' and str(r['bird']) in done}
-        sh('tierpanels.py',f'intake/{k}/panels2',k)
+        sh('tierpanels.py',f'intake/{k}/panels2',k,NO_REFIT=1)
         # judge only the regenerated birds, into tiers2.json
         t2=judge(k,S/'panels2',S/'tiers2.json',only={int(b) for b in done}) if done else {}
-        still={b for b,v in t2.get(k,{}).items() if v.get('tier') in (3,4)}
+        strong2={str(r['bird']) for r in rows2 if r['status']=='applied' and r.get('pop',99)<=25}
+        still={b for b,v in t2.get(k,{}).items() if v.get('tier')==4 or (v.get('tier')==3 and b not in strong2)}
         missing2={b for b,v in t2.get(k,{}).items() if v.get('tier') in (3,4) and MISSING.search(str(v.get('why','')))}
         summary['missing']=sorted(missing|missing2,key=int); still-=missing2
         summary.update(regenerated=sorted(done,key=int),regen_errors=[(r['bird'],r.get('error')) for r in recs if r.get('error')],

@@ -1,0 +1,528 @@
+{
+  "id": "grand_interiors_covered_arcade_bird_95e5",
+  "name": "Level grand_interiors_covered_arcade_bird_95e5",
+  "width": 2688,
+  "height": 2688,
+  "colorImage": "levels/grand_interiors_covered_arcade_bird_95e5/color.png",
+  "artifactRevision": "sha256:68a8575c1c81764e8345bcbcbafc324f8abc44a0877272e44e5b7bbfc15ba635",
+  "compatibilityAliases": {
+    "dog_03": "57f2785e-aa7c-42f3-a98e-d16fa8b56fe8",
+    "dog_06": "629784ee-c0c2-44dc-92b1-b4a45db3f510",
+    "dog_07": "45965d76-f74b-4b22-bb43-490356e08099",
+    "dog_11": "05d358da-1ced-49a2-a18a-ec13e1d753b2",
+    "dog_20": "0987b5a1-7332-470c-8240-96e408786bc8",
+    "dog_21": "b53a2a31-4f47-43c5-9f82-a9a912d5f31d",
+    "dog_22": "8d482a4c-5a4d-444d-9fca-19f29450a7df",
+    "dog_23": "571c0ad7-db25-418b-bf61-30b6eb41434a",
+    "dog_24": "b5c53937-f315-4726-9888-29a6f81fda78",
+    "dog_25": "2fb02744-ac95-4dae-861c-b869a4afc770",
+    "dog_26": "b8243f22-25a0-4da2-a23d-cb379df1c2eb",
+    "dog_27": "2939ab3a-ed55-41c2-9056-ca112cd9928b",
+    "dog_28": "e1405f47-db1e-4065-8f28-6eedc1a7ce1a",
+    "dog_29": "e83258c9-de31-4d7c-ae45-fe12d851a4c7",
+    "dog_30": "a1ca64ab-e8c6-4b40-977a-19712bd96d3d",
+    "dog_31": "52433ead-8799-495e-bc31-ec880584f3f8"
+  },
+  "dogs": [
+    {
+      "id": "57f2785e-aa7c-42f3-a98e-d16fa8b56fe8",
+      "compatibilitySlot": "dog_03",
+      "x": 949,
+      "y": 819,
+      "r": 57,
+      "sprite": {
+        "image": "levels/grand_interiors_covered_arcade_bird_95e5/dogs/dog_03/sprite_000.png",
+        "height": 178,
+        "width": 217,
+        "x": 840,
+        "y": 725,
+        "cleanup": {
+          "x": 822,
+          "y": 707,
+          "width": 253,
+          "height": 214
+        },
+        "anchorX": 0.5023,
+        "anchorY": 0.5281,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 30.2,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "629784ee-c0c2-44dc-92b1-b4a45db3f510",
+      "compatibilitySlot": "dog_06",
+      "x": 1196,
+      "y": 949,
+      "r": 57,
+      "sprite": {
+        "image": "levels/grand_interiors_covered_arcade_bird_95e5/dogs/dog_06/sprite_000.png",
+        "height": 238,
+        "width": 265,
+        "x": 1075,
+        "y": 833,
+        "cleanup": {
+          "x": 1051,
+          "y": 811,
+          "width": 311,
+          "height": 283
+        },
+        "anchorX": 0.4604,
+        "anchorY": 0.4874,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 26.2,
+          "dx": -1,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "45965d76-f74b-4b22-bb43-490356e08099",
+      "compatibilitySlot": "dog_07",
+      "x": 949,
+      "y": 1128,
+      "r": 57,
+      "sprite": {
+        "image": "levels/grand_interiors_covered_arcade_bird_95e5/dogs/dog_07/sprite_000.png",
+        "height": 201,
+        "width": 227,
+        "x": 846,
+        "y": 1034,
+        "cleanup": {
+          "x": 829,
+          "y": 1015,
+          "width": 258,
+          "height": 243
+        },
+        "anchorX": 0.4537,
+        "anchorY": 0.4677,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 24.0,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.8656,
+          "pop": 23.4,
+          "why": "T3"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "05d358da-1ced-49a2-a18a-ec13e1d753b2",
+      "compatibilitySlot": "dog_11",
+      "x": 522,
+      "y": 1391,
+      "r": 57,
+      "sprite": {
+        "image": "levels/grand_interiors_covered_arcade_bird_95e5/dogs/dog_11/sprite_000.png",
+        "height": 187,
+        "width": 263,
+        "x": 410,
+        "y": 1315,
+        "cleanup": {
+          "x": 465,
+          "y": 692,
+          "width": 625,
+          "height": 756
+        },
+        "anchorX": 0.4259,
+        "anchorY": 0.4064,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 13.9,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.9458,
+          "pop": 13.9,
+          "why": "T3+refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "0987b5a1-7332-470c-8240-96e408786bc8",
+      "compatibilitySlot": "dog_20",
+      "x": 2026,
+      "y": 787,
+      "r": 57,
+      "sprite": {
+        "image": "levels/grand_interiors_covered_arcade_bird_95e5/dogs/dog_20/sprite_000.png",
+        "height": 146,
+        "width": 154,
+        "x": 1943,
+        "y": 715,
+        "cleanup": {
+          "x": 1926,
+          "y": 698,
+          "width": 187,
+          "height": 179
+        },
+        "anchorX": 0.5455,
+        "anchorY": 0.4932,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 28.9,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "b53a2a31-4f47-43c5-9f82-a9a912d5f31d",
+      "compatibilitySlot": "dog_21",
+      "x": 1710,
+      "y": 925,
+      "r": 57,
+      "sprite": {
+        "image": "levels/grand_interiors_covered_arcade_bird_95e5/dogs/dog_21/sprite_000.png",
+        "height": 151,
+        "width": 183,
+        "x": 1617,
+        "y": 845,
+        "cleanup": {
+          "x": 1601,
+          "y": 829,
+          "width": 215,
+          "height": 183
+        },
+        "anchorX": 0.5082,
+        "anchorY": 0.5298,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 23.7,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "8d482a4c-5a4d-444d-9fca-19f29450a7df",
+      "compatibilitySlot": "dog_22",
+      "x": 1939,
+      "y": 1024,
+      "r": 57,
+      "sprite": {
+        "image": "levels/grand_interiors_covered_arcade_bird_95e5/dogs/dog_22/sprite_000.png",
+        "height": 171,
+        "width": 206,
+        "x": 1833,
+        "y": 942,
+        "cleanup": {
+          "x": 1032,
+          "y": 792,
+          "width": 964,
+          "height": 321
+        },
+        "anchorX": 0.5146,
+        "anchorY": 0.4795,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 14.2,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.9258,
+          "pop": 14.2,
+          "why": "T3+refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "b5c53937-f315-4726-9888-29a6f81fda78",
+      "compatibilitySlot": "dog_24",
+      "x": 1618,
+      "y": 1812,
+      "r": 57,
+      "sprite": {
+        "image": "levels/grand_interiors_covered_arcade_bird_95e5/dogs/dog_24/sprite_000.png",
+        "height": 160,
+        "width": 128,
+        "x": 1555,
+        "y": 1697,
+        "cleanup": {
+          "x": 1541,
+          "y": 1684,
+          "width": 157,
+          "height": 188
+        },
+        "anchorX": 0.4844,
+        "anchorY": 0.7188,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 25.2,
+          "dx": 1,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "2fb02744-ac95-4dae-861c-b869a4afc770",
+      "compatibilitySlot": "dog_25",
+      "x": 2261,
+      "y": 1638,
+      "r": 57,
+      "sprite": {
+        "image": "levels/grand_interiors_covered_arcade_bird_95e5/dogs/dog_25/sprite_000.png",
+        "height": 162,
+        "width": 217,
+        "x": 2138,
+        "y": 1559,
+        "cleanup": {
+          "x": 2120,
+          "y": 1541,
+          "width": 253,
+          "height": 198
+        },
+        "anchorX": 0.5668,
+        "anchorY": 0.4877,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 20.1,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "b8243f22-25a0-4da2-a23d-cb379df1c2eb",
+      "compatibilitySlot": "dog_26",
+      "x": 2083,
+      "y": 2013,
+      "r": 57,
+      "sprite": {
+        "image": "levels/grand_interiors_covered_arcade_bird_95e5/dogs/dog_26/sprite_000.png",
+        "height": 160,
+        "width": 145,
+        "x": 2036,
+        "y": 1915,
+        "cleanup": {
+          "x": 2020,
+          "y": 1899,
+          "width": 177,
+          "height": 192
+        },
+        "anchorX": 0.3241,
+        "anchorY": 0.6125,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 29.7,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "2939ab3a-ed55-41c2-9056-ca112cd9928b",
+      "compatibilitySlot": "dog_27",
+      "x": 1785,
+      "y": 1983,
+      "r": 57,
+      "sprite": {
+        "image": "levels/grand_interiors_covered_arcade_bird_95e5/dogs/dog_27/sprite_000.png",
+        "height": 208,
+        "width": 258,
+        "x": 1662,
+        "y": 1887,
+        "cleanup": {
+          "x": 790,
+          "y": 675,
+          "width": 1052,
+          "height": 1365
+        },
+        "anchorX": 0.4767,
+        "anchorY": 0.4615,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 16.0,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.9503,
+          "pop": 15.9,
+          "why": "T3+refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "e1405f47-db1e-4065-8f28-6eedc1a7ce1a",
+      "compatibilitySlot": "dog_28",
+      "x": 2072,
+      "y": 2334,
+      "r": 57,
+      "sprite": {
+        "image": "levels/grand_interiors_covered_arcade_bird_95e5/dogs/dog_28/sprite_000.png",
+        "height": 206,
+        "width": 221,
+        "x": 1970,
+        "y": 2217,
+        "cleanup": {
+          "x": 1951,
+          "y": 2199,
+          "width": 258,
+          "height": 243
+        },
+        "anchorX": 0.4615,
+        "anchorY": 0.5631,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 19.5,
+          "dx": 0,
+          "dy": 1
+        }
+      }
+    },
+    {
+      "id": "e83258c9-de31-4d7c-ae45-fe12d851a4c7",
+      "compatibilitySlot": "dog_29",
+      "x": 947,
+      "y": 2301,
+      "r": 57,
+      "sprite": {
+        "image": "levels/grand_interiors_covered_arcade_bird_95e5/dogs/dog_29/sprite_000.png",
+        "height": 261,
+        "width": 325,
+        "x": 776,
+        "y": 2171,
+        "cleanup": {
+          "x": 752,
+          "y": 2147,
+          "width": 373,
+          "height": 309
+        },
+        "anchorX": 0.5262,
+        "anchorY": 0.4981,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 26.4,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "a1ca64ab-e8c6-4b40-977a-19712bd96d3d",
+      "compatibilitySlot": "dog_30",
+      "x": 1130,
+      "y": 2227,
+      "r": 57,
+      "sprite": {
+        "image": "levels/grand_interiors_covered_arcade_bird_95e5/dogs/dog_30/sprite_000.png",
+        "height": 216,
+        "width": 227,
+        "x": 1028,
+        "y": 2111,
+        "cleanup": {
+          "x": 1003,
+          "y": 2087,
+          "width": 281,
+          "height": 265
+        },
+        "anchorX": 0.4493,
+        "anchorY": 0.537,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 14.0,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.9573,
+          "pop": 14.0,
+          "why": "T3"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "52433ead-8799-495e-bc31-ec880584f3f8",
+      "compatibilitySlot": "dog_31",
+      "x": 1183,
+      "y": 2119,
+      "r": 57,
+      "sprite": {
+        "image": "levels/grand_interiors_covered_arcade_bird_95e5/dogs/dog_31/sprite_000.png",
+        "height": 176,
+        "width": 156,
+        "x": 1126,
+        "y": 2028,
+        "cleanup": {
+          "x": 1110,
+          "y": 2012,
+          "width": 188,
+          "height": 208
+        },
+        "anchorX": 0.3654,
+        "anchorY": 0.517,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 39.6,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    }
+  ]
+}

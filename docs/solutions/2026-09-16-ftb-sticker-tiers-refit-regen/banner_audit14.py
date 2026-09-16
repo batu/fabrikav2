@@ -9,7 +9,9 @@ for k in sys.argv[2:]:
     for d in level['dogs']:
         sp=d.get('sprite') or {}
         if not sp.get('image'): continue
-        a=np.asarray(Image.open(sprite_path(k,sp)).convert('RGBA'))[...,3]; ys=np.where(a.max(axis=1)>8)[0]
+        try: a=np.asarray(Image.open(sprite_path(k,sp)).convert('RGBA'))[...,3]
+        except FileNotFoundError: continue
+        ys=np.where(a.max(axis=1)>8)[0]
         if not len(ys): continue
         x,y,w,h=sprite_xy(d); bot=y+(ys.max()+1)*h/a.shape[0]
         dogs.append(dict(dog=d['id'],alpha_bottom=round(float(bot)),over_px=round(float(bot-band)),hitbox_over=round(d['y']+d.get('r',57)-band)))

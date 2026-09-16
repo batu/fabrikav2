@@ -1,0 +1,109 @@
+[
+ {
+  "id": "2d6ae839-bb90-48df-a7ae-768e01588f39",
+  "compatibilitySlot": "dog_11",
+  "x": 1816,
+  "y": 804,
+  "r": 57,
+  "sprite": {
+   "image": "levels/railway_roundhouse_sleepy_mountain_rail_stop_bird_e325/dogs/dog_11/sprite_000.png",
+   "height": 154,
+   "width": 207,
+   "x": 1737,
+   "y": 718,
+   "cleanup": {
+    "x": 1720,
+    "y": 701,
+    "width": 241,
+    "height": 188
+   },
+   "anchorX": 0.3816,
+   "anchorY": 0.5584,
+   "flipX": false,
+   "flipY": false,
+   "refit": {
+    "scale": 1.0,
+    "ratio": 1.0,
+    "pop": 19.7,
+    "dx": 0,
+    "dy": 0
+   }
+  }
+ },
+ {
+  "id": "430ca176-a6e3-4ed0-bfa4-378a9e0aabdb",
+  "compatibilitySlot": "dog_23",
+  "x": 718,
+  "y": 1364,
+  "r": 57,
+  "sprite": {
+   "image": "levels/railway_roundhouse_sleepy_mountain_rail_stop_bird_e325/dogs/dog_23/sprite_000.png",
+   "height": 159,
+   "width": 238,
+   "x": 604,
+   "y": 1306,
+   "cleanup": {
+    "x": 578,
+    "y": 1279,
+    "width": 288,
+    "height": 209
+   },
+   "anchorX": 0.479,
+   "anchorY": 0.3648,
+   "flipX": false,
+   "flipY": false,
+   "refit": {
+    "scale": 1.0,
+    "ratio": 1.0,
+    "pop": 14.0,
+    "dx": 0,
+    "dy": 0
+   },
+   "regen": {
+    "pass": "crop2",
+    "score": 0.9267,
+    "pop": 13.7,
+    "why": "T3"
+   },
+   "technique": "gpt-image-2.5-sunburst-low-visible-only"
+  }
+ },
+ {
+  "id": "3dcd2cd7-67ae-4d1b-87d4-7c0ff760cc32",
+  "compatibilitySlot": "dog_25",
+  "x": 1917,
+  "y": 1416,
+  "r": 57,
+  "sprite": {
+   "image": "levels/railway_roundhouse_sleepy_mountain_rail_stop_bird_e325/dogs/dog_25/sprite_000.png",
+   "height": 175,
+   "width": 228,
+   "x": 1801,
+   "y": 1340,
+   "cleanup": {
+    "x": 1783,
+    "y": 1310,
+    "width": 263,
+    "height": 223
+   },
+   "anchorX": 0.5044,
+   "anchorY": 0.4457,
+   "flipX": false,
+   "flipY": false,
+   "refit": {
+    "scale": 1.0,
+    "ratio": 0.95,
+    "pop": 21.6,
+    "dx": 0,
+    "dy": -2
+   },
+   "regen": {
+    "pass": "crop2",
+    "score": 0.7233,
+    "pop": 28.0,
+    "why": "T3"
+   },
+   "technique": "gpt-image-2.5-sunburst-low-visible-only"
+  }
+ }
+]

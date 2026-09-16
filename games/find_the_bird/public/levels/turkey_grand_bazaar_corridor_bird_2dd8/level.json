@@ -1,0 +1,428 @@
+{
+  "id": "turkey_grand_bazaar_corridor_bird_2dd8",
+  "name": "Level turkey_grand_bazaar_corridor_bird_2dd8",
+  "width": 2688,
+  "height": 2688,
+  "colorImage": "levels/turkey_grand_bazaar_corridor_bird_2dd8/color.png",
+  "artifactRevision": "sha256:8fb9eee70175cf77f668034595d15f4abe69fd3ed8704295c76724aa8ab1934e",
+  "compatibilityAliases": {
+    "dog_15": "2fecbfaf-764f-4b8c-a54e-7e92b7d9802b",
+    "dog_16": "abca7895-f80d-432a-8158-743bab4fcecd",
+    "dog_17": "0aecc4fc-09ee-479a-9a38-2186997e6071",
+    "dog_18": "c4f96c8a-28e0-4f8f-95d2-4c5b74c7538f",
+    "dog_19": "87d7b532-d126-493c-a988-9a50d888200d",
+    "dog_20": "33bd1509-3605-4fdb-b251-e54563b95245",
+    "dog_21": "df2ebeb1-7fd6-40e6-b83b-190cddffddc8",
+    "dog_22": "2301003e-59f8-4567-8874-ab2e3aa559c8",
+    "dog_23": "0dbda382-c17f-490e-9ae1-8dce6f2ad025",
+    "dog_24": "f94d252c-a554-484a-a5fe-a7f066da3100",
+    "dog_25": "63142ada-a32d-4588-98d2-4934bce6ba0e",
+    "dog_26": "e31391fe-b62f-4df4-b927-abcecc48d9de",
+    "dog_27": "1b1d61d1-3c08-4ccc-bc20-38af7cad6c6c"
+  },
+  "dogs": [
+    {
+      "id": "2fecbfaf-764f-4b8c-a54e-7e92b7d9802b",
+      "compatibilitySlot": "dog_15",
+      "x": 526,
+      "y": 636,
+      "r": 57,
+      "sprite": {
+        "image": "levels/turkey_grand_bazaar_corridor_bird_2dd8/dogs/dog_15/sprite_000.png",
+        "height": 308,
+        "width": 357,
+        "x": 370,
+        "y": 538,
+        "cleanup": {
+          "x": 344,
+          "y": 512,
+          "width": 409,
+          "height": 360
+        },
+        "anchorX": 0.437,
+        "anchorY": 0.3182,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 0.0,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "abca7895-f80d-432a-8158-743bab4fcecd",
+      "compatibilitySlot": "dog_16",
+      "x": 1004,
+      "y": 679,
+      "r": 57,
+      "sprite": {
+        "image": "levels/turkey_grand_bazaar_corridor_bird_2dd8/dogs/dog_16/sprite_000.png",
+        "height": 223,
+        "width": 425,
+        "x": 800,
+        "y": 568,
+        "cleanup": {
+          "x": 770,
+          "y": 538,
+          "width": 485,
+          "height": 283
+        },
+        "anchorX": 0.48,
+        "anchorY": 0.4978,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 0.0,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "0aecc4fc-09ee-479a-9a38-2186997e6071",
+      "compatibilitySlot": "dog_17",
+      "x": 1157,
+      "y": 697,
+      "r": 57,
+      "sprite": {
+        "image": "levels/turkey_grand_bazaar_corridor_bird_2dd8/dogs/dog_17/sprite_000.png",
+        "height": 223,
+        "width": 314,
+        "x": 954,
+        "y": 568,
+        "cleanup": {
+          "x": 931,
+          "y": 545,
+          "width": 360,
+          "height": 269
+        },
+        "anchorX": 0.6465,
+        "anchorY": 0.5785,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 0.5,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "c4f96c8a-28e0-4f8f-95d2-4c5b74c7538f",
+      "compatibilitySlot": "dog_18",
+      "x": 1449,
+      "y": 786,
+      "r": 57,
+      "sprite": {
+        "image": "levels/turkey_grand_bazaar_corridor_bird_2dd8/dogs/dog_18/sprite_000.png",
+        "height": 454,
+        "width": 299,
+        "x": 1299,
+        "y": 568,
+        "cleanup": {
+          "x": 1267,
+          "y": 536,
+          "width": 363,
+          "height": 518
+        },
+        "anchorX": 0.5017,
+        "anchorY": 0.4802,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 0.0,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "87d7b532-d126-493c-a988-9a50d888200d",
+      "compatibilitySlot": "dog_19",
+      "x": 708,
+      "y": 1637,
+      "r": 57,
+      "sprite": {
+        "image": "levels/turkey_grand_bazaar_corridor_bird_2dd8/dogs/dog_19/sprite_000.png",
+        "height": 276,
+        "width": 389,
+        "x": 553,
+        "y": 1527,
+        "cleanup": {
+          "x": 525,
+          "y": 1499,
+          "width": 445,
+          "height": 332
+        },
+        "anchorX": 0.3985,
+        "anchorY": 0.3986,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 0.0,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "33bd1509-3605-4fdb-b251-e54563b95245",
+      "compatibilitySlot": "dog_20",
+      "x": 1115,
+      "y": 1720,
+      "r": 57,
+      "sprite": {
+        "image": "levels/turkey_grand_bazaar_corridor_bird_2dd8/dogs/dog_20/sprite_000.png",
+        "height": 356,
+        "width": 386,
+        "x": 974,
+        "y": 1475,
+        "cleanup": {
+          "x": 946,
+          "y": 1447,
+          "width": 442,
+          "height": 412
+        },
+        "anchorX": 0.3653,
+        "anchorY": 0.6882,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 1.4,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "df2ebeb1-7fd6-40e6-b83b-190cddffddc8",
+      "compatibilitySlot": "dog_21",
+      "x": 1163,
+      "y": 2027,
+      "r": 57,
+      "sprite": {
+        "image": "levels/turkey_grand_bazaar_corridor_bird_2dd8/dogs/dog_21/sprite_000.png",
+        "height": 236,
+        "width": 267,
+        "x": 1046,
+        "y": 1901,
+        "cleanup": {
+          "x": 1025,
+          "y": 1879,
+          "width": 310,
+          "height": 279
+        },
+        "anchorX": 0.4382,
+        "anchorY": 0.5339,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 13.7,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "2301003e-59f8-4567-8874-ab2e3aa559c8",
+      "compatibilitySlot": "dog_22",
+      "x": 1268,
+      "y": 1578,
+      "r": 57,
+      "sprite": {
+        "image": "levels/turkey_grand_bazaar_corridor_bird_2dd8/dogs/dog_22/sprite_000.png",
+        "height": 526,
+        "width": 564,
+        "x": 974,
+        "y": 1353,
+        "cleanup": {
+          "x": 936,
+          "y": 1315,
+          "width": 640,
+          "height": 602
+        },
+        "anchorX": 0.5213,
+        "anchorY": 0.4278,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 0.0,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "0dbda382-c17f-490e-9ae1-8dce6f2ad025",
+      "compatibilitySlot": "dog_23",
+      "x": 1517,
+      "y": 1405,
+      "r": 57,
+      "sprite": {
+        "image": "levels/turkey_grand_bazaar_corridor_bird_2dd8/dogs/dog_23/sprite_000.png",
+        "height": 240,
+        "width": 391,
+        "x": 1302,
+        "y": 1274,
+        "cleanup": {
+          "x": 1274,
+          "y": 1246,
+          "width": 447,
+          "height": 296
+        },
+        "anchorX": 0.5499,
+        "anchorY": 0.5458,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 0.0,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "f94d252c-a554-484a-a5fe-a7f066da3100",
+      "compatibilitySlot": "dog_24",
+      "x": 1902,
+      "y": 1456,
+      "r": 57,
+      "sprite": {
+        "image": "levels/turkey_grand_bazaar_corridor_bird_2dd8/dogs/dog_24/sprite_000.png",
+        "height": 240,
+        "width": 191,
+        "x": 1781,
+        "y": 1345,
+        "cleanup": {
+          "x": 1766,
+          "y": 1331,
+          "width": 221,
+          "height": 268
+        },
+        "anchorX": 0.6335,
+        "anchorY": 0.4625,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 23.9,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "63142ada-a32d-4588-98d2-4934bce6ba0e",
+      "compatibilitySlot": "dog_25",
+      "x": 1662,
+      "y": 1901,
+      "r": 57,
+      "sprite": {
+        "image": "levels/turkey_grand_bazaar_corridor_bird_2dd8/dogs/dog_25/sprite_000.png",
+        "height": 292,
+        "width": 326,
+        "x": 1506,
+        "y": 1762,
+        "cleanup": {
+          "x": 1482,
+          "y": 1738,
+          "width": 367,
+          "height": 319
+        },
+        "anchorX": 0.4877,
+        "anchorY": 0.5137,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.05,
+          "ratio": 0.95,
+          "pop": 34.6,
+          "dx": -3,
+          "dy": -11
+        }
+      }
+    },
+    {
+      "id": "e31391fe-b62f-4df4-b927-abcecc48d9de",
+      "compatibilitySlot": "dog_26",
+      "x": 1967,
+      "y": 1751,
+      "r": 57,
+      "sprite": {
+        "image": "levels/turkey_grand_bazaar_corridor_bird_2dd8/dogs/dog_26/sprite_000.png",
+        "height": 222,
+        "width": 281,
+        "x": 1816,
+        "y": 1640,
+        "cleanup": {
+          "x": 1793,
+          "y": 1618,
+          "width": 333,
+          "height": 261
+        },
+        "anchorX": 0.5231,
+        "anchorY": 0.5135,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 0.95,
+          "pop": 27.5,
+          "dx": 3,
+          "dy": -2
+        }
+      }
+    },
+    {
+      "id": "1b1d61d1-3c08-4ccc-bc20-38af7cad6c6c",
+      "compatibilitySlot": "dog_27",
+      "x": 2174,
+      "y": 2294,
+      "r": 57,
+      "sprite": {
+        "image": "levels/turkey_grand_bazaar_corridor_bird_2dd8/dogs/dog_27/sprite_000.png",
+        "height": 252,
+        "width": 260,
+        "x": 2057,
+        "y": 2144,
+        "cleanup": {
+          "x": 2037,
+          "y": 2129,
+          "width": 300,
+          "height": 291
+        },
+        "anchorX": 0.45,
+        "anchorY": 0.5754,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 0.95,
+          "ratio": 1.0,
+          "pop": 32.9,
+          "dx": 0,
+          "dy": 4
+        }
+      }
+    }
+  ]
+}

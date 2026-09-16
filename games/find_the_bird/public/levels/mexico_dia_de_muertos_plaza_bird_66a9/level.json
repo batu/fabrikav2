@@ -1,0 +1,507 @@
+{
+  "id": "mexico_dia_de_muertos_plaza_bird_66a9",
+  "name": "Level mexico_dia_de_muertos_plaza_bird_66a9",
+  "width": 2688,
+  "height": 2688,
+  "colorImage": "levels/mexico_dia_de_muertos_plaza_bird_66a9/color.png",
+  "artifactRevision": "sha256:49e20ce508d63694c6d5a9d9f19bb419a71f2502d16107510fbbba67e1c082a7",
+  "compatibilityAliases": {
+    "dog_15": "2afa0ead-b054-43bd-be51-548246f28cf7",
+    "dog_16": "3e6069f1-ba07-4116-af1c-6dd4c7aad01e",
+    "dog_17": "fb748d87-bac2-4141-91b7-c996266249cd",
+    "dog_18": "1d23c45d-3027-4799-ae42-5a62477855fa",
+    "dog_19": "652f55e0-782d-419d-9aeb-1c1ff7f4b642",
+    "dog_20": "99587cd3-9f66-4e00-88eb-591af3c1cdc0",
+    "dog_21": "96e3e1a6-17f7-4470-8e98-89059614d2fe",
+    "dog_22": "4418f8d3-29d7-44e3-9ec3-8f6e4e90f230",
+    "dog_23": "3ceeea89-d2f4-48eb-866d-9639a7fcc243",
+    "dog_24": "0e495063-8364-488c-994e-3b91bdb9fbaf",
+    "dog_25": "f1c5575c-6c0c-4c83-bf71-f425a0b89ae8",
+    "dog_26": "eabd4826-ab42-4933-a98f-c23741dde490",
+    "dog_27": "3e0c1ecb-82d3-4da4-9225-1706a33a5879",
+    "dog_28": "65f4923a-8c00-4218-9fe0-25919d72ce08",
+    "dog_29": "95161a7c-8f60-4c88-9b9e-ffed7643811a",
+    "dog_30": "70a2b04e-fab2-42d7-8ae8-876f9af381aa"
+  },
+  "dogs": [
+    {
+      "id": "2afa0ead-b054-43bd-be51-548246f28cf7",
+      "compatibilitySlot": "dog_15",
+      "x": 469,
+      "y": 764,
+      "r": 57,
+      "sprite": {
+        "image": "levels/mexico_dia_de_muertos_plaza_bird_66a9/dogs/dog_15/sprite_000.png",
+        "height": 133,
+        "width": 144,
+        "x": 377,
+        "y": 722,
+        "cleanup": {
+          "x": 278,
+          "y": 642,
+          "width": 379,
+          "height": 323
+        },
+        "anchorX": 0.6597,
+        "anchorY": 0.3459,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.05,
+          "ratio": 0.95,
+          "pop": 31.0,
+          "dx": -2,
+          "dy": -3
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.734,
+          "pop": 43.0,
+          "why": "refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "3e6069f1-ba07-4116-af1c-6dd4c7aad01e",
+      "compatibilitySlot": "dog_16",
+      "x": 912,
+      "y": 684,
+      "r": 57,
+      "sprite": {
+        "image": "levels/mexico_dia_de_muertos_plaza_bird_66a9/dogs/dog_16/sprite_000.png",
+        "height": 452,
+        "width": 678,
+        "x": 644,
+        "y": 515,
+        "cleanup": {
+          "x": 599,
+          "y": 470,
+          "width": 768,
+          "height": 542
+        },
+        "anchorX": 0.3953,
+        "anchorY": 0.3739,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 0.0,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "fb748d87-bac2-4141-91b7-c996266249cd",
+      "compatibilitySlot": "dog_17",
+      "x": 1501,
+      "y": 925,
+      "r": 57,
+      "sprite": {
+        "image": "levels/mexico_dia_de_muertos_plaza_bird_66a9/dogs/dog_17/sprite_000.png",
+        "height": 140,
+        "width": 154,
+        "x": 1418,
+        "y": 867,
+        "cleanup": {
+          "x": 1402,
+          "y": 851,
+          "width": 194,
+          "height": 179
+        },
+        "anchorX": 0.526,
+        "anchorY": 0.4,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 0.95,
+          "ratio": 1.0,
+          "pop": 28.9,
+          "dx": 1,
+          "dy": 2
+        }
+      }
+    },
+    {
+      "id": "1d23c45d-3027-4799-ae42-5a62477855fa",
+      "compatibilitySlot": "dog_18",
+      "x": 1759,
+      "y": 1158,
+      "r": 57,
+      "sprite": {
+        "image": "levels/mexico_dia_de_muertos_plaza_bird_66a9/dogs/dog_18/sprite_000.png",
+        "height": 125,
+        "width": 166,
+        "x": 1639,
+        "y": 1074,
+        "cleanup": {
+          "x": 1623,
+          "y": 1058,
+          "width": 223,
+          "height": 183
+        },
+        "anchorX": 0.6506,
+        "anchorY": 0.552,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 0.85,
+          "ratio": 1.05,
+          "pop": 26.5,
+          "dx": 12,
+          "dy": 15
+        }
+      }
+    },
+    {
+      "id": "652f55e0-782d-419d-9aeb-1c1ff7f4b642",
+      "compatibilitySlot": "dog_19",
+      "x": 1440,
+      "y": 1266,
+      "r": 57,
+      "sprite": {
+        "image": "levels/mexico_dia_de_muertos_plaza_bird_66a9/dogs/dog_19/sprite_000.png",
+        "height": 301,
+        "width": 250,
+        "x": 1306,
+        "y": 1162,
+        "cleanup": {
+          "x": 1283,
+          "y": 1139,
+          "width": 296,
+          "height": 347
+        },
+        "anchorX": 0.536,
+        "anchorY": 0.3455,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 0.0,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "99587cd3-9f66-4e00-88eb-591af3c1cdc0",
+      "compatibilitySlot": "dog_20",
+      "x": 1197,
+      "y": 1191,
+      "r": 57,
+      "sprite": {
+        "image": "levels/mexico_dia_de_muertos_plaza_bird_66a9/dogs/dog_20/sprite_000.png",
+        "height": 195,
+        "width": 178,
+        "x": 1109,
+        "y": 1080,
+        "cleanup": {
+          "x": 1093,
+          "y": 1064,
+          "width": 210,
+          "height": 227
+        },
+        "anchorX": 0.4944,
+        "anchorY": 0.5692,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 23.1,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "96e3e1a6-17f7-4470-8e98-89059614d2fe",
+      "compatibilitySlot": "dog_21",
+      "x": 838,
+      "y": 1270,
+      "r": 57,
+      "sprite": {
+        "image": "levels/mexico_dia_de_muertos_plaza_bird_66a9/dogs/dog_21/sprite_000.png",
+        "height": 173,
+        "width": 235,
+        "x": 718,
+        "y": 1169,
+        "cleanup": {
+          "x": 700,
+          "y": 1151,
+          "width": 265,
+          "height": 213
+        },
+        "anchorX": 0.5191,
+        "anchorY": 0.5723,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.05,
+          "pop": 37.3,
+          "dx": -2,
+          "dy": 1
+        }
+      }
+    },
+    {
+      "id": "4418f8d3-29d7-44e3-9ec3-8f6e4e90f230",
+      "compatibilitySlot": "dog_22",
+      "x": 998,
+      "y": 1541,
+      "r": 57,
+      "sprite": {
+        "image": "levels/mexico_dia_de_muertos_plaza_bird_66a9/dogs/dog_22/sprite_000.png",
+        "height": 232,
+        "width": 236,
+        "x": 869,
+        "y": 1402,
+        "cleanup": {
+          "x": 850,
+          "y": 1383,
+          "width": 274,
+          "height": 270
+        },
+        "anchorX": 0.5466,
+        "anchorY": 0.5991,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 24.1,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "3ceeea89-d2f4-48eb-866d-9639a7fcc243",
+      "compatibilitySlot": "dog_23",
+      "x": 2176,
+      "y": 1229,
+      "r": 57,
+      "sprite": {
+        "image": "levels/mexico_dia_de_muertos_plaza_bird_66a9/dogs/dog_23/sprite_000.png",
+        "height": 248,
+        "width": 279,
+        "x": 2028,
+        "y": 1109,
+        "cleanup": {
+          "x": 2007,
+          "y": 1088,
+          "width": 321,
+          "height": 290
+        },
+        "anchorX": 0.5305,
+        "anchorY": 0.4839,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 27.5,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "0e495063-8364-488c-994e-3b91bdb9fbaf",
+      "compatibilitySlot": "dog_24",
+      "x": 1858,
+      "y": 1618,
+      "r": 57,
+      "sprite": {
+        "image": "levels/mexico_dia_de_muertos_plaza_bird_66a9/dogs/dog_24/sprite_000.png",
+        "height": 114,
+        "width": 86,
+        "x": 1828,
+        "y": 1588,
+        "cleanup": {
+          "x": 1812,
+          "y": 1572,
+          "width": 123,
+          "height": 152
+        },
+        "anchorX": 0.3256,
+        "anchorY": 0.2368,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 0.95,
+          "ratio": 1.0,
+          "pop": 19.7,
+          "dx": 2,
+          "dy": 3
+        }
+      }
+    },
+    {
+      "id": "f1c5575c-6c0c-4c83-bf71-f425a0b89ae8",
+      "compatibilitySlot": "dog_25",
+      "x": 2208,
+      "y": 1888,
+      "r": 57,
+      "sprite": {
+        "image": "levels/mexico_dia_de_muertos_plaza_bird_66a9/dogs/dog_25/sprite_000.png",
+        "height": 363,
+        "width": 264,
+        "x": 2064,
+        "y": 1702,
+        "cleanup": {
+          "x": 2038,
+          "y": 1676,
+          "width": 316,
+          "height": 415
+        },
+        "anchorX": 0.5455,
+        "anchorY": 0.5124,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 0.0,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "3e0c1ecb-82d3-4da4-9225-1706a33a5879",
+      "compatibilitySlot": "dog_27",
+      "x": 1217,
+      "y": 2059,
+      "r": 57,
+      "sprite": {
+        "image": "levels/mexico_dia_de_muertos_plaza_bird_66a9/dogs/dog_27/sprite_000.png",
+        "height": 227,
+        "width": 223,
+        "x": 1105,
+        "y": 1939,
+        "cleanup": {
+          "x": 1087,
+          "y": 1921,
+          "width": 254,
+          "height": 247
+        },
+        "anchorX": 0.5247,
+        "anchorY": 0.5507,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.05,
+          "ratio": 0.95,
+          "pop": 25.7,
+          "dx": -4,
+          "dy": -5
+        }
+      }
+    },
+    {
+      "id": "65f4923a-8c00-4218-9fe0-25919d72ce08",
+      "compatibilitySlot": "dog_28",
+      "x": 1805,
+      "y": 2271,
+      "r": 57,
+      "sprite": {
+        "image": "levels/mexico_dia_de_muertos_plaza_bird_66a9/dogs/dog_28/sprite_000.png",
+        "height": 209,
+        "width": 243,
+        "x": 1668,
+        "y": 2183,
+        "cleanup": {
+          "x": 1649,
+          "y": 2164,
+          "width": 287,
+          "height": 242
+        },
+        "anchorX": 0.5514,
+        "anchorY": 0.4306,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 0.95,
+          "pop": 25.5,
+          "dx": 2,
+          "dy": -1
+        }
+      }
+    },
+    {
+      "id": "95161a7c-8f60-4c88-9b9e-ffed7643811a",
+      "compatibilitySlot": "dog_29",
+      "x": 764,
+      "y": 2305,
+      "r": 57,
+      "sprite": {
+        "image": "levels/mexico_dia_de_muertos_plaza_bird_66a9/dogs/dog_29/sprite_000.png",
+        "height": 199,
+        "width": 279,
+        "x": 618,
+        "y": 2206,
+        "cleanup": {
+          "x": 597,
+          "y": 2185,
+          "width": 321,
+          "height": 241
+        },
+        "anchorX": 0.5233,
+        "anchorY": 0.4975,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 20.4,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "70a2b04e-fab2-42d7-8ae8-876f9af381aa",
+      "compatibilitySlot": "dog_30",
+      "x": 567,
+      "y": 1925,
+      "r": 57,
+      "sprite": {
+        "image": "levels/mexico_dia_de_muertos_plaza_bird_66a9/dogs/dog_30/sprite_000.png",
+        "height": 167,
+        "width": 156,
+        "x": 476,
+        "y": 1835,
+        "cleanup": {
+          "x": 426,
+          "y": 1800,
+          "width": 232,
+          "height": 244
+        },
+        "anchorX": 0.5833,
+        "anchorY": 0.5389,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 14.5,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.9606,
+          "pop": 14.4,
+          "why": "T3+refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    }
+  ]
+}

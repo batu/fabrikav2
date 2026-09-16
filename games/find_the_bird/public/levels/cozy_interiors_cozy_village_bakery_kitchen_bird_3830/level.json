@@ -1,0 +1,619 @@
+{
+  "id": "cozy_interiors_cozy_village_bakery_kitchen_bird_3830",
+  "name": "Level cozy_interiors_cozy_village_bakery_kitchen_bird_3830",
+  "width": 2688,
+  "height": 2688,
+  "colorImage": "levels/cozy_interiors_cozy_village_bakery_kitchen_bird_3830/color.png",
+  "artifactRevision": "sha256:012e2034de382dd3d615e570110c77e7e42948c57aa2154551e98166b3003f5c",
+  "compatibilityAliases": {
+    "dog_01": "6c797a9b-c384-4611-98f6-16126002d792",
+    "dog_02": "b192c86d-ab22-4af7-9892-7346c504edb3",
+    "dog_05": "b351fe4e-ff3a-46e6-9a61-57faef1d2092",
+    "dog_12": "6afe5b65-7af4-4b60-a5ea-0f3694775329",
+    "dog_21": "7d5fd657-c18d-4d06-abee-019da46e95c9",
+    "dog_22": "410e6374-0bbd-45ec-93d0-d4bde6c3898b",
+    "dog_23": "ee4e5403-0a85-446e-af02-8a0e61bb1b21",
+    "dog_24": "5133f2b3-6797-4986-9cef-b16a70eac62e",
+    "dog_25": "d7f6367f-954f-4917-9e1c-812c0ad14bfe",
+    "dog_26": "88447656-469f-4594-9d54-221bd0ac56a3",
+    "dog_27": "5921d96c-1881-464b-a68a-bdfcace54d5f",
+    "dog_28": "53b93679-f92d-445e-b228-bb5807fd8710",
+    "dog_29": "1df3a396-5858-48f9-b510-f6654c36b670",
+    "dog_30": "baed0fe5-1785-41c7-ab1d-3f38f3a3669f",
+    "dog_31": "42c29350-ca1a-46c6-b7d5-a19196753b07",
+    "dog_32": "f50c77dc-4a34-44b6-8884-617f0e8c976d",
+    "dog_33": "b8ee8f8f-46ba-4d53-8d0b-cc752ecc6919"
+  },
+  "dogs": [
+    {
+      "id": "6c797a9b-c384-4611-98f6-16126002d792",
+      "compatibilitySlot": "dog_01",
+      "x": 601,
+      "y": 2304,
+      "r": 57,
+      "sprite": {
+        "image": "levels/cozy_interiors_cozy_village_bakery_kitchen_bird_3830/dogs/dog_01/sprite_000.png",
+        "height": 160,
+        "width": 228,
+        "x": 474,
+        "y": 2231,
+        "cleanup": {
+          "x": 456,
+          "y": 2213,
+          "width": 264,
+          "height": 196
+        },
+        "anchorX": 0.557,
+        "anchorY": 0.4562,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 13.6,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "b192c86d-ab22-4af7-9892-7346c504edb3",
+      "compatibilitySlot": "dog_02",
+      "x": 519,
+      "y": 1732,
+      "r": 57,
+      "sprite": {
+        "image": "levels/cozy_interiors_cozy_village_bakery_kitchen_bird_3830/dogs/dog_02/sprite_000.png",
+        "height": 158,
+        "width": 191,
+        "x": 429,
+        "y": 1643,
+        "cleanup": {
+          "x": 440,
+          "y": 1675,
+          "width": 296,
+          "height": 750
+        },
+        "anchorX": 0.4712,
+        "anchorY": 0.5633,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 15.6,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.928,
+          "pop": 15.6,
+          "why": "T3+refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "b351fe4e-ff3a-46e6-9a61-57faef1d2092",
+      "compatibilitySlot": "dog_05",
+      "x": 975,
+      "y": 1885,
+      "r": 57,
+      "sprite": {
+        "image": "levels/cozy_interiors_cozy_village_bakery_kitchen_bird_3830/dogs/dog_05/sprite_000.png",
+        "height": 149,
+        "width": 161,
+        "x": 912,
+        "y": 1820,
+        "cleanup": {
+          "x": 422,
+          "y": 1828,
+          "width": 610,
+          "height": 615
+        },
+        "anchorX": 0.3913,
+        "anchorY": 0.4564,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.05,
+          "ratio": 1.0,
+          "pop": 26.3,
+          "dx": 0,
+          "dy": -3
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.7728,
+          "pop": 39.5,
+          "why": "T3+refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "6afe5b65-7af4-4b60-a5ea-0f3694775329",
+      "compatibilitySlot": "dog_12",
+      "x": 1314,
+      "y": 2117,
+      "r": 57,
+      "sprite": {
+        "image": "levels/cozy_interiors_cozy_village_bakery_kitchen_bird_3830/dogs/dog_12/sprite_000.png",
+        "height": 211,
+        "width": 184,
+        "x": 1212,
+        "y": 2007,
+        "cleanup": {
+          "x": 1135,
+          "y": 1965,
+          "width": 355,
+          "height": 387
+        },
+        "anchorX": 0.5543,
+        "anchorY": 0.5213,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 20.9,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.881,
+          "pop": 21.1,
+          "why": "T3"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "7d5fd657-c18d-4d06-abee-019da46e95c9",
+      "compatibilitySlot": "dog_21",
+      "x": 1518,
+      "y": 2174,
+      "r": 57,
+      "sprite": {
+        "image": "levels/cozy_interiors_cozy_village_bakery_kitchen_bird_3830/dogs/dog_21/sprite_000.png",
+        "height": 159,
+        "width": 233,
+        "x": 1424,
+        "y": 2093,
+        "cleanup": {
+          "x": 1405,
+          "y": 2074,
+          "width": 277,
+          "height": 210
+        },
+        "anchorX": 0.3991,
+        "anchorY": 0.4843,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 0.95,
+          "ratio": 1.05,
+          "pop": 16.2,
+          "dx": 0,
+          "dy": 3
+        }
+      }
+    },
+    {
+      "id": "410e6374-0bbd-45ec-93d0-d4bde6c3898b",
+      "compatibilitySlot": "dog_22",
+      "x": 2068,
+      "y": 2206,
+      "r": 57,
+      "sprite": {
+        "image": "levels/cozy_interiors_cozy_village_bakery_kitchen_bird_3830/dogs/dog_22/sprite_000.png",
+        "height": 195,
+        "width": 204,
+        "x": 1971,
+        "y": 2088,
+        "cleanup": {
+          "x": 1950,
+          "y": 2069,
+          "width": 244,
+          "height": 236
+        },
+        "anchorX": 0.4755,
+        "anchorY": 0.6051,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 16.4,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.9291,
+          "pop": 16.5,
+          "why": "T3+refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "ee4e5403-0a85-446e-af02-8a0e61bb1b21",
+      "compatibilitySlot": "dog_23",
+      "x": 1236,
+      "y": 1503,
+      "r": 57,
+      "sprite": {
+        "image": "levels/cozy_interiors_cozy_village_bakery_kitchen_bird_3830/dogs/dog_23/sprite_000.png",
+        "height": 158,
+        "width": 181,
+        "x": 1039,
+        "y": 1421,
+        "cleanup": {
+          "x": 1046,
+          "y": 1402,
+          "width": 378,
+          "height": 336
+        },
+        "anchorX": 0.6519,
+        "anchorY": 0.4873,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 0.5499999999999999,
+          "ratio": 1.0,
+          "pop": 16.3,
+          "dx": 79,
+          "dy": 4
+        }
+      }
+    },
+    {
+      "id": "5133f2b3-6797-4986-9cef-b16a70eac62e",
+      "compatibilitySlot": "dog_24",
+      "x": 1420,
+      "y": 1313,
+      "r": 57,
+      "sprite": {
+        "image": "levels/cozy_interiors_cozy_village_bakery_kitchen_bird_3830/dogs/dog_24/sprite_000.png",
+        "height": 179,
+        "width": 247,
+        "x": 1304,
+        "y": 1223,
+        "cleanup": {
+          "x": 1284,
+          "y": 1203,
+          "width": 293,
+          "height": 214
+        },
+        "anchorX": 0.4615,
+        "anchorY": 0.514,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 0.95,
+          "pop": 22.4,
+          "dx": 2,
+          "dy": -2
+        }
+      }
+    },
+    {
+      "id": "d7f6367f-954f-4917-9e1c-812c0ad14bfe",
+      "compatibilitySlot": "dog_25",
+      "x": 1619,
+      "y": 1470,
+      "r": 57,
+      "sprite": {
+        "image": "levels/cozy_interiors_cozy_village_bakery_kitchen_bird_3830/dogs/dog_25/sprite_000.png",
+        "height": 186,
+        "width": 167,
+        "x": 1525,
+        "y": 1375,
+        "cleanup": {
+          "x": 1416,
+          "y": 1265,
+          "width": 401,
+          "height": 451
+        },
+        "anchorX": 0.5749,
+        "anchorY": 0.5269,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.05,
+          "ratio": 1.0,
+          "pop": 21.3,
+          "dx": -1,
+          "dy": -3
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.8368,
+          "pop": 28.7,
+          "why": "refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "88447656-469f-4594-9d54-221bd0ac56a3",
+      "compatibilitySlot": "dog_26",
+      "x": 1766,
+      "y": 1455,
+      "r": 57,
+      "sprite": {
+        "image": "levels/cozy_interiors_cozy_village_bakery_kitchen_bird_3830/dogs/dog_26/sprite_000.png",
+        "height": 164,
+        "width": 133,
+        "x": 1696,
+        "y": 1342,
+        "cleanup": {
+          "x": 1557,
+          "y": 1297,
+          "width": 415,
+          "height": 466
+        },
+        "anchorX": 0.4436,
+        "anchorY": 0.6524,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 0.9,
+          "ratio": 1.0,
+          "pop": 27.2,
+          "dx": 11,
+          "dy": 6
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.7613,
+          "pop": 44.9,
+          "why": "refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "5921d96c-1881-464b-a68a-bdfcace54d5f",
+      "compatibilitySlot": "dog_27",
+      "x": 1871,
+      "y": 1694,
+      "r": 57,
+      "sprite": {
+        "image": "levels/cozy_interiors_cozy_village_bakery_kitchen_bird_3830/dogs/dog_27/sprite_000.png",
+        "height": 172,
+        "width": 132,
+        "x": 1808,
+        "y": 1607,
+        "cleanup": {
+          "x": 1600,
+          "y": 1423,
+          "width": 541,
+          "height": 504
+        },
+        "anchorX": 0.4773,
+        "anchorY": 0.5058,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 13.4,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.9548,
+          "pop": 13.4,
+          "why": "T3"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "53b93679-f92d-445e-b228-bb5807fd8710",
+      "compatibilitySlot": "dog_28",
+      "x": 2050,
+      "y": 1625,
+      "r": 57,
+      "sprite": {
+        "image": "levels/cozy_interiors_cozy_village_bakery_kitchen_bird_3830/dogs/dog_28/sprite_000.png",
+        "height": 152,
+        "width": 174,
+        "x": 1934,
+        "y": 1551,
+        "cleanup": {
+          "x": 1919,
+          "y": 1532,
+          "width": 221,
+          "height": 192
+        },
+        "anchorX": 0.6207,
+        "anchorY": 0.4737,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 0.95,
+          "ratio": 0.95,
+          "pop": 22.3,
+          "dx": 7,
+          "dy": 2
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.8983,
+          "pop": 21.1,
+          "why": "T3"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "1df3a396-5858-48f9-b510-f6654c36b670",
+      "compatibilitySlot": "dog_29",
+      "x": 1828,
+      "y": 850,
+      "r": 57,
+      "sprite": {
+        "image": "levels/cozy_interiors_cozy_village_bakery_kitchen_bird_3830/dogs/dog_29/sprite_000.png",
+        "height": 174,
+        "width": 263,
+        "x": 1704,
+        "y": 760,
+        "cleanup": {
+          "x": 1112,
+          "y": 793,
+          "width": 773,
+          "height": 1582
+        },
+        "anchorX": 0.4715,
+        "anchorY": 0.5172,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 16.8,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.9615,
+          "pop": 16.7,
+          "why": "T4+refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "baed0fe5-1785-41c7-ab1d-3f38f3a3669f",
+      "compatibilitySlot": "dog_30",
+      "x": 2265,
+      "y": 578,
+      "r": 57,
+      "sprite": {
+        "image": "levels/cozy_interiors_cozy_village_bakery_kitchen_bird_3830/dogs/dog_30/sprite_000.png",
+        "height": 157,
+        "width": 171,
+        "x": 2193,
+        "y": 490,
+        "cleanup": {
+          "x": 2179,
+          "y": 480,
+          "width": 204,
+          "height": 190
+        },
+        "anchorX": 0.4094,
+        "anchorY": 0.5159,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 0.95,
+          "ratio": 1.0,
+          "pop": 33.6,
+          "dx": 2,
+          "dy": 6
+        }
+      }
+    },
+    {
+      "id": "42c29350-ca1a-46c6-b7d5-a19196753b07",
+      "compatibilitySlot": "dog_31",
+      "x": 1311,
+      "y": 615,
+      "r": 57,
+      "sprite": {
+        "image": "levels/cozy_interiors_cozy_village_bakery_kitchen_bird_3830/dogs/dog_31/sprite_000.png",
+        "height": 194,
+        "width": 255,
+        "x": 1229,
+        "y": 517,
+        "cleanup": {
+          "x": 1210,
+          "y": 499,
+          "width": 298,
+          "height": 226
+        },
+        "anchorX": 0.3137,
+        "anchorY": 0.5155,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 0.95,
+          "pop": 30.6,
+          "dx": 2,
+          "dy": -2
+        }
+      }
+    },
+    {
+      "id": "f50c77dc-4a34-44b6-8884-617f0e8c976d",
+      "compatibilitySlot": "dog_32",
+      "x": 869,
+      "y": 775,
+      "r": 57,
+      "sprite": {
+        "image": "levels/cozy_interiors_cozy_village_bakery_kitchen_bird_3830/dogs/dog_32/sprite_000.png",
+        "height": 220,
+        "width": 242,
+        "x": 747,
+        "y": 664,
+        "cleanup": {
+          "x": 726,
+          "y": 643,
+          "width": 284,
+          "height": 262
+        },
+        "anchorX": 0.5041,
+        "anchorY": 0.5045,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 17.8,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "b8ee8f8f-46ba-4d53-8d0b-cc752ecc6919",
+      "compatibilitySlot": "dog_33",
+      "x": 1195,
+      "y": 1037,
+      "r": 57,
+      "sprite": {
+        "image": "levels/cozy_interiors_cozy_village_bakery_kitchen_bird_3830/dogs/dog_33/sprite_000.png",
+        "height": 233,
+        "width": 213,
+        "x": 1103,
+        "y": 928,
+        "cleanup": {
+          "x": 1084,
+          "y": 908,
+          "width": 252,
+          "height": 272
+        },
+        "anchorX": 0.4319,
+        "anchorY": 0.4678,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 23.7,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    }
+  ]
+}

@@ -8,22 +8,30 @@ from common import *
 STAMP='2026-09-16'
 FIELDS=('x','y','width','height','anchorX','anchorY','refit','regen','technique')
 for k in sys.argv[1:]:
-    work=json.load(open(sdir(k)/f'intake_{STAMP}'/'level.json')); pubdir=ROOT/'public/levels'/k; lp=pubdir/'level.json'; level=json.load(open(lp))
-    wd={d['id']:d for d in work['dogs']}
-    assert [d['id'] for d in level['dogs']]==[d['id'] for d in work['dogs']], f'{k}: dog ids differ between export and work copy'
+    # the loop wrote refit/regen into the session level.json (pub() has no work branch)
+    work=json.load(open(sdir(k)/'level.json')); pubdir=ROOT/'public/levels'/k; lp=pubdir/'level.json'; level=json.load(open(lp))
+    # canonical exports use bird UUIDs and their own slots; the work copy uses dog_NN by index. Match on the hitbox point.
+    def near(d):
+        best=min(range(len(work['dogs'])),key=lambda i:(work['dogs'][i]['x']-d['x'])**2+(work['dogs'][i]['y']-d['y'])**2)
+        wdg=work['dogs'][best]; return best if ((wdg['x']-d['x'])**2+(wdg['y']-d['y'])**2)**0.5<=d.get('r',57) else None
+    match={d['id']:near(d) for d in level['dogs']}
+    unmatched=[d['compatibilitySlot'] for d in level['dogs'] if match[d['id']] is None]
+    assert not unmatched, f'{k}: export hitboxes without a session match: {unmatched}'
     summ=SCRATCH/'intake'/k/'summary.json'; missing=set(json.load(open(summ)).get('missing',[])) if summ.exists() else set()
     n_regen=n_refit=0
     for d in level['dogs']:
-        w=wd[d['id']]; assert (w['x'],w['y'])==(d['x'],d['y']), f"{k} {d['id']}: hitbox moved since the work copy"
+        w=work['dogs'][match[d['id']]]
+        if not w.get('sprite') or not d.get('sprite'): continue
         sp=d['sprite']; ws=w['sprite']
         for f in FIELDS:
             if f in ws: sp[f]=ws[f]
         if 'technique' in ws and ws['technique'].startswith('gpt-image-2.5'):
             src=sdir(k)/ws['image'].split(f'levels/{k}/')[1]; dst=pubdir/sp['image'].split(f'levels/{k}/')[1]; shutil.copy2(src,dst); n_regen+=1
         elif 'refit' in ws: n_refit+=1
-    dropped=[d for i,d in enumerate(level['dogs']) if str(i) in missing]
+    nosprite={str(i) for i,d in enumerate(work['dogs']) if not d.get('sprite')}; missing|=nosprite
+    dropped=[d for d in level['dogs'] if str(match[d['id']]) in missing]
     if dropped:
         json.dump(dropped,open(pubdir/'dropped_no_painted_bird_2026-09-16.json','w'),indent=1)
-        level['dogs']=[d for i,d in enumerate(level['dogs']) if str(i) not in missing]
+        level['dogs']=[d for d in level['dogs'] if str(match[d['id']]) not in missing]
     tmp=lp.with_suffix('.json.tmp'); tmp.write_text(json.dumps(level,indent=2)+'\n'); os.replace(tmp,lp)
     print(k,'applied: regenerated',n_regen,'refit-only',n_refit,'dropped (no painted bird)',len(dropped))

@@ -32,7 +32,7 @@ STAMP = "2026-09-16"
 def run(session_id: str) -> dict:
     sdir = S.session_dir(session_id)
     singles = sdir / ".canonical" / "staging" / "singles"
-    if singles.is_dir() and any(singles.iterdir()):
+    if os.environ.get("FORCE","1")=="1" and singles.is_dir() and any(singles.iterdir()):
         aside = singles.with_name(f"singles_pre_intake_{STAMP}")
         n = 0
         while aside.exists():
@@ -47,7 +47,7 @@ def run(session_id: str) -> dict:
         id=f"oop-{session_id[:16]}-{int(time.time())}", parent_job_id=None, kind="bulk_extract",
         session_id=session_id, idempotency_key=None, input_hash=None, status="running", stage=None,
         retryable=False, error_code=None, error_message=None,
-        metadata={"force": True, "padFactor": 1.6, "safeToRequeue": False, "hitboxesSha": hb_sha},
+        metadata={"force": os.environ.get("FORCE","1")=="1", "padFactor": 1.6, "safeToRequeue": False, "hitboxesSha": hb_sha},
         result={}, worker_owner="extract_all.py", heartbeat_at=now, created_at=now, updated_at=now,
         completed_at=None,
     )

@@ -1,0 +1,474 @@
+{
+  "id": "japan_festival_grounds_bird_12fb",
+  "name": "Level japan_festival_grounds_bird_12fb",
+  "width": 2688,
+  "height": 2688,
+  "colorImage": "levels/japan_festival_grounds_bird_12fb/color.png",
+  "artifactRevision": "sha256:e60c163830cc2aa20fe88f0044933905ce2ab4fd803f72ce9b44dd3538daea96",
+  "compatibilityAliases": {
+    "dog_15": "766fdafd-ab32-408c-8492-3798fab0fe93",
+    "dog_16": "10d13542-e219-4ccb-bdd2-b98d8e1e015c",
+    "dog_17": "d18e7bee-e16a-4425-b5fc-f7a5e172a14d",
+    "dog_18": "ad0ccadc-27c8-43d5-9e2d-00a0cc67fe45",
+    "dog_19": "9d5d7c52-0048-4aab-9102-ebfee2d58ff5",
+    "dog_20": "b85d053f-af92-470f-a251-e3f1fd7c4212",
+    "dog_21": "e1f6e9be-bf79-41c1-8697-b855a0584c94",
+    "dog_22": "163e9a99-09b4-4a8a-92ee-9f46c66dffed",
+    "dog_23": "abb4f10b-3e8a-4a64-83c5-5d21e50987ec",
+    "dog_24": "ee4881ef-40a4-475f-9f12-103781782569",
+    "dog_25": "ebe73780-5874-43ec-b8b5-552b2fc625f4",
+    "dog_26": "7ec4f406-beed-4be2-b88e-5bc15b2969ad",
+    "dog_27": "e7814bfc-e467-4fa6-885c-541324cf7a1c",
+    "dog_28": "bcc87d13-92de-494e-94d0-1f479035859a"
+  },
+  "dogs": [
+    {
+      "id": "766fdafd-ab32-408c-8492-3798fab0fe93",
+      "compatibilitySlot": "dog_15",
+      "x": 588,
+      "y": 716,
+      "r": 57,
+      "sprite": {
+        "image": "levels/japan_festival_grounds_bird_12fb/dogs/dog_15/sprite_000.png",
+        "height": 177,
+        "width": 244,
+        "x": 467,
+        "y": 622,
+        "cleanup": {
+          "x": 452,
+          "y": 609,
+          "width": 277,
+          "height": 203
+        },
+        "anchorX": 0.4877,
+        "anchorY": 0.5424,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 0.95,
+          "pop": 25.4,
+          "dx": 2,
+          "dy": -1
+        }
+      }
+    },
+    {
+      "id": "10d13542-e219-4ccb-bdd2-b98d8e1e015c",
+      "compatibilitySlot": "dog_16",
+      "x": 734,
+      "y": 962,
+      "r": 57,
+      "sprite": {
+        "image": "levels/japan_festival_grounds_bird_12fb/dogs/dog_16/sprite_000.png",
+        "height": 162,
+        "width": 216,
+        "x": 643,
+        "y": 883,
+        "cleanup": {
+          "x": 631,
+          "y": 871,
+          "width": 246,
+          "height": 194
+        },
+        "anchorX": 0.4074,
+        "anchorY": 0.463,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 0.95,
+          "ratio": 1.0,
+          "pop": 38.1,
+          "dx": 3,
+          "dy": 4
+        }
+      }
+    },
+    {
+      "id": "d18e7bee-e16a-4425-b5fc-f7a5e172a14d",
+      "compatibilitySlot": "dog_17",
+      "x": 1245,
+      "y": 983,
+      "r": 57,
+      "sprite": {
+        "image": "levels/japan_festival_grounds_bird_12fb/dogs/dog_17/sprite_000.png",
+        "height": 143,
+        "width": 127,
+        "x": 1176,
+        "y": 913,
+        "cleanup": {
+          "x": 1085,
+          "y": 855,
+          "width": 317,
+          "height": 348
+        },
+        "anchorX": 0.5433,
+        "anchorY": 0.4895,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 7.3,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.9817,
+          "pop": 7.4,
+          "why": "refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "ad0ccadc-27c8-43d5-9e2d-00a0cc67fe45",
+      "compatibilitySlot": "dog_18",
+      "x": 1623,
+      "y": 1098,
+      "r": 57,
+      "sprite": {
+        "image": "levels/japan_festival_grounds_bird_12fb/dogs/dog_18/sprite_000.png",
+        "height": 173,
+        "width": 194,
+        "x": 1553,
+        "y": 1009,
+        "cleanup": {
+          "x": 1531,
+          "y": 988,
+          "width": 235,
+          "height": 213
+        },
+        "anchorX": 0.3608,
+        "anchorY": 0.5145,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 16.6,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "9d5d7c52-0048-4aab-9102-ebfee2d58ff5",
+      "compatibilitySlot": "dog_19",
+      "x": 2181,
+      "y": 673,
+      "r": 57,
+      "sprite": {
+        "image": "levels/japan_festival_grounds_bird_12fb/dogs/dog_19/sprite_000.png",
+        "height": 166,
+        "width": 224,
+        "x": 2086,
+        "y": 583,
+        "cleanup": {
+          "x": 2059,
+          "y": 555,
+          "width": 280,
+          "height": 284
+        },
+        "anchorX": 0.4241,
+        "anchorY": 0.5422,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 35.0,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.7898,
+          "pop": 33.1,
+          "why": "T3"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "b85d053f-af92-470f-a251-e3f1fd7c4212",
+      "compatibilitySlot": "dog_20",
+      "x": 2177,
+      "y": 1198,
+      "r": 57,
+      "sprite": {
+        "image": "levels/japan_festival_grounds_bird_12fb/dogs/dog_20/sprite_000.png",
+        "height": 112,
+        "width": 118,
+        "x": 2113,
+        "y": 1137,
+        "cleanup": {
+          "x": 2097,
+          "y": 1122,
+          "width": 149,
+          "height": 143
+        },
+        "anchorX": 0.5424,
+        "anchorY": 0.5446,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 18.1,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "e1f6e9be-bf79-41c1-8697-b855a0584c94",
+      "compatibilitySlot": "dog_21",
+      "x": 1832,
+      "y": 1290,
+      "r": 57,
+      "sprite": {
+        "image": "levels/japan_festival_grounds_bird_12fb/dogs/dog_21/sprite_000.png",
+        "height": 153,
+        "width": 176,
+        "x": 1730,
+        "y": 1240,
+        "cleanup": {
+          "x": 1713,
+          "y": 1223,
+          "width": 209,
+          "height": 186
+        },
+        "anchorX": 0.5852,
+        "anchorY": 0.3268,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 19.1,
+          "dx": -1,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "163e9a99-09b4-4a8a-92ee-9f46c66dffed",
+      "compatibilitySlot": "dog_22",
+      "x": 2129,
+      "y": 1473,
+      "r": 57,
+      "sprite": {
+        "image": "levels/japan_festival_grounds_bird_12fb/dogs/dog_22/sprite_000.png",
+        "height": 180,
+        "width": 190,
+        "x": 2043,
+        "y": 1397,
+        "cleanup": {
+          "x": 2028,
+          "y": 1384,
+          "width": 223,
+          "height": 203
+        },
+        "anchorX": 0.4474,
+        "anchorY": 0.4333,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 0.95,
+          "pop": 30.0,
+          "dx": 0,
+          "dy": -1
+        }
+      }
+    },
+    {
+      "id": "abb4f10b-3e8a-4a64-83c5-5d21e50987ec",
+      "compatibilitySlot": "dog_23",
+      "x": 1462,
+      "y": 1369,
+      "r": 57,
+      "sprite": {
+        "image": "levels/japan_festival_grounds_bird_12fb/dogs/dog_23/sprite_000.png",
+        "height": 196,
+        "width": 166,
+        "x": 1377,
+        "y": 1284,
+        "cleanup": {
+          "x": 1361,
+          "y": 1268,
+          "width": 197,
+          "height": 227
+        },
+        "anchorX": 0.512,
+        "anchorY": 0.4337,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 16.2,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "ee4881ef-40a4-475f-9f12-103781782569",
+      "compatibilitySlot": "dog_24",
+      "x": 856,
+      "y": 1477,
+      "r": 57,
+      "sprite": {
+        "image": "levels/japan_festival_grounds_bird_12fb/dogs/dog_24/sprite_000.png",
+        "height": 182,
+        "width": 210,
+        "x": 726,
+        "y": 1386,
+        "cleanup": {
+          "x": 687,
+          "y": 1356,
+          "width": 287,
+          "height": 243
+        },
+        "anchorX": 0.581,
+        "anchorY": 0.478,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 0.95,
+          "ratio": 0.95,
+          "pop": 35.8,
+          "dx": 8,
+          "dy": 3
+        }
+      }
+    },
+    {
+      "id": "ebe73780-5874-43ec-b8b5-552b2fc625f4",
+      "compatibilitySlot": "dog_25",
+      "x": 1018,
+      "y": 2222,
+      "r": 57,
+      "sprite": {
+        "image": "levels/japan_festival_grounds_bird_12fb/dogs/dog_25/sprite_000.png",
+        "height": 240,
+        "width": 252,
+        "x": 881,
+        "y": 2101,
+        "cleanup": {
+          "x": 861,
+          "y": 2081,
+          "width": 292,
+          "height": 280
+        },
+        "anchorX": 0.5437,
+        "anchorY": 0.5042,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 32.1,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "7ec4f406-beed-4be2-b88e-5bc15b2969ad",
+      "compatibilitySlot": "dog_26",
+      "x": 557,
+      "y": 2228,
+      "r": 57,
+      "sprite": {
+        "image": "levels/japan_festival_grounds_bird_12fb/dogs/dog_26/sprite_000.png",
+        "height": 181,
+        "width": 214,
+        "x": 475,
+        "y": 2128,
+        "cleanup": {
+          "x": 461,
+          "y": 2113,
+          "width": 242,
+          "height": 210
+        },
+        "anchorX": 0.3832,
+        "anchorY": 0.5525,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 17.6,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "e7814bfc-e467-4fa6-885c-541324cf7a1c",
+      "compatibilitySlot": "dog_27",
+      "x": 1627,
+      "y": 2098,
+      "r": 57,
+      "sprite": {
+        "image": "levels/japan_festival_grounds_bird_12fb/dogs/dog_27/sprite_000.png",
+        "height": 181,
+        "width": 209,
+        "x": 1539,
+        "y": 1994,
+        "cleanup": {
+          "x": 1525,
+          "y": 1979,
+          "width": 238,
+          "height": 211
+        },
+        "anchorX": 0.4211,
+        "anchorY": 0.5746,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 18.8,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "bcc87d13-92de-494e-94d0-1f479035859a",
+      "compatibilitySlot": "dog_28",
+      "x": 1965,
+      "y": 2380,
+      "r": 57,
+      "sprite": {
+        "image": "levels/japan_festival_grounds_bird_12fb/dogs/dog_28/sprite_000.png",
+        "height": 149,
+        "width": 209,
+        "x": 1890,
+        "y": 2284,
+        "cleanup": {
+          "x": 1873,
+          "y": 2268,
+          "width": 242,
+          "height": 182
+        },
+        "anchorX": 0.3589,
+        "anchorY": 0.6443,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 17.3,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    }
+  ]
+}

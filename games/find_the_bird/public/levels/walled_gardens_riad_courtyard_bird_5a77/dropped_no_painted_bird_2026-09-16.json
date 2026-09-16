@@ -1,0 +1,40 @@
+[
+ {
+  "id": "f32210c2-fd86-49e5-9db3-08211d508348",
+  "compatibilitySlot": "dog_23",
+  "x": 1507,
+  "y": 1721,
+  "r": 57,
+  "sprite": {
+   "image": "levels/walled_gardens_riad_courtyard_bird_5a77/dogs/dog_23/sprite_000.png",
+   "height": 116,
+   "width": 200,
+   "x": 1424,
+   "y": 1669,
+   "cleanup": {
+    "x": 1398,
+    "y": 1647,
+    "width": 256,
+    "height": 170
+   },
+   "anchorX": 0.405,
+   "anchorY": 0.4052,
+   "flipX": false,
+   "flipY": false,
+   "refit": {
+    "scale": 0.95,
+    "ratio": 1.05,
+    "pop": 31.6,
+    "dx": 2,
+    "dy": 5
+   },
+   "regen": {
+    "pass": "crop",
+    "score": 0.8233,
+    "pop": 30.9,
+    "why": "T3"
+   },
+   "technique": "gpt-image-2.5-sunburst-low-visible-only"
+  }
+ }
+]

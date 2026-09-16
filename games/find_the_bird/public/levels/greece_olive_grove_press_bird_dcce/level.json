@@ -1,513 +1,783 @@
 {
   "id": "greece_olive_grove_press_bird_dcce",
-  "name": "Level greece_olive_grove_press_bird_dcce (clean_old_cartoon)",
+  "name": "Level greece_olive_grove_press_bird_dcce",
   "width": 2688,
   "height": 2688,
-  "bwImage": "levels/greece_olive_grove_press_bird_dcce/bw.png",
   "colorImage": "levels/greece_olive_grove_press_bird_dcce/color.png",
+  "artifactRevision": "sha256:e31b11f42a67a9290f91b5a11575b63638cabc1461f4617b62efff286a497e87",
+  "compatibilityAliases": {
+    "dog_24": "d8f01202-584d-4191-a1c3-7235558e2649",
+    "dog_25": "0b088d34-bf3f-4da0-bc8f-a5f43dce1a2e",
+    "dog_26": "087ceea3-e869-4866-a305-53c685eb0d7f",
+    "dog_27": "84cfd48b-520c-41aa-8075-f4f30cfedbed",
+    "dog_28": "424c4bd4-f984-4c69-8682-916298f107e7",
+    "dog_29": "37b1fa12-ed8c-4b32-803c-ab2bb06683af",
+    "dog_30": "01122a3e-10c6-4d91-874e-12fec24998b5",
+    "dog_31": "eb1397a5-a532-4b45-b833-009b8d95db80",
+    "dog_32": "1796c8bb-3077-4cc1-b9a0-66203c5cfae2",
+    "dog_33": "56225cfe-b975-41b8-b77b-43d07a475e6e",
+    "dog_34": "411cf5b4-ca9e-46cd-a872-d06d0517953a",
+    "dog_35": "9801610c-f852-4d5e-bfd3-1b4ba3902fcd",
+    "dog_36": "f2cd5494-6d69-451b-bd65-4acdf91507de",
+    "dog_37": "1550dbae-2fef-4950-ad8e-10f208031b27",
+    "dog_38": "f5fd2d8d-3aaf-4236-b941-e4a4d9dc75a0",
+    "dog_39": "715e903e-3695-40e5-bb07-1f6d7692aa1f",
+    "dog_40": "f9bb106a-f665-45fd-b2c5-5a28bf55f5f9",
+    "dog_41": "1fba7f78-8a67-4838-a633-47ad1cfdbbed",
+    "dog_42": "6dceaf1d-fd78-4a76-bdf0-3f3ebcc69633",
+    "dog_43": "575d53e7-3258-4675-b68c-84cfce8aa405",
+    "dog_44": "16c08532-420b-4791-813d-2d8a0a868de6",
+    "dog_45": "cb61ec86-1d97-47f2-8e68-b48a36ae5188",
+    "dog_46": "939ee3b1-8ca5-4499-aa49-987944d86e01",
+    "dog_47": "a77fb47d-6846-41b2-99c7-8c04836db62c"
+  },
   "dogs": [
     {
-      "id": "dog_00",
-      "x": 1148,
-      "y": 566,
+      "id": "d8f01202-584d-4191-a1c3-7235558e2649",
+      "compatibilitySlot": "dog_24",
+      "x": 1130,
+      "y": 584,
       "r": 57,
       "sprite": {
-        "image": "levels/greece_olive_grove_press_bird_dcce/dogs/dog_00/sprite_000.png",
-        "x": 1053,
-        "y": 503,
-        "width": 181,
-        "height": 135,
+        "image": "levels/greece_olive_grove_press_bird_dcce/dogs/dog_24/sprite_000.png",
+        "height": 118,
+        "width": 141,
+        "x": 1089,
+        "y": 504,
         "cleanup": {
-          "x": 950,
-          "y": 446,
-          "width": 330,
-          "height": 230
+          "x": 1076,
+          "y": 490,
+          "width": 174,
+          "height": 151
         },
-        "anchorX": 0.5249,
-        "anchorY": 0.4667
+        "anchorX": 0.2695,
+        "anchorY": 0.661,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 0.95,
+          "ratio": 1.0,
+          "pop": 26.5,
+          "dx": 2,
+          "dy": 2
+        }
       }
     },
     {
-      "id": "dog_01",
-      "x": 657,
-      "y": 749,
+      "id": "0b088d34-bf3f-4da0-bc8f-a5f43dce1a2e",
+      "compatibilitySlot": "dog_25",
+      "x": 988,
+      "y": 767,
       "r": 57,
       "sprite": {
-        "image": "levels/greece_olive_grove_press_bird_dcce/dogs/dog_01/sprite_000.png",
-        "x": 634,
-        "y": 693,
-        "width": 117,
-        "height": 111,
+        "image": "levels/greece_olive_grove_press_bird_dcce/dogs/dog_25/sprite_000.png",
+        "height": 225,
+        "width": 188,
+        "x": 899,
+        "y": 662,
         "cleanup": {
-          "x": 541,
-          "y": 557,
-          "width": 310,
-          "height": 334
+          "x": 881,
+          "y": 644,
+          "width": 224,
+          "height": 261
         },
-        "anchorX": 0.1966,
-        "anchorY": 0.5045
+        "anchorX": 0.4734,
+        "anchorY": 0.4667,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 19.2,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
-      "id": "dog_02",
-      "x": 1020,
-      "y": 736,
+      "id": "087ceea3-e869-4866-a305-53c685eb0d7f",
+      "compatibilitySlot": "dog_26",
+      "x": 693,
+      "y": 750,
       "r": 57,
       "sprite": {
-        "image": "levels/greece_olive_grove_press_bird_dcce/dogs/dog_02/sprite_000.png",
-        "x": 939,
-        "y": 685,
-        "width": 122,
-        "height": 151,
+        "image": "levels/greece_olive_grove_press_bird_dcce/dogs/dog_26/sprite_000.png",
+        "height": 125,
+        "width": 188,
+        "x": 576,
+        "y": 698,
         "cleanup": {
-          "x": 853,
-          "y": 678,
-          "width": 307,
-          "height": 233
+          "x": 550,
+          "y": 676,
+          "width": 239,
+          "height": 169
         },
-        "anchorX": 0.6639,
-        "anchorY": 0.3377
+        "anchorX": 0.6223,
+        "anchorY": 0.416,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 24.7,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.8967,
+          "pop": 24.5,
+          "why": "T3"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
       }
     },
     {
-      "id": "dog_03",
+      "id": "84cfd48b-520c-41aa-8075-f4f30cfedbed",
+      "compatibilitySlot": "dog_27",
       "x": 1670,
-      "y": 707,
+      "y": 713,
       "r": 57,
       "sprite": {
-        "image": "levels/greece_olive_grove_press_bird_dcce/dogs/dog_03/sprite_000.png",
-        "x": 1610,
-        "y": 615,
-        "width": 140,
-        "height": 120,
+        "image": "levels/greece_olive_grove_press_bird_dcce/dogs/dog_27/sprite_000.png",
+        "height": 147,
+        "width": 180,
+        "x": 1584,
+        "y": 618,
         "cleanup": {
-          "x": 1527,
-          "y": 560,
-          "width": 310,
-          "height": 320
+          "x": 1568,
+          "y": 602,
+          "width": 212,
+          "height": 179
         },
-        "anchorX": 0.4286,
-        "anchorY": 0.7667
+        "anchorX": 0.4778,
+        "anchorY": 0.6463,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 24.8,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
-      "id": "dog_04",
-      "x": 1980,
-      "y": 627,
+      "id": "424c4bd4-f984-4c69-8682-916298f107e7",
+      "compatibilitySlot": "dog_28",
+      "x": 1989,
+      "y": 631,
       "r": 57,
       "sprite": {
-        "image": "levels/greece_olive_grove_press_bird_dcce/dogs/dog_04/sprite_000.png",
-        "x": 1936,
+        "image": "levels/greece_olive_grove_press_bird_dcce/dogs/dog_28/sprite_000.png",
+        "height": 139,
+        "width": 207,
+        "x": 1861,
         "y": 561,
-        "width": 144,
-        "height": 123,
         "cleanup": {
-          "x": 1846,
-          "y": 481,
-          "width": 296,
-          "height": 275
+          "x": 1850,
+          "y": 548,
+          "width": 242,
+          "height": 173
         },
-        "anchorX": 0.3056,
-        "anchorY": 0.5366
+        "anchorX": 0.5845,
+        "anchorY": 0.4748,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 0.95,
+          "ratio": 1.0,
+          "pop": 30.7,
+          "dx": 7,
+          "dy": 4
+        }
       }
     },
     {
-      "id": "dog_05",
-      "x": 2267,
-      "y": 563,
+      "id": "01122a3e-10c6-4d91-874e-12fec24998b5",
+      "compatibilitySlot": "dog_30",
+      "x": 924,
+      "y": 1047,
       "r": 57,
       "sprite": {
-        "image": "levels/greece_olive_grove_press_bird_dcce/dogs/dog_05/sprite_000.png",
-        "x": 2234,
-        "y": 512,
-        "width": 88,
-        "height": 103,
+        "image": "levels/greece_olive_grove_press_bird_dcce/dogs/dog_30/sprite_000.png",
+        "height": 252,
+        "width": 273,
+        "x": 814,
+        "y": 924,
         "cleanup": {
-          "x": 2145,
-          "y": 428,
-          "width": 264,
-          "height": 258
+          "x": 795,
+          "y": 907,
+          "width": 299,
+          "height": 291
         },
-        "anchorX": 0.375,
-        "anchorY": 0.4951
+        "anchorX": 0.4212,
+        "anchorY": 0.4802,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.05,
+          "pop": 39.9,
+          "dx": -5,
+          "dy": 1
+        }
       }
     },
     {
-      "id": "dog_06",
-      "x": 910,
-      "y": 1020,
+      "id": "eb1397a5-a532-4b45-b833-009b8d95db80",
+      "compatibilitySlot": "dog_31",
+      "x": 1209,
+      "y": 1084,
       "r": 57,
       "sprite": {
-        "image": "levels/greece_olive_grove_press_bird_dcce/dogs/dog_06/sprite_000.png",
-        "x": 861,
-        "y": 1003,
-        "width": 126,
-        "height": 102,
+        "image": "levels/greece_olive_grove_press_bird_dcce/dogs/dog_31/sprite_000.png",
+        "height": 138,
+        "width": 165,
+        "x": 1120,
+        "y": 1014,
         "cleanup": {
-          "x": 832,
-          "y": 913,
-          "width": 244,
-          "height": 314
+          "x": 1104,
+          "y": 998,
+          "width": 197,
+          "height": 170
         },
-        "anchorX": 0.3889,
-        "anchorY": 0.1667
+        "anchorX": 0.5394,
+        "anchorY": 0.5072,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 26.3,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
-      "id": "dog_07",
-      "x": 1177,
-      "y": 1083,
+      "id": "1796c8bb-3077-4cc1-b9a0-66203c5cfae2",
+      "compatibilitySlot": "dog_32",
+      "x": 1590,
+      "y": 1030,
       "r": 57,
       "sprite": {
-        "image": "levels/greece_olive_grove_press_bird_dcce/dogs/dog_07/sprite_000.png",
-        "x": 1119,
-        "y": 1010,
-        "width": 148,
+        "image": "levels/greece_olive_grove_press_bird_dcce/dogs/dog_32/sprite_000.png",
         "height": 119,
+        "width": 160,
+        "x": 1518,
+        "y": 961,
         "cleanup": {
-          "x": 1078,
-          "y": 922,
-          "width": 306,
-          "height": 249
+          "x": 1502,
+          "y": 945,
+          "width": 192,
+          "height": 151
         },
-        "anchorX": 0.3919,
-        "anchorY": 0.6134
+        "anchorX": 0.45,
+        "anchorY": 0.5798,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 28.1,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
-      "id": "dog_08",
-      "x": 777,
-      "y": 1283,
+      "id": "56225cfe-b975-41b8-b77b-43d07a475e6e",
+      "compatibilitySlot": "dog_33",
+      "x": 1254,
+      "y": 1243,
       "r": 57,
       "sprite": {
-        "image": "levels/greece_olive_grove_press_bird_dcce/dogs/dog_08/sprite_000.png",
-        "x": 669,
-        "y": 1190,
-        "width": 117,
-        "height": 108,
-        "cleanup": {
-          "x": 568,
-          "y": 1074,
-          "width": 262,
-          "height": 345
-        },
-        "anchorX": 0.9231,
-        "anchorY": 0.8611
-      }
-    },
-    {
-      "id": "dog_09",
-      "x": 1253,
-      "y": 1241,
-      "r": 57,
-      "sprite": {
-        "image": "levels/greece_olive_grove_press_bird_dcce/dogs/dog_09/sprite_000.png",
-        "x": 1182,
-        "y": 1181,
-        "width": 145,
-        "height": 132,
-        "cleanup": {
-          "x": 1126,
-          "y": 1173,
-          "width": 285,
-          "height": 196
-        },
-        "anchorX": 0.4897,
-        "anchorY": 0.4545
-      }
-    },
-    {
-      "id": "dog_10",
-      "x": 1571,
-      "y": 1016,
-      "r": 57,
-      "sprite": {
-        "image": "levels/greece_olive_grove_press_bird_dcce/dogs/dog_10/sprite_000.png",
-        "x": 1525,
-        "y": 965,
-        "width": 157,
-        "height": 94,
-        "cleanup": {
-          "x": 1413,
-          "y": 882,
-          "width": 331,
-          "height": 335
-        },
-        "anchorX": 0.293,
-        "anchorY": 0.5426
-      }
-    },
-    {
-      "id": "dog_11",
-      "x": 389,
-      "y": 1438,
-      "r": 57,
-      "sprite": {
-        "image": "levels/greece_olive_grove_press_bird_dcce/dogs/dog_11/sprite_000.png",
-        "x": 364,
-        "y": 1323,
-        "width": 119,
-        "height": 136,
-        "cleanup": {
-          "x": 275,
-          "y": 1222,
-          "width": 291,
-          "height": 317
-        },
-        "anchorX": 0.2101,
-        "anchorY": 0.8456
-      }
-    },
-    {
-      "id": "dog_12",
-      "x": 411,
-      "y": 1657,
-      "r": 57,
-      "sprite": {
-        "image": "levels/greece_olive_grove_press_bird_dcce/dogs/dog_12/sprite_000.png",
-        "x": 397,
-        "y": 1632,
-        "width": 118,
+        "image": "levels/greece_olive_grove_press_bird_dcce/dogs/dog_33/sprite_000.png",
         "height": 121,
+        "width": 167,
+        "x": 1161,
+        "y": 1186,
         "cleanup": {
-          "x": 327,
-          "y": 1541,
-          "width": 345,
-          "height": 206
+          "x": 1137,
+          "y": 1162,
+          "width": 218,
+          "height": 170
         },
-        "anchorX": 0.1186,
-        "anchorY": 0.2066
+        "anchorX": 0.5569,
+        "anchorY": 0.4711,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 14.3,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.9426,
+          "pop": 14.1,
+          "why": "T3"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
       }
     },
     {
-      "id": "dog_13",
-      "x": 581,
-      "y": 1812,
+      "id": "411cf5b4-ca9e-46cd-a872-d06d0517953a",
+      "compatibilitySlot": "dog_34",
+      "x": 741,
+      "y": 1278,
       "r": 57,
       "sprite": {
-        "image": "levels/greece_olive_grove_press_bird_dcce/dogs/dog_13/sprite_000.png",
-        "x": 517,
-        "y": 1729,
-        "width": 138,
-        "height": 154,
+        "image": "levels/greece_olive_grove_press_bird_dcce/dogs/dog_34/sprite_000.png",
+        "height": 140,
+        "width": 163,
+        "x": 688,
+        "y": 1223,
         "cleanup": {
-          "x": 408,
-          "y": 1749,
-          "width": 345,
-          "height": 235
+          "x": 671,
+          "y": 1206,
+          "width": 197,
+          "height": 174
         },
-        "anchorX": 0.4638,
-        "anchorY": 0.539
+        "anchorX": 0.319,
+        "anchorY": 0.3929,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 23.4,
+          "dx": 1,
+          "dy": 0
+        }
       }
     },
     {
-      "id": "dog_14",
-      "x": 1011,
-      "y": 1443,
+      "id": "9801610c-f852-4d5e-bfd3-1b4ba3902fcd",
+      "compatibilitySlot": "dog_35",
+      "x": 404,
+      "y": 1416,
       "r": 57,
       "sprite": {
-        "image": "levels/greece_olive_grove_press_bird_dcce/dogs/dog_14/sprite_000.png",
-        "x": 931,
-        "y": 1364,
-        "width": 146,
-        "height": 181,
-        "cleanup": {
-          "x": 850,
-          "y": 1373,
-          "width": 322,
-          "height": 299
-        },
-        "anchorX": 0.5479,
-        "anchorY": 0.4365
-      }
-    },
-    {
-      "id": "dog_15",
-      "x": 1650,
-      "y": 1405,
-      "r": 57,
-      "sprite": {
-        "image": "levels/greece_olive_grove_press_bird_dcce/dogs/dog_15/sprite_000.png",
-        "x": 1604,
-        "y": 1347,
-        "width": 103,
-        "height": 110,
-        "cleanup": {
-          "x": 1470,
-          "y": 1232,
-          "width": 345,
-          "height": 345
-        },
-        "anchorX": 0.4466,
-        "anchorY": 0.5273
-      }
-    },
-    {
-      "id": "dog_16",
-      "x": 2117,
-      "y": 1261,
-      "r": 57,
-      "sprite": {
-        "image": "levels/greece_olive_grove_press_bird_dcce/dogs/dog_16/sprite_000.png",
-        "x": 2073,
-        "y": 1212,
-        "width": 76,
-        "height": 98,
-        "cleanup": {
-          "x": 1933,
-          "y": 1116,
-          "width": 345,
-          "height": 331
-        },
-        "anchorX": 0.5789,
-        "anchorY": 0.5
-      }
-    },
-    {
-      "id": "dog_17",
-      "x": 2045,
-      "y": 1554,
-      "r": 57,
-      "sprite": {
-        "image": "levels/greece_olive_grove_press_bird_dcce/dogs/dog_17/sprite_000.png",
-        "x": 1975,
-        "y": 1553,
+        "image": "levels/greece_olive_grove_press_bird_dcce/dogs/dog_35/sprite_000.png",
+        "height": 84,
         "width": 110,
-        "height": 107,
+        "x": 325,
+        "y": 1409,
         "cleanup": {
-          "x": 1861,
-          "y": 1449,
-          "width": 345,
-          "height": 286
+          "x": 309,
+          "y": 1393,
+          "width": 142,
+          "height": 116
         },
-        "anchorX": 0.6364,
-        "anchorY": 0.0093
+        "anchorX": 0.7182,
+        "anchorY": 0.0833,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 19.7,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
-      "id": "dog_18",
-      "x": 2255,
-      "y": 1812,
+      "id": "f2cd5494-6d69-451b-bd65-4acdf91507de",
+      "compatibilitySlot": "dog_36",
+      "x": 444,
+      "y": 1672,
       "r": 57,
       "sprite": {
-        "image": "levels/greece_olive_grove_press_bird_dcce/dogs/dog_18/sprite_000.png",
-        "x": 2212,
-        "y": 1739,
-        "width": 140,
-        "height": 162,
+        "image": "levels/greece_olive_grove_press_bird_dcce/dogs/dog_36/sprite_000.png",
+        "height": 135,
+        "width": 163,
+        "x": 325,
+        "y": 1594,
         "cleanup": {
-          "x": 2053,
-          "y": 1737,
-          "width": 345,
-          "height": 297
+          "x": 298,
+          "y": 1574,
+          "width": 224,
+          "height": 177
         },
-        "anchorX": 0.3071,
-        "anchorY": 0.4506
+        "anchorX": 0.7301,
+        "anchorY": 0.5778,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 36.3,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.8128,
+          "pop": 34.8,
+          "why": "refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
       }
     },
     {
-      "id": "dog_19",
-      "x": 1465,
-      "y": 1827,
+      "id": "1550dbae-2fef-4950-ad8e-10f208031b27",
+      "compatibilitySlot": "dog_37",
+      "x": 581,
+      "y": 1815,
       "r": 57,
       "sprite": {
-        "image": "levels/greece_olive_grove_press_bird_dcce/dogs/dog_19/sprite_000.png",
-        "x": 1417,
-        "y": 1752,
-        "width": 114,
-        "height": 131,
+        "image": "levels/greece_olive_grove_press_bird_dcce/dogs/dog_37/sprite_000.png",
+        "height": 187,
+        "width": 157,
+        "x": 507,
+        "y": 1725,
         "cleanup": {
-          "x": 1429,
-          "y": 1633,
-          "width": 183,
-          "height": 337
+          "x": 492,
+          "y": 1709,
+          "width": 188,
+          "height": 218
         },
-        "anchorX": 0.4211,
-        "anchorY": 0.5725
+        "anchorX": 0.4713,
+        "anchorY": 0.4813,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 23.6,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
-      "id": "dog_20",
-      "x": 1291,
-      "y": 1868,
+      "id": "f5fd2d8d-3aaf-4236-b941-e4a4d9dc75a0",
+      "compatibilitySlot": "dog_38",
+      "x": 998,
+      "y": 1496,
       "r": 57,
       "sprite": {
-        "image": "levels/greece_olive_grove_press_bird_dcce/dogs/dog_20/sprite_000.png",
-        "x": 1266,
-        "y": 1822,
-        "width": 95,
-        "height": 108,
+        "image": "levels/greece_olive_grove_press_bird_dcce/dogs/dog_38/sprite_000.png",
+        "height": 242,
+        "width": 196,
+        "x": 916,
+        "y": 1368,
         "cleanup": {
-          "x": 1171,
-          "y": 1698,
-          "width": 256,
-          "height": 309
+          "x": 899,
+          "y": 1350,
+          "width": 231,
+          "height": 276
         },
-        "anchorX": 0.2632,
-        "anchorY": 0.4259
+        "anchorX": 0.4184,
+        "anchorY": 0.5331,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 24.6,
+          "dx": 0,
+          "dy": -1
+        }
       }
     },
     {
-      "id": "dog_21",
-      "x": 1683,
-      "y": 2019,
+      "id": "715e903e-3695-40e5-bb07-1f6d7692aa1f",
+      "compatibilitySlot": "dog_39",
+      "x": 1294,
+      "y": 1885,
       "r": 57,
       "sprite": {
-        "image": "levels/greece_olive_grove_press_bird_dcce/dogs/dog_21/sprite_000.png",
-        "x": 1680,
-        "y": 1907,
-        "width": 109,
+        "image": "levels/greece_olive_grove_press_bird_dcce/dogs/dog_39/sprite_000.png",
+        "height": 116,
+        "width": 151,
+        "x": 1231,
+        "y": 1829,
+        "cleanup": {
+          "x": 1191,
+          "y": 1673,
+          "width": 335,
+          "height": 310
+        },
+        "anchorX": 0.4172,
+        "anchorY": 0.4828,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 15.1,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.9324,
+          "pop": 15.0,
+          "why": "T3"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "f9bb106a-f665-45fd-b2c5-5a28bf55f5f9",
+      "compatibilitySlot": "dog_40",
+      "x": 1488,
+      "y": 1811,
+      "r": 57,
+      "sprite": {
+        "image": "levels/greece_olive_grove_press_bird_dcce/dogs/dog_40/sprite_000.png",
+        "height": 281,
+        "width": 363,
+        "x": 1249,
+        "y": 1680,
+        "cleanup": {
+          "x": 1223,
+          "y": 1654,
+          "width": 415,
+          "height": 333
+        },
+        "anchorX": 0.6584,
+        "anchorY": 0.4662,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 1.3,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "1fba7f78-8a67-4838-a633-47ad1cfdbbed",
+      "compatibilitySlot": "dog_41",
+      "x": 1655,
+      "y": 1406,
+      "r": 57,
+      "sprite": {
+        "image": "levels/greece_olive_grove_press_bird_dcce/dogs/dog_41/sprite_000.png",
+        "height": 187,
+        "width": 284,
+        "x": 1516,
+        "y": 1314,
+        "cleanup": {
+          "x": 1493,
+          "y": 1292,
+          "width": 329,
+          "height": 232
+        },
+        "anchorX": 0.493,
+        "anchorY": 0.492,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 20.8,
+          "dx": -1,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "6dceaf1d-fd78-4a76-bdf0-3f3ebcc69633",
+      "compatibilitySlot": "dog_42",
+      "x": 2041,
+      "y": 1591,
+      "r": 57,
+      "sprite": {
+        "image": "levels/greece_olive_grove_press_bird_dcce/dogs/dog_42/sprite_000.png",
+        "height": 251,
+        "width": 295,
+        "x": 1863,
+        "y": 1483,
+        "cleanup": {
+          "x": 1841,
+          "y": 1461,
+          "width": 339,
+          "height": 295
+        },
+        "anchorX": 0.6034,
+        "anchorY": 0.4303,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 0.0,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "575d53e7-3258-4675-b68c-84cfce8aa405",
+      "compatibilitySlot": "dog_43",
+      "x": 2107,
+      "y": 1277,
+      "r": 57,
+      "sprite": {
+        "image": "levels/greece_olive_grove_press_bird_dcce/dogs/dog_43/sprite_000.png",
+        "height": 134,
+        "width": 86,
+        "x": 2073,
+        "y": 1203,
+        "cleanup": {
+          "x": 2058,
+          "y": 1188,
+          "width": 117,
+          "height": 164
+        },
+        "anchorX": 0.3953,
+        "anchorY": 0.5522,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 17.1,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "16c08532-420b-4791-813d-2d8a0a868de6",
+      "compatibilitySlot": "dog_44",
+      "x": 2252,
+      "y": 1835,
+      "r": 57,
+      "sprite": {
+        "image": "levels/greece_olive_grove_press_bird_dcce/dogs/dog_44/sprite_000.png",
+        "height": 161,
+        "width": 170,
+        "x": 2191,
+        "y": 1740,
+        "cleanup": {
+          "x": 2175,
+          "y": 1724,
+          "width": 202,
+          "height": 193
+        },
+        "anchorX": 0.3588,
+        "anchorY": 0.5901,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 16.5,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "cb61ec86-1d97-47f2-8e68-b48a36ae5188",
+      "compatibilitySlot": "dog_45",
+      "x": 1713,
+      "y": 2000,
+      "r": 57,
+      "sprite": {
+        "image": "levels/greece_olive_grove_press_bird_dcce/dogs/dog_45/sprite_000.png",
+        "height": 116,
+        "width": 156,
+        "x": 1629,
+        "y": 1980,
+        "cleanup": {
+          "x": 1609,
+          "y": 1957,
+          "width": 190,
+          "height": 158
+        },
+        "anchorX": 0.5385,
+        "anchorY": 0.1724,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 26.5,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.8205,
+          "pop": 26.9,
+          "why": "T3"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "939ee3b1-8ca5-4499-aa49-987944d86e01",
+      "compatibilitySlot": "dog_46",
+      "x": 859,
+      "y": 2184,
+      "r": 57,
+      "sprite": {
+        "image": "levels/greece_olive_grove_press_bird_dcce/dogs/dog_46/sprite_000.png",
         "height": 105,
-        "cleanup": {
-          "x": 1614,
-          "y": 1779,
-          "width": 285,
-          "height": 345
-        },
-        "anchorX": 0.3853,
-        "anchorY": 0.6571
-      }
-    },
-    {
-      "id": "dog_22",
-      "x": 1134,
-      "y": 2257,
-      "r": 57,
-      "sprite": {
-        "image": "levels/greece_olive_grove_press_bird_dcce/dogs/dog_22/sprite_000.png",
-        "x": 1080,
-        "y": 2201,
         "width": 140,
-        "height": 146,
+        "x": 802,
+        "y": 2087,
         "cleanup": {
-          "x": 1011,
-          "y": 2142,
-          "width": 324,
-          "height": 271
+          "x": 788,
+          "y": 2072,
+          "width": 169,
+          "height": 135
         },
-        "anchorX": 0.3857,
-        "anchorY": 0.3836
+        "anchorX": 0.4,
+        "anchorY": 0.9238,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 28.1,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
-      "id": "dog_23",
-      "x": 865,
-      "y": 2119,
+      "id": "a77fb47d-6846-41b2-99c7-8c04836db62c",
+      "compatibilitySlot": "dog_47",
+      "x": 1141,
+      "y": 2283,
       "r": 57,
       "sprite": {
-        "image": "levels/greece_olive_grove_press_bird_dcce/dogs/dog_23/sprite_000.png",
-        "x": 796,
-        "y": 2156,
-        "width": 114,
-        "height": 122,
+        "image": "levels/greece_olive_grove_press_bird_dcce/dogs/dog_47/sprite_000.png",
+        "height": 195,
+        "width": 304,
+        "x": 1014,
+        "y": 2168,
         "cleanup": {
-          "x": 681,
-          "y": 2038,
-          "width": 328,
-          "height": 328
+          "x": 991,
+          "y": 2145,
+          "width": 350,
+          "height": 241
         },
-        "anchorX": 0.5088,
-        "anchorY": 0.3115
+        "anchorX": 0.4178,
+        "anchorY": 0.5897,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 0.0,
+          "dx": 0,
+          "dy": 0
+        }
       }
     }
   ]

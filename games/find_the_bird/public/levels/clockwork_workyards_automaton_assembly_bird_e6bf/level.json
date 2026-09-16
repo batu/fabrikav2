@@ -1,0 +1,747 @@
+{
+  "id": "clockwork_workyards_automaton_assembly_bird_e6bf",
+  "name": "Level clockwork_workyards_automaton_assembly_bird_e6bf",
+  "width": 2688,
+  "height": 2688,
+  "colorImage": "levels/clockwork_workyards_automaton_assembly_bird_e6bf/color.png",
+  "artifactRevision": "sha256:500d2fde1a5c7dde0be08f3dab1b45a8c3b204d9d404ad2e3cce8a88100d59e1",
+  "compatibilityAliases": {
+    "dog_09": "1fa8014c-6e75-420f-941c-be44fd9e1314",
+    "dog_10": "28288e81-177d-4e9d-88b9-9532e35f14ba",
+    "dog_15": "e90e5723-fdbd-4bd7-8933-052899beaee0",
+    "dog_16": "6d74fc54-10b8-452f-b0bd-d4d059a7d209",
+    "dog_18": "66ccb3c5-2093-4252-bef9-8cf227b49808",
+    "dog_26": "e2231e0f-dcca-4b72-b892-87021747e692",
+    "dog_27": "3e457e74-ab15-4a30-b61d-47204eddc344",
+    "dog_28": "5670d4cf-8c56-4062-8d15-dedf34d4c37b",
+    "dog_29": "ae12cbae-7d13-4c0a-95ea-e04ac1e1b6c2",
+    "dog_30": "40772ade-054a-45b1-a485-1f55cf8087d8",
+    "dog_31": "df95d4da-9552-4579-a7e3-e044ad60372a",
+    "dog_32": "f3ee778d-5e1d-4d67-ba67-df01b271b7a1",
+    "dog_33": "b8d33df9-80da-41d3-ba8d-21e7844afdf5",
+    "dog_34": "54c92be6-d28e-45eb-b0c8-5c6d03088b8a",
+    "dog_35": "103b78f4-66dc-40ce-80bc-72023f291dc6",
+    "dog_36": "2c50fc2e-d06e-4a7a-a999-ea89d9e6e3e9",
+    "dog_37": "cc1a121e-b9d1-4d65-a701-7be7a9ef47d5",
+    "dog_38": "4fa7118f-8c8c-458b-bad3-2f82817231ae",
+    "dog_39": "a89dea81-5e47-4c42-8d66-05dc8df8f288",
+    "dog_40": "ec2b62c8-f45a-4b93-988f-9c94b1760643",
+    "dog_41": "87afd414-923a-4a9d-a63e-736fbc76724f"
+  },
+  "dogs": [
+    {
+      "id": "1fa8014c-6e75-420f-941c-be44fd9e1314",
+      "compatibilitySlot": "dog_09",
+      "x": 1367,
+      "y": 595,
+      "r": 57,
+      "sprite": {
+        "image": "levels/clockwork_workyards_automaton_assembly_bird_e6bf/dogs/dog_09/sprite_000.png",
+        "height": 156,
+        "width": 185,
+        "x": 1282,
+        "y": 506,
+        "cleanup": {
+          "x": 1263,
+          "y": 487,
+          "width": 223,
+          "height": 193
+        },
+        "anchorX": 0.4595,
+        "anchorY": 0.5705,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 25.1,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "28288e81-177d-4e9d-88b9-9532e35f14ba",
+      "compatibilitySlot": "dog_10",
+      "x": 1019,
+      "y": 646,
+      "r": 57,
+      "sprite": {
+        "image": "levels/clockwork_workyards_automaton_assembly_bird_e6bf/dogs/dog_10/sprite_000.png",
+        "height": 168,
+        "width": 210,
+        "x": 923,
+        "y": 543,
+        "cleanup": {
+          "x": 906,
+          "y": 526,
+          "width": 243,
+          "height": 201
+        },
+        "anchorX": 0.4571,
+        "anchorY": 0.619,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.05,
+          "pop": 34.0,
+          "dx": -2,
+          "dy": 2
+        }
+      }
+    },
+    {
+      "id": "e90e5723-fdbd-4bd7-8933-052899beaee0",
+      "compatibilitySlot": "dog_15",
+      "x": 461,
+      "y": 614,
+      "r": 57,
+      "sprite": {
+        "image": "levels/clockwork_workyards_automaton_assembly_bird_e6bf/dogs/dog_15/sprite_000.png",
+        "height": 163,
+        "width": 210,
+        "x": 354,
+        "y": 546,
+        "cleanup": {
+          "x": 338,
+          "y": 529,
+          "width": 241,
+          "height": 195
+        },
+        "anchorX": 0.5143,
+        "anchorY": 0.4172,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.05,
+          "pop": 36.9,
+          "dx": -2,
+          "dy": 2
+        }
+      }
+    },
+    {
+      "id": "6d74fc54-10b8-452f-b0bd-d4d059a7d209",
+      "compatibilitySlot": "dog_16",
+      "x": 769,
+      "y": 681,
+      "r": 57,
+      "sprite": {
+        "image": "levels/clockwork_workyards_automaton_assembly_bird_e6bf/dogs/dog_16/sprite_000.png",
+        "height": 224,
+        "width": 260,
+        "x": 663,
+        "y": 568,
+        "cleanup": {
+          "x": 629,
+          "y": 536,
+          "width": 325,
+          "height": 308
+        },
+        "anchorX": 0.4154,
+        "anchorY": 0.5,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.05,
+          "pop": 29.3,
+          "dx": -2,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.8414,
+          "pop": 29.0,
+          "why": "T3"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "66ccb3c5-2093-4252-bef9-8cf227b49808",
+      "compatibilitySlot": "dog_18",
+      "x": 1652,
+      "y": 658,
+      "r": 57,
+      "sprite": {
+        "image": "levels/clockwork_workyards_automaton_assembly_bird_e6bf/dogs/dog_18/sprite_000.png",
+        "height": 251,
+        "width": 238,
+        "x": 1557,
+        "y": 543,
+        "cleanup": {
+          "x": 1537,
+          "y": 523,
+          "width": 278,
+          "height": 291
+        },
+        "anchorX": 0.3992,
+        "anchorY": 0.4582,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 0.0,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "e2231e0f-dcca-4b72-b892-87021747e692",
+      "compatibilitySlot": "dog_26",
+      "x": 2185,
+      "y": 744,
+      "r": 57,
+      "sprite": {
+        "image": "levels/clockwork_workyards_automaton_assembly_bird_e6bf/dogs/dog_26/sprite_000.png",
+        "height": 152,
+        "width": 161,
+        "x": 2071,
+        "y": 678,
+        "cleanup": {
+          "x": 2058,
+          "y": 664,
+          "width": 188,
+          "height": 180
+        },
+        "anchorX": 0.7081,
+        "anchorY": 0.4408,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.05,
+          "pop": 23.0,
+          "dx": -3,
+          "dy": 1
+        }
+      }
+    },
+    {
+      "id": "3e457e74-ab15-4a30-b61d-47204eddc344",
+      "compatibilitySlot": "dog_27",
+      "x": 1148,
+      "y": 934,
+      "r": 57,
+      "sprite": {
+        "image": "levels/clockwork_workyards_automaton_assembly_bird_e6bf/dogs/dog_27/sprite_000.png",
+        "height": 166,
+        "width": 190,
+        "x": 1075,
+        "y": 836,
+        "cleanup": {
+          "x": 1064,
+          "y": 825,
+          "width": 224,
+          "height": 200
+        },
+        "anchorX": 0.3526,
+        "anchorY": 0.5542,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 0.95,
+          "pop": 32.1,
+          "dx": 1,
+          "dy": -2
+        }
+      }
+    },
+    {
+      "id": "5670d4cf-8c56-4062-8d15-dedf34d4c37b",
+      "compatibilitySlot": "dog_28",
+      "x": 2244,
+      "y": 1082,
+      "r": 57,
+      "sprite": {
+        "image": "levels/clockwork_workyards_automaton_assembly_bird_e6bf/dogs/dog_28/sprite_000.png",
+        "height": 163,
+        "width": 150,
+        "x": 2142,
+        "y": 991,
+        "cleanup": {
+          "x": 2130,
+          "y": 979,
+          "width": 176,
+          "height": 189
+        },
+        "anchorX": 0.68,
+        "anchorY": 0.5583,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 19.6,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "ae12cbae-7d13-4c0a-95ea-e04ac1e1b6c2",
+      "compatibilitySlot": "dog_29",
+      "x": 1640,
+      "y": 1085,
+      "r": 57,
+      "sprite": {
+        "image": "levels/clockwork_workyards_automaton_assembly_bird_e6bf/dogs/dog_29/sprite_000.png",
+        "height": 134,
+        "width": 159,
+        "x": 1579,
+        "y": 1011,
+        "cleanup": {
+          "x": 1471,
+          "y": 983,
+          "width": 304,
+          "height": 238
+        },
+        "anchorX": 0.3962,
+        "anchorY": 0.5746,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.05,
+          "ratio": 1.0,
+          "pop": 21.8,
+          "dx": -1,
+          "dy": -3
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.7783,
+          "pop": 38.7,
+          "why": "T3"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "40772ade-054a-45b1-a485-1f55cf8087d8",
+      "compatibilitySlot": "dog_30",
+      "x": 829,
+      "y": 1393,
+      "r": 57,
+      "sprite": {
+        "image": "levels/clockwork_workyards_automaton_assembly_bird_e6bf/dogs/dog_30/sprite_000.png",
+        "height": 161,
+        "width": 175,
+        "x": 737,
+        "y": 1308,
+        "cleanup": {
+          "x": 772,
+          "y": 474,
+          "width": 727,
+          "height": 976
+        },
+        "anchorX": 0.5314,
+        "anchorY": 0.528,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 16.4,
+          "dx": -1,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.7837,
+          "pop": 16.2,
+          "why": "T3+refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "df95d4da-9552-4579-a7e3-e044ad60372a",
+      "compatibilitySlot": "dog_31",
+      "x": 1732,
+      "y": 1428,
+      "r": 57,
+      "sprite": {
+        "image": "levels/clockwork_workyards_automaton_assembly_bird_e6bf/dogs/dog_31/sprite_000.png",
+        "height": 201,
+        "width": 139,
+        "x": 1640,
+        "y": 1323,
+        "cleanup": {
+          "x": 891,
+          "y": 511,
+          "width": 898,
+          "height": 974
+        },
+        "anchorX": 0.6043,
+        "anchorY": 0.5124,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 0.95,
+          "ratio": 0.95,
+          "pop": 26.6,
+          "dx": 7,
+          "dy": 1
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.8112,
+          "pop": 33.1,
+          "why": "T3+refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "f3ee778d-5e1d-4d67-ba67-df01b271b7a1",
+      "compatibilitySlot": "dog_32",
+      "x": 1083,
+      "y": 1509,
+      "r": 57,
+      "sprite": {
+        "image": "levels/clockwork_workyards_automaton_assembly_bird_e6bf/dogs/dog_32/sprite_000.png",
+        "height": 142,
+        "width": 185,
+        "x": 1019,
+        "y": 1410,
+        "cleanup": {
+          "x": 998,
+          "y": 1388,
+          "width": 230,
+          "height": 185
+        },
+        "anchorX": 0.3459,
+        "anchorY": 0.6972,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 19.8,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.8285,
+          "pop": 19.2,
+          "why": "T3"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "b8d33df9-80da-41d3-ba8d-21e7844afdf5",
+      "compatibilitySlot": "dog_33",
+      "x": 2128,
+      "y": 1524,
+      "r": 57,
+      "sprite": {
+        "image": "levels/clockwork_workyards_automaton_assembly_bird_e6bf/dogs/dog_33/sprite_000.png",
+        "height": 200,
+        "width": 126,
+        "x": 2064,
+        "y": 1407,
+        "cleanup": {
+          "x": 2049,
+          "y": 1392,
+          "width": 156,
+          "height": 229
+        },
+        "anchorX": 0.5079,
+        "anchorY": 0.585,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 24.7,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "54c92be6-d28e-45eb-b0c8-5c6d03088b8a",
+      "compatibilitySlot": "dog_34",
+      "x": 1234,
+      "y": 1631,
+      "r": 57,
+      "sprite": {
+        "image": "levels/clockwork_workyards_automaton_assembly_bird_e6bf/dogs/dog_34/sprite_000.png",
+        "height": 191,
+        "width": 225,
+        "x": 1150,
+        "y": 1506,
+        "cleanup": {
+          "x": 1132,
+          "y": 1489,
+          "width": 260,
+          "height": 226
+        },
+        "anchorX": 0.3733,
+        "anchorY": 0.6545,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 24.9,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "103b78f4-66dc-40ce-80bc-72023f291dc6",
+      "compatibilitySlot": "dog_35",
+      "x": 1538,
+      "y": 1608,
+      "r": 57,
+      "sprite": {
+        "image": "levels/clockwork_workyards_automaton_assembly_bird_e6bf/dogs/dog_35/sprite_000.png",
+        "height": 168,
+        "width": 200,
+        "x": 1425,
+        "y": 1522,
+        "cleanup": {
+          "x": 1412,
+          "y": 1508,
+          "width": 228,
+          "height": 196
+        },
+        "anchorX": 0.565,
+        "anchorY": 0.5119,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 18.7,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "2c50fc2e-d06e-4a7a-a999-ea89d9e6e3e9",
+      "compatibilitySlot": "dog_36",
+      "x": 1988,
+      "y": 1977,
+      "r": 57,
+      "sprite": {
+        "image": "levels/clockwork_workyards_automaton_assembly_bird_e6bf/dogs/dog_36/sprite_000.png",
+        "height": 224,
+        "width": 319,
+        "x": 1825,
+        "y": 1890,
+        "cleanup": {
+          "x": 324,
+          "y": 515,
+          "width": 1721,
+          "height": 1519
+        },
+        "anchorX": 0.511,
+        "anchorY": 0.3884,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 32.2,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.7893,
+          "pop": 30.9,
+          "why": "T3+refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "cc1a121e-b9d1-4d65-a701-7be7a9ef47d5",
+      "compatibilitySlot": "dog_37",
+      "x": 613,
+      "y": 2002,
+      "r": 57,
+      "sprite": {
+        "image": "levels/clockwork_workyards_automaton_assembly_bird_e6bf/dogs/dog_37/sprite_000.png",
+        "height": 193,
+        "width": 258,
+        "x": 486,
+        "y": 1926,
+        "cleanup": {
+          "x": 556,
+          "y": 516,
+          "width": 418,
+          "height": 1543
+        },
+        "anchorX": 0.4922,
+        "anchorY": 0.3938,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 16.6,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.8895,
+          "pop": 16.6,
+          "why": "T3+refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "4fa7118f-8c8c-458b-bad3-2f82817231ae",
+      "compatibilitySlot": "dog_38",
+      "x": 596,
+      "y": 2274,
+      "r": 57,
+      "sprite": {
+        "image": "levels/clockwork_workyards_automaton_assembly_bird_e6bf/dogs/dog_38/sprite_000.png",
+        "height": 177,
+        "width": 158,
+        "x": 510,
+        "y": 2182,
+        "cleanup": {
+          "x": 429,
+          "y": 2155,
+          "width": 263,
+          "height": 226
+        },
+        "anchorX": 0.5443,
+        "anchorY": 0.5198,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 14.5,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.9709,
+          "pop": 14.5,
+          "why": "T3"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "a89dea81-5e47-4c42-8d66-05dc8df8f288",
+      "compatibilitySlot": "dog_39",
+      "x": 1238,
+      "y": 2277,
+      "r": 57,
+      "sprite": {
+        "image": "levels/clockwork_workyards_automaton_assembly_bird_e6bf/dogs/dog_39/sprite_000.png",
+        "height": 150,
+        "width": 221,
+        "x": 1094,
+        "y": 2194,
+        "cleanup": {
+          "x": 1181,
+          "y": 506,
+          "width": 651,
+          "height": 1828
+        },
+        "anchorX": 0.6516,
+        "anchorY": 0.5533,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 18.4,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.9099,
+          "pop": 17.8,
+          "why": "T3+refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "ec2b62c8-f45a-4b93-988f-9c94b1760643",
+      "compatibilitySlot": "dog_40",
+      "x": 2059,
+      "y": 2350,
+      "r": 57,
+      "sprite": {
+        "image": "levels/clockwork_workyards_automaton_assembly_bird_e6bf/dogs/dog_40/sprite_000.png",
+        "height": 151,
+        "width": 267,
+        "x": 1944,
+        "y": 2264,
+        "cleanup": {
+          "x": 1926,
+          "y": 2248,
+          "width": 311,
+          "height": 194
+        },
+        "anchorX": 0.4157,
+        "anchorY": 0.5364,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 37.0,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "87afd414-923a-4a9d-a63e-736fbc76724f",
+      "compatibilitySlot": "dog_41",
+      "x": 1663,
+      "y": 2450,
+      "r": 57,
+      "sprite": {
+        "image": "levels/clockwork_workyards_automaton_assembly_bird_e6bf/dogs/dog_41/sprite_000.png",
+        "height": 107,
+        "width": 184,
+        "x": 1587,
+        "y": 2399,
+        "cleanup": {
+          "x": 1572,
+          "y": 2384,
+          "width": 216,
+          "height": 139
+        },
+        "anchorX": 0.4076,
+        "anchorY": 0.4673,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 25.1,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    }
+  ]
+}

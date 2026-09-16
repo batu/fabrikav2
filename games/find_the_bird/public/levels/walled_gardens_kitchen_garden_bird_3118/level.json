@@ -1,0 +1,602 @@
+{
+  "id": "walled_gardens_kitchen_garden_bird_3118",
+  "name": "Level walled_gardens_kitchen_garden_bird_3118",
+  "width": 2688,
+  "height": 2688,
+  "colorImage": "levels/walled_gardens_kitchen_garden_bird_3118/color.png",
+  "artifactRevision": "sha256:d6ec1d8beef7e96e5de0ee2c7c2855bcc689216cea2d07500f5364cf69f53c2c",
+  "compatibilityAliases": {
+    "dog_20": "77635efb-f180-4998-a19e-fb8a70c92f42",
+    "dog_21": "8418cf56-3d4e-4e52-8a17-b7d848fb80f8",
+    "dog_22": "30887970-2e5d-460d-8b50-d75e26f8857a",
+    "dog_23": "1e3c6264-a50b-48d0-b073-611ae05f2f0b",
+    "dog_24": "f6cd0207-624c-4101-be7d-7d42b114fced",
+    "dog_25": "88f50ce0-13e8-4870-a006-5dd889bedd1f",
+    "dog_26": "081a7523-7f23-468b-9686-9e0e0480c3ba",
+    "dog_27": "17b6f79d-d92c-4a2f-8a24-de8044c73ca1",
+    "dog_28": "701f041a-0e1c-4e25-895f-636dc3db15ce",
+    "dog_29": "79409175-0bb0-44d4-86d3-abe2b65ad96e",
+    "dog_30": "0bfad757-0510-4436-b361-3c93d0567663",
+    "dog_31": "674ab418-e985-4012-b5e3-113049ea8b80",
+    "dog_32": "2cd50c52-2a54-430d-b663-ad308086af85",
+    "dog_33": "d254f672-619c-46a4-b7fd-dc515fcc65a0",
+    "dog_34": "e2c24a4a-cf83-4441-962b-031aaf658bd9",
+    "dog_35": "055c2c5b-72c0-4356-a84a-cbdeb510c2b5",
+    "dog_36": "f9cc90f4-b860-434b-90d9-826f663b38d5",
+    "dog_37": "1305a20e-2297-4b06-a70c-b912bd5062bd"
+  },
+  "dogs": [
+    {
+      "id": "77635efb-f180-4998-a19e-fb8a70c92f42",
+      "compatibilitySlot": "dog_20",
+      "x": 609,
+      "y": 623,
+      "r": 69,
+      "sprite": {
+        "image": "levels/walled_gardens_kitchen_garden_bird_3118/dogs/dog_20/sprite_000.png",
+        "height": 143,
+        "width": 179,
+        "x": 519,
+        "y": 551,
+        "cleanup": {
+          "x": 403,
+          "y": 485,
+          "width": 409,
+          "height": 340
+        },
+        "anchorX": 0.5028,
+        "anchorY": 0.5035,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 26.7,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.8857,
+          "pop": 26.7,
+          "why": "refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "8418cf56-3d4e-4e52-8a17-b7d848fb80f8",
+      "compatibilitySlot": "dog_21",
+      "x": 758,
+      "y": 938,
+      "r": 69,
+      "sprite": {
+        "image": "levels/walled_gardens_kitchen_garden_bird_3118/dogs/dog_21/sprite_000.png",
+        "height": 204,
+        "width": 211,
+        "x": 659,
+        "y": 821,
+        "cleanup": {
+          "x": 644,
+          "y": 807,
+          "width": 241,
+          "height": 234
+        },
+        "anchorX": 0.4692,
+        "anchorY": 0.5735,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 22.4,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "30887970-2e5d-460d-8b50-d75e26f8857a",
+      "compatibilitySlot": "dog_22",
+      "x": 559,
+      "y": 1109,
+      "r": 69,
+      "sprite": {
+        "image": "levels/walled_gardens_kitchen_garden_bird_3118/dogs/dog_22/sprite_000.png",
+        "height": 280,
+        "width": 221,
+        "x": 457,
+        "y": 951,
+        "cleanup": {
+          "x": 433,
+          "y": 927,
+          "width": 269,
+          "height": 329
+        },
+        "anchorX": 0.4615,
+        "anchorY": 0.5643,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 20.4,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "1e3c6264-a50b-48d0-b073-611ae05f2f0b",
+      "compatibilitySlot": "dog_23",
+      "x": 951,
+      "y": 1731,
+      "r": 69,
+      "sprite": {
+        "image": "levels/walled_gardens_kitchen_garden_bird_3118/dogs/dog_23/sprite_000.png",
+        "height": 252,
+        "width": 322,
+        "x": 805,
+        "y": 1612,
+        "cleanup": {
+          "x": 784,
+          "y": 1589,
+          "width": 365,
+          "height": 296
+        },
+        "anchorX": 0.4534,
+        "anchorY": 0.4762,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 23.4,
+          "dx": 0,
+          "dy": -1
+        }
+      }
+    },
+    {
+      "id": "f6cd0207-624c-4101-be7d-7d42b114fced",
+      "compatibilitySlot": "dog_24",
+      "x": 1338,
+      "y": 681,
+      "r": 69,
+      "sprite": {
+        "image": "levels/walled_gardens_kitchen_garden_bird_3118/dogs/dog_24/sprite_000.png",
+        "height": 272,
+        "width": 221,
+        "x": 1241,
+        "y": 517,
+        "cleanup": {
+          "x": 1225,
+          "y": 500,
+          "width": 250,
+          "height": 310
+        },
+        "anchorX": 0.457,
+        "anchorY": 0.5882,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.05,
+          "pop": 34.4,
+          "dx": -3,
+          "dy": 3
+        }
+      }
+    },
+    {
+      "id": "88f50ce0-13e8-4870-a006-5dd889bedd1f",
+      "compatibilitySlot": "dog_25",
+      "x": 1575,
+      "y": 680,
+      "r": 69,
+      "sprite": {
+        "image": "levels/walled_gardens_kitchen_garden_bird_3118/dogs/dog_25/sprite_000.png",
+        "height": 108,
+        "width": 150,
+        "x": 1466,
+        "y": 630,
+        "cleanup": {
+          "x": 1448,
+          "y": 610,
+          "width": 196,
+          "height": 150
+        },
+        "anchorX": 0.72,
+        "anchorY": 0.463,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 23.3,
+          "dx": 1,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "081a7523-7f23-468b-9686-9e0e0480c3ba",
+      "compatibilitySlot": "dog_26",
+      "x": 1924,
+      "y": 683,
+      "r": 69,
+      "sprite": {
+        "image": "levels/walled_gardens_kitchen_garden_bird_3118/dogs/dog_26/sprite_000.png",
+        "height": 269,
+        "width": 293,
+        "x": 1789,
+        "y": 566,
+        "cleanup": {
+          "x": 1767,
+          "y": 544,
+          "width": 337,
+          "height": 313
+        },
+        "anchorX": 0.4608,
+        "anchorY": 0.4349,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 0.0,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "17b6f79d-d92c-4a2f-8a24-de8044c73ca1",
+      "compatibilitySlot": "dog_27",
+      "x": 1405,
+      "y": 1243,
+      "r": 69,
+      "sprite": {
+        "image": "levels/walled_gardens_kitchen_garden_bird_3118/dogs/dog_27/sprite_000.png",
+        "height": 196,
+        "width": 229,
+        "x": 1286,
+        "y": 1154,
+        "cleanup": {
+          "x": 1274,
+          "y": 1137,
+          "width": 258,
+          "height": 226
+        },
+        "anchorX": 0.5153,
+        "anchorY": 0.4541,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 17.9,
+          "dx": 1,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "701f041a-0e1c-4e25-895f-636dc3db15ce",
+      "compatibilitySlot": "dog_28",
+      "x": 1832,
+      "y": 1234,
+      "r": 69,
+      "sprite": {
+        "image": "levels/walled_gardens_kitchen_garden_bird_3118/dogs/dog_28/sprite_000.png",
+        "height": 194,
+        "width": 189,
+        "x": 1760,
+        "y": 1127,
+        "cleanup": {
+          "x": 1744,
+          "y": 1111,
+          "width": 222,
+          "height": 227
+        },
+        "anchorX": 0.3757,
+        "anchorY": 0.5515,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 11.6,
+          "dx": 1,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "79409175-0bb0-44d4-86d3-abe2b65ad96e",
+      "compatibilitySlot": "dog_29",
+      "x": 1534,
+      "y": 1617,
+      "r": 69,
+      "sprite": {
+        "image": "levels/walled_gardens_kitchen_garden_bird_3118/dogs/dog_29/sprite_000.png",
+        "height": 225,
+        "width": 193,
+        "x": 1423,
+        "y": 1503,
+        "cleanup": {
+          "x": 1407,
+          "y": 1488,
+          "width": 225,
+          "height": 257
+        },
+        "anchorX": 0.5751,
+        "anchorY": 0.5067,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 20.6,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "0bfad757-0510-4436-b361-3c93d0567663",
+      "compatibilitySlot": "dog_30",
+      "x": 1901,
+      "y": 1454,
+      "r": 69,
+      "sprite": {
+        "image": "levels/walled_gardens_kitchen_garden_bird_3118/dogs/dog_30/sprite_000.png",
+        "height": 366,
+        "width": 355,
+        "x": 1808,
+        "y": 1228,
+        "cleanup": {
+          "x": 1782,
+          "y": 1202,
+          "width": 407,
+          "height": 418
+        },
+        "anchorX": 0.262,
+        "anchorY": 0.6175,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 0.0,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "674ab418-e985-4012-b5e3-113049ea8b80",
+      "compatibilitySlot": "dog_31",
+      "x": 1641,
+      "y": 1975,
+      "r": 69,
+      "sprite": {
+        "image": "levels/walled_gardens_kitchen_garden_bird_3118/dogs/dog_31/sprite_000.png",
+        "height": 111,
+        "width": 138,
+        "x": 1586,
+        "y": 1895,
+        "cleanup": {
+          "x": 1567,
+          "y": 1875,
+          "width": 176,
+          "height": 154
+        },
+        "anchorX": 0.3986,
+        "anchorY": 0.7207,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 20.3,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.9171,
+          "pop": 20.4,
+          "why": "T3"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "2cd50c52-2a54-430d-b663-ad308086af85",
+      "compatibilitySlot": "dog_32",
+      "x": 1950,
+      "y": 2015,
+      "r": 69,
+      "sprite": {
+        "image": "levels/walled_gardens_kitchen_garden_bird_3118/dogs/dog_32/sprite_000.png",
+        "height": 219,
+        "width": 206,
+        "x": 1869,
+        "y": 1889,
+        "cleanup": {
+          "x": 1856,
+          "y": 1875,
+          "width": 236,
+          "height": 248
+        },
+        "anchorX": 0.3883,
+        "anchorY": 0.5753,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 22.5,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "d254f672-619c-46a4-b7fd-dc515fcc65a0",
+      "compatibilitySlot": "dog_33",
+      "x": 2237,
+      "y": 1851,
+      "r": 69,
+      "sprite": {
+        "image": "levels/walled_gardens_kitchen_garden_bird_3118/dogs/dog_33/sprite_000.png",
+        "height": 222,
+        "width": 257,
+        "x": 2123,
+        "y": 1737,
+        "cleanup": {
+          "x": 2101,
+          "y": 1715,
+          "width": 304,
+          "height": 268
+        },
+        "anchorX": 0.4436,
+        "anchorY": 0.5135,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 37.3,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "e2c24a4a-cf83-4441-962b-031aaf658bd9",
+      "compatibilitySlot": "dog_34",
+      "x": 1395,
+      "y": 2286,
+      "r": 69,
+      "sprite": {
+        "image": "levels/walled_gardens_kitchen_garden_bird_3118/dogs/dog_34/sprite_000.png",
+        "height": 119,
+        "width": 125,
+        "x": 1350,
+        "y": 2234,
+        "cleanup": {
+          "x": 1334,
+          "y": 2219,
+          "width": 156,
+          "height": 150
+        },
+        "anchorX": 0.36,
+        "anchorY": 0.437,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 22.4,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "055c2c5b-72c0-4356-a84a-cbdeb510c2b5",
+      "compatibilitySlot": "dog_35",
+      "x": 1613,
+      "y": 2264,
+      "r": 69,
+      "sprite": {
+        "image": "levels/walled_gardens_kitchen_garden_bird_3118/dogs/dog_35/sprite_000.png",
+        "height": 163,
+        "width": 190,
+        "x": 1531,
+        "y": 2184,
+        "cleanup": {
+          "x": 1517,
+          "y": 2170,
+          "width": 216,
+          "height": 190
+        },
+        "anchorX": 0.4316,
+        "anchorY": 0.4908,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 13.6,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "f9cc90f4-b860-434b-90d9-826f663b38d5",
+      "compatibilitySlot": "dog_36",
+      "x": 793,
+      "y": 2330,
+      "r": 69,
+      "sprite": {
+        "image": "levels/walled_gardens_kitchen_garden_bird_3118/dogs/dog_36/sprite_000.png",
+        "height": 256,
+        "width": 307,
+        "x": 657,
+        "y": 2211,
+        "cleanup": {
+          "x": 634,
+          "y": 2188,
+          "width": 353,
+          "height": 302
+        },
+        "anchorX": 0.443,
+        "anchorY": 0.4648,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 0.0,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "1305a20e-2297-4b06-a70c-b912bd5062bd",
+      "compatibilitySlot": "dog_37",
+      "x": 2211,
+      "y": 2195,
+      "r": 69,
+      "sprite": {
+        "image": "levels/walled_gardens_kitchen_garden_bird_3118/dogs/dog_37/sprite_000.png",
+        "height": 239,
+        "width": 244,
+        "x": 2109,
+        "y": 2065,
+        "cleanup": {
+          "x": 2090,
+          "y": 2047,
+          "width": 287,
+          "height": 270
+        },
+        "anchorX": 0.4098,
+        "anchorY": 0.5565,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 0.95,
+          "pop": 25.5,
+          "dx": 2,
+          "dy": -3
+        }
+      }
+    }
+  ]
+}

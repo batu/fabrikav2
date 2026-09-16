@@ -1,513 +1,608 @@
 {
   "id": "fairytale_forest_fairy_ring_picnic_bird_9ed2",
-  "name": "Level fairytale_forest_fairy_ring_picnic_bird_9ed2 (clean_old_cartoon)",
+  "name": "Level fairytale_forest_fairy_ring_picnic_bird_9ed2",
   "width": 4096,
   "height": 4096,
-  "bwImage": "levels/fairytale_forest_fairy_ring_picnic_bird_9ed2/bw.png",
   "colorImage": "levels/fairytale_forest_fairy_ring_picnic_bird_9ed2/color.png",
+  "artifactRevision": "sha256:17fc67ff0a1992d25882574cc3f11e1bdfb6008c4cc4b305dd5c545277e2a96e",
+  "compatibilityAliases": {
+    "dog_18": "d50e088b-501f-4686-8809-6f9454feeff7",
+    "dog_19": "13976573-20ec-4c5d-aba1-a6813a3fbf6b",
+    "dog_20": "eb2be30a-b45b-4cf6-9cc7-fff34bd98f86",
+    "dog_21": "3ff12339-4fbe-4cf4-8a78-dcf586b3492e",
+    "dog_22": "07446386-2c45-4f3a-b06f-02db6520c2e5",
+    "dog_23": "e71078e5-ae0c-457a-93bf-49034c0618ba",
+    "dog_24": "087b3886-4d3a-492b-be10-7189fbe5fea8",
+    "dog_25": "f16c5267-e246-4e9c-baa7-6406679e343f",
+    "dog_26": "e231e3fc-a3da-4a74-ab2b-80b52f52ec10",
+    "dog_27": "38bdb895-718b-4605-8eb8-232a03343efc",
+    "dog_28": "46ae733f-70e8-450a-9fc7-dbb84e5c3c70",
+    "dog_29": "dec085c0-cb9d-4d3a-aa56-66097b68af40",
+    "dog_30": "0025b33f-5abc-4656-a08b-49c1d70ec1c6",
+    "dog_31": "a1a44f73-e4c5-4733-b7f2-45de51350ff9",
+    "dog_32": "9d3b22f6-b8f9-4ba7-a59c-981edd886d75",
+    "dog_33": "2353de8e-4882-4e15-8723-68f94c5d88f3",
+    "dog_34": "cd46b54b-a3e2-4028-b3ff-e87d4d9b8e00",
+    "dog_35": "00588435-8426-4cde-89a2-a80ee5a12d15"
+  },
   "dogs": [
     {
-      "id": "dog_00",
-      "x": 2340,
-      "y": 1045,
-      "r": 144,
-      "sprite": {
-        "image": "levels/fairytale_forest_fairy_ring_picnic_bird_9ed2/dogs/dog_00/sprite_000.png",
-        "x": 2171,
-        "y": 850,
-        "width": 298,
-        "height": 302,
-        "cleanup": {
-          "x": 2062,
-          "y": 793,
-          "width": 505,
-          "height": 468
-        },
-        "anchorX": 0.5671,
-        "anchorY": 0.6457
-      }
-    },
-    {
-      "id": "dog_01",
-      "x": 2526,
-      "y": 3114,
-      "r": 144,
-      "sprite": {
-        "image": "levels/fairytale_forest_fairy_ring_picnic_bird_9ed2/dogs/dog_01/sprite_000.png",
-        "x": 2357,
-        "y": 3011,
-        "width": 251,
-        "height": 288,
-        "cleanup": {
-          "x": 2178,
-          "y": 2810,
-          "width": 695,
-          "height": 651
-        },
-        "anchorX": 0.6733,
-        "anchorY": 0.3576
-      }
-    },
-    {
-      "id": "dog_02",
-      "x": 2797,
-      "y": 834,
-      "r": 144,
-      "sprite": {
-        "image": "levels/fairytale_forest_fairy_ring_picnic_bird_9ed2/dogs/dog_02/sprite_000.png",
-        "x": 2667,
-        "y": 689,
-        "width": 290,
-        "height": 317,
-        "cleanup": {
-          "x": 2569,
-          "y": 475,
-          "width": 566,
-          "height": 469
-        },
-        "anchorX": 0.4483,
-        "anchorY": 0.4574
-      }
-    },
-    {
-      "id": "dog_03",
-      "x": 569,
-      "y": 580,
-      "r": 144,
-      "sprite": {
-        "image": "levels/fairytale_forest_fairy_ring_picnic_bird_9ed2/dogs/dog_03/sprite_000.png",
-        "x": 445,
-        "y": 411,
-        "width": 281,
-        "height": 232,
-        "cleanup": {
-          "x": 221,
-          "y": 313,
-          "width": 645,
-          "height": 614
-        },
-        "anchorX": 0.4413,
-        "anchorY": 0.7284
-      }
-    },
-    {
-      "id": "dog_04",
-      "x": 1165,
-      "y": 881,
-      "r": 144,
-      "sprite": {
-        "image": "levels/fairytale_forest_fairy_ring_picnic_bird_9ed2/dogs/dog_04/sprite_000.png",
-        "x": 992,
-        "y": 684,
-        "width": 347,
-        "height": 311,
-        "cleanup": {
-          "x": 868,
-          "y": 634,
-          "width": 593,
-          "height": 493
-        },
-        "anchorX": 0.4986,
-        "anchorY": 0.6334
-      }
-    },
-    {
-      "id": "dog_05",
-      "x": 3586,
-      "y": 3020,
-      "r": 144,
-      "sprite": {
-        "image": "levels/fairytale_forest_fairy_ring_picnic_bird_9ed2/dogs/dog_05/sprite_000.png",
-        "x": 3314,
-        "y": 2766,
-        "width": 272,
-        "height": 288,
-        "cleanup": {
-          "x": 3341,
-          "y": 2672,
-          "width": 456,
-          "height": 603
-        },
-        "anchorX": 1.0,
-        "anchorY": 0.8819
-      }
-    },
-    {
-      "id": "dog_06",
-      "x": 1378,
-      "y": 3433,
-      "r": 144,
-      "sprite": {
-        "image": "levels/fairytale_forest_fairy_ring_picnic_bird_9ed2/dogs/dog_06/sprite_000.png",
-        "x": 1244,
-        "y": 3294,
-        "width": 308,
-        "height": 319,
-        "cleanup": {
-          "x": 1030,
-          "y": 3217,
-          "width": 695,
-          "height": 520
-        },
-        "anchorX": 0.4351,
-        "anchorY": 0.4357
-      }
-    },
-    {
-      "id": "dog_07",
-      "x": 2132,
-      "y": 1628,
-      "r": 144,
-      "sprite": {
-        "image": "levels/fairytale_forest_fairy_ring_picnic_bird_9ed2/dogs/dog_07/sprite_000.png",
-        "x": 1992,
-        "y": 1431,
-        "width": 276,
-        "height": 317,
-        "cleanup": {
-          "x": 1884,
-          "y": 1277,
-          "width": 601,
-          "height": 695
-        },
-        "anchorX": 0.5072,
-        "anchorY": 0.6215
-      }
-    },
-    {
-      "id": "dog_08",
-      "x": 3354,
-      "y": 2068,
-      "r": 144,
-      "sprite": {
-        "image": "levels/fairytale_forest_fairy_ring_picnic_bird_9ed2/dogs/dog_08/sprite_000.png",
-        "x": 3215,
-        "y": 1871,
-        "width": 312,
-        "height": 348,
-        "cleanup": {
-          "x": 3006,
-          "y": 1784,
-          "width": 695,
-          "height": 631
-        },
-        "anchorX": 0.4455,
-        "anchorY": 0.5661
-      }
-    },
-    {
-      "id": "dog_09",
-      "x": 2820,
-      "y": 1056,
-      "r": 144,
-      "sprite": {
-        "image": "levels/fairytale_forest_fairy_ring_picnic_bird_9ed2/dogs/dog_09/sprite_000.png",
-        "x": 2692,
-        "y": 1048,
-        "width": 342,
-        "height": 281,
-        "cleanup": {
-          "x": 2581,
-          "y": 946,
-          "width": 511,
-          "height": 330
-        },
-        "anchorX": 0.3743,
-        "anchorY": 0.0285
-      }
-    },
-    {
-      "id": "dog_10",
-      "x": 3677,
-      "y": 1218,
-      "r": 144,
-      "sprite": {
-        "image": "levels/fairytale_forest_fairy_ring_picnic_bird_9ed2/dogs/dog_10/sprite_000.png",
-        "x": 3450,
-        "y": 1106,
-        "width": 288,
-        "height": 232,
-        "cleanup": {
-          "x": 3361,
-          "y": 888,
-          "width": 663,
-          "height": 677
-        },
-        "anchorX": 0.7882,
-        "anchorY": 0.4828
-      }
-    },
-    {
-      "id": "dog_11",
-      "x": 3029,
-      "y": 1498,
-      "r": 144,
-      "sprite": {
-        "image": "levels/fairytale_forest_fairy_ring_picnic_bird_9ed2/dogs/dog_11/sprite_000.png",
-        "x": 2873,
-        "y": 1331,
-        "width": 254,
-        "height": 308,
-        "cleanup": {
-          "x": 2698,
-          "y": 1278,
-          "width": 654,
-          "height": 504
-        },
-        "anchorX": 0.6142,
-        "anchorY": 0.5422
-      }
-    },
-    {
-      "id": "dog_12",
-      "x": 3362,
-      "y": 556,
-      "r": 144,
-      "sprite": {
-        "image": "levels/fairytale_forest_fairy_ring_picnic_bird_9ed2/dogs/dog_12/sprite_000.png",
-        "x": 3248,
-        "y": 451,
-        "width": 286,
-        "height": 237,
-        "cleanup": {
-          "x": 3149,
-          "y": 228,
-          "width": 463,
-          "height": 658
-        },
-        "anchorX": 0.3986,
-        "anchorY": 0.443
-      }
-    },
-    {
-      "id": "dog_13",
-      "x": 1152,
-      "y": 2591,
-      "r": 144,
-      "sprite": {
-        "image": "levels/fairytale_forest_fairy_ring_picnic_bird_9ed2/dogs/dog_13/sprite_000.png",
-        "x": 1038,
-        "y": 2443,
-        "width": 285,
-        "height": 270,
-        "cleanup": {
-          "x": 825,
-          "y": 2234,
-          "width": 623,
-          "height": 483
-        },
-        "anchorX": 0.4,
-        "anchorY": 0.5481
-      }
-    },
-    {
-      "id": "dog_14",
-      "x": 1489,
-      "y": 1703,
-      "r": 144,
-      "sprite": {
-        "image": "levels/fairytale_forest_fairy_ring_picnic_bird_9ed2/dogs/dog_14/sprite_000.png",
-        "x": 1316,
-        "y": 1600,
-        "width": 271,
-        "height": 227,
-        "cleanup": {
-          "x": 1141,
-          "y": 1355,
-          "width": 419,
-          "height": 695
-        },
-        "anchorX": 0.6384,
-        "anchorY": 0.4537
-      }
-    },
-    {
-      "id": "dog_15",
-      "x": 1789,
-      "y": 2873,
-      "r": 144,
-      "sprite": {
-        "image": "levels/fairytale_forest_fairy_ring_picnic_bird_9ed2/dogs/dog_15/sprite_000.png",
-        "x": 1629,
-        "y": 2726,
-        "width": 300,
-        "height": 320,
-        "cleanup": {
-          "x": 1768,
-          "y": 2536,
-          "width": 381,
-          "height": 654
-        },
-        "anchorX": 0.5333,
-        "anchorY": 0.4594
-      }
-    },
-    {
-      "id": "dog_16",
-      "x": 746,
-      "y": 1375,
-      "r": 144,
-      "sprite": {
-        "image": "levels/fairytale_forest_fairy_ring_picnic_bird_9ed2/dogs/dog_16/sprite_000.png",
-        "x": 527,
-        "y": 1122,
-        "width": 288,
-        "height": 269,
-        "cleanup": {
-          "x": 398,
-          "y": 1129,
-          "width": 695,
-          "height": 542
-        },
-        "anchorX": 0.7604,
-        "anchorY": 0.9405
-      }
-    },
-    {
-      "id": "dog_17",
-      "x": 1233,
-      "y": 2846,
-      "r": 144,
-      "sprite": {
-        "image": "levels/fairytale_forest_fairy_ring_picnic_bird_9ed2/dogs/dog_17/sprite_000.png",
-        "x": 991,
-        "y": 2740,
-        "width": 288,
-        "height": 201,
-        "cleanup": {
-          "x": 887,
-          "y": 2719,
-          "width": 601,
-          "height": 478
-        },
-        "anchorX": 0.8403,
-        "anchorY": 0.5274
-      }
-    },
-    {
-      "id": "dog_18",
-      "x": 1634,
-      "y": 1725,
-      "r": 144,
+      "id": "d50e088b-501f-4686-8809-6f9454feeff7",
+      "compatibilitySlot": "dog_18",
+      "x": 1748,
+      "y": 3018,
+      "r": 94,
       "sprite": {
         "image": "levels/fairytale_forest_fairy_ring_picnic_bird_9ed2/dogs/dog_18/sprite_000.png",
-        "x": 1406,
-        "y": 1493,
-        "width": 288,
-        "height": 233,
+        "height": 277,
+        "width": 483,
+        "x": 1527,
+        "y": 2896,
         "cleanup": {
-          "x": 1562,
-          "y": 1377,
-          "width": 320,
-          "height": 695
+          "x": 1494,
+          "y": 2860,
+          "width": 530,
+          "height": 345
         },
-        "anchorX": 0.7917,
-        "anchorY": 0.9957
+        "anchorX": 0.4576,
+        "anchorY": 0.4404,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 13.9,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.969,
+          "pop": 15.5,
+          "why": "T3"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
       }
     },
     {
-      "id": "dog_19",
-      "x": 1746,
-      "y": 2858,
-      "r": 144,
+      "id": "13976573-20ec-4c5d-aba1-a6813a3fbf6b",
+      "compatibilitySlot": "dog_19",
+      "x": 3157,
+      "y": 3218,
+      "r": 94,
       "sprite": {
         "image": "levels/fairytale_forest_fairy_ring_picnic_bird_9ed2/dogs/dog_19/sprite_000.png",
-        "x": 1616,
-        "y": 2732,
-        "width": 281,
-        "height": 268,
+        "height": 359,
+        "width": 508,
+        "x": 2942,
+        "y": 3061,
         "cleanup": {
-          "x": 1490,
-          "y": 2509,
-          "width": 276,
-          "height": 681
+          "x": 2945,
+          "y": 3025,
+          "width": 529,
+          "height": 427
         },
-        "anchorX": 0.4626,
-        "anchorY": 0.4701
+        "anchorX": 0.4232,
+        "anchorY": 0.4373,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 25.2,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.8951,
+          "pop": 24.8,
+          "why": "T3"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
       }
     },
     {
-      "id": "dog_20",
-      "x": 401,
-      "y": 3700,
-      "r": 144,
+      "id": "eb2be30a-b45b-4cf6-9cc7-fff34bd98f86",
+      "compatibilitySlot": "dog_20",
+      "x": 2642,
+      "y": 2970,
+      "r": 94,
       "sprite": {
         "image": "levels/fairytale_forest_fairy_ring_picnic_bird_9ed2/dogs/dog_20/sprite_000.png",
-        "x": 207,
-        "y": 3473,
-        "width": 246,
-        "height": 288,
+        "height": 281,
+        "width": 289,
+        "x": 2469,
+        "y": 2835,
         "cleanup": {
-          "x": 74,
-          "y": 3352,
-          "width": 674,
-          "height": 695
+          "x": 2446,
+          "y": 2814,
+          "width": 332,
+          "height": 324
         },
-        "anchorX": 0.7886,
-        "anchorY": 0.7882
+        "anchorX": 0.6021,
+        "anchorY": 0.4804,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 18.3,
+          "dx": -1,
+          "dy": 0
+        }
       }
     },
     {
-      "id": "dog_21",
-      "x": 497,
-      "y": 1969,
-      "r": 144,
+      "id": "3ff12339-4fbe-4cf4-8a78-dcf586b3492e",
+      "compatibilitySlot": "dog_21",
+      "x": 1957,
+      "y": 2416,
+      "r": 94,
       "sprite": {
         "image": "levels/fairytale_forest_fairy_ring_picnic_bird_9ed2/dogs/dog_21/sprite_000.png",
-        "x": 264,
-        "y": 1815,
-        "width": 288,
-        "height": 212,
+        "height": 214,
+        "width": 275,
+        "x": 1806,
+        "y": 2307,
         "cleanup": {
-          "x": 457,
-          "y": 1673,
-          "width": 366,
-          "height": 651
+          "x": 1776,
+          "y": 2279,
+          "width": 334,
+          "height": 269
         },
-        "anchorX": 0.809,
-        "anchorY": 0.7264
+        "anchorX": 0.5491,
+        "anchorY": 0.5093,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 12.2,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.9789,
+          "pop": 12.2,
+          "why": "T3"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
       }
     },
     {
-      "id": "dog_22",
-      "x": 416,
-      "y": 1971,
-      "r": 144,
+      "id": "07446386-2c45-4f3a-b06f-02db6520c2e5",
+      "compatibilitySlot": "dog_22",
+      "x": 798,
+      "y": 2921,
+      "r": 94,
       "sprite": {
         "image": "levels/fairytale_forest_fairy_ring_picnic_bird_9ed2/dogs/dog_22/sprite_000.png",
-        "x": 128,
-        "y": 1741,
-        "width": 288,
-        "height": 288,
+        "height": 336,
+        "width": 474,
+        "x": 559,
+        "y": 2770,
         "cleanup": {
-          "x": 377,
-          "y": 1911,
-          "width": 78,
-          "height": 118
+          "x": 533,
+          "y": 2742,
+          "width": 530,
+          "height": 394
         },
-        "anchorX": 1.0,
-        "anchorY": 0.7986
+        "anchorX": 0.5042,
+        "anchorY": 0.4524,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 24.5,
+          "dx": 0,
+          "dy": -1
+        }
       }
     },
     {
-      "id": "dog_23",
-      "x": 337,
-      "y": 1953,
-      "r": 144,
+      "id": "e71078e5-ae0c-457a-93bf-49034c0618ba",
+      "compatibilitySlot": "dog_23",
+      "x": 2935,
+      "y": 2673,
+      "r": 94,
       "sprite": {
         "image": "levels/fairytale_forest_fairy_ring_picnic_bird_9ed2/dogs/dog_23/sprite_000.png",
-        "x": 137,
-        "y": 1747,
-        "width": 280,
-        "height": 288,
+        "height": 212,
+        "width": 365,
+        "x": 2766,
+        "y": 2599,
         "cleanup": {
-          "x": 279,
-          "y": 1899,
-          "width": 96,
-          "height": 108
+          "x": 2741,
+          "y": 2573,
+          "width": 417,
+          "height": 264
         },
-        "anchorX": 0.7143,
-        "anchorY": 0.7153
+        "anchorX": 0.4603,
+        "anchorY": 0.3491,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 32.0,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "087b3886-4d3a-492b-be10-7189fbe5fea8",
+      "compatibilitySlot": "dog_24",
+      "x": 937,
+      "y": 3366,
+      "r": 94,
+      "sprite": {
+        "image": "levels/fairytale_forest_fairy_ring_picnic_bird_9ed2/dogs/dog_24/sprite_000.png",
+        "height": 291,
+        "width": 315,
+        "x": 782,
+        "y": 3232,
+        "cleanup": {
+          "x": 762,
+          "y": 3212,
+          "width": 353,
+          "height": 330
+        },
+        "anchorX": 0.4921,
+        "anchorY": 0.4605,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 20.0,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "f16c5267-e246-4e9c-baa7-6406679e343f",
+      "compatibilitySlot": "dog_25",
+      "x": 3367,
+      "y": 1340,
+      "r": 94,
+      "sprite": {
+        "image": "levels/fairytale_forest_fairy_ring_picnic_bird_9ed2/dogs/dog_25/sprite_000.png",
+        "height": 377,
+        "width": 465,
+        "x": 3158,
+        "y": 1197,
+        "cleanup": {
+          "x": 3125,
+          "y": 1165,
+          "width": 530,
+          "height": 442
+        },
+        "anchorX": 0.4516,
+        "anchorY": 0.3793,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 20.1,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "e231e3fc-a3da-4a74-ab2b-80b52f52ec10",
+      "compatibilitySlot": "dog_26",
+      "x": 2593,
+      "y": 2561,
+      "r": 94,
+      "sprite": {
+        "image": "levels/fairytale_forest_fairy_ring_picnic_bird_9ed2/dogs/dog_26/sprite_000.png",
+        "height": 250,
+        "width": 253,
+        "x": 2475,
+        "y": 2426,
+        "cleanup": {
+          "x": 2456,
+          "y": 2407,
+          "width": 292,
+          "height": 289
+        },
+        "anchorX": 0.4664,
+        "anchorY": 0.536,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 13.6,
+          "dx": 0,
+          "dy": 1
+        }
+      }
+    },
+    {
+      "id": "38bdb895-718b-4605-8eb8-232a03343efc",
+      "compatibilitySlot": "dog_27",
+      "x": 740,
+      "y": 922,
+      "r": 94,
+      "sprite": {
+        "image": "levels/fairytale_forest_fairy_ring_picnic_bird_9ed2/dogs/dog_27/sprite_000.png",
+        "height": 459,
+        "width": 363,
+        "x": 512,
+        "y": 691,
+        "cleanup": {
+          "x": 477,
+          "y": 654,
+          "width": 434,
+          "height": 531
+        },
+        "anchorX": 0.6253,
+        "anchorY": 0.5033,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 26.1,
+          "dx": 1,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "46ae733f-70e8-450a-9fc7-dbb84e5c3c70",
+      "compatibilitySlot": "dog_28",
+      "x": 2549,
+      "y": 1738,
+      "r": 94,
+      "sprite": {
+        "image": "levels/fairytale_forest_fairy_ring_picnic_bird_9ed2/dogs/dog_28/sprite_000.png",
+        "height": 293,
+        "width": 366,
+        "x": 2374,
+        "y": 1620,
+        "cleanup": {
+          "x": 2346,
+          "y": 1592,
+          "width": 425,
+          "height": 351
+        },
+        "anchorX": 0.4781,
+        "anchorY": 0.3993,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 20.0,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "dec085c0-cb9d-4d3a-aa56-66097b68af40",
+      "compatibilitySlot": "dog_29",
+      "x": 3451,
+      "y": 2945,
+      "r": 94,
+      "sprite": {
+        "image": "levels/fairytale_forest_fairy_ring_picnic_bird_9ed2/dogs/dog_29/sprite_000.png",
+        "height": 352,
+        "width": 326,
+        "x": 3305,
+        "y": 2796,
+        "cleanup": {
+          "x": 3284,
+          "y": 2776,
+          "width": 361,
+          "height": 385
+        },
+        "anchorX": 0.4479,
+        "anchorY": 0.4233,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 21.9,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "0025b33f-5abc-4656-a08b-49c1d70ec1c6",
+      "compatibilitySlot": "dog_30",
+      "x": 1067,
+      "y": 2449,
+      "r": 94,
+      "sprite": {
+        "image": "levels/fairytale_forest_fairy_ring_picnic_bird_9ed2/dogs/dog_30/sprite_000.png",
+        "height": 348,
+        "width": 396,
+        "x": 897,
+        "y": 2210,
+        "cleanup": {
+          "x": 869,
+          "y": 2182,
+          "width": 452,
+          "height": 404
+        },
+        "anchorX": 0.4293,
+        "anchorY": 0.6868,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 22.0,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "a1a44f73-e4c5-4733-b7f2-45de51350ff9",
+      "compatibilitySlot": "dog_31",
+      "x": 2699,
+      "y": 993,
+      "r": 94,
+      "sprite": {
+        "image": "levels/fairytale_forest_fairy_ring_picnic_bird_9ed2/dogs/dog_31/sprite_000.png",
+        "height": 378,
+        "width": 383,
+        "x": 2475,
+        "y": 797,
+        "cleanup": {
+          "x": 2448,
+          "y": 771,
+          "width": 436,
+          "height": 431
+        },
+        "anchorX": 0.5849,
+        "anchorY": 0.5185,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 19.9,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "9d3b22f6-b8f9-4ba7-a59c-981edd886d75",
+      "compatibilitySlot": "dog_32",
+      "x": 1546,
+      "y": 2569,
+      "r": 94,
+      "sprite": {
+        "image": "levels/fairytale_forest_fairy_ring_picnic_bird_9ed2/dogs/dog_32/sprite_000.png",
+        "height": 256,
+        "width": 355,
+        "x": 1386,
+        "y": 2442,
+        "cleanup": {
+          "x": 1361,
+          "y": 2417,
+          "width": 404,
+          "height": 306
+        },
+        "anchorX": 0.4507,
+        "anchorY": 0.4961,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 19.7,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "2353de8e-4882-4e15-8723-68f94c5d88f3",
+      "compatibilitySlot": "dog_33",
+      "x": 1075,
+      "y": 1284,
+      "r": 94,
+      "sprite": {
+        "image": "levels/fairytale_forest_fairy_ring_picnic_bird_9ed2/dogs/dog_33/sprite_000.png",
+        "height": 239,
+        "width": 312,
+        "x": 889,
+        "y": 1179,
+        "cleanup": {
+          "x": 861,
+          "y": 1153,
+          "width": 366,
+          "height": 292
+        },
+        "anchorX": 0.5962,
+        "anchorY": 0.4393,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 18.1,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "cd46b54b-a3e2-4028-b3ff-e87d4d9b8e00",
+      "compatibilitySlot": "dog_34",
+      "x": 1901,
+      "y": 1249,
+      "r": 94,
+      "sprite": {
+        "image": "levels/fairytale_forest_fairy_ring_picnic_bird_9ed2/dogs/dog_34/sprite_000.png",
+        "height": 320,
+        "width": 294,
+        "x": 1732,
+        "y": 1131,
+        "cleanup": {
+          "x": 1713,
+          "y": 1110,
+          "width": 332,
+          "height": 358
+        },
+        "anchorX": 0.5748,
+        "anchorY": 0.3688,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 21.8,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "00588435-8426-4cde-89a2-a80ee5a12d15",
+      "compatibilitySlot": "dog_35",
+      "x": 1633,
+      "y": 3407,
+      "r": 94,
+      "sprite": {
+        "image": "levels/fairytale_forest_fairy_ring_picnic_bird_9ed2/dogs/dog_35/sprite_000.png",
+        "height": 293,
+        "width": 435,
+        "x": 1412,
+        "y": 3268,
+        "cleanup": {
+          "x": 1385,
+          "y": 3241,
+          "width": 488,
+          "height": 348
+        },
+        "anchorX": 0.508,
+        "anchorY": 0.4744,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 15.9,
+          "dx": 0,
+          "dy": 0
+        }
       }
     }
   ]

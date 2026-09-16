@@ -1,0 +1,712 @@
+{
+  "id": "aquarium_halls_kelp_gallery_bird_c7fa",
+  "name": "Level aquarium_halls_kelp_gallery_bird_c7fa",
+  "width": 2688,
+  "height": 2688,
+  "colorImage": "levels/aquarium_halls_kelp_gallery_bird_c7fa/color.png",
+  "artifactRevision": "sha256:3e8d6cbecee860c56298556303eb7f88a5416acd1728fef1936172807fa64f9f",
+  "compatibilityAliases": {
+    "dog_16": "4959d2ef-e049-40be-9034-0994e2f811a5",
+    "dog_18": "62c7ff6f-21f5-47a3-bb20-4f94b11a4bf0",
+    "dog_23": "e4548a89-8808-428a-a166-2c5e6a0935d5",
+    "dog_24": "28704ed3-7610-4661-b0ef-0b6ecff6c95c",
+    "dog_25": "6ea92df9-a4f8-4a52-b3bc-c7f4becf56c2",
+    "dog_26": "4594cb59-0065-4a30-aa96-101805774e8e",
+    "dog_27": "9c3cf7bc-93dc-4f1f-bff8-89dd25758a0d",
+    "dog_28": "a22d0984-14a7-427e-a7a6-c24f4962ca49",
+    "dog_29": "7a24413e-8475-4fee-bcca-1b3fb109a531",
+    "dog_30": "4906c2e0-eb7b-40cd-8a27-6ac0b02f9138",
+    "dog_31": "79467a9b-5209-4a39-9e66-eb5b31e2b258",
+    "dog_32": "602c2dd2-19f0-4887-a0d3-d992539014d8",
+    "dog_33": "3e521a73-c7ab-4680-98b9-9a37e65bd251",
+    "dog_34": "5c94093f-ac2c-4947-a639-9213d8873b14",
+    "dog_35": "54fc1c75-9738-420d-a728-153bf4f8c8fb",
+    "dog_36": "c9196e1f-7e06-4031-81ff-6a2fafe5758e",
+    "dog_37": "5766d8e4-19dc-47d4-8367-97daa411528e",
+    "dog_38": "a6926d2f-eb23-4747-bd78-df525f6c768a",
+    "dog_39": "566717ba-b4c0-4d91-97e2-18644c396c3d",
+    "dog_40": "83ec434a-9586-43e6-97d9-620ae159fcd7",
+    "dog_41": "6b5bc0db-4cd2-4f4e-bec9-3eca1311f97a"
+  },
+  "dogs": [
+    {
+      "id": "4959d2ef-e049-40be-9034-0994e2f811a5",
+      "compatibilitySlot": "dog_16",
+      "x": 766,
+      "y": 696,
+      "r": 57,
+      "sprite": {
+        "image": "levels/aquarium_halls_kelp_gallery_bird_c7fa/dogs/dog_16/sprite_000.png",
+        "height": 155,
+        "width": 221,
+        "x": 648,
+        "y": 610,
+        "cleanup": {
+          "x": 634,
+          "y": 592,
+          "width": 254,
+          "height": 204
+        },
+        "anchorX": 0.5294,
+        "anchorY": 0.5032,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 0.95,
+          "ratio": 1.1,
+          "pop": 18.0,
+          "dx": 0,
+          "dy": 7
+        }
+      }
+    },
+    {
+      "id": "62c7ff6f-21f5-47a3-bb20-4f94b11a4bf0",
+      "compatibilitySlot": "dog_18",
+      "x": 588,
+      "y": 944,
+      "r": 57,
+      "sprite": {
+        "image": "levels/aquarium_halls_kelp_gallery_bird_c7fa/dogs/dog_18/sprite_000.png",
+        "height": 146,
+        "width": 147,
+        "x": 544,
+        "y": 849,
+        "cleanup": {
+          "x": 527,
+          "y": 831,
+          "width": 182,
+          "height": 181
+        },
+        "anchorX": 0.2993,
+        "anchorY": 0.6507,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 27.8,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "e4548a89-8808-428a-a166-2c5e6a0935d5",
+      "compatibilitySlot": "dog_23",
+      "x": 748,
+      "y": 1268,
+      "r": 57,
+      "sprite": {
+        "image": "levels/aquarium_halls_kelp_gallery_bird_c7fa/dogs/dog_23/sprite_000.png",
+        "height": 165,
+        "width": 167,
+        "x": 648,
+        "y": 1182,
+        "cleanup": {
+          "x": 632,
+          "y": 1164,
+          "width": 200,
+          "height": 198
+        },
+        "anchorX": 0.5928,
+        "anchorY": 0.5333,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 26.7,
+          "dx": 0,
+          "dy": -2
+        }
+      }
+    },
+    {
+      "id": "28704ed3-7610-4661-b0ef-0b6ecff6c95c",
+      "compatibilitySlot": "dog_24",
+      "x": 1175,
+      "y": 802,
+      "r": 57,
+      "sprite": {
+        "image": "levels/aquarium_halls_kelp_gallery_bird_c7fa/dogs/dog_24/sprite_000.png",
+        "height": 151,
+        "width": 147,
+        "x": 1099,
+        "y": 696,
+        "cleanup": {
+          "x": 1082,
+          "y": 680,
+          "width": 180,
+          "height": 184
+        },
+        "anchorX": 0.5238,
+        "anchorY": 0.702,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 22.2,
+          "dx": -1,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "6ea92df9-a4f8-4a52-b3bc-c7f4becf56c2",
+      "compatibilitySlot": "dog_25",
+      "x": 1455,
+      "y": 828,
+      "r": 57,
+      "sprite": {
+        "image": "levels/aquarium_halls_kelp_gallery_bird_c7fa/dogs/dog_25/sprite_000.png",
+        "height": 111,
+        "width": 129,
+        "x": 1371,
+        "y": 714,
+        "cleanup": {
+          "x": 1339,
+          "y": 765,
+          "width": 230,
+          "height": 203
+        },
+        "anchorX": 0.4496,
+        "anchorY": 0.982,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 0.65,
+          "ratio": 1.0,
+          "pop": 16.7,
+          "dx": 25,
+          "dy": 5
+        }
+      }
+    },
+    {
+      "id": "4594cb59-0065-4a30-aa96-101805774e8e",
+      "compatibilitySlot": "dog_26",
+      "x": 1137,
+      "y": 1049,
+      "r": 57,
+      "sprite": {
+        "image": "levels/aquarium_halls_kelp_gallery_bird_c7fa/dogs/dog_26/sprite_000.png",
+        "height": 202,
+        "width": 211,
+        "x": 1051,
+        "y": 950,
+        "cleanup": {
+          "x": 1035,
+          "y": 934,
+          "width": 242,
+          "height": 233
+        },
+        "anchorX": 0.4076,
+        "anchorY": 0.4901,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 17.7,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "9c3cf7bc-93dc-4f1f-bff8-89dd25758a0d",
+      "compatibilitySlot": "dog_27",
+      "x": 1403,
+      "y": 1199,
+      "r": 57,
+      "sprite": {
+        "image": "levels/aquarium_halls_kelp_gallery_bird_c7fa/dogs/dog_27/sprite_000.png",
+        "height": 134,
+        "width": 143,
+        "x": 1343,
+        "y": 1117,
+        "cleanup": {
+          "x": 1327,
+          "y": 1100,
+          "width": 175,
+          "height": 166
+        },
+        "anchorX": 0.4196,
+        "anchorY": 0.6194,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 17.5,
+          "dx": 0,
+          "dy": -1
+        }
+      }
+    },
+    {
+      "id": "a22d0984-14a7-427e-a7a6-c24f4962ca49",
+      "compatibilitySlot": "dog_28",
+      "x": 1171,
+      "y": 1236,
+      "r": 57,
+      "sprite": {
+        "image": "levels/aquarium_halls_kelp_gallery_bird_c7fa/dogs/dog_28/sprite_000.png",
+        "height": 126,
+        "width": 154,
+        "x": 1109,
+        "y": 1172,
+        "cleanup": {
+          "x": 1087,
+          "y": 1154,
+          "width": 194,
+          "height": 157
+        },
+        "anchorX": 0.3896,
+        "anchorY": 0.5159,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 0.95,
+          "pop": 25.0,
+          "dx": 1,
+          "dy": -1
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.8434,
+          "pop": 28.4,
+          "why": "T3"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "7a24413e-8475-4fee-bcca-1b3fb109a531",
+      "compatibilitySlot": "dog_29",
+      "x": 994,
+      "y": 1414,
+      "r": 57,
+      "sprite": {
+        "image": "levels/aquarium_halls_kelp_gallery_bird_c7fa/dogs/dog_29/sprite_000.png",
+        "height": 220,
+        "width": 179,
+        "x": 915,
+        "y": 1303,
+        "cleanup": {
+          "x": 896,
+          "y": 1284,
+          "width": 212,
+          "height": 262
+        },
+        "anchorX": 0.4525,
+        "anchorY": 0.4955,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.05,
+          "pop": 32.0,
+          "dx": -2,
+          "dy": 1
+        }
+      }
+    },
+    {
+      "id": "4906c2e0-eb7b-40cd-8a27-6ac0b02f9138",
+      "compatibilitySlot": "dog_30",
+      "x": 1178,
+      "y": 1694,
+      "r": 57,
+      "sprite": {
+        "image": "levels/aquarium_halls_kelp_gallery_bird_c7fa/dogs/dog_30/sprite_000.png",
+        "height": 195,
+        "width": 273,
+        "x": 1043,
+        "y": 1576,
+        "cleanup": {
+          "x": 1022,
+          "y": 1555,
+          "width": 315,
+          "height": 237
+        },
+        "anchorX": 0.4945,
+        "anchorY": 0.6051,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 20.6,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "79467a9b-5209-4a39-9e66-eb5b31e2b258",
+      "compatibilitySlot": "dog_31",
+      "x": 1376,
+      "y": 1848,
+      "r": 57,
+      "sprite": {
+        "image": "levels/aquarium_halls_kelp_gallery_bird_c7fa/dogs/dog_31/sprite_000.png",
+        "height": 167,
+        "width": 223,
+        "x": 1266,
+        "y": 1785,
+        "cleanup": {
+          "x": 1248,
+          "y": 1766,
+          "width": 260,
+          "height": 204
+        },
+        "anchorX": 0.4933,
+        "anchorY": 0.3772,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 21.9,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "602c2dd2-19f0-4887-a0d3-d992539014d8",
+      "compatibilitySlot": "dog_32",
+      "x": 1392,
+      "y": 2075,
+      "r": 57,
+      "sprite": {
+        "image": "levels/aquarium_halls_kelp_gallery_bird_c7fa/dogs/dog_32/sprite_000.png",
+        "height": 148,
+        "width": 198,
+        "x": 1284,
+        "y": 2004,
+        "cleanup": {
+          "x": 1273,
+          "y": 1991,
+          "width": 224,
+          "height": 175
+        },
+        "anchorX": 0.5455,
+        "anchorY": 0.4797,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 25.8,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "3e521a73-c7ab-4680-98b9-9a37e65bd251",
+      "compatibilitySlot": "dog_33",
+      "x": 940,
+      "y": 2091,
+      "r": 57,
+      "sprite": {
+        "image": "levels/aquarium_halls_kelp_gallery_bird_c7fa/dogs/dog_33/sprite_000.png",
+        "height": 182,
+        "width": 289,
+        "x": 815,
+        "y": 1986,
+        "cleanup": {
+          "x": 793,
+          "y": 1965,
+          "width": 333,
+          "height": 226
+        },
+        "anchorX": 0.4325,
+        "anchorY": 0.5714,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 9.8,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "5c94093f-ac2c-4947-a639-9213d8873b14",
+      "compatibilitySlot": "dog_34",
+      "x": 549,
+      "y": 2079,
+      "r": 57,
+      "sprite": {
+        "image": "levels/aquarium_halls_kelp_gallery_bird_c7fa/dogs/dog_34/sprite_000.png",
+        "height": 308,
+        "width": 308,
+        "x": 363,
+        "y": 1942,
+        "cleanup": {
+          "x": 340,
+          "y": 1919,
+          "width": 355,
+          "height": 355
+        },
+        "anchorX": 0.6039,
+        "anchorY": 0.4448,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 18.0,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "54fc1c75-9738-420d-a728-153bf4f8c8fb",
+      "compatibilitySlot": "dog_35",
+      "x": 1576,
+      "y": 2230,
+      "r": 57,
+      "sprite": {
+        "image": "levels/aquarium_halls_kelp_gallery_bird_c7fa/dogs/dog_35/sprite_000.png",
+        "height": 160,
+        "width": 226,
+        "x": 1453,
+        "y": 2130,
+        "cleanup": {
+          "x": 1437,
+          "y": 2115,
+          "width": 253,
+          "height": 190
+        },
+        "anchorX": 0.5442,
+        "anchorY": 0.625,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 21.8,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "c9196e1f-7e06-4031-81ff-6a2fafe5758e",
+      "compatibilitySlot": "dog_36",
+      "x": 2167,
+      "y": 984,
+      "r": 57,
+      "sprite": {
+        "image": "levels/aquarium_halls_kelp_gallery_bird_c7fa/dogs/dog_36/sprite_000.png",
+        "height": 162,
+        "width": 229,
+        "x": 2032,
+        "y": 896,
+        "cleanup": {
+          "x": 2017,
+          "y": 879,
+          "width": 256,
+          "height": 200
+        },
+        "anchorX": 0.607,
+        "anchorY": 0.5309,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.05,
+          "pop": 20.4,
+          "dx": -3,
+          "dy": 1
+        }
+      }
+    },
+    {
+      "id": "5766d8e4-19dc-47d4-8367-97daa411528e",
+      "compatibilitySlot": "dog_37",
+      "x": 2300,
+      "y": 1271,
+      "r": 57,
+      "sprite": {
+        "image": "levels/aquarium_halls_kelp_gallery_bird_c7fa/dogs/dog_37/sprite_000.png",
+        "height": 134,
+        "width": 86,
+        "x": 2295,
+        "y": 1224,
+        "cleanup": {
+          "x": 619,
+          "y": 577,
+          "width": 1738,
+          "height": 751
+        },
+        "anchorX": 0.0349,
+        "anchorY": 0.3657,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 0.9,
+          "pop": 32.1,
+          "dx": 1,
+          "dy": -1
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.828,
+          "pop": 34.9,
+          "why": "T3+refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "a6926d2f-eb23-4747-bd78-df525f6c768a",
+      "compatibilitySlot": "dog_38",
+      "x": 2018,
+      "y": 1570,
+      "r": 57,
+      "sprite": {
+        "image": "levels/aquarium_halls_kelp_gallery_bird_c7fa/dogs/dog_38/sprite_000.png",
+        "height": 184,
+        "width": 163,
+        "x": 1928,
+        "y": 1475,
+        "cleanup": {
+          "x": 1908,
+          "y": 1453,
+          "width": 205,
+          "height": 214
+        },
+        "anchorX": 0.546,
+        "anchorY": 0.5761,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.05,
+          "ratio": 0.9,
+          "pop": 32.5,
+          "dx": 1,
+          "dy": -10
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.7022,
+          "pop": 41.3,
+          "why": "T3"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "566717ba-b4c0-4d91-97e2-18644c396c3d",
+      "compatibilitySlot": "dog_39",
+      "x": 2236,
+      "y": 1740,
+      "r": 57,
+      "sprite": {
+        "image": "levels/aquarium_halls_kelp_gallery_bird_c7fa/dogs/dog_39/sprite_000.png",
+        "height": 164,
+        "width": 198,
+        "x": 2157,
+        "y": 1651,
+        "cleanup": {
+          "x": 515,
+          "y": 819,
+          "width": 1778,
+          "height": 978
+        },
+        "anchorX": 0.399,
+        "anchorY": 0.5427,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 12.5,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.969,
+          "pop": 12.5,
+          "why": "T3+refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "83ec434a-9586-43e6-97d9-620ae159fcd7",
+      "compatibilitySlot": "dog_40",
+      "x": 2114,
+      "y": 1933,
+      "r": 57,
+      "sprite": {
+        "image": "levels/aquarium_halls_kelp_gallery_bird_c7fa/dogs/dog_40/sprite_000.png",
+        "height": 134,
+        "width": 156,
+        "x": 2020,
+        "y": 1850,
+        "cleanup": {
+          "x": 2007,
+          "y": 1835,
+          "width": 180,
+          "height": 166
+        },
+        "anchorX": 0.6154,
+        "anchorY": 0.6119,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.05,
+          "pop": 24.6,
+          "dx": -2,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "6b5bc0db-4cd2-4f4e-bec9-3eca1311f97a",
+      "compatibilitySlot": "dog_41",
+      "x": 2204,
+      "y": 2336,
+      "r": 57,
+      "sprite": {
+        "image": "levels/aquarium_halls_kelp_gallery_bird_c7fa/dogs/dog_41/sprite_000.png",
+        "height": 160,
+        "width": 216,
+        "x": 2114,
+        "y": 2239,
+        "cleanup": {
+          "x": 2097,
+          "y": 2222,
+          "width": 250,
+          "height": 194
+        },
+        "anchorX": 0.4167,
+        "anchorY": 0.6062,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 15.9,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    }
+  ]
+}

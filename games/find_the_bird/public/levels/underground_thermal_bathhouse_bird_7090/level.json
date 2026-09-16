@@ -1,0 +1,528 @@
+{
+  "id": "underground_thermal_bathhouse_bird_7090",
+  "name": "Level underground_thermal_bathhouse_bird_7090",
+  "width": 2688,
+  "height": 2688,
+  "colorImage": "levels/underground_thermal_bathhouse_bird_7090/color.png",
+  "artifactRevision": "sha256:5c15355c10bf226ac3080fd3a887b5082edc520e70cbbaf7c5ede409a87f416d",
+  "compatibilityAliases": {
+    "dog_03": "3813a48f-36e2-496a-bacd-7b15bd43bf9c",
+    "dog_06": "429bd75f-1d01-413d-bff1-ed8555addc92",
+    "dog_14": "0b129c86-50f4-4455-988a-16d215a1c991",
+    "dog_19": "77478d05-19a8-4510-b5c9-6bb04da8acb3",
+    "dog_20": "07047fa9-ea86-4b30-9d3c-751007915eb2",
+    "dog_21": "d84d5374-9b03-47d0-9c82-3e5e8fe39708",
+    "dog_22": "ceb1d458-43c3-44c2-84f7-a3711a2c1ee5",
+    "dog_23": "51d75718-2612-42a9-bc8a-59d02bd684c3",
+    "dog_24": "6f84fb49-2757-42dc-adb4-0dede26955b2",
+    "dog_25": "b3673546-3360-4637-b36f-fb1f15cb7ed8",
+    "dog_26": "268d3cf9-0f9b-4d1b-8c2e-94c361639432",
+    "dog_27": "c78df25d-06bb-49d2-bc86-2e6f538babda",
+    "dog_28": "e89c39d0-93dc-4389-ab46-e011bbbd0b1a",
+    "dog_29": "840816e0-6aa0-4cd3-b0c2-90ec459e6ad6",
+    "dog_30": "076fe64f-6462-4fc5-a9e4-abea7fd6ba9f",
+    "dog_31": "7bc1572d-e304-4adc-a78c-0dbfd4cfc697"
+  },
+  "dogs": [
+    {
+      "id": "3813a48f-36e2-496a-bacd-7b15bd43bf9c",
+      "compatibilitySlot": "dog_03",
+      "x": 541,
+      "y": 1156,
+      "r": 57,
+      "sprite": {
+        "image": "levels/underground_thermal_bathhouse_bird_7090/dogs/dog_03/sprite_000.png",
+        "height": 269,
+        "width": 207,
+        "x": 440,
+        "y": 1024,
+        "cleanup": {
+          "x": 421,
+          "y": 1005,
+          "width": 245,
+          "height": 306
+        },
+        "anchorX": 0.4879,
+        "anchorY": 0.4907,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 24.0,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "429bd75f-1d01-413d-bff1-ed8555addc92",
+      "compatibilitySlot": "dog_06",
+      "x": 659,
+      "y": 1565,
+      "r": 57,
+      "sprite": {
+        "image": "levels/underground_thermal_bathhouse_bird_7090/dogs/dog_06/sprite_000.png",
+        "height": 137,
+        "width": 194,
+        "x": 573,
+        "y": 1478,
+        "cleanup": {
+          "x": 560,
+          "y": 1470,
+          "width": 225,
+          "height": 168
+        },
+        "anchorX": 0.4278,
+        "anchorY": 0.5766,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 0.9,
+          "ratio": 1.0,
+          "pop": 31.7,
+          "dx": 2,
+          "dy": 8
+        }
+      }
+    },
+    {
+      "id": "0b129c86-50f4-4455-988a-16d215a1c991",
+      "compatibilitySlot": "dog_14",
+      "x": 803,
+      "y": 1232,
+      "r": 57,
+      "sprite": {
+        "image": "levels/underground_thermal_bathhouse_bird_7090/dogs/dog_14/sprite_000.png",
+        "height": 170,
+        "width": 112,
+        "x": 743,
+        "y": 1159,
+        "cleanup": {
+          "x": 723,
+          "y": 1140,
+          "width": 186,
+          "height": 221
+        },
+        "anchorX": 0.5357,
+        "anchorY": 0.4294,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 17.4,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.9356,
+          "pop": 17.5,
+          "why": "T3+refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "77478d05-19a8-4510-b5c9-6bb04da8acb3",
+      "compatibilitySlot": "dog_19",
+      "x": 908,
+      "y": 1317,
+      "r": 57,
+      "sprite": {
+        "image": "levels/underground_thermal_bathhouse_bird_7090/dogs/dog_19/sprite_000.png",
+        "height": 245,
+        "width": 156,
+        "x": 819,
+        "y": 1188,
+        "cleanup": {
+          "x": 724,
+          "y": 1136,
+          "width": 221,
+          "height": 276
+        },
+        "anchorX": 0.5577,
+        "anchorY": 0.5429,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 0.95,
+          "pop": 24.9,
+          "dx": 2,
+          "dy": -4
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.8788,
+          "pop": 28.3,
+          "why": "T3+refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "07047fa9-ea86-4b30-9d3c-751007915eb2",
+      "compatibilitySlot": "dog_20",
+      "x": 1185,
+      "y": 855,
+      "r": 57,
+      "sprite": {
+        "image": "levels/underground_thermal_bathhouse_bird_7090/dogs/dog_20/sprite_000.png",
+        "height": 201,
+        "width": 191,
+        "x": 1109,
+        "y": 774,
+        "cleanup": {
+          "x": 1092,
+          "y": 757,
+          "width": 226,
+          "height": 236
+        },
+        "anchorX": 0.3979,
+        "anchorY": 0.398,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 21.5,
+          "dx": 0,
+          "dy": 1
+        }
+      }
+    },
+    {
+      "id": "d84d5374-9b03-47d0-9c82-3e5e8fe39708",
+      "compatibilitySlot": "dog_21",
+      "x": 1888,
+      "y": 718,
+      "r": 57,
+      "sprite": {
+        "image": "levels/underground_thermal_bathhouse_bird_7090/dogs/dog_21/sprite_000.png",
+        "height": 204,
+        "width": 215,
+        "x": 1763,
+        "y": 590,
+        "cleanup": {
+          "x": 1748,
+          "y": 575,
+          "width": 245,
+          "height": 234
+        },
+        "anchorX": 0.5814,
+        "anchorY": 0.6275,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 24.0,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "ceb1d458-43c3-44c2-84f7-a3711a2c1ee5",
+      "compatibilitySlot": "dog_22",
+      "x": 1803,
+      "y": 1228,
+      "r": 57,
+      "sprite": {
+        "image": "levels/underground_thermal_bathhouse_bird_7090/dogs/dog_22/sprite_000.png",
+        "height": 197,
+        "width": 220,
+        "x": 1670,
+        "y": 1145,
+        "cleanup": {
+          "x": 546,
+          "y": 1171,
+          "width": 1314,
+          "height": 481
+        },
+        "anchorX": 0.6045,
+        "anchorY": 0.4213,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 16.5,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.9365,
+          "pop": 16.5,
+          "why": "T3+refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "51d75718-2612-42a9-bc8a-59d02bd684c3",
+      "compatibilitySlot": "dog_23",
+      "x": 1364,
+      "y": 1289,
+      "r": 57,
+      "sprite": {
+        "image": "levels/underground_thermal_bathhouse_bird_7090/dogs/dog_23/sprite_000.png",
+        "height": 271,
+        "width": 221,
+        "x": 1269,
+        "y": 1147,
+        "cleanup": {
+          "x": 1247,
+          "y": 1125,
+          "width": 260,
+          "height": 322
+        },
+        "anchorX": 0.4434,
+        "anchorY": 0.5129,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.05,
+          "pop": 22.0,
+          "dx": -3,
+          "dy": 3
+        }
+      }
+    },
+    {
+      "id": "6f84fb49-2757-42dc-adb4-0dede26955b2",
+      "compatibilitySlot": "dog_24",
+      "x": 1518,
+      "y": 1548,
+      "r": 57,
+      "sprite": {
+        "image": "levels/underground_thermal_bathhouse_bird_7090/dogs/dog_24/sprite_000.png",
+        "height": 241,
+        "width": 371,
+        "x": 1352,
+        "y": 1437,
+        "cleanup": {
+          "x": 1331,
+          "y": 1412,
+          "width": 414,
+          "height": 287
+        },
+        "anchorX": 0.4501,
+        "anchorY": 0.4647,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 29.4,
+          "dx": -1,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "b3673546-3360-4637-b36f-fb1f15cb7ed8",
+      "compatibilitySlot": "dog_25",
+      "x": 1093,
+      "y": 1660,
+      "r": 57,
+      "sprite": {
+        "image": "levels/underground_thermal_bathhouse_bird_7090/dogs/dog_25/sprite_000.png",
+        "height": 188,
+        "width": 245,
+        "x": 993,
+        "y": 1556,
+        "cleanup": {
+          "x": 975,
+          "y": 1542,
+          "width": 282,
+          "height": 226
+        },
+        "anchorX": 0.4041,
+        "anchorY": 0.5266,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 0.95,
+          "ratio": 1.0,
+          "pop": 37.1,
+          "dx": 1,
+          "dy": 5
+        }
+      }
+    },
+    {
+      "id": "268d3cf9-0f9b-4d1b-8c2e-94c361639432",
+      "compatibilitySlot": "dog_26",
+      "x": 2119,
+      "y": 1573,
+      "r": 57,
+      "sprite": {
+        "image": "levels/underground_thermal_bathhouse_bird_7090/dogs/dog_26/sprite_000.png",
+        "height": 206,
+        "width": 204,
+        "x": 2051,
+        "y": 1446,
+        "cleanup": {
+          "x": 2035,
+          "y": 1430,
+          "width": 236,
+          "height": 238
+        },
+        "anchorX": 0.3333,
+        "anchorY": 0.6165,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 25.8,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "e89c39d0-93dc-4389-ab46-e011bbbd0b1a",
+      "compatibilitySlot": "dog_28",
+      "x": 1835,
+      "y": 2063,
+      "r": 57,
+      "sprite": {
+        "image": "levels/underground_thermal_bathhouse_bird_7090/dogs/dog_28/sprite_000.png",
+        "height": 217,
+        "width": 200,
+        "x": 1757,
+        "y": 1941,
+        "cleanup": {
+          "x": 1739,
+          "y": 1921,
+          "width": 238,
+          "height": 256
+        },
+        "anchorX": 0.39,
+        "anchorY": 0.5622,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 18.2,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "840816e0-6aa0-4cd3-b0c2-90ec459e6ad6",
+      "compatibilitySlot": "dog_29",
+      "x": 1557,
+      "y": 2022,
+      "r": 57,
+      "sprite": {
+        "image": "levels/underground_thermal_bathhouse_bird_7090/dogs/dog_29/sprite_000.png",
+        "height": 269,
+        "width": 307,
+        "x": 1414,
+        "y": 1893,
+        "cleanup": {
+          "x": 1392,
+          "y": 1851,
+          "width": 351,
+          "height": 336
+        },
+        "anchorX": 0.4658,
+        "anchorY": 0.4796,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 15.7,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.8952,
+          "pop": 16.3,
+          "why": "refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "076fe64f-6462-4fc5-a9e4-abea7fd6ba9f",
+      "compatibilitySlot": "dog_30",
+      "x": 844,
+      "y": 2074,
+      "r": 57,
+      "sprite": {
+        "image": "levels/underground_thermal_bathhouse_bird_7090/dogs/dog_30/sprite_000.png",
+        "height": 200,
+        "width": 213,
+        "x": 760,
+        "y": 1963,
+        "cleanup": {
+          "x": 710,
+          "y": 1127,
+          "width": 212,
+          "height": 1004
+        },
+        "anchorX": 0.3944,
+        "anchorY": 0.555,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 15.6,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.9073,
+          "pop": 15.6,
+          "why": "T3+refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "7bc1572d-e304-4adc-a78c-0dbfd4cfc697",
+      "compatibilitySlot": "dog_31",
+      "x": 1176,
+      "y": 2210,
+      "r": 57,
+      "sprite": {
+        "image": "levels/underground_thermal_bathhouse_bird_7090/dogs/dog_31/sprite_000.png",
+        "height": 162,
+        "width": 246,
+        "x": 1050,
+        "y": 2109,
+        "cleanup": {
+          "x": 1033,
+          "y": 2092,
+          "width": 280,
+          "height": 197
+        },
+        "anchorX": 0.5163,
+        "anchorY": 0.6235,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 17.9,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    }
+  ]
+}

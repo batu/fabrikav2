@@ -16,7 +16,7 @@ def openrouter(p):
     m=re.search(r'\{.*\}',r if isinstance(r,str) else str(r),re.S); d=json.loads(m.group(0)); return int(d['tier']),'[openrouter] '+d.get('why','')
 def judge(L,b):
     p=D/f'L{L}'/f'bird_{int(b):02d}.png'; t0=time.time()
-    for fn in (agy,openrouter):
+    for fn in ((openrouter,agy) if os.environ.get('TIER_PRIMARY','agy')=='openrouter' else (agy,openrouter)):
         try:
             t,why=fn(p); return {'tier':t,'why':why,'s':round(time.time()-t0,1)}
         except Exception as e: err=f'{fn.__name__}: {str(e)[:100]}'

@@ -1,0 +1,470 @@
+{
+  "id": "italy_sicilian_fish_market_bird_fc3c",
+  "name": "Level italy_sicilian_fish_market_bird_fc3c",
+  "width": 2688,
+  "height": 2688,
+  "colorImage": "levels/italy_sicilian_fish_market_bird_fc3c/color.png",
+  "artifactRevision": "sha256:dea4270303b5fc24c95beb14b272b6255dd655200fe631c298c6e153fd03ee83",
+  "compatibilityAliases": {
+    "dog_75": "89dbdacf-4a5f-4de4-9ae8-671272dd53c2",
+    "dog_77": "528ffaad-0a88-4992-bc77-bec8c68cc5f1",
+    "dog_78": "86128f1f-0f6b-4100-ba03-ed3bc73330ee",
+    "dog_79": "b74c48e2-b8d6-4df4-b67e-dde99ec513b5",
+    "dog_80": "ead801d9-6ef5-459e-8f43-ec2661a25660",
+    "dog_81": "06ecd239-56c5-4c3d-bb42-324cdfe473d0",
+    "dog_82": "e44af6da-73cc-4759-8108-93ba57eaa20a",
+    "dog_84": "8633f9ae-a641-45f7-9604-08fbd22464a1",
+    "dog_85": "f1eb5de7-9a2c-42cc-ab34-8f607ed368e6",
+    "dog_86": "0f83766b-a0d4-42ff-841e-09e8b7e71992",
+    "dog_87": "93b3d46f-f18b-4b07-8f3a-c257addf9d90",
+    "dog_88": "2e21c300-6861-47de-8268-1154f591d921",
+    "dog_89": "58136f31-8c82-451d-a037-60a8393fd5af"
+  },
+  "dogs": [
+    {
+      "id": "89dbdacf-4a5f-4de4-9ae8-671272dd53c2",
+      "compatibilitySlot": "dog_75",
+      "x": 1732,
+      "y": 1367,
+      "r": 57,
+      "sprite": {
+        "image": "levels/italy_sicilian_fish_market_bird_fc3c/dogs/dog_75/sprite_000.png",
+        "height": 168,
+        "width": 195,
+        "x": 1648,
+        "y": 1300,
+        "cleanup": {
+          "x": 1632,
+          "y": 1284,
+          "width": 227,
+          "height": 200
+        },
+        "anchorX": 0.4308,
+        "anchorY": 0.3988,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 20.8,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "528ffaad-0a88-4992-bc77-bec8c68cc5f1",
+      "compatibilitySlot": "dog_77",
+      "x": 603,
+      "y": 2154,
+      "r": 57,
+      "sprite": {
+        "image": "levels/italy_sicilian_fish_market_bird_fc3c/dogs/dog_77/sprite_000.png",
+        "height": 250,
+        "width": 290,
+        "x": 457,
+        "y": 2039,
+        "cleanup": {
+          "x": 435,
+          "y": 2017,
+          "width": 334,
+          "height": 294
+        },
+        "anchorX": 0.5034,
+        "anchorY": 0.46,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 29.9,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "86128f1f-0f6b-4100-ba03-ed3bc73330ee",
+      "compatibilitySlot": "dog_78",
+      "x": 2069,
+      "y": 2311,
+      "r": 57,
+      "sprite": {
+        "image": "levels/italy_sicilian_fish_market_bird_fc3c/dogs/dog_78/sprite_000.png",
+        "height": 308,
+        "width": 453,
+        "x": 1852,
+        "y": 2174,
+        "cleanup": {
+          "x": 1820,
+          "y": 2142,
+          "width": 517,
+          "height": 372
+        },
+        "anchorX": 0.479,
+        "anchorY": 0.4448,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 0.0,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "b74c48e2-b8d6-4df4-b67e-dde99ec513b5",
+      "compatibilitySlot": "dog_79",
+      "x": 873,
+      "y": 735,
+      "r": 57,
+      "sprite": {
+        "image": "levels/italy_sicilian_fish_market_bird_fc3c/dogs/dog_79/sprite_000.png",
+        "height": 188,
+        "width": 241,
+        "x": 699,
+        "y": 642,
+        "cleanup": {
+          "x": 658,
+          "y": 605,
+          "width": 384,
+          "height": 281
+        },
+        "anchorX": 0.7054,
+        "anchorY": 0.5106,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 0.95,
+          "pop": 31.2,
+          "dx": 4,
+          "dy": -2
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.8551,
+          "pop": 31.9,
+          "why": "refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "ead801d9-6ef5-459e-8f43-ec2661a25660",
+      "compatibilitySlot": "dog_80",
+      "x": 1327,
+      "y": 1823,
+      "r": 57,
+      "sprite": {
+        "image": "levels/italy_sicilian_fish_market_bird_fc3c/dogs/dog_80/sprite_000.png",
+        "height": 207,
+        "width": 230,
+        "x": 1222,
+        "y": 1695,
+        "cleanup": {
+          "x": 1203,
+          "y": 1676,
+          "width": 280,
+          "height": 256
+        },
+        "anchorX": 0.4391,
+        "anchorY": 0.5845,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 0.95,
+          "ratio": 1.0,
+          "pop": 24.1,
+          "dx": 4,
+          "dy": 7
+        }
+      }
+    },
+    {
+      "id": "06ecd239-56c5-4c3d-bb42-324cdfe473d0",
+      "compatibilitySlot": "dog_81",
+      "x": 1609,
+      "y": 2132,
+      "r": 57,
+      "sprite": {
+        "image": "levels/italy_sicilian_fish_market_bird_fc3c/dogs/dog_81/sprite_000.png",
+        "height": 222,
+        "width": 267,
+        "x": 1471,
+        "y": 2055,
+        "cleanup": {
+          "x": 1451,
+          "y": 2035,
+          "width": 307,
+          "height": 262
+        },
+        "anchorX": 0.5169,
+        "anchorY": 0.3468,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 30.6,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "e44af6da-73cc-4759-8108-93ba57eaa20a",
+      "compatibilitySlot": "dog_82",
+      "x": 1551,
+      "y": 1147,
+      "r": 57,
+      "sprite": {
+        "image": "levels/italy_sicilian_fish_market_bird_fc3c/dogs/dog_82/sprite_000.png",
+        "height": 174,
+        "width": 90,
+        "x": 1509,
+        "y": 1076,
+        "cleanup": {
+          "x": 1493,
+          "y": 1060,
+          "width": 132,
+          "height": 206
+        },
+        "anchorX": 0.3778,
+        "anchorY": 0.408,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 0.95,
+          "ratio": 0.9,
+          "pop": 22.2,
+          "dx": 8,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "8633f9ae-a641-45f7-9604-08fbd22464a1",
+      "compatibilitySlot": "dog_84",
+      "x": 1157,
+      "y": 1291,
+      "r": 57,
+      "sprite": {
+        "image": "levels/italy_sicilian_fish_market_bird_fc3c/dogs/dog_84/sprite_000.png",
+        "height": 210,
+        "width": 230,
+        "x": 1029,
+        "y": 1199,
+        "cleanup": {
+          "x": 1011,
+          "y": 1181,
+          "width": 266,
+          "height": 246
+        },
+        "anchorX": 0.5565,
+        "anchorY": 0.4381,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 27.5,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "f1eb5de7-9a2c-42cc-ab34-8f607ed368e6",
+      "compatibilitySlot": "dog_85",
+      "x": 1913,
+      "y": 1237,
+      "r": 57,
+      "sprite": {
+        "image": "levels/italy_sicilian_fish_market_bird_fc3c/dogs/dog_85/sprite_000.png",
+        "height": 163,
+        "width": 170,
+        "x": 1819,
+        "y": 1154,
+        "cleanup": {
+          "x": 1800,
+          "y": 1136,
+          "width": 209,
+          "height": 203
+        },
+        "anchorX": 0.5529,
+        "anchorY": 0.5092,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 17.3,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.9151,
+          "pop": 17.4,
+          "why": "T3+refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "0f83766b-a0d4-42ff-841e-09e8b7e71992",
+      "compatibilitySlot": "dog_86",
+      "x": 1889,
+      "y": 1695,
+      "r": 57,
+      "sprite": {
+        "image": "levels/italy_sicilian_fish_market_bird_fc3c/dogs/dog_86/sprite_000.png",
+        "height": 235,
+        "width": 194,
+        "x": 1800,
+        "y": 1566,
+        "cleanup": {
+          "x": 1787,
+          "y": 1123,
+          "width": 235,
+          "height": 629
+        },
+        "anchorX": 0.4588,
+        "anchorY": 0.5489,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 19.6,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.9189,
+          "pop": 19.5,
+          "why": "T3+refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "93b3d46f-f18b-4b07-8f3a-c257addf9d90",
+      "compatibilitySlot": "dog_87",
+      "x": 1144,
+      "y": 2220,
+      "r": 57,
+      "sprite": {
+        "image": "levels/italy_sicilian_fish_market_bird_fc3c/dogs/dog_87/sprite_000.png",
+        "height": 171,
+        "width": 182,
+        "x": 1052,
+        "y": 2136,
+        "cleanup": {
+          "x": 1087,
+          "y": 1109,
+          "width": 949,
+          "height": 1168
+        },
+        "anchorX": 0.5055,
+        "anchorY": 0.4912,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 12.7,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.8745,
+          "pop": 12.8,
+          "why": "T3+refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "2e21c300-6861-47de-8268-1154f591d921",
+      "compatibilitySlot": "dog_88",
+      "x": 1469,
+      "y": 1660,
+      "r": 57,
+      "sprite": {
+        "image": "levels/italy_sicilian_fish_market_bird_fc3c/dogs/dog_88/sprite_000.png",
+        "height": 182,
+        "width": 176,
+        "x": 1383,
+        "y": 1568,
+        "cleanup": {
+          "x": 1412,
+          "y": 1093,
+          "width": 640,
+          "height": 624
+        },
+        "anchorX": 0.4886,
+        "anchorY": 0.5055,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 17.8,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.8711,
+          "pop": 17.8,
+          "why": "T3+refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "58136f31-8c82-451d-a037-60a8393fd5af",
+      "compatibilitySlot": "dog_89",
+      "x": 689,
+      "y": 1577,
+      "r": 57,
+      "sprite": {
+        "image": "levels/italy_sicilian_fish_market_bird_fc3c/dogs/dog_89/sprite_000.png",
+        "height": 260,
+        "width": 412,
+        "x": 508,
+        "y": 1466,
+        "cleanup": {
+          "x": 632,
+          "y": 1075,
+          "width": 1438,
+          "height": 559
+        },
+        "anchorX": 0.4393,
+        "anchorY": 0.4269,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 30.5,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.8691,
+          "pop": 30.4,
+          "why": "T3+refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    }
+  ]
+}

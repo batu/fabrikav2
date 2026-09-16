@@ -10,6 +10,7 @@ for n in levels:
     if clean.size!=color.size: clean=clean.resize(color.size,Image.LANCZOS)
     (O/f'L{n}').mkdir(parents=True,exist_ok=True)  # n may be a session id
     for i,d in enumerate(level['dogs']):
+        if not d.get('sprite'): continue  # extraction failed for this bird; regen/retry handles it
         sp=d['sprite']; w,h=int(sp['width']),int(sp['height']); x=d['x']-sp.get('anchorX',0.5)*w; y=d['y']-sp.get('anchorY',0.5)*h
         src=Image.open(sprite_path(n,sp)).convert('RGBA'); spr=src.resize((w,h),Image.LANCZOS)
         e=int(max(w,h)*0.5); box=(int(max(0,x-e)),int(max(0,y-e)),int(min(color.width,x+w+e)),int(min(color.height,y+h+e)))
@@ -19,6 +20,7 @@ for n in levels:
         for k,im in enumerate((pc,grey.convert('RGB'),ov.convert('RGB'))):
             im=im.copy(); im.thumbnail((T,T)); sheet.paste(im,(k*(T+5)+5,5))
         sheet.save(O/f'L{n}'/f'bird_{i:02d}.png')
+        if os.environ.get('NO_REFIT'): continue
         pad=int(max(w,h)*0.8); cb=(int(max(0,x-pad)),int(max(0,y-pad)),int(min(color.width,x+w+pad)),int(min(color.height,y+h+pad)))
         fit=fit_sprite_to_painted(spr,color.crop(cb),clean.crop(cb))
         refit[f'{n}#{i}']=None if not fit else dict(x=cb[0]+fit['x'],y=cb[1]+fit['y'],w=fit['width'],h=fit['height'],scale=fit['scale'],pop=fit['pop'],score=fit['score'],cur_w=w,cur_h=h,cur_x=int(x),cur_y=int(y))

@@ -1,0 +1,71 @@
+[
+ {
+  "id": "02419913-43f5-4fc7-9ff4-365720a6efe0",
+  "compatibilitySlot": "dog_00",
+  "x": 503,
+  "y": 690,
+  "r": 57,
+  "sprite": {
+   "image": "levels/below_decks_galley_bird_6b76/dogs/dog_00/sprite_000.png",
+   "height": 239,
+   "width": 253,
+   "x": 385,
+   "y": 564,
+   "cleanup": {
+    "x": 363,
+    "y": 542,
+    "width": 294,
+    "height": 280
+   },
+   "anchorX": 0.4704,
+   "anchorY": 0.5314,
+   "flipX": false,
+   "flipY": false,
+   "refit": {
+    "scale": 1.0,
+    "ratio": 1.0,
+    "pop": 36.2,
+    "dx": 0,
+    "dy": 0
+   }
+  }
+ },
+ {
+  "id": "5d427339-59ce-427a-91a6-069186d82cc7",
+  "compatibilitySlot": "dog_28",
+  "x": 1883,
+  "y": 1437,
+  "r": 57,
+  "sprite": {
+   "image": "levels/below_decks_galley_bird_6b76/dogs/dog_28/sprite_000.png",
+   "height": 180,
+   "width": 215,
+   "x": 1802,
+   "y": 1364,
+   "cleanup": {
+    "x": 1582,
+    "y": 1288,
+    "width": 600,
+    "height": 448
+   },
+   "anchorX": 0.4558,
+   "anchorY": 0.5,
+   "flipX": false,
+   "flipY": false,
+   "refit": {
+    "scale": 1.2,
+    "ratio": 1.1,
+    "pop": 14.2,
+    "dx": -16,
+    "dy": -16
+   },
+   "regen": {
+    "pass": "crop",
+    "score": 0.7238,
+    "pop": 20.2,
+    "why": "T3+refit refused"
+   },
+   "technique": "gpt-image-2.5-sunburst-low-visible-only"
+  }
+ }
+]

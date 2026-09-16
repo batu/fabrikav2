@@ -5,7 +5,7 @@ Levels are addressed by KEY: an int is a 1-based index into the published manife
 candidates, files under .levelbuilder/levels, or public/levels when LEVEL_SOURCE=public).
 ROOT / SCRATCH / the manifest path come from the environment with the 2026-09-16 defaults.
 """
-import json, os, sys, base64, io, re, time, shutil, numpy as np
+import json, os, sys, base64, io, re, time, shutil, copy, numpy as np
 os.environ.setdefault('LEVEL_EDITOR_GAME','find_the_bird')
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageFilter

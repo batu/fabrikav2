@@ -1,0 +1,492 @@
+{
+  "id": "coral_reef_shipwreck_reef_camp_bird_d61b",
+  "name": "Level coral_reef_shipwreck_reef_camp_bird_d61b",
+  "width": 2688,
+  "height": 2688,
+  "colorImage": "levels/coral_reef_shipwreck_reef_camp_bird_d61b/color.png",
+  "artifactRevision": "sha256:999e92c4df6029e09f15444ef864e7c4fe67c092e74da54dbdebcb98a1df35c5",
+  "compatibilityAliases": {
+    "dog_16": "d7888229-10f7-4e88-9182-0183baa9a7f6",
+    "dog_17": "26c628d5-c2df-45b1-a79e-86e696c2c7d4",
+    "dog_18": "a05aafa7-6565-45fa-93e0-a49a9a34327a",
+    "dog_19": "fa0c91f0-9e76-45f5-bebd-e9e4d73f6a9a",
+    "dog_20": "20b2f570-df35-4960-9212-b0607477d689",
+    "dog_21": "c8a1fd1f-a036-4b61-bd82-4f5ff2d1c1d6",
+    "dog_22": "235bf024-be86-4499-8538-e68eddb2d055",
+    "dog_23": "8b1e8047-437f-4195-a352-885f00432497",
+    "dog_24": "942bd28c-d458-4bce-9419-a0743787bfcd",
+    "dog_25": "00fe617a-6201-40a8-995e-c11277ffee26",
+    "dog_26": "4abbf015-0033-48cf-aa39-a6d632f44838",
+    "dog_27": "34898cca-ba98-4f03-a243-613dd3b50e88",
+    "dog_28": "9e2d7f3c-62f2-46bf-aa8b-9a0a5b331aa3",
+    "dog_29": "8a8ea3ed-71df-46f8-bdf9-b82ee3d33488",
+    "dog_30": "fa467c4c-6692-4017-aeba-93298cff10da"
+  },
+  "dogs": [
+    {
+      "id": "d7888229-10f7-4e88-9182-0183baa9a7f6",
+      "compatibilitySlot": "dog_16",
+      "x": 715,
+      "y": 673,
+      "r": 57,
+      "sprite": {
+        "image": "levels/coral_reef_shipwreck_reef_camp_bird_d61b/dogs/dog_16/sprite_000.png",
+        "height": 259,
+        "width": 291,
+        "x": 603,
+        "y": 565,
+        "cleanup": {
+          "x": 584,
+          "y": 544,
+          "width": 322,
+          "height": 303
+        },
+        "anchorX": 0.3952,
+        "anchorY": 0.4131,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.05,
+          "pop": 28.1,
+          "dx": -2,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "26c628d5-c2df-45b1-a79e-86e696c2c7d4",
+      "compatibilitySlot": "dog_17",
+      "x": 1287,
+      "y": 676,
+      "r": 57,
+      "sprite": {
+        "image": "levels/coral_reef_shipwreck_reef_camp_bird_d61b/dogs/dog_17/sprite_000.png",
+        "height": 280,
+        "width": 236,
+        "x": 1190,
+        "y": 521,
+        "cleanup": {
+          "x": 1169,
+          "y": 501,
+          "width": 278,
+          "height": 321
+        },
+        "anchorX": 0.411,
+        "anchorY": 0.5536,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 28.7,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "a05aafa7-6565-45fa-93e0-a49a9a34327a",
+      "compatibilitySlot": "dog_18",
+      "x": 2126,
+      "y": 616,
+      "r": 57,
+      "sprite": {
+        "image": "levels/coral_reef_shipwreck_reef_camp_bird_d61b/dogs/dog_18/sprite_000.png",
+        "height": 214,
+        "width": 282,
+        "x": 2008,
+        "y": 488,
+        "cleanup": {
+          "x": 1987,
+          "y": 467,
+          "width": 317,
+          "height": 261
+        },
+        "anchorX": 0.4291,
+        "anchorY": 0.5841,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.05,
+          "pop": 32.2,
+          "dx": -2,
+          "dy": 3
+        }
+      }
+    },
+    {
+      "id": "fa0c91f0-9e76-45f5-bebd-e9e4d73f6a9a",
+      "compatibilitySlot": "dog_19",
+      "x": 1761,
+      "y": 1030,
+      "r": 57,
+      "sprite": {
+        "image": "levels/coral_reef_shipwreck_reef_camp_bird_d61b/dogs/dog_19/sprite_000.png",
+        "height": 234,
+        "width": 224,
+        "x": 1657,
+        "y": 909,
+        "cleanup": {
+          "x": 1643,
+          "y": 895,
+          "width": 253,
+          "height": 262
+        },
+        "anchorX": 0.4643,
+        "anchorY": 0.5171,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 31.7,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "20b2f570-df35-4960-9212-b0607477d689",
+      "compatibilitySlot": "dog_20",
+      "x": 1148,
+      "y": 1063,
+      "r": 57,
+      "sprite": {
+        "image": "levels/coral_reef_shipwreck_reef_camp_bird_d61b/dogs/dog_20/sprite_000.png",
+        "height": 220,
+        "width": 384,
+        "x": 952,
+        "y": 968,
+        "cleanup": {
+          "x": 935,
+          "y": 947,
+          "width": 419,
+          "height": 262
+        },
+        "anchorX": 0.5104,
+        "anchorY": 0.4318,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 31.8,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "c8a1fd1f-a036-4b61-bd82-4f5ff2d1c1d6",
+      "compatibilitySlot": "dog_21",
+      "x": 826,
+      "y": 1193,
+      "r": 57,
+      "sprite": {
+        "image": "levels/coral_reef_shipwreck_reef_camp_bird_d61b/dogs/dog_21/sprite_000.png",
+        "height": 189,
+        "width": 262,
+        "x": 703,
+        "y": 1103,
+        "cleanup": {
+          "x": 597,
+          "y": 1043,
+          "width": 353,
+          "height": 267
+        },
+        "anchorX": 0.4542,
+        "anchorY": 0.4603,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 0.95,
+          "ratio": 1.0,
+          "pop": 18.6,
+          "dx": 4,
+          "dy": 3
+        }
+      }
+    },
+    {
+      "id": "235bf024-be86-4499-8538-e68eddb2d055",
+      "compatibilitySlot": "dog_22",
+      "x": 518,
+      "y": 1519,
+      "r": 57,
+      "sprite": {
+        "image": "levels/coral_reef_shipwreck_reef_camp_bird_d61b/dogs/dog_22/sprite_000.png",
+        "height": 367,
+        "width": 382,
+        "x": 341,
+        "y": 1366,
+        "cleanup": {
+          "x": 308,
+          "y": 1336,
+          "width": 444,
+          "height": 429
+        },
+        "anchorX": 0.4634,
+        "anchorY": 0.4169,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 25.0,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "8b1e8047-437f-4195-a352-885f00432497",
+      "compatibilitySlot": "dog_23",
+      "x": 2160,
+      "y": 1287,
+      "r": 57,
+      "sprite": {
+        "image": "levels/coral_reef_shipwreck_reef_camp_bird_d61b/dogs/dog_23/sprite_000.png",
+        "height": 364,
+        "width": 318,
+        "x": 2021,
+        "y": 1098,
+        "cleanup": {
+          "x": 1999,
+          "y": 1076,
+          "width": 355,
+          "height": 399
+        },
+        "anchorX": 0.4371,
+        "anchorY": 0.522,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 19.4,
+          "dx": 0,
+          "dy": -1
+        }
+      }
+    },
+    {
+      "id": "942bd28c-d458-4bce-9419-a0743787bfcd",
+      "compatibilitySlot": "dog_24",
+      "x": 1631,
+      "y": 1751,
+      "r": 57,
+      "sprite": {
+        "image": "levels/coral_reef_shipwreck_reef_camp_bird_d61b/dogs/dog_24/sprite_000.png",
+        "height": 427,
+        "width": 348,
+        "x": 1446,
+        "y": 1546,
+        "cleanup": {
+          "x": 1416,
+          "y": 1516,
+          "width": 408,
+          "height": 487
+        },
+        "anchorX": 0.5316,
+        "anchorY": 0.4801,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 38.1,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "00fe617a-6201-40a8-995e-c11277ffee26",
+      "compatibilitySlot": "dog_25",
+      "x": 1121,
+      "y": 1982,
+      "r": 57,
+      "sprite": {
+        "image": "levels/coral_reef_shipwreck_reef_camp_bird_d61b/dogs/dog_25/sprite_000.png",
+        "height": 236,
+        "width": 293,
+        "x": 1001,
+        "y": 1861,
+        "cleanup": {
+          "x": 979,
+          "y": 1839,
+          "width": 337,
+          "height": 280
+        },
+        "anchorX": 0.4096,
+        "anchorY": 0.5127,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 28.2,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "4abbf015-0033-48cf-aa39-a6d632f44838",
+      "compatibilitySlot": "dog_26",
+      "x": 1906,
+      "y": 1795,
+      "r": 57,
+      "sprite": {
+        "image": "levels/coral_reef_shipwreck_reef_camp_bird_d61b/dogs/dog_26/sprite_000.png",
+        "height": 356,
+        "width": 228,
+        "x": 1783,
+        "y": 1618,
+        "cleanup": {
+          "x": 1755,
+          "y": 1590,
+          "width": 284,
+          "height": 414
+        },
+        "anchorX": 0.5351,
+        "anchorY": 0.4972,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 28.5,
+          "dx": 1,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "34898cca-ba98-4f03-a243-613dd3b50e88",
+      "compatibilitySlot": "dog_27",
+      "x": 2095,
+      "y": 1997,
+      "r": 57,
+      "sprite": {
+        "image": "levels/coral_reef_shipwreck_reef_camp_bird_d61b/dogs/dog_27/sprite_000.png",
+        "height": 181,
+        "width": 286,
+        "x": 1955,
+        "y": 1913,
+        "cleanup": {
+          "x": 1933,
+          "y": 1891,
+          "width": 330,
+          "height": 225
+        },
+        "anchorX": 0.4895,
+        "anchorY": 0.4641,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 32.8,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "9e2d7f3c-62f2-46bf-aa8b-9a0a5b331aa3",
+      "compatibilitySlot": "dog_28",
+      "x": 2180,
+      "y": 2303,
+      "r": 57,
+      "sprite": {
+        "image": "levels/coral_reef_shipwreck_reef_camp_bird_d61b/dogs/dog_28/sprite_000.png",
+        "height": 256,
+        "width": 259,
+        "x": 2040,
+        "y": 2166,
+        "cleanup": {
+          "x": 2020,
+          "y": 2146,
+          "width": 299,
+          "height": 296
+        },
+        "anchorX": 0.5405,
+        "anchorY": 0.5352,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 29.9,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "8a8ea3ed-71df-46f8-bdf9-b82ee3d33488",
+      "compatibilitySlot": "dog_29",
+      "x": 1250,
+      "y": 2308,
+      "r": 57,
+      "sprite": {
+        "image": "levels/coral_reef_shipwreck_reef_camp_bird_d61b/dogs/dog_29/sprite_000.png",
+        "height": 197,
+        "width": 277,
+        "x": 1098,
+        "y": 2200,
+        "cleanup": {
+          "x": 1084,
+          "y": 2183,
+          "width": 310,
+          "height": 232
+        },
+        "anchorX": 0.5487,
+        "anchorY": 0.5482,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 26.6,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "fa467c4c-6692-4017-aeba-93298cff10da",
+      "compatibilitySlot": "dog_30",
+      "x": 492,
+      "y": 2242,
+      "r": 57,
+      "sprite": {
+        "image": "levels/coral_reef_shipwreck_reef_camp_bird_d61b/dogs/dog_30/sprite_000.png",
+        "height": 182,
+        "width": 210,
+        "x": 397,
+        "y": 2133,
+        "cleanup": {
+          "x": 381,
+          "y": 2117,
+          "width": 243,
+          "height": 215
+        },
+        "anchorX": 0.4476,
+        "anchorY": 0.5989,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 20.3,
+          "dx": 1,
+          "dy": 0
+        }
+      }
+    }
+  ]
+}
