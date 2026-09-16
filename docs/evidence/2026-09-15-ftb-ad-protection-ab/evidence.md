@@ -56,3 +56,41 @@ allocation changes require a new release in this revision.
 
 Next action: finish the device run, verify both arms and optional rewards, then
 verify ingestion and release state before activating the experiment for users.
+
+## Device run 2026-09-16 (harness build, JS relay)
+
+Lane: `VITE_ENABLE_TEST_HARNESS=true vite build --mode ios`, cap sync, native-shell
+apply (Firebase plist wired from the main checkout), relay `inject.html` into
+`ios/App/App/public/index.html` on port 5400, `NSAllowsArbitraryLoads`, xcodebuild
+Debug with `DEVELOPMENT_TEAM=42L77JAX72`, `devicectl install` + `process launch`.
+Device: iPhone 12, `00008101-000410EC3EF9001E`. Base commit `58acf01b2`.
+
+Verified on device:
+
+- Pre-existing install reports assignment `existing`; the exclusion rule holds on
+  real hardware rather than only in unit tests.
+- A forced `protected` assignment survives `location.reload()` and a full
+  re-bootstrap, confirming sticky persistence through the real storage path.
+- `protected` arm blocks automatic interstitials: four level completions at level
+  8 (<= 10), "Next Level" tapped each time, maximum page-timer gap 477 ms / 459 ms.
+  A presented native interstitial freezes page timers for seconds, so sub-500 ms
+  gaps establish that no interstitial was shown.
+- The level-complete overlay retained `CLAIM 2x / Watch ad` in the protected arm;
+  optional rewarded ads are unaffected as specified.
+
+Not verified:
+
+- The `from_start` control arm was not driven. Without it, "no ad in protected"
+  is not yet a comparison: nothing on this device run proves an interstitial WOULD
+  have shown under the same cadence in the other arm. This is the single missing
+  piece of device acceptance.
+- Provider ingestion (GameAnalytics / AdMob receipt of `experiment_exposure` and
+  the `ad_experiment_*` dimensions) remains unverified; the run logged
+  "Event queue: Failed to send events to collector - Retrying next time".
+- No release or live configuration change was made.
+
+Lane traps hit: `relay.py` hardcodes its port (5321) and ignores argv; ports 5321,
+5197 and 5196 were held by stale servers from earlier sessions. A fresh worktree
+has no `DEVELOPMENT_TEAM` and no Firebase plist. The phone auto-locks within a few
+minutes without a test runner, which suspends the webview and silently kills the
+relay mid-drive; every stall in this run traced to that, not to app crashes.
