@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import { Capacitor } from '@capacitor/core';
 import { prefersReducedMotion } from '@fabrikav2/ui';
-import { COLORS, GAME, GAMEPLAY, TEST_HARNESS_ENABLED, TIMING } from '../core/Constants';
+import { COLORS, GAME, GAMEPLAY, TEST_HARNESS_ENABLED, TIMING, DEBUG_OVERRIDES } from '../core/Constants';
 import { gameState } from '../core/GameState';
 import {
   getPickupStylePreference,
@@ -3372,7 +3372,7 @@ export class GameScene extends Phaser.Scene {
 
     // Reduced motion (and a dead tween manager during teardown) keep the
     // instant carve.
-    if (prefersReducedMotion() || this.isShuttingDown || !this.sys.isActive()) {
+    if (prefersReducedMotion() || this.isShuttingDown || !this.sys.isActive() || DEBUG_OVERRIDES.restorationDissolveMs === 0) {
       commit();
       return;
     }
@@ -3386,7 +3386,7 @@ export class GameScene extends Phaser.Scene {
     // clock so a slow frame degrades to a softer snap, not a stutter.
     this.dissolveActiveCells.push(...cells);
     const startedAt = performance.now();
-    const durationMs = Math.max(1, TIMING.RESTORATION_DISSOLVE_MS);
+    const durationMs = Math.max(1, DEBUG_OVERRIDES.restorationDissolveMs ?? TIMING.RESTORATION_DISSOLVE_MS);
     const fade = { t: 0 };
     this.tweens.add({
       targets: fade,

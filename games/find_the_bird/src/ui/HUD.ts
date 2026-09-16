@@ -1,7 +1,7 @@
 import { Capacitor } from '@capacitor/core';
 import { remoteConfigService } from '../config/RemoteConfigService';
 import { gameState } from '../core/GameState';
-import { GAMEPLAY, TEST_HARNESS_ENABLED } from '../core/Constants';
+import { DEBUG_OVERRIDES, GAMEPLAY, TEST_HARNESS_ENABLED, TIMING } from '../core/Constants';
 import { getLevelIndex } from '../data/levels';
 import { playUITap, playHint, setMusicEnabled, setSoundEffectsEnabled } from '../audio/AudioManager';
 import { syncAmbientMusicPreference } from '../audio/AmbientManager';
@@ -989,6 +989,14 @@ function renderDebugLevelJumpRows(): string {
         </div>
         <button id="debug-level-jump" class="settings-footer-action" type="button" style="margin-left:10px;padding:8px 14px;border-radius:10px;font:inherit;font-weight:700">Go</button>
       </div>
+      <div class="modal-row settings-row settings-row-tall">
+        <div class="settings-row-left" style="flex:1;min-width:0">
+          <span class="settings-row-label">Carve fade</span>
+          <select id="debug-carve-fade" aria-label="Debug carve fade" style="flex:1;min-width:0;margin-left:10px;font:inherit;font-size:14px;padding:6px;border-radius:8px">
+            ${[0, 120, 240, 480].map((ms) => `<option value="${ms}" ${(DEBUG_OVERRIDES.restorationDissolveMs ?? TIMING.RESTORATION_DISSOLVE_MS) === ms ? 'selected' : ''}>${ms === 0 ? 'instant' : `${ms} ms`}${ms === TIMING.RESTORATION_DISSOLVE_MS ? ' (shipped)' : ''}</option>`).join('')}
+          </select>
+        </div>
+      </div>
   `;
 }
 
@@ -1002,6 +1010,8 @@ export function consumeDebugJumpIndex(): number | null {
 }
 
 function wireDebugLevelJump(page: HTMLElement): void {
+  const fade = page.querySelector<HTMLSelectElement>('#debug-carve-fade');
+  fade?.addEventListener('change', () => { DEBUG_OVERRIDES.restorationDissolveMs = Number(fade.value); });
   const select = page.querySelector<HTMLSelectElement>('#debug-level-select');
   const button = page.querySelector<HTMLButtonElement>('#debug-level-jump');
   if (!select || !button) return;
