@@ -1,0 +1,61 @@
+<!doctype html><html><head><meta charset="utf-8"><title>FTB Collection + Sanctuary: implementation report</title>
+<style>
+body{font:15px/1.6 -apple-system,sans-serif;max-width:920px;margin:24px auto;padding:0 18px;color:#222}
+h1{font-size:26px;margin-bottom:4px} h2{margin-top:30px;font-size:19px;border-bottom:1px solid #e5e5e5;padding-bottom:5px}
+code{background:#f0efec;padding:1px 5px;border-radius:3px;font-size:13px}
+table{border-collapse:collapse;width:100%;margin:10px 0} td,th{border:1px solid #e0ddd6;padding:6px 10px;text-align:left;font-size:14px}
+th{background:#f7f5f0}
+.ok{color:#2e7d32;font-weight:700} .no{color:#b3261e;font-weight:700} .part{color:#b26a00;font-weight:700}
+.box{background:#fdf7ec;border-left:4px solid #d8a33e;padding:12px 16px;margin:14px 0;border-radius:0 6px 6px 0}
+ul{padding-left:20px} li{margin:5px 0}
+</style></head><body>
+<h1>Find the Bird — Collection + Sanctuary, release 1</h1>
+<p>Branch <code>feat/ftd-collection-sanctuary</code>, 6 code commits, nothing pushed, no PR.</p>
+
+<div class="box"><b>The feature is built and unit-verified, and it builds, installs and launches on the iPhone. It is NOT visually verified on device.</b> The plan's 14-row checklist and all three agy gates are unrun. The blockers are environmental, not in the code.</div>
+
+<h2>Steps</h2>
+<table>
+<tr><th>#</th><th>Step</th><th>State</th></tr>
+<tr><td>1</td><td>Bird type tags + loader</td><td class="part">Partial — 186 of 855 birds tagged</td></tr>
+<tr><td>2–13</td><td>Config, state, pure modules, pickup hook, gating, both pages, buy/upgrade/place, coins, motion, WebP + preload</td><td class="ok">Done</td></tr>
+<tr><td>14</td><td>Device capture pass + agy gates</td><td class="no">Blocked</td></tr>
+</table>
+
+<h2>Verified</h2>
+<ul>
+<li><code>typecheck</code> clean, <code>eslint</code> clean.</li>
+<li><b>125 new tests across 8 files, all passing.</b> Suite at 752 passing against 17 pre-existing failures.</li>
+<li><b>On device:</b> the iOS bundle builds, passes the install lane's provenance gate (App.app <code>build-info.json</code> sha equals HEAD <code>ec3e7acd92</code>), installs and launches on the phone. That proves it compiles, bundles and boots — nothing about how the screens look or behave.</li>
+<li>Bundle came out at <b>139 MB</b> against the 200 MB native cap; the art went from 15.2 MB to 1.1 MB.</li>
+</ul>
+<p>Tests pin the awkward cases, not just happy paths: card boundaries at 9/10, 19/20, 34/35; a misconfigured ladder forced monotonic; a pickup counted once per bird per attempt (a restoration replay must not pay twice); pickups persisted immediately so a crash cannot cost found birds; accrual capped, fraction-carrying and refusing a backwards clock; buying refused at price−1 and never mutating the tier on a failed spend; every manifest pedestal anchor reproduced in CSS pixels.</p>
+
+<h2>Blockers</h2>
+<ol>
+<li><b>agy quota exhausted</b> since ~23:00 (<code>RESOURCE_EXHAUSTED 429</code>, reset ~01:30). Blocks all three gates and the bird classification. A background job probes every 20 minutes and finishes the remaining 669 birds automatically when it clears.</li>
+<li><b>Disk full, and not from this session.</b> <code>~/.local/share/agency/build-outputs/</code> holds <b>171 GB across 77 stale iOS DerivedData dirs</b> from earlier sessions. The volume has ~3 GB free. I deleted only the two my own builds made and left the rest — pruning another session's outputs is your call. Until some is reclaimed the XCUITest capture runner cannot run.</li>
+<li><b>The capture lane does not fit this checklist.</b> <code>verify-device</code> drives committed manifest states; the checklist needs arbitrary state injection (counts of 9/10/20/35, coins 149/150, tiers 1–3). Cheapest fix: rebuild with the test harness flag and drive state through it. The build on the phone right now was installed without that flag.</li>
+</ol>
+
+<h2>Not mine, but worth knowing</h2>
+<ul>
+<li><b>17 pre-existing test failures</b> in <code>rewarded-hint-offer</code> (16) and <code>five-square-campaign</code> (1), all <code>localStorage is undefined</code>. Verified identical at HEAD without my changes and in the main checkout. Those two files never install the MemStorage shim the other suites use; mine do.</li>
+<li>Three worktree traps needed fixing before anything built: <code>configs/</code> and <code>games/find_the_dog/config</code> missing from the sparse cone, and no <code>node_modules</code> at the worktree root, which broke Capacitor's SPM graph.</li>
+<li><code>npm run build</code> (web mode) copies all of <code>public/</code> — <b>3.7 GB</b>, because <code>public/levels</code> keeps source PNGs beside the shipped WebP. That filled the disk the first time. Native builds correctly bundle only manifest-referenced assets.</li>
+</ul>
+
+<h2>Deviations</h2>
+<ul>
+<li>Step 1 shipped partial behind a fail-safe loader: an untagged level, bird, failed fetch or malformed file all read as "unknown", never a sparrow. Under-counts, never mis-attributes.</li>
+<li>Steps 9–12 landed inside <code>SanctuaryPage.ts</code> rather than separate units — one page's behaviour, no second consumer for a seam.</li>
+<li>No <code>BottomSheet.ts</code> extracted: ~40 lines, one caller.</li>
+<li>Assets were downscaled before WebP, not just re-encoded, since nothing draws above ~420 CSS px.</li>
+</ul>
+
+<h2>Open product question</h2>
+<p>Replaying a finished level counts its sparrows again. The within-attempt guard stops double counting, but nothing stops farming level 1. With thresholds at 10/20/35 that only accelerates the inevitable and the plan defines counters as lifetime pickups, so I left it. Say if it should be once-per-bird-per-level.</p>
+
+<h2>Next, in order</h2>
+<ol><li>Reclaim some of the 171 GB (your call).</li><li>Let the resume job finish the tags.</li><li>agy pass A over assets and the tag sample.</li><li>Rebuild with the harness, drive the checklist, capture, pass B and C.</li></ol>
+</body></html>

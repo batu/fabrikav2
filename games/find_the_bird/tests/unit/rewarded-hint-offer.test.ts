@@ -1,8 +1,12 @@
-import { beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { GameState } from '../../src/core/GameState';
+import { installMemStorage, removeMemStorage } from './support/memStorage';
 
 describe('balance-based rewarded hints', () => {
-  beforeEach(() => localStorage.clear());
+  // The vitest environment supplies no localStorage, so this suite installs the
+  // same in-memory shim the other persistence suites use.
+  beforeEach(() => { installMemStorage(); });
+  afterEach(() => { removeMemStorage(); });
   it.each([[0, 2], [1, 1], [2, 1], [3, 1], [10, 1], [27, 1]])('grants the offer at balance %i and counts one opportunity', (balance, amount) => {
     const state = new GameState();
     state.setHintsForTest(balance);

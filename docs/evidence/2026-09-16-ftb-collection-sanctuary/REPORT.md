@@ -31,8 +31,9 @@ the code.
 ## What is verified, and how
 
 - `npm run typecheck` clean, `npx eslint .` clean.
-- **125 new tests across 8 files, all passing.** Suite is 752 passing against
-  17 pre-existing failures (see "Not mine" below).
+- **125 new tests across 8 files, all passing.** Suite is **785 passing, 1
+  failing** — see "Not mine" below; the single remaining failure is a stale
+  policy assertion that predates this work.
 - **On device:** the iOS bundle builds, passes the install lane's provenance
   gate (the App.app's `build-info.json` sha equals HEAD `ec3e7acd92`), installs
   and launches on Batu's iPhone via `tools/native-shell/install.mjs`. That
@@ -91,14 +92,20 @@ What the tests actually pin down, beyond happy paths:
 
 ## Not mine, but worth knowing
 
-- **17 pre-existing test failures** in `rewarded-hint-offer.test.ts` (16) and
-  `five-square-campaign.test.ts` (1). They fail for `localStorage is undefined`:
-  the vitest environment supplies none and those two files never install the
-  `MemStorage` shim the other suites use. I verified they fail identically at
-  HEAD without my changes **and** in the main checkout, so they predate this
-  work. My suites install the shim (now shared at
-  `tests/unit/support/memStorage.ts`) and pass. Fixing those two files is a
-  five-minute job for whoever owns them.
+- **17 pre-existing test failures**, verified identical at HEAD without my
+  changes and in the main checkout. They had two different causes:
+  - `rewarded-hint-offer.test.ts` (16) failed on `localStorage is undefined` —
+    the vitest environment supplies none and that file never installed the
+    shim the other persistence suites use. **Fixed**: it now uses the shared
+    `tests/unit/support/memStorage.ts` helper and passes.
+  - `five-square-campaign.test.ts` (1) is **left alone deliberately**. It is not
+    an environment problem: it asserts the bundled manifest equals the first
+    5 levels of the index (`STARTER_COUNT = 5`), and the manifest now carries
+    the full 44-level reviewed lineup — the same lineup
+    `nativePublicBundlePlugin` raised its cap to 200 MB to accommodate. The test
+    encodes a shipping policy that the build has since moved past. Rewriting it
+    would be me quietly changing someone else's policy assertion to make my run
+    look green, so it stays for its owner to reconcile.
 - The worktree needed three environment repairs before anything would build, all
   documented traps: `configs/` and `games/find_the_dog/config` were missing from
   the sparse cone (typecheck could not resolve its base tsconfig), and the
