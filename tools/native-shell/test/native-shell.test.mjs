@@ -352,6 +352,16 @@ describe('native shell integration', () => {
     expect(firebaseApply.changed).toContain('App.xcodeproj/project.pbxproj');
     expect(validateGeneratedShell({ repoRoot, game: 'find_the_dog', allowMissingFirebase: false }).issues).toEqual([]);
     expect(applyNativeShell({ repoRoot, game: 'find_the_dog' }).changed).toEqual([]);
+
+    // A sync run without the Firebase env exported links the framework but
+    // never registers the plugin (every JS call -> UNIMPLEMENTED). The
+    // generated packageClassList is the only artifact that shows it.
+    const capacitorConfigPath = path.join(iosAppDir, 'App', 'capacitor.config.json');
+    fs.writeFileSync(capacitorConfigPath, JSON.stringify({ appId: 'com.baseardahan.hiddenobj', packageClassList: ['AppPlugin', 'AdMobPlugin'] }));
+    expect(validateGeneratedShell({ repoRoot, game: 'find_the_dog', allowMissingFirebase: false }).issues)
+      .toContainEqual(expect.stringMatching(/FirebaseAnalyticsPlugin is not registered .* VITE_FIREBASE_API_KEY/));
+    fs.writeFileSync(capacitorConfigPath, JSON.stringify({ appId: 'com.baseardahan.hiddenobj', packageClassList: ['AppPlugin', 'FirebaseAnalyticsPlugin', 'AdMobPlugin'] }));
+    expect(validateGeneratedShell({ repoRoot, game: 'find_the_dog', allowMissingFirebase: false }).issues).toEqual([]);
   });
 });
 
