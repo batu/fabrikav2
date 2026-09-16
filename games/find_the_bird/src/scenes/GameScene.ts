@@ -13,6 +13,7 @@ import { disposeLevelUrls, getLevelIndex, loadLevel, loadLevelForProgression, re
 import type { LevelData, LevelDog, LevelSection } from '../data/levels';
 import { playFind, playWrongTap, preloadBirdFoundSounds } from '../audio/AudioManager';
 import { crossfadeTo as crossfadeAmbient, presetForLevel } from '../audio/AmbientManager';
+import { PICKUP_FEATHER_KEYS, pickRandomPickupFx, playPickupParticles } from './pickupParticles';
 import { adService } from '../ads/Service';
 import { showTrackedEconomyReward, trackEconomySnapshot } from '../analytics/EconomyTelemetry';
 import { updateLevelBanner } from '../ads/levelBannerPolicy';
@@ -430,6 +431,9 @@ export class GameScene extends Phaser.Scene {
     }
     // Pickup feather particles — four painted cutouts, level-independent.
     for (const name of FEATHER_PARTICLE_KEYS) {
+      if (!this.textures.exists(name)) this.load.image(name, `ui/effects/${name}.png`);
+    }
+    for (const name of PICKUP_FEATHER_KEYS) {
       if (!this.textures.exists(name)) this.load.image(name, `ui/effects/${name}.png`);
     }
 
@@ -3121,6 +3125,12 @@ export class GameScene extends Phaser.Scene {
 
     image.setDisplaySize(sprite.width * this.imgScale, sprite.height * this.imgScale);
     image.setFlip(sprite.flipX ?? false, sprite.flipY ?? false);
+    // Tap-point particles (leaf / stars / feathers / confetti, random per
+    // pickup; Settings > Debug can pin one in harness builds).
+    if (!prefersReducedMotion() && DEBUG_OVERRIDES.pickupFx !== 'none') {
+      const kind = DEBUG_OVERRIDES.pickupFx === 'random' ? pickRandomPickupFx() : DEBUG_OVERRIDES.pickupFx;
+      playPickupParticles(this, kind, start.x, start.y);
+    }
     const startScaleX = image.scaleX;
     const startScaleY = image.scaleY;
     const startDisplaySize = Math.max(image.displayWidth, image.displayHeight, 1);
