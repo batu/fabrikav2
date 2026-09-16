@@ -125,3 +125,23 @@ them through the same workflow. Batu reviews everything himself at the end from 
   disagree with agy across the keep/regenerate line, gemini agrees 35/38.
 - Regeneration spend today $5.45, judge $3.16, trials $2.35, grok $0.47, plate try $4.98.
 - The 4 levels' hitbox r at 4096 px is 144 (not 57); everything else is 2688 px with r = 57.
+
+## Addendum 2026-09-16 ~18:30 UTC (after compaction)
+
+- Batu chose option 2 for the export gate: final-cutout review is set out of process with actor
+  `human:batu-delegated:intake-2026-09-16` (`intake_export.py`). Budget raised to $40.
+- The candidate sessions' hitboxes were PRE-PAINT positions on 38 of 60 levels (the paint moved
+  the birds; no obligation was pending). `place_hitboxes_vlm` was run on those 38 (reef camp
+  d61b with override of its single human hitbox), hitboxes re-blessed with the delegated actor,
+  and Extract All re-run on 46 levels (38 re-localized + 8 human-placed not yet extracted).
+  The 22 human-placed levels measured 0 misplaced hitboxes (sami camp: 1). $8.30 of the first
+  extraction pass was wasted on wrong crops.
+- Pipeline scripts (all in docs/solutions/2026-09-16-ftb-sticker-tiers-refit-regen/):
+  `extract_all.py` (out-of-process Extract All, env knobs), `intake_loop.sh` -> `intake_run.py`
+  (panels, `tier_agy.py` judge agy-first/OpenRouter fallback, `refit_all.py`, `intake_regen.py`,
+  refit again, judge again; summary.json per level in the scratch intake dir), `intake_export.py`,
+  `intake_apply.py` (merge work copy onto export by dog id, drop "no painted bird" dogs),
+  `banner_audit14.py`, `intake_report.py` (Portal; pass assets sorted, Portal numbers by order).
+- The editor's bulk single-call path ran one bird a minute because of the codex judge gate;
+  `FTD_FLATKEY_NO_JUDGE=1` + `FTD_FLATKEY_SINGLE_WORKERS=6` gives ~90 s per level.
+- Metered per-bird extraction is $0.018 (painted-extent crops are larger than 182 px).
