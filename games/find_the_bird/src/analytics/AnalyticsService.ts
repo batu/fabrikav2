@@ -10,6 +10,7 @@ import {
 import { attribution } from '../attribution/AttributionService';
 import { registerLifecycleHooks } from '../platform/gameLifecycle';
 import { adService } from '../ads/Service';
+import { adExperimentParams } from '../ads/sessionAdPolicy';
 import type { PurchaseUnfulfilledOutcome } from '../shop/PurchaseFulfillment';
 import type { AnalyticsLevelAttribution } from './AnalyticsEventContract';
 import { bootstrapStorage } from '../platform/bootstrapStorage';
@@ -27,6 +28,7 @@ import type {
 } from '../achievements/AchievementAnalytics';
 
 export type FtdEvent =
+  | 'experiment_exposure'
   | 'app_open'
   | 'app_background'
   | 'app_foreground'
@@ -155,7 +157,7 @@ interface AdLifecycleParams {
 }
 
 export type LevelCompleteAction = 'next' | 'claim_x2' | 'rate_prompt' | 'background' | 'dismissed_by_shutdown';
-export type InterstitialGateReason = 'cadence' | 'min_level' | 'ads_disabled' | 'no_ads_entitlement' | 'first_session';
+export type InterstitialGateReason = 'cadence' | 'min_level' | 'ads_disabled' | 'no_ads_entitlement' | 'first_session' | 'first_ten_levels' | 'storage_unavailable';
 export type LevelAbandonedReason = 'background' | 'shutdown';
 
 interface BetweenLevelParams extends LevelAttributionParams {
@@ -418,6 +420,15 @@ export class AnalyticsService {
 
   setCohortBucket(bucket: number): void {
     this.cohortBucket = bucket;
+  }
+
+  adExperimentExposure(): void {
+    const params = adExperimentParams();
+    if (params.ad_experiment_id === undefined) return;
+    this.sdk.track('experiment_exposure', {
+      experiment_id: params.ad_experiment_id,
+      bucket: params.ad_experiment_variant,
+    });
   }
 
   ownedMirrorStats(): OwnedAnalyticsMirrorStats {

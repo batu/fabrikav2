@@ -25,7 +25,8 @@ afterAll(() => {
 });
 
 describe('production bootstrap install evidence', () => {
-  it('ends first-session suppression only on a later bootstrap with saved install evidence', async () => {
+  it('keeps the protected arm suppressed until both a later launch and level 11', async () => {
+    values.set('ftb_ad_protection_v1_assignment', 'protected');
     await import('../../src/bootstrap');
     const firstSession = await import('../../src/ads/sessionAdPolicy');
     expect(firstSession.areAutomaticAdsAllowed()).toBe(false);
@@ -34,9 +35,12 @@ describe('production bootstrap install evidence', () => {
     vi.resetModules();
     await import('../../src/bootstrap');
     const secondSession = await import('../../src/ads/sessionAdPolicy');
+    expect(secondSession.areAutomaticAdsAllowed()).toBe(false);
+    secondSession.configureAdProgression(() => 11);
     expect(secondSession.areAutomaticAdsAllowed()).toBe(true);
   });
   it('classifies an empty install before eager runtime imports', async () => {
+    values.set('ftb_ad_protection_v1_assignment', 'protected');
     await import('../../src/bootstrap');
     await vi.waitFor(() => expect(startAnalyticsBootstrap).toHaveBeenCalledWith(false, 'durable'));
     const { areAutomaticAdsAllowed } = await import('../../src/ads/sessionAdPolicy');
@@ -44,6 +48,15 @@ describe('production bootstrap install evidence', () => {
     window.localStorage.setItem('ftd_level', '1');
     window.dispatchEvent(new Event('focus'));
     expect(areAutomaticAdsAllowed()).toBe(false);
+  });
+
+  it('applies the from-start arm before importing the runtime', async () => {
+    values.set('ftb_ad_protection_v1_assignment', 'from_start');
+    await import('../../src/bootstrap');
+    await vi.waitFor(() => expect(startAnalyticsBootstrap).toHaveBeenCalledWith(false, 'durable'));
+    const policy = await import('../../src/ads/sessionAdPolicy');
+    expect(policy.areAutomaticAdsAllowed()).toBe(true);
+    expect(policy.adExperimentParams().ad_experiment_variant).toBe('from_start');
   });
 
   it('preserves established save evidence through the actual bootstrap import', async () => {

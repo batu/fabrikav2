@@ -11,6 +11,7 @@ import { initHUD } from './ui/HUD';
 import { analytics } from './analytics/AnalyticsService';
 import { attribution, configureAttributionStartupGate } from './attribution/AttributionService';
 import { adService } from './ads/Service';
+import { configureAdProgression } from './ads/sessionAdPolicy';
 import { initializeCohort } from './data/cohortContext';
 import { remoteConfigService } from './config/RemoteConfigService';
 import { iapService, ownedProductIdsFromCustomerInfo, type CustomerInfo } from './shop/IapService';
@@ -50,6 +51,7 @@ if ((import.meta.env.DEV || import.meta.env.VITE_ENABLE_TEST_HARNESS === 'true')
   }
 }
 
+configureAdProgression(() => gameState.currentLevelIndex + 1);
 const game: Phaser.Game = new Phaser.Game(GameConfig);
 initHUD();
 // Install the single suspend/resume authority (Capacitor pause/resume +
@@ -152,6 +154,7 @@ export async function startAnalyticsBootstrap(
     console.warn('[cohort] initializeCohort failed; events will ship without cohort_bucket', err);
   }
   await analytics.appOpen();
+  analytics.adExperimentExposure();
 }
 
 game.events.once('destroy', (): void => {

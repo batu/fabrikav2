@@ -19,6 +19,7 @@ export interface InterstitialGateInput {
   hasNoAdsEntitlement: boolean;
   /** `areAutomaticAdsAllowed()`: false for a fresh install's first launch (PR #76). */
   automaticAdsAllowed: boolean;
+  automaticAdBlockReason?: 'first_session' | 'first_ten_levels' | 'storage_unavailable' | null;
 }
 
 export interface InterstitialGateDecision {
@@ -39,7 +40,7 @@ export function resolveInterstitialGate(input: InterstitialGateInput): Interstit
   if (input.nextLevelNumber < input.minLevelNumber) return { eligible: false, reason: 'min_level' };
   if (input.hasNoAdsEntitlement) return { eligible: false, reason: 'no_ads_entitlement' };
   if (!input.adsEnabled) return { eligible: false, reason: 'ads_disabled' };
-  if (!input.automaticAdsAllowed) return { eligible: false, reason: 'first_session' };
+  if (!input.automaticAdsAllowed) return { eligible: false, reason: input.automaticAdBlockReason ?? 'first_session' };
   return { eligible: true, reason: 'cadence' };
 }
 

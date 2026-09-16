@@ -16,7 +16,7 @@ import { crossfadeTo as crossfadeAmbient, presetForLevel } from '../audio/Ambien
 import { adService } from '../ads/Service';
 import { showTrackedEconomyReward, trackEconomySnapshot } from '../analytics/EconomyTelemetry';
 import { updateLevelBanner } from '../ads/levelBannerPolicy';
-import { areAutomaticAdsAllowed } from '../ads/sessionAdPolicy';
+import { areAutomaticAdsAllowed, automaticAdBlockReason } from '../ads/sessionAdPolicy';
 import { trackRewardedWatchedIfGranted } from '../attribution/RewardedAttribution';
 import { analytics } from '../analytics/AnalyticsService';
 import { resolveAnalyticsLevelAttributionFromServingAttempt, type AnalyticsLevelAttribution } from '../analytics/AnalyticsEventContract';
@@ -1924,6 +1924,8 @@ export class GameScene extends Phaser.Scene {
           gameState.currentLevelIndex + 1 >= minLevelNumber;
         // Attribute the decision above (handoff 2026-09-14). The decision
         // itself is unchanged; this names the first check that stopped it.
+        const adBlockReason = automaticAdBlockReason();
+        const automaticAdsAllowed = adBlockReason === null;
         const gate = resolveInterstitialGate({
           everyN: everyNLevels,
           minLevelNumber,
@@ -1931,7 +1933,8 @@ export class GameScene extends Phaser.Scene {
           nextLevelNumber: gameState.currentLevelIndex + 1,
           adsEnabled: gameState.settings.adsEnabled,
           hasNoAdsEntitlement: gameState.hasNoAdsEntitlement,
-          automaticAdsAllowed: areAutomaticAdsAllowed(),
+          automaticAdsAllowed,
+          automaticAdBlockReason: adBlockReason,
         });
         void analytics.interstitialGate({
           level_id: this.level!.id,
@@ -1950,7 +1953,7 @@ export class GameScene extends Phaser.Scene {
               : ({} as GameSceneData),
           );
         };
-        if (shouldTry && gameState.settings.adsEnabled && areAutomaticAdsAllowed()) {
+        if (shouldTry && gameState.settings.adsEnabled && automaticAdsAllowed) {
           // The next level must not start under the ad: the restart is
           // sequenced after the show promise settles (= ad dismissed; the
           // provider resolves immediately when no ad is preloaded).

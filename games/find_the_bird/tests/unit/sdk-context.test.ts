@@ -4,6 +4,7 @@ import { gameState } from '../../src/core/GameState';
 import { gameConfig } from '../../game.config';
 import ownAdMobConfig from '../../config/admob.public.json';
 import otherAdMobConfig from '../../../find_the_dog/config/admob.public.json';
+import { configureSessionAds } from '../../src/ads/sessionAdPolicy';
 
 function adMobEnv(config: typeof ownAdMobConfig) {
   return {
@@ -17,6 +18,33 @@ function adMobEnv(config: typeof ownAdMobConfig) {
 }
 
 describe('FTD SdkContext composition matrix', () => {
+  it('retains ad experiment assignment on retention and revenue events through the SDK and mirror', async () => {
+    configureSessionAds(false, 'durable', { getItem: () => 'protected', setItem: () => {} });
+    try {
+      const mirrorTransport = vi.fn(async (_request: { body: string }) => ({ ok: true, status: 200 }));
+      const context = createSdkContext({ buildEnv: 'development', platform: 'web', env: {
+        VITE_FTD_OWNED_ANALYTICS_MIRROR_URL: 'https://analytics.example.com/ingest',
+        VITE_FTD_OWNED_ANALYTICS_MIRROR_PUBLIC_CLIENT_KEY: 'public_client_key_1234',
+      }, mirrorTransport });
+      context.analytics.track('app_open');
+      context.analytics.track('ad_revenue_paid', { ad_type: 'rewarded', currency: 'USD', revenue: 0.01 });
+      const events = context.analyticsRing.drain();
+      expect(events).toHaveLength(2);
+      for (const event of events) expect(event.params).toMatchObject({
+        ad_experiment_id: 'ftb_ad_protection_v1', ad_experiment_variant: 'protected',
+      });
+      await context.analytics.flush();
+      const request = mirrorTransport.mock.calls[0]?.[0];
+      expect(request).toBeDefined();
+      const mirrored = JSON.parse(request!.body).events;
+      expect(mirrored).toHaveLength(2);
+      for (const event of mirrored) expect(event.params).toMatchObject({
+        ad_experiment_id: 'ftb_ad_protection_v1', ad_experiment_variant: 'protected',
+      });
+    } finally {
+      configureSessionAds(true, 'durable');
+    }
+  });
   it.each([
     [undefined, 'firebase'], ['false', 'firebase'], [false, 'firebase'],
     ['true', 'static'], [true, 'static'],

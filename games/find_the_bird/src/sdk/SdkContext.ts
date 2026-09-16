@@ -1,5 +1,6 @@
 import { Capacitor } from '@capacitor/core';
 import { createTrackingRequest, showTrackingExplanation } from '../privacy/TrackingExplanation';
+import { adExperimentParams } from '../ads/sessionAdPolicy';
 import {
   resolveSdkEnvironments,
   type SdkBuildEnv,
@@ -303,6 +304,7 @@ export function createSdkContext(deps: CreateSdkContextDependencies = {}): GameS
     sessionId: createFtdSessionId(),
     sinks,
     globalParams: {
+      ...adExperimentParams(),
       game: 'find_the_bird',
       platform,
       build: analyticsBuild,

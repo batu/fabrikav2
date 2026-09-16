@@ -49,7 +49,7 @@ const levelAttributionFields = [
 const economyFields = ['flow_type', 'currency', 'amount', 'item_type', 'item_id', 'product_id', 'no_ads', 'hints', 'coins', 'continue_level', 'level_id'] as const;
 const economySnapshotFields = ['display_level_number', 'coins', 'hints', 'total_completions', 'rewarded_hint_capped', 'rewarded_hints_today'] as const;
 const adRevenueFields = ['ad_type', 'placement', 'provider', 'currency', 'precision', 'network_name'] as const;
-const runtimeIdentityFields = ['native_app_version', 'native_build_number', 'app_version', 'build', 'platform', 'game', 'environment', 'cohort_bucket'] as const;
+const runtimeIdentityFields = ['native_app_version', 'native_build_number', 'app_version', 'build', 'platform', 'game', 'environment', 'cohort_bucket', 'ad_experiment_id', 'ad_experiment_variant'] as const;
 
 export const canonicalAnalyticsEvents = [
   {
@@ -104,10 +104,10 @@ export const canonicalAnalyticsEvents = [
     gameAnalyticsName: 'experiment:exposure',
     family: 'design',
     panel: 'retention',
-    question: 'When users actually enter a level-set or UI experiment.',
+    question: 'Which ad-protection experiment arm was applied on this launch.',
     primaryDimensions: ['experiment_id', 'bucket'],
-    instrumentationStatus: 'contract',
-    successBoundary: 'Player becomes eligible for and sees an experiment-controlled surface.',
+    instrumentationStatus: 'runtime',
+    successBoundary: 'Once per cold launch after app_open; assignment is fixed before any ad call.',
   },
   {
     id: 'level_start',
@@ -795,6 +795,8 @@ const forbiddenAnalyticsIdentifierKeySet = new Set(forbiddenAnalyticsIdentifierK
 // throwing on import). The canonical-events test asserts the superset invariant so
 // a new primaryDimension can't drift out of this allowlist unnoticed.
 export const dashboardImportDimensionKeys = [
+  'ad_experiment_id',
+  'ad_experiment_variant',
   'achievement_id',
   'action',
   'ad_type',
