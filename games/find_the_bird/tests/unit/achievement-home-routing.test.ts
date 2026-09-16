@@ -6,7 +6,7 @@ import { describe, expect, it, vi } from 'vitest';
 const gameRoot = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const source = readFileSync(join(gameRoot, 'src/scenes/HomeScene.ts'), 'utf8');
 describe('achievement Home discovery', () => {
-  it('keeps Play Now as the sole play action and puts Achievements, Shop, and Settings in the bottom bar', () => {
+  it('keeps Play Now as the sole play action and puts Sanctuary, Birds, Shop, and Settings in the bottom bar', () => {
     const rail = source.match(/<aside class="home-rail home-rail-left"[\s\S]*?<\/aside>/)?.[0] ?? '';
     const nav = source.match(/<nav class="home-nav-bar"[\s\S]*?<\/nav>/)?.[0] ?? '';
     // The left rail holds the streak-claim pill (it took the No-Ads slot on
@@ -14,11 +14,13 @@ describe('achievement Home discovery', () => {
     // that Achievements is NOT a rail entry point.
     expect(rail).toContain('id="home-streak-reward"');
     expect(rail).not.toContain('id="home-achievements"');
-    expect(nav).toContain('id="home-nav-achievements"');
+    // 2026-09-16: the Achievements tile is behind the achievementsEnabled flag
+    // (default off); Sanctuary and Birds took the row as locked tiles.
+    expect(nav).toContain('achievementsEnabled ? `<button id="home-nav-achievements"');
     expect(nav).not.toContain('id="home-nav-play"');
-    expect(nav.match(/<button/g)).toHaveLength(3);
-    expect([...nav.matchAll(/<span>(Settings|Shop|Achievements)<\/span>/g)].map((match) => match[1])).toEqual([
-      'Achievements', 'Shop', 'Settings',
+    expect(nav.match(/<button/g)).toHaveLength(5);
+    expect([...nav.matchAll(/<span>(Settings|Shop|Achievements|Sanctuary|Birds)<\/span>/g)].map((match) => match[1])).toEqual([
+      'Achievements', 'Sanctuary', 'Birds', 'Shop', 'Settings',
     ]);
   });
 

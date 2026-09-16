@@ -13,6 +13,7 @@ import {
   presentAchievementUnlocks,
   resetPresentedAchievementOccurrencesForTests,
 } from '../../src/ui/AchievementToast';
+import { remoteConfigService } from '../../src/config/RemoteConfigService';
 
 function delta(id = 'occ-1', names = ['First Find']): CommittedAchievementDelta {
   return {
@@ -39,8 +40,20 @@ describe('presentAchievementUnlocks', () => {
     vi.clearAllMocks();
     document.body.innerHTML = '';
     resetPresentedAchievementOccurrencesForTests();
+    remoteConfigService.setValuesForTest({ achievementsEnabled: true });
     allocateAchievementViewEvent.mockImplementation(({ achievementId }) => ({ achievementId }));
     Object.defineProperty(window, 'matchMedia', { configurable: true, value: vi.fn(() => ({ matches: false })) });
+  });
+
+  it('shows nothing and dispatches nothing while achievementsEnabled is off (the default)', () => {
+    remoteConfigService.setValuesForTest({ achievementsEnabled: false });
+    presentAchievementUnlocks(delta('occ-off', ['First Find']));
+    expect(document.getElementById('achievement-unlock-toast')).toBeNull();
+    expect(dispatchAchievementEvent).not.toHaveBeenCalled();
+    // The occurrence is not consumed: flipping the flag on later still presents it.
+    remoteConfigService.setValuesForTest({ achievementsEnabled: true });
+    presentAchievementUnlocks(delta('occ-off', ['First Find']));
+    expect(document.getElementById('achievement-unlock-toast')).not.toBeNull();
   });
 
   it('shows the toast immediately and dispatches a canonical view per unlock', () => {

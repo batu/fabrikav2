@@ -3482,9 +3482,9 @@
   }
 }
 
-/* Richer bottom nav: Achievements · Shop · Settings */
-/* 3-tile bar in the reference structure, FTD warm palette: divided slots that
-   fill the full width, with a raised highlighted center. */
+/* Richer bottom nav: Sanctuary · Birds · Shop · Settings (Achievements joins as
+   a fifth slot only when the achievementsEnabled flag is on). Divided equal
+   slots that fill the full width on the 4- or 5-frame nav-bar art. */
 #home-shell .home-nav-bar {
   align-items: stretch;
   justify-content: stretch;
@@ -3494,7 +3494,7 @@
   margin-inline: -12px;
   width: calc(100% + 24px);
   background:
-    url('/ui/navigation/nav-bar-3.png') center bottom / 100% 100% no-repeat;
+    url('/ui/navigation/nav-bar-4.png') center bottom / 100% 100% no-repeat;
   border-radius: 0;
   border-top: 0;
   box-shadow: none;
@@ -3502,12 +3502,22 @@
   min-height: 134px;
 }
 
+#home-shell .home-nav-bar[data-slots="5"] {
+  background:
+    url('/ui/navigation/nav-bar-5.png') center bottom / 100% 100% no-repeat;
+}
+
 #home-shell .home-nav-bar > button {
   box-sizing: border-box;
-  flex: 0 0 calc(100% / 3);
-  width: calc(100% / 3);
-  max-width: calc(100% / 3);
+  flex: 0 0 calc(100% / 4);
+  width: calc(100% / 4);
+  max-width: calc(100% / 4);
   align-items: center;
+}
+#home-shell .home-nav-bar[data-slots="5"] > button {
+  flex: 0 0 calc(100% / 5);
+  width: calc(100% / 5);
+  max-width: calc(100% / 5);
 }
 
 /* Side slots — equal thirds, divider lines between, icon + label centered. */
@@ -3553,8 +3563,36 @@
 
 /* Pull the side slots a few px toward the middle (A2/A3, build-18 device
    review). `translate` composes with the tap-bounce scale animation. */
-#home-shell #home-nav-achievements { translate: 6px 0; }
-#home-shell #home-nav-settings { translate: -6px 0; }
+#home-shell .home-nav-bar > .home-nav-btn:first-child { translate: 6px 0; }
+#home-shell .home-nav-bar > .home-nav-btn:last-child { translate: -6px 0; }
+
+/* Locked tiles (Sanctuary, Birds until their features ship): desaturated art
+   with the shared padlock at the icon's bottom-right, same treatment as the
+   sibling games. Disabled buttons keep the label colour; no tap bounce. */
+#home-shell .home-nav-btn--locked {
+  cursor: default;
+  color: #33423d;
+}
+#home-shell .home-nav-btn--locked img {
+  filter:
+    grayscale(1) brightness(0.95)
+    drop-shadow(1.5px 0 0 #fff) drop-shadow(-1.5px 0 0 #fff)
+    drop-shadow(0 1.5px 0 #fff) drop-shadow(0 -1.5px 0 #fff)
+    drop-shadow(1.06px 1.06px 0 #fff) drop-shadow(-1.06px 1.06px 0 #fff)
+    drop-shadow(1.06px -1.06px 0 #fff) drop-shadow(-1.06px -1.06px 0 #fff)
+    drop-shadow(0 4px 5px rgba(70, 36, 10, 0.5));
+}
+#home-shell .home-nav-btn--locked::after {
+  content: "";
+  position: absolute;
+  width: 32px;
+  height: 32px;
+  left: calc(50% + 12px);
+  bottom: calc(env(safe-area-inset-bottom, 0px) * 0.55 + 30px);
+  background: url('/ui/sanctuary/padlock.png') center / contain no-repeat;
+  filter: drop-shadow(0 2px 3px rgba(70, 36, 10, 0.45));
+  pointer-events: none;
+}
 
 #home-shell .home-nav-btn > span {
   position: absolute;

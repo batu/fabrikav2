@@ -1,6 +1,7 @@
 import type { CommittedAchievementDelta } from '../achievements/AchievementSystem';
 import { analytics } from '../analytics/AnalyticsService';
 import { gameState } from '../core/GameState';
+import { remoteConfigService } from '../config/RemoteConfigService';
 
 const TOAST_ID = 'achievement-unlock-toast';
 const TOAST_VISIBLE_MS = 5200;
@@ -15,6 +16,9 @@ const presentedOccurrences = new Set<string>();
  */
 export function presentAchievementUnlocks(delta: CommittedAchievementDelta | null | undefined): void {
   if (!delta || delta.newlyUnlocked.length === 0 || presentedOccurrences.has(delta.occurrenceId)) return;
+  // Achievements are off the home surface: no toast, no viewed event. The
+  // occurrence is left unpresented so it is not silently consumed.
+  if (!remoteConfigService.value('achievementsEnabled')) return;
   presentedOccurrences.add(delta.occurrenceId);
   showAchievementUnlockToast(delta.newlyUnlocked);
   for (const achievement of delta.newlyUnlocked) {
