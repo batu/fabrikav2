@@ -31,10 +31,37 @@ import {
 type FindTheDogVerb = 'gotoHome' | 'startLevel' | 'openSettings' | 'pause' | 'winLevel' | 'failLevel' | 'tapSafeMiss';
 export const FIND_THE_DOG_TOUR_STATES = [
   'menu', 'level', 'settings', 'win', 'fail', 'pause', 'achievements', 'shop', 'win-achievement',
+  // Collection + Sanctuary (release 1). Each seeds the save it needs, because
+  // these states are defined by progress (sparrows found, coins, house tier)
+  // rather than by navigation alone.
+  'collection-locked', 'collection-silhouette', 'collection-unlocked',
+  'collection-hat', 'collection-cardigan',
+  'sanctuary-nohouse', 'sanctuary-empty-perch', 'sanctuary-placed',
+  'sanctuary-coins', 'sanctuary-tier3',
 ] as const;
-export type FindTheDogDriveState = DriveState | 'achievements' | 'shop' | 'win-achievement';
+export type FindTheDogCollectionState =
+  | 'collection-locked' | 'collection-silhouette' | 'collection-unlocked'
+  | 'collection-hat' | 'collection-cardigan'
+  | 'sanctuary-nohouse' | 'sanctuary-empty-perch' | 'sanctuary-placed'
+  | 'sanctuary-coins' | 'sanctuary-tier3';
+export type FindTheDogDriveState =
+  DriveState | 'achievements' | 'shop' | 'win-achievement' | FindTheDogCollectionState;
+
+const collectionPageOpen = (snapshot: DriveSnapshot): boolean => snapshot.collectionOpen === true;
+const sanctuaryPageOpen = (snapshot: DriveSnapshot): boolean => snapshot.sanctuaryOpen === true;
 
 export const findTheDogDrivePredicates = {
+  'collection-locked': (snapshot: DriveSnapshot): boolean =>
+    snapshot.homeShellVisible === true && snapshot.collectionTileLocked === true,
+  'collection-silhouette': collectionPageOpen,
+  'collection-unlocked': collectionPageOpen,
+  'collection-hat': collectionPageOpen,
+  'collection-cardigan': collectionPageOpen,
+  'sanctuary-nohouse': sanctuaryPageOpen,
+  'sanctuary-empty-perch': sanctuaryPageOpen,
+  'sanctuary-placed': sanctuaryPageOpen,
+  'sanctuary-coins': sanctuaryPageOpen,
+  'sanctuary-tier3': sanctuaryPageOpen,
   menu: (snapshot: DriveSnapshot): boolean => {
     const scene = String(snapshot.scene ?? snapshot.activeScene ?? '');
     return scene === 'menu' || scene === 'HomeScene' || snapshot.homeShellVisible === true;
@@ -199,6 +226,10 @@ export interface FindTheDogSnapshot {
   status: 'playing' | 'paused' | 'complete' | 'failed' | undefined;
   settingsOpen: boolean;
   achievementsOpen: boolean;
+  collectionOpen: boolean;
+  sanctuaryOpen: boolean;
+  collectionTileLocked: boolean;
+  sanctuaryTileLocked: boolean;
   shopOpen: boolean;
   achievementCardCount: number;
   achievementCalloutVisible: boolean;
@@ -458,6 +489,97 @@ export function createFindTheDogHarness(game: Phaser.Game): FindTheDogHarness {
     );
   }
 
+  /**
+   * Collection and Sanctuary states are defined by PROGRESS, not by navigation:
+   * how many sparrows are counted, how many coins are banked, which house tier
+   * stands. Each state seeds exactly that, re-renders home so the tile reflects
+   * it, then opens the page through the real nav button.
+   */
+  interface MetaSeed {
+    sparrows: number;
+    coins?: number;
+    tier?: 0 | 1 | 2 | 3;
+    placed?: boolean;
+    pendingCoins?: number;
+  }
+
+  function seedMetaProgress(seed: MetaSeed): void {
+    // Past the collection's level gate for every state except the locked one,
+    // which wants a fresh player.
+    gameState.currentLevelIndex = seed.sparrows > 0 ? 20 : 0;
+    gameState.setBirdCountForTest('sparrow', seed.sparrows);
+    gameState.setCoinsForTest(seed.coins ?? 0);
+    gameState.setSanctuaryForTest({
+      houseTier: seed.tier ?? 0,
+      placed: seed.placed === true ? { 0: 'sparrow' } : {},
+      pendingCoins: seed.pendingCoins ?? 0,
+      // A window in the past would bank coins on open and make the capture
+      // non-deterministic; anchor it at now.
+      accrualStartedAt: new Date().toISOString(),
+      tileUnlockPopShown: true,
+    });
+    gameState.markCollectionTileUnlockShown();
+    gameState.markPlainFlipShown();
+    gameState.tutorialShown = true;
+    gameState.settings.tutorialEnabled = false;
+    gameState.save();
+  }
+
+  async function openMetaPage(
+    seed: MetaSeed,
+    selector: string,
+    ready: (snapshot: DriveSnapshot) => boolean,
+  ): Promise<boolean> {
+    const atHome = findTheDogDrivePredicates.menu(driveSnapshot()) || await gotoHome();
+    if (!atHome) return false;
+    seedMetaProgress(seed);
+    // Home computes tile locks at render time, so it must be rebuilt after the
+    // seed or the nav button is still the locked one and refuses to route.
+    const rerendered = await gotoHome();
+    if (!rerendered) return false;
+    const clicked = await clickWhenHittable(selector, HOME_READY_TARGET_POLL_MS, HOME_READY_TARGET_MAX_POLLS);
+    if (!clicked) return false;
+    return waitUntil(() => ready(driveSnapshot()), SETTINGS_OPEN_TARGET_POLL_MS, SETTINGS_OPEN_TARGET_MAX_POLLS);
+  }
+
+  const COLLECTION_TRIGGER = '#home-nav-collection';
+  const SANCTUARY_TRIGGER = '#home-nav-sanctuary';
+
+  async function driveMetaState(state: FindTheDogCollectionState): Promise<boolean> {
+    const collection = (seed: MetaSeed): Promise<boolean> =>
+      openMetaPage(seed, COLLECTION_TRIGGER, collectionPageOpen);
+    const sanctuary = (seed: MetaSeed): Promise<boolean> =>
+      openMetaPage(seed, SANCTUARY_TRIGGER, sanctuaryPageOpen);
+
+    switch (state) {
+      case 'collection-locked': {
+        // A fresh player: both tiles locked, nothing opened.
+        const atHome = findTheDogDrivePredicates.menu(driveSnapshot()) || await gotoHome();
+        if (!atHome) return false;
+        seedMetaProgress({ sparrows: 0 });
+        gameState.currentLevelIndex = 0;
+        gameState.save();
+        if (!await gotoHome()) return false;
+        return waitUntil(
+          () => findTheDogDrivePredicates['collection-locked'](driveSnapshot()),
+          HOME_READY_TARGET_POLL_MS,
+          HOME_READY_TARGET_MAX_POLLS,
+        );
+      }
+      case 'collection-silhouette': return collection({ sparrows: 6 });
+      case 'collection-unlocked': return collection({ sparrows: 10 });
+      case 'collection-hat': return collection({ sparrows: 20 });
+      case 'collection-cardigan': return collection({ sparrows: 35 });
+      case 'sanctuary-nohouse': return sanctuary({ sparrows: 10, coins: 150, tier: 0 });
+      case 'sanctuary-empty-perch': return sanctuary({ sparrows: 10, coins: 400, tier: 1 });
+      case 'sanctuary-placed': return sanctuary({ sparrows: 10, coins: 400, tier: 1, placed: true });
+      case 'sanctuary-coins':
+        return sanctuary({ sparrows: 10, coins: 400, tier: 1, placed: true, pendingCoins: 3.5 });
+      case 'sanctuary-tier3':
+        return sanctuary({ sparrows: 20, coins: 1200, tier: 3, placed: true });
+    }
+  }
+
   async function openShopFromUi(): Promise<boolean> {
     const atHome = findTheDogDrivePredicates.menu(driveSnapshot()) || await gotoHome();
     if (!atHome) return false;
@@ -601,6 +723,10 @@ export function createFindTheDogHarness(game: Phaser.Game): FindTheDogHarness {
       inputReady: snapshot.levelDataReady,
       settingsOpen: snapshot.settingsOpen,
       achievementsOpen: snapshot.achievementsOpen,
+      collectionOpen: snapshot.collectionOpen,
+      sanctuaryOpen: snapshot.sanctuaryOpen,
+      collectionTileLocked: snapshot.collectionTileLocked,
+      sanctuaryTileLocked: snapshot.sanctuaryTileLocked,
       shopOpen: snapshot.shopOpen,
       achievementCardCount: snapshot.achievementCardCount,
       achievementCalloutVisible: snapshot.achievementCalloutVisible,
@@ -634,6 +760,10 @@ export function createFindTheDogHarness(game: Phaser.Game): FindTheDogHarness {
     const settingsOpen = document.querySelector(SETTINGS_PAGE_SELECTOR) !== null;
     const achievementsOpen = document.querySelector('#home-page-overlay.home-page-achievements') !== null;
     const shopOpen = document.querySelector('#home-page-overlay.home-page-shop') !== null;
+    const collectionOpen = document.querySelector('#home-page-overlay.home-page-collection') !== null;
+    const sanctuaryOpen = document.querySelector('#home-page-overlay.home-page-sanctuary') !== null;
+    const collectionTileLocked = document.querySelector('#home-nav-collection.home-nav-btn--locked') !== null;
+    const sanctuaryTileLocked = document.querySelector('#home-nav-sanctuary.home-nav-btn--locked') !== null;
     const achievementCardCount = document.querySelectorAll('.achievement-card').length;
     const achievementCalloutVisible = document.querySelector('.achievement-unlock-callout') !== null;
     const completionActions = document.querySelector<HTMLElement>('#level-complete-overlay .fab-complete-actions');
@@ -672,6 +802,10 @@ export function createFindTheDogHarness(game: Phaser.Game): FindTheDogHarness {
               : undefined,
       settingsOpen,
       achievementsOpen,
+      collectionOpen,
+      sanctuaryOpen,
+      collectionTileLocked,
+      sanctuaryTileLocked,
       shopOpen,
       achievementCardCount,
       achievementCalloutVisible,
@@ -850,6 +984,9 @@ export function createFindTheDogHarness(game: Phaser.Game): FindTheDogHarness {
       // dog's screen point, swallowing the harness's real-input taps. Browser
       // flows already disable it via setState; do the same for tour drives.
       gameState.settings.tutorialEnabled = false;
+      if (state.startsWith('collection-') || state.startsWith('sanctuary-')) {
+        return driveMetaState(state as FindTheDogCollectionState);
+      }
       if (state === 'achievements') return openAchievementsFromUi();
       if (state === 'shop') return openShopFromUi();
       if (state === 'win-achievement') {
