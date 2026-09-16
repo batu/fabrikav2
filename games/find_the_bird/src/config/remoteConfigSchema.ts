@@ -19,6 +19,17 @@ export interface RemoteConfigValues {
   gameplayInitialHints: number;
   ratePromptEnabledDefault: boolean;
   achievementsEnabled: boolean;
+  collectionUnlockLevel: number;
+  sparrowUnlockCount: number;
+  sparrowHatCount: number;
+  sparrowCardiganCount: number;
+  housePriceTier1: number;
+  housePriceTier2: number;
+  housePriceTier3: number;
+  sanctuaryCoinsPerHourTier1: number;
+  sanctuaryCoinsPerHourTier2: number;
+  sanctuaryCoinsPerHourTier3: number;
+  sanctuaryOfflineCapHours: number;
   findMomentBurstEnabled: boolean;
   healthBarEnabled: boolean;
   microAnimationsEnabled: boolean;
@@ -97,6 +108,19 @@ export const REMOTE_CONFIG_DEFAULTS: RemoteConfigValues = {
   // row). Off hides the tile, the claim dot and unlock toasts; unlock tracking
   // and the page itself keep working so the flag can be flipped back remotely.
   achievementsEnabled: false,
+  // Collection + Sanctuary (release 1, 2026-09-16). Collection opens after
+  // level 5; the Sanctuary tile opens when the sparrow card unlocks at 10.
+  collectionUnlockLevel: 5,
+  sparrowUnlockCount: 10,
+  sparrowHatCount: 20,
+  sparrowCardiganCount: 35,
+  housePriceTier1: 150,
+  housePriceTier2: 300,
+  housePriceTier3: 900,
+  sanctuaryCoinsPerHourTier1: 3,
+  sanctuaryCoinsPerHourTier2: 6,
+  sanctuaryCoinsPerHourTier3: 10,
+  sanctuaryOfflineCapHours: 4,
   healthBarEnabled: false,
   microAnimationsEnabled: false,
   hintRwEnabled: true,
@@ -173,6 +197,17 @@ export const REMOTE_CONFIG_DEFINITIONS_BY_KEY: {
   ratePromptEnabledDefault: { key: 'ratePromptEnabledDefault', remoteKey: 'rate_prompt_enabled_default', type: 'boolean', description: 'Default rate prompt availability for fresh installs.' },
   findMomentBurstEnabled: { key: 'findMomentBurstEnabled', remoteKey: 'find_moment_burst_enabled', type: 'boolean', description: 'Enable small find-moment burst feedback.' },
   achievementsEnabled: { key: 'achievementsEnabled', remoteKey: 'achievements_enabled', type: 'boolean', description: 'Show the Achievements home tile, claim dot and unlock toasts. Off hides the entry point; progress tracking continues.' },
+  collectionUnlockLevel: { key: 'collectionUnlockLevel', remoteKey: 'collection_unlock_level', type: 'number', description: 'Completed levels required before the Collection home tile unlocks.' },
+  sparrowUnlockCount: { key: 'sparrowUnlockCount', remoteKey: 'sparrow_unlock_count', type: 'number', description: 'Sparrow pickups that unlock the sparrow card and open the Sanctuary tile.' },
+  sparrowHatCount: { key: 'sparrowHatCount', remoteKey: 'sparrow_hat_count', type: 'number', description: 'Sparrow pickups that unlock the sparrow hat costume.' },
+  sparrowCardiganCount: { key: 'sparrowCardiganCount', remoteKey: 'sparrow_cardigan_count', type: 'number', description: 'Sparrow pickups that unlock the sparrow cardigan costume (final state).' },
+  housePriceTier1: { key: 'housePriceTier1', remoteKey: 'house_price_tier_1', type: 'number', description: 'Coin price to build the tier-1 nest box in the Sanctuary.' },
+  housePriceTier2: { key: 'housePriceTier2', remoteKey: 'house_price_tier_2', type: 'number', description: 'Coin price to upgrade the nest box to tier 2.' },
+  housePriceTier3: { key: 'housePriceTier3', remoteKey: 'house_price_tier_3', type: 'number', description: 'Coin price to upgrade the nest box to tier 3.' },
+  sanctuaryCoinsPerHourTier1: { key: 'sanctuaryCoinsPerHourTier1', remoteKey: 'sanctuary_coins_per_hour_tier_1', type: 'number', description: 'Coins accrued per hour by a tier-1 house with at least one bird housed.' },
+  sanctuaryCoinsPerHourTier2: { key: 'sanctuaryCoinsPerHourTier2', remoteKey: 'sanctuary_coins_per_hour_tier_2', type: 'number', description: 'Coins accrued per hour by a tier-2 house with at least one bird housed.' },
+  sanctuaryCoinsPerHourTier3: { key: 'sanctuaryCoinsPerHourTier3', remoteKey: 'sanctuary_coins_per_hour_tier_3', type: 'number', description: 'Coins accrued per hour by a tier-3 house with at least one bird housed.' },
+  sanctuaryOfflineCapHours: { key: 'sanctuaryOfflineCapHours', remoteKey: 'sanctuary_offline_cap_hours', type: 'number', description: 'Maximum hours of Sanctuary coin accrual banked while away.' },
   healthBarEnabled: { key: 'healthBarEnabled', remoteKey: 'health_bar_enabled', type: 'boolean', description: 'Show the lives/health bar and let wrong taps fail the level.' },
   microAnimationsEnabled: { key: 'microAnimationsEnabled', remoteKey: 'micro_animations_enabled', type: 'boolean', description: 'Enable subtle in-level micro animations.' },
   hintRwEnabled: { key: 'hintRwEnabled', remoteKey: 'hint_rw_enabled', type: 'boolean', description: 'Enable rewarded-ad hint acquisition when hints are empty.' },
@@ -283,6 +318,17 @@ export function mapRemoteConfigValues(
     ratePromptEnabledDefault: read('ratePromptEnabledDefault'),
     findMomentBurstEnabled: read('findMomentBurstEnabled'),
     achievementsEnabled: read('achievementsEnabled'),
+    collectionUnlockLevel: read('collectionUnlockLevel'),
+    sparrowUnlockCount: read('sparrowUnlockCount'),
+    sparrowHatCount: read('sparrowHatCount'),
+    sparrowCardiganCount: read('sparrowCardiganCount'),
+    housePriceTier1: read('housePriceTier1'),
+    housePriceTier2: read('housePriceTier2'),
+    housePriceTier3: read('housePriceTier3'),
+    sanctuaryCoinsPerHourTier1: read('sanctuaryCoinsPerHourTier1'),
+    sanctuaryCoinsPerHourTier2: read('sanctuaryCoinsPerHourTier2'),
+    sanctuaryCoinsPerHourTier3: read('sanctuaryCoinsPerHourTier3'),
+    sanctuaryOfflineCapHours: read('sanctuaryOfflineCapHours'),
     healthBarEnabled: read('healthBarEnabled'),
     microAnimationsEnabled: read('microAnimationsEnabled'),
     hintRwEnabled: read('hintRwEnabled'),
@@ -350,6 +396,17 @@ export function mapRemoteConfigSources<TSource>(
     ratePromptEnabledDefault: read('ratePromptEnabledDefault'),
     findMomentBurstEnabled: read('findMomentBurstEnabled'),
     achievementsEnabled: read('achievementsEnabled'),
+    collectionUnlockLevel: read('collectionUnlockLevel'),
+    sparrowUnlockCount: read('sparrowUnlockCount'),
+    sparrowHatCount: read('sparrowHatCount'),
+    sparrowCardiganCount: read('sparrowCardiganCount'),
+    housePriceTier1: read('housePriceTier1'),
+    housePriceTier2: read('housePriceTier2'),
+    housePriceTier3: read('housePriceTier3'),
+    sanctuaryCoinsPerHourTier1: read('sanctuaryCoinsPerHourTier1'),
+    sanctuaryCoinsPerHourTier2: read('sanctuaryCoinsPerHourTier2'),
+    sanctuaryCoinsPerHourTier3: read('sanctuaryCoinsPerHourTier3'),
+    sanctuaryOfflineCapHours: read('sanctuaryOfflineCapHours'),
     healthBarEnabled: read('healthBarEnabled'),
     microAnimationsEnabled: read('microAnimationsEnabled'),
     hintRwEnabled: read('hintRwEnabled'),

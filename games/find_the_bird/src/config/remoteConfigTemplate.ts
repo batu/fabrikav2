@@ -115,6 +115,23 @@ const TEMPLATE_GROUPS: readonly RemoteConfigTemplateGroup[] = [
     ],
   },
   {
+    name: 'Collection And Sanctuary',
+    description: 'Bird collection thresholds, Sanctuary house prices, and idle coin accrual.',
+    keys: [
+      'collectionUnlockLevel',
+      'sparrowUnlockCount',
+      'sparrowHatCount',
+      'sparrowCardiganCount',
+      'housePriceTier1',
+      'housePriceTier2',
+      'housePriceTier3',
+      'sanctuaryCoinsPerHourTier1',
+      'sanctuaryCoinsPerHourTier2',
+      'sanctuaryCoinsPerHourTier3',
+      'sanctuaryOfflineCapHours',
+    ],
+  },
+  {
     name: 'Polish',
     description: 'Visual polish rollout flags for effects and in-level motion.',
     keys: [
