@@ -1,0 +1,17 @@
+<!doctype html><html><head><meta charset="utf-8"><title>FTB sanctuary vertical slice</title>
+<style>body{font:15px/1.5 -apple-system,sans-serif;max-width:1100px;margin:24px auto;padding:0 16px;color:#222}img{width:100%;border:1px solid #ddd;border-radius:6px}h2{margin-top:32px}code{background:#eee;padding:1px 4px}</style></head><body>
+<h1>FTB sanctuary + collection: vertical slice (gpt-image-2.5 sunburst)</h1>
+<p>Game-ready round: every sprite is a native-alpha PNG, no keying. One house upgrade stack, three bird types at plain / accessory / costume, birds composited on hand-placed perch anchors. 6 generation calls total. Design doc: <code>docs/plans/2026-09-16-ftb-collection-and-sanctuary.md</code> on branch <code>feat/ftd-collection-sanctuary</code>.</p>
+<h2>1. Integration: birds on the wooden tree house, tiers 1 → 3</h2>
+<img src="02_all.jpg">
+<p>Anchors in <code>house/anchors.json</code> (perch x,y per tier, bird height, 18% foot padding for the sticker shadow). Tier 3 came back narrower than tier 2 and its hole rings drifted; one edit-referenced regenerate should fix it.</p>
+<h2>2. Three bird types, plain / accessory / costume</h2>
+<img src="03_birds.jpg">
+<p>Each type is ONE transparent call rendering a row of three, then split by connected components, so body, colours and face stay identical across stages. Types were picked from random level sprites (blue jay, robin, song thrush). Note the white die-cut outline the model adds: it reads as a sticker on the house. Decide whether that is the "placed figurine" look or should be prompted away.</p>
+<h2>3. Tier 3 at full size</h2>
+<img src="04_tier3.jpg">
+<h2>4. House tiers isolated</h2>
+<img src="05_house.jpg">
+<h2>Open decisions</h2>
+<ul><li>Keep or remove the white sticker outline on birds.</li><li>Tier 3 regenerate for width continuity: yes/no.</li><li>Collection card states (silhouette / discovered / mastered frames) are the next round.</li></ul>
+</body></html>

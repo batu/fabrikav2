@@ -1,0 +1,83 @@
+{
+ "background": "bg/sanctuary_bg.png",
+ "bgSize": [
+  1024,
+  1536
+ ],
+ "houseScale": 0.82,
+ "houseAnchor": {
+  "x": 600,
+  "bottom": 905
+ },
+ "tiers": {
+  "tier1": {
+   "sprite": "house/house_tier1.png",
+   "spriteSize": [
+    1024,
+    1024
+   ],
+   "origin": [
+    183,
+    148
+   ],
+   "pedestals": [
+    {
+     "x": 388,
+     "y": 713,
+     "birdHeight": 188
+    }
+   ]
+  },
+  "tier2": {
+   "sprite": "house/house_tier2.png",
+   "spriteSize": [
+    1024,
+    1024
+   ],
+   "origin": [
+    179,
+    247
+   ],
+   "pedestals": [
+    {
+     "x": 302,
+     "y": 761,
+     "birdHeight": 164
+    },
+    {
+     "x": 941,
+     "y": 761,
+     "birdHeight": 164
+    }
+   ]
+  },
+  "tier3": {
+   "sprite": "house/house_tier3.png",
+   "spriteSize": [
+    1024,
+    1024
+   ],
+   "origin": [
+    176,
+    196
+   ],
+   "pedestals": [
+    {
+     "x": 307,
+     "y": 675,
+     "birdHeight": 172
+    },
+    {
+     "x": 934,
+     "y": 710,
+     "birdHeight": 155
+    },
+    {
+     "x": 860,
+     "y": 442,
+     "birdHeight": 122
+    }
+   ]
+  }
+ }
+}

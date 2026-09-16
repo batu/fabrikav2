@@ -1,0 +1,41 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sanctuary visual spike</title>
+<style>:root{--ink:#1c1c1c;--muted:#666;--line:#ddd;--bad:#b3261e;--ok:#1b6e3a;--warn:#9a6700}body{margin:0;background:#fff;color:var(--ink);font:15px/1.45 -apple-system,Segoe UI,Helvetica,Arial,sans-serif}main{max-width:1180px;margin:0 auto;padding:24px 16px 64px}.eyebrow{color:var(--muted);text-transform:uppercase;letter-spacing:.08em;font-size:12px;margin:0}h1{font-size:26px;margin:4px 0 8px}h2{font-size:18px;margin:32px 0 10px;border-top:1px solid var(--line);padding-top:16px}.summary{font-size:16px;max-width:900px}.verdict{border-left:4px solid var(--ok);background:#eef7f0;padding:12px 16px;margin:12px 0}table{border-collapse:collapse;width:100%;font-size:14px}th,td{border:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}th{background:#f5f5f5}.bad{color:var(--bad);font-weight:600}.ok{color:var(--ok);font-weight:600}.warn{color:var(--warn);font-weight:600}figure{margin:12px 0}figure img{width:100%;height:auto;border:1px solid var(--line)}figcaption{color:var(--muted);font-size:13px;margin-top:4px}ul{padding-left:20px}li{margin:3px 0}code{background:#f3f3f3;padding:1px 4px;border-radius:3px;font-size:13px}</style></head><body><main>
+<header><p class="eyebrow">Find the Bird: Sanctuary · visual spike · 2026-09-16</p>
+<h1>Houses and portraits are producible in the locked mascot style, by both models</h1>
+<p class="summary">Seven briefs (three house themes with three upgrade stages each, a four-state portrait card set, a four-step costume progression, an early and a developed tree) were sent to Grok Imagine and gpt-image-2.5 with the P3 Explorer Bluebird turnaround as the only reference. Everything below is concept art, not shippable assets: every image is a single composite sheet, not separated layers. Left panel Grok, right panel gpt-image-2.5.</p></header>
+
+<section><h2>Verdict</h2>
+<div class="verdict"><strong>Houses: green on both.</strong> Stage progression, resident capacity growth (1 → 3 perches) and the cardstock look all held on all three themes. <strong>Portraits and costumes: green with one shared trap.</strong> Both models turned the "robin" blue because the mascot reference dominates; species colour must be pinned by an explicit palette line or a species reference, not by name. <strong>Tree: Grok wins on style, gpt-image-2.5 wins on depth, neither is usable as-is.</strong> A real tree screen has to be assembled from separate trunk, branch, house and bird layers, so the tree briefs only answer "does the composition read at phone width" (yes).</div>
+<table><thead><tr><th>Brief</th><th>Grok Imagine</th><th>gpt-image-2.5 sunburst</th><th>Note</th></tr></thead><tbody>
+<tr><td>Cottage stages</td><td class="ok">Good, dramatic stage 3 (two-storey)</td><td class="ok">Good, more paper texture, consistent footprint</td><td>Both show windows, balcony, lantern, flowers escalating</td></tr>
+<tr><td>Pagoda stages</td><td class="warn">Good, stage 3 overstuffed (6 birds)</td><td class="ok">Cleanest tiered growth of the set</td><td>Torii perch, bell, bonsai all landed</td></tr>
+<tr><td>Tiki stages</td><td class="ok">Good, hammock and swing read</td><td class="ok">Good, string lights, ladders</td><td>Both added ladders/stilts unprompted, fine</td></tr>
+<tr><td>Portrait states</td><td class="warn">Four states clear; square cards; robin is blue</td><td class="ok">Consistent card system with ornament escalation; robin is blue</td><td>Reference bleed on species colour in both</td></tr>
+<tr><td>Costume progression</td><td class="ok">Silhouette preserved to step 4</td><td class="ok">Silhouette preserved, tighter accessories</td><td>Jacket at step 4 is the recognisability risk at small size</td></tr>
+<tr><td>Tree developed</td><td class="ok">On-style flat cardstock, 4 houses + signpost readable</td><td class="warn">Painterly drift, landscape background, off-style</td><td>Composition answer only</td></tr>
+<tr><td>Tree early</td><td class="bad">Letterboxed 9:16, dark trunk, off-style</td><td class="warn">Off-style paint, but signpost teasing reads</td><td>Early state needs a designed empty-branch language</td></tr>
+</tbody></table></section>
+
+<section><h2>House upgrade stages</h2>
+<figure><img src="house_cottage_stages.jpg"><figcaption>Cozy cottage, stages 1–3.</figcaption></figure>
+<figure><img src="house_pagoda_stages.jpg"><figcaption>Japanese pagoda, stages 1–3.</figcaption></figure>
+<figure><img src="house_tiki_stages.jpg"><figcaption>Tropical hut, stages 1–3.</figcaption></figure></section>
+
+<section><h2>Portraits and costumes</h2>
+<figure><img src="portrait_states.jpg"><figcaption>Undiscovered · discovered · resident · mastered. Brief asked for a robin with an orange breast; both models kept the mascot's blue body.</figcaption></figure>
+<figure><img src="costume_progression.jpg"><figcaption>One finch, four cosmetic milestones. Colours and face identical across steps in both lanes.</figcaption></figure></section>
+
+<section><h2>Tree composition</h2>
+<figure><img src="tree_developed.jpg"><figcaption>Developed sanctuary at 9:16.</figcaption></figure>
+<figure><img src="tree_early.jpg"><figcaption>Early sanctuary at 9:16.</figcaption></figure></section>
+
+<section><h2>What this tells the production plan</h2>
+<ul>
+<li><strong>Modular houses are realistic.</strong> Each theme's three stages share a footprint and a branch; a stage-3 house is a stage-2 house plus a floor, a balcony and props. Generate stage 3 per theme, then cut stage 1 and 2 as sub-crops or regenerate with the stage-3 image as reference.</li>
+<li><strong>Costumes as layers need a separate pass.</strong> Both models draw accessories fused to the bird. Layered outfits will need per-accessory transparent renders on a fixed base pose, which the flat-key cutout lane in the level editor already does for birds.</li>
+<li><strong>Pin species colour explicitly.</strong> Always state "brown body, orange breast" rather than "robin" when the mascot is attached as reference.</li>
+<li><strong>Model choice:</strong> gpt-image-2.5 returns 1254² with the mascot's paper grain and holds a consistent card/footprint system; Grok returns 1024² flatter cardstock and is the better tree stylist. Either is fine for houses and portraits; use gpt-image-2.5 for card systems, Grok or a hand-built layer stack for the tree.</li>
+<li><strong>Spend (merceka ledger):</strong> Grok 7 calls $0.185 agent-token meter (image tool not itemised, subscription); gpt-image-2.5 7 calls $0.355. About 25–40 s per image on both.</li>
+</ul></section>
+</main></body></html>

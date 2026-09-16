@@ -1,0 +1,13 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Sanctuary assets: background + 3 tier sprites, overlaid</title>
+<style>body{font:15px/1.5 -apple-system,sans-serif;max-width:1200px;margin:24px auto;padding:0 16px;color:#222}.row{display:flex;gap:14px}.row div{flex:1}img{width:100%;border:1px solid #ddd;border-radius:6px}code{background:#eee;padding:1px 4px}</style></head><body>
+<h1>One house, three tiers, floating in the middle of the tree</h1>
+<p>Separate game assets: one background, three transparent house sprites (same design, same pixel scale, tier 2 and 3 are edits of tier 1), bird sprites, and a <code>layout.json</code> with the house anchor, the shared scale and the pedestal anchors per tier. The overlays below are exactly base + sprite + birds, nothing painted together.</p>
+<h2>Overlaid as the game would draw them</h2>
+<div class="row"><div><img src="02_composite_tier1.jpg"><p>Tier 1, sparrow.</p></div><div><img src="03_composite_tier2.jpg"><p>Tier 2, sparrow + robin.</p></div><div><img src="04_composite_tier3.jpg"><p>Tier 3, sparrow + robin (scarf) + bluebird.</p></div></div>
+<h2>The separate assets</h2>
+<div class="row"><div><img src="05_sanctuary_bg.jpg"><p><code>bg/sanctuary_bg.png</code> 1024×1536, clear placement band in the middle.</p></div><div style="flex:2"><img src="06_house_sprites.jpg"><p><code>house/house_tier{1,2,3}.png</code> 1024² RGBA, one shared scale (0.82 on this bg), anchored bottom-centre on the branch. Pedestals in <code>house/pedestals.json</code>.</p></div></div>
+<p>Known: the tier-1 box renders a little larger than the tier-2/3 main box because the edits shrank the house to fit the annex. One regenerate of tier 1 from the tier-2 box would align them.</p>
+<h2>Collection card, revised</h2>
+<img src="07_d1_card_sparrow_v2.jpg" style="max-width:420px;display:block">
+<p>Button removed, porthole cutout enlarged into the freed space, dark interior behind the bird, rim overlapping the chest.</p>
+</body></html>

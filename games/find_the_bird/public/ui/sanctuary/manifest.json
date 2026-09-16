@@ -1,0 +1,172 @@
+{
+ "version": 1,
+ "style": "cozy-garden-3d",
+ "generatedBy": "docs/sanctuary-exploration/vertical-slice-2026-09-16 (gpt-image-2.5 sunburst)",
+ "sanctuary": {
+  "background": {
+   "src": "/ui/sanctuary/sanctuary-bg.png",
+   "size": [
+    1024,
+    1536
+   ],
+   "placementBand": {
+    "x": [
+     240,
+     980
+    ],
+    "y": [
+     380,
+     905
+    ]
+   }
+  },
+  "houseAnchor": {
+   "x": 600,
+   "bottom": 905,
+   "scale": 0.82,
+   "note": "sprite bbox bottom-centre lands on (x,bottom) in background pixels; one scale for every tier"
+  },
+  "houseTiers": [
+   {
+    "tier": 1,
+    "src": "/ui/sanctuary/house/house-tier1.png",
+    "size": [
+     1024,
+     1024
+    ],
+    "bbox": [
+     69,
+     165,
+     952,
+     830
+    ],
+    "pedestals": [
+     {
+      "anchor": [
+       150,
+       628
+      ],
+      "width": 200
+     }
+    ]
+   },
+   {
+    "tier": 2,
+    "src": "/ui/sanctuary/house/house-tier2.png",
+    "size": [
+     1024,
+     1024
+    ],
+    "bbox": [
+     21,
+     167,
+     1004,
+     802
+    ],
+    "pedestals": [
+     {
+      "anchor": [
+       150,
+       628
+      ],
+      "width": 200
+     },
+     {
+      "anchor": [
+       930,
+       628
+      ],
+      "width": 200
+     }
+    ]
+   },
+   {
+    "tier": 3,
+    "src": "/ui/sanctuary/house/house-tier3.png",
+    "size": [
+     1024,
+     1024
+    ],
+    "bbox": [
+     23,
+     119,
+     1010,
+     864
+    ],
+    "pedestals": [
+     {
+      "anchor": [
+       160,
+       585
+      ],
+      "width": 210
+     },
+     {
+      "anchor": [
+       925,
+       628
+      ],
+      "width": 190
+     },
+     {
+      "anchor": [
+       835,
+       300
+      ],
+      "width": 150
+     }
+    ]
+   }
+  ],
+  "pedestalNote": "anchor = [x,y] in the tier sprite's 1024 space where the bird's feet centre lands; width = bird sprite height in sprite px (scale by houseAnchor.scale)",
+  "birds": {
+   "sparrow": {
+    "plain": "/ui/sanctuary/birds/sparrow-plain.png",
+    "hat": "/ui/sanctuary/birds/sparrow-hat.png",
+    "uniform": "/ui/sanctuary/birds/sparrow-uniform.png"
+   }
+  },
+  "markers": {
+   "plot": "/ui/sanctuary/markers/plot-marker.png",
+   "pedestalEmpty": "/ui/sanctuary/markers/pedestal-empty.png",
+   "coinPile": "/ui/sanctuary/markers/coin-pile.png"
+  },
+  "contactShadow": "drawn by code: soft ellipse, width = bird width, height = bird height/5, rgba(60,40,20,0.35), blur 5px, centred on the anchor"
+ },
+ "collection": {
+  "cardFrame": {
+   "src": "/ui/collection/card-frame.png",
+   "size": [
+    1024,
+    1536
+   ],
+   "porthole": {
+    "cx": 459,
+    "cy": 410,
+    "r": 320
+   },
+   "portraitFit": "scale portrait to 0.96*porthole diameter wide, bottom at porthole.cy + r + 0.10*r, clip to the porthole circle",
+   "namePlaqueY": [
+    860,
+    960
+   ],
+   "ribbonY": [
+    1040,
+    1120
+   ],
+   "bubbleY": [
+    1160,
+    1400
+   ]
+  },
+  "portraits": {
+   "sparrow": {
+    "silhouette": "/ui/collection/portrait-sparrow-silhouette.png",
+    "plain": "/ui/collection/portrait-sparrow-plain.png",
+    "hat": "/ui/collection/portrait-sparrow-hat.png",
+    "uniform": "/ui/collection/portrait-sparrow-uniform.png"
+   },
+   "unknown": "/ui/collection/portrait-unknown.png"
+  }
+ }
+}
