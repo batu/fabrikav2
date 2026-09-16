@@ -13,24 +13,30 @@
       "r": 57,
       "sprite": {
         "image": "levels/hawaii_rainforest_waterfall_bird_0f98/dogs/dog_00/sprite_000.png",
-        "x": 1022,
-        "y": 478,
-        "width": 193,
-        "height": 168,
+        "x": 1025,
+        "y": 482,
+        "width": 180,
+        "height": 157,
         "cleanup": {
           "x": 921,
           "y": 435,
           "width": 345,
           "height": 345
         },
-        "anchorX": 0.4819,
-        "anchorY": 0.4167,
+        "anchorX": 0.5,
+        "anchorY": 0.4268,
         "refit": {
           "scale": 1.0,
           "ratio": 1.0,
-          "pop": 24.7,
+          "pop": 21.1,
           "dx": 0,
           "dy": 0
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop",
+          "score": 0.9537,
+          "pop": 17.0
         }
       }
     },
@@ -317,24 +323,30 @@
       "r": 57,
       "sprite": {
         "image": "levels/hawaii_rainforest_waterfall_bird_0f98/dogs/dog_10/sprite_000.png",
-        "x": 708,
-        "y": 1759,
-        "width": 252,
-        "height": 278,
+        "x": 715,
+        "y": 1761,
+        "width": 250,
+        "height": 270,
         "cleanup": {
           "x": 716,
           "y": 1729,
           "width": 250,
           "height": 338
         },
-        "anchorX": 0.504,
-        "anchorY": 0.5252,
+        "anchorX": 0.508,
+        "anchorY": 0.5222,
         "refit": {
           "scale": 1.0,
           "ratio": 1.0,
-          "pop": 33.7,
+          "pop": 29.6,
           "dx": 0,
           "dy": 0
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop2",
+          "score": 0.8584,
+          "pop": 30.3
         }
       }
     },
@@ -347,22 +359,22 @@
         "image": "levels/hawaii_rainforest_waterfall_bird_0f98/dogs/dog_11/sprite_000.png",
         "x": 471,
         "y": 1998,
-        "width": 141,
-        "height": 141,
+        "width": 144,
+        "height": 138,
         "cleanup": {
           "x": 417,
           "y": 1864,
           "width": 298,
           "height": 251
         },
-        "anchorX": 0.4681,
-        "anchorY": 0.3191,
+        "anchorX": 0.4722,
+        "anchorY": 0.3188,
         "refit": {
           "scale": 1.0,
-          "ratio": 0.95,
-          "pop": 19.1,
-          "dx": 3,
-          "dy": -1
+          "ratio": 1.05,
+          "pop": 18.9,
+          "dx": -1,
+          "dy": 0
         },
         "technique": "gpt-image-2.5-sunburst-low-visible-only",
         "regen": {
@@ -409,22 +421,22 @@
         "image": "levels/hawaii_rainforest_waterfall_bird_0f98/dogs/dog_13/sprite_000.png",
         "x": 831,
         "y": 2178,
-        "width": 329,
-        "height": 242,
+        "width": 321,
+        "height": 248,
         "cleanup": {
           "x": 805,
           "y": 2150,
           "width": 322,
           "height": 317
         },
-        "anchorX": 0.4377,
-        "anchorY": 0.3802,
+        "anchorX": 0.4361,
+        "anchorY": 0.379,
         "refit": {
           "scale": 1.0,
-          "ratio": 1.05,
-          "pop": 25.3,
-          "dx": -4,
-          "dy": 1
+          "ratio": 0.95,
+          "pop": 25.8,
+          "dx": 4,
+          "dy": -1
         }
       }
     },
@@ -463,24 +475,30 @@
       "r": 57,
       "sprite": {
         "image": "levels/hawaii_rainforest_waterfall_bird_0f98/dogs/dog_15/sprite_000.png",
-        "x": 1238,
-        "y": 1791,
-        "width": 295,
-        "height": 242,
+        "x": 1233,
+        "y": 1790,
+        "width": 284,
+        "height": 233,
         "cleanup": {
           "x": 1225,
           "y": 1727,
           "width": 303,
           "height": 267
         },
-        "anchorX": 0.4373,
-        "anchorY": 0.4669,
+        "anchorX": 0.4331,
+        "anchorY": 0.4721,
         "refit": {
           "scale": 1.0,
           "ratio": 1.0,
-          "pop": 19.4,
+          "pop": 13.8,
           "dx": 0,
           "dy": 0
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop2",
+          "score": 0.9262,
+          "pop": 19.3
         }
       }
     },

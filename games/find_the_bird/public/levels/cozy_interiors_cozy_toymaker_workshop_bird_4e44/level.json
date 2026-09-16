@@ -86,7 +86,7 @@
           "ratio": 1.0,
           "pop": 16.0,
           "dx": 0,
-          "dy": -2
+          "dy": 0
         },
         "technique": "gpt-image-2.5-sunburst-low-visible-only",
         "regen": {
@@ -175,7 +175,7 @@
           "scale": 1.0,
           "ratio": 1.0,
           "pop": 16.0,
-          "dx": -1,
+          "dx": 0,
           "dy": 0
         },
         "technique": "gpt-image-2.5-sunburst-low-visible-only",
@@ -277,24 +277,30 @@
       "r": 57,
       "sprite": {
         "image": "levels/cozy_interiors_cozy_toymaker_workshop_bird_4e44/dogs/dog_09/sprite_000.png",
-        "x": 2014,
-        "y": 819,
-        "width": 172,
-        "height": 180,
+        "x": 2015,
+        "y": 821,
+        "width": 158,
+        "height": 166,
         "cleanup": {
           "x": 1887,
           "y": 767,
           "width": 345,
           "height": 280
         },
-        "anchorX": 0.2849,
-        "anchorY": 0.5,
+        "anchorX": 0.2911,
+        "anchorY": 0.512,
         "refit": {
           "scale": 1.0,
           "ratio": 1.0,
-          "pop": 19.8,
-          "dx": 0,
+          "pop": 25.8,
+          "dx": -1,
           "dy": 0
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop2",
+          "score": 0.8881,
+          "pop": 26.0
         }
       }
     },
@@ -322,7 +328,7 @@
           "ratio": 1.0,
           "pop": 9.5,
           "dx": 0,
-          "dy": -1
+          "dy": 0
         },
         "technique": "gpt-image-2.5-sunburst-low-visible-only",
         "regen": {
@@ -380,11 +386,11 @@
         "anchorX": 0.3333,
         "anchorY": 0.4927,
         "refit": {
-          "scale": 1.05,
-          "ratio": 1.05,
-          "pop": 42.7,
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 44.0,
           "dx": 0,
-          "dy": 1
+          "dy": 0
         },
         "technique": "gpt-image-2.5-sunburst-low-visible-only",
         "regen": {
@@ -443,10 +449,10 @@
         "anchorY": 0.5405,
         "refit": {
           "scale": 1.0,
-          "ratio": 0.95,
-          "pop": 23.8,
-          "dx": 3,
-          "dy": -2
+          "ratio": 1.0,
+          "pop": 24.7,
+          "dx": 0,
+          "dy": 0
         },
         "technique": "gpt-image-2.5-sunburst-low-visible-only",
         "regen": {
@@ -529,14 +535,14 @@
           "width": 202,
           "height": 162
         },
-        "anchorX": 0.3421,
-        "anchorY": 0.5366,
+        "anchorX": 0.3487,
+        "anchorY": 0.5447,
         "refit": {
-          "scale": 0.95,
+          "scale": 1.0,
           "ratio": 1.0,
-          "pop": 31.2,
-          "dx": 2,
-          "dy": 3
+          "pop": 30.6,
+          "dx": -1,
+          "dy": 0
         },
         "technique": "gpt-image-2.5-sunburst-low-visible-only",
         "regen": {
