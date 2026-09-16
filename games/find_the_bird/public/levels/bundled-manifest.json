@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "manifestRevision": 30,
-  "generatedAt": "2026-09-16T19:55:11.096946Z",
+  "manifestRevision": 31,
+  "generatedAt": "2026-09-16T19:58:23.980792Z",
   "experimentId": "ftd_levelset_v1",
   "levels": [
     {
@@ -7176,137 +7176,6 @@
       }
     },
     {
-      "id": "coral_reef_coral_bommie_garden_bird_86ae",
-      "name": "Level coral_reef_coral_bommie_garden_bird_86ae",
-      "width": 2688,
-      "height": 2688,
-      "cohort_buckets": [
-        "all"
-      ],
-      "bundled": true,
-      "assets": {
-        "levelJson": {
-          "hash": "6517bfeb60379c1a6ba43020afb187dc2818c53ae2091e00bddd45a82c0337bc",
-          "size": 18397,
-          "path": "levels/coral_reef_coral_bommie_garden_bird_86ae/level.json"
-        },
-        "colorImage": {
-          "hash": "a476be250cd26c60c39197044085d605ba1905ea3c9c251c06cc026e4a9996b9",
-          "size": 1463642,
-          "path": "levels/coral_reef_coral_bommie_garden_bird_86ae/color.webp"
-        },
-        "bgImages": [
-          {
-            "hash": "4e23a848537934f29cbcd073eb6d4876e63ccc55812653a5eaa1545ef06258bd",
-            "size": 1287134,
-            "path": "levels/coral_reef_coral_bommie_garden_bird_86ae/bg_00.webp"
-          }
-        ],
-        "dogSprites": [
-          {
-            "hash": "8ed02695955278866ebd544e890f6626291f97429749eeb7c60f986e163083e3",
-            "size": 50901,
-            "path": "levels/coral_reef_coral_bommie_garden_bird_86ae/dogs/dog_20/sprite_000.png"
-          },
-          {
-            "hash": "f0cc5e8b6e20cc17139834d8df043f6ce84c3ce8d6823df0e5f23a8224b636d2",
-            "size": 55219,
-            "path": "levels/coral_reef_coral_bommie_garden_bird_86ae/dogs/dog_17/sprite_000.png"
-          },
-          {
-            "hash": "b180d1743c1cd019d73bfd9cf9d31aaa2d51b67a16b5c751e9ae7b69d980841e",
-            "size": 56303,
-            "path": "levels/coral_reef_coral_bommie_garden_bird_86ae/dogs/dog_21/sprite_000.png"
-          },
-          {
-            "hash": "8bb215809f6e578bdd4c8243d3001101e8a7636da05b9982baf8fc283a8bb1d1",
-            "size": 65024,
-            "path": "levels/coral_reef_coral_bommie_garden_bird_86ae/dogs/dog_19/sprite_000.png"
-          },
-          {
-            "hash": "3773b95f5c12ea1de13c6ddc4d5e7975d4f06d50e3913e71719426dabbdb0642",
-            "size": 59510,
-            "path": "levels/coral_reef_coral_bommie_garden_bird_86ae/dogs/dog_00/sprite_000.png"
-          },
-          {
-            "hash": "3f370a61f1d6a0fdeb522dbb591dbcb1c4037c095e6836534884b8d40a90f4b8",
-            "size": 45990,
-            "path": "levels/coral_reef_coral_bommie_garden_bird_86ae/dogs/dog_22/sprite_000.png"
-          },
-          {
-            "hash": "5dddaca98bb9d065d08fcddc7ff1ecfc91ed4c3f3ba2ec489ac70c4c15ef52be",
-            "size": 55120,
-            "path": "levels/coral_reef_coral_bommie_garden_bird_86ae/dogs/dog_10/sprite_000.png"
-          },
-          {
-            "hash": "4b1ac1667c65e60d11f5474432f79530cac51c4a015cf097d665caf0b648a84e",
-            "size": 94381,
-            "path": "levels/coral_reef_coral_bommie_garden_bird_86ae/dogs/dog_02/sprite_000.png"
-          },
-          {
-            "hash": "6327479c9e741086715ac37bddcfa35d3ddefb34c55db3fa65b2dc67a10e20c5",
-            "size": 48688,
-            "path": "levels/coral_reef_coral_bommie_garden_bird_86ae/dogs/dog_13/sprite_000.png"
-          },
-          {
-            "hash": "5a122f6faa2a71d3cb622d38c0f4ab9243ac17f829923df61a51d43ec4e78a34",
-            "size": 72133,
-            "path": "levels/coral_reef_coral_bommie_garden_bird_86ae/dogs/dog_16/sprite_000.png"
-          },
-          {
-            "hash": "9aeb01ecba9378aecb60c90f7a573c60f271f7d5295d9e14823945007e13cbdc",
-            "size": 43447,
-            "path": "levels/coral_reef_coral_bommie_garden_bird_86ae/dogs/dog_23/sprite_000.png"
-          },
-          {
-            "hash": "53ec6f23923b2abbe2550ed32e4b9e499cbec2fb6bbc30e5f9daa322200028a1",
-            "size": 54737,
-            "path": "levels/coral_reef_coral_bommie_garden_bird_86ae/dogs/dog_11/sprite_000.png"
-          },
-          {
-            "hash": "48d1438bc26d10a71ac4c7b25c905daf793f62a832eeca68ed8e6c8db12c2d31",
-            "size": 56632,
-            "path": "levels/coral_reef_coral_bommie_garden_bird_86ae/dogs/dog_01/sprite_000.png"
-          },
-          {
-            "hash": "446cb4650732de1260290f1fb42e398c2f47c3cfdd3031eb7d345a659da32b54",
-            "size": 74466,
-            "path": "levels/coral_reef_coral_bommie_garden_bird_86ae/dogs/dog_05/sprite_000.png"
-          },
-          {
-            "hash": "3072496aded1c86dcae15e5b9cdb53be554ea3351209bd1bf5217c5de0e83a2b",
-            "size": 53350,
-            "path": "levels/coral_reef_coral_bommie_garden_bird_86ae/dogs/dog_14/sprite_000.png"
-          },
-          {
-            "hash": "a4b53ada7f464c11b5535e1edd3142e9dca5225415e6dffeeb3c74aed89c1683",
-            "size": 67636,
-            "path": "levels/coral_reef_coral_bommie_garden_bird_86ae/dogs/dog_04/sprite_000.png"
-          },
-          {
-            "hash": "a4450dbff47f3d2cce92693768345b17b0ba8921afb93bdfd6ea446840809d00",
-            "size": 48811,
-            "path": "levels/coral_reef_coral_bommie_garden_bird_86ae/dogs/dog_24/sprite_000.png"
-          },
-          {
-            "hash": "3c6aafeb5e92a74fde4123c0ec570dbec4f050ecd1ca56bc9fd01b15e84e478b",
-            "size": 58164,
-            "path": "levels/coral_reef_coral_bommie_garden_bird_86ae/dogs/dog_18/sprite_000.png"
-          },
-          {
-            "hash": "4a789ddc645aa0faa7b2290f1c207711045b9c42678a37b31cbe3646e141d01e",
-            "size": 30470,
-            "path": "levels/coral_reef_coral_bommie_garden_bird_86ae/dogs/dog_08/sprite_000.png"
-          },
-          {
-            "hash": "8181e6c049be06986073c322acadbc788d1bf1ec12f1cbcace4a428fd5e5ad4f",
-            "size": 42298,
-            "path": "levels/coral_reef_coral_bommie_garden_bird_86ae/dogs/dog_03/sprite_000.png"
-          }
-        ]
-      }
-    },
-    {
       "id": "cozy_interiors_cozy_village_bakery_kitchen_bird_3830",
       "name": "Level cozy_interiors_cozy_village_bakery_kitchen_bird_3830",
       "width": 2688,
@@ -7418,122 +7287,6 @@
             "hash": "6815bd820bbebb36be8703567796eec3c877e32cb00b346faf3674956dae9039",
             "size": 64024,
             "path": "levels/cozy_interiors_cozy_village_bakery_kitchen_bird_3830/dogs/dog_33/sprite_000.png"
-          }
-        ]
-      }
-    },
-    {
-      "id": "france_alsace_wine_village_bird_1d5c",
-      "name": "Level france_alsace_wine_village_bird_1d5c",
-      "width": 2688,
-      "height": 2688,
-      "cohort_buckets": [
-        "all"
-      ],
-      "bundled": true,
-      "assets": {
-        "levelJson": {
-          "hash": "95a1aa932b3f1157c1ad0a4bd525dc30705c997a26808c195d070ac4799acfb4",
-          "size": 14336,
-          "path": "levels/france_alsace_wine_village_bird_1d5c/level.json"
-        },
-        "colorImage": {
-          "hash": "2ea793b1031d823cf6612c5960ea108bca6e8620f975db9c60cfccc1df799df1",
-          "size": 1299776,
-          "path": "levels/france_alsace_wine_village_bird_1d5c/color.webp"
-        },
-        "bgImages": [
-          {
-            "hash": "281e27fb244b949f1f34a134bf0fd8dce2596036035ecb71f712eeb3132f35bd",
-            "size": 1182820,
-            "path": "levels/france_alsace_wine_village_bird_1d5c/bg_00.webp"
-          }
-        ],
-        "dogSprites": [
-          {
-            "hash": "bc51ded2e6ec97dbb8afec25f78e83e60cff9e8a2b88d5fe910501fd88421568",
-            "size": 16606,
-            "path": "levels/france_alsace_wine_village_bird_1d5c/dogs/dog_15/sprite_000.png"
-          },
-          {
-            "hash": "05c1705faba454d4b3a5860f7135d5ff05d89e5c80f92116eb30bd6f52583597",
-            "size": 22773,
-            "path": "levels/france_alsace_wine_village_bird_1d5c/dogs/dog_16/sprite_000.png"
-          },
-          {
-            "hash": "0781911f721a246773c0e24a12232680183b378067e5ebb3a296acd22cbdaafa",
-            "size": 44507,
-            "path": "levels/france_alsace_wine_village_bird_1d5c/dogs/dog_17/sprite_000.png"
-          },
-          {
-            "hash": "dc59536447e04c49eec8060a505b7e55a25f08993ab0ffdadd726a7572e6a8cd",
-            "size": 65973,
-            "path": "levels/france_alsace_wine_village_bird_1d5c/dogs/dog_18/sprite_000.png"
-          },
-          {
-            "hash": "366e71c05456e361d91952fdac851ec13da3193105e62baf099b1962c378ac4b",
-            "size": 29095,
-            "path": "levels/france_alsace_wine_village_bird_1d5c/dogs/dog_19/sprite_000.png"
-          },
-          {
-            "hash": "aa2b57c797fc8d6b3f3512cd6d0893635e621c1fad2c7684357aa85804e820ff",
-            "size": 29983,
-            "path": "levels/france_alsace_wine_village_bird_1d5c/dogs/dog_20/sprite_000.png"
-          },
-          {
-            "hash": "c8645bc0e306e46410b8f66a7e7ec45ee3e7711dec8c32f5f5ffd5dda6ffceca",
-            "size": 37575,
-            "path": "levels/france_alsace_wine_village_bird_1d5c/dogs/dog_21/sprite_000.png"
-          },
-          {
-            "hash": "8eee2ebd2f50482150a06531cbff4e01bad9367627fa79633367abeaac85cad9",
-            "size": 33348,
-            "path": "levels/france_alsace_wine_village_bird_1d5c/dogs/dog_22/sprite_000.png"
-          },
-          {
-            "hash": "d6fc00369244e5d07fee75cf222d8697b122908fcb6fe59ee945ebf26588dc32",
-            "size": 30691,
-            "path": "levels/france_alsace_wine_village_bird_1d5c/dogs/dog_23/sprite_000.png"
-          },
-          {
-            "hash": "0754fc057eb1f1b7dd910c39f605c7678bd288f81d081f6a404b5d8629fadd84",
-            "size": 59427,
-            "path": "levels/france_alsace_wine_village_bird_1d5c/dogs/dog_24/sprite_000.png"
-          },
-          {
-            "hash": "fdcfa972c60914830c408d857c45b6efb6184b92ad97183689e08c9b835aeef1",
-            "size": 18321,
-            "path": "levels/france_alsace_wine_village_bird_1d5c/dogs/dog_25/sprite_000.png"
-          },
-          {
-            "hash": "ff40d89eb10f958445ad202858d40c763397fc86fde33ce1a505d3b73bca5140",
-            "size": 37546,
-            "path": "levels/france_alsace_wine_village_bird_1d5c/dogs/dog_26/sprite_000.png"
-          },
-          {
-            "hash": "6a94eae2aa987e1a47afe733da351d0aa00cc8a1faa26f57875bc583a3ba910f",
-            "size": 19117,
-            "path": "levels/france_alsace_wine_village_bird_1d5c/dogs/dog_27/sprite_000.png"
-          },
-          {
-            "hash": "31dba4e15c816e5a6f982a9c522601614673c68e19fdd39e7d5d6147ffa375a3",
-            "size": 57046,
-            "path": "levels/france_alsace_wine_village_bird_1d5c/dogs/dog_29/sprite_000.png"
-          },
-          {
-            "hash": "09be896afd4a6ea6c42565a02a7840da6d9a947aa96395f628d4bbc840a5275c",
-            "size": 52418,
-            "path": "levels/france_alsace_wine_village_bird_1d5c/dogs/dog_30/sprite_000.png"
-          },
-          {
-            "hash": "9d753ddf89fff9bb86062268345ebe6853b4bbee5ed1361bf8f20d4110b3a48f",
-            "size": 48566,
-            "path": "levels/france_alsace_wine_village_bird_1d5c/dogs/dog_35/sprite_000.png"
-          },
-          {
-            "hash": "94e6515f24e2678baa91313d402b90c9e9f18d097bf4fbda772c9b7f4648e269",
-            "size": 48711,
-            "path": "levels/france_alsace_wine_village_bird_1d5c/dogs/dog_36/sprite_000.png"
           }
         ]
       }
@@ -7660,117 +7413,6 @@
             "hash": "1b6f1a0757be0c238a83b32c8e8adb60b3eb98243681343fc309330e61603cb0",
             "size": 31400,
             "path": "levels/france_montmartre_cafe_terrace_bird_a9c4/dogs/dog_00/sprite_000.png"
-          }
-        ]
-      }
-    },
-    {
-      "id": "grand_interiors_covered_arcade_bird_95e5",
-      "name": "Level grand_interiors_covered_arcade_bird_95e5",
-      "width": 2688,
-      "height": 2688,
-      "cohort_buckets": [
-        "all"
-      ],
-      "bundled": true,
-      "assets": {
-        "levelJson": {
-          "hash": "b13a9d871087c086c43f39f35336c06be66674d774d7095e5ddfcaa694202902",
-          "size": 13873,
-          "path": "levels/grand_interiors_covered_arcade_bird_95e5/level.json"
-        },
-        "colorImage": {
-          "hash": "6a256d4d80a68ee7d3343ec31a740f11b1631bb4063cb750719364c627b07add",
-          "size": 2007362,
-          "path": "levels/grand_interiors_covered_arcade_bird_95e5/color.webp"
-        },
-        "bgImages": [
-          {
-            "hash": "c577d537bb560e948e0f16434ac47b2a0279080ba9354cfac7ef551574bb0c32",
-            "size": 1869248,
-            "path": "levels/grand_interiors_covered_arcade_bird_95e5/bg_00.webp"
-          }
-        ],
-        "dogSprites": [
-          {
-            "hash": "2baff5a19cf50134dc9d14d8d61f69eb7daf5964d403656506977734249e30e9",
-            "size": 49388,
-            "path": "levels/grand_interiors_covered_arcade_bird_95e5/dogs/dog_03/sprite_000.png"
-          },
-          {
-            "hash": "9eac51bdeaa7fa9778c9829801016f430cb76d1c4e22422163b7532032447892",
-            "size": 79356,
-            "path": "levels/grand_interiors_covered_arcade_bird_95e5/dogs/dog_06/sprite_000.png"
-          },
-          {
-            "hash": "64fa3d26a6e4a052a1655464d7bad4f892f9767d24269307207dd86cff7fa4ba",
-            "size": 46911,
-            "path": "levels/grand_interiors_covered_arcade_bird_95e5/dogs/dog_07/sprite_000.png"
-          },
-          {
-            "hash": "9a088b77160c5ace3af50388ee29c762a5269e2705b95fe9f0ac147f3779c551",
-            "size": 43269,
-            "path": "levels/grand_interiors_covered_arcade_bird_95e5/dogs/dog_11/sprite_000.png"
-          },
-          {
-            "hash": "f26a5ffc8ac864b60a544fc6a581ce149bb0f61ba7a5612cedbb2847574187aa",
-            "size": 31461,
-            "path": "levels/grand_interiors_covered_arcade_bird_95e5/dogs/dog_20/sprite_000.png"
-          },
-          {
-            "hash": "ce3f7a96b2ead52cccb68d502ce0aaaeb23044e62ba666a2b7e0891201dc2910",
-            "size": 39613,
-            "path": "levels/grand_interiors_covered_arcade_bird_95e5/dogs/dog_21/sprite_000.png"
-          },
-          {
-            "hash": "011316c2f3e7859f56981b96fa4b0b0390f66802a53717ed310bedf2f55122ff",
-            "size": 41352,
-            "path": "levels/grand_interiors_covered_arcade_bird_95e5/dogs/dog_22/sprite_000.png"
-          },
-          {
-            "hash": "5cd62a42e5527567b575cad24131701186937068f75df6716e54170854930b73",
-            "size": 45306,
-            "path": "levels/grand_interiors_covered_arcade_bird_95e5/dogs/dog_23/sprite_000.png"
-          },
-          {
-            "hash": "16f243d055f3f69d5a8f6d0b4f38db813c8467428a7e98e3ff0e3c8194114004",
-            "size": 35161,
-            "path": "levels/grand_interiors_covered_arcade_bird_95e5/dogs/dog_24/sprite_000.png"
-          },
-          {
-            "hash": "e0c259b6e4bb25b0fd1557353df26d2d22e2aa62e4f343637eace40590bb0a6e",
-            "size": 48969,
-            "path": "levels/grand_interiors_covered_arcade_bird_95e5/dogs/dog_25/sprite_000.png"
-          },
-          {
-            "hash": "8aea36f15d3c9a291d2fc072e251b02765e10e2a390ebffaf1af23a612fd11f7",
-            "size": 31035,
-            "path": "levels/grand_interiors_covered_arcade_bird_95e5/dogs/dog_26/sprite_000.png"
-          },
-          {
-            "hash": "2498f85a5fb8413da9561f09f19cf56853ea4a480fc5c73c8c0ec6803f5193fb",
-            "size": 57319,
-            "path": "levels/grand_interiors_covered_arcade_bird_95e5/dogs/dog_27/sprite_000.png"
-          },
-          {
-            "hash": "372571e6c05f638bbe3862ddc710f98bc50a3696d89ac0c4d83371b2d589cd3c",
-            "size": 56620,
-            "path": "levels/grand_interiors_covered_arcade_bird_95e5/dogs/dog_28/sprite_000.png"
-          },
-          {
-            "hash": "6fe39db243c01de2d9f612f42a718f2d5c02a118ba0cf376d18cde596c61e0e7",
-            "size": 92255,
-            "path": "levels/grand_interiors_covered_arcade_bird_95e5/dogs/dog_29/sprite_000.png"
-          },
-          {
-            "hash": "b14cb7906c6d4af75c8b5fb3dc0859deb8a898de120ab747fbf01ef4323b5abe",
-            "size": 54048,
-            "path": "levels/grand_interiors_covered_arcade_bird_95e5/dogs/dog_30/sprite_000.png"
-          },
-          {
-            "hash": "1a149ca3d138ad13b2cd44f17c88f1a740e88d605dd3d9d799432294232c869d",
-            "size": 43511,
-            "path": "levels/grand_interiors_covered_arcade_bird_95e5/dogs/dog_31/sprite_000.png"
           }
         ]
       }
@@ -12707,6 +12349,77 @@
             "hash": "20617bced472326b67b0c9d3a22ef8ea195d19260a950dbcd917fc00f64502e7",
             "size": 57400,
             "path": "levels/walled_gardens_kitchen_garden_bird_6759/dogs/dog_28/sprite_000.png"
+          }
+        ]
+      }
+    },
+    {
+      "id": "cozy_interiors_cozy_greenhouse_conservatory_bird_73c9",
+      "name": "Level cozy_interiors_cozy_greenhouse_conservatory_bird_73c9",
+      "width": 2688,
+      "height": 2688,
+      "cohort_buckets": [
+        "all"
+      ],
+      "bundled": true,
+      "assets": {
+        "levelJson": {
+          "hash": "cb184b11011a35b793cc2a824a4f1de82e69f661c8759e68ad82bc78f73dd1b6",
+          "size": 7044,
+          "path": "levels/cozy_interiors_cozy_greenhouse_conservatory_bird_73c9/level.json"
+        },
+        "colorImage": {
+          "hash": "e485b72b8b681a8ac7e1708372367ee7e3b9ca35d9a68afd982cc7b6b9cad904",
+          "size": 1474756,
+          "path": "levels/cozy_interiors_cozy_greenhouse_conservatory_bird_73c9/color.webp"
+        },
+        "bgImages": [
+          {
+            "hash": "fb1984b82a7ebd6d8d2920d22a024ae29b029ff9dea7c90790a42fec47edc192",
+            "size": 1348098,
+            "path": "levels/cozy_interiors_cozy_greenhouse_conservatory_bird_73c9/bg_00.webp"
+          }
+        ],
+        "dogSprites": [
+          {
+            "hash": "7001c59c3887a410005623ef45992127d6ef96e7a58120cf882dffb26627e076",
+            "size": 79181,
+            "path": "levels/cozy_interiors_cozy_greenhouse_conservatory_bird_73c9/dogs/dog_08/sprite_000.png"
+          },
+          {
+            "hash": "aaa7447c0359fad083b9c045ec2f5e769f0e7d02216e45536ffe941eb8569e32",
+            "size": 61621,
+            "path": "levels/cozy_interiors_cozy_greenhouse_conservatory_bird_73c9/dogs/dog_09/sprite_000.png"
+          },
+          {
+            "hash": "08f906de46ee3d1c3ffa0c568e88f3cdbda1879d14c8d418da535a47c5612256",
+            "size": 93035,
+            "path": "levels/cozy_interiors_cozy_greenhouse_conservatory_bird_73c9/dogs/dog_10/sprite_000.png"
+          },
+          {
+            "hash": "748cd49e97413bf74a727e155c4411fdf72660303ec6cdf3fd0a88db44b2f42a",
+            "size": 93044,
+            "path": "levels/cozy_interiors_cozy_greenhouse_conservatory_bird_73c9/dogs/dog_11/sprite_000.png"
+          },
+          {
+            "hash": "a831d6f403dcf2a6395084ae59fe8ca96f2e9321c253bce6c3f7fbb5e88bd834",
+            "size": 50051,
+            "path": "levels/cozy_interiors_cozy_greenhouse_conservatory_bird_73c9/dogs/dog_12/sprite_000.png"
+          },
+          {
+            "hash": "dc37ff89880a8c72f7e0001e2227d42dba2c0ab7c77eb926fb7feb090cfcb347",
+            "size": 134781,
+            "path": "levels/cozy_interiors_cozy_greenhouse_conservatory_bird_73c9/dogs/dog_13/sprite_000.png"
+          },
+          {
+            "hash": "423ffe850426879a9fd04ea9c3bd9d648e269fb34a8243f45c4632eb51647ca8",
+            "size": 94918,
+            "path": "levels/cozy_interiors_cozy_greenhouse_conservatory_bird_73c9/dogs/dog_14/sprite_000.png"
+          },
+          {
+            "hash": "575fe768654447ea676ab4d20392cf8a8c52ca37daba616363111a60854edb7d",
+            "size": 108627,
+            "path": "levels/cozy_interiors_cozy_greenhouse_conservatory_bird_73c9/dogs/dog_15/sprite_000.png"
           }
         ]
       }
