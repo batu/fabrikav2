@@ -1,11 +1,18 @@
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { fitBackground, layoutSanctuary, type SanctuaryManifest } from '../../src/sanctuary/layout';
 
+const publicDir = join(process.cwd(), 'public');
 const manifestFile = JSON.parse(
-  readFileSync(join(process.cwd(), 'public/ui/sanctuary/manifest.json'), 'utf8'),
-) as { sanctuary: SanctuaryManifest; collection: { cardFrame: { size: [number, number]; porthole: { cx: number; cy: number; r: number } } } };
+  readFileSync(join(publicDir, 'ui/sanctuary/manifest.json'), 'utf8'),
+) as {
+  sanctuary: SanctuaryManifest;
+  collection: {
+    cardFrame: { src: string; size: [number, number]; porthole: { cx: number; cy: number; r: number } };
+    portraits: { sparrow: Record<string, string>; unknown: string };
+  };
+};
 
 const manifest = manifestFile.sanctuary;
 // iPhone 14/15 logical portrait size — the device this ships on.
@@ -32,6 +39,30 @@ describe('sanctuary asset manifest', () => {
         expect(pedestal.width).toBeGreaterThan(0);
       }
     }
+  });
+});
+
+describe('every manifest asset exists and is within budget', () => {
+  const referenced = [
+    manifest.background.src,
+    ...manifest.houseTiers.map((tier) => tier.src),
+    ...Object.values(manifest.birds.sparrow),
+    ...Object.values(manifest.markers),
+    manifestFile.collection.cardFrame.src,
+    ...Object.values(manifestFile.collection.portraits.sparrow),
+    manifestFile.collection.portraits.unknown,
+  ];
+
+  it.each(referenced)('%s is on disk', (src) => {
+    expect(existsSync(join(publicDir, src.replace(/^\//, '')))).toBe(true);
+  });
+
+  it('keeps the whole set under 3 MB, so opening a page is not a download', () => {
+    const bytes = referenced.reduce(
+      (total, src) => total + statSync(join(publicDir, src.replace(/^\//, ''))).size,
+      0,
+    );
+    expect(bytes).toBeLessThan(3 * 1024 * 1024);
   });
 });
 

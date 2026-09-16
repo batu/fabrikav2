@@ -4,7 +4,7 @@
  "generatedBy": "docs/sanctuary-exploration/vertical-slice-2026-09-16 (gpt-image-2.5 sunburst)",
  "sanctuary": {
   "background": {
-   "src": "/ui/sanctuary/sanctuary-bg.png",
+   "src": "/ui/sanctuary/sanctuary-bg.webp",
    "size": [
     1024,
     1536
@@ -29,7 +29,7 @@
   "houseTiers": [
    {
     "tier": 1,
-    "src": "/ui/sanctuary/house/house-tier1.png",
+    "src": "/ui/sanctuary/house/house-tier1.webp",
     "size": [
      1024,
      1024
@@ -52,7 +52,7 @@
    },
    {
     "tier": 2,
-    "src": "/ui/sanctuary/house/house-tier2.png",
+    "src": "/ui/sanctuary/house/house-tier2.webp",
     "size": [
      1024,
      1024
@@ -82,7 +82,7 @@
    },
    {
     "tier": 3,
-    "src": "/ui/sanctuary/house/house-tier3.png",
+    "src": "/ui/sanctuary/house/house-tier3.webp",
     "size": [
      1024,
      1024
@@ -121,15 +121,15 @@
   "pedestalNote": "anchor = [x,y] in the tier sprite's 1024 space where the bird's feet centre lands; width = bird sprite height in sprite px (scale by houseAnchor.scale)",
   "birds": {
    "sparrow": {
-    "plain": "/ui/sanctuary/birds/sparrow-plain.png",
-    "hat": "/ui/sanctuary/birds/sparrow-hat.png",
-    "cardigan": "/ui/sanctuary/birds/sparrow-cardigan.png"
+    "plain": "/ui/sanctuary/birds/sparrow-plain.webp",
+    "hat": "/ui/sanctuary/birds/sparrow-hat.webp",
+    "cardigan": "/ui/sanctuary/birds/sparrow-cardigan.webp"
    }
   },
   "markers": {
-   "plot": "/ui/sanctuary/markers/plot-marker.png",
-   "pedestalEmpty": "/ui/sanctuary/markers/pedestal-empty.png",
-   "coinPile": "/ui/sanctuary/markers/coin-pile.png"
+   "plot": "/ui/sanctuary/markers/plot-marker.webp",
+   "pedestalEmpty": "/ui/sanctuary/markers/pedestal-empty.webp",
+   "coinPile": "/ui/sanctuary/markers/coin-pile.webp"
   },
   "contactShadow": "drawn by code: soft ellipse, width = bird width, height = bird height/5, rgba(60,40,20,0.35), blur 5px, centred on the anchor",
   "costumePath": [
@@ -140,7 +140,7 @@
  },
  "collection": {
   "cardFrame": {
-   "src": "/ui/collection/card-frame.png",
+   "src": "/ui/collection/card-frame.webp",
    "size": [
     1024,
     1536
@@ -166,12 +166,12 @@
   },
   "portraits": {
    "sparrow": {
-    "silhouette": "/ui/collection/portrait-sparrow-silhouette.png",
-    "plain": "/ui/collection/portrait-sparrow-plain.png",
-    "hat": "/ui/collection/portrait-sparrow-hat.png",
-    "cardigan": "/ui/collection/portrait-sparrow-cardigan.png"
+    "silhouette": "/ui/collection/portrait-sparrow-silhouette.webp",
+    "plain": "/ui/collection/portrait-sparrow-plain.webp",
+    "hat": "/ui/collection/portrait-sparrow-hat.webp",
+    "cardigan": "/ui/collection/portrait-sparrow-cardigan.webp"
    },
-   "unknown": "/ui/collection/portrait-unknown.png"
+   "unknown": "/ui/collection/portrait-unknown.webp"
   },
   "costumePath": [
    "silhouette",

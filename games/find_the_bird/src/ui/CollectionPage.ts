@@ -67,7 +67,7 @@ function renderCard(card: CardViewModel, index: number): string {
   return `
     <li class="collection-slide" data-card-index="${index}">
       <article class="collection-card${card.locked ? ' collection-card--locked' : ''}" data-card-kind="${card.kind}" data-card-state="${card.state}" aria-label="${card.ariaLabel}">
-        <img class="collection-card-frame" src="/ui/collection/card-frame.png" alt="" aria-hidden="true">
+        <img class="collection-card-frame" src="/ui/collection/card-frame.webp" alt="" aria-hidden="true">
         <span class="collection-card-porthole" style="${portholeStyle()}" aria-hidden="true">
           <img class="collection-card-portrait" src="${card.portraitSrc}" alt="" style="${PORTRAIT_STYLE}">
         </span>

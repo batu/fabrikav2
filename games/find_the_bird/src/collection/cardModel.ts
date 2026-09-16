@@ -44,13 +44,13 @@ export interface CardViewModel {
 }
 
 const PORTRAITS: Record<CardState, string> = {
-  silhouette: '/ui/collection/portrait-sparrow-silhouette.png',
-  plain: '/ui/collection/portrait-sparrow-plain.png',
-  hat: '/ui/collection/portrait-sparrow-hat.png',
-  cardigan: '/ui/collection/portrait-sparrow-cardigan.png',
+  silhouette: '/ui/collection/portrait-sparrow-silhouette.webp',
+  plain: '/ui/collection/portrait-sparrow-plain.webp',
+  hat: '/ui/collection/portrait-sparrow-hat.webp',
+  cardigan: '/ui/collection/portrait-sparrow-cardigan.webp',
 };
 
-const UNKNOWN_PORTRAIT = '/ui/collection/portrait-unknown.png';
+const UNKNOWN_PORTRAIT = '/ui/collection/portrait-unknown.webp';
 
 export function sparrowCard(count: number, thresholds: CollectionThresholds): CardViewModel {
   const state = cardState(count, thresholds);

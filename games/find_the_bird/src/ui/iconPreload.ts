@@ -43,6 +43,24 @@ const DEFERRED_ICON_URLS: readonly string[] = [
   '/ui/settings/settings_icon_music.png',
   '/ui/settings/settings_icon_sound.png',
   '/ui/settings/settings_icon_vibration.png',
+  // Collection deck and Sanctuary scene. Both open from the home nav, never on
+  // the boot path, and together weigh ~1.1 MB as WebP.
+  '/ui/collection/card-frame.webp',
+  '/ui/collection/portrait-sparrow-silhouette.webp',
+  '/ui/collection/portrait-sparrow-plain.webp',
+  '/ui/collection/portrait-sparrow-hat.webp',
+  '/ui/collection/portrait-sparrow-cardigan.webp',
+  '/ui/collection/portrait-unknown.webp',
+  '/ui/sanctuary/sanctuary-bg.webp',
+  '/ui/sanctuary/house/house-tier1.webp',
+  '/ui/sanctuary/house/house-tier2.webp',
+  '/ui/sanctuary/house/house-tier3.webp',
+  '/ui/sanctuary/birds/sparrow-plain.webp',
+  '/ui/sanctuary/birds/sparrow-hat.webp',
+  '/ui/sanctuary/birds/sparrow-cardigan.webp',
+  '/ui/sanctuary/markers/plot-marker.webp',
+  '/ui/sanctuary/markers/pedestal-empty.webp',
+  '/ui/sanctuary/markers/coin-pile.webp',
 ];
 
 let warmed = false;
