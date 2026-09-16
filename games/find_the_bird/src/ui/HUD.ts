@@ -997,6 +997,14 @@ function renderDebugLevelJumpRows(): string {
           </select>
         </div>
       </div>
+      <div class="modal-row settings-row settings-row-tall">
+        <div class="settings-row-left" style="flex:1;min-width:0">
+          <span class="settings-row-label">Pickup FX</span>
+          <select id="debug-pickup-fx" aria-label="Debug pickup fx" style="flex:1;min-width:0;margin-left:10px;font:inherit;font-size:14px;padding:6px;border-radius:8px">
+            ${['random', 'leaf', 'stars', 'feathers', 'confetti', 'none'].map((k) => `<option value="${k}" ${DEBUG_OVERRIDES.pickupFx === k ? 'selected' : ''}>${k}</option>`).join('')}
+          </select>
+        </div>
+      </div>
   `;
 }
 
@@ -1012,6 +1020,8 @@ export function consumeDebugJumpIndex(): number | null {
 function wireDebugLevelJump(page: HTMLElement): void {
   const fade = page.querySelector<HTMLSelectElement>('#debug-carve-fade');
   fade?.addEventListener('change', () => { DEBUG_OVERRIDES.restorationDissolveMs = Number(fade.value); });
+  const fx = page.querySelector<HTMLSelectElement>('#debug-pickup-fx');
+  fx?.addEventListener('change', () => { DEBUG_OVERRIDES.pickupFx = fx.value as typeof DEBUG_OVERRIDES.pickupFx; });
   const select = page.querySelector<HTMLSelectElement>('#debug-level-select');
   const button = page.querySelector<HTMLButtonElement>('#debug-level-jump');
   if (!select || !button) return;
