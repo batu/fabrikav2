@@ -136,7 +136,14 @@
    "plain",
    "hat",
    "cardigan"
-  ]
+  ],
+  "birdFootCenterX": {
+   "plain": 0.6198,
+   "hat": 0.6227,
+   "cardigan": 0.6255
+  },
+  "markerFootCenterX": 0.6143,
+  "footNote": "horizontal position of the FEET within the sprite, as a fraction of its width. A sparrow's tail pulls its geometric centre left of its feet, so centring the sprite on a pedestal stood the bird off the perch."
  },
  "collection": {
   "cardFrame": {

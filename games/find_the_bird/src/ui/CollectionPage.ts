@@ -48,9 +48,13 @@ function portholeStyle(): string {
   ].join(';');
 }
 
-/** Portrait inside the porthole: 98% of its width, feet 0.1r below the rim so
- *  the body reads as continuing down into the hole. */
-const PORTRAIT_STYLE = 'width:98%;bottom:-5%';
+/**
+ * Portrait inside the porthole, sized to FIT the circle rather than fill its
+ * width. Filling the width overflowed the top for the taller costumes and cut
+ * the beanie's pom-pom off, losing the very detail the costume is read by.
+ * A small negative bottom keeps the chest running down into the hole.
+ */
+const PORTRAIT_STYLE = 'height:97%;width:auto;bottom:-4%';
 
 function renderCard(card: CardViewModel, index: number): string {
   const lines = card.lines

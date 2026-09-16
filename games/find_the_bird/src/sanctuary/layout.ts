@@ -25,6 +25,9 @@ export interface SanctuaryManifest {
   }>;
   birds: Record<string, Record<string, string>>;
   markers: { plot: string; pedestalEmpty: string; coinPile: string };
+  /** Where the feet sit across each bird sprite, as a fraction of its width. */
+  birdFootCenterX?: Record<string, number>;
+  markerFootCenterX?: number;
 }
 
 export interface Rect { left: number; top: number; width: number; height: number }

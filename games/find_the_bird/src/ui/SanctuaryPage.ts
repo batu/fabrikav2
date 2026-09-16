@@ -290,10 +290,15 @@ export function wireSanctuaryPage(page: ParentNode): void {
       }
 
       slot.appendChild(sprite);
+      // Anchor the FEET, not the sprite's geometric centre: a sparrow's tail
+      // sits well left of its legs, so centring stood the bird off the perch.
+      const footFraction = tenant === undefined
+        ? (MANIFEST.markerFootCenterX ?? 0.5)
+        : (MANIFEST.birdFootCenterX?.[currentCostume()] ?? 0.5);
       slot.style.left = `${pedestal.anchor.x}px`;
       slot.style.top = `${pedestal.anchor.y - pedestal.birdHeight}px`;
       slot.style.height = `${pedestal.birdHeight}px`;
-      slot.style.transform = 'translateX(-50%)';
+      slot.style.transform = `translateX(${(-footFraction * 100).toFixed(2)}%)`;
       layer.appendChild(slot);
 
       if (tenant === undefined) {
