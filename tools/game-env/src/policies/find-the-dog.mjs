@@ -14,6 +14,7 @@ export const FIND_THE_DOG_ENV_KEYS = Object.freeze([
   'VITE_ENABLE_TEST_HARNESS',
   'VITE_FTD_AD_LIFECYCLE_DRIVE',
   'VITE_INSITU_TOUR',
+  'VITE_INSITU_TOUR_STATE',
   'VITE_SDK_VERIFIER_AUTOMOUNT',
   'VITE_SDK_VERIFIER_AUTOCRASH',
   'VITE_GAMEANALYTICS_IOS_ENABLED',
@@ -166,6 +167,15 @@ function validateConditional({ values, mode, booleanValue, requireValue, invalid
   const insituTour = values.get('VITE_INSITU_TOUR');
   if (insituTour !== undefined && insituTour !== '' && !/^__[-A-Z0-9_]+__$/.test(insituTour.trim())) {
     invalidKeys.push('VITE_INSITU_TOUR');
+  }
+
+  // Same rule for the single-state pin: runtime.ts already reads it, but it was
+  // never allowlisted, so vite's exact-env define silently dropped it and every
+  // capture build walked the whole tour instead of parking on one state.
+  const insituTourState = values.get('VITE_INSITU_TOUR_STATE');
+  if (insituTourState !== undefined && insituTourState !== ''
+    && !/^__[-A-Z0-9_]+__$/.test(insituTourState.trim())) {
+    invalidKeys.push('VITE_INSITU_TOUR_STATE');
   }
 
   if (mode === 'ios' && booleanValue(values.get('VITE_GAMEANALYTICS_IOS_ENABLED')) === true) {

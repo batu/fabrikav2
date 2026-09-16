@@ -190,6 +190,7 @@ function syntheticFixture(policy) {
   // Capture-tour script is shell-env-only; a persisted value is invalid by
   // policy, so the all-keys synthetic fixture must leave it unset.
   values.set('VITE_INSITU_TOUR', '');
+  values.set('VITE_INSITU_TOUR_STATE', '');
   return values;
 }
 

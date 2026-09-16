@@ -22,9 +22,11 @@ const CARD = {
   width: 1024,
   height: 1536,
   porthole: { cx: 488, cy: 410, r: 276 },
-  plaqueY: [860, 960] as const,
-  ribbonY: [1040, 1120] as const,
-  bubbleY: [1160, 1400] as const,
+  // Measured from the card art, not estimated: the first guesses put the name
+  // on the ribbon and the copy off the bottom of the card on device.
+  plaqueY: [700, 855] as const,
+  ribbonY: [860, 958] as const,
+  bubbleY: [988, 1207] as const,
 } as const;
 
 const pct = (value: number, of: number): string => `${((value / of) * 100).toFixed(4)}%`;

@@ -5877,12 +5877,15 @@ body:has(#home-page-overlay) #tutorial-overlay { display: none; }
 .collection-card-lock { position: absolute; left: 62%; top: 34%; width: 16%; filter: drop-shadow(0 2px 3px rgba(103, 67, 38, .45)); }
 .collection-card-text { position: absolute; inset: 0; pointer-events: none; }
 /* Plaque 860-960, ribbon 1040-1120, bubble 1160-1400 of 1536. */
-.collection-plaque { position: absolute; left: 12%; right: 12%; top: 56.0%; height: 6.5%; margin: 0; display: flex; align-items: center; justify-content: center; font-size: clamp(17px, 5.4vw, 30px); font-weight: 900; color: var(--fab-color-ink, #67533c); }
-.collection-ribbon { position: absolute; left: 18%; right: 18%; top: 67.7%; height: 5.2%; margin: 0; display: flex; align-items: center; justify-content: center; font-size: clamp(12px, 3.6vw, 19px); font-weight: 800; color: #6f8048; }
-.collection-bubble { position: absolute; left: 13%; right: 13%; top: 75.5%; height: 15.6%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; text-align: center; }
+/* Bands measured from card-frame.webp (1024x1536): plaque 700-855, ribbon
+   860-958, bubble 988-1207. Estimated values shifted every row one slot down
+   on device, putting the name on the ribbon and the copy off the card. */
+.collection-plaque { position: absolute; left: 14%; right: 14%; top: 45.6%; height: 10.1%; margin: 0; display: flex; align-items: center; justify-content: center; font-size: clamp(17px, 5.4vw, 30px); font-weight: 900; color: var(--fab-color-ink, #67533c); }
+.collection-ribbon { position: absolute; left: 20%; right: 20%; top: 56.0%; height: 6.4%; margin: 0; display: flex; align-items: center; justify-content: center; font-size: clamp(12px, 3.6vw, 19px); font-weight: 800; color: #6f8048; }
+.collection-bubble { position: absolute; left: 14%; right: 14%; top: 64.3%; height: 14.3%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; text-align: center; overflow: hidden; }
 .collection-line { font-size: clamp(11px, 3.3vw, 17px); font-weight: 700; color: var(--fab-color-ink, #67533c); line-height: 1.25; }
 .collection-card--locked .collection-line { letter-spacing: .12em; color: #a89a84; }
-.collection-progress { position: absolute; left: 13%; right: 13%; bottom: 3.5%; display: flex; align-items: center; gap: 7px; }
+.collection-progress { position: absolute; left: 14%; right: 14%; top: 81%; display: flex; align-items: center; gap: 7px; }
 .collection-progress-label { font-size: clamp(11px, 3.2vw, 16px); font-weight: 800; color: #6f8048; }
 .collection-progress-track { flex: 1; height: 10px; border-radius: 999px; background: rgba(103, 67, 38, .16); overflow: hidden; }
 .collection-progress-fill { display: block; height: 100%; border-radius: 999px; background: linear-gradient(180deg, #a8c06a, #82925e); }
