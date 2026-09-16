@@ -38,10 +38,10 @@
         "x": 352,
         "y": 578,
         "cleanup": {
-          "x": 333,
+          "x": 339,
           "y": 559,
-          "width": 203,
-          "height": 283
+          "width": 189,
+          "height": 281
         },
         "anchorX": 0.3697,
         "anchorY": 0.4776,
@@ -69,10 +69,10 @@
         "x": 1172,
         "y": 500,
         "cleanup": {
-          "x": 1157,
-          "y": 486,
-          "width": 245,
-          "height": 176
+          "x": 1158,
+          "y": 492,
+          "width": 243,
+          "height": 163
         },
         "anchorX": 0.434,
         "anchorY": 0.5563,
@@ -100,10 +100,10 @@
         "x": 1322,
         "y": 684,
         "cleanup": {
-          "x": 1308,
-          "y": 671,
-          "width": 191,
-          "height": 173
+          "x": 1309,
+          "y": 674,
+          "width": 188,
+          "height": 166
         },
         "anchorX": 0.4634,
         "anchorY": 0.5448,
@@ -131,10 +131,10 @@
         "x": 1262,
         "y": 1013,
         "cleanup": {
-          "x": 1245,
-          "y": 996,
-          "width": 208,
-          "height": 218
+          "x": 1248,
+          "y": 999,
+          "width": 200,
+          "height": 211
         },
         "anchorX": 0.477,
         "anchorY": 0.4946,
@@ -144,6 +144,37 @@
           "scale": 1.0,
           "ratio": 1.0,
           "pop": 23.1,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "2d6ae839-bb90-48df-a7ae-768e01588f39",
+      "compatibilitySlot": "dog_11",
+      "x": 1816,
+      "y": 804,
+      "r": 57,
+      "sprite": {
+        "image": "levels/railway_roundhouse_sleepy_mountain_rail_stop_bird_e325/dogs/dog_11/sprite_000.png",
+        "height": 154,
+        "width": 207,
+        "x": 1737,
+        "y": 718,
+        "cleanup": {
+          "x": 1721,
+          "y": 706,
+          "width": 238,
+          "height": 177
+        },
+        "anchorX": 0.3816,
+        "anchorY": 0.5584,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 19.7,
           "dx": 0,
           "dy": 0
         }
@@ -162,10 +193,10 @@
         "x": 798,
         "y": 1203,
         "cleanup": {
-          "x": 316,
-          "y": 542,
-          "width": 564,
-          "height": 793
+          "x": 766,
+          "y": 1187,
+          "width": 127,
+          "height": 147
         },
         "anchorX": 0.32,
         "anchorY": 0.9241,
@@ -188,6 +219,44 @@
       }
     },
     {
+      "id": "430ca176-a6e3-4ed0-bfa4-378a9e0aabdb",
+      "compatibilitySlot": "dog_23",
+      "x": 718,
+      "y": 1364,
+      "r": 57,
+      "sprite": {
+        "image": "levels/railway_roundhouse_sleepy_mountain_rail_stop_bird_e325/dogs/dog_23/sprite_000.png",
+        "height": 159,
+        "width": 238,
+        "x": 604,
+        "y": 1306,
+        "cleanup": {
+          "x": 586,
+          "y": 1294,
+          "width": 273,
+          "height": 182
+        },
+        "anchorX": 0.479,
+        "anchorY": 0.3648,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 14.0,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.9267,
+          "pop": 13.7,
+          "why": "T3"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
       "id": "b1204e40-d3d7-4e1b-b052-491d2460aca3",
       "compatibilitySlot": "dog_24",
       "x": 1197,
@@ -200,10 +269,10 @@
         "x": 1081,
         "y": 1612,
         "cleanup": {
-          "x": 1140,
-          "y": 471,
-          "width": 277,
-          "height": 1274
+          "x": 1061,
+          "y": 1604,
+          "width": 240,
+          "height": 151
         },
         "anchorX": 0.5742,
         "anchorY": 0.5606,
@@ -226,6 +295,44 @@
       }
     },
     {
+      "id": "3dcd2cd7-67ae-4d1b-87d4-7c0ff760cc32",
+      "compatibilitySlot": "dog_25",
+      "x": 1917,
+      "y": 1416,
+      "r": 57,
+      "sprite": {
+        "image": "levels/railway_roundhouse_sleepy_mountain_rail_stop_bird_e325/dogs/dog_25/sprite_000.png",
+        "height": 175,
+        "width": 228,
+        "x": 1801,
+        "y": 1340,
+        "cleanup": {
+          "x": 1784,
+          "y": 1324,
+          "width": 262,
+          "height": 201
+        },
+        "anchorX": 0.5044,
+        "anchorY": 0.4457,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 0.95,
+          "pop": 21.6,
+          "dx": 0,
+          "dy": -2
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.7233,
+          "pop": 28.0,
+          "why": "T3"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
       "id": "3217453c-33f7-4802-9bed-e88b42e08723",
       "compatibilitySlot": "dog_26",
       "x": 1612,
@@ -238,10 +345,10 @@
         "x": 1473,
         "y": 1684,
         "cleanup": {
-          "x": 1296,
-          "y": 659,
-          "width": 373,
-          "height": 1176
+          "x": 1454,
+          "y": 1670,
+          "width": 279,
+          "height": 210
         },
         "anchorX": 0.572,
         "anchorY": 0.5137,
@@ -276,10 +383,10 @@
         "x": 1820,
         "y": 1781,
         "cleanup": {
-          "x": 1232,
-          "y": 983,
-          "width": 723,
-          "height": 931
+          "x": 1808,
+          "y": 1768,
+          "width": 174,
+          "height": 195
         },
         "anchorX": 0.5132,
         "anchorY": 0.4471,
@@ -314,10 +421,10 @@
         "x": 2056,
         "y": 1867,
         "cleanup": {
-          "x": 1706,
-          "y": 687,
-          "width": 494,
-          "height": 1318
+          "x": 2047,
+          "y": 1855,
+          "width": 152,
+          "height": 180
         },
         "anchorX": 0.7436,
         "anchorY": 0.5159,
@@ -353,9 +460,9 @@
         "y": 2039,
         "cleanup": {
           "x": 1875,
-          "y": 2015,
-          "width": 365,
-          "height": 337
+          "y": 2017,
+          "width": 364,
+          "height": 332
         },
         "anchorX": 0.4511,
         "anchorY": 0.4256,
@@ -383,10 +490,10 @@
         "x": 1643,
         "y": 2018,
         "cleanup": {
-          "x": 1622,
-          "y": 1996,
-          "width": 177,
-          "height": 190
+          "x": 1632,
+          "y": 2006,
+          "width": 162,
+          "height": 172
         },
         "anchorX": 0.4326,
         "anchorY": 0.6067,
@@ -422,9 +529,9 @@
         "y": 1825,
         "cleanup": {
           "x": 346,
-          "y": 1805,
-          "width": 297,
-          "height": 265
+          "y": 1808,
+          "width": 295,
+          "height": 258
         },
         "anchorX": 0.4864,
         "anchorY": 0.5556,
@@ -452,10 +559,10 @@
         "x": 929,
         "y": 2168,
         "cleanup": {
-          "x": 909,
-          "y": 2148,
-          "width": 201,
-          "height": 181
+          "x": 916,
+          "y": 2157,
+          "width": 187,
+          "height": 166
         },
         "anchorX": 0.3681,
         "anchorY": 0.5103,
@@ -490,10 +597,10 @@
         "x": 1080,
         "y": 2290,
         "cleanup": {
-          "x": 1067,
-          "y": 2277,
-          "width": 220,
-          "height": 165
+          "x": 1065,
+          "y": 2279,
+          "width": 226,
+          "height": 161
         },
         "anchorX": 0.3959,
         "anchorY": 0.5071,

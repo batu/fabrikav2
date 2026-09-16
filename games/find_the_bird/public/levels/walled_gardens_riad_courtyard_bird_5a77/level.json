@@ -37,10 +37,10 @@
         "x": 1850,
         "y": 490,
         "cleanup": {
-          "x": 1833,
+          "x": 1830,
           "y": 473,
-          "width": 281,
-          "height": 244
+          "width": 286,
+          "height": 242
         },
         "anchorX": 0.4458,
         "anchorY": 0.5166,
@@ -68,10 +68,10 @@
         "x": 1460,
         "y": 876,
         "cleanup": {
-          "x": 1511,
-          "y": 456,
-          "width": 620,
-          "height": 631
+          "x": 1444,
+          "y": 853,
+          "width": 236,
+          "height": 349
         },
         "anchorX": 0.5243,
         "anchorY": 0.5066,
@@ -106,10 +106,10 @@
         "x": 945,
         "y": 958,
         "cleanup": {
-          "x": 922,
-          "y": 935,
-          "width": 325,
-          "height": 324
+          "x": 923,
+          "y": 936,
+          "width": 323,
+          "height": 322
         },
         "anchorX": 0.5125,
         "anchorY": 0.4857,
@@ -138,9 +138,9 @@
         "y": 1201,
         "cleanup": {
           "x": 525,
-          "y": 1184,
-          "width": 245,
-          "height": 266
+          "y": 1183,
+          "width": 243,
+          "height": 267
         },
         "anchorX": 0.5943,
         "anchorY": 0.5365,
@@ -168,10 +168,10 @@
         "x": 536,
         "y": 1638,
         "cleanup": {
-          "x": 512,
-          "y": 1617,
-          "width": 256,
-          "height": 221
+          "x": 517,
+          "y": 1624,
+          "width": 284,
+          "height": 203
         },
         "anchorX": 0.4372,
         "anchorY": 0.4746,
@@ -206,10 +206,10 @@
         "x": 774,
         "y": 1841,
         "cleanup": {
-          "x": 756,
-          "y": 1823,
-          "width": 261,
-          "height": 221
+          "x": 751,
+          "y": 1830,
+          "width": 265,
+          "height": 208
         },
         "anchorX": 0.4805,
         "anchorY": 0.3978,
@@ -238,9 +238,9 @@
         "y": 1628,
         "cleanup": {
           "x": 1086,
-          "y": 1614,
-          "width": 207,
-          "height": 189
+          "y": 1615,
+          "width": 205,
+          "height": 184
         },
         "anchorX": 0.4637,
         "anchorY": 0.4688,
@@ -256,6 +256,44 @@
       }
     },
     {
+      "id": "f32210c2-fd86-49e5-9db3-08211d508348",
+      "compatibilitySlot": "dog_23",
+      "x": 1507,
+      "y": 1721,
+      "r": 57,
+      "sprite": {
+        "image": "levels/walled_gardens_riad_courtyard_bird_5a77/dogs/dog_23/sprite_000.png",
+        "height": 116,
+        "width": 200,
+        "x": 1424,
+        "y": 1669,
+        "cleanup": {
+          "x": 1411,
+          "y": 1664,
+          "width": 230,
+          "height": 134
+        },
+        "anchorX": 0.405,
+        "anchorY": 0.4052,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 0.95,
+          "ratio": 1.05,
+          "pop": 31.6,
+          "dx": 2,
+          "dy": 5
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.8233,
+          "pop": 30.9,
+          "why": "T3"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
       "id": "5a47587e-401d-4778-9d08-221205ac4513",
       "compatibilitySlot": "dog_24",
       "x": 1143,
@@ -268,10 +306,10 @@
         "x": 1041,
         "y": 2035,
         "cleanup": {
-          "x": 1022,
-          "y": 2017,
-          "width": 238,
-          "height": 222
+          "x": 1024,
+          "y": 2021,
+          "width": 232,
+          "height": 213
         },
         "anchorX": 0.5099,
         "anchorY": 0.5269,
@@ -299,10 +337,10 @@
         "x": 856,
         "y": 2115,
         "cleanup": {
-          "x": 837,
-          "y": 2096,
-          "width": 257,
-          "height": 276
+          "x": 839,
+          "y": 2097,
+          "width": 251,
+          "height": 273
         },
         "anchorX": 0.4475,
         "anchorY": 0.4874,
@@ -330,10 +368,10 @@
         "x": 1202,
         "y": 2301,
         "cleanup": {
-          "x": 1176,
-          "y": 2275,
-          "width": 413,
-          "height": 237
+          "x": 1174,
+          "y": 2287,
+          "width": 415,
+          "height": 212
         },
         "anchorX": 0.4681,
         "anchorY": 0.373,
@@ -361,10 +399,10 @@
         "x": 1712,
         "y": 2303,
         "cleanup": {
-          "x": 1699,
-          "y": 2288,
-          "width": 260,
-          "height": 186
+          "x": 1695,
+          "y": 2291,
+          "width": 266,
+          "height": 178
         },
         "anchorX": 0.6207,
         "anchorY": 0.3419,
@@ -392,10 +430,10 @@
         "x": 1812,
         "y": 2021,
         "cleanup": {
-          "x": 1798,
-          "y": 2007,
-          "width": 245,
-          "height": 197
+          "x": 1795,
+          "y": 2008,
+          "width": 252,
+          "height": 195
         },
         "anchorX": 0.4455,
         "anchorY": 0.4294,
@@ -423,10 +461,10 @@
         "x": 1963,
         "y": 1813,
         "cleanup": {
-          "x": 1944,
-          "y": 1794,
-          "width": 275,
-          "height": 249
+          "x": 1945,
+          "y": 1797,
+          "width": 272,
+          "height": 242
         },
         "anchorX": 0.4051,
         "anchorY": 0.564,
@@ -454,10 +492,10 @@
         "x": 1945,
         "y": 1492,
         "cleanup": {
-          "x": 1931,
-          "y": 1478,
+          "x": 1930,
+          "y": 1480,
           "width": 221,
-          "height": 180
+          "height": 173
         },
         "anchorX": 0.4819,
         "anchorY": 0.5298,
@@ -485,10 +523,10 @@
         "x": 1572,
         "y": 1525,
         "cleanup": {
-          "x": 1558,
-          "y": 1513,
-          "width": 170,
-          "height": 200
+          "x": 1563,
+          "y": 1516,
+          "width": 159,
+          "height": 194
         },
         "anchorX": 0.4892,
         "anchorY": 0.4497,
