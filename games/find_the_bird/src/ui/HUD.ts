@@ -1,7 +1,8 @@
 import { Capacitor } from '@capacitor/core';
 import { remoteConfigService } from '../config/RemoteConfigService';
 import { gameState } from '../core/GameState';
-import { GAMEPLAY } from '../core/Constants';
+import { GAMEPLAY, TEST_HARNESS_ENABLED } from '../core/Constants';
+import { getLevelIndex } from '../data/levels';
 import { playUITap, playHint, setMusicEnabled, setSoundEffectsEnabled } from '../audio/AudioManager';
 import { syncAmbientMusicPreference } from '../audio/AmbientManager';
 import { analytics, type OfferOutcomeParams } from '../analytics/AnalyticsService';
@@ -956,6 +957,7 @@ function renderSettingsRows(): string {
           <span class="toggle-slider"></span>
         </label>
       </div>
+      ${TEST_HARNESS_ENABLED ? renderDebugLevelJumpRows() : ''}
       <div class="settings-legal-footer" aria-label="Privacy, legal, and support links">
         <button id="settings-restore-btn" class="settings-footer-link settings-footer-action settings-restore-btn" type="button" aria-describedby="settings-restore-status">Restore Purchases</button>
         <span id="settings-restore-status" class="settings-restore-status" aria-live="polite">Restore No Ads purchases on this device.</span>
@@ -972,7 +974,59 @@ function renderSettingsRows(): string {
   `;
 }
 
+/** Debug builds only (DEV / VITE_ENABLE_TEST_HARNESS): jump straight to any
+ *  level in the served order, bypassing the map lock. Never rendered in
+ *  store builds (the release pipeline asserts the harness flag is off). */
+function renderDebugLevelJumpRows(): string {
+  return `
+      <div class="settings-section-divider" aria-hidden="true"><span class="settings-section-divider-label">Debug</span></div>
+      <div class="modal-row settings-row settings-row-tall">
+        <div class="settings-row-left" style="flex:1;min-width:0">
+          <span class="settings-row-label">Jump to level</span>
+          <select id="debug-level-select" aria-label="Debug level" style="flex:1;min-width:0;margin-left:10px;font:inherit;font-size:14px;padding:6px;border-radius:8px">
+            <option value="">Loading…</option>
+          </select>
+        </div>
+        <button id="debug-level-jump" class="settings-footer-action" type="button" style="margin-left:10px;padding:8px 14px;border-radius:10px;font:inherit;font-weight:700">Go</button>
+      </div>
+  `;
+}
+
+let pendingDebugJumpIndex: number | null = null;
+
+/** HomeScene consumes a pending debug jump on create (set from in-game settings). */
+export function consumeDebugJumpIndex(): number | null {
+  const index = pendingDebugJumpIndex;
+  pendingDebugJumpIndex = null;
+  return index;
+}
+
+function wireDebugLevelJump(page: HTMLElement): void {
+  const select = page.querySelector<HTMLSelectElement>('#debug-level-select');
+  const button = page.querySelector<HTMLButtonElement>('#debug-level-jump');
+  if (!select || !button) return;
+  void getLevelIndex().then((index) => {
+    select.innerHTML = index.map((entry, i) => {
+      const label = entry.id.replace(/_bird_[0-9a-f]{4}$/, '').replace(/_/g, ' ');
+      const selected = i === gameState.currentLevelIndex ? ' selected' : '';
+      return `<option value="${i}"${selected}>${i + 1}. ${label}</option>`;
+    }).join('');
+  }).catch((error) => {
+    select.innerHTML = '<option value="">Level index unavailable</option>';
+    console.warn('[debug] level index unavailable', error);
+  });
+  button.addEventListener('click', () => {
+    const index = Number.parseInt(select.value, 10);
+    if (!Number.isInteger(index) || index < 0) return;
+    playUITap();
+    pendingDebugJumpIndex = index;
+    closePage();
+    window.dispatchEvent(new CustomEvent('ftb-debug-jump-level', { detail: { index } }));
+  });
+}
+
 function wireSettingsPageListeners(page: HTMLElement): void {
+  if (TEST_HARNESS_ENABLED) wireDebugLevelJump(page);
   page.querySelector('#settings-home-btn')?.addEventListener('click', () => {
     playUITap();
     closePage();

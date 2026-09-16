@@ -1123,6 +1123,13 @@ export class GameScene extends Phaser.Scene {
     setHomeCallback(() => {
       this.scene.start('HomeScene');
     });
+    if (TEST_HARNESS_ENABLED) {
+      // Debug level selector from in-game settings: HomeScene consumes the
+      // pending index on create and starts that level.
+      const debugJump = (): void => { this.scene.start('HomeScene'); };
+      window.addEventListener('ftb-debug-jump-level', debugJump);
+      this.events.once('shutdown', () => window.removeEventListener('ftb-debug-jump-level', debugJump));
+    }
     setGameModeChangeCallback(() => {
       if (this.level) {
         this.preserveLevelUrlsOnShutdown = true;
