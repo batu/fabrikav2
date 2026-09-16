@@ -4114,6 +4114,10 @@ export class GameScene extends Phaser.Scene {
     // = radius / 0.28, see TutorialOverlay.layout) so a wallet-spent hint
     // reads identically to the one players were taught during onboarding.
     this.hintMagnifierImg = this.add.image(sx, sy, 'hint_magnifier');
+    // The lens is not at the art's centre (handle bottom-right): its hole is
+    // centred at 43% / 40% of the 384 px image (measured 2026-09-16), so anchor
+    // there or the ring sits down-right of the bird.
+    this.hintMagnifierImg.setOrigin(0.43, 0.401);
     this.hintMagnifierImg.setDepth(51);
 
     const drawHintCircle = (scale: number): void => {
