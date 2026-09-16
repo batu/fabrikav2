@@ -189,6 +189,16 @@
   animation: pickup-counter-pop 280ms ease-out;
 }
 
+#dog-counter.pickup-flash {
+  animation: pickup-counter-flash 160ms ease-out;
+}
+
+@keyframes pickup-counter-flash {
+  0% { filter: brightness(1); }
+  25% { filter: brightness(2.2); }
+  100% { filter: brightness(1); }
+}
+
 @keyframes pickup-counter-pop {
   0% { transform: scale(1); }
   45% { transform: scale(1.13); }
