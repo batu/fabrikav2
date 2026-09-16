@@ -40,8 +40,10 @@ ROWS = {
    "The Sanctuary page: a wooden birdhouse stands on the branch and its perch is EMPTY, marked by a "
    "dotted outline of a bird with a question mark. No real bird is present.",
  "sanctuary-placed":
-   "The Sanctuary page: a wooden birdhouse on the branch with a real sparrow standing on its perch, "
-   "with a soft shadow under its feet.",
+   "The Sanctuary page: a cartoon wooden birdhouse on a tree branch, with a cartoon sparrow standing "
+   "on the flat wooden platform that juts out from the branch beside the house. That platform IS the "
+   "bird's perch in this game, so a bird standing on it is CORRECT. Check the bird's feet actually "
+   "rest on the wood rather than floating above it or overlapping the house.",
  "sanctuary-coins":
    "The Sanctuary page: a birdhouse with a sparrow on its perch, plus a pile of gold coins on the "
    "branch carrying a small '+3' badge.",
