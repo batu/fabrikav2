@@ -16,7 +16,14 @@ import { crossfadeTo as crossfadeAmbient, presetForLevel } from '../audio/Ambien
 import { adService } from '../ads/Service';
 import { showTrackedEconomyReward, trackEconomySnapshot } from '../analytics/EconomyTelemetry';
 import { updateLevelBanner } from '../ads/levelBannerPolicy';
-import { areAutomaticAdsAllowed, automaticAdBlockReason } from '../ads/sessionAdPolicy';
+import { areAutomaticAdsAllowed, automaticAdBlockReason, daysSinceInstall } from '../ads/sessionAdPolicy';
+import {
+  recordCompletion,
+  recordInterstitialShown,
+  rewardedAdInFlight,
+  rewardedCooldownRemainingMs,
+} from '../ads/interstitialCadence';
+import { syncAdPolicyUserProperties } from '../analytics/adPolicyUserProperties';
 import { trackRewardedWatchedIfGranted } from '../attribution/RewardedAttribution';
 import { analytics } from '../analytics/AnalyticsService';
 import { resolveAnalyticsLevelAttributionFromServingAttempt, type AnalyticsLevelAttribution } from '../analytics/AnalyticsEventContract';
@@ -1918,23 +1925,22 @@ export class GameScene extends Phaser.Scene {
         gameState.levelsCompletedThisSession += 1;
         const everyNLevels = remoteConfigService.value('interstitialEveryNLevels');
         const minLevelNumber = remoteConfigService.value('interstitialMinLevel');
-        const shouldTry =
-          everyNLevels > 0 &&
-          gameState.levelsCompletedThisSession % everyNLevels === 0 &&
-          gameState.currentLevelIndex + 1 >= minLevelNumber;
-        // Attribute the decision above (handoff 2026-09-14). The decision
-        // itself is unchanged; this names the first check that stopped it.
+        // Ad policy v2 (2026-09-16): cadence persists across launches and
+        // counts each committed completion once, keyed by its transaction.
+        // Protected completions (install day, unusable storage) never become
+        // ad debt. Progress saturates at N, so a missed opportunity is
+        // retained for the next Next tap rather than accumulated.
         const adBlockReason = automaticAdBlockReason();
-        const automaticAdsAllowed = adBlockReason === null;
+        const cadenceProgress = recordCompletion(completion.transaction.id, everyNLevels, adBlockReason === null);
         const gate = resolveInterstitialGate({
           everyN: everyNLevels,
           minLevelNumber,
-          levelsCompletedSession: gameState.levelsCompletedThisSession,
           nextLevelNumber: gameState.currentLevelIndex + 1,
           adsEnabled: gameState.settings.adsEnabled,
           hasNoAdsEntitlement: gameState.hasNoAdsEntitlement,
-          automaticAdsAllowed,
           automaticAdBlockReason: adBlockReason,
+          cadenceProgress,
+          rewardedCooldownRemainingMs: rewardedAdInFlight() ? Number.POSITIVE_INFINITY : rewardedCooldownRemainingMs(),
         });
         void analytics.interstitialGate({
           level_id: this.level!.id,
@@ -1944,6 +1950,7 @@ export class GameScene extends Phaser.Scene {
           reason: gate.reason,
           every_n: everyNLevels,
           levels_completed_session: gameState.levelsCompletedThisSession,
+          cadence_progress: cadenceProgress,
         });
         const restartToNextLevel = (): void => {
           if (this.isShuttingDown || !this.sys.isActive()) return;
@@ -1953,16 +1960,21 @@ export class GameScene extends Phaser.Scene {
               : ({} as GameSceneData),
           );
         };
-        if (shouldTry && gameState.settings.adsEnabled && automaticAdsAllowed) {
+        if (gate.eligible) {
           // The next level must not start under the ad: the restart is
           // sequenced after the show promise settles (= ad dismissed; the
-          // provider resolves immediately when no ad is preloaded).
+          // provider resolves immediately when no ad is preloaded). A `false`
+          // (not ready, frequency cap, show failure) leaves the saturated
+          // cadence in place, so the opportunity is retried on the next Next
+          // tap and never during play or on resume.
           void adService
             .maybeShowInterstitial({ minIntervalMs: remoteConfigService.value('interstitialMinIntervalS') * 1000 })
             .then((shown: boolean): void => {
               if (shown) {
+                recordInterstitialShown(daysSinceInstall());
                 markInterstitialShownBeforeNextLevel();
                 void analytics.adShown({ ad_type: 'interstitial', placement: 'between_levels' });
+                void syncAdPolicyUserProperties();
               } else if (adService.enabled) {
                 void analytics.adShowFailed({ ad_type: 'interstitial', placement: 'between_levels', reason: 'not_shown' });
               }

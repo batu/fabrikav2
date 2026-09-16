@@ -314,7 +314,7 @@ describe('GameAnalytics AnalyticsSink', () => {
   });
 
   it.each([
-    ['experiment_exposure', 'experiment:exposure', { experiment_id: 'ftb_ad_protection_v1', bucket: 'protected', ad_experiment_id: 'ftb_ad_protection_v1', ad_experiment_variant: 'protected' }],
+    ['experiment_exposure', 'experiment:exposure', { experiment_id: 'ftb_ad_protection_v1', bucket: 'protected', ad_policy: 'install_day_v2', ad_policy_cohort: 'new_install', install_day: '2026-09-16' }],
     ['purchase_initiated', 'purchase:initiated', { product_id: 'hints_pack', surface: 'shop' }],
     ['purchase_cancelled', 'purchase:cancelled', { product_id: 'hints_pack', surface: 'fail_continue' }],
     ['purchase_failed', 'purchase:failed:timeout', { product_id: 'hints_pack', surface: 'shop', reason: 'failed', failure_kind: 'timeout' }],

@@ -10,7 +10,8 @@ import {
 import { attribution } from '../attribution/AttributionService';
 import { registerLifecycleHooks } from '../platform/gameLifecycle';
 import { adService } from '../ads/Service';
-import { adExperimentParams } from '../ads/sessionAdPolicy';
+import { adExposureSummary } from '../ads/interstitialCadence';
+import { daysSinceInstall } from '../ads/sessionAdPolicy';
 import type { PurchaseUnfulfilledOutcome } from '../shop/PurchaseFulfillment';
 import type { AnalyticsLevelAttribution } from './AnalyticsEventContract';
 import { bootstrapStorage } from '../platform/bootstrapStorage';
@@ -135,6 +136,12 @@ interface AdShownParams {
   placement: string;
 }
 
+/** Stamped on install-relative events so exposure can be cut per user without a raw-event join. */
+function installRelativeParams(): { days_since_install?: number; auto_ad_impressions: number } {
+  const days = daysSinceInstall();
+  return { ...(days === null ? {} : { days_since_install: days }), auto_ad_impressions: adExposureSummary().auto_ad_impressions };
+}
+
 interface AdShowFailedParams {
   ad_type: 'banner' | 'interstitial' | 'rewarded';
   placement: string;
@@ -157,7 +164,16 @@ interface AdLifecycleParams {
 }
 
 export type LevelCompleteAction = 'next' | 'claim_x2' | 'rate_prompt' | 'background' | 'dismissed_by_shutdown';
-export type InterstitialGateReason = 'cadence' | 'min_level' | 'ads_disabled' | 'no_ads_entitlement' | 'first_session' | 'first_ten_levels' | 'storage_unavailable';
+/** `cadence` names the rule that let an eligible decision through; every other value is the first rule that closed the gate. */
+export type InterstitialGateReason =
+  | 'cadence'
+  | 'cadence_not_reached'
+  | 'min_level'
+  | 'ads_disabled'
+  | 'no_ads_entitlement'
+  | 'install_day'
+  | 'storage_unavailable'
+  | 'rewarded_cooldown';
 export type LevelAbandonedReason = 'background' | 'shutdown';
 
 interface BetweenLevelParams extends LevelAttributionParams {
@@ -181,6 +197,8 @@ interface InterstitialGateParams extends BetweenLevelParams {
   reason: InterstitialGateReason;
   every_n: number;
   levels_completed_session: number;
+  /** Persisted countable completions toward the next interstitial, after this completion. */
+  cadence_progress: number;
 }
 
 interface NextLevelReadyParams extends BetweenLevelParams {
@@ -422,15 +440,6 @@ export class AnalyticsService {
     this.cohortBucket = bucket;
   }
 
-  adExperimentExposure(): void {
-    const params = adExperimentParams();
-    if (params.ad_experiment_id === undefined) return;
-    this.sdk.track('experiment_exposure', {
-      experiment_id: params.ad_experiment_id,
-      bucket: params.ad_experiment_variant,
-    });
-  }
-
   ownedMirrorStats(): OwnedAnalyticsMirrorStats {
     return this.ownedMirrorStatsPort();
   }
@@ -522,7 +531,7 @@ export class AnalyticsService {
       placement: params.placement,
       provider: this.providerNamePort(),
     });
-    this.sdk.track('ad_shown', compactParams(params));
+    this.sdk.track('ad_shown', compactParams({ ...params, ...installRelativeParams() }));
     return Promise.resolve();
   }
 
@@ -554,7 +563,8 @@ export class AnalyticsService {
   }
 
   interstitialGate(params: InterstitialGateParams): Promise<void> {
-    this.sdk.track('interstitial_gate', compactParams(params));
+    const days = daysSinceInstall();
+    this.sdk.track('interstitial_gate', compactParams({ ...params, ...(days === null ? {} : { days_since_install: days }) }));
     return Promise.resolve();
   }
 

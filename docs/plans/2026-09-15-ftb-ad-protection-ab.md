@@ -1,3 +1,5 @@
+> **Retired 2026-09-16.** Never reached a store build. Superseded by install-day protection for every new install; see `2026-09-16-ftb-ad-policy-v2.md`.
+
 # FTB early automatic-ad protection experiment
 
 ## Agreed behavior

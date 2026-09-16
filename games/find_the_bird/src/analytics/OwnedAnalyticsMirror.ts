@@ -67,8 +67,9 @@ const mirrorFieldAllowlists = new Map(
       'game',
       'environment',
       'cohort_bucket',
-      'ad_experiment_id',
-      'ad_experiment_variant',
+      'ad_policy',
+      'ad_policy_cohort',
+      'install_day',
     ]),
   ]),
 );

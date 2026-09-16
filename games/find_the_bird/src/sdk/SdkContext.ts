@@ -1,6 +1,8 @@
 import { Capacitor } from '@capacitor/core';
 import { createTrackingRequest, showTrackingExplanation } from '../privacy/TrackingExplanation';
-import { adExperimentParams } from '../ads/sessionAdPolicy';
+import { adPolicyParams } from '../ads/sessionAdPolicy';
+import { AD_EXPOSURE_DIMENSION, AD_POLICY_COHORT_DIMENSION } from '../analytics/adPolicyDimensions';
+import { recordRewardedFinished, recordRewardedStarted } from '../ads/interstitialCadence';
 import {
   resolveSdkEnvironments,
   type SdkBuildEnv,
@@ -178,8 +180,16 @@ export function createSdkContext(deps: CreateSdkContextDependencies = {}): GameS
     request: () => nativeAds.requestTrackingAuthorization!(),
   });
   const lifecycle = {
-    onFullScreenAdStarted: (): void => setMusicPausedForAd(true),
-    onFullScreenAdFinished: (): void => setMusicPausedForAd(false),
+    // The provider fires these around actual presentation, so a rewarded ad
+    // that opened and was abandoned still clears cadence and starts the cooldown.
+    onFullScreenAdStarted: (adType: 'interstitial' | 'rewarded'): void => {
+      setMusicPausedForAd(true);
+      if (adType === 'rewarded') recordRewardedStarted();
+    },
+    onFullScreenAdFinished: (adType: 'interstitial' | 'rewarded'): void => {
+      setMusicPausedForAd(false);
+      if (adType === 'rewarded') recordRewardedFinished();
+    },
   };
   const ads = platform === 'ios' || platform === 'android'
     ? isNativePlatform && adMobConfig.enabled
@@ -290,7 +300,12 @@ export function createSdkContext(deps: CreateSdkContextDependencies = {}): GameS
   );
   const gameAnalyticsEnabled = platform === 'ios' && gaConfig.enabled;
   if (gameAnalyticsEnabled && gaConfig.enabled) {
-    sinks.push(createGameAnalyticsSink(gaConfig.config, { loader: deps.gameAnalyticsLoader, logger }));
+    sinks.push(createGameAnalyticsSink(gaConfig.config, {
+      loader: deps.gameAnalyticsLoader,
+      logger,
+      customDimension01: AD_POLICY_COHORT_DIMENSION,
+      customDimension02: AD_EXPOSURE_DIMENSION,
+    }));
   }
 
   const analyticsBuild = buildStamp();
@@ -304,7 +319,7 @@ export function createSdkContext(deps: CreateSdkContextDependencies = {}): GameS
     sessionId: createFtdSessionId(),
     sinks,
     globalParams: {
-      ...adExperimentParams(),
+      ...adPolicyParams(),
       game: 'find_the_bird',
       platform,
       build: analyticsBuild,

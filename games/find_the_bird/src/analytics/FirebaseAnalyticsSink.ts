@@ -1,18 +1,26 @@
 import { createFirebaseSink, type AnalyticsSink } from '@fabrikav2/sdk/analytics';
+import { Capacitor } from '@capacitor/core';
 import { canonicalAnalyticsEvents, sanitizeCanonicalAnalyticsParams } from './CanonicalAnalyticsEvents';
 
-type FirebaseModule = { FirebaseAnalytics: Pick<typeof import('@capacitor-firebase/analytics').FirebaseAnalytics, 'logEvent'> };
+type FirebaseAnalyticsPlugin = typeof import('@capacitor-firebase/analytics').FirebaseAnalytics;
+type FirebaseModule = {
+  FirebaseAnalytics: Pick<FirebaseAnalyticsPlugin, 'logEvent'> & Partial<Pick<FirebaseAnalyticsPlugin, 'setUserProperty'>>;
+};
 export type FirebaseAnalyticsLoader = () => Promise<FirebaseModule>;
+
+let sharedPlugin: Promise<FirebaseModule> | null = null;
+let sharedLoader: FirebaseAnalyticsLoader = () => import('@capacitor-firebase/analytics');
 
 /** The facade owns events; this native transport only projects the registry. */
 export function createFirebaseAnalyticsSink(
   loader: FirebaseAnalyticsLoader = () => import('@capacitor-firebase/analytics'),
 ): AnalyticsSink {
-  let plugin: Promise<FirebaseModule> | null = null;
+  sharedLoader = loader;
+  sharedPlugin = null;
   const sink = createFirebaseSink({
     async logEvent(name, params) {
-      plugin ??= loader();
-      await (await plugin).FirebaseAnalytics.logEvent({ name, params });
+      sharedPlugin ??= sharedLoader();
+      await (await sharedPlugin).FirebaseAnalytics.logEvent({ name, params });
     },
   });
   return {
@@ -27,4 +35,19 @@ export function createFirebaseAnalyticsSink(
       sink.emit({ ...event, name, params: sanitizeCanonicalAnalyticsParams(event.name, event.params) });
     },
   };
+}
+
+/**
+ * User-scoped properties (install day, ad policy cohort, ad exposure). Only
+ * meaningful where the native plugin exists; a web or test runtime is a no-op
+ * unless a loader was injected through `createFirebaseAnalyticsSink`.
+ */
+export async function setFirebaseUserProperties(properties: Record<string, string>): Promise<void> {
+  if (sharedPlugin === null && !Capacitor.isNativePlatform()) return;
+  sharedPlugin ??= sharedLoader();
+  const { FirebaseAnalytics } = await sharedPlugin;
+  if (FirebaseAnalytics.setUserProperty === undefined) return;
+  for (const [key, value] of Object.entries(properties)) {
+    await FirebaseAnalytics.setUserProperty({ key, value });
+  }
 }
