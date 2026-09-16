@@ -512,6 +512,49 @@
     text-align: center;
   }
 
+  .fab-rate-card-illustrated {
+    display: flex;
+    flex-direction: column;
+    width: min(88vw, 380px);
+    max-height: calc(100svh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px) - 36px);
+    overflow-y: auto;
+    padding: 20px 24px 22px;
+  }
+
+  .fab-rate-illustration {
+    order: -1;
+    flex: 0 0 auto;
+    align-self: center;
+    width: min(100%, 220px);
+    height: clamp(140px, 26svh, 220px);
+    object-fit: contain;
+    margin: 0 auto 8px;
+    pointer-events: none;
+  }
+
+  .fab-rate-card-illustrated .fab-modal-title {
+    font-size: clamp(26px, 6.5vw, 32px);
+    line-height: 1.15;
+  }
+
+  .fab-rate-card-illustrated .fab-modal-subtitle {
+    max-width: 270px;
+    font-weight: 600;
+    line-height: 1.4;
+    margin-bottom: 20px;
+  }
+
+  .fab-rate-card-illustrated .fab-btn-primary {
+    min-height: 56px;
+  }
+
+  .fab-rate-card-illustrated .fab-btn-secondary {
+    min-height: 48px;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+
   /* ---- Level-map rail (A-UI1) ---- */
   .fab-levelmap-path {
     position: relative;

@@ -31,6 +31,7 @@ export { mountHudFrame, type HudFrameOptions } from './HudFrame';
 // open/dismissed, so it uses theme + content + actions (no `state` slot).
 
 export interface RatePromptContent {
+  illustration?: { src: string; alt: string };
   title: string;
   subtitle: string;
   acceptLabel: string;
@@ -68,9 +69,22 @@ export interface RatePromptOptions {
  * supplies copy via `content`, side effects via `actions`, look via `theme`.
  */
 export function mountRatePrompt(opts: RatePromptOptions): UiHandle {
+  const body: HTMLElement[] = [];
+  if (opts.content.illustration) {
+    const image = document.createElement('img');
+    image.className = 'fab-rate-illustration';
+    image.src = opts.content.illustration.src;
+    image.alt = opts.content.illustration.alt;
+    image.width = 240;
+    image.height = 240;
+    image.draggable = false;
+    body.push(image);
+  }
   const subtitle = document.createElement('p');
   subtitle.className = 'fab-modal-subtitle';
+  subtitle.id = `${opts.id ?? 'fab-rate-prompt'}-description`;
   subtitle.textContent = opts.content.subtitle;
+  body.push(subtitle);
 
   const actions = document.createElement('div');
   actions.className = 'fab-modal-actions';
@@ -101,10 +115,11 @@ export function mountRatePrompt(opts: RatePromptOptions): UiHandle {
     mountInto: opts.mountInto,
     id: opts.id ?? 'fab-rate-prompt',
     title: opts.content.title,
-    body: subtitle,
+    body,
+    describedById: subtitle.id,
     actions,
     theme: opts.theme,
-    cardClassName: 'fab-rate-card',
+    cardClassName: opts.content.illustration ? 'fab-rate-card fab-rate-card-illustrated' : 'fab-rate-card',
   });
   return handle;
 }
