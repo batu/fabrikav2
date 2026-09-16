@@ -106,16 +106,17 @@ describe("home menu polish regressions", () => {
     expect(pillIcon.maxHeight).toBe("28px");
 
     const navCell = window.getComputedStyle(element(".home-nav-bar > button"));
-    expect(navCell.flex).toBe("0 0 calc(100% / 4)");
-    expect(navCell.width).toBe("calc(100% / 4)");
-    expect(navCell.maxWidth).toBe("calc(100% / 4)");
+    expect(navCell.flex).toBe("0 0 calc(100% / 3)");
+    expect(navCell.width).toBe("calc(100% / 3)");
+    expect(navCell.maxWidth).toBe("calc(100% / 3)");
     expect(window.getComputedStyle(element(".home-nav-bar")).padding).toBe("0px");
     expect(window.getComputedStyle(element(".home-nav-bar")).minHeight).toBe("134px");
     expect(CSS_TEXT).toContain("width: 82px;");
     expect(CSS_TEXT).toContain("height: 82px;");
     expect(HOME_SCENE_TEXT).not.toContain('id="home-nav-play"');
     expect(HOME_SCENE_TEXT).toContain('id="home-nav-sanctuary"');
-    expect(HOME_SCENE_TEXT).toContain('id="home-nav-birds"');
+    expect(HOME_SCENE_TEXT).toContain('id="home-nav-collection"');
+    expect(HOME_SCENE_TEXT).toContain('id="home-nav-settings" class="home-settings-corner"');
 
     const play = window.getComputedStyle(element("#home-play-now"));
     expect(play.backgroundImage).toContain("/ui/home/play-level-button-runtime.png");

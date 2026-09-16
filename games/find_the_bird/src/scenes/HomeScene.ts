@@ -549,6 +549,9 @@ export class HomeScene extends Phaser.Scene {
         <section class="home-title-panel" aria-label="Find the Bird">
           <div class="home-brand-banner">${bannerMedia}</div>
         </section>
+        <button id="home-nav-settings" class="home-settings-corner" type="button" aria-label="Settings">
+          <img src="/ui/menu-icons/settings-icon-runtime.png" alt="" aria-hidden="true">
+        </button>
 
         <div class="home-map-region">
           <aside class="home-rail home-rail-left" aria-label="Quick actions">
@@ -580,7 +583,7 @@ export class HomeScene extends Phaser.Scene {
           </button>
         </div>
 
-        <nav class="home-nav-bar" data-slots="${achievementsEnabled ? 5 : 4}" aria-label="Main navigation">
+        <nav class="home-nav-bar" data-slots="${achievementsEnabled ? 4 : 3}" aria-label="Main navigation">
           ${achievementsEnabled ? `<button id="home-nav-achievements" class="home-nav-btn${claimableAchievements > 0 ? ' home-claim-attention' : ''}" type="button" aria-label="Open achievements${claimableAchievements > 0 ? `, ${claimableAchievements} reward${claimableAchievements === 1 ? '' : 's'} to claim` : ''}">
             <img src="/ui/achievements/achievement-shortcut-runtime.png" alt="" aria-hidden="true">
             <span>Achievements</span>
@@ -590,17 +593,13 @@ export class HomeScene extends Phaser.Scene {
             <img src="/ui/sanctuary/sanctuary-nav-icon.png" alt="" aria-hidden="true">
             <span>Sanctuary</span>
           </button>
-          <button id="home-nav-birds" class="home-nav-btn home-nav-btn--locked" type="button" disabled aria-label="Bird collection, coming soon">
+          <button id="home-nav-collection" class="home-nav-btn home-nav-btn--locked" type="button" disabled aria-label="Bird collection, coming soon">
             <img src="/ui/sanctuary/birds-nav-icon.png" alt="" aria-hidden="true">
-            <span>Birds</span>
+            <span>Collection</span>
           </button>
           <button id="home-nav-shop" class="home-nav-btn" type="button" aria-label="Open shop">
             <img src="/ui/menu-icons/shop-icon-runtime.png" alt="" aria-hidden="true">
             <span>Shop</span>
-          </button>
-          <button id="home-nav-settings" class="home-nav-btn" type="button" aria-label="Settings">
-            <img src="/ui/menu-icons/settings-icon-runtime.png" alt="" aria-hidden="true">
-            <span>Settings</span>
           </button>
         </nav>
       </div>
