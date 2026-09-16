@@ -11,15 +11,17 @@ import type { InterstitialGateReason, LevelCompleteAction } from './AnalyticsSer
 export interface InterstitialGateInput {
   everyN: number;
   minLevelNumber: number;
-  levelsCompletedSession: number;
   /** One-based number of the level about to start; GameScene evaluates
    *  `interstitialMinLevel` against it after the index has advanced. */
   nextLevelNumber: number;
   adsEnabled: boolean;
   hasNoAdsEntitlement: boolean;
-  /** `areAutomaticAdsAllowed()`: false for a fresh install's first launch (PR #76). */
-  automaticAdsAllowed: boolean;
-  automaticAdBlockReason?: 'first_session' | 'first_ten_levels' | 'storage_unavailable' | null;
+  /** `automaticAdBlockReason()`: install-day protection or unusable storage. */
+  automaticAdBlockReason: 'install_day' | 'storage_unavailable' | null;
+  /** Persisted countable completions, including the one just committed. */
+  cadenceProgress: number;
+  /** Milliseconds left on the rewarded-to-interstitial cooldown; 0 when none. */
+  rewardedCooldownRemainingMs: number;
 }
 
 export interface InterstitialGateDecision {
@@ -28,19 +30,20 @@ export interface InterstitialGateDecision {
 }
 
 /**
- * Mirrors GameScene's `shouldTry && settings.adsEnabled && areAutomaticAdsAllowed()`
- * decision and names the
- * first failing check. An eligible decision reports `cadence` (the rule that
- * let it through). The runtime decision itself stays in GameScene; this only
- * attributes it.
+ * The between-level interstitial decision (ad policy v2). Rules are ordered
+ * so the reason names the first one that closed the gate: protection and
+ * entitlement first, then the level floor, the rewarded cooldown, and finally
+ * the persisted cadence. An eligible decision reports `cadence`. Readiness and
+ * the interstitial-to-interstitial cap are the provider's; a `true` here only
+ * means GameScene may ask it.
  */
 export function resolveInterstitialGate(input: InterstitialGateInput): InterstitialGateDecision {
-  const cadenceHit = input.everyN > 0 && input.levelsCompletedSession % input.everyN === 0;
-  if (!cadenceHit) return { eligible: false, reason: 'cadence' };
-  if (input.nextLevelNumber < input.minLevelNumber) return { eligible: false, reason: 'min_level' };
+  if (input.automaticAdBlockReason !== null) return { eligible: false, reason: input.automaticAdBlockReason };
   if (input.hasNoAdsEntitlement) return { eligible: false, reason: 'no_ads_entitlement' };
   if (!input.adsEnabled) return { eligible: false, reason: 'ads_disabled' };
-  if (!input.automaticAdsAllowed) return { eligible: false, reason: input.automaticAdBlockReason ?? 'first_session' };
+  if (input.nextLevelNumber < input.minLevelNumber) return { eligible: false, reason: 'min_level' };
+  if (input.rewardedCooldownRemainingMs > 0) return { eligible: false, reason: 'rewarded_cooldown' };
+  if (input.everyN <= 0 || input.cadenceProgress < input.everyN) return { eligible: false, reason: 'cadence_not_reached' };
   return { eligible: true, reason: 'cadence' };
 }
 

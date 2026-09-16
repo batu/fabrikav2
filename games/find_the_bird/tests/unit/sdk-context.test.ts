@@ -18,8 +18,9 @@ function adMobEnv(config: typeof ownAdMobConfig) {
 }
 
 describe('FTD SdkContext composition matrix', () => {
-  it('retains ad experiment assignment on retention and revenue events through the SDK and mirror', async () => {
-    configureSessionAds(false, 'durable', { getItem: () => 'protected', setItem: () => {} });
+  it('retains the ad policy cohort and install day on retention and revenue events through the SDK and mirror', async () => {
+    const values = new Map<string, string>();
+    configureSessionAds(false, 'durable', { getItem: (k) => values.get(k) ?? null, setItem: (k, v) => { values.set(k, v); } }, () => Date.UTC(2026, 8, 16, 12));
     try {
       const mirrorTransport = vi.fn(async (_request: { body: string }) => ({ ok: true, status: 200 }));
       const context = createSdkContext({ buildEnv: 'development', platform: 'web', env: {
@@ -31,7 +32,7 @@ describe('FTD SdkContext composition matrix', () => {
       const events = context.analyticsRing.drain();
       expect(events).toHaveLength(2);
       for (const event of events) expect(event.params).toMatchObject({
-        ad_experiment_id: 'ftb_ad_protection_v1', ad_experiment_variant: 'protected',
+        ad_policy: 'install_day_v2', ad_policy_cohort: 'new_install', install_day: '2026-09-16',
       });
       await context.analytics.flush();
       const request = mirrorTransport.mock.calls[0]?.[0];
@@ -39,7 +40,7 @@ describe('FTD SdkContext composition matrix', () => {
       const mirrored = JSON.parse(request!.body).events;
       expect(mirrored).toHaveLength(2);
       for (const event of mirrored) expect(event.params).toMatchObject({
-        ad_experiment_id: 'ftb_ad_protection_v1', ad_experiment_variant: 'protected',
+        ad_policy: 'install_day_v2', ad_policy_cohort: 'new_install', install_day: '2026-09-16',
       });
     } finally {
       configureSessionAds(true, 'durable');

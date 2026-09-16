@@ -24,6 +24,10 @@ export interface GameAnalyticsSdk {
     setEnabledVerboseLog(flag: boolean): void;
     configureAvailableResourceCurrencies(values: string[]): void;
     configureAvailableResourceItemTypes(values: string[]): void;
+    configureAvailableCustomDimensions01?(values: string[]): void;
+    setCustomDimension01?(value: string): void;
+    configureAvailableCustomDimensions02?(values: string[]): void;
+    setCustomDimension02?(value: string): void;
     setEnabledManualSessionHandling(flag: boolean): void;
     initialize(gameKey: string, secretKey: string): void;
     startSession(): void;
@@ -42,8 +46,17 @@ export interface GameAnalyticsSdk {
 
 export type GameAnalyticsSdkLoader = () => Promise<unknown>;
 
+/** A per-launch user cohort for GameAnalytics's retention/split tools. Values
+ * must be declared before initialize(); the SDK drops undeclared ones. */
+export interface GameAnalyticsCustomDimension {
+  readonly available: readonly string[];
+  readonly value: () => string;
+}
+
 export interface GameAnalyticsAnalyticsSinkOptions {
   readonly loader?: GameAnalyticsSdkLoader;
+  readonly customDimension01?: GameAnalyticsCustomDimension;
+  readonly customDimension02?: GameAnalyticsCustomDimension;
   readonly logger?: Pick<Console, 'warn'>;
   readonly readyTimeoutMs?: number;
   readonly readyPollMs?: number;
@@ -139,6 +152,9 @@ export function createGameAnalyticsSink(
           loaded.GameAnalytics.setEnabledVerboseLog(config.verboseLogging);
           loaded.GameAnalytics.configureAvailableResourceCurrencies([...GAMEANALYTICS_RESOURCE_CURRENCIES]);
           loaded.GameAnalytics.configureAvailableResourceItemTypes([...GAMEANALYTICS_RESOURCE_ITEM_TYPES]);
+          // initialize() creates GA's first native session: cohorts go before it.
+          applyCustomDimension(loaded, 1, options.customDimension01);
+          applyCustomDimension(loaded, 2, options.customDimension02);
           loaded.GameAnalytics.setEnabledManualSessionHandling(true);
           loaded.GameAnalytics.initialize(config.gameKey, config.secretKey);
           nativeSessionActive = true;
@@ -290,6 +306,17 @@ async function readNativeAppInfo(timeoutMs: number): Promise<{ version: string; 
   } finally {
     clearTimeout(timer);
   }
+}
+
+function applyCustomDimension(sdk: GameAnalyticsSdk, slot: 1 | 2, dimension?: GameAnalyticsCustomDimension): void {
+  if (dimension === undefined) return;
+  const configure = slot === 1 ? sdk.GameAnalytics.configureAvailableCustomDimensions01 : sdk.GameAnalytics.configureAvailableCustomDimensions02;
+  const set = slot === 1 ? sdk.GameAnalytics.setCustomDimension01 : sdk.GameAnalytics.setCustomDimension02;
+  if (configure === undefined || set === undefined) return;
+  const value = dimension.value();
+  if (!dimension.available.includes(value)) return;
+  configure.call(sdk.GameAnalytics, [...dimension.available]);
+  set.call(sdk.GameAnalytics, value);
 }
 
 class NativeAppInfoError extends Error {

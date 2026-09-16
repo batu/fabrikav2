@@ -49,7 +49,7 @@ const levelAttributionFields = [
 const economyFields = ['flow_type', 'currency', 'amount', 'item_type', 'item_id', 'product_id', 'no_ads', 'hints', 'coins', 'continue_level', 'level_id'] as const;
 const economySnapshotFields = ['display_level_number', 'coins', 'hints', 'total_completions', 'rewarded_hint_capped', 'rewarded_hints_today'] as const;
 const adRevenueFields = ['ad_type', 'placement', 'provider', 'currency', 'precision', 'network_name'] as const;
-const runtimeIdentityFields = ['native_app_version', 'native_build_number', 'app_version', 'build', 'platform', 'game', 'environment', 'cohort_bucket', 'ad_experiment_id', 'ad_experiment_variant'] as const;
+const runtimeIdentityFields = ['native_app_version', 'native_build_number', 'app_version', 'build', 'platform', 'game', 'environment', 'cohort_bucket', 'ad_policy', 'ad_policy_cohort', 'install_day'] as const;
 
 export const canonicalAnalyticsEvents = [
   {
@@ -104,9 +104,9 @@ export const canonicalAnalyticsEvents = [
     gameAnalyticsName: 'experiment:exposure',
     family: 'design',
     panel: 'retention',
-    question: 'Which ad-protection experiment arm was applied on this launch.',
+    question: 'Which experiment arm was applied on this launch. No experiment is enrolled under ad policy v2 (2026-09-16); the entry stays for the next randomized build.',
     primaryDimensions: ['experiment_id', 'bucket'],
-    instrumentationStatus: 'runtime',
+    instrumentationStatus: 'contract',
     successBoundary: 'Once per cold launch after app_open; assignment is fixed before any ad call.',
   },
   {
@@ -192,11 +192,11 @@ export const canonicalAnalyticsEvents = [
     gameAnalyticsName: 'interstitial:gate',
     family: 'ad',
     panel: 'ads',
-    question: 'Whether the between-level interstitial cadence fired after a completion, and why not (cadence, min_level, no_ads_entitlement, ads_disabled, first_session).',
+    question: 'Whether the between-level interstitial gate opened after a completion, and the first rule that closed it (install_day, storage_unavailable, no_ads_entitlement, ads_disabled, min_level, rewarded_cooldown, cadence_not_reached).',
     primaryDimensions: ['level_id', 'sequence_slot', 'eligible', 'reason'],
     instrumentationStatus: 'runtime',
-    successBoundary: 'GameScene evaluates the interstitial cadence on the Next path.',
-    allowedGameAnalyticsCustomFields: ['level_index', 'every_n', 'levels_completed_session'],
+    successBoundary: 'GameScene evaluates the persisted interstitial cadence on the Next path.',
+    allowedGameAnalyticsCustomFields: ['level_index', 'every_n', 'levels_completed_session', 'cadence_progress', 'days_since_install'],
   },
   {
     id: 'ad_lifecycle',
@@ -511,6 +511,7 @@ export const canonicalAnalyticsEvents = [
     primaryDimensions: ['ad_type', 'placement'],
     instrumentationStatus: 'runtime',
     successBoundary: 'Ad service reports shown.',
+    allowedGameAnalyticsCustomFields: ['days_since_install', 'auto_ad_impressions'],
   },
   {
     id: 'ad_show_failed',
@@ -795,8 +796,12 @@ const forbiddenAnalyticsIdentifierKeySet = new Set(forbiddenAnalyticsIdentifierK
 // throwing on import). The canonical-events test asserts the superset invariant so
 // a new primaryDimension can't drift out of this allowlist unnoticed.
 export const dashboardImportDimensionKeys = [
-  'ad_experiment_id',
-  'ad_experiment_variant',
+  'ad_policy',
+  'ad_policy_cohort',
+  'install_day',
+  'days_since_install',
+  'cadence_progress',
+  'auto_ad_impressions',
   'achievement_id',
   'action',
   'ad_type',

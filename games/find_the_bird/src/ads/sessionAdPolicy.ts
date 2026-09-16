@@ -1,27 +1,50 @@
 import type { FirstOpenStorageDurability } from '@fabrikav2/sdk/analytics';
 
-export const AD_PROTECTION_EXPERIMENT_ID = 'ftb_ad_protection_v1';
-export const AD_PROTECTION_STORAGE_KEY = 'ftb_ad_protection_v1_assignment';
-type Variant = 'protected' | 'from_start' | 'existing';
-let variant: Variant = 'existing';
-let durable = true;
-let returningSession = true;
-let currentLevelNumber = (): number => 1;
+/**
+ * Automatic-ad policy v2 (2026-09-16): a new install sees no automatic ads
+ * (interstitial, banner) for its whole install day, in UTC so the boundary
+ * matches the analytics providers' day cohorts. Optional rewarded ads stay
+ * available on every launch. Existing installs (save data present before the
+ * policy shipped) are not protected; they never were.
+ *
+ * The 2026-09-15 `ftb_ad_protection_v1` randomization is retired: it never
+ * reached a store build, and the install-day rule replaces both of its arms.
+ * A leftover assignment key is ignored.
+ */
+export const AD_POLICY_VERSION = 'install_day_v2';
+export const INSTALL_DAY_STORAGE_KEY = 'ftb_install_day';
 
-/** Independent of the level-set cohort. Never re-randomize an existing install. */
-function assignVariant(hadExistingState: boolean, storage: Pick<Storage, 'getItem' | 'setItem'>): Variant {
+export type AdPolicyCohort = 'new_install' | 'existing_install' | 'storage_unavailable';
+export type AutomaticAdBlockReason = 'storage_unavailable' | 'install_day' | null;
+
+type PolicyStorage = Pick<Storage, 'getItem' | 'setItem'>;
+
+let durable = true;
+let cohort: AdPolicyCohort = 'existing_install';
+/** UTC calendar day of the first launch, or null for installs that predate the key. */
+let installDay: string | null = null;
+let now: () => number = () => Date.now();
+
+export function utcDay(epochMs: number): string {
+  return new Date(epochMs).toISOString().slice(0, 10);
+}
+
+const DAY_MS = 86_400_000;
+
+function utcDayStart(day: string): number {
+  return Date.parse(`${day}T00:00:00.000Z`);
+}
+
+function readInstallDay(storage: PolicyStorage, hadExistingState: boolean): string | null {
   try {
-    const saved = storage.getItem(AD_PROTECTION_STORAGE_KEY);
-    if (saved === 'protected' || saved === 'from_start' || saved === 'existing') return saved;
-    if (saved !== null) { durable = false; return 'existing'; }
-    const assigned: Variant = hadExistingState ? 'existing'
-      : crypto.getRandomValues(new Uint32Array(1))[0]! < 0x80000000 ? 'protected' : 'from_start';
-    storage.setItem(AD_PROTECTION_STORAGE_KEY, assigned);
-    if (storage.getItem(AD_PROTECTION_STORAGE_KEY) !== assigned) { durable = false; return 'existing'; }
-    return assigned;
+    const saved = storage.getItem(INSTALL_DAY_STORAGE_KEY);
+    if (saved !== null && /^\d{4}-\d{2}-\d{2}$/.test(saved)) return saved;
+    if (hadExistingState) return null;
+    const today = utcDay(now());
+    storage.setItem(INSTALL_DAY_STORAGE_KEY, today);
+    return storage.getItem(INSTALL_DAY_STORAGE_KEY) === today ? today : null;
   } catch {
-    durable = false;
-    return 'existing';
+    return null;
   }
 }
 
@@ -29,33 +52,54 @@ function assignVariant(hadExistingState: boolean, storage: Pick<Storage, 'getIte
 export function configureSessionAds(
   hadExistingStateAtBootstrap: boolean,
   storageDurability: FirstOpenStorageDurability,
-  storage?: Pick<Storage, 'getItem' | 'setItem'>,
+  storage?: PolicyStorage,
+  clock: () => number = () => Date.now(),
 ): void {
+  now = clock;
   durable = storageDurability === 'durable';
-  returningSession = hadExistingStateAtBootstrap;
-  variant = durable && storage ? assignVariant(hadExistingStateAtBootstrap, storage) : 'existing';
+  installDay = null;
+  if (!durable || storage === undefined) {
+    cohort = durable ? 'existing_install' : 'storage_unavailable';
+    return;
+  }
+  installDay = readInstallDay(storage, hadExistingStateAtBootstrap);
+  // The key is only ever written for a fresh install, so its presence is the
+  // cohort on every later launch. A fresh install whose write did not stick
+  // cannot be protected reliably and is treated as existing rather than
+  // having its ads suppressed forever.
+  cohort = installDay === null ? 'existing_install' : 'new_install';
 }
 
-export function configureAdProgression(reader: () => number): void {
-  currentLevelNumber = reader;
+export function adPolicyCohort(): AdPolicyCohort {
+  return cohort;
 }
 
-export function adExperimentParams(): Record<string, string> {
-  return durable && variant !== 'existing'
-    ? { ad_experiment_id: AD_PROTECTION_EXPERIMENT_ID, ad_experiment_variant: variant }
-    : {};
+export function installDayUtc(): string | null {
+  return installDay;
 }
 
-/** Optional rewards are unaffected. Session status is frozen for the cold launch;
- * background/resume does not end the first session. Progression is read live. */
+/** Whole UTC days since the install day; null when the install day is unknown. */
+export function daysSinceInstall(at: number = now()): number | null {
+  if (installDay === null) return null;
+  return Math.max(0, Math.floor((at - utcDayStart(installDay)) / DAY_MS));
+}
+
+/** Identity fields stamped on every analytics event. */
+export function adPolicyParams(): Record<string, string> {
+  const params: Record<string, string> = { ad_policy: AD_POLICY_VERSION, ad_policy_cohort: cohort };
+  if (installDay !== null) params.install_day = installDay;
+  return params;
+}
+
+/** Automatic ads only: optional rewarded ads remain available on every launch.
+ * Read live, so a session that crosses UTC midnight on the install day starts
+ * serving without a relaunch. */
 export function areAutomaticAdsAllowed(): boolean {
   return automaticAdBlockReason() === null;
 }
 
-export function automaticAdBlockReason(): 'storage_unavailable' | 'first_session' | 'first_ten_levels' | null {
+export function automaticAdBlockReason(): AutomaticAdBlockReason {
   if (!durable) return 'storage_unavailable';
-  if (variant === 'from_start') return null;
-  if (!returningSession) return 'first_session';
-  if (variant === 'protected' && !(currentLevelNumber() > 10)) return 'first_ten_levels';
+  if (cohort === 'new_install' && installDay !== null && utcDay(now()) === installDay) return 'install_day';
   return null;
 }

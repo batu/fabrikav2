@@ -178,7 +178,7 @@ export const REMOTE_CONFIG_DEFINITIONS_BY_KEY: {
   hintRwEnabled: { key: 'hintRwEnabled', remoteKey: 'hint_rw_enabled', type: 'boolean', description: 'Enable rewarded-ad hint acquisition when hints are empty.' },
   levelContinueRwEnabled: { key: 'levelContinueRwEnabled', remoteKey: 'level_continue_rw_enabled', type: 'boolean', description: 'Deprecated no-op: fail-screen rewarded-ad continue was removed.' },
   levelEndClaimX2Enabled: { key: 'levelEndClaimX2Enabled', remoteKey: 'level_end_claim_x2_enabled', type: 'boolean', description: 'Enable rewarded-ad completion coin doubling.' },
-  interstitialEveryNLevels: { key: 'interstitialEveryNLevels', remoteKey: 'interstitial_every_n_levels', type: 'number', description: 'Show an interstitial after every Nth completed level this session. 0 disables interstitials.' },
+  interstitialEveryNLevels: { key: 'interstitialEveryNLevels', remoteKey: 'interstitial_every_n_levels', type: 'number', description: 'Show an interstitial after every Nth countable completed level; progress persists across launches and saturates at N. 0 disables interstitials.' },
   interstitialMinIntervalS: { key: 'interstitialMinIntervalS', remoteKey: 'interstitial_min_interval_s', type: 'number', description: 'Minimum seconds between interstitial impressions.' },
   interstitialMinLevel: { key: 'interstitialMinLevel', remoteKey: 'interstitial_min_level', type: 'number', description: 'First level number (1-based) at which interstitials may show. 0 = no floor.' },
   hintBoosterSingleCoinPrice: { key: 'hintBoosterSingleCoinPrice', remoteKey: 'hint_booster_single_coin_price', type: 'number', description: 'Coin price for one hint.' },

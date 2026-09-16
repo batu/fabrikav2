@@ -22,10 +22,11 @@ function provider() {
 }
 
 describe('first-install session ad policy', () => {
-  it('blocks automatic ads at the native boundary while preserving optional rewards', async () => {
+  it('blocks automatic ads at the native boundary on the install day while preserving optional rewards', async () => {
     const native = provider();
     configureAdService(native);
-    configureSessionAds(false, 'durable');
+    const values = new Map<string, string>();
+    configureSessionAds(false, 'durable', { getItem: (k) => values.get(k) ?? null, setItem: (k, v) => { values.set(k, v); } });
     await adService.init();
     await adService.preloadInterstitial();
     expect(await adService.showBanner()).toBe(false);

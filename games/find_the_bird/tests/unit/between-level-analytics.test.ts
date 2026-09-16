@@ -118,14 +118,14 @@ describe('AnalyticsService between-level emitters', () => {
     const spy = trackSpy();
     await analytics.levelCompleteShown({ level_id: 'hawaii', sequence_slot: 3, level_index: 2, levels_completed_session: 3, duration_ms: 41_200 });
     await analytics.levelCompleteAction({ level_id: 'hawaii', level_index: 2, action: 'rate_prompt', dwell_ms: 6_100, reward_revealed: false });
-    await analytics.interstitialGate({ level_id: 'hawaii', level_index: 2, eligible: false, reason: 'min_level', every_n: 3, levels_completed_session: 3 });
+    await analytics.interstitialGate({ level_id: 'hawaii', level_index: 2, eligible: false, reason: 'min_level', every_n: 3, levels_completed_session: 3, cadence_progress: 3 });
     await analytics.nextLevelReady({ level_id: 'santorini', level_index: 3, gap_ms: 8_400, after_interstitial: true });
     await analytics.levelAbandoned({ level_id: 'hawaii', level_index: 2, reason: 'shutdown', elapsed_ms: 12_000, found_count: 4, total_count: 15 });
     await analytics.adLifecycle({ ad_type: 'interstitial', placement: 'between_levels', stage: 'shown', cache_age_ms: 900, reason: undefined, level_index: 2 });
     expect(spy.mock.calls).toEqual([
       ['level_complete_shown', { level_id: 'hawaii', sequence_slot: 3, level_index: 2, levels_completed_session: 3, duration_ms: 41_200 }],
       ['level_complete_action', { level_id: 'hawaii', level_index: 2, action: 'rate_prompt', dwell_ms: 6_100, reward_revealed: false }],
-      ['interstitial_gate', { level_id: 'hawaii', level_index: 2, eligible: false, reason: 'min_level', every_n: 3, levels_completed_session: 3 }],
+      ['interstitial_gate', { level_id: 'hawaii', level_index: 2, eligible: false, reason: 'min_level', every_n: 3, levels_completed_session: 3, cadence_progress: 3 }],
       ['next_level_ready', { level_id: 'santorini', level_index: 3, gap_ms: 8_400, after_interstitial: true }],
       ['level_abandoned', { level_id: 'hawaii', level_index: 2, reason: 'shutdown', elapsed_ms: 12_000, found_count: 4, total_count: 15 }],
       ['ad_lifecycle', { ad_type: 'interstitial', placement: 'between_levels', stage: 'shown', cache_age_ms: 900, level_index: 2 }],
@@ -155,27 +155,28 @@ describe('GameAnalytics sink dispatch', () => {
 });
 
 describe('resolveInterstitialGate', () => {
-  const base = { everyN: 3, minLevelNumber: 1, adsEnabled: true, hasNoAdsEntitlement: false, automaticAdsAllowed: true };
+  const base = {
+    everyN: 3, minLevelNumber: 1, adsEnabled: true, hasNoAdsEntitlement: false,
+    automaticAdBlockReason: null, cadenceProgress: 3, rewardedCooldownRemainingMs: 0, nextLevelNumber: 4,
+  };
 
-  it('levels 1 and 2 are stopped by cadence; level 3 is eligible', () => {
-    expect(resolveInterstitialGate({ ...base, levelsCompletedSession: 1, nextLevelNumber: 2 })).toEqual({ eligible: false, reason: 'cadence' });
-    expect(resolveInterstitialGate({ ...base, levelsCompletedSession: 2, nextLevelNumber: 3 })).toEqual({ eligible: false, reason: 'cadence' });
-    expect(resolveInterstitialGate({ ...base, levelsCompletedSession: 3, nextLevelNumber: 4 })).toEqual({ eligible: true, reason: 'cadence' });
+  it('persisted progress below N is cadence_not_reached; at N it is eligible', () => {
+    expect(resolveInterstitialGate({ ...base, cadenceProgress: 1 })).toEqual({ eligible: false, reason: 'cadence_not_reached' });
+    expect(resolveInterstitialGate({ ...base, cadenceProgress: 2 })).toEqual({ eligible: false, reason: 'cadence_not_reached' });
+    expect(resolveInterstitialGate({ ...base, cadenceProgress: 3 })).toEqual({ eligible: true, reason: 'cadence' });
   });
 
-  it('names min_level, no_ads_entitlement and ads_disabled in that order once cadence hits', () => {
-    expect(resolveInterstitialGate({ ...base, levelsCompletedSession: 3, nextLevelNumber: 4, minLevelNumber: 6 })).toEqual({ eligible: false, reason: 'min_level' });
-    expect(resolveInterstitialGate({ ...base, levelsCompletedSession: 3, nextLevelNumber: 4, adsEnabled: false, hasNoAdsEntitlement: true })).toEqual({ eligible: false, reason: 'no_ads_entitlement' });
-    expect(resolveInterstitialGate({ ...base, levelsCompletedSession: 3, nextLevelNumber: 4, adsEnabled: false })).toEqual({ eligible: false, reason: 'ads_disabled' });
+  it('names protection, entitlement, ads_disabled, min_level and rewarded_cooldown in that order', () => {
+    expect(resolveInterstitialGate({ ...base, automaticAdBlockReason: 'install_day', hasNoAdsEntitlement: true })).toEqual({ eligible: false, reason: 'install_day' });
+    expect(resolveInterstitialGate({ ...base, automaticAdBlockReason: 'storage_unavailable' })).toEqual({ eligible: false, reason: 'storage_unavailable' });
+    expect(resolveInterstitialGate({ ...base, adsEnabled: false, hasNoAdsEntitlement: true })).toEqual({ eligible: false, reason: 'no_ads_entitlement' });
+    expect(resolveInterstitialGate({ ...base, adsEnabled: false, minLevelNumber: 6 })).toEqual({ eligible: false, reason: 'ads_disabled' });
+    expect(resolveInterstitialGate({ ...base, minLevelNumber: 6, rewardedCooldownRemainingMs: 5_000 })).toEqual({ eligible: false, reason: 'min_level' });
+    expect(resolveInterstitialGate({ ...base, rewardedCooldownRemainingMs: 5_000, cadenceProgress: 1 })).toEqual({ eligible: false, reason: 'rewarded_cooldown' });
   });
 
-  it('a fresh install first session (PR #76 session ad policy) is stopped last, as first_session', () => {
-    expect(resolveInterstitialGate({ ...base, levelsCompletedSession: 3, nextLevelNumber: 4, automaticAdsAllowed: false })).toEqual({ eligible: false, reason: 'first_session' });
-    expect(resolveInterstitialGate({ ...base, levelsCompletedSession: 3, nextLevelNumber: 4, adsEnabled: false, automaticAdsAllowed: false })).toEqual({ eligible: false, reason: 'ads_disabled' });
-  });
-
-  it('a zero cadence never fires and reports cadence', () => {
-    expect(resolveInterstitialGate({ ...base, everyN: 0, levelsCompletedSession: 3, nextLevelNumber: 4 })).toEqual({ eligible: false, reason: 'cadence' });
+  it('a zero cadence never fires and reports cadence_not_reached', () => {
+    expect(resolveInterstitialGate({ ...base, everyN: 0 })).toEqual({ eligible: false, reason: 'cadence_not_reached' });
   });
 });
 
