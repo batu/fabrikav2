@@ -8,6 +8,8 @@ technique flatkey-gemini-flash-v5, 75/75 shipped).
 
 from __future__ import annotations
 
+import os
+
 import numpy as np
 from PIL import Image
 from scipy import ndimage
@@ -29,6 +31,35 @@ FLAT_PROMPT_TEMPLATE = (
 )
 # Bird default kept for existing callers/tests.
 FLAT_PROMPT = FLAT_PROMPT_TEMPLATE.format(entity="bird")
+
+# Operator decision 2026-09-16: shipped stickers are the VISIBLE part only
+# (an inferred hidden body never aligns with the paint). FTD_FLATKEY_OCCLUSION
+# =visible swaps the occlusion sentence; FTD_FLATKEY_QUALITY passes the
+# gpt-image quality knob ("low" is the chosen sticker setting, $0.0082/call).
+_OCCLUSION_COMPLETE = (
+    "If the selected {entity} is partially occluded, infer and complete only the hidden "
+    "anatomy needed to form one plausible complete {entity}; preserve every visible "
+    "part exactly and do not include the occluding object. "
+    "Output the complete {entity}, fully inside the frame, on a completely uniform, "
+)
+_OCCLUSION_VISIBLE = (
+    "If the selected {entity} is partially hidden behind something, output ONLY the "
+    "visible part, exactly as painted, with the hidden part simply absent. Do NOT invent, "
+    "infer, or complete any hidden anatomy, and do not include the occluding object. "
+    "Output the {entity} at the same size and position as in the reference, on a completely uniform, "
+)
+assert _OCCLUSION_COMPLETE in FLAT_PROMPT_TEMPLATE
+
+
+def flat_prompt_template() -> str:
+    if os.environ.get("FTD_FLATKEY_OCCLUSION", "complete") == "visible":
+        return FLAT_PROMPT_TEMPLATE.replace(_OCCLUSION_COMPLETE, _OCCLUSION_VISIBLE)
+    return FLAT_PROMPT_TEMPLATE
+
+
+def _edit_kwargs() -> dict:
+    quality = os.environ.get("FTD_FLATKEY_QUALITY")
+    return {"quality": quality} if quality else {}
 
 
 def _estimate_background_field(rgb: np.ndarray) -> tuple[np.ndarray, float]:
@@ -257,8 +288,8 @@ def flatkey_recreate_sprite(
     for _ in range(attempts):
         # replace() not format(): an operator-supplied override may contain
         # braces that are not placeholders.
-        template = prompt_template or FLAT_PROMPT_TEMPLATE
-        flat = edit_image(painted_crop.convert("RGB"), template.replace("{entity}", entity), model=model)
+        template = prompt_template or flat_prompt_template()
+        flat = edit_image(painted_crop.convert("RGB"), template.replace("{entity}", entity), model=model, **_edit_kwargs())
         cutout = strip_flat_rim(chroma_key(flat.convert("RGB")))
         ok, _reason = flat_ok(flat, cutout)
         if not ok:
@@ -385,6 +416,7 @@ def flatkey_recreate_sprites_batch(
                 grid_img,
                 GRID_PROMPT_TEMPLATE.format(n=n, count=len(chunk), entity=entity),
                 model=model,
+                **_edit_kwargs(),
             )
         except Exception:
             return [(idx, None) for idx in chunk]

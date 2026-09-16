@@ -3,12 +3,12 @@ from common import *
 sys.path.insert(0,'/Users/base/dev/appletolye/fabrikav2/tools/level-editor')
 import levelbuilder.api.inpaint as I; I._FIT_SCALES=tuple(round(0.6+i*0.05,2) for i in range(29))
 from levelbuilder.api.inpaint import fit_sprite_to_painted
-O=SCRATCH/sys.argv[1]; levels=[int(x) for x in sys.argv[2:]]; T=260; refit={}
+O=SCRATCH/sys.argv[1]; levels=[key(x) for x in sys.argv[2:]]; T=260; refit={}
 for n in levels:
     p=pub(n); level=json.load(open(p/'level.json')); color=Image.open(p/'color.png').convert('RGB'); sdir=ROOT/'.levelbuilder/levels'/level_id(n); raw=json.load(open(sdir/'session.json'))
     clean=Image.open(sdir/f"bg_{raw['selected_bg']:02d}.png").convert('RGB')
     if clean.size!=color.size: clean=clean.resize(color.size,Image.LANCZOS)
-    (O/f'L{n}').mkdir(parents=True,exist_ok=True)
+    (O/f'L{n}').mkdir(parents=True,exist_ok=True)  # n may be a session id
     for i,d in enumerate(level['dogs']):
         sp=d['sprite']; w,h=int(sp['width']),int(sp['height']); x=d['x']-sp.get('anchorX',0.5)*w; y=d['y']-sp.get('anchorY',0.5)*h
         src=Image.open(sprite_path(n,sp)).convert('RGBA'); spr=src.resize((w,h),Image.LANCZOS)

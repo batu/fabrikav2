@@ -29,7 +29,7 @@ def fit_aniso(sprite, painted, clean_crop):
     pop=float(np.abs(rgb[meas]-region[meas]).mean()) if meas.any() else 255.0
     return {'score':round(score,4),'scale':s2,'ratio':r,'x':x,'y':y,'width':w,'height':h,'pop':round(pop,1)}
 rows=[]
-for n in [int(x) for x in sys.argv[1:]]:
+for n in [key(x) for x in sys.argv[1:]]:
     p=pub(n); level=json.load(open(p/'level.json')); color=Image.open(p/'color.png').convert('RGB'); sdir=ROOT/'.levelbuilder/levels'/level_id(n); raw=json.load(open(sdir/'session.json'))
     clean=Image.open(sdir/f"bg_{raw['selected_bg']:02d}.png").convert('RGB')
     if clean.size!=color.size: clean=clean.resize(color.size,Image.LANCZOS)

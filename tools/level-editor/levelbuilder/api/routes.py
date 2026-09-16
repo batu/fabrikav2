@@ -908,6 +908,7 @@ def get_geometry_config():
     return {
         "hudFraction": G.HUD_FRACTION,
         "bannerFraction": G.BANNER_FRACTION,
+        "placementBannerFraction": G.PLACEMENT_BANNER_FRACTION,
         "sectionBoundaryBuffer": G.SECTION_BOUNDARY_BUFFER,
         "landscapeEdgeSafeArea": G.LANDSCAPE_EDGE_SAFE_AREA,
         "viewportSafeFraction": G.VIEWPORT_SAFE_FRACTION,
@@ -2691,13 +2692,13 @@ def _square_deadzones(bg_w: int, bg_h: int) -> list:
     stays consistent."""
     from levelbuilder.hitboxes import Rect
     from levelbuilder.sections import (
-        BANNER_FRACTION,
         HUD_FRACTION,
+        PLACEMENT_BANNER_FRACTION,
         PORTRAIT_REF_WIDTH,
         PORTRAIT_REFERENCE_DEADZONES,
     )
     hud = int(bg_h * HUD_FRACTION)
-    banner = int(bg_h * BANNER_FRACTION)
+    banner = int(bg_h * PLACEMENT_BANNER_FRACTION)
     from levelbuilder.sections import square_send_side_margin
     side = square_send_side_margin(bg_w, bg_h)
     # Hint chip intentionally omitted (2026-08-06): floating chrome the
@@ -2727,11 +2728,11 @@ def _landscape_deadzones(bg_w: int, bg_h: int) -> list:
     from levelbuilder.hitboxes import Rect
     from levelbuilder.sections import (
         HUD_FRACTION,
-        BANNER_FRACTION,
+        PLACEMENT_BANNER_FRACTION,
         SECTION_BOUNDARY_BUFFER,
     )
     hud = int(bg_h * HUD_FRACTION)
-    banner = int(bg_h * BANNER_FRACTION)
+    banner = int(bg_h * PLACEMENT_BANNER_FRACTION)
     buf = SECTION_BOUNDARY_BUFFER
     section_w = bg_w // 3
     return [

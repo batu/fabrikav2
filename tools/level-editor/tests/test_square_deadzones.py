@@ -1,7 +1,7 @@
 """Square-level deadzones for auto hitbox placement."""
 
 from levelbuilder.api.routes import _is_square_level, _square_deadzones
-from levelbuilder.sections import BANNER_FRACTION, HUD_FRACTION
+from levelbuilder.sections import HUD_FRACTION, PLACEMENT_BANNER_FRACTION
 
 
 class TestSquareDetection:
@@ -27,8 +27,8 @@ class TestSquareDeadzones:
         hud, banner, left, right = zones
         assert (hud.x, hud.y, hud.w) == (0, 0, 4096)
         assert hud.h == int(4096 * HUD_FRACTION)
-        assert banner.y == 4096 - int(4096 * BANNER_FRACTION)
-        assert banner.h == int(4096 * BANNER_FRACTION)
+        assert banner.y == 4096 - int(4096 * PLACEMENT_BANNER_FRACTION)
+        assert banner.h == int(4096 * PLACEMENT_BANNER_FRACTION)
         # Side edge-artifact margins mirror the magenta send crop
         # (sections.square_send_side_margin — sized to make the send region
         # SQUARE): hitboxes placed there would never receive paint.
