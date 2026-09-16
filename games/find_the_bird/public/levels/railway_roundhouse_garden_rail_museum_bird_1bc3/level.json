@@ -54,11 +54,11 @@
         "anchorX": 0.5789,
         "anchorY": 0.3784,
         "refit": {
-          "scale": 0.95,
+          "scale": 1.0,
           "ratio": 1.0,
-          "pop": 27.8,
-          "dx": 5,
-          "dy": 2
+          "pop": 28.4,
+          "dx": 0,
+          "dy": 0
         }
       }
     },
@@ -69,24 +69,30 @@
       "r": 57,
       "sprite": {
         "image": "levels/railway_roundhouse_garden_rail_museum_bird_1bc3/dogs/dog_02/sprite_000.png",
-        "x": 1600,
-        "y": 821,
-        "width": 233,
-        "height": 143,
+        "x": 1662,
+        "y": 823,
+        "width": 163,
+        "height": 135,
         "cleanup": {
           "x": 1590,
           "y": 721,
           "width": 285,
           "height": 288
         },
-        "anchorX": 0.515,
-        "anchorY": 0.4895,
+        "anchorX": 0.3374,
+        "anchorY": 0.5259,
         "refit": {
           "scale": 1.0,
-          "ratio": 1.05,
-          "pop": 37.1,
-          "dx": -3,
-          "dy": 3
+          "ratio": 1.0,
+          "pop": 27.0,
+          "dx": 0,
+          "dy": 0
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop2",
+          "score": 0.8809,
+          "pop": 27.0
         }
       }
     },
@@ -127,22 +133,22 @@
         "image": "levels/railway_roundhouse_garden_rail_museum_bird_1bc3/dogs/dog_04/sprite_000.png",
         "x": 1579,
         "y": 1071,
-        "width": 176,
-        "height": 133,
+        "width": 180,
+        "height": 130,
         "cleanup": {
           "x": 1544,
           "y": 1016,
           "width": 262,
           "height": 248
         },
-        "anchorX": 0.4716,
-        "anchorY": 0.4586,
+        "anchorX": 0.4722,
+        "anchorY": 0.4615,
         "refit": {
-          "scale": 0.95,
-          "ratio": 1.0,
-          "pop": 25.5,
-          "dx": 4,
-          "dy": 4
+          "scale": 1.0,
+          "ratio": 1.05,
+          "pop": 25.6,
+          "dx": -1,
+          "dy": 0
         }
       }
     },
@@ -166,11 +172,11 @@
         "anchorX": 0.378,
         "anchorY": 0.4803,
         "refit": {
-          "scale": 1.1,
+          "scale": 1.0,
           "ratio": 1.0,
-          "pop": 25.9,
-          "dx": -6,
-          "dy": -10
+          "pop": 25.8,
+          "dx": 0,
+          "dy": 0
         }
       }
     },
@@ -181,18 +187,31 @@
       "r": 57,
       "sprite": {
         "image": "levels/railway_roundhouse_garden_rail_museum_bird_1bc3/dogs/dog_06/sprite_000.png",
-        "x": 865,
-        "y": 896,
-        "width": 145,
-        "height": 137,
+        "x": 949,
+        "y": 920,
+        "width": 163,
+        "height": 141,
         "cleanup": {
           "x": 794,
           "y": 844,
           "width": 345,
           "height": 230
         },
-        "anchorX": 1.0,
-        "anchorY": 0.6642
+        "anchorX": 0.3742,
+        "anchorY": 0.4752,
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop2",
+          "score": 0.9214,
+          "pop": 17.9
+        },
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 17.9,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -215,11 +234,11 @@
         "anchorX": 0.6207,
         "anchorY": 0.4694,
         "refit": {
-          "scale": 1.35,
+          "scale": 1.0,
           "ratio": 1.0,
-          "pop": 25.1,
-          "dx": -73,
-          "dy": -56
+          "pop": 23.9,
+          "dx": 0,
+          "dy": 0
         }
       }
     },
@@ -243,11 +262,11 @@
         "anchorX": 0.4497,
         "anchorY": 0.6,
         "refit": {
-          "scale": 1.4,
+          "scale": 1.0,
           "ratio": 1.0,
-          "pop": 20.9,
-          "dx": -26,
-          "dy": -11
+          "pop": 20.5,
+          "dx": 0,
+          "dy": 0
         }
       }
     },
@@ -258,24 +277,30 @@
       "r": 57,
       "sprite": {
         "image": "levels/railway_roundhouse_garden_rail_museum_bird_1bc3/dogs/dog_09/sprite_000.png",
-        "x": 575,
-        "y": 1280,
-        "width": 156,
-        "height": 164,
+        "x": 578,
+        "y": 1284,
+        "width": 152,
+        "height": 155,
         "cleanup": {
           "x": 523,
           "y": 1247,
           "width": 233,
           "height": 251
         },
-        "anchorX": 0.5385,
-        "anchorY": 0.4146,
+        "anchorX": 0.5395,
+        "anchorY": 0.4194,
         "refit": {
           "scale": 1.0,
           "ratio": 1.0,
-          "pop": 24.7,
+          "pop": 14.1,
           "dx": 0,
-          "dy": 0
+          "dy": -1
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop",
+          "score": 0.951,
+          "pop": 14.2
         }
       }
     },
@@ -288,22 +313,22 @@
         "image": "levels/railway_roundhouse_garden_rail_museum_bird_1bc3/dogs/dog_10/sprite_000.png",
         "x": 987,
         "y": 1301,
-        "width": 205,
-        "height": 159,
+        "width": 190,
+        "height": 155,
         "cleanup": {
           "x": 1008,
           "y": 1229,
           "width": 283,
           "height": 298
         },
-        "anchorX": 0.5268,
-        "anchorY": 0.4717,
+        "anchorX": 0.5158,
+        "anchorY": 0.471,
         "refit": {
-          "scale": 0.8,
-          "ratio": 1.05,
-          "pop": 31.2,
-          "dx": 38,
-          "dy": 26
+          "scale": 0.95,
+          "ratio": 0.95,
+          "pop": 25.3,
+          "dx": 9,
+          "dy": 2
         }
       }
     },
@@ -316,22 +341,22 @@
         "image": "levels/railway_roundhouse_garden_rail_museum_bird_1bc3/dogs/dog_11/sprite_000.png",
         "x": 1143,
         "y": 1565,
-        "width": 174,
-        "height": 155,
+        "width": 183,
+        "height": 163,
         "cleanup": {
           "x": 1104,
           "y": 1529,
           "width": 289,
           "height": 298
         },
-        "anchorX": 0.5345,
-        "anchorY": 0.4903,
+        "anchorX": 0.5355,
+        "anchorY": 0.4847,
         "refit": {
-          "scale": 0.75,
+          "scale": 1.05,
           "ratio": 1.0,
-          "pop": 30.6,
-          "dx": 41,
-          "dy": 14
+          "pop": 28.2,
+          "dx": -4,
+          "dy": -3
         }
       }
     },
@@ -355,11 +380,11 @@
         "anchorX": 0.4258,
         "anchorY": 0.363,
         "refit": {
-          "scale": 0.8,
+          "scale": 1.0,
           "ratio": 1.0,
-          "pop": 25.8,
-          "dx": 22,
-          "dy": 21
+          "pop": 26.9,
+          "dx": 0,
+          "dy": 0
         }
       }
     },
@@ -383,11 +408,11 @@
         "anchorX": 0.6175,
         "anchorY": 0.4178,
         "refit": {
-          "scale": 0.75,
+          "scale": 1.0,
           "ratio": 1.0,
-          "pop": 21.3,
-          "dx": 28,
-          "dy": 26
+          "pop": 22.2,
+          "dx": 0,
+          "dy": 0
         }
       }
     },
@@ -426,24 +451,30 @@
       "r": 57,
       "sprite": {
         "image": "levels/railway_roundhouse_garden_rail_museum_bird_1bc3/dogs/dog_15/sprite_000.png",
-        "x": 616,
-        "y": 1625,
-        "width": 280,
-        "height": 225,
+        "x": 736,
+        "y": 1631,
+        "width": 159,
+        "height": 130,
         "cleanup": {
           "x": 707,
           "y": 1525,
           "width": 250,
           "height": 345
         },
-        "anchorX": 0.6857,
-        "anchorY": 0.2622,
+        "anchorX": 0.4654,
+        "anchorY": 0.4,
         "refit": {
           "scale": 1.0,
-          "ratio": 0.95,
-          "pop": 26.5,
-          "dx": 1,
+          "ratio": 1.0,
+          "pop": 24.1,
+          "dx": -1,
           "dy": -1
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop",
+          "score": 0.8931,
+          "pop": 24.4
         }
       }
     },
@@ -467,11 +498,11 @@
         "anchorX": 0.5385,
         "anchorY": 0.5479,
         "refit": {
-          "scale": 0.75,
+          "scale": 1.0,
           "ratio": 1.0,
-          "pop": 17.9,
-          "dx": 52,
-          "dy": 17
+          "pop": 18.2,
+          "dx": 0,
+          "dy": 0
         }
       }
     },
@@ -482,24 +513,30 @@
       "r": 57,
       "sprite": {
         "image": "levels/railway_roundhouse_garden_rail_museum_bird_1bc3/dogs/dog_17/sprite_000.png",
-        "x": 885,
-        "y": 2013,
-        "width": 257,
-        "height": 188,
+        "x": 920,
+        "y": 2025,
+        "width": 191,
+        "height": 172,
         "cleanup": {
           "x": 838,
           "y": 1931,
           "width": 345,
           "height": 302
         },
-        "anchorX": 0.4903,
-        "anchorY": 0.484,
+        "anchorX": 0.5026,
+        "anchorY": 0.4884,
         "refit": {
-          "scale": 1.0,
+          "scale": 1.05,
           "ratio": 1.0,
-          "pop": 22.8,
-          "dx": 0,
-          "dy": 0
+          "pop": 18.5,
+          "dx": -5,
+          "dy": -5
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop",
+          "score": 0.7691,
+          "pop": 30.5
         }
       }
     },
@@ -523,11 +560,11 @@
         "anchorX": 0.4936,
         "anchorY": 0.5,
         "refit": {
-          "scale": 1.05,
+          "scale": 1.0,
           "ratio": 1.0,
-          "pop": 23.0,
-          "dx": -8,
-          "dy": -4
+          "pop": 22.6,
+          "dx": 0,
+          "dy": 0
         }
       }
     },
@@ -538,24 +575,30 @@
       "r": 57,
       "sprite": {
         "image": "levels/railway_roundhouse_garden_rail_museum_bird_1bc3/dogs/dog_19/sprite_000.png",
-        "x": 1571,
-        "y": 2052,
-        "width": 322,
-        "height": 249,
+        "x": 1572,
+        "y": 2096,
+        "width": 187,
+        "height": 156,
         "cleanup": {
           "x": 1503,
           "y": 2040,
           "width": 345,
           "height": 345
         },
-        "anchorX": 0.382,
-        "anchorY": 0.7751,
+        "anchorX": 0.5561,
+        "anchorY": 0.75,
         "refit": {
-          "scale": 1.2,
-          "ratio": 0.95,
-          "pop": 33.1,
-          "dx": -18,
-          "dy": -32
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 21.2,
+          "dx": 0,
+          "dy": 0
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop2",
+          "score": 0.9045,
+          "pop": 20.6
         }
       }
     },
@@ -566,24 +609,30 @@
       "r": 57,
       "sprite": {
         "image": "levels/railway_roundhouse_garden_rail_museum_bird_1bc3/dogs/dog_20/sprite_000.png",
-        "x": 1595,
-        "y": 1826,
-        "width": 265,
-        "height": 157,
+        "x": 1594,
+        "y": 1829,
+        "width": 195,
+        "height": 132,
         "cleanup": {
           "x": 1537,
           "y": 1752,
           "width": 345,
           "height": 271
         },
-        "anchorX": 0.5094,
-        "anchorY": 0.4968,
+        "anchorX": 0.6462,
+        "anchorY": 0.4848,
         "refit": {
-          "scale": 1.1,
-          "ratio": 1.0,
-          "pop": 23.6,
-          "dx": -13,
-          "dy": -10
+          "scale": 1.0,
+          "ratio": 1.05,
+          "pop": 33.4,
+          "dx": -2,
+          "dy": 1
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop2",
+          "score": 0.8136,
+          "pop": 37.6
         }
       }
     },
@@ -607,11 +656,11 @@
         "anchorX": 0.5633,
         "anchorY": 0.5455,
         "refit": {
-          "scale": 1.05,
+          "scale": 1.0,
           "ratio": 1.0,
-          "pop": 24.1,
-          "dx": -6,
-          "dy": -4
+          "pop": 23.5,
+          "dx": 0,
+          "dy": 0
         }
       }
     }

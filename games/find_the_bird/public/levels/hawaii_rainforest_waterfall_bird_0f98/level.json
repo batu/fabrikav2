@@ -41,24 +41,30 @@
       "r": 57,
       "sprite": {
         "image": "levels/hawaii_rainforest_waterfall_bird_0f98/dogs/dog_01/sprite_000.png",
-        "x": 555,
-        "y": 794,
-        "width": 230,
-        "height": 200,
+        "x": 562,
+        "y": 799,
+        "width": 225,
+        "height": 187,
         "cleanup": {
           "x": 472,
           "y": 661,
           "width": 345,
           "height": 306
         },
-        "anchorX": 0.5913,
-        "anchorY": 0.46,
+        "anchorX": 0.5867,
+        "anchorY": 0.4492,
         "refit": {
           "scale": 1.0,
-          "ratio": 0.95,
-          "pop": 24.4,
-          "dx": 3,
-          "dy": -3
+          "ratio": 1.0,
+          "pop": 18.8,
+          "dx": 0,
+          "dy": 0
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop2",
+          "score": 0.9526,
+          "pop": 18.2
         }
       }
     },
@@ -110,11 +116,11 @@
         "anchorX": 0.5411,
         "anchorY": 0.6483,
         "refit": {
-          "scale": 1.4,
+          "scale": 1.0,
           "ratio": 1.0,
-          "pop": 26.4,
-          "dx": -24,
-          "dy": -69
+          "pop": 25.6,
+          "dx": 0,
+          "dy": 0
         }
       }
     },
@@ -138,11 +144,11 @@
         "anchorX": 0.4037,
         "anchorY": 0.5523,
         "refit": {
-          "scale": 1.05,
-          "ratio": 0.9,
-          "pop": 17.8,
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 17.7,
           "dx": 0,
-          "dy": -9
+          "dy": 0
         }
       }
     },
@@ -153,24 +159,30 @@
       "r": 57,
       "sprite": {
         "image": "levels/hawaii_rainforest_waterfall_bird_0f98/dogs/dog_05/sprite_000.png",
-        "x": 1570,
-        "y": 631,
-        "width": 183,
-        "height": 192,
+        "x": 1572,
+        "y": 645,
+        "width": 162,
+        "height": 179,
         "cleanup": {
           "x": 1579,
           "y": 589,
           "width": 203,
           "height": 293
         },
-        "anchorX": 0.4098,
-        "anchorY": 0.526,
+        "anchorX": 0.4444,
+        "anchorY": 0.514,
         "refit": {
           "scale": 1.0,
           "ratio": 1.0,
-          "pop": 28.9,
-          "dx": -2,
-          "dy": 4
+          "pop": 11.1,
+          "dx": 0,
+          "dy": 0
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop",
+          "score": 0.9528,
+          "pop": 12.9
         }
       }
     },
@@ -181,24 +193,30 @@
       "r": 57,
       "sprite": {
         "image": "levels/hawaii_rainforest_waterfall_bird_0f98/dogs/dog_06/sprite_000.png",
-        "x": 2071,
-        "y": 715,
-        "width": 224,
-        "height": 217,
+        "x": 2061,
+        "y": 721,
+        "width": 227,
+        "height": 209,
         "cleanup": {
           "x": 1988,
           "y": 658,
           "width": 345,
           "height": 345
         },
-        "anchorX": 0.4196,
-        "anchorY": 0.5253,
+        "anchorX": 0.4405,
+        "anchorY": 0.5263,
         "refit": {
           "scale": 1.0,
           "ratio": 1.0,
-          "pop": 17.8,
-          "dx": -3,
-          "dy": 2
+          "pop": 13.0,
+          "dx": 0,
+          "dy": 0
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop2",
+          "score": 0.9534,
+          "pop": 13.0
         }
       }
     },
@@ -223,10 +241,10 @@
         "anchorY": 0.5187,
         "refit": {
           "scale": 1.0,
-          "ratio": 1.05,
-          "pop": 21.4,
-          "dx": -1,
-          "dy": 1
+          "ratio": 1.0,
+          "pop": 21.3,
+          "dx": 0,
+          "dy": 0
         }
       }
     },
@@ -254,7 +272,7 @@
           "ratio": 1.0,
           "pop": 30.8,
           "dx": 0,
-          "dy": 2
+          "dy": 0
         }
       }
     },
@@ -265,24 +283,30 @@
       "r": 57,
       "sprite": {
         "image": "levels/hawaii_rainforest_waterfall_bird_0f98/dogs/dog_09/sprite_000.png",
-        "x": 337,
-        "y": 1500,
-        "width": 397,
-        "height": 344,
+        "x": 368,
+        "y": 1592,
+        "width": 390,
+        "height": 246,
         "cleanup": {
           "x": 336,
           "y": 1555,
           "width": 345,
           "height": 307
         },
-        "anchorX": 0.4408,
-        "anchorY": 0.6541,
+        "anchorX": 0.359,
+        "anchorY": 0.5528,
         "refit": {
           "scale": 1.0,
-          "ratio": 1.05,
-          "pop": 19.2,
-          "dx": -3,
-          "dy": 2
+          "ratio": 1.0,
+          "pop": 24.7,
+          "dx": 0,
+          "dy": 0
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop2",
+          "score": 0.8828,
+          "pop": 25.6
         }
       }
     },
@@ -307,10 +331,10 @@
         "anchorY": 0.5252,
         "refit": {
           "scale": 1.0,
-          "ratio": 0.95,
-          "pop": 33.1,
-          "dx": 7,
-          "dy": -2
+          "ratio": 1.0,
+          "pop": 33.7,
+          "dx": 0,
+          "dy": 0
         }
       }
     },
@@ -321,24 +345,30 @@
       "r": 57,
       "sprite": {
         "image": "levels/hawaii_rainforest_waterfall_bird_0f98/dogs/dog_11/sprite_000.png",
-        "x": 470,
-        "y": 1995,
-        "width": 178,
-        "height": 157,
+        "x": 471,
+        "y": 1998,
+        "width": 141,
+        "height": 141,
         "cleanup": {
           "x": 417,
           "y": 1864,
           "width": 298,
           "height": 251
         },
-        "anchorX": 0.5225,
-        "anchorY": 0.3312,
+        "anchorX": 0.4752,
+        "anchorY": 0.3191,
         "refit": {
-          "scale": 1.2,
-          "ratio": 1.05,
-          "pop": 31.7,
-          "dx": -22,
-          "dy": -5
+          "scale": 1.0,
+          "ratio": 0.95,
+          "pop": 20.6,
+          "dx": 2,
+          "dy": -1
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop2",
+          "score": 0.9067,
+          "pop": 20.5
         }
       }
     },
@@ -362,11 +392,11 @@
         "anchorX": 0.4794,
         "anchorY": 0.5214,
         "refit": {
-          "scale": 1.05,
+          "scale": 1.0,
           "ratio": 1.0,
-          "pop": 18.2,
-          "dx": -6,
-          "dy": -9
+          "pop": 18.1,
+          "dx": 0,
+          "dy": 0
         }
       }
     },
@@ -379,22 +409,22 @@
         "image": "levels/hawaii_rainforest_waterfall_bird_0f98/dogs/dog_13/sprite_000.png",
         "x": 831,
         "y": 2178,
-        "width": 329,
-        "height": 242,
+        "width": 321,
+        "height": 248,
         "cleanup": {
           "x": 805,
           "y": 2150,
           "width": 322,
           "height": 317
         },
-        "anchorX": 0.4377,
-        "anchorY": 0.3802,
+        "anchorX": 0.4361,
+        "anchorY": 0.379,
         "refit": {
-          "scale": 1.05,
-          "ratio": 1.1,
-          "pop": 25.4,
-          "dx": -13,
-          "dy": -2
+          "scale": 1.0,
+          "ratio": 0.95,
+          "pop": 25.8,
+          "dx": 4,
+          "dy": -1
         }
       }
     },
@@ -418,11 +448,11 @@
         "anchorX": 0.3118,
         "anchorY": 0.4115,
         "refit": {
-          "scale": 1.4,
+          "scale": 1.0,
           "ratio": 1.0,
-          "pop": 36.0,
-          "dx": -23,
-          "dy": -17
+          "pop": 35.2,
+          "dx": 0,
+          "dy": 0
         }
       }
     },
@@ -446,11 +476,11 @@
         "anchorX": 0.4373,
         "anchorY": 0.4669,
         "refit": {
-          "scale": 1.05,
-          "ratio": 1.05,
+          "scale": 1.0,
+          "ratio": 1.0,
           "pop": 19.4,
-          "dx": -10,
-          "dy": -3
+          "dx": 0,
+          "dy": 0
         }
       }
     },
@@ -475,10 +505,10 @@
         "anchorY": 0.5164,
         "refit": {
           "scale": 1.0,
-          "ratio": 1.1,
-          "pop": 15.8,
-          "dx": -7,
-          "dy": 3
+          "ratio": 1.0,
+          "pop": 15.9,
+          "dx": 0,
+          "dy": 0
         }
       }
     },
@@ -506,7 +536,7 @@
           "ratio": 1.0,
           "pop": 19.6,
           "dx": 0,
-          "dy": 1
+          "dy": 0
         }
       }
     },
@@ -531,10 +561,10 @@
         "anchorY": 0.4519,
         "refit": {
           "scale": 1.0,
-          "ratio": 1.1,
-          "pop": 11.4,
-          "dx": -6,
-          "dy": 3
+          "ratio": 1.0,
+          "pop": 10.7,
+          "dx": 0,
+          "dy": 0
         }
       }
     }

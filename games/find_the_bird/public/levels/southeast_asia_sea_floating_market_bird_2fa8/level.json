@@ -41,24 +41,30 @@
       "r": 57,
       "sprite": {
         "image": "levels/southeast_asia_sea_floating_market_bird_2fa8/dogs/dog_01/sprite_000.png",
-        "x": 616,
-        "y": 566,
-        "width": 154,
-        "height": 153,
+        "x": 628,
+        "y": 579,
+        "width": 139,
+        "height": 144,
         "cleanup": {
           "x": 616,
           "y": 444,
           "width": 202,
           "height": 345
         },
-        "anchorX": 0.3182,
-        "anchorY": 0.4052,
+        "anchorX": 0.3237,
+        "anchorY": 0.3889,
         "refit": {
-          "scale": 0.85,
+          "scale": 1.0,
           "ratio": 1.0,
-          "pop": 22.9,
-          "dx": 7,
-          "dy": 6
+          "pop": 25.5,
+          "dx": 0,
+          "dy": 0
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop2",
+          "score": 0.9088,
+          "pop": 24.0
         }
       }
     },
@@ -69,24 +75,30 @@
       "r": 57,
       "sprite": {
         "image": "levels/southeast_asia_sea_floating_market_bird_2fa8/dogs/dog_02/sprite_000.png",
-        "x": 795,
-        "y": 682,
-        "width": 173,
-        "height": 152,
+        "x": 802,
+        "y": 688,
+        "width": 134,
+        "height": 145,
         "cleanup": {
           "x": 820,
           "y": 563,
           "width": 267,
           "height": 336
         },
-        "anchorX": 0.3237,
-        "anchorY": 0.5,
+        "anchorX": 0.3955,
+        "anchorY": 0.5034,
         "refit": {
-          "scale": 0.95,
+          "scale": 1.0,
           "ratio": 1.0,
-          "pop": 22.6,
-          "dx": 4,
-          "dy": 3
+          "pop": 22.0,
+          "dx": 0,
+          "dy": 0
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop2",
+          "score": 0.8769,
+          "pop": 20.3
         }
       }
     },
@@ -97,18 +109,31 @@
       "r": 57,
       "sprite": {
         "image": "levels/southeast_asia_sea_floating_market_bird_2fa8/dogs/dog_03/sprite_000.png",
-        "x": 1363,
-        "y": 698,
-        "width": 219,
-        "height": 171,
+        "x": 1449,
+        "y": 696,
+        "width": 145,
+        "height": 129,
         "cleanup": {
           "x": 1356,
           "y": 644,
           "width": 303,
           "height": 226
         },
-        "anchorX": 0.6575,
-        "anchorY": 0.4561
+        "anchorX": 0.4069,
+        "anchorY": 0.6279,
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop",
+          "score": 0.9328,
+          "pop": 17.2
+        },
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 17.0,
+          "dx": -1,
+          "dy": 0
+        }
       }
     },
     {
@@ -167,18 +192,31 @@
       "r": 57,
       "sprite": {
         "image": "levels/southeast_asia_sea_floating_market_bird_2fa8/dogs/dog_06/sprite_000.png",
-        "x": 511,
-        "y": 955,
-        "width": 200,
-        "height": 175,
+        "x": 520,
+        "y": 965,
+        "width": 209,
+        "height": 162,
         "cleanup": {
           "x": 456,
           "y": 868,
           "width": 292,
           "height": 345
         },
-        "anchorX": 0.59,
-        "anchorY": 0.4914
+        "anchorX": 0.5215,
+        "anchorY": 0.4691,
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop2",
+          "score": 0.8777,
+          "pop": 25.6
+        },
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 25.6,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -188,18 +226,31 @@
       "r": 57,
       "sprite": {
         "image": "levels/southeast_asia_sea_floating_market_bird_2fa8/dogs/dog_07/sprite_000.png",
-        "x": 851,
-        "y": 890,
-        "width": 203,
-        "height": 189,
+        "x": 895,
+        "y": 954,
+        "width": 141,
+        "height": 146,
         "cleanup": {
           "x": 751,
           "y": 901,
           "width": 296,
           "height": 334
         },
-        "anchorX": 0.4729,
-        "anchorY": 0.6614
+        "anchorX": 0.3759,
+        "anchorY": 0.4247,
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop",
+          "score": 0.9408,
+          "pop": 17.8
+        },
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 17.4,
+          "dx": 0,
+          "dy": -1
+        }
       }
     },
     {
@@ -251,10 +302,10 @@
         "anchorY": 0.5667,
         "refit": {
           "scale": 1.0,
-          "ratio": 1.05,
-          "pop": 24.9,
-          "dx": -2,
-          "dy": 1
+          "ratio": 1.0,
+          "pop": 25.1,
+          "dx": 0,
+          "dy": 0
         }
       }
     },
@@ -353,13 +404,13 @@
           "height": 138
         },
         "anchorX": 0.4928,
-        "anchorY": 0.6396,
+        "anchorY": 0.6447,
         "refit": {
-          "scale": 0.95,
+          "scale": 1.0,
           "ratio": 1.0,
-          "pop": 25.8,
-          "dx": 4,
-          "dy": 7
+          "pop": 27.0,
+          "dx": 0,
+          "dy": 0
         }
       }
     },
@@ -411,11 +462,11 @@
         "anchorX": 0.5933,
         "anchorY": 0.6404,
         "refit": {
-          "scale": 1.05,
+          "scale": 1.0,
           "ratio": 1.0,
-          "pop": 19.9,
-          "dx": -7,
-          "dy": -9
+          "pop": 20.0,
+          "dx": 0,
+          "dy": 0
         }
       }
     },
@@ -439,11 +490,11 @@
         "anchorX": 0.5869,
         "anchorY": 0.5062,
         "refit": {
-          "scale": 1.4,
+          "scale": 1.0,
           "ratio": 1.0,
-          "pop": 15.6,
-          "dx": -35,
-          "dy": -15
+          "pop": 14.5,
+          "dx": 0,
+          "dy": 0
         }
       }
     },
