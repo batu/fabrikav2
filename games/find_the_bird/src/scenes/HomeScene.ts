@@ -19,6 +19,7 @@ import type { GameSceneData } from './GameScene';
 import { GameScene } from './GameScene';
 import { FTD_UI_THEME } from '../ui/ftdTheme';
 import { hasDeferredIconPreloadStarted, preloadDeferredIcons } from '../ui/iconPreload';
+import { remoteConfigService } from '../config/RemoteConfigService';
 
 function triggerNavBounce(btn: HTMLButtonElement): void {
   btn.classList.remove('home-nav-btn--tapped');
@@ -527,7 +528,8 @@ export class HomeScene extends Phaser.Scene {
     const wallet = gameState.walletSnapshot();
     const currentLevel = gameState.currentLevelIndex + 1;
     const achievementProjection = gameState.achievementReadProjection();
-    const claimableAchievements = achievementProjection.status === 'ready'
+    const achievementsEnabled = remoteConfigService.value('achievementsEnabled');
+    const claimableAchievements = achievementsEnabled && achievementProjection.status === 'ready'
       ? achievementProjection.achievements.filter((a) => a.rewardStatus === 'unlocked-reward-claimable').length
       : 0;
     // Read-side streak (0 when lapsed); the pill always renders, showing 0 for a dead streak.
@@ -547,6 +549,9 @@ export class HomeScene extends Phaser.Scene {
         <section class="home-title-panel" aria-label="Find the Bird">
           <div class="home-brand-banner">${bannerMedia}</div>
         </section>
+        <button id="home-nav-settings" class="home-settings-corner" type="button" aria-label="Settings">
+          <img src="/ui/menu-icons/settings-icon-runtime.png" alt="" aria-hidden="true">
+        </button>
 
         <div class="home-map-region">
           <aside class="home-rail home-rail-left" aria-label="Quick actions">
@@ -578,19 +583,23 @@ export class HomeScene extends Phaser.Scene {
           </button>
         </div>
 
-        <nav class="home-nav-bar" aria-label="Main navigation">
-          <button id="home-nav-achievements" class="home-nav-btn${claimableAchievements > 0 ? ' home-claim-attention' : ''}" type="button" aria-label="Open achievements${claimableAchievements > 0 ? `, ${claimableAchievements} reward${claimableAchievements === 1 ? '' : 's'} to claim` : ''}">
+        <nav class="home-nav-bar" data-slots="${achievementsEnabled ? 4 : 3}" aria-label="Main navigation">
+          ${achievementsEnabled ? `<button id="home-nav-achievements" class="home-nav-btn${claimableAchievements > 0 ? ' home-claim-attention' : ''}" type="button" aria-label="Open achievements${claimableAchievements > 0 ? `, ${claimableAchievements} reward${claimableAchievements === 1 ? '' : 's'} to claim` : ''}">
             <img src="/ui/achievements/achievement-shortcut-runtime.png" alt="" aria-hidden="true">
             <span>Achievements</span>
             ${claimableAchievements > 0 ? '<span class="home-claim-dot home-claim-dot--nav" aria-hidden="true"></span>' : ''}
+          </button>` : ''}
+          <button id="home-nav-sanctuary" class="home-nav-btn home-nav-btn--locked" type="button" aria-disabled="true" aria-label="Sanctuary, coming soon">
+            <img src="/ui/sanctuary/sanctuary-nav-icon.png" alt="" aria-hidden="true">
+            <span>Sanctuary</span>
+          </button>
+          <button id="home-nav-collection" class="home-nav-btn home-nav-btn--locked" type="button" aria-disabled="true" aria-label="Bird collection, coming soon">
+            <img src="/ui/sanctuary/birds-nav-icon.png" alt="" aria-hidden="true">
+            <span>Collection</span>
           </button>
           <button id="home-nav-shop" class="home-nav-btn" type="button" aria-label="Open shop">
             <img src="/ui/menu-icons/shop-icon-runtime.png" alt="" aria-hidden="true">
             <span>Shop</span>
-          </button>
-          <button id="home-nav-settings" class="home-nav-btn" type="button" aria-label="Settings">
-            <img src="/ui/menu-icons/settings-icon-runtime.png" alt="" aria-hidden="true">
-            <span>Settings</span>
           </button>
         </nav>
       </div>
