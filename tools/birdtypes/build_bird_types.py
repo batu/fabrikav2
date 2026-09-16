@@ -11,6 +11,19 @@ ROOT = os.path.abspath(os.path.join(HERE, "..", ".."))
 PUB = os.path.join(ROOT, "games", "find_the_bird", "public")
 OUT = os.path.join(PUB, "levels", "bird-types.json")
 
+# Sparrow is the only tag release 1 spends, so it is held to a second, stricter
+# opinion (verify_sparrows.py). A blind audit caught wrens, chickadees, finches
+# and thrushes wearing the sparrow tag, and a false positive is visible to the
+# player: a wren would tick the sparrow card. Anything the verification does not
+# confirm is demoted to unknown-songbird, trading recall for precision.
+verdicts = {}
+vp = os.path.join(HERE, "sparrow-verdicts.jsonl")
+if os.path.exists(vp):
+    for line in open(vp):
+        r = json.loads(line)
+        v = r.get("verdict") or {}
+        verdicts[(r["level"], r["dog_id"])] = bool(v.get("sparrow"))
+
 rows = {}
 for src in [os.path.join(HERE, "known.jsonl"), os.path.join(HERE, "classified.jsonl")]:
     if not os.path.exists(src): continue
@@ -20,7 +33,10 @@ for src in [os.path.join(HERE, "known.jsonl"), os.path.join(HERE, "classified.js
         c = r.get("classification")
         if not c or not c.get("type"): continue
         t = str(c["type"]).strip().lower().replace(" ", "-")
-        rows[(r["level"], r["dog_id"])] = t
+        key = (r["level"], r["dog_id"])
+        if t == "sparrow" and verdicts.get(key) is False:
+            t = "unknown-songbird"
+        rows[key] = t
 
 manifest = json.load(open(os.path.join(PUB, "levels", "bundled-manifest.json")))
 level_ids = [lv["id"] for lv in manifest["levels"]]
@@ -40,7 +56,8 @@ for lid in level_ids:
 doc = {
     "version": 1,
     "generatedAt": datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="seconds"),
-    "source": "agy gemini-3.8-flash image classification (tools/birdtypes/classify.py)",
+    "source": "gemini-3.8-flash via OpenRouter (tools/birdtypes/classify_openrouter.py); "
+              "sparrow tags re-verified by tools/birdtypes/verify_sparrows.py",
     "coverage": {"levels": len(levels), "birds": total, "tagged": tagged,
                  "untagged": total - tagged},
     "levels": levels,
