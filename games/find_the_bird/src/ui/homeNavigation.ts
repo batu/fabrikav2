@@ -66,6 +66,7 @@ export function bindHomeNavigation(overlay: HTMLElement, deps: HomeNavigationDep
   const shopShortcuts: Array<[string, 'coins' | 'hints' | 'entitlements']> = [
     ['#home-coin-plus', 'coins'],
     ['#home-hint-plus', 'hints'],
+    ['#home-no-ads', 'entitlements'],
   ];
   for (const [id, scrollTo] of shopShortcuts) {
     overlay.querySelector<HTMLButtonElement>(id)?.addEventListener('click', (e) => {

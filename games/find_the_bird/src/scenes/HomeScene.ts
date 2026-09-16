@@ -18,7 +18,7 @@ import { isGameSuspended, registerLifecycleHooks } from '../platform/gameLifecyc
 import type { GameSceneData } from './GameScene';
 import { GameScene } from './GameScene';
 import { FTD_UI_THEME } from '../ui/ftdTheme';
-import { hasDeferredIconPreloadStarted, preloadDeferredIcons } from '../ui/iconPreload';
+import { HOME_NO_ADS_BADGE_SRC, hasDeferredIconPreloadStarted, preloadDeferredIcons } from '../ui/iconPreload';
 import { remoteConfigService } from '../config/RemoteConfigService';
 
 function triggerNavBounce(btn: HTMLButtonElement): void {
@@ -561,6 +561,9 @@ export class HomeScene extends Phaser.Scene {
               <small>${streakRewardBadge}</small>
               ${streakReward.status === 'claimable' ? '<span class="home-claim-dot" aria-hidden="true"></span>' : ''}
             </button>
+            ${gameState.hasNoAdsEntitlement ? '' : `<button id="home-no-ads" class="home-side-btn home-no-ads-btn" type="button" aria-label="Remove ads">
+              <img class="home-no-ads-art" src="${HOME_NO_ADS_BADGE_SRC}" alt="" aria-hidden="true">
+            </button>`}
           </aside>
           <section id="home-map-mount" class="home-map-stage" aria-label="Level progression"></section>
           <aside class="home-rail home-rail-right" aria-label="Currency balance">
