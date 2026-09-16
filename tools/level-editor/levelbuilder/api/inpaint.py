@@ -3956,6 +3956,54 @@ def _load_vlm_detections(session_id: str) -> list[dict]:
     return [d for d in data if isinstance(d, dict)] if isinstance(data, list) else []
 
 
+def painted_extent_detections(session_id: str, hitbox_list: list[dict]) -> list[dict]:
+    """Detection-shaped extents derived from the paint itself, for hitboxes
+    without a VLM box (levels 1-8 had none, 2026-09-16: 34 of 41 regenerated
+    birds touched the edge of the bare 1.6 r square and the model drew a bird
+    the crop could not hold). For each hitbox: bounding box of the painted-diff
+    component that touches the hitbox disc, inside a 2 r search window, using
+    the session's painted scene and upscaled clean plate. Empty when either
+    image is missing or sizes disagree (no plate to diff against)."""
+    from scipy import ndimage as _ndi
+
+    sdir = S.session_dir(session_id)
+    try:
+        raw = json.loads((sdir / "session.json").read_text())
+        selected_bg = raw.get("selected_bg") if isinstance(raw.get("selected_bg"), int) else 0
+        painted = Image.open(sdir / "color.png").convert("RGB")
+        clean = Image.open(sdir / f"bg_{selected_bg:02d}.png").convert("RGB")
+    except (OSError, ValueError):
+        return []
+    if clean.size != painted.size:
+        return []
+    out: list[dict] = []
+    for hb in hitbox_list:
+        r = float(hb.get("r") or hb.get("radius") or 57)
+        hx, hy = float(hb["x"]), float(hb["y"])
+        win = 4.0 * r   # the 2x cleanup rect the runtime carves; big birds fit
+        box = (int(max(0, hx - win)), int(max(0, hy - win)),
+               int(min(painted.width, hx + win)), int(min(painted.height, hy + win)))
+        mask = painted_diff_mask(painted.crop(box), clean.crop(box))
+        if mask is None:
+            continue
+        changed = np.asarray(mask) > 0
+        labels, count = _ndi.label(changed)
+        if count == 0:
+            continue
+        yy, xx = np.ogrid[: changed.shape[0], : changed.shape[1]]
+        disc = (xx - (hx - box[0])) ** 2 + (yy - (hy - box[1])) ** 2 <= (1.2 * r) ** 2
+        ids = np.unique(labels[disc & (labels > 0)])
+        if ids.size == 0:
+            continue
+        ys, xs = np.where(np.isin(labels, ids))
+        out.append({
+            "x": int(box[0] + xs.min()), "y": int(box[1] + ys.min()),
+            "width": int(xs.max() - xs.min() + 1), "height": int(ys.max() - ys.min() + 1),
+            "source": "paint",
+        })
+    return out
+
+
 def extract_box_for_hitbox(hitbox: dict, detections: list[dict], pad_factor: float) -> dict:
     """The crop box Extract All cuts for one hitbox.
 
@@ -4052,6 +4100,18 @@ def _run_magenta_inpaint_job(job: JobRecord, store: JobStore) -> dict[str, Any]:
     return _discharge_paint_obligations(session_id, summary)
 
 
+def _grow_box_by_extent(box: dict, extent: dict) -> dict:
+    """Enlarge a radius square (centred on its hitbox) to EXTENT_GROWTH x the
+    painted extent's long edge when that is bigger; never shrink, never move."""
+    long_edge = max(extent["width"], extent["height"])
+    grown = int(long_edge * EXTENT_GROWTH)
+    if grown <= box["width"]:
+        return box
+    cx = box["x"] + box["width"] / 2.0
+    cy = box["y"] + box["height"] / 2.0
+    return {**box, "x": int(cx - grown / 2), "y": int(cy - grown / 2), "width": grown, "height": grown, "source": "paint"}
+
+
 def _run_bulk_extract_job(job: JobRecord, store: JobStore) -> dict[str, Any]:
     """Durable Extract All: derive padded-square detections from the
     session's hitboxes (each hitbox IS the bird — the CLI convention) and
@@ -4081,10 +4141,24 @@ def _run_bulk_extract_job(job: JobRecord, store: JobStore) -> dict[str, Any]:
         store.update_metadata(job.id, {"safeToRequeue": False, "providerSubmissionStarted": True})
     vlm_boxes = _load_vlm_detections(session_id)
     detections = [extract_box_for_hitbox(hb, vlm_boxes, pad_factor) for hb in hitbox_list]
+    # Hitboxes the VLM did not size fall back to the painted extent so a bird
+    # larger than the radius square is not cut off (2026-09-16).
+    unsized = [hb for hb, d in zip(hitbox_list, detections) if d.get("source") == "radius"]
+    if unsized:
+        # painted_extent_detections returns one box per hitbox it could size,
+        # in order; a big bird's extent centre can sit more than r from the
+        # hitbox, so grow by extent directly instead of the VLM distance match.
+        paint_boxes = painted_extent_detections(session_id, unsized)
+        by_id = {hb.get("id", idx): box for idx, (hb, box) in enumerate(zip(unsized, paint_boxes))}
+        detections = [
+            _grow_box_by_extent(d, by_id[hb.get("id", idx)]) if d.get("source") == "radius" and hb.get("id", idx) in by_id else d
+            for idx, (hb, d) in enumerate(zip(hitbox_list, detections))
+        ]
     if store is not None:
         store.update_metadata(job.id, {
             "boxSources": {
                 "vlm": sum(1 for d in detections if d.get("source") == "vlm"),
+                "paint": sum(1 for d in detections if d.get("source") == "paint"),
                 "radius": sum(1 for d in detections if d.get("source") == "radius"),
             },
         })

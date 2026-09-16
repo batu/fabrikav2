@@ -659,10 +659,16 @@ BASE_MODELS = [
     # before this model will accept requests (first 403 → check
     # platform.openai.com → Settings → Organization).
     {"id": "openai/gpt-image-2", "label": "GPT Image 2 (OpenAI direct)"},
+    {"id": "openai/gpt-image-2.5-sunburst", "label": "GPT Image 2.5 Sunburst (OpenAI direct)"},
+    {"id": "openai/gpt-image-2.5-flare", "label": "GPT Image 2.5 Flare (OpenAI direct)"},
     {"id": "openai/gpt-image-1", "label": "GPT Image 1 (OpenAI direct)"},
     {"id": "google/gemini-3.1-flash-image-preview", "label": "Gemini 3.1 Flash"},
     {"id": "google/gemini-3-pro-image-preview", "label": "Gemini 3 Pro"},
     {"id": "google/gemini-2.5-flash-image", "label": "Gemini 2.5 Flash"},
+    # Grok Imagine through the Grok Build CLI (subscription; merceka `grok/`
+    # dispatch). Returns 1024² regardless of send size — evaluation lane,
+    # 2026-09-16.
+    {"id": "grok/imagine", "label": "Grok Imagine (Grok CLI)"},
 ]
 
 MODELS = [
