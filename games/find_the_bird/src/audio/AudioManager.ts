@@ -154,6 +154,7 @@ export function installAudioUnlock(): void {
 // refilling, with an independent playback rate in [0.8, 1.2] on every pickup.
 // Buffers and selection state survive level changes for this app launch.
 const BIRD_FOUND_SAMPLE_COUNT = 10;
+const BIRD_FOUND_GAIN = 0.5;
 const BIRD_FOUND_SAMPLE_URLS: string[] = Array.from(
   { length: BIRD_FOUND_SAMPLE_COUNT },
   (_, i): string => `/audio/bird-found/bird-found-${i + 1}.wav`,
@@ -335,7 +336,12 @@ export function playFind(): void {
       const source = ctx.createBufferSource();
       source.buffer = buffer;
       source.playbackRate.value = 0.8 + Math.random() * 0.4;
-      source.connect(getSoundEffectsOutput());
+      // Chirps at half level (Batu, 2026-09-16 device review: too loud next
+      // to the pickup).
+      const chirpGain = ctx.createGain();
+      chirpGain.gain.value = BIRD_FOUND_GAIN;
+      source.connect(chirpGain);
+      chirpGain.connect(getSoundEffectsOutput());
       source.start(ctx.currentTime);
     })
     .catch((error: unknown): void => {
