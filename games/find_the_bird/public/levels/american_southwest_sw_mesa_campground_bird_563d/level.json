@@ -54,11 +54,11 @@
         "anchorX": 0.4083,
         "anchorY": 0.3288,
         "refit": {
-          "scale": 1.05,
+          "scale": 1.0,
           "ratio": 1.0,
-          "pop": 28.8,
-          "dx": -6,
-          "dy": -4
+          "pop": 29.4,
+          "dx": 0,
+          "dy": 0
         }
       }
     },
@@ -111,10 +111,10 @@
         "anchorY": 0.1439,
         "refit": {
           "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 24.2,
-          "dx": 0,
-          "dy": 0
+          "ratio": 0.95,
+          "pop": 23.8,
+          "dx": 3,
+          "dy": -1
         }
       }
     },
@@ -138,11 +138,11 @@
         "anchorX": 0.4316,
         "anchorY": 0.3891,
         "refit": {
-          "scale": 1.4,
+          "scale": 1.0,
           "ratio": 1.0,
-          "pop": 19.3,
-          "dx": -13,
-          "dy": -32
+          "pop": 18.0,
+          "dx": 0,
+          "dy": 0
         }
       }
     },
@@ -166,11 +166,11 @@
         "anchorX": 0.4595,
         "anchorY": 0.5166,
         "refit": {
-          "scale": 1.3,
+          "scale": 1.0,
           "ratio": 1.0,
-          "pop": 28.7,
-          "dx": -23,
-          "dy": -14
+          "pop": 28.8,
+          "dx": 0,
+          "dy": 0
         }
       }
     },
@@ -194,11 +194,11 @@
         "anchorX": 0.8039,
         "anchorY": 0.439,
         "refit": {
-          "scale": 1.4,
+          "scale": 1.0,
           "ratio": 1.0,
-          "pop": 23.8,
-          "dx": -34,
-          "dy": -29
+          "pop": 23.0,
+          "dx": 0,
+          "dy": 0
         }
       }
     },
@@ -222,11 +222,11 @@
         "anchorX": 0.3919,
         "anchorY": 0.4354,
         "refit": {
-          "scale": 1.4,
+          "scale": 1.0,
           "ratio": 1.0,
-          "pop": 24.7,
-          "dx": -11,
-          "dy": -14
+          "pop": 23.6,
+          "dx": 0,
+          "dy": 0
         }
       }
     },
@@ -237,24 +237,30 @@
       "r": 57,
       "sprite": {
         "image": "levels/american_southwest_sw_mesa_campground_bird_563d/dogs/dog_08/sprite_000.png",
-        "x": 794,
-        "y": 1648,
-        "width": 183,
-        "height": 148,
+        "x": 776,
+        "y": 1634,
+        "width": 167,
+        "height": 133,
         "cleanup": {
           "x": 721,
           "y": 1578,
           "width": 336,
           "height": 248
         },
-        "anchorX": 0.5464,
-        "anchorY": 0.4595,
+        "anchorX": 0.5569,
+        "anchorY": 0.4511,
         "refit": {
-          "scale": 1.4,
+          "scale": 1.0,
           "ratio": 1.0,
-          "pop": 17.7,
-          "dx": -26,
-          "dy": -23
+          "pop": 14.2,
+          "dx": -2,
+          "dy": -1
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop",
+          "score": 0.9518,
+          "pop": 14.0
         }
       }
     },
@@ -265,18 +271,31 @@
       "r": 57,
       "sprite": {
         "image": "levels/american_southwest_sw_mesa_campground_bird_563d/dogs/dog_09/sprite_000.png",
-        "x": 1201,
-        "y": 1545,
-        "width": 224,
-        "height": 181,
+        "x": 1288,
+        "y": 1529,
+        "width": 135,
+        "height": 119,
         "cleanup": {
           "x": 1166,
           "y": 1499,
           "width": 345,
           "height": 239
         },
-        "anchorX": 0.6161,
-        "anchorY": 0.1657
+        "anchorX": 0.3852,
+        "anchorY": 0.395,
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop",
+          "score": 0.858,
+          "pop": 25.6
+        },
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 28.8,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -286,24 +305,30 @@
       "r": 57,
       "sprite": {
         "image": "levels/american_southwest_sw_mesa_campground_bird_563d/dogs/dog_10/sprite_000.png",
-        "x": 1319,
-        "y": 1945,
-        "width": 360,
-        "height": 266,
+        "x": 1386,
+        "y": 1931,
+        "width": 148,
+        "height": 127,
         "cleanup": {
           "x": 1278,
           "y": 1874,
           "width": 222,
           "height": 254
         },
-        "anchorX": 0.3972,
-        "anchorY": 0.3045,
+        "anchorX": 0.3378,
+        "anchorY": 0.5906,
         "refit": {
-          "scale": 1.4,
+          "scale": 1.0,
           "ratio": 1.0,
-          "pop": 43.4,
-          "dx": -26,
-          "dy": -19
+          "pop": 19.4,
+          "dx": 0,
+          "dy": 0
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop2",
+          "score": 0.9258,
+          "pop": 16.8
         }
       }
     },
@@ -327,11 +352,11 @@
         "anchorX": 0.7599,
         "anchorY": 0.4593,
         "refit": {
-          "scale": 1.6,
+          "scale": 1.0,
           "ratio": 1.0,
-          "pop": 41.2,
-          "dx": -95,
-          "dy": -50
+          "pop": 41.7,
+          "dx": 0,
+          "dy": 0
         }
       }
     },
@@ -355,11 +380,11 @@
         "anchorX": 0.3671,
         "anchorY": 0.2483,
         "refit": {
-          "scale": 1.4,
+          "scale": 1.0,
           "ratio": 1.0,
-          "pop": 23.0,
-          "dx": -15,
-          "dy": -35
+          "pop": 22.3,
+          "dx": 0,
+          "dy": 0
         }
       }
     },
@@ -383,11 +408,11 @@
         "anchorX": 0.4684,
         "anchorY": 0.5158,
         "refit": {
-          "scale": 1.3,
+          "scale": 1.0,
           "ratio": 1.0,
-          "pop": 24.5,
-          "dx": -16,
-          "dy": -25
+          "pop": 23.7,
+          "dx": 0,
+          "dy": 0
         }
       }
     },
@@ -411,11 +436,11 @@
         "anchorX": 0.2508,
         "anchorY": 0.2329,
         "refit": {
-          "scale": 1.7,
+          "scale": 1.0,
           "ratio": 1.0,
-          "pop": 39.3,
-          "dx": -20,
-          "dy": -23
+          "pop": 38.3,
+          "dx": 0,
+          "dy": 0
         }
       }
     },
@@ -428,22 +453,22 @@
         "image": "levels/american_southwest_sw_mesa_campground_bird_563d/dogs/dog_15/sprite_000.png",
         "x": 1346,
         "y": 2282,
-        "width": 291,
-        "height": 247,
+        "width": 298,
+        "height": 241,
         "cleanup": {
           "x": 1331,
           "y": 2231,
           "width": 345,
           "height": 287
         },
-        "anchorX": 0.7148,
-        "anchorY": 0.4413,
+        "anchorX": 0.7081,
+        "anchorY": 0.4357,
         "refit": {
-          "scale": 1.3,
+          "scale": 1.0,
           "ratio": 1.0,
-          "pop": 39.2,
-          "dx": -10,
-          "dy": -4
+          "pop": 29.4,
+          "dx": 0,
+          "dy": 0
         }
       }
     }

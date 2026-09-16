@@ -15,18 +15,25 @@
         "image": "levels/american_southwest_sw_cactus_garden_ranch_bird_19f1/dogs/dog_00/sprite_000.png",
         "x": 687,
         "y": 475,
-        "width": 159,
-        "height": 118,
+        "width": 151,
+        "height": 124,
         "cleanup": {
           "x": 656,
           "y": 418,
           "width": 260,
           "height": 324
         },
-        "anchorX": 0.8931,
-        "anchorY": 0.8051,
+        "anchorX": 0.9338,
+        "anchorY": 0.7903,
         "flipX": false,
-        "flipY": false
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 20.3,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -47,7 +54,14 @@
           "height": 345
         },
         "anchorX": 0.4261,
-        "anchorY": 0.3187
+        "anchorY": 0.3125,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 24.2,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -57,18 +71,31 @@
       "r": 57,
       "sprite": {
         "image": "levels/american_southwest_sw_cactus_garden_ranch_bird_19f1/dogs/dog_02/sprite_000.png",
-        "x": 910,
-        "y": 667,
-        "width": 176,
-        "height": 242,
+        "x": 918,
+        "y": 669,
+        "width": 161,
+        "height": 240,
         "cleanup": {
           "x": 918,
           "y": 560,
           "width": 250,
           "height": 345
         },
-        "anchorX": 0.5398,
-        "anchorY": 0.2727
+        "anchorX": 0.5404,
+        "anchorY": 0.2667,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 13.0,
+          "dx": 0,
+          "dy": 0
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop2",
+          "score": 0.9352,
+          "pop": 12.7
+        }
       }
     },
     {
@@ -80,16 +107,23 @@
         "image": "levels/american_southwest_sw_cactus_garden_ranch_bird_19f1/dogs/dog_03/sprite_000.png",
         "x": 1613,
         "y": 677,
-        "width": 243,
-        "height": 220,
+        "width": 168,
+        "height": 179,
         "cleanup": {
           "x": 1598,
           "y": 658,
           "width": 293,
           "height": 333
         },
-        "anchorX": 0.5144,
-        "anchorY": 0.6455
+        "anchorX": 0.4167,
+        "anchorY": 0.6369,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 43.0,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -101,16 +135,23 @@
         "image": "levels/american_southwest_sw_cactus_garden_ranch_bird_19f1/dogs/dog_04/sprite_000.png",
         "x": 2142,
         "y": 629,
-        "width": 225,
-        "height": 235,
+        "width": 149,
+        "height": 157,
         "cleanup": {
           "x": 2123,
           "y": 649,
           "width": 230,
           "height": 268
         },
-        "anchorX": 0.5067,
-        "anchorY": 0.6255
+        "anchorX": 0.5436,
+        "anchorY": 0.5732,
+        "refit": {
+          "scale": 0.95,
+          "ratio": 0.95,
+          "pop": 27.3,
+          "dx": 5,
+          "dy": 1
+        }
       }
     },
     {
@@ -122,16 +163,23 @@
         "image": "levels/american_southwest_sw_cactus_garden_ranch_bird_19f1/dogs/dog_05/sprite_000.png",
         "x": 2136,
         "y": 943,
-        "width": 162,
-        "height": 197,
+        "width": 174,
+        "height": 202,
         "cleanup": {
           "x": 2086,
           "y": 919,
           "width": 327,
           "height": 314
         },
-        "anchorX": 0.7593,
-        "anchorY": 0.599
+        "anchorX": 0.7644,
+        "anchorY": 0.5693,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 23.2,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -143,16 +191,23 @@
         "image": "levels/american_southwest_sw_cactus_garden_ranch_bird_19f1/dogs/dog_06/sprite_000.png",
         "x": 813,
         "y": 1409,
-        "width": 282,
-        "height": 172,
+        "width": 338,
+        "height": 206,
         "cleanup": {
           "x": 812,
           "y": 1319,
           "width": 302,
           "height": 345
         },
-        "anchorX": 0.6099,
-        "anchorY": 0.4826
+        "anchorX": 0.6124,
+        "anchorY": 0.4709,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 19.3,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -162,18 +217,31 @@
       "r": 57,
       "sprite": {
         "image": "levels/american_southwest_sw_cactus_garden_ranch_bird_19f1/dogs/dog_07/sprite_000.png",
-        "x": 1183,
-        "y": 1434,
-        "width": 162,
-        "height": 199,
+        "x": 1186,
+        "y": 1440,
+        "width": 156,
+        "height": 168,
         "cleanup": {
           "x": 1117,
           "y": 1386,
           "width": 277,
           "height": 345
         },
-        "anchorX": 0.3889,
-        "anchorY": 0.6281
+        "anchorX": 0.3846,
+        "anchorY": 0.7143,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 15.9,
+          "dx": 0,
+          "dy": -1
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop2",
+          "score": 0.9411,
+          "pop": 14.3
+        }
       }
     },
     {
@@ -183,18 +251,31 @@
       "r": 57,
       "sprite": {
         "image": "levels/american_southwest_sw_cactus_garden_ranch_bird_19f1/dogs/dog_08/sprite_000.png",
-        "x": 1628,
-        "y": 1390,
-        "width": 149,
-        "height": 70,
+        "x": 1670,
+        "y": 1387,
+        "width": 83,
+        "height": 81,
         "cleanup": {
           "x": 1553,
           "y": 1246,
           "width": 345,
           "height": 345
         },
-        "anchorX": 0.6577,
-        "anchorY": 0.4143
+        "anchorX": 0.6867,
+        "anchorY": 0.4074,
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop",
+          "score": 0.9407,
+          "pop": 20.2
+        },
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 21.3,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -206,16 +287,23 @@
         "image": "levels/american_southwest_sw_cactus_garden_ranch_bird_19f1/dogs/dog_09/sprite_000.png",
         "x": 455,
         "y": 1751,
-        "width": 201,
-        "height": 180,
+        "width": 205,
+        "height": 175,
         "cleanup": {
           "x": 401,
           "y": 1663,
           "width": 345,
           "height": 345
         },
-        "anchorX": 0.592,
-        "anchorY": 0.4722
+        "anchorX": 0.5805,
+        "anchorY": 0.4571,
+        "refit": {
+          "scale": 0.95,
+          "ratio": 1.0,
+          "pop": 22.3,
+          "dx": 6,
+          "dy": 5
+        }
       }
     },
     {
@@ -235,8 +323,15 @@
           "width": 345,
           "height": 345
         },
-        "anchorX": 0.1167,
-        "anchorY": 0.3791
+        "anchorX": 0.1111,
+        "anchorY": 0.4183,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 26.4,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -257,7 +352,14 @@
           "height": 344
         },
         "anchorX": 0.5748,
-        "anchorY": 0.5442
+        "anchorY": 0.5442,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 23.4,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -278,7 +380,14 @@
           "height": 314
         },
         "anchorX": 0.4903,
-        "anchorY": 0.5427
+        "anchorY": 0.5427,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 7.3,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -288,18 +397,31 @@
       "r": 57,
       "sprite": {
         "image": "levels/american_southwest_sw_cactus_garden_ranch_bird_19f1/dogs/dog_13/sprite_000.png",
-        "x": 1754,
-        "y": 2112,
-        "width": 225,
-        "height": 191,
+        "x": 1701,
+        "y": 2111,
+        "width": 278,
+        "height": 192,
         "cleanup": {
           "x": 1671,
           "y": 2070,
           "width": 314,
           "height": 314
         },
-        "anchorX": 0.3289,
-        "anchorY": 0.6021
+        "anchorX": 0.4568,
+        "anchorY": 0.6042,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 18.2,
+          "dx": 0,
+          "dy": 0
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop2",
+          "score": 0.9116,
+          "pop": 18.1
+        }
       }
     },
     {
@@ -320,7 +442,14 @@
           "height": 314
         },
         "anchorX": 0.4072,
-        "anchorY": 0.6321
+        "anchorY": 0.6321,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 15.4,
+          "dx": 0,
+          "dy": 0
+        }
       }
     }
   ]
