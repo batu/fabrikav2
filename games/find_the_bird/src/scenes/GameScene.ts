@@ -42,6 +42,9 @@ import {
 import { FindPraise } from '../ui/FindPraise';
 import { FindPraisePolicy } from '../ui/FindPraisePolicy';
 import { isHardBird } from '../data/birdDifficulty';
+import { birdTypeSnapshot, isSparrow, loadBirdTypes } from '../data/birdTypes';
+import { collectionThresholds } from '../collection/config';
+import { nextThreshold } from '../collection/thresholds';
 import { showTutorialOverlay, phaserPointToCssPoint, type TutorialHandle } from '../ui/TutorialOverlay';
 import { preloadLevelCompleteAssets, showLevelCompleteOverlay, dismissLevelCompleteOverlay } from '../ui/LevelCompleteOverlay';
 import { presentAchievementUnlocks } from '../ui/AchievementToast';
@@ -605,6 +608,10 @@ export class GameScene extends Phaser.Scene {
   }
 
   create(): void {
+    // Species tags must be warm before the first tap, so this is eager rather
+    // than idle-scheduled. It is a small same-origin JSON, cached for the
+    // session, and a failure resolves to "no tags" instead of rejecting.
+    void loadBirdTypes();
     // The test harness can live-apply experimental pickup presentations; the
     // registration is scene-scoped and cleared on shutdown.
     registerPickupStyleApplier((style) => this.setPickupStyleForTest(style));
@@ -1552,13 +1559,40 @@ export class GameScene extends Phaser.Scene {
     return false;
   }
 
+  /**
+   * Collection counter for a tagged species. Untagged birds (and every bird in
+   * a level the classifier has not reached) are simply not counted — the tag
+   * file fails closed, so a pickup is never mis-attributed.
+   */
+  private countCollectedBird(dog: LevelDog, canvasX: number, canvasY: number): void {
+    const level = this.level;
+    if (level === null) return;
+    const index = birdTypeSnapshot();
+    if (index === null || !isSparrow(index, level.id, dog.id)) return;
+
+    const total = gameState.incrementBirdCount('sparrow');
+    void analytics.birdCollected({ bird_type: 'sparrow', level_id: level.id, total });
+
+    // Chip reads the ladder so the player sees the counter move towards
+    // something, not just a bare "+1".
+    const next = nextThreshold(total, collectionThresholds());
+    const suffix = next.target === null ? '' : ` · ${String(total)}/${String(next.target)}`;
+    const css = phaserPointToCssPoint(this.scale.canvas, GAME.WIDTH, GAME.HEIGHT, canvasX, canvasY);
+    this.findPraise.showChip(css.x, css.y, `+1 sparrow${suffix}`);
+  }
+
   /** Dog found — reveal Voronoi cell clipped to polygon bounds. */
   private onDogFound(dog: LevelDog, canvasX: number, canvasY: number): void {
     if (this.isRestoration) this.assertRestorationDogReady(dog);
 
+    // Count the species BEFORE the found-set add, and only for a bird this
+    // attempt has not already accepted. A restoration replay or a double tap
+    // re-enters here with the same id; the collection must not pay twice.
+    const isFirstFind = !gameState.foundDogIds.has(dog.id);
     gameState.foundDogIds.add(dog.id);
     this.refreshDebugBirdStrip();
     if (this.debugWheelRing) { this.tweens.killTweensOf(this.debugWheelRing); this.debugWheelRing.destroy(); this.debugWheelRing = null; }
+    if (isFirstFind) this.countCollectedBird(dog, canvasX, canvasY);
     if (this.tutorialHandle?.stage === 'hinted-find' && dog.id === this.tutorialTargetDogId) {
       this.dismissHintCircle();
     }

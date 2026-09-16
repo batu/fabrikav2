@@ -34,6 +34,9 @@ export type FtdEvent =
   | 'app_background'
   | 'app_foreground'
   | 'dog_found'
+  | 'bird_collected'
+  | 'sanctuary_house'
+  | 'sanctuary_collect'
   | 'hint_used'
   | 'offer_shown'
   | 'offer_outcome'
@@ -119,6 +122,22 @@ interface DogFoundParams extends LevelAttributionParams {
   level_id: string;
   dog_index: number;
   time_since_start: number;
+}
+
+interface BirdCollectedParams {
+  bird_type: string;
+  level_id: string;
+  total: number;
+}
+
+interface SanctuaryHouseParams {
+  tier: number;
+  price: number;
+}
+
+interface SanctuaryCollectParams {
+  coins: number;
+  tier: number;
 }
 
 interface HintUsedParams extends LevelAttributionParams {
@@ -486,6 +505,24 @@ export class AnalyticsService {
 
   dogFound(params: DogFoundParams): Promise<void> {
     this.sdk.track('dog_found', compactParams({ ...params }));
+    return Promise.resolve();
+  }
+
+  /** A tagged species was picked up; `total` is the new lifetime count. */
+  birdCollected(params: BirdCollectedParams): Promise<void> {
+    this.sdk.track('bird_collected', compactParams({ ...params }));
+    return Promise.resolve();
+  }
+
+  /** A Sanctuary house was bought or upgraded to `tier`. */
+  sanctuaryHouse(params: SanctuaryHouseParams): Promise<void> {
+    this.sdk.track('sanctuary_house', compactParams({ ...params }));
+    return Promise.resolve();
+  }
+
+  /** Idle coins were collected from the Sanctuary pile. */
+  sanctuaryCollect(params: SanctuaryCollectParams): Promise<void> {
+    this.sdk.track('sanctuary_collect', compactParams({ ...params }));
     return Promise.resolve();
   }
 

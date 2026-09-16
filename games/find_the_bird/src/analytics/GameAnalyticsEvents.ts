@@ -130,6 +130,9 @@ export function gameAnalyticsDesignEventId(
   if (eventName === 'app_background') return 'app:background';
   if (eventName === 'app_foreground') return 'app:foreground';
   if (eventName === 'dog_found') return 'dog:found';
+  if (eventName === 'bird_collected') return `bird:collected:${String(fields.bird_type ?? 'unknown')}`;
+  if (eventName === 'sanctuary_house') return `sanctuary:house:tier_${String(fields.tier ?? 0)}`;
+  if (eventName === 'sanctuary_collect') return 'sanctuary:collect';
   if (eventName === 'hint_used') return 'hint:used';
   if (eventName === 'product_tapped') return 'store:product_tap';
   if (eventName === 'purchase_sheet_shown') return 'purchase:sheet_shown';
@@ -227,6 +230,9 @@ function canonicalEventIdForDesignEvent(eventId: string): CanonicalAnalyticsEven
   if (normalized === 'app:foreground') return 'app_foreground';
   if (normalized === 'experiment:exposure') return 'experiment_exposure';
   if (normalized === 'dog:found') return 'dog_found';
+  if (normalized.startsWith('bird:collected')) return 'bird_collected';
+  if (normalized.startsWith('sanctuary:house')) return 'sanctuary_house';
+  if (normalized === 'sanctuary:collect') return 'sanctuary_collect';
   if (normalized === 'hint:used') return 'hint_used';
   if (normalized === 'offer:shown') return 'offer_shown';
   if (normalized === 'offer:outcome') return 'offer_outcome';
