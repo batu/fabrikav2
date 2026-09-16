@@ -91,4 +91,4 @@ export const COLORS = {
 } as const;
 
 /** Harness-build debug overrides, set from Settings > Debug; null = shipped value. */
-export const DEBUG_OVERRIDES: { restorationDissolveMs: number | null; pickupFx: 'random' | 'leaf' | 'stars' | 'feathers' | 'confetti' | 'none'; flyJuice: boolean } = { restorationDissolveMs: null, pickupFx: 'none', flyJuice: true };
+export const DEBUG_OVERRIDES: { restorationDissolveMs: number | null; pickupFx: 'random' | 'leaf' | 'stars' | 'feathers' | 'confetti' | 'none' } = { restorationDissolveMs: null, pickupFx: 'none' };
