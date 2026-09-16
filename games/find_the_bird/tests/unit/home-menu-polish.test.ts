@@ -124,7 +124,7 @@ describe("home menu polish regressions", () => {
     expect(play.top).toBe("13px");
     expect(play.height).toBe("94px");
     expect(play.minHeight).toBe("94px");
-    expect(play.margin).toBe("-40px auto 20px");
+    expect(play.margin).toBe("-52px auto 6px");
 
     const sideNavIconRule = CSS_TEXT.match(/#home-shell \.home-nav-btn img\s*\{([^}]*)\}/s)?.[1] ?? "";
     expect(sideNavIconRule).toContain("margin-inline: auto");
