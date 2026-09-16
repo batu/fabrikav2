@@ -145,3 +145,24 @@ them through the same workflow. Batu reviews everything himself at the end from 
 - The editor's bulk single-call path ran one bird a minute because of the codex judge gate;
   `FTD_FLATKEY_NO_JUDGE=1` + `FTD_FLATKEY_SINGLE_WORKERS=6` gives ~90 s per level.
 - Metered per-bird extraction is $0.018 (painted-extent crops are larger than 182 px).
+
+## State at 19:50 UTC (end of the intake session)
+
+- Phone build `2415c7f1ae` (dirty tree at build time; the commit after it holds the same files)
+  carries all 104 levels bundled (373 MB, `FTD_NATIVE_BUNDLE_MAX_MB=700` for the review build).
+- Corpus: 1086 birds on 60 levels; 391 regenerated; 20 judged "no painted bird" and dropped from the
+  exports (sidecar `dropped_no_painted_bird_2026-09-16.json` per level); 2 birds never got a cutout and
+  were deleted from canonical; 16 still refused after regeneration (shipped as-is, on the Portal page).
+- Portal overview: https://portal.basegamelab.com/media/p_d0e256/01_report.html
+- Spend on the intake (ledger since 16:56 UTC): $40.18 (sunburst 2569 calls $34.84, gemini 1572
+  calls $5.35), of which ~$7.45 was lost to the pre-paint hitbox trap. Cap was $50.
+- Canonical export needed repairs on 31 levels: cleanup rects not containing the pickup point (98
+  birds; grown to the hitbox disc) and sprite asset paths recorded under the wrong slot folder
+  (promotion folder-index trap, 17 birds). `intake_repair.py` commits the fix via the contract with
+  review invalidation, then re-blesses with the delegated actor.
+- Banner: 56 of 60 levels have a bird inside the 14% band; all suppressed in levelBannerPolicy.ts.
+  The paint model ignores the deadzone at the bottom; a real fix is a paint-time constraint.
+- NOT done: the CDN/catalog streaming release for a store build (all 104 bundled = 373 MB > 200 MB
+  cap); the 40-43 repaint; commit of the new levels' color/bg PNGs (untracked, 2.3 GB) and
+  `.package-revisions/` (1.5 GB); on-device visual pass over the 60 (Batu reviews).
+- Judge: OpenRouter gemini-3.8-flash primary (agy was 1-4 min per panel), `TIER_PRIMARY` env.
