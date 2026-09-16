@@ -503,6 +503,19 @@ export function createFindTheDogHarness(game: Phaser.Game): FindTheDogHarness {
     pendingCoins?: number;
   }
 
+  /** Device-only diagnostics: append a line to the tour's debug badge, the one
+   *  pixel-observable channel on a phone with no web inspector. No-op unless
+   *  the badge exists (allstates-debug builds only). */
+  function metaTrace(message: string): void {
+    try {
+      const badge = document.getElementById('__tourdebug__');
+      if (badge === null) return;
+      badge.textContent = `${badge.textContent ?? ''}\n  meta: ${message}`.split('\n').slice(-10).join('\n');
+    } catch {
+      // Diagnostics only.
+    }
+  }
+
   function seedMetaProgress(seed: MetaSeed): void {
     // Past the collection's level gate for every state except the locked one,
     // which wants a fresh player.
@@ -530,16 +543,30 @@ export function createFindTheDogHarness(game: Phaser.Game): FindTheDogHarness {
     selector: string,
     ready: (snapshot: DriveSnapshot) => boolean,
   ): Promise<boolean> {
-    const atHome = findTheDogDrivePredicates.menu(driveSnapshot()) || await gotoHome();
-    if (!atHome) return false;
-    seedMetaProgress(seed);
-    // Home computes tile locks at render time, so it must be rebuilt after the
-    // seed or the nav button is still the locked one and refuses to route.
-    const rerendered = await gotoHome();
-    if (!rerendered) return false;
-    const clicked = await clickWhenHittable(selector, HOME_READY_TARGET_POLL_MS, HOME_READY_TARGET_MAX_POLLS);
-    if (!clicked) return false;
-    return waitUntil(() => ready(driveSnapshot()), SETTINGS_OPEN_TARGET_POLL_MS, SETTINGS_OPEN_TARGET_MAX_POLLS);
+    try {
+      // Seed BEFORE the single home render. Home computes its tile locks at
+      // render time, so the seed has to land first; and restarting HomeScene a
+      // second time to re-render is not an option, because its shutdown clears
+      // the whole #hud-overlay — including a page opened moments later, which
+      // is exactly how this drive used to lose the page ~700ms after opening it.
+      seedMetaProgress(seed);
+      const atHome = await gotoHome();
+      metaTrace(`atHome=${String(atHome)} sparrows=${String(gameState.birdCount('sparrow'))} tier=${String(gameState.sanctuary.houseTier)}`);
+      if (!atHome) return false;
+      const btn = document.querySelector<HTMLElement>(selector);
+      metaTrace(`lv=${String(gameState.totalLevelsCompleted)} cls=${String(btn?.className ?? 'missing')}`);
+      const clicked = await clickWhenHittable(selector, HOME_READY_TARGET_POLL_MS, HOME_READY_TARGET_MAX_POLLS);
+      const opened = await waitUntil(
+        () => ready(driveSnapshot()),
+        SETTINGS_OPEN_TARGET_POLL_MS,
+        SETTINGS_OPEN_TARGET_MAX_POLLS,
+      );
+      metaTrace(`clicked=${String(clicked)} anyPage=${String(document.getElementById('home-page-overlay') !== null)} opened=${String(opened)}`);
+      return opened;
+    } catch (err) {
+      metaTrace(`threw ${String(err)}`.slice(0, 120));
+      return false;
+    }
   }
 
   const COLLECTION_TRIGGER = '#home-nav-collection';
@@ -554,8 +581,6 @@ export function createFindTheDogHarness(game: Phaser.Game): FindTheDogHarness {
     switch (state) {
       case 'collection-locked': {
         // A fresh player: both tiles locked, nothing opened.
-        const atHome = findTheDogDrivePredicates.menu(driveSnapshot()) || await gotoHome();
-        if (!atHome) return false;
         seedMetaProgress({ sparrows: 0 });
         gameState.currentLevelIndex = 0;
         gameState.save();
