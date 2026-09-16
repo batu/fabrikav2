@@ -1,7 +1,8 @@
 import Phaser from 'phaser';
 import { gameState } from '../core/GameState';
 import { getLevelIndex, loadLevel, loadLevelForProgression, type LevelData, type LevelIndexEntry } from '../data/levels';
-import { initHUD, setHomeCallback } from '../ui/HUD';
+import { consumeDebugJumpIndex, initHUD, setHomeCallback } from '../ui/HUD';
+import { TEST_HARNESS_ENABLED } from '../core/Constants';
 import { bindHomeNavigation } from '../ui/homeNavigation';
 import { hideHomeMenuLayer, showHomeMenuLayer } from '../ui/OverlayVisibility';
 import { hideSceneTransitionCoverAfterPaint, showPlayEntryTransitionCover } from '../ui/SceneTransitionCover';
@@ -133,9 +134,21 @@ export class HomeScene extends Phaser.Scene {
       this.schedulePrewarmCurrentLevel();
     });
 
+    // Debug level selector (settings page, harness builds only).
+    const debugJump = (event: Event): void => {
+      const index = (event as CustomEvent<{ index: number }>).detail?.index;
+      if (Number.isInteger(index)) { consumeDebugJumpIndex(); void this.startLevelFromMap(index); }
+    };
+    if (TEST_HARNESS_ENABLED) {
+      window.addEventListener('ftb-debug-jump-level', debugJump);
+      const pending = consumeDebugJumpIndex();
+      if (pending !== null) void this.startLevelFromMap(pending);
+    }
+
     this.events.once('shutdown', () => {
       this.isShuttingDown = true;
       this.navigationGeneration += 1;
+      if (TEST_HARNESS_ENABLED) window.removeEventListener('ftb-debug-jump-level', debugJump);
       this.cancelScheduledHomeAmbient();
       this.cancelScheduledPrewarm();
       this.cancelScheduledDeferredIconPreload();
