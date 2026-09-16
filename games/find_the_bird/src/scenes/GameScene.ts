@@ -3191,7 +3191,8 @@ export class GameScene extends Phaser.Scene {
           Phaser.Math.Linear(startScaleX, targetScaleX, t),
           Phaser.Math.Linear(startScaleY, targetScaleY, t),
         );
-        image.setAlpha(Phaser.Math.Linear(1, 0.86, t));
+        // The flying sprite stays fully opaque (Batu 2026-09-16); only the
+        // carved area under it cross-fades.
         image.setAngle(Phaser.Math.Linear(0, -8, t));
       },
       onComplete: () => {
