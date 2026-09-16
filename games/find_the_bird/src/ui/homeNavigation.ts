@@ -49,13 +49,19 @@ export function bindHomeNavigation(overlay: HTMLElement, deps: HomeNavigationDep
     });
   }
 
-  const pageButtons: Array<[string, 'settings' | 'shop' | 'achievements']> = [
+  const pageButtons: Array<[string, 'settings' | 'shop' | 'achievements' | 'collection' | 'sanctuary']> = [
     ['#home-nav-settings', 'settings'],
     ['#home-nav-shop', 'shop'],
     ['#home-nav-achievements', 'achievements'],
+    ['#home-nav-collection', 'collection'],
+    ['#home-nav-sanctuary', 'sanctuary'],
   ];
   for (const [id, page] of pageButtons) {
-    overlay.querySelector<HTMLButtonElement>(id)?.addEventListener('click', (e) => {
+    const button = overlay.querySelector<HTMLButtonElement>(id);
+    // A locked tile already carries the shake listener above; wiring routing on
+    // top of it would open the page the padlock says is closed.
+    if (button === null || button.classList.contains('home-nav-btn--locked')) continue;
+    button.addEventListener('click', (e) => {
       if (document.getElementById('home-page-overlay')) return;
       deps.triggerNavBounce(e.currentTarget as HTMLButtonElement);
       open(page);

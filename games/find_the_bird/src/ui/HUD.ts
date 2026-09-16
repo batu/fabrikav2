@@ -17,6 +17,8 @@ import { animateHintsToBalance } from './EconomyTransfer';
 import { getLegalLinks, type LegalLinks } from '../platform/LegalLinks';
 import { privacyConsentService } from '../privacy/PrivacyConsentService';
 import { renderAchievementHeaderBalances, renderAchievementsPageBody, wireAchievementClaimButtons } from './AchievementsPage';
+import { renderCollectionPageBody, wireCollectionPage } from './CollectionPage';
+import { renderSanctuaryPageBody, wireSanctuaryPage } from './SanctuaryPage';
 import { rewardedAdIconMarkup } from './RewardedAdIcon';
 import { hideHomeMenuLayer } from './OverlayVisibility';
 import { HOME_NO_ADS_BADGE_SRC } from './iconPreload';
@@ -484,7 +486,7 @@ function updateRestorationProgress(_totalDogs: number, _restorationActive: boole
 // ── Phase 1: Full-screen slide-in page shell ──────────────────────
 
 export function openPage(
-  id: 'shop' | 'settings' | 'achievements',
+  id: 'shop' | 'settings' | 'achievements' | 'collection' | 'sanctuary',
   opts: { scrollTo?: 'hints' | 'coins' | 'entitlements'; purchase?: 'no-ads' } = {},
 ): void {
   const overlay = document.getElementById('hud-overlay');
@@ -505,7 +507,11 @@ export function openPage(
   page.id = 'home-page-overlay';
   page.className = 'home-page-overlay';
   pageOpener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-  const title = id === 'shop' ? 'Shop' : id === 'settings' ? 'Settings' : 'Achievements';
+  const title = id === 'shop' ? 'Shop'
+    : id === 'settings' ? 'Settings'
+    : id === 'collection' ? 'Collection'
+    : id === 'sanctuary' ? 'Sanctuary'
+    : 'Achievements';
   page.setAttribute('role', 'dialog');
   page.setAttribute('aria-modal', 'true');
   page.setAttribute('aria-labelledby', 'home-page-title');
@@ -518,7 +524,11 @@ export function openPage(
       ${id === 'shop' ? renderShopHeaderBalances() : id === 'achievements' ? renderAchievementHeaderBalances() : ''}
     </div>
     <div class="home-page-body">
-      ${id === 'shop' ? renderShopPageBody() : id === 'settings' ? renderSettingsPageBody() : renderAchievementsPageBody()}
+      ${id === 'shop' ? renderShopPageBody()
+        : id === 'settings' ? renderSettingsPageBody()
+        : id === 'collection' ? renderCollectionPageBody()
+        : id === 'sanctuary' ? renderSanctuaryPageBody()
+        : renderAchievementsPageBody()}
     </div>
   `;
 
@@ -534,7 +544,10 @@ export function openPage(
     touchStartedInScrollableBody = e.target instanceof Element && e.target.closest('.home-page-body') !== null;
   }, { passive: true });
   page.addEventListener('touchend', (e) => {
-    if ((id === 'shop' || id === 'achievements') && touchStartedInScrollableBody) return;
+    // Collection swipes horizontally and the Sanctuary is tappable scenery, so
+    // a diagonal drag inside their bodies must not be read as swipe-to-close.
+    const bodyOwnsGesture = id === 'shop' || id === 'achievements' || id === 'collection' || id === 'sanctuary';
+    if (bodyOwnsGesture && touchStartedInScrollableBody) return;
     if (e.changedTouches[0].clientY - touchStartY >= 80) closePage();
   }, { passive: true });
 
@@ -544,6 +557,8 @@ export function openPage(
   }
   if (id === 'shop') page.classList.add('home-page-shop');
   if (id === 'achievements') page.classList.add('home-page-achievements');
+  if (id === 'collection') page.classList.add('home-page-collection');
+  if (id === 'sanctuary') page.classList.add('home-page-sanctuary');
   if (id === 'settings') page.classList.add('home-page-settings');
   // Deep-link opens jump to a section, so skip the staggered content entrance
   // (otherwise the scrolled-to section sits empty then pops in after its delay).
@@ -551,6 +566,8 @@ export function openPage(
 
   overlay.appendChild(page);
   if (id === 'achievements') wireAchievementClaimButtons(page);
+  if (id === 'collection') wireCollectionPage(page);
+  if (id === 'sanctuary') wireSanctuaryPage(page);
   shell?.setAttribute('inert', '');
   pageEscapeHandler = (event: KeyboardEvent): void => {
     if (event.key === 'Escape') {

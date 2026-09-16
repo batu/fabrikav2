@@ -4,6 +4,8 @@ import { getLevelIndex, loadLevel, loadLevelForProgression, type LevelData, type
 import { consumeDebugJumpIndex, initHUD, setHomeCallback } from '../ui/HUD';
 import { TEST_HARNESS_ENABLED } from '../core/Constants';
 import { bindHomeNavigation } from '../ui/homeNavigation';
+import { metaGates } from '../home/metaGates';
+import { collectionThresholds, collectionUnlockLevel } from '../collection/config';
 import { hideHomeMenuLayer, showHomeMenuLayer } from '../ui/OverlayVisibility';
 import { hideSceneTransitionCoverAfterPaint, showPlayEntryTransitionCover } from '../ui/SceneTransitionCover';
 import { adService } from '../ads/Service';
@@ -214,7 +216,24 @@ export class HomeScene extends Phaser.Scene {
       },
     });
 
+    this.retireMetaUnlockPops(overlay);
     this.mountHomeLevelMap();
+  }
+
+  /**
+   * The unlock pop is a one-shot: the class is rendered once, then the flag is
+   * persisted so the next home render is calm. Marked as soon as the tile is in
+   * the DOM rather than on animationend — an animationend that never fires
+   * (tab hidden, reduced motion, tile re-rendered mid-animation) must not make
+   * the tile pop forever.
+   */
+  private retireMetaUnlockPops(overlay: HTMLElement): void {
+    const popped = overlay.querySelectorAll<HTMLButtonElement>('.home-nav-btn--unlock-pop');
+    if (popped.length === 0) return;
+    for (const button of popped) {
+      if (button.id === 'home-nav-collection') gameState.markCollectionTileUnlockShown();
+      if (button.id === 'home-nav-sanctuary') gameState.markSanctuaryTileUnlockShown();
+    }
   }
 
   /** (Re)mount just the level-map rail. Split out so the post-level-load update
@@ -542,6 +561,14 @@ export class HomeScene extends Phaser.Scene {
     const currentLevel = gameState.currentLevelIndex + 1;
     const achievementProjection = gameState.achievementReadProjection();
     const achievementsEnabled = remoteConfigService.value('achievementsEnabled');
+    const gates = metaGates({
+      totalLevelsCompleted: gameState.totalLevelsCompleted,
+      sparrowCount: gameState.birdCount('sparrow'),
+      collectionUnlockLevel: collectionUnlockLevel(),
+      thresholds: collectionThresholds(),
+      collectionPopShown: gameState.collectionMeta.tileUnlockPopShown,
+      sanctuaryPopShown: gameState.sanctuary.tileUnlockPopShown,
+    });
     const claimableAchievements = achievementsEnabled && achievementProjection.status === 'ready'
       ? achievementProjection.achievements.filter((a) => a.rewardStatus === 'unlocked-reward-claimable').length
       : 0;
@@ -605,11 +632,11 @@ export class HomeScene extends Phaser.Scene {
             <span>Achievements</span>
             ${claimableAchievements > 0 ? '<span class="home-claim-dot home-claim-dot--nav" aria-hidden="true"></span>' : ''}
           </button>` : ''}
-          <button id="home-nav-sanctuary" class="home-nav-btn home-nav-btn--locked" type="button" aria-disabled="true" aria-label="Sanctuary, coming soon">
+          <button id="home-nav-sanctuary" class="home-nav-btn${gates.sanctuaryUnlocked ? '' : ' home-nav-btn--locked'}${gates.sanctuaryPopPending ? ' home-nav-btn--unlock-pop' : ''}" type="button"${gates.sanctuaryUnlocked ? '' : ' aria-disabled="true"'} aria-label="${gates.sanctuaryUnlocked ? 'Open sanctuary' : 'Sanctuary, locked until your first bird is unlocked'}">
             <img src="/ui/sanctuary/sanctuary-nav-icon.png" alt="" aria-hidden="true">
             <span>Sanctuary</span>
           </button>
-          <button id="home-nav-collection" class="home-nav-btn home-nav-btn--locked" type="button" aria-disabled="true" aria-label="Bird collection, coming soon">
+          <button id="home-nav-collection" class="home-nav-btn${gates.collectionUnlocked ? '' : ' home-nav-btn--locked'}${gates.collectionPopPending ? ' home-nav-btn--unlock-pop' : ''}" type="button"${gates.collectionUnlocked ? '' : ' aria-disabled="true"'} aria-label="${gates.collectionUnlocked ? 'Open bird collection' : 'Bird collection, locked until level ' + String(collectionUnlockLevel())}">
             <img src="/ui/sanctuary/birds-nav-icon.png" alt="" aria-hidden="true">
             <span>Collection</span>
           </button>
