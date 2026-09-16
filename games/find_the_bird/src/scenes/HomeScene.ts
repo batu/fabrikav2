@@ -589,11 +589,11 @@ export class HomeScene extends Phaser.Scene {
             <span>Achievements</span>
             ${claimableAchievements > 0 ? '<span class="home-claim-dot home-claim-dot--nav" aria-hidden="true"></span>' : ''}
           </button>` : ''}
-          <button id="home-nav-sanctuary" class="home-nav-btn home-nav-btn--locked" type="button" disabled aria-label="Sanctuary, coming soon">
+          <button id="home-nav-sanctuary" class="home-nav-btn home-nav-btn--locked" type="button" aria-disabled="true" aria-label="Sanctuary, coming soon">
             <img src="/ui/sanctuary/sanctuary-nav-icon.png" alt="" aria-hidden="true">
             <span>Sanctuary</span>
           </button>
-          <button id="home-nav-collection" class="home-nav-btn home-nav-btn--locked" type="button" disabled aria-label="Bird collection, coming soon">
+          <button id="home-nav-collection" class="home-nav-btn home-nav-btn--locked" type="button" aria-disabled="true" aria-label="Bird collection, coming soon">
             <img src="/ui/sanctuary/birds-nav-icon.png" alt="" aria-hidden="true">
             <span>Collection</span>
           </button>

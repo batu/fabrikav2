@@ -3,6 +3,7 @@ import { animateCoinsToBalance, animateHintsToBalance } from './EconomyTransfer'
 import { gameState } from '../core/GameState';
 import { analytics } from '../analytics/AnalyticsService';
 import { refreshHomeWalletBalances } from './WalletBalances';
+import { hapticWrong } from '../haptics/HapticsManager';
 
 export interface HomeNavigationDeps {
   /** Tap feedback on the pressed button (bounce animation). */
@@ -19,8 +20,33 @@ export interface HomeNavigationDeps {
  * Pure DOM — extracted from HomeScene so routing is click-testable without
  * a Phaser scene.
  */
+/**
+ * Locked nav tile tapped: roll-shake the tile and fire the "wrong" haptic. No
+ * navigation. Same restart/listener guard as triggerNavBounce, since rapid
+ * re-taps cancel the in-flight animation and animationend never fires.
+ */
+export function shakeLockedNavButton(button: HTMLButtonElement): void {
+  hapticWrong();
+  button.classList.remove('home-nav-btn--shake');
+  void button.offsetWidth;
+  button.classList.add('home-nav-btn--shake');
+  const prev = (button as HTMLButtonElement & { __shakeEnd?: () => void }).__shakeEnd;
+  if (prev !== undefined) button.removeEventListener('animationend', prev);
+  const onEnd = (): void => { button.classList.remove('home-nav-btn--shake'); };
+  (button as HTMLButtonElement & { __shakeEnd?: () => void }).__shakeEnd = onEnd;
+  button.addEventListener('animationend', onEnd, { once: true });
+}
+
 export function bindHomeNavigation(overlay: HTMLElement, deps: HomeNavigationDeps): void {
   const open = deps.openPage ?? openPage;
+
+  for (const locked of overlay.querySelectorAll<HTMLButtonElement>('.home-nav-btn--locked')) {
+    locked.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (document.getElementById('home-page-overlay')) return;
+      shakeLockedNavButton(e.currentTarget as HTMLButtonElement);
+    });
+  }
 
   const pageButtons: Array<[string, 'settings' | 'shop' | 'achievements']> = [
     ['#home-nav-settings', 'settings'],
