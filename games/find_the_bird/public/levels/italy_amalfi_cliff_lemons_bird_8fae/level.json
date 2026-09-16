@@ -15,22 +15,22 @@
         "image": "levels/italy_amalfi_cliff_lemons_bird_8fae/dogs/dog_00/sprite_000.png",
         "x": 528,
         "y": 448,
-        "width": 124,
-        "height": 167,
+        "width": 133,
+        "height": 171,
         "cleanup": {
           "x": 496,
           "y": 406,
           "width": 325,
           "height": 338
         },
-        "anchorX": 0.5,
-        "anchorY": 0.4551,
+        "anchorX": 0.5038,
+        "anchorY": 0.4561,
         "refit": {
-          "scale": 0.65,
-          "ratio": 0.95,
-          "pop": 27.0,
-          "dx": 58,
-          "dy": 47
+          "scale": 1.05,
+          "ratio": 1.05,
+          "pop": 18.4,
+          "dx": -5,
+          "dy": -1
         }
       }
     },
@@ -82,11 +82,11 @@
         "anchorX": 0.6221,
         "anchorY": 0.4357,
         "refit": {
-          "scale": 0.85,
+          "scale": 1.0,
           "ratio": 1.0,
-          "pop": 35.1,
-          "dx": 26,
-          "dy": 5
+          "pop": 35.7,
+          "dx": 0,
+          "dy": 0
         }
       }
     },
@@ -110,11 +110,11 @@
         "anchorX": 0.4262,
         "anchorY": 0.4885,
         "refit": {
-          "scale": 0.95,
+          "scale": 1.0,
           "ratio": 1.0,
-          "pop": 28.4,
-          "dx": 3,
-          "dy": 3
+          "pop": 29.6,
+          "dx": 0,
+          "dy": 0
         }
       }
     },
@@ -125,18 +125,24 @@
       "r": 57,
       "sprite": {
         "image": "levels/italy_amalfi_cliff_lemons_bird_8fae/dogs/dog_04/sprite_000.png",
-        "x": 1698,
-        "y": 631,
-        "width": 226,
-        "height": 163,
+        "x": 1764,
+        "y": 687,
+        "width": 76,
+        "height": 64,
         "cleanup": {
           "x": 1615,
           "y": 600,
           "width": 345,
           "height": 273
         },
-        "anchorX": 0.4027,
-        "anchorY": 0.9018
+        "anchorX": 0.3289,
+        "anchorY": 1.4219,
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop",
+          "score": 0.7522,
+          "pop": 52.9
+        }
       }
     },
     {
@@ -159,11 +165,11 @@
         "anchorX": 0.5153,
         "anchorY": 0.6667,
         "refit": {
-          "scale": 0.95,
+          "scale": 1.0,
           "ratio": 1.0,
-          "pop": 24.4,
-          "dx": 3,
-          "dy": 8
+          "pop": 25.1,
+          "dx": 0,
+          "dy": 0
         }
       }
     },
@@ -294,16 +300,16 @@
         "image": "levels/italy_amalfi_cliff_lemons_bird_8fae/dogs/dog_10/sprite_000.png",
         "x": 1661,
         "y": 1133,
-        "width": 112,
-        "height": 80,
+        "width": 69,
+        "height": 39,
         "cleanup": {
           "x": 1579,
           "y": 1101,
           "width": 345,
           "height": 252
         },
-        "anchorX": 0.5536,
-        "anchorY": 0.5125,
+        "anchorX": 0.7246,
+        "anchorY": 0.0769,
         "technique": "gpt-image-2.5-sunburst-low-visible-only",
         "regen": {
           "pass": "crop",
@@ -313,9 +319,9 @@
         "refit": {
           "scale": 0.5499999999999999,
           "ratio": 1.25,
-          "pop": 26.2,
-          "dx": 29,
-          "dy": 36
+          "pop": 19.8,
+          "dx": 12,
+          "dy": 38
         }
       }
     },
@@ -348,7 +354,7 @@
           "scale": 1.0,
           "ratio": 1.0,
           "pop": 22.1,
-          "dx": -1,
+          "dx": 0,
           "dy": 0
         }
       }
@@ -373,11 +379,11 @@
         "anchorX": 0.5455,
         "anchorY": 0.6,
         "refit": {
-          "scale": 0.8,
+          "scale": 1.0,
           "ratio": 1.0,
-          "pop": 23.6,
-          "dx": 7,
-          "dy": 11
+          "pop": 24.0,
+          "dx": 0,
+          "dy": 0
         }
       }
     },
@@ -401,10 +407,10 @@
         "anchorX": 0.6477,
         "anchorY": 0.3571,
         "refit": {
-          "scale": 0.8,
+          "scale": 1.0,
           "ratio": 1.0,
-          "pop": 22.4,
-          "dx": 35,
+          "pop": 23.1,
+          "dx": 0,
           "dy": 0
         }
       }
@@ -429,11 +435,11 @@
         "anchorX": 0.4684,
         "anchorY": 0.385,
         "refit": {
-          "scale": 1.15,
+          "scale": 1.0,
           "ratio": 1.0,
-          "pop": 34.3,
-          "dx": -24,
-          "dy": -12
+          "pop": 34.7,
+          "dx": 0,
+          "dy": 0
         }
       }
     },
@@ -457,11 +463,11 @@
         "anchorX": 0.4771,
         "anchorY": 0.7301,
         "refit": {
-          "scale": 0.95,
+          "scale": 1.0,
           "ratio": 1.0,
-          "pop": 39.7,
-          "dx": 4,
-          "dy": 4
+          "pop": 41.2,
+          "dx": 0,
+          "dy": 0
         }
       }
     },
@@ -474,22 +480,22 @@
         "image": "levels/italy_amalfi_cliff_lemons_bird_8fae/dogs/dog_16/sprite_000.png",
         "x": 857,
         "y": 1807,
-        "width": 186,
-        "height": 209,
+        "width": 191,
+        "height": 204,
         "cleanup": {
           "x": 765,
           "y": 1800,
           "width": 320,
           "height": 321
         },
-        "anchorX": 0.7097,
-        "anchorY": 0.512,
+        "anchorX": 0.7016,
+        "anchorY": 0.5196,
         "refit": {
           "scale": 1.0,
-          "ratio": 0.95,
-          "pop": 32.9,
-          "dx": 2,
-          "dy": -1
+          "ratio": 1.05,
+          "pop": 30.7,
+          "dx": -1,
+          "dy": 1
         }
       }
     },
@@ -513,11 +519,11 @@
         "anchorX": 0.4652,
         "anchorY": 0.2968,
         "refit": {
-          "scale": 1.05,
-          "ratio": 0.95,
-          "pop": 24.2,
-          "dx": -4,
-          "dy": -1
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 24.4,
+          "dx": 0,
+          "dy": 0
         }
       }
     },
@@ -528,18 +534,31 @@
       "r": 57,
       "sprite": {
         "image": "levels/italy_amalfi_cliff_lemons_bird_8fae/dogs/dog_18/sprite_000.png",
-        "x": 462,
-        "y": 2069,
-        "width": 224,
-        "height": 209,
+        "x": 484,
+        "y": 2092,
+        "width": 178,
+        "height": 153,
         "cleanup": {
           "x": 387,
           "y": 2063,
           "width": 327,
           "height": 198
         },
-        "anchorX": 0.7232,
-        "anchorY": 0.5789
+        "anchorX": 0.7865,
+        "anchorY": 0.6405,
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop2",
+          "score": 0.9328,
+          "pop": 14.0
+        },
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 15.9,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {

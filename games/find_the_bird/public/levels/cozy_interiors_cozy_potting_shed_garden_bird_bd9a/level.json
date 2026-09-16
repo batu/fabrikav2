@@ -54,11 +54,11 @@
         "anchorX": 0.7135,
         "anchorY": 0.3958,
         "refit": {
-          "scale": 1.05,
-          "ratio": 1.15,
-          "pop": 12.3,
-          "dx": -14,
-          "dy": 4
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 12.2,
+          "dx": 0,
+          "dy": 0
         }
       }
     },
@@ -82,11 +82,11 @@
         "anchorX": 0.6216,
         "anchorY": 0.6509,
         "refit": {
-          "scale": 0.85,
-          "ratio": 1.05,
-          "pop": 30.1,
-          "dx": 13,
-          "dy": 17
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 30.4,
+          "dx": 0,
+          "dy": 0
         }
       }
     },
@@ -138,11 +138,11 @@
         "anchorX": 0.3548,
         "anchorY": 0.5681,
         "refit": {
-          "scale": 1.05,
+          "scale": 1.0,
           "ratio": 1.0,
-          "pop": 21.8,
-          "dx": -1,
-          "dy": -9
+          "pop": 21.4,
+          "dx": 0,
+          "dy": 0
         }
       }
     },
@@ -166,11 +166,11 @@
         "anchorX": 0.4462,
         "anchorY": 0.5329,
         "refit": {
-          "scale": 1.1,
+          "scale": 1.0,
           "ratio": 1.0,
-          "pop": 12.8,
-          "dx": -8,
-          "dy": -9
+          "pop": 12.6,
+          "dx": 0,
+          "dy": 0
         }
       }
     },
@@ -194,11 +194,11 @@
         "anchorX": 0.5551,
         "anchorY": 0.5492,
         "refit": {
-          "scale": 0.95,
-          "ratio": 1.05,
-          "pop": 23.8,
-          "dx": 6,
-          "dy": 9
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 24.0,
+          "dx": 0,
+          "dy": 0
         }
       }
     },
@@ -209,18 +209,31 @@
       "r": 57,
       "sprite": {
         "image": "levels/cozy_interiors_cozy_potting_shed_garden_bird_bd9a/dogs/dog_07/sprite_000.png",
-        "x": 909,
-        "y": 1411,
-        "width": 197,
-        "height": 166,
+        "x": 914,
+        "y": 1413,
+        "width": 98,
+        "height": 114,
         "cleanup": {
           "x": 898,
           "y": 1402,
           "width": 214,
           "height": 214
         },
-        "anchorX": 0.269,
-        "anchorY": 0.3012
+        "anchorX": 0.5102,
+        "anchorY": 0.4298,
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop",
+          "score": 0.9605,
+          "pop": 13.5
+        },
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 13.9,
+          "dx": -1,
+          "dy": 0
+        }
       }
     },
     {
@@ -243,10 +256,10 @@
         "anchorX": 0.3429,
         "anchorY": 0.4632,
         "refit": {
-          "scale": 0.9500000000000001,
-          "ratio": 0.85,
-          "pop": 21.1,
-          "dx": 7,
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 21.6,
+          "dx": 0,
           "dy": 0
         }
       }
@@ -271,11 +284,11 @@
         "anchorX": 0.6603,
         "anchorY": 0.671,
         "refit": {
-          "scale": 0.95,
+          "scale": 1.0,
           "ratio": 1.0,
-          "pop": 16.8,
-          "dx": 9,
-          "dy": 4
+          "pop": 17.2,
+          "dx": 0,
+          "dy": 0
         }
       }
     },
@@ -300,10 +313,10 @@
         "anchorY": 0.5067,
         "refit": {
           "scale": 1.0,
-          "ratio": 0.95,
-          "pop": 15.3,
-          "dx": 3,
-          "dy": -3
+          "ratio": 1.0,
+          "pop": 15.8,
+          "dx": 0,
+          "dy": 0
         }
       }
     },
@@ -428,22 +441,22 @@
         "image": "levels/cozy_interiors_cozy_potting_shed_garden_bird_bd9a/dogs/dog_15/sprite_000.png",
         "x": 1425,
         "y": 1243,
-        "width": 89,
-        "height": 56,
+        "width": 86,
+        "height": 47,
         "cleanup": {
           "x": 1338,
           "y": 1138,
           "width": 314,
           "height": 314
         },
-        "anchorX": 0.618,
-        "anchorY": 0.3393,
+        "anchorX": 0.6279,
+        "anchorY": 0.2553,
         "refit": {
-          "scale": 0.5499999999999999,
-          "ratio": 1.2,
-          "pop": 36.9,
-          "dx": 15,
-          "dy": 33
+          "scale": 0.9,
+          "ratio": 1.15,
+          "pop": 34.7,
+          "dx": 1,
+          "dy": 7
         }
       }
     },
@@ -476,8 +489,8 @@
           "scale": 1.0,
           "ratio": 1.0,
           "pop": 24.3,
-          "dx": -2,
-          "dy": -1
+          "dx": 0,
+          "dy": 0
         }
       }
     },
@@ -501,11 +514,11 @@
         "anchorX": 0.5448,
         "anchorY": 0.4483,
         "refit": {
-          "scale": 0.95,
+          "scale": 1.0,
           "ratio": 1.0,
-          "pop": 21.9,
-          "dx": 4,
-          "dy": 2
+          "pop": 22.2,
+          "dx": 0,
+          "dy": 0
         }
       }
     },
@@ -516,18 +529,31 @@
       "r": 57,
       "sprite": {
         "image": "levels/cozy_interiors_cozy_potting_shed_garden_bird_bd9a/dogs/dog_18/sprite_000.png",
-        "x": 1991,
-        "y": 1215,
-        "width": 169,
-        "height": 129,
+        "x": 2089,
+        "y": 1213,
+        "width": 70,
+        "height": 117,
         "cleanup": {
           "x": 2013,
           "y": 1168,
           "width": 291,
           "height": 286
         },
-        "anchorX": 0.787,
-        "anchorY": 0.4651
+        "anchorX": 0.5,
+        "anchorY": 0.547,
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop",
+          "score": 0.9024,
+          "pop": 14.6
+        },
+        "refit": {
+          "scale": 1.0,
+          "ratio": 0.95,
+          "pop": 14.1,
+          "dx": 0,
+          "dy": -1
+        }
       }
     }
   ]

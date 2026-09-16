@@ -69,7 +69,7 @@
           "scale": 1.0,
           "ratio": 1.0,
           "pop": 24.5,
-          "dx": -1,
+          "dx": 0,
           "dy": 0
         }
       }
@@ -100,11 +100,11 @@
           "pop": 28.9
         },
         "refit": {
-          "scale": 1.05,
-          "ratio": 0.95,
-          "pop": 18.4,
-          "dx": -2,
-          "dy": -4
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 19.2,
+          "dx": 0,
+          "dy": 0
         }
       }
     },
@@ -137,7 +137,7 @@
           "scale": 1.0,
           "ratio": 1.0,
           "pop": 15.0,
-          "dx": -1,
+          "dx": 0,
           "dy": 0
         }
       }
@@ -172,7 +172,7 @@
           "ratio": 1.0,
           "pop": 27.7,
           "dx": 0,
-          "dy": -1
+          "dy": 0
         }
       }
     },
@@ -206,7 +206,7 @@
           "ratio": 1.0,
           "pop": 20.0,
           "dx": 0,
-          "dy": -1
+          "dy": 0
         }
       }
     },
@@ -264,11 +264,11 @@
         "anchorX": 0.306,
         "anchorY": 0.367,
         "refit": {
-          "scale": 0.5499999999999999,
-          "ratio": 1.05,
-          "pop": 35.6,
-          "dx": 76,
-          "dy": -23
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 36.6,
+          "dx": 0,
+          "dy": 0
         }
       }
     },
@@ -292,11 +292,11 @@
         "anchorX": 0.3393,
         "anchorY": 0.5282,
         "refit": {
-          "scale": 0.65,
+          "scale": 1.0,
           "ratio": 1.0,
-          "pop": 28.1,
-          "dx": 90,
-          "dy": 62
+          "pop": 29.7,
+          "dx": 0,
+          "dy": 0
         }
       }
     },
@@ -330,7 +330,7 @@
           "ratio": 1.0,
           "pop": 32.6,
           "dx": 0,
-          "dy": -1
+          "dy": 0
         }
       }
     },
@@ -363,8 +363,8 @@
           "scale": 1.0,
           "ratio": 1.0,
           "pop": 17.4,
-          "dx": -2,
-          "dy": -1
+          "dx": 0,
+          "dy": 0
         }
       }
     },
@@ -397,8 +397,8 @@
           "scale": 1.0,
           "ratio": 1.0,
           "pop": 22.4,
-          "dx": -1,
-          "dy": -1
+          "dx": 0,
+          "dy": 0
         }
       }
     },
@@ -431,7 +431,7 @@
           "scale": 1.0,
           "ratio": 1.0,
           "pop": 22.7,
-          "dx": -2,
+          "dx": 0,
           "dy": 0
         }
       }
@@ -445,22 +445,22 @@
         "image": "levels/nordic_cold_stockholm_christmas_market_bird_53ea/dogs/dog_13/sprite_000.png",
         "x": 1282,
         "y": 984,
-        "width": 156,
-        "height": 107,
+        "width": 126,
+        "height": 108,
         "cleanup": {
           "x": 1278,
           "y": 975,
           "width": 247,
           "height": 251
         },
-        "anchorX": 0.5897,
-        "anchorY": 0.2243,
+        "anchorX": 0.619,
+        "anchorY": 0.2315,
         "refit": {
-          "scale": 0.5499999999999999,
-          "ratio": 1.2,
-          "pop": 39.8,
-          "dx": 76,
-          "dy": 67
+          "scale": 0.8999999999999999,
+          "ratio": 0.8,
+          "pop": 40.7,
+          "dx": 13,
+          "dy": 0
         }
       }
     },
@@ -518,11 +518,11 @@
         "anchorX": 0.5,
         "anchorY": 0.4672,
         "refit": {
-          "scale": 0.6,
+          "scale": 1.0,
           "ratio": 1.0,
-          "pop": 29.2,
-          "dx": 79,
-          "dy": 153
+          "pop": 29.8,
+          "dx": 0,
+          "dy": 0
         }
       }
     },
@@ -533,18 +533,31 @@
       "r": 57,
       "sprite": {
         "image": "levels/nordic_cold_stockholm_christmas_market_bird_53ea/dogs/dog_16/sprite_000.png",
-        "x": 362,
-        "y": 1338,
-        "width": 202,
-        "height": 256,
+        "x": 375,
+        "y": 1389,
+        "width": 131,
+        "height": 197,
         "cleanup": {
           "x": 318,
           "y": 1311,
           "width": 345,
           "height": 284
         },
-        "anchorX": 0.3564,
-        "anchorY": 0.4883
+        "anchorX": 0.4504,
+        "anchorY": 0.3706,
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop2",
+          "score": 0.8728,
+          "pop": 15.3
+        },
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 15.6,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -554,18 +567,31 @@
       "r": 57,
       "sprite": {
         "image": "levels/nordic_cold_stockholm_christmas_market_bird_53ea/dogs/dog_17/sprite_000.png",
-        "x": 440,
-        "y": 1637,
-        "width": 135,
-        "height": 229,
+        "x": 446,
+        "y": 1650,
+        "width": 118,
+        "height": 174,
         "cleanup": {
           "x": 302,
           "y": 1597,
           "width": 332,
           "height": 283
         },
-        "anchorX": 0.4444,
-        "anchorY": 0.4192
+        "anchorX": 0.4831,
+        "anchorY": 0.4828,
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop",
+          "score": 0.9431,
+          "pop": 13.6
+        },
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 26.4,
+          "dx": -3,
+          "dy": -1
+        }
       }
     },
     {
@@ -597,8 +623,8 @@
           "scale": 1.0,
           "ratio": 1.0,
           "pop": 18.0,
-          "dx": -1,
-          "dy": -1
+          "dx": 0,
+          "dy": 0
         }
       }
     },
@@ -667,22 +693,22 @@
         "image": "levels/nordic_cold_stockholm_christmas_market_bird_53ea/dogs/dog_21/sprite_000.png",
         "x": 1494,
         "y": 2050,
-        "width": 147,
-        "height": 101,
+        "width": 143,
+        "height": 104,
         "cleanup": {
           "x": 1473,
           "y": 1905,
           "width": 283,
           "height": 312
         },
-        "anchorX": 0.6735,
-        "anchorY": 0.2772,
+        "anchorX": 0.6713,
+        "anchorY": 0.2885,
         "refit": {
-          "scale": 0.65,
-          "ratio": 1.05,
-          "pop": 35.7,
-          "dx": -4,
-          "dy": 0
+          "scale": 1.0,
+          "ratio": 0.95,
+          "pop": 34.3,
+          "dx": 3,
+          "dy": -2
         }
       }
     },
@@ -712,11 +738,11 @@
           "pop": 34.6
         },
         "refit": {
-          "scale": 0.95,
-          "ratio": 0.95,
-          "pop": 31.1,
-          "dx": 2,
-          "dy": 2
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 32.3,
+          "dx": 0,
+          "dy": 0
         }
       }
     },
@@ -851,7 +877,7 @@
           "scale": 1.0,
           "ratio": 1.0,
           "pop": 22.0,
-          "dx": -1,
+          "dx": 0,
           "dy": 0
         }
       }
@@ -944,10 +970,10 @@
         "anchorX": 0.5632,
         "anchorY": 0.5,
         "refit": {
-          "scale": 0.8,
+          "scale": 1.0,
           "ratio": 1.0,
-          "pop": 27.6,
-          "dx": 30,
+          "pop": 27.8,
+          "dx": 0,
           "dy": 0
         }
       }

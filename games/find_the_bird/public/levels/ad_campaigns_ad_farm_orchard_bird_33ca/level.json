@@ -15,21 +15,21 @@
         "image": "levels/ad_campaigns_ad_farm_orchard_bird_33ca/dogs/dog_00/sprite_000.png",
         "x": 1987,
         "y": 467,
-        "width": 119,
-        "height": 114,
+        "width": 125,
+        "height": 120,
         "cleanup": {
           "x": 2100,
           "y": 504,
           "width": 159,
           "height": 143
         },
-        "anchorX": 0.5294,
-        "anchorY": 0.5439,
+        "anchorX": 0.536,
+        "anchorY": 0.5417,
         "refit": {
-          "scale": 0.5499999999999999,
+          "scale": 1.05,
           "ratio": 1.0,
-          "pop": 36.4,
-          "dx": 66,
+          "pop": 28.5,
+          "dx": -4,
           "dy": -2
         }
       }
@@ -41,18 +41,31 @@
       "r": 57,
       "sprite": {
         "image": "levels/ad_campaigns_ad_farm_orchard_bird_33ca/dogs/dog_01/sprite_000.png",
-        "x": 2212,
-        "y": 479,
-        "width": 217,
-        "height": 168,
+        "x": 2255,
+        "y": 508,
+        "width": 102,
+        "height": 104,
         "cleanup": {
           "x": 2261,
           "y": 405,
           "width": 150,
           "height": 284
         },
-        "anchorX": 0.3825,
-        "anchorY": 0.3631
+        "anchorX": 0.402,
+        "anchorY": 0.3269,
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop",
+          "score": 0.925,
+          "pop": 22.3
+        },
+        "refit": {
+          "scale": 1.0,
+          "ratio": 0.95,
+          "pop": 24.4,
+          "dx": 0,
+          "dy": -2
+        }
       }
     },
     {
@@ -62,18 +75,31 @@
       "r": 57,
       "sprite": {
         "image": "levels/ad_campaigns_ad_farm_orchard_bird_33ca/dogs/dog_02/sprite_000.png",
-        "x": 488,
-        "y": 455,
-        "width": 207,
-        "height": 176,
+        "x": 548,
+        "y": 499,
+        "width": 113,
+        "height": 128,
         "cleanup": {
           "x": 447,
           "y": 444,
           "width": 296,
           "height": 323
         },
-        "anchorX": 0.5942,
-        "anchorY": 0.7102
+        "anchorX": 0.5664,
+        "anchorY": 0.6406,
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop",
+          "score": 0.9223,
+          "pop": 19.8
+        },
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 18.6,
+          "dx": -1,
+          "dy": -1
+        }
       }
     },
     {
@@ -106,7 +132,7 @@
           "ratio": 1.0,
           "pop": 16.6,
           "dx": 0,
-          "dy": -2
+          "dy": 0
         }
       }
     },
@@ -136,11 +162,11 @@
           "pop": 33.8
         },
         "refit": {
-          "scale": 1.05,
+          "scale": 1.0,
           "ratio": 1.0,
-          "pop": 24.8,
-          "dx": -3,
-          "dy": -4
+          "pop": 26.3,
+          "dx": 0,
+          "dy": 0
         }
       }
     },
@@ -208,7 +234,7 @@
           "ratio": 1.0,
           "pop": 29.1,
           "dx": 0,
-          "dy": -1
+          "dy": 0
         }
       }
     },
@@ -219,18 +245,31 @@
       "r": 57,
       "sprite": {
         "image": "levels/ad_campaigns_ad_farm_orchard_bird_33ca/dogs/dog_07/sprite_000.png",
-        "x": 1462,
-        "y": 720,
-        "width": 162,
-        "height": 128,
+        "x": 1549,
+        "y": 754,
+        "width": 65,
+        "height": 84,
         "cleanup": {
           "x": 1388,
           "y": 586,
           "width": 345,
           "height": 284
         },
-        "anchorX": 0.6543,
-        "anchorY": 0.4688
+        "anchorX": 0.3077,
+        "anchorY": 0.3333,
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop",
+          "score": 0.9464,
+          "pop": 21.2
+        },
+        "refit": {
+          "scale": 1.0,
+          "ratio": 0.95,
+          "pop": 21.8,
+          "dx": 0,
+          "dy": -1
+        }
       }
     },
     {
@@ -253,11 +292,11 @@
         "anchorX": 0.3985,
         "anchorY": 0.3966,
         "refit": {
-          "scale": 0.5499999999999999,
+          "scale": 1.0,
           "ratio": 1.0,
-          "pop": 15.4,
-          "dx": 48,
-          "dy": 71
+          "pop": 15.5,
+          "dx": 0,
+          "dy": 0
         }
       }
     },
@@ -281,11 +320,11 @@
         "anchorX": 0.6506,
         "anchorY": 0.5379,
         "refit": {
-          "scale": 0.75,
+          "scale": 1.0,
           "ratio": 1.0,
-          "pop": 19.6,
-          "dx": 28,
-          "dy": 32
+          "pop": 20.0,
+          "dx": 0,
+          "dy": 0
         }
       }
     },
@@ -298,22 +337,22 @@
         "image": "levels/ad_campaigns_ad_farm_orchard_bird_33ca/dogs/dog_10/sprite_000.png",
         "x": 463,
         "y": 1338,
-        "width": 119,
-        "height": 123,
+        "width": 113,
+        "height": 117,
         "cleanup": {
           "x": 364,
           "y": 1277,
           "width": 230,
           "height": 345
         },
-        "anchorX": 0.3782,
-        "anchorY": 0.7886,
+        "anchorX": 0.3805,
+        "anchorY": 0.8034,
         "refit": {
-          "scale": 0.7,
-          "ratio": 0.95,
-          "pop": 30.9,
-          "dx": 8,
-          "dy": 17
+          "scale": 0.95,
+          "ratio": 1.0,
+          "pop": 26.8,
+          "dx": 2,
+          "dy": 2
         }
       }
     },
@@ -337,11 +376,11 @@
         "anchorX": 0.4196,
         "anchorY": 0.4156,
         "refit": {
-          "scale": 0.8,
+          "scale": 1.0,
           "ratio": 1.0,
-          "pop": 32.3,
-          "dx": 12,
-          "dy": 3
+          "pop": 32.9,
+          "dx": 0,
+          "dy": 0
         }
       }
     },
@@ -352,18 +391,31 @@
       "r": 57,
       "sprite": {
         "image": "levels/ad_campaigns_ad_farm_orchard_bird_33ca/dogs/dog_12/sprite_000.png",
-        "x": 680,
-        "y": 1332,
-        "width": 209,
-        "height": 170,
+        "x": 752,
+        "y": 1382,
+        "width": 129,
+        "height": 104,
         "cleanup": {
           "x": 718,
           "y": 1410,
           "width": 113,
           "height": 138
         },
-        "anchorX": 0.5646,
-        "anchorY": 0.5588
+        "anchorX": 0.3643,
+        "anchorY": 0.4423,
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop",
+          "score": 0.9293,
+          "pop": 15.4
+        },
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 15.5,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -395,7 +447,7 @@
           "scale": 1.0,
           "ratio": 1.0,
           "pop": 17.8,
-          "dx": -1,
+          "dx": 0,
           "dy": 0
         }
       }
@@ -429,7 +481,7 @@
           "scale": 1.0,
           "ratio": 1.0,
           "pop": 25.0,
-          "dx": -1,
+          "dx": 0,
           "dy": 0
         }
       }
@@ -451,14 +503,14 @@
           "width": 255,
           "height": 263
         },
-        "anchorX": 0.4467,
-        "anchorY": 0.4961,
+        "anchorX": 0.44,
+        "anchorY": 0.5039,
         "refit": {
-          "scale": 0.65,
+          "scale": 1.0,
           "ratio": 1.0,
           "pop": 36.8,
-          "dx": 54,
-          "dy": 22
+          "dx": 1,
+          "dy": 0
         }
       }
     },
@@ -471,22 +523,22 @@
         "image": "levels/ad_campaigns_ad_farm_orchard_bird_33ca/dogs/dog_16/sprite_000.png",
         "x": 1418,
         "y": 1477,
-        "width": 158,
-        "height": 112,
+        "width": 166,
+        "height": 118,
         "cleanup": {
           "x": 1328,
           "y": 1292,
           "width": 345,
           "height": 323
         },
-        "anchorX": 0.6076,
-        "anchorY": 0.5804,
+        "anchorX": 0.5964,
+        "anchorY": 0.5847,
         "refit": {
-          "scale": 0.7,
+          "scale": 1.05,
           "ratio": 1.0,
-          "pop": 33.5,
-          "dx": 52,
-          "dy": 19
+          "pop": 29.6,
+          "dx": -2,
+          "dy": -3
         }
       }
     },
@@ -519,8 +571,8 @@
           "scale": 1.0,
           "ratio": 1.0,
           "pop": 16.9,
-          "dx": -1,
-          "dy": -1
+          "dx": 0,
+          "dy": 0
         }
       }
     },
@@ -554,7 +606,7 @@
           "ratio": 1.0,
           "pop": 15.5,
           "dx": 0,
-          "dy": -1
+          "dy": 0
         }
       }
     },
@@ -588,7 +640,7 @@
           "ratio": 1.0,
           "pop": 18.0,
           "dx": 0,
-          "dy": -1
+          "dy": 0
         }
       }
     },
@@ -621,8 +673,8 @@
           "scale": 1.0,
           "ratio": 1.0,
           "pop": 18.2,
-          "dx": -1,
-          "dy": -1
+          "dx": 0,
+          "dy": 0
         }
       }
     },
@@ -680,11 +732,11 @@
         "anchorX": 0.5534,
         "anchorY": 0.6441,
         "refit": {
-          "scale": 0.5499999999999999,
+          "scale": 1.0,
           "ratio": 1.0,
-          "pop": 21.6,
-          "dx": 20,
-          "dy": 63
+          "pop": 21.8,
+          "dx": 0,
+          "dy": 0
         }
       }
     },
@@ -697,22 +749,22 @@
         "image": "levels/ad_campaigns_ad_farm_orchard_bird_33ca/dogs/dog_23/sprite_000.png",
         "x": 777,
         "y": 2271,
-        "width": 149,
-        "height": 127,
+        "width": 138,
+        "height": 124,
         "cleanup": {
           "x": 785,
           "y": 2300,
           "width": 345,
           "height": 237
         },
-        "anchorX": 0.6376,
-        "anchorY": 0.5669,
+        "anchorX": 0.6304,
+        "anchorY": 0.5726,
         "refit": {
-          "scale": 0.6,
-          "ratio": 1.05,
-          "pop": 34.6,
-          "dx": 69,
-          "dy": 71
+          "scale": 0.95,
+          "ratio": 0.95,
+          "pop": 35.0,
+          "dx": 8,
+          "dy": 0
         }
       }
     },
@@ -745,7 +797,7 @@
           "scale": 1.0,
           "ratio": 1.0,
           "pop": 22.7,
-          "dx": -1,
+          "dx": 0,
           "dy": 0
         }
       }

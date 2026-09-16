@@ -35,8 +35,8 @@
           "scale": 1.0,
           "ratio": 1.0,
           "pop": 22.7,
-          "dx": -2,
-          "dy": -1
+          "dx": 0,
+          "dy": 0
         }
       }
     },
@@ -60,11 +60,11 @@
         "anchorX": 0.3913,
         "anchorY": 0.5248,
         "refit": {
-          "scale": 1.05,
+          "scale": 1.0,
           "ratio": 1.0,
-          "pop": 23.9,
-          "dx": -2,
-          "dy": -5
+          "pop": 24.1,
+          "dx": 0,
+          "dy": 0
         }
       }
     },
@@ -77,22 +77,22 @@
         "image": "levels/hawaii_north_shore_surf_shack_bird_4fc5/dogs/dog_02/sprite_000.png",
         "x": 394,
         "y": 519,
-        "width": 135,
-        "height": 101,
+        "width": 132,
+        "height": 104,
         "cleanup": {
           "x": 316,
           "y": 434,
           "width": 345,
           "height": 294
         },
-        "anchorX": 0.5037,
-        "anchorY": 0.4257,
+        "anchorX": 0.5,
+        "anchorY": 0.4231,
         "refit": {
-          "scale": 0.85,
-          "ratio": 1.05,
-          "pop": 32.6,
-          "dx": 13,
-          "dy": 12
+          "scale": 1.0,
+          "ratio": 0.95,
+          "pop": 34.3,
+          "dx": 1,
+          "dy": -1
         }
       }
     },
@@ -172,11 +172,11 @@
         "anchorX": 0.6218,
         "anchorY": 0.2815,
         "refit": {
-          "scale": 1.4,
+          "scale": 1.0,
           "ratio": 1.0,
-          "pop": 34.5,
-          "dx": -46,
-          "dy": -16
+          "pop": 34.1,
+          "dx": 0,
+          "dy": 0
         }
       }
     },
@@ -201,10 +201,10 @@
         "anchorY": 0.4351,
         "refit": {
           "scale": 1.0,
-          "ratio": 0.95,
-          "pop": 31.2,
+          "ratio": 1.0,
+          "pop": 32.2,
           "dx": 0,
-          "dy": -2
+          "dy": 0
         }
       }
     },
@@ -228,11 +228,11 @@
         "anchorX": 0.4413,
         "anchorY": 0.5024,
         "refit": {
-          "scale": 1.4,
+          "scale": 1.0,
           "ratio": 1.0,
-          "pop": 20.0,
-          "dx": -45,
-          "dy": -28
+          "pop": 19.1,
+          "dx": 0,
+          "dy": 0
         }
       }
     },
@@ -243,18 +243,31 @@
       "r": 57,
       "sprite": {
         "image": "levels/hawaii_north_shore_surf_shack_bird_4fc5/dogs/dog_08/sprite_000.png",
-        "x": 1274,
-        "y": 1214,
-        "width": 234,
-        "height": 205,
+        "x": 1231,
+        "y": 1236,
+        "width": 181,
+        "height": 128,
         "cleanup": {
           "x": 1250,
           "y": 1114,
           "width": 299,
           "height": 297
         },
-        "anchorX": 0.2051,
-        "anchorY": 0.3756
+        "anchorX": 0.5083,
+        "anchorY": 0.4375,
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop",
+          "score": 0.9146,
+          "pop": 20.2
+        },
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 20.6,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -266,16 +279,16 @@
         "image": "levels/hawaii_north_shore_surf_shack_bird_4fc5/dogs/dog_09/sprite_000.png",
         "x": 1159,
         "y": 1427,
-        "width": 140,
-        "height": 176,
+        "width": 151,
+        "height": 180,
         "cleanup": {
           "x": 1095,
           "y": 1421,
           "width": 307,
           "height": 289
         },
-        "anchorX": 0.5786,
-        "anchorY": 0.6136,
+        "anchorX": 0.5894,
+        "anchorY": 0.6111,
         "technique": "gpt-image-2.5-sunburst-low-visible-only",
         "regen": {
           "pass": "crop2",
@@ -283,11 +296,11 @@
           "pop": 31.1
         },
         "refit": {
-          "scale": 0.95,
-          "ratio": 0.95,
-          "pop": 34.6,
-          "dx": 7,
-          "dy": 3
+          "scale": 1.05,
+          "ratio": 1.05,
+          "pop": 27.5,
+          "dx": -7,
+          "dy": -2
         }
       }
     },
@@ -298,18 +311,31 @@
       "r": 57,
       "sprite": {
         "image": "levels/hawaii_north_shore_surf_shack_bird_4fc5/dogs/dog_10/sprite_000.png",
-        "x": 1906,
-        "y": 1186,
-        "width": 236,
-        "height": 195,
+        "x": 2009,
+        "y": 1187,
+        "width": 89,
+        "height": 113,
         "cleanup": {
           "x": 1900,
           "y": 1193,
           "width": 227,
           "height": 345
         },
-        "anchorX": 0.6992,
-        "anchorY": 0.2667
+        "anchorX": 0.7079,
+        "anchorY": 0.4602,
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop",
+          "score": 0.917,
+          "pop": 23.7
+        },
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 19.9,
+          "dx": -1,
+          "dy": -1
+        }
       }
     },
     {
@@ -460,7 +486,7 @@
           "ratio": 1.0,
           "pop": 18.6,
           "dx": 0,
-          "dy": -1
+          "dy": 0
         }
       }
     },
@@ -484,11 +510,11 @@
         "anchorX": 0.4462,
         "anchorY": 0.56,
         "refit": {
-          "scale": 0.95,
+          "scale": 1.0,
           "ratio": 1.0,
-          "pop": 25.2,
-          "dx": 6,
-          "dy": 3
+          "pop": 25.8,
+          "dx": 0,
+          "dy": 0
         }
       }
     },
@@ -540,11 +566,11 @@
         "anchorX": 0.384,
         "anchorY": 0.5414,
         "refit": {
-          "scale": 1.4,
+          "scale": 1.0,
           "ratio": 1.0,
-          "pop": 17.6,
-          "dx": -15,
-          "dy": -30
+          "pop": 16.5,
+          "dx": 0,
+          "dy": 0
         }
       }
     },
@@ -568,11 +594,11 @@
         "anchorX": 0.515,
         "anchorY": 0.4914,
         "refit": {
-          "scale": 1.4,
+          "scale": 1.0,
           "ratio": 1.0,
-          "pop": 17.8,
-          "dx": -41,
-          "dy": -51
+          "pop": 16.7,
+          "dx": 0,
+          "dy": 0
         }
       }
     },
@@ -596,11 +622,11 @@
         "anchorX": 0.54,
         "anchorY": 0.4412,
         "refit": {
-          "scale": 1.25,
+          "scale": 1.0,
           "ratio": 1.0,
-          "pop": 19.0,
-          "dx": -16,
-          "dy": -18
+          "pop": 18.1,
+          "dx": 0,
+          "dy": 0
         }
       }
     },

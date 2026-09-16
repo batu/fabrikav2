@@ -137,24 +137,30 @@
       "r": 57,
       "sprite": {
         "image": "levels/pirate_shipwreck_island_treasure_cove_camp_bird_cca3/dogs/dog_04/sprite_000.png",
-        "x": 1612,
-        "y": 1210,
-        "width": 48,
-        "height": 64,
+        "x": 1585,
+        "y": 1204,
+        "width": 238,
+        "height": 198,
         "cleanup": {
           "x": 1468,
           "y": 1250,
           "width": 261,
           "height": 182
         },
-        "anchorX": 0.8125,
-        "anchorY": 0.3281,
+        "anchorX": 0.4622,
+        "anchorY": 0.3737,
         "refit": {
-          "scale": 0.65,
-          "ratio": 0.8,
-          "pop": 21.9,
-          "dx": 4,
-          "dy": 7
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 12.5,
+          "dx": 0,
+          "dy": 0
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop2",
+          "score": 0.6772,
+          "pop": 12.9
         }
       }
     },

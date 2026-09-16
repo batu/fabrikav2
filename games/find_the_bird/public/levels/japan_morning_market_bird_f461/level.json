@@ -86,7 +86,7 @@
           "ratio": 1.0,
           "pop": 15.9,
           "dx": 0,
-          "dy": -1
+          "dy": 0
         },
         "technique": "gpt-image-2.5-sunburst-low-visible-only",
         "regen": {
@@ -268,11 +268,11 @@
           "pop": 32.0
         },
         "refit": {
-          "scale": 1.05,
+          "scale": 1.0,
           "ratio": 1.0,
-          "pop": 28.2,
-          "dx": -4,
-          "dy": -2
+          "pop": 29.5,
+          "dx": 0,
+          "dy": 0
         }
       }
     },
@@ -305,7 +305,7 @@
           "scale": 1.0,
           "ratio": 1.0,
           "pop": 15.1,
-          "dx": -1,
+          "dx": 0,
           "dy": 0
         }
       }
@@ -345,24 +345,30 @@
       "r": 57,
       "sprite": {
         "image": "levels/japan_morning_market_bird_f461/dogs/dog_11/sprite_000.png",
-        "x": 1463,
-        "y": 1275,
-        "width": 56,
-        "height": 43,
+        "x": 1507,
+        "y": 1294,
+        "width": 159,
+        "height": 124,
         "cleanup": {
           "x": 1404,
           "y": 1186,
           "width": 283,
           "height": 298
         },
-        "anchorX": 0.4643,
-        "anchorY": 0.6744,
+        "anchorX": 0.4465,
+        "anchorY": 0.5323,
         "refit": {
-          "scale": 0.6,
-          "ratio": 0.8,
-          "pop": 12.8,
-          "dx": 10,
-          "dy": 9
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 13.8,
+          "dx": 0,
+          "dy": 0
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop",
+          "score": 0.8014,
+          "pop": 15.1
         }
       }
     },
@@ -575,24 +581,30 @@
       "r": 57,
       "sprite": {
         "image": "levels/japan_morning_market_bird_f461/dogs/dog_19/sprite_000.png",
-        "x": 1803,
-        "y": 1158,
-        "width": 90,
-        "height": 88,
+        "x": 1870,
+        "y": 1192,
+        "width": 168,
+        "height": 145,
         "cleanup": {
           "x": 1730,
           "y": 1133,
           "width": 343,
           "height": 258
         },
-        "anchorX": 0.6333,
-        "anchorY": 0.7386,
+        "anchorX": 0.3988,
+        "anchorY": 0.4552,
         "refit": {
-          "scale": 0.5499999999999999,
-          "ratio": 0.85,
-          "pop": 30.3,
-          "dx": 19,
-          "dy": 3
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 17.0,
+          "dx": 0,
+          "dy": 0
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop2",
+          "score": 0.8288,
+          "pop": 13.1
         }
       }
     },
@@ -619,7 +631,7 @@
           "scale": 1.0,
           "ratio": 1.0,
           "pop": 17.0,
-          "dx": -1,
+          "dx": 0,
           "dy": 0
         },
         "technique": "gpt-image-2.5-sunburst-low-visible-only",
@@ -656,11 +668,11 @@
           "pop": 30.3
         },
         "refit": {
-          "scale": 1.1,
-          "ratio": 0.95,
-          "pop": 27.5,
-          "dx": -2,
-          "dy": -8
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 28.8,
+          "dx": 0,
+          "dy": 0
         }
       }
     },
@@ -693,7 +705,7 @@
           "scale": 1.0,
           "ratio": 1.0,
           "pop": 16.2,
-          "dx": -1,
+          "dx": 0,
           "dy": 0
         }
       }
