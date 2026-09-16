@@ -55,7 +55,7 @@ export const TIMING = {
   // then did not match the paint at frame 0); retried at 240 ms on 2026-09-16
   // once sprites were pixel-exact with the paint, then set to 480 ms after the
   // side-by-side GIF review the same day.
-  RESTORATION_DISSOLVE_MS: 480,
+  RESTORATION_DISSOLVE_MS: 240,
   // Miss-juice: gentle board wobble + dust poof. Reduced-motion uses the
   // shorter shake; the poof is skipped entirely under reduced-motion.
   MISS_SHAKE_MS: 130,
@@ -91,4 +91,4 @@ export const COLORS = {
 } as const;
 
 /** Harness-build debug overrides, set from Settings > Debug; null = shipped value. */
-export const DEBUG_OVERRIDES: { restorationDissolveMs: number | null; pickupFx: 'random' | 'leaf' | 'stars' | 'feathers' | 'confetti' | 'none' } = { restorationDissolveMs: null, pickupFx: 'random' };
+export const DEBUG_OVERRIDES: { restorationDissolveMs: number | null; pickupFx: 'random' | 'leaf' | 'stars' | 'feathers' | 'confetti' | 'none' } = { restorationDissolveMs: null, pickupFx: 'none' };
