@@ -88,3 +88,6 @@ export const COLORS = {
   WRONG_TAP: 0xff4444,
   HINT_CIRCLE: 0x35a7ff, // vivid sky blue — must pop against both jungle greens and autumn oranges
 } as const;
+
+/** Harness-build debug overrides, set from Settings > Debug; null = shipped value. */
+export const DEBUG_OVERRIDES: { restorationDissolveMs: number | null } = { restorationDissolveMs: null };
