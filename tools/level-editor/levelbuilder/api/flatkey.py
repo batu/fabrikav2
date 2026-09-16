@@ -147,7 +147,10 @@ def finalize_cutout(cutout: Image.Image, max_hole_px: int = 1500) -> Image.Image
     a = np.asarray(cutout.convert("RGBA"), dtype=np.uint8).copy()
     rgb = a[..., :3].astype(int)
     r, g, b = rgb[..., 0], rgb[..., 1], rgb[..., 2]
-    keyc = (r > 150) & (b > 150) & (g < 110) & (r - g > 60) & (b - g > 60)
+    # Near-pure key only (r,b > 200, g < 90): the model paints background gaps in
+    # the key colour itself; real pink/purple plumage never reaches this, so it
+    # is not punched out (Batu 2026-09-16: never make the inside of a bird transparent).
+    keyc = (r > 200) & (b > 200) & (g < 90) & (r - g > 110) & (b - g > 110)
     alpha = a[..., 3]
     alpha[keyc & (alpha == 255)] = 0
     opaque = alpha > 0
