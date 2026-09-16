@@ -235,10 +235,10 @@
         "x": 1075,
         "y": 836,
         "cleanup": {
-          "x": 1066,
-          "y": 829,
-          "width": 218,
-          "height": 190
+          "x": 1081,
+          "y": 842,
+          "width": 190,
+          "height": 166
         },
         "anchorX": 0.3526,
         "anchorY": 0.5542,
@@ -250,7 +250,8 @@
           "pop": 32.1,
           "dx": 1,
           "dy": -2
-        }
+        },
+        "cleanupNote": "tight: cogs were cut (Batu 2026-09-16)"
       }
     },
     {
@@ -707,37 +708,6 @@
           "scale": 1.0,
           "ratio": 1.0,
           "pop": 37.0,
-          "dx": 0,
-          "dy": 0
-        }
-      }
-    },
-    {
-      "id": "87afd414-923a-4a9d-a63e-736fbc76724f",
-      "compatibilitySlot": "dog_41",
-      "x": 1663,
-      "y": 2450,
-      "r": 57,
-      "sprite": {
-        "image": "levels/clockwork_workyards_automaton_assembly_bird_e6bf/dogs/dog_41/sprite_000.png",
-        "height": 107,
-        "width": 184,
-        "x": 1587,
-        "y": 2399,
-        "cleanup": {
-          "x": 1574,
-          "y": 2391,
-          "width": 211,
-          "height": 123
-        },
-        "anchorX": 0.4076,
-        "anchorY": 0.4673,
-        "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 25.1,
           "dx": 0,
           "dy": 0
         }

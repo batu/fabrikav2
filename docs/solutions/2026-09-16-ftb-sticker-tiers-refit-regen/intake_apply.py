@@ -25,6 +25,11 @@ for k in sys.argv[1:]:
         sp=d['sprite']; ws=w['sprite']
         for f in FIELDS:
             if f in ws: sp[f]=ws[f]
+        # cleanup follows the final sprite box (x1.15, min 2r, always containing the hitbox disc) — fix2 rule
+        r=d.get('r',57); W,H=level['width'],level['height']; x,y,w,h=sprite_xy(d); cx,cy=x+w/2,y+h/2; pw,ph=max(w*1.15,2*r),max(h*1.15,2*r)
+        if not (x<=d['x']<=x+w and y<=d['y']<=y+h): cx,cy=d['x'],d['y']
+        x0=min(max(0,cx-pw/2),d['x']-r); y0=min(max(0,cy-ph/2),d['y']-r); x1=max(min(W,cx+pw/2),d['x']+r); y1=max(min(H,cy+ph/2),d['y']+r)
+        sp['cleanup']={'x':int(max(0,x0)),'y':int(max(0,y0)),'width':int(min(W,x1)-max(0,x0)),'height':int(min(H,y1)-max(0,y0))}
         if 'technique' in ws and ws['technique'].startswith('gpt-image-2.5'):
             src=sdir(k)/ws['image'].split(f'levels/{k}/')[1]; dst=pubdir/sp['image'].split(f'levels/{k}/')[1]; shutil.copy2(src,dst); n_regen+=1
         elif 'refit' in ws: n_refit+=1

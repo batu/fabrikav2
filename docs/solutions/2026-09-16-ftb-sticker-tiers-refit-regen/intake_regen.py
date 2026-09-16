@@ -32,6 +32,8 @@ def _one(k,i,why):
     dets=I._load_vlm_detections(level_id(k))
     b1=I.extract_box_for_hitbox(hb,dets,1.6)
     ext=I.painted_extent_detections(level_id(k),[hb]); b2=I._grow_box_by_extent(b1,ext[0]) if ext else b1
+    cap=float(os.environ.get('MAX_CROP_R','0'))*hb['r']   # cap the grown crop (plate-diff extents can span the scene)
+    if cap and b2['width']>cap: c=(b2['x']+b2['width']/2,b2['y']+b2['height']/2); b2={**b2,'x':int(c[0]-cap/2),'y':int(c[1]-cap/2),'width':int(cap),'height':int(cap)}
     save=sdir(k)/'dogs'/f'dog_{i:02d}'/f'regen_{STAMP}'; save.mkdir(parents=True,exist_ok=True)
     runs=[]
     for tag_,b in (('crop',b1),('crop2',b2)):

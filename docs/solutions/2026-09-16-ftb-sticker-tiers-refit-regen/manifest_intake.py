@@ -6,7 +6,9 @@ from levelbuilder.api import public_levels as P
 from levelbuilder.api import session as S
 budget=float(sys.argv[1]) if len(sys.argv)>1 else 150.0
 prev=S.load_bundled_manifest() or {}; old=[l['id'] for l in prev['levels']]
-new=[k for k in open(SCRATCH/'intake'/'ids60.txt').read().split() if (ROOT/'public/levels'/k/'level.json').exists() and k not in old]
+removed=set(open(SCRATCH/'intake'/'removed_levels.txt').read().split()) if (SCRATCH/'intake'/'removed_levels.txt').exists() else set()   # Batu's review removals
+old=[k for k in old if k not in removed]
+new=[k for k in open(SCRATCH/'intake'/'ids60.txt').read().split() if (ROOT/'public/levels'/k/'level.json').exists() and k not in old and k not in removed]
 def size(k):
     d=ROOT/'public/levels'/k; return sum(f.stat().st_size for f in d.rglob('*') if f.is_file() and f.suffix in ('.webp','.json') or (f.suffix=='.png' and 'dogs' in f.parts))
 entries=[]; used=0.0; bundled=0
