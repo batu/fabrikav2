@@ -298,8 +298,11 @@ export function wireSanctuaryPage(page: ParentNode): void {
 
       if (tenant === undefined) {
         if (!prefersReducedMotion()) {
-          track(slot,
-    [{ opacity: 0.55 }, { opacity: 1 }, { opacity: 0.55 }],
+          // Shallow pulse: a deep fade made an already-pale marker vanish
+          // against the sky in a capture taken at the low point.
+          track(
+            slot,
+            [{ opacity: 0.82 }, { opacity: 1 }, { opacity: 0.82 }],
             { duration: 1800, iterations: Infinity, easing: 'ease-in-out' },
           );
         }
