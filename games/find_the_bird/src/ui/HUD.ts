@@ -460,7 +460,7 @@ function updateRestorationProgress(_totalDogs: number, _restorationActive: boole
 
 export function openPage(
   id: 'shop' | 'settings' | 'achievements',
-  opts: { scrollTo?: 'hints' | 'coins' | 'entitlements' } = {},
+  opts: { scrollTo?: 'hints' | 'coins' | 'entitlements'; purchase?: 'no-ads' } = {},
 ): void {
   const overlay = document.getElementById('hud-overlay');
   if (!overlay) return;
@@ -570,6 +570,13 @@ export function openPage(
           body.scrollTo({ top: Math.max(0, top - 10) });
         });
       }
+    }
+    if (opts.purchase) {
+      // Home No Ads badge: open the shop AND start the purchase in one tap.
+      // Goes through the product's own button so state, fulfillment and
+      // analytics stay on the single shop path; a cancel leaves the shop open.
+      const action = page.querySelector<HTMLButtonElement>(`.shop-purchase-btn[data-catalog-id="${opts.purchase}"]`);
+      if (action && !action.disabled) requestAnimationFrame(() => { action.click(); });
     }
   }
   requestAnimationFrame(() => { page.classList.add('home-page-overlay--open'); });
