@@ -520,6 +520,10 @@ export function createFindTheDogHarness(game: Phaser.Game): FindTheDogHarness {
     // Past the collection's level gate for every state except the locked one,
     // which wants a fresh player.
     gameState.currentLevelIndex = seed.sparrows > 0 ? 20 : 0;
+    // The collection gate reads the LIFETIME completion counter, not the level
+    // index, so a device carrying a real save would stay unlocked however low
+    // the index is set. Seed both.
+    gameState.setTotalLevelsCompletedForTest(seed.sparrows > 0 ? 20 : 0);
     gameState.setBirdCountForTest('sparrow', seed.sparrows);
     gameState.setCoinsForTest(seed.coins ?? 0);
     gameState.setSanctuaryForTest({
@@ -553,6 +557,11 @@ export function createFindTheDogHarness(game: Phaser.Game): FindTheDogHarness {
       const atHome = await gotoHome();
       metaTrace(`atHome=${String(atHome)} sparrows=${String(gameState.birdCount('sparrow'))} tier=${String(gameState.sanctuary.houseTier)}`);
       if (!atHome) return false;
+      // HomeScene's shutdown clears the entire #hud-overlay. Phaser flushes a
+      // stop() on a later step, so a shutdown queued by this gotoHome can land
+      // AFTER the page is opened and silently remove it. Let the scene settle
+      // before clicking, so that teardown is behind us.
+      await new Promise((resolve) => window.setTimeout(resolve, 600));
       const btn = document.querySelector<HTMLElement>(selector);
       metaTrace(`lv=${String(gameState.totalLevelsCompleted)} cls=${String(btn?.className ?? 'missing')}`);
       const clicked = await clickWhenHittable(selector, HOME_READY_TARGET_POLL_MS, HOME_READY_TARGET_MAX_POLLS);
@@ -562,7 +571,15 @@ export function createFindTheDogHarness(game: Phaser.Game): FindTheDogHarness {
         SETTINGS_OPEN_TARGET_MAX_POLLS,
       );
       metaTrace(`clicked=${String(clicked)} anyPage=${String(document.getElementById('home-page-overlay') !== null)} opened=${String(opened)}`);
-      return opened;
+      if (!opened) return false;
+      // Re-confirm past the settle window the tour itself waits: if a late
+      // teardown still stole the page, one more click recovers it rather than
+      // reporting a state that was true for 200ms.
+      await new Promise((resolve) => window.setTimeout(resolve, 900));
+      if (ready(driveSnapshot())) return true;
+      metaTrace('page vanished after open; re-clicking');
+      if (!await clickWhenHittable(selector, HOME_READY_TARGET_POLL_MS, HOME_READY_TARGET_MAX_POLLS)) return false;
+      return await waitUntil(() => ready(driveSnapshot()), SETTINGS_OPEN_TARGET_POLL_MS, SETTINGS_OPEN_TARGET_MAX_POLLS);
     } catch (err) {
       metaTrace(`threw ${String(err)}`.slice(0, 120));
       return false;

@@ -812,6 +812,11 @@ export class GameState {
     return next;
   }
 
+  setTotalLevelsCompletedForTest(count: number): void {
+    this._totalLevelsCompleted = nonNegativeInteger(count, 'test total levels completed');
+    this.save();
+  }
+
   setBirdCountForTest(type: string, count: number): void {
     this._birdCounts = { ...this._birdCounts, [type]: nonNegativeInteger(count, 'test bird count') };
     this.save();
