@@ -123,7 +123,7 @@
    "sparrow": {
     "plain": "/ui/sanctuary/birds/sparrow-plain.png",
     "hat": "/ui/sanctuary/birds/sparrow-hat.png",
-    "uniform": "/ui/sanctuary/birds/sparrow-uniform.png"
+    "cardigan": "/ui/sanctuary/birds/sparrow-cardigan.png"
    }
   },
   "markers": {
@@ -131,7 +131,12 @@
    "pedestalEmpty": "/ui/sanctuary/markers/pedestal-empty.png",
    "coinPile": "/ui/sanctuary/markers/coin-pile.png"
   },
-  "contactShadow": "drawn by code: soft ellipse, width = bird width, height = bird height/5, rgba(60,40,20,0.35), blur 5px, centred on the anchor"
+  "contactShadow": "drawn by code: soft ellipse, width = bird width, height = bird height/5, rgba(60,40,20,0.35), blur 5px, centred on the anchor",
+  "costumePath": [
+   "plain",
+   "hat",
+   "cardigan"
+  ]
  },
  "collection": {
   "cardFrame": {
@@ -141,9 +146,9 @@
     1536
    ],
    "porthole": {
-    "cx": 459,
+    "cx": 488,
     "cy": 410,
-    "r": 320
+    "r": 276
    },
    "portraitFit": "scale portrait to 0.96*porthole diameter wide, bottom at porthole.cy + r + 0.10*r, clip to the porthole circle",
    "namePlaqueY": [
@@ -164,9 +169,15 @@
     "silhouette": "/ui/collection/portrait-sparrow-silhouette.png",
     "plain": "/ui/collection/portrait-sparrow-plain.png",
     "hat": "/ui/collection/portrait-sparrow-hat.png",
-    "uniform": "/ui/collection/portrait-sparrow-uniform.png"
+    "cardigan": "/ui/collection/portrait-sparrow-cardigan.png"
    },
    "unknown": "/ui/collection/portrait-unknown.png"
-  }
+  },
+  "costumePath": [
+   "silhouette",
+   "plain",
+   "hat",
+   "cardigan"
+  ]
  }
 }
