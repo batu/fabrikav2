@@ -1060,6 +1060,11 @@ export class GameScene extends Phaser.Scene {
 
     const pointerDownHandler = (pointer: Phaser.Input.Pointer): void => {
       this.pointerDownAt = { x: pointer.x, y: pointer.y };
+      // a touch on the scene pauses the debug auto play (Batu 2026-09-17); the HUD button resumes it
+      if (TEST_HARNESS_ENABLED && DEBUG_OVERRIDES.autoPlay.active) {
+        DEBUG_OVERRIDES.autoPlay.active = false;
+        window.dispatchEvent(new CustomEvent('ftb-debug-autoplay', { detail: { active: false } }));
+      }
     };
     const tapHandler = (pointer: Phaser.Input.Pointer): void => {
       if (this.levelComplete) return;

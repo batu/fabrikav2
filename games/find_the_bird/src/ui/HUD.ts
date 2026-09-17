@@ -182,6 +182,12 @@ export function initHUD(): void {
     autoplayHud.textContent = DEBUG_OVERRIDES.autoPlay.active ? '■ Stop' : '▶ Auto';
     window.dispatchEvent(new CustomEvent('ftb-debug-autoplay', { detail: { active: DEBUG_OVERRIDES.autoPlay.active } }));
   });
+  // the scene can stop auto play too (a tap on the level); keep the labels honest
+  window.addEventListener('ftb-debug-autoplay', () => {
+    if (autoplayHud) autoplayHud.textContent = DEBUG_OVERRIDES.autoPlay.active ? '■ Stop' : '▶ Auto';
+    const toggle = document.getElementById('debug-autoplay-toggle');
+    if (toggle) toggle.textContent = DEBUG_OVERRIDES.autoPlay.active ? 'Stop' : 'Start';
+  });
   const settingsBtn = document.getElementById('settings-btn');
   settingsBtn?.addEventListener('click', () => {
     playUITap();
