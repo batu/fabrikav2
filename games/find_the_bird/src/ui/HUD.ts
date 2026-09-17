@@ -262,7 +262,7 @@ export function updateSparrowCounter(): void {
   pill.hidden = !currentMetaGates().collectionUnlocked;
   const next = nextThreshold(gameState.birdCount('sparrow'), collectionThresholds());
   const count = pill.querySelector('.count');
-  if (count) count.textContent = next.target === null ? String(next.current) : `${String(next.current)}/${String(next.target)}`;
+  if (count) count.textContent = next.target === null ? 'Done' : `${String(next.target - next.current)} left`;
 }
 
 export function pulseSparrowCounter(): void {
