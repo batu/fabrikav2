@@ -207,3 +207,27 @@ them through the same workflow. Batu reviews everything himself at the end from 
   /hdd/batu-cold-storage/2026-09-17/ftb-levels-not-in-game.
 - The bird backend on :5196 was restarted at ~09:40 UTC (new sequence gate); the adopt-export
   route needs one more restart to be reachable from the UI.
+
+## 2026-09-17 midday: pickup rule, debug strip, per-bird repairs
+
+- Pickup rule (Batu, verbatim priority): NEVER remove a pixel under another unfound bird's sprite;
+  ALWAYS remove every pixel under this bird's sprite; then the bisector. Runtime order in
+  `carvePermanentDissolveCell`: bisector polygon carve → own sprite pixels carved (destination-out,
+  also fades during the dissolve) → unfound neighbours' sprite pixels painted back (wins clashes).
+  `cleanupPolygonsForSite` / `cleanup_polygons_for_site` are the pre-992992731 bisector bodies again;
+  parity fixture restored. RESTORATION_DISSOLVE_MS 240 → 480.
+- Debug (harness builds): HUD `▶ Auto` button, 0.85 s/bird, column-strip reading order, next-bird ring,
+  tap on the level pauses, opening settings stops; the bird strip (`src/ui/DebugBirdStrip.ts`) with
+  tap-to-flag → localStorage `ftb-debug-bird-flags` (read back via the device save-edit lane).
+- Repairs (all adopted + re-approved + on the CDN): waterfall brown bird re-cut wide (brush inside);
+  mesa campground binocular birds re-cut tight; adobe courtyard brown bird (had a copy of the blue
+  bird's sprite); desert trading post chess-barrel + sweeping birds; mont saint michel yellow bird's
+  cleanup rect recomputed (tail residue). Subagent report: Portal p_13de3f.
+- TRAP: `intake_apply.py` unrestricted copied stale session boxes onto every bird of waterfall + mesa;
+  restored from the previous package commit; the script now requires `APPLY_ONLY=<session idx,...>`.
+  The shipped levels' session `level.json` work copies are older than their packages.
+- White gaps inside sprites: opaque white in the flat render, not keyer holes; no reliable automatic
+  detector (outline/colour heuristics flag white cheeks and bellies). Fix per bird from Batu's flags.
+- Catalog: 7 removed levels tombstoned (castle market, goat pasture, hawaii 4453, treehouse, bommie
+  garden, alsace, crystal grotto). Backend restarted 12:19 on 0d080ab3e+; lineup draft = 92.
+- Phone: build e507353143 (all of the above except the keyer revert, which is data-only).
