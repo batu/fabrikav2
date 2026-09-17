@@ -86,7 +86,6 @@ export function renderSanctuaryPageBody(): string {
       <div class="sanctuary-plots" id="sanctuary-plots" aria-label="Plots, swipe to browse">
         <div class="sanctuary-plot">
           <div class="sanctuary-layer" id="sanctuary-layer"></div>
-          ${MANIFEST.lockedHouse ? `<img class="sanctuary-peek" id="sanctuary-peek" src="${MANIFEST.lockedHouse.src}" alt="" aria-hidden="true">` : ''}
         </div>
         ${MANIFEST.lockedHouse ? `<div class="sanctuary-plot sanctuary-plot--locked"><img class="sanctuary-locked-house" id="sanctuary-locked-house" src="${MANIFEST.lockedHouse.src}" alt="Locked plot"></div>` : ''}
       </div>
@@ -267,7 +266,6 @@ export function wireSanctuaryPage(page: ParentNode): void {
   const sheetRoot = page.querySelector<HTMLElement>('#sanctuary-sheet-root');
   if (scene === null || layer === null || background === null || sheetRoot === null) return;
   const plots = page.querySelector<HTMLElement>('#sanctuary-plots');
-  const peek = page.querySelector<HTMLElement>('#sanctuary-peek');
   const lockedHouse = page.querySelector<HTMLElement>('#sanctuary-locked-house');
   /** Which plot is in view: 0 the player's, 1 the locked next one. */
   const currentPlot = (): number => plots === null || plots.clientWidth === 0 ? 0 : Math.round(plots.scrollLeft / plots.clientWidth);
@@ -310,15 +308,12 @@ export function wireSanctuaryPage(page: ParentNode): void {
 
     applyRect(background, layout.background);
     layer.innerHTML = '';
-    // The next plot's house peeks in from the right edge of this plot, on the
-    // same branch, and stands at the plot anchor in its own slide.
-    if (layout.lockedHouse !== null) {
+    // The locked plot's house sits centred in its own slide, on the branch.
+    if (layout.lockedHouse !== null && lockedHouse !== null) {
       const l = layout.lockedHouse;
-      // Show a third of the HOUSE (its content box), not of the sprite canvas.
       const [bx0, , bx1] = MANIFEST.lockedHouse?.bbox ?? [0, 0, 1024, 1024];
       const hs = l.width / (MANIFEST.lockedHouse?.size[0] ?? 1024);
-      if (peek !== null) applyRect(peek, { ...l, left: viewport.width - (bx0 * hs + (bx1 - bx0) * hs * 0.36) });
-      if (lockedHouse !== null) applyRect(lockedHouse, l);
+      applyRect(lockedHouse, { ...l, left: (viewport.width - (bx1 - bx0) * hs) / 2 - bx0 * hs });
     }
 
     renderActions();
