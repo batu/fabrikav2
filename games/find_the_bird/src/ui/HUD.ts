@@ -848,8 +848,13 @@ export function closePage(options: { skipHomeCallback?: boolean } = {}): void {
   const shell = overlay?.querySelector<HTMLElement>('#home-shell');
   shell?.classList.remove('home-shell--dimmed');
   shell?.removeAttribute('inert');
-  // Selection travels back to Play while the page slides away.
+  // Selection travels back to Play while the page slides away. The close is
+  // slower and heavier than the open (a departure, not an arrival), and the
+  // content drops first so the panel is seen to leave rather than blink out.
   setMetaNavActive(page, 'play');
+  page.classList.add('home-page-overlay--closing');
+  page.querySelector<HTMLElement>('#collection-deck, #sanctuary-layer')?.classList.add('meta-content--leave');
+  page.querySelector<HTMLElement>('#sanctuary-sheet-root')?.classList.add('meta-content--leave');
   if (pageEscapeHandler) document.removeEventListener('keydown', pageEscapeHandler);
   pageEscapeHandler = null;
   pageOpener?.focus({ preventScroll: true });

@@ -6175,3 +6175,9 @@ body:has(#home-page-overlay) #tutorial-overlay { display: none; }
 
 /* Re-rendered home (a page just closed over it): no entrance pop. */
 .home-shell--settled .home-brand-art { animation: none; }
+
+/* Departure: longer and eased-in, so the panel is seen going, not gone. */
+.home-page-overlay--closing .home-page-slide {
+  transition-duration: var(--meta-slide-ms, 520ms);
+  transition-timing-function: cubic-bezier(0.55, 0, 0.3, 1);
+}
