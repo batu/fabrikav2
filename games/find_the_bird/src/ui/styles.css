@@ -6172,3 +6172,6 @@ body:has(#home-page-overlay) #tutorial-overlay { display: none; }
 }
 
 .settings-build-stamp { font-size: 11px; letter-spacing: .04em; color: rgba(103, 67, 38, .55); font-variant-numeric: tabular-nums; }
+
+/* Re-rendered home (a page just closed over it): no entrance pop. */
+.home-shell--settled .home-brand-art { animation: none; }

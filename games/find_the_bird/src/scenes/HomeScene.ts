@@ -197,12 +197,19 @@ export class HomeScene extends Phaser.Scene {
     });
   }
 
+  private homeRenderCount = 0;
+
   private renderHomeScreen(): void {
     const overlay = this.overlay;
     if (!overlay) return;
     this.navigationGeneration += 1;
     this.clearBannerVideoReplay();
     overlay.innerHTML = this.renderHome();
+    // The shell's entrance pop belongs to arrival, not to every re-render: a
+    // page closing over home rebuilds the shell for fresh claim state, and the
+    // mascot must not bounce again under the panel sliding away.
+    if (this.homeRenderCount > 0) overlay.querySelector('#home-shell')?.classList.add('home-shell--settled');
+    this.homeRenderCount += 1;
     showHomeMenuLayer(overlay);
     this.startBannerVideoReplay();
 
