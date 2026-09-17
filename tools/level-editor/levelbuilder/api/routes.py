@@ -3897,6 +3897,90 @@ def adopt_export_route(session_id: str, req: AdoptExportRequest):
         raise HTTPException(409, detail={"error": str(error), "code": "adopt_export_refused"}) from error
 
 
+class StickerLaneRequest(BaseModel):
+    """Sticker lane (2026-09-17): judge -> refit -> regenerate -> white-gap on a canonical session."""
+
+    birdIds: list[str] | None = Field(None, max_length=200)
+    regenerate: bool = True
+    model: str | None = Field(None, max_length=200)
+    quality: str | None = Field("low", max_length=20)
+    maxCropR: float = Field(5.0, ge=1.6, le=12.0)
+    judge: str = Field("agy,openrouter", max_length=80)
+    judgeModel: str | None = Field(None, max_length=200)
+    whitegap: bool = True
+    restore: bool = True
+    dryRun: bool = False
+    blessActor: str | None = Field(None, max_length=200)
+    attemptNonce: str | None = Field(None, max_length=64)
+
+
+@router.post("/sessions/{session_id}/sticker-lane/jobs")
+def start_sticker_lane_job(session_id: str, req: StickerLaneRequest):
+    """Book the sticker lane as a durable job (paid: judge panels + regenerations); poll /api/jobs/{id}."""
+    _validate_session_id(session_id)
+    import hashlib as _hashlib
+
+    from .canonical_bird_contract import CanonicalReadState
+    from .sticker_lane import DEFAULT_JUDGE_MODEL, DEFAULT_REGEN_MODEL, JOB_KIND, VisionJudge, register_job_handlers
+
+    if req.blessActor and not req.blessActor.startswith("human:"):
+        raise HTTPException(422, detail={"error": "blessActor must be attributable (human:*)", "code": "human_attribution_required"})
+    try:
+        VisionJudge.from_spec(req.judge)
+    except ValueError as error:
+        raise HTTPException(400, detail={"error": str(error), "code": "unknown_judge"}) from error
+    canonical = S.read_canonical_session(session_id)
+    if canonical.state is not CanonicalReadState.VALID_CURRENT or canonical.pointer is None:
+        raise HTTPException(409, detail={"error": f"canonical session is {canonical.state.value}", "code": "canonical_integrity"})
+    if req.birdIds:
+        known = {bird["birdId"] for bird in (canonical.snapshot or {}).get("birds", [])}
+        unknown = [bird_id for bird_id in req.birdIds if bird_id not in known]
+        if unknown:
+            raise HTTPException(404, detail={"error": f"Unknown birdId: {unknown[0]}"})
+    for active in JOB_STORE.list_jobs_by_status(("queued", "running")):
+        if active.kind == JOB_KIND and active.session_id == session_id:
+            raise HTTPException(409, detail={
+                "error": f"a sticker lane is already active for {session_id} ({active.id})",
+                "code": "sticker_lane_active", "activeJobId": active.id,
+            })
+    metadata = {
+        "birdIds": list(dict.fromkeys(req.birdIds)) if req.birdIds else None,
+        "regenerate": req.regenerate,
+        "model": req.model or DEFAULT_REGEN_MODEL,
+        "quality": req.quality,
+        "maxCropR": req.maxCropR,
+        "judge": req.judge,
+        "judgeModel": req.judgeModel or DEFAULT_JUDGE_MODEL,
+        "whitegap": req.whitegap,
+        "restore": req.restore,
+        "dryRun": req.dryRun,
+        "blessActor": req.blessActor,
+        "contentRevision": canonical.pointer.content_revision,
+        "safeToRequeue": True,
+    }
+    key_material = json.dumps({k: v for k, v in metadata.items() if k != "safeToRequeue"}, sort_keys=True)
+    key = f"sticker-lane:{session_id}:{_hashlib.sha256(key_material.encode()).hexdigest()[:24]}"
+    if req.attemptNonce:
+        key = f"{key}:nonce:{req.attemptNonce}"
+    job = JOB_STORE.create_job(kind=JOB_KIND, session_id=session_id, idempotency_key=key, input_hash=key, metadata=metadata)
+    worker = get_default_job_worker()
+    register_job_handlers(worker)
+    worker.start()
+    return {"jobId": job.id, "status": job.status, "kind": job.kind}
+
+
+@router.get("/sessions/{session_id}/sticker-lane")
+def get_sticker_lane_summary(session_id: str):
+    """The latest lane summary for the session (tiers, refit, regenerations, still-refused, white gaps)."""
+    _validate_session_id(session_id)
+    from .sticker_lane import latest_summary
+
+    summary = latest_summary(session_id)
+    if summary is None:
+        raise HTTPException(404, detail={"error": "no sticker lane has run for this session", "code": "sticker_lane_missing"})
+    return summary
+
+
 @router.get("/catalog/levels")
 def get_catalog_levels(include_tombstoned: bool = Query(False)):
     return {"levels": S.list_catalog_candidates(include_tombstoned=include_tombstoned)}

@@ -69,6 +69,35 @@ localizer is the only post-paint localizer and Extract All is the only cutter.
 | Tap tolerance | runtime `hitboxGeometry.ts` | 2.0× hitbox radius (squares) | Painted birds render larger than their disc; neighbor-overlap clamp prevents shared areas. |
 | Restore bg | masked writer | connected bird pixels within the 2x runtime footprint + phase-align + sharpness match | Erases every changed component touching the cleanup rect (2026-09-08; the rect alone left feet/tails on screen after pickup because stickers run 0.8-0.9x the painted bird). Detached additions stay. Clean patches are unsharp-masked toward local painted crispness (11.98 vs 8.64 gradient energy). |
 
+## Sticker lane (2026-09-17): judge → refit → regenerate → white-gap
+
+Runs after Extract All and before the human cutout review, as a durable job
+(`POST /api/sessions/<sid>/sticker-lane/jobs`, editor button "★ Sticker lane",
+CLI `level-editor sticker-lane <sid> [--dry-run] [--bird <id>] [--max-crop-r 3.2|5|7] --wait`).
+Code: `levelbuilder/api/sticker_lane.py` (+ `whitegap.py`); summary at
+`<session>/sticker-lane.json` (`GET .../sticker-lane`); panels and raw renders under
+`.canonical/job-artifacts/<job>/`. Every change lands through the canonical promotion
+path (same commit as a per-bird extract), so sprite history keeps the before/after and
+reviews are invalidated per changed bird. Formalized from the 2026-09-16/17 intake
+(`docs/solutions/2026-09-16-ftb-sticker-tiers-refit-regen`, handoff
+`docs/handoffs/2026-09-16-ftb-intake-plan-agreed.md`); the operator's rules, in order:
+
+| Step | Rule | Why (evidence) |
+|---|---|---|
+| 1 Tier judge | panel = painted \| sticker on grey \| 50% overlay; agy (subscription) first, OpenRouter `gemini-3.8-flash` fallback ($0.003/bird); T1 match, T2 size/shape shift, T3 colour/detail, T4 different bird **or pose**; keep = T1/T2 | gemini agreed with agy 35/38 across the keep/regenerate line; astra/sonnet did not (2026-09-16). A judge outage never spends: `tier=None` classifies as keep. |
+| 2 Refit | uniform ladder 0.6–2.0 then width:height 0.8–1.25 (`fit_aniso`), masked SQDIFF against the paint; gate pop ≤ 45, hitbox inside, overlap with the old box. **Refit-refused always regenerates**; a T3 with pop ≤ 25 stays | levels 1-8: 130/144 applied; the shipped stickers were 0.8-0.9× the painted bird (feet/tails left on screen). |
+| 3 Regenerate | `openai/gpt-image-2.5-sunburst`, quality low ($0.0082/call), **visible-part** prompt (`flatkey.visible_part_prompt_template`), two crops: the Extract All square, then the painted-extent square capped at `maxCropR × r` (3.2 tight, 5 default, 7 wide); editor keying; best masked score wins, ties broken by coverage of the painted bird; chunk gate (alpha fill > 0.8 and bbox > 2.2 r = scene chunk) | 34/41 regenerated birds needed the grown crop (no VLM boxes on levels 1-8); scene-chunk stickers passed refit (pop ~0) and the judge on L100 until the gate. |
+| 4 Second pass | refit + judge the regenerations; still-refused birds are listed for the operator, never a blind second round | operator decision 2026-09-16. |
+| 5 White gaps | `whitegap.find_gaps` proposes (small flat white blob, enclosed, next to the outside through thin strokes only, ringed by line art), the judge confirms, `punch_gaps` makes it transparent | cheeks/bellies/wing bars are not separable from gaps deterministically: 94 judge-confirmed, Batu-reviewed on 2026-09-17; fixtures in `tests/fixtures/whitegap`. |
+| 6 Missing bird | a judge "why" that says the painted bird is not there → `missing`, reported, no spend | VLM-minted hitboxes with nothing under them (galley, scribes). |
+| 7 Restoration | the canonical restore asset becomes the birdless restoration (`birdless_restore_image`: scene minus each bird's own connected painted pixels inside its cleanup rect, phase-aligned, sharpness-matched) and the reviews it depends on are invalidated | a fresh canonical level shipped the raw clean plate as bg_00 on the first end-to-end run (2026-09-17): every pickup reverted the whole rect, props included. The legacy exporter always did this; the canonical export shipped the asset verbatim. |
+| Cleanup rect | follows the final sprite box ×1.15, at least 2 r, always containing the hitbox disc | intake "fix2" rule. |
+| Ship | sticker resized to its box, long edge ≤ 288 px, transparent RGB zeroed | the shipped-44 convention. |
+
+`--dry-run` judges and refits without spending or committing (a free preview of the regenerate
+class); `--bless-actor human:…` re-blesses final cutouts when nothing is left refused or missing
+(operator option 2, delegated review). Costs land in the merceka ledger under `operation=sticker_lane`.
+
 ## Export gates (fail closed, no bypass in production)
 
 1. **Local alignment**: 3×3-grid phase correlation, painted vs clean bg, any

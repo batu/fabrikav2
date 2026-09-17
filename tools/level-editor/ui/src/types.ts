@@ -73,6 +73,7 @@ export interface SpriteCandidate {
   humanConfirmed?: boolean;
   regenerationCandidate?: boolean;
   regenerationProbability?: number | null;
+  stickerLane?: { tier?: number | null; why?: string; refit?: string; class?: string; stamp?: string } | null;
 }
 
 export type AnimationJobStatus = 'running' | 'completed' | 'failed';

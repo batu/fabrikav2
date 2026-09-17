@@ -53,8 +53,15 @@ assert _OCCLUSION_COMPLETE in FLAT_PROMPT_TEMPLATE
 
 def flat_prompt_template() -> str:
     if os.environ.get("FTD_FLATKEY_OCCLUSION", "complete") == "visible":
-        return FLAT_PROMPT_TEMPLATE.replace(_OCCLUSION_COMPLETE, _OCCLUSION_VISIBLE)
+        return visible_part_prompt_template()
     return FLAT_PROMPT_TEMPLATE
+
+
+def visible_part_prompt_template() -> str:
+    """The sticker-lane prompt (operator 2026-09-16): visible part only, same
+    size and position as painted. The env switch above selects it for Extract
+    All; the sticker lane always uses it."""
+    return FLAT_PROMPT_TEMPLATE.replace(_OCCLUSION_COMPLETE, _OCCLUSION_VISIBLE)
 
 
 def _edit_kwargs() -> dict:

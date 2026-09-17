@@ -123,6 +123,19 @@ def test_bulk_extract_grows_unsized_boxes_from_the_paint(monkeypatch):
                           metadata={"force": False, "padFactor": 1.6, "hitboxesSha": sha})
     I._run_bulk_extract_job(job, store=_Store())
     d1, d2 = seen["detections"]
-    assert d1["source"] == "paint" and d1["width"] == int(260 * I.EXTENT_GROWTH) and d1["x"] == 100 - d1["width"] // 2
+    # 260 x 1.3 = 338 would exceed the 5 r cap (250 at r = 50): the growth is capped, still centred.
+    assert d1["source"] == "paint" and d1["width"] == int(I.EXTENT_CAP_R * 50) and d1["x"] == 100 - d1["width"] // 2
     assert d2["source"] == "radius" and d2["width"] == 160
     assert any(p.get("boxSources") == {"vlm": 0, "paint": 1, "radius": 1} for p in patches)
+
+
+def test_grow_box_by_extent_is_capped_at_five_radii():
+    from levelbuilder.api.inpaint import EXTENT_CAP_R, _grow_box_by_extent
+
+    box = {"x": 100 - 91, "y": 100 - 91, "width": 182, "height": 182, "source": "radius"}  # 1.6 r square, r = 57
+    scene_wide = {"x": 0, "y": 0, "width": 2000, "height": 2000}
+    grown = _grow_box_by_extent(box, scene_wide, radius=57)
+    assert grown["width"] == grown["height"] == int(EXTENT_CAP_R * 57)
+    assert abs(grown["x"] + grown["width"] / 2 - 100) <= 1 and abs(grown["y"] + grown["height"] / 2 - 100) <= 1
+    uncapped = _grow_box_by_extent(box, scene_wide)
+    assert uncapped["width"] == int(2000 * 1.3)
