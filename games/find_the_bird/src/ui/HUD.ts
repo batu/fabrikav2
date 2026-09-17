@@ -546,6 +546,8 @@ export function refreshMetaNav(): void {
     ? 'sanctuary'
     : page.classList.contains('home-page-collection') ? 'collection' : null;
   if (current === null) return;
+  // The header carries the wallet pills, so a collect must refresh them too.
+  updateShopHeaderBalances(page);
   const nav = page.querySelector<HTMLElement>('.home-page-nav');
   if (nav === null) return;
   nav.innerHTML = renderMetaNavBar({ active: current });
@@ -623,7 +625,7 @@ export function openPage(
         <img class="home-page-back-art" src="/ui/page-header/back_button.png" alt="" aria-hidden="true">
       </button>
       <h2 id="home-page-title" class="home-page-title" tabindex="-1">${title}</h2>
-      ${id === 'shop' ? renderShopHeaderBalances() : id === 'achievements' ? renderAchievementHeaderBalances() : ''}
+      ${id === 'shop' || META_PAGES.has(id) ? renderShopHeaderBalances() : id === 'achievements' ? renderAchievementHeaderBalances() : ''}
     </div>
     <div class="home-page-body">
       ${pageBodyFor(id)}

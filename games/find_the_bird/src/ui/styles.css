@@ -4290,7 +4290,9 @@
 
 /* ══ Shop Page (Phase 2) ════════════════════════════════════════════ */
 
-.home-page-shop {
+.home-page-shop,
+.home-page-collection,
+.home-page-sanctuary {
   --shop-header-overlay: linear-gradient(180deg, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0) 58%);
   --shop-header-stripes: linear-gradient(135deg, #dce3bf 0%, #a8b67d 58%, #82925e 100%);
   --shop-header-border: #596944;
@@ -4339,7 +4341,7 @@
 }
 
 /* Reference-inspired shop awning with live wallet counters. */
-.home-page-shop .home-page-header {
+:is(.home-page-shop, .home-page-collection, .home-page-sanctuary) .home-page-header {
   position: relative;
   align-items: center;
   gap: 10px;
@@ -4353,18 +4355,18 @@
   box-shadow: var(--shop-header-shadow);
 }
 
-.home-page-shop .home-page-header::before {
+:is(.home-page-shop, .home-page-collection, .home-page-sanctuary) .home-page-header::before {
   content: none;
 }
 
-.home-page-shop .home-page-back-btn {
+:is(.home-page-shop, .home-page-collection, .home-page-sanctuary) .home-page-back-btn {
   position: relative;
   z-index: 1;
   width: 62px;
   height: 62px;
 }
 
-.home-page-shop .home-page-title {
+:is(.home-page-shop, .home-page-collection, .home-page-sanctuary) .home-page-title {
   position: relative;
   z-index: 1;
   flex: 0 1 auto;
@@ -5240,7 +5242,7 @@
 }
 
 .home-page-settings .home-page-header,
-.home-page-shop .home-page-header {
+:is(.home-page-shop, .home-page-collection, .home-page-sanctuary) .home-page-header {
   background-color: #82925e;
   background-image:
     linear-gradient(180deg, rgba(255, 255, 255, 0.28), rgba(70, 85, 54, 0.2)),
@@ -5981,4 +5983,14 @@ body:has(#home-page-overlay) #tutorial-overlay { display: none; }
 }
 @media (prefers-reduced-motion: reduce) {
   :is(#home-shell, .home-page-nav) .home-nav-btn--active { transition: none; }
+}
+
+/* The Collection and Sanctuary share the Shop's header, but their titles are
+   longer than "Shop" and must fit beside both wallet pills on a 390pt phone. */
+:is(.home-page-collection, .home-page-sanctuary) .home-page-title {
+  font-size: clamp(20px, 5.8vw, 26px);
+  white-space: nowrap;
+}
+:is(.home-page-collection, .home-page-sanctuary) .shop-header-balance-pill {
+  min-width: 0;
 }
