@@ -25,6 +25,12 @@ export interface RemoteConfigValues {
   sparrowUnlockCount: number;
   sparrowHatCount: number;
   sparrowCardiganCount: number;
+  robinUnlockCount: number;
+  robinHatCount: number;
+  robinCardiganCount: number;
+  bluebirdUnlockCount: number;
+  bluebirdHatCount: number;
+  bluebirdCardiganCount: number;
   housePriceTier1: number;
   housePriceTier2: number;
   housePriceTier3: number;
@@ -118,11 +124,21 @@ export const REMOTE_CONFIG_DEFAULTS: RemoteConfigValues = {
   sanctuaryUnlockLevel: 15,
   // Below the tease count the card is fully hidden; from it the silhouette
   // and species show, so the player knows what they are collecting towards.
-  // 2026-09-17: 10 / 50 / 100, tease at 5. Steep on purpose for now.
+  // 2026-09-17: tuned against the ranked tags over the 92-level list
+  // (tools/birdtypes/ladder_report.py). Sparrow rung 1 is banked before the
+  // Collection opens at level 10; the chain then lands one event every 3-8
+  // levels: sparrow 2 + robin open L12, robin 2 + bluebird open L19,
+  // sparrow 3 L24, bluebird 2 L31, robin 3 L40, bluebird 3 L59.
   sparrowTeaseCount: 5,
   sparrowUnlockCount: 10,
-  sparrowHatCount: 50,
+  sparrowHatCount: 60,
   sparrowCardiganCount: 100,
+  robinUnlockCount: 10,
+  robinHatCount: 35,
+  robinCardiganCount: 70,
+  bluebirdUnlockCount: 10,
+  bluebirdHatCount: 40,
+  bluebirdCardiganCount: 60,
   housePriceTier1: 150,
   housePriceTier2: 300,
   housePriceTier3: 900,
@@ -212,6 +228,12 @@ export const REMOTE_CONFIG_DEFINITIONS_BY_KEY: {
   sparrowUnlockCount: { key: 'sparrowUnlockCount', remoteKey: 'sparrow_unlock_count', type: 'number', description: 'Sparrow pickups that unlock the sparrow card and open the Sanctuary tile.' },
   sparrowHatCount: { key: 'sparrowHatCount', remoteKey: 'sparrow_hat_count', type: 'number', description: 'Sparrow pickups that unlock the sparrow hat costume.' },
   sparrowCardiganCount: { key: 'sparrowCardiganCount', remoteKey: 'sparrow_cardigan_count', type: 'number', description: 'Sparrow pickups that unlock the sparrow cardigan costume (final state).' },
+  robinUnlockCount: { key: 'robinUnlockCount', remoteKey: 'robin_unlock_count', type: 'number', description: 'Robin pickups that unlock the robin card.' },
+  robinHatCount: { key: 'robinHatCount', remoteKey: 'robin_hat_count', type: 'number', description: 'Robin pickups that unlock the robin hat costume.' },
+  robinCardiganCount: { key: 'robinCardiganCount', remoteKey: 'robin_cardigan_count', type: 'number', description: 'Robin pickups that unlock the robin full costume.' },
+  bluebirdUnlockCount: { key: 'bluebirdUnlockCount', remoteKey: 'bluebird_unlock_count', type: 'number', description: 'Bluebird pickups that unlock the bluebird card.' },
+  bluebirdHatCount: { key: 'bluebirdHatCount', remoteKey: 'bluebird_hat_count', type: 'number', description: 'Bluebird pickups that unlock the bluebird hat costume.' },
+  bluebirdCardiganCount: { key: 'bluebirdCardiganCount', remoteKey: 'bluebird_cardigan_count', type: 'number', description: 'Bluebird pickups that unlock the bluebird full costume.' },
   housePriceTier1: { key: 'housePriceTier1', remoteKey: 'house_price_tier_1', type: 'number', description: 'Coin price to build the tier-1 nest box in the Sanctuary.' },
   housePriceTier2: { key: 'housePriceTier2', remoteKey: 'house_price_tier_2', type: 'number', description: 'Coin price to upgrade the nest box to tier 2.' },
   housePriceTier3: { key: 'housePriceTier3', remoteKey: 'house_price_tier_3', type: 'number', description: 'Coin price to upgrade the nest box to tier 3.' },
@@ -335,6 +357,12 @@ export function mapRemoteConfigValues(
     sparrowUnlockCount: read('sparrowUnlockCount'),
     sparrowHatCount: read('sparrowHatCount'),
     sparrowCardiganCount: read('sparrowCardiganCount'),
+    robinUnlockCount: read('robinUnlockCount'),
+    robinHatCount: read('robinHatCount'),
+    robinCardiganCount: read('robinCardiganCount'),
+    bluebirdUnlockCount: read('bluebirdUnlockCount'),
+    bluebirdHatCount: read('bluebirdHatCount'),
+    bluebirdCardiganCount: read('bluebirdCardiganCount'),
     housePriceTier1: read('housePriceTier1'),
     housePriceTier2: read('housePriceTier2'),
     housePriceTier3: read('housePriceTier3'),
@@ -415,6 +443,12 @@ export function mapRemoteConfigSources<TSource>(
     sparrowUnlockCount: read('sparrowUnlockCount'),
     sparrowHatCount: read('sparrowHatCount'),
     sparrowCardiganCount: read('sparrowCardiganCount'),
+    robinUnlockCount: read('robinUnlockCount'),
+    robinHatCount: read('robinHatCount'),
+    robinCardiganCount: read('robinCardiganCount'),
+    bluebirdUnlockCount: read('bluebirdUnlockCount'),
+    bluebirdHatCount: read('bluebirdHatCount'),
+    bluebirdCardiganCount: read('bluebirdCardiganCount'),
     housePriceTier1: read('housePriceTier1'),
     housePriceTier2: read('housePriceTier2'),
     housePriceTier3: read('housePriceTier3'),

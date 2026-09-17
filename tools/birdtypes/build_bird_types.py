@@ -25,7 +25,7 @@ if os.path.exists(vp):
         verdicts[(r["level"], r["dog_id"])] = bool(v.get("sparrow"))
 
 rows = {}
-for src in [os.path.join(HERE, "known.jsonl"), os.path.join(HERE, "classified.jsonl")]:
+for src in [os.path.join(HERE, "known.jsonl"), os.path.join(HERE, "classified-ranked.jsonl")]:
     if not os.path.exists(src): continue
     for line in open(src):
         try: r = json.loads(line)
@@ -38,8 +38,9 @@ for src in [os.path.join(HERE, "known.jsonl"), os.path.join(HERE, "classified.js
             t = "unknown-songbird"
         rows[key] = t
 
-manifest = json.load(open(os.path.join(PUB, "levels", "bundled-manifest.json")))
-level_ids = [lv["id"] for lv in manifest["levels"]]
+# levels-index.json is the full shipped list (92 levels on 2026-09-17); the
+# bundled manifest only holds the 44 shipped inside the app binary.
+level_ids = [lv["id"] for lv in json.load(open(os.path.join(PUB, "levels", "levels-index.json")))]
 
 levels, total, tagged = {}, 0, 0
 for lid in level_ids:

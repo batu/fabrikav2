@@ -18,7 +18,7 @@ export function isBirdOpen(bird: BirdId): boolean {
 }
 
 export function ladderFor(bird: BirdId): Ladder {
-  return ladder(gameState.birdCount(bird), claimedRungOf(bird), collectionThresholds());
+  return ladder(gameState.birdCount(bird), claimedRungOf(bird), collectionThresholds(bird));
 }
 
 export function cardInputsFor(bird: BirdId): CardInputs {
@@ -27,7 +27,7 @@ export function cardInputsFor(bird: BirdId): CardInputs {
     bird,
     open: isBirdOpen(bird),
     count: gameState.birdCount(bird),
-    thresholds: collectionThresholds(),
+    thresholds: collectionThresholds(bird),
     claimed: clampRung(meta.claimedRung),
     selected: meta.selectedRung,
     teaseCount: collectionTeaseCount(),

@@ -14,7 +14,7 @@ from PIL import Image
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.abspath(os.path.join(HERE, "..", ".."))
 PUB = os.path.join(ROOT, "games", "find_the_bird", "public")
-SRC = os.path.join(HERE, "classified.jsonl")
+SRC = os.path.join(HERE, "classified-ranked.jsonl")
 KNOWN = os.path.join(HERE, "known.jsonl")
 OUT = os.path.join(HERE, "sparrow-verdicts.jsonl")
 MODEL = "google/gemini-3.8-flash"

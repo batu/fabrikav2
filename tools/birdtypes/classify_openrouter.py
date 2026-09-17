@@ -11,17 +11,22 @@ import httpx
 from PIL import Image
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-OUT = os.path.join(HERE, "classified.jsonl")
+# Ranked results (2026-09-17): five candidates per sprite so the collection
+# ladder can be retuned to other species without another model run.
+# classified.jsonl holds the older single-label run and is kept for the record.
+OUT = os.path.join(HERE, "classified-ranked.jsonl")
 MODEL = "google/gemini-3.8-flash"
 KEY = os.environ["OPENROUTER_API_KEY"]
 
 PROMPT = (
     "This is a transparent PNG cutout of a single bird sprite from a hidden-object game. "
-    "Classify it. Reply with STRICT JSON only, no markdown fences, no prose: "
-    '{"type":"<short common bird type, e.g. sparrow, robin, wren, bluebird, finch, cardinal, '
-    'blue jay, owl, duck, chickadee, goldfinch, nuthatch, wagtail, generic-songbird>",'
-    '"colors":["dominant","secondary"],"pose":"perched|flying|standing|swimming","confidence":0-1}. '
-    'Use a coarse common name, not a species. If unsure use "unknown-songbird".'
+    "Rank the FIVE most likely bird types it depicts, most likely first. Use coarse common "
+    "names, not species (e.g. sparrow, robin, wren, bluebird, finch, cardinal, blue jay, owl, "
+    "duck, chickadee, goldfinch, nuthatch, wagtail, tit, thrush, blackbird, swallow, dove, "
+    "unknown-songbird). Reply with STRICT JSON only, no markdown fences, no prose: "
+    '{"candidates":[{"type":"<name>","confidence":0-1}, ... exactly 5],'
+    '"colors":["dominant","secondary"],"pose":"perched|flying|standing|swimming"}. '
+    "Confidences are your probability for each candidate and should sum to about 1."
 )
 
 lock = threading.Lock()
@@ -66,7 +71,10 @@ def classify(item, client):
             body = r.json()
             text = body["choices"][0]["message"]["content"]
             parsed = extract(text if isinstance(text, str) else json.dumps(text))
-            if parsed and parsed.get("type"):
+            cands = parsed.get("candidates") if parsed else None
+            if isinstance(cands, list) and cands and all(isinstance(c, dict) and c.get("type") for c in cands):
+                # Top candidate doubles as `type` so the verifier and builder keep working.
+                parsed["type"] = cands[0]["type"]
                 return {**item, "classification": parsed, "error": None}
             last = f"unparsed: {str(text)[:160]}"
         except Exception as e:

@@ -6,13 +6,14 @@
 
 import { remoteConfigService } from '../config/RemoteConfigService';
 import type { CollectionThresholds } from './thresholds';
+import type { BirdId } from './birds';
 import type { AccrualConfig } from '../sanctuary/accrual';
 
-export function collectionThresholds(): CollectionThresholds {
+export function collectionThresholds(bird: BirdId = 'sparrow'): CollectionThresholds {
   return {
-    unlock: remoteConfigService.value('sparrowUnlockCount'),
-    hat: remoteConfigService.value('sparrowHatCount'),
-    cardigan: remoteConfigService.value('sparrowCardiganCount'),
+    unlock: remoteConfigService.value(`${bird}UnlockCount`),
+    hat: remoteConfigService.value(`${bird}HatCount`),
+    cardigan: remoteConfigService.value(`${bird}CardiganCount`),
   };
 }
 

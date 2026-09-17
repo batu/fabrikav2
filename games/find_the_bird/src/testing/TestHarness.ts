@@ -44,13 +44,14 @@ export const FIND_THE_DOG_TOUR_STATES = [
   // so a low-rate device capture can see whether the panel travels.
   'sanctuary-close', 'collection-close',
   // Showcase: the whole meta loop at a human pace, for recordings.
-  'showcase',
+  'showcase', 'collection-store-robin', 'sanctuary-store-house',
 ] as const;
 export type FindTheDogCollectionState =
   | 'collection-locked' | 'collection-silhouette' | 'collection-unlocked'
   | 'collection-hat' | 'collection-cardigan'
   | 'sanctuary-nohouse' | 'sanctuary-empty-perch' | 'sanctuary-placed'
-  | 'sanctuary-coins' | 'sanctuary-tier3' | 'sanctuary-close' | 'collection-close' | 'showcase';
+  | 'sanctuary-coins' | 'sanctuary-tier3' | 'sanctuary-close' | 'collection-close' | 'showcase'
+  | 'collection-store-robin' | 'sanctuary-store-house';
 export type FindTheDogDriveState =
   DriveState | 'achievements' | 'shop' | 'win-achievement' | FindTheDogCollectionState;
 
@@ -69,6 +70,8 @@ export const findTheDogDrivePredicates = {
   'sanctuary-placed': sanctuaryPageOpen,
   'sanctuary-coins': sanctuaryPageOpen,
   'sanctuary-tier3': sanctuaryPageOpen,
+  'sanctuary-store-house': sanctuaryPageOpen,
+  'collection-store-robin': collectionPageOpen,
   'sanctuary-close': (snapshot: DriveSnapshot): boolean =>
     snapshot.homeShellVisible === true && snapshot.sanctuaryOpen !== true,
   'collection-close': (snapshot: DriveSnapshot): boolean =>
@@ -515,6 +518,8 @@ export function createFindTheDogHarness(game: Phaser.Game): FindTheDogHarness {
     pendingCoins?: number;
     /** Claimed rung; defaults to everything the count has earned. */
     claimed?: number;
+    /** Robin pickups and claimed rung (the robin opens once the sparrow claims rung 2). */
+    robin?: { count: number; claimed: number };
   }
 
   /** Device-only diagnostics: append a line to the tour's debug badge, the one
@@ -540,6 +545,10 @@ export function createFindTheDogHarness(game: Phaser.Game): FindTheDogHarness {
     gameState.setTotalLevelsCompletedForTest(seed.sparrows > 0 ? 40 : 0);
     gameState.setBirdCountForTest('sparrow', seed.sparrows);
     gameState.setClaimedRungForTest(seed.claimed ?? earnedRung(seed.sparrows, collectionThresholds()));
+    if (seed.robin !== undefined) {
+      gameState.setBirdCountForTest('robin', seed.robin.count);
+      gameState.setClaimedRungForTest(seed.robin.claimed, 'robin');
+    }
     gameState.setCoinsForTest(seed.coins ?? 0);
     gameState.setSanctuaryForTest({
       houseTier: seed.tier ?? 0,
@@ -634,6 +643,23 @@ export function createFindTheDogHarness(game: Phaser.Game): FindTheDogHarness {
         return sanctuary({ sparrows: 10, coins: 400, tier: 1, placed: true, pendingCoins: 3.5 });
       case 'sanctuary-tier3':
         return sanctuary({ sparrows: 50, coins: 1200, tier: 3, placed: true });
+      // App Store captures: a finished tier-3 house with nobody home, and the
+      // robin card at its first rung with the sparrow ladder complete.
+      case 'sanctuary-store-house':
+      case 'collection-store-robin': {
+        const opened = state === 'sanctuary-store-house'
+          ? await sanctuary({ sparrows: 100, coins: 2400, tier: 3, claimed: 3 })
+          : await collection({ sparrows: 100, claimed: 3, robin: { count: 12, claimed: 1 } });
+        if (!opened) return false;
+        // The listing's caption plank sits where the nav bar is; hide the bar
+        // so no tile peeks out above the plank.
+        await new Promise((resolve) => { window.setTimeout(resolve, 1500); });
+        const nav = document.querySelector<HTMLElement>('.home-page-nav');
+        if (nav !== null) nav.style.visibility = 'hidden';
+        // The deck opens on the first card; the robin capture wants the robin.
+        document.querySelector<HTMLElement>('.collection-card[data-bird="robin"]')?.scrollIntoView({ behavior: 'instant', inline: 'center', block: 'nearest' });
+        return true;
+      }
       case 'showcase': {
         // A player with everything earned and unclaimed: three claims in the
         // Collection, then build, place and upgrade in the Sanctuary.

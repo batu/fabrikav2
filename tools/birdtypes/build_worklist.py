@@ -8,8 +8,9 @@ PUB = os.path.join(GAME, "public")
 PRIOR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..",
     "docs/sanctuary-exploration/vertical-slice-2026-09-16/birdtypes/results.jsonl"))
 
-manifest = json.load(open(os.path.join(PUB, "levels", "bundled-manifest.json")))
-level_ids = [lv["id"] for lv in manifest["levels"]]
+# levels-index.json is the full shipped list (92 levels on 2026-09-17); the
+# bundled manifest only holds the 44 shipped inside the app binary.
+level_ids = [lv["id"] for lv in json.load(open(os.path.join(PUB, "levels", "levels-index.json")))]
 
 done = {}
 if os.path.exists(PRIOR):
