@@ -43,12 +43,14 @@ export const FIND_THE_DOG_TOUR_STATES = [
   // Motion probe: opens the Sanctuary, then closes it with the slide slowed
   // so a low-rate device capture can see whether the panel travels.
   'sanctuary-close', 'collection-close',
+  // Showcase: the whole meta loop at a human pace, for recordings.
+  'showcase',
 ] as const;
 export type FindTheDogCollectionState =
   | 'collection-locked' | 'collection-silhouette' | 'collection-unlocked'
   | 'collection-hat' | 'collection-cardigan'
   | 'sanctuary-nohouse' | 'sanctuary-empty-perch' | 'sanctuary-placed'
-  | 'sanctuary-coins' | 'sanctuary-tier3' | 'sanctuary-close' | 'collection-close';
+  | 'sanctuary-coins' | 'sanctuary-tier3' | 'sanctuary-close' | 'collection-close' | 'showcase';
 export type FindTheDogDriveState =
   DriveState | 'achievements' | 'shop' | 'win-achievement' | FindTheDogCollectionState;
 
@@ -71,6 +73,7 @@ export const findTheDogDrivePredicates = {
     snapshot.homeShellVisible === true && snapshot.sanctuaryOpen !== true,
   'collection-close': (snapshot: DriveSnapshot): boolean =>
     snapshot.homeShellVisible === true && snapshot.collectionOpen !== true,
+  showcase: (snapshot: DriveSnapshot): boolean => snapshot.sanctuaryOpen === true,
   menu: (snapshot: DriveSnapshot): boolean => {
     const scene = String(snapshot.scene ?? snapshot.activeScene ?? '');
     return scene === 'menu' || scene === 'HomeScene' || snapshot.homeShellVisible === true;
@@ -510,6 +513,8 @@ export function createFindTheDogHarness(game: Phaser.Game): FindTheDogHarness {
     tier?: 0 | 1 | 2 | 3;
     placed?: boolean;
     pendingCoins?: number;
+    /** Claimed rung; defaults to everything the count has earned. */
+    claimed?: number;
   }
 
   /** Device-only diagnostics: append a line to the tour's debug badge, the one
@@ -534,7 +539,7 @@ export function createFindTheDogHarness(game: Phaser.Game): FindTheDogHarness {
     // the index is set. Seed both.
     gameState.setTotalLevelsCompletedForTest(seed.sparrows > 0 ? 40 : 0);
     gameState.setBirdCountForTest('sparrow', seed.sparrows);
-    gameState.setClaimedRungForTest(earnedRung(seed.sparrows, collectionThresholds()));
+    gameState.setClaimedRungForTest(seed.claimed ?? earnedRung(seed.sparrows, collectionThresholds()));
     gameState.setCoinsForTest(seed.coins ?? 0);
     gameState.setSanctuaryForTest({
       houseTier: seed.tier ?? 0,
@@ -629,6 +634,28 @@ export function createFindTheDogHarness(game: Phaser.Game): FindTheDogHarness {
         return sanctuary({ sparrows: 10, coins: 400, tier: 1, placed: true, pendingCoins: 3.5 });
       case 'sanctuary-tier3':
         return sanctuary({ sparrows: 50, coins: 1200, tier: 3, placed: true });
+      case 'showcase': {
+        // A player with everything earned and unclaimed: three claims in the
+        // Collection, then build, place and upgrade in the Sanctuary.
+        const wait = (ms: number): Promise<void> => new Promise((resolve) => { window.setTimeout(resolve, ms); });
+        const tap = (selector: string): boolean => { const el = document.querySelector<HTMLElement>(selector); if (el === null) return false; el.click(); return true; };
+        const opened = await collection({ sparrows: 100, coins: 1500, claimed: 0 });
+        if (!opened) return false;
+        // A first launch can re-render home under the page (remote config,
+        // unlock pops) and take the page with it; reopen if that happened.
+        await wait(2600);
+        if (document.getElementById('home-page-overlay') === null) { tap('#home-shell #home-nav-collection'); await wait(1600); }
+        for (let i = 0; i < 3; i += 1) { tap('.collection-unlock-btn'); await wait(2200); }
+        tap('.collection-tab[data-rung="2"]'); await wait(1400);
+        tap('.home-page-nav #home-nav-sanctuary'); await wait(1800);
+        tap('.sanctuary-action'); await wait(1800);
+        tap('.sanctuary-pedestal--empty'); await wait(1400);
+        tap('.sanctuary-sheet .sanctuary-pill--primary'); await wait(2000);
+        tap('.sanctuary-action'); await wait(2000);
+        tap('.sanctuary-action'); await wait(2200);
+        tap('.sanctuary-pedestal:not(.sanctuary-pedestal--empty)'); await wait(1500);
+        return true;
+      }
       case 'collection-close': {
         // The player's path: open the Collection from home, then tap its own
         // tile again to go back.
@@ -1056,7 +1083,7 @@ export function createFindTheDogHarness(game: Phaser.Game): FindTheDogHarness {
       // dog's screen point, swallowing the harness's real-input taps. Browser
       // flows already disable it via setState; do the same for tour drives.
       gameState.settings.tutorialEnabled = false;
-      if (state.startsWith('collection-') || state.startsWith('sanctuary-')) {
+      if (state.startsWith('collection-') || state.startsWith('sanctuary-') || state === 'showcase') {
         return driveMetaState(state as FindTheDogCollectionState);
       }
       if (state === 'achievements') return openAchievementsFromUi();
