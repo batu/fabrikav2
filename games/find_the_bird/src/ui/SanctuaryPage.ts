@@ -96,6 +96,15 @@ export function renderSanctuaryPageBody(): string {
   `;
 }
 
+interface BirdChoice {
+  id: string;
+  name: string;
+  portrait: string;
+  locked: boolean;
+  placed: boolean;
+  onPick: () => void;
+}
+
 interface SheetAction {
   label: string;
   kind: 'primary' | 'secondary';
@@ -105,7 +114,7 @@ interface SheetAction {
 
 function showSheet(
   root: HTMLElement,
-  options: { title: string; note?: string; facts?: string[]; portrait?: string; actions: SheetAction[] },
+  options: { title: string; note?: string; facts?: string[]; portrait?: string; birds?: BirdChoice[]; actions: SheetAction[] },
 ): void {
   root.innerHTML = '';
   const sheet = document.createElement('div');
@@ -117,6 +126,33 @@ function showSheet(
   title.className = 'sanctuary-sheet-title';
   title.textContent = options.title;
   sheet.appendChild(title);
+
+  if (options.birds !== undefined) {
+    // Every bird in a row of round portraits: locked ones greyed, the ones
+    // already living here ringed green. Tapping one places (or moves) it.
+    const row = document.createElement('div');
+    row.className = 'sanctuary-bird-row';
+    for (const bird of options.birds) {
+      const choice = document.createElement('button');
+      choice.type = 'button';
+      choice.className = `sanctuary-bird${bird.locked ? ' sanctuary-bird--locked' : ''}${bird.placed ? ' sanctuary-bird--placed' : ''}`;
+      choice.setAttribute('aria-label', `${bird.name}${bird.locked ? ', locked' : bird.placed ? ', already here' : ''}`);
+      if (bird.locked) choice.setAttribute('aria-disabled', 'true');
+      const face = document.createElement('span');
+      face.className = 'sanctuary-sheet-portrait';
+      const img = document.createElement('img');
+      img.src = bird.portrait;
+      img.alt = '';
+      face.appendChild(img);
+      const name = document.createElement('span');
+      name.className = 'sanctuary-bird-name';
+      name.textContent = bird.locked ? '???' : bird.name;
+      choice.append(face, name);
+      choice.addEventListener('click', () => { playUITap(); if (!bird.locked) bird.onPick(); });
+      row.appendChild(choice);
+    }
+    sheet.appendChild(row);
+  }
 
   if (options.portrait !== undefined) {
     const face = document.createElement('span');
@@ -322,13 +358,12 @@ export function wireSanctuaryPage(page: ParentNode): void {
     const house = document.createElement('button');
     house.type = 'button';
     house.className = 'sanctuary-house';
-    house.setAttribute('aria-label', `Nest box, tier ${sanctuary.houseTier}. Tap to upgrade`);
+    house.setAttribute('aria-label', `Nest box, tier ${sanctuary.houseTier}`);
     const houseArt = document.createElement('img');
     houseArt.src = MANIFEST.houseTiers[sanctuary.houseTier - 1].src;
     houseArt.alt = '';
     house.appendChild(houseArt);
     applyRect(house, layout.house);
-    house.addEventListener('click', () => { playUITap(); hop(house); });
     layer.appendChild(house);
 
     for (const pedestal of layout.pedestals) {
@@ -516,32 +551,38 @@ export function wireSanctuaryPage(page: ParentNode): void {
   };
 
   const offerPlacement = (pedestalIndex: number): void => {
-    const unlocked = clampRung(gameState.collectionMeta.claimedRung) >= 1;
-    const elsewhere = Object.values(gameState.sanctuary.placed).includes('sparrow');
+    const meta = gameState.collectionMeta;
+    const unlocked = clampRung(meta.claimedRung) >= 1;
+    const placedMap = gameState.sanctuary.placed;
+    const place = (bird: string): void => {
+      if (!gameState.placeBird(pedestalIndex, bird, new Date(now()))) return;
+      closeSheet(sheetRoot);
+      render();
+      const placed = layer.querySelector<HTMLElement>(`.sanctuary-pedestal[data-pedestal="${pedestalIndex}"]`);
+      if (placed === null) return;
+      dropIn(placed);
+      const shadow = placed.previousElementSibling;
+      if (shadow instanceof HTMLElement && shadow.classList.contains('sanctuary-shadow')) shadowLand(shadow);
+      playBirdPlace();
+      hapticFound();
+      nudge(scene, centerOf(placed), 0.025);
+    };
+    const costume = CARD_STATE_ORDER[displayedRung(clampRung(meta.claimedRung), meta.selectedRung)];
+    const birds: BirdChoice[] = [
+      {
+        id: 'sparrow', name: 'Chirpy', locked: !unlocked,
+        portrait: unlocked ? `/ui/collection/portrait-sparrow-${costume === 'silhouette' ? 'plain' : costume}.webp` : '/ui/collection/portrait-sparrow-silhouette.webp',
+        placed: Object.values(placedMap).includes('sparrow'),
+        onPick: () => { place('sparrow'); },
+      },
+      { id: 'robin', name: 'Robin', locked: true, portrait: '/ui/collection/portrait-robin-silhouette.webp', placed: false, onPick: () => {} },
+      { id: 'bluebird', name: 'Bluebird', locked: true, portrait: '/ui/collection/portrait-bluebird-silhouette.webp', placed: false, onPick: () => {} },
+    ];
     showSheet(sheetRoot, {
-      title: unlocked ? (elsewhere ? 'Move Chirpy here?' : 'Who moves in?') : 'No bird yet',
-      portrait: unlocked ? '/ui/collection/portrait-sparrow-plain.webp' : '/ui/collection/portrait-sparrow-silhouette.webp',
-      facts: unlocked ? ['Chirpy', 'House Sparrow'] : ['Unlock Chirpy in the Collection'],
-      actions: [
-        {
-          label: unlocked ? (elsewhere ? 'Move Chirpy' : 'Place Chirpy') : 'Go to Collection',
-          kind: 'primary',
-          onTap: () => {
-            if (!unlocked) { openPage('collection'); return; }
-            if (!gameState.placeBird(pedestalIndex, 'sparrow', new Date(now()))) return;
-            closeSheet(sheetRoot);
-            render();
-            const placed = layer.querySelector<HTMLElement>(`.sanctuary-pedestal[data-pedestal="${pedestalIndex}"]`);
-            if (placed === null) return;
-            dropIn(placed);
-            const shadow = placed.previousElementSibling;
-            if (shadow instanceof HTMLElement && shadow.classList.contains('sanctuary-shadow')) shadowLand(shadow);
-            playBirdPlace();
-            hapticFound();
-            nudge(scene, centerOf(placed), 0.025);
-          },
-        },
-      ],
+      title: 'Who moves in?',
+      birds,
+      note: unlocked ? undefined : 'Unlock Chirpy in the Collection first.',
+      actions: unlocked ? [] : [{ label: 'Go to Collection', kind: 'primary', onTap: () => { openPage('collection'); } }],
     });
   };
 
