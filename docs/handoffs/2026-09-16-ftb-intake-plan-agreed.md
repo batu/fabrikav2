@@ -187,3 +187,23 @@ them through the same workflow. Batu reviews everything himself at the end from 
 - Failing editor tests, pre-existing today: golden cutout hashes (regenerated shipped sprites) and the
   merceka costs.py sha contract.
 - Spend: ~$45 on the intake ledger (cap $50).
+
+## 2026-09-17 morning: editor two-way street
+
+- `POST /api/sessions/{id}/adopt-export` (CLI `adopt-export --actor human:...`, module
+  `levelbuilder/api/export_adoption.py`): makes the canonical session equal to its public package
+  (birds by id or hitbox, add/delete, sprites/restoration/scene copied and re-hashed, provenance
+  re-pointed, reviews invalidated per changed class, localization stamped, re-blessed with the actor).
+  Run on all 92 in-game levels; a canonical re-export reproduced every package byte-for-byte.
+- All 92 re-approved into the catalog (bundledInApp = first 44 of order.txt). Side effect: public
+  level.json now has the canonical shape (UUID dog ids, compatibilityAliases); the sprite annotations
+  (refit/regen/technique/cleanupNote) live only in the sessions' history now.
+- Editor state: 92 sessions published, 0 lifecycle violations, all reviews current
+  (`human:batu-delegated:review-2026-09-17`), lineup draft = order.txt (92), activatable.
+  `levelAuthoringReviewRequired` is a non-blocking warning for now (operator).
+- Runtime: reveal = whole footprint; unfound neighbours' sprite pixels painted back into the mask
+  (pixel-level neighbour protection). Debug auto play in Settings > Debug.
+- Cold storage of the 61 packages + 33 sessions not in the game: ubuntu-server
+  /hdd/batu-cold-storage/2026-09-17/ftb-levels-not-in-game.
+- The bird backend on :5196 was restarted at ~09:40 UTC (new sequence gate); the adopt-export
+  route needs one more restart to be reachable from the UI.
