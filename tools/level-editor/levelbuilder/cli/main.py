@@ -26,6 +26,7 @@ import httpx
 from levelbuilder.api.operation_registry import OPERATIONS
 
 DEFAULT_URL = os.environ.get("LEVEL_EDITOR_URL", "http://127.0.0.1:5192")
+DEFAULT_INPAINT_MODEL = "openai/gpt-image-2.5-sunburst"
 
 WIZARD_OPERATIONS: dict[str, str] = {item.operation_id: item.cli_verb for item in OPERATIONS}
 
@@ -457,7 +458,9 @@ def cmd_create(client: Client, args: argparse.Namespace) -> None:
         "scenePrompt": prompts["scenePrompt"],
         "dogPrompt": prompts["dogPrompt"],
         "bgModel": model or args.model or "google/gemini-3.1-flash-image-preview",
-        "inpaintModel": model or args.model or "google/gemini-3.1-flash-image-preview",
+        # Operator 2026-09-17: the paint (inpaint) model defaults to gpt-image-2.5 sunburst;
+        # the background stays on Gemini Flash (the 2688 canvas recipe).
+        "inpaintModel": model or args.model or DEFAULT_INPAINT_MODEL,
         "nDogs": n_dogs,
         "aspectRatio": args.aspect_ratio,
         "imageSize": "1K",
