@@ -150,7 +150,11 @@ export function bindHomeNavigation(overlay: HTMLElement, deps: HomeNavigationDep
     refreshHomeWalletBalances(overlay);
   });
 
-  overlay.querySelector<HTMLButtonElement>('#home-play-now')?.addEventListener('click', (e) => {
-    deps.startCurrentLevel(e.currentTarget as HTMLButtonElement);
-  });
+  // Play Now dock and the middle nav tile are the same action.
+  for (const id of ['#home-play-now', '#home-nav-play']) {
+    overlay.querySelector<HTMLButtonElement>(id)?.addEventListener('click', (e) => {
+      if (document.getElementById('home-page-overlay')) return;
+      deps.startCurrentLevel(e.currentTarget as HTMLButtonElement);
+    });
+  }
 }

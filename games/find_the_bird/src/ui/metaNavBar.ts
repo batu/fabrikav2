@@ -1,6 +1,10 @@
 /**
  * The three-slot navigation bar, shared by the home shell and by the meta pages
- * that sit on top of it.
+ * that sit on top of it: Sanctuary, Play, Collection.
+ *
+ * Play sits in the middle because it is the thing a player reaches for most,
+ * and the two meta screens flank it. The shop is not here — it is reached from
+ * the coin and hint pills, which is where a player is when they want it.
  *
  * One renderer rather than two copies: the bar is the same control wherever it
  * appears, and a second copy would drift from the first the moment a tile's
@@ -11,7 +15,7 @@ import { gameState } from '../core/GameState';
 import { metaGates, type MetaGates } from '../home/metaGates';
 import { collectionThresholds, collectionUnlockLevel } from '../collection/config';
 
-export type MetaNavTarget = 'sanctuary' | 'collection' | 'shop';
+export type MetaNavTarget = 'sanctuary' | 'play' | 'collection';
 
 export interface MetaNavOptions {
   /** Which tile reads as the current place; omitted on the home shell. */
@@ -47,7 +51,7 @@ function tile(options: {
   if (options.active) classes.push('home-nav-btn--active');
   if (options.pop) classes.push('home-nav-btn--unlock-pop');
   return `
-    <button id="${options.id}" class="${classes.join(' ')}" type="button"${options.locked ? ' aria-disabled="true"' : ''}${options.active ? ' aria-current="page"' : ''} aria-label="${options.locked ? options.lockedLabel : `Open ${options.label.toLowerCase()}`}">
+    <button id="${options.id}" class="${classes.join(' ')}" type="button"${options.locked ? ' aria-disabled="true"' : ''}${options.active ? ' aria-current="page"' : ''} aria-label="${options.locked ? options.lockedLabel : options.id === 'home-nav-play' ? 'Play the current level' : `Open ${options.label.toLowerCase()}`}">
       <img src="${options.icon}" alt="" aria-hidden="true">
       <span>${options.label}</span>
     </button>`;
@@ -81,6 +85,15 @@ export function renderMetaNavBar(options: MetaNavOptions = {}): string {
         lockedLabel: 'Sanctuary, locked until your first bird is unlocked',
       })}
       ${tile({
+        id: 'home-nav-play',
+        label: 'Play',
+        icon: '/ui/menu-icons/magnifier-runtime.png',
+        locked: false,
+        active: false,
+        pop: false,
+        lockedLabel: 'Play',
+      })}
+      ${tile({
         id: 'home-nav-collection',
         label: 'Collection',
         icon: '/ui/sanctuary/birds-nav-icon.png',
@@ -88,15 +101,6 @@ export function renderMetaNavBar(options: MetaNavOptions = {}): string {
         active: options.active === 'collection',
         pop: pop && gates.collectionPopPending,
         lockedLabel: `Bird collection, locked until level ${String(collectionUnlockLevel())}`,
-      })}
-      ${tile({
-        id: 'home-nav-shop',
-        label: 'Shop',
-        icon: '/ui/menu-icons/shop-icon-runtime.png',
-        locked: false,
-        active: options.active === 'shop',
-        pop: false,
-        lockedLabel: 'Shop',
       })}
     </nav>`;
 }

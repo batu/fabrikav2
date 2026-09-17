@@ -538,10 +538,10 @@ function swapMetaPage(page: HTMLElement, id: 'collection' | 'sanctuary'): void {
 function wireMetaNavBar(page: HTMLElement, current: 'collection' | 'sanctuary'): void {
   const nav = page.querySelector<HTMLElement>('.home-page-nav');
   if (nav === null) return;
-  const routes: Array<[string, 'collection' | 'sanctuary' | 'shop']> = [
+  const routes: Array<[string, 'collection' | 'sanctuary' | 'play']> = [
     ['#home-nav-collection', 'collection'],
     ['#home-nav-sanctuary', 'sanctuary'],
-    ['#home-nav-shop', 'shop'],
+    ['#home-nav-play', 'play'],
   ];
   for (const [selector, target] of routes) {
     const button = nav.querySelector<HTMLButtonElement>(selector);
@@ -553,11 +553,13 @@ function wireMetaNavBar(page: HTMLElement, current: 'collection' | 'sanctuary'):
         shakeLockedNavButton(button);
         return;
       }
-      // The shop is a different shell (its own header balances), so it gets a
-      // real page transition rather than an in-place swap.
-      if (target === 'shop') {
+      // Play leaves the meta screens entirely: close the page, then trigger the
+      // home dock's own Play, so starting a level keeps one code path.
+      if (target === 'play') {
         closePage();
-        window.setTimeout(() => { openPage('shop'); }, 60);
+        window.setTimeout(() => {
+          document.querySelector<HTMLButtonElement>('#home-shell #home-play-now')?.click();
+        }, 80);
         return;
       }
       swapMetaPage(page, target);

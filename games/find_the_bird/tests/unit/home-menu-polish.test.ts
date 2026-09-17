@@ -119,12 +119,14 @@ describe("home menu polish regressions", () => {
     expect(window.getComputedStyle(element(".home-nav-bar")).minHeight).toBe("134px");
     expect(CSS_TEXT).toContain("width: 82px;");
     expect(CSS_TEXT).toContain("height: 82px;");
-    expect(HOME_SCENE_TEXT).not.toContain('id="home-nav-play"');
+    // 2026-09-17: Play is a nav tile now (middle slot, magnifier), rendered by
+    // the shared bar rather than by HomeScene.
+    expect(NAV_MARKUP).toContain('id="home-nav-play"');
     // Ids are emitted by the shared nav renderer, which home and the meta pages
     // both use; assert on its output rather than on source text.
     expect(NAV_MARKUP).toContain('id="home-nav-sanctuary"');
     expect(NAV_MARKUP).toContain('id="home-nav-collection"');
-    expect(NAV_MARKUP).toContain('id="home-nav-shop"');
+    expect(NAV_MARKUP).not.toContain('id="home-nav-shop"');
     expect(HOME_SCENE_TEXT).toContain('id="home-nav-settings" class="home-settings-corner"');
 
     const play = window.getComputedStyle(element("#home-play-now"));

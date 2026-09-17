@@ -25,6 +25,22 @@ describe('meta pages keep the nav bar', () => {
     expect(nav?.querySelector('#home-nav-collection')?.classList.contains('home-nav-btn--active')).toBe(true);
   });
 
+  it('offers Sanctuary, Play and Collection, and no shop', () => {
+    openPage('collection');
+    const nav = document.querySelector('.home-page-nav');
+    expect([...nav!.querySelectorAll('.home-nav-btn span')].map((s) => s.textContent))
+      .toEqual(['Sanctuary', 'Play', 'Collection']);
+    expect(nav!.querySelector('#home-nav-shop')).toBeNull();
+  });
+
+  it('leaves the page when Play is tapped', () => {
+    openPage('collection');
+    const page = document.getElementById('home-page-overlay')!;
+    page.querySelector<HTMLButtonElement>('.home-page-nav #home-nav-play')?.click();
+    // closePage animates out; the overlay loses its open class immediately.
+    expect(page.classList.contains('home-page-overlay--open')).toBe(false);
+  });
+
   it('swaps to the sanctuary in place, keeping the bar', () => {
     openPage('collection');
     const page = document.getElementById('home-page-overlay')!;

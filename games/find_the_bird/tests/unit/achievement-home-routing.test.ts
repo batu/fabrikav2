@@ -7,7 +7,7 @@ const gameRoot = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const source = readFileSync(join(gameRoot, 'src/scenes/HomeScene.ts'), 'utf8');
 
 describe('achievement Home discovery', () => {
-  it('keeps Play Now as the sole play action and puts Sanctuary, Collection, and Shop in the bottom bar', async () => {
+  it('puts Sanctuary, Play and Collection in the bottom bar, with Achievements behind its flag', async () => {
     const rail = source.match(/<aside class="home-rail home-rail-left"[\s\S]*?<\/aside>/)?.[0] ?? '';
     // The left rail holds the streak-claim pill (it took the No-Ads slot on
     // 2026-08-07; No-Ads was removed from Home). What matters for routing is
@@ -22,11 +22,15 @@ describe('achievement Home discovery', () => {
     const { renderMetaNavBar } = await import('../../src/ui/metaNavBar');
     installMemStorage();
     try {
+      // 2026-09-17: Play took the middle slot as the magnifier tile, flanked by
+      // the two meta screens; the Shop left the bar and is reached from the
+      // coin and hint pills instead.
       const nav = renderMetaNavBar();
-      expect(nav).not.toContain('id="home-nav-play"');
+      expect(nav).toContain('id="home-nav-play"');
+      expect(nav).not.toContain('id="home-nav-shop"');
       expect(nav.match(/<button/g)).toHaveLength(3);
       expect([...nav.matchAll(/<span>([^<]+)<\/span>/g)].map((match) => match[1]))
-        .toEqual(['Sanctuary', 'Collection', 'Shop']);
+        .toEqual(['Sanctuary', 'Play', 'Collection']);
 
       // 2026-09-16: Achievements is behind its flag (default off) and takes a
       // fourth slot when enabled.
@@ -34,7 +38,7 @@ describe('achievement Home discovery', () => {
       expect(withAchievements).toContain('id="home-nav-achievements"');
       expect(withAchievements).toContain('data-slots="4"');
       expect([...withAchievements.matchAll(/<span>([^<]+)<\/span>/g)].map((match) => match[1]))
-        .toEqual(['Achievements', 'Sanctuary', 'Collection', 'Shop']);
+        .toEqual(['Achievements', 'Sanctuary', 'Play', 'Collection']);
     } finally {
       removeMemStorage();
     }
