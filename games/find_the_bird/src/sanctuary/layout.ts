@@ -23,6 +23,8 @@ export interface SanctuaryManifest {
     bbox: [number, number, number, number];
     pedestals: Array<{ anchor: [number, number]; width: number }>;
   }>;
+  /** The next plot's placeholder house, drawn locked in its own slide. */
+  lockedHouse?: { src: string; size: [number, number]; bbox: [number, number, number, number] };
   birds: Record<string, Record<string, string>>;
   markers: { plot: string; pedestalEmpty: string; coinPile: string };
   /** Where the feet sit across each bird sprite, as a fraction of its width. */
@@ -54,6 +56,8 @@ export interface SanctuaryLayout {
   plotMarker: Rect;
   /** Coin pile rect, to the right of the house on the branch. */
   coinPile: Rect;
+  /** The locked next-plot house at the same anchor (for its own slide), null without art. */
+  lockedHouse: Rect | null;
 }
 
 const COIN_PILE_BG_WIDTH = 170;
@@ -120,6 +124,29 @@ export function layoutSanctuary(
     height: plotWidth,
   };
 
+  // Every tier (and the locked placeholder) shares one scale, capped so the
+  // widest tier fits the viewport; see the note below the early return.
+  const widestBboxSprite = manifest.houseTiers.reduce(
+    (widest, candidate) => Math.max(widest, candidate.bbox[2] - candidate.bbox[0]),
+    1,
+  );
+  const maxHouseWidth = viewport.width * HOUSE_VIEWPORT_FRACTION;
+  const houseScale = Math.min(uncappedHouseScale, maxHouseWidth / widestBboxSprite);
+  const margin = (viewport.width - maxHouseWidth) / 2;
+  const placeSprite = (size: [number, number], bbox: [number, number, number, number]): Rect => {
+    const [spriteW, spriteH] = size;
+    const [x0, , x1, y1] = bbox;
+    const bboxWidth = (x1 - x0) * houseScale;
+    const bboxCentreX = ((x0 + x1) / 2) * houseScale;
+    const bboxBottomY = y1 * houseScale;
+    const centreX = Math.min(
+      Math.max(plotAnchor.x, margin + bboxWidth / 2),
+      viewport.width - margin - bboxWidth / 2,
+    );
+    return { left: centreX - bboxCentreX, top: plotAnchor.y - bboxBottomY, width: spriteW * houseScale, height: spriteH * houseScale };
+  };
+  const lockedHouse = manifest.lockedHouse ? placeSprite(manifest.lockedHouse.size, manifest.lockedHouse.bbox) : null;
+
   const entry = manifest.houseTiers.find((candidate) => candidate.tier === tier) ?? null;
   if (entry === null) {
     const pileWidth = COIN_PILE_BG_WIDTH * scale;
@@ -135,41 +162,13 @@ export function layoutSanctuary(
         width: pileWidth,
         height: pileWidth,
       },
+      lockedHouse,
     };
   }
 
   // The sprite is a 1024-square canvas with the house inside `bbox`; the bbox's
   // bottom-centre is what sits on the branch, not the canvas centre.
-  const [spriteW, spriteH] = entry.size;
-  const [x0, , x1, y1] = entry.bbox;
-
-  // The background is cover-fitted, so on a tall phone it is far wider than the
-  // screen and a house scaled purely to it runs off the edge: tier 3's deck and
-  // third perch were cropped away on device. Clamp the scale so the widest tier
-  // fits the viewport, and clamp the position so it cannot drift off either
-  // side. Every tier shares one scale, so the clamp is computed from the widest
-  // tier and the house never changes size when it is upgraded.
-  const widestBboxSprite = manifest.houseTiers.reduce(
-    (widest, candidate) => Math.max(widest, candidate.bbox[2] - candidate.bbox[0]),
-    1,
-  );
-  const maxHouseWidth = viewport.width * HOUSE_VIEWPORT_FRACTION;
-  const houseScale = Math.min(uncappedHouseScale, maxHouseWidth / widestBboxSprite);
-
-  const bboxWidth = (x1 - x0) * houseScale;
-  const bboxCentreX = ((x0 + x1) / 2) * houseScale;
-  const bboxBottomY = y1 * houseScale;
-  const margin = (viewport.width - maxHouseWidth) / 2;
-  const centreX = Math.min(
-    Math.max(plotAnchor.x, margin + bboxWidth / 2),
-    viewport.width - margin - bboxWidth / 2,
-  );
-  const house: Rect = {
-    left: centreX - bboxCentreX,
-    top: plotAnchor.y - bboxBottomY,
-    width: spriteW * houseScale,
-    height: spriteH * houseScale,
-  };
+  const house = placeSprite(entry.size, entry.bbox);
 
   const pedestals: PedestalLayout[] = entry.pedestals.map((pedestal, index) => {
     const feet = {
@@ -200,5 +199,5 @@ export function layoutSanctuary(
     height: pileWidth,
   };
 
-  return { background, scale, house, pedestals, plotMarker, coinPile };
+  return { background, scale, house, pedestals, plotMarker, coinPile, lockedHouse };
 }

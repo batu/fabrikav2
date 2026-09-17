@@ -83,8 +83,15 @@ export function renderSanctuaryPageBody(): string {
   return `
     <div class="sanctuary-scene" id="sanctuary-scene">
       <img class="sanctuary-bg" id="sanctuary-bg" src="${MANIFEST.background.src}" alt="" aria-hidden="true">
-      <div class="sanctuary-layer" id="sanctuary-layer"></div>
+      <div class="sanctuary-plots" id="sanctuary-plots" aria-label="Plots, swipe to browse">
+        <div class="sanctuary-plot">
+          <div class="sanctuary-layer" id="sanctuary-layer"></div>
+          ${MANIFEST.lockedHouse ? `<img class="sanctuary-peek" id="sanctuary-peek" src="${MANIFEST.lockedHouse.src}" alt="" aria-hidden="true">` : ''}
+        </div>
+        ${MANIFEST.lockedHouse ? `<div class="sanctuary-plot sanctuary-plot--locked"><img class="sanctuary-locked-house" id="sanctuary-locked-house" src="${MANIFEST.lockedHouse.src}" alt="Locked plot"></div>` : ''}
+      </div>
       <div class="sanctuary-actions" id="sanctuary-actions"></div>
+      <div class="sanctuary-dots" id="sanctuary-dots" aria-hidden="true"><span class="sanctuary-dot sanctuary-dot--active"></span><span class="sanctuary-dot"></span></div>
       <div class="sanctuary-sheet-root" id="sanctuary-sheet-root"></div>
     </div>
   `;
@@ -259,6 +266,11 @@ export function wireSanctuaryPage(page: ParentNode): void {
   const background = page.querySelector<HTMLImageElement>('#sanctuary-bg');
   const sheetRoot = page.querySelector<HTMLElement>('#sanctuary-sheet-root');
   if (scene === null || layer === null || background === null || sheetRoot === null) return;
+  const plots = page.querySelector<HTMLElement>('#sanctuary-plots');
+  const peek = page.querySelector<HTMLElement>('#sanctuary-peek');
+  const lockedHouse = page.querySelector<HTMLElement>('#sanctuary-locked-house');
+  /** Which plot is in view: 0 the player's, 1 the locked next one. */
+  const currentPlot = (): number => plots === null || plots.clientWidth === 0 ? 0 : Math.round(plots.scrollLeft / plots.clientWidth);
   preloadMetaSounds();
 
   // Accrual is settled on open (and again on resume) rather than ticked: the
@@ -277,6 +289,18 @@ export function wireSanctuaryPage(page: ParentNode): void {
     closeSheet(sheetRoot);
   }, { capture: true });
 
+  // Swiping between plots: the bar and dots follow the plot in view.
+  let plotFrame = 0;
+  plots?.addEventListener('scroll', () => {
+    if (plotFrame !== 0) return;
+    plotFrame = requestAnimationFrame(() => {
+      plotFrame = 0;
+      const index = currentPlot();
+      page.querySelectorAll<HTMLElement>('.sanctuary-dot').forEach((dot, i) => { dot.classList.toggle('sanctuary-dot--active', i === index); });
+      renderActions();
+    });
+  }, { passive: true });
+
   const render = (): void => {
     settleNow();
     const sanctuary = gameState.sanctuary;
@@ -286,6 +310,16 @@ export function wireSanctuaryPage(page: ParentNode): void {
 
     applyRect(background, layout.background);
     layer.innerHTML = '';
+    // The next plot's house peeks in from the right edge of this plot, on the
+    // same branch, and stands at the plot anchor in its own slide.
+    if (layout.lockedHouse !== null) {
+      const l = layout.lockedHouse;
+      // Show a third of the HOUSE (its content box), not of the sprite canvas.
+      const [bx0, , bx1] = MANIFEST.lockedHouse?.bbox ?? [0, 0, 1024, 1024];
+      const hs = l.width / (MANIFEST.lockedHouse?.size[0] ?? 1024);
+      if (peek !== null) applyRect(peek, { ...l, left: viewport.width - (bx0 * hs + (bx1 - bx0) * hs * 0.36) });
+      if (lockedHouse !== null) applyRect(lockedHouse, l);
+    }
 
     renderActions();
     if (layout.house === null) return;
@@ -463,6 +497,10 @@ export function wireSanctuaryPage(page: ParentNode): void {
   const renderActions = (): void => {
     const bar = page.querySelector<HTMLElement>('#sanctuary-actions');
     if (bar === null) return;
+    if (currentPlot() === 1) {
+      bar.innerHTML = '<button class="sanctuary-pill sanctuary-action sanctuary-action--locked" type="button" disabled><img src="/ui/sanctuary/padlock.png" alt="" aria-hidden="true"><span class="sanctuary-action-verb">Locked</span></button>';
+      return;
+    }
     const tier = gameState.sanctuary.houseTier;
     if (tier >= MAX_HOUSE_TIER) { bar.innerHTML = ''; return; }
     const next = (tier + 1) as SanctuaryHouseTier;

@@ -143,7 +143,21 @@
       "cardigan": 0.6255
     },
     "markerFootCenterX": 0.6143,
-    "footNote": "horizontal position of the FEET within the sprite, as a fraction of its width. A sparrow's tail pulls its geometric centre left of its feet, so centring the sprite on a pedestal stood the bird off the perch."
+    "footNote": "horizontal position of the FEET within the sprite, as a fraction of its width. A sparrow's tail pulls its geometric centre left of its feet, so centring the sprite on a pedestal stood the bird off the perch.",
+    "lockedHouse": {
+      "src": "/ui/sanctuary/house/house-locked.webp",
+      "size": [
+        1024,
+        1024
+      ],
+      "bbox": [
+        190,
+        60,
+        860,
+        980
+      ],
+      "note": "placeholder for the next plot; drawn with the tier scale at the same anchor in its own slide"
+    }
   },
   "collection": {
     "cardFrame": {

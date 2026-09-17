@@ -6239,3 +6239,16 @@ body:has(#home-page-overlay) #tutorial-overlay { display: none; }
 :is(.home-page-collection, .home-page-sanctuary) .shop-header-plus { position: absolute; left: -10px; bottom: -8px; }
 
 /* ── Meta-page juice: particle bursts (see src/ui/juice.ts) ─────────── */
+
+/* Plots: the player's house and the locked next one, swiped like the cards.
+   The backdrop stays put; only the plot strip moves. */
+.sanctuary-plots { position: absolute; inset: 0; display: flex; overflow-x: auto; overflow-y: hidden; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+.sanctuary-plots::-webkit-scrollbar { display: none; }
+.sanctuary-plot { position: relative; flex: 0 0 100%; height: 100%; scroll-snap-align: start; overflow: hidden; }
+.sanctuary-peek { position: absolute; pointer-events: none; filter: saturate(.7) brightness(.92); }
+.sanctuary-locked-house { position: absolute; filter: saturate(.7); }
+.sanctuary-action--locked { background: #a8a394; color: #fff8e8; box-shadow: 0 3px 0 #6f6a5c; opacity: 1; }
+.sanctuary-action--locked img { width: 26px; height: 26px; }
+.sanctuary-dots { position: absolute; left: 0; right: 0; bottom: 134px; display: flex; justify-content: center; gap: 8px; pointer-events: none; }
+.sanctuary-dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255, 250, 242, .55); transition: background .2s, transform .2s; }
+.sanctuary-dot--active { background: #fffaf2; transform: scale(1.25); box-shadow: 0 1px 3px rgba(60, 40, 20, .35); }
