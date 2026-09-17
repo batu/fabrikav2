@@ -42,8 +42,12 @@ export interface CardInputs {
   teaseCount: number;
 }
 
+export type CardFrame = 'sparrow' | 'robin' | 'bluebird' | 'locked';
+
 export interface CardViewModel {
   kind: CardKind;
+  /** Which frame art the card wears. */
+  frame: CardFrame;
   /** Card art state; 'silhouette' for a locked sparrow, 'unknown' for the ? card. */
   state: CardState | 'unknown';
   portraitSrc: string;
@@ -109,6 +113,7 @@ export function sparrowCard(input: CardInputs): CardViewModel {
   }));
   return {
     kind: 'sparrow',
+    frame: revealed ? 'sparrow' : 'locked',
     state,
     portraitSrc: revealed ? PORTRAITS[state] : teased ? PORTRAITS.silhouette : UNKNOWN_PORTRAIT,
     plaque: revealed ? 'Chirpy' : '? ? ?',
@@ -131,17 +136,19 @@ export function sparrowCard(input: CardInputs): CardViewModel {
 /** A bird that is on the roadmap but not collectable yet: the locked frame, nothing known. */
 const LOCKED_SILHOUETTES: Record<'robin' | 'bluebird', string> = {
   robin: '/ui/collection/portrait-robin-silhouette.webp',
-  bluebird: UNKNOWN_PORTRAIT,
+  bluebird: '/ui/collection/portrait-bluebird-silhouette.webp',
 };
+const LOCKED_SPECIES: Record<'robin' | 'bluebird', string> = { robin: 'Robin', bluebird: 'Bluebird' };
 
 export function lockedBirdCard(kind: 'robin' | 'bluebird'): CardViewModel {
   return {
     kind: 'sparrow',
+    frame: kind,
     state: 'silhouette',
     portraitSrc: LOCKED_SILHOUETTES[kind],
-    portraitStyle: kind === 'robin' ? 'height:66%;width:auto;bottom:-1%' : undefined,
+    portraitStyle: 'height:70%;width:auto;bottom:-1%',
     plaque: '? ? ?',
-    ribbon: '?',
+    ribbon: LOCKED_SPECIES[kind],
     lines: [HIDDEN_LINE, HIDDEN_LINE, HIDDEN_LINE],
     progress: null,
     locked: true,
@@ -155,6 +162,7 @@ export function lockedBirdCard(kind: 'robin' | 'bluebird'): CardViewModel {
 export function unknownCard(): CardViewModel {
   return {
     kind: 'unknown',
+    frame: 'locked',
     state: 'unknown',
     portraitSrc: UNKNOWN_PORTRAIT,
     plaque: '? ? ?',

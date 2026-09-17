@@ -6196,11 +6196,13 @@ body:has(#home-page-overlay) #tutorial-overlay { display: none; }
 
 /* Rung tabs down the card's left side, bookmark style, over the border. */
 .collection-tabs { position: absolute; left: -15%; top: 5%; width: 24%; display: flex; flex-direction: column; gap: 3%; z-index: 0; }
-.collection-tab { position: relative; width: 100%; aspect-ratio: 712 / 482; border: 0; padding: 0; background: url('/ui/collection/tab-open.webp') center / 100% 100% no-repeat; cursor: pointer; filter: drop-shadow(0 3px 4px rgba(60, 35, 10, .35)); transition: transform 180ms cubic-bezier(.34, 1.4, .64, 1), filter 180ms; transform-origin: 50% 50%; }
+/* Tabs live behind the card. Unselected ones are tucked under its edge; the
+   selected one is pulled out, the way a bookmark marks the open page. */
+.collection-tab { position: relative; width: 100%; aspect-ratio: 712 / 482; border: 0; padding: 0; background: url('/ui/collection/tab-open.webp') center / 100% 100% no-repeat; cursor: pointer; transform: translateX(30%); filter: drop-shadow(0 3px 4px rgba(60, 35, 10, .35)); transition: transform 180ms cubic-bezier(.34, 1.4, .64, 1), filter 180ms; transform-origin: 50% 50%; }
 .collection-tab--locked { background-image: url('/ui/collection/tab-locked.webp'); cursor: default; }
-.collection-tab--selected { transform: translateX(26%) scale(1.08); filter: drop-shadow(0 0 8px rgba(255, 214, 120, .9)) drop-shadow(0 3px 4px rgba(60, 35, 10, .35)); z-index: 1; }
-/* The plate's recess is left of centre: icon centred on the recess. */
-.collection-tab-icon { position: absolute; left: 17%; top: 12%; width: 42%; height: 76%; object-fit: contain; }
+.collection-tab--selected { transform: translateX(0) scale(1.06); filter: drop-shadow(0 0 8px rgba(255, 214, 120, .9)) drop-shadow(0 3px 4px rgba(60, 35, 10, .35)); z-index: 1; }
+/* The plate's recess: centre (185,118) of 360x243, radius 88. */
+.collection-tab-icon { position: absolute; left: 29%; top: 14%; width: 45%; height: 70%; object-fit: contain; }
 .collection-tab--pop { animation: home-nav-unlock-pop 680ms cubic-bezier(.34, 1.56, .64, 1) both; }
 .collection-arch--swap .collection-card-portrait { animation: collection-arch-swap 360ms cubic-bezier(.34, 1.4, .64, 1) both; }
 @keyframes collection-arch-swap { 0% { transform: translateX(-50%) translateY(10%) scale(.92); opacity: 0; } 100% { transform: translateX(-50%) translateY(0) scale(1); opacity: 1; } }

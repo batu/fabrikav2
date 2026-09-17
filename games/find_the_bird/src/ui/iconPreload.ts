@@ -47,6 +47,8 @@ const DEFERRED_ICON_URLS: readonly string[] = [
   // the boot path, and together weigh ~1.1 MB as WebP.
   '/ui/collection/frame-sparrow.webp',
   '/ui/collection/frame-locked.webp',
+  '/ui/collection/frame-robin.webp',
+  '/ui/collection/frame-bluebird.webp',
   '/ui/collection/portrait-sparrow-silhouette.webp',
   '/ui/collection/portrait-sparrow-plain.webp',
   '/ui/collection/portrait-sparrow-hat.webp',

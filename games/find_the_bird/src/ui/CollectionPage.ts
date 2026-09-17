@@ -21,7 +21,7 @@ import { hapticFound } from '../haptics/HapticsManager';
 import { analytics } from '../analytics/AnalyticsService';
 import { gameState } from '../core/GameState';
 import { collectionTeaseCount, collectionThresholds } from '../collection/config';
-import { collectionDeck, HIDDEN_LINE, type CardViewModel } from '../collection/cardModel';
+import { collectionDeck, HIDDEN_LINE, type CardFrame, type CardViewModel } from '../collection/cardModel';
 import { CARD_STATE_ORDER, clampRung, type CardState } from '../collection/thresholds';
 
 /**
@@ -48,7 +48,7 @@ interface FrameGeometry {
   overlay?: { x: readonly [number, number]; y: readonly [number, number] };
 }
 
-const FRAMES: Record<'sparrow' | 'locked', FrameGeometry> = {
+const FRAMES: Record<CardFrame, FrameGeometry> = {
   sparrow: {
     src: '/ui/collection/frame-sparrow.webp',
     width: 900,
@@ -59,6 +59,26 @@ const FRAMES: Record<'sparrow' | 'locked', FrameGeometry> = {
     // The snail sits in the panel's bottom-right; copy stays above it.
     panel: { x: [125, 775], y: [1150, 1315] },
     portraitStyle: 'height:97%;width:auto;bottom:-4%',
+  },
+  robin: {
+    src: '/ui/collection/frame-robin.webp',
+    width: 900,
+    height: 1500,
+    arch: { x: 110, y: 200, w: 680, h: 600 },
+    plaqueY: [865, 975],
+    subtitleY: [1010, 1085],
+    panel: { x: [150, 750], y: [1140, 1360] },
+    portraitStyle: 'height:92%;width:auto;bottom:-2%',
+  },
+  bluebird: {
+    src: '/ui/collection/frame-bluebird.webp',
+    width: 900,
+    height: 1500,
+    arch: { x: 110, y: 210, w: 680, h: 635 },
+    plaqueY: [915, 1010],
+    subtitleY: [1030, 1110],
+    panel: { x: [140, 760], y: [1150, 1360] },
+    portraitStyle: 'height:92%;width:auto;bottom:-2%',
   },
   locked: {
     src: '/ui/collection/frame-locked.webp',
@@ -77,7 +97,7 @@ const FRAMES: Record<'sparrow' | 'locked', FrameGeometry> = {
 const pct = (value: number, of: number): string => `${((value / of) * 100).toFixed(4)}%`;
 
 function frameFor(card: CardViewModel): FrameGeometry {
-  return card.kind === 'sparrow' && !card.locked ? FRAMES.sparrow : FRAMES.locked;
+  return FRAMES[card.frame];
 }
 
 /**
