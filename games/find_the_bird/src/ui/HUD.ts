@@ -813,7 +813,14 @@ export function openPage(
     page.classList.add('home-page-overlay--open');
     // The bar starts as home left it (Play selected) and hands the selection
     // to this page's tile, so the lift travels instead of appearing.
-    if (id === 'collection' || id === 'sanctuary') setMetaNavActive(page, id);
+    if (id === 'collection' || id === 'sanctuary') {
+      setMetaNavActive(page, id);
+      // Same arrival as a swap: the content pops in as the panel rises.
+      const content = id === 'collection'
+        ? page.querySelector<HTMLElement>('#collection-deck')
+        : page.querySelector<HTMLElement>('#sanctuary-layer');
+      content?.classList.add('meta-content--enter');
+    }
   });
   // Focus the dialog CONTAINER, not the title: WKWebView draws a native focus
   // ring around a focused heading that CSS cannot remove, and (without
@@ -840,10 +847,15 @@ export function closePage(options: { skipHomeCallback?: boolean } = {}): void {
   pageOpener?.focus({ preventScroll: true });
   pageOpener = null;
   page.classList.remove('home-page-overlay--open'); // slides back DOWN + fades, mirroring the open
+  // A meta page slides down over an undimmed home, so the home re-render
+  // (below) must wait for the slide to finish: HomeScene's re-render rebuilds
+  // the overlay and would cut the page off mid-way.
+  const meta = currentMetaPage(page) !== null;
   const remove = (): void => {
     page.removeEventListener('transitionend', onTransitionEnd);
     if (page.isConnected) page.remove();
     shell?.classList.remove('home-shell--meta-open');
+    if (meta && !options.skipHomeCallback) homeCallback?.();
   };
   // Tear down only once the slide-down (transform) finishes — NOT the faster
   // opacity fade — otherwise the exit animation is cut short.
@@ -860,8 +872,9 @@ export function closePage(options: { skipHomeCallback?: boolean } = {}): void {
   // insisting there was still something to pick up (2026-08-07). Fires after
   // the page is closed, matching the ordering the Settings path had.
   // Debug auto play closes the page without leaving the level (2026-09-17): the home
-  // callback re-renders home on the menu and STARTS HomeScene in-game.
-  if (!options.skipHomeCallback) homeCallback?.();
+  // callback re-renders home on the menu and STARTS HomeScene in-game. Meta pages
+  // defer it to the end of their slide instead (see remove()).
+  if (!meta && !options.skipHomeCallback) homeCallback?.();
 }
 
 function renderShopHeaderBalances(): string {

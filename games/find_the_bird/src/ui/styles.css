@@ -6159,3 +6159,12 @@ body:has(#home-page-overlay) #tutorial-overlay { display: none; }
   .meta-content--leave .collection-card, .meta-content--leave.sanctuary-layer, .meta-content--leave.sanctuary-sheet-root,
   .meta-content--enter .collection-card, .meta-content--enter.sanctuary-layer { animation: none; }
 }
+
+/* One press feel for every button on the meta pages. */
+.sanctuary-pill, .collection-unlock-btn, .home-page-collection .home-page-back-btn, .home-page-sanctuary .home-page-back-btn {
+  transition: transform 140ms cubic-bezier(.34, 1.45, .64, 1);
+}
+.sanctuary-pill:active, .collection-unlock-btn:active,
+.home-page-collection .home-page-back-btn:active, .home-page-sanctuary .home-page-back-btn:active {
+  transform: scale(.93);
+}
