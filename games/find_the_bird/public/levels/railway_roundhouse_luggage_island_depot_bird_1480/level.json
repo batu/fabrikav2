@@ -1,0 +1,556 @@
+{
+  "id": "railway_roundhouse_luggage_island_depot_bird_1480",
+  "name": "Level railway_roundhouse_luggage_island_depot_bird_1480",
+  "width": 2688,
+  "height": 2688,
+  "colorImage": "levels/railway_roundhouse_luggage_island_depot_bird_1480/color.png",
+  "artifactRevision": "sha256:ca5e96e7dab963a5cadf25c96d3d17b6d88f55094b367cb4a9b8b9989922081b",
+  "compatibilityAliases": {
+    "dog_06": "613158f5-739b-4cd4-bbdb-03bbd673d018",
+    "dog_10": "32d4d26f-a283-490e-bf8f-f05b69862204",
+    "dog_18": "096b8761-9cfc-4839-8b23-2878ac7888a7",
+    "dog_19": "a1bc89b6-db3b-4bd9-8b5a-b0e7ca589424",
+    "dog_20": "6bf2f515-a126-41d7-9e7b-e316bc4f6253",
+    "dog_21": "7ff48e21-17f6-4dbd-9b6d-51bbab986736",
+    "dog_22": "e9614ff6-f07f-42ae-8f1b-36ff63331695",
+    "dog_23": "ee7db0fe-50b9-4ada-8082-5eff0e4e8937",
+    "dog_24": "f81d7cf2-7683-4182-bf32-36ef69fbcc93",
+    "dog_25": "26409bbe-0d39-45b2-9d97-7a5f8805c783",
+    "dog_26": "ff736cd2-de2d-46d7-aa3c-d28bd7baa1f0",
+    "dog_27": "44dad032-b01a-4522-ac5c-7c47a2a88e0f",
+    "dog_28": "f99b4132-4b44-49d0-8adf-14dcc03d9337",
+    "dog_29": "47d42c50-9690-4416-8bcf-66b1b6ae45d1",
+    "dog_30": "b6d570e0-2beb-47a0-86f0-125ce0e0d1e5",
+    "dog_31": "c63cc383-b69e-4160-a3e5-120f89ade8ff"
+  },
+  "dogs": [
+    {
+      "id": "613158f5-739b-4cd4-bbdb-03bbd673d018",
+      "compatibilitySlot": "dog_06",
+      "x": 494,
+      "y": 744,
+      "r": 57,
+      "sprite": {
+        "image": "levels/railway_roundhouse_luggage_island_depot_bird_1480/dogs/dog_06/sprite_000.png",
+        "height": 230,
+        "width": 246,
+        "x": 381,
+        "y": 620,
+        "cleanup": {
+          "x": 362,
+          "y": 602,
+          "width": 282,
+          "height": 264
+        },
+        "anchorX": 0.4593,
+        "anchorY": 0.5391,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 16.1,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.9404,
+          "pop": 16.1,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "32d4d26f-a283-490e-bf8f-f05b69862204",
+      "compatibilitySlot": "dog_10",
+      "x": 498,
+      "y": 1154,
+      "r": 57,
+      "sprite": {
+        "image": "levels/railway_roundhouse_luggage_island_depot_bird_1480/dogs/dog_10/sprite_000.png",
+        "height": 202,
+        "width": 182,
+        "x": 388,
+        "y": 1056,
+        "cleanup": {
+          "x": 376,
+          "y": 1038,
+          "width": 209,
+          "height": 232
+        },
+        "anchorX": 0.5934,
+        "anchorY": 0.495,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 0.95,
+          "pop": 24.1,
+          "dx": 1,
+          "dy": -1
+        }
+      }
+    },
+    {
+      "id": "a1bc89b6-db3b-4bd9-8b5a-b0e7ca589424",
+      "compatibilitySlot": "dog_19",
+      "x": 949,
+      "y": 1180,
+      "r": 57,
+      "sprite": {
+        "image": "levels/railway_roundhouse_luggage_island_depot_bird_1480/dogs/dog_19/sprite_000.png",
+        "height": 299,
+        "width": 294,
+        "x": 855,
+        "y": 1035,
+        "cleanup": {
+          "x": 832,
+          "y": 1013,
+          "width": 338,
+          "height": 343
+        },
+        "anchorX": 0.3197,
+        "anchorY": 0.4816,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 41.0,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "6bf2f515-a126-41d7-9e7b-e316bc4f6253",
+      "compatibilitySlot": "dog_20",
+      "x": 702,
+      "y": 1571,
+      "r": 57,
+      "sprite": {
+        "image": "levels/railway_roundhouse_luggage_island_depot_bird_1480/dogs/dog_20/sprite_000.png",
+        "height": 224,
+        "width": 245,
+        "x": 558,
+        "y": 1454,
+        "cleanup": {
+          "x": 539,
+          "y": 1437,
+          "width": 281,
+          "height": 257
+        },
+        "anchorX": 0.5878,
+        "anchorY": 0.5223,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 19.6,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.9305,
+          "pop": 19.6,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "7ff48e21-17f6-4dbd-9b6d-51bbab986736",
+      "compatibilitySlot": "dog_21",
+      "x": 1418,
+      "y": 1061,
+      "r": 57,
+      "sprite": {
+        "image": "levels/railway_roundhouse_luggage_island_depot_bird_1480/dogs/dog_21/sprite_000.png",
+        "height": 161,
+        "width": 217,
+        "x": 1298,
+        "y": 968,
+        "cleanup": {
+          "x": 1281,
+          "y": 955,
+          "width": 249,
+          "height": 185
+        },
+        "anchorX": 0.553,
+        "anchorY": 0.5776,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 20.8,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.9256,
+          "pop": 20.8,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "e9614ff6-f07f-42ae-8f1b-36ff63331695",
+      "compatibilitySlot": "dog_22",
+      "x": 1377,
+      "y": 1388,
+      "r": 57,
+      "sprite": {
+        "image": "levels/railway_roundhouse_luggage_island_depot_bird_1480/dogs/dog_22/sprite_000.png",
+        "height": 193,
+        "width": 187,
+        "x": 1283,
+        "y": 1298,
+        "cleanup": {
+          "x": 1268,
+          "y": 1283,
+          "width": 215,
+          "height": 221
+        },
+        "anchorX": 0.5027,
+        "anchorY": 0.4663,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 17.3,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.9571,
+          "pop": 17.3,
+          "why": "T3+refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "ee7db0fe-50b9-4ada-8082-5eff0e4e8937",
+      "compatibilitySlot": "dog_23",
+      "x": 1716,
+      "y": 814,
+      "r": 57,
+      "sprite": {
+        "image": "levels/railway_roundhouse_luggage_island_depot_bird_1480/dogs/dog_23/sprite_000.png",
+        "height": 176,
+        "width": 206,
+        "x": 1609,
+        "y": 735,
+        "cleanup": {
+          "x": 1593,
+          "y": 721,
+          "width": 236,
+          "height": 202
+        },
+        "anchorX": 0.5194,
+        "anchorY": 0.4489,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 11.5,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.8256,
+          "pop": 11.4,
+          "why": "T3"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "f81d7cf2-7683-4182-bf32-36ef69fbcc93",
+      "compatibilitySlot": "dog_24",
+      "x": 1891,
+      "y": 907,
+      "r": 57,
+      "sprite": {
+        "image": "levels/railway_roundhouse_luggage_island_depot_bird_1480/dogs/dog_24/sprite_000.png",
+        "height": 157,
+        "width": 228,
+        "x": 1764,
+        "y": 827,
+        "cleanup": {
+          "x": 1746,
+          "y": 815,
+          "width": 262,
+          "height": 180
+        },
+        "anchorX": 0.557,
+        "anchorY": 0.5096,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 15.7,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "26409bbe-0d39-45b2-9d97-7a5f8805c783",
+      "compatibilitySlot": "dog_25",
+      "x": 2093,
+      "y": 1419,
+      "r": 57,
+      "sprite": {
+        "image": "levels/railway_roundhouse_luggage_island_depot_bird_1480/dogs/dog_25/sprite_000.png",
+        "height": 173,
+        "width": 210,
+        "x": 2004,
+        "y": 1333,
+        "cleanup": {
+          "x": 1988,
+          "y": 1321,
+          "width": 241,
+          "height": 198
+        },
+        "anchorX": 0.4238,
+        "anchorY": 0.4913,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 28.7,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "ff736cd2-de2d-46d7-aa3c-d28bd7baa1f0",
+      "compatibilitySlot": "dog_26",
+      "x": 1471,
+      "y": 1794,
+      "r": 57,
+      "sprite": {
+        "image": "levels/railway_roundhouse_luggage_island_depot_bird_1480/dogs/dog_26/sprite_000.png",
+        "height": 119,
+        "width": 170,
+        "x": 1384,
+        "y": 1722,
+        "cleanup": {
+          "x": 1371,
+          "y": 1713,
+          "width": 195,
+          "height": 137
+        },
+        "anchorX": 0.5118,
+        "anchorY": 0.605,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 17.1,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.9279,
+          "pop": 17.0,
+          "why": "T3+refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "44dad032-b01a-4522-ac5c-7c47a2a88e0f",
+      "compatibilitySlot": "dog_27",
+      "x": 1128,
+      "y": 1940,
+      "r": 57,
+      "sprite": {
+        "image": "levels/railway_roundhouse_luggage_island_depot_bird_1480/dogs/dog_27/sprite_000.png",
+        "height": 138,
+        "width": 169,
+        "x": 1027,
+        "y": 1872,
+        "cleanup": {
+          "x": 1014,
+          "y": 1861,
+          "width": 194,
+          "height": 158
+        },
+        "anchorX": 0.5976,
+        "anchorY": 0.4928,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 21.3,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "f99b4132-4b44-49d0-8adf-14dcc03d9337",
+      "compatibilitySlot": "dog_28",
+      "x": 643,
+      "y": 2241,
+      "r": 57,
+      "sprite": {
+        "image": "levels/railway_roundhouse_luggage_island_depot_bird_1480/dogs/dog_28/sprite_000.png",
+        "height": 217,
+        "width": 292,
+        "x": 489,
+        "y": 2128,
+        "cleanup": {
+          "x": 464,
+          "y": 2110,
+          "width": 335,
+          "height": 249
+        },
+        "anchorX": 0.5377,
+        "anchorY": 0.5253,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 42.4,
+          "dx": -2,
+          "dy": -1
+        }
+      }
+    },
+    {
+      "id": "47d42c50-9690-4416-8bcf-66b1b6ae45d1",
+      "compatibilitySlot": "dog_29",
+      "x": 1478,
+      "y": 2193,
+      "r": 57,
+      "sprite": {
+        "image": "levels/railway_roundhouse_luggage_island_depot_bird_1480/dogs/dog_29/sprite_000.png",
+        "height": 268,
+        "width": 232,
+        "x": 1370,
+        "y": 2051,
+        "cleanup": {
+          "x": 1352,
+          "y": 2030,
+          "width": 266,
+          "height": 308
+        },
+        "anchorX": 0.4655,
+        "anchorY": 0.5299,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 18.2,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.9452,
+          "pop": 18.3,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "b6d570e0-2beb-47a0-86f0-125ce0e0d1e5",
+      "compatibilitySlot": "dog_30",
+      "x": 1933,
+      "y": 1824,
+      "r": 57,
+      "sprite": {
+        "image": "levels/railway_roundhouse_luggage_island_depot_bird_1480/dogs/dog_30/sprite_000.png",
+        "height": 182,
+        "width": 182,
+        "x": 1841,
+        "y": 1732,
+        "cleanup": {
+          "x": 1827,
+          "y": 1718,
+          "width": 209,
+          "height": 209
+        },
+        "anchorX": 0.5055,
+        "anchorY": 0.5055,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 12.7,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.9378,
+          "pop": 11.7,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "c63cc383-b69e-4160-a3e5-120f89ade8ff",
+      "compatibilitySlot": "dog_31",
+      "x": 2072,
+      "y": 2142,
+      "r": 57,
+      "sprite": {
+        "image": "levels/railway_roundhouse_luggage_island_depot_bird_1480/dogs/dog_31/sprite_000.png",
+        "height": 172,
+        "width": 202,
+        "x": 1994,
+        "y": 2052,
+        "cleanup": {
+          "x": 1978,
+          "y": 2039,
+          "width": 232,
+          "height": 197
+        },
+        "anchorX": 0.3861,
+        "anchorY": 0.5233,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 15.2,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.9539,
+          "pop": 15.2,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    }
+  ]
+}

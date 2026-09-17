@@ -1,0 +1,317 @@
+{
+  "id": "cozy_interiors_cozy_greenhouse_conservatory_bird_73c9",
+  "name": "Level cozy_interiors_cozy_greenhouse_conservatory_bird_73c9",
+  "width": 2688,
+  "height": 2688,
+  "colorImage": "levels/cozy_interiors_cozy_greenhouse_conservatory_bird_73c9/color.png",
+  "artifactRevision": "sha256:0f3ee46de38a78d7c75a6810ff7f79bd56623db825d2755e27455e3da23a8a0d",
+  "compatibilityAliases": {
+    "dog_08": "4976ca32-35aa-4cb4-a899-89faa9107d4d",
+    "dog_09": "b7823354-d4b5-4a04-987f-2854f473184d",
+    "dog_10": "c7d9e0a6-2ca8-4402-945b-6588af38ee5e",
+    "dog_11": "65439617-9124-4d5d-9e81-8889b17b691f",
+    "dog_12": "295fc60f-e9a7-4b2a-9e54-3283a5710ddd",
+    "dog_13": "bf3ceb58-e69c-4918-bfd6-d610b161c3bb",
+    "dog_14": "a14201e4-bb1a-46b6-9d80-a691a4c639d4",
+    "dog_15": "078c9d18-8bba-424a-84b7-b557bf675d81"
+  },
+  "dogs": [
+    {
+      "id": "4976ca32-35aa-4cb4-a899-89faa9107d4d",
+      "compatibilitySlot": "dog_08",
+      "x": 658,
+      "y": 845,
+      "r": 57,
+      "sprite": {
+        "image": "levels/cozy_interiors_cozy_greenhouse_conservatory_bird_73c9/dogs/dog_08/sprite_000.png",
+        "height": 225,
+        "width": 196,
+        "x": 555,
+        "y": 726,
+        "cleanup": {
+          "x": 551,
+          "y": 723,
+          "width": 225,
+          "height": 258
+        },
+        "anchorX": 0.4694,
+        "anchorY": 0.4667,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 0.85,
+          "ratio": 1.0,
+          "pop": 23.3,
+          "dx": 10,
+          "dy": 14
+        }
+      }
+    },
+    {
+      "id": "b7823354-d4b5-4a04-987f-2854f473184d",
+      "compatibilitySlot": "dog_09",
+      "x": 604,
+      "y": 1374,
+      "r": 57,
+      "sprite": {
+        "image": "levels/cozy_interiors_cozy_greenhouse_conservatory_bird_73c9/dogs/dog_09/sprite_000.png",
+        "height": 221,
+        "width": 225,
+        "x": 452,
+        "y": 1268,
+        "cleanup": {
+          "x": 435,
+          "y": 1251,
+          "width": 258,
+          "height": 254
+        },
+        "anchorX": 0.6756,
+        "anchorY": 0.4796,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 30.1,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.8343,
+          "pop": 28.6,
+          "why": "T3"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "c7d9e0a6-2ca8-4402-945b-6588af38ee5e",
+      "compatibilitySlot": "dog_10",
+      "x": 1164,
+      "y": 1209,
+      "r": 57,
+      "sprite": {
+        "image": "levels/cozy_interiors_cozy_greenhouse_conservatory_bird_73c9/dogs/dog_10/sprite_000.png",
+        "height": 208,
+        "width": 198,
+        "x": 1081,
+        "y": 1118,
+        "cleanup": {
+          "x": 1037,
+          "y": 1083,
+          "width": 227,
+          "height": 239
+        },
+        "anchorX": 0.5657,
+        "anchorY": 0.5288,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.2,
+          "ratio": 1.0,
+          "pop": 16.9,
+          "dx": -29,
+          "dy": -19
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.655,
+          "pop": 53.9,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "65439617-9124-4d5d-9e81-8889b17b691f",
+      "compatibilitySlot": "dog_11",
+      "x": 1579,
+      "y": 1200,
+      "r": 57,
+      "sprite": {
+        "image": "levels/cozy_interiors_cozy_greenhouse_conservatory_bird_73c9/dogs/dog_11/sprite_000.png",
+        "height": 182,
+        "width": 182,
+        "x": 1487,
+        "y": 1108,
+        "cleanup": {
+          "x": 1473,
+          "y": 1095,
+          "width": 209,
+          "height": 209
+        },
+        "anchorX": 0.5055,
+        "anchorY": 0.5,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 17.8,
+          "dx": 0,
+          "dy": 1
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.8749,
+          "pop": 20.6,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "295fc60f-e9a7-4b2a-9e54-3283a5710ddd",
+      "compatibilitySlot": "dog_12",
+      "x": 2059,
+      "y": 765,
+      "r": 57,
+      "sprite": {
+        "image": "levels/cozy_interiors_cozy_greenhouse_conservatory_bird_73c9/dogs/dog_12/sprite_000.png",
+        "height": 201,
+        "width": 224,
+        "x": 1966,
+        "y": 661,
+        "cleanup": {
+          "x": 1951,
+          "y": 642,
+          "width": 257,
+          "height": 231
+        },
+        "anchorX": 0.4062,
+        "anchorY": 0.5323,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 0.95,
+          "pop": 18.9,
+          "dx": 1,
+          "dy": -3
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.8875,
+          "pop": 24.5,
+          "why": "T3"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "bf3ceb58-e69c-4918-bfd6-d610b161c3bb",
+      "compatibilitySlot": "dog_13",
+      "x": 2206,
+      "y": 1513,
+      "r": 57,
+      "sprite": {
+        "image": "levels/cozy_interiors_cozy_greenhouse_conservatory_bird_73c9/dogs/dog_13/sprite_000.png",
+        "height": 182,
+        "width": 182,
+        "x": 2113,
+        "y": 1420,
+        "cleanup": {
+          "x": 2099,
+          "y": 1406,
+          "width": 209,
+          "height": 209
+        },
+        "anchorX": 0.511,
+        "anchorY": 0.511,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 16.8,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.8195,
+          "pop": 15.6,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "a14201e4-bb1a-46b6-9d80-a691a4c639d4",
+      "compatibilitySlot": "dog_14",
+      "x": 713,
+      "y": 2144,
+      "r": 57,
+      "sprite": {
+        "image": "levels/cozy_interiors_cozy_greenhouse_conservatory_bird_73c9/dogs/dog_14/sprite_000.png",
+        "height": 203,
+        "width": 207,
+        "x": 631,
+        "y": 2051,
+        "cleanup": {
+          "x": 585,
+          "y": 2017,
+          "width": 238,
+          "height": 233
+        },
+        "anchorX": 0.5411,
+        "anchorY": 0.5468,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.2,
+          "ratio": 1.05,
+          "pop": 19.4,
+          "dx": -29,
+          "dy": -17
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.7111,
+          "pop": 43.2,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "078c9d18-8bba-424a-84b7-b557bf675d81",
+      "compatibilitySlot": "dog_15",
+      "x": 1717,
+      "y": 2192,
+      "r": 57,
+      "sprite": {
+        "image": "levels/cozy_interiors_cozy_greenhouse_conservatory_bird_73c9/dogs/dog_15/sprite_000.png",
+        "height": 186,
+        "width": 199,
+        "x": 1625,
+        "y": 2100,
+        "cleanup": {
+          "x": 1598,
+          "y": 2073,
+          "width": 228,
+          "height": 213
+        },
+        "anchorX": 0.5226,
+        "anchorY": 0.5645,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.15,
+          "ratio": 1.0,
+          "pop": 20.6,
+          "dx": -11,
+          "dy": -13
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.6757,
+          "pop": 50.6,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    }
+  ]
+}

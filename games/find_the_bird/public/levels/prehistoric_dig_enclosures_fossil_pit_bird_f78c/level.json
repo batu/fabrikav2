@@ -1,0 +1,786 @@
+{
+  "id": "prehistoric_dig_enclosures_fossil_pit_bird_f78c",
+  "name": "Level prehistoric_dig_enclosures_fossil_pit_bird_f78c",
+  "width": 2688,
+  "height": 2688,
+  "colorImage": "levels/prehistoric_dig_enclosures_fossil_pit_bird_f78c/color.png",
+  "artifactRevision": "sha256:8e56de4870d39115ccb578e577c81ae6dc31eeea771d8df02d77e5e27f4d67ff",
+  "compatibilityAliases": {
+    "dog_02": "edf16dd5-1a33-4fc7-a9d6-657bad189e02",
+    "dog_07": "124090ad-eca2-4f9b-87fc-6c2386e296d4",
+    "dog_24": "cde23b31-b96b-4739-b167-eb5b8ae3df77",
+    "dog_25": "89b7cdd2-ba89-4523-9b3c-b9f88e1432ad",
+    "dog_26": "15b55728-f0c8-45a4-9b0e-ecd27994f595",
+    "dog_27": "68d4370f-ada3-4891-8785-8eb92a41525c",
+    "dog_28": "ef7263bb-cfb2-4334-8c01-aefce14b55ba",
+    "dog_29": "c07004e1-0599-4d06-9044-30577faafe87",
+    "dog_30": "8a635914-ffcb-459c-a9a6-58ae4c95013b",
+    "dog_31": "0256ba55-75d1-4998-bf57-a00ae65cd253",
+    "dog_32": "05849a43-d215-4726-a287-119343f14a55",
+    "dog_33": "a812d59c-c8bf-4bb0-8195-4510f6d1a358",
+    "dog_34": "321a6e70-e9b2-4aeb-99aa-aadaabf4aba4",
+    "dog_35": "bdf90b9c-8808-4edb-9960-145fc63f28f6",
+    "dog_36": "a0c89cb6-f3ef-4c08-9f27-00f6d6b0e1b6",
+    "dog_37": "df90b4e1-90e5-4aef-9dc6-725f7020522c",
+    "dog_38": "d0841418-5806-4a5a-ba80-d49f4e3d9898",
+    "dog_39": "f39befe3-a8e6-4416-b6bf-738be4f8f9fa",
+    "dog_40": "8204a7ae-b868-424d-a188-3199f53771f9",
+    "dog_41": "880b8417-f189-4ec6-a03e-db3a84c0571e",
+    "dog_42": "ae92d436-497c-43f5-938b-eb68df50a148",
+    "dog_43": "4e3e268b-23b7-42ee-8f2b-44ca5f565962"
+  },
+  "dogs": [
+    {
+      "id": "edf16dd5-1a33-4fc7-a9d6-657bad189e02",
+      "compatibilitySlot": "dog_02",
+      "x": 595,
+      "y": 755,
+      "r": 57,
+      "sprite": {
+        "image": "levels/prehistoric_dig_enclosures_fossil_pit_bird_f78c/dogs/dog_02/sprite_000.png",
+        "height": 207,
+        "width": 245,
+        "x": 458,
+        "y": 646,
+        "cleanup": {
+          "x": 439,
+          "y": 629,
+          "width": 281,
+          "height": 238
+        },
+        "anchorX": 0.5592,
+        "anchorY": 0.5314,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 27.3,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "124090ad-eca2-4f9b-87fc-6c2386e296d4",
+      "compatibilitySlot": "dog_07",
+      "x": 539,
+      "y": 1355,
+      "r": 57,
+      "sprite": {
+        "image": "levels/prehistoric_dig_enclosures_fossil_pit_bird_f78c/dogs/dog_07/sprite_000.png",
+        "height": 186,
+        "width": 199,
+        "x": 446,
+        "y": 1271,
+        "cleanup": {
+          "x": 415,
+          "y": 1241,
+          "width": 228,
+          "height": 213
+        },
+        "anchorX": 0.5477,
+        "anchorY": 0.5376,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.15,
+          "ratio": 1.0,
+          "pop": 19.9,
+          "dx": -15,
+          "dy": -16
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.6648,
+          "pop": 49.4,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "cde23b31-b96b-4739-b167-eb5b8ae3df77",
+      "compatibilitySlot": "dog_24",
+      "x": 791,
+      "y": 1001,
+      "r": 57,
+      "sprite": {
+        "image": "levels/prehistoric_dig_enclosures_fossil_pit_bird_f78c/dogs/dog_24/sprite_000.png",
+        "height": 141,
+        "width": 168,
+        "x": 699,
+        "y": 910,
+        "cleanup": {
+          "x": 685,
+          "y": 899,
+          "width": 193,
+          "height": 162
+        },
+        "anchorX": 0.5536,
+        "anchorY": 0.6454,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 20.4,
+          "dx": -1,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.8907,
+          "pop": 22.0,
+          "why": "T3+refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "89b7cdd2-ba89-4523-9b3c-b9f88e1432ad",
+      "compatibilitySlot": "dog_25",
+      "x": 1062,
+      "y": 1060,
+      "r": 57,
+      "sprite": {
+        "image": "levels/prehistoric_dig_enclosures_fossil_pit_bird_f78c/dogs/dog_25/sprite_000.png",
+        "height": 162,
+        "width": 224,
+        "x": 936,
+        "y": 980,
+        "cleanup": {
+          "x": 919,
+          "y": 966,
+          "width": 257,
+          "height": 186
+        },
+        "anchorX": 0.5625,
+        "anchorY": 0.5,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 26.6,
+          "dx": 0,
+          "dy": -1
+        }
+      }
+    },
+    {
+      "id": "15b55728-f0c8-45a4-9b0e-ecd27994f595",
+      "compatibilitySlot": "dog_26",
+      "x": 1360,
+      "y": 922,
+      "r": 57,
+      "sprite": {
+        "image": "levels/prehistoric_dig_enclosures_fossil_pit_bird_f78c/dogs/dog_26/sprite_000.png",
+        "height": 134,
+        "width": 205,
+        "x": 1270,
+        "y": 834,
+        "cleanup": {
+          "x": 1233,
+          "y": 810,
+          "width": 235,
+          "height": 168
+        },
+        "anchorX": 0.5415,
+        "anchorY": 0.7537,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.2,
+          "ratio": 1.0,
+          "pop": 20.2,
+          "dx": -21,
+          "dy": -13
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.6332,
+          "pop": 63.3,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "68d4370f-ada3-4891-8785-8eb92a41525c",
+      "compatibilitySlot": "dog_27",
+      "x": 1082,
+      "y": 1372,
+      "r": 57,
+      "sprite": {
+        "image": "levels/prehistoric_dig_enclosures_fossil_pit_bird_f78c/dogs/dog_27/sprite_000.png",
+        "height": 148,
+        "width": 158,
+        "x": 989,
+        "y": 1285,
+        "cleanup": {
+          "x": 977,
+          "y": 1273,
+          "width": 181,
+          "height": 170
+        },
+        "anchorX": 0.5886,
+        "anchorY": 0.5878,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 22.2,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.9209,
+          "pop": 22.1,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "ef7263bb-cfb2-4334-8c01-aefce14b55ba",
+      "compatibilitySlot": "dog_28",
+      "x": 1309,
+      "y": 1354,
+      "r": 57,
+      "sprite": {
+        "image": "levels/prehistoric_dig_enclosures_fossil_pit_bird_f78c/dogs/dog_28/sprite_000.png",
+        "height": 129,
+        "width": 179,
+        "x": 1242,
+        "y": 1268,
+        "cleanup": {
+          "x": 1230,
+          "y": 1258,
+          "width": 205,
+          "height": 152
+        },
+        "anchorX": 0.3631,
+        "anchorY": 0.6667,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 0.95,
+          "pop": 24.9,
+          "dx": 1,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.8208,
+          "pop": 27.5,
+          "why": "T3"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "c07004e1-0599-4d06-9044-30577faafe87",
+      "compatibilitySlot": "dog_29",
+      "x": 1755,
+      "y": 1234,
+      "r": 57,
+      "sprite": {
+        "image": "levels/prehistoric_dig_enclosures_fossil_pit_bird_f78c/dogs/dog_29/sprite_000.png",
+        "height": 127,
+        "width": 182,
+        "x": 1663,
+        "y": 1175,
+        "cleanup": {
+          "x": 1649,
+          "y": 1165,
+          "width": 209,
+          "height": 146
+        },
+        "anchorX": 0.5055,
+        "anchorY": 0.4646,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 11.0,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.9078,
+          "pop": 11.0,
+          "why": "T3+refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "8a635914-ffcb-459c-a9a6-58ae4c95013b",
+      "compatibilitySlot": "dog_30",
+      "x": 1681,
+      "y": 914,
+      "r": 57,
+      "sprite": {
+        "image": "levels/prehistoric_dig_enclosures_fossil_pit_bird_f78c/dogs/dog_30/sprite_000.png",
+        "height": 195,
+        "width": 253,
+        "x": 1598,
+        "y": 804,
+        "cleanup": {
+          "x": 1578,
+          "y": 790,
+          "width": 290,
+          "height": 224
+        },
+        "anchorX": 0.332,
+        "anchorY": 0.559,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 28.7,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "0256ba55-75d1-4998-bf57-a00ae65cd253",
+      "compatibilitySlot": "dog_31",
+      "x": 1984,
+      "y": 878,
+      "r": 57,
+      "sprite": {
+        "image": "levels/prehistoric_dig_enclosures_fossil_pit_bird_f78c/dogs/dog_31/sprite_000.png",
+        "height": 177,
+        "width": 226,
+        "x": 1889,
+        "y": 788,
+        "cleanup": {
+          "x": 1873,
+          "y": 775,
+          "width": 259,
+          "height": 203
+        },
+        "anchorX": 0.4159,
+        "anchorY": 0.5028,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 28.5,
+          "dx": 1,
+          "dy": 1
+        }
+      }
+    },
+    {
+      "id": "05849a43-d215-4726-a287-119343f14a55",
+      "compatibilitySlot": "dog_32",
+      "x": 2061,
+      "y": 1406,
+      "r": 57,
+      "sprite": {
+        "image": "levels/prehistoric_dig_enclosures_fossil_pit_bird_f78c/dogs/dog_32/sprite_000.png",
+        "height": 168,
+        "width": 196,
+        "x": 1981,
+        "y": 1328,
+        "cleanup": {
+          "x": 1966,
+          "y": 1315,
+          "width": 225,
+          "height": 193
+        },
+        "anchorX": 0.4082,
+        "anchorY": 0.4643,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 17.1,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "a812d59c-c8bf-4bb0-8195-4510f6d1a358",
+      "compatibilitySlot": "dog_33",
+      "x": 1479,
+      "y": 1545,
+      "r": 57,
+      "sprite": {
+        "image": "levels/prehistoric_dig_enclosures_fossil_pit_bird_f78c/dogs/dog_33/sprite_000.png",
+        "height": 166,
+        "width": 231,
+        "x": 1381,
+        "y": 1469,
+        "cleanup": {
+          "x": 1363,
+          "y": 1456,
+          "width": 265,
+          "height": 190
+        },
+        "anchorX": 0.4242,
+        "anchorY": 0.4578,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 17.2,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "321a6e70-e9b2-4aeb-99aa-aadaabf4aba4",
+      "compatibilitySlot": "dog_34",
+      "x": 604,
+      "y": 1630,
+      "r": 57,
+      "sprite": {
+        "image": "levels/prehistoric_dig_enclosures_fossil_pit_bird_f78c/dogs/dog_34/sprite_000.png",
+        "height": 168,
+        "width": 175,
+        "x": 510,
+        "y": 1523,
+        "cleanup": {
+          "x": 496,
+          "y": 1510,
+          "width": 201,
+          "height": 193
+        },
+        "anchorX": 0.5371,
+        "anchorY": 0.6369,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 22.0,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "bdf90b9c-8808-4edb-9960-145fc63f28f6",
+      "compatibilitySlot": "dog_35",
+      "x": 798,
+      "y": 1606,
+      "r": 57,
+      "sprite": {
+        "image": "levels/prehistoric_dig_enclosures_fossil_pit_bird_f78c/dogs/dog_35/sprite_000.png",
+        "height": 156,
+        "width": 204,
+        "x": 725,
+        "y": 1520,
+        "cleanup": {
+          "x": 710,
+          "y": 1506,
+          "width": 234,
+          "height": 179
+        },
+        "anchorX": 0.3529,
+        "anchorY": 0.5641,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 0.95,
+          "pop": 35.3,
+          "dx": 1,
+          "dy": -1
+        }
+      }
+    },
+    {
+      "id": "a0c89cb6-f3ef-4c08-9f27-00f6d6b0e1b6",
+      "compatibilitySlot": "dog_36",
+      "x": 532,
+      "y": 1958,
+      "r": 57,
+      "sprite": {
+        "image": "levels/prehistoric_dig_enclosures_fossil_pit_bird_f78c/dogs/dog_36/sprite_000.png",
+        "height": 163,
+        "width": 207,
+        "x": 440,
+        "y": 1877,
+        "cleanup": {
+          "x": 418,
+          "y": 1861,
+          "width": 238,
+          "height": 187
+        },
+        "anchorX": 0.4734,
+        "anchorY": 0.5153,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.15,
+          "ratio": 1.0,
+          "pop": 20.6,
+          "dx": -6,
+          "dy": -3
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.7046,
+          "pop": 48.1,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "df90b4e1-90e5-4aef-9dc6-725f7020522c",
+      "compatibilitySlot": "dog_37",
+      "x": 628,
+      "y": 2218,
+      "r": 57,
+      "sprite": {
+        "image": "levels/prehistoric_dig_enclosures_fossil_pit_bird_f78c/dogs/dog_37/sprite_000.png",
+        "height": 124,
+        "width": 148,
+        "x": 583,
+        "y": 2141,
+        "cleanup": {
+          "x": 568,
+          "y": 2122,
+          "width": 170,
+          "height": 152
+        },
+        "anchorX": 0.3243,
+        "anchorY": 0.6935,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.15,
+          "ratio": 0.95,
+          "pop": 23.6,
+          "dx": -3,
+          "dy": -9
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.6424,
+          "pop": 47.3,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "d0841418-5806-4a5a-ba80-d49f4e3d9898",
+      "compatibilitySlot": "dog_38",
+      "x": 982,
+      "y": 2305,
+      "r": 57,
+      "sprite": {
+        "image": "levels/prehistoric_dig_enclosures_fossil_pit_bird_f78c/dogs/dog_38/sprite_000.png",
+        "height": 182,
+        "width": 231,
+        "x": 898,
+        "y": 2190,
+        "cleanup": {
+          "x": 880,
+          "y": 2177,
+          "width": 265,
+          "height": 209
+        },
+        "anchorX": 0.3636,
+        "anchorY": 0.6264,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 24.6,
+          "dx": 0,
+          "dy": 1
+        }
+      }
+    },
+    {
+      "id": "f39befe3-a8e6-4416-b6bf-738be4f8f9fa",
+      "compatibilitySlot": "dog_39",
+      "x": 1375,
+      "y": 2111,
+      "r": 57,
+      "sprite": {
+        "image": "levels/prehistoric_dig_enclosures_fossil_pit_bird_f78c/dogs/dog_39/sprite_000.png",
+        "height": 85,
+        "width": 107,
+        "x": 1315,
+        "y": 2027,
+        "cleanup": {
+          "x": 1306,
+          "y": 2012,
+          "width": 125,
+          "height": 155
+        },
+        "anchorX": 0.5607,
+        "anchorY": 0.9882,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 16.5,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.6493,
+          "pop": 59.3,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "8204a7ae-b868-424d-a188-3199f53771f9",
+      "compatibilitySlot": "dog_40",
+      "x": 1874,
+      "y": 1631,
+      "r": 57,
+      "sprite": {
+        "image": "levels/prehistoric_dig_enclosures_fossil_pit_bird_f78c/dogs/dog_40/sprite_000.png",
+        "height": 89,
+        "width": 109,
+        "x": 1820,
+        "y": 1565,
+        "cleanup": {
+          "x": 1811,
+          "y": 1552,
+          "width": 125,
+          "height": 135
+        },
+        "anchorX": 0.4954,
+        "anchorY": 0.7416,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 0.95,
+          "pop": 22.9,
+          "dx": 6,
+          "dy": -2
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.6717,
+          "pop": 20.3,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "880b8417-f189-4ec6-a03e-db3a84c0571e",
+      "compatibilitySlot": "dog_41",
+      "x": 2218,
+      "y": 1570,
+      "r": 57,
+      "sprite": {
+        "image": "levels/prehistoric_dig_enclosures_fossil_pit_bird_f78c/dogs/dog_41/sprite_000.png",
+        "height": 198,
+        "width": 226,
+        "x": 2098,
+        "y": 1466,
+        "cleanup": {
+          "x": 2084,
+          "y": 1448,
+          "width": 259,
+          "height": 227
+        },
+        "anchorX": 0.5177,
+        "anchorY": 0.5404,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 0.95,
+          "pop": 28.4,
+          "dx": 2,
+          "dy": -2
+        }
+      }
+    },
+    {
+      "id": "ae92d436-497c-43f5-938b-eb68df50a148",
+      "compatibilitySlot": "dog_42",
+      "x": 2154,
+      "y": 1903,
+      "r": 57,
+      "sprite": {
+        "image": "levels/prehistoric_dig_enclosures_fossil_pit_bird_f78c/dogs/dog_42/sprite_000.png",
+        "height": 243,
+        "width": 248,
+        "x": 2045,
+        "y": 1778,
+        "cleanup": {
+          "x": 2026,
+          "y": 1759,
+          "width": 285,
+          "height": 279
+        },
+        "anchorX": 0.4395,
+        "anchorY": 0.5144,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 27.6,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "4e3e268b-23b7-42ee-8f2b-44ca5f565962",
+      "compatibilitySlot": "dog_43",
+      "x": 1905,
+      "y": 2292,
+      "r": 57,
+      "sprite": {
+        "image": "levels/prehistoric_dig_enclosures_fossil_pit_bird_f78c/dogs/dog_43/sprite_000.png",
+        "height": 197,
+        "width": 230,
+        "x": 1781,
+        "y": 2163,
+        "cleanup": {
+          "x": 1763,
+          "y": 2148,
+          "width": 264,
+          "height": 226
+        },
+        "anchorX": 0.5391,
+        "anchorY": 0.6548,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 19.8,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    }
+  ]
+}

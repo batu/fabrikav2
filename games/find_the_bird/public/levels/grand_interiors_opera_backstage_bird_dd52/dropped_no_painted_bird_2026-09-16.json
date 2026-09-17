@@ -1,0 +1,78 @@
+[
+ {
+  "id": "5806477c-923a-5820-a8bf-2042bb0de508",
+  "compatibilitySlot": "dog_11",
+  "x": 737,
+  "y": 1401,
+  "r": 57,
+  "sprite": {
+   "image": "levels/grand_interiors_opera_backstage_bird_dd52/dogs/dog_11/sprite_000.png",
+   "height": 135,
+   "width": 179,
+   "x": 660,
+   "y": 1350,
+   "cleanup": {
+    "x": 645,
+    "y": 1336,
+    "width": 204,
+    "height": 174
+   },
+   "anchorX": 0.4302,
+   "anchorY": 0.3778,
+   "flipX": false,
+   "flipY": false,
+   "refit": {
+    "scale": 1.0,
+    "ratio": 1.0,
+    "pop": 21.9,
+    "dx": 0,
+    "dy": 0
+   },
+   "regen": {
+    "pass": "crop2",
+    "score": 0.8469,
+    "pop": 21.6,
+    "why": "T3"
+   },
+   "technique": "gpt-image-2.5-sunburst-low-visible-only"
+  }
+ },
+ {
+  "id": "2d84fde7-5f41-45af-82b0-e2c8fde57ef2",
+  "compatibilitySlot": "dog_22",
+  "x": 1675,
+  "y": 1678,
+  "r": 57,
+  "sprite": {
+   "image": "levels/grand_interiors_opera_backstage_bird_dd52/dogs/dog_22/sprite_000.png",
+   "height": 113,
+   "width": 241,
+   "x": 1578,
+   "y": 1635,
+   "cleanup": {
+    "x": 1548,
+    "y": 1611,
+    "width": 288,
+    "height": 165
+   },
+   "anchorX": 0.4191,
+   "anchorY": 0.3717,
+   "flipX": false,
+   "flipY": false,
+   "refit": {
+    "scale": 1.0,
+    "ratio": 1.05,
+    "pop": 26.3,
+    "dx": -3,
+    "dy": 1
+   },
+   "regen": {
+    "pass": "crop2",
+    "score": 0.8749,
+    "pop": 24.7,
+    "why": "T3+refit refused"
+   },
+   "technique": "gpt-image-2.5-sunburst-low-visible-only"
+  }
+ }
+]

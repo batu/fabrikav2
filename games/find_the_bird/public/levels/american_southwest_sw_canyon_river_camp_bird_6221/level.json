@@ -13,20 +13,33 @@
       "r": 57,
       "sprite": {
         "image": "levels/american_southwest_sw_canyon_river_camp_bird_6221/dogs/dog_00/sprite_000.png",
-        "x": 1895,
-        "y": 483,
-        "width": 169,
-        "height": 116,
+        "x": 1902,
+        "y": 482,
+        "width": 157,
+        "height": 130,
         "cleanup": {
           "x": 1849,
           "y": 429,
           "width": 275,
           "height": 285
         },
-        "anchorX": 0.503,
-        "anchorY": 0.5776,
+        "anchorX": 0.4968,
+        "anchorY": 0.5385,
         "flipX": true,
-        "flipY": false
+        "flipY": false,
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop",
+          "score": 0.8576,
+          "pop": 29.4
+        },
+        "refit": {
+          "scale": 1.0,
+          "ratio": 0.95,
+          "pop": 24.0,
+          "dx": 0,
+          "dy": -2
+        }
       }
     },
     {
@@ -46,8 +59,15 @@
           "width": 323,
           "height": 345
         },
-        "anchorX": 0.4949,
-        "anchorY": 0.5448
+        "anchorX": 0.5,
+        "anchorY": 0.5517,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 22.0,
+          "dx": 0,
+          "dy": -1
+        }
       }
     },
     {
@@ -59,18 +79,25 @@
         "image": "levels/american_southwest_sw_canyon_river_camp_bird_6221/dogs/dog_02/sprite_000.png",
         "x": 389,
         "y": 778,
-        "width": 183,
-        "height": 130,
+        "width": 178,
+        "height": 133,
         "cleanup": {
           "x": 293,
           "y": 674,
           "width": 324,
           "height": 297
         },
-        "anchorX": 0.306,
-        "anchorY": 0.3846,
+        "anchorX": 0.309,
+        "anchorY": 0.3684,
         "flipX": false,
-        "flipY": false
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 0.95,
+          "pop": 24.9,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -91,7 +118,14 @@
           "height": 314
         },
         "anchorX": 0.5,
-        "anchorY": 0.6066
+        "anchorY": 0.6066,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 10.1,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -111,8 +145,15 @@
           "width": 298,
           "height": 247
         },
-        "anchorX": 0.5419,
-        "anchorY": 0.5545
+        "anchorX": 0.5374,
+        "anchorY": 0.5545,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 26.0,
+          "dx": 1,
+          "dy": 0
+        }
       }
     },
     {
@@ -122,18 +163,31 @@
       "r": 57,
       "sprite": {
         "image": "levels/american_southwest_sw_canyon_river_camp_bird_6221/dogs/dog_05/sprite_000.png",
-        "x": 1680,
-        "y": 1158,
-        "width": 148,
-        "height": 131,
+        "x": 1664,
+        "y": 1164,
+        "width": 163,
+        "height": 126,
         "cleanup": {
           "x": 1560,
           "y": 1061,
           "width": 315,
           "height": 345
         },
-        "anchorX": 0.3581,
-        "anchorY": 0.5802
+        "anchorX": 0.4356,
+        "anchorY": 0.5794,
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop",
+          "score": 0.774,
+          "pop": 38.3
+        },
+        "refit": {
+          "scale": 1.05,
+          "ratio": 1.0,
+          "pop": 33.6,
+          "dx": -1,
+          "dy": -3
+        }
       }
     },
     {
@@ -143,18 +197,31 @@
       "r": 57,
       "sprite": {
         "image": "levels/american_southwest_sw_canyon_river_camp_bird_6221/dogs/dog_06/sprite_000.png",
-        "x": 1076,
-        "y": 1453,
-        "width": 157,
-        "height": 229,
+        "x": 1088,
+        "y": 1455,
+        "width": 131,
+        "height": 187,
         "cleanup": {
           "x": 986,
           "y": 1392,
           "width": 314,
           "height": 314
         },
-        "anchorX": 0.4268,
-        "anchorY": 0.4192
+        "anchorX": 0.4427,
+        "anchorY": 0.5294,
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop2",
+          "score": 0.8224,
+          "pop": 29.7
+        },
+        "refit": {
+          "scale": 1.05,
+          "ratio": 1.0,
+          "pop": 22.9,
+          "dx": -3,
+          "dy": -4
+        }
       }
     },
     {
@@ -175,7 +242,14 @@
           "height": 345
         },
         "anchorX": 0.6368,
-        "anchorY": 0.4479
+        "anchorY": 0.4479,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 29.6,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -187,18 +261,25 @@
         "image": "levels/american_southwest_sw_canyon_river_camp_bird_6221/dogs/dog_08/sprite_000.png",
         "x": 1750,
         "y": 1491,
-        "width": 172,
-        "height": 136,
+        "width": 168,
+        "height": 140,
         "cleanup": {
           "x": 1688,
           "y": 1417,
           "width": 345,
           "height": 317
         },
-        "anchorX": 0.6453,
-        "anchorY": 0.6544,
+        "anchorX": 0.6488,
+        "anchorY": 0.6643,
         "flipX": false,
-        "flipY": false
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 0.95,
+          "pop": 25.8,
+          "dx": 1,
+          "dy": -4
+        }
       }
     },
     {
@@ -221,7 +302,14 @@
         "anchorX": 0.5898,
         "anchorY": 0.4828,
         "flipX": false,
-        "flipY": false
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 5.5,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -233,16 +321,23 @@
         "image": "levels/american_southwest_sw_canyon_river_camp_bird_6221/dogs/dog_10/sprite_000.png",
         "x": 1054,
         "y": 1684,
-        "width": 209,
-        "height": 173,
+        "width": 214,
+        "height": 169,
         "cleanup": {
           "x": 1045,
           "y": 1616,
           "width": 234,
           "height": 178
         },
-        "anchorX": 0.5837,
-        "anchorY": 0.5434
+        "anchorX": 0.5888,
+        "anchorY": 0.5444,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.05,
+          "pop": 20.7,
+          "dx": -4,
+          "dy": 2
+        }
       }
     },
     {
@@ -262,8 +357,15 @@
           "width": 332,
           "height": 345
         },
-        "anchorX": 0.3333,
-        "anchorY": 0.561
+        "anchorX": 0.3282,
+        "anchorY": 0.5671,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 18.0,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -273,20 +375,33 @@
       "r": 57,
       "sprite": {
         "image": "levels/american_southwest_sw_canyon_river_camp_bird_6221/dogs/dog_12/sprite_000.png",
-        "x": 1740,
-        "y": 1791,
-        "width": 183,
-        "height": 141,
+        "x": 1746,
+        "y": 1799,
+        "width": 154,
+        "height": 125,
         "cleanup": {
           "x": 1724,
           "y": 1739,
           "width": 345,
           "height": 323
         },
-        "anchorX": 0.623,
-        "anchorY": 0.3759,
+        "anchorX": 0.6818,
+        "anchorY": 0.368,
         "flipX": false,
-        "flipY": false
+        "flipY": false,
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop2",
+          "score": 0.902,
+          "pop": 25.8
+        },
+        "refit": {
+          "scale": 1.0,
+          "ratio": 0.95,
+          "pop": 28.0,
+          "dx": 2,
+          "dy": 0
+        }
       }
     },
     {
@@ -298,18 +413,25 @@
         "image": "levels/american_southwest_sw_canyon_river_camp_bird_6221/dogs/dog_13/sprite_000.png",
         "x": 513,
         "y": 1791,
-        "width": 209,
-        "height": 164,
+        "width": 219,
+        "height": 156,
         "cleanup": {
           "x": 431,
           "y": 1742,
           "width": 299,
           "height": 306
         },
-        "anchorX": 0.4354,
-        "anchorY": 0.561,
+        "anchorX": 0.4566,
+        "anchorY": 0.5513,
         "flipX": false,
-        "flipY": false
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.1,
+          "pop": 21.4,
+          "dx": -9,
+          "dy": 6
+        }
       }
     },
     {
@@ -319,20 +441,33 @@
       "r": 57,
       "sprite": {
         "image": "levels/american_southwest_sw_canyon_river_camp_bird_6221/dogs/dog_14/sprite_000.png",
-        "x": 1418,
-        "y": 1946,
-        "width": 197,
-        "height": 191,
+        "x": 1434,
+        "y": 1950,
+        "width": 184,
+        "height": 184,
         "cleanup": {
           "x": 1320,
           "y": 1896,
           "width": 321,
           "height": 345
         },
-        "anchorX": 0.3807,
-        "anchorY": 0.644,
+        "anchorX": 0.3207,
+        "anchorY": 0.6467,
         "flipX": false,
-        "flipY": false
+        "flipY": false,
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop2",
+          "score": 0.8433,
+          "pop": 23.8
+        },
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 22.6,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -344,18 +479,25 @@
         "image": "levels/american_southwest_sw_canyon_river_camp_bird_6221/dogs/dog_15/sprite_000.png",
         "x": 799,
         "y": 2002,
-        "width": 140,
-        "height": 161,
+        "width": 143,
+        "height": 173,
         "cleanup": {
           "x": 732,
           "y": 1896,
           "width": 298,
           "height": 345
         },
-        "anchorX": 0.4214,
-        "anchorY": 0.4161,
+        "anchorX": 0.4056,
+        "anchorY": 0.4335,
         "flipX": false,
-        "flipY": false
+        "flipY": false,
+        "refit": {
+          "scale": 1.05,
+          "ratio": 0.95,
+          "pop": 24.8,
+          "dx": 0,
+          "dy": -8
+        }
       }
     },
     {
@@ -378,7 +520,14 @@
         "anchorX": 0.4882,
         "anchorY": 0.5361,
         "flipX": false,
-        "flipY": false
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 7.0,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -390,18 +539,25 @@
         "image": "levels/american_southwest_sw_canyon_river_camp_bird_6221/dogs/dog_17/sprite_000.png",
         "x": 362,
         "y": 2290,
-        "width": 217,
-        "height": 181,
+        "width": 222,
+        "height": 177,
         "cleanup": {
           "x": 316,
           "y": 2244,
           "width": 310,
           "height": 266
         },
-        "anchorX": 0.5069,
-        "anchorY": 0.4751,
+        "anchorX": 0.5,
+        "anchorY": 0.4915,
         "flipX": false,
-        "flipY": false
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.05,
+          "pop": 19.2,
+          "dx": -1,
+          "dy": -1
+        }
       }
     }
   ]

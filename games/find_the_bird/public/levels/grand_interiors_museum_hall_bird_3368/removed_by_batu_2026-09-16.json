@@ -1,0 +1,40 @@
+[
+ {
+  "id": "2b656c7a-0446-4edd-a699-1afe0859b458",
+  "compatibilitySlot": "dog_07",
+  "x": 1105,
+  "y": 646,
+  "r": 57,
+  "sprite": {
+   "image": "levels/grand_interiors_museum_hall_bird_3368/dogs/dog_07/sprite_000.png",
+   "height": 74,
+   "width": 116,
+   "x": 1043,
+   "y": 582,
+   "cleanup": {
+    "x": 1034,
+    "y": 561,
+    "width": 133,
+    "height": 141
+   },
+   "anchorX": 0.5345,
+   "anchorY": 0.8649,
+   "flipX": false,
+   "flipY": false,
+   "refit": {
+    "scale": 1.0,
+    "ratio": 1.0,
+    "pop": 34.3,
+    "dx": 0,
+    "dy": 0
+   },
+   "regen": {
+    "pass": "crop",
+    "score": 0.9064,
+    "pop": 34.0,
+    "why": "refit refused"
+   },
+   "technique": "gpt-image-2.5-sunburst-low-visible-only"
+  }
+ }
+]

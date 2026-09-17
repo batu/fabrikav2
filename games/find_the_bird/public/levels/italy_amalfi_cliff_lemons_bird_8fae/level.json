@@ -15,16 +15,23 @@
         "image": "levels/italy_amalfi_cliff_lemons_bird_8fae/dogs/dog_00/sprite_000.png",
         "x": 528,
         "y": 448,
-        "width": 196,
-        "height": 251,
+        "width": 133,
+        "height": 171,
         "cleanup": {
           "x": 496,
           "y": 406,
           "width": 325,
           "height": 338
         },
-        "anchorX": 0.6173,
-        "anchorY": 0.494
+        "anchorX": 0.5038,
+        "anchorY": 0.4561,
+        "refit": {
+          "scale": 1.05,
+          "ratio": 1.05,
+          "pop": 18.4,
+          "dx": -5,
+          "dy": -1
+        }
       }
     },
     {
@@ -45,7 +52,14 @@
           "height": 345
         },
         "anchorX": 0.6933,
-        "anchorY": 0.4242
+        "anchorY": 0.4242,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 26.0,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -57,16 +71,23 @@
         "image": "levels/italy_amalfi_cliff_lemons_bird_8fae/dogs/dog_02/sprite_000.png",
         "x": 863,
         "y": 644,
-        "width": 255,
-        "height": 165,
+        "width": 217,
+        "height": 140,
         "cleanup": {
           "x": 854,
           "y": 575,
           "width": 341,
           "height": 318
         },
-        "anchorX": 0.6314,
-        "anchorY": 0.4
+        "anchorX": 0.6221,
+        "anchorY": 0.4357,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 35.7,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -78,16 +99,23 @@
         "image": "levels/italy_amalfi_cliff_lemons_bird_8fae/dogs/dog_03/sprite_000.png",
         "x": 2108,
         "y": 584,
-        "width": 249,
-        "height": 183,
+        "width": 237,
+        "height": 174,
         "cleanup": {
           "x": 2072,
           "y": 488,
           "width": 330,
           "height": 345
         },
-        "anchorX": 0.4177,
-        "anchorY": 0.4809
+        "anchorX": 0.4262,
+        "anchorY": 0.4885,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 29.6,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -97,18 +125,24 @@
       "r": 57,
       "sprite": {
         "image": "levels/italy_amalfi_cliff_lemons_bird_8fae/dogs/dog_04/sprite_000.png",
-        "x": 1698,
-        "y": 631,
-        "width": 226,
-        "height": 163,
+        "x": 1764,
+        "y": 687,
+        "width": 76,
+        "height": 64,
         "cleanup": {
           "x": 1615,
           "y": 600,
           "width": 345,
           "height": 273
         },
-        "anchorX": 0.4027,
-        "anchorY": 0.9018
+        "anchorX": 0.3289,
+        "anchorY": 1.4219,
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop",
+          "score": 0.7522,
+          "pop": 52.9
+        }
       }
     },
     {
@@ -120,16 +154,23 @@
         "image": "levels/italy_amalfi_cliff_lemons_bird_8fae/dogs/dog_05/sprite_000.png",
         "x": 2075,
         "y": 885,
-        "width": 206,
-        "height": 202,
+        "width": 196,
+        "height": 192,
         "cleanup": {
           "x": 2046,
           "y": 848,
           "width": 278,
           "height": 345
         },
-        "anchorX": 0.5049,
-        "anchorY": 0.6733
+        "anchorX": 0.5153,
+        "anchorY": 0.6667,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 25.1,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -150,7 +191,14 @@
           "height": 214
         },
         "anchorX": 0.4714,
-        "anchorY": 0.4674
+        "anchorY": 0.4674,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 32.4,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -171,7 +219,14 @@
           "height": 277
         },
         "anchorX": 0.556,
-        "anchorY": 0.5329
+        "anchorY": 0.5329,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 27.7,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -192,7 +247,14 @@
           "height": 313
         },
         "anchorX": 0.5864,
-        "anchorY": 0.5
+        "anchorY": 0.5,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 29.8,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -202,18 +264,31 @@
       "r": 57,
       "sprite": {
         "image": "levels/italy_amalfi_cliff_lemons_bird_8fae/dogs/dog_09/sprite_000.png",
-        "x": 1140,
-        "y": 1109,
-        "width": 262,
-        "height": 169,
+        "x": 1165,
+        "y": 1115,
+        "width": 211,
+        "height": 117,
         "cleanup": {
           "x": 1100,
           "y": 1142,
           "width": 325,
           "height": 201
         },
-        "anchorX": 0.4046,
-        "anchorY": 0.284
+        "anchorX": 0.3839,
+        "anchorY": 0.359,
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop2",
+          "score": 0.82,
+          "pop": 28.1
+        },
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 29.6,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -223,18 +298,31 @@
       "r": 57,
       "sprite": {
         "image": "levels/italy_amalfi_cliff_lemons_bird_8fae/dogs/dog_10/sprite_000.png",
-        "x": 1646,
-        "y": 1128,
-        "width": 221,
-        "height": 176,
+        "x": 1661,
+        "y": 1133,
+        "width": 69,
+        "height": 39,
         "cleanup": {
           "x": 1579,
           "y": 1101,
           "width": 345,
           "height": 252
         },
-        "anchorX": 0.4796,
-        "anchorY": 0.4716
+        "anchorX": 0.7246,
+        "anchorY": 0.0769,
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop",
+          "score": 0.6878,
+          "pop": 30.4
+        },
+        "refit": {
+          "scale": 0.5499999999999999,
+          "ratio": 1.25,
+          "pop": 19.8,
+          "dx": 12,
+          "dy": 38
+        }
       }
     },
     {
@@ -244,18 +332,31 @@
       "r": 57,
       "sprite": {
         "image": "levels/italy_amalfi_cliff_lemons_bird_8fae/dogs/dog_11/sprite_000.png",
-        "x": 1145,
-        "y": 1281,
-        "width": 262,
-        "height": 221,
+        "x": 1198,
+        "y": 1346,
+        "width": 150,
+        "height": 128,
         "cleanup": {
           "x": 1101,
           "y": 1345,
           "width": 345,
           "height": 210
         },
-        "anchorX": 0.5344,
-        "anchorY": 0.6063
+        "anchorX": 0.5867,
+        "anchorY": 0.5469,
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop",
+          "score": 0.8927,
+          "pop": 22.4
+        },
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 22.1,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -267,16 +368,23 @@
         "image": "levels/italy_amalfi_cliff_lemons_bird_8fae/dogs/dog_12/sprite_000.png",
         "x": 1857,
         "y": 1392,
-        "width": 192,
-        "height": 194,
+        "width": 154,
+        "height": 155,
         "cleanup": {
           "x": 1775,
           "y": 1355,
           "width": 345,
           "height": 310
         },
-        "anchorX": 0.474,
-        "anchorY": 0.5412
+        "anchorX": 0.5455,
+        "anchorY": 0.6,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 24.0,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -288,16 +396,23 @@
         "image": "levels/italy_amalfi_cliff_lemons_bird_8fae/dogs/dog_13/sprite_000.png",
         "x": 520,
         "y": 1502,
-        "width": 241,
-        "height": 175,
+        "width": 193,
+        "height": 140,
         "cleanup": {
           "x": 522,
           "y": 1437,
           "width": 345,
           "height": 345
         },
-        "anchorX": 0.668,
-        "anchorY": 0.2914
+        "anchorX": 0.6477,
+        "anchorY": 0.3571,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 23.1,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -309,16 +424,23 @@
         "image": "levels/italy_amalfi_cliff_lemons_bird_8fae/dogs/dog_14/sprite_000.png",
         "x": 1111,
         "y": 1610,
-        "width": 275,
-        "height": 163,
+        "width": 316,
+        "height": 187,
         "cleanup": {
           "x": 1087,
           "y": 1557,
           "width": 320,
           "height": 284
         },
-        "anchorX": 0.4509,
-        "anchorY": 0.362
+        "anchorX": 0.4684,
+        "anchorY": 0.385,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 34.7,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -330,16 +452,23 @@
         "image": "levels/italy_amalfi_cliff_lemons_bird_8fae/dogs/dog_15/sprite_000.png",
         "x": 1706,
         "y": 1668,
-        "width": 230,
-        "height": 172,
+        "width": 218,
+        "height": 163,
         "cleanup": {
           "x": 1636,
           "y": 1667,
           "width": 345,
           "height": 331
         },
-        "anchorX": 0.4739,
-        "anchorY": 0.7209
+        "anchorX": 0.4771,
+        "anchorY": 0.7301,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 41.2,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -360,7 +489,14 @@
           "height": 321
         },
         "anchorX": 0.7016,
-        "anchorY": 0.5196
+        "anchorY": 0.5196,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.05,
+          "pop": 30.7,
+          "dx": -1,
+          "dy": 1
+        }
       }
     },
     {
@@ -372,16 +508,23 @@
         "image": "levels/italy_amalfi_cliff_lemons_bird_8fae/dogs/dog_17/sprite_000.png",
         "x": 369,
         "y": 1841,
-        "width": 183,
-        "height": 263,
+        "width": 187,
+        "height": 283,
         "cleanup": {
           "x": 312,
           "y": 1800,
           "width": 332,
           "height": 261
         },
-        "anchorX": 0.4481,
-        "anchorY": 0.3118
+        "anchorX": 0.4652,
+        "anchorY": 0.2968,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 24.4,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -391,18 +534,31 @@
       "r": 57,
       "sprite": {
         "image": "levels/italy_amalfi_cliff_lemons_bird_8fae/dogs/dog_18/sprite_000.png",
-        "x": 462,
-        "y": 2069,
-        "width": 224,
-        "height": 209,
+        "x": 484,
+        "y": 2092,
+        "width": 178,
+        "height": 153,
         "cleanup": {
           "x": 387,
           "y": 2063,
           "width": 327,
           "height": 198
         },
-        "anchorX": 0.7232,
-        "anchorY": 0.5789
+        "anchorX": 0.7865,
+        "anchorY": 0.6405,
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop2",
+          "score": 0.9328,
+          "pop": 14.0
+        },
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 15.9,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -423,7 +579,14 @@
           "height": 270
         },
         "anchorX": 0.4943,
-        "anchorY": 0.5637
+        "anchorY": 0.5637,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 32.1,
+          "dx": 0,
+          "dy": 0
+        }
       }
     }
   ]

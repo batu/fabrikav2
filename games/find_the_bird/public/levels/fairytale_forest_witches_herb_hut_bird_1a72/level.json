@@ -23,8 +23,15 @@
           "width": 337,
           "height": 259
         },
-        "anchorX": 0.5205,
-        "anchorY": 0.4301
+        "anchorX": 0.5164,
+        "anchorY": 0.4301,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 17.1,
+          "dx": 1,
+          "dy": 0
+        }
       }
     },
     {
@@ -45,7 +52,14 @@
           "height": 303
         },
         "anchorX": 0.626,
-        "anchorY": 0.4731
+        "anchorY": 0.4731,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 23.0,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -55,18 +69,31 @@
       "r": 57,
       "sprite": {
         "image": "levels/fairytale_forest_witches_herb_hut_bird_1a72/dogs/dog_02/sprite_000.png",
-        "x": 370,
-        "y": 749,
-        "width": 140,
-        "height": 192,
+        "x": 377,
+        "y": 755,
+        "width": 119,
+        "height": 126,
         "cleanup": {
           "x": 323,
           "y": 727,
           "width": 220,
           "height": 210
         },
-        "anchorX": 0.45,
-        "anchorY": 0.3438
+        "anchorX": 0.4874,
+        "anchorY": 0.4921,
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop",
+          "score": 0.9752,
+          "pop": 13.9
+        },
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 14.4,
+          "dx": -1,
+          "dy": -1
+        }
       }
     },
     {
@@ -87,7 +114,14 @@
           "height": 299
         },
         "anchorX": 0.6284,
-        "anchorY": 0.5249
+        "anchorY": 0.5249,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 20.1,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -108,7 +142,14 @@
           "height": 321
         },
         "anchorX": 0.5085,
-        "anchorY": 0.4439
+        "anchorY": 0.4439,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 20.1,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -118,18 +159,31 @@
       "r": 57,
       "sprite": {
         "image": "levels/fairytale_forest_witches_herb_hut_bird_1a72/dogs/dog_05/sprite_000.png",
-        "x": 374,
-        "y": 1057,
-        "width": 213,
-        "height": 174,
+        "x": 402,
+        "y": 1063,
+        "width": 162,
+        "height": 164,
         "cleanup": {
           "x": 380,
           "y": 974,
           "width": 345,
           "height": 283
         },
-        "anchorX": 0.5587,
-        "anchorY": 0.4885
+        "anchorX": 0.5802,
+        "anchorY": 0.4878,
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop",
+          "score": 0.8992,
+          "pop": 24.0
+        },
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 16.6,
+          "dx": -3,
+          "dy": -1
+        }
       }
     },
     {
@@ -150,7 +204,14 @@
           "height": 258
         },
         "anchorX": 0.3962,
-        "anchorY": 0.5359
+        "anchorY": 0.5359,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 20.0,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -171,7 +232,14 @@
           "height": 327
         },
         "anchorX": 0.3766,
-        "anchorY": 0.5487
+        "anchorY": 0.5487,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 22.9,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -183,16 +251,23 @@
         "image": "levels/fairytale_forest_witches_herb_hut_bird_1a72/dogs/dog_08/sprite_000.png",
         "x": 1168,
         "y": 1044,
-        "width": 247,
-        "height": 169,
+        "width": 241,
+        "height": 173,
         "cleanup": {
           "x": 1118,
           "y": 937,
           "width": 335,
           "height": 345
         },
-        "anchorX": 0.4575,
-        "anchorY": 0.3905
+        "anchorX": 0.4606,
+        "anchorY": 0.3931,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 0.95,
+          "pop": 26.9,
+          "dx": 2,
+          "dy": -2
+        }
       }
     },
     {
@@ -213,7 +288,14 @@
           "height": 345
         },
         "anchorX": 0.4525,
-        "anchorY": 0.5104
+        "anchorY": 0.5104,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 12.0,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -234,7 +316,14 @@
           "height": 325
         },
         "anchorX": 0.5088,
-        "anchorY": 0.4979
+        "anchorY": 0.5021,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 17.7,
+          "dx": 0,
+          "dy": -1
+        }
       }
     },
     {
@@ -255,7 +344,14 @@
           "height": 318
         },
         "anchorX": 0.3041,
-        "anchorY": 0.4819
+        "anchorY": 0.4819,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 13.3,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -276,7 +372,14 @@
           "height": 345
         },
         "anchorX": 0.5528,
-        "anchorY": 0.2621
+        "anchorY": 0.2621,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 23.3,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -288,16 +391,23 @@
         "image": "levels/fairytale_forest_witches_herb_hut_bird_1a72/dogs/dog_13/sprite_000.png",
         "x": 1107,
         "y": 1748,
-        "width": 220,
-        "height": 174,
+        "width": 308,
+        "height": 244,
         "cleanup": {
           "x": 1068,
           "y": 1694,
           "width": 315,
           "height": 332
         },
-        "anchorX": 0.4727,
-        "anchorY": 0.6149
+        "anchorX": 0.4351,
+        "anchorY": 0.4795,
+        "refit": {
+          "scale": 1.4,
+          "ratio": 1.0,
+          "pop": 9.2,
+          "dx": -30,
+          "dy": -10
+        }
       }
     },
     {
@@ -309,16 +419,23 @@
         "image": "levels/fairytale_forest_witches_herb_hut_bird_1a72/dogs/dog_14/sprite_000.png",
         "x": 777,
         "y": 2171,
-        "width": 167,
-        "height": 139,
+        "width": 217,
+        "height": 181,
         "cleanup": {
           "x": 712,
           "y": 2110,
           "width": 334,
           "height": 289
         },
-        "anchorX": 0.6467,
-        "anchorY": 0.6115
+        "anchorX": 0.7097,
+        "anchorY": 0.5525,
+        "refit": {
+          "scale": 1.3,
+          "ratio": 1.0,
+          "pop": 21.1,
+          "dx": -46,
+          "dy": -15
+        }
       }
     },
     {
@@ -330,16 +447,23 @@
         "image": "levels/fairytale_forest_witches_herb_hut_bird_1a72/dogs/dog_15/sprite_000.png",
         "x": 1664,
         "y": 2115,
-        "width": 215,
-        "height": 171,
+        "width": 301,
+        "height": 239,
         "cleanup": {
           "x": 1605,
           "y": 2052,
           "width": 260,
           "height": 317
         },
-        "anchorX": 0.5302,
-        "anchorY": 0.4795
+        "anchorX": 0.4651,
+        "anchorY": 0.4184,
+        "refit": {
+          "scale": 1.4,
+          "ratio": 1.0,
+          "pop": 19.8,
+          "dx": -26,
+          "dy": -18
+        }
       }
     },
     {
@@ -351,16 +475,23 @@
         "image": "levels/fairytale_forest_witches_herb_hut_bird_1a72/dogs/dog_16/sprite_000.png",
         "x": 1840,
         "y": 2116,
-        "width": 243,
-        "height": 185,
+        "width": 340,
+        "height": 259,
         "cleanup": {
           "x": 1867,
           "y": 2032,
           "width": 260,
           "height": 334
         },
-        "anchorX": 0.4733,
-        "anchorY": 0.4216
+        "anchorX": 0.5382,
+        "anchorY": 0.4517,
+        "refit": {
+          "scale": 1.4,
+          "ratio": 1.0,
+          "pop": 20.1,
+          "dx": -67,
+          "dy": -39
+        }
       }
     }
   ]

@@ -13,18 +13,31 @@
       "r": 57,
       "sprite": {
         "image": "levels/greece_santorini_steps_bird_4634/dogs/dog_00/sprite_000.png",
-        "x": 918,
-        "y": 514,
-        "width": 205,
-        "height": 216,
+        "x": 946,
+        "y": 546,
+        "width": 145,
+        "height": 152,
         "cleanup": {
           "x": 924,
           "y": 611,
           "width": 134,
           "height": 285
         },
-        "anchorX": 0.6049,
-        "anchorY": 0.5231
+        "anchorX": 0.669,
+        "anchorY": 0.5329,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 26.1,
+          "dx": 0,
+          "dy": 0
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop2",
+          "score": 0.908,
+          "pop": 23.4
+        }
       }
     },
     {
@@ -45,7 +58,14 @@
           "height": 307
         },
         "anchorX": 0.3846,
-        "anchorY": 0.4101
+        "anchorY": 0.4101,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 34.8,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -55,18 +75,31 @@
       "r": 57,
       "sprite": {
         "image": "levels/greece_santorini_steps_bird_4634/dogs/dog_02/sprite_000.png",
-        "x": 1110,
-        "y": 666,
-        "width": 182,
-        "height": 131,
+        "x": 1117,
+        "y": 661,
+        "width": 205,
+        "height": 137,
         "cleanup": {
           "x": 1040,
           "y": 550,
           "width": 231,
           "height": 261
         },
-        "anchorX": 0.6484,
-        "anchorY": 0.5191
+        "anchorX": 0.5415,
+        "anchorY": 0.5255,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 20.9,
+          "dx": 0,
+          "dy": 0
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop2",
+          "score": 0.9404,
+          "pop": 19.3
+        }
       }
     },
     {
@@ -86,8 +119,15 @@
           "width": 314,
           "height": 314
         },
-        "anchorX": 0.6108,
-        "anchorY": 0.4882
+        "anchorX": 0.6207,
+        "anchorY": 0.4882,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 9.3,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -98,17 +138,30 @@
       "sprite": {
         "image": "levels/greece_santorini_steps_bird_4634/dogs/dog_04/sprite_000.png",
         "x": 1547,
-        "y": 621,
-        "width": 161,
-        "height": 147,
+        "y": 625,
+        "width": 166,
+        "height": 154,
         "cleanup": {
           "x": 1453,
           "y": 542,
           "width": 314,
           "height": 314
         },
-        "anchorX": 0.3913,
-        "anchorY": 0.5306
+        "anchorX": 0.3855,
+        "anchorY": 0.526,
+        "refit": {
+          "scale": 1.05,
+          "ratio": 1.0,
+          "pop": 27.5,
+          "dx": -4,
+          "dy": -4
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop2",
+          "score": 0.8567,
+          "pop": 34.4
+        }
       }
     },
     {
@@ -128,8 +181,15 @@
           "width": 250,
           "height": 260
         },
-        "anchorX": 0.6667,
-        "anchorY": 0.5031
+        "anchorX": 0.6467,
+        "anchorY": 0.5031,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 16.4,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -141,16 +201,23 @@
         "image": "levels/greece_santorini_steps_bird_4634/dogs/dog_06/sprite_000.png",
         "x": 1350,
         "y": 699,
-        "width": 204,
-        "height": 221,
+        "width": 153,
+        "height": 166,
         "cleanup": {
           "x": 1287,
           "y": 684,
           "width": 314,
           "height": 314
         },
-        "anchorX": 0.4608,
-        "anchorY": 0.6425
+        "anchorX": 0.3464,
+        "anchorY": 0.5602,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 11.6,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -170,8 +237,15 @@
           "width": 314,
           "height": 314
         },
-        "anchorX": 0.3904,
-        "anchorY": 0.3682
+        "anchorX": 0.386,
+        "anchorY": 0.3682,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 12.2,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -183,16 +257,23 @@
         "image": "levels/greece_santorini_steps_bird_4634/dogs/dog_08/sprite_000.png",
         "x": 1328,
         "y": 1360,
-        "width": 210,
-        "height": 178,
+        "width": 194,
+        "height": 173,
         "cleanup": {
           "x": 1276,
           "y": 1273,
           "width": 314,
           "height": 314
         },
-        "anchorX": 0.5,
-        "anchorY": 0.3933
+        "anchorX": 0.5309,
+        "anchorY": 0.4104,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 25.9,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -213,7 +294,14 @@
           "height": 249
         },
         "anchorX": 0.4396,
-        "anchorY": 0.386
+        "anchorY": 0.386,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 16.5,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -234,7 +322,14 @@
           "height": 245
         },
         "anchorX": 0.525,
-        "anchorY": 0.5
+        "anchorY": 0.5,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 22.5,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -255,7 +350,14 @@
           "height": 310
         },
         "anchorX": 0.5829,
-        "anchorY": 0.4439
+        "anchorY": 0.4439,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 16.1,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -276,7 +378,14 @@
           "height": 345
         },
         "anchorX": 0.372,
-        "anchorY": 0.4039
+        "anchorY": 0.4039,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 15.3,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -288,16 +397,23 @@
         "image": "levels/greece_santorini_steps_bird_4634/dogs/dog_13/sprite_000.png",
         "x": 967,
         "y": 1632,
-        "width": 195,
-        "height": 203,
+        "width": 205,
+        "height": 213,
         "cleanup": {
           "x": 967,
           "y": 1543,
           "width": 292,
           "height": 280
         },
-        "anchorX": 0.559,
-        "anchorY": 0.5517
+        "anchorX": 0.5512,
+        "anchorY": 0.5399,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 21.0,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -307,18 +423,31 @@
       "r": 57,
       "sprite": {
         "image": "levels/greece_santorini_steps_bird_4634/dogs/dog_14/sprite_000.png",
-        "x": 470,
-        "y": 2250,
-        "width": 187,
-        "height": 163,
+        "x": 475,
+        "y": 2254,
+        "width": 176,
+        "height": 156,
         "cleanup": {
           "x": 451,
           "y": 2153,
           "width": 345,
           "height": 345
         },
-        "anchorX": 0.5936,
-        "anchorY": 0.4417
+        "anchorX": 0.5966,
+        "anchorY": 0.4359,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 17.8,
+          "dx": 0,
+          "dy": 0
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop2",
+          "score": 0.9764,
+          "pop": 11.5
+        }
       }
     },
     {
@@ -329,17 +458,30 @@
       "sprite": {
         "image": "levels/greece_santorini_steps_bird_4634/dogs/dog_15/sprite_000.png",
         "x": 1615,
-        "y": 1097,
-        "width": 132,
-        "height": 187,
+        "y": 1094,
+        "width": 95,
+        "height": 142,
         "cleanup": {
           "x": 1568,
           "y": 1057,
           "width": 233,
           "height": 292
         },
-        "anchorX": 0.3864,
-        "anchorY": 0.2941
+        "anchorX": 0.5474,
+        "anchorY": 0.4155,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 18.9,
+          "dx": 0,
+          "dy": 0
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop",
+          "score": 0.9686,
+          "pop": 13.1
+        }
       }
     },
     {
@@ -359,8 +501,15 @@
           "width": 271,
           "height": 274
         },
-        "anchorX": 0.4059,
-        "anchorY": 0.4358
+        "anchorX": 0.4,
+        "anchorY": 0.4469,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 17.4,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -381,7 +530,14 @@
           "height": 292
         },
         "anchorX": 0.6163,
-        "anchorY": 0.381
+        "anchorY": 0.375,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 22.2,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -391,18 +547,31 @@
       "r": 57,
       "sprite": {
         "image": "levels/greece_santorini_steps_bird_4634/dogs/dog_18/sprite_000.png",
-        "x": 2045,
-        "y": 1388,
-        "width": 167,
-        "height": 161,
+        "x": 2053,
+        "y": 1396,
+        "width": 151,
+        "height": 148,
         "cleanup": {
           "x": 1984,
           "y": 1304,
           "width": 265,
           "height": 273
         },
-        "anchorX": 0.4072,
-        "anchorY": 0.4783
+        "anchorX": 0.404,
+        "anchorY": 0.473,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 8.6,
+          "dx": 0,
+          "dy": -1
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop",
+          "score": 0.9511,
+          "pop": 8.6
+        }
       }
     },
     {
@@ -414,16 +583,23 @@
         "image": "levels/greece_santorini_steps_bird_4634/dogs/dog_19/sprite_000.png",
         "x": 1578,
         "y": 2191,
-        "width": 229,
-        "height": 246,
+        "width": 223,
+        "height": 252,
         "cleanup": {
           "x": 1500,
           "y": 2156,
           "width": 331,
           "height": 345
         },
-        "anchorX": 0.6463,
-        "anchorY": 0.6179
+        "anchorX": 0.6682,
+        "anchorY": 0.623,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 29.8,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -444,7 +620,14 @@
           "height": 314
         },
         "anchorX": 0.2842,
-        "anchorY": 0.4318
+        "anchorY": 0.4318,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 7.8,
+          "dx": 0,
+          "dy": 0
+        }
       }
     }
   ]

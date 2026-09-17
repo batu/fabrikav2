@@ -4779,13 +4779,12 @@ def materialize_detection_sprites(
                     import hashlib as _hl
                     single_staging = session_dir(session_id) / ".canonical" / "staging" / "singles"
                     single_staging.mkdir(parents=True, exist_ok=True)
-                    for index, crop in batch_crops.items():
+                    def _single(index: int, crop: Image.Image) -> tuple[int, Image.Image | None]:
                         crop_key = _hl.sha256(crop.tobytes()).hexdigest()[:20]
                         staged_path = single_staging / f"single-{index:02d}-{crop_key}.png"
                         if staged_path.is_file():
                             try:
-                                prebatched[index] = Image.open(staged_path).convert("RGBA")
-                                continue
+                                return index, Image.open(staged_path).convert("RGBA")
                             except OSError:
                                 pass
                         try:
@@ -4797,7 +4796,25 @@ def materialize_detection_sprites(
                                 single.save(staged_path)
                             except OSError:
                                 pass
-                            prebatched[index] = single
+                        return index, single
+
+                    # Singles are independent provider calls; a bounded pool
+                    # (FTD_FLATKEY_SINGLE_WORKERS, default 1 = the original
+                    # sequential order) cuts a 20-bird level from ~8 min to ~2.
+                    # copy_context per submit keeps cost attribution on the
+                    # paid call (same rule as the grid rungs).
+                    import contextvars as _cv
+                    from concurrent.futures import ThreadPoolExecutor as _Pool
+                    single_workers = max(1, int(os.environ.get("FTD_FLATKEY_SINGLE_WORKERS", "1")))
+                    with _Pool(max_workers=single_workers) as pool:
+                        futures = [
+                            pool.submit(_cv.copy_context().run, _single, index, crop)
+                            for index, crop in batch_crops.items()
+                        ]
+                        for future in futures:
+                            index, single = future.result()
+                            if single is not None:
+                                prebatched[index] = single
         flatkey_count = len(prebatched)
         with ThreadPoolExecutor(max_workers=max_workers) as pool:
             futures = [pool.submit(_process_one, idx, hb) for idx, hb in pending]
@@ -5956,7 +5973,7 @@ def export_to_game(
         _require_local_alignment(sdir, raw)
         _write_birdless_restore_bg(sdir, dst, raw, level_data)
     # Bundle derivatives are part of the export so catalog snapshots always
-    # match what ships: 2560/q70 webp for scene + restore bg.
+    # match what ships: 2560/q90 webp for scene + restore bg (operator 2026-09-16: q90).
     for stem in ("color", "bg_00"):
         png = dst / f"{stem}.png"
         if not png.exists():
@@ -5965,7 +5982,7 @@ def export_to_game(
             im = img.convert("RGB")
             if im.width > 2560:
                 im = im.resize((2560, int(im.height * 2560 / im.width)), Image.LANCZOS)
-            im.save(dst / f"{stem}.webp", format="WEBP", quality=70, method=6)
+            im.save(dst / f"{stem}.webp", format="WEBP", quality=90, method=6)
 
     public_dogs_dir = dst / "dogs"
     if public_dogs_dir.exists():

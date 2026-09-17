@@ -24,7 +24,14 @@
           "height": 286
         },
         "anchorX": 0.6024,
-        "anchorY": 0.5
+        "anchorY": 0.5,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 30.1,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -36,16 +43,23 @@
         "image": "levels/japan_morning_market_bird_f461/dogs/dog_01/sprite_000.png",
         "x": 671,
         "y": 846,
-        "width": 251,
-        "height": 178,
+        "width": 206,
+        "height": 141,
         "cleanup": {
           "x": 594,
           "y": 754,
           "width": 338,
           "height": 345
         },
-        "anchorX": 0.3546,
-        "anchorY": 0.4551
+        "anchorX": 0.3641,
+        "anchorY": 0.461,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 29.2,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -55,18 +69,31 @@
       "r": 57,
       "sprite": {
         "image": "levels/japan_morning_market_bird_f461/dogs/dog_02/sprite_000.png",
-        "x": 277,
-        "y": 1072,
-        "width": 256,
-        "height": 192,
+        "x": 347,
+        "y": 1065,
+        "width": 154,
+        "height": 102,
         "cleanup": {
           "x": 273,
           "y": 977,
           "width": 319,
           "height": 345
         },
-        "anchorX": 0.5391,
-        "anchorY": 0.276
+        "anchorX": 0.4481,
+        "anchorY": 0.598,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 15.9,
+          "dx": 0,
+          "dy": 0
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop",
+          "score": 0.9216,
+          "pop": 16.2
+        }
       }
     },
     {
@@ -86,8 +113,15 @@
           "width": 345,
           "height": 313
         },
-        "anchorX": 0.5488,
-        "anchorY": 0.4481
+        "anchorX": 0.5442,
+        "anchorY": 0.4481,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 24.4,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -97,18 +131,31 @@
       "r": 57,
       "sprite": {
         "image": "levels/japan_morning_market_bird_f461/dogs/dog_04/sprite_000.png",
-        "x": 497,
-        "y": 1807,
-        "width": 203,
-        "height": 175,
+        "x": 502,
+        "y": 1813,
+        "width": 171,
+        "height": 142,
         "cleanup": {
           "x": 416,
           "y": 1809,
           "width": 345,
           "height": 309
         },
-        "anchorX": 0.4335,
-        "anchorY": 0.4114
+        "anchorX": 0.4912,
+        "anchorY": 0.4718,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 15.7,
+          "dx": 0,
+          "dy": 0
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop",
+          "score": 0.9545,
+          "pop": 16.6
+        }
       }
     },
     {
@@ -129,7 +176,14 @@
           "height": 345
         },
         "anchorX": 0.3741,
-        "anchorY": 0.4892
+        "anchorY": 0.4892,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 26.6,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -141,16 +195,23 @@
         "image": "levels/japan_morning_market_bird_f461/dogs/dog_06/sprite_000.png",
         "x": 1021,
         "y": 1808,
-        "width": 198,
-        "height": 150,
+        "width": 228,
+        "height": 172,
         "cleanup": {
           "x": 938,
           "y": 1708,
           "width": 336,
           "height": 320
         },
-        "anchorX": 0.4545,
-        "anchorY": 0.32
+        "anchorX": 0.4912,
+        "anchorY": 0.3488,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 28.5,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -171,7 +232,14 @@
           "height": 265
         },
         "anchorX": 0.5389,
-        "anchorY": 0.4286
+        "anchorY": 0.4286,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 26.6,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -181,18 +249,31 @@
       "r": 57,
       "sprite": {
         "image": "levels/japan_morning_market_bird_f461/dogs/dog_08/sprite_000.png",
-        "x": 993,
-        "y": 1192,
-        "width": 217,
-        "height": 156,
+        "x": 991,
+        "y": 1230,
+        "width": 161,
+        "height": 135,
         "cleanup": {
           "x": 937,
           "y": 1150,
           "width": 345,
           "height": 289
         },
-        "anchorX": 0.4747,
-        "anchorY": 0.609
+        "anchorX": 0.6832,
+        "anchorY": 0.4444,
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop2",
+          "score": 0.8533,
+          "pop": 32.0
+        },
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 29.5,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -202,18 +283,31 @@
       "r": 57,
       "sprite": {
         "image": "levels/japan_morning_market_bird_f461/dogs/dog_09/sprite_000.png",
-        "x": 1195,
-        "y": 785,
-        "width": 262,
-        "height": 210,
+        "x": 1210,
+        "y": 791,
+        "width": 154,
+        "height": 158,
         "cleanup": {
           "x": 1128,
           "y": 663,
           "width": 302,
           "height": 345
         },
-        "anchorX": 0.3359,
-        "anchorY": 0.2619
+        "anchorX": 0.4805,
+        "anchorY": 0.3101,
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop2",
+          "score": 0.8362,
+          "pop": 18.1
+        },
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 15.1,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -225,16 +319,23 @@
         "image": "levels/japan_morning_market_bird_f461/dogs/dog_10/sprite_000.png",
         "x": 1390,
         "y": 838,
-        "width": 228,
-        "height": 202,
+        "width": 164,
+        "height": 138,
         "cleanup": {
           "x": 1432,
           "y": 807,
           "width": 296,
           "height": 335
         },
-        "anchorX": 0.6535,
-        "anchorY": 0.495
+        "anchorX": 0.5488,
+        "anchorY": 0.4928,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 22.5,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -244,18 +345,31 @@
       "r": 57,
       "sprite": {
         "image": "levels/japan_morning_market_bird_f461/dogs/dog_11/sprite_000.png",
-        "x": 1463,
-        "y": 1275,
-        "width": 253,
-        "height": 207,
+        "x": 1507,
+        "y": 1294,
+        "width": 159,
+        "height": 124,
         "cleanup": {
           "x": 1404,
           "y": 1186,
           "width": 283,
           "height": 298
         },
-        "anchorX": 0.4506,
-        "anchorY": 0.4058
+        "anchorX": 0.4465,
+        "anchorY": 0.5323,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 13.8,
+          "dx": 0,
+          "dy": 0
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop",
+          "score": 0.8014,
+          "pop": 15.1
+        }
       }
     },
     {
@@ -276,7 +390,14 @@
           "height": 298
         },
         "anchorX": 0.4466,
-        "anchorY": 0.4192
+        "anchorY": 0.4192,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 25.9,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -288,16 +409,23 @@
         "image": "levels/japan_morning_market_bird_f461/dogs/dog_13/sprite_000.png",
         "x": 1704,
         "y": 1386,
-        "width": 184,
-        "height": 191,
+        "width": 67,
+        "height": 48,
         "cleanup": {
           "x": 1689,
           "y": 1393,
           "width": 278,
           "height": 194
         },
-        "anchorX": 0.4402,
-        "anchorY": 0.4974
+        "anchorX": 0.4328,
+        "anchorY": 0.1667,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 16.9,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -318,7 +446,14 @@
           "height": 234
         },
         "anchorX": 0.4571,
-        "anchorY": 0.3488
+        "anchorY": 0.3488,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 26.7,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -330,16 +465,23 @@
         "image": "levels/japan_morning_market_bird_f461/dogs/dog_15/sprite_000.png",
         "x": 1524,
         "y": 2099,
-        "width": 186,
-        "height": 128,
+        "width": 260,
+        "height": 179,
         "cleanup": {
           "x": 1438,
           "y": 1987,
           "width": 345,
           "height": 345
         },
-        "anchorX": 0.7366,
-        "anchorY": 0.4453
+        "anchorX": 0.6885,
+        "anchorY": 0.5084,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 22.7,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -351,16 +493,23 @@
         "image": "levels/japan_morning_market_bird_f461/dogs/dog_16/sprite_000.png",
         "x": 1929,
         "y": 1733,
-        "width": 145,
-        "height": 221,
+        "width": 203,
+        "height": 309,
         "cleanup": {
           "x": 1882,
           "y": 1685,
           "width": 292,
           "height": 312
         },
-        "anchorX": 0.5034,
-        "anchorY": 0.4977
+        "anchorX": 0.5025,
+        "anchorY": 0.4628,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 17.2,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -372,16 +521,23 @@
         "image": "levels/japan_morning_market_bird_f461/dogs/dog_17/sprite_000.png",
         "x": 2152,
         "y": 2158,
-        "width": 205,
-        "height": 178,
+        "width": 266,
+        "height": 231,
         "cleanup": {
           "x": 2058,
           "y": 2048,
           "width": 345,
           "height": 345
         },
-        "anchorX": 0.1268,
-        "anchorY": 0.2753
+        "anchorX": 0.2105,
+        "anchorY": 0.3636,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 27.3,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -391,18 +547,31 @@
       "r": 57,
       "sprite": {
         "image": "levels/japan_morning_market_bird_f461/dogs/dog_18/sprite_000.png",
-        "x": 2006,
-        "y": 1464,
-        "width": 210,
-        "height": 205,
+        "x": 2108,
+        "y": 1479,
+        "width": 137,
+        "height": 178,
         "cleanup": {
           "x": 1969,
           "y": 1402,
           "width": 341,
           "height": 281
         },
-        "anchorX": 0.7143,
-        "anchorY": 0.4585
+        "anchorX": 0.3577,
+        "anchorY": 0.4438,
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop2",
+          "score": 0.9668,
+          "pop": 12.9
+        },
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 14.2,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -412,18 +581,31 @@
       "r": 57,
       "sprite": {
         "image": "levels/japan_morning_market_bird_f461/dogs/dog_19/sprite_000.png",
-        "x": 1803,
-        "y": 1158,
-        "width": 237,
-        "height": 197,
+        "x": 1870,
+        "y": 1192,
+        "width": 168,
+        "height": 145,
         "cleanup": {
           "x": 1730,
           "y": 1133,
           "width": 343,
           "height": 258
         },
-        "anchorX": 0.5612,
-        "anchorY": 0.5076
+        "anchorX": 0.3988,
+        "anchorY": 0.4552,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 17.0,
+          "dx": 0,
+          "dy": 0
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop2",
+          "score": 0.8288,
+          "pop": 13.1
+        }
       }
     },
     {
@@ -433,18 +615,31 @@
       "r": 57,
       "sprite": {
         "image": "levels/japan_morning_market_bird_f461/dogs/dog_20/sprite_000.png",
-        "x": 1896,
-        "y": 913,
-        "width": 223,
-        "height": 209,
+        "x": 1932,
+        "y": 909,
+        "width": 173,
+        "height": 166,
         "cleanup": {
           "x": 1849,
           "y": 954,
           "width": 345,
           "height": 177
         },
-        "anchorX": 0.6682,
-        "anchorY": 0.3541
+        "anchorX": 0.5896,
+        "anchorY": 0.3976,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 17.0,
+          "dx": 0,
+          "dy": 0
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop2",
+          "score": 0.8994,
+          "pop": 19.7
+        }
       }
     },
     {
@@ -454,18 +649,31 @@
       "r": 57,
       "sprite": {
         "image": "levels/japan_morning_market_bird_f461/dogs/dog_21/sprite_000.png",
-        "x": 2037,
-        "y": 782,
-        "width": 209,
-        "height": 204,
+        "x": 2136,
+        "y": 799,
+        "width": 80,
+        "height": 106,
         "cleanup": {
           "x": 1928,
           "y": 768,
           "width": 342,
           "height": 184
         },
-        "anchorX": 0.6938,
-        "anchorY": 0.3186
+        "anchorX": 0.6,
+        "anchorY": 0.5283,
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop",
+          "score": 0.8785,
+          "pop": 30.3
+        },
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 28.8,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -475,18 +683,31 @@
       "r": 57,
       "sprite": {
         "image": "levels/japan_morning_market_bird_f461/dogs/dog_22/sprite_000.png",
-        "x": 2011,
-        "y": 583,
-        "width": 240,
-        "height": 188,
+        "x": 2139,
+        "y": 630,
+        "width": 73,
+        "height": 69,
         "cleanup": {
           "x": 1929,
           "y": 462,
           "width": 345,
           "height": 304
         },
-        "anchorX": 0.6917,
-        "anchorY": 0.4096
+        "anchorX": 0.5342,
+        "anchorY": 0.4493,
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop",
+          "score": 0.939,
+          "pop": 16.9
+        },
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 16.2,
+          "dx": 0,
+          "dy": 0
+        }
       }
     }
   ]

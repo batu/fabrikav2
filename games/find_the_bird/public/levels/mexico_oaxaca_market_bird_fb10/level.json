@@ -15,16 +15,23 @@
         "image": "levels/mexico_oaxaca_market_bird_fb10/dogs/dog_00/sprite_000.png",
         "x": 507,
         "y": 625,
-        "width": 233,
-        "height": 191,
+        "width": 303,
+        "height": 248,
         "cleanup": {
           "x": 424,
           "y": 542,
           "width": 345,
           "height": 341
         },
-        "anchorX": 0.3863,
-        "anchorY": 0.4712
+        "anchorX": 0.3795,
+        "anchorY": 0.5161,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 25.3,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -36,16 +43,23 @@
         "image": "levels/mexico_oaxaca_market_bird_fb10/dogs/dog_01/sprite_000.png",
         "x": 367,
         "y": 996,
-        "width": 182,
-        "height": 133,
+        "width": 246,
+        "height": 180,
         "cleanup": {
           "x": 315,
           "y": 903,
           "width": 345,
           "height": 345
         },
-        "anchorX": 0.3901,
-        "anchorY": 0.6015
+        "anchorX": 0.4756,
+        "anchorY": 0.5222,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 21.3,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -57,16 +71,23 @@
         "image": "levels/mexico_oaxaca_market_bird_fb10/dogs/dog_02/sprite_000.png",
         "x": 1128,
         "y": 513,
-        "width": 117,
-        "height": 95,
+        "width": 164,
+        "height": 133,
         "cleanup": {
           "x": 1057,
           "y": 446,
           "width": 286,
           "height": 243
         },
-        "anchorX": 0.4957,
-        "anchorY": 0.4632
+        "anchorX": 0.5,
+        "anchorY": 0.4887,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 15.6,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -78,16 +99,23 @@
         "image": "levels/mexico_oaxaca_market_bird_fb10/dogs/dog_03/sprite_000.png",
         "x": 1609,
         "y": 562,
-        "width": 112,
-        "height": 153,
+        "width": 157,
+        "height": 214,
         "cleanup": {
           "x": 1491,
           "y": 421,
           "width": 345,
           "height": 326
         },
-        "anchorX": 0.2054,
-        "anchorY": 0.6405
+        "anchorX": 0.3312,
+        "anchorY": 0.5421,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 20.6,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -99,16 +127,23 @@
         "image": "levels/mexico_oaxaca_market_bird_fb10/dogs/dog_04/sprite_000.png",
         "x": 2022,
         "y": 592,
-        "width": 148,
-        "height": 140,
+        "width": 123,
+        "height": 110,
         "cleanup": {
           "x": 1988,
           "y": 504,
           "width": 320,
           "height": 238
         },
-        "anchorX": 0.3649,
-        "anchorY": 0.5643
+        "anchorX": 0.3496,
+        "anchorY": 0.5364,
+        "refit": {
+          "scale": 0.95,
+          "ratio": 1.05,
+          "pop": 29.9,
+          "dx": 1,
+          "dy": 3
+        }
       }
     },
     {
@@ -120,16 +155,23 @@
         "image": "levels/mexico_oaxaca_market_bird_fb10/dogs/dog_05/sprite_000.png",
         "x": 2183,
         "y": 782,
-        "width": 118,
-        "height": 88,
+        "width": 165,
+        "height": 123,
         "cleanup": {
           "x": 2066,
           "y": 744,
           "width": 343,
           "height": 210
         },
-        "anchorX": 0.3051,
-        "anchorY": 0.5795
+        "anchorX": 0.3152,
+        "anchorY": 0.5447,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 14.5,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -141,16 +183,23 @@
         "image": "levels/mexico_oaxaca_market_bird_fb10/dogs/dog_06/sprite_000.png",
         "x": 1344,
         "y": 931,
-        "width": 154,
-        "height": 138,
+        "width": 216,
+        "height": 193,
         "cleanup": {
           "x": 1325,
           "y": 796,
           "width": 235,
           "height": 326
         },
-        "anchorX": 0.9935,
-        "anchorY": 0.3116
+        "anchorX": 0.6343,
+        "anchorY": 0.4456,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 15.8,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -171,7 +220,14 @@
           "height": 308
         },
         "anchorX": 0.6774,
-        "anchorY": 0.443
+        "anchorY": 0.443,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 21.1,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -181,18 +237,31 @@
       "r": 57,
       "sprite": {
         "image": "levels/mexico_oaxaca_market_bird_fb10/dogs/dog_08/sprite_000.png",
-        "x": 1420,
-        "y": 848,
-        "width": 185,
-        "height": 166,
+        "x": 1637,
+        "y": 1013,
+        "width": 111,
+        "height": 95,
         "cleanup": {
           "x": 1508,
           "y": 854,
           "width": 208,
           "height": 290
         },
-        "anchorX": 0.773,
-        "anchorY": 0.9518
+        "anchorX": 0.3153,
+        "anchorY": 0.4842,
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop",
+          "score": 0.8855,
+          "pop": 26.2
+        },
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 24.1,
+          "dx": -1,
+          "dy": 0
+        }
       }
     },
     {
@@ -213,7 +282,14 @@
           "height": 255
         },
         "anchorX": 0.4553,
-        "anchorY": 0.6111
+        "anchorY": 0.6111,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 18.4,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -223,18 +299,31 @@
       "r": 57,
       "sprite": {
         "image": "levels/mexico_oaxaca_market_bird_fb10/dogs/dog_10/sprite_000.png",
-        "x": 588,
-        "y": 1376,
-        "width": 230,
-        "height": 197,
+        "x": 691,
+        "y": 1386,
+        "width": 111,
+        "height": 98,
         "cleanup": {
           "x": 618,
           "y": 1356,
           "width": 345,
           "height": 338
         },
-        "anchorX": 0.7435,
-        "anchorY": 0.2183
+        "anchorX": 0.6126,
+        "anchorY": 0.3367,
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop2",
+          "score": 0.8632,
+          "pop": 26.4
+        },
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 27.1,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -246,16 +335,23 @@
         "image": "levels/mexico_oaxaca_market_bird_fb10/dogs/dog_11/sprite_000.png",
         "x": 1130,
         "y": 1215,
-        "width": 224,
-        "height": 246,
+        "width": 218,
+        "height": 252,
         "cleanup": {
           "x": 1047,
           "y": 1207,
           "width": 345,
           "height": 259
         },
-        "anchorX": 0.4509,
-        "anchorY": 0.5163
+        "anchorX": 0.4587,
+        "anchorY": 0.5198,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 21.9,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -265,18 +361,31 @@
       "r": 57,
       "sprite": {
         "image": "levels/mexico_oaxaca_market_bird_fb10/dogs/dog_12/sprite_000.png",
-        "x": 1109,
-        "y": 1473,
-        "width": 219,
-        "height": 207,
+        "x": 1092,
+        "y": 1444,
+        "width": 259,
+        "height": 242,
         "cleanup": {
           "x": 1043,
           "y": 1468,
           "width": 310,
           "height": 253
         },
-        "anchorX": 0.4886,
-        "anchorY": 0.3671
+        "anchorX": 0.4788,
+        "anchorY": 0.4339,
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop2",
+          "score": 0.899,
+          "pop": 14.5
+        },
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 14.6,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -288,16 +397,23 @@
         "image": "levels/mexico_oaxaca_market_bird_fb10/dogs/dog_13/sprite_000.png",
         "x": 602,
         "y": 1719,
-        "width": 228,
-        "height": 222,
+        "width": 296,
+        "height": 289,
         "cleanup": {
           "x": 493,
           "y": 1696,
           "width": 278,
           "height": 337
         },
-        "anchorX": 0.4211,
-        "anchorY": 0.4459
+        "anchorX": 0.473,
+        "anchorY": 0.4879,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 23.4,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -309,16 +425,23 @@
         "image": "levels/mexico_oaxaca_market_bird_fb10/dogs/dog_14/sprite_000.png",
         "x": 807,
         "y": 1903,
-        "width": 172,
-        "height": 161,
+        "width": 224,
+        "height": 209,
         "cleanup": {
           "x": 773,
           "y": 1794,
           "width": 277,
           "height": 345
         },
-        "anchorX": 0.4128,
-        "anchorY": 0.3975
+        "anchorX": 0.4018,
+        "anchorY": 0.4785,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 15.1,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -339,7 +462,14 @@
           "height": 316
         },
         "anchorX": 0.665,
-        "anchorY": 0.567
+        "anchorY": 0.567,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 20.1,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -351,16 +481,23 @@
         "image": "levels/mexico_oaxaca_market_bird_fb10/dogs/dog_16/sprite_000.png",
         "x": 1357,
         "y": 1770,
-        "width": 186,
-        "height": 177,
+        "width": 260,
+        "height": 248,
         "cleanup": {
           "x": 1385,
           "y": 1606,
           "width": 223,
           "height": 331
         },
-        "anchorX": 0.5215,
-        "anchorY": 0.2712
+        "anchorX": 0.4885,
+        "anchorY": 0.25,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 18.0,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -370,18 +507,31 @@
       "r": 57,
       "sprite": {
         "image": "levels/mexico_oaxaca_market_bird_fb10/dogs/dog_17/sprite_000.png",
-        "x": 1655,
-        "y": 1844,
-        "width": 204,
-        "height": 210,
+        "x": 1667,
+        "y": 1848,
+        "width": 165,
+        "height": 180,
         "cleanup": {
           "x": 1610,
           "y": 1781,
           "width": 287,
           "height": 345
         },
-        "anchorX": 0.3431,
-        "anchorY": 0.4048
+        "anchorX": 0.3515,
+        "anchorY": 0.45,
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop2",
+          "score": 0.9595,
+          "pop": 14.4
+        },
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 14.3,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -393,16 +543,23 @@
         "image": "levels/mexico_oaxaca_market_bird_fb10/dogs/dog_18/sprite_000.png",
         "x": 2130,
         "y": 1398,
-        "width": 215,
-        "height": 188,
+        "width": 194,
+        "height": 169,
         "cleanup": {
           "x": 2058,
           "y": 1356,
           "width": 338,
           "height": 297
         },
-        "anchorX": 0.4698,
-        "anchorY": 0.6064
+        "anchorX": 0.4948,
+        "anchorY": 0.5976,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 23.7,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -412,18 +569,31 @@
       "r": 57,
       "sprite": {
         "image": "levels/mexico_oaxaca_market_bird_fb10/dogs/dog_19/sprite_000.png",
-        "x": 2096,
-        "y": 1845,
-        "width": 201,
-        "height": 196,
+        "x": 2209,
+        "y": 1853,
+        "width": 83,
+        "height": 178,
         "cleanup": {
           "x": 2133,
           "y": 1798,
           "width": 271,
           "height": 327
         },
-        "anchorX": 0.7313,
-        "anchorY": 0.4949
+        "anchorX": 0.4337,
+        "anchorY": 0.5112,
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop",
+          "score": 0.9697,
+          "pop": 14.9
+        },
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 21.3,
+          "dx": -2,
+          "dy": -2
+        }
       }
     },
     {
@@ -444,7 +614,14 @@
           "height": 254
         },
         "anchorX": 0.4745,
-        "anchorY": 0.474
+        "anchorY": 0.4675,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 16.5,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -465,7 +642,14 @@
           "height": 345
         },
         "anchorX": 0.5964,
-        "anchorY": 0.6
+        "anchorY": 0.6,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 23.5,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -486,7 +670,14 @@
           "height": 345
         },
         "anchorX": 0.5349,
-        "anchorY": 0.5301
+        "anchorY": 0.5246,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 20.3,
+          "dx": 0,
+          "dy": 0
+        }
       }
     }
   ]

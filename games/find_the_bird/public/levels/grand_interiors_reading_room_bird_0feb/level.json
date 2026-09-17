@@ -1,0 +1,961 @@
+{
+  "id": "grand_interiors_reading_room_bird_0feb",
+  "name": "Level grand_interiors_reading_room_bird_0feb",
+  "width": 2688,
+  "height": 2688,
+  "colorImage": "levels/grand_interiors_reading_room_bird_0feb/color.png",
+  "artifactRevision": "sha256:ad4fb5f9b15f12f3e98f5f7340fa982200ed47ca6fed4dbbae817fc5f57805a2",
+  "compatibilityAliases": {
+    "dog_18": "e31f8387-b53e-4aa4-a134-cc8ad7092485",
+    "dog_19": "5a304f09-0cf1-41cc-9445-7274cdfda0bd",
+    "dog_16": "1e53aa3a-374a-5817-8a25-0850ea844675",
+    "dog_13": "39e0818f-931e-5036-b55d-d4b67cb086f4",
+    "dog_11": "487dc4ef-853a-5fda-b108-aeb511347e62",
+    "dog_20": "2a933dd5-caeb-4965-a368-7c17582216b5",
+    "dog_17": "07a95b69-e2aa-5d29-98f7-2729d67ad2f6",
+    "dog_21": "e6ae2939-c27b-4f6f-8249-b1b51a390548",
+    "dog_10": "6c419e58-adb4-5ca9-8b7a-7ce98c80a96c",
+    "dog_22": "4643a433-d74e-4ab1-9170-a5fcae7984f3",
+    "dog_05": "21b0e794-f41a-5789-b639-a3010531e63b",
+    "dog_02": "e9128275-fd81-5500-ae76-ad0a06763168",
+    "dog_00": "c04d2ce5-e1d9-52d7-a739-7b6c471b8e1f",
+    "dog_08": "173cc3e4-a65d-5e7b-80dd-b90fb354cf25",
+    "dog_09": "f0239306-59aa-52e6-af78-516d4f21a266",
+    "dog_15": "d9f3e1e6-9d62-5134-bf5a-22a911220e16",
+    "dog_04": "785f4c87-86da-5580-a12d-7dd12c4e0a4b",
+    "dog_01": "3bb137b4-826d-52f2-9753-51b6ae940431",
+    "dog_03": "7a0b6ceb-1790-548a-ab1f-d6658a60156e",
+    "dog_06": "260ff3cb-7e4e-573b-ac5d-232ddec8131a",
+    "dog_07": "9062a80f-2e11-5000-b695-7771b6d75354",
+    "dog_23": "c3335f68-9a72-5db2-8c14-abe30f09ea36",
+    "dog_24": "8a1de2cb-b7d0-5c71-8f51-d5874367346c",
+    "dog_25": "8fea9af9-0c34-5ad3-99bb-a75e42585d3b"
+  },
+  "dogs": [
+    {
+      "id": "e31f8387-b53e-4aa4-a134-cc8ad7092485",
+      "compatibilitySlot": "dog_18",
+      "x": 713,
+      "y": 610,
+      "r": 57,
+      "sprite": {
+        "image": "levels/grand_interiors_reading_room_bird_0feb/dogs/dog_18/sprite_000.png",
+        "height": 120,
+        "width": 189,
+        "x": 609,
+        "y": 552,
+        "cleanup": {
+          "x": 594,
+          "y": 543,
+          "width": 217,
+          "height": 138
+        },
+        "anchorX": 0.5503,
+        "anchorY": 0.4833,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 12.2,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.9668,
+          "pop": 12.1,
+          "why": "T3+refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "5a304f09-0cf1-41cc-9445-7274cdfda0bd",
+      "compatibilitySlot": "dog_19",
+      "x": 897,
+      "y": 793,
+      "r": 57,
+      "sprite": {
+        "image": "levels/grand_interiors_reading_room_bird_0feb/dogs/dog_19/sprite_000.png",
+        "height": 126,
+        "width": 115,
+        "x": 842,
+        "y": 715,
+        "cleanup": {
+          "x": 833,
+          "y": 705,
+          "width": 132,
+          "height": 144
+        },
+        "anchorX": 0.4783,
+        "anchorY": 0.619,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 21.1,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.9452,
+          "pop": 21.0,
+          "why": "T3+refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "1e53aa3a-374a-5817-8a25-0850ea844675",
+      "compatibilitySlot": "dog_16",
+      "x": 1133,
+      "y": 777,
+      "r": 57,
+      "sprite": {
+        "image": "levels/grand_interiors_reading_room_bird_0feb/dogs/dog_16/sprite_000.png",
+        "height": 102,
+        "width": 152,
+        "x": 1049,
+        "y": 726,
+        "cleanup": {
+          "x": 1037,
+          "y": 718,
+          "width": 174,
+          "height": 117
+        },
+        "anchorX": 0.5526,
+        "anchorY": 0.5,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 22.9,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.8987,
+          "pop": 22.7,
+          "why": "T3+refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "39e0818f-931e-5036-b55d-d4b67cb086f4",
+      "compatibilitySlot": "dog_13",
+      "x": 499,
+      "y": 984,
+      "r": 57,
+      "sprite": {
+        "image": "levels/grand_interiors_reading_room_bird_0feb/dogs/dog_13/sprite_000.png",
+        "height": 141,
+        "width": 102,
+        "x": 450,
+        "y": 920,
+        "cleanup": {
+          "x": 442,
+          "y": 909,
+          "width": 117,
+          "height": 162
+        },
+        "anchorX": 0.4804,
+        "anchorY": 0.4539,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 17.1,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.9696,
+          "pop": 17.1,
+          "why": "T3+refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "487dc4ef-853a-5fda-b108-aeb511347e62",
+      "compatibilitySlot": "dog_11",
+      "x": 1554,
+      "y": 564,
+      "r": 57,
+      "sprite": {
+        "image": "levels/grand_interiors_reading_room_bird_0feb/dogs/dog_11/sprite_000.png",
+        "height": 202,
+        "width": 105,
+        "x": 1503,
+        "y": 464,
+        "cleanup": {
+          "x": 1495,
+          "y": 448,
+          "width": 120,
+          "height": 232
+        },
+        "anchorX": 0.4857,
+        "anchorY": 0.495,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 18.3,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.9268,
+          "pop": 18.2,
+          "why": "T3+refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "2a933dd5-caeb-4965-a368-7c17582216b5",
+      "compatibilitySlot": "dog_20",
+      "x": 1494,
+      "y": 837,
+      "r": 57,
+      "sprite": {
+        "image": "levels/grand_interiors_reading_room_bird_0feb/dogs/dog_20/sprite_000.png",
+        "height": 90,
+        "width": 109,
+        "x": 1447,
+        "y": 783,
+        "cleanup": {
+          "x": 1437,
+          "y": 771,
+          "width": 127,
+          "height": 123
+        },
+        "anchorX": 0.4312,
+        "anchorY": 0.6,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 17.8,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.9539,
+          "pop": 17.7,
+          "why": "T3+refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "07a95b69-e2aa-5d29-98f7-2729d67ad2f6",
+      "compatibilitySlot": "dog_17",
+      "x": 2073,
+      "y": 632,
+      "r": 57,
+      "sprite": {
+        "image": "levels/grand_interiors_reading_room_bird_0feb/dogs/dog_17/sprite_000.png",
+        "height": 130,
+        "width": 199,
+        "x": 1976,
+        "y": 568,
+        "cleanup": {
+          "x": 1961,
+          "y": 558,
+          "width": 228,
+          "height": 149
+        },
+        "anchorX": 0.4874,
+        "anchorY": 0.4923,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 14.7,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.9284,
+          "pop": 14.4,
+          "why": "T3+refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "e6ae2939-c27b-4f6f-8249-b1b51a390548",
+      "compatibilitySlot": "dog_21",
+      "x": 2172,
+      "y": 984,
+      "r": 57,
+      "sprite": {
+        "image": "levels/grand_interiors_reading_room_bird_0feb/dogs/dog_21/sprite_000.png",
+        "height": 114,
+        "width": 196,
+        "x": 2063,
+        "y": 937,
+        "cleanup": {
+          "x": 2048,
+          "y": 927,
+          "width": 225,
+          "height": 132
+        },
+        "anchorX": 0.5561,
+        "anchorY": 0.4123,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 25.3,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.8907,
+          "pop": 25.2,
+          "why": "T3+refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "6c419e58-adb4-5ca9-8b7a-7ce98c80a96c",
+      "compatibilitySlot": "dog_10",
+      "x": 449,
+      "y": 1349,
+      "r": 57,
+      "sprite": {
+        "image": "levels/grand_interiors_reading_room_bird_0feb/dogs/dog_10/sprite_000.png",
+        "height": 145,
+        "width": 156,
+        "x": 359,
+        "y": 1283,
+        "cleanup": {
+          "x": 350,
+          "y": 1282,
+          "width": 235,
+          "height": 187
+        },
+        "anchorX": 0.5769,
+        "anchorY": 0.4552,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 13.3,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.9315,
+          "pop": 13.3,
+          "why": "T4+refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "cleanupNote": "whole book (Batu 2026-09-16)"
+      }
+    },
+    {
+      "id": "4643a433-d74e-4ab1-9170-a5fcae7984f3",
+      "compatibilitySlot": "dog_22",
+      "x": 405,
+      "y": 1675,
+      "r": 57,
+      "sprite": {
+        "image": "levels/grand_interiors_reading_room_bird_0feb/dogs/dog_22/sprite_000.png",
+        "height": 116,
+        "width": 142,
+        "x": 329,
+        "y": 1619,
+        "cleanup": {
+          "x": 318,
+          "y": 1610,
+          "width": 163,
+          "height": 133
+        },
+        "anchorX": 0.5352,
+        "anchorY": 0.4828,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 24.6,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.9177,
+          "pop": 24.6,
+          "why": "T3+refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "21b0e794-f41a-5789-b639-a3010531e63b",
+      "compatibilitySlot": "dog_05",
+      "x": 646,
+      "y": 2203,
+      "r": 57,
+      "sprite": {
+        "image": "levels/grand_interiors_reading_room_bird_0feb/dogs/dog_05/sprite_000.png",
+        "height": 191,
+        "width": 238,
+        "x": 529,
+        "y": 2111,
+        "cleanup": {
+          "x": 511,
+          "y": 2096,
+          "width": 273,
+          "height": 219
+        },
+        "anchorX": 0.4916,
+        "anchorY": 0.4817,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 19.2,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.8727,
+          "pop": 19.1,
+          "why": "T3+refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "e9128275-fd81-5500-ae76-ad0a06763168",
+      "compatibilitySlot": "dog_02",
+      "x": 921,
+      "y": 2172,
+      "r": 57,
+      "sprite": {
+        "image": "levels/grand_interiors_reading_room_bird_0feb/dogs/dog_02/sprite_000.png",
+        "height": 146,
+        "width": 126,
+        "x": 865,
+        "y": 2103,
+        "cleanup": {
+          "x": 855,
+          "y": 2092,
+          "width": 144,
+          "height": 167
+        },
+        "anchorX": 0.4444,
+        "anchorY": 0.4726,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 12.7,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.9661,
+          "pop": 12.6,
+          "why": "T3+refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "c04d2ce5-e1d9-52d7-a739-7b6c471b8e1f",
+      "compatibilitySlot": "dog_00",
+      "x": 1307,
+      "y": 2363,
+      "r": 57,
+      "sprite": {
+        "image": "levels/grand_interiors_reading_room_bird_0feb/dogs/dog_00/sprite_000.png",
+        "height": 220,
+        "width": 239,
+        "x": 1194,
+        "y": 2255,
+        "cleanup": {
+          "x": 1173,
+          "y": 2241,
+          "width": 274,
+          "height": 253
+        },
+        "anchorX": 0.4854,
+        "anchorY": 0.4773,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.05,
+          "pop": 30.4,
+          "dx": -2,
+          "dy": 3
+        }
+      }
+    },
+    {
+      "id": "173cc3e4-a65d-5e7b-80dd-b90fb354cf25",
+      "compatibilitySlot": "dog_08",
+      "x": 1517,
+      "y": 2047,
+      "r": 57,
+      "sprite": {
+        "image": "levels/grand_interiors_reading_room_bird_0feb/dogs/dog_08/sprite_000.png",
+        "height": 145,
+        "width": 149,
+        "x": 1440,
+        "y": 1976,
+        "cleanup": {
+          "x": 1439,
+          "y": 1975,
+          "width": 149,
+          "height": 145
+        },
+        "anchorX": 0.5168,
+        "anchorY": 0.4897,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 12.4,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.9563,
+          "pop": 12.4,
+          "why": "T3+refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "cleanupNote": "tight, no map (Batu 2026-09-16)"
+      }
+    },
+    {
+      "id": "f0239306-59aa-52e6-af78-516d4f21a266",
+      "compatibilitySlot": "dog_09",
+      "x": 1847,
+      "y": 2066,
+      "r": 57,
+      "sprite": {
+        "image": "levels/grand_interiors_reading_room_bird_0feb/dogs/dog_09/sprite_000.png",
+        "height": 121,
+        "width": 153,
+        "x": 1756,
+        "y": 2018,
+        "cleanup": {
+          "x": 1594,
+          "y": 2017,
+          "width": 331,
+          "height": 217
+        },
+        "anchorX": 0.5948,
+        "anchorY": 0.3967,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 10.8,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.9682,
+          "pop": 10.8,
+          "why": "refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "cleanupNote": "whole map (Batu 2026-09-16)"
+      }
+    },
+    {
+      "id": "d9f3e1e6-9d62-5134-bf5a-22a911220e16",
+      "compatibilitySlot": "dog_15",
+      "x": 2113,
+      "y": 1956,
+      "r": 57,
+      "sprite": {
+        "image": "levels/grand_interiors_reading_room_bird_0feb/dogs/dog_15/sprite_000.png",
+        "height": 124,
+        "width": 172,
+        "x": 2024,
+        "y": 1885,
+        "cleanup": {
+          "x": 2011,
+          "y": 1875,
+          "width": 197,
+          "height": 142
+        },
+        "anchorX": 0.5174,
+        "anchorY": 0.5726,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 14.0,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "785f4c87-86da-5580-a12d-7dd12c4e0a4b",
+      "compatibilitySlot": "dog_04",
+      "x": 2267,
+      "y": 1359,
+      "r": 57,
+      "sprite": {
+        "image": "levels/grand_interiors_reading_room_bird_0feb/dogs/dog_04/sprite_000.png",
+        "height": 114,
+        "width": 140,
+        "x": 2197,
+        "y": 1296,
+        "cleanup": {
+          "x": 2186,
+          "y": 1287,
+          "width": 161,
+          "height": 131
+        },
+        "anchorX": 0.5,
+        "anchorY": 0.5526,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 14.0,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.952,
+          "pop": 13.9,
+          "why": "T3+refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "3bb137b4-826d-52f2-9753-51b6ae940431",
+      "compatibilitySlot": "dog_01",
+      "x": 1893,
+      "y": 1446,
+      "r": 57,
+      "sprite": {
+        "image": "levels/grand_interiors_reading_room_bird_0feb/dogs/dog_01/sprite_000.png",
+        "height": 160,
+        "width": 232,
+        "x": 1782,
+        "y": 1365,
+        "cleanup": {
+          "x": 1764,
+          "y": 1353,
+          "width": 266,
+          "height": 184
+        },
+        "anchorX": 0.4784,
+        "anchorY": 0.5062,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 12.3,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.9248,
+          "pop": 12.1,
+          "why": "T3+refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "7a0b6ceb-1790-548a-ab1f-d6658a60156e",
+      "compatibilitySlot": "dog_03",
+      "x": 1800,
+      "y": 1151,
+      "r": 57,
+      "sprite": {
+        "image": "levels/grand_interiors_reading_room_bird_0feb/dogs/dog_03/sprite_000.png",
+        "height": 121,
+        "width": 110,
+        "x": 1734,
+        "y": 1088,
+        "cleanup": {
+          "x": 1725,
+          "y": 1078,
+          "width": 131,
+          "height": 139
+        },
+        "anchorX": 0.6,
+        "anchorY": 0.5207,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 13.3,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.9507,
+          "pop": 13.6,
+          "why": "T3+refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "260ff3cb-7e4e-573b-ac5d-232ddec8131a",
+      "compatibilitySlot": "dog_06",
+      "x": 1080,
+      "y": 1259,
+      "r": 57,
+      "sprite": {
+        "image": "levels/grand_interiors_reading_room_bird_0feb/dogs/dog_06/sprite_000.png",
+        "height": 90,
+        "width": 124,
+        "x": 1020,
+        "y": 1213,
+        "cleanup": {
+          "x": 1010,
+          "y": 1201,
+          "width": 142,
+          "height": 114
+        },
+        "anchorX": 0.4839,
+        "anchorY": 0.5111,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 12.5,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.952,
+          "pop": 11.8,
+          "why": "T3+refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "9062a80f-2e11-5000-b695-7771b6d75354",
+      "compatibilitySlot": "dog_07",
+      "x": 948,
+      "y": 1669,
+      "r": 57,
+      "sprite": {
+        "image": "levels/grand_interiors_reading_room_bird_0feb/dogs/dog_07/sprite_000.png",
+        "height": 140,
+        "width": 182,
+        "x": 868,
+        "y": 1609,
+        "cleanup": {
+          "x": 854,
+          "y": 1598,
+          "width": 209,
+          "height": 161
+        },
+        "anchorX": 0.4396,
+        "anchorY": 0.4286,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 21.8,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "c3335f68-9a72-5db2-8c14-abe30f09ea36",
+      "compatibilitySlot": "dog_23",
+      "x": 1295,
+      "y": 1342,
+      "r": 57,
+      "sprite": {
+        "image": "levels/grand_interiors_reading_room_bird_0feb/dogs/dog_23/sprite_000.png",
+        "height": 141,
+        "width": 138,
+        "x": 1225,
+        "y": 1272,
+        "cleanup": {
+          "x": 1214,
+          "y": 1261,
+          "width": 158,
+          "height": 162
+        },
+        "anchorX": 0.5072,
+        "anchorY": 0.4965,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 11.1,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.9736,
+          "pop": 11.0,
+          "why": "T3+refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "8a1de2cb-b7d0-5c71-8f51-d5874367346c",
+      "compatibilitySlot": "dog_24",
+      "x": 1723,
+      "y": 1518,
+      "r": 57,
+      "sprite": {
+        "image": "levels/grand_interiors_reading_room_bird_0feb/dogs/dog_24/sprite_000.png",
+        "height": 109,
+        "width": 119,
+        "x": 1665,
+        "y": 1474,
+        "cleanup": {
+          "x": 1656,
+          "y": 1461,
+          "width": 136,
+          "height": 130
+        },
+        "anchorX": 0.4874,
+        "anchorY": 0.4037,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 18.0,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.9289,
+          "pop": 17.9,
+          "why": "T3+refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "8fea9af9-0c34-5ad3-99bb-a75e42585d3b",
+      "compatibilitySlot": "dog_25",
+      "x": 1372,
+      "y": 1740,
+      "r": 57,
+      "sprite": {
+        "image": "levels/grand_interiors_reading_room_bird_0feb/dogs/dog_25/sprite_000.png",
+        "height": 111,
+        "width": 143,
+        "x": 1305,
+        "y": 1688,
+        "cleanup": {
+          "x": 1294,
+          "y": 1679,
+          "width": 164,
+          "height": 127
+        },
+        "anchorX": 0.4685,
+        "anchorY": 0.4685,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 16.6,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.9624,
+          "pop": 16.4,
+          "why": "T3+refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "12ef20b9-706a-45d0-bf38-cc7bfc478828",
+      "compatibilitySlot": "dog_added_01",
+      "x": 2189,
+      "y": 1728,
+      "r": 57,
+      "sprite": {
+        "image": "levels/grand_interiors_reading_room_bird_0feb/dogs/dog_added_01/sprite_000.png",
+        "x": 2145,
+        "y": 1682,
+        "width": 76,
+        "height": 117,
+        "cleanup": {
+          "x": 2126,
+          "y": 1671,
+          "width": 120,
+          "height": 136
+        },
+        "anchorX": 0.5789,
+        "anchorY": 0.3932,
+        "flipX": false,
+        "flipY": false,
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "manual-add",
+          "score": 0.9021,
+          "pop": 20.8,
+          "why": "added by Batu"
+        }
+      }
+    }
+  ]
+}

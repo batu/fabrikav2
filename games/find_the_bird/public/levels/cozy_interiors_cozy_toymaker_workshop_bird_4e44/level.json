@@ -15,16 +15,23 @@
         "image": "levels/cozy_interiors_cozy_toymaker_workshop_bird_4e44/dogs/dog_00/sprite_000.png",
         "x": 321,
         "y": 723,
-        "width": 179,
-        "height": 159,
+        "width": 173,
+        "height": 163,
         "cleanup": {
           "x": 330,
           "y": 625,
           "width": 212,
           "height": 345
         },
-        "anchorX": 0.5754,
-        "anchorY": 0.4717
+        "anchorX": 0.5723,
+        "anchorY": 0.4663,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 25.3,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -36,16 +43,23 @@
         "image": "levels/cozy_interiors_cozy_toymaker_workshop_bird_4e44/dogs/dog_01/sprite_000.png",
         "x": 653,
         "y": 669,
-        "width": 123,
-        "height": 122,
+        "width": 120,
+        "height": 125,
         "cleanup": {
           "x": 551,
           "y": 553,
           "width": 269,
           "height": 310
         },
-        "anchorX": 0.4715,
-        "anchorY": 0.4672
+        "anchorX": 0.4583,
+        "anchorY": 0.456,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 24.9,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -55,18 +69,31 @@
       "r": 57,
       "sprite": {
         "image": "levels/cozy_interiors_cozy_toymaker_workshop_bird_4e44/dogs/dog_02/sprite_000.png",
-        "x": 879,
-        "y": 650,
-        "width": 136,
-        "height": 137,
+        "x": 886,
+        "y": 656,
+        "width": 125,
+        "height": 125,
         "cleanup": {
           "x": 822,
           "y": 564,
           "width": 243,
           "height": 335
         },
-        "anchorX": 0.3824,
-        "anchorY": 0.635
+        "anchorX": 0.36,
+        "anchorY": 0.664,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 16.0,
+          "dx": 0,
+          "dy": 0
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop",
+          "score": 0.8864,
+          "pop": 20.7
+        }
       }
     },
     {
@@ -78,16 +105,23 @@
         "image": "levels/cozy_interiors_cozy_toymaker_workshop_bird_4e44/dogs/dog_03/sprite_000.png",
         "x": 1084,
         "y": 580,
-        "width": 160,
-        "height": 135,
+        "width": 172,
+        "height": 152,
         "cleanup": {
           "x": 1067,
           "y": 501,
           "width": 307,
           "height": 309
         },
-        "anchorX": 0.625,
-        "anchorY": 0.5407
+        "anchorX": 0.6279,
+        "anchorY": 0.5461,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 16.6,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -108,7 +142,14 @@
           "height": 231
         },
         "anchorX": 0.6222,
-        "anchorY": 0.4897
+        "anchorY": 0.4897,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 31.4,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -118,18 +159,31 @@
       "r": 57,
       "sprite": {
         "image": "levels/cozy_interiors_cozy_toymaker_workshop_bird_4e44/dogs/dog_05/sprite_000.png",
-        "x": 606,
-        "y": 1134,
-        "width": 229,
-        "height": 161,
+        "x": 627,
+        "y": 1141,
+        "width": 169,
+        "height": 148,
         "cleanup": {
           "x": 577,
           "y": 1134,
           "width": 312,
           "height": 242
         },
-        "anchorX": 0.4847,
-        "anchorY": 0.4348
+        "anchorX": 0.5385,
+        "anchorY": 0.4324,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 16.0,
+          "dx": 0,
+          "dy": 0
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop",
+          "score": 0.9335,
+          "pop": 15.7
+        }
       }
     },
     {
@@ -150,7 +204,14 @@
           "height": 345
         },
         "anchorX": 0.6126,
-        "anchorY": 0.581
+        "anchorY": 0.581,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 10.2,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -170,8 +231,15 @@
           "width": 345,
           "height": 345
         },
-        "anchorX": 0.3901,
-        "anchorY": 0.4947
+        "anchorX": 0.3946,
+        "anchorY": 0.4947,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 12.6,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -192,7 +260,14 @@
           "height": 182
         },
         "anchorX": 0.6392,
-        "anchorY": 0.5549
+        "anchorY": 0.5549,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 19.0,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -202,18 +277,31 @@
       "r": 57,
       "sprite": {
         "image": "levels/cozy_interiors_cozy_toymaker_workshop_bird_4e44/dogs/dog_09/sprite_000.png",
-        "x": 2014,
-        "y": 819,
-        "width": 164,
-        "height": 171,
+        "x": 2015,
+        "y": 821,
+        "width": 158,
+        "height": 166,
         "cleanup": {
           "x": 1887,
           "y": 767,
           "width": 345,
           "height": 280
         },
-        "anchorX": 0.2805,
-        "anchorY": 0.5088
+        "anchorX": 0.2911,
+        "anchorY": 0.512,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 25.8,
+          "dx": -1,
+          "dy": 0
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop2",
+          "score": 0.8881,
+          "pop": 26.0
+        }
       }
     },
     {
@@ -223,18 +311,31 @@
       "r": 57,
       "sprite": {
         "image": "levels/cozy_interiors_cozy_toymaker_workshop_bird_4e44/dogs/dog_10/sprite_000.png",
-        "x": 1875,
-        "y": 1181,
-        "width": 130,
-        "height": 144,
+        "x": 1871,
+        "y": 1173,
+        "width": 107,
+        "height": 111,
         "cleanup": {
           "x": 1846,
           "y": 1137,
           "width": 140,
           "height": 154
         },
-        "anchorX": 0.3154,
-        "anchorY": 0.3611
+        "anchorX": 0.4299,
+        "anchorY": 0.5495,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 9.5,
+          "dx": 0,
+          "dy": 0
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop",
+          "score": 0.9724,
+          "pop": 9.4
+        }
       }
     },
     {
@@ -246,16 +347,23 @@
         "image": "levels/cozy_interiors_cozy_toymaker_workshop_bird_4e44/dogs/dog_11/sprite_000.png",
         "x": 839,
         "y": 1671,
-        "width": 164,
-        "height": 149,
+        "width": 172,
+        "height": 156,
         "cleanup": {
           "x": 784,
           "y": 1578,
           "width": 345,
           "height": 291
         },
-        "anchorX": 0.7195,
-        "anchorY": 0.5369
+        "anchorX": 0.7093,
+        "anchorY": 0.5256,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 28.7,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -265,18 +373,31 @@
       "r": 57,
       "sprite": {
         "image": "levels/cozy_interiors_cozy_toymaker_workshop_bird_4e44/dogs/dog_12/sprite_000.png",
-        "x": 767,
-        "y": 1861,
-        "width": 291,
-        "height": 245,
+        "x": 792,
+        "y": 1866,
+        "width": 270,
+        "height": 205,
         "cleanup": {
           "x": 694,
           "y": 1874,
           "width": 345,
           "height": 294
         },
-        "anchorX": 0.3918,
-        "anchorY": 0.4367
+        "anchorX": 0.3333,
+        "anchorY": 0.4927,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 44.0,
+          "dx": 0,
+          "dy": 0
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop2",
+          "score": 0.7471,
+          "pop": 44.4
+        }
       }
     },
     {
@@ -297,7 +418,14 @@
           "height": 322
         },
         "anchorX": 0.4335,
-        "anchorY": 0.4606
+        "anchorY": 0.4606,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 25.4,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -307,18 +435,31 @@
       "r": 57,
       "sprite": {
         "image": "levels/cozy_interiors_cozy_toymaker_workshop_bird_4e44/dogs/dog_14/sprite_000.png",
-        "x": 1565,
-        "y": 1777,
-        "width": 232,
-        "height": 229,
+        "x": 1576,
+        "y": 1786,
+        "width": 212,
+        "height": 222,
         "cleanup": {
           "x": 1534,
           "y": 1740,
           "width": 345,
           "height": 332
         },
-        "anchorX": 0.6121,
-        "anchorY": 0.5502
+        "anchorX": 0.5991,
+        "anchorY": 0.5405,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 24.7,
+          "dx": 0,
+          "dy": 0
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop2",
+          "score": 0.8583,
+          "pop": 25.2
+        }
       }
     },
     {
@@ -330,16 +471,23 @@
         "image": "levels/cozy_interiors_cozy_toymaker_workshop_bird_4e44/dogs/dog_15/sprite_000.png",
         "x": 1092,
         "y": 2273,
-        "width": 327,
-        "height": 217,
+        "width": 340,
+        "height": 188,
         "cleanup": {
           "x": 1091,
           "y": 2198,
           "width": 345,
           "height": 328
         },
-        "anchorX": 0.526,
-        "anchorY": 0.4378
+        "anchorX": 0.5353,
+        "anchorY": 0.4787,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 16.7,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -351,7 +499,7 @@
         "image": "levels/cozy_interiors_cozy_toymaker_workshop_bird_4e44/dogs/dog_16/sprite_000.png",
         "x": 1708,
         "y": 2253,
-        "width": 221,
+        "width": 243,
         "height": 175,
         "cleanup": {
           "x": 1626,
@@ -359,8 +507,15 @@
           "width": 345,
           "height": 289
         },
-        "anchorX": 0.4118,
-        "anchorY": 0.52
+        "anchorX": 0.4115,
+        "anchorY": 0.5486,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 21.3,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -370,18 +525,31 @@
       "r": 57,
       "sprite": {
         "image": "levels/cozy_interiors_cozy_toymaker_workshop_bird_4e44/dogs/dog_17/sprite_000.png",
-        "x": 1313,
-        "y": 878,
-        "width": 198,
-        "height": 159,
+        "x": 1353,
+        "y": 879,
+        "width": 152,
+        "height": 123,
         "cleanup": {
           "x": 1275,
           "y": 911,
           "width": 202,
           "height": 162
         },
-        "anchorX": 0.4747,
-        "anchorY": 0.4403
+        "anchorX": 0.3487,
+        "anchorY": 0.5447,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 30.6,
+          "dx": -1,
+          "dy": 0
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop2",
+          "score": 0.8364,
+          "pop": 30.4
+        }
       }
     }
   ]

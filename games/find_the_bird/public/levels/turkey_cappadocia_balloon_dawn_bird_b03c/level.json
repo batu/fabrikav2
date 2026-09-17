@@ -15,16 +15,23 @@
         "image": "levels/turkey_cappadocia_balloon_dawn_bird_b03c/dogs/dog_00/sprite_000.png",
         "x": 789,
         "y": 500,
-        "width": 243,
-        "height": 212,
+        "width": 194,
+        "height": 170,
         "cleanup": {
           "x": 753,
           "y": 451,
           "width": 339,
           "height": 345
         },
-        "anchorX": 0.5473,
-        "anchorY": 0.5849
+        "anchorX": 0.5567,
+        "anchorY": 0.6412,
+        "refit": {
+          "scale": 0.8,
+          "ratio": 1.0,
+          "pop": 35.1,
+          "dx": 24,
+          "dy": 14
+        }
       }
     },
     {
@@ -45,7 +52,14 @@
           "height": 345
         },
         "anchorX": 0.5142,
-        "anchorY": 0.558
+        "anchorY": 0.5536,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 17.9,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -66,7 +80,14 @@
           "height": 345
         },
         "anchorX": 0.5668,
-        "anchorY": 0.4908
+        "anchorY": 0.4908,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 21.9,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -76,18 +97,31 @@
       "r": 57,
       "sprite": {
         "image": "levels/turkey_cappadocia_balloon_dawn_bird_b03c/dogs/dog_03/sprite_000.png",
-        "x": 1626,
-        "y": 946,
-        "width": 228,
-        "height": 199,
+        "x": 1607,
+        "y": 933,
+        "width": 267,
+        "height": 218,
         "cleanup": {
           "x": 1502,
           "y": 915,
           "width": 345,
           "height": 345
         },
-        "anchorX": 0.4254,
-        "anchorY": 0.4573
+        "anchorX": 0.4082,
+        "anchorY": 0.4541,
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop2",
+          "score": 0.8004,
+          "pop": 27.6
+        },
+        "refit": {
+          "scale": 0.95,
+          "ratio": 1.0,
+          "pop": 25.8,
+          "dx": 6,
+          "dy": 5
+        }
       }
     },
     {
@@ -108,7 +142,14 @@
           "height": 345
         },
         "anchorX": 0.5882,
-        "anchorY": 0.5036
+        "anchorY": 0.5036,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 21.9,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -120,16 +161,23 @@
         "image": "levels/turkey_cappadocia_balloon_dawn_bird_b03c/dogs/dog_05/sprite_000.png",
         "x": 1064,
         "y": 1315,
-        "width": 270,
-        "height": 222,
+        "width": 378,
+        "height": 311,
         "cleanup": {
           "x": 1047,
           "y": 1277,
           "width": 345,
           "height": 338
         },
-        "anchorX": 0.5778,
-        "anchorY": 0.6081
+        "anchorX": 0.5238,
+        "anchorY": 0.627,
+        "refit": {
+          "scale": 1.4,
+          "ratio": 1.0,
+          "pop": 35.2,
+          "dx": -41,
+          "dy": -60
+        }
       }
     },
     {
@@ -150,7 +198,14 @@
           "height": 296
         },
         "anchorX": 0.4718,
-        "anchorY": 0.5097
+        "anchorY": 0.5097,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 18.7,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -160,18 +215,31 @@
       "r": 57,
       "sprite": {
         "image": "levels/turkey_cappadocia_balloon_dawn_bird_b03c/dogs/dog_07/sprite_000.png",
-        "x": 1085,
-        "y": 1779,
-        "width": 213,
-        "height": 209,
+        "x": 1077,
+        "y": 1755,
+        "width": 298,
+        "height": 241,
         "cleanup": {
           "x": 1077,
           "y": 1718,
           "width": 345,
           "height": 345
         },
-        "anchorX": 0.7746,
-        "anchorY": 0.5359
+        "anchorX": 0.5805,
+        "anchorY": 0.5643,
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop2",
+          "score": 0.8746,
+          "pop": 22.6
+        },
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 23.2,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -181,18 +249,31 @@
       "r": 57,
       "sprite": {
         "image": "levels/turkey_cappadocia_balloon_dawn_bird_b03c/dogs/dog_08/sprite_000.png",
-        "x": 341,
-        "y": 1876,
-        "width": 206,
-        "height": 162,
+        "x": 323,
+        "y": 1868,
+        "width": 158,
+        "height": 146,
         "cleanup": {
           "x": 303,
           "y": 1788,
           "width": 345,
           "height": 345
         },
-        "anchorX": 0.2767,
-        "anchorY": 0.3519
+        "anchorX": 0.481,
+        "anchorY": 0.4452,
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop",
+          "score": 0.9169,
+          "pop": 18.7
+        },
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 19.0,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -213,7 +294,14 @@
           "height": 324
         },
         "anchorX": 0.496,
-        "anchorY": 0.5561
+        "anchorY": 0.5512,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 17.7,
+          "dx": 0,
+          "dy": 1
+        }
       }
     },
     {
@@ -234,7 +322,14 @@
           "height": 345
         },
         "anchorX": 0.3607,
-        "anchorY": 0.5574
+        "anchorY": 0.5574,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 14.4,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -255,7 +350,14 @@
           "height": 255
         },
         "anchorX": 0.4875,
-        "anchorY": 0.5463
+        "anchorY": 0.5463,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 21.4,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -266,17 +368,30 @@
       "sprite": {
         "image": "levels/turkey_cappadocia_balloon_dawn_bird_b03c/dogs/dog_12/sprite_000.png",
         "x": 1647,
-        "y": 1855,
-        "width": 205,
-        "height": 233,
+        "y": 1857,
+        "width": 204,
+        "height": 232,
         "cleanup": {
           "x": 1590,
           "y": 1860,
           "width": 304,
           "height": 280
         },
-        "anchorX": 0.5512,
-        "anchorY": 0.5923
+        "anchorX": 0.5588,
+        "anchorY": 0.5862,
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop2",
+          "score": 0.7299,
+          "pop": 15.2
+        },
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 17.6,
+          "dx": -1,
+          "dy": 0
+        }
       }
     },
     {
@@ -288,16 +403,23 @@
         "image": "levels/turkey_cappadocia_balloon_dawn_bird_b03c/dogs/dog_13/sprite_000.png",
         "x": 1937,
         "y": 2031,
-        "width": 236,
-        "height": 204,
+        "width": 179,
+        "height": 172,
         "cleanup": {
           "x": 1896,
           "y": 2048,
           "width": 240,
           "height": 337
         },
-        "anchorX": 0.3941,
-        "anchorY": 0.8922
+        "anchorX": 0.257,
+        "anchorY": 0.8547,
+        "refit": {
+          "scale": 0.8,
+          "ratio": 0.9,
+          "pop": 25.5,
+          "dx": 47,
+          "dy": 35
+        }
       }
     },
     {
@@ -307,18 +429,31 @@
       "r": 57,
       "sprite": {
         "image": "levels/turkey_cappadocia_balloon_dawn_bird_b03c/dogs/dog_14/sprite_000.png",
-        "x": 2167,
-        "y": 2239,
-        "width": 221,
-        "height": 183,
+        "x": 2152,
+        "y": 2243,
+        "width": 218,
+        "height": 192,
         "cleanup": {
           "x": 2138,
           "y": 2190,
           "width": 276,
           "height": 301
         },
-        "anchorX": 0.3484,
-        "anchorY": 0.541
+        "anchorX": 0.4266,
+        "anchorY": 0.5,
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop2",
+          "score": 0.7132,
+          "pop": 39.8
+        },
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 40.1,
+          "dx": -1,
+          "dy": 0
+        }
       }
     },
     {
@@ -338,8 +473,15 @@
           "width": 256,
           "height": 342
         },
-        "anchorX": 0.3846,
-        "anchorY": 0.4444
+        "anchorX": 0.3798,
+        "anchorY": 0.4487,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 26.6,
+          "dx": 0,
+          "dy": -1
+        }
       }
     }
   ]

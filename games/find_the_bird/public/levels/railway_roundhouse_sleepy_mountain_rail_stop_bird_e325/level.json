@@ -1,0 +1,633 @@
+{
+  "id": "railway_roundhouse_sleepy_mountain_rail_stop_bird_e325",
+  "name": "Level railway_roundhouse_sleepy_mountain_rail_stop_bird_e325",
+  "width": 2688,
+  "height": 2688,
+  "colorImage": "levels/railway_roundhouse_sleepy_mountain_rail_stop_bird_e325/color.png",
+  "artifactRevision": "sha256:e0a6ae5b57765f2b019e8e68cb194a8880ba86b5d6fa14e418757df64e4dc4b0",
+  "compatibilityAliases": {
+    "dog_05": "bf5192de-b256-4b3e-9682-db134add8372",
+    "dog_07": "68488081-ae39-49c1-885b-9504409a07f8",
+    "dog_09": "a7f66b63-35bb-4732-bed0-488abd4d10c4",
+    "dog_10": "d15f4704-b42f-44cf-9b24-c6b2e5279a2a",
+    "dog_11": "2d6ae839-bb90-48df-a7ae-768e01588f39",
+    "dog_17": "04579377-a26d-4835-b542-b5613738c271",
+    "dog_23": "430ca176-a6e3-4ed0-bfa4-378a9e0aabdb",
+    "dog_24": "b1204e40-d3d7-4e1b-b052-491d2460aca3",
+    "dog_25": "3dcd2cd7-67ae-4d1b-87d4-7c0ff760cc32",
+    "dog_26": "3217453c-33f7-4802-9bed-e88b42e08723",
+    "dog_27": "b6be0f26-5492-4bc2-bd4b-cdbc6f7c7eb8",
+    "dog_28": "b5b9a5c5-3c64-49c5-8ebf-e88f5fe91e99",
+    "dog_29": "000aa6c5-5d52-4192-9b25-fa82a1f1506f",
+    "dog_30": "0c8e6ea0-b0cd-4dd6-a74c-64c3a25354bf",
+    "dog_31": "4def7850-79a5-4a03-b2ea-47f1a6d5fadd",
+    "dog_32": "4f20c48d-781d-4c44-99b6-8ee4e13c0aa2",
+    "dog_33": "3a445c50-039d-4aa4-b3e0-a206243f948a"
+  },
+  "dogs": [
+    {
+      "id": "bf5192de-b256-4b3e-9682-db134add8372",
+      "compatibilitySlot": "dog_05",
+      "x": 413,
+      "y": 695,
+      "r": 57,
+      "sprite": {
+        "image": "levels/railway_roundhouse_sleepy_mountain_rail_stop_bird_e325/dogs/dog_05/sprite_000.png",
+        "height": 245,
+        "width": 165,
+        "x": 352,
+        "y": 578,
+        "cleanup": {
+          "x": 339,
+          "y": 559,
+          "width": 189,
+          "height": 281
+        },
+        "anchorX": 0.3697,
+        "anchorY": 0.4776,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 0.0,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "68488081-ae39-49c1-885b-9504409a07f8",
+      "compatibilitySlot": "dog_07",
+      "x": 1266,
+      "y": 582,
+      "r": 57,
+      "sprite": {
+        "image": "levels/railway_roundhouse_sleepy_mountain_rail_stop_bird_e325/dogs/dog_07/sprite_000.png",
+        "height": 142,
+        "width": 212,
+        "x": 1172,
+        "y": 500,
+        "cleanup": {
+          "x": 1158,
+          "y": 492,
+          "width": 243,
+          "height": 163
+        },
+        "anchorX": 0.434,
+        "anchorY": 0.5563,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 0.95,
+          "ratio": 1.0,
+          "pop": 41.4,
+          "dx": 1,
+          "dy": 3
+        }
+      }
+    },
+    {
+      "id": "a7f66b63-35bb-4732-bed0-488abd4d10c4",
+      "compatibilitySlot": "dog_09",
+      "x": 1398,
+      "y": 764,
+      "r": 57,
+      "sprite": {
+        "image": "levels/railway_roundhouse_sleepy_mountain_rail_stop_bird_e325/dogs/dog_09/sprite_000.png",
+        "height": 145,
+        "width": 164,
+        "x": 1322,
+        "y": 684,
+        "cleanup": {
+          "x": 1309,
+          "y": 674,
+          "width": 188,
+          "height": 166
+        },
+        "anchorX": 0.4634,
+        "anchorY": 0.5448,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 23.7,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "d15f4704-b42f-44cf-9b24-c6b2e5279a2a",
+      "compatibilitySlot": "dog_10",
+      "x": 1345,
+      "y": 1104,
+      "r": 57,
+      "sprite": {
+        "image": "levels/railway_roundhouse_sleepy_mountain_rail_stop_bird_e325/dogs/dog_10/sprite_000.png",
+        "height": 184,
+        "width": 174,
+        "x": 1262,
+        "y": 1013,
+        "cleanup": {
+          "x": 1248,
+          "y": 999,
+          "width": 200,
+          "height": 211
+        },
+        "anchorX": 0.477,
+        "anchorY": 0.4946,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 23.1,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "2d6ae839-bb90-48df-a7ae-768e01588f39",
+      "compatibilitySlot": "dog_11",
+      "x": 1816,
+      "y": 804,
+      "r": 57,
+      "sprite": {
+        "image": "levels/railway_roundhouse_sleepy_mountain_rail_stop_bird_e325/dogs/dog_11/sprite_000.png",
+        "height": 154,
+        "width": 207,
+        "x": 1737,
+        "y": 718,
+        "cleanup": {
+          "x": 1721,
+          "y": 706,
+          "width": 238,
+          "height": 177
+        },
+        "anchorX": 0.3816,
+        "anchorY": 0.5584,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 19.7,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "04579377-a26d-4835-b542-b5613738c271",
+      "compatibilitySlot": "dog_17",
+      "x": 823,
+      "y": 1278,
+      "r": 57,
+      "sprite": {
+        "image": "levels/railway_roundhouse_sleepy_mountain_rail_stop_bird_e325/dogs/dog_17/sprite_000.png",
+        "height": 79,
+        "width": 75,
+        "x": 798,
+        "y": 1203,
+        "cleanup": {
+          "x": 766,
+          "y": 1187,
+          "width": 127,
+          "height": 147
+        },
+        "anchorX": 0.32,
+        "anchorY": 0.9241,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 0.95,
+          "ratio": 1.0,
+          "pop": 19.3,
+          "dx": 1,
+          "dy": 1
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.9083,
+          "pop": 16.2,
+          "why": "T3+refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "430ca176-a6e3-4ed0-bfa4-378a9e0aabdb",
+      "compatibilitySlot": "dog_23",
+      "x": 718,
+      "y": 1364,
+      "r": 57,
+      "sprite": {
+        "image": "levels/railway_roundhouse_sleepy_mountain_rail_stop_bird_e325/dogs/dog_23/sprite_000.png",
+        "height": 159,
+        "width": 238,
+        "x": 604,
+        "y": 1306,
+        "cleanup": {
+          "x": 586,
+          "y": 1294,
+          "width": 273,
+          "height": 182
+        },
+        "anchorX": 0.479,
+        "anchorY": 0.3648,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 14.0,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.9267,
+          "pop": 13.7,
+          "why": "T3"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "b1204e40-d3d7-4e1b-b052-491d2460aca3",
+      "compatibilitySlot": "dog_24",
+      "x": 1197,
+      "y": 1688,
+      "r": 57,
+      "sprite": {
+        "image": "levels/railway_roundhouse_sleepy_mountain_rail_stop_bird_e325/dogs/dog_24/sprite_000.png",
+        "height": 132,
+        "width": 209,
+        "x": 1081,
+        "y": 1612,
+        "cleanup": {
+          "x": 1061,
+          "y": 1604,
+          "width": 240,
+          "height": 151
+        },
+        "anchorX": 0.5742,
+        "anchorY": 0.5606,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.05,
+          "pop": 29.4,
+          "dx": -4,
+          "dy": 2
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.8387,
+          "pop": 30.7,
+          "why": "T3+refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "3dcd2cd7-67ae-4d1b-87d4-7c0ff760cc32",
+      "compatibilitySlot": "dog_25",
+      "x": 1917,
+      "y": 1416,
+      "r": 57,
+      "sprite": {
+        "image": "levels/railway_roundhouse_sleepy_mountain_rail_stop_bird_e325/dogs/dog_25/sprite_000.png",
+        "height": 175,
+        "width": 228,
+        "x": 1801,
+        "y": 1340,
+        "cleanup": {
+          "x": 1784,
+          "y": 1324,
+          "width": 262,
+          "height": 201
+        },
+        "anchorX": 0.5044,
+        "anchorY": 0.4457,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 0.95,
+          "pop": 21.6,
+          "dx": 0,
+          "dy": -2
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.7233,
+          "pop": 28.0,
+          "why": "T3"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "3217453c-33f7-4802-9bed-e88b42e08723",
+      "compatibilitySlot": "dog_26",
+      "x": 1612,
+      "y": 1778,
+      "r": 57,
+      "sprite": {
+        "image": "levels/railway_roundhouse_sleepy_mountain_rail_stop_bird_e325/dogs/dog_26/sprite_000.png",
+        "height": 183,
+        "width": 243,
+        "x": 1473,
+        "y": 1684,
+        "cleanup": {
+          "x": 1454,
+          "y": 1670,
+          "width": 279,
+          "height": 210
+        },
+        "anchorX": 0.572,
+        "anchorY": 0.5137,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 23.6,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.9039,
+          "pop": 22.7,
+          "why": "T3+refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "b6be0f26-5492-4bc2-bd4b-cdbc6f7c7eb8",
+      "compatibilitySlot": "dog_27",
+      "x": 1898,
+      "y": 1857,
+      "r": 57,
+      "sprite": {
+        "image": "levels/railway_roundhouse_sleepy_mountain_rail_stop_bird_e325/dogs/dog_27/sprite_000.png",
+        "height": 170,
+        "width": 152,
+        "x": 1820,
+        "y": 1781,
+        "cleanup": {
+          "x": 1808,
+          "y": 1768,
+          "width": 174,
+          "height": 195
+        },
+        "anchorX": 0.5132,
+        "anchorY": 0.4471,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 16.6,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.947,
+          "pop": 16.6,
+          "why": "T3+refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "b5b9a5c5-3c64-49c5-8ebf-e88f5fe91e99",
+      "compatibilitySlot": "dog_28",
+      "x": 2143,
+      "y": 1948,
+      "r": 57,
+      "sprite": {
+        "image": "levels/railway_roundhouse_sleepy_mountain_rail_stop_bird_e325/dogs/dog_28/sprite_000.png",
+        "height": 157,
+        "width": 117,
+        "x": 2056,
+        "y": 1867,
+        "cleanup": {
+          "x": 2047,
+          "y": 1855,
+          "width": 152,
+          "height": 180
+        },
+        "anchorX": 0.7436,
+        "anchorY": 0.5159,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 20.4,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.9033,
+          "pop": 20.4,
+          "why": "T3+refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "000aa6c5-5d52-4192-9b25-fa82a1f1506f",
+      "compatibilitySlot": "dog_29",
+      "x": 2042,
+      "y": 2162,
+      "r": 57,
+      "sprite": {
+        "image": "levels/railway_roundhouse_sleepy_mountain_rail_stop_bird_e325/dogs/dog_29/sprite_000.png",
+        "height": 142,
+        "width": 164,
+        "x": 1949,
+        "y": 2075,
+        "cleanup": {
+          "x": 1933,
+          "y": 2066,
+          "width": 188,
+          "height": 163
+        },
+        "anchorX": 0.5854,
+        "anchorY": 0.5986,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.05,
+          "pop": 22.4,
+          "dx": -2,
+          "dy": 2
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.8854,
+          "pop": 24.2,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "0c8e6ea0-b0cd-4dd6-a74c-64c3a25354bf",
+      "compatibilitySlot": "dog_30",
+      "x": 1704,
+      "y": 2109,
+      "r": 57,
+      "sprite": {
+        "image": "levels/railway_roundhouse_sleepy_mountain_rail_stop_bird_e325/dogs/dog_30/sprite_000.png",
+        "height": 150,
+        "width": 141,
+        "x": 1643,
+        "y": 2018,
+        "cleanup": {
+          "x": 1632,
+          "y": 2006,
+          "width": 162,
+          "height": 172
+        },
+        "anchorX": 0.4326,
+        "anchorY": 0.6067,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 22.4,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.8633,
+          "pop": 21.4,
+          "why": "T3"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "4def7850-79a5-4a03-b2ea-47f1a6d5fadd",
+      "compatibilitySlot": "dog_31",
+      "x": 491,
+      "y": 1950,
+      "r": 57,
+      "sprite": {
+        "image": "levels/railway_roundhouse_sleepy_mountain_rail_stop_bird_e325/dogs/dog_31/sprite_000.png",
+        "height": 142,
+        "width": 152,
+        "x": 399,
+        "y": 1874,
+        "cleanup": {
+          "x": 389,
+          "y": 1862,
+          "width": 174,
+          "height": 163
+        },
+        "anchorX": 0.5921,
+        "anchorY": 0.5423,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 0.95,
+          "pop": 23.7,
+          "dx": 1,
+          "dy": -1
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.8808,
+          "pop": 25.2,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "4f20c48d-781d-4c44-99b6-8ee4e13c0aa2",
+      "compatibilitySlot": "dog_32",
+      "x": 989,
+      "y": 2242,
+      "r": 57,
+      "sprite": {
+        "image": "levels/railway_roundhouse_sleepy_mountain_rail_stop_bird_e325/dogs/dog_32/sprite_000.png",
+        "height": 145,
+        "width": 163,
+        "x": 929,
+        "y": 2168,
+        "cleanup": {
+          "x": 916,
+          "y": 2157,
+          "width": 187,
+          "height": 166
+        },
+        "anchorX": 0.3681,
+        "anchorY": 0.5103,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 26.9,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.8529,
+          "pop": 26.8,
+          "why": "T3"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "3a445c50-039d-4aa4-b3e0-a206243f948a",
+      "compatibilitySlot": "dog_33",
+      "x": 1158,
+      "y": 2361,
+      "r": 57,
+      "sprite": {
+        "image": "levels/railway_roundhouse_sleepy_mountain_rail_stop_bird_e325/dogs/dog_33/sprite_000.png",
+        "height": 140,
+        "width": 197,
+        "x": 1080,
+        "y": 2290,
+        "cleanup": {
+          "x": 1065,
+          "y": 2279,
+          "width": 226,
+          "height": 161
+        },
+        "anchorX": 0.3959,
+        "anchorY": 0.5071,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 24.5,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    }
+  ]
+}

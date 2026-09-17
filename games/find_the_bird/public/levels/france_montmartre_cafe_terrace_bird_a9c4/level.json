@@ -1,0 +1,739 @@
+{
+  "id": "france_montmartre_cafe_terrace_bird_a9c4",
+  "name": "Level france_montmartre_cafe_terrace_bird_a9c4",
+  "width": 2688,
+  "height": 2688,
+  "colorImage": "levels/france_montmartre_cafe_terrace_bird_a9c4/color.png",
+  "artifactRevision": "sha256:f8e36bdbe7e5d806b52611857b752b2696e6a99c5bfa683385621fe8a4ad5170",
+  "compatibilityAliases": {
+    "dog_16": "8adaf017-1296-59d3-8654-6115180e3637",
+    "dog_17": "3dff0902-683a-4a08-abde-9a86907e6142",
+    "dog_18": "b92f5c55-167c-4918-8ba8-04de786a250f",
+    "dog_08": "d86c005a-4ffb-55a5-95a5-b8321b621474",
+    "dog_01": "92c95b10-752d-5a7e-9bf0-91b810a58ee5",
+    "dog_03": "6620309a-de62-5f62-97e0-07172c3c406b",
+    "dog_06": "37092573-af1d-58a4-86bd-2d792484298f",
+    "dog_10": "21167a3f-6c15-5bb4-97f6-0fd9d565a1c9",
+    "dog_02": "61f8d875-836b-5202-886e-cef9c14852ff",
+    "dog_14": "764299e8-1e3c-51b4-8b50-7159d34040e4",
+    "dog_19": "a95f9341-c6c7-47b2-89cd-59ecd19d31c6",
+    "dog_11": "9f8ac73b-a7ab-50ec-a93b-61054af1289b",
+    "dog_12": "bc0b6a1f-765f-5e06-aaac-6c6d444785f7",
+    "dog_13": "42868b47-a97a-5667-a230-0ee11b9da770",
+    "dog_20": "f854c3a9-7f90-49f1-96c8-2df4db246b21",
+    "dog_15": "670c64d5-6684-51c7-9da8-c75019582325",
+    "dog_21": "cac4dc31-9cda-42bf-8142-4027e6d78b0e",
+    "dog_04": "7347327b-e477-5876-ac1b-ca67110c9206",
+    "dog_00": "9ae75164-32c6-5d11-949c-e72387012805"
+  },
+  "dogs": [
+    {
+      "id": "8adaf017-1296-59d3-8654-6115180e3637",
+      "compatibilitySlot": "dog_16",
+      "x": 597,
+      "y": 692,
+      "r": 57,
+      "sprite": {
+        "image": "levels/france_montmartre_cafe_terrace_bird_a9c4/dogs/dog_16/sprite_000.png",
+        "height": 182,
+        "width": 182,
+        "x": 504,
+        "y": 599,
+        "cleanup": {
+          "x": 490,
+          "y": 585,
+          "width": 209,
+          "height": 209
+        },
+        "anchorX": 0.511,
+        "anchorY": 0.511,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 19.7,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.8746,
+          "pop": 18.5,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "3dff0902-683a-4a08-abde-9a86907e6142",
+      "compatibilitySlot": "dog_17",
+      "x": 1118,
+      "y": 632,
+      "r": 57,
+      "sprite": {
+        "image": "levels/france_montmartre_cafe_terrace_bird_a9c4/dogs/dog_17/sprite_000.png",
+        "height": 192,
+        "width": 239,
+        "x": 1000,
+        "y": 536,
+        "cleanup": {
+          "x": 982,
+          "y": 521,
+          "width": 274,
+          "height": 220
+        },
+        "anchorX": 0.4937,
+        "anchorY": 0.5,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 15.2,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.9298,
+          "pop": 15.2,
+          "why": "T3+refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "b92f5c55-167c-4918-8ba8-04de786a250f",
+      "compatibilitySlot": "dog_18",
+      "x": 1004,
+      "y": 1061,
+      "r": 57,
+      "sprite": {
+        "image": "levels/france_montmartre_cafe_terrace_bird_a9c4/dogs/dog_18/sprite_000.png",
+        "height": 182,
+        "width": 182,
+        "x": 912,
+        "y": 969,
+        "cleanup": {
+          "x": 898,
+          "y": 955,
+          "width": 209,
+          "height": 209
+        },
+        "anchorX": 0.5055,
+        "anchorY": 0.5055,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 13.3,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.9372,
+          "pop": 13.2,
+          "why": "T3+refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "d86c005a-4ffb-55a5-95a5-b8321b621474",
+      "compatibilitySlot": "dog_08",
+      "x": 486,
+      "y": 1498,
+      "r": 57,
+      "sprite": {
+        "image": "levels/france_montmartre_cafe_terrace_bird_a9c4/dogs/dog_08/sprite_000.png",
+        "height": 129,
+        "width": 159,
+        "x": 400,
+        "y": 1432,
+        "cleanup": {
+          "x": 397,
+          "y": 1424,
+          "width": 182,
+          "height": 148
+        },
+        "anchorX": 0.4843,
+        "anchorY": 0.4961,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 0.95,
+          "ratio": 0.95,
+          "pop": 27.0,
+          "dx": 9,
+          "dy": 2
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.8447,
+          "pop": 23.1,
+          "why": "T3+refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "92c95b10-752d-5a7e-9bf0-91b810a58ee5",
+      "compatibilitySlot": "dog_01",
+      "x": 467,
+      "y": 2059,
+      "r": 57,
+      "sprite": {
+        "image": "levels/france_montmartre_cafe_terrace_bird_a9c4/dogs/dog_01/sprite_000.png",
+        "height": 94,
+        "width": 105,
+        "x": 418,
+        "y": 2014,
+        "cleanup": {
+          "x": 410,
+          "y": 2002,
+          "width": 120,
+          "height": 116
+        },
+        "anchorX": 0.4667,
+        "anchorY": 0.4787,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 18.3,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.9112,
+          "pop": 18.1,
+          "why": "T3+refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "6620309a-de62-5f62-97e0-07172c3c406b",
+      "compatibilitySlot": "dog_03",
+      "x": 687,
+      "y": 2050,
+      "r": 57,
+      "sprite": {
+        "image": "levels/france_montmartre_cafe_terrace_bird_a9c4/dogs/dog_03/sprite_000.png",
+        "height": 187,
+        "width": 192,
+        "x": 641,
+        "y": 1995,
+        "cleanup": {
+          "x": 577,
+          "y": 1933,
+          "width": 220,
+          "height": 215
+        },
+        "anchorX": 0.4948,
+        "anchorY": 0.5455,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.85,
+          "ratio": 1.0,
+          "pop": 30.5,
+          "dx": -49,
+          "dy": -46
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.5972,
+          "pop": 72.9,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "37092573-af1d-58a4-86bd-2d792484298f",
+      "compatibilitySlot": "dog_06",
+      "x": 1343,
+      "y": 1635,
+      "r": 57,
+      "sprite": {
+        "image": "levels/france_montmartre_cafe_terrace_bird_a9c4/dogs/dog_06/sprite_000.png",
+        "height": 56,
+        "width": 64,
+        "x": 1316,
+        "y": 1584,
+        "cleanup": {
+          "x": 1270,
+          "y": 1578,
+          "width": 130,
+          "height": 131
+        },
+        "anchorX": 0.75,
+        "anchorY": 0.1786,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 0.5499999999999999,
+          "ratio": 1.15,
+          "pop": 16.6,
+          "dx": -21,
+          "dy": 41
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.571,
+          "pop": 21.4,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "21167a3f-6c15-5bb4-97f6-0fd9d565a1c9",
+      "compatibilitySlot": "dog_10",
+      "x": 1451,
+      "y": 1383,
+      "r": 57,
+      "sprite": {
+        "image": "levels/france_montmartre_cafe_terrace_bird_a9c4/dogs/dog_10/sprite_000.png",
+        "height": 169,
+        "width": 178,
+        "x": 1359,
+        "y": 1304,
+        "cleanup": {
+          "x": 1345,
+          "y": 1292,
+          "width": 204,
+          "height": 194
+        },
+        "anchorX": 0.5169,
+        "anchorY": 0.4615,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 13.8,
+          "dx": 0,
+          "dy": 1
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.9309,
+          "pop": 16.2,
+          "why": "T3"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "61f8d875-836b-5202-886e-cef9c14852ff",
+      "compatibilitySlot": "dog_02",
+      "x": 1644,
+      "y": 1330,
+      "r": 57,
+      "sprite": {
+        "image": "levels/france_montmartre_cafe_terrace_bird_a9c4/dogs/dog_02/sprite_000.png",
+        "height": 151,
+        "width": 164,
+        "x": 1570,
+        "y": 1258,
+        "cleanup": {
+          "x": 1557,
+          "y": 1246,
+          "width": 188,
+          "height": 173
+        },
+        "anchorX": 0.4512,
+        "anchorY": 0.4768,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 12.3,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.9626,
+          "pop": 12.3,
+          "why": "T3+refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "764299e8-1e3c-51b4-8b50-7159d34040e4",
+      "compatibilitySlot": "dog_14",
+      "x": 1624,
+      "y": 1000,
+      "r": 57,
+      "sprite": {
+        "image": "levels/france_montmartre_cafe_terrace_bird_a9c4/dogs/dog_14/sprite_000.png",
+        "height": 171,
+        "width": 181,
+        "x": 1533,
+        "y": 909,
+        "cleanup": {
+          "x": 1519,
+          "y": 896,
+          "width": 208,
+          "height": 196
+        },
+        "anchorX": 0.5028,
+        "anchorY": 0.5322,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 17.8,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.9339,
+          "pop": 17.2,
+          "why": "refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "a95f9341-c6c7-47b2-89cd-59ecd19d31c6",
+      "compatibilitySlot": "dog_19",
+      "x": 1754,
+      "y": 849,
+      "r": 57,
+      "sprite": {
+        "image": "levels/france_montmartre_cafe_terrace_bird_a9c4/dogs/dog_19/sprite_000.png",
+        "height": 106,
+        "width": 57,
+        "x": 1694,
+        "y": 785,
+        "cleanup": {
+          "x": 1697,
+          "y": 788,
+          "width": 114,
+          "height": 121
+        },
+        "anchorX": 1.0526,
+        "anchorY": 0.6038,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 28.5,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.66,
+          "pop": 60.9,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "9f8ac73b-a7ab-50ec-a93b-61054af1289b",
+      "compatibilitySlot": "dog_11",
+      "x": 1759,
+      "y": 1213,
+      "r": 57,
+      "sprite": {
+        "image": "levels/france_montmartre_cafe_terrace_bird_a9c4/dogs/dog_11/sprite_000.png",
+        "height": 181,
+        "width": 104,
+        "x": 1713,
+        "y": 1122,
+        "cleanup": {
+          "x": 1702,
+          "y": 1108,
+          "width": 122,
+          "height": 208
+        },
+        "anchorX": 0.4423,
+        "anchorY": 0.5028,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 12.5,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.9496,
+          "pop": 12.2,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "bc0b6a1f-765f-5e06-aaac-6c6d444785f7",
+      "compatibilitySlot": "dog_12",
+      "x": 2100,
+      "y": 614,
+      "r": 57,
+      "sprite": {
+        "image": "levels/france_montmartre_cafe_terrace_bird_a9c4/dogs/dog_12/sprite_000.png",
+        "height": 228,
+        "width": 130,
+        "x": 2037,
+        "y": 506,
+        "cleanup": {
+          "x": 2026,
+          "y": 490,
+          "width": 149,
+          "height": 262
+        },
+        "anchorX": 0.4923,
+        "anchorY": 0.4649,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.05,
+          "pop": 27.0,
+          "dx": 0,
+          "dy": 1
+        }
+      }
+    },
+    {
+      "id": "42868b47-a97a-5667-a230-0ee11b9da770",
+      "compatibilitySlot": "dog_13",
+      "x": 2126,
+      "y": 1380,
+      "r": 57,
+      "sprite": {
+        "image": "levels/france_montmartre_cafe_terrace_bird_a9c4/dogs/dog_13/sprite_000.png",
+        "height": 172,
+        "width": 176,
+        "x": 2039,
+        "y": 1287,
+        "cleanup": {
+          "x": 2025,
+          "y": 1274,
+          "width": 202,
+          "height": 197
+        },
+        "anchorX": 0.4943,
+        "anchorY": 0.5407,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 11.0,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.9059,
+          "pop": 11.0,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "f854c3a9-7f90-49f1-96c8-2df4db246b21",
+      "compatibilitySlot": "dog_20",
+      "x": 1624,
+      "y": 1685,
+      "r": 57,
+      "sprite": {
+        "image": "levels/france_montmartre_cafe_terrace_bird_a9c4/dogs/dog_20/sprite_000.png",
+        "height": 176,
+        "width": 240,
+        "x": 1504,
+        "y": 1602,
+        "cleanup": {
+          "x": 1486,
+          "y": 1588,
+          "width": 276,
+          "height": 202
+        },
+        "anchorX": 0.5,
+        "anchorY": 0.4716,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 14.6,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.9239,
+          "pop": 14.5,
+          "why": "T3+refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "670c64d5-6684-51c7-9da8-c75019582325",
+      "compatibilitySlot": "dog_15",
+      "x": 1175,
+      "y": 2260,
+      "r": 57,
+      "sprite": {
+        "image": "levels/france_montmartre_cafe_terrace_bird_a9c4/dogs/dog_15/sprite_000.png",
+        "height": 243,
+        "width": 254,
+        "x": 1045,
+        "y": 2141,
+        "cleanup": {
+          "x": 1025,
+          "y": 2122,
+          "width": 292,
+          "height": 279
+        },
+        "anchorX": 0.5118,
+        "anchorY": 0.4897,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 25.9,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "cac4dc31-9cda-42bf-8142-4027e6d78b0e",
+      "compatibilitySlot": "dog_21",
+      "x": 1664,
+      "y": 2315,
+      "r": 57,
+      "sprite": {
+        "image": "levels/france_montmartre_cafe_terrace_bird_a9c4/dogs/dog_21/sprite_000.png",
+        "height": 200,
+        "width": 216,
+        "x": 1563,
+        "y": 2224,
+        "cleanup": {
+          "x": 1546,
+          "y": 2209,
+          "width": 248,
+          "height": 230
+        },
+        "anchorX": 0.4676,
+        "anchorY": 0.455,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 13.3,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.9714,
+          "pop": 13.3,
+          "why": "T3+refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "7347327b-e477-5876-ac1b-ca67110c9206",
+      "compatibilitySlot": "dog_04",
+      "x": 2068,
+      "y": 1976,
+      "r": 57,
+      "sprite": {
+        "image": "levels/france_montmartre_cafe_terrace_bird_a9c4/dogs/dog_04/sprite_000.png",
+        "height": 146,
+        "width": 197,
+        "x": 1965,
+        "y": 1908,
+        "cleanup": {
+          "x": 1953,
+          "y": 1895,
+          "width": 226,
+          "height": 167
+        },
+        "anchorX": 0.5076,
+        "anchorY": 0.4795,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 0.95,
+          "pop": 28.1,
+          "dx": 2,
+          "dy": -1
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.838,
+          "pop": 30.3,
+          "why": "T3+refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "9ae75164-32c6-5d11-949c-e72387012805",
+      "compatibilitySlot": "dog_00",
+      "x": 2035,
+      "y": 2209,
+      "r": 57,
+      "sprite": {
+        "image": "levels/france_montmartre_cafe_terrace_bird_a9c4/dogs/dog_00/sprite_000.png",
+        "height": 172,
+        "width": 182,
+        "x": 1943,
+        "y": 2127,
+        "cleanup": {
+          "x": 1930,
+          "y": 2114,
+          "width": 209,
+          "height": 197
+        },
+        "anchorX": 0.5,
+        "anchorY": 0.4767,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 18.6,
+          "dx": 1,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.8822,
+          "pop": 22.4,
+          "why": "T3+refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    }
+  ]
+}

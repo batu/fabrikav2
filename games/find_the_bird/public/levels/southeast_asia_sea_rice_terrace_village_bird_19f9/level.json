@@ -15,16 +15,23 @@
         "image": "levels/southeast_asia_sea_rice_terrace_village_bird_19f9/dogs/dog_00/sprite_000.png",
         "x": 560,
         "y": 699,
-        "width": 251,
-        "height": 220,
+        "width": 180,
+        "height": 150,
         "cleanup": {
           "x": 532,
           "y": 685,
           "width": 335,
           "height": 328
         },
-        "anchorX": 0.5777,
-        "anchorY": 0.6455
+        "anchorX": 0.5056,
+        "anchorY": 0.6467,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.05,
+          "pop": 25.7,
+          "dx": 0,
+          "dy": 1
+        }
       }
     },
     {
@@ -36,16 +43,23 @@
         "image": "levels/southeast_asia_sea_rice_terrace_village_bird_19f9/dogs/dog_01/sprite_000.png",
         "x": 1047,
         "y": 575,
-        "width": 218,
-        "height": 226,
+        "width": 153,
+        "height": 158,
         "cleanup": {
           "x": 1042,
           "y": 534,
           "width": 233,
           "height": 322
         },
-        "anchorX": 0.6927,
-        "anchorY": 0.4823
+        "anchorX": 0.6797,
+        "anchorY": 0.5823,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 21.3,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -66,7 +80,14 @@
           "height": 234
         },
         "anchorX": 0.6049,
-        "anchorY": 0.6923
+        "anchorY": 0.6923,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 0.0,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -76,18 +97,31 @@
       "r": 57,
       "sprite": {
         "image": "levels/southeast_asia_sea_rice_terrace_village_bird_19f9/dogs/dog_03/sprite_000.png",
-        "x": 1764,
-        "y": 425,
-        "width": 225,
-        "height": 215,
+        "x": 1799,
+        "y": 496,
+        "width": 117,
+        "height": 126,
         "cleanup": {
           "x": 1693,
           "y": 403,
           "width": 290,
           "height": 345
         },
-        "anchorX": 0.4533,
-        "anchorY": 0.7023
+        "anchorX": 0.5812,
+        "anchorY": 0.6349,
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop",
+          "score": 0.8386,
+          "pop": 29.9
+        },
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 26.7,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -99,16 +133,23 @@
         "image": "levels/southeast_asia_sea_rice_terrace_village_bird_19f9/dogs/dog_04/sprite_000.png",
         "x": 1959,
         "y": 438,
-        "width": 232,
-        "height": 207,
+        "width": 144,
+        "height": 128,
         "cleanup": {
           "x": 1985,
           "y": 408,
           "width": 290,
           "height": 322
         },
-        "anchorX": 0.6207,
-        "anchorY": 0.5797
+        "anchorX": 0.6458,
+        "anchorY": 0.5469,
+        "refit": {
+          "scale": 0.95,
+          "ratio": 0.95,
+          "pop": 27.2,
+          "dx": 7,
+          "dy": 1
+        }
       }
     },
     {
@@ -118,18 +159,31 @@
       "r": 57,
       "sprite": {
         "image": "levels/southeast_asia_sea_rice_terrace_village_bird_19f9/dogs/dog_05/sprite_000.png",
-        "x": 1552,
-        "y": 842,
-        "width": 223,
-        "height": 199,
+        "x": 1554,
+        "y": 870,
+        "width": 167,
+        "height": 133,
         "cleanup": {
           "x": 1481,
           "y": 809,
           "width": 297,
           "height": 275
         },
-        "anchorX": 0.2422,
-        "anchorY": 0.5427
+        "anchorX": 0.2934,
+        "anchorY": 0.5714,
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop2",
+          "score": 0.8207,
+          "pop": 34.2
+        },
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 28.5,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -139,18 +193,31 @@
       "r": 57,
       "sprite": {
         "image": "levels/southeast_asia_sea_rice_terrace_village_bird_19f9/dogs/dog_06/sprite_000.png",
-        "x": 1944,
-        "y": 883,
-        "width": 250,
-        "height": 237,
+        "x": 2004,
+        "y": 951,
+        "width": 83,
+        "height": 105,
         "cleanup": {
           "x": 1866,
           "y": 805,
           "width": 345,
           "height": 310
         },
-        "anchorX": 0.396,
-        "anchorY": 0.4473
+        "anchorX": 0.494,
+        "anchorY": 0.3619,
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop",
+          "score": 0.9347,
+          "pop": 8.7
+        },
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 8.9,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -171,7 +238,14 @@
           "height": 333
         },
         "anchorX": 0.46,
-        "anchorY": 0.5054
+        "anchorY": 0.5054,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 26.2,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -192,7 +266,14 @@
           "height": 345
         },
         "anchorX": 0.4962,
-        "anchorY": 0.5
+        "anchorY": 0.5,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 20.9,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -204,16 +285,23 @@
         "image": "levels/southeast_asia_sea_rice_terrace_village_bird_19f9/dogs/dog_09/sprite_000.png",
         "x": 1447,
         "y": 1344,
-        "width": 152,
-        "height": 123,
+        "width": 213,
+        "height": 172,
         "cleanup": {
           "x": 1435,
           "y": 1217,
           "width": 341,
           "height": 345
         },
-        "anchorX": 0.6382,
-        "anchorY": 0.4065
+        "anchorX": 0.6197,
+        "anchorY": 0.4535,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 12.5,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -225,16 +313,23 @@
         "image": "levels/southeast_asia_sea_rice_terrace_village_bird_19f9/dogs/dog_10/sprite_000.png",
         "x": 1968,
         "y": 1431,
-        "width": 184,
-        "height": 172,
+        "width": 258,
+        "height": 241,
         "cleanup": {
           "x": 1894,
           "y": 1319,
           "width": 345,
           "height": 341
         },
-        "anchorX": 0.538,
-        "anchorY": 0.3547
+        "anchorX": 0.5194,
+        "anchorY": 0.361,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 16.5,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -246,16 +341,23 @@
         "image": "levels/southeast_asia_sea_rice_terrace_village_bird_19f9/dogs/dog_11/sprite_000.png",
         "x": 708,
         "y": 1623,
-        "width": 286,
-        "height": 191,
+        "width": 293,
+        "height": 186,
         "cleanup": {
           "x": 708,
           "y": 1578,
           "width": 345,
           "height": 345
         },
-        "anchorX": 0.5559,
-        "anchorY": 0.534
+        "anchorX": 0.5563,
+        "anchorY": 0.5376,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 35.6,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -265,18 +367,31 @@
       "r": 57,
       "sprite": {
         "image": "levels/southeast_asia_sea_rice_terrace_village_bird_19f9/dogs/dog_12/sprite_000.png",
-        "x": 1234,
-        "y": 1680,
-        "width": 188,
-        "height": 261,
+        "x": 1219,
+        "y": 1668,
+        "width": 151,
+        "height": 176,
         "cleanup": {
           "x": 1161,
           "y": 1676,
           "width": 345,
           "height": 345
         },
-        "anchorX": 0.3617,
-        "anchorY": 0.2797
+        "anchorX": 0.4768,
+        "anchorY": 0.4943,
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop",
+          "score": 0.6132,
+          "pop": 61.7
+        },
+        "refit": {
+          "scale": 0.9500000000000001,
+          "ratio": 0.9,
+          "pop": 26.4,
+          "dx": 10,
+          "dy": -1
+        }
       }
     },
     {
@@ -288,16 +403,23 @@
         "image": "levels/southeast_asia_sea_rice_terrace_village_bird_19f9/dogs/dog_13/sprite_000.png",
         "x": 1994,
         "y": 1722,
-        "width": 174,
-        "height": 168,
+        "width": 244,
+        "height": 235,
         "cleanup": {
           "x": 1915,
           "y": 1662,
           "width": 345,
           "height": 340
         },
-        "anchorX": 0.3966,
-        "anchorY": 0.6012
+        "anchorX": 0.4303,
+        "anchorY": 0.4213,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 17.1,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -309,16 +431,23 @@
         "image": "levels/southeast_asia_sea_rice_terrace_village_bird_19f9/dogs/dog_14/sprite_000.png",
         "x": 408,
         "y": 2128,
-        "width": 161,
-        "height": 137,
+        "width": 225,
+        "height": 192,
         "cleanup": {
           "x": 301,
           "y": 2040,
           "width": 340,
           "height": 345
         },
-        "anchorX": 0.3789,
-        "anchorY": 0.6204
+        "anchorX": 0.4978,
+        "anchorY": 0.6198,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 16.4,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -330,16 +459,23 @@
         "image": "levels/southeast_asia_sea_rice_terrace_village_bird_19f9/dogs/dog_15/sprite_000.png",
         "x": 1002,
         "y": 2289,
-        "width": 184,
-        "height": 117,
+        "width": 239,
+        "height": 152,
         "cleanup": {
           "x": 908,
           "y": 2196,
           "width": 345,
           "height": 334
         },
-        "anchorX": 0.4293,
-        "anchorY": 0.6838
+        "anchorX": 0.4854,
+        "anchorY": 0.625,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 19.7,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -351,16 +487,23 @@
         "image": "levels/southeast_asia_sea_rice_terrace_village_bird_19f9/dogs/dog_16/sprite_000.png",
         "x": 1558,
         "y": 2224,
-        "width": 144,
-        "height": 118,
+        "width": 202,
+        "height": 165,
         "cleanup": {
           "x": 1433,
           "y": 2151,
           "width": 345,
           "height": 345
         },
-        "anchorX": 0.3333,
-        "anchorY": 0.4576
+        "anchorX": 0.3713,
+        "anchorY": 0.497,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 15.7,
+          "dx": 0,
+          "dy": 0
+        }
       }
     }
   ]

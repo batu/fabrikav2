@@ -8,6 +8,8 @@ technique flatkey-gemini-flash-v5, 75/75 shipped).
 
 from __future__ import annotations
 
+import os
+
 import numpy as np
 from PIL import Image
 from scipy import ndimage
@@ -29,6 +31,35 @@ FLAT_PROMPT_TEMPLATE = (
 )
 # Bird default kept for existing callers/tests.
 FLAT_PROMPT = FLAT_PROMPT_TEMPLATE.format(entity="bird")
+
+# Operator decision 2026-09-16: shipped stickers are the VISIBLE part only
+# (an inferred hidden body never aligns with the paint). FTD_FLATKEY_OCCLUSION
+# =visible swaps the occlusion sentence; FTD_FLATKEY_QUALITY passes the
+# gpt-image quality knob ("low" is the chosen sticker setting, $0.0082/call).
+_OCCLUSION_COMPLETE = (
+    "If the selected {entity} is partially occluded, infer and complete only the hidden "
+    "anatomy needed to form one plausible complete {entity}; preserve every visible "
+    "part exactly and do not include the occluding object. "
+    "Output the complete {entity}, fully inside the frame, on a completely uniform, "
+)
+_OCCLUSION_VISIBLE = (
+    "If the selected {entity} is partially hidden behind something, output ONLY the "
+    "visible part, exactly as painted, with the hidden part simply absent. Do NOT invent, "
+    "infer, or complete any hidden anatomy, and do not include the occluding object. "
+    "Output the {entity} at the same size and position as in the reference, on a completely uniform, "
+)
+assert _OCCLUSION_COMPLETE in FLAT_PROMPT_TEMPLATE
+
+
+def flat_prompt_template() -> str:
+    if os.environ.get("FTD_FLATKEY_OCCLUSION", "complete") == "visible":
+        return FLAT_PROMPT_TEMPLATE.replace(_OCCLUSION_COMPLETE, _OCCLUSION_VISIBLE)
+    return FLAT_PROMPT_TEMPLATE
+
+
+def _edit_kwargs() -> dict:
+    quality = os.environ.get("FTD_FLATKEY_QUALITY")
+    return {"quality": quality} if quality else {}
 
 
 def _estimate_background_field(rgb: np.ndarray) -> tuple[np.ndarray, float]:
@@ -116,7 +147,13 @@ def despill(cutout):
     edge = (a > 0) & (a < 255)
     magenta = (r > g + 40) & (b > g + 40)
     green = (g > r + 40) & (g > b + 40)
-    spill = (edge | (a > 0)) & (magenta | green)
+    # Edge pixels only (2026-09-16): the previous `edge | (a > 0)` greyed EVERY
+    # green or magenta-ish pixel in the sprite, turning green plumage and pink
+    # petals into grey patches on shipped stickers (level 1 flower hat, level 8
+    # green bird). The key colour cannot be inside a fully opaque interior pixel
+    # after chroma_key forces the interior opaque, so only the antialiased rim
+    # can carry spill.
+    spill = edge & (magenta | green)
     # pull spill pixels toward their neighborhood-neutral gray
     m = (r + g + b) // 3
     for c in range(3):
@@ -125,6 +162,44 @@ def despill(cutout):
     arr[:,:,3] = np.where(spill & (a < 90), 0, arr[:,:,3])
     from PIL import Image as _I
     return _I.fromarray(arr.astype("uint8"), "RGBA")
+
+
+def finalize_cutout(cutout: Image.Image, max_hole_px: int = 1500) -> Image.Image:
+    """Last keying pass (2026-09-16), deterministic:
+    - opaque interior pixels that are still key-coloured are gaps the keyer
+      forced solid (space between brush bristles, between legs): make them
+      transparent;
+    - small enclosed holes that are NOT key-coloured are plumage the key
+      removed by mistake (pink/purple): restore them;
+    - any key-coloured pixel left on the rim takes the nearest non-key colour;
+    - RGB under transparent pixels is filled from the nearest opaque pixel so
+      resampling (editor resize, runtime linear filtering) never bleeds the
+      key colour or black into the edge."""
+    a = np.asarray(cutout.convert("RGBA"), dtype=np.uint8).copy()
+    rgb = a[..., :3].astype(int)
+    r, g, b = rgb[..., 0], rgb[..., 1], rgb[..., 2]
+    # Near-pure key only (r,b > 200, g < 90): the model paints background gaps in
+    # the key colour itself; real pink/purple plumage never reaches this, so it
+    # is not punched out (Batu 2026-09-16: never make the inside of a bird transparent).
+    keyc = (r > 200) & (b > 200) & (g < 90) & (r - g > 110) & (b - g > 110)
+    alpha = a[..., 3]
+    alpha[keyc & (alpha == 255)] = 0
+    opaque = alpha > 0
+    holes = ndimage.binary_fill_holes(opaque) & ~opaque
+    labels, n = ndimage.label(holes)
+    for i in range(1, n + 1):
+        h = labels == i
+        if h.sum() <= max_hole_px and keyc[h].mean() < 0.5:
+            alpha[h] = 255
+    opaque = alpha > 0
+    rim_key = keyc & opaque
+    good = opaque & ~rim_key
+    if good.any() and (~good).any():
+        idx = ndimage.distance_transform_edt(~good, return_distances=False, return_indices=True)
+        nearest = a[..., :3][idx[0], idx[1]]
+        fill = rim_key | ~opaque
+        a[..., :3][fill] = nearest[fill]
+    return Image.fromarray(a, "RGBA")
 
 
 def flat_ok(flat, cutout):
@@ -213,13 +288,13 @@ def flatkey_recreate_sprite(
     for _ in range(attempts):
         # replace() not format(): an operator-supplied override may contain
         # braces that are not placeholders.
-        template = prompt_template or FLAT_PROMPT_TEMPLATE
-        flat = edit_image(painted_crop.convert("RGB"), template.replace("{entity}", entity), model=model)
+        template = prompt_template or flat_prompt_template()
+        flat = edit_image(painted_crop.convert("RGB"), template.replace("{entity}", entity), model=model, **_edit_kwargs())
         cutout = strip_flat_rim(chroma_key(flat.convert("RGB")))
         ok, _reason = flat_ok(flat, cutout)
         if not ok:
             continue
-        cutout = despill(cutout)
+        cutout = finalize_cutout(despill(cutout))
         bbox = cutout.getbbox()
         if bbox is None:
             continue
@@ -307,7 +382,7 @@ def _panel_cutout(panel: Image.Image) -> Image.Image | None:
     ok, _reason = flat_ok(panel, keyed)
     if not ok:
         return None
-    cutout = despill(keyed)
+    cutout = finalize_cutout(despill(keyed))
     alpha = np.asarray(cutout)[:, :, 3]
     subject = float((alpha > 0).mean())
     if not (0.02 < subject < 0.9):
@@ -341,6 +416,7 @@ def flatkey_recreate_sprites_batch(
                 grid_img,
                 GRID_PROMPT_TEMPLATE.format(n=n, count=len(chunk), entity=entity),
                 model=model,
+                **_edit_kwargs(),
             )
         except Exception:
             return [(idx, None) for idx in chunk]

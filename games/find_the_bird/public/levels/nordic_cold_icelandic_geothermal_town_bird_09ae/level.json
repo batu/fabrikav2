@@ -1,0 +1,636 @@
+{
+  "id": "nordic_cold_icelandic_geothermal_town_bird_09ae",
+  "name": "Level nordic_cold_icelandic_geothermal_town_bird_09ae",
+  "width": 2688,
+  "height": 2688,
+  "colorImage": "levels/nordic_cold_icelandic_geothermal_town_bird_09ae/color.png",
+  "artifactRevision": "sha256:a4ebbd20448cbf72550b927c8c4eb0a269233ce9b301116e60938074fd0e3a76",
+  "compatibilityAliases": {
+    "dog_00": "b863c553-081f-4faf-890d-60e5e81fd497",
+    "dog_07": "8fdac34b-36b5-418d-81e3-fbfb744798f0",
+    "dog_13": "29a1ed27-01b8-4f11-b759-8da0b6839475",
+    "dog_14": "01ae0b28-50f5-49c8-95e8-cec5e4e89028",
+    "dog_18": "e2fed294-6aba-42ce-b2a7-c154d4896133",
+    "dog_22": "0e3ae78b-57d5-442c-9fcc-12a91c3a23bb",
+    "dog_23": "c43a7d03-3310-4c78-b32f-88b46dcae871",
+    "dog_24": "bd879e52-805b-45ce-a531-70a3c9522c5c",
+    "dog_25": "da404ff9-7d27-432b-bb51-8287fb92377b",
+    "dog_26": "1a195460-5da3-4636-a7d7-c4f28268cee4",
+    "dog_27": "45f02729-937d-4cf7-adf0-2affd745df0b",
+    "dog_28": "9f7e9ffc-4d7e-4808-a7b3-67e5b7517c56",
+    "dog_29": "8344543a-780e-4c5b-a888-6cc489cf12a2",
+    "dog_30": "012db1d7-f3e6-4c6c-9314-25f8ca9cc9f5",
+    "dog_31": "41e09e70-1dbe-43aa-b769-a7ce5503ca06",
+    "dog_32": "cfae55d8-ebc0-4d33-8702-87ae1f416179",
+    "dog_33": "30d2d125-7f73-4082-8269-5c7d39bd0160"
+  },
+  "dogs": [
+    {
+      "id": "b863c553-081f-4faf-890d-60e5e81fd497",
+      "compatibilitySlot": "dog_00",
+      "x": 522,
+      "y": 672,
+      "r": 57,
+      "sprite": {
+        "image": "levels/nordic_cold_icelandic_geothermal_town_bird_09ae/dogs/dog_00/sprite_000.png",
+        "height": 188,
+        "width": 188,
+        "x": 445,
+        "y": 585,
+        "cleanup": {
+          "x": 430,
+          "y": 570,
+          "width": 216,
+          "height": 216
+        },
+        "anchorX": 0.4096,
+        "anchorY": 0.4628,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 15.4,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "8fdac34b-36b5-418d-81e3-fbfb744798f0",
+      "compatibilitySlot": "dog_07",
+      "x": 926,
+      "y": 805,
+      "r": 57,
+      "sprite": {
+        "image": "levels/nordic_cold_icelandic_geothermal_town_bird_09ae/dogs/dog_07/sprite_000.png",
+        "height": 153,
+        "width": 142,
+        "x": 845,
+        "y": 743,
+        "cleanup": {
+          "x": 834,
+          "y": 731,
+          "width": 163,
+          "height": 175
+        },
+        "anchorX": 0.5704,
+        "anchorY": 0.4052,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 18.4,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.932,
+          "pop": 18.3,
+          "why": "T3"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "29a1ed27-01b8-4f11-b759-8da0b6839475",
+      "compatibilitySlot": "dog_13",
+      "x": 1510,
+      "y": 580,
+      "r": 57,
+      "sprite": {
+        "image": "levels/nordic_cold_icelandic_geothermal_town_bird_09ae/dogs/dog_13/sprite_000.png",
+        "height": 126,
+        "width": 110,
+        "x": 1453,
+        "y": 489,
+        "cleanup": {
+          "x": 1444,
+          "y": 479,
+          "width": 126,
+          "height": 157
+        },
+        "anchorX": 0.5182,
+        "anchorY": 0.7222,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 23.8,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "01ae0b28-50f5-49c8-95e8-cec5e4e89028",
+      "compatibilitySlot": "dog_14",
+      "x": 1775,
+      "y": 863,
+      "r": 57,
+      "sprite": {
+        "image": "levels/nordic_cold_icelandic_geothermal_town_bird_09ae/dogs/dog_14/sprite_000.png",
+        "height": 121,
+        "width": 112,
+        "x": 1706,
+        "y": 800,
+        "cleanup": {
+          "x": 1697,
+          "y": 790,
+          "width": 134,
+          "height": 139
+        },
+        "anchorX": 0.6161,
+        "anchorY": 0.5207,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 13.8,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.9384,
+          "pop": 13.2,
+          "why": "T3"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "e2fed294-6aba-42ce-b2a7-c154d4896133",
+      "compatibilitySlot": "dog_18",
+      "x": 2059,
+      "y": 1128,
+      "r": 57,
+      "sprite": {
+        "image": "levels/nordic_cold_icelandic_geothermal_town_bird_09ae/dogs/dog_18/sprite_000.png",
+        "height": 134,
+        "width": 174,
+        "x": 1987,
+        "y": 1051,
+        "cleanup": {
+          "x": 1971,
+          "y": 1042,
+          "width": 200,
+          "height": 154
+        },
+        "anchorX": 0.4253,
+        "anchorY": 0.5597,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.05,
+          "pop": 34.9,
+          "dx": -2,
+          "dy": 1
+        }
+      }
+    },
+    {
+      "id": "0e3ae78b-57d5-442c-9fcc-12a91c3a23bb",
+      "compatibilitySlot": "dog_22",
+      "x": 2195,
+      "y": 1363,
+      "r": 57,
+      "sprite": {
+        "image": "levels/nordic_cold_icelandic_geothermal_town_bird_09ae/dogs/dog_22/sprite_000.png",
+        "height": 119,
+        "width": 213,
+        "x": 2079,
+        "y": 1325,
+        "cleanup": {
+          "x": 2063,
+          "y": 1306,
+          "width": 244,
+          "height": 146
+        },
+        "anchorX": 0.5446,
+        "anchorY": 0.3193,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 18.7,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "c43a7d03-3310-4c78-b32f-88b46dcae871",
+      "compatibilitySlot": "dog_23",
+      "x": 2210,
+      "y": 1611,
+      "r": 57,
+      "sprite": {
+        "image": "levels/nordic_cold_icelandic_geothermal_town_bird_09ae/dogs/dog_23/sprite_000.png",
+        "height": 147,
+        "width": 200,
+        "x": 2128,
+        "y": 1511,
+        "cleanup": {
+          "x": 2113,
+          "y": 1499,
+          "width": 230,
+          "height": 169
+        },
+        "anchorX": 0.41,
+        "anchorY": 0.6803,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 13.4,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "bd879e52-805b-45ce-a531-70a3c9522c5c",
+      "compatibilitySlot": "dog_24",
+      "x": 1323,
+      "y": 1259,
+      "r": 57,
+      "sprite": {
+        "image": "levels/nordic_cold_icelandic_geothermal_town_bird_09ae/dogs/dog_24/sprite_000.png",
+        "height": 165,
+        "width": 172,
+        "x": 1225,
+        "y": 1177,
+        "cleanup": {
+          "x": 1212,
+          "y": 1164,
+          "width": 197,
+          "height": 189
+        },
+        "anchorX": 0.5698,
+        "anchorY": 0.497,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 17.3,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.9639,
+          "pop": 17.2,
+          "why": "T3+refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "da404ff9-7d27-432b-bb51-8287fb92377b",
+      "compatibilitySlot": "dog_25",
+      "x": 1023,
+      "y": 1305,
+      "r": 57,
+      "sprite": {
+        "image": "levels/nordic_cold_icelandic_geothermal_town_bird_09ae/dogs/dog_25/sprite_000.png",
+        "height": 173,
+        "width": 134,
+        "x": 984,
+        "y": 1201,
+        "cleanup": {
+          "x": 966,
+          "y": 1186,
+          "width": 163,
+          "height": 198
+        },
+        "anchorX": 0.2836,
+        "anchorY": 0.6127,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 0.95,
+          "pop": 24.7,
+          "dx": 1,
+          "dy": -1
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.9063,
+          "pop": 23.7,
+          "why": "T3"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "1a195460-5da3-4636-a7d7-c4f28268cee4",
+      "compatibilitySlot": "dog_26",
+      "x": 554,
+      "y": 1622,
+      "r": 57,
+      "sprite": {
+        "image": "levels/nordic_cold_icelandic_geothermal_town_bird_09ae/dogs/dog_26/sprite_000.png",
+        "height": 252,
+        "width": 217,
+        "x": 454,
+        "y": 1481,
+        "cleanup": {
+          "x": 437,
+          "y": 1462,
+          "width": 249,
+          "height": 289
+        },
+        "anchorX": 0.4608,
+        "anchorY": 0.5595,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 0.0,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "45f02729-937d-4cf7-adf0-2affd745df0b",
+      "compatibilitySlot": "dog_27",
+      "x": 840,
+      "y": 1944,
+      "r": 57,
+      "sprite": {
+        "image": "levels/nordic_cold_icelandic_geothermal_town_bird_09ae/dogs/dog_27/sprite_000.png",
+        "height": 200,
+        "width": 170,
+        "x": 767,
+        "y": 1857,
+        "cleanup": {
+          "x": 741,
+          "y": 1814,
+          "width": 195,
+          "height": 230
+        },
+        "anchorX": 0.5059,
+        "anchorY": 0.575,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.25,
+          "ratio": 1.0,
+          "pop": 24.3,
+          "dx": -12,
+          "dy": -28
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.505,
+          "pop": 60.3,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "9f7e9ffc-4d7e-4808-a7b3-67e5b7517c56",
+      "compatibilitySlot": "dog_28",
+      "x": 1301,
+      "y": 1557,
+      "r": 57,
+      "sprite": {
+        "image": "levels/nordic_cold_icelandic_geothermal_town_bird_09ae/dogs/dog_28/sprite_000.png",
+        "height": 154,
+        "width": 148,
+        "x": 1206,
+        "y": 1441,
+        "cleanup": {
+          "x": 1194,
+          "y": 1429,
+          "width": 170,
+          "height": 184
+        },
+        "anchorX": 0.6419,
+        "anchorY": 0.7532,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 15.5,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "8344543a-780e-4c5b-a888-6cc489cf12a2",
+      "compatibilitySlot": "dog_29",
+      "x": 1838,
+      "y": 1584,
+      "r": 57,
+      "sprite": {
+        "image": "levels/nordic_cold_icelandic_geothermal_town_bird_09ae/dogs/dog_29/sprite_000.png",
+        "height": 178,
+        "width": 114,
+        "x": 1751,
+        "y": 1514,
+        "cleanup": {
+          "x": 1742,
+          "y": 1500,
+          "width": 152,
+          "height": 204
+        },
+        "anchorX": 0.7632,
+        "anchorY": 0.3933,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 23.5,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "012db1d7-f3e6-4c6c-9314-25f8ca9cc9f5",
+      "compatibilitySlot": "dog_30",
+      "x": 1723,
+      "y": 1998,
+      "r": 57,
+      "sprite": {
+        "image": "levels/nordic_cold_icelandic_geothermal_town_bird_09ae/dogs/dog_30/sprite_000.png",
+        "height": 121,
+        "width": 188,
+        "x": 1636,
+        "y": 1920,
+        "cleanup": {
+          "x": 1621,
+          "y": 1910,
+          "width": 216,
+          "height": 144
+        },
+        "anchorX": 0.4628,
+        "anchorY": 0.6446,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 30.9,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.8597,
+          "pop": 29.5,
+          "why": "T3+refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "41e09e70-1dbe-43aa-b769-a7ce5503ca06",
+      "compatibilitySlot": "dog_31",
+      "x": 728,
+      "y": 2355,
+      "r": 57,
+      "sprite": {
+        "image": "levels/nordic_cold_icelandic_geothermal_town_bird_09ae/dogs/dog_31/sprite_000.png",
+        "height": 133,
+        "width": 183,
+        "x": 669,
+        "y": 2279,
+        "cleanup": {
+          "x": 655,
+          "y": 2269,
+          "width": 210,
+          "height": 152
+        },
+        "anchorX": 0.3224,
+        "anchorY": 0.5714,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 19.4,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.8538,
+          "pop": 18.3,
+          "why": "T3+refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "cfae55d8-ebc0-4d33-8702-87ae1f416179",
+      "compatibilitySlot": "dog_32",
+      "x": 1252,
+      "y": 2334,
+      "r": 57,
+      "sprite": {
+        "image": "levels/nordic_cold_icelandic_geothermal_town_bird_09ae/dogs/dog_32/sprite_000.png",
+        "height": 145,
+        "width": 203,
+        "x": 1151,
+        "y": 2238,
+        "cleanup": {
+          "x": 1138,
+          "y": 2225,
+          "width": 233,
+          "height": 166
+        },
+        "anchorX": 0.4828,
+        "anchorY": 0.6759,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 0.95,
+          "pop": 22.0,
+          "dx": 3,
+          "dy": -1
+        }
+      }
+    },
+    {
+      "id": "30d2d125-7f73-4082-8269-5c7d39bd0160",
+      "compatibilitySlot": "dog_33",
+      "x": 2045,
+      "y": 2135,
+      "r": 57,
+      "sprite": {
+        "image": "levels/nordic_cold_icelandic_geothermal_town_bird_09ae/dogs/dog_33/sprite_000.png",
+        "height": 202,
+        "width": 214,
+        "x": 1934,
+        "y": 2033,
+        "cleanup": {
+          "x": 1917,
+          "y": 2017,
+          "width": 246,
+          "height": 232
+        },
+        "anchorX": 0.5187,
+        "anchorY": 0.505,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 17.2,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "a97b0803-3ad6-430b-a38d-162652956d8b",
+      "compatibilitySlot": "dog_added_01",
+      "x": 1037,
+      "y": 1046,
+      "r": 57,
+      "sprite": {
+        "image": "levels/nordic_cold_icelandic_geothermal_town_bird_09ae/dogs/dog_added_01/sprite_000.png",
+        "x": 1017,
+        "y": 1028,
+        "width": 60,
+        "height": 74,
+        "cleanup": {
+          "x": 980,
+          "y": 989,
+          "width": 124,
+          "height": 133
+        },
+        "anchorX": 0.3333,
+        "anchorY": 0.2432,
+        "flipX": false,
+        "flipY": false,
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "manual-add",
+          "score": 0.8983,
+          "pop": 15.7,
+          "why": "added by Batu"
+        }
+      }
+    }
+  ]
+}

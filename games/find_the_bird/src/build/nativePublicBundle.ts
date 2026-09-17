@@ -15,6 +15,12 @@ import type { Plugin } from 'vite';
 // bundled for on-device QA (level payload alone is 103MB). Restore 100MB once
 // CDN streaming or a sprite-size diet lands.
 export const NATIVE_WEB_BUNDLE_MAX_BYTES = 200 * 1024 * 1024;
+// Review builds only (2026-09-16): FTD_NATIVE_BUNDLE_MAX_MB lets an on-device QA build
+// carry every level for operator review. Store builds never set it.
+export function nativeWebBundleMaxBytes(env: NodeJS.ProcessEnv = process.env): number {
+  const override = Number(env.FTD_NATIVE_BUNDLE_MAX_MB);
+  return Number.isFinite(override) && override > 0 ? override * 1024 * 1024 : NATIVE_WEB_BUNDLE_MAX_BYTES;
+}
 
 type ManifestValue = null | boolean | number | string | ManifestValue[] | { [key: string]: ManifestValue };
 type ManifestObject = { [key: string]: ManifestValue };
@@ -303,10 +309,10 @@ export function nativePublicBundlePlugin(publicRoot: string): Plugin {
     writeBundle(options): void {
       if (typeof options.dir !== 'string') throw new Error('FTD native builds require a directory output');
       const bytes = copyNativePublicBundle(publicRoot, options.dir);
-      if (bytes >= NATIVE_WEB_BUNDLE_MAX_BYTES) {
+      if (bytes >= nativeWebBundleMaxBytes()) {
         throw new Error(
           `FTD native web bundle is ${(bytes / 1024 / 1024).toFixed(1)} MB; ` +
-          `limit is ${NATIVE_WEB_BUNDLE_MAX_BYTES / 1024 / 1024} MB`,
+          `limit is ${nativeWebBundleMaxBytes() / 1024 / 1024} MB`,
         );
       }
     },

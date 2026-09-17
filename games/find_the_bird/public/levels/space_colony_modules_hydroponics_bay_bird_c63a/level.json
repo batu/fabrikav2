@@ -1,0 +1,938 @@
+{
+  "id": "space_colony_modules_hydroponics_bay_bird_c63a",
+  "name": "Level space_colony_modules_hydroponics_bay_bird_c63a",
+  "width": 2688,
+  "height": 2688,
+  "colorImage": "levels/space_colony_modules_hydroponics_bay_bird_c63a/color.png",
+  "artifactRevision": "sha256:38aeaf18ec7cd4c86392657a6c8ce3ba85005015cc7289fabbda32ee4d3ab660",
+  "compatibilityAliases": {
+    "dog_13": "10326e03-8277-5d97-8d32-c3fd0237863b",
+    "dog_09": "8b12a3cc-9319-54fb-a4f5-4d63600af8d7",
+    "dog_20": "8870f643-25a7-4353-93ab-f3db10432b2b",
+    "dog_14": "a3ba597b-5586-590e-9695-9dd8a6ecade1",
+    "dog_04": "d263f823-b5a8-5b75-aa65-9f9494958889",
+    "dog_05": "aacb11f9-3175-5a0d-bc59-42098608ddae",
+    "dog_21": "d97ab3f5-e3b5-4228-a41f-4ff7494b2749",
+    "dog_03": "665835a1-d245-5997-858d-0424c1cbc2ca",
+    "dog_08": "e68999e1-89ba-58bf-80c0-3b89b13ee689",
+    "dog_22": "b787a233-e559-4306-bb79-032408ad8f71",
+    "dog_23": "57d02f9b-9ac2-4b58-a622-e48fbb31aa6d",
+    "dog_11": "9102cf44-d113-5564-a521-0b8e3ca01d93",
+    "dog_00": "761e15a1-f9ed-5f8d-a203-34a9f0d1289c",
+    "dog_18": "4c05c526-28dd-5708-94fc-8ff1d2a88a76",
+    "dog_17": "baee52f1-9fe4-514b-b8f2-b4e3d5872f43",
+    "dog_06": "1cc8abc1-e89e-5458-98e8-66e6ca982965",
+    "dog_10": "d0f0397c-6f74-5c35-bafe-9a7bddc85ff6",
+    "dog_02": "6c8e864d-f3a7-51e7-8261-51e66a3c649f",
+    "dog_19": "608c9ad4-1d99-52ce-b46e-5b4af5b23c5d",
+    "dog_24": "07b33eed-0af4-4412-9aee-e0f4432ba660",
+    "dog_16": "7880ea84-ec33-5281-8340-27fa227118b8",
+    "dog_25": "cb5cec38-1ef9-5d00-98ea-e2501c7ddb8a",
+    "dog_26": "bd38b82a-6f6e-56db-b033-8a0cbff4ad29",
+    "dog_27": "457a44c7-d176-5819-9d00-93ede817a45f",
+    "dog_01": "fa2dac9b-8153-41e5-a413-9dfca8f01b76"
+  },
+  "dogs": [
+    {
+      "id": "10326e03-8277-5d97-8d32-c3fd0237863b",
+      "compatibilitySlot": "dog_13",
+      "x": 1003,
+      "y": 597,
+      "r": 57,
+      "sprite": {
+        "image": "levels/space_colony_modules_hydroponics_bay_bird_c63a/dogs/dog_13/sprite_000.png",
+        "height": 146,
+        "width": 168,
+        "x": 921,
+        "y": 533,
+        "cleanup": {
+          "x": 908,
+          "y": 522,
+          "width": 193,
+          "height": 167
+        },
+        "anchorX": 0.4881,
+        "anchorY": 0.4384,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 14.0,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.9333,
+          "pop": 14.2,
+          "why": "T3+refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "8b12a3cc-9319-54fb-a4f5-4d63600af8d7",
+      "compatibilitySlot": "dog_09",
+      "x": 591,
+      "y": 786,
+      "r": 57,
+      "sprite": {
+        "image": "levels/space_colony_modules_hydroponics_bay_bird_c63a/dogs/dog_09/sprite_000.png",
+        "height": 148,
+        "width": 158,
+        "x": 521,
+        "y": 719,
+        "cleanup": {
+          "x": 509,
+          "y": 707,
+          "width": 181,
+          "height": 170
+        },
+        "anchorX": 0.443,
+        "anchorY": 0.4527,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 18.8,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.9485,
+          "pop": 18.8,
+          "why": "T3+refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "8870f643-25a7-4353-93ab-f3db10432b2b",
+      "compatibilitySlot": "dog_20",
+      "x": 1032,
+      "y": 907,
+      "r": 57,
+      "sprite": {
+        "image": "levels/space_colony_modules_hydroponics_bay_bird_c63a/dogs/dog_20/sprite_000.png",
+        "height": 136,
+        "width": 146,
+        "x": 959,
+        "y": 836,
+        "cleanup": {
+          "x": 948,
+          "y": 825,
+          "width": 167,
+          "height": 156
+        },
+        "anchorX": 0.5,
+        "anchorY": 0.5221,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 12.6,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.9408,
+          "pop": 12.7,
+          "why": "T3+refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "a3ba597b-5586-590e-9695-9dd8a6ecade1",
+      "compatibilitySlot": "dog_14",
+      "x": 1382,
+      "y": 719,
+      "r": 57,
+      "sprite": {
+        "image": "levels/space_colony_modules_hydroponics_bay_bird_c63a/dogs/dog_14/sprite_000.png",
+        "height": 134,
+        "width": 168,
+        "x": 1304,
+        "y": 661,
+        "cleanup": {
+          "x": 1291,
+          "y": 650,
+          "width": 193,
+          "height": 154
+        },
+        "anchorX": 0.4643,
+        "anchorY": 0.4328,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 19.8,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.9474,
+          "pop": 19.8,
+          "why": "T3+refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "d263f823-b5a8-5b75-aa65-9f9494958889",
+      "compatibilitySlot": "dog_04",
+      "x": 1703,
+      "y": 871,
+      "r": 57,
+      "sprite": {
+        "image": "levels/space_colony_modules_hydroponics_bay_bird_c63a/dogs/dog_04/sprite_000.png",
+        "height": 159,
+        "width": 143,
+        "x": 1637,
+        "y": 786,
+        "cleanup": {
+          "x": 1626,
+          "y": 774,
+          "width": 164,
+          "height": 182
+        },
+        "anchorX": 0.4615,
+        "anchorY": 0.5346,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 18.0,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "aacb11f9-3175-5a0d-bc59-42098608ddae",
+      "compatibilitySlot": "dog_05",
+      "x": 1978,
+      "y": 841,
+      "r": 57,
+      "sprite": {
+        "image": "levels/space_colony_modules_hydroponics_bay_bird_c63a/dogs/dog_05/sprite_000.png",
+        "height": 140,
+        "width": 180,
+        "x": 1891,
+        "y": 773,
+        "cleanup": {
+          "x": 1877,
+          "y": 762,
+          "width": 206,
+          "height": 161
+        },
+        "anchorX": 0.4833,
+        "anchorY": 0.4857,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 24.6,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "d97ab3f5-e3b5-4228-a41f-4ff7494b2749",
+      "compatibilitySlot": "dog_21",
+      "x": 443,
+      "y": 1290,
+      "r": 57,
+      "sprite": {
+        "image": "levels/space_colony_modules_hydroponics_bay_bird_c63a/dogs/dog_21/sprite_000.png",
+        "height": 142,
+        "width": 178,
+        "x": 355,
+        "y": 1230,
+        "cleanup": {
+          "x": 341,
+          "y": 1219,
+          "width": 204,
+          "height": 163
+        },
+        "anchorX": 0.4944,
+        "anchorY": 0.4225,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 13.6,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.9481,
+          "pop": 13.6,
+          "why": "T3+refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "665835a1-d245-5997-858d-0424c1cbc2ca",
+      "compatibilitySlot": "dog_03",
+      "x": 846,
+      "y": 1222,
+      "r": 57,
+      "sprite": {
+        "image": "levels/space_colony_modules_hydroponics_bay_bird_c63a/dogs/dog_03/sprite_000.png",
+        "height": 149,
+        "width": 158,
+        "x": 766,
+        "y": 1155,
+        "cleanup": {
+          "x": 754,
+          "y": 1143,
+          "width": 181,
+          "height": 171
+        },
+        "anchorX": 0.5063,
+        "anchorY": 0.4497,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 14.6,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "e68999e1-89ba-58bf-80c0-3b89b13ee689",
+      "compatibilitySlot": "dog_08",
+      "x": 1004,
+      "y": 1432,
+      "r": 57,
+      "sprite": {
+        "image": "levels/space_colony_modules_hydroponics_bay_bird_c63a/dogs/dog_08/sprite_000.png",
+        "height": 113,
+        "width": 161,
+        "x": 933,
+        "y": 1379,
+        "cleanup": {
+          "x": 923,
+          "y": 1373,
+          "width": 185,
+          "height": 129
+        },
+        "anchorX": 0.4224,
+        "anchorY": 0.4425,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 0.6,
+          "ratio": 1.05,
+          "pop": 35.5,
+          "dx": 80,
+          "dy": 47
+        }
+      }
+    },
+    {
+      "id": "b787a233-e559-4306-bb79-032408ad8f71",
+      "compatibilitySlot": "dog_22",
+      "x": 1277,
+      "y": 1192,
+      "r": 57,
+      "sprite": {
+        "image": "levels/space_colony_modules_hydroponics_bay_bird_c63a/dogs/dog_22/sprite_000.png",
+        "height": 165,
+        "width": 219,
+        "x": 1172,
+        "y": 1110,
+        "cleanup": {
+          "x": 1155,
+          "y": 1097,
+          "width": 251,
+          "height": 189
+        },
+        "anchorX": 0.4795,
+        "anchorY": 0.497,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 22.6,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "57d02f9b-9ac2-4b58-a622-e48fbb31aa6d",
+      "compatibilitySlot": "dog_23",
+      "x": 1534,
+      "y": 1397,
+      "r": 57,
+      "sprite": {
+        "image": "levels/space_colony_modules_hydroponics_bay_bird_c63a/dogs/dog_23/sprite_000.png",
+        "height": 140,
+        "width": 178,
+        "x": 1445,
+        "y": 1332,
+        "cleanup": {
+          "x": 1431,
+          "y": 1321,
+          "width": 204,
+          "height": 161
+        },
+        "anchorX": 0.5,
+        "anchorY": 0.4643,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 17.2,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.943,
+          "pop": 17.3,
+          "why": "T3+refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "9102cf44-d113-5564-a521-0b8e3ca01d93",
+      "compatibilitySlot": "dog_11",
+      "x": 1615,
+      "y": 1211,
+      "r": 57,
+      "sprite": {
+        "image": "levels/space_colony_modules_hydroponics_bay_bird_c63a/dogs/dog_11/sprite_000.png",
+        "height": 157,
+        "width": 141,
+        "x": 1549,
+        "y": 1139,
+        "cleanup": {
+          "x": 1538,
+          "y": 1127,
+          "width": 162,
+          "height": 180
+        },
+        "anchorX": 0.4681,
+        "anchorY": 0.4586,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 24.1,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "761e15a1-f9ed-5f8d-a203-34a9f0d1289c",
+      "compatibilitySlot": "dog_00",
+      "x": 1718,
+      "y": 1442,
+      "r": 57,
+      "sprite": {
+        "image": "levels/space_colony_modules_hydroponics_bay_bird_c63a/dogs/dog_00/sprite_000.png",
+        "height": 155,
+        "width": 120,
+        "x": 1661,
+        "y": 1364,
+        "cleanup": {
+          "x": 1649,
+          "y": 1355,
+          "width": 138,
+          "height": 178
+        },
+        "anchorX": 0.4917,
+        "anchorY": 0.4839,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.05,
+          "pop": 30.4,
+          "dx": -1,
+          "dy": 3
+        }
+      }
+    },
+    {
+      "id": "4c05c526-28dd-5708-94fc-8ff1d2a88a76",
+      "compatibilitySlot": "dog_18",
+      "x": 2234,
+      "y": 1336,
+      "r": 57,
+      "sprite": {
+        "image": "levels/space_colony_modules_hydroponics_bay_bird_c63a/dogs/dog_18/sprite_000.png",
+        "height": 150,
+        "width": 180,
+        "x": 2142,
+        "y": 1264,
+        "cleanup": {
+          "x": 2128,
+          "y": 1252,
+          "width": 207,
+          "height": 172
+        },
+        "anchorX": 0.5111,
+        "anchorY": 0.48,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 16.7,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.9459,
+          "pop": 16.4,
+          "why": "T3+refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "baee52f1-9fe4-514b-b8f2-b4e3d5872f43",
+      "compatibilitySlot": "dog_17",
+      "x": 528,
+      "y": 1822,
+      "r": 57,
+      "sprite": {
+        "image": "levels/space_colony_modules_hydroponics_bay_bird_c63a/dogs/dog_17/sprite_000.png",
+        "height": 149,
+        "width": 157,
+        "x": 460,
+        "y": 1752,
+        "cleanup": {
+          "x": 448,
+          "y": 1740,
+          "width": 180,
+          "height": 171
+        },
+        "anchorX": 0.4331,
+        "anchorY": 0.4698,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 23.7,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.9134,
+          "pop": 23.7,
+          "why": "T3+refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "1cc8abc1-e89e-5458-98e8-66e6ca982965",
+      "compatibilitySlot": "dog_06",
+      "x": 983,
+      "y": 1853,
+      "r": 57,
+      "sprite": {
+        "image": "levels/space_colony_modules_hydroponics_bay_bird_c63a/dogs/dog_06/sprite_000.png",
+        "height": 140,
+        "width": 103,
+        "x": 932,
+        "y": 1787,
+        "cleanup": {
+          "x": 924,
+          "y": 1776,
+          "width": 118,
+          "height": 161
+        },
+        "anchorX": 0.4951,
+        "anchorY": 0.4714,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 12.4,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.9384,
+          "pop": 12.2,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "d0f0397c-6f74-5c35-bafe-9a7bddc85ff6",
+      "compatibilitySlot": "dog_10",
+      "x": 593,
+      "y": 2198,
+      "r": 57,
+      "sprite": {
+        "image": "levels/space_colony_modules_hydroponics_bay_bird_c63a/dogs/dog_10/sprite_000.png",
+        "height": 148,
+        "width": 186,
+        "x": 500,
+        "y": 2115,
+        "cleanup": {
+          "x": 486,
+          "y": 2103,
+          "width": 213,
+          "height": 170
+        },
+        "anchorX": 0.5,
+        "anchorY": 0.5608,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 21.9,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.896,
+          "pop": 21.1,
+          "why": "T3+refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "6c8e864d-f3a7-51e7-8261-51e66a3c649f",
+      "compatibilitySlot": "dog_02",
+      "x": 884,
+      "y": 2214,
+      "r": 57,
+      "sprite": {
+        "image": "levels/space_colony_modules_hydroponics_bay_bird_c63a/dogs/dog_02/sprite_000.png",
+        "height": 158,
+        "width": 189,
+        "x": 792,
+        "y": 2138,
+        "cleanup": {
+          "x": 777,
+          "y": 2126,
+          "width": 217,
+          "height": 181
+        },
+        "anchorX": 0.4868,
+        "anchorY": 0.481,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 15.8,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.8967,
+          "pop": 15.8,
+          "why": "T3+refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "608c9ad4-1d99-52ce-b46e-5b4af5b23c5d",
+      "compatibilitySlot": "dog_19",
+      "x": 1159,
+      "y": 2016,
+      "r": 57,
+      "sprite": {
+        "image": "levels/space_colony_modules_hydroponics_bay_bird_c63a/dogs/dog_19/sprite_000.png",
+        "height": 161,
+        "width": 165,
+        "x": 1082,
+        "y": 1937,
+        "cleanup": {
+          "x": 1069,
+          "y": 1924,
+          "width": 189,
+          "height": 185
+        },
+        "anchorX": 0.4667,
+        "anchorY": 0.4907,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 19.7,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.9237,
+          "pop": 19.8,
+          "why": "T3+refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "07b33eed-0af4-4412-9aee-e0f4432ba660",
+      "compatibilitySlot": "dog_24",
+      "x": 1550,
+      "y": 1594,
+      "r": 57,
+      "sprite": {
+        "image": "levels/space_colony_modules_hydroponics_bay_bird_c63a/dogs/dog_24/sprite_000.png",
+        "height": 157,
+        "width": 167,
+        "x": 1473,
+        "y": 1523,
+        "cleanup": {
+          "x": 1460,
+          "y": 1511,
+          "width": 192,
+          "height": 180
+        },
+        "anchorX": 0.4611,
+        "anchorY": 0.4522,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 13.0,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.941,
+          "pop": 12.6,
+          "why": "T3+refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "7880ea84-ec33-5281-8340-27fa227118b8",
+      "compatibilitySlot": "dog_16",
+      "x": 1945,
+      "y": 1533,
+      "r": 57,
+      "sprite": {
+        "image": "levels/space_colony_modules_hydroponics_bay_bird_c63a/dogs/dog_16/sprite_000.png",
+        "height": 148,
+        "width": 155,
+        "x": 1861,
+        "y": 1467,
+        "cleanup": {
+          "x": 1849,
+          "y": 1455,
+          "width": 178,
+          "height": 170
+        },
+        "anchorX": 0.5419,
+        "anchorY": 0.4459,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 20.6,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.9089,
+          "pop": 20.6,
+          "why": "T3+refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "cb5cec38-1ef9-5d00-98ea-e2501c7ddb8a",
+      "compatibilitySlot": "dog_25",
+      "x": 2047,
+      "y": 1905,
+      "r": 57,
+      "sprite": {
+        "image": "levels/space_colony_modules_hydroponics_bay_bird_c63a/dogs/dog_25/sprite_000.png",
+        "height": 182,
+        "width": 152,
+        "x": 1966,
+        "y": 1813,
+        "cleanup": {
+          "x": 1954,
+          "y": 1799,
+          "width": 174,
+          "height": 209
+        },
+        "anchorX": 0.5329,
+        "anchorY": 0.5055,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 14.7,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.9361,
+          "pop": 13.6,
+          "why": "T3+refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "bd38b82a-6f6e-56db-b033-8a0cbff4ad29",
+      "compatibilitySlot": "dog_26",
+      "x": 1773,
+      "y": 1954,
+      "r": 57,
+      "sprite": {
+        "image": "levels/space_colony_modules_hydroponics_bay_bird_c63a/dogs/dog_26/sprite_000.png",
+        "height": 175,
+        "width": 201,
+        "x": 1682,
+        "y": 1870,
+        "cleanup": {
+          "x": 1666,
+          "y": 1856,
+          "width": 231,
+          "height": 201
+        },
+        "anchorX": 0.4527,
+        "anchorY": 0.48,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 12.0,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.8974,
+          "pop": 12.0,
+          "why": "T3"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "457a44c7-d176-5819-9d00-93ede817a45f",
+      "compatibilitySlot": "dog_27",
+      "x": 2083,
+      "y": 2224,
+      "r": 57,
+      "sprite": {
+        "image": "levels/space_colony_modules_hydroponics_bay_bird_c63a/dogs/dog_27/sprite_000.png",
+        "height": 135,
+        "width": 175,
+        "x": 1991,
+        "y": 2158,
+        "cleanup": {
+          "x": 1977,
+          "y": 2147,
+          "width": 201,
+          "height": 155
+        },
+        "anchorX": 0.5257,
+        "anchorY": 0.4889,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 15.3,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.9399,
+          "pop": 15.3,
+          "why": "T3+refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "fa2dac9b-8153-41e5-a413-9dfca8f01b76",
+      "compatibilitySlot": "dog_01",
+      "x": 1258,
+      "y": 1729,
+      "r": 57,
+      "sprite": {
+        "image": "levels/space_colony_modules_hydroponics_bay_bird_c63a/dogs/dog_01/sprite_000.png",
+        "height": 110,
+        "width": 174,
+        "x": 1174,
+        "y": 1676,
+        "cleanup": {
+          "x": 1160,
+          "y": 1667,
+          "width": 200,
+          "height": 126
+        },
+        "anchorX": 0.4828,
+        "anchorY": 0.4818,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 16.0,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.9589,
+          "pop": 16.0,
+          "why": "T3+refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    }
+  ]
+}

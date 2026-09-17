@@ -1,0 +1,40 @@
+[
+ {
+  "id": "d774b6d0-6b19-4030-9ddc-566c7d46d251",
+  "compatibilitySlot": "dog_27",
+  "x": 2391,
+  "y": 1451,
+  "r": 87,
+  "sprite": {
+   "image": "levels/ad_campaigns_ad_snowy_chalet_bird_c64d/dogs/dog_27/sprite_000.png",
+   "height": 144,
+   "width": 225,
+   "x": 2241,
+   "y": 1392,
+   "cleanup": {
+    "x": 2220,
+    "y": 1369,
+    "width": 269,
+    "height": 191
+   },
+   "anchorX": 0.6667,
+   "anchorY": 0.4097,
+   "flipX": false,
+   "flipY": false,
+   "refit": {
+    "scale": 1.0,
+    "ratio": 1.0,
+    "pop": 34.9,
+    "dx": 0,
+    "dy": 0
+   },
+   "regen": {
+    "pass": "crop2",
+    "score": 0.9022,
+    "pop": 33.0,
+    "why": "T3"
+   },
+   "technique": "gpt-image-2.5-sunburst-low-visible-only"
+  }
+ }
+]

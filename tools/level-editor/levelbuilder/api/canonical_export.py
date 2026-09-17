@@ -167,7 +167,7 @@ def export_canonical_revision(
             output = staging / "dogs" / bird["compatibilitySlot"] / "sprite_000.png"
             output.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(sprite_sources[bird["birdId"]], output)
-        # Bundle derivatives ship with the package (2560/q70 webp for scene +
+        # Bundle derivatives ship with the package (2560/q90 webp for scene +
         # restore bg), matching the legacy exporter. Canonical exports missed
         # them, so 33 packages shipped PNG-only and the native bundle blew
         # its 200MB cap at 42 levels (2026-08-14).
@@ -179,7 +179,7 @@ def export_canonical_revision(
         # levels total, rejected.
         for stem in ("color", "bg_00"):
             with _Image.open(staging / f"{stem}.png") as img:
-                img.convert("RGB").save(staging / f"{stem}.webp", format="WEBP", quality=95, method=6)
+                img.convert("RGB").save(staging / f"{stem}.webp", format="WEBP", quality=90, method=6)
         (staging / "level.json").write_text(json.dumps(level, indent=2) + "\n")
         (staging / "artifact-manifest.json").write_text(json.dumps(_artifact_manifest(snapshot), indent=2) + "\n")
 

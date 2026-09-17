@@ -1,0 +1,541 @@
+{
+  "id": "nordic_cold_sami_aurora_camp_bird_589b",
+  "name": "Level nordic_cold_sami_aurora_camp_bird_589b",
+  "width": 2688,
+  "height": 2688,
+  "colorImage": "levels/nordic_cold_sami_aurora_camp_bird_589b/color.png",
+  "artifactRevision": "sha256:b54a24fce52e2b8d42464580064f1167a946741cd4fbff741ba49c46681bee45",
+  "compatibilityAliases": {
+    "dog_00": "9d4e2344-919d-5d89-a841-dbebc4448b72",
+    "dog_01": "373a8dab-5ae2-5e93-b64c-0b04f1fbbeb2",
+    "dog_02": "a20d1c36-2128-5b17-ade9-ec2677b0f77a",
+    "dog_03": "55ff90ff-cc8c-54a2-8cbe-8d3e9140a06a",
+    "dog_04": "2684e11d-250b-5af1-9e5d-51a0425520ef",
+    "dog_05": "ee13318f-4f0c-5570-8f55-cc40490d6ecc",
+    "dog_06": "f5153a49-2343-5b2f-b01e-9de1aafd6ccd",
+    "dog_07": "07d25740-ea5d-598b-a15d-ff3fa31c0839",
+    "dog_08": "66b861a6-1de9-5381-80ca-2a10629f04bd",
+    "dog_09": "abb02d4c-4b94-51fa-b4d1-82d963257f9c",
+    "dog_10": "266c776c-0aa2-5c9d-a812-eaff2318740c",
+    "dog_11": "e200cab9-7ade-5194-9000-89c4515b5856",
+    "dog_12": "a3570cc2-7c54-5a69-aea1-b8c80b20e01e",
+    "dog_13": "dee7d0ea-2b35-564b-857c-aae942af69e1",
+    "dog_14": "3482913a-4575-59ca-ab40-c018f796caa9"
+  },
+  "dogs": [
+    {
+      "id": "9d4e2344-919d-5d89-a841-dbebc4448b72",
+      "compatibilitySlot": "dog_00",
+      "x": 1748,
+      "y": 2024,
+      "r": 82,
+      "sprite": {
+        "image": "levels/nordic_cold_sami_aurora_camp_bird_589b/dogs/dog_00/sprite_000.png",
+        "height": 156,
+        "width": 195,
+        "x": 1627,
+        "y": 1951,
+        "cleanup": {
+          "x": 1612,
+          "y": 1939,
+          "width": 224,
+          "height": 179
+        },
+        "anchorX": 0.6205,
+        "anchorY": 0.4679,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 16.8,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "373a8dab-5ae2-5e93-b64c-0b04f1fbbeb2",
+      "compatibilitySlot": "dog_01",
+      "x": 754,
+      "y": 2072,
+      "r": 82,
+      "sprite": {
+        "image": "levels/nordic_cold_sami_aurora_camp_bird_589b/dogs/dog_01/sprite_000.png",
+        "height": 195,
+        "width": 224,
+        "x": 644,
+        "y": 1950,
+        "cleanup": {
+          "x": 627,
+          "y": 1935,
+          "width": 257,
+          "height": 224
+        },
+        "anchorX": 0.4911,
+        "anchorY": 0.6256,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 13.5,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.9166,
+          "pop": 13.5,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "a20d1c36-2128-5b17-ade9-ec2677b0f77a",
+      "compatibilitySlot": "dog_02",
+      "x": 541,
+      "y": 1962,
+      "r": 82,
+      "sprite": {
+        "image": "levels/nordic_cold_sami_aurora_camp_bird_589b/dogs/dog_02/sprite_000.png",
+        "height": 152,
+        "width": 183,
+        "x": 443,
+        "y": 1885,
+        "cleanup": {
+          "x": 429,
+          "y": 1873,
+          "width": 210,
+          "height": 174
+        },
+        "anchorX": 0.5355,
+        "anchorY": 0.5066,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 15.5,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.8837,
+          "pop": 15.5,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "55ff90ff-cc8c-54a2-8cbe-8d3e9140a06a",
+      "compatibilitySlot": "dog_03",
+      "x": 597,
+      "y": 2383,
+      "r": 82,
+      "sprite": {
+        "image": "levels/nordic_cold_sami_aurora_camp_bird_589b/dogs/dog_03/sprite_000.png",
+        "height": 158,
+        "width": 192,
+        "x": 576,
+        "y": 2268,
+        "cleanup": {
+          "x": 515,
+          "y": 2244,
+          "width": 257,
+          "height": 220
+        },
+        "anchorX": 0.1615,
+        "anchorY": 0.8038,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.35,
+          "ratio": 0.95,
+          "pop": 34.6,
+          "dx": -10,
+          "dy": -11
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.5825,
+          "pop": 54.9,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "2684e11d-250b-5af1-9e5d-51a0425520ef",
+      "compatibilitySlot": "dog_04",
+      "x": 1676,
+      "y": 1531,
+      "r": 82,
+      "sprite": {
+        "image": "levels/nordic_cold_sami_aurora_camp_bird_589b/dogs/dog_04/sprite_000.png",
+        "height": 241,
+        "width": 164,
+        "x": 1586,
+        "y": 1417,
+        "cleanup": {
+          "x": 1573,
+          "y": 1398,
+          "width": 188,
+          "height": 277
+        },
+        "anchorX": 0.5488,
+        "anchorY": 0.473,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 14.8,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.9663,
+          "pop": 14.8,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "ee13318f-4f0c-5570-8f55-cc40490d6ecc",
+      "compatibilitySlot": "dog_05",
+      "x": 1931,
+      "y": 1718,
+      "r": 82,
+      "sprite": {
+        "image": "levels/nordic_cold_sami_aurora_camp_bird_589b/dogs/dog_05/sprite_000.png",
+        "height": 238,
+        "width": 172,
+        "x": 1864,
+        "y": 1585,
+        "cleanup": {
+          "x": 1849,
+          "y": 1567,
+          "width": 199,
+          "height": 273
+        },
+        "anchorX": 0.3895,
+        "anchorY": 0.5588,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 13.7,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.9293,
+          "pop": 13.7,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "f5153a49-2343-5b2f-b01e-9de1aafd6ccd",
+      "compatibilitySlot": "dog_06",
+      "x": 998,
+      "y": 691,
+      "r": 82,
+      "sprite": {
+        "image": "levels/nordic_cold_sami_aurora_camp_bird_589b/dogs/dog_06/sprite_000.png",
+        "height": 188,
+        "width": 158,
+        "x": 925,
+        "y": 613,
+        "cleanup": {
+          "x": 913,
+          "y": 599,
+          "width": 181,
+          "height": 216
+        },
+        "anchorX": 0.462,
+        "anchorY": 0.4096,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 19.7,
+          "dx": 0,
+          "dy": 1
+        }
+      }
+    },
+    {
+      "id": "07d25740-ea5d-598b-a15d-ff3fa31c0839",
+      "compatibilitySlot": "dog_07",
+      "x": 1318,
+      "y": 2047,
+      "r": 82,
+      "sprite": {
+        "image": "levels/nordic_cold_sami_aurora_camp_bird_589b/dogs/dog_07/sprite_000.png",
+        "height": 242,
+        "width": 251,
+        "x": 1192,
+        "y": 1945,
+        "cleanup": {
+          "x": 1173,
+          "y": 1926,
+          "width": 288,
+          "height": 278
+        },
+        "anchorX": 0.502,
+        "anchorY": 0.4215,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 28.3,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "66b861a6-1de9-5381-80ca-2a10629f04bd",
+      "compatibilitySlot": "dog_08",
+      "x": 2177,
+      "y": 2291,
+      "r": 82,
+      "sprite": {
+        "image": "levels/nordic_cold_sami_aurora_camp_bird_589b/dogs/dog_08/sprite_000.png",
+        "height": 224,
+        "width": 291,
+        "x": 2043,
+        "y": 2182,
+        "cleanup": {
+          "x": 2021,
+          "y": 2165,
+          "width": 334,
+          "height": 257
+        },
+        "anchorX": 0.4605,
+        "anchorY": 0.4866,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 16.8,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "abb02d4c-4b94-51fa-b4d1-82d963257f9c",
+      "compatibilitySlot": "dog_09",
+      "x": 1546,
+      "y": 2240,
+      "r": 82,
+      "sprite": {
+        "image": "levels/nordic_cold_sami_aurora_camp_bird_589b/dogs/dog_09/sprite_000.png",
+        "height": 196,
+        "width": 204,
+        "x": 1407,
+        "y": 2147,
+        "cleanup": {
+          "x": 1391,
+          "y": 2132,
+          "width": 236,
+          "height": 225
+        },
+        "anchorX": 0.6814,
+        "anchorY": 0.4745,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 13.2,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.8631,
+          "pop": 12.6,
+          "why": "T3"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "266c776c-0aa2-5c9d-a812-eaff2318740c",
+      "compatibilitySlot": "dog_10",
+      "x": 955,
+      "y": 960,
+      "r": 82,
+      "sprite": {
+        "image": "levels/nordic_cold_sami_aurora_camp_bird_589b/dogs/dog_10/sprite_000.png",
+        "height": 129,
+        "width": 210,
+        "x": 865,
+        "y": 902,
+        "cleanup": {
+          "x": 863,
+          "y": 878,
+          "width": 241,
+          "height": 174
+        },
+        "anchorX": 0.3619,
+        "anchorY": 0.4186,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 0.95,
+          "ratio": 0.95,
+          "pop": 41.0,
+          "dx": 14,
+          "dy": 4
+        }
+      }
+    },
+    {
+      "id": "e200cab9-7ade-5194-9000-89c4515b5856",
+      "compatibilitySlot": "dog_11",
+      "x": 975,
+      "y": 1534,
+      "r": 82,
+      "sprite": {
+        "image": "levels/nordic_cold_sami_aurora_camp_bird_589b/dogs/dog_11/sprite_000.png",
+        "height": 367,
+        "width": 353,
+        "x": 733,
+        "y": 1428,
+        "cleanup": {
+          "x": 706,
+          "y": 1400,
+          "width": 405,
+          "height": 422
+        },
+        "anchorX": 0.6856,
+        "anchorY": 0.2888,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 0.0,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "a3570cc2-7c54-5a69-aea1-b8c80b20e01e",
+      "compatibilitySlot": "dog_12",
+      "x": 1627,
+      "y": 1124,
+      "r": 82,
+      "sprite": {
+        "image": "levels/nordic_cold_sami_aurora_camp_bird_589b/dogs/dog_12/sprite_000.png",
+        "height": 227,
+        "width": 256,
+        "x": 1501,
+        "y": 1048,
+        "cleanup": {
+          "x": 1481,
+          "y": 1030,
+          "width": 294,
+          "height": 261
+        },
+        "anchorX": 0.4922,
+        "anchorY": 0.3348,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 21.9,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.8843,
+          "pop": 20.7,
+          "why": "refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "dee7d0ea-2b35-564b-857c-aae942af69e1",
+      "compatibilitySlot": "dog_13",
+      "x": 467,
+      "y": 618,
+      "r": 82,
+      "sprite": {
+        "image": "levels/nordic_cold_sami_aurora_camp_bird_589b/dogs/dog_13/sprite_000.png",
+        "height": 179,
+        "width": 237,
+        "x": 351,
+        "y": 543,
+        "cleanup": {
+          "x": 333,
+          "y": 529,
+          "width": 272,
+          "height": 205
+        },
+        "anchorX": 0.4895,
+        "anchorY": 0.419,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 30.5,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "3482913a-4575-59ca-ab40-c018f796caa9",
+      "compatibilitySlot": "dog_14",
+      "x": 2021,
+      "y": 1149,
+      "r": 82,
+      "sprite": {
+        "image": "levels/nordic_cold_sami_aurora_camp_bird_589b/dogs/dog_14/sprite_000.png",
+        "height": 350,
+        "width": 202,
+        "x": 1925,
+        "y": 919,
+        "cleanup": {
+          "x": 1912,
+          "y": 886,
+          "width": 232,
+          "height": 402
+        },
+        "anchorX": 0.4604,
+        "anchorY": 0.6743,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 0.95,
+          "pop": 34.1,
+          "dx": 3,
+          "dy": -5
+        }
+      }
+    }
+  ]
+}

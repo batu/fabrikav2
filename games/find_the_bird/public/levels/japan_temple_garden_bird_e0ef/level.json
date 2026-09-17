@@ -24,7 +24,14 @@
           "height": 345
         },
         "anchorX": 0.4444,
-        "anchorY": 0.3858
+        "anchorY": 0.3858,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 18.7,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -45,7 +52,14 @@
           "height": 241
         },
         "anchorX": 0.555,
-        "anchorY": 0.4961
+        "anchorY": 0.4961,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 22.0,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -55,18 +69,31 @@
       "r": 57,
       "sprite": {
         "image": "levels/japan_temple_garden_bird_e0ef/dogs/dog_02/sprite_000.png",
-        "x": 738,
-        "y": 814,
-        "width": 161,
-        "height": 167,
+        "x": 767,
+        "y": 822,
+        "width": 117,
+        "height": 152,
         "cleanup": {
           "x": 649,
           "y": 768,
           "width": 326,
           "height": 345
         },
-        "anchorX": 0.6273,
-        "anchorY": 0.4371
+        "anchorX": 0.6325,
+        "anchorY": 0.4342,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 15.7,
+          "dx": -1,
+          "dy": -1
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop",
+          "score": 0.9506,
+          "pop": 16.9
+        }
       }
     },
     {
@@ -87,7 +114,14 @@
           "height": 345
         },
         "anchorX": 0.4471,
-        "anchorY": 0.1933
+        "anchorY": 0.1933,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 21.9,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -99,16 +133,23 @@
         "image": "levels/japan_temple_garden_bird_e0ef/dogs/dog_04/sprite_000.png",
         "x": 2065,
         "y": 530,
-        "width": 186,
-        "height": 194,
+        "width": 142,
+        "height": 158,
         "cleanup": {
           "x": 2031,
           "y": 441,
           "width": 337,
           "height": 345
         },
-        "anchorX": 0.5914,
-        "anchorY": 0.3969
+        "anchorX": 0.6408,
+        "anchorY": 0.4747,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.05,
+          "pop": 21.2,
+          "dx": -1,
+          "dy": 3
+        }
       }
     },
     {
@@ -129,7 +170,14 @@
           "height": 313
         },
         "anchorX": 0.4278,
-        "anchorY": 0.5414
+        "anchorY": 0.5414,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 19.0,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -141,16 +189,23 @@
         "image": "levels/japan_temple_garden_bird_e0ef/dogs/dog_06/sprite_000.png",
         "x": 2096,
         "y": 936,
-        "width": 219,
-        "height": 129,
+        "width": 263,
+        "height": 155,
         "cleanup": {
           "x": 2050,
           "y": 862,
           "width": 336,
           "height": 304
         },
-        "anchorX": 0.5297,
-        "anchorY": 0.4109
+        "anchorX": 0.5513,
+        "anchorY": 0.4258,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 23.8,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -162,16 +217,23 @@
         "image": "levels/japan_temple_garden_bird_e0ef/dogs/dog_07/sprite_000.png",
         "x": 485,
         "y": 1397,
-        "width": 252,
-        "height": 252,
+        "width": 176,
+        "height": 168,
         "cleanup": {
           "x": 388,
           "y": 1309,
           "width": 345,
           "height": 345
         },
-        "anchorX": 0.3016,
-        "anchorY": 0.3373
+        "anchorX": 0.4659,
+        "anchorY": 0.5119,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 31.3,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -183,16 +245,23 @@
         "image": "levels/japan_temple_garden_bird_e0ef/dogs/dog_08/sprite_000.png",
         "x": 1198,
         "y": 1135,
-        "width": 190,
-        "height": 155,
+        "width": 200,
+        "height": 163,
         "cleanup": {
           "x": 1101,
           "y": 1078,
           "width": 343,
           "height": 327
         },
-        "anchorX": 0.3421,
-        "anchorY": 0.4516
+        "anchorX": 0.34,
+        "anchorY": 0.454,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 24.1,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -213,7 +282,14 @@
           "height": 251
         },
         "anchorX": 0.5146,
-        "anchorY": 0.5759
+        "anchorY": 0.5823,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 38.3,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -223,18 +299,31 @@
       "r": 57,
       "sprite": {
         "image": "levels/japan_temple_garden_bird_e0ef/dogs/dog_10/sprite_000.png",
-        "x": 1698,
-        "y": 1221,
-        "width": 218,
-        "height": 215,
+        "x": 1812,
+        "y": 1214,
+        "width": 114,
+        "height": 132,
         "cleanup": {
           "x": 1657,
           "y": 1233,
           "width": 334,
           "height": 205
         },
-        "anchorX": 0.7569,
-        "anchorY": 0.2558
+        "anchorX": 0.4649,
+        "anchorY": 0.4773,
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop",
+          "score": 0.9654,
+          "pop": 11.5
+        },
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 11.2,
+          "dx": -1,
+          "dy": 0
+        }
       }
     },
     {
@@ -244,18 +333,31 @@
       "r": 57,
       "sprite": {
         "image": "levels/japan_temple_garden_bird_e0ef/dogs/dog_11/sprite_000.png",
-        "x": 1474,
-        "y": 1426,
-        "width": 235,
-        "height": 207,
+        "x": 1518,
+        "y": 1441,
+        "width": 195,
+        "height": 136,
         "cleanup": {
           "x": 1474,
           "y": 1440,
           "width": 336,
           "height": 225
         },
-        "anchorX": 0.6085,
-        "anchorY": 0.4203
+        "anchorX": 0.5026,
+        "anchorY": 0.5294,
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop2",
+          "score": 0.9248,
+          "pop": 20.3
+        },
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 23.3,
+          "dx": 1,
+          "dy": 0
+        }
       }
     },
     {
@@ -276,7 +378,14 @@
           "height": 322
         },
         "anchorX": 0.3707,
-        "anchorY": 0.45
+        "anchorY": 0.455,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 18.6,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -297,7 +406,14 @@
           "height": 345
         },
         "anchorX": 0.4946,
-        "anchorY": 0.2822
+        "anchorY": 0.2822,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 33.1,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -307,18 +423,31 @@
       "r": 57,
       "sprite": {
         "image": "levels/japan_temple_garden_bird_e0ef/dogs/dog_14/sprite_000.png",
-        "x": 543,
-        "y": 1922,
-        "width": 250,
-        "height": 176,
+        "x": 601,
+        "y": 1929,
+        "width": 177,
+        "height": 162,
         "cleanup": {
           "x": 533,
           "y": 1855,
           "width": 345,
           "height": 345
         },
-        "anchorX": 0.596,
-        "anchorY": 0.4432
+        "anchorX": 0.5254,
+        "anchorY": 0.4444,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 22.7,
+          "dx": -2,
+          "dy": 0
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop",
+          "score": 0.8977,
+          "pop": 25.1
+        }
       }
     },
     {
@@ -339,7 +468,14 @@
           "height": 345
         },
         "anchorX": 0.6092,
-        "anchorY": 0.511
+        "anchorY": 0.511,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 23.5,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -349,18 +485,31 @@
       "r": 57,
       "sprite": {
         "image": "levels/japan_temple_garden_bird_e0ef/dogs/dog_16/sprite_000.png",
-        "x": 1553,
-        "y": 1650,
-        "width": 207,
-        "height": 227,
+        "x": 1554,
+        "y": 1692,
+        "width": 141,
+        "height": 136,
         "cleanup": {
           "x": 1465,
           "y": 1667,
           "width": 310,
           "height": 303
         },
-        "anchorX": 0.343,
-        "anchorY": 0.4934
+        "anchorX": 0.5035,
+        "anchorY": 0.5221,
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop",
+          "score": 0.9096,
+          "pop": 15.1
+        },
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 14.5,
+          "dx": 0,
+          "dy": -1
+        }
       }
     },
     {
@@ -372,16 +521,23 @@
         "image": "levels/japan_temple_garden_bird_e0ef/dogs/dog_17/sprite_000.png",
         "x": 1446,
         "y": 2242,
-        "width": 205,
-        "height": 195,
+        "width": 143,
+        "height": 137,
         "cleanup": {
           "x": 1405,
           "y": 2211,
           "width": 345,
           "height": 322
         },
-        "anchorX": 0.6439,
-        "anchorY": 0.6308
+        "anchorX": 0.6993,
+        "anchorY": 0.6277,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.05,
+          "pop": 25.2,
+          "dx": -2,
+          "dy": 2
+        }
       }
     },
     {
@@ -393,16 +549,23 @@
         "image": "levels/japan_temple_garden_bird_e0ef/dogs/dog_18/sprite_000.png",
         "x": 1793,
         "y": 1797,
-        "width": 254,
-        "height": 215,
+        "width": 152,
+        "height": 129,
         "cleanup": {
           "x": 1777,
           "y": 1696,
           "width": 252,
           "height": 343
         },
-        "anchorX": 0.5512,
-        "anchorY": 0.3256
+        "anchorX": 0.5132,
+        "anchorY": 0.4186,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 23.3,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -414,16 +577,23 @@
         "image": "levels/japan_temple_garden_bird_e0ef/dogs/dog_19/sprite_000.png",
         "x": 2041,
         "y": 1704,
-        "width": 233,
-        "height": 246,
+        "width": 147,
+        "height": 155,
         "cleanup": {
           "x": 2031,
           "y": 1675,
           "width": 269,
           "height": 322
         },
-        "anchorX": 0.3734,
-        "anchorY": 0.4919
+        "anchorX": 0.4558,
+        "anchorY": 0.4194,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 21.4,
+          "dx": 0,
+          "dy": 0
+        }
       }
     }
   ]

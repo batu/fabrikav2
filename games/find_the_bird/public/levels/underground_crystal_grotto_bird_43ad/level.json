@@ -1,0 +1,527 @@
+{
+  "id": "underground_crystal_grotto_bird_43ad",
+  "name": "Level underground_crystal_grotto_bird_43ad",
+  "width": 2688,
+  "height": 2688,
+  "colorImage": "levels/underground_crystal_grotto_bird_43ad/color.png",
+  "artifactRevision": "sha256:149557f683cd303eb58ddcf26bad4a525235bfcbed0361a330bf148fcd7ccadd",
+  "compatibilityAliases": {
+    "dog_03": "15393e91-b6d6-4557-9031-6070e67ba528",
+    "dog_10": "8890367e-246f-4b11-b3d9-0d62aeee9402",
+    "dog_12": "534a5fbd-e06b-4bb4-82a9-56f1f83c1997",
+    "dog_13": "03807fea-626a-472b-a94d-1312f11b5930",
+    "dog_16": "e1220ccd-67fb-445e-bb9c-eaf1cdc61eca",
+    "dog_17": "0d7c8c55-fd1c-450f-984b-e9057f79768f",
+    "dog_18": "0220451c-294a-48ec-b883-41bfef320069",
+    "dog_22": "644ca889-fc0a-4a9f-96d9-4f709c0efcee",
+    "dog_23": "aacfa15f-8e50-453b-913a-698b14ee2d48",
+    "dog_24": "4a9cfbcb-7428-4c93-b1ae-d13556f3f477",
+    "dog_25": "85f62459-af25-4482-b8c9-2daf3989ba56",
+    "dog_26": "81155060-0dca-454e-bdd9-60f3898a5536",
+    "dog_27": "64b0ec88-2279-4429-8307-a8f8842f8cfc",
+    "dog_28": "218445da-079a-44b6-a5e9-2616f286b736",
+    "dog_29": "f8781991-b2c5-48c5-9505-d4c5b7f0d1d2"
+  },
+  "dogs": [
+    {
+      "id": "15393e91-b6d6-4557-9031-6070e67ba528",
+      "compatibilitySlot": "dog_03",
+      "x": 470,
+      "y": 631,
+      "r": 57,
+      "sprite": {
+        "image": "levels/underground_crystal_grotto_bird_43ad/dogs/dog_03/sprite_000.png",
+        "height": 307,
+        "width": 221,
+        "x": 356,
+        "y": 486,
+        "cleanup": {
+          "x": 339,
+          "y": 462,
+          "width": 254,
+          "height": 353
+        },
+        "anchorX": 0.5158,
+        "anchorY": 0.4723,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 0.0,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "8890367e-246f-4b11-b3d9-0d62aeee9402",
+      "compatibilitySlot": "dog_10",
+      "x": 540,
+      "y": 1101,
+      "r": 57,
+      "sprite": {
+        "image": "levels/underground_crystal_grotto_bird_43ad/dogs/dog_10/sprite_000.png",
+        "height": 201,
+        "width": 215,
+        "x": 426,
+        "y": 995,
+        "cleanup": {
+          "x": 409,
+          "y": 979,
+          "width": 247,
+          "height": 231
+        },
+        "anchorX": 0.5302,
+        "anchorY": 0.5274,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 18.8,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "534a5fbd-e06b-4bb4-82a9-56f1f83c1997",
+      "compatibilitySlot": "dog_12",
+      "x": 456,
+      "y": 1409,
+      "r": 57,
+      "sprite": {
+        "image": "levels/underground_crystal_grotto_bird_43ad/dogs/dog_12/sprite_000.png",
+        "height": 210,
+        "width": 284,
+        "x": 326,
+        "y": 1290,
+        "cleanup": {
+          "x": 304,
+          "y": 1274,
+          "width": 326,
+          "height": 241
+        },
+        "anchorX": 0.4577,
+        "anchorY": 0.5667,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 20.5,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "03807fea-626a-472b-a94d-1312f11b5930",
+      "compatibilitySlot": "dog_13",
+      "x": 849,
+      "y": 1758,
+      "r": 57,
+      "sprite": {
+        "image": "levels/underground_crystal_grotto_bird_43ad/dogs/dog_13/sprite_000.png",
+        "height": 176,
+        "width": 235,
+        "x": 706,
+        "y": 1652,
+        "cleanup": {
+          "x": 688,
+          "y": 1638,
+          "width": 270,
+          "height": 202
+        },
+        "anchorX": 0.6085,
+        "anchorY": 0.6023,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 18.4,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.8725,
+          "pop": 17.9,
+          "why": "T3+refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "e1220ccd-67fb-445e-bb9c-eaf1cdc61eca",
+      "compatibilitySlot": "dog_16",
+      "x": 550,
+      "y": 2239,
+      "r": 57,
+      "sprite": {
+        "image": "levels/underground_crystal_grotto_bird_43ad/dogs/dog_16/sprite_000.png",
+        "height": 207,
+        "width": 202,
+        "x": 458,
+        "y": 2114,
+        "cleanup": {
+          "x": 442,
+          "y": 2097,
+          "width": 232,
+          "height": 238
+        },
+        "anchorX": 0.4554,
+        "anchorY": 0.6087,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 21.2,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "0d7c8c55-fd1c-450f-984b-e9057f79768f",
+      "compatibilitySlot": "dog_17",
+      "x": 1219,
+      "y": 1332,
+      "r": 57,
+      "sprite": {
+        "image": "levels/underground_crystal_grotto_bird_43ad/dogs/dog_17/sprite_000.png",
+        "height": 270,
+        "width": 276,
+        "x": 1082,
+        "y": 1192,
+        "cleanup": {
+          "x": 1061,
+          "y": 1171,
+          "width": 317,
+          "height": 310
+        },
+        "anchorX": 0.4964,
+        "anchorY": 0.5185,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 37.1,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "0220451c-294a-48ec-b883-41bfef320069",
+      "compatibilitySlot": "dog_18",
+      "x": 1329,
+      "y": 870,
+      "r": 57,
+      "sprite": {
+        "image": "levels/underground_crystal_grotto_bird_43ad/dogs/dog_18/sprite_000.png",
+        "height": 242,
+        "width": 194,
+        "x": 1237,
+        "y": 750,
+        "cleanup": {
+          "x": 1222,
+          "y": 731,
+          "width": 223,
+          "height": 278
+        },
+        "anchorX": 0.4742,
+        "anchorY": 0.4959,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 42.2,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "644ca889-fc0a-4a9f-96d9-4f709c0efcee",
+      "compatibilitySlot": "dog_22",
+      "x": 1503,
+      "y": 1537,
+      "r": 57,
+      "sprite": {
+        "image": "levels/underground_crystal_grotto_bird_43ad/dogs/dog_22/sprite_000.png",
+        "height": 182,
+        "width": 228,
+        "x": 1371,
+        "y": 1442,
+        "cleanup": {
+          "x": 1353,
+          "y": 1428,
+          "width": 262,
+          "height": 209
+        },
+        "anchorX": 0.5789,
+        "anchorY": 0.522,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 27.6,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "aacfa15f-8e50-453b-913a-698b14ee2d48",
+      "compatibilitySlot": "dog_23",
+      "x": 1294,
+      "y": 1924,
+      "r": 57,
+      "sprite": {
+        "image": "levels/underground_crystal_grotto_bird_43ad/dogs/dog_23/sprite_000.png",
+        "height": 156,
+        "width": 201,
+        "x": 1204,
+        "y": 1805,
+        "cleanup": {
+          "x": 1187,
+          "y": 1794,
+          "width": 231,
+          "height": 186
+        },
+        "anchorX": 0.4527,
+        "anchorY": 0.7564,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 27.6,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "4a9cfbcb-7428-4c93-b1ae-d13556f3f477",
+      "compatibilitySlot": "dog_24",
+      "x": 1401,
+      "y": 2182,
+      "r": 57,
+      "sprite": {
+        "image": "levels/underground_crystal_grotto_bird_43ad/dogs/dog_24/sprite_000.png",
+        "height": 153,
+        "width": 176,
+        "x": 1315,
+        "y": 2123,
+        "cleanup": {
+          "x": 1300,
+          "y": 2112,
+          "width": 202,
+          "height": 175
+        },
+        "anchorX": 0.4943,
+        "anchorY": 0.3791,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 29.2,
+          "dx": -1,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "85f62459-af25-4482-b8c9-2daf3989ba56",
+      "compatibilitySlot": "dog_25",
+      "x": 1871,
+      "y": 2100,
+      "r": 57,
+      "sprite": {
+        "image": "levels/underground_crystal_grotto_bird_43ad/dogs/dog_25/sprite_000.png",
+        "height": 156,
+        "width": 177,
+        "x": 1802,
+        "y": 1996,
+        "cleanup": {
+          "x": 1788,
+          "y": 1984,
+          "width": 203,
+          "height": 179
+        },
+        "anchorX": 0.3898,
+        "anchorY": 0.6667,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 24.5,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.8934,
+          "pop": 24.5,
+          "why": "T3+refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "81155060-0dca-454e-bdd9-60f3898a5536",
+      "compatibilitySlot": "dog_26",
+      "x": 2169,
+      "y": 2276,
+      "r": 57,
+      "sprite": {
+        "image": "levels/underground_crystal_grotto_bird_43ad/dogs/dog_26/sprite_000.png",
+        "height": 236,
+        "width": 342,
+        "x": 1998,
+        "y": 2158,
+        "cleanup": {
+          "x": 1972,
+          "y": 2139,
+          "width": 393,
+          "height": 271
+        },
+        "anchorX": 0.5,
+        "anchorY": 0.5042,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 22.2,
+          "dx": 0,
+          "dy": -1
+        }
+      }
+    },
+    {
+      "id": "64b0ec88-2279-4429-8307-a8f8842f8cfc",
+      "compatibilitySlot": "dog_27",
+      "x": 1842,
+      "y": 1640,
+      "r": 57,
+      "sprite": {
+        "image": "levels/underground_crystal_grotto_bird_43ad/dogs/dog_27/sprite_000.png",
+        "height": 267,
+        "width": 186,
+        "x": 1764,
+        "y": 1497,
+        "cleanup": {
+          "x": 1752,
+          "y": 1476,
+          "width": 213,
+          "height": 307
+        },
+        "anchorX": 0.4086,
+        "anchorY": 0.5356,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 0.95,
+          "ratio": 0.95,
+          "pop": 39.8,
+          "dx": 2,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.6929,
+          "pop": 39.1,
+          "why": "T3+refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "218445da-079a-44b6-a5e9-2616f286b736",
+      "compatibilitySlot": "dog_28",
+      "x": 2174,
+      "y": 1591,
+      "r": 57,
+      "sprite": {
+        "image": "levels/underground_crystal_grotto_bird_43ad/dogs/dog_28/sprite_000.png",
+        "height": 155,
+        "width": 255,
+        "x": 2064,
+        "y": 1526,
+        "cleanup": {
+          "x": 2044,
+          "y": 1514,
+          "width": 293,
+          "height": 178
+        },
+        "anchorX": 0.4314,
+        "anchorY": 0.4194,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 26.8,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.8337,
+          "pop": 26.9,
+          "why": "T3+refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "f8781991-b2c5-48c5-9505-d4c5b7f0d1d2",
+      "compatibilitySlot": "dog_29",
+      "x": 2127,
+      "y": 1222,
+      "r": 57,
+      "sprite": {
+        "image": "levels/underground_crystal_grotto_bird_43ad/dogs/dog_29/sprite_000.png",
+        "height": 227,
+        "width": 117,
+        "x": 2069,
+        "y": 1123,
+        "cleanup": {
+          "x": 2060,
+          "y": 1105,
+          "width": 134,
+          "height": 261
+        },
+        "anchorX": 0.4957,
+        "anchorY": 0.4361,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 23.3,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.8961,
+          "pop": 22.1,
+          "why": "T3+refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    }
+  ]
+}

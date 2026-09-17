@@ -13,18 +13,31 @@
       "r": 57,
       "sprite": {
         "image": "levels/france_mont_saint_michel_causeway_bird_3e43/dogs/dog_00/sprite_000.png",
-        "x": 988,
-        "y": 518,
-        "width": 262,
-        "height": 189,
+        "x": 1008,
+        "y": 550,
+        "width": 194,
+        "height": 136,
         "cleanup": {
           "x": 935,
           "y": 418,
           "width": 345,
           "height": 318
         },
-        "anchorX": 0.458,
-        "anchorY": 0.3862
+        "anchorX": 0.5,
+        "anchorY": 0.3162,
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop2",
+          "score": 0.8468,
+          "pop": 28.3
+        },
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 28.2,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -36,16 +49,23 @@
         "image": "levels/france_mont_saint_michel_causeway_bird_3e43/dogs/dog_01/sprite_000.png",
         "x": 1499,
         "y": 501,
-        "width": 261,
-        "height": 224,
+        "width": 160,
+        "height": 131,
         "cleanup": {
           "x": 1419,
           "y": 458,
           "width": 345,
           "height": 299
         },
-        "anchorX": 0.4253,
-        "anchorY": 0.6562
+        "anchorX": 0.3875,
+        "anchorY": 0.5496,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 31.7,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -55,18 +75,31 @@
       "r": 57,
       "sprite": {
         "image": "levels/france_mont_saint_michel_causeway_bird_3e43/dogs/dog_02/sprite_000.png",
-        "x": 1116,
-        "y": 757,
-        "width": 229,
-        "height": 176,
+        "x": 1133,
+        "y": 785,
+        "width": 169,
+        "height": 131,
         "cleanup": {
           "x": 997,
           "y": 738,
           "width": 345,
           "height": 252
         },
-        "anchorX": 0.4236,
-        "anchorY": 0.5114
+        "anchorX": 0.4793,
+        "anchorY": 0.4809,
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop",
+          "score": 0.9247,
+          "pop": 10.9
+        },
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 10.8,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -78,16 +111,23 @@
         "image": "levels/france_mont_saint_michel_causeway_bird_3e43/dogs/dog_03/sprite_000.png",
         "x": 443,
         "y": 702,
-        "width": 260,
-        "height": 213,
+        "width": 195,
+        "height": 160,
         "cleanup": {
           "x": 412,
           "y": 646,
           "width": 345,
           "height": 290
         },
-        "anchorX": 0.5462,
-        "anchorY": 0.5493
+        "anchorX": 0.4923,
+        "anchorY": 0.8187,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 23.9,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -99,16 +139,23 @@
         "image": "levels/france_mont_saint_michel_causeway_bird_3e43/dogs/dog_04/sprite_000.png",
         "x": 414,
         "y": 991,
-        "width": 254,
-        "height": 194,
+        "width": 419,
+        "height": 320,
         "cleanup": {
           "x": 372,
           "y": 938,
           "width": 311,
           "height": 289
         },
-        "anchorX": 0.5157,
-        "anchorY": 0.3299
+        "anchorX": 0.5179,
+        "anchorY": 0.3312,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 32.2,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -129,7 +176,14 @@
           "height": 341
         },
         "anchorX": 0.6535,
-        "anchorY": 0.2852
+        "anchorY": 0.2852,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 30.5,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -149,8 +203,15 @@
           "width": 281,
           "height": 252
         },
-        "anchorX": 0.4753,
-        "anchorY": 0.5
+        "anchorX": 0.4709,
+        "anchorY": 0.5,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 29.7,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -171,7 +232,14 @@
           "height": 313
         },
         "anchorX": 0.3886,
-        "anchorY": 0.6087
+        "anchorY": 0.6087,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 27.2,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -181,18 +249,31 @@
       "r": 57,
       "sprite": {
         "image": "levels/france_mont_saint_michel_causeway_bird_3e43/dogs/dog_08/sprite_000.png",
-        "x": 1070,
-        "y": 1317,
-        "width": 255,
-        "height": 155,
+        "x": 1130,
+        "y": 1315,
+        "width": 199,
+        "height": 159,
         "cleanup": {
           "x": 1027,
           "y": 1246,
           "width": 263,
           "height": 299
         },
-        "anchorX": 0.4941,
-        "anchorY": 0.4774
+        "anchorX": 0.3166,
+        "anchorY": 0.4591,
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop2",
+          "score": 0.8038,
+          "pop": 31.2
+        },
+        "refit": {
+          "scale": 0.95,
+          "ratio": 1.0,
+          "pop": 30.2,
+          "dx": 3,
+          "dy": 3
+        }
       }
     },
     {
@@ -204,16 +285,23 @@
         "image": "levels/france_mont_saint_michel_causeway_bird_3e43/dogs/dog_09/sprite_000.png",
         "x": 579,
         "y": 1405,
-        "width": 173,
-        "height": 129,
+        "width": 242,
+        "height": 181,
         "cleanup": {
           "x": 512,
           "y": 1323,
           "width": 345,
           "height": 337
         },
-        "anchorX": 0.6127,
-        "anchorY": 0.6667
+        "anchorX": 0.5868,
+        "anchorY": 0.663,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 16.3,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -225,16 +313,23 @@
         "image": "levels/france_mont_saint_michel_causeway_bird_3e43/dogs/dog_10/sprite_000.png",
         "x": 1131,
         "y": 1582,
-        "width": 219,
-        "height": 183,
+        "width": 285,
+        "height": 238,
         "cleanup": {
           "x": 1108,
           "y": 1547,
           "width": 299,
           "height": 313
         },
-        "anchorX": 0.4749,
-        "anchorY": 0.6503
+        "anchorX": 0.4912,
+        "anchorY": 0.5798,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 25.5,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -246,16 +341,23 @@
         "image": "levels/france_mont_saint_michel_causeway_bird_3e43/dogs/dog_11/sprite_000.png",
         "x": 497,
         "y": 1861,
-        "width": 206,
-        "height": 157,
+        "width": 288,
+        "height": 220,
         "cleanup": {
           "x": 409,
           "y": 1747,
           "width": 345,
           "height": 335
         },
-        "anchorX": 0.4126,
-        "anchorY": 0.3758
+        "anchorX": 0.4201,
+        "anchorY": 0.4682,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 20.1,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -267,16 +369,23 @@
         "image": "levels/france_mont_saint_michel_causeway_bird_3e43/dogs/dog_12/sprite_000.png",
         "x": 857,
         "y": 1879,
-        "width": 222,
-        "height": 231,
+        "width": 311,
+        "height": 323,
         "cleanup": {
           "x": 826,
           "y": 1832,
           "width": 282,
           "height": 327
         },
-        "anchorX": 0.5586,
-        "anchorY": 0.4892
+        "anchorX": 0.537,
+        "anchorY": 0.5418,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 19.3,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -288,16 +397,23 @@
         "image": "levels/france_mont_saint_michel_causeway_bird_3e43/dogs/dog_13/sprite_000.png",
         "x": 505,
         "y": 2148,
-        "width": 251,
-        "height": 195,
+        "width": 351,
+        "height": 273,
         "cleanup": {
           "x": 493,
           "y": 2084,
           "width": 331,
           "height": 334
         },
-        "anchorX": 0.6534,
-        "anchorY": 0.5026
+        "anchorX": 0.6524,
+        "anchorY": 0.5568,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 17.3,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -309,16 +425,23 @@
         "image": "levels/france_mont_saint_michel_causeway_bird_3e43/dogs/dog_14/sprite_000.png",
         "x": 1481,
         "y": 1781,
-        "width": 176,
-        "height": 138,
+        "width": 246,
+        "height": 193,
         "cleanup": {
           "x": 1426,
           "y": 1701,
           "width": 345,
           "height": 342
         },
-        "anchorX": 0.6705,
-        "anchorY": 0.6522
+        "anchorX": 0.5325,
+        "anchorY": 0.5492,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 16.5,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -330,16 +453,23 @@
         "image": "levels/france_mont_saint_michel_causeway_bird_3e43/dogs/dog_15/sprite_000.png",
         "x": 1923,
         "y": 1205,
-        "width": 154,
-        "height": 234,
+        "width": 200,
+        "height": 304,
         "cleanup": {
           "x": 1855,
           "y": 1126,
           "width": 320,
           "height": 345
         },
-        "anchorX": 0.5195,
-        "anchorY": 0.4017
+        "anchorX": 0.5,
+        "anchorY": 0.4342,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 28.0,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -351,16 +481,23 @@
         "image": "levels/france_mont_saint_michel_causeway_bird_3e43/dogs/dog_16/sprite_000.png",
         "x": 1960,
         "y": 1577,
-        "width": 160,
-        "height": 111,
+        "width": 224,
+        "height": 155,
         "cleanup": {
           "x": 1876,
           "y": 1498,
           "width": 345,
           "height": 247
         },
-        "anchorX": 0.5563,
-        "anchorY": 0.6216
+        "anchorX": 0.5714,
+        "anchorY": 0.6581,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 18.2,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -372,16 +509,23 @@
         "image": "levels/france_mont_saint_michel_causeway_bird_3e43/dogs/dog_17/sprite_000.png",
         "x": 2093,
         "y": 1748,
-        "width": 257,
-        "height": 185,
+        "width": 398,
+        "height": 287,
         "cleanup": {
           "x": 2025,
           "y": 1747,
           "width": 345,
           "height": 271
         },
-        "anchorX": 0.4086,
-        "anchorY": 0.5297
+        "anchorX": 0.4447,
+        "anchorY": 0.5923,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 17.7,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -393,16 +537,23 @@
         "image": "levels/france_mont_saint_michel_causeway_bird_3e43/dogs/dog_18/sprite_000.png",
         "x": 1224,
         "y": 2225,
-        "width": 231,
-        "height": 197,
+        "width": 312,
+        "height": 266,
         "cleanup": {
           "x": 1201,
           "y": 2154,
           "width": 345,
           "height": 345
         },
-        "anchorX": 0.6494,
-        "anchorY": 0.5178
+        "anchorX": 0.5865,
+        "anchorY": 0.5489,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 25.9,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -414,16 +565,23 @@
         "image": "levels/france_mont_saint_michel_causeway_bird_3e43/dogs/dog_19/sprite_000.png",
         "x": 1809,
         "y": 2241,
-        "width": 226,
-        "height": 147,
+        "width": 316,
+        "height": 206,
         "cleanup": {
           "x": 1752,
           "y": 2156,
           "width": 345,
           "height": 312
         },
-        "anchorX": 0.5133,
-        "anchorY": 0.5102
+        "anchorX": 0.4715,
+        "anchorY": 0.5146,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 18.2,
+          "dx": 0,
+          "dy": 0
+        }
       }
     }
   ]

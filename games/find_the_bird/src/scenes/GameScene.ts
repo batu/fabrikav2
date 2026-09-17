@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import { Capacitor } from '@capacitor/core';
 import { prefersReducedMotion } from '@fabrikav2/ui';
-import { COLORS, GAME, GAMEPLAY, TEST_HARNESS_ENABLED, TIMING } from '../core/Constants';
+import { COLORS, GAME, GAMEPLAY, TEST_HARNESS_ENABLED, TIMING, DEBUG_OVERRIDES } from '../core/Constants';
 import { gameState } from '../core/GameState';
 import {
   getPickupStylePreference,
@@ -13,6 +13,7 @@ import { disposeLevelUrls, getLevelIndex, loadLevel, loadLevelForProgression, re
 import type { LevelData, LevelDog, LevelSection } from '../data/levels';
 import { playFind, playWrongTap, preloadBirdFoundSounds } from '../audio/AudioManager';
 import { crossfadeTo as crossfadeAmbient, presetForLevel } from '../audio/AmbientManager';
+import { PICKUP_FEATHER_KEYS, pickRandomPickupFx, playPickupParticles } from './pickupParticles';
 import { adService } from '../ads/Service';
 import { showTrackedEconomyReward, trackEconomySnapshot } from '../analytics/EconomyTelemetry';
 import { updateLevelBanner } from '../ads/levelBannerPolicy';
@@ -435,8 +436,16 @@ export class GameScene extends Phaser.Scene {
     if (!this.textures.exists('hint_point')) {
       this.load.image('hint_point', 'ui/effects/hint_point_right.png');
     }
+    // Same magnifier art as the tutorial's hinted-find lesson (TutorialOverlay),
+    // reused here so every hint — tutorial or wallet-spent — reads the same way.
+    if (!this.textures.exists('hint_magnifier')) {
+      this.load.image('hint_magnifier', 'ui/tutorial/magnifier.png');
+    }
     // Pickup feather particles — four painted cutouts, level-independent.
     for (const name of FEATHER_PARTICLE_KEYS) {
+      if (!this.textures.exists(name)) this.load.image(name, `ui/effects/${name}.png`);
+    }
+    for (const name of PICKUP_FEATHER_KEYS) {
       if (!this.textures.exists(name)) this.load.image(name, `ui/effects/${name}.png`);
     }
 
@@ -1123,6 +1132,13 @@ export class GameScene extends Phaser.Scene {
     setHomeCallback(() => {
       this.scene.start('HomeScene');
     });
+    if (TEST_HARNESS_ENABLED) {
+      // Debug level selector from in-game settings: HomeScene consumes the
+      // pending index on create and starts that level.
+      const debugJump = (): void => { this.scene.start('HomeScene'); };
+      window.addEventListener('ftb-debug-jump-level', debugJump);
+      this.events.once('shutdown', () => window.removeEventListener('ftb-debug-jump-level', debugJump));
+    }
     setGameModeChangeCallback(() => {
       if (this.level) {
         this.preserveLevelUrlsOnShutdown = true;
@@ -3129,6 +3145,14 @@ export class GameScene extends Phaser.Scene {
 
     image.setDisplaySize(sprite.width * this.imgScale, sprite.height * this.imgScale);
     image.setFlip(sprite.flipX ?? false, sprite.flipY ?? false);
+    // Tap-point particles (leaf / stars / feathers / confetti, random per
+    // pickup; Settings > Debug can pin one in harness builds).
+    if (!prefersReducedMotion() && DEBUG_OVERRIDES.pickupFx !== 'none') {
+      const kind = DEBUG_OVERRIDES.pickupFx === 'random' ? pickRandomPickupFx() : DEBUG_OVERRIDES.pickupFx;
+      // Spawn toward the bottom of the hitbox (r = 57 level px) so the
+      // feathers read as shed from the bird's body, not its head.
+      playPickupParticles(this, kind, this.imgOffsetX + dog.x * this.imgScale, this.imgOffsetY + (dog.y + 57 * 0.8) * this.imgScale);
+    }
     const startScaleX = image.scaleX;
     const startScaleY = image.scaleY;
     const startDisplaySize = Math.max(image.displayWidth, image.displayHeight, 1);
@@ -3167,7 +3191,8 @@ export class GameScene extends Phaser.Scene {
           Phaser.Math.Linear(startScaleX, targetScaleX, t),
           Phaser.Math.Linear(startScaleY, targetScaleY, t),
         );
-        image.setAlpha(Phaser.Math.Linear(1, 0.86, t));
+        // The flying sprite stays fully opaque (Batu 2026-09-16); only the
+        // carved area under it cross-fades.
         image.setAngle(Phaser.Math.Linear(0, -8, t));
       },
       onComplete: () => {
@@ -3342,19 +3367,58 @@ export class GameScene extends Phaser.Scene {
       throw new Error(`Restoration dog ${dog.id} has no valid sprite cleanup area`);
     }
     this.lastRestorationDissolveBounds = bounds;
-    // Instant carve. A 50ms cross-fade was tried on 2026-08-07 and read as
-    // mush on device — the swap is cleaner when it is immediate.
-    const carvedPoints: Phaser.Geom.Point[] = [];
-    for (const polygon of erasePolygons) {
-      const screenPoints = this.levelPolygonToScreenPoints(polygon);
-      this.dissolveCompletedCells.push({ polygon });
-      this.carvePermanentDissolveCell(screenPoints);
-      carvedPoints.push(...screenPoints);
+    const cells = erasePolygons.map((polygon) => ({
+      dogId: dog.id,
+      polygon,
+      screenPoints: this.levelPolygonToScreenPoints(polygon),
+      alpha: 1,
+    }));
+    const carvedPoints: Phaser.Geom.Point[] = cells.flatMap((cell) => cell.screenPoints);
+
+    const commit = (): void => {
+      for (const cell of cells) {
+        const index = this.dissolveActiveCells.indexOf(cell);
+        if (index >= 0) this.dissolveActiveCells.splice(index, 1);
+        this.dissolveCompletedCells.push({ polygon: cell.polygon });
+        this.carvePermanentDissolveCell(cell.screenPoints);
+      }
+      // Only the carved rectangle changed; upload just that (2532² full uploads
+      // measured 120–160 ms per find on iPhone 12, 2026-09-10).
+      this.syncRestorationMaskTexture(this.getPolygonDirtyRect(carvedPoints, 4));
+      this.onRevealedCellComplete();
+    };
+
+    // Reduced motion (and a dead tween manager during teardown) keep the
+    // instant carve.
+    if (prefersReducedMotion() || this.isShuttingDown || !this.sys.isActive() || DEBUG_OVERRIDES.restorationDissolveMs === 0) {
+      commit();
+      return;
     }
-    // Only the carved rectangle changed; upload just that (2532² full uploads
-    // measured 120–160 ms per find on iPhone 12, 2026-09-10).
-    this.syncRestorationMaskTexture(this.getPolygonDirtyRect(carvedPoints, 4));
-    this.onRevealedCellComplete();
+
+    // Cross-fade the cleared area from painted to restored over
+    // RESTORATION_DISSOLVE_MS: the active-cell path carves with alpha
+    // (1 - cell.alpha), so tweening alpha 1 -> 0 settles the carve instead of
+    // snapping it. The sprite covers the bird itself and is already flying;
+    // this only softens the shadow/prop paint around it. Hit-testing treats
+    // active cells as revealed, so a tap mid-fade is safe. Driven by wall
+    // clock so a slow frame degrades to a softer snap, not a stutter.
+    this.dissolveActiveCells.push(...cells);
+    const startedAt = performance.now();
+    const durationMs = Math.max(1, DEBUG_OVERRIDES.restorationDissolveMs ?? TIMING.RESTORATION_DISSOLVE_MS);
+    const fade = { t: 0 };
+    this.tweens.add({
+      targets: fade,
+      t: 1,
+      duration: durationMs,
+      ease: 'Linear',
+      onUpdate: () => {
+        const linear = Math.min(1, (performance.now() - startedAt) / durationMs);
+        const eased = 1 - (1 - linear) ** 3; // Cubic.easeOut
+        for (const cell of cells) cell.alpha = 1 - eased;
+        this.activeRevealDirty = true;
+      },
+      onComplete: commit,
+    });
   }
 
   /**
@@ -3999,6 +4063,7 @@ export class GameScene extends Phaser.Scene {
 
   private hintCircleGfx: Phaser.GameObjects.Graphics | null = null;
   private hintCircleTween: Phaser.Tweens.Tween | null = null;
+  private hintMagnifierImg: Phaser.GameObjects.Image | null = null;
 
   private onHintRequested(): void {
     // Tutorial step 2 → 3: the hint tap advances to the zoom lesson (handled
@@ -4061,6 +4126,15 @@ export class GameScene extends Phaser.Scene {
 
     this.hintCircleGfx = this.add.graphics();
     this.hintCircleGfx.setDepth(50);
+    // Same magnifier-glass sell as the tutorial's hinted-find lesson (lensSize
+    // = radius / 0.28, see TutorialOverlay.layout) so a wallet-spent hint
+    // reads identically to the one players were taught during onboarding.
+    this.hintMagnifierImg = this.add.image(sx, sy, 'hint_magnifier');
+    // The lens is not at the art's centre (handle bottom-right): its hole is
+    // centred at 43% / 40% of the 384 px image (measured 2026-09-16), so anchor
+    // there or the ring sits down-right of the bird.
+    this.hintMagnifierImg.setOrigin(0.43, 0.401);
+    this.hintMagnifierImg.setDepth(51);
 
     const drawHintCircle = (scale: number): void => {
       if (!this.hintCircleGfx) return;
@@ -4076,6 +4150,10 @@ export class GameScene extends Phaser.Scene {
       this.hintCircleGfx.strokeCircle(sx, sy, radius);
       this.hintCircleGfx.lineStyle(3, 0xffffff, 0.95);
       this.hintCircleGfx.strokeCircle(sx, sy, radius - 6);
+      if (this.hintMagnifierImg) {
+        const lensSize = radius / 0.28;
+        this.hintMagnifierImg.setDisplaySize(lensSize, lensSize);
+      }
     };
 
     drawHintCircle(1);
@@ -4149,6 +4227,10 @@ export class GameScene extends Phaser.Scene {
     if (this.hintCircleGfx) {
       this.hintCircleGfx.destroy();
       this.hintCircleGfx = null;
+    }
+    if (this.hintMagnifierImg) {
+      this.hintMagnifierImg.destroy();
+      this.hintMagnifierImg = null;
     }
     gameState.hintCircleActive = false;
     if (this.level) updateHUD(this.level.dogs.length, this.isRestoration);

@@ -24,7 +24,14 @@
           "height": 316
         },
         "anchorX": 0.5576,
-        "anchorY": 0.5153
+        "anchorY": 0.5204,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 25.3,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -34,18 +41,31 @@
       "r": 57,
       "sprite": {
         "image": "levels/france_provence_lavender_village_bird_54c3/dogs/dog_01/sprite_000.png",
-        "x": 1162,
-        "y": 451,
-        "width": 153,
-        "height": 236,
+        "x": 1228,
+        "y": 466,
+        "width": 63,
+        "height": 97,
         "cleanup": {
           "x": 1150,
           "y": 407,
           "width": 198,
           "height": 189
         },
-        "anchorX": 0.5686,
-        "anchorY": 0.2585
+        "anchorX": 0.3333,
+        "anchorY": 0.5052,
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop",
+          "score": 0.911,
+          "pop": 23.6
+        },
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 26.2,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -55,18 +75,31 @@
       "r": 57,
       "sprite": {
         "image": "levels/france_provence_lavender_village_bird_54c3/dogs/dog_02/sprite_000.png",
-        "x": 1252,
-        "y": 588,
-        "width": 221,
-        "height": 225,
+        "x": 1323,
+        "y": 636,
+        "width": 125,
+        "height": 149,
         "cleanup": {
           "x": 1214,
           "y": 598,
           "width": 331,
           "height": 233
         },
-        "anchorX": 0.6109,
-        "anchorY": 0.4178
+        "anchorX": 0.512,
+        "anchorY": 0.3087,
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop2",
+          "score": 0.9192,
+          "pop": 20.8
+        },
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 21.8,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -76,18 +109,31 @@
       "r": 57,
       "sprite": {
         "image": "levels/france_provence_lavender_village_bird_54c3/dogs/dog_03/sprite_000.png",
-        "x": 1721,
-        "y": 555,
-        "width": 201,
-        "height": 194,
+        "x": 1787,
+        "y": 623,
+        "width": 111,
+        "height": 116,
         "cleanup": {
           "x": 1686,
           "y": 513,
           "width": 279,
           "height": 261
         },
-        "anchorX": 0.6866,
-        "anchorY": 0.6753
+        "anchorX": 0.6577,
+        "anchorY": 0.5431,
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop",
+          "score": 0.8474,
+          "pop": 32.0
+        },
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 34.3,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -97,18 +143,31 @@
       "r": 57,
       "sprite": {
         "image": "levels/france_provence_lavender_village_bird_54c3/dogs/dog_04/sprite_000.png",
-        "x": 1639,
-        "y": 754,
-        "width": 184,
-        "height": 262,
+        "x": 1686,
+        "y": 778,
+        "width": 130,
+        "height": 131,
         "cleanup": {
           "x": 1547,
           "y": 776,
           "width": 331,
           "height": 260
         },
-        "anchorX": 0.5163,
-        "anchorY": 0.3511
+        "anchorX": 0.3769,
+        "anchorY": 0.5267,
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop",
+          "score": 0.9303,
+          "pop": 14.6
+        },
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 15.5,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -118,18 +177,31 @@
       "r": 57,
       "sprite": {
         "image": "levels/france_provence_lavender_village_bird_54c3/dogs/dog_05/sprite_000.png",
-        "x": 1929,
-        "y": 730,
-        "width": 257,
-        "height": 214,
+        "x": 1986,
+        "y": 734,
+        "width": 124,
+        "height": 116,
         "cleanup": {
           "x": 1967,
           "y": 570,
           "width": 278,
           "height": 345
         },
-        "anchorX": 0.463,
-        "anchorY": 0.1916
+        "anchorX": 0.4435,
+        "anchorY": 0.319,
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop",
+          "score": 0.8335,
+          "pop": 29.3
+        },
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 23.6,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -139,18 +211,31 @@
       "r": 57,
       "sprite": {
         "image": "levels/france_provence_lavender_village_bird_54c3/dogs/dog_06/sprite_000.png",
-        "x": 883,
-        "y": 834,
-        "width": 209,
-        "height": 222,
+        "x": 957,
+        "y": 887,
+        "width": 151,
+        "height": 140,
         "cleanup": {
           "x": 845,
           "y": 823,
           "width": 240,
           "height": 312
         },
-        "anchorX": 0.6172,
-        "anchorY": 0.5676
+        "anchorX": 0.3642,
+        "anchorY": 0.5214,
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop2",
+          "score": 0.897,
+          "pop": 21.2
+        },
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 23.3,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -160,18 +245,31 @@
       "r": 57,
       "sprite": {
         "image": "levels/france_provence_lavender_village_bird_54c3/dogs/dog_07/sprite_000.png",
-        "x": 1094,
-        "y": 813,
-        "width": 247,
-        "height": 222,
+        "x": 1142,
+        "y": 911,
+        "width": 106,
+        "height": 99,
         "cleanup": {
           "x": 1114,
           "y": 833,
           "width": 211,
           "height": 322
         },
-        "anchorX": 0.3725,
-        "anchorY": 0.7658
+        "anchorX": 0.4245,
+        "anchorY": 0.7374,
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop",
+          "score": 0.9072,
+          "pop": 20.4
+        },
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 20.7,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -192,7 +290,14 @@
           "height": 345
         },
         "anchorX": 0.5079,
-        "anchorY": 0.5962
+        "anchorY": 0.5962,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 21.7,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -213,7 +318,14 @@
           "height": 308
         },
         "anchorX": 0.53,
-        "anchorY": 0.6263
+        "anchorY": 0.6263,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 18.3,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -225,16 +337,23 @@
         "image": "levels/france_provence_lavender_village_bird_54c3/dogs/dog_10/sprite_000.png",
         "x": 967,
         "y": 1477,
-        "width": 123,
-        "height": 114,
+        "width": 172,
+        "height": 160,
         "cleanup": {
           "x": 782,
           "y": 1379,
           "width": 345,
           "height": 280
         },
-        "anchorX": 0.3902,
-        "anchorY": 0.6228
+        "anchorX": 0.3837,
+        "anchorY": 0.475,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 17.0,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -246,16 +365,23 @@
         "image": "levels/france_provence_lavender_village_bird_54c3/dogs/dog_11/sprite_000.png",
         "x": 702,
         "y": 1687,
-        "width": 252,
-        "height": 148,
+        "width": 353,
+        "height": 207,
         "cleanup": {
           "x": 633,
           "y": 1661,
           "width": 345,
           "height": 280
         },
-        "anchorX": 0.5675,
-        "anchorY": 0.5541
+        "anchorX": 0.6147,
+        "anchorY": 0.5507,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 12.7,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -276,7 +402,14 @@
           "height": 345
         },
         "anchorX": 0.3683,
-        "anchorY": 0.5542
+        "anchorY": 0.5542,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 13.8,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -288,16 +421,23 @@
         "image": "levels/france_provence_lavender_village_bird_54c3/dogs/dog_13/sprite_000.png",
         "x": 1047,
         "y": 2185,
-        "width": 210,
-        "height": 174,
+        "width": 326,
+        "height": 270,
         "cleanup": {
           "x": 961,
           "y": 2095,
           "width": 342,
           "height": 345
         },
-        "anchorX": 0.5048,
-        "anchorY": 0.3161
+        "anchorX": 0.3712,
+        "anchorY": 0.3741,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 19.0,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -318,7 +458,14 @@
           "height": 342
         },
         "anchorX": 0.3939,
-        "anchorY": 0.556
+        "anchorY": 0.556,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 21.8,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -330,16 +477,23 @@
         "image": "levels/france_provence_lavender_village_bird_54c3/dogs/dog_15/sprite_000.png",
         "x": 1884,
         "y": 1700,
-        "width": 191,
-        "height": 189,
+        "width": 267,
+        "height": 265,
         "cleanup": {
           "x": 1832,
           "y": 1608,
           "width": 345,
           "height": 322
         },
-        "anchorX": 0.8377,
-        "anchorY": 0.164
+        "anchorX": 0.6367,
+        "anchorY": 0.3811,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 15.5,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -351,16 +505,23 @@
         "image": "levels/france_provence_lavender_village_bird_54c3/dogs/dog_16/sprite_000.png",
         "x": 1919,
         "y": 2004,
-        "width": 181,
-        "height": 169,
+        "width": 253,
+        "height": 237,
         "cleanup": {
           "x": 1886,
           "y": 1932,
           "width": 301,
           "height": 321
         },
-        "anchorX": 0.5304,
-        "anchorY": 0.4556
+        "anchorX": 0.4585,
+        "anchorY": 0.5316,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 16.1,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -372,16 +533,23 @@
         "image": "levels/france_provence_lavender_village_bird_54c3/dogs/dog_17/sprite_000.png",
         "x": 1664,
         "y": 2224,
-        "width": 218,
-        "height": 201,
+        "width": 283,
+        "height": 261,
         "cleanup": {
           "x": 1583,
           "y": 2148,
           "width": 301,
           "height": 345
         },
-        "anchorX": 0.5872,
-        "anchorY": 0.4826
+        "anchorX": 0.6184,
+        "anchorY": 0.4943,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 27.7,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -393,16 +561,23 @@
         "image": "levels/france_provence_lavender_village_bird_54c3/dogs/dog_18/sprite_000.png",
         "x": 2222,
         "y": 1267,
-        "width": 196,
-        "height": 192,
+        "width": 116,
+        "height": 128,
         "cleanup": {
           "x": 2090,
           "y": 1209,
           "width": 320,
           "height": 345
         },
-        "anchorX": 0.3827,
-        "anchorY": 0.2865
+        "anchorX": 0.5172,
+        "anchorY": 0.3906,
+        "refit": {
+          "scale": 1.05,
+          "ratio": 1.05,
+          "pop": 43.6,
+          "dx": -6,
+          "dy": -3
+        }
       }
     }
   ]

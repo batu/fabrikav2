@@ -1,0 +1,40 @@
+[
+ {
+  "id": "ada9e2a7-386b-5607-9683-1126c08871c0",
+  "compatibilitySlot": "dog_11",
+  "x": 619,
+  "y": 617,
+  "r": 57,
+  "sprite": {
+   "image": "levels/below_decks_captains_cabin_bird_3b68/dogs/dog_11/sprite_000.png",
+   "height": 241,
+   "width": 198,
+   "x": 521,
+   "y": 508,
+   "cleanup": {
+    "x": 506,
+    "y": 489,
+    "width": 227,
+    "height": 277
+   },
+   "anchorX": 0.4949,
+   "anchorY": 0.4523,
+   "flipX": false,
+   "flipY": false,
+   "refit": {
+    "scale": 1.0,
+    "ratio": 1.0,
+    "pop": 15.1,
+    "dx": 0,
+    "dy": 0
+   },
+   "regen": {
+    "pass": "crop2",
+    "score": 0.9676,
+    "pop": 15.1,
+    "why": "T4+refit refused"
+   },
+   "technique": "gpt-image-2.5-sunburst-low-visible-only"
+  }
+ }
+]

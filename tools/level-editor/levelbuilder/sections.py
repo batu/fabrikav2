@@ -22,9 +22,16 @@ from levelbuilder.hitboxes import Rect
 # Viewport-anchored HUD/banner heights as fractions of level height. In cover-scale
 # mode the landscape level fills the viewport vertically, so the HUD (top) and ad
 # banner (bottom) sit at the top/bottom of the level image itself.
-# Portrait reference: HUD 230/1376=16.7%, banner 98/1376=7.1%.
+# Portrait reference: HUD 230/1376=16.7%, banner 98/1376=7.1%. BANNER_FRACTION is
+# the chrome band the magenta send crop excludes (canonical 2048 px square send at
+# 2688; do not change it without re-pinning test_canonical_geometry).
 HUD_FRACTION = 230 / 1376
 BANNER_FRACTION = 0.071
+# Bird PLACEMENT keeps a wider band clear of the banner than the chrome itself: the
+# measured iPhone 12 banner sits at 4.6-10.5% from the bottom, and the operator
+# raised the placement deadzone to 14% on 2026-09-16 for a healthy clearance ("so it
+# doesn't feel cramped"). Placement inside the send crop is unaffected (14% > 7.1%).
+PLACEMENT_BANNER_FRACTION = 0.14
 
 # Side edge-safety margin for square (pan/zoom) scenes, as a fraction of level
 # width. Full-scene paint models displace content most near the frame edges
@@ -78,7 +85,7 @@ PORTRAIT_REF_HEIGHT = 1376
 # (x, y, w, h) rects in the 768x1376 reference frame, with a label for clarity.
 PORTRAIT_REFERENCE_DEADZONES: list[tuple[str, int, int, int, int]] = [
     ("HUD",       0,   0,    768, 230),
-    ("AD",        0,   1278, 768, 98),
+    ("AD",        0,   1183, 768, 193),
     ("CROP_L",    0,   0,    90,  1376),
     ("CROP_R",    678, 0,    90,  1376),
     ("HINT_CHIP", 531, 1117, 213, 138),
@@ -90,7 +97,8 @@ def hud_band(level_height: int) -> int:
 
 
 def banner_band(level_height: int) -> int:
-    return int(level_height * BANNER_FRACTION)
+    """Placement deadzone height above the level bottom (not the send-crop band)."""
+    return int(level_height * PLACEMENT_BANNER_FRACTION)
 
 
 # Landscape levels have exactly 3 sections (product decision, plan-locked).

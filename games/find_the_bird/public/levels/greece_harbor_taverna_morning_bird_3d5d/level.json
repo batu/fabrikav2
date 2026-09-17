@@ -15,18 +15,25 @@
         "image": "levels/greece_harbor_taverna_morning_bird_3d5d/dogs/dog_00/sprite_000.png",
         "x": 683,
         "y": 520,
-        "width": 251,
-        "height": 171,
+        "width": 269,
+        "height": 193,
         "cleanup": {
           "x": 665,
           "y": 448,
           "width": 300,
           "height": 304
         },
-        "anchorX": 0.4382,
-        "anchorY": 0.5906,
+        "anchorX": 0.4424,
+        "anchorY": 0.5803,
         "flipX": false,
-        "flipY": false
+        "flipY": false,
+        "refit": {
+          "scale": 1.1,
+          "ratio": 0.95,
+          "pop": 22.7,
+          "dx": -9,
+          "dy": -11
+        }
       }
     },
     {
@@ -38,16 +45,23 @@
         "image": "levels/greece_harbor_taverna_morning_bird_3d5d/dogs/dog_01/sprite_000.png",
         "x": 1303,
         "y": 587,
-        "width": 163,
-        "height": 114,
+        "width": 147,
+        "height": 103,
         "cleanup": {
           "x": 1185,
           "y": 405,
           "width": 345,
           "height": 295
         },
-        "anchorX": 0.3804,
-        "anchorY": 0.3596
+        "anchorX": 0.415,
+        "anchorY": 0.3204,
+        "refit": {
+          "scale": 0.9,
+          "ratio": 1.0,
+          "pop": 23.8,
+          "dx": 1,
+          "dy": 7
+        }
       }
     },
     {
@@ -68,7 +82,14 @@
           "height": 314
         },
         "anchorX": 0.5427,
-        "anchorY": 0.4796
+        "anchorY": 0.4796,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 30.7,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -89,7 +110,14 @@
           "height": 345
         },
         "anchorX": 0.5192,
-        "anchorY": 0.2874
+        "anchorY": 0.2874,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 28.4,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -99,18 +127,31 @@
       "r": 57,
       "sprite": {
         "image": "levels/greece_harbor_taverna_morning_bird_3d5d/dogs/dog_04/sprite_000.png",
-        "x": 1358,
-        "y": 724,
-        "width": 116,
-        "height": 143,
+        "x": 1362,
+        "y": 730,
+        "width": 110,
+        "height": 87,
         "cleanup": {
           "x": 1322,
           "y": 702,
           "width": 261,
           "height": 289
         },
-        "anchorX": 0.6897,
-        "anchorY": 0.4266
+        "anchorX": 0.7,
+        "anchorY": 0.6437,
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "regen": {
+          "pass": "crop",
+          "score": 0.9246,
+          "pop": 23.3
+        },
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 23.4,
+          "dx": -1,
+          "dy": 0
+        }
       }
     },
     {
@@ -131,7 +172,14 @@
           "height": 276
         },
         "anchorX": 0.5308,
-        "anchorY": 0.5188
+        "anchorY": 0.5188,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 28.2,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -143,18 +191,25 @@
         "image": "levels/greece_harbor_taverna_morning_bird_3d5d/dogs/dog_06/sprite_000.png",
         "x": 2070,
         "y": 659,
-        "width": 185,
-        "height": 127,
+        "width": 166,
+        "height": 114,
         "cleanup": {
           "x": 1986,
           "y": 563,
           "width": 314,
           "height": 314
         },
-        "anchorX": 0.3946,
-        "anchorY": 0.4803,
+        "anchorX": 0.3916,
+        "anchorY": 0.5088,
         "flipX": false,
-        "flipY": false
+        "flipY": false,
+        "refit": {
+          "scale": 0.9,
+          "ratio": 1.0,
+          "pop": 22.8,
+          "dx": 8,
+          "dy": 2
+        }
       }
     },
     {
@@ -166,18 +221,25 @@
         "image": "levels/greece_harbor_taverna_morning_bird_3d5d/dogs/dog_07/sprite_000.png",
         "x": 423,
         "y": 752,
-        "width": 241,
-        "height": 156,
+        "width": 222,
+        "height": 169,
         "cleanup": {
           "x": 366,
           "y": 643,
           "width": 297,
           "height": 345
         },
-        "anchorX": 0.4813,
-        "anchorY": 0.4103,
+        "anchorX": 0.464,
+        "anchorY": 0.4379,
         "flipX": false,
-        "flipY": false
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 0.85,
+          "pop": 14.1,
+          "dx": 12,
+          "dy": -9
+        }
       }
     },
     {
@@ -198,7 +260,14 @@
           "height": 314
         },
         "anchorX": 0.6154,
-        "anchorY": 0.5092
+        "anchorY": 0.5092,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 9.7,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -219,7 +288,14 @@
           "height": 345
         },
         "anchorX": 0.3918,
-        "anchorY": 0.5152
+        "anchorY": 0.5152,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 23.1,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -240,7 +316,14 @@
           "height": 309
         },
         "anchorX": 0.4844,
-        "anchorY": 0.5645
+        "anchorY": 0.5645,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 30.9,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -261,7 +344,14 @@
           "height": 343
         },
         "anchorX": 0.4339,
-        "anchorY": 0.4134
+        "anchorY": 0.4134,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 19.4,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -273,16 +363,23 @@
         "image": "levels/greece_harbor_taverna_morning_bird_3d5d/dogs/dog_12/sprite_000.png",
         "x": 1508,
         "y": 1986,
-        "width": 195,
-        "height": 138,
+        "width": 205,
+        "height": 145,
         "cleanup": {
           "x": 1457,
           "y": 1871,
           "width": 226,
           "height": 328
         },
-        "anchorX": 0.4821,
-        "anchorY": 0.4203
+        "anchorX": 0.4829,
+        "anchorY": 0.4276,
+        "refit": {
+          "scale": 1.05,
+          "ratio": 1.0,
+          "pop": 25.1,
+          "dx": -4,
+          "dy": -3
+        }
       }
     },
     {
@@ -303,7 +400,14 @@
           "height": 298
         },
         "anchorX": 0.3815,
-        "anchorY": 0.3099
+        "anchorY": 0.3099,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 30.7,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -324,7 +428,14 @@
           "height": 298
         },
         "anchorX": 0.3797,
-        "anchorY": 0.4286
+        "anchorY": 0.4286,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 26.1,
+          "dx": 0,
+          "dy": 0
+        }
       }
     },
     {
@@ -336,18 +447,25 @@
         "image": "levels/greece_harbor_taverna_morning_bird_3d5d/dogs/dog_15/sprite_000.png",
         "x": 1575,
         "y": 2272,
-        "width": 180,
-        "height": 168,
+        "width": 184,
+        "height": 164,
         "cleanup": {
           "x": 1470,
           "y": 2201,
           "width": 312,
           "height": 319
         },
-        "anchorX": 0.5556,
-        "anchorY": 0.5,
+        "anchorX": 0.5543,
+        "anchorY": 0.4939,
         "flipX": false,
-        "flipY": false
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.05,
+          "pop": 29.3,
+          "dx": -1,
+          "dy": 3
+        }
       }
     },
     {
@@ -359,18 +477,25 @@
         "image": "levels/greece_harbor_taverna_morning_bird_3d5d/dogs/dog_16/sprite_000.png",
         "x": 471,
         "y": 1831,
-        "width": 202,
-        "height": 161,
+        "width": 228,
+        "height": 173,
         "cleanup": {
           "x": 404,
           "y": 1755,
           "width": 345,
           "height": 345
         },
-        "anchorX": 0.5248,
-        "anchorY": 0.6025,
+        "anchorX": 0.5219,
+        "anchorY": 0.5723,
         "flipX": false,
-        "flipY": false
+        "flipY": false,
+        "refit": {
+          "scale": 1.1,
+          "ratio": 1.05,
+          "pop": 24.4,
+          "dx": -12,
+          "dy": -1
+        }
       }
     },
     {
@@ -390,10 +515,17 @@
           "width": 345,
           "height": 308
         },
-        "anchorX": 0.4858,
+        "anchorX": 0.4764,
         "anchorY": 0.5178,
         "flipX": false,
-        "flipY": false
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 15.5,
+          "dx": 1,
+          "dy": 0
+        }
       }
     },
     {
@@ -405,18 +537,25 @@
         "image": "levels/greece_harbor_taverna_morning_bird_3d5d/dogs/dog_18/sprite_000.png",
         "x": 1010,
         "y": 2221,
-        "width": 170,
-        "height": 170,
+        "width": 178,
+        "height": 178,
         "cleanup": {
           "x": 892,
           "y": 2168,
           "width": 345,
           "height": 339
         },
-        "anchorX": 0.3235,
-        "anchorY": 0.6706,
+        "anchorX": 0.3202,
+        "anchorY": 0.6573,
         "flipX": false,
-        "flipY": false
+        "flipY": false,
+        "refit": {
+          "scale": 1.05,
+          "ratio": 1.0,
+          "pop": 28.5,
+          "dx": -2,
+          "dy": -2
+        }
       }
     }
   ]

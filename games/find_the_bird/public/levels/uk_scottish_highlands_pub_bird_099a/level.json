@@ -1,0 +1,687 @@
+{
+  "id": "uk_scottish_highlands_pub_bird_099a",
+  "name": "Level uk_scottish_highlands_pub_bird_099a",
+  "width": 2688,
+  "height": 2688,
+  "colorImage": "levels/uk_scottish_highlands_pub_bird_099a/color.png",
+  "artifactRevision": "sha256:f15354f3cba19703b53db4383b7db66ed0ab9c3cb32a4046f09160a2e221b6d1",
+  "compatibilityAliases": {
+    "dog_00": "8f79a674-31a3-41fe-8a6c-2add72490fe5",
+    "dog_05": "b305de9a-5f56-4a5e-a41b-6580c361a886",
+    "dog_22": "479d853d-ca28-48cf-b0ff-5a2c2f167caa",
+    "dog_23": "173d7b14-1bd1-4a2b-871c-d4bd313b9549",
+    "dog_24": "30511f36-9984-4c95-ae3f-f787627d9ea6",
+    "dog_25": "ee85048f-a8ac-4784-9e05-626af374d3b9",
+    "dog_26": "fe1dff29-6e60-4f05-9597-d36059566558",
+    "dog_27": "de0813cd-25a6-4f29-81cc-46e3da35a2c7",
+    "dog_28": "1d931826-4750-4139-9ad0-4cf6626d02a6",
+    "dog_29": "6c6d1e14-57f2-455a-b019-8450a03043ac",
+    "dog_30": "c4a8178f-a3f6-4ac5-a5f0-1725e96e5d58",
+    "dog_31": "c6195126-1a51-4380-9093-23100d6a425d",
+    "dog_32": "1eb6fca2-c6cc-4ae3-8135-44cbce4d7c09",
+    "dog_33": "ddcd7c0d-1ff2-4122-99a0-39d86c2deb54",
+    "dog_34": "2db31165-58f2-4eb6-b8dc-dcb0c59316e1",
+    "dog_35": "e89e2879-e0d8-4f7a-994d-9344795510ed",
+    "dog_36": "ca19508c-1a42-4364-afff-ca974a695f7d",
+    "dog_37": "101fb5ce-6613-4f9b-a32b-ff134b5326c9",
+    "dog_38": "d1f5b20c-3e28-45d3-8645-887dd5fb7a42",
+    "dog_39": "bcce166b-6a6e-439f-acaa-452eaf374a03"
+  },
+  "dogs": [
+    {
+      "id": "8f79a674-31a3-41fe-8a6c-2add72490fe5",
+      "compatibilitySlot": "dog_00",
+      "x": 768,
+      "y": 612,
+      "r": 57,
+      "sprite": {
+        "image": "levels/uk_scottish_highlands_pub_bird_099a/dogs/dog_00/sprite_000.png",
+        "height": 217,
+        "width": 206,
+        "x": 657,
+        "y": 510,
+        "cleanup": {
+          "x": 641,
+          "y": 493,
+          "width": 236,
+          "height": 249
+        },
+        "anchorX": 0.5388,
+        "anchorY": 0.47,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 18.0,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "b305de9a-5f56-4a5e-a41b-6580c361a886",
+      "compatibilitySlot": "dog_05",
+      "x": 1182,
+      "y": 758,
+      "r": 57,
+      "sprite": {
+        "image": "levels/uk_scottish_highlands_pub_bird_099a/dogs/dog_05/sprite_000.png",
+        "height": 207,
+        "width": 272,
+        "x": 1041,
+        "y": 652,
+        "cleanup": {
+          "x": 1020,
+          "y": 636,
+          "width": 312,
+          "height": 238
+        },
+        "anchorX": 0.5184,
+        "anchorY": 0.5121,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 16.8,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.9519,
+          "pop": 17.0,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "479d853d-ca28-48cf-b0ff-5a2c2f167caa",
+      "compatibilitySlot": "dog_22",
+      "x": 1490,
+      "y": 640,
+      "r": 57,
+      "sprite": {
+        "image": "levels/uk_scottish_highlands_pub_bird_099a/dogs/dog_22/sprite_000.png",
+        "height": 204,
+        "width": 167,
+        "x": 1427,
+        "y": 546,
+        "cleanup": {
+          "x": 1414,
+          "y": 530,
+          "width": 192,
+          "height": 234
+        },
+        "anchorX": 0.3772,
+        "anchorY": 0.4608,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 15.0,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.9502,
+          "pop": 14.7,
+          "why": "T3"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "173d7b14-1bd1-4a2b-871c-d4bd313b9549",
+      "compatibilitySlot": "dog_23",
+      "x": 1978,
+      "y": 791,
+      "r": 57,
+      "sprite": {
+        "image": "levels/uk_scottish_highlands_pub_bird_099a/dogs/dog_23/sprite_000.png",
+        "height": 169,
+        "width": 185,
+        "x": 1901,
+        "y": 698,
+        "cleanup": {
+          "x": 1887,
+          "y": 685,
+          "width": 212,
+          "height": 194
+        },
+        "anchorX": 0.4162,
+        "anchorY": 0.5503,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 14.1,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "30511f36-9984-4c95-ae3f-f787627d9ea6",
+      "compatibilitySlot": "dog_24",
+      "x": 487,
+      "y": 1118,
+      "r": 57,
+      "sprite": {
+        "image": "levels/uk_scottish_highlands_pub_bird_099a/dogs/dog_24/sprite_000.png",
+        "height": 193,
+        "width": 213,
+        "x": 367,
+        "y": 1009,
+        "cleanup": {
+          "x": 351,
+          "y": 994,
+          "width": 244,
+          "height": 221
+        },
+        "anchorX": 0.5634,
+        "anchorY": 0.5648,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 29.9,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.8475,
+          "pop": 28.5,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "ee85048f-a8ac-4784-9e05-626af374d3b9",
+      "compatibilitySlot": "dog_25",
+      "x": 1211,
+      "y": 1164,
+      "r": 57,
+      "sprite": {
+        "image": "levels/uk_scottish_highlands_pub_bird_099a/dogs/dog_25/sprite_000.png",
+        "height": 199,
+        "width": 133,
+        "x": 1135,
+        "y": 1072,
+        "cleanup": {
+          "x": 1125,
+          "y": 1057,
+          "width": 152,
+          "height": 228
+        },
+        "anchorX": 0.5714,
+        "anchorY": 0.4623,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 17.2,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.9311,
+          "pop": 17.3,
+          "why": "T3+refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "fe1dff29-6e60-4f05-9597-d36059566558",
+      "compatibilitySlot": "dog_26",
+      "x": 1788,
+      "y": 1132,
+      "r": 57,
+      "sprite": {
+        "image": "levels/uk_scottish_highlands_pub_bird_099a/dogs/dog_26/sprite_000.png",
+        "height": 194,
+        "width": 206,
+        "x": 1711,
+        "y": 1021,
+        "cleanup": {
+          "x": 1695,
+          "y": 1006,
+          "width": 236,
+          "height": 223
+        },
+        "anchorX": 0.3738,
+        "anchorY": 0.5722,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 27.0,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.8989,
+          "pop": 25.8,
+          "why": "T3"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "de0813cd-25a6-4f29-81cc-46e3da35a2c7",
+      "compatibilitySlot": "dog_27",
+      "x": 488,
+      "y": 1469,
+      "r": 57,
+      "sprite": {
+        "image": "levels/uk_scottish_highlands_pub_bird_099a/dogs/dog_27/sprite_000.png",
+        "height": 146,
+        "width": 167,
+        "x": 390,
+        "y": 1384,
+        "cleanup": {
+          "x": 380,
+          "y": 1372,
+          "width": 192,
+          "height": 167
+        },
+        "anchorX": 0.5689,
+        "anchorY": 0.589,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 0.95,
+          "pop": 25.0,
+          "dx": 3,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "1d931826-4750-4139-9ad0-4cf6626d02a6",
+      "compatibilitySlot": "dog_28",
+      "x": 1041,
+      "y": 1359,
+      "r": 57,
+      "sprite": {
+        "image": "levels/uk_scottish_highlands_pub_bird_099a/dogs/dog_28/sprite_000.png",
+        "height": 167,
+        "width": 150,
+        "x": 943,
+        "y": 1281,
+        "cleanup": {
+          "x": 932,
+          "y": 1265,
+          "width": 172,
+          "height": 192
+        },
+        "anchorX": 0.6467,
+        "anchorY": 0.485,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 0.95,
+          "pop": 18.2,
+          "dx": 1,
+          "dy": -3
+        }
+      }
+    },
+    {
+      "id": "6c6d1e14-57f2-455a-b019-8450a03043ac",
+      "compatibilitySlot": "dog_29",
+      "x": 838,
+      "y": 1495,
+      "r": 57,
+      "sprite": {
+        "image": "levels/uk_scottish_highlands_pub_bird_099a/dogs/dog_29/sprite_000.png",
+        "height": 125,
+        "width": 125,
+        "x": 767,
+        "y": 1422,
+        "cleanup": {
+          "x": 759,
+          "y": 1410,
+          "width": 143,
+          "height": 143
+        },
+        "anchorX": 0.552,
+        "anchorY": 0.6,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 0.95,
+          "pop": 16.5,
+          "dx": 2,
+          "dy": -1
+        }
+      }
+    },
+    {
+      "id": "c4a8178f-a3f6-4ac5-a5f0-1725e96e5d58",
+      "compatibilitySlot": "dog_30",
+      "x": 1281,
+      "y": 1600,
+      "r": 57,
+      "sprite": {
+        "image": "levels/uk_scottish_highlands_pub_bird_099a/dogs/dog_30/sprite_000.png",
+        "height": 240,
+        "width": 233,
+        "x": 1183,
+        "y": 1472,
+        "cleanup": {
+          "x": 1168,
+          "y": 1450,
+          "width": 267,
+          "height": 276
+        },
+        "anchorX": 0.4077,
+        "anchorY": 0.55,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 0.95,
+          "pop": 20.5,
+          "dx": 2,
+          "dy": -4
+        }
+      }
+    },
+    {
+      "id": "c6195126-1a51-4380-9093-23100d6a425d",
+      "compatibilitySlot": "dog_31",
+      "x": 1631,
+      "y": 1725,
+      "r": 57,
+      "sprite": {
+        "image": "levels/uk_scottish_highlands_pub_bird_099a/dogs/dog_31/sprite_000.png",
+        "height": 169,
+        "width": 201,
+        "x": 1553,
+        "y": 1642,
+        "cleanup": {
+          "x": 1537,
+          "y": 1629,
+          "width": 231,
+          "height": 194
+        },
+        "anchorX": 0.3881,
+        "anchorY": 0.4911,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 24.1,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "1eb6fca2-c6cc-4ae3-8135-44cbce4d7c09",
+      "compatibilitySlot": "dog_32",
+      "x": 583,
+      "y": 1692,
+      "r": 57,
+      "sprite": {
+        "image": "levels/uk_scottish_highlands_pub_bird_099a/dogs/dog_32/sprite_000.png",
+        "height": 205,
+        "width": 207,
+        "x": 481,
+        "y": 1601,
+        "cleanup": {
+          "x": 465,
+          "y": 1584,
+          "width": 238,
+          "height": 235
+        },
+        "anchorX": 0.4928,
+        "anchorY": 0.4488,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 20.6,
+          "dx": 0,
+          "dy": -1
+        }
+      }
+    },
+    {
+      "id": "ddcd7c0d-1ff2-4122-99a0-39d86c2deb54",
+      "compatibilitySlot": "dog_33",
+      "x": 1929,
+      "y": 1967,
+      "r": 57,
+      "sprite": {
+        "image": "levels/uk_scottish_highlands_pub_bird_099a/dogs/dog_33/sprite_000.png",
+        "height": 189,
+        "width": 225,
+        "x": 1817,
+        "y": 1853,
+        "cleanup": {
+          "x": 1803,
+          "y": 1835,
+          "width": 258,
+          "height": 217
+        },
+        "anchorX": 0.4844,
+        "anchorY": 0.619,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 0.95,
+          "pop": 26.5,
+          "dx": 2,
+          "dy": -2
+        }
+      }
+    },
+    {
+      "id": "2db31165-58f2-4eb6-b8dc-dcb0c59316e1",
+      "compatibilitySlot": "dog_34",
+      "x": 424,
+      "y": 2175,
+      "r": 57,
+      "sprite": {
+        "image": "levels/uk_scottish_highlands_pub_bird_099a/dogs/dog_34/sprite_000.png",
+        "height": 111,
+        "width": 120,
+        "x": 347,
+        "y": 2113,
+        "cleanup": {
+          "x": 337,
+          "y": 2104,
+          "width": 143,
+          "height": 127
+        },
+        "anchorX": 0.6417,
+        "anchorY": 0.5586,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 13.4,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "e89e2879-e0d8-4f7a-994d-9344795510ed",
+      "compatibilitySlot": "dog_35",
+      "x": 1127,
+      "y": 2051,
+      "r": 57,
+      "sprite": {
+        "image": "levels/uk_scottish_highlands_pub_bird_099a/dogs/dog_35/sprite_000.png",
+        "height": 166,
+        "width": 243,
+        "x": 1007,
+        "y": 1949,
+        "cleanup": {
+          "x": 988,
+          "y": 1936,
+          "width": 279,
+          "height": 190
+        },
+        "anchorX": 0.4938,
+        "anchorY": 0.6145,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 30.5,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "ca19508c-1a42-4364-afff-ca974a695f7d",
+      "compatibilitySlot": "dog_36",
+      "x": 1394,
+      "y": 1924,
+      "r": 57,
+      "sprite": {
+        "image": "levels/uk_scottish_highlands_pub_bird_099a/dogs/dog_36/sprite_000.png",
+        "height": 173,
+        "width": 186,
+        "x": 1320,
+        "y": 1834,
+        "cleanup": {
+          "x": 1305,
+          "y": 1824,
+          "width": 213,
+          "height": 198
+        },
+        "anchorX": 0.4032,
+        "anchorY": 0.5029,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.05,
+          "pop": 29.9,
+          "dx": 0,
+          "dy": 3
+        }
+      }
+    },
+    {
+      "id": "101fb5ce-6613-4f9b-a32b-ff134b5326c9",
+      "compatibilitySlot": "dog_37",
+      "x": 1574,
+      "y": 2077,
+      "r": 57,
+      "sprite": {
+        "image": "levels/uk_scottish_highlands_pub_bird_099a/dogs/dog_37/sprite_000.png",
+        "height": 189,
+        "width": 224,
+        "x": 1474,
+        "y": 1983,
+        "cleanup": {
+          "x": 1457,
+          "y": 1967,
+          "width": 257,
+          "height": 217
+        },
+        "anchorX": 0.4464,
+        "anchorY": 0.5026,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 22.2,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "d1f5b20c-3e28-45d3-8645-887dd5fb7a42",
+      "compatibilitySlot": "dog_38",
+      "x": 2006,
+      "y": 2317,
+      "r": 57,
+      "sprite": {
+        "image": "levels/uk_scottish_highlands_pub_bird_099a/dogs/dog_38/sprite_000.png",
+        "height": 161,
+        "width": 222,
+        "x": 1909,
+        "y": 2266,
+        "cleanup": {
+          "x": 1891,
+          "y": 2253,
+          "width": 255,
+          "height": 185
+        },
+        "anchorX": 0.4414,
+        "anchorY": 0.3168,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 18.3,
+          "dx": -1,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "bcce166b-6a6e-439f-acaa-452eaf374a03",
+      "compatibilitySlot": "dog_39",
+      "x": 2256,
+      "y": 2252,
+      "r": 57,
+      "sprite": {
+        "image": "levels/uk_scottish_highlands_pub_bird_099a/dogs/dog_39/sprite_000.png",
+        "height": 230,
+        "width": 219,
+        "x": 2146,
+        "y": 2123,
+        "cleanup": {
+          "x": 2129,
+          "y": 2105,
+          "width": 251,
+          "height": 264
+        },
+        "anchorX": 0.5023,
+        "anchorY": 0.5609,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 30.2,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    }
+  ]
+}

@@ -66,7 +66,7 @@ def test_bulk_extract_uses_persisted_vlm_boxes(monkeypatch):
     d1, d2 = seen["detections"]
     assert d1["source"] == "vlm" and d1["width"] == 260
     assert d2["source"] == "radius" and d2["width"] == 160
-    assert any(p.get("boxSources") == {"vlm": 1, "radius": 1} for p in meta_patches)
+    assert any(p.get("boxSources") == {"vlm": 1, "paint": 0, "radius": 1} for p in meta_patches)
 
 
 def test_localizer_persists_detection_extents(monkeypatch):
@@ -85,3 +85,44 @@ def test_localizer_persists_detection_extents(monkeypatch):
     I.localize_hitboxes_from_detections("sid")
     stored = json.loads((tmp / I.VLM_DETECTIONS_FILE).read_text())
     assert stored == [{"x": 90, "y": 90, "width": 20, "height": 20}]
+
+
+def test_bulk_extract_grows_unsized_boxes_from_the_paint(monkeypatch):
+    """No VLM box: a painted bird wider than the 1.6 r square grows the crop
+    from the paint diff; a bird that fits keeps the radius square."""
+    import numpy as np
+    from PIL import Image
+
+    from levelbuilder.api import inpaint as I
+    from levelbuilder.api import session as S
+
+    tmp = pathlib.Path(tempfile.mkdtemp())
+    W = H = 1200
+    clean = np.full((H, W, 3), 200, np.uint8)
+    painted = clean.copy()
+    painted[80:220, 40:300] = (30, 60, 200)      # big bird around b1 (100,100): 260 wide
+    painted[880:920, 880:920] = (30, 60, 200)    # small bird around b2 (900,900)
+    Image.fromarray(clean).save(tmp / "bg_01.png")
+    Image.fromarray(painted).save(tmp / "color.png")
+    (tmp / "session.json").write_text(json.dumps({"selected_bg": 1}))
+    hb = [{"id": "b1", "x": 100, "y": 100, "r": 50}, {"id": "b2", "x": 900, "y": 900, "r": 50}]
+    (tmp / "hitboxes.json").write_text(json.dumps(hb))
+    monkeypatch.setattr(S, "session_dir", lambda sid: tmp)
+    seen = {}
+    monkeypatch.setattr(S, "materialize_detection_sprites",
+        lambda sid, *, detections, minimum_confidence, force: seen.update(
+            {"detections": detections}) or {"materialized": 2})
+    patches = []
+
+    class _Store:
+        def update_metadata(self, job_id, patch):
+            patches.append(patch)
+
+    sha = hashlib.sha256((tmp / "hitboxes.json").read_bytes()).hexdigest()
+    job = SimpleNamespace(id="j1", session_id="s1",
+                          metadata={"force": False, "padFactor": 1.6, "hitboxesSha": sha})
+    I._run_bulk_extract_job(job, store=_Store())
+    d1, d2 = seen["detections"]
+    assert d1["source"] == "paint" and d1["width"] == int(260 * I.EXTENT_GROWTH) and d1["x"] == 100 - d1["width"] // 2
+    assert d2["source"] == "radius" and d2["width"] == 160
+    assert any(p.get("boxSources") == {"vlm": 0, "paint": 1, "radius": 1} for p in patches)

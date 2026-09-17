@@ -1,0 +1,564 @@
+{
+  "id": "indian_craft_bazaars_puppet_workshop_bird_08b8",
+  "name": "Level indian_craft_bazaars_puppet_workshop_bird_08b8",
+  "width": 2688,
+  "height": 2688,
+  "colorImage": "levels/indian_craft_bazaars_puppet_workshop_bird_08b8/color.png",
+  "artifactRevision": "sha256:61b204928cf3ce39073ca6d9eb47f6c8b1abd4e57cdaf5cf470e3101e90fda3a",
+  "compatibilityAliases": {
+    "dog_00": "d32020da-f384-44be-930b-a5160f1c9e5b",
+    "dog_05": "54a52871-bcc9-4cc6-8983-e4ff677f188d",
+    "dog_07": "c11b5205-b955-467b-966c-f0cc2a7ef66d",
+    "dog_08": "df25029f-fd6f-48e9-8550-a3b409638b42",
+    "dog_10": "770f9373-2f28-44d9-ab87-f41657e2a890",
+    "dog_21": "81eb4c4e-0218-4c7f-932a-23ad2a104a70",
+    "dog_22": "7b907bcc-24ca-4099-b78f-54dbaa56f461",
+    "dog_23": "2bbfdd68-8f81-422d-8f02-14b1b545faab",
+    "dog_24": "ad07a3a4-bd33-42cc-8b98-d0068f38d22c",
+    "dog_25": "d41dbd6f-c6b6-4a61-9e15-c64015ee0539",
+    "dog_26": "5355f9de-ac3c-4919-99fc-26c0b6c6f3a4",
+    "dog_27": "1ac075e3-d0b5-4b26-b123-cddf187ff0c3",
+    "dog_28": "f639a88b-4ddb-4d1f-abb9-4e8d50e9f2a0",
+    "dog_29": "d90884f1-d151-4ded-9d34-166f721d1bc1",
+    "dog_30": "37d7d97c-d878-4f6d-9af5-3f253c616498",
+    "dog_31": "5e0a16b6-abf9-4b5f-adbf-3e4684a5c046"
+  },
+  "dogs": [
+    {
+      "id": "d32020da-f384-44be-930b-a5160f1c9e5b",
+      "compatibilitySlot": "dog_00",
+      "x": 954,
+      "y": 674,
+      "r": 57,
+      "sprite": {
+        "image": "levels/indian_craft_bazaars_puppet_workshop_bird_08b8/dogs/dog_00/sprite_000.png",
+        "height": 199,
+        "width": 216,
+        "x": 832,
+        "y": 589,
+        "cleanup": {
+          "x": 815,
+          "y": 575,
+          "width": 248,
+          "height": 228
+        },
+        "anchorX": 0.5648,
+        "anchorY": 0.4221,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 19.7,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "54a52871-bcc9-4cc6-8983-e4ff677f188d",
+      "compatibilitySlot": "dog_05",
+      "x": 1225,
+      "y": 698,
+      "r": 57,
+      "sprite": {
+        "image": "levels/indian_craft_bazaars_puppet_workshop_bird_08b8/dogs/dog_05/sprite_000.png",
+        "height": 198,
+        "width": 177,
+        "x": 1146,
+        "y": 617,
+        "cleanup": {
+          "x": 1131,
+          "y": 602,
+          "width": 203,
+          "height": 227
+        },
+        "anchorX": 0.452,
+        "anchorY": 0.4091,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 22.3,
+          "dx": -1,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "c11b5205-b955-467b-966c-f0cc2a7ef66d",
+      "compatibilitySlot": "dog_07",
+      "x": 921,
+      "y": 1129,
+      "r": 57,
+      "sprite": {
+        "image": "levels/indian_craft_bazaars_puppet_workshop_bird_08b8/dogs/dog_07/sprite_000.png",
+        "height": 193,
+        "width": 258,
+        "x": 787,
+        "y": 1038,
+        "cleanup": {
+          "x": 767,
+          "y": 1023,
+          "width": 296,
+          "height": 221
+        },
+        "anchorX": 0.5194,
+        "anchorY": 0.4715,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 16.1,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.9653,
+          "pop": 16.1,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "df25029f-fd6f-48e9-8550-a3b409638b42",
+      "compatibilitySlot": "dog_08",
+      "x": 841,
+      "y": 1630,
+      "r": 57,
+      "sprite": {
+        "image": "levels/indian_craft_bazaars_puppet_workshop_bird_08b8/dogs/dog_08/sprite_000.png",
+        "height": 230,
+        "width": 270,
+        "x": 707,
+        "y": 1511,
+        "cleanup": {
+          "x": 686,
+          "y": 1493,
+          "width": 310,
+          "height": 264
+        },
+        "anchorX": 0.4963,
+        "anchorY": 0.5174,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 13.1,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.9371,
+          "pop": 13.1,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "770f9373-2f28-44d9-ab87-f41657e2a890",
+      "compatibilitySlot": "dog_10",
+      "x": 1181,
+      "y": 1339,
+      "r": 57,
+      "sprite": {
+        "image": "levels/indian_craft_bazaars_puppet_workshop_bird_08b8/dogs/dog_10/sprite_000.png",
+        "height": 172,
+        "width": 250,
+        "x": 1036,
+        "y": 1256,
+        "cleanup": {
+          "x": 1022,
+          "y": 1241,
+          "width": 287,
+          "height": 197
+        },
+        "anchorX": 0.56,
+        "anchorY": 0.4942,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 0.95,
+          "pop": 26.2,
+          "dx": 4,
+          "dy": -2
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.8745,
+          "pop": 28.7,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "81eb4c4e-0218-4c7f-932a-23ad2a104a70",
+      "compatibilitySlot": "dog_21",
+      "x": 1308,
+      "y": 1216,
+      "r": 57,
+      "sprite": {
+        "image": "levels/indian_craft_bazaars_puppet_workshop_bird_08b8/dogs/dog_21/sprite_000.png",
+        "height": 194,
+        "width": 230,
+        "x": 1170,
+        "y": 1096,
+        "cleanup": {
+          "x": 1152,
+          "y": 1081,
+          "width": 264,
+          "height": 223
+        },
+        "anchorX": 0.6,
+        "anchorY": 0.6186,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 11.6,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.9651,
+          "pop": 11.5,
+          "why": "T3+refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "7b907bcc-24ca-4099-b78f-54dbaa56f461",
+      "compatibilitySlot": "dog_22",
+      "x": 1649,
+      "y": 1594,
+      "r": 57,
+      "sprite": {
+        "image": "levels/indian_craft_bazaars_puppet_workshop_bird_08b8/dogs/dog_22/sprite_000.png",
+        "height": 249,
+        "width": 342,
+        "x": 1460,
+        "y": 1461,
+        "cleanup": {
+          "x": 1434,
+          "y": 1442,
+          "width": 393,
+          "height": 286
+        },
+        "anchorX": 0.5526,
+        "anchorY": 0.5341,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 9.1,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.9323,
+          "pop": 9.7,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "2bbfdd68-8f81-422d-8f02-14b1b545faab",
+      "compatibilitySlot": "dog_23",
+      "x": 2078,
+      "y": 1646,
+      "r": 57,
+      "sprite": {
+        "image": "levels/indian_craft_bazaars_puppet_workshop_bird_08b8/dogs/dog_23/sprite_000.png",
+        "height": 186,
+        "width": 242,
+        "x": 1981,
+        "y": 1551,
+        "cleanup": {
+          "x": 1962,
+          "y": 1537,
+          "width": 278,
+          "height": 213
+        },
+        "anchorX": 0.4008,
+        "anchorY": 0.5108,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 8.6,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.8985,
+          "pop": 8.6,
+          "why": "T3+refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "ad07a3a4-bd33-42cc-8b98-d0068f38d22c",
+      "compatibilitySlot": "dog_24",
+      "x": 835,
+      "y": 1923,
+      "r": 57,
+      "sprite": {
+        "image": "levels/indian_craft_bazaars_puppet_workshop_bird_08b8/dogs/dog_24/sprite_000.png",
+        "height": 169,
+        "width": 199,
+        "x": 744,
+        "y": 1839,
+        "cleanup": {
+          "x": 729,
+          "y": 1826,
+          "width": 228,
+          "height": 194
+        },
+        "anchorX": 0.4573,
+        "anchorY": 0.497,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 10.7,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.9609,
+          "pop": 10.7,
+          "why": "T3+refit refused"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "d41dbd6f-c6b6-4a61-9e15-c64015ee0539",
+      "compatibilitySlot": "dog_25",
+      "x": 583,
+      "y": 2293,
+      "r": 57,
+      "sprite": {
+        "image": "levels/indian_craft_bazaars_puppet_workshop_bird_08b8/dogs/dog_25/sprite_000.png",
+        "height": 209,
+        "width": 252,
+        "x": 454,
+        "y": 2187,
+        "cleanup": {
+          "x": 434,
+          "y": 2171,
+          "width": 289,
+          "height": 240
+        },
+        "anchorX": 0.5159,
+        "anchorY": 0.5072,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 32.1,
+          "dx": -1,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "5355f9de-ac3c-4919-99fc-26c0b6c6f3a4",
+      "compatibilitySlot": "dog_26",
+      "x": 1258,
+      "y": 2117,
+      "r": 57,
+      "sprite": {
+        "image": "levels/indian_craft_bazaars_puppet_workshop_bird_08b8/dogs/dog_26/sprite_000.png",
+        "height": 222,
+        "width": 238,
+        "x": 1145,
+        "y": 1996,
+        "cleanup": {
+          "x": 1144,
+          "y": 1996,
+          "width": 425,
+          "height": 222
+        },
+        "anchorX": 0.4748,
+        "anchorY": 0.545,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 15.5,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.9091,
+          "pop": 15.4,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only",
+        "cleanupNote": "merged with the string partner (Batu 2026-09-16)"
+      }
+    },
+    {
+      "id": "f639a88b-4ddb-4d1f-abb9-4e8d50e9f2a0",
+      "compatibilitySlot": "dog_28",
+      "x": 2208,
+      "y": 2279,
+      "r": 57,
+      "sprite": {
+        "image": "levels/indian_craft_bazaars_puppet_workshop_bird_08b8/dogs/dog_28/sprite_000.png",
+        "height": 266,
+        "width": 269,
+        "x": 2096,
+        "y": 2132,
+        "cleanup": {
+          "x": 2075,
+          "y": 2112,
+          "width": 309,
+          "height": 305
+        },
+        "anchorX": 0.4164,
+        "anchorY": 0.5526,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 13.3,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.9589,
+          "pop": 13.3,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "d90884f1-d151-4ded-9d34-166f721d1bc1",
+      "compatibilitySlot": "dog_29",
+      "x": 2086,
+      "y": 1146,
+      "r": 57,
+      "sprite": {
+        "image": "levels/indian_craft_bazaars_puppet_workshop_bird_08b8/dogs/dog_29/sprite_000.png",
+        "height": 219,
+        "width": 249,
+        "x": 1930,
+        "y": 1018,
+        "cleanup": {
+          "x": 1911,
+          "y": 1001,
+          "width": 286,
+          "height": 251
+        },
+        "anchorX": 0.6265,
+        "anchorY": 0.5845,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 14.8,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.9391,
+          "pop": 14.7,
+          "why": "T3"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "37d7d97c-d878-4f6d-9af5-3f253c616498",
+      "compatibilitySlot": "dog_30",
+      "x": 2133,
+      "y": 869,
+      "r": 57,
+      "sprite": {
+        "image": "levels/indian_craft_bazaars_puppet_workshop_bird_08b8/dogs/dog_30/sprite_000.png",
+        "height": 201,
+        "width": 212,
+        "x": 2024,
+        "y": 773,
+        "cleanup": {
+          "x": 2009,
+          "y": 756,
+          "width": 243,
+          "height": 231
+        },
+        "anchorX": 0.5094,
+        "anchorY": 0.4826,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 0.95,
+          "pop": 24.4,
+          "dx": 1,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "id": "5e0a16b6-abf9-4b5f-adbf-3e4684a5c046",
+      "compatibilitySlot": "dog_31",
+      "x": 1901,
+      "y": 696,
+      "r": 57,
+      "sprite": {
+        "image": "levels/indian_craft_bazaars_puppet_workshop_bird_08b8/dogs/dog_31/sprite_000.png",
+        "height": 176,
+        "width": 194,
+        "x": 1835,
+        "y": 621,
+        "cleanup": {
+          "x": 1820,
+          "y": 607,
+          "width": 223,
+          "height": 202
+        },
+        "anchorX": 0.3402,
+        "anchorY": 0.4261,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 17.8,
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    }
+  ]
+}

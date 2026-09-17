@@ -1,0 +1,558 @@
+{
+  "id": "uk_london_high_street_bird_06d0",
+  "name": "Level uk_london_high_street_bird_06d0",
+  "width": 2688,
+  "height": 2688,
+  "colorImage": "levels/uk_london_high_street_bird_06d0/color.png",
+  "artifactRevision": "sha256:9e73e01d7ec22481f1a9880946967c74db8e28a06aa9f3fb18d04987c1cb176b",
+  "compatibilityAliases": {
+    "dog_15": "6499ba0c-1462-4fbe-89cb-2ed202ee906e",
+    "dog_16": "907294c5-a0b7-4cb3-aeb7-6f2ce49e68cd",
+    "dog_17": "b398bc33-e0ab-4f2a-a1b4-77a9337f4a01",
+    "dog_18": "4e2f4bee-a340-47b7-8eb6-1ec36975beab",
+    "dog_19": "4f02ce83-9a69-4a81-9ce0-d022402e054c",
+    "dog_20": "07e519ff-8738-4a34-a188-f72ef89549f1",
+    "dog_21": "5012891e-dd93-44fc-a673-cac5cb8a83fb",
+    "dog_22": "2c543f61-f822-4c22-aa81-6d4a02cd6654",
+    "dog_23": "e3b16516-a818-4040-aa4a-14de16d1c2f8",
+    "dog_24": "e15ee45a-0ef8-4a5e-ac2e-af0c78585ed7",
+    "dog_25": "11058433-cbf4-438d-a707-c3481d0907d5",
+    "dog_26": "faa9e6ab-8162-471e-98e0-0d2e0af452c2",
+    "dog_27": "516c0230-c7a7-4d06-bd24-4582fa7de8fd",
+    "dog_28": "e1d6084b-57f9-483d-b0ca-9578272ba9b3"
+  },
+  "dogs": [
+    {
+      "id": "6499ba0c-1462-4fbe-89cb-2ed202ee906e",
+      "compatibilitySlot": "dog_15",
+      "x": 654,
+      "y": 544,
+      "r": 57,
+      "sprite": {
+        "image": "levels/uk_london_high_street_bird_06d0/dogs/dog_15/sprite_000.png",
+        "height": 166,
+        "width": 130,
+        "x": 581,
+        "y": 465,
+        "cleanup": {
+          "x": 571,
+          "y": 452,
+          "width": 149,
+          "height": 190
+        },
+        "anchorX": 0.5615,
+        "anchorY": 0.4759,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 19.1,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.9192,
+          "pop": 19.1,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "907294c5-a0b7-4cb3-aeb7-6f2ce49e68cd",
+      "compatibilitySlot": "dog_16",
+      "x": 1171,
+      "y": 804,
+      "r": 57,
+      "sprite": {
+        "image": "levels/uk_london_high_street_bird_06d0/dogs/dog_16/sprite_000.png",
+        "height": 194,
+        "width": 110,
+        "x": 1114,
+        "y": 721,
+        "cleanup": {
+          "x": 1101,
+          "y": 699,
+          "width": 126,
+          "height": 223
+        },
+        "anchorX": 0.5545,
+        "anchorY": 0.4639,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.1,
+          "ratio": 0.95,
+          "pop": 24.9,
+          "dx": -3,
+          "dy": -6
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.578,
+          "pop": 37.1,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "b398bc33-e0ab-4f2a-a1b4-77a9337f4a01",
+      "compatibilitySlot": "dog_17",
+      "x": 761,
+      "y": 1014,
+      "r": 57,
+      "sprite": {
+        "image": "levels/uk_london_high_street_bird_06d0/dogs/dog_17/sprite_000.png",
+        "height": 158,
+        "width": 162,
+        "x": 682,
+        "y": 945,
+        "cleanup": {
+          "x": 669,
+          "y": 934,
+          "width": 186,
+          "height": 181
+        },
+        "anchorX": 0.4877,
+        "anchorY": 0.4304,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 19.2,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.8571,
+          "pop": 23.0,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "4e2f4bee-a340-47b7-8eb6-1ec36975beab",
+      "compatibilitySlot": "dog_18",
+      "x": 2099,
+      "y": 910,
+      "r": 57,
+      "sprite": {
+        "image": "levels/uk_london_high_street_bird_06d0/dogs/dog_18/sprite_000.png",
+        "height": 176,
+        "width": 111,
+        "x": 2025,
+        "y": 818,
+        "cleanup": {
+          "x": 2011,
+          "y": 792,
+          "width": 144,
+          "height": 202
+        },
+        "anchorX": 0.7117,
+        "anchorY": 0.5909,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.1,
+          "ratio": 1.0,
+          "pop": 22.0,
+          "dx": -4,
+          "dy": -12
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.6111,
+          "pop": 51.2,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "4f02ce83-9a69-4a81-9ce0-d022402e054c",
+      "compatibilitySlot": "dog_19",
+      "x": 1650,
+      "y": 1236,
+      "r": 57,
+      "sprite": {
+        "image": "levels/uk_london_high_street_bird_06d0/dogs/dog_19/sprite_000.png",
+        "height": 182,
+        "width": 132,
+        "x": 1565,
+        "y": 1143,
+        "cleanup": {
+          "x": 1555,
+          "y": 1129,
+          "width": 151,
+          "height": 209
+        },
+        "anchorX": 0.6439,
+        "anchorY": 0.511,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 28.1,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.6914,
+          "pop": 28.1,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "07e519ff-8738-4a34-a188-f72ef89549f1",
+      "compatibilitySlot": "dog_20",
+      "x": 719,
+      "y": 1441,
+      "r": 57,
+      "sprite": {
+        "image": "levels/uk_london_high_street_bird_06d0/dogs/dog_20/sprite_000.png",
+        "height": 109,
+        "width": 84,
+        "x": 722,
+        "y": 1384,
+        "cleanup": {
+          "x": 662,
+          "y": 1378,
+          "width": 114,
+          "height": 125
+        },
+        "anchorX": -0.0357,
+        "anchorY": 0.5229,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 44.2,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.202,
+          "pop": 66.1,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "5012891e-dd93-44fc-a673-cac5cb8a83fb",
+      "compatibilitySlot": "dog_21",
+      "x": 1055,
+      "y": 1331,
+      "r": 57,
+      "sprite": {
+        "image": "levels/uk_london_high_street_bird_06d0/dogs/dog_21/sprite_000.png",
+        "height": 160,
+        "width": 112,
+        "x": 986,
+        "y": 1240,
+        "cleanup": {
+          "x": 977,
+          "y": 1228,
+          "width": 134,
+          "height": 184
+        },
+        "anchorX": 0.6161,
+        "anchorY": 0.5687,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 28.1,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.799,
+          "pop": 28.0,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "2c543f61-f822-4c22-aa81-6d4a02cd6654",
+      "compatibilitySlot": "dog_22",
+      "x": 1454,
+      "y": 1789,
+      "r": 57,
+      "sprite": {
+        "image": "levels/uk_london_high_street_bird_06d0/dogs/dog_22/sprite_000.png",
+        "height": 160,
+        "width": 133,
+        "x": 1384,
+        "y": 1707,
+        "cleanup": {
+          "x": 1374,
+          "y": 1695,
+          "width": 152,
+          "height": 184
+        },
+        "anchorX": 0.5263,
+        "anchorY": 0.5125,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 15.5,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop2",
+          "score": 0.9363,
+          "pop": 15.5,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "e3b16516-a818-4040-aa4a-14de16d1c2f8",
+      "compatibilitySlot": "dog_23",
+      "x": 1817,
+      "y": 1699,
+      "r": 57,
+      "sprite": {
+        "image": "levels/uk_london_high_street_bird_06d0/dogs/dog_23/sprite_000.png",
+        "height": 99,
+        "width": 68,
+        "x": 1780,
+        "y": 1673,
+        "cleanup": {
+          "x": 1757,
+          "y": 1642,
+          "width": 116,
+          "height": 137
+        },
+        "anchorX": 0.5441,
+        "anchorY": 0.2626,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 20.0,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.9469,
+          "pop": 19.7,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "e15ee45a-0ef8-4a5e-ac2e-af0c78585ed7",
+      "compatibilitySlot": "dog_24",
+      "x": 959,
+      "y": 2030,
+      "r": 57,
+      "sprite": {
+        "image": "levels/uk_london_high_street_bird_06d0/dogs/dog_24/sprite_000.png",
+        "height": 161,
+        "width": 125,
+        "x": 910,
+        "y": 1959,
+        "cleanup": {
+          "x": 900,
+          "y": 1947,
+          "width": 143,
+          "height": 185
+        },
+        "anchorX": 0.392,
+        "anchorY": 0.4348,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 23.1,
+          "dx": 0,
+          "dy": 1
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.874,
+          "pop": 23.2,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "11058433-cbf4-438d-a707-c3481d0907d5",
+      "compatibilitySlot": "dog_25",
+      "x": 1185,
+      "y": 2016,
+      "r": 57,
+      "sprite": {
+        "image": "levels/uk_london_high_street_bird_06d0/dogs/dog_25/sprite_000.png",
+        "height": 145,
+        "width": 115,
+        "x": 1146,
+        "y": 1929,
+        "cleanup": {
+          "x": 1128,
+          "y": 1918,
+          "width": 141,
+          "height": 166
+        },
+        "anchorX": 0.3391,
+        "anchorY": 0.6,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 26.8,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.8402,
+          "pop": 26.8,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "faa9e6ab-8162-471e-98e0-0d2e0af452c2",
+      "compatibilitySlot": "dog_26",
+      "x": 619,
+      "y": 2307,
+      "r": 57,
+      "sprite": {
+        "image": "levels/uk_london_high_street_bird_06d0/dogs/dog_26/sprite_000.png",
+        "height": 159,
+        "width": 154,
+        "x": 553,
+        "y": 2221,
+        "cleanup": {
+          "x": 541,
+          "y": 2209,
+          "width": 177,
+          "height": 182
+        },
+        "anchorX": 0.4286,
+        "anchorY": 0.5409,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 12.3,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.9311,
+          "pop": 12.2,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "516c0230-c7a7-4d06-bd24-4582fa7de8fd",
+      "compatibilitySlot": "dog_27",
+      "x": 1699,
+      "y": 2212,
+      "r": 57,
+      "sprite": {
+        "image": "levels/uk_london_high_street_bird_06d0/dogs/dog_27/sprite_000.png",
+        "height": 103,
+        "width": 93,
+        "x": 1631,
+        "y": 2158,
+        "cleanup": {
+          "x": 1620,
+          "y": 2150,
+          "width": 135,
+          "height": 118
+        },
+        "anchorX": 0.7312,
+        "anchorY": 0.5243,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 22.5,
+          "dx": 0,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.9164,
+          "pop": 22.1,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    },
+    {
+      "id": "e1d6084b-57f9-483d-b0ca-9578272ba9b3",
+      "compatibilitySlot": "dog_28",
+      "x": 2032,
+      "y": 2304,
+      "r": 57,
+      "sprite": {
+        "image": "levels/uk_london_high_street_bird_06d0/dogs/dog_28/sprite_000.png",
+        "height": 175,
+        "width": 128,
+        "x": 1944,
+        "y": 2223,
+        "cleanup": {
+          "x": 1935,
+          "y": 2208,
+          "width": 153,
+          "height": 201
+        },
+        "anchorX": 0.6797,
+        "anchorY": 0.4686,
+        "flipX": false,
+        "flipY": false,
+        "refit": {
+          "scale": 1.0,
+          "ratio": 0.95,
+          "pop": 27.0,
+          "dx": 1,
+          "dy": 0
+        },
+        "regen": {
+          "pass": "crop",
+          "score": 0.7658,
+          "pop": 32.8,
+          "why": "T4"
+        },
+        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+      }
+    }
+  ]
+}
