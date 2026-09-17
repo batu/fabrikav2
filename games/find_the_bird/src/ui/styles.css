@@ -5941,10 +5941,17 @@ body:has(#home-page-overlay) #tutorial-overlay { display: none; }
 /* The tiles' icons deliberately overhang the bar's top edge. On home there is
    room above for that; inside a page the overlay's overflow:hidden clipped
    them in half, so the bar's own box carries the overhang instead. */
-.home-page-nav { flex: 0 0 auto; position: relative; z-index: 2; padding-top: 30px; overflow: visible; }
-/* Full-bleed, matching home: the page has no side padding to cancel, so the
-   bar simply spans its width rather than sitting inset. */
-.home-page-nav .home-nav-bar { margin-inline: 0; width: 100%; }
+.home-page-nav {
+  flex: 0 0 auto;
+  position: relative;
+  z-index: 2;
+  /* The bar cancels the home shell's 12px side padding with a negative margin,
+     so the page reproduces that padding rather than overriding the bar. Same
+     component, same context, same size in both places. */
+  padding: 30px 12px 0;
+  overflow: visible;
+}
+
 /* The body takes the space the bar leaves, never the other way round: a
    flex-basis of auto let the sanctuary scene (height:100%) claim the full
    column and push the bar out under the page's overflow:hidden. */

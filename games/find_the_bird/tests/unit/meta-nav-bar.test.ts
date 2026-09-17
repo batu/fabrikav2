@@ -59,6 +59,22 @@ describe('meta pages keep the nav bar', () => {
     expect(renderMetaNavBar()).not.toContain('home-claim-dot--nav');
   });
 
+  it('clears the claim dot as soon as the coins are collected', () => {
+    gameState.setCoinsForTest(0);
+    gameState.setSanctuaryForTest({ houseTier: 1, placed: { 0: 'sparrow' }, pendingCoins: 6.5 });
+    // happy-dom measures every box as zero and the scene refuses to draw into
+    // one, so give every element a phone-sized box before the page mounts.
+    Object.defineProperty(HTMLElement.prototype, 'clientWidth', { value: 390, configurable: true });
+    Object.defineProperty(HTMLElement.prototype, 'clientHeight', { value: 700, configurable: true });
+    openPage('sanctuary');
+    const page = document.getElementById('home-page-overlay')!;
+    expect(page.querySelector('.home-page-nav .home-claim-dot')).not.toBeNull();
+
+    page.querySelector<HTMLButtonElement>('.sanctuary-coins')?.click();
+    expect(gameState.coinBalance).toBe(6);
+    expect(page.querySelector('.home-page-nav .home-claim-dot')).toBeNull();
+  });
+
   it('swaps to the sanctuary in place, keeping the bar', () => {
     openPage('collection');
     const page = document.getElementById('home-page-overlay')!;

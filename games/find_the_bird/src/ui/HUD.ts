@@ -534,6 +534,24 @@ function swapMetaPage(page: HTMLElement, id: 'collection' | 'sanctuary'): void {
   wireMetaNavBar(page, id);
 }
 
+/**
+ * Re-render the open meta page's nav bar. Collecting coins empties the
+ * Sanctuary's claim dot, and the bar is not otherwise redrawn while you stand
+ * on the page, so the notification would linger after the money was taken.
+ */
+export function refreshMetaNav(): void {
+  const page = document.getElementById('home-page-overlay');
+  if (page === null) return;
+  const current = page.classList.contains('home-page-sanctuary')
+    ? 'sanctuary'
+    : page.classList.contains('home-page-collection') ? 'collection' : null;
+  if (current === null) return;
+  const nav = page.querySelector<HTMLElement>('.home-page-nav');
+  if (nav === null) return;
+  nav.innerHTML = renderMetaNavBar({ active: current });
+  wireMetaNavBar(page, current);
+}
+
 /** Wire the in-page nav: switch between meta pages, or leave for the shop. */
 function wireMetaNavBar(page: HTMLElement, current: 'collection' | 'sanctuary'): void {
   const nav = page.querySelector<HTMLElement>('.home-page-nav');

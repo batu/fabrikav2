@@ -22,7 +22,7 @@ import { collectableCoins, settle } from '../sanctuary/accrual';
 import { layoutSanctuary, type Rect, type SanctuaryManifest } from '../sanctuary/layout';
 import { animateCoinsToBalance } from './EconomyTransfer';
 import { refreshHomeWalletBalances } from './WalletBalances';
-import { openPage } from './HUD';
+import { openPage, refreshMetaNav } from './HUD';
 import { playFind, playUITap } from '../audio/AudioManager';
 import { hapticFound } from '../haptics/HapticsManager';
 import manifestJson from '../../public/ui/sanctuary/manifest.json';
@@ -360,6 +360,8 @@ export function wireSanctuaryPage(page: ParentNode): void {
     });
     if (overlay !== null) refreshHomeWalletBalances(overlay);
     render();
+    // The pile is gone, so the tile's claim dot must go with it.
+    refreshMetaNav();
   };
 
   const buy = (tier: SanctuaryHouseTier): void => {
