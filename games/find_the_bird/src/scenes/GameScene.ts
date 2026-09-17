@@ -3304,9 +3304,11 @@ export class GameScene extends Phaser.Scene {
     const stop = (): void => { this.debugAutoPlayRunning = false; };
     const step = (): void => {
       if (!DEBUG_OVERRIDES.autoPlay.active || this.isShuttingDown || !this.sys.isActive() || !this.level || this.levelComplete) { stop(); return; }
-      // reading order: the level is cut into DEBUG_AUTOPLAY_COLUMNS square cells; top row first, left to right
-      const cell = this.level.width / DEBUG_AUTOPLAY_COLUMNS;
-      const key = (d: LevelDog): number => Math.floor(d.y / cell) * DEBUG_AUTOPLAY_COLUMNS + Math.floor(d.x / cell);
+      // the level is cut into DEBUG_AUTOPLAY_COLUMNS full-height strips, walked left to right; each strip is
+      // read like a page: rows (strip width tall) top to bottom, left to right within a row
+      const strip = this.level.width / DEBUG_AUTOPLAY_COLUMNS;
+      const rows = Math.ceil(this.level.height / strip) + 1;
+      const key = (d: LevelDog): number => Math.floor(d.x / strip) * rows + Math.floor(d.y / strip);
       const next = this.level.dogs.filter((d) => !gameState.foundDogIds.has(d.id)).sort((a, b) => key(a) - key(b) || a.x - b.x)[0];
       if (next === undefined) { stop(); return; }
       const ms = Math.max(60, DEBUG_OVERRIDES.autoPlay.secondsPerBird * 1000);
