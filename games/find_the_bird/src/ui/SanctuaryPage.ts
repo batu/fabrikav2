@@ -391,12 +391,15 @@ export function wireSanctuaryPage(page: ParentNode): void {
     playUITap();
     void analytics.sanctuaryCollect({ coins, tier });
     const overlay = document.getElementById('hud-overlay');
+    // Fly to the PAGE header's coin pill: the home pill is hidden under the
+    // page, so the number the player can see must be the one that counts up.
+    const headerPill = page.querySelector<HTMLElement>('.shop-header-coin-pill');
     void animateCoinsToBalance({
       amount: coins,
       source: pile,
-      target: overlay?.querySelector<HTMLElement>('.home-coin-pill') ?? null,
+      target: headerPill ?? overlay?.querySelector<HTMLElement>('.home-coin-pill') ?? null,
       owner: overlay ?? document.body,
-      countElement: overlay?.querySelector<HTMLElement>('.home-coin-pill > span') ?? null,
+      countElement: page.querySelector<HTMLElement>('.shop-header-coin-count') ?? overlay?.querySelector<HTMLElement>('.home-coin-pill > span') ?? null,
       fromValue: before,
       toValue: before + coins,
     });
