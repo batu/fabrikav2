@@ -41,6 +41,24 @@ describe('meta pages keep the nav bar', () => {
     expect(page.classList.contains('home-page-overlay--open')).toBe(false);
   });
 
+  it('closes back to the menu when the current tile is tapped again', () => {
+    openPage('collection');
+    const page = document.getElementById('home-page-overlay')!;
+    page.querySelector<HTMLButtonElement>('.home-page-nav #home-nav-collection')?.click();
+    expect(page.classList.contains('home-page-overlay--open')).toBe(false);
+  });
+
+  it('shows a claim dot on the sanctuary tile when coins are waiting', async () => {
+    const { renderMetaNavBar } = await import('../../src/ui/metaNavBar');
+    gameState.setSanctuaryForTest({ houseTier: 1, placed: { 0: 'sparrow' }, pendingCoins: 4.2 });
+    const withCoins = renderMetaNavBar();
+    expect(withCoins).toContain('home-claim-dot--nav');
+    expect(withCoins).toContain('4 coins to collect');
+
+    gameState.setSanctuaryForTest({ pendingCoins: 0.3 });
+    expect(renderMetaNavBar()).not.toContain('home-claim-dot--nav');
+  });
+
   it('swaps to the sanctuary in place, keeping the bar', () => {
     openPage('collection');
     const page = document.getElementById('home-page-overlay')!;

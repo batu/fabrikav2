@@ -548,7 +548,12 @@ function wireMetaNavBar(page: HTMLElement, current: 'collection' | 'sanctuary'):
     if (button === null) continue;
     button.addEventListener('click', () => {
       playUITap();
-      if (target === current) return;
+      // Tapping the tile you are already on goes back to the menu, so the bar
+      // toggles rather than dead-ending on the current screen.
+      if (target === current) {
+        closePage();
+        return;
+      }
       if (button.classList.contains('home-nav-btn--locked')) {
         shakeLockedNavButton(button);
         return;

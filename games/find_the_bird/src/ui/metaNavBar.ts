@@ -13,7 +13,8 @@
 
 import { gameState } from '../core/GameState';
 import { metaGates, type MetaGates } from '../home/metaGates';
-import { collectionThresholds, collectionUnlockLevel } from '../collection/config';
+import { accrualConfig, collectionThresholds, collectionUnlockLevel } from '../collection/config';
+import { collectableCoins, settle } from '../sanctuary/accrual';
 
 export type MetaNavTarget = 'sanctuary' | 'play' | 'collection';
 
@@ -37,6 +38,15 @@ export function currentMetaGates(): MetaGates {
   });
 }
 
+/**
+ * Coins waiting in the Sanctuary, WITHOUT banking them: `settle` is pure, so
+ * this previews what the player would collect if they walked in right now.
+ */
+function pendingSanctuaryCoins(): number {
+  const preview = settle(gameState.sanctuary, Date.now(), accrualConfig());
+  return collectableCoins(preview.state);
+}
+
 function tile(options: {
   id: string;
   label: string;
@@ -45,15 +55,31 @@ function tile(options: {
   active: boolean;
   pop: boolean;
   lockedLabel: string;
+  /** Per-icon balance factor: the artworks differ in aspect and visual weight,
+   *  so a single 82px box renders them at visibly different sizes. Measured
+   *  from each icon's rendered ink area. Lives here, in the one shared
+   *  component, rather than being re-tuned per view. */
+  iconScale?: number;
+  /** Collectable coins, shown as the claim dot. */
+  badge?: number;
 }): string {
   const classes = ['home-nav-btn'];
   if (options.locked) classes.push('home-nav-btn--locked');
   if (options.active) classes.push('home-nav-btn--active');
   if (options.pop) classes.push('home-nav-btn--unlock-pop');
+  const badge = options.badge ?? 0;
+  if (badge > 0) classes.push('home-claim-attention');
+  const scale = options.iconScale ?? 1;
+  const label = options.locked
+    ? options.lockedLabel
+    : options.id === 'home-nav-play'
+      ? 'Play the current level'
+      : `Open ${options.label.toLowerCase()}${badge > 0 ? `, ${badge} coins to collect` : ''}`;
   return `
-    <button id="${options.id}" class="${classes.join(' ')}" type="button"${options.locked ? ' aria-disabled="true"' : ''}${options.active ? ' aria-current="page"' : ''} aria-label="${options.locked ? options.lockedLabel : options.id === 'home-nav-play' ? 'Play the current level' : `Open ${options.label.toLowerCase()}`}">
+    <button id="${options.id}" class="${classes.join(' ')}" type="button"${options.locked ? ' aria-disabled="true"' : ''}${options.active ? ' aria-current="page"' : ''} aria-label="${label}" style="--nav-icon-scale:${scale}">
       <img src="${options.icon}" alt="" aria-hidden="true">
       <span>${options.label}</span>
+      ${badge > 0 ? '<span class="home-claim-dot home-claim-dot--nav" aria-hidden="true"></span>' : ''}
     </button>`;
 }
 
@@ -63,6 +89,7 @@ export function renderMetaNavBar(options: MetaNavOptions = {}): string {
   const achievements = options.achievements ?? { enabled: false, claimable: 0 };
   const pop = options.allowUnlockPop === true;
   const slots = achievements.enabled ? 4 : 3;
+  const coins = gates.sanctuaryUnlocked ? pendingSanctuaryCoins() : 0;
 
   const achievementsTile = achievements.enabled
     ? `<button id="home-nav-achievements" class="home-nav-btn${achievements.claimable > 0 ? ' home-claim-attention' : ''}" type="button" aria-label="Open achievements${achievements.claimable > 0 ? `, ${achievements.claimable} reward${achievements.claimable === 1 ? '' : 's'} to claim` : ''}">
@@ -83,6 +110,8 @@ export function renderMetaNavBar(options: MetaNavOptions = {}): string {
         active: options.active === 'sanctuary',
         pop: pop && gates.sanctuaryPopPending,
         lockedLabel: 'Sanctuary, locked until your first bird is unlocked',
+        iconScale: 1.01,
+        badge: coins,
       })}
       ${tile({
         id: 'home-nav-play',
@@ -92,6 +121,7 @@ export function renderMetaNavBar(options: MetaNavOptions = {}): string {
         active: false,
         pop: false,
         lockedLabel: 'Play',
+        iconScale: 1.19,
       })}
       ${tile({
         id: 'home-nav-collection',
