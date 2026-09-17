@@ -1,7 +1,7 @@
 {
   "version": 1,
   "manifestRevision": 44,
-  "generatedAt": "2026-09-17T10:43:50.105240Z",
+  "generatedAt": "2026-09-17T11:08:49.141261Z",
   "experimentId": "ftd_levelset_v1",
   "levels": [
     {
@@ -141,7 +141,7 @@
       "bundled": true,
       "assets": {
         "levelJson": {
-          "hash": "8d0e5849fb741b60a17a850e634c77728f3c3f2325e5774bc5a9f94e025aa7ea",
+          "hash": "1887e6b4507273981dc97426d771a07f3fc8bd97d606f515c8ea9b2365410857",
           "size": 11842,
           "path": "levels/cozy_interiors_cozy_toymaker_workshop_bird_4e44/level.json"
         },
@@ -159,8 +159,8 @@
         ],
         "dogSprites": [
           {
-            "hash": "c3d3711bbe65bdba9b5511306095a5b5a0442f71ac2c10f75681e94c6b6a820a",
-            "size": 53390,
+            "hash": "e2ef45ec1a96b6ece12733b76aad28ac4f320a49ad0e1debe7b422158079a1af",
+            "size": 54411,
             "path": "levels/cozy_interiors_cozy_toymaker_workshop_bird_4e44/dogs/dog_00/sprite_000.png"
           },
           {
@@ -189,13 +189,13 @@
             "path": "levels/cozy_interiors_cozy_toymaker_workshop_bird_4e44/dogs/dog_05/sprite_000.png"
           },
           {
-            "hash": "47a5dbcea7ef4fd82f104d741b004b4e0f35057322b6331692ee10341c6cd1df",
-            "size": 49918,
+            "hash": "b9a84ee143e00269dd953505b0a22807ed0cfd04ad3750a7e6412035182b94fe",
+            "size": 50784,
             "path": "levels/cozy_interiors_cozy_toymaker_workshop_bird_4e44/dogs/dog_06/sprite_000.png"
           },
           {
-            "hash": "125522f0e06c10d732173f7716c4b06c8f778965228b343479ddacae0db30a31",
-            "size": 47751,
+            "hash": "74ee007b8ea3757916c62b0a823c236df3206dc315a050129c0ccc59f6c23905",
+            "size": 46351,
             "path": "levels/cozy_interiors_cozy_toymaker_workshop_bird_4e44/dogs/dog_07/sprite_000.png"
           },
           {
@@ -1189,137 +1189,6 @@
             "hash": "bf418f9c60fb48d73c8ed39c1ce70a30004f8d95ca4503738493226e2360ea86",
             "size": 39542,
             "path": "levels/mexico_guanajuato_rainbow_alley_bird_1872/dogs/dog_45/sprite_000.png"
-          }
-        ]
-      }
-    },
-    {
-      "id": "ancient_egyptian_compounds_scribes_workyard_bird_5094",
-      "name": "Level ancient_egyptian_compounds_scribes_workyard_bird_5094",
-      "width": 2688,
-      "height": 2688,
-      "cohort_buckets": [
-        "all"
-      ],
-      "bundled": true,
-      "assets": {
-        "levelJson": {
-          "hash": "b1b6a9555eb5eaaf12701f62f5ff98516798ee8b6d8fc9e022089b2e12e38f1f",
-          "size": 13266,
-          "path": "levels/ancient_egyptian_compounds_scribes_workyard_bird_5094/level.json"
-        },
-        "colorImage": {
-          "hash": "ffbd35c5759844d536d692d613a19b556fc179f8f7c3173dc4bb9b33be7673bc",
-          "size": 1440466,
-          "path": "levels/ancient_egyptian_compounds_scribes_workyard_bird_5094/color.webp"
-        },
-        "bgImages": [
-          {
-            "hash": "775799649a0b8dcd2c98c5960b0abb8f0b32401be5cb8887145b8afb6e6df7f4",
-            "size": 1390930,
-            "path": "levels/ancient_egyptian_compounds_scribes_workyard_bird_5094/bg_00.webp"
-          }
-        ],
-        "dogSprites": [
-          {
-            "hash": "6b7234e5275090525ca945bd270bbc6fcb8c4a638e098552097a9f69a4838cb8",
-            "size": 39302,
-            "path": "levels/ancient_egyptian_compounds_scribes_workyard_bird_5094/dogs/dog_04/sprite_000.png"
-          },
-          {
-            "hash": "c96a8cbfc31029e48b3ac3368491c8af3819367e9064cc62cc90035ca7ba8762",
-            "size": 40015,
-            "path": "levels/ancient_egyptian_compounds_scribes_workyard_bird_5094/dogs/dog_08/sprite_000.png"
-          },
-          {
-            "hash": "921e7bf2860c253fe09055c6293d109b76cf5cf824db37e106a3ed5df75b6a66",
-            "size": 23294,
-            "path": "levels/ancient_egyptian_compounds_scribes_workyard_bird_5094/dogs/dog_11/sprite_000.png"
-          },
-          {
-            "hash": "920bc336c5ebb542d32224c9a263e69bc7df77b70b0783d9bb5b6ad212e43aca",
-            "size": 45647,
-            "path": "levels/ancient_egyptian_compounds_scribes_workyard_bird_5094/dogs/dog_14/sprite_000.png"
-          },
-          {
-            "hash": "886ef3f01199511848916ffe297566c74f23dc017f64cb401cf092ad61b7dbe9",
-            "size": 54358,
-            "path": "levels/ancient_egyptian_compounds_scribes_workyard_bird_5094/dogs/dog_25/sprite_000.png"
-          },
-          {
-            "hash": "678d06e9a40b07b238e199be91cf739be87af86c0f4da916dc5a1bb2c490ad91",
-            "size": 38658,
-            "path": "levels/ancient_egyptian_compounds_scribes_workyard_bird_5094/dogs/dog_27/sprite_000.png"
-          },
-          {
-            "hash": "865bee8e4721e76b0f9fe0d1df826825a55546f1d1e52a8bf13a68c99f72b7f5",
-            "size": 27776,
-            "path": "levels/ancient_egyptian_compounds_scribes_workyard_bird_5094/dogs/dog_28/sprite_000.png"
-          },
-          {
-            "hash": "bad2d1d34e5c9ae484a7b345d691f8cf604a8e72fc2ff54b905fff26c153ca41",
-            "size": 28451,
-            "path": "levels/ancient_egyptian_compounds_scribes_workyard_bird_5094/dogs/dog_29/sprite_000.png"
-          },
-          {
-            "hash": "7e5c6b0c69e5f8d27a0d15169b3a7e52d5f28039d8a90caa1a9ba8cabf31a1de",
-            "size": 105010,
-            "path": "levels/ancient_egyptian_compounds_scribes_workyard_bird_5094/dogs/dog_30/sprite_000.png"
-          },
-          {
-            "hash": "67d4d7d87f2cb9fb3ba52d03c787e0532c55e78dcf4cc4465033f899ac28ac23",
-            "size": 272912,
-            "path": "levels/ancient_egyptian_compounds_scribes_workyard_bird_5094/dogs/dog_31/sprite_000.png"
-          },
-          {
-            "hash": "411a28e7fc997caa31a65f433b4f2f7ca20ad3e5ad82d418c92414e5f5f707c5",
-            "size": 45945,
-            "path": "levels/ancient_egyptian_compounds_scribes_workyard_bird_5094/dogs/dog_32/sprite_000.png"
-          },
-          {
-            "hash": "8d40dddfe44782892e43d88d08abde25e4b271c64160cddcfd9814c2bfd6f680",
-            "size": 40824,
-            "path": "levels/ancient_egyptian_compounds_scribes_workyard_bird_5094/dogs/dog_33/sprite_000.png"
-          },
-          {
-            "hash": "e8773bce030d63d732e3276718598a36ae64ba8cf4d3442eeda285faf2f5f819",
-            "size": 65151,
-            "path": "levels/ancient_egyptian_compounds_scribes_workyard_bird_5094/dogs/dog_34/sprite_000.png"
-          },
-          {
-            "hash": "4425431c044801bc5ed8db00e3c66fcc7411671f9ac3d55bd89e196edcc3ee93",
-            "size": 51866,
-            "path": "levels/ancient_egyptian_compounds_scribes_workyard_bird_5094/dogs/dog_35/sprite_000.png"
-          },
-          {
-            "hash": "9a451ebfd13c86bbee6361d84e564e4b6d49621b655210e1b9289387aa3d87b3",
-            "size": 37364,
-            "path": "levels/ancient_egyptian_compounds_scribes_workyard_bird_5094/dogs/dog_36/sprite_000.png"
-          },
-          {
-            "hash": "c09f1ca80d64464e70eb44dec810ecc494e0bedb48dbf77162d6216b06f667d9",
-            "size": 37168,
-            "path": "levels/ancient_egyptian_compounds_scribes_workyard_bird_5094/dogs/dog_37/sprite_000.png"
-          },
-          {
-            "hash": "f11e1e40aec9456f5eb3ad1cc01b8ae023b2f11c244450d507addde45956dfcf",
-            "size": 40310,
-            "path": "levels/ancient_egyptian_compounds_scribes_workyard_bird_5094/dogs/dog_38/sprite_000.png"
-          },
-          {
-            "hash": "a5f149a08888e01f067d3dce8963ca4735c9e31ac142d00bb20f4957ba2cbb14",
-            "size": 49786,
-            "path": "levels/ancient_egyptian_compounds_scribes_workyard_bird_5094/dogs/dog_39/sprite_000.png"
-          },
-          {
-            "hash": "cfa07a823a0887a2bcd4e06cc9490b0ecae38243c4945f2eafcb3008b7ca6639",
-            "size": 46896,
-            "path": "levels/ancient_egyptian_compounds_scribes_workyard_bird_5094/dogs/dog_40/sprite_000.png"
-          },
-          {
-            "hash": "7624bc3fc978d86f17cae44814f5452ae3a50197383a1c061de07cf462c97988",
-            "size": 43823,
-            "path": "levels/ancient_egyptian_compounds_scribes_workyard_bird_5094/dogs/dog_41/sprite_000.png"
           }
         ]
       }

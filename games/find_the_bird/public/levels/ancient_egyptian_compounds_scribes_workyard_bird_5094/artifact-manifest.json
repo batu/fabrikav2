@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "contentRevision": "sha256:effcbcf40fbfeb2a523094187622aadd169c138a74216491db98af8d6e48949d",
+  "contentRevision": "sha256:1a44cebfa7f980404699e2dbbbf483dc430a4df1e56c5a44ecdf21f476553a96",
   "scene": {
     "path": "color.png",
     "sha256": "59504af53f80aaad200d66ebb5b0d7e6af9e150a6b7491fc36d07f9d3ddd3996"
   },
   "restore": {
     "path": "bg_00.png",
-    "sha256": "9ec25c16dfe9c08a55e80bfcd7a5cbf4c176678250d30bce477ab9986d17bda2",
+    "sha256": "7e325ace72c9fa25369194eb3d4f06d3da4ea80b24b39cec348f66923dd92822",
     "sourceSceneSha256": "59504af53f80aaad200d66ebb5b0d7e6af9e150a6b7491fc36d07f9d3ddd3996"
   },
   "birds": [
@@ -190,6 +190,15 @@
         "sha256": "7624bc3fc978d86f17cae44814f5452ae3a50197383a1c061de07cf462c97988"
       },
       "cleanupSourceSpriteSha256": "7624bc3fc978d86f17cae44814f5452ae3a50197383a1c061de07cf462c97988"
+    },
+    {
+      "birdId": "c98f46ce-903b-4d02-b4bd-e03c02e693cc",
+      "compatibilitySlot": "dog_42",
+      "sprite": {
+        "path": "dogs/dog_42/sprite_000.png",
+        "sha256": "18891c6c7950966b7c7512f75f1c3460375a99313ccec1596f6e8ad10e7454ef"
+      },
+      "cleanupSourceSpriteSha256": "18891c6c7950966b7c7512f75f1c3460375a99313ccec1596f6e8ad10e7454ef"
     }
   ]
 }

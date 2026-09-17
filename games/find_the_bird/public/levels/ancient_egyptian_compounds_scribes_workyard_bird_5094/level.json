@@ -4,7 +4,7 @@
   "width": 2688,
   "height": 2688,
   "colorImage": "levels/ancient_egyptian_compounds_scribes_workyard_bird_5094/color.png",
-  "artifactRevision": "sha256:effcbcf40fbfeb2a523094187622aadd169c138a74216491db98af8d6e48949d",
+  "artifactRevision": "sha256:1a44cebfa7f980404699e2dbbbf483dc430a4df1e56c5a44ecdf21f476553a96",
   "compatibilityAliases": {
     "dog_04": "32b78ac8-7027-4bea-9af7-5b5be919655e",
     "dog_08": "a73cbc52-0ed6-4a13-9c7b-4335a5266aaa",
@@ -25,7 +25,8 @@
     "dog_38": "82141928-1673-4a7f-9e42-6534c22138b0",
     "dog_39": "4f51dcd6-6564-46ba-aa54-b6b9ab55a9dc",
     "dog_40": "cfa78c05-3eaf-4dae-a065-836c7464a9ce",
-    "dog_41": "583e992e-76ba-472c-a5fd-26a7a79031a8"
+    "dog_41": "583e992e-76ba-472c-a5fd-26a7a79031a8",
+    "dog_42": "c98f46ce-903b-4d02-b4bd-e03c02e693cc"
   },
   "dogs": [
     {
@@ -504,6 +505,30 @@
         },
         "anchorX": 0.4277,
         "anchorY": 0.6289,
+        "flipX": false,
+        "flipY": false
+      }
+    },
+    {
+      "id": "c98f46ce-903b-4d02-b4bd-e03c02e693cc",
+      "compatibilitySlot": "dog_42",
+      "x": 2210,
+      "y": 620,
+      "r": 57,
+      "sprite": {
+        "image": "levels/ancient_egyptian_compounds_scribes_workyard_bird_5094/dogs/dog_42/sprite_000.png",
+        "height": 137,
+        "width": 79,
+        "x": 2162,
+        "y": 571,
+        "cleanup": {
+          "x": 2144,
+          "y": 560,
+          "width": 122,
+          "height": 157
+        },
+        "anchorX": 0.6076,
+        "anchorY": 0.3577,
         "flipX": false,
         "flipY": false
       }
