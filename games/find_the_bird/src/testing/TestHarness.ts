@@ -633,29 +633,33 @@ export function createFindTheDogHarness(game: Phaser.Game): FindTheDogHarness {
         );
       }
       case 'collection-silhouette': return collection({ sparrows: 6 });
-      case 'collection-unlocked': return collection({ sparrows: 10 });
-      case 'collection-hat': return collection({ sparrows: 50 });
-      case 'collection-cardigan': return collection({ sparrows: 100 });
-      case 'sanctuary-nohouse': return sanctuary({ sparrows: 10, coins: 150, tier: 0 });
-      case 'sanctuary-empty-perch': return sanctuary({ sparrows: 10, coins: 400, tier: 1 });
-      case 'sanctuary-placed': return sanctuary({ sparrows: 10, coins: 400, tier: 1, placed: true });
+      case 'collection-unlocked': return collection({ sparrows: 40 });
+      case 'collection-hat': return collection({ sparrows: 56 });
+      case 'collection-cardigan': return collection({ sparrows: 110 });
+      case 'sanctuary-nohouse': return sanctuary({ sparrows: 40, coins: 150, tier: 0 });
+      case 'sanctuary-empty-perch': return sanctuary({ sparrows: 40, coins: 400, tier: 1 });
+      case 'sanctuary-placed': return sanctuary({ sparrows: 40, coins: 400, tier: 1, placed: true });
       case 'sanctuary-coins':
-        return sanctuary({ sparrows: 10, coins: 400, tier: 1, placed: true, pendingCoins: 3.5 });
+        return sanctuary({ sparrows: 40, coins: 400, tier: 1, placed: true, pendingCoins: 3.5 });
       case 'sanctuary-tier3':
-        return sanctuary({ sparrows: 50, coins: 1200, tier: 3, placed: true });
+        return sanctuary({ sparrows: 56, coins: 1200, tier: 3, placed: true });
       // App Store captures: a finished tier-3 house with nobody home, and the
-      // robin card at its first rung with the sparrow ladder complete.
+      // robin card at its first rung, part-way to the second, with the sparrow
+      // ladder complete. Seeds track the pacing thresholds in remote config.
       case 'sanctuary-store-house':
       case 'collection-store-robin': {
         const opened = state === 'sanctuary-store-house'
-          ? await sanctuary({ sparrows: 100, coins: 2400, tier: 3, claimed: 3 })
-          : await collection({ sparrows: 100, claimed: 3, robin: { count: 12, claimed: 1 } });
+          ? await sanctuary({ sparrows: 110, coins: 2400, tier: 3, claimed: 3 })
+          : await collection({ sparrows: 110, claimed: 3, robin: { count: 18, claimed: 1 } });
         if (!opened) return false;
         // The listing's caption plank sits where the nav bar is; hide the bar
         // so no tile peeks out above the plank.
         await new Promise((resolve) => { window.setTimeout(resolve, 1500); });
         const nav = document.querySelector<HTMLElement>('.home-page-nav');
         if (nav !== null) nav.style.visibility = 'hidden';
+        // Same reason for the rung tabs: a bookmark stack caught mid-pose is
+        // clutter in a still, so the card is shown on its own.
+        for (const tabs of document.querySelectorAll<HTMLElement>('.home-page-overlay .collection-tabs')) tabs.style.visibility = 'hidden';
         // The deck opens on the first card; the robin capture wants the robin.
         document.querySelector<HTMLElement>('.collection-card[data-bird="robin"]')?.scrollIntoView({ behavior: 'instant', inline: 'center', block: 'nearest' });
         return true;
@@ -666,7 +670,7 @@ export function createFindTheDogHarness(game: Phaser.Game): FindTheDogHarness {
         const wait = (ms: number): Promise<void> => new Promise((resolve) => { window.setTimeout(resolve, ms); });
         const tap = (selector: string): boolean => { const el = document.querySelector<HTMLElement>(selector); if (el === null) return false; el.click(); return true; };
         // Enough to build and both upgrades at the 2026-09-18 prices (150+800+1200).
-        const opened = await collection({ sparrows: 100, coins: 2400, claimed: 0 });
+        const opened = await collection({ sparrows: 110, coins: 2400, claimed: 0 });
         if (!opened) return false;
         // A first launch can re-render home under the page (remote config,
         // unlock pops) and take the page with it; reopen if that happened.

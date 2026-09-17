@@ -6195,7 +6195,9 @@ body:has(#home-page-overlay) #tutorial-overlay { display: none; }
 .collection-slide .collection-unlock-btn { position: static; width: 92%; min-height: 44px; flex: 0 0 auto; }
 
 /* Rung tabs down the card's left side, bookmark style, over the border. */
-.collection-tabs { position: absolute; left: -16%; top: 4%; width: 26%; display: flex; flex-direction: column; gap: 4.5%; z-index: 0; }
+/* The stack sits just below the card's middle: at the top it crowded the page
+   header and the pulled-out tab read as a stray nub above the portrait. */
+.collection-tabs { position: absolute; left: -16%; top: 38%; width: 26%; display: flex; flex-direction: column; gap: 4.5%; z-index: 0; }
 /* Tabs live behind the card. Unselected ones are tucked under its edge; the
    selected one is pulled out, the way a bookmark marks the open page. */
 .collection-tab { position: relative; width: 100%; aspect-ratio: 712 / 482; border: 0; padding: 0; background: url('/ui/collection/tab-open.webp') center / 100% 100% no-repeat; cursor: pointer; transform: translateX(30%); filter: drop-shadow(0 3px 4px rgba(60, 35, 10, .35)); transition: transform 180ms cubic-bezier(.34, 1.4, .64, 1), filter 180ms; transform-origin: 50% 50%; }
