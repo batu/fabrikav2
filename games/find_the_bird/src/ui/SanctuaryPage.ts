@@ -241,9 +241,9 @@ function shadowLand(shadow: HTMLElement): void {
   );
 }
 
-/** Idle life for a housed bird: breathe, blink, and the occasional hop. */
-/** `seat` offsets every timeline so two tenants never breathe, blink or hop
- *  in step; WAAPI negative delays start each loop part-way through. */
+/** Idle life for a housed bird: breathe and blink. The bird stays on its
+ *  feet; a hop is only ever a tap response. `seat` offsets every timeline so
+ *  two tenants never breathe or blink in step; WAAPI negative delays start each loop part-way through. */
 function startIdle(element: HTMLElement, seat = 0): void {
   if (prefersReducedMotion()) return;
   const phase = (seat * 0.37) % 1;
@@ -253,8 +253,8 @@ function startIdle(element: HTMLElement, seat = 0): void {
     // inline translateX that stands the bird on its feet and slides it right.
     { duration: 2400, iterations: Infinity, easing: 'ease-in-out', delay: -phase * 2400, composite: 'add' },
   );
-  // Blink and hop are separate infinite timelines with long quiet stretches, so
-  // the bird never looks metronomic.
+  // Blink is its own infinite timeline with a long quiet stretch, so the bird
+  // never looks metronomic.
   track(element,
     [
       { transform: 'scaleY(1)', offset: 0 },
@@ -263,15 +263,6 @@ function startIdle(element: HTMLElement, seat = 0): void {
       { transform: 'scaleY(1)', offset: 1 },
     ],
     { duration: 5200, iterations: Infinity, composite: 'add', delay: -phase * 5200 },
-  );
-  track(element,
-    [
-      { transform: 'translateY(0)', offset: 0 },
-      { transform: 'translateY(0)', offset: 0.9 },
-      { transform: 'translateY(-6%)', offset: 0.95 },
-      { transform: 'translateY(0)', offset: 1 },
-    ],
-    { duration: 11000, iterations: Infinity, composite: 'add', easing: 'ease-out', delay: -((phase + 0.5) % 1) * 11000 },
   );
 }
 
