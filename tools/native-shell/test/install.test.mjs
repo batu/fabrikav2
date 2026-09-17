@@ -27,6 +27,43 @@ describe('owned native build output', () => {
     expect(built.appPath).toBe('/private/tmp/owned-release/DerivedData/Build/Products/Release-iphoneos/App.app');
   });
 
+  it('compiles scratch lanes into a reused cache outside the retained attempt', () => {
+    const calls = [];
+    const built = runIosBuild({ gameDir: path.join(repoRoot, 'games/find_the_bird'), configuration: 'Debug', args: ['build'],
+      run: (file, args) => {
+        calls.push([file, args]);
+        fs.writeFileSync(args[args.indexOf('--result-file') + 1], JSON.stringify({ output_dir: '/private/tmp/owned-debug' }));
+        return '** BUILD SUCCEEDED **';
+      },
+    });
+    const derivedDataPath = calls[0][1][calls[0][1].indexOf('-derivedDataPath') + 1];
+    expect(calls[0][1]).toContain('scratch');
+    expect(path.isAbsolute(derivedDataPath)).toBe(true);
+    expect(derivedDataPath).not.toContain('{agency-output}');
+    expect(derivedDataPath.startsWith('/private/tmp/owned-debug')).toBe(false);
+    expect(derivedDataPath).toContain(path.join('Library', 'Caches', 'fabrikav2-native-shell'));
+    expect(derivedDataPath.endsWith(path.join('find_the_bird-ios-debug', 'DerivedData'))).toBe(true);
+    expect(built.appPath).toBe(path.join(derivedDataPath, 'Build/Products/Debug-iphoneos/App.app'));
+  });
+
+  it('gives each checkout its own scratch cache so concurrent worktrees never share one', () => {
+    const derivedDataFor = (gameDir) => {
+      let captured;
+      runIosBuild({ gameDir, configuration: 'Debug', args: ['build'],
+        run: (file, args) => {
+          captured = args[args.indexOf('-derivedDataPath') + 1];
+          fs.writeFileSync(args[args.indexOf('--result-file') + 1], JSON.stringify({ output_dir: '/private/tmp/owned-debug' }));
+          return '** BUILD SUCCEEDED **';
+        },
+      });
+      return captured;
+    };
+    const main = derivedDataFor(path.join(repoRoot, 'games/find_the_bird'));
+    const worktree = derivedDataFor(path.join(repoRoot, '.worktrees/ftb-ad-cadence/games/find_the_bird'));
+    expect(main).not.toBe(worktree);
+    expect(path.basename(path.dirname(main))).toBe(path.basename(path.dirname(worktree)));
+  });
+
   it('never falls back to a stale in-tree build after runner failure', () => {
     expect(() => runIosBuild({ gameDir: '/repo/games/bird', configuration: 'Debug', args: [],
       run: () => { throw new Error('build failed'); },
