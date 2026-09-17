@@ -48,12 +48,13 @@ PUB = os.path.abspath(os.path.join(HERE, '..', '..', 'games', 'find_the_bird', '
 # bluebird gets a protective trickle from the first level a fast player could
 # reach it, and its full rate from the level an ordinary player does.
 #
-# Earliest possible: the sparrow from level one; the robin from level 15, the
+# Earliest possible: the sparrow from level 10, the level the Collection unlocks,
+# because nothing counts before that gate for any bird; the robin from level 15, the
 # first level a Sanctuary can exist, since idle coins could in principle buy both
 # tiers at once; the bluebird from level 30, the soonest 80 robins can be found
 # once the robin can open at 15.
 SUPPLY = {
-    'sparrow': (((1, 5),), 210),
+    'sparrow': (((10, 5),), 210),
     'robin': (((15, 5),), 240),
     'bluebird': (((30, 2), (45, 6)), 150),
 }

@@ -129,66 +129,63 @@ export const REMOTE_CONFIG_DEFAULTS: RemoteConfigValues = {
   // bluebird, and every threshold is fitted to the supply that
   // tools/birdtypes/shape_ladder.py lays down, which is itself chosen from the
   // classifier's five candidates per sprite. tools/birdtypes/cadence_report.py
-  // walks a player through all 92 levels and prints the schedule; `--coverage`
-  // prints how late each card can open and still finish. Re-run both before
-  // changing any number here or in the prices below.
+  // walks a player through all 92 levels; `--coverage` prints how late each card
+  // can open and still finish. Re-run both before changing any number here or in
+  // the prices below.
+  //
+  // Nothing counts before the Collection unlocks, the sparrow included, so a
+  // player reaches level 10 with an empty card. That is why the sparrow's first
+  // rung is only 10: it has to be claimable within a few levels of the gate and
+  // still before the nest box is built. No ladder species is laid down in levels
+  // 1 to 9 at all, since those pickups could only be thrown away.
   //
   // Measured order for a player who banks their coins, by the level they are
   // ENTERING when the game offers it (both tiles are arrival-based), with the
   // gap in levels:
-  //   L10 sparrow card, on the level the Collection itself opens
-  //   L15 build the nest box (5)      L21 sparrow hat (6)
-  //   L25 tier 2, which opens the robin (4)      L32 robin card (7)
-  //   L35 sparrow costume (3)         L38 tier 3 (3)
-  //   L43 robin hat, which opens the bluebird (5)
-  //   L49 robin costume (6)           L57 bluebird card (8)
+  //   L12 sparrow card (the Collection opens at L10, empty)
+  //   L15 build the nest box (3)      L20 sparrow hat (5)
+  //   L25 tier 2, which opens the robin (5)      L32 robin card (7)
+  //   L36 sparrow costume (4)         L39 tier 3 (3)
+  //   L43 robin hat, which opens the bluebird (4)
+  //   L50 robin costume (7)           L57 bluebird card (7)
   //   L73 bluebird hat (16)           L78 bluebird costume (5)
-  //
-  // The sparrow's first rung is 45 rather than 50 so the claim lands on the same
-  // level the Collection unlocks. The robin's first rung is cheap because it is
-  // the introduction the tier-2 upgrade just paid for and its supply is thin in
-  // the levels right after.
   //
   // The rungs are also capped by what a LATE opener can still find, since a
   // species counts only from the level its card opens. At these numbers the
-  // robin finishes even if its card opens as late as L45 (118 left against 100
-  // needed) and the bluebird as late as L60 (54 against 50). The bluebird's
-  // rungs are the lowest of the three and its hat is the one gap over seven
-  // levels: it is the scarcest species that has card art, so raising its rungs
-  // or tightening its pace means giving the third card a better-supplied species
-  // and regenerating its artwork.
+  // sparrow has 210 laid down from the gate against 130 needed, the robin
+  // finishes even if its card opens as late as L45 (117 left against 100) and
+  // the bluebird as late as L60 (54 against 50).
+  //
+  // The bluebird's hat is the one gap over seven levels. It is the scarcest
+  // species that has card art, so its pace is supply-bound: fixing it properly
+  // means giving the third card a better-supplied species and regenerating its
+  // artwork, which was considered and declined.
   sparrowTeaseCount: 5,
-  sparrowUnlockCount: 45,
-  sparrowHatCount: 100,
-  sparrowCardiganCount: 170,
+  sparrowUnlockCount: 10,
+  sparrowHatCount: 50,
+  sparrowCardiganCount: 130,
   robinUnlockCount: 10,
   robinHatCount: 70,
   robinCardiganCount: 100,
   bluebirdUnlockCount: 20,
   bluebirdHatCount: 40,
   bluebirdCardiganCount: 50,
-  // 2026-09-18 economy pass. A level pays levelCompleteCoinReward (45), so a
-  // player who never buys hints reaches the level-15 gate with roughly 675
-  // coins. The old 150/300/900 let them buy tier 1 AND tier 2 in the same
-  // minute and then stall; tier 2 now costs a stretch of play (about level 22)
-  // and tier 3 lands near level 34. The old 3-10 coins an hour under a 4-hour
-  // cap was invisible next to a level reward, so a return trip was never worth
-  // making: a full cap now pays 120 coins at tier 1 and 480 at tier 3, which
-  // is between 3 and 10 levels of play and makes the Sanctuary the reason to
-  // come back. Prices are also a hint-coin comparison (250 single, 600 bundle),
-  // so tier 2 and 3 deliberately cost more than a hint bundle.
+  // 2026-09-18 economy pass. Idle coins used to be 3 to 10 an hour under a
+  // four-hour cap, invisible beside a level's 45, so returning was never worth
+  // it; a full cap now pays 120 at tier 1 and 480 at tier 3, which is three to
+  // ten levels of play.
   // Prices are set by when the purchase should land, not by feel: coins arrive at
   // 45 a level and a price is affordable once the stock reaches it, so each price
   // is the stock the player will be holding on its intended level. 500 lands the
-  // build on the level the Sanctuary opens, 550 the second tier at L24, 600 the
-  // third at L37, each after the previous purchase drained the stock. Idle coins
+  // build on the level the Sanctuary opens, 550 the second tier at L25, 650 the
+  // third at L39, each after the previous purchase drained the stock. Idle coins
   // are a bonus on top: a player who collects a full window every ten levels
-  // reaches tier 2 around L18, which puts it just ahead of the sparrow's hat.
-  // If that inversion matters more than the idle reward, shorten the cap rather
-  // than raising this price, which would strand the player who never returns.
+  // reaches tier 2 around L22, which crowds the sparrow's hat. If that matters
+  // more than the idle reward, shorten the cap rather than raising this price,
+  // which would strand the player who never returns.
   housePriceTier1: 500,
   housePriceTier2: 550,
-  housePriceTier3: 600,
+  housePriceTier3: 650,
   sanctuaryCoinsPerHourTier1: 15,
   sanctuaryCoinsPerHourTier2: 30,
   sanctuaryCoinsPerHourTier3: 60,

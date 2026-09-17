@@ -27,11 +27,11 @@ PUB = os.path.abspath(os.path.join(HERE, '..', '..', 'games', 'find_the_bird', '
 # Mirrored from remoteConfigSchema.ts. Keep in step by hand; the report is
 # evidence for those numbers, not their source.
 THRESHOLDS = {
-    'sparrow': (45, 100, 170),
+    'sparrow': (10, 50, 130),
     'robin': (10, 70, 100),
     'bluebird': (20, 40, 50),
 }
-PRICES = (500, 550, 600)
+PRICES = (500, 550, 650)
 LEVEL_REWARD = 45
 IDLE_PER_HOUR = (15, 30, 60)       # by house tier
 IDLE_CAP_HOURS = 8
@@ -50,7 +50,7 @@ RUNG_NAME = {1: 'card', 2: 'hat', 3: 'costume'}
 # Opening levels worth checking per bird: earliest the card can open, and the
 # latest a real player might drag it to. The sparrow's card is open from level
 # one, so it has a single row.
-COVERAGE = {'sparrow': (1, 1), 'robin': (15, 50), 'bluebird': (30, 65)}
+COVERAGE = {'sparrow': (10, 10), 'robin': (15, 50), 'bluebird': (30, 65)}
 
 
 def per_level_counts():
@@ -64,13 +64,18 @@ def per_level_counts():
             for level_id in order]
 
 
-def is_open(bird, claimed, house_tier):
+def is_open(bird, claimed, house_tier, collection_open):
     """Whether a species is counting pickups.
+
+    Nothing counts before the Collection unlocks, the sparrow included: a player
+    arrives at the gate with an empty card rather than a banked pile.
 
     Trap for whoever reorders BIRDS: a 'chain' rule reads the bird BEFORE this
     one in that tuple, so the order is the chain. The first entry is guarded
     here, but a bare index - 1 elsewhere would wrap to the last bird.
     """
+    if not collection_open:
+        return False
     index = BIRDS.index(bird)
     kind, value = OPENS_ON[bird]
     if kind == 'always' or index == 0:
@@ -88,8 +93,10 @@ def simulate(idle_every=0, hint_every=0, verbose=False):
     coins, house_tier, events = 0, 0, []
 
     for playing in range(1, len(supply) + 1):
+        # Pickups during this level: the gates read the levels already completed.
+        counting = playing - 1 >= COLLECTION_COMPLETED
         for bird in BIRDS:
-            if is_open(bird, claimed, house_tier):
+            if is_open(bird, claimed, house_tier, counting):
                 counts[bird] += supply[playing - 1][bird]
         coins += LEVEL_REWARD
         if idle_every and playing % idle_every == 0 and house_tier >= 1:
@@ -107,7 +114,7 @@ def simulate(idle_every=0, hint_every=0, verbose=False):
         while changed:
             changed = False
             for bird in BIRDS:
-                if not collection_open or not is_open(bird, claimed, house_tier):
+                if not is_open(bird, claimed, house_tier, collection_open):
                     continue
                 rung = claimed[bird] + 1
                 if rung <= 3 and counts[bird] >= THRESHOLDS[bird][rung - 1]:
