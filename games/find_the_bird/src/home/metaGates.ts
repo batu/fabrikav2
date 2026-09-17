@@ -45,7 +45,10 @@ export function metaGates(input: MetaGateInput): MetaGates {
     ? Math.max(0, Math.floor(input.collectionUnlockLevel))
     : 0;
 
-  const collectionUnlocked = levels >= required;
+  // Both tiles open on ARRIVAL at the level their locked pill promises, not on
+  // clearing it: a pill reading "Level 10" that produces a card on level 11 is
+  // a broken promise, and the two gates disagreeing about it is worse.
+  const collectionUnlocked = levels >= Math.max(0, required - 1);
   const sanctuaryLevel = Number.isFinite(input.sanctuaryUnlockLevel)
     ? Math.max(0, Math.floor(input.sanctuaryUnlockLevel))
     : 0;
