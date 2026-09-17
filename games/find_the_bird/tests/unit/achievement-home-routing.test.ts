@@ -5,24 +5,43 @@ import { describe, expect, it, vi } from 'vitest';
 
 const gameRoot = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const source = readFileSync(join(gameRoot, 'src/scenes/HomeScene.ts'), 'utf8');
+
 describe('achievement Home discovery', () => {
-  it('keeps Play Now as the sole play action and puts Sanctuary, Collection, and Shop in the bottom bar', () => {
+  it('keeps Play Now as the sole play action and puts Sanctuary, Collection, and Shop in the bottom bar', async () => {
     const rail = source.match(/<aside class="home-rail home-rail-left"[\s\S]*?<\/aside>/)?.[0] ?? '';
-    const nav = source.match(/<nav class="home-nav-bar"[\s\S]*?<\/nav>/)?.[0] ?? '';
     // The left rail holds the streak-claim pill (it took the No-Ads slot on
     // 2026-08-07; No-Ads was removed from Home). What matters for routing is
     // that Achievements is NOT a rail entry point.
     expect(rail).toContain('id="home-streak-reward"');
     expect(rail).not.toContain('id="home-achievements"');
-    // 2026-09-16: the Achievements tile is behind the achievementsEnabled flag
-    // (default off); Sanctuary and Birds took the row as locked tiles.
-    expect(nav).toContain('achievementsEnabled ? `<button id="home-nav-achievements"');
-    expect(nav).not.toContain('id="home-nav-play"');
-    expect(nav.match(/<button/g)).toHaveLength(4);
-    expect([...nav.matchAll(/<span>(Settings|Shop|Achievements|Sanctuary|Collection)<\/span>/g)].map((match) => match[1])).toEqual([
-      'Achievements', 'Sanctuary', 'Collection', 'Shop',
-    ]);
-    // Settings moved to an icon-only corner button above the banner, same id.
+
+    // The bar is built by a shared renderer, because the Collection and
+    // Sanctuary pages show it too. Assert on what it RENDERS rather than on
+    // HomeScene's source text, so the check survives the markup moving again.
+    const { installMemStorage, removeMemStorage } = await import('./support/memStorage');
+    const { renderMetaNavBar } = await import('../../src/ui/metaNavBar');
+    installMemStorage();
+    try {
+      const nav = renderMetaNavBar();
+      expect(nav).not.toContain('id="home-nav-play"');
+      expect(nav.match(/<button/g)).toHaveLength(3);
+      expect([...nav.matchAll(/<span>([^<]+)<\/span>/g)].map((match) => match[1]))
+        .toEqual(['Sanctuary', 'Collection', 'Shop']);
+
+      // 2026-09-16: Achievements is behind its flag (default off) and takes a
+      // fourth slot when enabled.
+      const withAchievements = renderMetaNavBar({ achievements: { enabled: true, claimable: 0 } });
+      expect(withAchievements).toContain('id="home-nav-achievements"');
+      expect(withAchievements).toContain('data-slots="4"');
+      expect([...withAchievements.matchAll(/<span>([^<]+)<\/span>/g)].map((match) => match[1]))
+        .toEqual(['Achievements', 'Sanctuary', 'Collection', 'Shop']);
+    } finally {
+      removeMemStorage();
+    }
+
+    // Home wires the flag through to the renderer, and Settings stayed an
+    // icon-only corner button above the banner.
+    expect(source).toContain('achievements: { enabled: achievementsEnabled');
     expect(source).toContain('id="home-nav-settings" class="home-settings-corner"');
   });
 

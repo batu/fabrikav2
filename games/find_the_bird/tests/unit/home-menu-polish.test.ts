@@ -3,11 +3,17 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { beforeEach, describe, expect, it } from "vitest";
 import { HOME_NO_ADS_BADGE_SRC } from "../../src/ui/iconPreload";
+import { renderMetaNavBar } from "../../src/ui/metaNavBar";
+import { installMemStorage } from "./support/memStorage";
 
 const NO_ADS_SHA256 = "017388ff0092d7a5453ae5163c0994d1c2341ccb63a1a9aadc180e75035c227c";
 const PLAY_BUTTON_SHA256 = "93165062587d86e58eaa8420e494ffecf81bbee11e12a50a9cfa62eb403640e3";
 const CSS_TEXT = readFileSync(join(process.cwd(), "src/ui/styles.css"), "utf8");
 const HOME_SCENE_TEXT = readFileSync(join(process.cwd(), "src/scenes/HomeScene.ts"), "utf8");
+// The nav bar is rendered by a shared module now that the Collection and
+// Sanctuary pages show it too, so its markup is asserted from real output.
+installMemStorage();
+const NAV_MARKUP = renderMetaNavBar();
 
 function sha256File(path: string): string {
   return createHash("sha256").update(readFileSync(path)).digest("hex");
@@ -114,8 +120,11 @@ describe("home menu polish regressions", () => {
     expect(CSS_TEXT).toContain("width: 82px;");
     expect(CSS_TEXT).toContain("height: 82px;");
     expect(HOME_SCENE_TEXT).not.toContain('id="home-nav-play"');
-    expect(HOME_SCENE_TEXT).toContain('id="home-nav-sanctuary"');
-    expect(HOME_SCENE_TEXT).toContain('id="home-nav-collection"');
+    // Ids are emitted by the shared nav renderer, which home and the meta pages
+    // both use; assert on its output rather than on source text.
+    expect(NAV_MARKUP).toContain('id="home-nav-sanctuary"');
+    expect(NAV_MARKUP).toContain('id="home-nav-collection"');
+    expect(NAV_MARKUP).toContain('id="home-nav-shop"');
     expect(HOME_SCENE_TEXT).toContain('id="home-nav-settings" class="home-settings-corner"');
 
     const play = window.getComputedStyle(element("#home-play-now"));

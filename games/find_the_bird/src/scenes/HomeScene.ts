@@ -4,8 +4,7 @@ import { getLevelIndex, loadLevel, loadLevelForProgression, type LevelData, type
 import { consumeDebugJumpIndex, initHUD, setHomeCallback } from '../ui/HUD';
 import { TEST_HARNESS_ENABLED } from '../core/Constants';
 import { bindHomeNavigation } from '../ui/homeNavigation';
-import { metaGates } from '../home/metaGates';
-import { collectionThresholds, collectionUnlockLevel } from '../collection/config';
+import { renderMetaNavBar } from '../ui/metaNavBar';
 import { hideHomeMenuLayer, showHomeMenuLayer } from '../ui/OverlayVisibility';
 import { hideSceneTransitionCoverAfterPaint, showPlayEntryTransitionCover } from '../ui/SceneTransitionCover';
 import { adService } from '../ads/Service';
@@ -561,14 +560,6 @@ export class HomeScene extends Phaser.Scene {
     const currentLevel = gameState.currentLevelIndex + 1;
     const achievementProjection = gameState.achievementReadProjection();
     const achievementsEnabled = remoteConfigService.value('achievementsEnabled');
-    const gates = metaGates({
-      totalLevelsCompleted: gameState.totalLevelsCompleted,
-      sparrowCount: gameState.birdCount('sparrow'),
-      collectionUnlockLevel: collectionUnlockLevel(),
-      thresholds: collectionThresholds(),
-      collectionPopShown: gameState.collectionMeta.tileUnlockPopShown,
-      sanctuaryPopShown: gameState.sanctuary.tileUnlockPopShown,
-    });
     const claimableAchievements = achievementsEnabled && achievementProjection.status === 'ready'
       ? achievementProjection.achievements.filter((a) => a.rewardStatus === 'unlocked-reward-claimable').length
       : 0;
@@ -626,25 +617,10 @@ export class HomeScene extends Phaser.Scene {
           </button>
         </div>
 
-        <nav class="home-nav-bar" data-slots="${achievementsEnabled ? 4 : 3}" aria-label="Main navigation">
-          ${achievementsEnabled ? `<button id="home-nav-achievements" class="home-nav-btn${claimableAchievements > 0 ? ' home-claim-attention' : ''}" type="button" aria-label="Open achievements${claimableAchievements > 0 ? `, ${claimableAchievements} reward${claimableAchievements === 1 ? '' : 's'} to claim` : ''}">
-            <img src="/ui/achievements/achievement-shortcut-runtime.png" alt="" aria-hidden="true">
-            <span>Achievements</span>
-            ${claimableAchievements > 0 ? '<span class="home-claim-dot home-claim-dot--nav" aria-hidden="true"></span>' : ''}
-          </button>` : ''}
-          <button id="home-nav-sanctuary" class="home-nav-btn${gates.sanctuaryUnlocked ? '' : ' home-nav-btn--locked'}${gates.sanctuaryPopPending ? ' home-nav-btn--unlock-pop' : ''}" type="button"${gates.sanctuaryUnlocked ? '' : ' aria-disabled="true"'} aria-label="${gates.sanctuaryUnlocked ? 'Open sanctuary' : 'Sanctuary, locked until your first bird is unlocked'}">
-            <img src="/ui/sanctuary/sanctuary-nav-icon.png" alt="" aria-hidden="true">
-            <span>Sanctuary</span>
-          </button>
-          <button id="home-nav-collection" class="home-nav-btn${gates.collectionUnlocked ? '' : ' home-nav-btn--locked'}${gates.collectionPopPending ? ' home-nav-btn--unlock-pop' : ''}" type="button"${gates.collectionUnlocked ? '' : ' aria-disabled="true"'} aria-label="${gates.collectionUnlocked ? 'Open bird collection' : 'Bird collection, locked until level ' + String(collectionUnlockLevel())}">
-            <img src="/ui/sanctuary/birds-nav-icon.png" alt="" aria-hidden="true">
-            <span>Collection</span>
-          </button>
-          <button id="home-nav-shop" class="home-nav-btn" type="button" aria-label="Open shop">
-            <img src="/ui/menu-icons/shop-icon-runtime.png" alt="" aria-hidden="true">
-            <span>Shop</span>
-          </button>
-        </nav>
+        ${renderMetaNavBar({
+          achievements: { enabled: achievementsEnabled, claimable: claimableAchievements },
+          allowUnlockPop: true,
+        })}
       </div>
     `;
   }

@@ -18,7 +18,9 @@ import { getLegalLinks, type LegalLinks } from '../platform/LegalLinks';
 import { privacyConsentService } from '../privacy/PrivacyConsentService';
 import { renderAchievementHeaderBalances, renderAchievementsPageBody, wireAchievementClaimButtons } from './AchievementsPage';
 import { renderCollectionPageBody, wireCollectionPage } from './CollectionPage';
-import { renderSanctuaryPageBody, wireSanctuaryPage } from './SanctuaryPage';
+import { renderSanctuaryPageBody, wireSanctuaryPage, teardownSanctuaryPage } from './SanctuaryPage';
+import { renderMetaNavBar } from './metaNavBar';
+import { shakeLockedNavButton } from './homeNavigation';
 import { rewardedAdIconMarkup } from './RewardedAdIcon';
 import { hideHomeMenuLayer } from './OverlayVisibility';
 import { HOME_NO_ADS_BADGE_SRC } from './iconPreload';
@@ -485,6 +487,85 @@ function updateRestorationProgress(_totalDogs: number, _restorationActive: boole
 
 // ── Phase 1: Full-screen slide-in page shell ──────────────────────
 
+/** Pages that keep the main navigation bar, so the player can move between the
+ *  meta screens without bouncing off home each time. */
+const META_PAGES = new Set(['collection', 'sanctuary']);
+
+function pageTitleFor(id: string): string {
+  if (id === 'shop') return 'Shop';
+  if (id === 'settings') return 'Settings';
+  if (id === 'collection') return 'Collection';
+  if (id === 'sanctuary') return 'Sanctuary';
+  return 'Achievements';
+}
+
+function pageBodyFor(id: string): string {
+  if (id === 'shop') return renderShopPageBody();
+  if (id === 'settings') return renderSettingsPageBody();
+  if (id === 'collection') return renderCollectionPageBody();
+  if (id === 'sanctuary') return renderSanctuaryPageBody();
+  return renderAchievementsPageBody();
+}
+
+/**
+ * Move between the two meta pages without closing and reopening: the nav bar is
+ * the fixed thing the player is aiming at, so it must not slide away and back
+ * underneath their finger. Swaps the title, the body and the active tile in
+ * place.
+ */
+function swapMetaPage(page: HTMLElement, id: 'collection' | 'sanctuary'): void {
+  // Leaving the Sanctuary releases its animations; they are infinite and hold
+  // element references, and this teardown is the only thing that ends them
+  // when the page is replaced rather than closed.
+  if (page.classList.contains('home-page-sanctuary')) teardownSanctuaryPage();
+
+  page.classList.remove('home-page-collection', 'home-page-sanctuary');
+  page.classList.add(`home-page-${id}`);
+  const title = page.querySelector<HTMLElement>('#home-page-title');
+  if (title) title.textContent = pageTitleFor(id);
+  const body = page.querySelector<HTMLElement>('.home-page-body');
+  if (body) body.innerHTML = pageBodyFor(id);
+  const nav = page.querySelector<HTMLElement>('.home-page-nav');
+  if (nav) nav.innerHTML = renderMetaNavBar({ active: id });
+  if (body) {
+    if (id === 'collection') wireCollectionPage(page);
+    else wireSanctuaryPage(page);
+  }
+  wireMetaNavBar(page, id);
+}
+
+/** Wire the in-page nav: switch between meta pages, or leave for the shop. */
+function wireMetaNavBar(page: HTMLElement, current: 'collection' | 'sanctuary'): void {
+  const nav = page.querySelector<HTMLElement>('.home-page-nav');
+  if (nav === null) return;
+  const routes: Array<[string, 'collection' | 'sanctuary' | 'shop']> = [
+    ['#home-nav-collection', 'collection'],
+    ['#home-nav-sanctuary', 'sanctuary'],
+    ['#home-nav-shop', 'shop'],
+  ];
+  for (const [selector, target] of routes) {
+    const button = nav.querySelector<HTMLButtonElement>(selector);
+    if (button === null) continue;
+    button.addEventListener('click', () => {
+      playUITap();
+      if (target === current) return;
+      if (button.classList.contains('home-nav-btn--locked')) {
+        shakeLockedNavButton(button);
+        return;
+      }
+      // The shop is a different shell (its own header balances), so it gets a
+      // real page transition rather than an in-place swap.
+      if (target === 'shop') {
+        closePage();
+        window.setTimeout(() => { openPage('shop'); }, 60);
+        return;
+      }
+      swapMetaPage(page, target);
+    });
+  }
+}
+
+
 export function openPage(
   id: 'shop' | 'settings' | 'achievements' | 'collection' | 'sanctuary',
   opts: { scrollTo?: 'hints' | 'coins' | 'entitlements'; purchase?: 'no-ads' } = {},
@@ -507,11 +588,7 @@ export function openPage(
   page.id = 'home-page-overlay';
   page.className = 'home-page-overlay';
   pageOpener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-  const title = id === 'shop' ? 'Shop'
-    : id === 'settings' ? 'Settings'
-    : id === 'collection' ? 'Collection'
-    : id === 'sanctuary' ? 'Sanctuary'
-    : 'Achievements';
+  const title = pageTitleFor(id);
   page.setAttribute('role', 'dialog');
   page.setAttribute('aria-modal', 'true');
   page.setAttribute('aria-labelledby', 'home-page-title');
@@ -524,12 +601,9 @@ export function openPage(
       ${id === 'shop' ? renderShopHeaderBalances() : id === 'achievements' ? renderAchievementHeaderBalances() : ''}
     </div>
     <div class="home-page-body">
-      ${id === 'shop' ? renderShopPageBody()
-        : id === 'settings' ? renderSettingsPageBody()
-        : id === 'collection' ? renderCollectionPageBody()
-        : id === 'sanctuary' ? renderSanctuaryPageBody()
-        : renderAchievementsPageBody()}
+      ${pageBodyFor(id)}
     </div>
+    ${META_PAGES.has(id) ? `<div class="home-page-nav">${renderMetaNavBar({ active: id as 'collection' | 'sanctuary' })}</div>` : ''}
   `;
 
   page.querySelector('#home-page-back')?.addEventListener('click', () => {
@@ -568,6 +642,7 @@ export function openPage(
   if (id === 'achievements') wireAchievementClaimButtons(page);
   if (id === 'collection') wireCollectionPage(page);
   if (id === 'sanctuary') wireSanctuaryPage(page);
+  if (id === 'collection' || id === 'sanctuary') wireMetaNavBar(page, id);
   shell?.setAttribute('inert', '');
   pageEscapeHandler = (event: KeyboardEvent): void => {
     if (event.key === 'Escape') {

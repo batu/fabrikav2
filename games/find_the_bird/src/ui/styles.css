@@ -3490,7 +3490,7 @@
    fourth slot only when the achievementsEnabled flag is on). Settings lives in
    the top-right corner above the brand banner. Divided equal slots that fill
    the full width on the 3- or 4-frame nav-bar art. */
-#home-shell .home-nav-bar {
+:is(#home-shell, .home-page-nav) .home-nav-bar {
   align-items: stretch;
   justify-content: stretch;
   gap: 0;
@@ -3507,12 +3507,12 @@
   min-height: 134px;
 }
 
-#home-shell .home-nav-bar[data-slots="4"] {
+:is(#home-shell, .home-page-nav) .home-nav-bar[data-slots="4"] {
   background:
     url('/ui/navigation/nav-bar-4.png') center bottom / 100% 100% no-repeat;
 }
 
-#home-shell .home-nav-bar > button {
+:is(#home-shell, .home-page-nav) .home-nav-bar > button {
   box-sizing: border-box;
   flex: 0 0 calc(100% / 3);
   width: calc(100% / 3);
@@ -3555,7 +3555,7 @@
 }
 
 /* Side slots — equal thirds, divider lines between, icon + label centered. */
-#home-shell .home-nav-btn {
+:is(#home-shell, .home-page-nav) .home-nav-btn {
   align-self: stretch;
   position: relative;
   flex-direction: column;
@@ -3603,14 +3603,14 @@
 /* Locked tiles (Sanctuary, Birds until their features ship): desaturated art
    with the shared padlock at the icon's bottom-right, same treatment as the
    sibling games. Disabled buttons keep the label colour; no tap bounce. */
-#home-shell .home-nav-btn--locked {
+:is(#home-shell, .home-page-nav) .home-nav-btn--locked {
   cursor: default;
   color: #33423d;
 }
 /* Tap on a locked tile: a roll that rocks the whole tile (icon, label and
    padlock together) about its base. Replaces the tap bounce, which locked
    tiles never get. */
-#home-shell .home-nav-btn--shake {
+:is(#home-shell, .home-page-nav) .home-nav-btn--shake {
   animation: homeNavLockedRoll 560ms cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
   transform-origin: 50% 88%;
 }
@@ -3624,9 +3624,9 @@
   100% { transform: rotate(0deg) translateX(0); }
 }
 @media (prefers-reduced-motion: reduce) {
-  #home-shell .home-nav-btn--shake { animation: none; }
+  :is(#home-shell, .home-page-nav) .home-nav-btn--shake { animation: none; }
 }
-#home-shell .home-nav-btn--locked img {
+:is(#home-shell, .home-page-nav) .home-nav-btn--locked img {
   filter:
     grayscale(1) brightness(0.95)
     drop-shadow(1.5px 0 0 #fff) drop-shadow(-1.5px 0 0 #fff)
@@ -3635,7 +3635,7 @@
     drop-shadow(1.06px -1.06px 0 #fff) drop-shadow(-1.06px -1.06px 0 #fff)
     drop-shadow(0 4px 5px rgba(70, 36, 10, 0.5));
 }
-#home-shell .home-nav-btn--locked::after {
+:is(#home-shell, .home-page-nav) .home-nav-btn--locked::after {
   content: "";
   position: absolute;
   width: 32px;
@@ -5703,7 +5703,7 @@
 }
 
 /* Claimable-achievements attention: red dot + gentle icon bounce. */
-#home-shell .home-nav-btn { position: relative; }
+:is(#home-shell, .home-page-nav) .home-nav-btn { position: relative; }
 #home-shell .home-nav-btn > span.home-claim-dot--nav {
   /* Placed by MEASUREMENT, not by eye: the icon is centred in the button and
      the source PNG carries transparent padding (bbox 20,12,491,500 of 512 =>
@@ -5899,7 +5899,7 @@ body:has(#home-page-overlay) #tutorial-overlay { display: none; }
 @keyframes collection-reveal { 0% { transform: rotateY(-90deg) scale(.9); opacity: .4; } 60% { transform: rotateY(8deg) scale(1.03); opacity: 1; } 100% { transform: rotateY(0) scale(1); opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .collection-card--reveal { animation: none; } }
 /* Home tile unlock pop. */
-#home-shell .home-nav-btn--unlock-pop { animation: home-nav-unlock-pop 680ms cubic-bezier(.34, 1.56, .64, 1) both; }
+:is(#home-shell, .home-page-nav) .home-nav-btn--unlock-pop { animation: home-nav-unlock-pop 680ms cubic-bezier(.34, 1.56, .64, 1) both; }
 @keyframes home-nav-unlock-pop { 0% { transform: scale(.82); } 45% { transform: scale(1.14); } 70% { transform: scale(.97); } 100% { transform: scale(1); } }
 @media (prefers-reduced-motion: reduce) { #home-shell .home-nav-btn--unlock-pop { animation: none; } }
 
@@ -5933,3 +5933,17 @@ body:has(#home-page-overlay) #tutorial-overlay { display: none; }
 .sanctuary-pill--secondary { background: #a8b67d; color: #fff8e8; }
 .sanctuary-pill--primary { background: #4d9cc4; color: #fff8e8; box-shadow: 0 3px 0 #2f7598; }
 .sanctuary-pill:disabled { opacity: .55; cursor: default; }
+
+
+/* ── Meta pages keep the navigation bar ──────────────────────────── */
+/* The Collection and Sanctuary sit side by side in the player's head, so the
+   bar stays put and swaps the page under it rather than sliding away. */
+.home-page-nav { flex: 0 0 auto; position: relative; z-index: 2; }
+.home-page-nav .home-nav-bar { margin-inline: 0; width: 100%; }
+/* The page body must not run under the bar. */
+.home-page-collection .home-page-body,
+.home-page-sanctuary .home-page-body { min-height: 0; flex: 1 1 auto; }
+/* Current place: lifted and tinted, so the bar says where you are. */
+:is(#home-shell, .home-page-nav) .home-nav-btn--active { transform: translateY(-3px); }
+:is(#home-shell, .home-page-nav) .home-nav-btn--active img { filter: drop-shadow(0 3px 5px rgba(103, 67, 38, .4)); }
+:is(#home-shell, .home-page-nav) .home-nav-btn--active span { color: #2f7598; }
