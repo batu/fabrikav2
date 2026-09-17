@@ -137,6 +137,7 @@ export function initHUD(): void {
           <span class="coin-count">${gameState.coinBalance}</span>
           <button id="hud-coin-plus" class="home-pill-plus" type="button" aria-label="Buy more coins">+</button>
         </div>
+        ${TEST_HARNESS_ENABLED ? `<button id="debug-next-level" class="hud-pill" type="button" aria-label="Debug next level" style="font:inherit;font-weight:700;padding:6px 10px">⏭</button>` : ''}
         ${TEST_HARNESS_ENABLED ? `<button id="debug-autoplay-hud" class="hud-pill" type="button" aria-label="Debug auto play" style="font:inherit;font-weight:700;padding:6px 10px">${DEBUG_OVERRIDES.autoPlay.active ? '■ Stop' : '▶ Auto'}</button>` : ''}
         <button id="settings-btn" type="button" aria-label="Settings">
           <img class="hud-icon-img" src="/ui/menu-icons/icon_settings_gear.png" alt="" aria-hidden="true">
@@ -175,6 +176,10 @@ export function initHUD(): void {
 
   schedulePreloadIfRewardedPathAvailable();
 
+  document.getElementById('debug-next-level')?.addEventListener('click', () => {
+    playUITap();
+    window.dispatchEvent(new CustomEvent('ftb-debug-next-level'));
+  });
   const autoplayHud = document.getElementById('debug-autoplay-hud');
   autoplayHud?.addEventListener('click', () => {
     playUITap();

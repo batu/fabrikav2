@@ -70,7 +70,7 @@ import {
   resolveInterstitialGate,
 } from '../analytics/BetweenLevelFlow';
 import { computeVoronoiCell, maxDistToPolygon, pointInPolygon } from '../utils/voronoi';
-import { updateDebugBirdStrip, destroyDebugBirdStrip } from '../ui/DebugBirdStrip';
+import { updateDebugBirdStrip, destroyDebugBirdStrip, setDebugStripSelectHandler } from '../ui/DebugBirdStrip';
 import type { Point } from '../utils/voronoi';
 import { SectionController } from './SectionController';
 import { PinchZoom } from './PinchZoom';
@@ -1153,8 +1153,12 @@ export class GameScene extends Phaser.Scene {
       window.addEventListener('ftb-debug-autoplay', debugAutoPlay);
       this.events.once('shutdown', () => window.removeEventListener('ftb-debug-autoplay', debugAutoPlay));
       if (DEBUG_OVERRIDES.autoPlay.active) this.time.delayedCall(250, () => this.startDebugAutoPlay());
+      this.debugStartPos = 0;
+      setDebugStripSelectHandler((pos) => { this.debugStartPos = pos; this.refreshDebugBirdStrip(); });
       this.refreshDebugBirdStrip();
-      this.events.once('shutdown', () => destroyDebugBirdStrip());
+      const debugNextLevel = (): void => this.debugGoToNextLevel();
+      window.addEventListener('ftb-debug-next-level', debugNextLevel);
+      this.events.once('shutdown', () => { window.removeEventListener('ftb-debug-next-level', debugNextLevel); setDebugStripSelectHandler(null); destroyDebugBirdStrip(); });
     }
     setGameModeChangeCallback(() => {
       if (this.level) {
@@ -3348,6 +3352,18 @@ export class GameScene extends Phaser.Scene {
     return [...this.level.dogs].sort((a, b) => key(a) - key(b) || a.x - b.x);
   }
 
+  /** Where the debug pickup order starts (the wheel sets it); the next target is the first unfound bird at or after it, wrapping. */
+  private debugStartPos = 0;
+
+  private debugNextTarget(): { dog: LevelDog; pos: number } | null {
+    const order = this.debugPickupOrder();
+    for (let i = 0; i < order.length; i++) {
+      const pos = (this.debugStartPos + i) % order.length;
+      if (!gameState.foundDogIds.has(order[pos].id)) return { dog: order[pos], pos };
+    }
+    return null;
+  }
+
   /** Debug bird strip (harness builds): the pickup order around the next bird; found birds dimmed. */
   private refreshDebugBirdStrip(): void {
     if (!TEST_HARNESS_ENABLED || !this.level) return;
@@ -3357,10 +3373,17 @@ export class GameScene extends Phaser.Scene {
       const image = this.textures.exists(key) ? (this.textures.get(key).getSourceImage() as CanvasImageSource) : null;
       return { id: d.id, index: this.level!.dogs.indexOf(d), image, found: gameState.foundDogIds.has(d.id) };
     });
-    // the current bird = the next one auto play would pick: first unfound in order
-    let pos = birds.findIndex((b) => !b.found);
-    if (pos < 0) pos = birds.length;
-    updateDebugBirdStrip(this.level.id, birds, pos);
+    const next = this.debugNextTarget();
+    updateDebugBirdStrip(this.level.id, birds, next ? next.pos : birds.length);
+  }
+
+  /** Debug: leave this level for the next one right now (no overlay, no ads). */
+  private debugGoToNextLevel(): void {
+    if (!TEST_HARNESS_ENABLED || this.isShuttingDown || !this.sys.isActive()) return;
+    DEBUG_OVERRIDES.autoPlay.active = false;
+    window.dispatchEvent(new CustomEvent('ftb-debug-autoplay', { detail: { active: false } }));
+    gameState.markActiveCompletionAdvanced(gameState.currentLevelIndex + 1);
+    this.scene.restart({} as GameSceneData);
   }
 
   private startDebugAutoPlay(): void {
@@ -3372,7 +3395,7 @@ export class GameScene extends Phaser.Scene {
       if (!this.level || !this.maskCtx) { this.time.delayedCall(250, step); return; }   // next level still loading
       // the level is cut into DEBUG_AUTOPLAY_COLUMNS full-height strips, walked left to right; each strip is
       // read like a page: rows (strip width tall) top to bottom, left to right within a row
-      const next = this.debugPickupOrder().find((d) => !gameState.foundDogIds.has(d.id));
+      const next = this.debugNextTarget()?.dog;
       if (next === undefined) { stop(); return; }
       const ms = Math.max(60, DEBUG_OVERRIDES.autoPlay.secondsPerBird * 1000);
       const panMs = Math.round(ms * 0.7);

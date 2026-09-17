@@ -2,7 +2,8 @@
  * Debug bird strip (harness builds only, Batu 2026-09-17): a vertical strip on
  * the left of the play screen showing the pickup order around the current
  * bird — 3 past, the current one (arrow), 3 next. It slides down one slot
- * per pickup; an arrow marks the current bird. Tapping a bird rings it as buggy; flags persist
+ * per pickup; an arrow marks the current bird. Drag the wheel to choose the next target (auto play starts
+ * there). Tapping a bird rings it as buggy; flags persist
  * in localStorage under FLAGS_KEY so they can be read back from the device.
  */
 import { TEST_HARNESS_ENABLED } from '../core/Constants';
@@ -34,6 +35,13 @@ let renderedLevel = '';
 let renderedIds = '';
 let current: { levelId: string; bird: DebugStripBird } | null = null;
 const paintSlot = new Map<string, () => void>();
+let birdCount = 0;
+let shownPos = 3;
+let dragged = false;
+let onSelect: ((pos: number) => void) | null = null;
+
+/** The scene registers what happens when the wheel is scrolled to a bird: that bird becomes the next target. */
+export function setDebugStripSelectHandler(handler: ((pos: number) => void) | null): void { onSelect = handler; }
 
 function paintCurrent(): void {
   if (current) paintSlot.get(current.bird.id)?.();
@@ -73,7 +81,34 @@ function ensureRoot(): HTMLDivElement {
     'transform:translateY(-50%)', 'z-index:60', 'overflow:hidden', 'pointer-events:none', 'touch-action:none',
   ].join(';');
   const column = document.createElement('div');
-  column.style.cssText = `position:absolute;left:0;top:0;width:${SLOT}px;height:100%;overflow:hidden;border-radius:${SLOT / 2}px;background:rgba(0,0,0,0.28);pointer-events:auto`;
+  column.style.cssText = `position:absolute;left:0;top:0;width:${SLOT}px;height:100%;overflow:hidden;border-radius:${SLOT / 2}px;background:rgba(0,0,0,0.28);pointer-events:auto;touch-action:none`;
+  // the wheel scrolls: drag up/down, snaps to a slot, and the bird under the arrow becomes the next target
+  let dragStartY = 0; let dragStartPos = 0; let dragging = false;
+  column.addEventListener('pointerdown', (e) => {
+    e.stopPropagation(); e.preventDefault();
+    dragging = true; dragged = false; dragStartY = e.clientY; dragStartPos = shownPos;
+    column.setPointerCapture(e.pointerId);
+    if (track) track.style.transition = 'none';
+  });
+  column.addEventListener('pointermove', (e) => {
+    if (!dragging || !track) return;
+    const dy = e.clientY - dragStartY;
+    if (Math.abs(dy) > 8) dragged = true;
+    if (dragged) track.style.transform = `translateY(${(3 - dragStartPos) * SLOT + dy}px)`;
+  });
+  const endDrag = (e: PointerEvent): void => {
+    if (!dragging || !track) return;
+    dragging = false;
+    track.style.transition = 'transform 350ms cubic-bezier(.2,.8,.2,1)';
+    if (!dragged) return;
+    const dy = e.clientY - dragStartY;
+    const pos = Math.max(0, Math.min(Math.max(0, birdCount - 1), Math.round(dragStartPos - dy / SLOT)));
+    shownPos = pos;
+    track.style.transform = `translateY(${(3 - pos) * SLOT}px)`;
+    onSelect?.(pos);
+  };
+  column.addEventListener('pointerup', endDrag);
+  column.addEventListener('pointercancel', endDrag);
   track = document.createElement('div');
   track.style.cssText = 'position:absolute;left:0;top:0;width:100%;transition:transform 350ms cubic-bezier(.2,.8,.2,1);will-change:transform';
   column.appendChild(track);
@@ -117,8 +152,8 @@ function thumbFor(bird: DebugStripBird, levelId: string): HTMLDivElement {
   paint();
   paintSlot.set(bird.id, paint);
   // tapping a bird marks it as buggy (tap again to clear)
-  canvas.addEventListener('pointerdown', (e) => { e.stopPropagation(); e.preventDefault(); });
   canvas.addEventListener('pointerup', (e) => {
+    if (dragged) return;   // the column handled a scroll, not a tap
     e.stopPropagation(); e.preventDefault();
     toggleFlag(levelId, bird.id, bird.index);
     paint();
@@ -145,6 +180,7 @@ export function updateDebugBirdStrip(levelId: string, birds: readonly DebugStrip
     renderedLevel = levelId; renderedIds = ids;
   }
   // put the current bird into the middle slot (index 3)
+  birdCount = birds.length; shownPos = currentPos;
   track.style.transform = `translateY(${(3 - currentPos) * SLOT}px)`;
   current = currentPos < birds.length ? { levelId, bird: birds[currentPos] } : null;
   paintCurrent();
