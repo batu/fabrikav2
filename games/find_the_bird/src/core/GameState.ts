@@ -162,6 +162,15 @@ export interface SanctuaryState {
   /** Coins earned but not yet collected. Fractional; displayed floored. */
   pendingCoins: number;
   tileUnlockPopShown: boolean;
+  /**
+   * The level-complete hand-off to the Sanctuary has been offered. Deliberately
+   * NOT the same flag as `tileUnlockPopShown`: the hand-off happens on the
+   * completion screen and must fire once, while the tile's pop belongs to the
+   * home screen and should still play the first time the player sees it there.
+   * Collapsing the two looks like a simplification and silently eats the tile
+   * animation, which is what it used to do.
+   */
+  unlockHandOffShown: boolean;
 }
 
 export const EMPTY_COLLECTION_META: CollectionMeta = {
@@ -178,6 +187,7 @@ export const EMPTY_SANCTUARY_STATE: SanctuaryState = {
   accrualStartedAt: null,
   pendingCoins: 0,
   tileUnlockPopShown: false,
+  unlockHandOffShown: false,
 };
 
 export type WalletMutationSource =
@@ -489,6 +499,7 @@ function parseSanctuaryState(value: string | null): SanctuaryState {
     accrualStartedAt: startedAt,
     pendingCoins: nonNegativeFloatOrZero(parsed.pendingCoins),
     tileUnlockPopShown: parsed.tileUnlockPopShown === true,
+    unlockHandOffShown: parsed.unlockHandOffShown === true,
   };
 }
 
@@ -922,6 +933,13 @@ export class GameState {
   markSanctuaryTileUnlockShown(): void {
     if (this._sanctuary.tileUnlockPopShown) return;
     this._sanctuary = { ...this._sanctuary, tileUnlockPopShown: true };
+    this.save();
+  }
+
+  /** The completion screen has offered the Sanctuary once; do not offer again. */
+  markSanctuaryUnlockHandOffShown(): void {
+    if (this._sanctuary.unlockHandOffShown) return;
+    this._sanctuary = { ...this._sanctuary, unlockHandOffShown: true };
     this.save();
   }
 

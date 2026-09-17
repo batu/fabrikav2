@@ -46,6 +46,7 @@ import { FindPraisePolicy } from '../ui/FindPraisePolicy';
 import { isHardBird } from '../data/birdDifficulty';
 import { birdTypeSnapshot, loadBirdTypes, birdType } from '../data/birdTypes';
 import { currentMetaGates } from '../ui/metaNavBar';
+import { currentCompletionHandOff } from '../ui/completionHandOff';
 import { isBirdOpen, ladderFor } from '../collection/ladders';
 import { BIRD_DEFS, isBirdId } from '../collection/birds';
 import { showTutorialOverlay, phaserPointToCssPoint, type TutorialHandle } from '../ui/TutorialOverlay';
@@ -1596,16 +1597,17 @@ export class GameScene extends Phaser.Scene {
     const tag = birdType(index, level.id, dog.id);
     if (tag === null || !isBirdId(tag)) return false;
 
-    // A species only counts once its own card is open (2026-09-18): each bird
-    // carries its own open rule (BIRD_DEFS.opensOn), so what banks a pickup is
-    // whether the card is collecting, not which rule opened it. Counting from
-    // the first pickup was generous, but it handed every later card a rung or
-    // two the moment it arrived, and a claim the player did not play for is
-    // not a reward.
-    if (!isBirdOpen(tag)) return false;
+    // Nothing counts before the Collection itself opens (2026-09-18). The tile
+    // is the feature's front door, and banking pickups behind it handed the
+    // sparrow a rung or two for levels the player played before the Collection
+    // existed. The same argument then applies per bird: a species counts only
+    // once its own card is collecting, so a later card cannot arrive already
+    // owed a claim the player never played for. Counting from the very first
+    // pickup was generous, and twice today it turned out to be generous with
+    // the one thing the ladder is made of.
+    if (!currentMetaGates().collectionUnlocked || !isBirdOpen(tag)) return false;
     const total = gameState.incrementBirdCount(tag);
     void analytics.birdCollected({ bird_type: tag, level_id: level.id, total });
-    if (!currentMetaGates().collectionUnlocked) return false;
 
     // The chip is a countdown, not a tally: it speaks at every ten, at every
     // one inside the last ten, and once more when the rung is earned.
@@ -1983,14 +1985,17 @@ export class GameScene extends Phaser.Scene {
         !completion.transaction.bonusCoinsGranted &&
         !completion.transaction.advanced;
 
-      // The completion that opens the Sanctuary offers it instead of the next
-      // level. Read before the overlay mounts: the completion has already been
-      // committed, so the gate sees this level counted.
-      const sanctuaryHandOff = currentMetaGates().sanctuaryPopPending;
+      // A completion can offer somewhere better than the next level: the
+      // Sanctuary it just unlocked, an upgrade the player can now afford, or a
+      // bird waiting to be unlocked. completionHandOff owns which one wins.
+      // Read before the overlay mounts: the completion is already committed and
+      // its coins banked, so the gate sees this level counted and its reward
+      // spendable.
+      const handOff = currentCompletionHandOff();
       const completedLevelIndex = gameState.currentLevelIndex;
       const completedLevelAttribution = this.resolveCurrentLevelAnalyticsAttribution(this.level!) ?? {};
       const overlayPromise = showLevelCompleteOverlay(this.level!.id, {
-        ...(sanctuaryHandOff ? { unlockHandOff: { label: 'Go to Sanctuary' } } : {}),
+        ...(handOff !== null ? { unlockHandOff: { label: handOff.label } } : {}),
         telemetry: {
           level_index: completedLevelIndex,
           levels_completed_session: gameState.levelsCompletedThisSession + 1,
@@ -2083,13 +2088,13 @@ export class GameScene extends Phaser.Scene {
         });
         const restartToNextLevel = (): void => {
           if (this.isShuttingDown || !this.sys.isActive()) return;
-          if (overlayResult.handedOff) {
-            // The hand-off IS the tile's reveal, so consume its one-shot pop
-            // here; leaving it pending would offer this button again on the
-            // next completion.
-            gameState.markSanctuaryTileUnlockShown();
+          if (overlayResult.handedOff && handOff !== null) {
+            // The hand-off spends its OWN one-shot, never the tile's pop: the
+            // tile still plays its reveal when the player reaches home, which
+            // this used to swallow.
+            if (handOff.kind === 'sanctuary-unlock') gameState.markSanctuaryUnlockHandOffShown();
             this.scene.start('HomeScene');
-            openPageWhenHomeReady('sanctuary');
+            openPageWhenHomeReady(handOff.page);
             return;
           }
           this.scene.restart(
