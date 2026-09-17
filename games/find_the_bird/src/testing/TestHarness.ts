@@ -320,6 +320,13 @@ export interface FindTheDogHarness extends GameHarness<FindTheDogVerb> {
     tapSafeMiss: { run: () => { hitDogId: string | null; penalty: boolean } };
   };
   gotoGameScene(levelId?: string): void;
+  /** Seed a progression for work judged inside a level rather than on a page. */
+  seedProgress(seed: {
+    sparrows: number; coins?: number; tier?: 0 | 1 | 2 | 3; placed?: boolean;
+    pendingCoins?: number; claimed?: number;
+    robin?: { count: number; claimed: number };
+    bluebird?: { count: number; claimed: number };
+  }): void;
   /**
    * Start GameScene with a synthetic LevelData payload. Test-only:
    * skips the manifest + AssetCache entirely, so tests can exercise
@@ -518,8 +525,10 @@ export function createFindTheDogHarness(game: Phaser.Game): FindTheDogHarness {
     pendingCoins?: number;
     /** Claimed rung; defaults to everything the count has earned. */
     claimed?: number;
-    /** Robin pickups and claimed rung (the robin opens once the sparrow claims rung 2). */
+    /** Robin pickups and claimed rung; its card opens on a nest box tier. */
     robin?: { count: number; claimed: number };
+    /** Bluebird pickups and claimed rung; its card opens on the robin's rung. */
+    bluebird?: { count: number; claimed: number };
   }
 
   /** Device-only diagnostics: append a line to the tour's debug badge, the one
@@ -545,9 +554,11 @@ export function createFindTheDogHarness(game: Phaser.Game): FindTheDogHarness {
     gameState.setTotalLevelsCompletedForTest(seed.sparrows > 0 ? 40 : 0);
     gameState.setBirdCountForTest('sparrow', seed.sparrows);
     gameState.setClaimedRungForTest(seed.claimed ?? earnedRung(seed.sparrows, collectionThresholds()));
-    if (seed.robin !== undefined) {
-      gameState.setBirdCountForTest('robin', seed.robin.count);
-      gameState.setClaimedRungForTest(seed.robin.claimed, 'robin');
+    for (const bird of ['robin', 'bluebird'] as const) {
+      const later = seed[bird];
+      if (later === undefined) continue;
+      gameState.setBirdCountForTest(bird, later.count);
+      gameState.setClaimedRungForTest(later.claimed, bird);
     }
     gameState.setCoinsForTest(seed.coins ?? 0);
     gameState.setSanctuaryForTest({
@@ -1026,6 +1037,19 @@ export function createFindTheDogHarness(game: Phaser.Game): FindTheDogHarness {
       winLevel: { run: winLevel },
       failLevel: { run: failLevel },
       tapSafeMiss: { run: tapSafeMiss },
+    },
+
+    /** Seed a player straight into a given progression, for work that has to be
+     *  judged inside a level rather than on a meta page: the counter column, the
+     *  pickup flight, the completion hand-offs. Takes the same shape the tour
+     *  states use, so it stays honest about what a real save can hold. */
+    seedProgress(seed: {
+      sparrows: number; coins?: number; tier?: 0 | 1 | 2 | 3; placed?: boolean;
+      pendingCoins?: number; claimed?: number;
+      robin?: { count: number; claimed: number };
+      bluebird?: { count: number; claimed: number };
+    }): void {
+      seedMetaProgress(seed);
     },
 
     gotoState(state: string): void {
