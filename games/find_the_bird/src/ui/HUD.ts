@@ -137,6 +137,7 @@ export function initHUD(): void {
           <span class="coin-count">${gameState.coinBalance}</span>
           <button id="hud-coin-plus" class="home-pill-plus" type="button" aria-label="Buy more coins">+</button>
         </div>
+        ${TEST_HARNESS_ENABLED ? `<button id="debug-autoplay-hud" class="hud-pill" type="button" aria-label="Debug auto play" style="font:inherit;font-weight:700;padding:6px 10px">${DEBUG_OVERRIDES.autoPlay.active ? '■ Stop' : '▶ Auto'}</button>` : ''}
         <button id="settings-btn" type="button" aria-label="Settings">
           <img class="hud-icon-img" src="/ui/menu-icons/icon_settings_gear.png" alt="" aria-hidden="true">
         </button>
@@ -174,9 +175,21 @@ export function initHUD(): void {
 
   schedulePreloadIfRewardedPathAvailable();
 
+  const autoplayHud = document.getElementById('debug-autoplay-hud');
+  autoplayHud?.addEventListener('click', () => {
+    playUITap();
+    DEBUG_OVERRIDES.autoPlay.active = !DEBUG_OVERRIDES.autoPlay.active;
+    autoplayHud.textContent = DEBUG_OVERRIDES.autoPlay.active ? '■ Stop' : '▶ Auto';
+    window.dispatchEvent(new CustomEvent('ftb-debug-autoplay', { detail: { active: DEBUG_OVERRIDES.autoPlay.active } }));
+  });
   const settingsBtn = document.getElementById('settings-btn');
   settingsBtn?.addEventListener('click', () => {
     playUITap();
+    if (DEBUG_OVERRIDES.autoPlay.active) {   // opening settings stops the debug auto play (Batu 2026-09-17)
+      DEBUG_OVERRIDES.autoPlay.active = false;
+      if (autoplayHud) autoplayHud.textContent = '▶ Auto';
+      window.dispatchEvent(new CustomEvent('ftb-debug-autoplay', { detail: { active: false } }));
+    }
     openPage('settings');
   });
 
@@ -1040,6 +1053,8 @@ function wireDebugLevelJump(page: HTMLElement): void {
     playUITap();
     DEBUG_OVERRIDES.autoPlay.active = !DEBUG_OVERRIDES.autoPlay.active;
     autoplay.textContent = DEBUG_OVERRIDES.autoPlay.active ? 'Stop' : 'Start';
+    const hudBtn = document.getElementById('debug-autoplay-hud');
+    if (hudBtn) hudBtn.textContent = DEBUG_OVERRIDES.autoPlay.active ? '■ Stop' : '▶ Auto';
     closePage({ skipHomeCallback: true });
     window.dispatchEvent(new CustomEvent('ftb-debug-autoplay', { detail: { active: DEBUG_OVERRIDES.autoPlay.active } }));
   });

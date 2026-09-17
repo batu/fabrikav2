@@ -104,6 +104,8 @@ interface RevealContext {
 type HitboxVisibilityWarning = 'clipped' | 'near border' | 'HUD' | 'AD' | 'SAFE_L' | 'SAFE_R';
 
 const CLASSIC_REVEAL_EDGE_FEATHER_PX = 10;
+const DEBUG_AUTOPLAY_COLUMNS = 10;
+const DEBUG_AUTOPLAY_RING_DEPTH = 95;
 const RESTORATION_CLEANUP_FOOTPRINT_SCALE = 2;
 const FAST_E2E_UI = String(import.meta.env.VITE_FTD_FAST_E2E_UI) === 'true';
 const TUTORIAL_PROMPT_DELAY_MS = FAST_E2E_UI ? 40 : 500;
@@ -3302,15 +3304,25 @@ export class GameScene extends Phaser.Scene {
     const stop = (): void => { this.debugAutoPlayRunning = false; };
     const step = (): void => {
       if (!DEBUG_OVERRIDES.autoPlay.active || this.isShuttingDown || !this.sys.isActive() || !this.level || this.levelComplete) { stop(); return; }
-      const next = this.level.dogs.filter((d) => !gameState.foundDogIds.has(d.id)).sort((a, b) => a.x - b.x)[0];
+      // reading order: the level is cut into DEBUG_AUTOPLAY_COLUMNS square cells; top row first, left to right
+      const cell = this.level.width / DEBUG_AUTOPLAY_COLUMNS;
+      const key = (d: LevelDog): number => Math.floor(d.y / cell) * DEBUG_AUTOPLAY_COLUMNS + Math.floor(d.x / cell);
+      const next = this.level.dogs.filter((d) => !gameState.foundDogIds.has(d.id)).sort((a, b) => key(a) - key(b) || a.x - b.x)[0];
       if (next === undefined) { stop(); return; }
       const ms = Math.max(60, DEBUG_OVERRIDES.autoPlay.secondsPerBird * 1000);
       const panMs = Math.round(ms * 0.7);
       const camera = this.cameras.main;
       const worldX = this.imgOffsetX + next.x * this.imgScale;
       const worldY = this.imgOffsetY + next.y * this.imgScale;
+      // highlight the bird about to be picked up so the eye is on it at pick-up time
+      const ring = this.add.graphics({ x: worldX, y: worldY }).setDepth(DEBUG_AUTOPLAY_RING_DEPTH);
+      const radius = Math.max(24, next.r * this.imgScale * 1.25);
+      ring.lineStyle(6, 0xff2d55, 1).strokeCircle(0, 0, radius);
+      ring.lineStyle(2, 0xffffff, 1).strokeCircle(0, 0, radius + 4);
+      this.tweens.add({ targets: ring, scaleX: 1.15, scaleY: 1.15, alpha: 0.6, duration: Math.max(120, panMs / 2), yoyo: true, repeat: -1 });
       camera.pan(worldX, worldY, panMs, 'Sine.easeInOut');
       this.time.delayedCall(panMs, () => {
+        this.tweens.killTweensOf(ring); ring.destroy();
         if (!DEBUG_OVERRIDES.autoPlay.active || this.isShuttingDown || !this.sys.isActive() || !this.level) { stop(); return; }
         if (!gameState.foundDogIds.has(next.id)) this.onDogFound(next, worldX - camera.scrollX, worldY - camera.scrollY);
         this.time.delayedCall(Math.max(1, ms - panMs), step);
