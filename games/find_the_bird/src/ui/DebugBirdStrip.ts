@@ -1,8 +1,8 @@
 /**
  * Debug bird strip (harness builds only, Batu 2026-09-17): a vertical strip on
  * the left of the play screen showing the pickup order around the current
- * bird — 3 past, the current one in a ring, 3 next. It slides down one slot
- * per pickup. Tapping the red ring flags the current bird as buggy; flags persist
+ * bird — 3 past, the current one (arrow), 3 next. It slides down one slot
+ * per pickup; an arrow marks the current bird. Tapping a bird rings it as buggy; flags persist
  * in localStorage under FLAGS_KEY so they can be read back from the device.
  */
 import { TEST_HARNESS_ENABLED } from '../core/Constants';
@@ -32,15 +32,10 @@ let root: HTMLDivElement | null = null;
 let track: HTMLDivElement | null = null;
 let renderedLevel = '';
 let renderedIds = '';
-let ring: HTMLDivElement | null = null;
 let current: { levelId: string; bird: DebugStripBird } | null = null;
 const paintSlot = new Map<string, () => void>();
 
 function paintCurrent(): void {
-  if (!ring) return;
-  const flagged = current !== null && isFlagged(current.levelId, current.bird.id);
-  ring.style.background = flagged ? 'rgba(255,45,85,0.35)' : 'transparent';
-  ring.style.opacity = current ? '1' : '0.35';
   if (current) paintSlot.get(current.bird.id)?.();
 }
 
@@ -74,30 +69,14 @@ function ensureRoot(): HTMLDivElement {
   root = document.createElement('div');
   root.id = 'debug-bird-strip';
   root.style.cssText = [
-    'position:fixed', 'left:6px', 'top:50%', `height:${SLOT * SLOTS}px`, `width:${SLOT + ARROW + 6}px`,
+    'position:fixed', 'left:6px', 'top:calc(50% + 44px)', `height:${SLOT * SLOTS}px`, `width:${SLOT + ARROW + 6}px`,
     'transform:translateY(-50%)', 'z-index:60', 'overflow:hidden', 'pointer-events:none', 'touch-action:none',
   ].join(';');
   const column = document.createElement('div');
   column.style.cssText = `position:absolute;left:0;top:0;width:${SLOT}px;height:100%;overflow:hidden;border-radius:${SLOT / 2}px;background:rgba(0,0,0,0.28);pointer-events:auto`;
-  // the red ring marks the current bird AND is the "this one is buggy" tap target
-  ring = document.createElement('div');
-  ring.id = 'debug-bird-buggy';
-  ring.style.cssText = [
-    'position:absolute', 'left:2px', `top:${SLOT * 3 + 2}px`, `width:${SLOT - 4}px`, `height:${SLOT - 4}px`,
-    'border:4px solid #ff2d55', 'box-shadow:0 0 0 2px #fff inset', 'border-radius:50%', 'pointer-events:auto', 'box-sizing:border-box', 'touch-action:none',
-  ].join(';');
-  ring.addEventListener('pointerdown', (e) => { e.stopPropagation(); e.preventDefault(); });
-  ring.addEventListener('pointerup', (e) => {
-    e.stopPropagation(); e.preventDefault();
-    if (!current) return;
-    toggleFlag(current.levelId, current.bird.id, current.bird.index);
-    paintCurrent();
-    window.dispatchEvent(new CustomEvent('ftb-debug-bird-flag', { detail: { levelId: current.levelId, dogId: current.bird.id, index: current.bird.index, flagged: isFlagged(current.levelId, current.bird.id) } }));
-  });
   track = document.createElement('div');
   track.style.cssText = 'position:absolute;left:0;top:0;width:100%;transition:transform 350ms cubic-bezier(.2,.8,.2,1);will-change:transform';
   column.appendChild(track);
-  column.appendChild(ring);
   root.appendChild(column);
   // a little arrow pointing at the current slot
   const arrow = document.createElement('div');
@@ -130,12 +109,21 @@ function thumbFor(bird: DebugStripBird, levelId: string): HTMLDivElement {
     ctx.drawImage(bird.image, (THUMB - w * s) / 2, (THUMB - h * s) / 2, w * s, h * s);
   }
   const paint = (): void => {
-    canvas.style.border = isFlagged(levelId, bird.id) ? '3px solid #ff2d55' : '3px solid transparent';
+    const flagged = isFlagged(levelId, bird.id);
+    canvas.style.border = flagged ? '5px solid #ff2d55' : '5px solid transparent';
+    canvas.style.boxShadow = flagged ? '0 0 0 2px #fff inset' : 'none';
     canvas.style.opacity = bird.found ? '0.85' : '1';
   };
   paint();
   paintSlot.set(bird.id, paint);
+  // tapping a bird marks it as buggy (tap again to clear)
   canvas.addEventListener('pointerdown', (e) => { e.stopPropagation(); e.preventDefault(); });
+  canvas.addEventListener('pointerup', (e) => {
+    e.stopPropagation(); e.preventDefault();
+    toggleFlag(levelId, bird.id, bird.index);
+    paint();
+    window.dispatchEvent(new CustomEvent('ftb-debug-bird-flag', { detail: { levelId, dogId: bird.id, index: bird.index, flagged: isFlagged(levelId, bird.id) } }));
+  });
   slot.appendChild(canvas);
   return slot;
 }
@@ -164,5 +152,5 @@ export function updateDebugBirdStrip(levelId: string, birds: readonly DebugStrip
 }
 
 export function destroyDebugBirdStrip(): void {
-  root?.remove(); root = null; track = null; ring = null; current = null; paintSlot.clear(); renderedLevel = ''; renderedIds = '';
+  root?.remove(); root = null; track = null; current = null; paintSlot.clear(); renderedLevel = ''; renderedIds = '';
 }
