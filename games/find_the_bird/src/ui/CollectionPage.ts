@@ -16,7 +16,8 @@ import manifestJson from '../../public/ui/sanctuary/manifest.json';
 import { fitBackground, type Rect, type SanctuaryManifest } from '../sanctuary/layout';
 import { refreshMetaNav, updateSparrowCounter } from './HUD';
 import { shakeLockedNavButton } from './homeNavigation';
-import { playFind, playUITap } from '../audio/AudioManager';
+import { playCollectionClaim, playFind, playUITap, preloadMetaSounds } from '../audio/AudioManager';
+import { burst, centerOf, nudge } from './juice';
 import { hapticFound } from '../haptics/HapticsManager';
 import { analytics } from '../analytics/AnalyticsService';
 import { gameState } from '../core/GameState';
@@ -231,6 +232,7 @@ export function renderCollectionPageBody(): string {
  */
 export function wireCollectionPage(page: ParentNode): void {
   placeBackdrop(page);
+  preloadMetaSounds();
   const deck = page.querySelector<HTMLElement>('#collection-deck');
   const dots = [...page.querySelectorAll<HTMLElement>('.collection-dot')];
   if (deck === null || dots.length === 0) return;
@@ -282,10 +284,21 @@ export function wireCollectionPage(page: ParentNode): void {
     void analytics.birdCollected({ bird_type: 'sparrow', level_id: `claim:${String(rung)}`, total: gameState.birdCount('sparrow') });
     const sparrow = redraw();
     if (sparrow === null) return;
+    // Measure BEFORE the reveal starts: its first frame is rotateY(-90deg),
+    // where the card's box has no width and a burst has nowhere to come from.
+    const cardCenter = centerOf(sparrow);
+    const archCenter = centerOf(sparrow.querySelector('.collection-card-arch'), 0.55);
     sparrow.classList.add('collection-card--reveal', 'collection-card--claimed');
     sparrow.querySelector(`.collection-tab[data-rung="${String(rung)}"]`)?.classList.add('collection-tab--pop');
-    playFind();
+    // The chime lands with the tap; confetti and the chirp arrive as the flip
+    // settles (~60% of the 620ms reveal), so the new art is what gets cheered.
+    playCollectionClaim();
     hapticFound();
+    const deckWrap = page.querySelector<HTMLElement>('.collection-deck-wrap');
+    if (deckWrap !== null && cardCenter !== null) nudge(deckWrap, cardCenter, 0.03);
+    if (cardCenter !== null) burst(cardCenter, 'confetti', { delay: 280, radius: 170, count: 26 });
+    if (archCenter !== null) burst(archCenter, 'sparkle', { delay: 420, radius: 110, count: 12 });
+    window.setTimeout(playFind, 380);
     refreshMetaNav();
     updateSparrowCounter();
   });

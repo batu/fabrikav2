@@ -6237,3 +6237,11 @@ body:has(#home-page-overlay) #tutorial-overlay { display: none; }
 /* Meta page header: the coin pill carries the home-style green plus. */
 :is(.home-page-collection, .home-page-sanctuary) .shop-header-coin-pill { position: relative; cursor: pointer; }
 :is(.home-page-collection, .home-page-sanctuary) .shop-header-plus { position: absolute; left: -10px; bottom: -8px; }
+
+/* ── Meta-page juice: particle bursts (see src/ui/juice.ts) ─────────── */
+#juice-layer { position: fixed; inset: 0; z-index: 81; pointer-events: none; overflow: hidden; }
+.juice-particle { position: absolute; left: 0; top: 0; will-change: transform, opacity; }
+.juice-particle--confetti { border-radius: 3px; border: 1.5px solid rgba(255, 252, 240, .9); box-shadow: 0 2px 3px rgba(60, 40, 20, .35); }
+.juice-particle--sparkle { clip-path: polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%); background: #fff8e8 !important; filter: drop-shadow(0 0 6px rgba(255, 214, 120, 1)) drop-shadow(0 0 2px rgba(255, 255, 255, 1)); }
+.juice-particle--puff { border-radius: 50%; background: rgba(255, 245, 224, .95) !important; filter: blur(2px); box-shadow: 0 0 6px rgba(255, 245, 224, .8); }
+.juice-particle--feather { border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%; background: #fff8e8 !important; box-shadow: inset -3px 0 0 rgba(140, 110, 70, .4), 0 1px 3px rgba(60, 40, 20, .3); }
