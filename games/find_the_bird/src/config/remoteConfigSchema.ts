@@ -118,10 +118,11 @@ export const REMOTE_CONFIG_DEFAULTS: RemoteConfigValues = {
   sanctuaryUnlockLevel: 15,
   // Below the tease count the card is fully hidden; from it the silhouette
   // and species show, so the player knows what they are collecting towards.
-  sparrowTeaseCount: 10,
-  sparrowUnlockCount: 30,
-  sparrowHatCount: 45,
-  sparrowCardiganCount: 65,
+  // 2026-09-17: 10 / 50 / 100, tease at 5. Steep on purpose for now.
+  sparrowTeaseCount: 5,
+  sparrowUnlockCount: 10,
+  sparrowHatCount: 50,
+  sparrowCardiganCount: 100,
   housePriceTier1: 150,
   housePriceTier2: 300,
   housePriceTier3: 900,

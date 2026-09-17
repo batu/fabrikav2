@@ -845,7 +845,9 @@ export class GameState {
    *  directly above the claimed one, so a stale button cannot skip a step. */
   claimCollectionRung(rung: number): boolean {
     if (!Number.isSafeInteger(rung) || rung !== this._collectionMeta.claimedRung + 1 || rung > 3) return false;
-    this._collectionMeta = { ...this._collectionMeta, claimedRung: rung };
+    // The new look is what the player just paid for: show it, whatever tab
+    // they had picked before.
+    this._collectionMeta = { ...this._collectionMeta, claimedRung: rung, selectedRung: rung };
     this.save();
     return true;
   }

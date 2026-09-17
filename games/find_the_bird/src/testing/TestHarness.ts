@@ -618,21 +618,21 @@ export function createFindTheDogHarness(game: Phaser.Game): FindTheDogHarness {
           HOME_READY_TARGET_MAX_POLLS,
         );
       }
-      case 'collection-silhouette': return collection({ sparrows: 18 });
-      case 'collection-unlocked': return collection({ sparrows: 30 });
-      case 'collection-hat': return collection({ sparrows: 45 });
-      case 'collection-cardigan': return collection({ sparrows: 65 });
-      case 'sanctuary-nohouse': return sanctuary({ sparrows: 30, coins: 150, tier: 0 });
-      case 'sanctuary-empty-perch': return sanctuary({ sparrows: 30, coins: 400, tier: 1 });
-      case 'sanctuary-placed': return sanctuary({ sparrows: 30, coins: 400, tier: 1, placed: true });
+      case 'collection-silhouette': return collection({ sparrows: 6 });
+      case 'collection-unlocked': return collection({ sparrows: 10 });
+      case 'collection-hat': return collection({ sparrows: 50 });
+      case 'collection-cardigan': return collection({ sparrows: 100 });
+      case 'sanctuary-nohouse': return sanctuary({ sparrows: 10, coins: 150, tier: 0 });
+      case 'sanctuary-empty-perch': return sanctuary({ sparrows: 10, coins: 400, tier: 1 });
+      case 'sanctuary-placed': return sanctuary({ sparrows: 10, coins: 400, tier: 1, placed: true });
       case 'sanctuary-coins':
-        return sanctuary({ sparrows: 30, coins: 400, tier: 1, placed: true, pendingCoins: 3.5 });
+        return sanctuary({ sparrows: 10, coins: 400, tier: 1, placed: true, pendingCoins: 3.5 });
       case 'sanctuary-tier3':
-        return sanctuary({ sparrows: 45, coins: 1200, tier: 3, placed: true });
+        return sanctuary({ sparrows: 50, coins: 1200, tier: 3, placed: true });
       case 'collection-close': {
         // The player's path: open the Collection from home, then tap its own
         // tile again to go back.
-        const opened = await collection({ sparrows: 30 });
+        const opened = await collection({ sparrows: 10 });
         if (!opened) return false;
         await new Promise((resolve) => { window.setTimeout(resolve, 1500); });
         document.documentElement.style.setProperty('--meta-slide-ms', '2500ms');
@@ -641,7 +641,7 @@ export function createFindTheDogHarness(game: Phaser.Game): FindTheDogHarness {
         return true;
       }
       case 'sanctuary-close': {
-        const opened = await sanctuary({ sparrows: 30, coins: 400, tier: 1, placed: true });
+        const opened = await sanctuary({ sparrows: 10, coins: 400, tier: 1, placed: true });
         if (!opened) return false;
         await new Promise((resolve) => { window.setTimeout(resolve, 1500); });
         document.documentElement.style.setProperty('--meta-slide-ms', '2500ms');
