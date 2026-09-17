@@ -330,3 +330,61 @@ def test_sticker_lane_route_refuses_bad_inputs(app_client, isolated_session):
     isolated_session.create_session("lane_legacy", scene_prompt="s", dog_prompt="b", style="clean_old_cartoon", model="m", n_options=1, n_dogs=1)
     legacy = app_client.post("/api/sessions/lane_legacy/sticker-lane/jobs", json={"judge": "openrouter"})
     assert legacy.status_code == 409 and legacy.json()["detail"]["code"] == "canonical_integrity"
+
+
+# ── scenery gate + breaker + Extract All cap (cotswolds live run, 2026-09-17) ────────────
+def test_scenery_gate_trips_on_far_pixels_or_long_boxes_and_not_on_birds():
+    hb = {"x": 100, "y": 100, "r": 20}
+    bird = np.zeros((40, 40), np.uint8)
+    yy, xx = np.ogrid[:40, :40]
+    bird[((xx - 20) ** 2 + (yy - 20) ** 2) <= 15 ** 2] = 255
+    assert L.is_scenery_sticker(bird, (80, 80, 40, 40), hb) is None
+    strip = np.zeros((30, 300), np.uint8)
+    strip[14:16, :] = 255  # a wall line through the hitbox
+    hit = L.is_scenery_sticker(strip, (0, 85, 300, 30), hb)
+    assert hit is not None and hit["farFraction"] > 0.5 and hit["longEdgeR"] == 15.0
+    tall = np.zeros((100, 20), np.uint8)
+    tall[:, :] = 255
+    assert L.is_scenery_sticker(tall, (90, 60, 20, 100), hb)["longEdgeR"] == 5.0
+
+
+def test_judge_breaker_skips_a_backend_after_repeated_failures(tmp_path):
+    panel = tmp_path / "p.png"
+    Image.new("RGB", (10, 10)).save(panel)
+    calls = {"a": 0}
+
+    def broken(path, prompt):
+        calls["a"] += 1
+        raise RuntimeError("429")
+
+    def fine(path, prompt):
+        return '{"tier": 1, "why": "ok"}'
+
+    judge = L.VisionJudge((("a", broken), ("b", fine)))
+    for _ in range(5):
+        assert judge.ask(panel, L.TIER_PROMPT, L.parse_tier_json)["backend"] == "b"
+    assert calls["a"] == L.JUDGE_BREAKER and "a" in judge.tripped
+
+
+def test_tier_prompt_carries_the_subject_rule():
+    assert "BACKGROUND and must NOT be part of the sprite" in L.TIER_PROMPT
+    assert "includes scenery" in L.TIER_PROMPT
+
+
+def test_lane_regenerates_a_scenery_sticker_even_when_the_judge_likes_it(isolated_session, tmp_path):
+    store, pointer, sdir, (x, y, w, h) = _lane_session(isolated_session, "lane_scenery")
+    # replace the sticker with a wide wall strip through the hitbox (what a blown-up crop yields)
+    strip = np.zeros((10, 100, 4), np.uint8)
+    strip[4:6, :, :3] = OUTLINE
+    strip[4:6, :, 3] = 255
+    Image.fromarray(strip, "RGBA").save(sdir / "dogs" / "dog_00" / "sprite_000.png")
+    snapshot = store.read().snapshot
+    snapshot["birds"][0]["sprite"]["placement"] = {"x": 10, "y": 40, "width": 100, "height": 10}
+    from conftest import restamp_snapshot_assets
+    restamp_snapshot_assets(sdir, snapshot)
+    store.commit(snapshot, expected_content_revision=pointer.content_revision)
+    summary = L.run_sticker_lane("lane_scenery", L.LaneOptions(edit=_fake_edit, vision=FakeVision(tier=2), whitegap=False, artifact_dir=tmp_path))
+    assert summary["refit"]["bird_one"].startswith("refused: scenery")
+    assert summary["classes"]["bird_one"] == "regenerate"
+    assert "bird_one" in summary["regenerated"] and summary["regenerated"]["bird_one"]["class"] == "keep"
+    assert summary["committed"]["bird_one"]["disposition"] == "committed"

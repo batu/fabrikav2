@@ -4101,11 +4101,17 @@ def _run_magenta_inpaint_job(job: JobRecord, store: JobStore) -> dict[str, Any]:
     return _discharge_paint_obligations(session_id, summary)
 
 
-def _grow_box_by_extent(box: dict, extent: dict) -> dict:
+EXTENT_CAP_R = 5.0  # a grown crop never exceeds this x the tap radius: a plate diff that spans the scene (gpt-image repaints softly everywhere) blew crops up to the whole scene and Extract All cut window frames and walls as stickers (cotswolds, 2026-09-17)
+
+
+def _grow_box_by_extent(box: dict, extent: dict, *, radius: float | None = None) -> dict:
     """Enlarge a radius square (centred on its hitbox) to EXTENT_GROWTH x the
-    painted extent's long edge when that is bigger; never shrink, never move."""
+    painted extent's long edge when that is bigger; never shrink, never move;
+    never beyond EXTENT_CAP_R x the hitbox radius when `radius` is given."""
     long_edge = max(extent["width"], extent["height"])
     grown = int(long_edge * EXTENT_GROWTH)
+    if radius is not None:
+        grown = min(grown, int(EXTENT_CAP_R * float(radius)))
     if grown <= box["width"]:
         return box
     cx = box["x"] + box["width"] / 2.0
@@ -4152,7 +4158,8 @@ def _run_bulk_extract_job(job: JobRecord, store: JobStore) -> dict[str, Any]:
         paint_boxes = painted_extent_detections(session_id, unsized)
         by_id = {hb.get("id", idx): box for idx, (hb, box) in enumerate(zip(unsized, paint_boxes))}
         detections = [
-            _grow_box_by_extent(d, by_id[hb.get("id", idx)]) if d.get("source") == "radius" and hb.get("id", idx) in by_id else d
+            _grow_box_by_extent(d, by_id[hb.get("id", idx)], radius=float(hb.get("r") or hb.get("radius") or 57))
+            if d.get("source") == "radius" and hb.get("id", idx) in by_id else d
             for idx, (hb, d) in enumerate(zip(hitbox_list, detections))
         ]
     if store is not None:

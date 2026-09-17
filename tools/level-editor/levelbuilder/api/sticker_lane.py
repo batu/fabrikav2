@@ -55,6 +55,10 @@ STRONG_POP = 25.0       # a T3 that fits this well stays
 CHUNK_FILL = 0.8        # alpha fill of the bbox above this ...
 CHUNK_RADIUS = 2.2      # ... and bbox long edge above this x r = scene chunk, not a bird
 SHIP_MAX_PX = 288       # shipped sticker long edge cap
+SCENERY_FAR_R = 2.2     # sticker pixels farther than this x r from the hitbox ...
+SCENERY_FAR_FRAC = 0.10 # ... above this share = the sticker carries scenery (measured 2026-09-17: chunks 0.19-0.69, birds 0.00-0.04)
+SCENERY_LONG_R = 4.5    # or a sticker box longer than this x r (painted birds run 1-2 r; chunks 4.8-12 r)
+JUDGE_BREAKER = 2       # consecutive failures after which a judge backend is skipped for the rest of the run
 DEFAULT_REGEN_MODEL = "openai/gpt-image-2.5-sunburst"
 DEFAULT_REGEN_QUALITY = "low"
 DEFAULT_MAX_CROP_R = 5.0
@@ -68,12 +72,16 @@ SUMMARY_FILE = "sticker-lane.json"
 TIER_PROMPT = (
     "It has three panels left to right: the in-game painted bird, the cutout sprite on grey, and the "
     "cutout drawn at 50% opacity over the painted bird. Judge how well the cutout matches the painted "
-    "bird. Tier 1 = matches in shape, size and colour. Tier 2 = same bird and pose but visibly different "
-    "size (typically smaller) or a shape shift. Tier 3 = right bird, right size, but colour or detail "
-    "differences (different accessories, missing or extra props, different markings). Tier 4 = different "
-    "bird, OR the same bird in a different pose, orientation or facing direction (a pose or facing change "
-    "is always tier 4, never tier 3). Output exactly one JSON object and nothing else, no markdown, no "
-    'explanation outside it: {"tier": <1|2|3|4>, "why": "<=20 words"}'
+    "bird. A valid pickup sprite contains exactly one complete bird PLUS any items the bird is holding, "
+    "wearing, or using (binoculars, hat, book, telescope, map). Perches, branches, stalls, walls, window "
+    "frames, baskets, ground, lines and any scenery painted around the bird are BACKGROUND and must NOT "
+    "be part of the sprite. Tier 1 = matches in shape, size and colour. Tier 2 = same bird and pose but "
+    "visibly different size (typically smaller) or a shape shift. Tier 3 = right bird, right size, but "
+    "colour or detail differences (different accessories, missing or extra props, different markings). "
+    "Tier 4 = different bird, OR the same bird in a different pose, orientation or facing direction (a "
+    "pose or facing change is always tier 4, never tier 3), OR the cutout includes scenery or background "
+    "that is not the bird or an item it holds. Output exactly one JSON object and nothing else, no "
+    'markdown, no explanation outside it: {"tier": <1|2|3|4>, "why": "<=20 words"}'
 )
 GAP_PROMPT = (
     "It shows one cartoon bird sticker three times: left = the sticker on grey; middle = the same sticker "
@@ -146,6 +154,8 @@ class VisionJudge:
     """Ordered backends; the first that answers wins, errors fall through (agy first: Batu 2026-09-16)."""
 
     backends: tuple[tuple[str, AskFn], ...]
+    failures: dict[str, int] = field(default_factory=dict)
+    tripped: set[str] = field(default_factory=set)
 
     @classmethod
     def from_spec(cls, spec: str = DEFAULT_JUDGE, *, model: str = DEFAULT_JUDGE_MODEL) -> "VisionJudge":
@@ -163,11 +173,17 @@ class VisionJudge:
         t0 = time.time()
         error = "no backends"
         for name, fn in self.backends:
+            if name in self.tripped:
+                continue  # breaker: an exhausted agy quota cost 95 s per bird before this (2026-09-17)
             try:
                 data = parse(fn(panel, prompt))
+                self.failures[name] = 0
                 return {**data, "backend": name, "seconds": round(time.time() - t0, 1)}
             except Exception as exc:  # noqa: BLE001 — the next backend gets its turn
                 error = f"{name}: {type(exc).__name__}: {str(exc)[:120]}"
+                self.failures[name] = self.failures.get(name, 0) + 1
+                if self.failures[name] >= JUDGE_BREAKER:
+                    self.tripped.add(name)
         return {"error": error, "backend": None, "seconds": round(time.time() - t0, 1)}
 
 
@@ -299,6 +315,23 @@ def is_chunk_sticker(rgba: np.ndarray, radius: float) -> bool:
     bw, bh = int(xs.max() - xs.min() + 1), int(ys.max() - ys.min() + 1)
     fill = float(op.sum()) / float(bw * bh)
     return fill > CHUNK_FILL and max(bw, bh) > CHUNK_RADIUS * radius
+
+
+def is_scenery_sticker(alpha: np.ndarray, box: tuple[int, int, int, int], hitbox: dict[str, Any]) -> dict[str, Any] | None:
+    """A sticker whose opaque pixels sit far from its hitbox, or whose box is far longer than the
+    tap radius, carries scenery (window frames, wall lines, baskets, ground strips): Extract All cut
+    it from a crop the painted-extent growth blew up to. Returns the measurement when it trips."""
+    x, y, w, h = box
+    r = float(hitbox.get("r", 57))
+    op = alpha > 8
+    if not op.any():
+        return None
+    ys, xs = np.where(op)
+    far = float((np.hypot(xs + x - float(hitbox["x"]), ys + y - float(hitbox["y"])) > SCENERY_FAR_R * r).mean())
+    long_r = max(w, h) / r
+    if far > SCENERY_FAR_FRAC or long_r > SCENERY_LONG_R:
+        return {"farFraction": round(far, 3), "longEdgeR": round(long_r, 2)}
+    return None
 
 
 def cleanup_for_sprite(box: tuple[int, int, int, int], hitbox: dict[str, Any], width: int, height: int) -> list[int]:
@@ -627,13 +660,16 @@ def run_sticker_lane(session_id: str, opts: LaneOptions | None = None, *,
         verdict = vision.ask(panel_path, TIER_PROMPT, parse_tier_json)
         pad = int(max(w, h) * 0.8)
         cb = (max(0, x - pad), max(0, y - pad), min(color.width, x + w + pad), min(color.height, y + h + pad))
+        scenery = is_scenery_sticker(np.asarray(spr)[..., 3], (x, y, w, h), bird["hitbox"])
         fit = fit_aniso(spr, color.crop(cb), clean.crop(cb))
-        if fit is None:
+        if scenery is not None:
+            status, fields = f"refused: scenery (far {scenery['farFraction']}, long {scenery['longEdgeR']} r)", None
+        elif fit is None:
             status, fields = "refused: no fit", None
         else:
             status, fields = refit_gate(fit, bird["hitbox"], (x, y, w, h), (cb[0], cb[1]))
         return {"birdId": bid, "tier": verdict.get("tier"), "why": verdict.get("why", verdict.get("error", "")),
-                "judgeBackend": verdict.get("backend"), "refitStatus": status, "refitFields": fields,
+                "judgeBackend": verdict.get("backend"), "refitStatus": status, "refitFields": fields, "scenery": scenery,
                 "pop": fit["pop"] if fit else None, "cropBox": cb, "sprite": sprite}
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=max(1, opts.workers)) as pool:
@@ -720,7 +756,11 @@ def run_sticker_lane(session_id: str, opts: LaneOptions | None = None, *,
             hb = bird["hitbox"]
             ax, ay = (hb["x"] - x) / w, (hb["y"] - y) / h
             inside = 0 <= ax <= 1 and 0 <= ay <= 1
-            status = "applied" if (res["pop"] <= POP_MAX and inside) else ("refused: hitbox outside" if not inside else f"refused: pop {res['pop']:.0f}")
+            scenery = is_scenery_sticker(np.asarray(spr)[..., 3], (x, y, w, h), hb)
+            if scenery is not None:
+                status = f"refused: scenery (far {scenery['farFraction']}, long {scenery['longEdgeR']} r)"
+            else:
+                status = "applied" if (res["pop"] <= POP_MAX and inside) else ("refused: hitbox outside" if not inside else f"refused: pop {res['pop']:.0f}")
             return {"birdId": bid, "tier": verdict.get("tier"), "why": verdict.get("why", verdict.get("error", "")),
                     "backend": verdict.get("backend"), "status": status, "anchor": (ax, ay)}
 
