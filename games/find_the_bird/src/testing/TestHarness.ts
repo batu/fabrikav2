@@ -661,7 +661,13 @@ export function createFindTheDogHarness(game: Phaser.Game): FindTheDogHarness {
         // clutter in a still, so the card is shown on its own.
         for (const tabs of document.querySelectorAll<HTMLElement>('.home-page-overlay .collection-tabs')) tabs.style.visibility = 'hidden';
         // The deck opens on the first card; the robin capture wants the robin.
-        document.querySelector<HTMLElement>('.collection-card[data-bird="robin"]')?.scrollIntoView({ behavior: 'instant', inline: 'center', block: 'nearest' });
+        // Set the deck's own scroll, never scrollIntoView: that walks every
+        // scrollable ancestor and drags the page overlay up the screen, even
+        // when the ancestor is overflow-hidden.
+        const deck = document.querySelector<HTMLElement>('#collection-deck');
+        const slides = deck === null ? [] : [...deck.querySelectorAll<HTMLElement>('.collection-slide')];
+        const robin = slides.findIndex((slide) => slide.querySelector('.collection-card[data-bird="robin"]') !== null);
+        if (deck !== null && robin > 0) deck.scrollLeft = robin * (slides[0]?.offsetWidth ?? 0);
         return true;
       }
       case 'showcase': {
