@@ -82,6 +82,7 @@ export function renderSanctuaryPageBody(): string {
     <div class="sanctuary-scene" id="sanctuary-scene">
       <img class="sanctuary-bg" id="sanctuary-bg" src="${MANIFEST.background.src}" alt="" aria-hidden="true">
       <div class="sanctuary-layer" id="sanctuary-layer"></div>
+      <div class="sanctuary-actions" id="sanctuary-actions"></div>
       <div class="sanctuary-sheet-root" id="sanctuary-sheet-root"></div>
     </div>
   `;
@@ -96,7 +97,7 @@ interface SheetAction {
 
 function showSheet(
   root: HTMLElement,
-  options: { title: string; note?: string; facts?: string[]; actions: SheetAction[] },
+  options: { title: string; note?: string; facts?: string[]; portrait?: string; actions: SheetAction[] },
 ): void {
   root.innerHTML = '';
   const sheet = document.createElement('div');
@@ -108,6 +109,16 @@ function showSheet(
   title.className = 'sanctuary-sheet-title';
   title.textContent = options.title;
   sheet.appendChild(title);
+
+  if (options.portrait !== undefined) {
+    const face = document.createElement('span');
+    face.className = 'sanctuary-sheet-portrait';
+    const img = document.createElement('img');
+    img.src = options.portrait;
+    img.alt = '';
+    face.appendChild(img);
+    sheet.appendChild(face);
+  }
 
   if (options.facts && options.facts.length > 0) {
     const facts = document.createElement('ul');
@@ -252,19 +263,8 @@ export function wireSanctuaryPage(page: ParentNode): void {
     applyRect(background, layout.background);
     layer.innerHTML = '';
 
-    if (layout.house === null) {
-      // Nothing built: the plot marker is the whole invitation.
-      const marker = document.createElement('img');
-      marker.className = 'sanctuary-plot';
-      marker.src = MANIFEST.markers.plot;
-      marker.alt = '';
-      applyRect(marker, layout.plotMarker);
-      // The sheet can be tapped away; the marker brings it back.
-      marker.addEventListener('click', () => { playUITap(); offerBuild(); });
-      layer.appendChild(marker);
-      offerBuild();
-      return;
-    }
+    renderActions();
+    if (layout.house === null) return;
 
     const house = document.createElement('button');
     house.type = 'button';
@@ -275,7 +275,7 @@ export function wireSanctuaryPage(page: ParentNode): void {
     houseArt.alt = '';
     house.appendChild(houseArt);
     applyRect(house, layout.house);
-    house.addEventListener('click', () => { playUITap(); offerUpgrade(); });
+    house.addEventListener('click', () => { playUITap(); hop(house); });
     layer.appendChild(house);
 
     for (const pedestal of layout.pedestals) {
@@ -288,9 +288,14 @@ export function wireSanctuaryPage(page: ParentNode): void {
       sprite.alt = '';
 
       if (tenant === undefined) {
+        // No ghost bird on an empty perch: a small plus is the whole invitation.
         slot.classList.add('sanctuary-pedestal--empty');
         slot.setAttribute('aria-label', 'Empty perch. Tap to choose a bird');
-        sprite.src = MANIFEST.markers.pedestalEmpty;
+        sprite.remove();
+        const plus = document.createElement('span');
+        plus.className = 'sanctuary-perch-plus';
+        plus.textContent = '+';
+        slot.appendChild(plus);
         slot.addEventListener('click', () => { playUITap(); offerPlacement(pedestal.index); });
       } else {
         slot.setAttribute('aria-label', 'Sparrow. Tap to say hello');
@@ -302,7 +307,7 @@ export function wireSanctuaryPage(page: ParentNode): void {
         slot.addEventListener('click', () => { playFind(); hapticFound(); hop(slot); });
       }
 
-      slot.appendChild(sprite);
+      if (tenant !== undefined) slot.appendChild(sprite);
       // Anchor the FEET, not the sprite's geometric centre: a sparrow's tail
       // sits well left of its legs, so centring stood the bird off the perch.
       const footFraction = tenant === undefined
@@ -389,71 +394,41 @@ export function wireSanctuaryPage(page: ParentNode): void {
     if (overlay !== null) refreshHomeWalletBalances(overlay);
   };
 
-  const priceActions = (tier: SanctuaryHouseTier, label: string): SheetAction[] => {
-    const price = housePrice(tier);
-    const affordable = gameState.coinBalance >= price;
-    return [
-      {
-        label: affordable ? `${label}  ${price}` : `Need ${price - gameState.coinBalance} more`,
-        kind: 'primary',
-        onTap: () => {
-          if (affordable) { buy(tier); return; }
-          // Not enough coins is a shop trip, not a dead end.
-          openPage('shop', { scrollTo: 'coins' });
-        },
-      },
-    ];
-  };
-
-  const offerBuild = (): void => {
-    showSheet(sheetRoot, {
-      title: 'Build a nest box',
-      facts: ['1 perch', `${accrualConfig().coinsPerHourByTier[0]} coins per hour`],
-      actions: priceActions(1, 'Build'),
-    });
-  };
-
-  const offerUpgrade = (): void => {
+  /**
+   * The one persistent action: build when there is no house, upgrade until
+   * the top tier, nothing at the top. Always visible, never behind a sheet.
+   */
+  const renderActions = (): void => {
+    const bar = page.querySelector<HTMLElement>('#sanctuary-actions');
+    if (bar === null) return;
     const tier = gameState.sanctuary.houseTier;
-    if (tier >= MAX_HOUSE_TIER) {
-      showSheet(sheetRoot, {
-        title: `Nest box · Tier ${tier}`,
-        note: 'Max tier',
-        actions: [{ label: 'Close', kind: 'secondary', onTap: () => { closeSheet(sheetRoot); } }],
-      });
-      return;
-    }
+    if (tier >= MAX_HOUSE_TIER) { bar.innerHTML = ''; return; }
     const next = (tier + 1) as SanctuaryHouseTier;
-    showSheet(sheetRoot, {
-      title: `Nest box · Tier ${tier}`,
-      facts: ['+1 perch', `+${accrualConfig().coinsPerHourByTier[next - 1] - accrualConfig().coinsPerHourByTier[tier - 1]} coins per hour`],
-      actions: priceActions(next, 'Upgrade'),
+    const price = housePrice(next);
+    const affordable = gameState.coinBalance >= price;
+    const verb = tier === 0 ? 'Build nest box' : 'Upgrade nest box';
+    bar.innerHTML = `
+      <button class="sanctuary-pill sanctuary-pill--primary sanctuary-action${affordable ? '' : ' sanctuary-action--short'}" type="button">
+        <span class="sanctuary-action-verb">${verb}</span>
+        <span class="sanctuary-action-price"><img src="/ui/menu-icons/icon_coin.png" alt="" aria-hidden="true">${price}</span>
+      </button>`;
+    bar.querySelector<HTMLButtonElement>('.sanctuary-action')?.addEventListener('click', () => {
+      playUITap();
+      if (affordable) { buy(next); return; }
+      // Not enough coins is a shop trip, not a dead end.
+      openPage('shop', { scrollTo: 'coins' });
     });
-    showGhost(next);
-  };
-
-  /** Ghost of the next tier, so the upgrade is visible before it is bought. */
-  const showGhost = (tier: SanctuaryHouseTier): void => {
-    const viewport = { width: scene.clientWidth, height: scene.clientHeight };
-    const layout = layoutSanctuary(MANIFEST, tier, viewport);
-    if (layout.house === null) return;
-    const ghost = document.createElement('img');
-    ghost.className = 'sanctuary-ghost';
-    ghost.src = MANIFEST.houseTiers[tier - 1].src;
-    ghost.alt = '';
-    applyRect(ghost, layout.house);
-    layer.appendChild(ghost);
   };
 
   const offerPlacement = (pedestalIndex: number): void => {
     const unlocked = clampRung(gameState.collectionMeta.claimedRung) >= 1;
     showSheet(sheetRoot, {
-      title: 'Who moves in?',
-      facts: unlocked ? ['Sparrow — ready to move in'] : ['No bird unlocked yet'],
-      note: unlocked ? undefined : 'Find sparrows in levels to unlock one.',
+      title: unlocked ? 'Who moves in?' : 'No bird yet',
+      portrait: unlocked ? '/ui/collection/portrait-sparrow-plain.webp' : '/ui/collection/portrait-sparrow-silhouette.webp',
+      facts: unlocked ? ['Chirpy', 'House Sparrow'] : ['Unlock Chirpy in the Collection'],
       actions: [
         {
-          label: unlocked ? 'Place sparrow' : 'Collection',
+          label: unlocked ? 'Place Chirpy' : 'Go to Collection',
           kind: 'primary',
           onTap: () => {
             if (!unlocked) { openPage('collection'); return; }

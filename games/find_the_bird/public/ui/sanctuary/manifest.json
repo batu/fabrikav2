@@ -1,191 +1,191 @@
 {
- "version": 1,
- "style": "cozy-garden-3d",
- "generatedBy": "docs/sanctuary-exploration/vertical-slice-2026-09-16 (gpt-image-2.5 sunburst)",
- "sanctuary": {
-  "background": {
-   "src": "/ui/sanctuary/sanctuary-bg.webp",
-   "size": [
-    1024,
-    1536
-   ],
-   "placementBand": {
-    "x": [
-     240,
-     980
+  "version": 1,
+  "style": "cozy-garden-3d",
+  "generatedBy": "docs/sanctuary-exploration/vertical-slice-2026-09-16 (gpt-image-2.5 sunburst)",
+  "sanctuary": {
+    "background": {
+      "src": "/ui/sanctuary/sanctuary-bg.webp",
+      "size": [
+        1024,
+        1536
+      ],
+      "placementBand": {
+        "x": [
+          240,
+          980
+        ],
+        "y": [
+          380,
+          905
+        ]
+      }
+    },
+    "houseAnchor": {
+      "x": 600,
+      "bottom": 815,
+      "scale": 0.82,
+      "note": "sprite bbox bottom-centre lands on (x,bottom) in background pixels, the branch TOP surface; one scale for every tier"
+    },
+    "houseTiers": [
+      {
+        "tier": 1,
+        "src": "/ui/sanctuary/house/house-tier1.webp",
+        "size": [
+          1024,
+          1024
+        ],
+        "bbox": [
+          69,
+          165,
+          952,
+          830
+        ],
+        "pedestals": [
+          {
+            "anchor": [
+              150,
+              628
+            ],
+            "width": 200
+          }
+        ]
+      },
+      {
+        "tier": 2,
+        "src": "/ui/sanctuary/house/house-tier2.webp",
+        "size": [
+          1024,
+          1024
+        ],
+        "bbox": [
+          21,
+          167,
+          1004,
+          802
+        ],
+        "pedestals": [
+          {
+            "anchor": [
+              150,
+              628
+            ],
+            "width": 200
+          },
+          {
+            "anchor": [
+              930,
+              628
+            ],
+            "width": 200
+          }
+        ]
+      },
+      {
+        "tier": 3,
+        "src": "/ui/sanctuary/house/house-tier3.webp",
+        "size": [
+          1024,
+          1024
+        ],
+        "bbox": [
+          23,
+          119,
+          1010,
+          864
+        ],
+        "pedestals": [
+          {
+            "anchor": [
+              160,
+              585
+            ],
+            "width": 210
+          },
+          {
+            "anchor": [
+              925,
+              628
+            ],
+            "width": 190
+          },
+          {
+            "anchor": [
+              835,
+              300
+            ],
+            "width": 150
+          }
+        ]
+      }
     ],
-    "y": [
-     380,
-     905
+    "pedestalNote": "anchor = [x,y] in the tier sprite's 1024 space where the bird's feet centre lands; width = bird sprite height in sprite px (scale by houseAnchor.scale)",
+    "birds": {
+      "sparrow": {
+        "plain": "/ui/sanctuary/birds/sparrow-plain.webp",
+        "hat": "/ui/sanctuary/birds/sparrow-hat.webp",
+        "cardigan": "/ui/sanctuary/birds/sparrow-cardigan.webp"
+      }
+    },
+    "markers": {
+      "plot": "/ui/sanctuary/markers/plot-marker.webp",
+      "pedestalEmpty": "/ui/sanctuary/markers/pedestal-empty.webp",
+      "coinPile": "/ui/sanctuary/markers/coin-pile.webp"
+    },
+    "contactShadow": "drawn by code: soft ellipse, width = bird width, height = bird height/5, rgba(60,40,20,0.35), blur 5px, centred on the anchor",
+    "costumePath": [
+      "plain",
+      "hat",
+      "cardigan"
+    ],
+    "birdFootCenterX": {
+      "plain": 0.6198,
+      "hat": 0.6227,
+      "cardigan": 0.6255
+    },
+    "markerFootCenterX": 0.6143,
+    "footNote": "horizontal position of the FEET within the sprite, as a fraction of its width. A sparrow's tail pulls its geometric centre left of its feet, so centring the sprite on a pedestal stood the bird off the perch."
+  },
+  "collection": {
+    "cardFrame": {
+      "src": "/ui/collection/card-frame.webp",
+      "size": [
+        1024,
+        1536
+      ],
+      "porthole": {
+        "cx": 488,
+        "cy": 410,
+        "r": 276
+      },
+      "portraitFit": "scale portrait to 0.96*porthole diameter wide, bottom at porthole.cy + r + 0.10*r, clip to the porthole circle",
+      "namePlaqueY": [
+        700,
+        855
+      ],
+      "ribbonY": [
+        860,
+        958
+      ],
+      "bubbleY": [
+        988,
+        1207
+      ],
+      "measuredBy": "pixel scan of card-frame.webp centre column; the earlier values were estimates and put every text row one slot low on device"
+    },
+    "portraits": {
+      "sparrow": {
+        "silhouette": "/ui/collection/portrait-sparrow-silhouette.webp",
+        "plain": "/ui/collection/portrait-sparrow-plain.webp",
+        "hat": "/ui/collection/portrait-sparrow-hat.webp",
+        "cardigan": "/ui/collection/portrait-sparrow-cardigan.webp"
+      },
+      "unknown": "/ui/collection/portrait-unknown.webp"
+    },
+    "costumePath": [
+      "silhouette",
+      "plain",
+      "hat",
+      "cardigan"
     ]
-   }
-  },
-  "houseAnchor": {
-   "x": 600,
-   "bottom": 905,
-   "scale": 0.82,
-   "note": "sprite bbox bottom-centre lands on (x,bottom) in background pixels; one scale for every tier"
-  },
-  "houseTiers": [
-   {
-    "tier": 1,
-    "src": "/ui/sanctuary/house/house-tier1.webp",
-    "size": [
-     1024,
-     1024
-    ],
-    "bbox": [
-     69,
-     165,
-     952,
-     830
-    ],
-    "pedestals": [
-     {
-      "anchor": [
-       150,
-       628
-      ],
-      "width": 200
-     }
-    ]
-   },
-   {
-    "tier": 2,
-    "src": "/ui/sanctuary/house/house-tier2.webp",
-    "size": [
-     1024,
-     1024
-    ],
-    "bbox": [
-     21,
-     167,
-     1004,
-     802
-    ],
-    "pedestals": [
-     {
-      "anchor": [
-       150,
-       628
-      ],
-      "width": 200
-     },
-     {
-      "anchor": [
-       930,
-       628
-      ],
-      "width": 200
-     }
-    ]
-   },
-   {
-    "tier": 3,
-    "src": "/ui/sanctuary/house/house-tier3.webp",
-    "size": [
-     1024,
-     1024
-    ],
-    "bbox": [
-     23,
-     119,
-     1010,
-     864
-    ],
-    "pedestals": [
-     {
-      "anchor": [
-       160,
-       585
-      ],
-      "width": 210
-     },
-     {
-      "anchor": [
-       925,
-       628
-      ],
-      "width": 190
-     },
-     {
-      "anchor": [
-       835,
-       300
-      ],
-      "width": 150
-     }
-    ]
-   }
-  ],
-  "pedestalNote": "anchor = [x,y] in the tier sprite's 1024 space where the bird's feet centre lands; width = bird sprite height in sprite px (scale by houseAnchor.scale)",
-  "birds": {
-   "sparrow": {
-    "plain": "/ui/sanctuary/birds/sparrow-plain.webp",
-    "hat": "/ui/sanctuary/birds/sparrow-hat.webp",
-    "cardigan": "/ui/sanctuary/birds/sparrow-cardigan.webp"
-   }
-  },
-  "markers": {
-   "plot": "/ui/sanctuary/markers/plot-marker.webp",
-   "pedestalEmpty": "/ui/sanctuary/markers/pedestal-empty.webp",
-   "coinPile": "/ui/sanctuary/markers/coin-pile.webp"
-  },
-  "contactShadow": "drawn by code: soft ellipse, width = bird width, height = bird height/5, rgba(60,40,20,0.35), blur 5px, centred on the anchor",
-  "costumePath": [
-   "plain",
-   "hat",
-   "cardigan"
-  ],
-  "birdFootCenterX": {
-   "plain": 0.6198,
-   "hat": 0.6227,
-   "cardigan": 0.6255
-  },
-  "markerFootCenterX": 0.6143,
-  "footNote": "horizontal position of the FEET within the sprite, as a fraction of its width. A sparrow's tail pulls its geometric centre left of its feet, so centring the sprite on a pedestal stood the bird off the perch."
- },
- "collection": {
-  "cardFrame": {
-   "src": "/ui/collection/card-frame.webp",
-   "size": [
-    1024,
-    1536
-   ],
-   "porthole": {
-    "cx": 488,
-    "cy": 410,
-    "r": 276
-   },
-   "portraitFit": "scale portrait to 0.96*porthole diameter wide, bottom at porthole.cy + r + 0.10*r, clip to the porthole circle",
-   "namePlaqueY": [
-    700,
-    855
-   ],
-   "ribbonY": [
-    860,
-    958
-   ],
-   "bubbleY": [
-    988,
-    1207
-   ],
-   "measuredBy": "pixel scan of card-frame.webp centre column; the earlier values were estimates and put every text row one slot low on device"
-  },
-  "portraits": {
-   "sparrow": {
-    "silhouette": "/ui/collection/portrait-sparrow-silhouette.webp",
-    "plain": "/ui/collection/portrait-sparrow-plain.webp",
-    "hat": "/ui/collection/portrait-sparrow-hat.webp",
-    "cardigan": "/ui/collection/portrait-sparrow-cardigan.webp"
-   },
-   "unknown": "/ui/collection/portrait-unknown.webp"
-  },
-  "costumePath": [
-   "silhouette",
-   "plain",
-   "hat",
-   "cardigan"
-  ]
- }
+  }
 }

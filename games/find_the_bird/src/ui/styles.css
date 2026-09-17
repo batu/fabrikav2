@@ -6219,3 +6219,17 @@ body:has(#home-page-overlay) #tutorial-overlay { display: none; }
 .find-chip--loud .find-chip-label { font-size: 22px; padding: 7px 18px; border-width: 3px; background: linear-gradient(180deg, #fff3c4, #ffe08a); color: #5a3a08; animation: find-chip-punch 520ms cubic-bezier(.34, 1.6, .64, 1) both; }
 @keyframes find-chip-punch { 0% { transform: scale(.4) rotate(-6deg); } 60% { transform: scale(1.18) rotate(3deg); } 100% { transform: scale(1) rotate(0); } }
 @media (prefers-reduced-motion: reduce) { .find-chip--loud .find-chip-label { animation: none; } }
+
+/* Sanctuary: the persistent build / upgrade button above the bar. */
+.sanctuary-actions { position: absolute; left: 0; right: 0; bottom: 150px; display: flex; justify-content: center; pointer-events: none; }
+.sanctuary-action { pointer-events: auto; flex: 0 0 auto; min-width: 62%; display: inline-flex; align-items: center; justify-content: center; gap: 10px; padding: 0 20px; font-family: 'FredokaOne', 'Nunito', sans-serif; font-weight: 400; font-size: 19px; letter-spacing: .2px; }
+.sanctuary-action-price { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px 3px 6px; border-radius: 999px; background: rgba(0, 0, 0, .18); font-variant-numeric: tabular-nums; }
+.sanctuary-action-price img { width: 22px; height: 22px; }
+.sanctuary-action--short { background: #a8b67d; box-shadow: 0 3px 0 #6f8048; }
+/* Placement sheet: the bird's face above its name. */
+.sanctuary-sheet-portrait { display: block; width: 96px; height: 96px; margin: 0 auto 8px; border-radius: 50%; overflow: hidden; border: 3px solid var(--fab-color-wood, #d8bf8e); background: #5a3f2a; }
+.sanctuary-sheet-portrait img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 20%; }
+
+/* Empty perch: a plus where the bird's feet would go. */
+.sanctuary-pedestal--empty { display: flex; align-items: flex-end; justify-content: center; width: 60px; }
+.sanctuary-perch-plus { display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; margin-bottom: 4px; border-radius: 50%; background: #fff8e8; border: 3px solid #d8bf8e; color: #6f8048; font-family: 'FredokaOne', 'Nunito', sans-serif; font-size: 26px; line-height: 1; box-shadow: 0 3px 0 rgba(103, 67, 38, .3); }

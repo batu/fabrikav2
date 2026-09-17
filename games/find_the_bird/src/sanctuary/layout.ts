@@ -72,6 +72,11 @@ function toCss(point: ManifestPoint, bg: Rect, scale: number): ManifestPoint {
  * visible: the band's vertical centre is pinned to the viewport centre and then
  * clamped so no gap can appear at either edge.
  */
+/** Where the branch's top surface sits, as a fraction of the viewport height. */
+const BRANCH_VIEWPORT_Y = 0.66;
+/** Birds are drawn larger than the perch geometry alone would give them. */
+const BIRD_SCALE = 1.5;
+
 export function fitBackground(
   manifest: SanctuaryManifest,
   viewport: { width: number; height: number },
@@ -82,9 +87,10 @@ export function fitBackground(
   const height = bgH * scale;
   const left = (viewport.width - width) / 2;
 
-  const [bandTop, bandBottom] = manifest.background.placementBand.y;
-  const bandCentre = ((bandTop + bandBottom) / 2) * scale;
-  const desiredTop = viewport.height / 2 - bandCentre;
+  // The branch (where the house stands) is pinned low in the viewport so the
+  // scene reads as tree above, house on the log, valley below.
+  const branchY = manifest.houseAnchor.bottom * scale;
+  const desiredTop = viewport.height * BRANCH_VIEWPORT_Y - branchY;
   // Never expose the canvas edges: the image must still cover the viewport.
   const top = Math.min(0, Math.max(viewport.height - height, desiredTop));
 
@@ -166,7 +172,7 @@ export function layoutSanctuary(
       x: house.left + pedestal.anchor[0] * houseScale,
       y: house.top + pedestal.anchor[1] * houseScale,
     };
-    const birdHeight = pedestal.width * houseScale;
+    const birdHeight = pedestal.width * houseScale * BIRD_SCALE;
     const shadowWidth = birdHeight * 0.8;
     const shadowHeight = birdHeight / 5;
     return {
