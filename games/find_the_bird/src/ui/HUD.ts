@@ -19,7 +19,9 @@ import { privacyConsentService } from '../privacy/PrivacyConsentService';
 import { renderAchievementHeaderBalances, renderAchievementsPageBody, wireAchievementClaimButtons } from './AchievementsPage';
 import { renderCollectionPageBody, wireCollectionPage } from './CollectionPage';
 import { renderSanctuaryPageBody, wireSanctuaryPage, teardownSanctuaryPage } from './SanctuaryPage';
-import { renderMetaNavBar } from './metaNavBar';
+import { currentMetaGates, renderMetaNavBar } from './metaNavBar';
+import { collectionThresholds } from '../collection/config';
+import { nextThreshold } from '../collection/thresholds';
 import { shakeLockedNavButton } from './homeNavigation';
 import { rewardedAdIconMarkup } from './RewardedAdIcon';
 import { hideHomeMenuLayer } from './OverlayVisibility';
@@ -133,6 +135,10 @@ export function initHUD(): void {
     <div class="hud-top-bar">
       <div class="hud-left">
         <div id="dog-counter" class="hud-pill">🪶 <span class="count">0/0</span></div>
+        <div id="sparrow-counter" class="hud-pill hud-sparrow-pill" hidden aria-label="Sparrows collected towards the next unlock">
+          <img class="hud-pill-icon" src="/ui/collection/portrait-sparrow-plain.webp" alt="" aria-hidden="true">
+          <span class="count">0/0</span>
+        </div>
         <div id="hearts" class="hud-pill" aria-label="Lives"></div>
       </div>
       <div class="hud-right">
@@ -245,6 +251,29 @@ export function setGameModeChangeCallback(_cb: (() => void) | null): void {
   // Kept for copied scene compatibility; GameScene explicitly restarts when needed.
 }
 
+/**
+ * The next-unlock counter: sparrows banked against the next rung of the
+ * ladder, always on screen in a level once the Collection is open, so the
+ * pickup chip has somewhere to point.
+ */
+export function updateSparrowCounter(): void {
+  const pill = document.querySelector<HTMLElement>('#sparrow-counter');
+  if (pill === null) return;
+  pill.hidden = !currentMetaGates().collectionUnlocked;
+  const next = nextThreshold(gameState.birdCount('sparrow'), collectionThresholds());
+  const count = pill.querySelector('.count');
+  if (count) count.textContent = next.target === null ? String(next.current) : `${String(next.current)}/${String(next.target)}`;
+}
+
+export function pulseSparrowCounter(): void {
+  updateSparrowCounter();
+  const pill = document.querySelector<HTMLElement>('#sparrow-counter');
+  if (pill === null) return;
+  pill.classList.remove('pickup-pulse');
+  void pill.offsetWidth;
+  pill.classList.add('pickup-pulse');
+}
+
 export function updateHUD(totalDogs: number, restorationActive: boolean = false): void {
   lastKnownTotalDogs = totalDogs;
   lastKnownRestorationActive = restorationActive;
@@ -252,6 +281,7 @@ export function updateHUD(totalDogs: number, restorationActive: boolean = false)
   // Dog counter
   const countEl = document.querySelector('#dog-counter .count');
   if (countEl) countEl.textContent = `${gameState.foundDogIds.size}/${totalDogs}`;
+  updateSparrowCounter();
 
   const coinCount = document.querySelector('#coin-pill .coin-count');
   if (coinCount) coinCount.textContent = String(gameState.coinBalance);

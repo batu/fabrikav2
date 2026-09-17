@@ -150,7 +150,7 @@ export function wireCollectionPage(page: ParentNode): void {
   let frame = 0;
   const sync = (): void => {
     frame = 0;
-    const slideWidth = deck.clientWidth;
+    const slideWidth = deck.querySelector<HTMLElement>('.collection-slide')?.offsetWidth ?? deck.clientWidth;
     if (slideWidth === 0) return;
     const index = Math.max(0, Math.min(dots.length - 1, Math.round(deck.scrollLeft / slideWidth)));
     dots.forEach((dot, i) => { dot.classList.toggle('collection-dot--active', i === index); });

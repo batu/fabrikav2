@@ -38,6 +38,7 @@ import {
   setLevelSelectCallback,
   setHomeCallback,
   setGameModeChangeCallback,
+  pulseSparrowCounter,
 } from '../ui/HUD';
 import { FindPraise } from '../ui/FindPraise';
 import { FindPraisePolicy } from '../ui/FindPraisePolicy';
@@ -1571,6 +1572,7 @@ export class GameScene extends Phaser.Scene {
     if (index === null || !isSparrow(index, level.id, dog.id)) return;
 
     const total = gameState.incrementBirdCount('sparrow');
+    pulseSparrowCounter();
     void analytics.birdCollected({ bird_type: 'sparrow', level_id: level.id, total });
 
     // Chip reads the ladder so the player sees the counter move towards
