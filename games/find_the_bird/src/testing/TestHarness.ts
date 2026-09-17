@@ -40,12 +40,15 @@ export const FIND_THE_DOG_TOUR_STATES = [
   'collection-hat', 'collection-cardigan',
   'sanctuary-nohouse', 'sanctuary-empty-perch', 'sanctuary-placed',
   'sanctuary-coins', 'sanctuary-tier3',
+  // Motion probe: opens the Sanctuary, then closes it with the slide slowed
+  // so a low-rate device capture can see whether the panel travels.
+  'sanctuary-close',
 ] as const;
 export type FindTheDogCollectionState =
   | 'collection-locked' | 'collection-silhouette' | 'collection-unlocked'
   | 'collection-hat' | 'collection-cardigan'
   | 'sanctuary-nohouse' | 'sanctuary-empty-perch' | 'sanctuary-placed'
-  | 'sanctuary-coins' | 'sanctuary-tier3';
+  | 'sanctuary-coins' | 'sanctuary-tier3' | 'sanctuary-close';
 export type FindTheDogDriveState =
   DriveState | 'achievements' | 'shop' | 'win-achievement' | FindTheDogCollectionState;
 
@@ -64,6 +67,8 @@ export const findTheDogDrivePredicates = {
   'sanctuary-placed': sanctuaryPageOpen,
   'sanctuary-coins': sanctuaryPageOpen,
   'sanctuary-tier3': sanctuaryPageOpen,
+  'sanctuary-close': (snapshot: DriveSnapshot): boolean =>
+    snapshot.homeShellVisible === true && snapshot.sanctuaryOpen !== true,
   menu: (snapshot: DriveSnapshot): boolean => {
     const scene = String(snapshot.scene ?? snapshot.activeScene ?? '');
     return scene === 'menu' || scene === 'HomeScene' || snapshot.homeShellVisible === true;
@@ -622,6 +627,15 @@ export function createFindTheDogHarness(game: Phaser.Game): FindTheDogHarness {
         return sanctuary({ sparrows: 30, coins: 400, tier: 1, placed: true, pendingCoins: 3.5 });
       case 'sanctuary-tier3':
         return sanctuary({ sparrows: 45, coins: 1200, tier: 3, placed: true });
+      case 'sanctuary-close': {
+        const opened = await sanctuary({ sparrows: 30, coins: 400, tier: 1, placed: true });
+        if (!opened) return false;
+        await new Promise((resolve) => { window.setTimeout(resolve, 1500); });
+        document.documentElement.style.setProperty('--meta-slide-ms', '2500ms');
+        document.querySelector<HTMLButtonElement>('.home-page-nav #home-nav-play')?.click();
+        await new Promise((resolve) => { window.setTimeout(resolve, 3200); });
+        return true;
+      }
     }
   }
 

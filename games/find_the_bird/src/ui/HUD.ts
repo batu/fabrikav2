@@ -864,8 +864,11 @@ export function closePage(options: { skipHomeCallback?: boolean } = {}): void {
     if ((e.target === page || e.target === slide) && e.propertyName === 'transform') remove();
   };
   page.addEventListener('transitionend', onTransitionEnd);
-  // Fallback: transform transition is 340ms; +80ms buffer for transitionend latency.
-  window.setTimeout(remove, 420);
+  // Fallback: the slide's own transform duration (340ms by default) plus an
+  // 80ms buffer for transitionend latency.
+  const sliding = page.querySelector<HTMLElement>('.home-page-slide') ?? page;
+  const durationMs = Number.parseFloat(getComputedStyle(sliding).transitionDuration) * 1000;
+  window.setTimeout(remove, (Number.isFinite(durationMs) && durationMs > 0 ? durationMs : 340) + 80);
   // Re-render home on EVERY page close, not just via Settings' home button:
   // claim state (achievement dots, wallet, streak) is computed at render time,
   // so returning from Achievements after collecting used to leave the dot
