@@ -6006,3 +6006,45 @@ body:has(#home-page-overlay) #tutorial-overlay { display: none; }
   letter-spacing: 0.2px;
   text-shadow: 0 1px 0 rgba(0, 0, 0, 0.35);
 }
+
+/* Meta pages slide up BEHIND a nav bar that never moves: the overlay itself
+   stays put and transparent, its header+body wrapper carries the slide, and
+   the home bar underneath is hidden because the page's bar sits exactly on
+   top of it. */
+.home-page-overlay:is(.home-page-collection, .home-page-sanctuary) {
+  transform: none;
+  opacity: 1;
+  background: transparent;
+  box-shadow: none;
+  border-radius: 0;
+  transition: none;
+  overflow: visible;
+}
+.home-page-overlay .home-page-slide {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: #fffaf2;
+  border-radius: 20px 20px 0 0;
+  overflow: hidden;
+  box-shadow: 0 -6px 32px rgba(128, 80, 27, 0.16);
+  /* Runs on under the bar's top padding so nothing of home shows through
+     the strip between the page body and the bar. */
+  margin-bottom: -30px;
+  padding-bottom: 30px;
+  transform: translateY(110%);
+  opacity: 0.4;
+  transition: transform 340ms cubic-bezier(0.22, 1.02, 0.32, 1), opacity 200ms ease-out;
+}
+.home-page-overlay--open .home-page-slide {
+  transform: translateY(0);
+  opacity: 1;
+}
+#home-shell.home-shell--meta-open .home-nav-bar { visibility: hidden; }
+@media (prefers-reduced-motion: reduce) {
+  .home-page-overlay .home-page-slide { transition: none; }
+}
+
+/* The padlock sits in front of the icon and the level pill. */
+:is(#home-shell, .home-page-nav) .home-nav-btn--locked::after { z-index: 3; }

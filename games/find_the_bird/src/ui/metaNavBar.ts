@@ -117,7 +117,6 @@ export function renderMetaNavBar(options: MetaNavOptions = {}): string {
         pop: pop && gates.sanctuaryPopPending,
         lockedLabel: `Sanctuary, locked until level ${String(sanctuaryUnlockLevel())}`,
         unlockLevel: sanctuaryUnlockLevel(),
-        iconScale: 1.01,
         badge: coins,
       })}
       ${tile({
@@ -125,12 +124,9 @@ export function renderMetaNavBar(options: MetaNavOptions = {}): string {
         label: 'Play',
         icon: '/ui/menu-icons/magnifier-runtime.png',
         locked: false,
-        active: false,
+        active: options.active === 'play',
         pop: false,
         lockedLabel: 'Play',
-        // Ink-area equalisation over-weighted a thin object: at 1.19 the
-        // magnifier read as the SELECTED tile. Trimmed to a gentle lift.
-        iconScale: 1.06,
       })}
       ${tile({
         id: 'home-nav-collection',

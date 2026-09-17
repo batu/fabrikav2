@@ -534,10 +534,10 @@ function swapMetaPage(page: HTMLElement, id: 'collection' | 'sanctuary'): void {
   }
 }
 
-function setMetaNavActive(page: HTMLElement, id: 'collection' | 'sanctuary'): void {
+function setMetaNavActive(page: HTMLElement, id: 'collection' | 'sanctuary' | 'play'): void {
   const nav = page.querySelector<HTMLElement>('.home-page-nav');
   if (nav === null) return;
-  for (const target of ['collection', 'sanctuary'] as const) {
+  for (const target of ['collection', 'sanctuary', 'play'] as const) {
     const button = nav.querySelector<HTMLButtonElement>(`#home-nav-${target}`);
     if (button === null) continue;
     const active = target === id;
@@ -629,7 +629,9 @@ export function openPage(
   }
 
   const shell = overlay.querySelector<HTMLElement>('#home-shell');
-  shell?.classList.add('home-shell--dimmed');
+  // A meta page keeps the nav bar where it is: the page slides up behind the
+  // bar over an undimmed home, whose own bar is hidden under the page's.
+  shell?.classList.add(META_PAGES.has(id) ? 'home-shell--meta-open' : 'home-shell--dimmed');
 
   const page = document.createElement('div');
   page.id = 'home-page-overlay';
@@ -639,7 +641,10 @@ export function openPage(
   page.setAttribute('role', 'dialog');
   page.setAttribute('aria-modal', 'true');
   page.setAttribute('aria-labelledby', 'home-page-title');
+  const slideOpen = META_PAGES.has(id) ? '<div class="home-page-slide">' : '';
+  const slideClose = META_PAGES.has(id) ? '</div>' : '';
   page.innerHTML = `
+    ${slideOpen}
     <div class="home-page-header">
       <button id="home-page-back" class="home-page-back-btn" type="button" aria-label="Go back">
         <img class="home-page-back-art" src="/ui/page-header/back_button.png" alt="" aria-hidden="true">
@@ -650,7 +655,8 @@ export function openPage(
     <div class="home-page-body">
       ${pageBodyFor(id)}
     </div>
-    ${META_PAGES.has(id) ? `<div class="home-page-nav">${renderMetaNavBar({ active: id as 'collection' | 'sanctuary' })}</div>` : ''}
+    ${slideClose}
+    ${META_PAGES.has(id) ? `<div class="home-page-nav">${renderMetaNavBar({ active: 'play' })}</div>` : ''}
   `;
 
   page.querySelector('#home-page-back')?.addEventListener('click', () => {
@@ -743,7 +749,12 @@ export function openPage(
       if (action && !action.disabled) requestAnimationFrame(() => { action.click(); });
     }
   }
-  requestAnimationFrame(() => { page.classList.add('home-page-overlay--open'); });
+  requestAnimationFrame(() => {
+    page.classList.add('home-page-overlay--open');
+    // The bar starts as home left it (Play selected) and hands the selection
+    // to this page's tile, so the lift travels instead of appearing.
+    if (id === 'collection' || id === 'sanctuary') setMetaNavActive(page, id);
+  });
   // Focus the dialog CONTAINER, not the title: WKWebView draws a native focus
   // ring around a focused heading that CSS cannot remove, and (without
   // preventScroll) scrolls the viewport to reveal it, shoving the page under
@@ -762,6 +773,8 @@ export function closePage(options: { skipHomeCallback?: boolean } = {}): void {
   const shell = overlay?.querySelector<HTMLElement>('#home-shell');
   shell?.classList.remove('home-shell--dimmed');
   shell?.removeAttribute('inert');
+  // Selection travels back to Play while the page slides away.
+  setMetaNavActive(page, 'play');
   if (pageEscapeHandler) document.removeEventListener('keydown', pageEscapeHandler);
   pageEscapeHandler = null;
   pageOpener?.focus({ preventScroll: true });
@@ -770,11 +783,13 @@ export function closePage(options: { skipHomeCallback?: boolean } = {}): void {
   const remove = (): void => {
     page.removeEventListener('transitionend', onTransitionEnd);
     if (page.isConnected) page.remove();
+    shell?.classList.remove('home-shell--meta-open');
   };
   // Tear down only once the slide-down (transform) finishes — NOT the faster
   // opacity fade — otherwise the exit animation is cut short.
   const onTransitionEnd = (e: TransitionEvent): void => {
-    if (e.target === page && e.propertyName === 'transform') remove();
+    const slide = page.querySelector('.home-page-slide');
+    if ((e.target === page || e.target === slide) && e.propertyName === 'transform') remove();
   };
   page.addEventListener('transitionend', onTransitionEnd);
   // Fallback: transform transition is 340ms; +80ms buffer for transitionend latency.

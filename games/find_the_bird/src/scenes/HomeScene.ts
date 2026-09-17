@@ -618,6 +618,9 @@ export class HomeScene extends Phaser.Scene {
         </div>
 
         ${renderMetaNavBar({
+          // On the home screen Play is the place you are, so it wears the
+          // selected treatment; a meta page hands it over to its own tile.
+          active: 'play',
           achievements: { enabled: achievementsEnabled, claimable: claimableAchievements },
           allowUnlockPop: true,
         })}
