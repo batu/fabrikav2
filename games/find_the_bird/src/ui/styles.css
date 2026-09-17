@@ -5955,11 +5955,23 @@ body:has(#home-page-overlay) #tutorial-overlay { display: none; }
 /* Current place: the tile grows and rises, and only that tile is tinted, so
    the bar says where you are at a glance. */
 :is(#home-shell, .home-page-nav) .home-nav-btn--active {
-  transform: translateY(-6px) scale(1.09);
+  transform: translateY(-10px) scale(1.16);
   transform-origin: 50% 100%;
   transition: transform 180ms cubic-bezier(.34, 1.4, .64, 1);
 }
-:is(#home-shell, .home-page-nav) .home-nav-btn--active span { color: #2f7598; }
+:is(#home-shell, .home-page-nav) .home-nav-btn--active span {
+  color: #2f7598;
+  font-size: 14px;
+}
+/* The lift alone was not decisive enough next to a large icon, so the selected
+   tile's art also carries a warm halo. */
+:is(#home-shell, .home-page-nav) .home-nav-btn--active img {
+  filter:
+    drop-shadow(1.5px 0 0 #fff) drop-shadow(-1.5px 0 0 #fff)
+    drop-shadow(0 1.5px 0 #fff) drop-shadow(0 -1.5px 0 #fff)
+    drop-shadow(0 0 10px rgba(77, 156, 196, .85))
+    drop-shadow(0 5px 6px rgba(70, 36, 10, 0.5));
+}
 @media (prefers-reduced-motion: reduce) {
   :is(#home-shell, .home-page-nav) .home-nav-btn--active { transition: none; }
 }

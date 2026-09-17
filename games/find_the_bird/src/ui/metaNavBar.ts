@@ -56,9 +56,10 @@ function tile(options: {
   pop: boolean;
   lockedLabel: string;
   /** Per-icon balance factor: the artworks differ in aspect and visual weight,
-   *  so a single 82px box renders them at visibly different sizes. Measured
-   *  from each icon's rendered ink area. Lives here, in the one shared
-   *  component, rather than being re-tuned per view. */
+   *  so a single 82px box renders them at visibly different sizes. Started from
+   *  each icon's rendered ink area and then pulled back, because equalising ink
+   *  over-weights a thin shape until it out-shouts the selected tile. Lives
+   *  here, in the one shared component, rather than being re-tuned per view. */
   iconScale?: number;
   /** Collectable coins, shown as the claim dot. */
   badge?: number;
@@ -121,7 +122,9 @@ export function renderMetaNavBar(options: MetaNavOptions = {}): string {
         active: false,
         pop: false,
         lockedLabel: 'Play',
-        iconScale: 1.19,
+        // Ink-area equalisation over-weighted a thin object: at 1.19 the
+        // magnifier read as the SELECTED tile. Trimmed to a gentle lift.
+        iconScale: 1.06,
       })}
       ${tile({
         id: 'home-nav-collection',

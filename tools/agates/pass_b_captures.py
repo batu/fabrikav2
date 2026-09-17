@@ -26,7 +26,11 @@ ROWS = {
  "collection-unlocked":
    "The Collection page: one large card showing a PLAIN sparrow (no hat, no cardigan) in the round "
    "porthole, the name plaque reads 'Sparrow', a ribbon reads 'Garden bird', three readable "
-   "personality lines about a sparrow, and a progress bar reading 10 / 20 labelled 'Hat'.",
+   "personality lines about a sparrow, and a progress bar reading 10 / 20 labelled 'Hat'. "
+   "At the bottom there must be a navigation bar of exactly THREE tiles in this order: Sanctuary, "
+   "Play (a magnifying glass), Collection. There must be NO Shop tile. The three icons must look "
+   "about the same size as each other, none clipped by the bar's edge, and the Collection tile must "
+   "be the one that looks selected (larger, raised and tinted).",
  "collection-hat":
    "The Collection page: the sparrow in the porthole now wears a knitted BEANIE with a pom-pom. "
    "Name plaque 'Sparrow', and a progress bar reading 20 / 35 labelled 'Cardigan'.",
@@ -46,7 +50,10 @@ ROWS = {
    "rest on the wood rather than floating above it or overlapping the house.",
  "sanctuary-coins":
    "The Sanctuary page: a birdhouse with a sparrow on its perch, plus a pile of gold coins on the "
-   "branch carrying a small '+3' badge.",
+   "branch carrying a small '+3' badge. At the bottom, a navigation bar of exactly THREE tiles: "
+   "Sanctuary, Play (a magnifying glass), Collection, with NO Shop tile. The Sanctuary tile must be "
+   "the selected one (larger, raised, tinted) AND must carry a small red notification dot, because "
+   "coins are waiting to be collected.",
  "sanctuary-tier3":
    "The Sanctuary page: the LARGEST birdhouse (a multi-part house with an annex and a deck) on the "
    "branch, with a sparrow on a perch and two further empty perches marked with dotted question-mark "
