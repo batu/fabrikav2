@@ -14,7 +14,7 @@ export function claimedRungOf(bird: BirdId): Rung {
 }
 
 export function isBirdOpen(bird: BirdId): boolean {
-  return birdOpen(bird, claimedRungOf);
+  return birdOpen(bird, claimedRungOf, gameState.sanctuary.houseTier);
 }
 
 export function ladderFor(bird: BirdId): Ladder {

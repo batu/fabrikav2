@@ -124,29 +124,37 @@ export const REMOTE_CONFIG_DEFAULTS: RemoteConfigValues = {
   sanctuaryUnlockLevel: 15,
   // Below the tease count the card is fully hidden; from it the silhouette
   // and species show, so the player knows what they are collecting towards.
-  // 2026-09-18: the classifier returns five ranked candidates per sprite, and
-  // tools/birdtypes/shape_ladder.py picks each sprite's species to serve pacing
-  // rather than accuracy: the sparrow flows from level 1, the robin is held to
-  // one per level until 16, the bluebird until 22. Thresholds are then fitted to
-  // that supply with the Collection's level-10 gate as the origin
-  // (tools/birdtypes/ladder_report.py prints where each rung lands).
+  // 2026-09-18 cadence pass. The two progressions take turns instead of racing:
+  // the nest box's second tier opens the robin, the robin's hat opens the
+  // bluebird, and every threshold is fitted to the supply that
+  // tools/birdtypes/shape_ladder.py lays down, which is itself chosen from the
+  // classifier's five candidates per sprite. tools/birdtypes/cadence_report.py
+  // walks a player through all 92 levels and prints the schedule; re-run it
+  // before changing any number here or in the prices below.
   //
-  // Sparrow rung 1 is banked by the gate, so opening the Collection always pays
-  // out at once. Each later bird opens on the previous bird's second rung with a
-  // small bank, which claims its first rung as a welcome, then climbs with play.
-  // Player-facing cadence: L10 sparrow 1, L14 sparrow 2 + robin opens and claims,
-  // L20 robin 2 + bluebird opens and claims, L26 bluebird 2, L28 sparrow 3,
-  // L33 robin 3, L40 bluebird 3.
+  // Measured order for a player who banks their coins (45 a level, no idle
+  // collection), with the gap in levels between events:
+  //   L10 sparrow card   L14 build the nest box (4)   L20 sparrow hat (6)
+  //   L24 tier 2, which opens the robin (4)           L30 robin card (6)
+  //   L34 sparrow costume (4)   L37 tier 3 (3)
+  //   L42 robin hat, which opens the bluebird (5)     L48 bluebird card (6)
+  //   L54 robin costume (6)     L59 bluebird hat (5)  L66 bluebird costume (7)
+  //
+  // The robin's first rung is deliberately cheap: it is the introduction the
+  // tier-2 upgrade just paid for, and its supply is thin in the levels right
+  // after. The bluebird's rungs are the lowest of the three because its supply
+  // tops out at 125 across the levels that follow it — it is the scarcest
+  // species that has card art, and lowering its rungs beat regenerating the art.
   sparrowTeaseCount: 5,
-  sparrowUnlockCount: 40,
-  sparrowHatCount: 56,
-  sparrowCardiganCount: 110,
-  robinUnlockCount: 12,
-  robinHatCount: 25,
-  robinCardiganCount: 51,
-  bluebirdUnlockCount: 15,
-  bluebirdHatCount: 31,
-  bluebirdCardiganCount: 65,
+  sparrowUnlockCount: 50,
+  sparrowHatCount: 100,
+  sparrowCardiganCount: 170,
+  robinUnlockCount: 10,
+  robinHatCount: 80,
+  robinCardiganCount: 130,
+  bluebirdUnlockCount: 20,
+  bluebirdHatCount: 50,
+  bluebirdCardiganCount: 70,
   // 2026-09-18 economy pass. A level pays levelCompleteCoinReward (45), so a
   // player who never buys hints reaches the level-15 gate with roughly 675
   // coins. The old 150/300/900 let them buy tier 1 AND tier 2 in the same
@@ -157,9 +165,18 @@ export const REMOTE_CONFIG_DEFAULTS: RemoteConfigValues = {
   // is between 3 and 10 levels of play and makes the Sanctuary the reason to
   // come back. Prices are also a hint-coin comparison (250 single, 600 bundle),
   // so tier 2 and 3 deliberately cost more than a hint bundle.
-  housePriceTier1: 150,
-  housePriceTier2: 800,
-  housePriceTier3: 1200,
+  // Prices are set by when the purchase should land, not by feel: coins arrive at
+  // 45 a level and a price is affordable once the stock reaches it, so each price
+  // is the stock the player will be holding on its intended level. 500 lands the
+  // build on the level the Sanctuary opens, 550 the second tier at L24, 600 the
+  // third at L37, each after the previous purchase drained the stock. Idle coins
+  // are a bonus on top: a player who collects a full window every ten levels
+  // reaches tier 2 around L18, which puts it just ahead of the sparrow's hat.
+  // If that inversion matters more than the idle reward, shorten the cap rather
+  // than raising this price, which would strand the player who never returns.
+  housePriceTier1: 500,
+  housePriceTier2: 550,
+  housePriceTier3: 600,
   sanctuaryCoinsPerHourTier1: 15,
   sanctuaryCoinsPerHourTier2: 30,
   sanctuaryCoinsPerHourTier3: 60,
