@@ -495,7 +495,7 @@ export function wireSanctuaryPage(page: ParentNode): void {
     const overlay = document.getElementById('hud-overlay');
     // Fly to the PAGE header's coin pill: the home pill is hidden under the
     // page, so the number the player can see must be the one that counts up.
-    const headerPill = page.querySelector<HTMLElement>('.shop-header-coin-pill');
+    const headerPill = page.querySelector<HTMLElement>('.home-page-header .home-coin-pill');
     void animateCoinsToBalance({
       amount: coins,
       source: pile,
@@ -546,7 +546,7 @@ export function wireSanctuaryPage(page: ParentNode): void {
     else house.style.opacity = '0';
     // The page's own header pill is the visible wallet here (the home shell's
     // pill sits behind the page), so the coins leave from it and it counts down.
-    const pill = page.querySelector<HTMLElement>('.shop-header-coin-pill');
+    const pill = page.querySelector<HTMLElement>('.home-page-header .home-coin-pill');
     animateCoinsToBalance({
       amount: price,
       source: pill,
