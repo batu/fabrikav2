@@ -6062,11 +6062,25 @@ body:has(#home-page-overlay) #tutorial-overlay { display: none; }
 /* The Collection sits on the Sanctuary's sky and tree rather than a cream
    panel, and on both meta pages the sliding panel's cream strip above the
    bar is gone: the body itself runs to the panel's bottom edge, under the bar. */
-:is(.home-page-collection, .home-page-sanctuary) .home-page-slide { padding-bottom: 0; margin-bottom: 0; }
-/* The bar overlaps the panel's bottom 30px (its own top padding) instead of
-   the panel growing under it: a negative margin on the bar is honoured the
-   same way by WebKit and Blink, the growing panel's was not. */
-:is(.home-page-collection, .home-page-sanctuary) .home-page-nav { margin-top: -30px; }
+/* The page runs the full height, under the bar: the bar floats on the scene
+   instead of sitting on a panel of its own. Content that must stay reachable
+   (the deck, its dots, the build sheet) keeps clear of the bar by padding. */
+:is(.home-page-collection, .home-page-sanctuary) .home-page-slide {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  padding: 0;
+  border-radius: 0;
+}
+:is(.home-page-collection, .home-page-sanctuary) .home-page-nav {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: 0;
+}
+.home-page-sanctuary .sanctuary-sheet-root { bottom: 140px; }
+.home-page-collection .collection-deck-wrap { padding-bottom: 150px; }
 .home-page-collection .home-page-body { position: relative; background: #dfe9d3; }
 .collection-backdrop { position: absolute; inset: 0; overflow: hidden; }
 .collection-backdrop .sanctuary-bg { position: absolute; max-width: none; }
