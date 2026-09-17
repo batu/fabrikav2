@@ -83,3 +83,28 @@ Batu's phone counts birds on every level (counter moves on a played level), the 
 - **Two separate one-shots at the Sanctuary unlock**: the level-complete hand-off and
   the home tile's pop animation. Collapsing them into one looks like a simplification
   and silently kills the tile reveal.
+
+## Unit suite state (ran 2026-09-18, nothing rewritten yet)
+
+`npx vitest run` from `games/find_the_bird`: **55 failed, 743 passed**. Tests are
+deliberately deferred to the end of this branch, so most failures are expectations
+this work invalidated on purpose. Sorted so the end-of-branch pass knows what to
+rewrite versus what to investigate:
+
+Stale by design (rewrite to the new behaviour): `sanctuary-page` (40),
+`collection-page` (21), `rewarded-hint-ui` (21), `meta-nav-bar` (13),
+`collection-state` (11), `collection-sanctuary-gating` (7 — the three
+`expected true to be false` are the arrival-based gates), `sanctuary-layout` (4),
+`sanctuary-state` (3 — the save object gained `tileUnlockPopShown`),
+`pickup-audio` (3), `achievement-home-routing` (3).
+
+Two are NOT about this feature and want a decision:
+
+- **`five-square-campaign` bundle cap.** The bundled manifest's 44 levels weigh
+  **149.9 MB** against the test's 100 MiB constant, which dates from the
+  five-starter era. The real iOS gate is 200 MB total, and the skill's arithmetic
+  puts us at roughly 194 MB with non-level public and manifests. Passing, but with
+  about 6 MB of headroom: adding bundled levels or large assets will break the
+  store build before it breaks this test.
+- **`cozy_interiors_cozy_greenhouse_conservatory_bird_73c9` ships 8 birds** where
+  the campaign test wants at least 10. A shipped level, not a new one.
