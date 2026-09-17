@@ -266,10 +266,6 @@ export function setGameModeChangeCallback(_cb: (() => void) | null): void {
  * Pills are reused across updates rather than re-rendered: this runs on every
  * pickup, and replacing the node would cut the pulse animation off mid-flight.
  */
-// Pickup counts as of the last pulse, so the pulse can tell which species a
-// pickup just counted towards. Only the pulse consumes the difference: the
-// plain update runs first on every pickup and would otherwise eat it.
-const counterCountsPulsed = new Map<BirdId, number>();
 
 function pillMarkup(counter: BirdCounter): HTMLButtonElement {
   const pill = document.createElement('button');
@@ -321,8 +317,6 @@ function updateBirdCounters(): void {
     pill.classList.toggle('hud-bird-pill--ready', counter.ready);
     const count = pill.querySelector('.count');
     if (count !== null && count.textContent !== counter.label) count.textContent = counter.label;
-    // Baseline only: a pill that has just appeared has nothing to pop about.
-    if (!counterCountsPulsed.has(counter.bird)) counterCountsPulsed.set(counter.bird, counter.count);
   });
   for (const pill of [...column.children]) {
     if (!wanted.has(pill.id)) pill.remove();
@@ -346,31 +340,9 @@ function pulsePill(elementId: string): void {
 /** Pulse one bird's pill, for the species a pickup just counted towards. */
 export function pulseBirdCounter(bird: BirdId): void {
   updateBirdCounters();
-  counterCountsPulsed.set(bird, gameState.birdCount(bird));
   pulsePill(birdCounterElementId(bird));
 }
 
-/**
- * Old name, still the only pulse the scene knows. The scene cannot yet say
- * which species it counted, so the pill whose number moved in this update is
- * the one that gets the pop; that is the picked-up species in every case but a
- * no-op, where the first pill keeps the old behaviour.
- */
-export function pulseSparrowCounter(): void {
-  updateBirdCounters();
-  const moved: BirdId[] = [];
-  for (const [bird, since] of counterCountsPulsed) {
-    const now = gameState.birdCount(bird);
-    if (now !== since) moved.push(bird);
-    counterCountsPulsed.set(bird, now);
-  }
-  if (moved.length > 0) {
-    for (const bird of moved) pulsePill(birdCounterElementId(bird));
-    return;
-  }
-  const first = document.querySelector<HTMLElement>('#bird-counters .hud-bird-pill');
-  if (first !== null) pulsePill(first.id);
-}
 
 export function updateHUD(totalDogs: number, restorationActive: boolean = false): void {
   lastKnownTotalDogs = totalDogs;

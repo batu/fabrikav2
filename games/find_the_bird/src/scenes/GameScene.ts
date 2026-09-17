@@ -38,7 +38,7 @@ import {
   setLevelSelectCallback,
   setHomeCallback,
   setGameModeChangeCallback,
-  pulseSparrowCounter,
+  pulseBirdCounter,
   openPage,
 } from '../ui/HUD';
 import { FindPraise } from '../ui/FindPraise';
@@ -48,7 +48,8 @@ import { birdTypeSnapshot, loadBirdTypes, birdType } from '../data/birdTypes';
 import { currentMetaGates } from '../ui/metaNavBar';
 import { currentCompletionHandOff } from '../ui/completionHandOff';
 import { isBirdOpen, ladderFor } from '../collection/ladders';
-import { BIRD_DEFS, isBirdId } from '../collection/birds';
+import { birdCounterElementId } from '../collection/counters';
+import { BIRD_DEFS, isBirdId, type BirdId } from '../collection/birds';
 import { showTutorialOverlay, phaserPointToCssPoint, type TutorialHandle } from '../ui/TutorialOverlay';
 import { preloadLevelCompleteAssets, showLevelCompleteOverlay, dismissLevelCompleteOverlay } from '../ui/LevelCompleteOverlay';
 import { presentAchievementUnlocks } from '../ui/AchievementToast';
@@ -300,7 +301,11 @@ export class GameScene extends Phaser.Scene {
    *  counter. Set per find before its animation spawns and read at spawn,
    *  landing pop and pulse. Two finds of different kinds inside one flight
    *  can cross, which costs a pulse on the wrong pill and nothing else. */
-  private pickupCounterId: 'dog-counter' | 'sparrow-counter' = 'dog-counter';
+  /** Element the pickup flies to: a bird's own counter pill, else the plain
+   *  found counter. */
+  private pickupCounterId = 'dog-counter';
+  /** Species the pickup counted towards, so its pill takes the pop. */
+  private pickupCounterBird: BirdId | null = null;
   private pickupAnimationsCompleted: number = 0;
   private microAnimationLayer: MicroAnimationLayer | null = null;
   private levelComplete: boolean = false;
@@ -1590,12 +1595,12 @@ export class GameScene extends Phaser.Scene {
    * a level the classifier has not reached) are simply not counted — the tag
    * file fails closed, so a pickup is never mis-attributed.
    */
-  private countCollectedBird(dog: LevelDog, canvasX: number, canvasY: number): boolean {
+  private countCollectedBird(dog: LevelDog, canvasX: number, canvasY: number): BirdId | null {
     const level = this.level;
-    if (level === null) return false;
+    if (level === null) return null;
     const index = birdTypeSnapshot();
     const tag = birdType(index, level.id, dog.id);
-    if (tag === null || !isBirdId(tag)) return false;
+    if (tag === null || !isBirdId(tag)) return null;
 
     // Nothing counts before the Collection itself opens (2026-09-18). The tile
     // is the feature's front door, and banking pickups behind it handed the
@@ -1605,20 +1610,20 @@ export class GameScene extends Phaser.Scene {
     // owed a claim the player never played for. Counting from the very first
     // pickup was generous, and twice today it turned out to be generous with
     // the one thing the ladder is made of.
-    if (!currentMetaGates().collectionUnlocked || !isBirdOpen(tag)) return false;
+    if (!currentMetaGates().collectionUnlocked || !isBirdOpen(tag)) return null;
     const total = gameState.incrementBirdCount(tag);
     void analytics.birdCollected({ bird_type: tag, level_id: level.id, total });
 
     // The chip is a countdown, not a tally: it speaks at every ten, at every
     // one inside the last ten, and once more when the rung is earned.
     const rung = ladderFor(tag);
-    if (rung.target === null) return true;
+    if (rung.target === null) return tag;
     const justEarned = rung.ready && total === rung.target;
     const speaks = justEarned || rung.remaining <= 10 || rung.remaining % 10 === 0;
-    if (!speaks || (rung.ready && !justEarned)) return true;
+    if (!speaks || (rung.ready && !justEarned)) return tag;
     const css = phaserPointToCssPoint(this.scale.canvas, GAME.WIDTH, GAME.HEIGHT, canvasX, canvasY);
     this.findPraise.showChip(css.x, css.y, justEarned ? `New ${BIRD_DEFS[tag].name} level unlocked!` : `${String(rung.remaining)} left!`, { loud: true });
-    return true;
+    return tag;
   }
 
   /** Dog found — reveal Voronoi cell clipped to polygon bounds. */
@@ -1632,11 +1637,12 @@ export class GameScene extends Phaser.Scene {
     gameState.foundDogIds.add(dog.id);
     this.refreshDebugBirdStrip();
     if (this.debugWheelRing) { this.tweens.killTweensOf(this.debugWheelRing); this.debugWheelRing.destroy(); this.debugWheelRing = null; }
-    const countedSparrow = isFirstFind && this.countCollectedBird(dog, canvasX, canvasY);
-    // The sparrow pill only exists once the Collection is open; before that
-    // the bird flies to the plain counter like any other.
-    const sparrowPill = document.getElementById('sparrow-counter');
-    this.pickupCounterId = countedSparrow && sparrowPill !== null && !sparrowPill.hidden ? 'sparrow-counter' : 'dog-counter';
+    const countedBird = isFirstFind ? this.countCollectedBird(dog, canvasX, canvasY) : null;
+    // A bird's pill only exists while its card is collecting; before that the
+    // bird flies to the plain counter like any other.
+    const birdPill = countedBird === null ? null : document.getElementById(birdCounterElementId(countedBird));
+    this.pickupCounterBird = birdPill === null ? null : countedBird;
+    this.pickupCounterId = birdPill === null ? 'dog-counter' : birdPill.id;
     if (this.tutorialHandle?.stage === 'hinted-find' && dog.id === this.tutorialTargetDogId) {
       this.dismissHintCircle();
     }
@@ -2809,8 +2815,8 @@ export class GameScene extends Phaser.Scene {
   }
 
   private pulseDogCounter(): void {
-    if (this.pickupCounterId === 'sparrow-counter') {
-      pulseSparrowCounter();
+    if (this.pickupCounterBird !== null) {
+      pulseBirdCounter(this.pickupCounterBird);
       return;
     }
     const counter = document.getElementById('dog-counter');
