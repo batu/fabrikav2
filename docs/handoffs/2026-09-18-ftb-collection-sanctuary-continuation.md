@@ -80,6 +80,11 @@ Batu's phone counts birds on every level (counter moves on a played level), the 
 - **The cadence simulation finds a bird's predecessor by stepping back one index**,
   which wraps to the last bird for the first one. It is harmless only because the
   sparrow's rule is `always`.
+- **Do not read game state through `import('/src/core/GameState.ts')` in a probe.**
+  Vite's hot reload hands out a fresh module with its own singleton, so seeds
+  written that way are invisible to the running app and counters look frozen.
+  Seed through the harness (`seedProgress`) and read the DOM, or reload first.
+  Three probes died on this in one run.
 - **Two separate one-shots at the Sanctuary unlock**: the level-complete hand-off and
   the home tile's pop animation. Collapsing them into one looks like a simplification
   and silently kills the tile reveal.
