@@ -64,6 +64,51 @@ describe('owned native build output', () => {
     expect(path.basename(path.dirname(main))).toBe(path.basename(path.dirname(worktree)));
   });
 
+  const cacheRoot = path.join(os.homedir(), 'Library', 'Caches', 'fabrikav2-native-shell');
+
+  const buildInLane = (game) => runIosBuild({ gameDir: path.join(repoRoot, 'games', game), configuration: 'Debug', args: ['build'],
+    run: (file, args) => {
+      fs.writeFileSync(args[args.indexOf('--result-file') + 1], JSON.stringify({ output_dir: '/private/tmp/owned-debug' }));
+      return '** BUILD SUCCEEDED **';
+    },
+  });
+
+  const seedCache = (lane, checkout, ageMs) => {
+    const derived = path.join(cacheRoot, checkout, lane, 'DerivedData');
+    fs.mkdirSync(derived, { recursive: true });
+    const used = new Date(Date.now() - ageMs);
+    fs.utimesSync(derived, used, used);
+    return derived;
+  };
+
+  it('keeps only the three most recently built scratch caches for a lane', () => {
+    const game = `pruneprobe${Math.random().toString(36).slice(2, 8)}`;
+    const lane = `${game}-ios-debug`;
+    const day = 24 * 60 * 60 * 1000;
+    const seeded = [2, 3, 4, 5].map((days, index) => seedCache(lane, `stale${index}`, days * day));
+    try {
+      buildInLane(game);
+      expect(fs.existsSync(seeded[0])).toBe(true);
+      expect(fs.existsSync(seeded[1])).toBe(true);
+      expect(fs.existsSync(seeded[2])).toBe(false);
+      expect(fs.existsSync(seeded[3])).toBe(false);
+    } finally {
+      for (const index of [0, 1, 2, 3]) fs.rmSync(path.join(cacheRoot, `stale${index}`), { recursive: true, force: true });
+    }
+  });
+
+  it('never prunes a cache a concurrent worktree may still be compiling into', () => {
+    const game = `pruneprobe${Math.random().toString(36).slice(2, 8)}`;
+    const lane = `${game}-ios-debug`;
+    const seeded = [1, 2, 3, 4].map((hours, index) => seedCache(lane, `busy${index}`, hours * 60 * 60 * 1000));
+    try {
+      buildInLane(game);
+      for (const cache of seeded) expect(fs.existsSync(cache)).toBe(true);
+    } finally {
+      for (const index of [0, 1, 2, 3]) fs.rmSync(path.join(cacheRoot, `busy${index}`), { recursive: true, force: true });
+    }
+  });
+
   it('never falls back to a stale in-tree build after runner failure', () => {
     expect(() => runIosBuild({ gameDir: '/repo/games/bird', configuration: 'Debug', args: [],
       run: () => { throw new Error('build failed'); },
