@@ -21,7 +21,7 @@ import { centerOf, nudge } from './juice';
 import { hapticFound } from '../haptics/HapticsManager';
 import { analytics } from '../analytics/AnalyticsService';
 import { gameState } from '../core/GameState';
-import { allCardInputs } from '../collection/ladders';
+import { allCardInputs, focusBird } from '../collection/ladders';
 import { BIRD_DEFS } from '../collection/birds';
 import { collectionDeck, HIDDEN_LINE, type CardFrame, type CardViewModel } from '../collection/cardModel';
 import { CARD_STATE_ORDER, type CardState } from '../collection/thresholds';
@@ -221,10 +221,45 @@ export function renderCollectionPageBody(): string {
 }
 
 /**
- * Bind the dots to the deck's own scroll position rather than to swipe events:
- * it stays correct for a flick, a slow drag, a snap-back and a keyboard scroll
- * alike, and needs no gesture state of its own.
+ * Which card the deck is on, read from its scroll position: correct for a
+ * flick, a slow drag, a snap-back and a keyboard scroll alike, with no gesture
+ * state of its own. The dots and the rung tabs both follow this one reading, so
+ * they can never disagree about which card is open.
  */
+function syncDeck(deck: HTMLElement): void {
+  const slides = [...deck.querySelectorAll<HTMLElement>('.collection-slide')];
+  const slideWidth = slides[0]?.offsetWidth ?? deck.clientWidth;
+  if (slides.length === 0 || slideWidth === 0) return;
+  const index = Math.max(0, Math.min(slides.length - 1, Math.round(deck.scrollLeft / slideWidth)));
+  slides.forEach((slide, i) => { slide.classList.toggle('collection-slide--current', i === index); });
+  const dots = deck.parentElement?.querySelectorAll<HTMLElement>('.collection-dot') ?? [];
+  dots.forEach((dot, i) => { dot.classList.toggle('collection-dot--active', i === index); });
+}
+
+/**
+ * Open the deck on the bird the game is talking about. The counter that brings
+ * the player here talks about one bird — a rung that is ready, else the one
+ * closest to ready — so landing on the first card makes them go hunting for it.
+ * Page-open only: after a claim the deck redraws in place and must stay where
+ * the player left it.
+ */
+export function focusCollectionDeck(page: ParentNode): void {
+  const focus = focusBird();
+  const deck = page.querySelector<HTMLElement>('#collection-deck');
+  if (focus === null || deck === null) return;
+  const slides = [...deck.querySelectorAll<HTMLElement>('.collection-slide')];
+  const index = slides.findIndex((slide) => slide.querySelector(`.collection-card[data-bird="${focus.bird}"]`) !== null);
+  const slideWidth = slides[0]?.offsetWidth ?? 0;
+  if (index <= 0 || slideWidth === 0) return;
+  // Set the deck's own scroll rather than calling scrollIntoView on the card.
+  // scrollIntoView walks every scrollable ancestor, and an overflow-hidden one
+  // still scrolls when script asks: it dragged the whole page overlay 280px up
+  // the screen. This can only move the deck, and it jumps rather than gliding
+  // through the cards in between while the page is still sliding in.
+  deck.scrollLeft = index * slideWidth;
+  syncDeck(deck);
+}
+
 export function wireCollectionPage(page: ParentNode): void {
   placeBackdrop(page);
   preloadMetaSounds();
@@ -233,17 +268,16 @@ export function wireCollectionPage(page: ParentNode): void {
   if (deck === null || dots.length === 0) return;
 
   let frame = 0;
-  const sync = (): void => {
-    frame = 0;
-    const slideWidth = deck.querySelector<HTMLElement>('.collection-slide')?.offsetWidth ?? deck.clientWidth;
-    if (slideWidth === 0) return;
-    const index = Math.max(0, Math.min(dots.length - 1, Math.round(deck.scrollLeft / slideWidth)));
-    dots.forEach((dot, i) => { dot.classList.toggle('collection-dot--active', i === index); });
-  };
+  const sync = (): void => { frame = 0; syncDeck(deck); };
   deck.addEventListener('scroll', () => {
     if (frame !== 0) return;
     frame = requestAnimationFrame(sync);
   }, { passive: true });
+  // Mark the current card before the first paint, so its tabs render already
+  // out instead of sliding in from nowhere; the frame after covers the case
+  // where the deck has no layout yet.
+  syncDeck(deck);
+  requestAnimationFrame(sync);
 
   // Claiming a rung: persist, redraw the deck in place, then flip and flare
   // the card so the new art arrives as a reward rather than a refresh.
@@ -252,9 +286,11 @@ export function wireCollectionPage(page: ParentNode): void {
     if (body === null) return null;
     const scrollLeft = deck.scrollLeft;
     body.innerHTML = renderCollectionPageBody();
-    wireCollectionPage(page);
+    // Restore the scroll BEFORE wiring: wiring marks the current card, and a
+    // deck still reading 0 would mark the first one and flash its tabs out.
     const freshDeck = page.querySelector<HTMLElement>('#collection-deck');
     if (freshDeck !== null) freshDeck.scrollLeft = scrollLeft;
+    wireCollectionPage(page);
     return page.querySelector<HTMLElement>(`.collection-card[data-bird="${bird}"]`);
   };
 

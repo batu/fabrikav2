@@ -6197,7 +6197,14 @@ body:has(#home-page-overlay) #tutorial-overlay { display: none; }
 /* Rung tabs down the card's left side, bookmark style, over the border. */
 /* The stack sits just below the card's middle: at the top it crowded the page
    header and the pulled-out tab read as a stray nub above the portrait. */
-.collection-tabs { position: absolute; left: -16%; top: 38%; width: 26%; display: flex; flex-direction: column; gap: 4.5%; z-index: 0; }
+/* Tabs belong to the card the deck is on. At rest the stack hides behind its
+   own card (translated right by more than the amount it overhangs, so even the
+   drop shadow is covered) and slides out only while that card is current;
+   otherwise the next card's stack pokes past the screen edge and reads as
+   debris. Hidden tabs take no taps. The slide-out is the longer, springier of
+   the two, like a bookmark being tugged; tucking away is quick and flat. */
+.collection-tabs { position: absolute; left: -16%; top: 38%; width: 26%; display: flex; flex-direction: column; gap: 4.5%; z-index: 0; transform: translateX(72%); pointer-events: none; transition: transform 200ms cubic-bezier(.4, 0, .9, .35); }
+.collection-slide--current .collection-tabs { transform: translateX(0); pointer-events: auto; transition: transform 300ms cubic-bezier(.34, 1.42, .64, 1); }
 /* Tabs live behind the card. Unselected ones are tucked under its edge; the
    selected one is pulled out, the way a bookmark marks the open page. */
 .collection-tab { position: relative; width: 100%; aspect-ratio: 712 / 482; border: 0; padding: 0; background: url('/ui/collection/tab-open.webp') center / 100% 100% no-repeat; cursor: pointer; transform: translateX(30%); filter: drop-shadow(0 3px 4px rgba(60, 35, 10, .35)); transition: transform 180ms cubic-bezier(.34, 1.4, .64, 1), filter 180ms; transform-origin: 50% 50%; }
@@ -6209,7 +6216,7 @@ body:has(#home-page-overlay) #tutorial-overlay { display: none; }
 .collection-tab--pop { animation: home-nav-unlock-pop 680ms cubic-bezier(.34, 1.56, .64, 1) both; }
 .collection-arch--swap .collection-card-portrait { animation: collection-arch-swap 360ms cubic-bezier(.34, 1.4, .64, 1) both; }
 @keyframes collection-arch-swap { 0% { transform: translateX(-50%) translateY(10%) scale(.92); opacity: 0; } 100% { transform: translateX(-50%) translateY(0) scale(1); opacity: 1; } }
-@media (prefers-reduced-motion: reduce) { .collection-tab--pop, .collection-arch--swap .collection-card-portrait { animation: none; } .collection-tab { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .collection-tab--pop, .collection-arch--swap .collection-card-portrait { animation: none; } .collection-tab, .collection-tabs, .collection-slide--current .collection-tabs { transition: none; } }
 
 .collection-line-lock { height: 82%; width: auto; opacity: .85; filter: drop-shadow(0 2px 2px rgba(60, 35, 10, .35)); }
 

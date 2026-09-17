@@ -17,7 +17,7 @@ import { animateHintsToBalance } from './EconomyTransfer';
 import { getLegalLinks, type LegalLinks } from '../platform/LegalLinks';
 import { privacyConsentService } from '../privacy/PrivacyConsentService';
 import { renderAchievementHeaderBalances, renderAchievementsPageBody, wireAchievementClaimButtons } from './AchievementsPage';
-import { renderCollectionPageBody, wireCollectionPage } from './CollectionPage';
+import { focusCollectionDeck, renderCollectionPageBody, wireCollectionPage } from './CollectionPage';
 import { renderSanctuaryPageBody, wireSanctuaryPage, teardownSanctuaryPage } from './SanctuaryPage';
 import { currentMetaGates, renderMetaNavBar } from './metaNavBar';
 import { focusBird } from '../collection/ladders';
@@ -595,7 +595,7 @@ function swapMetaPage(page: HTMLElement, id: 'collection' | 'sanctuary'): void {
     const body = page.querySelector<HTMLElement>('.home-page-body');
     if (body === null) return;
     body.innerHTML = pageBodyFor(id);
-    if (id === 'collection') wireCollectionPage(page);
+    if (id === 'collection') { wireCollectionPage(page); focusCollectionDeck(page); }
     else wireSanctuaryPage(page);
     const incoming = id === 'collection'
       ? page.querySelector<HTMLElement>('#collection-deck')
@@ -767,7 +767,7 @@ export function openPage(
 
   overlay.appendChild(page);
   if (id === 'achievements') wireAchievementClaimButtons(page);
-  if (id === 'collection') wireCollectionPage(page);
+  if (id === 'collection') { wireCollectionPage(page); focusCollectionDeck(page); }
   if (id === 'sanctuary') wireSanctuaryPage(page);
   if (id === 'collection' || id === 'sanctuary') {
     wireMetaNavBar(page, id);
