@@ -110,7 +110,7 @@ export function sparrowCard(input: CardInputs): CardViewModel {
     state,
     portraitSrc: revealed ? PORTRAITS[state] : teased ? PORTRAITS.silhouette : UNKNOWN_PORTRAIT,
     plaque: revealed ? 'Sparrow' : '? ? ?',
-    ribbon: teased ? 'Garden bird' : '?',
+    ribbon: teased ? 'House sparrow' : '?',
     lines: linesShown ? SPARROW_LINES : [HIDDEN_LINE, HIDDEN_LINE, HIDDEN_LINE],
     progress: next.target === null
       ? null
@@ -123,6 +123,23 @@ export function sparrowCard(input: CardInputs): CardViewModel {
       : revealed
         ? `Sparrow, ${next.target === null ? 'complete' : `${next.remaining} more sparrows towards ${next.label}`}`
         : `Locked bird, ${next.remaining} more sparrows to unlock`,
+  };
+}
+
+/** A bird that is on the roadmap but not collectable yet: the locked frame, nothing known. */
+export function lockedBirdCard(kind: 'robin' | 'bluebird'): CardViewModel {
+  return {
+    kind: 'sparrow',
+    state: 'silhouette',
+    portraitSrc: UNKNOWN_PORTRAIT,
+    plaque: '? ? ?',
+    ribbon: '?',
+    lines: [HIDDEN_LINE, HIDDEN_LINE, HIDDEN_LINE],
+    progress: null,
+    locked: true,
+    claimable: false,
+    tabs: [],
+    ariaLabel: `Locked bird (${kind}), not yet collectable`,
   };
 }
 
@@ -146,5 +163,5 @@ export function unknownCard(): CardViewModel {
 
 /** The whole release-1 deck, in swipe order. */
 export function collectionDeck(input: CardInputs): CardViewModel[] {
-  return [sparrowCard(input), unknownCard()];
+  return [sparrowCard(input), lockedBirdCard('robin'), lockedBirdCard('bluebird'), unknownCard()];
 }

@@ -21,7 +21,7 @@ import { hapticFound } from '../haptics/HapticsManager';
 import { analytics } from '../analytics/AnalyticsService';
 import { gameState } from '../core/GameState';
 import { collectionTeaseCount, collectionThresholds } from '../collection/config';
-import { collectionDeck, type CardViewModel } from '../collection/cardModel';
+import { collectionDeck, HIDDEN_LINE, type CardViewModel } from '../collection/cardModel';
 import { CARD_STATE_ORDER, clampRung, type CardState } from '../collection/thresholds';
 
 /**
@@ -102,16 +102,19 @@ const PORTRAIT_STYLE = 'height:97%;width:auto;bottom:-4%';
 
 function renderCard(card: CardViewModel, index: number): string {
   const f = frameFor(card);
-  const lines = card.lines
-    .map((line) => `<span class="collection-line">${line}</span>`)
-    .join('');
+  // Hidden copy shows a padlock, not dashes: the panel is something that
+  // unlocks, and the lock says so where blanks only said "nothing here".
+  const hidden = card.lines.every((line) => line === HIDDEN_LINE);
+  const lines = hidden
+    ? '<img class="collection-line-lock" src="/ui/sanctuary/padlock.png" alt="" aria-hidden="true">'
+    : card.lines.map((line) => `<span class="collection-line">${line}</span>`).join('');
   // The meter lives under the card, not on it: the card stays art, the bar is
   // the deck's chrome, and the Unlock button takes the same slot when a rung
   // is ready.
   const meter = card.claimable && card.progress !== null
     ? `<button class="collection-unlock-btn" type="button" data-claim-rung="${CARD_STATE_ORDER.indexOf(card.state as CardState) + 1}">Unlock ${card.progress.label === 'Unlock' ? 'Sparrow' : card.progress.label}</button>`
     : card.progress === null
-      ? (card.kind === 'sparrow'
+      ? (card.kind === 'sparrow' && !card.locked
         ? '<div class="collection-meter collection-meter--done" role="group" aria-label="Complete"><span class="collection-meter-text">Complete</span></div>'
         : '<div class="collection-meter collection-meter--empty" aria-hidden="true"></div>')
       : `
