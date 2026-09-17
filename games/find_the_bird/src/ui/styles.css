@@ -6233,3 +6233,7 @@ body:has(#home-page-overlay) #tutorial-overlay { display: none; }
 /* Empty perch: a plus where the bird's feet would go. */
 .sanctuary-pedestal--empty { display: flex; align-items: flex-end; justify-content: center; width: 60px; }
 .sanctuary-perch-plus { display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; margin-bottom: 4px; border-radius: 50%; background: #fff8e8; border: 3px solid #d8bf8e; color: #6f8048; font-family: 'FredokaOne', 'Nunito', sans-serif; font-size: 26px; line-height: 1; box-shadow: 0 3px 0 rgba(103, 67, 38, .3); }
+
+/* Meta page header: the coin pill carries the home-style green plus. */
+:is(.home-page-collection, .home-page-sanctuary) .shop-header-coin-pill { position: relative; cursor: pointer; }
+:is(.home-page-collection, .home-page-sanctuary) .shop-header-plus { position: absolute; left: -10px; bottom: -8px; }

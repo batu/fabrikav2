@@ -178,11 +178,14 @@ function dropIn(element: HTMLElement): void {
 }
 
 /** Idle life for a housed bird: breathe, blink, and the occasional hop. */
-function startIdle(element: HTMLElement): void {
+/** `seat` offsets every timeline so two tenants never breathe, blink or hop
+ *  in step; WAAPI negative delays start each loop part-way through. */
+function startIdle(element: HTMLElement, seat = 0): void {
   if (prefersReducedMotion()) return;
+  const phase = (seat * 0.37) % 1;
   track(element,
     [{ transform: 'scale(1)' }, { transform: 'scale(1.03)' }, { transform: 'scale(1)' }],
-    { duration: 2400, iterations: Infinity, easing: 'ease-in-out' },
+    { duration: 2400, iterations: Infinity, easing: 'ease-in-out', delay: -phase * 2400 },
   );
   // Blink and hop are separate infinite timelines with long quiet stretches, so
   // the bird never looks metronomic.
@@ -193,7 +196,7 @@ function startIdle(element: HTMLElement): void {
       { transform: 'scaleY(0.92)', offset: 0.975 },
       { transform: 'scaleY(1)', offset: 1 },
     ],
-    { duration: 5200, iterations: Infinity, composite: 'add' },
+    { duration: 5200, iterations: Infinity, composite: 'add', delay: -phase * 5200 },
   );
   track(element,
     [
@@ -202,7 +205,7 @@ function startIdle(element: HTMLElement): void {
       { transform: 'translateY(-6%)', offset: 0.95 },
       { transform: 'translateY(0)', offset: 1 },
     ],
-    { duration: 11000, iterations: Infinity, composite: 'add', easing: 'ease-out' },
+    { duration: 11000, iterations: Infinity, composite: 'add', easing: 'ease-out', delay: -((phase + 0.5) % 1) * 11000 },
   );
 }
 
@@ -330,7 +333,7 @@ export function wireSanctuaryPage(page: ParentNode): void {
           );
         }
       } else {
-        startIdle(slot);
+        startIdle(slot, pedestal.index);
       }
     }
 

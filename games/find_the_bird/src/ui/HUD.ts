@@ -764,7 +764,14 @@ export function openPage(
   if (id === 'achievements') wireAchievementClaimButtons(page);
   if (id === 'collection') wireCollectionPage(page);
   if (id === 'sanctuary') wireSanctuaryPage(page);
-  if (id === 'collection' || id === 'sanctuary') wireMetaNavBar(page, id);
+  if (id === 'collection' || id === 'sanctuary') {
+    wireMetaNavBar(page, id);
+    // The header's coin pill is a shop shortcut, plus sign and all.
+    page.querySelector<HTMLElement>('.shop-header-coin-pill')?.addEventListener('click', () => {
+      playUITap();
+      openPage('shop', { scrollTo: 'coins' });
+    });
+  }
   shell?.setAttribute('inert', '');
   pageEscapeHandler = (event: KeyboardEvent): void => {
     if (event.key === 'Escape') {
@@ -902,6 +909,7 @@ function renderShopHeaderBalances(options: { hints?: boolean } = {}): string {
       <div class="shop-header-balance-pill shop-header-coin-pill" data-economy-target="coins" aria-label="Coin balance">
         <img src="/ui/menu-icons/icon_coin.png" alt="" aria-hidden="true" data-economy-anchor="coin">
         <span class="shop-header-coin-count">${wallet.coins}</span>
+        ${hints ? '' : '<button class="home-pill-plus shop-header-plus" type="button" aria-label="Buy more coins">+</button>'}
       </div>
       ${hints ? `<div class="shop-header-balance-pill shop-header-hint-pill" data-economy-target="hints" aria-label="Hint balance">
         <img src="/ui/menu-icons/icon_hint_magnifier.png" alt="" aria-hidden="true" data-economy-anchor="hint">

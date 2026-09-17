@@ -73,7 +73,7 @@ function toCss(point: ManifestPoint, bg: Rect, scale: number): ManifestPoint {
  * clamped so no gap can appear at either edge.
  */
 /** Where the branch's top surface sits, as a fraction of the viewport height. */
-const BRANCH_VIEWPORT_Y = 0.66;
+const BRANCH_VIEWPORT_Y = 0.70;
 /** Birds are drawn larger than the perch geometry alone would give them. */
 const BIRD_SCALE = 1.5;
 
@@ -82,7 +82,11 @@ export function fitBackground(
   viewport: { width: number; height: number },
 ): { rect: Rect; scale: number } {
   const [bgW, bgH] = manifest.background.size;
-  const scale = Math.max(viewport.width / bgW, viewport.height / bgH);
+  const cover = Math.max(viewport.width / bgW, viewport.height / bgH);
+  // On a phone the cover fit already spans the viewport exactly, so the branch
+  // cannot be pushed lower without zooming: scale up just enough that the
+  // branch top lands at BRANCH_VIEWPORT_Y with the image still covering.
+  const scale = Math.max(cover, (viewport.height * BRANCH_VIEWPORT_Y) / manifest.houseAnchor.bottom);
   const width = bgW * scale;
   const height = bgH * scale;
   const left = (viewport.width - width) / 2;
