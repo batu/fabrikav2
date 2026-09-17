@@ -3519,7 +3519,7 @@
   max-width: calc(100% / 3);
   align-items: center;
 }
-#home-shell .home-nav-bar[data-slots="4"] > button {
+:is(#home-shell, .home-page-nav) .home-nav-bar[data-slots="4"] > button {
   flex: 0 0 calc(100% / 4);
   width: calc(100% / 4);
   max-width: calc(100% / 4);
@@ -3575,7 +3575,7 @@
   text-shadow:
     0 1px 0 #fff8e8, 0 2px 3px rgba(51, 66, 61, 0.24);
 }
-#home-shell .home-nav-btn img {
+:is(#home-shell, .home-page-nav) .home-nav-btn img {
   display: block;
   width: 82px;
   height: 82px;
@@ -3590,15 +3590,15 @@
     drop-shadow(1.06px -1.06px 0 #fff) drop-shadow(-1.06px -1.06px 0 #fff)
     drop-shadow(0 4px 5px rgba(70, 36, 10, 0.5));
 }
-#home-shell #home-nav-achievements img {
+:is(#home-shell, .home-page-nav) #home-nav-achievements img {
   width: 78px;
   height: 78px;
 }
 
 /* Pull the side slots a few px toward the middle (A2/A3, build-18 device
    review). `translate` composes with the tap-bounce scale animation. */
-#home-shell .home-nav-bar > .home-nav-btn:first-child { translate: 6px 0; }
-#home-shell .home-nav-bar > .home-nav-btn:last-child { translate: -6px 0; }
+:is(#home-shell, .home-page-nav) .home-nav-bar > .home-nav-btn:first-child { translate: 6px 0; }
+:is(#home-shell, .home-page-nav) .home-nav-bar > .home-nav-btn:last-child { translate: -6px 0; }
 
 /* Locked tiles (Sanctuary, Birds until their features ship): desaturated art
    with the shared padlock at the icon's bottom-right, same treatment as the
@@ -3647,7 +3647,7 @@
   pointer-events: none;
 }
 
-#home-shell .home-nav-btn > span {
+:is(#home-shell, .home-page-nav) .home-nav-btn > span {
   position: absolute;
   right: 0;
   bottom: calc(env(safe-area-inset-bottom, 0px) * 0.55 + 10px);
@@ -5704,7 +5704,7 @@
 
 /* Claimable-achievements attention: red dot + gentle icon bounce. */
 :is(#home-shell, .home-page-nav) .home-nav-btn { position: relative; }
-#home-shell .home-nav-btn > span.home-claim-dot--nav {
+:is(#home-shell, .home-page-nav) .home-nav-btn > span.home-claim-dot--nav {
   /* Placed by MEASUREMENT, not by eye: the icon is centred in the button and
      the source PNG carries transparent padding (bbox 20,12,491,500 of 512 =>
      4.1% right, 2.3% top), so the artwork's real top-right corner sits at
@@ -5713,7 +5713,7 @@
      the button — measured at x=14 when the corner was at x=107. Rides the
      same bounce as the icon. */
   position: absolute;
-  /* Selector must out-specify `#home-shell .home-nav-btn > span` (the label
+  /* Selector must out-specify `:is(#home-shell, .home-page-nav) .home-nav-btn > span` (the label
      rule), which pins left:0/right:0 — that rule, not the maths, is why an
      earlier attempt kept landing at the button's left edge.
      +27.8px from centre = icon half-width (39) minus the art's transparent
@@ -5733,7 +5733,7 @@
   animation: home-nav-claim-bounce 1.6s ease-in-out infinite;
 }
 #home-shell .home-claim-attention .home-nav-btn-icon,
-#home-shell .home-nav-btn.home-claim-attention img {
+:is(#home-shell, .home-page-nav) .home-nav-btn.home-claim-attention img {
   animation: home-nav-claim-bounce 1.6s ease-in-out infinite;
 }
 @keyframes home-nav-claim-bounce {
@@ -5744,8 +5744,8 @@
   40% { transform: translateY(0); }
 }
 @media (prefers-reduced-motion: reduce) {
-  #home-shell .home-nav-attention img,
-  #home-shell .home-nav-btn > span.home-claim-dot--nav { animation: none; }
+  :is(#home-shell, .home-page-nav) .home-nav-attention img,
+  :is(#home-shell, .home-page-nav) .home-nav-btn > span.home-claim-dot--nav { animation: none; }
 }
 
 
@@ -5901,7 +5901,7 @@ body:has(#home-page-overlay) #tutorial-overlay { display: none; }
 /* Home tile unlock pop. */
 :is(#home-shell, .home-page-nav) .home-nav-btn--unlock-pop { animation: home-nav-unlock-pop 680ms cubic-bezier(.34, 1.56, .64, 1) both; }
 @keyframes home-nav-unlock-pop { 0% { transform: scale(.82); } 45% { transform: scale(1.14); } 70% { transform: scale(.97); } 100% { transform: scale(1); } }
-@media (prefers-reduced-motion: reduce) { #home-shell .home-nav-btn--unlock-pop { animation: none; } }
+@media (prefers-reduced-motion: reduce) { :is(#home-shell, .home-page-nav) .home-nav-btn--unlock-pop { animation: none; } }
 
 /* ── Sanctuary ───────────────────────────────────────────────────── */
 .home-page-sanctuary .home-page-body { padding: 0; overflow: hidden; }

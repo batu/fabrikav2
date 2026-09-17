@@ -137,10 +137,14 @@ describe("home menu polish regressions", () => {
     expect(play.minHeight).toBe("94px");
     expect(play.margin).toBe("-52px auto 6px");
 
-    const sideNavIconRule = CSS_TEXT.match(/#home-shell \.home-nav-btn img\s*\{([^}]*)\}/s)?.[1] ?? "";
+    // 2026-09-17: nav rules are scoped to the home shell AND the in-page bar,
+    // because the Collection and Sanctuary show the same bar; unscoped, the
+    // page rendered the icons at their intrinsic size and clipped them.
+    const navScope = ":is\\(#home-shell, \\.home-page-nav\\)";
+    const sideNavIconRule = CSS_TEXT.match(new RegExp(`${navScope} \\.home-nav-btn img\\s*\\{([^}]*)\\}`, "s"))?.[1] ?? "";
     expect(sideNavIconRule).toContain("margin-inline: auto");
     expect(sideNavIconRule).toContain("transform: translateY(-8px)");
-    expect(CSS_TEXT).toMatch(/#home-shell #home-nav-achievements img\s*\{[^}]*width:\s*78px;[^}]*height:\s*78px;/s);
+    expect(CSS_TEXT).toMatch(new RegExp(`${navScope} #home-nav-achievements img\\s*\\{[^}]*width:\\s*78px;[^}]*height:\\s*78px;`, "s"));
     expect(CSS_TEXT).not.toContain(".home-nav-play-btn");
     // 2026-08-05: labels dropped 20px — text was overlapping the nav icons.
     expect(CSS_TEXT).toContain("bottom: calc(env(safe-area-inset-bottom, 0px) * 0.55 + 10px);");
