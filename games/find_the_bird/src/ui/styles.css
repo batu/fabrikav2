@@ -3098,7 +3098,7 @@
   margin-top: -6px;
 }
 
-#home-shell .home-balance-pill {
+:is(#home-shell, .home-page-header) .home-balance-pill {
   position: relative;
   display: inline-flex;
   align-items: center;
@@ -3122,7 +3122,7 @@
   line-height: 1;
 }
 
-#home-shell .home-balance-pill img {
+:is(#home-shell, .home-page-header) .home-balance-pill img {
   width: 28px;
   height: 28px;
   object-fit: contain;
@@ -3135,7 +3135,7 @@
     drop-shadow(0 3px 3px rgba(70, 40, 10, 0.3));
 }
 
-#home-shell .home-balance-pill span {
+:is(#home-shell, .home-page-header) .home-balance-pill span {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -5258,7 +5258,7 @@
   background-repeat: no-repeat, repeat;
 }
 
-#home-shell .home-balance-pill,
+:is(#home-shell, .home-page-header) .home-balance-pill,
 .shop-header-balance-pill,
 .fail-rescue-balance,
 #level-complete-overlay .fab-complete-balance {
@@ -6237,9 +6237,8 @@ body:has(#home-page-overlay) #tutorial-overlay { display: none; }
 .sanctuary-pedestal--empty { display: flex; align-items: flex-end; justify-content: center; width: 60px; }
 .sanctuary-perch-plus { display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; margin-bottom: 4px; border-radius: 50%; background: #fff8e8; border: 3px solid #d8bf8e; color: #6f8048; font-family: 'FredokaOne', 'Nunito', sans-serif; font-size: 26px; line-height: 1; box-shadow: 0 3px 0 rgba(103, 67, 38, .3); }
 
-/* Meta page header: the coin pill carries the home-style green plus. */
-:is(.home-page-collection, .home-page-sanctuary) .shop-header-coin-pill { position: relative; cursor: pointer; }
-:is(.home-page-collection, .home-page-sanctuary) .shop-header-plus { position: absolute; left: -10px; bottom: -8px; }
+/* Meta page header: home's coin pill, tappable as a whole. */
+.home-page-header .home-coin-pill { cursor: pointer; }
 
 /* ── Meta-page juice: particle bursts (see src/ui/juice.ts) ─────────── */
 

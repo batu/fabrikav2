@@ -711,7 +711,7 @@ export function openPage(
         <img class="home-page-back-art" src="/ui/page-header/back_button.png" alt="" aria-hidden="true">
       </button>
       <h2 id="home-page-title" class="home-page-title" tabindex="-1">${title}</h2>
-      ${id === 'shop' ? renderShopHeaderBalances() : META_PAGES.has(id) ? renderShopHeaderBalances({ hints: false }) : id === 'achievements' ? renderAchievementHeaderBalances() : ''}
+      ${id === 'shop' ? renderShopHeaderBalances() : META_PAGES.has(id) ? renderHomeCoinPill() : id === 'achievements' ? renderAchievementHeaderBalances() : ''}
     </div>
     <div class="home-page-body">
       ${pageBodyFor(id)}
@@ -768,10 +768,9 @@ export function openPage(
     wireMetaNavBar(page, id);
     // The header's coin pill is the same shortcut as home's plus: it goes to
     // the shop's coins. A page is open, so this one slides away first.
-    page.querySelector<HTMLElement>('.shop-header-coin-pill')?.addEventListener('click', () => {
+    page.querySelector<HTMLElement>('.home-coin-pill')?.addEventListener('click', () => {
       playUITap();
-      closePage();
-      window.setTimeout(() => { openPage('shop', { scrollTo: 'coins' }); }, 460);
+      closePage({ then: () => { openPage('shop', { scrollTo: 'coins' }); } });
     });
   }
   shell?.setAttribute('inert', '');
@@ -851,7 +850,7 @@ export function openPage(
 }
 
 
-export function closePage(options: { skipHomeCallback?: boolean } = {}): void {
+export function closePage(options: { skipHomeCallback?: boolean; then?: () => void } = {}): void {
   const page = document.getElementById('home-page-overlay');
   if (!page) return;
   const overlay = document.getElementById('hud-overlay');
@@ -878,7 +877,7 @@ export function closePage(options: { skipHomeCallback?: boolean } = {}): void {
     page.removeEventListener('transitionend', onTransitionEnd);
     if (page.isConnected) page.remove();
     shell?.classList.remove('home-shell--meta-open');
-    if (meta && !options.skipHomeCallback) homeCallback?.();
+    if (meta) { if (!options.skipHomeCallback) homeCallback?.(); options.then?.(); }
   };
   // Tear down only once the slide-down (transform) finishes — NOT the faster
   // opacity fade — otherwise the exit animation is cut short.
@@ -900,7 +899,21 @@ export function closePage(options: { skipHomeCallback?: boolean } = {}): void {
   // Debug auto play closes the page without leaving the level (2026-09-17): the home
   // callback re-renders home on the menu and STARTS HomeScene in-game. Meta pages
   // defer it to the end of their slide instead (see remove()).
-  if (!meta && !options.skipHomeCallback) homeCallback?.();
+  if (!meta) { if (!options.skipHomeCallback) homeCallback?.(); options.then?.(); }
+}
+
+/** The home menu's own coin pill, plus and all, for the meta page headers. */
+function renderHomeCoinPill(): string {
+  const wallet = gameState.walletSnapshot();
+  return `
+    <div class="shop-header-balances" aria-label="Coin balance">
+      <div class="home-balance-pill home-coin-pill" data-economy-target="coins" aria-label="Coin balance">
+        <span class="shop-header-coin-count">${wallet.coins}</span>
+        <img src="/ui/menu-icons/icon_coin.png" alt="" aria-hidden="true" data-economy-anchor="coin">
+        <button id="meta-coin-plus" class="home-pill-plus" type="button" aria-label="Buy more coins">+</button>
+      </div>
+    </div>
+  `;
 }
 
 function renderShopHeaderBalances(options: { hints?: boolean } = {}): string {
