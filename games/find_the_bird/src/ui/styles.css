@@ -5940,9 +5940,13 @@ body:has(#home-page-overlay) #tutorial-overlay { display: none; }
    bar stays put and swaps the page under it rather than sliding away. */
 .home-page-nav { flex: 0 0 auto; position: relative; z-index: 2; }
 .home-page-nav .home-nav-bar { margin-inline: 0; width: 100%; }
-/* The page body must not run under the bar. */
+/* The body takes the space the bar leaves, never the other way round: a
+   flex-basis of auto let the sanctuary scene (height:100%) claim the full
+   column and push the bar out under the page's overflow:hidden. */
 .home-page-collection .home-page-body,
-.home-page-sanctuary .home-page-body { min-height: 0; flex: 1 1 auto; }
+.home-page-sanctuary .home-page-body { min-height: 0; flex: 1 1 0; }
+.home-page-collection .home-page-nav,
+.home-page-sanctuary .home-page-nav { flex: 0 0 auto; }
 /* Current place: lifted and tinted, so the bar says where you are. */
 :is(#home-shell, .home-page-nav) .home-nav-btn--active { transform: translateY(-3px); }
 :is(#home-shell, .home-page-nav) .home-nav-btn--active img { filter: drop-shadow(0 3px 5px rgba(103, 67, 38, .4)); }
