@@ -12,6 +12,8 @@
  * drifting off its woodwork.
  */
 
+import manifestJson from '../../public/ui/sanctuary/manifest.json';
+import { fitBackground, type Rect, type SanctuaryManifest } from '../sanctuary/layout';
 import { gameState } from '../core/GameState';
 import { collectionThresholds } from '../collection/config';
 import { collectionDeck, type CardViewModel } from '../collection/cardModel';
@@ -88,12 +90,43 @@ function renderCard(card: CardViewModel, index: number): string {
     </li>`;
 }
 
+const SANCTUARY_MANIFEST = (manifestJson as unknown as { sanctuary: SanctuaryManifest }).sanctuary;
+
+function applyRect(element: HTMLElement, rect: Rect): void {
+  element.style.left = `${rect.left}px`;
+  element.style.top = `${rect.top}px`;
+  element.style.width = `${rect.width}px`;
+  element.style.height = `${rect.height}px`;
+}
+
+/**
+ * The deck sits on the Sanctuary's backdrop, placed by the Sanctuary's own
+ * cover-fit so the tree does not shift when the player crosses between the
+ * two pages: same image, same viewport, same rect.
+ */
+function placeBackdrop(page: ParentNode): void {
+  const holder = page.querySelector<HTMLElement>('.collection-backdrop');
+  const image = page.querySelector<HTMLImageElement>('#collection-bg');
+  if (holder === null || image === null) return;
+  const place = (): void => {
+    const viewport = { width: holder.clientWidth, height: holder.clientHeight };
+    if (viewport.width === 0 || viewport.height === 0) return;
+    applyRect(image, fitBackground(SANCTUARY_MANIFEST, viewport).rect);
+  };
+  place();
+  requestAnimationFrame(place);
+  window.addEventListener('resize', place, { passive: true });
+}
+
 export function renderCollectionPageBody(): string {
   const cards = collectionDeck(gameState.birdCount('sparrow'), collectionThresholds());
   const dots = cards
     .map((_, index) => `<span class="collection-dot${index === 0 ? ' collection-dot--active' : ''}" data-dot-index="${index}"></span>`)
     .join('');
   return `
+    <div class="collection-backdrop" aria-hidden="true">
+      <img class="sanctuary-bg" id="collection-bg" src="${SANCTUARY_MANIFEST.background.src}" alt="">
+    </div>
     <section class="collection-deck-wrap">
       <ul class="collection-deck" id="collection-deck" tabindex="0" aria-label="Bird collection, swipe to browse">
         ${cards.map(renderCard).join('')}
@@ -109,6 +142,7 @@ export function renderCollectionPageBody(): string {
  * alike, and needs no gesture state of its own.
  */
 export function wireCollectionPage(page: ParentNode): void {
+  placeBackdrop(page);
   const deck = page.querySelector<HTMLElement>('#collection-deck');
   const dots = [...page.querySelectorAll<HTMLElement>('.collection-dot')];
   if (deck === null || dots.length === 0) return;

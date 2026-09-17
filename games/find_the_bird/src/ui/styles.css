@@ -6062,9 +6062,14 @@ body:has(#home-page-overlay) #tutorial-overlay { display: none; }
 /* The Collection sits on the Sanctuary's sky and tree rather than a cream
    panel, and on both meta pages the sliding panel's cream strip above the
    bar is gone: the body itself runs to the panel's bottom edge, under the bar. */
-:is(.home-page-collection, .home-page-sanctuary) .home-page-slide { padding-bottom: 0; }
-.home-page-collection .home-page-body {
-  background: #dfe9d3 url('/ui/sanctuary/sanctuary-bg.webp') center / cover no-repeat;
-}
+:is(.home-page-collection, .home-page-sanctuary) .home-page-slide { padding-bottom: 0; margin-bottom: 0; }
+/* The bar overlaps the panel's bottom 30px (its own top padding) instead of
+   the panel growing under it: a negative margin on the bar is honoured the
+   same way by WebKit and Blink, the growing panel's was not. */
+:is(.home-page-collection, .home-page-sanctuary) .home-page-nav { margin-top: -30px; }
+.home-page-collection .home-page-body { position: relative; background: #dfe9d3; }
+.collection-backdrop { position: absolute; inset: 0; overflow: hidden; }
+.collection-backdrop .sanctuary-bg { position: absolute; max-width: none; }
+.home-page-collection .collection-deck-wrap { position: relative; z-index: 1; }
 .collection-dot { background: rgba(255, 250, 242, .55); }
 .collection-dot--active { background: #fffaf2; box-shadow: 0 1px 3px rgba(60, 40, 20, .35); }
