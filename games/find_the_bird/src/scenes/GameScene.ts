@@ -344,6 +344,8 @@ export class GameScene extends Phaser.Scene {
 
   init(data: GameSceneData): void {
     this.level = data.levelData ?? null;
+    // scene.restart keeps the instance: a pending auto play step dies with the old timers, so clear its guard
+    this.debugAutoPlayRunning = false;
     this.maskCanvas = null;
     this.maskCtx = null;
     this.permanentCanvas = null;
@@ -3303,7 +3305,8 @@ export class GameScene extends Phaser.Scene {
     this.debugAutoPlayRunning = true;
     const stop = (): void => { this.debugAutoPlayRunning = false; };
     const step = (): void => {
-      if (!DEBUG_OVERRIDES.autoPlay.active || this.isShuttingDown || !this.sys.isActive() || !this.level || this.levelComplete) { stop(); return; }
+      if (!DEBUG_OVERRIDES.autoPlay.active || this.isShuttingDown || !this.sys.isActive() || this.levelComplete) { stop(); return; }
+      if (!this.level || !this.maskCtx) { this.time.delayedCall(250, step); return; }   // next level still loading
       // the level is cut into DEBUG_AUTOPLAY_COLUMNS full-height strips, walked left to right; each strip is
       // read like a page: rows (strip width tall) top to bottom, left to right within a row
       const strip = this.level.width / DEBUG_AUTOPLAY_COLUMNS;
