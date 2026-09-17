@@ -96,4 +96,4 @@ export const DEBUG_OVERRIDES: {
   pickupFx: 'random' | 'leaf' | 'stars' | 'feathers' | 'confetti' | 'none';
   /** Debug builds only: collect birds left to right with a smooth camera pan, then jump to the next level. */
   autoPlay: { active: boolean; secondsPerBird: number };
-} = { restorationDissolveMs: null, pickupFx: 'none', autoPlay: { active: false, secondsPerBird: 0.2 } };
+} = { restorationDissolveMs: null, pickupFx: 'none', autoPlay: { active: false, secondsPerBird: 0.85 } };

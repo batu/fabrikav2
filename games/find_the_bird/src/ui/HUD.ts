@@ -1030,7 +1030,7 @@ function renderDebugLevelJumpRows(): string {
         <div class="settings-row-left" style="flex:1;min-width:0">
           <span class="settings-row-label">Auto play</span>
           <select id="debug-autoplay-speed" aria-label="Debug auto play seconds per bird" style="flex:1;min-width:0;margin-left:10px;font:inherit;font-size:14px;padding:6px;border-radius:8px">
-            ${[0.1, 0.2, 0.5, 1].map((sec) => `<option value="${sec}" ${DEBUG_OVERRIDES.autoPlay.secondsPerBird === sec ? 'selected' : ''}>${sec} s / bird</option>`).join('')}
+            ${[0.1, 0.2, 0.5, 0.85, 1, 1.5].map((sec) => `<option value="${sec}" ${DEBUG_OVERRIDES.autoPlay.secondsPerBird === sec ? 'selected' : ''}>${sec} s / bird</option>`).join('')}
           </select>
         </div>
         <button id="debug-autoplay-toggle" class="settings-footer-action" type="button" style="margin-left:10px;padding:8px 14px;border-radius:10px;font:inherit;font-weight:700">${DEBUG_OVERRIDES.autoPlay.active ? 'Stop' : 'Start'}</button>

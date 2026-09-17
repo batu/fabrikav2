@@ -98,9 +98,10 @@ def rebuild_cutout(flat):
     cut=strip_flat_rim(chroma_key(flat.convert('RGB'))); a=np.asarray(cut.convert('RGBA')).copy()
     op=a[...,3]>0; filled=ndi.binary_fill_holes(op); holes=filled&~op; lab,k=ndi.label(holes)
     rgb=a[...,:3].astype(int); keyc=(rgb[...,0]>150)&(rgb[...,2]>150)&(rgb[...,1]<110)&(rgb[...,0]-rgb[...,1]>60)&(rgb[...,2]-rgb[...,1]>60)
+    white=(rgb.min(axis=2)>225)   # the model paints enclosed see-through gaps (elbow, between legs) white instead of key: keep those transparent (Batu 2026-09-17)
     for q in range(1,k+1):
         h=lab==q
-        if h.sum()<=1500 and keyc[h].mean()<0.5: a[...,3][h]=255
+        if h.sum()<=1500 and keyc[h].mean()<0.5 and white[h].mean()<0.5: a[...,3][h]=255
     keyc=keyc&(a[...,3]>0); a[...,3][keyc&(a[...,3]==255)]=0; keyc=keyc&(a[...,3]>0)
     if keyc.any():
         good=(a[...,3]>0)&~keyc; idx=ndi.distance_transform_edt(~good,return_distances=False,return_indices=True); a[...,:3][keyc]=a[...,:3][idx[0],idx[1]][keyc]
