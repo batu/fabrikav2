@@ -1154,11 +1154,11 @@ export class GameScene extends Phaser.Scene {
       this.events.once('shutdown', () => window.removeEventListener('ftb-debug-autoplay', debugAutoPlay));
       if (DEBUG_OVERRIDES.autoPlay.active) this.time.delayedCall(250, () => this.startDebugAutoPlay());
       this.debugStartPos = 0;
-      setDebugStripSelectHandler((pos) => { this.debugStartPos = pos; this.refreshDebugBirdStrip(); });
+      setDebugStripSelectHandler((pos) => { this.debugStartPos = pos; this.refreshDebugBirdStrip(); this.debugShowWheelTarget(); });
       this.refreshDebugBirdStrip();
       const debugNextLevel = (): void => this.debugGoToNextLevel();
       window.addEventListener('ftb-debug-next-level', debugNextLevel);
-      this.events.once('shutdown', () => { window.removeEventListener('ftb-debug-next-level', debugNextLevel); setDebugStripSelectHandler(null); destroyDebugBirdStrip(); });
+      this.events.once('shutdown', () => { window.removeEventListener('ftb-debug-next-level', debugNextLevel); setDebugStripSelectHandler(null); destroyDebugBirdStrip(); this.debugWheelRing = null; });
     }
     setGameModeChangeCallback(() => {
       if (this.level) {
@@ -1558,6 +1558,7 @@ export class GameScene extends Phaser.Scene {
 
     gameState.foundDogIds.add(dog.id);
     this.refreshDebugBirdStrip();
+    if (this.debugWheelRing) { this.tweens.killTweensOf(this.debugWheelRing); this.debugWheelRing.destroy(); this.debugWheelRing = null; }
     if (this.tutorialHandle?.stage === 'hinted-find' && dog.id === this.tutorialTargetDogId) {
       this.dismissHintCircle();
     }
@@ -3386,6 +3387,31 @@ export class GameScene extends Phaser.Scene {
     this.scene.restart({} as GameSceneData);
   }
 
+  /** The pulsing red ring auto play draws on its target; the caller destroys it. */
+  private showDebugTargetRing(dog: LevelDog, pulseMs: number): Phaser.GameObjects.Graphics {
+    const worldX = this.imgOffsetX + dog.x * this.imgScale;
+    const worldY = this.imgOffsetY + dog.y * this.imgScale;
+    const ring = this.add.graphics({ x: worldX, y: worldY }).setDepth(DEBUG_AUTOPLAY_RING_DEPTH);
+    const radius = Math.max(24, dog.r * this.imgScale * 1.25);
+    ring.lineStyle(6, 0xff2d55, 1).strokeCircle(0, 0, radius);
+    ring.lineStyle(2, 0xffffff, 1).strokeCircle(0, 0, radius + 4);
+    this.tweens.add({ targets: ring, scaleX: 1.15, scaleY: 1.15, alpha: 0.6, duration: pulseMs, yoyo: true, repeat: -1 });
+    return ring;
+  }
+
+  private debugWheelRing: Phaser.GameObjects.Graphics | null = null;
+
+  /** Wheel scrolled to a bird: pan there and ring it (same ring as auto play) until the next selection or pickup. */
+  private debugShowWheelTarget(): void {
+    if (this.debugWheelRing) { this.tweens.killTweensOf(this.debugWheelRing); this.debugWheelRing.destroy(); this.debugWheelRing = null; }
+    const target = this.debugNextTarget();
+    if (!target || this.isShuttingDown || !this.sys.isActive()) return;
+    const worldX = this.imgOffsetX + target.dog.x * this.imgScale;
+    const worldY = this.imgOffsetY + target.dog.y * this.imgScale;
+    this.cameras.main.pan(worldX, worldY, 350, 'Sine.easeInOut');
+    this.debugWheelRing = this.showDebugTargetRing(target.dog, 400);
+  }
+
   private startDebugAutoPlay(): void {
     if (!TEST_HARNESS_ENABLED || this.debugAutoPlayRunning) return;
     this.debugAutoPlayRunning = true;
@@ -3403,11 +3429,7 @@ export class GameScene extends Phaser.Scene {
       const worldX = this.imgOffsetX + next.x * this.imgScale;
       const worldY = this.imgOffsetY + next.y * this.imgScale;
       // highlight the bird about to be picked up so the eye is on it at pick-up time
-      const ring = this.add.graphics({ x: worldX, y: worldY }).setDepth(DEBUG_AUTOPLAY_RING_DEPTH);
-      const radius = Math.max(24, next.r * this.imgScale * 1.25);
-      ring.lineStyle(6, 0xff2d55, 1).strokeCircle(0, 0, radius);
-      ring.lineStyle(2, 0xffffff, 1).strokeCircle(0, 0, radius + 4);
-      this.tweens.add({ targets: ring, scaleX: 1.15, scaleY: 1.15, alpha: 0.6, duration: Math.max(120, panMs / 2), yoyo: true, repeat: -1 });
+      const ring = this.showDebugTargetRing(next, Math.max(120, panMs / 2));
       camera.pan(worldX, worldY, panMs, 'Sine.easeInOut');
       this.time.delayedCall(panMs, () => {
         this.tweens.killTweensOf(ring); ring.destroy();
