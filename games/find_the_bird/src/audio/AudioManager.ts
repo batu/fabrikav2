@@ -154,7 +154,7 @@ export function installAudioUnlock(): void {
 // refilling, with an independent playback rate in [0.8, 1.2] on every pickup.
 // Buffers and selection state survive level changes for this app launch.
 const BIRD_FOUND_SAMPLE_COUNT = 10;
-const BIRD_FOUND_GAIN = 0.25;
+const BIRD_FOUND_GAIN = 0.125;
 const BIRD_FOUND_SAMPLE_URLS: string[] = Array.from(
   { length: BIRD_FOUND_SAMPLE_COUNT },
   (_, i): string => `/audio/bird-found/bird-found-${i + 1}.wav`,
