@@ -285,8 +285,10 @@ function pillMarkup(counter: BirdCounter): HTMLButtonElement {
   count.className = 'count';
   pill.append(icon, count);
   // A ready rung turns the pill into the way to the card: tapping it opens the
-  // Collection, where the Unlock button lives.
+  // Collection, where the Unlock button lives. Before the tile itself opens the
+  // pill is still on screen, and then it leads nowhere.
   pill.addEventListener('click', () => {
+    if (!currentMetaGates().collectionUnlocked) return;
     playUITap();
     openPage('collection');
   });
@@ -298,6 +300,9 @@ function pillMarkup(counter: BirdCounter): HTMLButtonElement {
 function updateBirdCounters(): void {
   const column = document.querySelector<HTMLElement>('#bird-counters');
   if (column === null) return;
+  // One pill per collecting bird; nothing at all before the Collection opens,
+  // since no species banks anything until then. A finished ladder drops out too
+  // — it has nothing left to ask for.
   const counters = visibleBirdCounters(currentMetaGates().collectionUnlocked)
     .filter((counter) => !counter.done);
   const wanted = new Set<string>();

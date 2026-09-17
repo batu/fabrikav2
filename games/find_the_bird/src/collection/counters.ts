@@ -6,10 +6,11 @@
  * happens to be focused on. The view layer owns the markup and the animation;
  * this module owns the question of which pills exist and what they read.
  *
- * The gate is a parameter rather than an import: everything else under
- * `collection/` depends only on the save and the config, and reaching up into
- * the HUD's `currentMetaGates` to ask whether the Collection is open would
- * invert that.
+ * Nothing is counted before the Collection unlocks, so there is nothing to
+ * show either: the column is empty until then. The gate arrives as a parameter
+ * rather than an import, because everything else under `collection/` depends
+ * only on the save and the config, and reaching up into the HUD's
+ * `currentMetaGates` would invert that.
  */
 
 import { BIRDS, BIRD_DEFS, type BirdId } from './birds';
@@ -74,8 +75,7 @@ function counterFor(bird: BirdId): BirdCounter {
 
 /**
  * Every collecting bird's counter, in the order the birds open. Empty while the
- * Collection itself is locked, since a counter towards a card the player cannot
- * see yet is noise.
+ * Collection itself is locked, since no species banks anything before then.
  */
 export function visibleBirdCounters(collectionUnlocked: boolean): BirdCounter[] {
   if (!collectionUnlocked) return [];
