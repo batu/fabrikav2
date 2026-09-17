@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "manifestRevision": 44,
-  "generatedAt": "2026-09-17T11:08:49.141261Z",
+  "manifestRevision": 46,
+  "generatedAt": "2026-09-17T11:11:26.893827Z",
   "experimentId": "ftd_levelset_v1",
   "levels": [
     {
@@ -796,6 +796,127 @@
       }
     },
     {
+      "id": "american_southwest_sw_desert_trading_post_bird_7396",
+      "name": "Level american_southwest_sw_desert_trading_post_bird_7396",
+      "width": 2688,
+      "height": 2688,
+      "cohort_buckets": [
+        "all"
+      ],
+      "bundled": true,
+      "assets": {
+        "levelJson": {
+          "hash": "56d419f1dd3deb24d71900f57acb334bf210565d91d9684fd6828a46730b259f",
+          "size": 11933,
+          "path": "levels/american_southwest_sw_desert_trading_post_bird_7396/level.json"
+        },
+        "colorImage": {
+          "hash": "0afababacec331d4bf62102c5f5d13f68664cf8375bda2671ae53a89ae74f81b",
+          "size": 1274558,
+          "path": "levels/american_southwest_sw_desert_trading_post_bird_7396/color.webp"
+        },
+        "bgImages": [
+          {
+            "hash": "cb8b8ea6d49c58640e0fc269e8938ee7065c3c95c628908bb61be9bea318d8a3",
+            "size": 1252352,
+            "path": "levels/american_southwest_sw_desert_trading_post_bird_7396/bg_00.webp"
+          }
+        ],
+        "dogSprites": [
+          {
+            "hash": "2cc134811f409b5c1f888a24cc35563160c81cdeabeb76e79a77b8b414187640",
+            "size": 28781,
+            "path": "levels/american_southwest_sw_desert_trading_post_bird_7396/dogs/dog_00/sprite_000.png"
+          },
+          {
+            "hash": "5af657b4d8d407821bcb9238b94dc1ca90829d02c17e224c7a171a21425af1a6",
+            "size": 38176,
+            "path": "levels/american_southwest_sw_desert_trading_post_bird_7396/dogs/dog_01/sprite_000.png"
+          },
+          {
+            "hash": "745c342da8466b77fe697b3b87dfa37119c281643c6bc9e894307bebfb906be1",
+            "size": 40412,
+            "path": "levels/american_southwest_sw_desert_trading_post_bird_7396/dogs/dog_02/sprite_000.png"
+          },
+          {
+            "hash": "00c656a9c0b1982efc392687f6e73865b4a98b80c4435f02e1100733f86b27ad",
+            "size": 37305,
+            "path": "levels/american_southwest_sw_desert_trading_post_bird_7396/dogs/dog_03/sprite_000.png"
+          },
+          {
+            "hash": "5a51dd76a9a40a04ffecd08b8bdf8ab1d36986730fee11b7602642c253cdd617",
+            "size": 27655,
+            "path": "levels/american_southwest_sw_desert_trading_post_bird_7396/dogs/dog_04/sprite_000.png"
+          },
+          {
+            "hash": "0fe556fc5e9cf91e9e0a2d484553ef893e51660f4448d6266e2f83a59fcb5375",
+            "size": 48530,
+            "path": "levels/american_southwest_sw_desert_trading_post_bird_7396/dogs/dog_05/sprite_000.png"
+          },
+          {
+            "hash": "a6e49a6051338f3032a64caf32dce238afa84a700385ea95d44d8ce200cacf32",
+            "size": 22049,
+            "path": "levels/american_southwest_sw_desert_trading_post_bird_7396/dogs/dog_06/sprite_000.png"
+          },
+          {
+            "hash": "f6da60c42ea8aa2a774f759f7a0c79feaa1580e9bc8418c3e942d6e221bc48b9",
+            "size": 26442,
+            "path": "levels/american_southwest_sw_desert_trading_post_bird_7396/dogs/dog_07/sprite_000.png"
+          },
+          {
+            "hash": "fee2cebbe2e713439fdd42e4253694a8f7482efb05f9683977385f27336907a9",
+            "size": 26021,
+            "path": "levels/american_southwest_sw_desert_trading_post_bird_7396/dogs/dog_08/sprite_000.png"
+          },
+          {
+            "hash": "f91aa54b7aafed41e6185773ddb79053d98d811159957262ac5e9cada9e427ff",
+            "size": 42338,
+            "path": "levels/american_southwest_sw_desert_trading_post_bird_7396/dogs/dog_09/sprite_000.png"
+          },
+          {
+            "hash": "8694f26a6015d692154eb11307600cbf027acd7cbf42a6dbb6bada7d3d4aecad",
+            "size": 46408,
+            "path": "levels/american_southwest_sw_desert_trading_post_bird_7396/dogs/dog_10/sprite_000.png"
+          },
+          {
+            "hash": "691f57bc519d5333167254cd69ddaf33823c0574d1f27e6f4df271aebf83bf66",
+            "size": 47899,
+            "path": "levels/american_southwest_sw_desert_trading_post_bird_7396/dogs/dog_11/sprite_000.png"
+          },
+          {
+            "hash": "c6e947c40ecfb2f382a68986a7561b4396eaeb9db2434ffc02348641110faeee",
+            "size": 51602,
+            "path": "levels/american_southwest_sw_desert_trading_post_bird_7396/dogs/dog_12/sprite_000.png"
+          },
+          {
+            "hash": "f41c11608312fe8c1b4c9f524508268e9642ba50901df7baa906c6c3bcb53be0",
+            "size": 51757,
+            "path": "levels/american_southwest_sw_desert_trading_post_bird_7396/dogs/dog_13/sprite_000.png"
+          },
+          {
+            "hash": "b959f45dc0517bd8bb30964ff73ac6188562f5af653e78200c77997abdc88a43",
+            "size": 28758,
+            "path": "levels/american_southwest_sw_desert_trading_post_bird_7396/dogs/dog_14/sprite_000.png"
+          },
+          {
+            "hash": "e7e0a224ccfbfd69f5b80452abc5cf4974c554aeb3cb4440ef3d7ee05c4465ce",
+            "size": 52185,
+            "path": "levels/american_southwest_sw_desert_trading_post_bird_7396/dogs/dog_15/sprite_000.png"
+          },
+          {
+            "hash": "099dd63e7bf1d70e21c8e19a57869bca9b947818c84914091d497e5ae4b47ad0",
+            "size": 40235,
+            "path": "levels/american_southwest_sw_desert_trading_post_bird_7396/dogs/dog_16/sprite_000.png"
+          },
+          {
+            "hash": "016c2c9c9892bb21e46277fb107719c217d63e426ebd7e47b215bdfef7e78874",
+            "size": 32018,
+            "path": "levels/american_southwest_sw_desert_trading_post_bird_7396/dogs/dog_17/sprite_000.png"
+          }
+        ]
+      }
+    },
+    {
       "id": "clockwork_workyards_automaton_assembly_bird_e6bf",
       "name": "Level clockwork_workyards_automaton_assembly_bird_e6bf",
       "width": 2688,
@@ -1194,132 +1315,6 @@
       }
     },
     {
-      "id": "southeast_asia_sea_floating_market_bird_2fa8",
-      "name": "Level southeast_asia_sea_floating_market_bird_2fa8",
-      "width": 2688,
-      "height": 2688,
-      "cohort_buckets": [
-        "all"
-      ],
-      "bundled": true,
-      "assets": {
-        "levelJson": {
-          "hash": "a09a0bcd62260ad877b74a5e25e790252ebcef950fb150700bb1fd433d06adec",
-          "size": 12421,
-          "path": "levels/southeast_asia_sea_floating_market_bird_2fa8/level.json"
-        },
-        "colorImage": {
-          "hash": "d00c627b6fce501b38a9b54f911a5ccc8edae4187edf545078ab57033460f92d",
-          "size": 1221490,
-          "path": "levels/southeast_asia_sea_floating_market_bird_2fa8/color.webp"
-        },
-        "bgImages": [
-          {
-            "hash": "8c4c7859a7a7901f8a39c00811651fbc80f96ce160a287daf09ee7855c9a6e1e",
-            "size": 1200198,
-            "path": "levels/southeast_asia_sea_floating_market_bird_2fa8/bg_00.webp"
-          }
-        ],
-        "dogSprites": [
-          {
-            "hash": "079ba6531c3ba870e8f33e9b36bda4a969e9bb3da0929f011acc236ac3836554",
-            "size": 54294,
-            "path": "levels/southeast_asia_sea_floating_market_bird_2fa8/dogs/dog_00/sprite_000.png"
-          },
-          {
-            "hash": "3c88aeb40715cb1537195a20ea2a11cfb37dfabc5eb51c8ae6011603c582565f",
-            "size": 27420,
-            "path": "levels/southeast_asia_sea_floating_market_bird_2fa8/dogs/dog_01/sprite_000.png"
-          },
-          {
-            "hash": "91012467634616e13aae32d4eae14a4e74e14d349a05547927604d15f902b40d",
-            "size": 23293,
-            "path": "levels/southeast_asia_sea_floating_market_bird_2fa8/dogs/dog_02/sprite_000.png"
-          },
-          {
-            "hash": "c05a06af57ef5ace4903c4860c44465ac1a1f9190be387f636fd80012966074b",
-            "size": 21807,
-            "path": "levels/southeast_asia_sea_floating_market_bird_2fa8/dogs/dog_03/sprite_000.png"
-          },
-          {
-            "hash": "cccaafadd7fbf44b8438e825099b7e34300c0e9c7bfa4da63e1bca33dab80aae",
-            "size": 13889,
-            "path": "levels/southeast_asia_sea_floating_market_bird_2fa8/dogs/dog_04/sprite_000.png"
-          },
-          {
-            "hash": "073818f5a92d25fbd2d7f97aa4a37cf66870646ee43952f33e5d69742fe5cbd4",
-            "size": 34880,
-            "path": "levels/southeast_asia_sea_floating_market_bird_2fa8/dogs/dog_05/sprite_000.png"
-          },
-          {
-            "hash": "37347c8dc20fbb32b8d8b37375a882d1a3ee89719ebcf97964f0c6bf3dfc0544",
-            "size": 42289,
-            "path": "levels/southeast_asia_sea_floating_market_bird_2fa8/dogs/dog_06/sprite_000.png"
-          },
-          {
-            "hash": "e2bc379cbff0e60a3d2a589a919ec634e089863e16783561f0875ae7d9bd7e78",
-            "size": 23923,
-            "path": "levels/southeast_asia_sea_floating_market_bird_2fa8/dogs/dog_07/sprite_000.png"
-          },
-          {
-            "hash": "840e2de02ad8b523871e692dbc0654f419ccb05bcfd0fc7e206af978710ab340",
-            "size": 54885,
-            "path": "levels/southeast_asia_sea_floating_market_bird_2fa8/dogs/dog_08/sprite_000.png"
-          },
-          {
-            "hash": "4d804781cbb43abd78b3bf03dd095c9a92b8819f4257e09f3a58a613f4f12555",
-            "size": 59975,
-            "path": "levels/southeast_asia_sea_floating_market_bird_2fa8/dogs/dog_09/sprite_000.png"
-          },
-          {
-            "hash": "c5f45e80d4dc05189be4cc78d857daca4ce9e7b8d92dd838817780f3d600eb1e",
-            "size": 55109,
-            "path": "levels/southeast_asia_sea_floating_market_bird_2fa8/dogs/dog_10/sprite_000.png"
-          },
-          {
-            "hash": "b21f9ca5e463fd84c4ad9eb9c0d141fd3d900b7d20371e0bfb5ad53557efc990",
-            "size": 36552,
-            "path": "levels/southeast_asia_sea_floating_market_bird_2fa8/dogs/dog_11/sprite_000.png"
-          },
-          {
-            "hash": "5f4553fe07cfd164625866253c46380ecf38ac51204b526206a75f039bcb3738",
-            "size": 53746,
-            "path": "levels/southeast_asia_sea_floating_market_bird_2fa8/dogs/dog_12/sprite_000.png"
-          },
-          {
-            "hash": "d6b4ee01df44a26da833cb21f6e2b6bfed02dcfe575cbbd9dae4f81862e40e6e",
-            "size": 59055,
-            "path": "levels/southeast_asia_sea_floating_market_bird_2fa8/dogs/dog_13/sprite_000.png"
-          },
-          {
-            "hash": "4e2f9e7e874f889888effbf325197788d14d375090963eb982056121dfa2bbd8",
-            "size": 66810,
-            "path": "levels/southeast_asia_sea_floating_market_bird_2fa8/dogs/dog_14/sprite_000.png"
-          },
-          {
-            "hash": "d524615d5b89df6146eb7bc710c1d086ca01c0431278a3406a5f2a26dac500b7",
-            "size": 29266,
-            "path": "levels/southeast_asia_sea_floating_market_bird_2fa8/dogs/dog_15/sprite_000.png"
-          },
-          {
-            "hash": "af0b470b871f55a6e8e677b7995ea8f6e0d3691df55ce8b35d20540db7e8bc4e",
-            "size": 32929,
-            "path": "levels/southeast_asia_sea_floating_market_bird_2fa8/dogs/dog_16/sprite_000.png"
-          },
-          {
-            "hash": "a2df636bc6dedfaef2d1dc4b299d031ed6761fe54d113dead26c755c1607afb3",
-            "size": 35465,
-            "path": "levels/southeast_asia_sea_floating_market_bird_2fa8/dogs/dog_17/sprite_000.png"
-          },
-          {
-            "hash": "dcd4633dbc56a4da03b27436037e14338d3d6a80de85c30237a587b109e9b543",
-            "size": 26119,
-            "path": "levels/southeast_asia_sea_floating_market_bird_2fa8/dogs/dog_18/sprite_000.png"
-          }
-        ]
-      }
-    },
-    {
       "id": "ad_campaigns_ad_cozy_library_bird_e654",
       "name": "Level ad_campaigns_ad_cozy_library_bird_e654",
       "width": 2688,
@@ -1572,6 +1567,122 @@
             "hash": "b6962b3d3883e0c96fb8dd4d0b9b028bb6b7dbfe72aa6f1e05d7b913780b974a",
             "size": 39109,
             "path": "levels/greece_hilltop_windmills_bird_b89d/dogs/dog_18/sprite_000.png"
+          }
+        ]
+      }
+    },
+    {
+      "id": "fairytale_forest_giant_hollow_tree_library_bird_de8f",
+      "name": "Level fairytale_forest_giant_hollow_tree_library_bird_de8f",
+      "width": 2688,
+      "height": 2688,
+      "cohort_buckets": [
+        "all"
+      ],
+      "bundled": true,
+      "assets": {
+        "levelJson": {
+          "hash": "d9f8721c945bb0741ebac1dc72f31fef22d1c15ff1d03b72b04cbf04989a0efd",
+          "size": 11319,
+          "path": "levels/fairytale_forest_giant_hollow_tree_library_bird_de8f/level.json"
+        },
+        "colorImage": {
+          "hash": "d55c5935c5ca5d5602fdd753cd84052c852dc3b09249bd2c9b913fe7ce26dd85",
+          "size": 1227630,
+          "path": "levels/fairytale_forest_giant_hollow_tree_library_bird_de8f/color.webp"
+        },
+        "bgImages": [
+          {
+            "hash": "8eddaad9a3b67b35f799f0c7fe12f9802d05720a8e3a300c7df81ee46db5e31d",
+            "size": 1170692,
+            "path": "levels/fairytale_forest_giant_hollow_tree_library_bird_de8f/bg_00.webp"
+          }
+        ],
+        "dogSprites": [
+          {
+            "hash": "2f47d2c74567879ee18ac6ccc906a94deab10c2e9a20d8501d34a3610fb02962",
+            "size": 30248,
+            "path": "levels/fairytale_forest_giant_hollow_tree_library_bird_de8f/dogs/dog_00/sprite_000.png"
+          },
+          {
+            "hash": "993bfadaab157cee8b87b1f16078a7807bdea360908f8c3acd1d01748d0d82b8",
+            "size": 41367,
+            "path": "levels/fairytale_forest_giant_hollow_tree_library_bird_de8f/dogs/dog_01/sprite_000.png"
+          },
+          {
+            "hash": "86b27b767164ec706ae057181bbb1023ef9e541804d7cbecaa304ab4e33bc3ce",
+            "size": 26770,
+            "path": "levels/fairytale_forest_giant_hollow_tree_library_bird_de8f/dogs/dog_02/sprite_000.png"
+          },
+          {
+            "hash": "0ecb885e71a7a18831eed710ceda4aae43b66e63bbddc373e14c8594df01e426",
+            "size": 28278,
+            "path": "levels/fairytale_forest_giant_hollow_tree_library_bird_de8f/dogs/dog_03/sprite_000.png"
+          },
+          {
+            "hash": "e82543d2b8420e1a5a49c3dcdf32f716fd4eaaaca666c42429b2f86d199b34b7",
+            "size": 34035,
+            "path": "levels/fairytale_forest_giant_hollow_tree_library_bird_de8f/dogs/dog_04/sprite_000.png"
+          },
+          {
+            "hash": "36510b473d3b3c02fafb6e142459cafe7b6ceaabed9fcde8c09f45d1132c0c86",
+            "size": 41563,
+            "path": "levels/fairytale_forest_giant_hollow_tree_library_bird_de8f/dogs/dog_05/sprite_000.png"
+          },
+          {
+            "hash": "85cba65af48eb53548b6711c705f2155dd5038cd94fa3aebe169f86470455eae",
+            "size": 39816,
+            "path": "levels/fairytale_forest_giant_hollow_tree_library_bird_de8f/dogs/dog_06/sprite_000.png"
+          },
+          {
+            "hash": "8cabe71ea25dd27bc2a8340013401196cf7d1b06724430346b5fb2954d952595",
+            "size": 43048,
+            "path": "levels/fairytale_forest_giant_hollow_tree_library_bird_de8f/dogs/dog_07/sprite_000.png"
+          },
+          {
+            "hash": "eb9e4911e30ab16b8b6cec87d5af4598f046f0672dc59676619e4f9a3cf3bf8d",
+            "size": 27220,
+            "path": "levels/fairytale_forest_giant_hollow_tree_library_bird_de8f/dogs/dog_08/sprite_000.png"
+          },
+          {
+            "hash": "c7967090b9ced564f807a4c65625d6eac22844826edf39d59e367acad3736df6",
+            "size": 46506,
+            "path": "levels/fairytale_forest_giant_hollow_tree_library_bird_de8f/dogs/dog_09/sprite_000.png"
+          },
+          {
+            "hash": "017ab2abd1ffe180fd374c552b274b454f9d925b471da5924c7d284bdccceedc",
+            "size": 40489,
+            "path": "levels/fairytale_forest_giant_hollow_tree_library_bird_de8f/dogs/dog_10/sprite_000.png"
+          },
+          {
+            "hash": "f683fc811d383c438dea2723fcbf3ad806c6f078d0d9f19bce97a641164eef85",
+            "size": 36041,
+            "path": "levels/fairytale_forest_giant_hollow_tree_library_bird_de8f/dogs/dog_11/sprite_000.png"
+          },
+          {
+            "hash": "08791e4b33777f14e77335144ada0a94144726b481813b3dbe98e703dba0368b",
+            "size": 32808,
+            "path": "levels/fairytale_forest_giant_hollow_tree_library_bird_de8f/dogs/dog_12/sprite_000.png"
+          },
+          {
+            "hash": "03a9bc34a2775caf8eb51fb2c7833c22398e55d25c9a5d30dc86ee8193432330",
+            "size": 26180,
+            "path": "levels/fairytale_forest_giant_hollow_tree_library_bird_de8f/dogs/dog_13/sprite_000.png"
+          },
+          {
+            "hash": "8d4add9145eb48ef2a67631b24fc9d532c7efef52e32d6935f59619b63e36e31",
+            "size": 48054,
+            "path": "levels/fairytale_forest_giant_hollow_tree_library_bird_de8f/dogs/dog_14/sprite_000.png"
+          },
+          {
+            "hash": "ad195a4c734e064e8dee3e6192b6ce9a882c2afd90bb87fa656ca1a51292c103",
+            "size": 57410,
+            "path": "levels/fairytale_forest_giant_hollow_tree_library_bird_de8f/dogs/dog_15/sprite_000.png"
+          },
+          {
+            "hash": "0f88b979c9d5f7a12d78a58ff8d3943ec2782ac1ccb601e3fcbd067ac24b84bc",
+            "size": 26197,
+            "path": "levels/fairytale_forest_giant_hollow_tree_library_bird_de8f/dogs/dog_16/sprite_000.png"
           }
         ]
       }
@@ -2152,127 +2263,6 @@
       }
     },
     {
-      "id": "american_southwest_sw_desert_trading_post_bird_7396",
-      "name": "Level american_southwest_sw_desert_trading_post_bird_7396",
-      "width": 2688,
-      "height": 2688,
-      "cohort_buckets": [
-        "all"
-      ],
-      "bundled": true,
-      "assets": {
-        "levelJson": {
-          "hash": "56d419f1dd3deb24d71900f57acb334bf210565d91d9684fd6828a46730b259f",
-          "size": 11933,
-          "path": "levels/american_southwest_sw_desert_trading_post_bird_7396/level.json"
-        },
-        "colorImage": {
-          "hash": "0afababacec331d4bf62102c5f5d13f68664cf8375bda2671ae53a89ae74f81b",
-          "size": 1274558,
-          "path": "levels/american_southwest_sw_desert_trading_post_bird_7396/color.webp"
-        },
-        "bgImages": [
-          {
-            "hash": "cb8b8ea6d49c58640e0fc269e8938ee7065c3c95c628908bb61be9bea318d8a3",
-            "size": 1252352,
-            "path": "levels/american_southwest_sw_desert_trading_post_bird_7396/bg_00.webp"
-          }
-        ],
-        "dogSprites": [
-          {
-            "hash": "2cc134811f409b5c1f888a24cc35563160c81cdeabeb76e79a77b8b414187640",
-            "size": 28781,
-            "path": "levels/american_southwest_sw_desert_trading_post_bird_7396/dogs/dog_00/sprite_000.png"
-          },
-          {
-            "hash": "5af657b4d8d407821bcb9238b94dc1ca90829d02c17e224c7a171a21425af1a6",
-            "size": 38176,
-            "path": "levels/american_southwest_sw_desert_trading_post_bird_7396/dogs/dog_01/sprite_000.png"
-          },
-          {
-            "hash": "745c342da8466b77fe697b3b87dfa37119c281643c6bc9e894307bebfb906be1",
-            "size": 40412,
-            "path": "levels/american_southwest_sw_desert_trading_post_bird_7396/dogs/dog_02/sprite_000.png"
-          },
-          {
-            "hash": "00c656a9c0b1982efc392687f6e73865b4a98b80c4435f02e1100733f86b27ad",
-            "size": 37305,
-            "path": "levels/american_southwest_sw_desert_trading_post_bird_7396/dogs/dog_03/sprite_000.png"
-          },
-          {
-            "hash": "5a51dd76a9a40a04ffecd08b8bdf8ab1d36986730fee11b7602642c253cdd617",
-            "size": 27655,
-            "path": "levels/american_southwest_sw_desert_trading_post_bird_7396/dogs/dog_04/sprite_000.png"
-          },
-          {
-            "hash": "0fe556fc5e9cf91e9e0a2d484553ef893e51660f4448d6266e2f83a59fcb5375",
-            "size": 48530,
-            "path": "levels/american_southwest_sw_desert_trading_post_bird_7396/dogs/dog_05/sprite_000.png"
-          },
-          {
-            "hash": "a6e49a6051338f3032a64caf32dce238afa84a700385ea95d44d8ce200cacf32",
-            "size": 22049,
-            "path": "levels/american_southwest_sw_desert_trading_post_bird_7396/dogs/dog_06/sprite_000.png"
-          },
-          {
-            "hash": "f6da60c42ea8aa2a774f759f7a0c79feaa1580e9bc8418c3e942d6e221bc48b9",
-            "size": 26442,
-            "path": "levels/american_southwest_sw_desert_trading_post_bird_7396/dogs/dog_07/sprite_000.png"
-          },
-          {
-            "hash": "fee2cebbe2e713439fdd42e4253694a8f7482efb05f9683977385f27336907a9",
-            "size": 26021,
-            "path": "levels/american_southwest_sw_desert_trading_post_bird_7396/dogs/dog_08/sprite_000.png"
-          },
-          {
-            "hash": "f91aa54b7aafed41e6185773ddb79053d98d811159957262ac5e9cada9e427ff",
-            "size": 42338,
-            "path": "levels/american_southwest_sw_desert_trading_post_bird_7396/dogs/dog_09/sprite_000.png"
-          },
-          {
-            "hash": "8694f26a6015d692154eb11307600cbf027acd7cbf42a6dbb6bada7d3d4aecad",
-            "size": 46408,
-            "path": "levels/american_southwest_sw_desert_trading_post_bird_7396/dogs/dog_10/sprite_000.png"
-          },
-          {
-            "hash": "691f57bc519d5333167254cd69ddaf33823c0574d1f27e6f4df271aebf83bf66",
-            "size": 47899,
-            "path": "levels/american_southwest_sw_desert_trading_post_bird_7396/dogs/dog_11/sprite_000.png"
-          },
-          {
-            "hash": "c6e947c40ecfb2f382a68986a7561b4396eaeb9db2434ffc02348641110faeee",
-            "size": 51602,
-            "path": "levels/american_southwest_sw_desert_trading_post_bird_7396/dogs/dog_12/sprite_000.png"
-          },
-          {
-            "hash": "f41c11608312fe8c1b4c9f524508268e9642ba50901df7baa906c6c3bcb53be0",
-            "size": 51757,
-            "path": "levels/american_southwest_sw_desert_trading_post_bird_7396/dogs/dog_13/sprite_000.png"
-          },
-          {
-            "hash": "b959f45dc0517bd8bb30964ff73ac6188562f5af653e78200c77997abdc88a43",
-            "size": 28758,
-            "path": "levels/american_southwest_sw_desert_trading_post_bird_7396/dogs/dog_14/sprite_000.png"
-          },
-          {
-            "hash": "e7e0a224ccfbfd69f5b80452abc5cf4974c554aeb3cb4440ef3d7ee05c4465ce",
-            "size": 52185,
-            "path": "levels/american_southwest_sw_desert_trading_post_bird_7396/dogs/dog_15/sprite_000.png"
-          },
-          {
-            "hash": "099dd63e7bf1d70e21c8e19a57869bca9b947818c84914091d497e5ae4b47ad0",
-            "size": 40235,
-            "path": "levels/american_southwest_sw_desert_trading_post_bird_7396/dogs/dog_16/sprite_000.png"
-          },
-          {
-            "hash": "016c2c9c9892bb21e46277fb107719c217d63e426ebd7e47b215bdfef7e78874",
-            "size": 32018,
-            "path": "levels/american_southwest_sw_desert_trading_post_bird_7396/dogs/dog_17/sprite_000.png"
-          }
-        ]
-      }
-    },
-    {
       "id": "cozy_interiors_cozy_attic_workshop_bird_6acc",
       "name": "Level cozy_interiors_cozy_attic_workshop_bird_6acc",
       "width": 2688,
@@ -2525,122 +2515,6 @@
             "hash": "d570e974782f9903b8606e375516a89c1d06bd9cf23864b8f492f03c139fd435",
             "size": 11349,
             "path": "levels/cozy_interiors_cozy_potting_shed_garden_bird_bd9a/dogs/dog_18/sprite_000.png"
-          }
-        ]
-      }
-    },
-    {
-      "id": "fairytale_forest_giant_hollow_tree_library_bird_de8f",
-      "name": "Level fairytale_forest_giant_hollow_tree_library_bird_de8f",
-      "width": 2688,
-      "height": 2688,
-      "cohort_buckets": [
-        "all"
-      ],
-      "bundled": true,
-      "assets": {
-        "levelJson": {
-          "hash": "d9f8721c945bb0741ebac1dc72f31fef22d1c15ff1d03b72b04cbf04989a0efd",
-          "size": 11319,
-          "path": "levels/fairytale_forest_giant_hollow_tree_library_bird_de8f/level.json"
-        },
-        "colorImage": {
-          "hash": "d55c5935c5ca5d5602fdd753cd84052c852dc3b09249bd2c9b913fe7ce26dd85",
-          "size": 1227630,
-          "path": "levels/fairytale_forest_giant_hollow_tree_library_bird_de8f/color.webp"
-        },
-        "bgImages": [
-          {
-            "hash": "8eddaad9a3b67b35f799f0c7fe12f9802d05720a8e3a300c7df81ee46db5e31d",
-            "size": 1170692,
-            "path": "levels/fairytale_forest_giant_hollow_tree_library_bird_de8f/bg_00.webp"
-          }
-        ],
-        "dogSprites": [
-          {
-            "hash": "2f47d2c74567879ee18ac6ccc906a94deab10c2e9a20d8501d34a3610fb02962",
-            "size": 30248,
-            "path": "levels/fairytale_forest_giant_hollow_tree_library_bird_de8f/dogs/dog_00/sprite_000.png"
-          },
-          {
-            "hash": "993bfadaab157cee8b87b1f16078a7807bdea360908f8c3acd1d01748d0d82b8",
-            "size": 41367,
-            "path": "levels/fairytale_forest_giant_hollow_tree_library_bird_de8f/dogs/dog_01/sprite_000.png"
-          },
-          {
-            "hash": "86b27b767164ec706ae057181bbb1023ef9e541804d7cbecaa304ab4e33bc3ce",
-            "size": 26770,
-            "path": "levels/fairytale_forest_giant_hollow_tree_library_bird_de8f/dogs/dog_02/sprite_000.png"
-          },
-          {
-            "hash": "0ecb885e71a7a18831eed710ceda4aae43b66e63bbddc373e14c8594df01e426",
-            "size": 28278,
-            "path": "levels/fairytale_forest_giant_hollow_tree_library_bird_de8f/dogs/dog_03/sprite_000.png"
-          },
-          {
-            "hash": "e82543d2b8420e1a5a49c3dcdf32f716fd4eaaaca666c42429b2f86d199b34b7",
-            "size": 34035,
-            "path": "levels/fairytale_forest_giant_hollow_tree_library_bird_de8f/dogs/dog_04/sprite_000.png"
-          },
-          {
-            "hash": "36510b473d3b3c02fafb6e142459cafe7b6ceaabed9fcde8c09f45d1132c0c86",
-            "size": 41563,
-            "path": "levels/fairytale_forest_giant_hollow_tree_library_bird_de8f/dogs/dog_05/sprite_000.png"
-          },
-          {
-            "hash": "85cba65af48eb53548b6711c705f2155dd5038cd94fa3aebe169f86470455eae",
-            "size": 39816,
-            "path": "levels/fairytale_forest_giant_hollow_tree_library_bird_de8f/dogs/dog_06/sprite_000.png"
-          },
-          {
-            "hash": "8cabe71ea25dd27bc2a8340013401196cf7d1b06724430346b5fb2954d952595",
-            "size": 43048,
-            "path": "levels/fairytale_forest_giant_hollow_tree_library_bird_de8f/dogs/dog_07/sprite_000.png"
-          },
-          {
-            "hash": "eb9e4911e30ab16b8b6cec87d5af4598f046f0672dc59676619e4f9a3cf3bf8d",
-            "size": 27220,
-            "path": "levels/fairytale_forest_giant_hollow_tree_library_bird_de8f/dogs/dog_08/sprite_000.png"
-          },
-          {
-            "hash": "c7967090b9ced564f807a4c65625d6eac22844826edf39d59e367acad3736df6",
-            "size": 46506,
-            "path": "levels/fairytale_forest_giant_hollow_tree_library_bird_de8f/dogs/dog_09/sprite_000.png"
-          },
-          {
-            "hash": "017ab2abd1ffe180fd374c552b274b454f9d925b471da5924c7d284bdccceedc",
-            "size": 40489,
-            "path": "levels/fairytale_forest_giant_hollow_tree_library_bird_de8f/dogs/dog_10/sprite_000.png"
-          },
-          {
-            "hash": "f683fc811d383c438dea2723fcbf3ad806c6f078d0d9f19bce97a641164eef85",
-            "size": 36041,
-            "path": "levels/fairytale_forest_giant_hollow_tree_library_bird_de8f/dogs/dog_11/sprite_000.png"
-          },
-          {
-            "hash": "08791e4b33777f14e77335144ada0a94144726b481813b3dbe98e703dba0368b",
-            "size": 32808,
-            "path": "levels/fairytale_forest_giant_hollow_tree_library_bird_de8f/dogs/dog_12/sprite_000.png"
-          },
-          {
-            "hash": "03a9bc34a2775caf8eb51fb2c7833c22398e55d25c9a5d30dc86ee8193432330",
-            "size": 26180,
-            "path": "levels/fairytale_forest_giant_hollow_tree_library_bird_de8f/dogs/dog_13/sprite_000.png"
-          },
-          {
-            "hash": "8d4add9145eb48ef2a67631b24fc9d532c7efef52e32d6935f59619b63e36e31",
-            "size": 48054,
-            "path": "levels/fairytale_forest_giant_hollow_tree_library_bird_de8f/dogs/dog_14/sprite_000.png"
-          },
-          {
-            "hash": "ad195a4c734e064e8dee3e6192b6ce9a882c2afd90bb87fa656ca1a51292c103",
-            "size": 57410,
-            "path": "levels/fairytale_forest_giant_hollow_tree_library_bird_de8f/dogs/dog_15/sprite_000.png"
-          },
-          {
-            "hash": "0f88b979c9d5f7a12d78a58ff8d3943ec2782ac1ccb601e3fcbd067ac24b84bc",
-            "size": 26197,
-            "path": "levels/fairytale_forest_giant_hollow_tree_library_bird_de8f/dogs/dog_16/sprite_000.png"
           }
         ]
       }
@@ -3271,6 +3145,132 @@
             "hash": "08d9a5a0d15dad1b7bc38715990e243124a8cc66e6abbf104155e071099bd5b9",
             "size": 49528,
             "path": "levels/hawaii_luau_sunset_courtyard_bird_5251/dogs/dog_19/sprite_000.png"
+          }
+        ]
+      }
+    },
+    {
+      "id": "southeast_asia_sea_floating_market_bird_2fa8",
+      "name": "Level southeast_asia_sea_floating_market_bird_2fa8",
+      "width": 2688,
+      "height": 2688,
+      "cohort_buckets": [
+        "all"
+      ],
+      "bundled": true,
+      "assets": {
+        "levelJson": {
+          "hash": "a09a0bcd62260ad877b74a5e25e790252ebcef950fb150700bb1fd433d06adec",
+          "size": 12421,
+          "path": "levels/southeast_asia_sea_floating_market_bird_2fa8/level.json"
+        },
+        "colorImage": {
+          "hash": "d00c627b6fce501b38a9b54f911a5ccc8edae4187edf545078ab57033460f92d",
+          "size": 1221490,
+          "path": "levels/southeast_asia_sea_floating_market_bird_2fa8/color.webp"
+        },
+        "bgImages": [
+          {
+            "hash": "8c4c7859a7a7901f8a39c00811651fbc80f96ce160a287daf09ee7855c9a6e1e",
+            "size": 1200198,
+            "path": "levels/southeast_asia_sea_floating_market_bird_2fa8/bg_00.webp"
+          }
+        ],
+        "dogSprites": [
+          {
+            "hash": "079ba6531c3ba870e8f33e9b36bda4a969e9bb3da0929f011acc236ac3836554",
+            "size": 54294,
+            "path": "levels/southeast_asia_sea_floating_market_bird_2fa8/dogs/dog_00/sprite_000.png"
+          },
+          {
+            "hash": "3c88aeb40715cb1537195a20ea2a11cfb37dfabc5eb51c8ae6011603c582565f",
+            "size": 27420,
+            "path": "levels/southeast_asia_sea_floating_market_bird_2fa8/dogs/dog_01/sprite_000.png"
+          },
+          {
+            "hash": "91012467634616e13aae32d4eae14a4e74e14d349a05547927604d15f902b40d",
+            "size": 23293,
+            "path": "levels/southeast_asia_sea_floating_market_bird_2fa8/dogs/dog_02/sprite_000.png"
+          },
+          {
+            "hash": "c05a06af57ef5ace4903c4860c44465ac1a1f9190be387f636fd80012966074b",
+            "size": 21807,
+            "path": "levels/southeast_asia_sea_floating_market_bird_2fa8/dogs/dog_03/sprite_000.png"
+          },
+          {
+            "hash": "cccaafadd7fbf44b8438e825099b7e34300c0e9c7bfa4da63e1bca33dab80aae",
+            "size": 13889,
+            "path": "levels/southeast_asia_sea_floating_market_bird_2fa8/dogs/dog_04/sprite_000.png"
+          },
+          {
+            "hash": "073818f5a92d25fbd2d7f97aa4a37cf66870646ee43952f33e5d69742fe5cbd4",
+            "size": 34880,
+            "path": "levels/southeast_asia_sea_floating_market_bird_2fa8/dogs/dog_05/sprite_000.png"
+          },
+          {
+            "hash": "37347c8dc20fbb32b8d8b37375a882d1a3ee89719ebcf97964f0c6bf3dfc0544",
+            "size": 42289,
+            "path": "levels/southeast_asia_sea_floating_market_bird_2fa8/dogs/dog_06/sprite_000.png"
+          },
+          {
+            "hash": "e2bc379cbff0e60a3d2a589a919ec634e089863e16783561f0875ae7d9bd7e78",
+            "size": 23923,
+            "path": "levels/southeast_asia_sea_floating_market_bird_2fa8/dogs/dog_07/sprite_000.png"
+          },
+          {
+            "hash": "840e2de02ad8b523871e692dbc0654f419ccb05bcfd0fc7e206af978710ab340",
+            "size": 54885,
+            "path": "levels/southeast_asia_sea_floating_market_bird_2fa8/dogs/dog_08/sprite_000.png"
+          },
+          {
+            "hash": "4d804781cbb43abd78b3bf03dd095c9a92b8819f4257e09f3a58a613f4f12555",
+            "size": 59975,
+            "path": "levels/southeast_asia_sea_floating_market_bird_2fa8/dogs/dog_09/sprite_000.png"
+          },
+          {
+            "hash": "c5f45e80d4dc05189be4cc78d857daca4ce9e7b8d92dd838817780f3d600eb1e",
+            "size": 55109,
+            "path": "levels/southeast_asia_sea_floating_market_bird_2fa8/dogs/dog_10/sprite_000.png"
+          },
+          {
+            "hash": "b21f9ca5e463fd84c4ad9eb9c0d141fd3d900b7d20371e0bfb5ad53557efc990",
+            "size": 36552,
+            "path": "levels/southeast_asia_sea_floating_market_bird_2fa8/dogs/dog_11/sprite_000.png"
+          },
+          {
+            "hash": "5f4553fe07cfd164625866253c46380ecf38ac51204b526206a75f039bcb3738",
+            "size": 53746,
+            "path": "levels/southeast_asia_sea_floating_market_bird_2fa8/dogs/dog_12/sprite_000.png"
+          },
+          {
+            "hash": "d6b4ee01df44a26da833cb21f6e2b6bfed02dcfe575cbbd9dae4f81862e40e6e",
+            "size": 59055,
+            "path": "levels/southeast_asia_sea_floating_market_bird_2fa8/dogs/dog_13/sprite_000.png"
+          },
+          {
+            "hash": "4e2f9e7e874f889888effbf325197788d14d375090963eb982056121dfa2bbd8",
+            "size": 66810,
+            "path": "levels/southeast_asia_sea_floating_market_bird_2fa8/dogs/dog_14/sprite_000.png"
+          },
+          {
+            "hash": "d524615d5b89df6146eb7bc710c1d086ca01c0431278a3406a5f2a26dac500b7",
+            "size": 29266,
+            "path": "levels/southeast_asia_sea_floating_market_bird_2fa8/dogs/dog_15/sprite_000.png"
+          },
+          {
+            "hash": "af0b470b871f55a6e8e677b7995ea8f6e0d3691df55ce8b35d20540db7e8bc4e",
+            "size": 32929,
+            "path": "levels/southeast_asia_sea_floating_market_bird_2fa8/dogs/dog_16/sprite_000.png"
+          },
+          {
+            "hash": "a2df636bc6dedfaef2d1dc4b299d031ed6761fe54d113dead26c755c1607afb3",
+            "size": 35465,
+            "path": "levels/southeast_asia_sea_floating_market_bird_2fa8/dogs/dog_17/sprite_000.png"
+          },
+          {
+            "hash": "dcd4633dbc56a4da03b27436037e14338d3d6a80de85c30237a587b109e9b543",
+            "size": 26119,
+            "path": "levels/southeast_asia_sea_floating_market_bird_2fa8/dogs/dog_18/sprite_000.png"
           }
         ]
       }
@@ -5573,6 +5573,137 @@
             "hash": "ca74b11c42604cb0bac0a2c005066dcd7a4ab4f6fe7ba6fcb1ff59f7fb03b22b",
             "size": 58037,
             "path": "levels/ad_campaigns_ad_snowy_chalet_bird_c64d/dogs/dog_43/sprite_000.png"
+          }
+        ]
+      }
+    },
+    {
+      "id": "ad_campaigns_ad_treehouse_village_bird_24d4",
+      "name": "Level ad_campaigns_ad_treehouse_village_bird_24d4",
+      "width": 2688,
+      "height": 2688,
+      "cohort_buckets": [
+        "all"
+      ],
+      "bundled": true,
+      "assets": {
+        "levelJson": {
+          "hash": "3a178bceb347ffac46712c62729e2daa1cded2e08c774f4a6b09c78c61b74e04",
+          "size": 13039,
+          "path": "levels/ad_campaigns_ad_treehouse_village_bird_24d4/level.json"
+        },
+        "colorImage": {
+          "hash": "0e713db17a17d767c59c55d832c28d41789d804667b4261cbc93507c22bcefcf",
+          "size": 1348360,
+          "path": "levels/ad_campaigns_ad_treehouse_village_bird_24d4/color.webp"
+        },
+        "bgImages": [
+          {
+            "hash": "b1592360b67bba8fddc02d957b8393ddaa857eab795eb00476e1497d9c2da55a",
+            "size": 1303212,
+            "path": "levels/ad_campaigns_ad_treehouse_village_bird_24d4/bg_00.webp"
+          }
+        ],
+        "dogSprites": [
+          {
+            "hash": "fbf4184470d2717959a9976a82e6f744e71b0848251474d0fd5309ecf72ff4da",
+            "size": 33805,
+            "path": "levels/ad_campaigns_ad_treehouse_village_bird_24d4/dogs/dog_20/sprite_000.png"
+          },
+          {
+            "hash": "6180870ed80cabe791b898d6bb5903de6d7791c8d485821d6f03d6f798d678a2",
+            "size": 23521,
+            "path": "levels/ad_campaigns_ad_treehouse_village_bird_24d4/dogs/dog_21/sprite_000.png"
+          },
+          {
+            "hash": "a3b698f7ad46eeae5489db311e8124aaa55a1795148fe3ca62671bfb3de6349c",
+            "size": 47728,
+            "path": "levels/ad_campaigns_ad_treehouse_village_bird_24d4/dogs/dog_22/sprite_000.png"
+          },
+          {
+            "hash": "25627628cdb582b8c8a53e431529a8db66d41d420e7ee3ff1abccefbe30dc136",
+            "size": 26927,
+            "path": "levels/ad_campaigns_ad_treehouse_village_bird_24d4/dogs/dog_23/sprite_000.png"
+          },
+          {
+            "hash": "ac8e5326a69c054275c5e15fc4ee86fdda1f45d5619f3a01df9451a16b6a91a9",
+            "size": 51279,
+            "path": "levels/ad_campaigns_ad_treehouse_village_bird_24d4/dogs/dog_24/sprite_000.png"
+          },
+          {
+            "hash": "9ee8dc299a14389106e64443af18eb7c0feba0f5af74596296f230a6c93dbe63",
+            "size": 44518,
+            "path": "levels/ad_campaigns_ad_treehouse_village_bird_24d4/dogs/dog_25/sprite_000.png"
+          },
+          {
+            "hash": "5183f0a0327cbb18f4d67209292205632f9ad19bf0828c47fb15269d75fd464f",
+            "size": 41347,
+            "path": "levels/ad_campaigns_ad_treehouse_village_bird_24d4/dogs/dog_26/sprite_000.png"
+          },
+          {
+            "hash": "48aaa4a9ce1a37a498cdebb6009d926bfb29b1b6ba4caa96524ed38457086f5a",
+            "size": 32259,
+            "path": "levels/ad_campaigns_ad_treehouse_village_bird_24d4/dogs/dog_27/sprite_000.png"
+          },
+          {
+            "hash": "e9d9ea6e6739392d0c9b90b5e279b84c5e2ba882bb46e2d309170b5b3f7d1c34",
+            "size": 18462,
+            "path": "levels/ad_campaigns_ad_treehouse_village_bird_24d4/dogs/dog_28/sprite_000.png"
+          },
+          {
+            "hash": "05a04732f7284ff9b40b53ab36f049f8baed4885316c9c0642657fe2538c8811",
+            "size": 44958,
+            "path": "levels/ad_campaigns_ad_treehouse_village_bird_24d4/dogs/dog_29/sprite_000.png"
+          },
+          {
+            "hash": "1f775198fa2477e184c6d298fdee36c5a78e55768ab58dffe2ef41f28163b767",
+            "size": 25586,
+            "path": "levels/ad_campaigns_ad_treehouse_village_bird_24d4/dogs/dog_30/sprite_000.png"
+          },
+          {
+            "hash": "26e53c4a475a8582c3aa7470ef27bc4174faf689506d25b4ab5bca0aee90362a",
+            "size": 29047,
+            "path": "levels/ad_campaigns_ad_treehouse_village_bird_24d4/dogs/dog_31/sprite_000.png"
+          },
+          {
+            "hash": "46004111a2710609fc0536a09753bad941a133bafc5f3dded460a7cbd0d5c5c1",
+            "size": 41956,
+            "path": "levels/ad_campaigns_ad_treehouse_village_bird_24d4/dogs/dog_32/sprite_000.png"
+          },
+          {
+            "hash": "d294dc82dadc174c0112414b159d30bdf16839420754639e2be10965136ac3ec",
+            "size": 44526,
+            "path": "levels/ad_campaigns_ad_treehouse_village_bird_24d4/dogs/dog_33/sprite_000.png"
+          },
+          {
+            "hash": "3ec9b6dab5d8c649d1a058edcca7bdb20a9eef515b37c4f9b1bd62ab376497f8",
+            "size": 55367,
+            "path": "levels/ad_campaigns_ad_treehouse_village_bird_24d4/dogs/dog_34/sprite_000.png"
+          },
+          {
+            "hash": "d44199b75153770108b489af115abc31fe2eaa04753ae9d8856ef4528733ca63",
+            "size": 39013,
+            "path": "levels/ad_campaigns_ad_treehouse_village_bird_24d4/dogs/dog_35/sprite_000.png"
+          },
+          {
+            "hash": "af75726b5db1f2c59a902cd561a0c40b939a44b5508cb8f417c5df18c227d979",
+            "size": 22338,
+            "path": "levels/ad_campaigns_ad_treehouse_village_bird_24d4/dogs/dog_36/sprite_000.png"
+          },
+          {
+            "hash": "f9704e198ca837ee97a5d2c7dd7c72e8f0b8e650291cca587ce063c50982a3ca",
+            "size": 34323,
+            "path": "levels/ad_campaigns_ad_treehouse_village_bird_24d4/dogs/dog_37/sprite_000.png"
+          },
+          {
+            "hash": "17b98b7f17b5bf35df206f3c98de8e7618a49ffe367b8416168791bbbd3cfba4",
+            "size": 43453,
+            "path": "levels/ad_campaigns_ad_treehouse_village_bird_24d4/dogs/dog_38/sprite_000.png"
+          },
+          {
+            "hash": "4147768766a3ba55f5fbad1476c8d8e6fc041380b44a569efb997083c608a282",
+            "size": 32215,
+            "path": "levels/ad_campaigns_ad_treehouse_village_bird_24d4/dogs/dog_39/sprite_000.png"
           }
         ]
       }
