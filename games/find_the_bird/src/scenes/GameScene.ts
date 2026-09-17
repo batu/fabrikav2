@@ -2419,7 +2419,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   /** Carve a completed dissolve cell out of the persistent canvas (Restoration: opaque → transparent). */
-  private carvePermanentDissolveCell(screenPoints: Phaser.Geom.Point[]): void {
+  private carvePermanentDissolveCell(screenPoints: Phaser.Geom.Point[], dogId: string): void {
     const ctx = this.permanentCtx;
     if (!ctx) return;
     ctx.save();
@@ -2427,8 +2427,49 @@ export class GameScene extends Phaser.Scene {
     ctx.fillStyle = 'rgba(0,0,0,1)';
     this.tracePolygonPath(ctx, screenPoints);
     ctx.fill();
+    // the picked bird's own sprite pixels come off wherever they lie, even past a neighbour's bisector (tails)
+    const own = this.level?.dogs.find((d) => d.id === dogId);
+    if (own) this.drawPlacedSprite(ctx, own, 1);
     ctx.restore();
-    this.paintUnfoundNeighbourSilhouettes(ctx, this.getPolygonDirtyRect(screenPoints, 4));
+    const region = this.getPolygonDirtyRect(screenPoints, 4);
+    this.paintUnfoundNeighbourSilhouettes(ctx, own ? this.unionDirtyRect(region, this.placedSpriteDirtyRect(own)) : region);
+  }
+
+  /** Draw a dog's sprite into `ctx` exactly as it is placed (anchor, flip, scale) under the current composite op. */
+  private drawPlacedSprite(ctx: CanvasRenderingContext2D, dog: LevelDog, alpha: number): boolean {
+    const sprite = dog.sprite;
+    if (sprite === undefined) return false;
+    const key = this.spriteTextureKeyForDog(dog);
+    if (!this.textures.exists(key)) return false;
+    const source = this.textures.get(key).getSourceImage() as CanvasImageSource;
+    const width = sprite.width * this.imgScale;
+    const height = sprite.height * this.imgScale;
+    const left = this.imgOffsetX + (dog.x - (sprite.anchorX ?? 0.5) * sprite.width) * this.imgScale;
+    const top = this.imgOffsetY + (dog.y - (sprite.anchorY ?? 0.5) * sprite.height) * this.imgScale;
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.translate(sprite.flipX ? left + width : left, sprite.flipY ? top + height : top);
+    ctx.scale(sprite.flipX ? -1 : 1, sprite.flipY ? -1 : 1);
+    ctx.drawImage(source, 0, 0, width, height);
+    ctx.restore();
+    return true;
+  }
+
+  private placedSpriteDirtyRect(dog: LevelDog): DirtyRect | null {
+    const sprite = dog.sprite;
+    if (sprite === undefined) return null;
+    const width = sprite.width * this.imgScale;
+    const height = sprite.height * this.imgScale;
+    const left = this.imgOffsetX + (dog.x - (sprite.anchorX ?? 0.5) * sprite.width) * this.imgScale;
+    const top = this.imgOffsetY + (dog.y - (sprite.anchorY ?? 0.5) * sprite.height) * this.imgScale;
+    return { x: Math.floor(left) - 2, y: Math.floor(top) - 2, w: Math.ceil(width) + 4, h: Math.ceil(height) + 4 };
+  }
+
+  private unionDirtyRect(a: DirtyRect | null, b: DirtyRect | null): DirtyRect | null {
+    if (!a) return b;
+    if (!b) return a;
+    const x = Math.min(a.x, b.x); const y = Math.min(a.y, b.y);
+    return { x, y, w: Math.max(a.x + a.w, b.x + b.w) - x, h: Math.max(a.y + a.h, b.y + b.h) - y };
   }
 
   /**
@@ -2450,21 +2491,10 @@ export class GameScene extends Phaser.Scene {
     ctx.globalAlpha = 1;
     for (const other of this.level.dogs) {
       if (gameState.foundDogIds.has(other.id)) continue;
-      const sprite = other.sprite;
-      if (sprite === undefined) continue;
-      const key = this.spriteTextureKeyForDog(other);
-      if (!this.textures.exists(key)) continue;
-      const source = this.textures.get(key).getSourceImage() as CanvasImageSource;
-      const width = sprite.width * this.imgScale;
-      const height = sprite.height * this.imgScale;
-      const left = this.imgOffsetX + (other.x - (sprite.anchorX ?? 0.5) * sprite.width) * this.imgScale;
-      const top = this.imgOffsetY + (other.y - (sprite.anchorY ?? 0.5) * sprite.height) * this.imgScale;
-      if (region && (left > region.x + region.w || left + width < region.x || top > region.y + region.h || top + height < region.y)) continue;
-      ctx.save();
-      ctx.translate(sprite.flipX ? left + width : left, sprite.flipY ? top + height : top);
-      ctx.scale(sprite.flipX ? -1 : 1, sprite.flipY ? -1 : 1);
-      ctx.drawImage(source, 0, 0, width, height);
-      ctx.restore();
+      const box = this.placedSpriteDirtyRect(other);
+      if (box === null) continue;
+      if (region && (box.x > region.x + region.w || box.x + box.w < region.x || box.y > region.y + region.h || box.y + box.h < region.y)) continue;
+      this.drawPlacedSprite(ctx, other, 1);
     }
     ctx.restore();
   }
@@ -3432,11 +3462,16 @@ export class GameScene extends Phaser.Scene {
         const index = this.dissolveActiveCells.indexOf(cell);
         if (index >= 0) this.dissolveActiveCells.splice(index, 1);
         this.dissolveCompletedCells.push({ polygon: cell.polygon });
-        this.carvePermanentDissolveCell(cell.screenPoints);
+        this.carvePermanentDissolveCell(cell.screenPoints, cell.dogId);
       }
       // Only the carved rectangle changed; upload just that (2532² full uploads
       // measured 120–160 ms per find on iPhone 12, 2026-09-10).
-      this.syncRestorationMaskTexture(this.getPolygonDirtyRect(carvedPoints, 4));
+      let dirty = this.getPolygonDirtyRect(carvedPoints, 4);
+      for (const cell of cells) {
+        const own = this.level?.dogs.find((d) => d.id === cell.dogId);
+        if (own) dirty = this.unionDirtyRect(dirty, this.placedSpriteDirtyRect(own));
+      }
+      this.syncRestorationMaskTexture(dirty);
       this.onRevealedCellComplete();
     };
 
@@ -3519,6 +3554,13 @@ export class GameScene extends Phaser.Scene {
           if (p.x > maxX) maxX = p.x;
           if (p.y > maxY) maxY = p.y;
         }
+        // the bird's own sprite pixels fade with the cell wherever they lie (tails past the bisector)
+        const own = this.level?.dogs.find((d) => d.id === cell.dogId);
+        const box = own ? this.placedSpriteDirtyRect(own) : null;
+        if (box) {
+          minX = Math.min(minX, box.x); minY = Math.min(minY, box.y);
+          maxX = Math.max(maxX, box.x + box.w); maxY = Math.max(maxY, box.y + box.h);
+        }
       }
       const rx = Math.max(0, Math.floor(minX - PAD));
       const ry = Math.max(0, Math.floor(minY - PAD));
@@ -3545,6 +3587,8 @@ export class GameScene extends Phaser.Scene {
         ctx.fillStyle = 'rgba(0,0,0,1)';
         this.tracePolygonPath(ctx, pts);
         ctx.fill();
+        const own = this.level?.dogs.find((d) => d.id === cell.dogId);
+        if (own) this.drawPlacedSprite(ctx, own, 1 - cell.alpha);
       }
       ctx.restore();
       this.paintUnfoundNeighbourSilhouettes(ctx, { x: rx, y: ry, w: rw, h: rh });

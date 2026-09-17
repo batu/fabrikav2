@@ -105,13 +105,29 @@ def cleanup_polygons_for_site(
     level_height: float,
     is_protected: Callable[[CleanupSite], bool],
 ) -> list[list[Point]]:
-    """Match ``cleanupPolygonsForSite`` in the Find the Bird runtime: the whole
-    scaled footprint. Neighbours never carve it (operator rule 2026-09-17);
-    neighbour protection is pixel-level in the runtime mask."""
-    del all_sites, is_protected
+    """Match ``cleanupPolygonsForSite`` in the Find the Bird runtime (bisector clip).
+    The runtime adds pixel-level rules on top (own sprite carved, unfound neighbours'
+    sprite pixels painted back); those are not part of this polygon contract."""
     if site.cleanup is None:
         return []
     expanded = _clip_rect(_scale_rect(site.cleanup, CLEANUP_FOOTPRINT_SCALE), level_width, level_height)
     if expanded is None:
         return []
-    return [_rect_polygon(expanded)]
+    polygons = [[
+        Point(expanded.left, expanded.top),
+        Point(expanded.right, expanded.top),
+        Point(expanded.right, expanded.bottom),
+        Point(expanded.left, expanded.bottom),
+    ]]
+    for other in all_sites:
+        if other.bird_id == site.bird_id or other.cleanup is None or not is_protected(other):
+            continue
+        protected = _clip_rect(other.cleanup, level_width, level_height)
+        if protected is None or not _overlap(expanded, protected):
+            continue
+        polygons = [clipped for polygon in polygons if len(clipped := _clip_nearer(
+            polygon, Point(site.x, site.y), Point(other.x, other.y),
+        )) >= 3]
+        if not polygons:
+            break
+    return polygons

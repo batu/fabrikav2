@@ -12,7 +12,9 @@
  * that area which is nearer to a still-unfound neighbour (a two-site Voronoi
  * split per contesting neighbour). The bird's own centre is at distance 0
  * from itself, so it always survives every bisector — a cleanup can never
- * lose the bird it exists to clear.
+ * lose the bird it exists to clear. The runtime adds two pixel-level rules on
+ * top (own sprite pixels carved, unfound neighbours' sprite pixels painted
+ * back); those live in GameScene and are not part of this polygon contract.
  */
 
 export { pointInPolygon as pointInPolygonGeo } from '../utils/voronoi';
@@ -132,25 +134,38 @@ export function subtractRect(rect: GeoRect, hole: GeoRect): GeoRect[] {
 }
 
 /**
- * A bird's pickup reveal is its whole cleanup footprint (scaled by
- * CLEANUP_FOOTPRINT_SCALE). Neighbours do NOT carve it up: operator rule
- * 2026-09-17 — rects fighting over a shared object (a book between two birds)
- * cut the object in half; instead the first pickup clears the object fully.
- * Neighbour protection is pixel-level in the runtime mask: the opaque pixels
- * of every unfound neighbour's sprite are painted back after each carve
- * (GameScene.paintUnfoundNeighbourSilhouettes), so no pickup removes pixels
- * that belong to another bird. `allSites`/`isProtected` are kept for the
- * editor/runtime parity contract.
+ * A picked bird clears its cleanup footprint (scaled by CLEANUP_FOOTPRINT_SCALE)
+ * minus the part nearer to any still-unfound neighbour whose cleanup overlaps
+ * it (bisector clip). On top of that the runtime works at pixel level
+ * (GameScene.carvePermanentDissolveCell): the picked bird's own sprite pixels
+ * are carved wherever they lie, so a tail crossing the bisector comes off with
+ * its bird, and every unfound neighbour's sprite pixels are painted back, so no
+ * pickup removes pixels that belong to another bird. Operator rule 2026-09-17.
  */
 export function cleanupPolygonsForSite(
   site: CleanupSite,
-  _allSites: readonly CleanupSite[],
+  allSites: readonly CleanupSite[],
   levelWidth: number,
   levelHeight: number,
-  _isProtected: (other: CleanupSite) => boolean,
+  isProtected: (other: CleanupSite) => boolean,
 ): GeoPoint[][] {
   if (site.cleanup === null) return [];
   const expanded = clipRectToLevel(scaleRect(site.cleanup, CLEANUP_FOOTPRINT_SCALE), levelWidth, levelHeight);
   if (expanded === null) return [];
-  return [polygonForRect(expanded)];
+
+  let polygons: GeoPoint[][] = [polygonForRect(expanded)];
+  for (const other of allSites) {
+    if (other.id === site.id || other.cleanup === null) continue;
+    if (!isProtected(other)) continue;
+    const protectedRect = clipRectToLevel(other.cleanup, levelWidth, levelHeight);
+    if (protectedRect === null) continue;
+    // Gate on real overlap: without it a distant neighbour's bisector would
+    // slice away padding that was never contested.
+    if (!rectsOverlap(expanded, protectedRect)) continue;
+    polygons = polygons
+      .map((polygon) => clipPolygonNearerToSite(polygon, site, other))
+      .filter((polygon) => polygon.length >= 3);
+    if (polygons.length === 0) break;
+  }
+  return polygons;
 }
