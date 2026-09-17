@@ -551,25 +551,51 @@ function pageBodyFor(id: string): string {
  * underneath their finger. Swaps the title, the body and the active tile in
  * place.
  */
-function swapMetaPage(page: HTMLElement, id: 'collection' | 'sanctuary'): void {
-  // Leaving the Sanctuary releases its animations; they are infinite and hold
-  // element references, and this teardown is the only thing that ends them
-  // when the page is replaced rather than closed.
-  if (page.classList.contains('home-page-sanctuary')) teardownSanctuaryPage();
+const META_LEAVE_MS = 200;
+let metaSwapInFlight = false;
 
-  page.classList.remove('home-page-collection', 'home-page-sanctuary');
-  page.classList.add(`home-page-${id}`);
-  const title = page.querySelector<HTMLElement>('#home-page-title');
-  if (title) title.textContent = pageTitleFor(id);
-  const body = page.querySelector<HTMLElement>('.home-page-body');
-  if (body) body.innerHTML = pageBodyFor(id);
+/**
+ * Crossing between the Sanctuary and the Collection: the bar answers at once,
+ * the outgoing content (cards, or the house and its tenants) drops away over
+ * the shared backdrop, and the incoming content pops in over it. The backdrop
+ * itself never moves, which is what makes the two read as one place.
+ */
+function swapMetaPage(page: HTMLElement, id: 'collection' | 'sanctuary'): void {
+  if (metaSwapInFlight) return;
+  const leaving = currentMetaPage(page);
+  if (leaving === id) return;
+  metaSwapInFlight = true;
   // The bar is kept, not re-rendered: toggling the selected class lets the
   // icon's lift animate across, where a fresh innerHTML would snap.
   setMetaNavActive(page, id);
-  if (body) {
+  const title = page.querySelector<HTMLElement>('#home-page-title');
+  if (title) title.textContent = pageTitleFor(id);
+
+  const outgoing = leaving === 'collection'
+    ? page.querySelector<HTMLElement>('#collection-deck')
+    : page.querySelector<HTMLElement>('#sanctuary-layer');
+  outgoing?.classList.add('meta-content--leave');
+  page.querySelector<HTMLElement>('#sanctuary-sheet-root')?.classList.add('meta-content--leave');
+
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  window.setTimeout(() => {
+    metaSwapInFlight = false;
+    // Leaving the Sanctuary releases its animations; they are infinite and hold
+    // element references, and this teardown is the only thing that ends them
+    // when the page is replaced rather than closed.
+    if (page.classList.contains('home-page-sanctuary')) teardownSanctuaryPage();
+    page.classList.remove('home-page-collection', 'home-page-sanctuary');
+    page.classList.add(`home-page-${id}`);
+    const body = page.querySelector<HTMLElement>('.home-page-body');
+    if (body === null) return;
+    body.innerHTML = pageBodyFor(id);
     if (id === 'collection') wireCollectionPage(page);
     else wireSanctuaryPage(page);
-  }
+    const incoming = id === 'collection'
+      ? page.querySelector<HTMLElement>('#collection-deck')
+      : page.querySelector<HTMLElement>('#sanctuary-layer');
+    incoming?.classList.add('meta-content--enter');
+  }, reduced || outgoing === null ? 0 : META_LEAVE_MS);
 }
 
 function setMetaNavActive(page: HTMLElement, id: 'collection' | 'sanctuary' | 'play'): void {
@@ -636,13 +662,9 @@ function wireMetaNavBar(page: HTMLElement, current: 'collection' | 'sanctuary'):
         shakeLockedNavButton(button);
         return;
       }
-      // Play leaves the meta screens entirely: close the page, then trigger the
-      // home dock's own Play, so starting a level keeps one code path.
+      // Play on a meta page is the way home, not a shortcut into a level.
       if (target === 'play') {
         closePage();
-        window.setTimeout(() => {
-          document.querySelector<HTMLButtonElement>('#home-shell #home-play-now')?.click();
-        }, 80);
         return;
       }
       swapMetaPage(page, target);

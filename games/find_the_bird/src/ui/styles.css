@@ -5908,7 +5908,7 @@ body:has(#home-page-overlay) #tutorial-overlay { display: none; }
 .sanctuary-scene { position: relative; width: 100%; height: 100%; overflow: hidden; }
 .sanctuary-bg { position: absolute; max-width: none; }
 .sanctuary-layer { position: absolute; inset: 0; }
-.sanctuary-plot { position: absolute; }
+.sanctuary-plot { position: absolute; cursor: pointer; }
 .sanctuary-house { position: absolute; padding: 0; border: 0; background: none; cursor: pointer; }
 .sanctuary-house img { width: 100%; height: 100%; }
 .sanctuary-ghost { position: absolute; opacity: .4; filter: brightness(1.6) saturate(.4); pointer-events: none; }
@@ -6133,4 +6133,29 @@ body:has(#home-page-overlay) #tutorial-overlay { display: none; }
 }
 @media (prefers-reduced-motion: reduce) {
   .hud-sparrow-pill--ready, .collection-unlock-btn, .collection-card--claimed::before { animation: none; }
+}
+
+/* Sanctuary <-> Collection: content drops away, then the next pops in. */
+.meta-content--leave .collection-card,
+.meta-content--leave.sanctuary-layer,
+.meta-content--leave.sanctuary-sheet-root {
+  animation: meta-content-out 200ms ease-in both;
+  pointer-events: none;
+}
+.meta-content--enter .collection-card,
+.meta-content--enter.sanctuary-layer {
+  animation: meta-content-in 460ms cubic-bezier(.34, 1.45, .64, 1) both;
+}
+.meta-content--enter .collection-slide:nth-child(2) .collection-card { animation-delay: 70ms; }
+.sanctuary-layer { transform-origin: 50% 78%; }
+@keyframes meta-content-out {
+  to { transform: translateY(48px) scale(.86); opacity: 0; }
+}
+@keyframes meta-content-in {
+  from { transform: translateY(64px) scale(.78); opacity: 0; }
+  to { transform: translateY(0) scale(1); opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .meta-content--leave .collection-card, .meta-content--leave.sanctuary-layer, .meta-content--leave.sanctuary-sheet-root,
+  .meta-content--enter .collection-card, .meta-content--enter.sanctuary-layer { animation: none; }
 }

@@ -231,6 +231,15 @@ export function wireSanctuaryPage(page: ParentNode): void {
     if (result.state !== gameState.sanctuary) gameState.commitSanctuaryState(result.state);
   };
 
+  // Sheets have no dismiss button; a tap anywhere else on the scene closes
+  // them. Capture phase, so a tap on a perch closes the old sheet BEFORE the
+  // perch's own handler opens the next one.
+  scene.addEventListener('click', (event) => {
+    if (sheetRoot.childElementCount === 0) return;
+    if (event.target instanceof Node && sheetRoot.contains(event.target)) return;
+    closeSheet(sheetRoot);
+  }, { capture: true });
+
   const render = (): void => {
     settleNow();
     const sanctuary = gameState.sanctuary;
@@ -248,6 +257,8 @@ export function wireSanctuaryPage(page: ParentNode): void {
       marker.src = MANIFEST.markers.plot;
       marker.alt = '';
       applyRect(marker, layout.plotMarker);
+      // The sheet can be tapped away; the marker brings it back.
+      marker.addEventListener('click', () => { playUITap(); offerBuild(); });
       layer.appendChild(marker);
       offerBuild();
       return;
@@ -380,7 +391,6 @@ export function wireSanctuaryPage(page: ParentNode): void {
     const price = housePrice(tier);
     const affordable = gameState.coinBalance >= price;
     return [
-      { label: 'Later', kind: 'secondary', onTap: () => { closeSheet(sheetRoot); } },
       {
         label: affordable ? `${label}  ${price}` : `Need ${price - gameState.coinBalance} more`,
         kind: 'primary',
@@ -440,7 +450,6 @@ export function wireSanctuaryPage(page: ParentNode): void {
       facts: unlocked ? ['Sparrow — ready to move in'] : ['No bird unlocked yet'],
       note: unlocked ? undefined : 'Find sparrows in levels to unlock one.',
       actions: [
-        { label: 'Later', kind: 'secondary', onTap: () => { closeSheet(sheetRoot); } },
         {
           label: unlocked ? 'Place sparrow' : 'Collection',
           kind: 'primary',
