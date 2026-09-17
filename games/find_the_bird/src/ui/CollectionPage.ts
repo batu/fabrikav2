@@ -54,10 +54,11 @@ const FRAMES: Record<CardFrame, FrameGeometry> = {
     width: 900,
     height: 1500,
     arch: { x: 108, y: 105, w: 688, h: 643 },
-    plaqueY: [846, 962],
-    subtitleY: [1022, 1108],
-    // The snail sits in the panel's bottom-right; copy stays above it.
-    panel: { x: [125, 775], y: [1150, 1315] },
+    plaqueY: [828, 955],
+    subtitleY: [1008, 1105],
+    // Copy is centred in the panel; the snail only touches the far right of
+    // the last line's row, which centred text never reaches.
+    panel: { x: [125, 775], y: [1165, 1385] },
     portraitStyle: 'height:97%;width:auto;bottom:-4%',
   },
   robin: {
