@@ -2,7 +2,7 @@ import path from 'node:path';
 import fs from 'node:fs';
 import os from 'node:os';
 import { fileURLToPath } from 'node:url';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { runIosBuild } from '../src/build-output.mjs';
 import {
   prepareValidatedIosWebBuildEnvironment,
@@ -12,14 +12,48 @@ import {
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
 
 describe('owned native build output', () => {
+  let cacheRoot;
+  const previousRoot = process.env.FABRIKAV2_NATIVE_SHELL_CACHE_ROOT;
+
+  beforeEach(() => {
+    cacheRoot = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'scratch-cache-')));
+    process.env.FABRIKAV2_NATIVE_SHELL_CACHE_ROOT = cacheRoot;
+  });
+
+  afterEach(() => {
+    fs.rmSync(cacheRoot, { recursive: true, force: true });
+    if (previousRoot === undefined) delete process.env.FABRIKAV2_NATIVE_SHELL_CACHE_ROOT;
+    else process.env.FABRIKAV2_NATIVE_SHELL_CACHE_ROOT = previousRoot;
+  });
+
+  /** Stands in for xcodebuild: writes the product wherever -derivedDataPath points. */
+  const succeedingRun = (calls) => (file, args) => {
+    calls?.push([file, args]);
+    const derived = args[args.indexOf('-derivedDataPath') + 1];
+    const configuration = args[args.indexOf('-configuration') + 1] ?? 'Debug';
+    if (!derived.startsWith('{')) {
+      fs.mkdirSync(path.join(derived, 'Build', 'Products', `${configuration}-iphoneos`, 'App.app'), { recursive: true });
+    }
+    fs.writeFileSync(args[args.indexOf('--result-file') + 1], JSON.stringify({ output_dir: '/private/tmp/owned-release' }));
+    return '** BUILD SUCCEEDED **';
+  };
+
+  const buildDebug = (gameDir, calls) => runIosBuild({
+    gameDir, configuration: 'Debug', args: ['-configuration', 'Debug', 'build'], run: succeedingRun(calls),
+  });
+
+  const seedCache = (checkout, lane, ageMs) => {
+    const derived = path.join(cacheRoot, checkout, lane, 'DerivedData');
+    fs.mkdirSync(derived, { recursive: true });
+    const used = new Date(Date.now() - ageMs);
+    fs.utimesSync(derived, used, used);
+    return derived;
+  };
+
   it('returns the exact built artifact from the shared runner and protects release output', () => {
     const calls = [];
     const built = runIosBuild({ gameDir: path.join(repoRoot, 'games/find_the_bird'), configuration: 'Release', args: ['build'],
-      run: (file, args) => {
-        calls.push([file, args]);
-        fs.writeFileSync(args[args.indexOf('--result-file') + 1], JSON.stringify({ output_dir: '/private/tmp/owned-release' }));
-        return '** BUILD SUCCEEDED **';
-      },
+      run: succeedingRun(calls),
     });
     expect(calls[0][0]).toBe('agency');
     expect(calls[0][1]).toContain('durable');
@@ -29,34 +63,21 @@ describe('owned native build output', () => {
 
   it('compiles scratch lanes into a reused cache outside the retained attempt', () => {
     const calls = [];
-    const built = runIosBuild({ gameDir: path.join(repoRoot, 'games/find_the_bird'), configuration: 'Debug', args: ['build'],
-      run: (file, args) => {
-        calls.push([file, args]);
-        fs.writeFileSync(args[args.indexOf('--result-file') + 1], JSON.stringify({ output_dir: '/private/tmp/owned-debug' }));
-        return '** BUILD SUCCEEDED **';
-      },
-    });
+    const built = buildDebug(path.join(repoRoot, 'games/find_the_bird'), calls);
     const derivedDataPath = calls[0][1][calls[0][1].indexOf('-derivedDataPath') + 1];
     expect(calls[0][1]).toContain('scratch');
     expect(path.isAbsolute(derivedDataPath)).toBe(true);
-    expect(derivedDataPath).not.toContain('{agency-output}');
-    expect(derivedDataPath.startsWith('/private/tmp/owned-debug')).toBe(false);
-    expect(derivedDataPath).toContain(path.join('Library', 'Caches', 'fabrikav2-native-shell'));
+    expect(derivedDataPath.startsWith(cacheRoot)).toBe(true);
+    expect(derivedDataPath.startsWith('/private/tmp/owned-release')).toBe(false);
     expect(derivedDataPath.endsWith(path.join('find_the_bird-ios-debug', 'DerivedData'))).toBe(true);
     expect(built.appPath).toBe(path.join(derivedDataPath, 'Build/Products/Debug-iphoneos/App.app'));
   });
 
   it('gives each checkout its own scratch cache so concurrent worktrees never share one', () => {
     const derivedDataFor = (gameDir) => {
-      let captured;
-      runIosBuild({ gameDir, configuration: 'Debug', args: ['build'],
-        run: (file, args) => {
-          captured = args[args.indexOf('-derivedDataPath') + 1];
-          fs.writeFileSync(args[args.indexOf('--result-file') + 1], JSON.stringify({ output_dir: '/private/tmp/owned-debug' }));
-          return '** BUILD SUCCEEDED **';
-        },
-      });
-      return captured;
+      const calls = [];
+      buildDebug(gameDir, calls);
+      return calls[0][1][calls[0][1].indexOf('-derivedDataPath') + 1];
     };
     const main = derivedDataFor(path.join(repoRoot, 'games/find_the_bird'));
     const worktree = derivedDataFor(path.join(repoRoot, '.worktrees/ftb-ad-cadence/games/find_the_bird'));
@@ -64,49 +85,60 @@ describe('owned native build output', () => {
     expect(path.basename(path.dirname(main))).toBe(path.basename(path.dirname(worktree)));
   });
 
-  const cacheRoot = path.join(os.homedir(), 'Library', 'Caches', 'fabrikav2-native-shell');
-
-  const buildInLane = (game) => runIosBuild({ gameDir: path.join(repoRoot, 'games', game), configuration: 'Debug', args: ['build'],
-    run: (file, args) => {
-      fs.writeFileSync(args[args.indexOf('--result-file') + 1], JSON.stringify({ output_dir: '/private/tmp/owned-debug' }));
-      return '** BUILD SUCCEEDED **';
-    },
+  it('resolves the checkout so one source tree reached two ways keeps one cache', () => {
+    const real = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'checkout-')));
+    const link = `${real}-link`;
+    fs.mkdirSync(path.join(real, 'games', 'find_the_bird'), { recursive: true });
+    fs.symlinkSync(real, link);
+    try {
+      const derivedDataFor = (root) => {
+        const calls = [];
+        buildDebug(path.join(root, 'games', 'find_the_bird'), calls);
+        return calls[0][1][calls[0][1].indexOf('-derivedDataPath') + 1];
+      };
+      expect(derivedDataFor(real)).toBe(derivedDataFor(link));
+    } finally {
+      fs.rmSync(link, { force: true });
+      fs.rmSync(real, { recursive: true, force: true });
+    }
   });
 
-  const seedCache = (lane, checkout, ageMs) => {
-    const derived = path.join(cacheRoot, checkout, lane, 'DerivedData');
-    fs.mkdirSync(derived, { recursive: true });
-    const used = new Date(Date.now() - ageMs);
-    fs.utimesSync(derived, used, used);
-    return derived;
-  };
+  it('fails instead of handing back the previous product when a build makes none', () => {
+    expect(() => runIosBuild({ gameDir: path.join(repoRoot, 'games/find_the_bird'), configuration: 'Debug', args: ['build'],
+      run: (file, args) => {
+        fs.writeFileSync(args[args.indexOf('--result-file') + 1], JSON.stringify({ output_dir: '/private/tmp/owned-release' }));
+        return '** BUILD SUCCEEDED **';
+      },
+    })).toThrow(/produced no App.app/);
+  });
 
   it('keeps only the three most recently built scratch caches for a lane', () => {
-    const game = `pruneprobe${Math.random().toString(36).slice(2, 8)}`;
-    const lane = `${game}-ios-debug`;
     const day = 24 * 60 * 60 * 1000;
-    const seeded = [2, 3, 4, 5].map((days, index) => seedCache(lane, `stale${index}`, days * day));
-    try {
-      buildInLane(game);
-      expect(fs.existsSync(seeded[0])).toBe(true);
-      expect(fs.existsSync(seeded[1])).toBe(true);
-      expect(fs.existsSync(seeded[2])).toBe(false);
-      expect(fs.existsSync(seeded[3])).toBe(false);
-    } finally {
-      for (const index of [0, 1, 2, 3]) fs.rmSync(path.join(cacheRoot, `stale${index}`), { recursive: true, force: true });
-    }
+    const seeded = [2, 3, 4, 5].map((days, index) => seedCache(`stale${index}`, 'find_the_bird-ios-debug', days * day));
+    buildDebug(path.join(repoRoot, 'games/find_the_bird'));
+    expect(seeded.map((cache) => fs.existsSync(cache))).toEqual([true, true, false, false]);
   });
 
   it('never prunes a cache a concurrent worktree may still be compiling into', () => {
-    const game = `pruneprobe${Math.random().toString(36).slice(2, 8)}`;
-    const lane = `${game}-ios-debug`;
-    const seeded = [1, 2, 3, 4].map((hours, index) => seedCache(lane, `busy${index}`, hours * 60 * 60 * 1000));
-    try {
-      buildInLane(game);
-      for (const cache of seeded) expect(fs.existsSync(cache)).toBe(true);
-    } finally {
-      for (const index of [0, 1, 2, 3]) fs.rmSync(path.join(cacheRoot, `busy${index}`), { recursive: true, force: true });
-    }
+    const hour = 60 * 60 * 1000;
+    const seeded = [1, 2, 3, 4].map((hours, index) => seedCache(`busy${index}`, 'find_the_bird-ios-debug', hours * hour));
+    buildDebug(path.join(repoRoot, 'games/find_the_bird'));
+    expect(seeded.every((cache) => fs.existsSync(cache))).toBe(true);
+  });
+
+  it('sweeps idle caches of a lane that is no longer being built', () => {
+    const day = 24 * 60 * 60 * 1000;
+    const abandoned = [2, 3, 4, 5].map((days, index) => seedCache(`dog${index}`, 'find_the_dog-ios-debug', days * day));
+    buildDebug(path.join(repoRoot, 'games/find_the_bird'));
+    expect(abandoned.map((cache) => fs.existsSync(cache))).toEqual([true, true, true, false]);
+  });
+
+  it('does not leave empty checkout directories behind after pruning', () => {
+    const day = 24 * 60 * 60 * 1000;
+    [2, 3, 4, 5].forEach((days, index) => seedCache(`gone${index}`, 'find_the_bird-ios-debug', days * day));
+    buildDebug(path.join(repoRoot, 'games/find_the_bird'));
+    expect(fs.existsSync(path.join(cacheRoot, 'gone2'))).toBe(false);
+    expect(fs.existsSync(path.join(cacheRoot, 'gone3'))).toBe(false);
   });
 
   it('never falls back to a stale in-tree build after runner failure', () => {
