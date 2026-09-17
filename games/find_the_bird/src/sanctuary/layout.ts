@@ -23,6 +23,8 @@ export interface SanctuaryManifest {
     bbox: [number, number, number, number];
     pedestals: Array<{ anchor: [number, number]; width: number }>;
   }>;
+  /** Foot centre per bird per costume (fraction of sprite width); falls back to birdFootCenterX. */
+  birdFoot?: Record<string, Record<string, number>>;
   /** The next plot's placeholder house, drawn locked in its own slide. */
   lockedHouse?: { src: string; size: [number, number]; bbox: [number, number, number, number] };
   birds: Record<string, Record<string, string>>;

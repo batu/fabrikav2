@@ -141,6 +141,13 @@ export interface CollectionMeta {
   claimedRung: number;
   /** Rung the player chose to display (1..3); 0 follows the highest claimed. */
   selectedRung: number;
+  /** Per-bird ladders; `sparrow` mirrors the two fields above. */
+  ladders: Record<string, LadderMeta>;
+}
+
+export interface LadderMeta {
+  claimedRung: number;
+  selectedRung: number;
 }
 
 export type SanctuaryHouseTier = 0 | 1 | 2 | 3;
@@ -162,6 +169,7 @@ export const EMPTY_COLLECTION_META: CollectionMeta = {
   plainFlipShown: false,
   claimedRung: 0,
   selectedRung: 0,
+  ladders: {},
 };
 
 export const EMPTY_SANCTUARY_STATE: SanctuaryState = {
@@ -428,7 +436,22 @@ function parseCollectionMeta(value: string | null): CollectionMeta {
     plainFlipShown: parsed.plainFlipShown === true,
     claimedRung: Math.min(3, nonNegativeIntegerOrZero(parsed.claimedRung)),
     selectedRung: Math.min(3, nonNegativeIntegerOrZero(parsed.selectedRung)),
+    ladders: parseLadders(parsed.ladders),
   };
+}
+
+function parseLadders(value: unknown): Record<string, LadderMeta> {
+  const ladders: Record<string, LadderMeta> = {};
+  if (value === null || typeof value !== 'object' || Array.isArray(value)) return ladders;
+  for (const [bird, raw] of Object.entries(value as Record<string, unknown>)) {
+    if (raw === null || typeof raw !== 'object' || Array.isArray(raw)) continue;
+    const record = raw as Record<string, unknown>;
+    ladders[bird] = {
+      claimedRung: Math.min(3, nonNegativeIntegerOrZero(record.claimedRung)),
+      selectedRung: Math.min(3, nonNegativeIntegerOrZero(record.selectedRung)),
+    };
+  }
+  return ladders;
 }
 
 function parseHouseTier(value: unknown): SanctuaryHouseTier {
@@ -847,26 +870,40 @@ export class GameState {
 
   /** The player opens the next rung of the sparrow ladder. Only the rung
    *  directly above the claimed one, so a stale button cannot skip a step. */
-  claimCollectionRung(rung: number): boolean {
-    if (!Number.isSafeInteger(rung) || rung !== this._collectionMeta.claimedRung + 1 || rung > 3) return false;
+  /** A bird's ladder; the sparrow's is also mirrored in the legacy fields. */
+  ladderOf(bird: string): LadderMeta {
+    if (bird === 'sparrow') return { claimedRung: this._collectionMeta.claimedRung, selectedRung: this._collectionMeta.selectedRung };
+    return this._collectionMeta.ladders[bird] ?? { claimedRung: 0, selectedRung: 0 };
+  }
+
+  private writeLadder(bird: string, ladder: LadderMeta): void {
+    const ladders = { ...this._collectionMeta.ladders, [bird]: ladder };
+    this._collectionMeta = bird === 'sparrow'
+      ? { ...this._collectionMeta, claimedRung: ladder.claimedRung, selectedRung: ladder.selectedRung, ladders }
+      : { ...this._collectionMeta, ladders };
+    this.save();
+  }
+
+  claimCollectionRung(rung: number, bird = 'sparrow'): boolean {
+    const ladder = this.ladderOf(bird);
+    if (!Number.isSafeInteger(rung) || rung !== ladder.claimedRung + 1 || rung > 3) return false;
     // The new look is what the player just paid for: show it, whatever tab
     // they had picked before.
-    this._collectionMeta = { ...this._collectionMeta, claimedRung: rung, selectedRung: rung };
-    this.save();
+    this.writeLadder(bird, { claimedRung: rung, selectedRung: rung });
     return true;
   }
 
   /** Pick which claimed rung the card and the Sanctuary show. */
-  selectCollectionRung(rung: number): boolean {
-    if (!Number.isSafeInteger(rung) || rung < 1 || rung > this._collectionMeta.claimedRung) return false;
-    this._collectionMeta = { ...this._collectionMeta, selectedRung: rung };
-    this.save();
+  selectCollectionRung(rung: number, bird = 'sparrow'): boolean {
+    const ladder = this.ladderOf(bird);
+    if (!Number.isSafeInteger(rung) || rung < 1 || rung > ladder.claimedRung) return false;
+    this.writeLadder(bird, { ...ladder, selectedRung: rung });
     return true;
   }
 
-  setClaimedRungForTest(rung: number): void {
-    this._collectionMeta = { ...this._collectionMeta, claimedRung: Math.max(0, Math.min(3, Math.floor(rung))) };
-    this.save();
+  setClaimedRungForTest(rung: number, bird = 'sparrow'): void {
+    const ladder = this.ladderOf(bird);
+    this.writeLadder(bird, { ...ladder, claimedRung: Math.max(0, Math.min(3, Math.floor(rung))) });
   }
 
   /** One-shot: the sparrow card has played its silhouette-to-plain flip. */

@@ -19,6 +19,8 @@ import { analytics } from '../analytics/AnalyticsService';
 import { accrualConfig, housePrice, MAX_HOUSE_TIER } from '../collection/config';
 import { CARD_STATE_ORDER, clampRung } from '../collection/thresholds';
 import { displayedRung } from '../collection/cardModel';
+import { BIRDS, BIRD_DEFS, isBirdId, type BirdId } from '../collection/birds';
+import { claimedRungOf } from '../collection/ladders';
 import { collectableCoins, settle } from '../sanctuary/accrual';
 import { layoutSanctuary, type Rect, type SanctuaryManifest } from '../sanctuary/layout';
 import { animateCoinsToBalance } from './EconomyTransfer';
@@ -286,15 +288,20 @@ function hop(element: HTMLElement): void {
   );
 }
 
-function currentCostume(): string {
-  const meta = gameState.collectionMeta;
+function currentCostume(bird: BirdId = 'sparrow'): 'plain' | 'hat' | 'cardigan' {
+  const meta = gameState.ladderOf(bird);
   const state = CARD_STATE_ORDER[displayedRung(clampRung(meta.claimedRung), meta.selectedRung)];
   return state === 'silhouette' ? 'plain' : state;
 }
 
-function birdSprite(costume: string): string {
-  const sparrow = MANIFEST.birds.sparrow;
-  return sparrow[costume] ?? sparrow.plain;
+function footCentreOf(bird: BirdId): number {
+  const costume = currentCostume(bird);
+  return MANIFEST.birdFoot?.[bird]?.[costume] ?? MANIFEST.birdFootCenterX?.[costume] ?? 0.5;
+}
+
+function birdSprite(bird: BirdId, costume: 'plain' | 'hat' | 'cardigan'): string {
+  const fromManifest = MANIFEST.birds[bird]?.[costume];
+  return fromManifest ?? BIRD_DEFS[bird].sprites[costume];
 }
 
 const DEV_TOOLS = String(import.meta.env.VITE_FTB_DEV_TOOLS) === 'true';
@@ -412,8 +419,9 @@ export function wireSanctuaryPage(page: ParentNode): void {
         slot.appendChild(plus);
         slot.addEventListener('click', () => { playUITap(); offerPlacement(pedestal.index); });
       } else {
-        slot.setAttribute('aria-label', 'Sparrow. Tap to say hello');
-        sprite.src = birdSprite(currentCostume());
+        const tenantBird: BirdId = isBirdId(tenant) ? tenant : 'sparrow';
+        slot.setAttribute('aria-label', `${BIRD_DEFS[tenantBird].name}. Tap to say hello`);
+        sprite.src = birdSprite(tenantBird, currentCostume(tenantBird));
         const shadow = document.createElement('span');
         shadow.className = 'sanctuary-shadow';
         applyRect(shadow, pedestal.shadow);
@@ -426,7 +434,7 @@ export function wireSanctuaryPage(page: ParentNode): void {
       // sits well left of its legs, so centring stood the bird off the perch.
       const footFraction = tenant === undefined
         ? (MANIFEST.markerFootCenterX ?? 0.5)
-        : (MANIFEST.birdFootCenterX?.[currentCostume()] ?? 0.5);
+        : footCentreOf(isBirdId(tenant) ? tenant : 'sparrow');
       slot.style.left = `${pedestal.anchor.x}px`;
       slot.style.top = `${pedestal.anchor.y - pedestal.birdHeight}px`;
       slot.style.height = `${pedestal.birdHeight}px`;
@@ -577,10 +585,8 @@ export function wireSanctuaryPage(page: ParentNode): void {
   };
 
   const offerPlacement = (pedestalIndex: number): void => {
-    const meta = gameState.collectionMeta;
-    const unlocked = clampRung(meta.claimedRung) >= 1;
     const placedMap = gameState.sanctuary.placed;
-    const place = (bird: string): void => {
+    const place = (bird: BirdId): void => {
       if (!gameState.placeBird(pedestalIndex, bird, new Date(now()))) return;
       closeSheet(sheetRoot);
       render();
@@ -593,22 +599,22 @@ export function wireSanctuaryPage(page: ParentNode): void {
       hapticFound();
       nudge(scene, centerOf(placed), 0.025);
     };
-    const costume = CARD_STATE_ORDER[displayedRung(clampRung(meta.claimedRung), meta.selectedRung)];
-    const birds: BirdChoice[] = [
-      {
-        id: 'sparrow', name: 'Chirpy', locked: !unlocked,
-        portrait: unlocked ? `/ui/collection/portrait-sparrow-${costume === 'silhouette' ? 'plain' : costume}.webp` : '/ui/collection/portrait-sparrow-silhouette.webp',
-        placed: Object.values(placedMap).includes('sparrow'),
-        onPick: () => { place('sparrow'); },
-      },
-      { id: 'robin', name: 'Robin', locked: true, portrait: '/ui/collection/portrait-robin-silhouette.webp', placed: false, onPick: () => {} },
-      { id: 'bluebird', name: 'Bluebird', locked: true, portrait: '/ui/collection/portrait-bluebird-silhouette.webp', placed: false, onPick: () => {} },
-    ];
+    const birds: BirdChoice[] = BIRDS.map((bird) => {
+      const def = BIRD_DEFS[bird];
+      const unlocked = claimedRungOf(bird) >= 1;
+      return {
+        id: bird, name: def.name, locked: !unlocked,
+        portrait: unlocked ? def.portraits[currentCostume(bird)] : def.portraits.silhouette,
+        placed: Object.values(placedMap).includes(bird),
+        onPick: () => { place(bird); },
+      };
+    });
+    const anyUnlocked = birds.some((bird) => !bird.locked);
     showSheet(sheetRoot, {
       title: 'Who moves in?',
       birds,
-      note: unlocked ? undefined : 'Unlock Chirpy in the Collection first.',
-      actions: unlocked ? [] : [{ label: 'Go to Collection', kind: 'primary', onTap: () => { openPage('collection'); } }],
+      note: anyUnlocked ? undefined : 'Unlock a bird in the Collection first.',
+      actions: anyUnlocked ? [] : [{ label: 'Go to Collection', kind: 'primary', onTap: () => { openPage('collection'); } }],
     });
   };
 

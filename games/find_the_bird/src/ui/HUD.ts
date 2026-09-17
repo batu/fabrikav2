@@ -20,8 +20,8 @@ import { renderAchievementHeaderBalances, renderAchievementsPageBody, wireAchiev
 import { renderCollectionPageBody, wireCollectionPage } from './CollectionPage';
 import { renderSanctuaryPageBody, wireSanctuaryPage, teardownSanctuaryPage } from './SanctuaryPage';
 import { currentMetaGates, renderMetaNavBar } from './metaNavBar';
-import { collectionThresholds } from '../collection/config';
-import { clampRung, ladder } from '../collection/thresholds';
+import { focusBird } from '../collection/ladders';
+import { BIRD_DEFS } from '../collection/birds';
 import { shakeLockedNavButton } from './homeNavigation';
 import { rewardedAdIconMarkup } from './RewardedAdIcon';
 import { hideHomeMenuLayer } from './OverlayVisibility';
@@ -267,11 +267,16 @@ export function setGameModeChangeCallback(_cb: (() => void) | null): void {
 export function updateSparrowCounter(): void {
   const pill = document.querySelector<HTMLElement>('#sparrow-counter');
   if (pill === null) return;
-  pill.hidden = !currentMetaGates().collectionUnlocked;
-  const rung = ladder(gameState.birdCount('sparrow'), clampRung(gameState.collectionMeta.claimedRung), collectionThresholds());
+  const focus = currentMetaGates().collectionUnlocked ? focusBird() : null;
+  pill.hidden = focus === null;
+  if (focus === null) return;
+  const { bird, rung } = focus;
+  pill.dataset.bird = bird;
+  const icon = pill.querySelector<HTMLImageElement>('img');
+  if (icon !== null && !icon.src.endsWith(BIRD_DEFS[bird].portraits.plain)) icon.src = BIRD_DEFS[bird].portraits.plain;
   pill.classList.toggle('hud-sparrow-pill--ready', rung.ready);
   const count = pill.querySelector('.count');
-  if (count) count.textContent = rung.ready ? 'Unlock!' : rung.target === null ? 'Done' : `${String(Math.max(0, Math.min(gameState.birdCount('sparrow'), rung.target) - rung.from))} / ${String(rung.target - rung.from)}`;
+  if (count) count.textContent = rung.ready ? 'Unlock!' : rung.target === null ? 'Done' : `${String(Math.max(0, Math.min(gameState.birdCount(bird), rung.target) - rung.from))} / ${String(rung.target - rung.from)}`;
 }
 
 export function pulseSparrowCounter(): void {

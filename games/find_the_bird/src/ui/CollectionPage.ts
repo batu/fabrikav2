@@ -21,9 +21,10 @@ import { centerOf, nudge } from './juice';
 import { hapticFound } from '../haptics/HapticsManager';
 import { analytics } from '../analytics/AnalyticsService';
 import { gameState } from '../core/GameState';
-import { collectionTeaseCount, collectionThresholds } from '../collection/config';
+import { allCardInputs } from '../collection/ladders';
+import { BIRD_DEFS } from '../collection/birds';
 import { collectionDeck, HIDDEN_LINE, type CardFrame, type CardViewModel } from '../collection/cardModel';
-import { CARD_STATE_ORDER, clampRung, type CardState } from '../collection/thresholds';
+import { CARD_STATE_ORDER, type CardState } from '../collection/thresholds';
 
 /**
  * Card frame geometry, measured from the art on a 900x1500 canvas (both frames
@@ -142,7 +143,7 @@ function renderCard(card: CardViewModel, index: number): string {
   // the deck's chrome, and the Unlock button takes the same slot when a rung
   // is ready.
   const meter = card.claimable && card.progress !== null
-    ? `<button class="collection-unlock-btn" type="button" data-claim-rung="${CARD_STATE_ORDER.indexOf(card.state as CardState) + 1}">Unlock ${card.progress.label === 'Unlock' ? 'Sparrow' : card.progress.label}</button>`
+    ? `<button class="collection-unlock-btn" type="button" data-claim-rung="${CARD_STATE_ORDER.indexOf(card.state as CardState) + 1}">Unlock ${card.progress.label === 'Unlock' ? (card.bird ? BIRD_DEFS[card.bird].tabLabels[1] : 'Bird') : card.progress.label}</button>`
     : card.progress === null
       ? (card.kind === 'sparrow' && !card.locked
         ? '<div class="collection-meter collection-meter--done" role="group" aria-label="Complete"><span class="collection-meter-text">Complete</span></div>'
@@ -154,7 +155,7 @@ function renderCard(card: CardViewModel, index: number): string {
       </div>`;
   return `
     <li class="collection-slide" data-card-index="${index}">
-      <article class="collection-card${card.locked ? ' collection-card--locked' : ''}" data-card-kind="${card.kind}" data-card-state="${card.state}" aria-label="${card.ariaLabel}">
+      <article class="collection-card${card.locked ? ' collection-card--locked' : ''}" data-card-kind="${card.kind}"${card.bird ? ` data-bird="${card.bird}"` : ''} data-card-state="${card.state}" aria-label="${card.ariaLabel}">
         <img class="collection-card-frame" src="${f.src}" alt="" aria-hidden="true">
         <span class="collection-card-arch" style="${archStyle(f)}" aria-hidden="true">
           ${card.portraitSrc === '' ? '' : `<img class="collection-card-portrait" src="${card.portraitSrc}" alt="" style="${card.portraitStyle ?? f.portraitStyle}">`}
@@ -202,13 +203,7 @@ function placeBackdrop(page: ParentNode): void {
 }
 
 export function renderCollectionPageBody(): string {
-  const cards = collectionDeck({
-    count: gameState.birdCount('sparrow'),
-    thresholds: collectionThresholds(),
-    claimed: clampRung(gameState.collectionMeta.claimedRung),
-    selected: gameState.collectionMeta.selectedRung,
-    teaseCount: collectionTeaseCount(),
-  });
+  const cards = collectionDeck(allCardInputs());
   const dots = cards
     .map((_, index) => `<span class="collection-dot${index === 0 ? ' collection-dot--active' : ''}" data-dot-index="${index}"></span>`)
     .join('');
@@ -252,7 +247,7 @@ export function wireCollectionPage(page: ParentNode): void {
 
   // Claiming a rung: persist, redraw the deck in place, then flip and flare
   // the card so the new art arrives as a reward rather than a refresh.
-  const redraw = (): HTMLElement | null => {
+  const redraw = (bird: string): HTMLElement | null => {
     const body = page.querySelector<HTMLElement>('.home-page-body');
     if (body === null) return null;
     const scrollLeft = deck.scrollLeft;
@@ -260,29 +255,31 @@ export function wireCollectionPage(page: ParentNode): void {
     wireCollectionPage(page);
     const freshDeck = page.querySelector<HTMLElement>('#collection-deck');
     if (freshDeck !== null) freshDeck.scrollLeft = scrollLeft;
-    return page.querySelector<HTMLElement>('.collection-card[data-card-kind="sparrow"]');
+    return page.querySelector<HTMLElement>(`.collection-card[data-bird="${bird}"]`);
   };
 
   // Tabs: an open tab picks the look the card (and the Sanctuary) shows.
+  const birdOf = (el: Element): string => el.closest<HTMLElement>('.collection-card')?.dataset.bird ?? 'sparrow';
   for (const tab of page.querySelectorAll<HTMLButtonElement>('.collection-tab--open')) {
     tab.addEventListener('click', () => {
       playUITap();
-      if (!gameState.selectCollectionRung(Number(tab.dataset.rung))) return;
-      const sparrow = redraw();
-      sparrow?.querySelector('.collection-card-arch')?.classList.add('collection-arch--swap');
+      const bird = birdOf(tab);
+      if (!gameState.selectCollectionRung(Number(tab.dataset.rung), bird)) return;
+      const card = redraw(bird);
+      card?.querySelector('.collection-card-arch')?.classList.add('collection-arch--swap');
     });
   }
   for (const tab of page.querySelectorAll<HTMLButtonElement>('.collection-tab--locked')) {
     tab.addEventListener('click', () => { shakeLockedNavButton(tab); });
   }
 
-  page.querySelector<HTMLButtonElement>('.collection-unlock-btn')?.addEventListener('click', (event) => {
-    const button = event.currentTarget as HTMLButtonElement;
+  for (const button of page.querySelectorAll<HTMLButtonElement>('.collection-unlock-btn')) button.addEventListener('click', () => {
     const rung = Number(button.dataset.claimRung);
+    const bird = button.closest<HTMLElement>('.collection-slide')?.querySelector<HTMLElement>('.collection-card')?.dataset.bird ?? 'sparrow';
     playUITap();
-    if (!gameState.claimCollectionRung(rung)) return;
-    void analytics.birdCollected({ bird_type: 'sparrow', level_id: `claim:${String(rung)}`, total: gameState.birdCount('sparrow') });
-    const sparrow = redraw();
+    if (!gameState.claimCollectionRung(rung, bird)) return;
+    void analytics.birdCollected({ bird_type: bird, level_id: `claim:${String(rung)}`, total: gameState.birdCount(bird) });
+    const sparrow = redraw(bird);
     if (sparrow === null) return;
     // Measure BEFORE the reveal starts: its first frame is rotateY(-90deg),
     // where the card's box has no width and a burst has nowhere to come from.

@@ -43,10 +43,10 @@ import {
 import { FindPraise } from '../ui/FindPraise';
 import { FindPraisePolicy } from '../ui/FindPraisePolicy';
 import { isHardBird } from '../data/birdDifficulty';
-import { birdTypeSnapshot, isSparrow, loadBirdTypes } from '../data/birdTypes';
-import { collectionThresholds } from '../collection/config';
+import { birdTypeSnapshot, loadBirdTypes, birdType } from '../data/birdTypes';
 import { currentMetaGates } from '../ui/metaNavBar';
-import { clampRung, ladder } from '../collection/thresholds';
+import { isBirdOpen, ladderFor } from '../collection/ladders';
+import { BIRD_DEFS, isBirdId } from '../collection/birds';
 import { showTutorialOverlay, phaserPointToCssPoint, type TutorialHandle } from '../ui/TutorialOverlay';
 import { preloadLevelCompleteAssets, showLevelCompleteOverlay, dismissLevelCompleteOverlay } from '../ui/LevelCompleteOverlay';
 import { presentAchievementUnlocks } from '../ui/AchievementToast';
@@ -1576,22 +1576,24 @@ export class GameScene extends Phaser.Scene {
     const level = this.level;
     if (level === null) return false;
     const index = birdTypeSnapshot();
-    if (index === null || !isSparrow(index, level.id, dog.id)) return false;
+    const tag = birdType(index, level.id, dog.id);
+    if (tag === null || !isBirdId(tag)) return false;
 
-    const total = gameState.incrementBirdCount('sparrow');
-    void analytics.birdCollected({ bird_type: 'sparrow', level_id: level.id, total });
+    // Every collectable species counts from the first pickup, so a bird that
+    // opens later starts with what was already found. Only OPEN birds speak.
+    const total = gameState.incrementBirdCount(tag);
+    void analytics.birdCollected({ bird_type: tag, level_id: level.id, total });
+    if (!currentMetaGates().collectionUnlocked || !isBirdOpen(tag)) return false;
 
     // The chip is a countdown, not a tally: it speaks at every ten, at every
-    // one inside the last ten, and once more when the rung is earned. Before
-    // the Collection opens there is nothing to count down to, so it stays quiet.
-    if (!currentMetaGates().collectionUnlocked) return true;
-    const rung = ladder(total, clampRung(gameState.collectionMeta.claimedRung), collectionThresholds());
+    // one inside the last ten, and once more when the rung is earned.
+    const rung = ladderFor(tag);
     if (rung.target === null) return true;
     const justEarned = rung.ready && total === rung.target;
     const speaks = justEarned || rung.remaining <= 10 || rung.remaining % 10 === 0;
     if (!speaks || (rung.ready && !justEarned)) return true;
     const css = phaserPointToCssPoint(this.scale.canvas, GAME.WIDTH, GAME.HEIGHT, canvasX, canvasY);
-    this.findPraise.showChip(css.x, css.y, justEarned ? 'New sparrow level unlocked!' : `${String(rung.remaining)} left!`, { loud: true });
+    this.findPraise.showChip(css.x, css.y, justEarned ? `New ${BIRD_DEFS[tag].name} level unlocked!` : `${String(rung.remaining)} left!`, { loud: true });
     return true;
   }
 

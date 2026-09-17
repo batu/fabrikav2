@@ -7,7 +7,7 @@ import {
   nextThreshold,
   type CollectionThresholds,
 } from '../../src/collection/thresholds';
-import { collectionDeck, sparrowCard, unknownCard, HIDDEN_LINE } from '../../src/collection/cardModel';
+import { collectionDeck, birdCard, unknownCard, HIDDEN_LINE } from '../../src/collection/cardModel';
 
 const THRESHOLDS: CollectionThresholds = { unlock: 10, hat: 20, cardigan: 35 };
 
@@ -131,7 +131,7 @@ describe('next threshold', () => {
 
 describe('card view model', () => {
   it('hides name and copy while the sparrow is locked', () => {
-    const card = sparrowCard({ count: 3, thresholds: THRESHOLDS, claimed: 0, selected: 0, teaseCount: 1 });
+    const card = birdCard({ bird: 'sparrow', open: true, count: 3, thresholds: THRESHOLDS, claimed: 0, selected: 0, teaseCount: 1 });
     expect(card.locked).toBe(true);
     expect(card.plaque).toBe('? ? ?');
     expect(card.lines).toEqual([HIDDEN_LINE, HIDDEN_LINE, HIDDEN_LINE]);
@@ -140,7 +140,7 @@ describe('card view model', () => {
   });
 
   it('reveals name, copy and the plain portrait at the unlock threshold', () => {
-    const card = sparrowCard({ count: 10, thresholds: THRESHOLDS, claimed: 0, selected: 0, teaseCount: 1 });
+    const card = birdCard({ bird: 'sparrow', open: true, count: 10, thresholds: THRESHOLDS, claimed: 0, selected: 0, teaseCount: 1 });
     expect(card.locked).toBe(false);
     expect(card.plaque).toBe('Sparrow');
     expect(card.ribbon).toBe('Garden bird');
@@ -149,9 +149,9 @@ describe('card view model', () => {
   });
 
   it('swaps the portrait for each costume and drops progress when complete', () => {
-    expect(sparrowCard({ count: 20, thresholds: THRESHOLDS, claimed: 0, selected: 0, teaseCount: 1 }).portraitSrc).toContain('portrait-sparrow-hat');
-    expect(sparrowCard({ count: 35, thresholds: THRESHOLDS, claimed: 0, selected: 0, teaseCount: 1 }).portraitSrc).toContain('portrait-sparrow-cardigan');
-    expect(sparrowCard({ count: 35, thresholds: THRESHOLDS, claimed: 0, selected: 0, teaseCount: 1 }).progress).toBeNull();
+    expect(birdCard({ bird: 'sparrow', open: true, count: 20, thresholds: THRESHOLDS, claimed: 0, selected: 0, teaseCount: 1 }).portraitSrc).toContain('portrait-sparrow-hat');
+    expect(birdCard({ bird: 'sparrow', open: true, count: 35, thresholds: THRESHOLDS, claimed: 0, selected: 0, teaseCount: 1 }).portraitSrc).toContain('portrait-sparrow-cardigan');
+    expect(birdCard({ bird: 'sparrow', open: true, count: 35, thresholds: THRESHOLDS, claimed: 0, selected: 0, teaseCount: 1 }).progress).toBeNull();
   });
 
   it('describes the unknown card as a locked placeholder', () => {
@@ -163,7 +163,7 @@ describe('card view model', () => {
   });
 
   it('builds a two-card deck in swipe order', () => {
-    const deck = collectionDeck({ count: 0, thresholds: THRESHOLDS, claimed: 0, selected: 0, teaseCount: 1 });
+    const deck = collectionDeck([{ bird: 'sparrow', open: true, count: 0, thresholds: THRESHOLDS, claimed: 0, selected: 0, teaseCount: 1 }]);
     expect(deck.map((card) => card.kind)).toEqual(['sparrow', 'unknown']);
   });
 });

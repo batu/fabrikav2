@@ -124,6 +124,16 @@
         "plain": "/ui/sanctuary/birds/sparrow-plain.webp",
         "hat": "/ui/sanctuary/birds/sparrow-hat.webp",
         "cardigan": "/ui/sanctuary/birds/sparrow-cardigan.webp"
+      },
+      "robin": {
+        "plain": "/ui/sanctuary/birds/robin-plain.webp",
+        "hat": "/ui/sanctuary/birds/robin-hat.webp",
+        "cardigan": "/ui/sanctuary/birds/robin-cardigan.webp"
+      },
+      "bluebird": {
+        "plain": "/ui/sanctuary/birds/bluebird-plain.webp",
+        "hat": "/ui/sanctuary/birds/bluebird-hat.webp",
+        "cardigan": "/ui/sanctuary/birds/bluebird-cardigan.webp"
       }
     },
     "markers": {
@@ -157,6 +167,23 @@
         980
       ],
       "note": "placeholder for the next plot; drawn with the tier scale at the same anchor in its own slide"
+    },
+    "birdFoot": {
+      "sparrow": {
+        "plain": 0.6198,
+        "hat": 0.6227,
+        "cardigan": 0.6255
+      },
+      "robin": {
+        "plain": 0.5987,
+        "hat": 0.6358,
+        "cardigan": 0.5861
+      },
+      "bluebird": {
+        "plain": 0.6102,
+        "hat": 0.6084,
+        "cardigan": 0.5993
+      }
     }
   },
   "collection": {
