@@ -245,3 +245,12 @@ them through the same workflow. Batu reviews everything himself at the end from 
   mistake), mesa campground b14 (stove chunk, re-cut), pirate lagoon b3 (post + black water chunk,
   re-cut). Waterfall b3 white gap between the legs punched by hand.
 - Phone: 99c55682f8. CDN: revision 42 + the reorder publish (see the live manifest).
+
+## 2026-09-17 16:20 UTC: MERGED to main (PR #100)
+
+- Everything above (pickup rule order, debug tools, per-bird repairs, white-gap pass, Batu's order) is on
+  main at 1c1850531. Store submission NOT done on Batu's word ("dont send to the store just yet"); the
+  1.2.7 (42) archive in ~/store-review/find-games/ios-submission-20260916-levels is from c663a3ba4 and must
+  be rebuilt from main before any submission; 1.2.6 (41) is still IN_REVIEW.
+- Push trap: `.package-revisions/` (2.2 GB) was swept into a commit by `git add public/levels`; now gitignored.
+  Large sprite commits push reliably only in ~6-level batches with `http.version=HTTP/1.1`.
