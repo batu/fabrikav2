@@ -6058,3 +6058,13 @@ body:has(#home-page-overlay) #tutorial-overlay { display: none; }
   transform: translateY(-8px) scale(1.16);
 }
 #home-shell .home-nav-bar { z-index: 6; }
+
+/* The Collection sits on the Sanctuary's sky and tree rather than a cream
+   panel, and on both meta pages the sliding panel's cream strip above the
+   bar is gone: the body itself runs to the panel's bottom edge, under the bar. */
+:is(.home-page-collection, .home-page-sanctuary) .home-page-slide { padding-bottom: 0; }
+.home-page-collection .home-page-body {
+  background: #dfe9d3 url('/ui/sanctuary/sanctuary-bg.webp') center / cover no-repeat;
+}
+.collection-dot { background: rgba(255, 250, 242, .55); }
+.collection-dot--active { background: #fffaf2; box-shadow: 0 1px 3px rgba(60, 40, 20, .35); }
