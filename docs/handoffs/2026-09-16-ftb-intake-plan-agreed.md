@@ -231,3 +231,17 @@ them through the same workflow. Batu reviews everything himself at the end from 
 - Catalog: 7 removed levels tombstoned (castle market, goat pasture, hawaii 4453, treehouse, bommie
   garden, alsace, crystal grotto). Backend restarted 12:19 on 0d080ab3e+; lineup draft = 92.
 - Phone: build e507353143 (all of the above except the keyer revert, which is data-only).
+
+## 2026-09-17 13:45 UTC: Batu's level order
+
+- order.txt = the editor lineup draft `draft-594dcd475b050181` (92 levels; previous order in
+  `order.txt.pre-reorder-2026-09-17`). Starters = first 44 of the new order: jungle cave shore, automaton
+  assembly, river bridge district, rainbow alley entered; treehouse 24d4, adobe courtyard 4588, bakers
+  enclosure, kelp gallery moved to streamed. Catalog bundledInApp flipped for those 8 (catalog-001176).
+- The editor's "activate" sequence route is retired on purpose (`_retired_sequence_write_route`); the
+  live sequence (74) is not the game's truth. The game order = bundled-manifest.json / CDN manifest,
+  both produced by publish_ftb_cdn.py from order.txt.
+- Flags read from the phone (localStorage ftb-debug-bird-flags via AFC pull): museum hall b5 (Batu:
+  mistake), mesa campground b14 (stove chunk, re-cut), pirate lagoon b3 (post + black water chunk,
+  re-cut). Waterfall b3 white gap between the legs punched by hand.
+- Phone: 99c55682f8. CDN: revision 42 + the reorder publish (see the live manifest).
