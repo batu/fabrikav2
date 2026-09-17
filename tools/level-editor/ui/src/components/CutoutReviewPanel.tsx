@@ -27,7 +27,7 @@ interface CandidateJobState {
 }
 type ControlMode = 'sprite' | 'padding';
 type ResizeHandle = 'nw' | 'ne' | 'sw' | 'se';
-const DEFAULT_CUTOUT_MODEL = 'google/gemini-3.1-flash-image-preview';
+const DEFAULT_CUTOUT_MODEL = 'openai/gpt-image-2.5-sunburst'; // operator default 2026-09-18 (quality low server-side)
 
 interface Props {
   sessionId: string;
