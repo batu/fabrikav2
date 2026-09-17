@@ -55,3 +55,31 @@ Done and on FTB Nest as build `9c65f57fc`:
 ## Definition of done for the next stretch
 
 Batu's phone counts birds on every level (counter moves on a played level), the sanctuary economy values are set to whatever Batu approves, and each shipped iteration is on FTB Nest with its build sha reported. Tests remain deferred until Batu calls for them.
+
+## Traps worth knowing (added 2026-09-18, after a review pass)
+
+- **The harness refuses taps while the tutorial is armed.** `findDog` and `winLevel`
+  return `false` with no error, which reads exactly like a broken pickup path. Call
+  `setSettings({ tutorialEnabled: false })` first. Two agents and I each lost time to
+  this; one of my bug reports ("bird counts never move") was this and nothing else.
+- **`findDog` takes the bird's uuid from level.json, not the `dog_NN` slot.** A slot
+  name silently finds nothing.
+- **`startLevel(n)` indexes the runtime sequence, not the shipped level list**, so it
+  loads a different level than the one you meant. Use `gotoGameScene('<level id>')`,
+  and `sagaNodes()` to read the real order.
+- **Never scroll a card into view with `scrollIntoView`.** It scrolls every scrollable
+  ancestor when script asks, overflow-hidden included, and dragged the whole page
+  overlay 280px up the screen. Set the deck's own `scrollLeft`.
+- **Both meta gates read ARRIVAL at the level their pill promises** (`levels >= N - 1`),
+  not clearing it. They disagreed once; a pill saying "Level 10" that pays out on 11 is
+  a broken promise.
+- **Supply is per level, and a species counts only from the moment its card opens.** A
+  bird that appears only inside a window of levels becomes unreachable for any player
+  who opens its card later than planned, because those levels are behind them. Keep
+  supply windows open-ended for this reason.
+- **The cadence simulation finds a bird's predecessor by stepping back one index**,
+  which wraps to the last bird for the first one. It is harmless only because the
+  sparrow's rule is `always`.
+- **Two separate one-shots at the Sanctuary unlock**: the level-complete hand-off and
+  the home tile's pop animation. Collapsing them into one looks like a simplification
+  and silently kills the tile reveal.
