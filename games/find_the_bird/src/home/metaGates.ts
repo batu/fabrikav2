@@ -14,6 +14,8 @@ export interface MetaGateInput {
   totalLevelsCompleted: number;
   sparrowCount: number;
   collectionUnlockLevel: number;
+  /** The Sanctuary's own level gate; its locked tile advertises this level. */
+  sanctuaryUnlockLevel: number;
   thresholds: CollectionThresholds;
   collectionPopShown: boolean;
   sanctuaryPopShown: boolean;
@@ -36,9 +38,14 @@ export function metaGates(input: MetaGateInput): MetaGates {
     : 0;
 
   const collectionUnlocked = levels >= required;
+  const sanctuaryLevel = Number.isFinite(input.sanctuaryUnlockLevel)
+    ? Math.max(0, Math.floor(input.sanctuaryUnlockLevel))
+    : 0;
   // The Sanctuary needs a tenant to be worth opening, and the Collection is
   // where tenants come from, so it can never open first.
-  const sanctuaryUnlocked = collectionUnlocked && isUnlocked(input.sparrowCount, input.thresholds);
+  // It also carries a level gate of its own: the locked tile promises a level
+  // number, and a promise the sparrow count could break is not one to make.
+  const sanctuaryUnlocked = collectionUnlocked && levels >= sanctuaryLevel && isUnlocked(input.sparrowCount, input.thresholds);
 
   return {
     collectionUnlocked,

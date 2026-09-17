@@ -13,7 +13,7 @@
 
 import { gameState } from '../core/GameState';
 import { metaGates, type MetaGates } from '../home/metaGates';
-import { accrualConfig, collectionThresholds, collectionUnlockLevel } from '../collection/config';
+import { accrualConfig, collectionThresholds, collectionUnlockLevel, sanctuaryUnlockLevel } from '../collection/config';
 import { collectableCoins, settle } from '../sanctuary/accrual';
 
 export type MetaNavTarget = 'sanctuary' | 'play' | 'collection';
@@ -32,6 +32,7 @@ export function currentMetaGates(): MetaGates {
     totalLevelsCompleted: gameState.totalLevelsCompleted,
     sparrowCount: gameState.birdCount('sparrow'),
     collectionUnlockLevel: collectionUnlockLevel(),
+    sanctuaryUnlockLevel: sanctuaryUnlockLevel(),
     thresholds: collectionThresholds(),
     collectionPopShown: gameState.collectionMeta.tileUnlockPopShown,
     sanctuaryPopShown: gameState.sanctuary.tileUnlockPopShown,
@@ -55,6 +56,8 @@ function tile(options: {
   active: boolean;
   pop: boolean;
   lockedLabel: string;
+  /** Shown in place of the label while locked: the level that opens the tile. */
+  unlockLevel?: number;
   /** Per-icon balance factor: the artworks differ in aspect and visual weight,
    *  so a single 82px box renders them at visibly different sizes. Started from
    *  each icon's rendered ink area and then pulled back, because equalising ink
@@ -79,7 +82,9 @@ function tile(options: {
   return `
     <button id="${options.id}" class="${classes.join(' ')}" type="button"${options.locked ? ' aria-disabled="true"' : ''}${options.active ? ' aria-current="page"' : ''} aria-label="${label}" style="--nav-icon-scale:${scale}">
       <img src="${options.icon}" alt="" aria-hidden="true">
-      <span>${options.label}</span>
+      ${options.locked && options.unlockLevel !== undefined
+        ? `<span class="home-nav-unlock-pill">Level ${String(options.unlockLevel)}</span>`
+        : `<span>${options.label}</span>`}
       ${badge > 0 ? '<span class="home-claim-dot home-claim-dot--nav" aria-hidden="true"></span>' : ''}
     </button>`;
 }
@@ -110,7 +115,8 @@ export function renderMetaNavBar(options: MetaNavOptions = {}): string {
         locked: !gates.sanctuaryUnlocked,
         active: options.active === 'sanctuary',
         pop: pop && gates.sanctuaryPopPending,
-        lockedLabel: 'Sanctuary, locked until your first bird is unlocked',
+        lockedLabel: `Sanctuary, locked until level ${String(sanctuaryUnlockLevel())}`,
+        unlockLevel: sanctuaryUnlockLevel(),
         iconScale: 1.01,
         badge: coins,
       })}
@@ -134,6 +140,7 @@ export function renderMetaNavBar(options: MetaNavOptions = {}): string {
         active: options.active === 'collection',
         pop: pop && gates.collectionPopPending,
         lockedLabel: `Bird collection, locked until level ${String(collectionUnlockLevel())}`,
+        unlockLevel: collectionUnlockLevel(),
       })}
     </nav>`;
 }

@@ -519,11 +519,11 @@ export function createFindTheDogHarness(game: Phaser.Game): FindTheDogHarness {
   function seedMetaProgress(seed: MetaSeed): void {
     // Past the collection's level gate for every state except the locked one,
     // which wants a fresh player.
-    gameState.currentLevelIndex = seed.sparrows > 0 ? 20 : 0;
+    gameState.currentLevelIndex = seed.sparrows > 0 ? 40 : 0;
     // The collection gate reads the LIFETIME completion counter, not the level
     // index, so a device carrying a real save would stay unlocked however low
     // the index is set. Seed both.
-    gameState.setTotalLevelsCompletedForTest(seed.sparrows > 0 ? 20 : 0);
+    gameState.setTotalLevelsCompletedForTest(seed.sparrows > 0 ? 40 : 0);
     gameState.setBirdCountForTest('sparrow', seed.sparrows);
     gameState.setCoinsForTest(seed.coins ?? 0);
     gameState.setSanctuaryForTest({
@@ -608,17 +608,17 @@ export function createFindTheDogHarness(game: Phaser.Game): FindTheDogHarness {
           HOME_READY_TARGET_MAX_POLLS,
         );
       }
-      case 'collection-silhouette': return collection({ sparrows: 6 });
-      case 'collection-unlocked': return collection({ sparrows: 10 });
-      case 'collection-hat': return collection({ sparrows: 20 });
-      case 'collection-cardigan': return collection({ sparrows: 35 });
-      case 'sanctuary-nohouse': return sanctuary({ sparrows: 10, coins: 150, tier: 0 });
-      case 'sanctuary-empty-perch': return sanctuary({ sparrows: 10, coins: 400, tier: 1 });
-      case 'sanctuary-placed': return sanctuary({ sparrows: 10, coins: 400, tier: 1, placed: true });
+      case 'collection-silhouette': return collection({ sparrows: 18 });
+      case 'collection-unlocked': return collection({ sparrows: 30 });
+      case 'collection-hat': return collection({ sparrows: 45 });
+      case 'collection-cardigan': return collection({ sparrows: 65 });
+      case 'sanctuary-nohouse': return sanctuary({ sparrows: 30, coins: 150, tier: 0 });
+      case 'sanctuary-empty-perch': return sanctuary({ sparrows: 30, coins: 400, tier: 1 });
+      case 'sanctuary-placed': return sanctuary({ sparrows: 30, coins: 400, tier: 1, placed: true });
       case 'sanctuary-coins':
-        return sanctuary({ sparrows: 10, coins: 400, tier: 1, placed: true, pendingCoins: 3.5 });
+        return sanctuary({ sparrows: 30, coins: 400, tier: 1, placed: true, pendingCoins: 3.5 });
       case 'sanctuary-tier3':
-        return sanctuary({ sparrows: 20, coins: 1200, tier: 3, placed: true });
+        return sanctuary({ sparrows: 45, coins: 1200, tier: 3, placed: true });
     }
   }
 

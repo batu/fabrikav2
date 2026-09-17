@@ -20,6 +20,7 @@ export interface RemoteConfigValues {
   ratePromptEnabledDefault: boolean;
   achievementsEnabled: boolean;
   collectionUnlockLevel: number;
+  sanctuaryUnlockLevel: number;
   sparrowUnlockCount: number;
   sparrowHatCount: number;
   sparrowCardiganCount: number;
@@ -108,12 +109,15 @@ export const REMOTE_CONFIG_DEFAULTS: RemoteConfigValues = {
   // row). Off hides the tile, the claim dot and unlock toasts; unlock tracking
   // and the page itself keep working so the flag can be flipped back remotely.
   achievementsEnabled: false,
-  // Collection + Sanctuary (release 1, 2026-09-16). Collection opens after
-  // level 5; the Sanctuary tile opens when the sparrow card unlocks at 10.
-  collectionUnlockLevel: 5,
-  sparrowUnlockCount: 10,
-  sparrowHatCount: 20,
-  sparrowCardiganCount: 35,
+  // Collection + Sanctuary (release 1). Locked tiles advertise these two
+  // levels, so the sparrow count is tuned to be met by then: the bundled
+  // order yields 31 sparrows by level 14 (2026-09-17 count), hat and cardigan
+  // follow at roughly levels 21 and 29.
+  collectionUnlockLevel: 10,
+  sanctuaryUnlockLevel: 15,
+  sparrowUnlockCount: 30,
+  sparrowHatCount: 45,
+  sparrowCardiganCount: 65,
   housePriceTier1: 150,
   housePriceTier2: 300,
   housePriceTier3: 900,
@@ -198,6 +202,7 @@ export const REMOTE_CONFIG_DEFINITIONS_BY_KEY: {
   findMomentBurstEnabled: { key: 'findMomentBurstEnabled', remoteKey: 'find_moment_burst_enabled', type: 'boolean', description: 'Enable small find-moment burst feedback.' },
   achievementsEnabled: { key: 'achievementsEnabled', remoteKey: 'achievements_enabled', type: 'boolean', description: 'Show the Achievements home tile, claim dot and unlock toasts. Off hides the entry point; progress tracking continues.' },
   collectionUnlockLevel: { key: 'collectionUnlockLevel', remoteKey: 'collection_unlock_level', type: 'number', description: 'Completed levels required before the Collection home tile unlocks.' },
+  sanctuaryUnlockLevel: { key: 'sanctuaryUnlockLevel', remoteKey: 'sanctuary_unlock_level', type: 'number', description: 'Completed levels required before the Sanctuary home tile unlocks (with the sparrow count).' },
   sparrowUnlockCount: { key: 'sparrowUnlockCount', remoteKey: 'sparrow_unlock_count', type: 'number', description: 'Sparrow pickups that unlock the sparrow card and open the Sanctuary tile.' },
   sparrowHatCount: { key: 'sparrowHatCount', remoteKey: 'sparrow_hat_count', type: 'number', description: 'Sparrow pickups that unlock the sparrow hat costume.' },
   sparrowCardiganCount: { key: 'sparrowCardiganCount', remoteKey: 'sparrow_cardigan_count', type: 'number', description: 'Sparrow pickups that unlock the sparrow cardigan costume (final state).' },
@@ -319,6 +324,7 @@ export function mapRemoteConfigValues(
     findMomentBurstEnabled: read('findMomentBurstEnabled'),
     achievementsEnabled: read('achievementsEnabled'),
     collectionUnlockLevel: read('collectionUnlockLevel'),
+    sanctuaryUnlockLevel: read('sanctuaryUnlockLevel'),
     sparrowUnlockCount: read('sparrowUnlockCount'),
     sparrowHatCount: read('sparrowHatCount'),
     sparrowCardiganCount: read('sparrowCardiganCount'),
@@ -397,6 +403,7 @@ export function mapRemoteConfigSources<TSource>(
     findMomentBurstEnabled: read('findMomentBurstEnabled'),
     achievementsEnabled: read('achievementsEnabled'),
     collectionUnlockLevel: read('collectionUnlockLevel'),
+    sanctuaryUnlockLevel: read('sanctuaryUnlockLevel'),
     sparrowUnlockCount: read('sparrowUnlockCount'),
     sparrowHatCount: read('sparrowHatCount'),
     sparrowCardiganCount: read('sparrowCardiganCount'),

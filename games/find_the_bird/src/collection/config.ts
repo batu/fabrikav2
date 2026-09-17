@@ -20,6 +20,10 @@ export function collectionUnlockLevel(): number {
   return remoteConfigService.value('collectionUnlockLevel');
 }
 
+export function sanctuaryUnlockLevel(): number {
+  return remoteConfigService.value('sanctuaryUnlockLevel');
+}
+
 export function accrualConfig(): AccrualConfig {
   return {
     coinsPerHourByTier: [

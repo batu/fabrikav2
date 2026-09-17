@@ -119,6 +119,7 @@ const TEMPLATE_GROUPS: readonly RemoteConfigTemplateGroup[] = [
     description: 'Bird collection thresholds, Sanctuary house prices, and idle coin accrual.',
     keys: [
       'collectionUnlockLevel',
+      'sanctuaryUnlockLevel',
       'sparrowUnlockCount',
       'sparrowHatCount',
       'sparrowCardiganCount',

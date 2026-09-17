@@ -11,6 +11,7 @@ function gates(levels: number, sparrows: number, shown = { collection: false, sa
     totalLevelsCompleted: levels,
     sparrowCount: sparrows,
     collectionUnlockLevel: 5,
+    sanctuaryUnlockLevel: 5,
     thresholds: THRESHOLDS,
     collectionPopShown: shown.collection,
     sanctuaryPopShown: shown.sanctuary,

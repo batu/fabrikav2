@@ -5994,3 +5994,23 @@ body:has(#home-page-overlay) #tutorial-overlay { display: none; }
 :is(.home-page-collection, .home-page-sanctuary) .shop-header-balance-pill {
   min-width: 0;
 }
+
+/* Locked nav tiles carry a small "Level N" pill where the label would be, the
+   way the sibling games advertise what a locked tile is waiting for. */
+:is(#home-shell, .home-page-nav) .home-nav-btn > .home-nav-unlock-pill {
+  right: auto;
+  left: 50%;
+  translate: -50% 0;
+  width: max-content;
+  padding: 0 11px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #7f8f5c 0%, #5f7046 100%);
+  border: 2px solid #3f5038;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28), 0 2px 0 rgba(40, 52, 30, 0.45);
+  color: #fff8e8;
+  font-family: 'FredokaOne', 'Nunito', sans-serif;
+  font-size: 12px;
+  line-height: 20px;
+  letter-spacing: 0.2px;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.35);
+}
