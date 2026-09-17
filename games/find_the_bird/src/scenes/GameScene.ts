@@ -70,6 +70,7 @@ import {
   resolveInterstitialGate,
 } from '../analytics/BetweenLevelFlow';
 import { computeVoronoiCell, maxDistToPolygon, pointInPolygon } from '../utils/voronoi';
+import { updateDebugBirdStrip, destroyDebugBirdStrip } from '../ui/DebugBirdStrip';
 import type { Point } from '../utils/voronoi';
 import { SectionController } from './SectionController';
 import { PinchZoom } from './PinchZoom';
@@ -1152,6 +1153,8 @@ export class GameScene extends Phaser.Scene {
       window.addEventListener('ftb-debug-autoplay', debugAutoPlay);
       this.events.once('shutdown', () => window.removeEventListener('ftb-debug-autoplay', debugAutoPlay));
       if (DEBUG_OVERRIDES.autoPlay.active) this.time.delayedCall(250, () => this.startDebugAutoPlay());
+      this.refreshDebugBirdStrip();
+      this.events.once('shutdown', () => destroyDebugBirdStrip());
     }
     setGameModeChangeCallback(() => {
       if (this.level) {
@@ -1550,6 +1553,7 @@ export class GameScene extends Phaser.Scene {
     if (this.isRestoration) this.assertRestorationDogReady(dog);
 
     gameState.foundDogIds.add(dog.id);
+    this.refreshDebugBirdStrip();
     if (this.tutorialHandle?.stage === 'hinted-find' && dog.id === this.tutorialTargetDogId) {
       this.dismissHintCircle();
     }
@@ -3335,6 +3339,30 @@ export class GameScene extends Phaser.Scene {
 
   /** Debug builds only: pick every unfound bird left to right with a smooth camera pan between them. */
   private debugAutoPlayRunning = false;
+  /** Debug pickup order: DEBUG_AUTOPLAY_COLUMNS full-height strips left to right, each read top-down in rows one strip wide. */
+  private debugPickupOrder(): LevelDog[] {
+    if (!this.level) return [];
+    const strip = this.level.width / DEBUG_AUTOPLAY_COLUMNS;
+    const rows = Math.ceil(this.level.height / strip) + 1;
+    const key = (d: LevelDog): number => Math.floor(d.x / strip) * rows + Math.floor(d.y / strip);
+    return [...this.level.dogs].sort((a, b) => key(a) - key(b) || a.x - b.x);
+  }
+
+  /** Debug bird strip (harness builds): the pickup order around the next bird; found birds dimmed. */
+  private refreshDebugBirdStrip(): void {
+    if (!TEST_HARNESS_ENABLED || !this.level) return;
+    const order = this.debugPickupOrder();
+    const birds = order.map((d) => {
+      const key = this.spriteTextureKeyForDog(d);
+      const image = this.textures.exists(key) ? (this.textures.get(key).getSourceImage() as CanvasImageSource) : null;
+      return { id: d.id, index: this.level!.dogs.indexOf(d), image, found: gameState.foundDogIds.has(d.id) };
+    });
+    // the current bird = the next one auto play would pick: first unfound in order
+    let pos = birds.findIndex((b) => !b.found);
+    if (pos < 0) pos = birds.length;
+    updateDebugBirdStrip(this.level.id, birds, pos);
+  }
+
   private startDebugAutoPlay(): void {
     if (!TEST_HARNESS_ENABLED || this.debugAutoPlayRunning) return;
     this.debugAutoPlayRunning = true;
@@ -3344,10 +3372,7 @@ export class GameScene extends Phaser.Scene {
       if (!this.level || !this.maskCtx) { this.time.delayedCall(250, step); return; }   // next level still loading
       // the level is cut into DEBUG_AUTOPLAY_COLUMNS full-height strips, walked left to right; each strip is
       // read like a page: rows (strip width tall) top to bottom, left to right within a row
-      const strip = this.level.width / DEBUG_AUTOPLAY_COLUMNS;
-      const rows = Math.ceil(this.level.height / strip) + 1;
-      const key = (d: LevelDog): number => Math.floor(d.x / strip) * rows + Math.floor(d.y / strip);
-      const next = this.level.dogs.filter((d) => !gameState.foundDogIds.has(d.id)).sort((a, b) => key(a) - key(b) || a.x - b.x)[0];
+      const next = this.debugPickupOrder().find((d) => !gameState.foundDogIds.has(d.id));
       if (next === undefined) { stop(); return; }
       const ms = Math.max(60, DEBUG_OVERRIDES.autoPlay.secondsPerBird * 1000);
       const panMs = Math.round(ms * 0.7);
