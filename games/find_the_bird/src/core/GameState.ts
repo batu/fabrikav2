@@ -449,7 +449,11 @@ function parseSanctuaryState(value: string | null): SanctuaryState {
     for (const [index, bird] of Object.entries(placedRaw as Record<string, unknown>)) {
       const slot = Number(index);
       if (!Number.isSafeInteger(slot) || slot < 0) continue;
-      if (typeof bird === 'string' && bird.length > 0) placed[slot] = bird;
+      if (typeof bird !== 'string' || bird.length === 0) continue;
+      // One of each bird: a save written before that rule keeps only the
+      // lowest perch per bird.
+      if (Object.values(placed).includes(bird)) continue;
+      placed[slot] = bird;
     }
   }
   const startedAt = typeof parsed.accrualStartedAt === 'string' && parsed.accrualStartedAt.length > 0
