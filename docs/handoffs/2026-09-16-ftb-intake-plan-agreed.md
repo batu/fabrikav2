@@ -254,3 +254,16 @@ them through the same workflow. Batu reviews everything himself at the end from 
   be rebuilt from main before any submission; 1.2.6 (41) is still IN_REVIEW.
 - Push trap: `.package-revisions/` (2.2 GB) was swept into a commit by `git add public/levels`; now gitignored.
   Large sprite commits push reliably only in ~6-level batches with `http.version=HTTP/1.1`.
+
+## 2026-09-17 17:45 UTC: sticker lane formalized in the editor (branch chore/levelbuilder-disk-redundancy)
+
+- `tools/level-editor/levelbuilder/api/sticker_lane.py` (+ `whitegap.py`): judge → refit → regenerate →
+  white-gap → birdless restoration on a canonical session, durable job `sticker_lane`, route
+  `POST /api/sessions/{id}/sticker-lane/jobs`, CLI `sticker-lane`, editor button "★ Sticker lane".
+  PIPELINE.md § Sticker lane holds the rules. Inpaint default = gpt-image-2.5 sunburst (background Gemini).
+- First end-to-end level `uk_cotswolds_village_bird_4717` (Portal p_94f9f2): catalog-001219, listable,
+  not bundled, not in the lineup. Two gaps found and fixed on the branch: Extract All's painted-extent
+  growth uncapped (window frames shipped as stickers; now 5 r) and the canonical export shipping the raw
+  clean plate as bg_00 (only the legacy exporter ran the birdless writer; the lane now commits it).
+- Unmerged. The live backend on :5196 was not restarted; the run used a second backend (port 5201, shadow
+  workspace) from the worktree. Store lane still held. Disk-redundancy work still queued.
