@@ -42,13 +42,13 @@ export const FIND_THE_DOG_TOUR_STATES = [
   'sanctuary-coins', 'sanctuary-tier3',
   // Motion probe: opens the Sanctuary, then closes it with the slide slowed
   // so a low-rate device capture can see whether the panel travels.
-  'sanctuary-close',
+  'sanctuary-close', 'collection-close',
 ] as const;
 export type FindTheDogCollectionState =
   | 'collection-locked' | 'collection-silhouette' | 'collection-unlocked'
   | 'collection-hat' | 'collection-cardigan'
   | 'sanctuary-nohouse' | 'sanctuary-empty-perch' | 'sanctuary-placed'
-  | 'sanctuary-coins' | 'sanctuary-tier3' | 'sanctuary-close';
+  | 'sanctuary-coins' | 'sanctuary-tier3' | 'sanctuary-close' | 'collection-close';
 export type FindTheDogDriveState =
   DriveState | 'achievements' | 'shop' | 'win-achievement' | FindTheDogCollectionState;
 
@@ -69,6 +69,8 @@ export const findTheDogDrivePredicates = {
   'sanctuary-tier3': sanctuaryPageOpen,
   'sanctuary-close': (snapshot: DriveSnapshot): boolean =>
     snapshot.homeShellVisible === true && snapshot.sanctuaryOpen !== true,
+  'collection-close': (snapshot: DriveSnapshot): boolean =>
+    snapshot.homeShellVisible === true && snapshot.collectionOpen !== true,
   menu: (snapshot: DriveSnapshot): boolean => {
     const scene = String(snapshot.scene ?? snapshot.activeScene ?? '');
     return scene === 'menu' || scene === 'HomeScene' || snapshot.homeShellVisible === true;
@@ -627,6 +629,17 @@ export function createFindTheDogHarness(game: Phaser.Game): FindTheDogHarness {
         return sanctuary({ sparrows: 30, coins: 400, tier: 1, placed: true, pendingCoins: 3.5 });
       case 'sanctuary-tier3':
         return sanctuary({ sparrows: 45, coins: 1200, tier: 3, placed: true });
+      case 'collection-close': {
+        // The player's path: open the Collection from home, then tap its own
+        // tile again to go back.
+        const opened = await collection({ sparrows: 30 });
+        if (!opened) return false;
+        await new Promise((resolve) => { window.setTimeout(resolve, 1500); });
+        document.documentElement.style.setProperty('--meta-slide-ms', '2500ms');
+        document.querySelector<HTMLButtonElement>('.home-page-nav #home-nav-collection')?.click();
+        await new Promise((resolve) => { window.setTimeout(resolve, 3200); });
+        return true;
+      }
       case 'sanctuary-close': {
         const opened = await sanctuary({ sparrows: 30, coins: 400, tier: 1, placed: true });
         if (!opened) return false;

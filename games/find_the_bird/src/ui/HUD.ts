@@ -741,6 +741,14 @@ export function openPage(
   if (id === 'settings') {
     page.classList.add('home-page-settings');
     wireSettingsPageListeners(page);
+    // The build stamp answers "which build is this phone running" without a
+    // cable: the bundled build-info.json carries the commit the web build came
+    // from (common-debugging-problems: device says fixed, user sees old bug).
+    void fetch('build-info.json').then((r) => r.ok ? r.json() : null).then((info: { sha?: string; dirty?: boolean } | null) => {
+      const stamp = page.querySelector<HTMLElement>('#settings-build-stamp');
+      if (stamp === null || info === null || typeof info.sha !== 'string') return;
+      stamp.textContent = `Build ${info.sha.slice(0, 10)}${info.dirty ? '+' : ''}`;
+    }).catch(() => { /* no stamp is better than a broken settings page */ });
   }
   if (id === 'shop') page.classList.add('home-page-shop');
   if (id === 'achievements') page.classList.add('home-page-achievements');
@@ -1196,6 +1204,7 @@ function renderSettingsRows(): string {
       </div>
       ${TEST_HARNESS_ENABLED ? renderDebugLevelJumpRows() : ''}
       <div class="settings-legal-footer" aria-label="Privacy, legal, and support links">
+        <span id="settings-build-stamp" class="settings-build-stamp" aria-label="Build identity"></span>
         <button id="settings-restore-btn" class="settings-footer-link settings-footer-action settings-restore-btn" type="button" aria-describedby="settings-restore-status">Restore Purchases</button>
         <span id="settings-restore-status" class="settings-restore-status" aria-live="polite">Restore No Ads purchases on this device.</span>
         <button id="privacy-choices-btn" class="settings-footer-link settings-footer-action" type="button" aria-label="Privacy choices, opens consent options">Privacy choices</button>

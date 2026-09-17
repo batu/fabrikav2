@@ -6170,3 +6170,5 @@ body:has(#home-page-overlay) #tutorial-overlay { display: none; }
 .home-page-collection .home-page-back-btn:active, .home-page-sanctuary .home-page-back-btn:active {
   transform: scale(.93);
 }
+
+.settings-build-stamp { font-size: 11px; letter-spacing: .04em; color: rgba(103, 67, 38, .55); font-variant-numeric: tabular-nums; }
