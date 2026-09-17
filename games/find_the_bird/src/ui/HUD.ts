@@ -592,7 +592,7 @@ export function openPage(
 }
 
 
-export function closePage(): void {
+export function closePage(options: { skipHomeCallback?: boolean } = {}): void {
   const page = document.getElementById('home-page-overlay');
   if (!page) return;
   const overlay = document.getElementById('hud-overlay');
@@ -621,7 +621,9 @@ export function closePage(): void {
   // so returning from Achievements after collecting used to leave the dot
   // insisting there was still something to pick up (2026-08-07). Fires after
   // the page is closed, matching the ordering the Settings path had.
-  homeCallback?.();
+  // Debug auto play closes the page without leaving the level (2026-09-17): the home
+  // callback re-renders home on the menu and STARTS HomeScene in-game.
+  if (!options.skipHomeCallback) homeCallback?.();
 }
 
 function renderShopHeaderBalances(): string {
@@ -1038,7 +1040,7 @@ function wireDebugLevelJump(page: HTMLElement): void {
     playUITap();
     DEBUG_OVERRIDES.autoPlay.active = !DEBUG_OVERRIDES.autoPlay.active;
     autoplay.textContent = DEBUG_OVERRIDES.autoPlay.active ? 'Stop' : 'Start';
-    closePage();
+    closePage({ skipHomeCallback: true });
     window.dispatchEvent(new CustomEvent('ftb-debug-autoplay', { detail: { active: DEBUG_OVERRIDES.autoPlay.active } }));
   });
   const select = page.querySelector<HTMLSelectElement>('#debug-level-select');

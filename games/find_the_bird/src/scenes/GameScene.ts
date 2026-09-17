@@ -1870,6 +1870,7 @@ export class GameScene extends Phaser.Scene {
     updateHUD(this.level!.dogs.length, this.isRestoration);
     if (TEST_HARNESS_ENABLED && DEBUG_OVERRIDES.autoPlay.active) {
       // Debug auto play: no overlay, no ads, straight to the next level.
+      gameState.markActiveCompletionAdvanced(gameState.currentLevelIndex + 1);
       this.time.delayedCall(50, () => {
         if (this.isShuttingDown || !this.sys.isActive()) return;
         this.scene.restart({} as GameSceneData);
