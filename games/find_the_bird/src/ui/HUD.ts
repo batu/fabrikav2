@@ -710,7 +710,7 @@ export function openPage(
         <img class="home-page-back-art" src="/ui/page-header/back_button.png" alt="" aria-hidden="true">
       </button>
       <h2 id="home-page-title" class="home-page-title" tabindex="-1">${title}</h2>
-      ${id === 'shop' || META_PAGES.has(id) ? renderShopHeaderBalances() : id === 'achievements' ? renderAchievementHeaderBalances() : ''}
+      ${id === 'shop' ? renderShopHeaderBalances() : META_PAGES.has(id) ? renderShopHeaderBalances({ hints: false }) : id === 'achievements' ? renderAchievementHeaderBalances() : ''}
     </div>
     <div class="home-page-body">
       ${pageBodyFor(id)}
@@ -893,18 +893,19 @@ export function closePage(options: { skipHomeCallback?: boolean } = {}): void {
   if (!meta && !options.skipHomeCallback) homeCallback?.();
 }
 
-function renderShopHeaderBalances(): string {
+function renderShopHeaderBalances(options: { hints?: boolean } = {}): string {
   const wallet = gameState.walletSnapshot();
+  const hints = options.hints !== false;
   return `
     <div class="shop-header-balances" aria-label="Shop currency balances">
       <div class="shop-header-balance-pill shop-header-coin-pill" data-economy-target="coins" aria-label="Coin balance">
         <img src="/ui/menu-icons/icon_coin.png" alt="" aria-hidden="true" data-economy-anchor="coin">
         <span class="shop-header-coin-count">${wallet.coins}</span>
       </div>
-      <div class="shop-header-balance-pill shop-header-hint-pill" data-economy-target="hints" aria-label="Hint balance">
+      ${hints ? `<div class="shop-header-balance-pill shop-header-hint-pill" data-economy-target="hints" aria-label="Hint balance">
         <img src="/ui/menu-icons/icon_hint_magnifier.png" alt="" aria-hidden="true" data-economy-anchor="hint">
         <span class="shop-header-hint-count">${wallet.hints}</span>
-      </div>
+      </div>` : ''}
     </div>
   `;
 }
