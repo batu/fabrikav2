@@ -69,7 +69,8 @@ def test_sequence_diagnostics_block_legacy_quarantined_and_unreviewed(monkeypatc
         "levelAuthoringQuarantined",
         "levelAuthoringReviewRequired",
     ]
-    assert all(item["blocking"] for item in diagnostics)
+    # levelAuthoringReviewRequired is a non-blocking warning since 2026-09-17 (operator); the other two still block
+    assert [item["blocking"] for item in diagnostics] == [True, True, False]
     assert sequence_workflow._artifact_integrity_diagnostics(["reviewed"]) == []
 
 
