@@ -6095,3 +6095,42 @@ body:has(#home-page-overlay) #tutorial-overlay { display: none; }
 /* Next-unlock counter in the level HUD. */
 .hud-sparrow-pill .hud-pill-icon { border-radius: 50%; object-fit: cover; }
 #sparrow-counter.pickup-pulse { animation: pickup-counter-pop 280ms ease-out; }
+
+/* Sparrow pill once a rung is earned: it is the door to the card. */
+.hud-sparrow-pill { border: 0; font: inherit; color: inherit; }
+.hud-sparrow-pill--ready {
+  background: linear-gradient(180deg, #ffe9a8, #f5c451);
+  color: #5a3a08;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, .7), 0 4px 10px rgba(180, 120, 20, .35);
+  animation: hud-sparrow-ready 1.4s ease-in-out infinite;
+}
+@keyframes hud-sparrow-ready {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.07); }
+}
+/* Unlock button on the card, where the progress bar was. */
+.collection-unlock-btn {
+  position: absolute; left: 22%; right: 22%; top: 80%; min-height: 11%;
+  pointer-events: auto; border: 0; border-radius: 999px;
+  background: #4d9cc4; color: #fff8e8; box-shadow: 0 3px 0 #2f7598, 0 6px 14px rgba(47, 117, 152, .35);
+  font-family: 'FredokaOne', 'Nunito', sans-serif; font-size: clamp(14px, 5.6cqw, 24px); font-weight: 400; letter-spacing: .2px;
+  animation: collection-unlock-nudge 1.6s ease-in-out infinite; cursor: pointer;
+}
+@keyframes collection-unlock-nudge {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+/* Flare behind the card on claim. */
+.collection-card--claimed::before {
+  content: ""; position: absolute; inset: -12%; border-radius: 50%; pointer-events: none; z-index: -1;
+  background: radial-gradient(circle, rgba(255, 236, 170, .95) 0%, rgba(255, 220, 120, .55) 35%, rgba(255, 220, 120, 0) 70%);
+  animation: collection-claim-flare 900ms ease-out both;
+}
+@keyframes collection-claim-flare {
+  0% { transform: scale(.4); opacity: 0; }
+  30% { opacity: 1; }
+  100% { transform: scale(1.4); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hud-sparrow-pill--ready, .collection-unlock-btn, .collection-card--claimed::before { animation: none; }
+}

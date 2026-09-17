@@ -1,6 +1,8 @@
 import Phaser from 'phaser';
 import type { AnalyticsEvent } from '@fabrikav2/sdk/analytics';
 import { driveInputAt, type ClientPoint, type GameHarness, type HarnessSaveProfile } from '@fabrikav2/testkit/harness';
+import { earnedRung } from '../collection/thresholds';
+import { collectionThresholds } from '../collection/config';
 import { gameState, type CompletionTransaction, type GameSettings, type WalletSnapshot } from '../core/GameState';
 import { emptyAchievementRecord, type AchievementRecord } from '../achievements/AchievementSystem';
 import { GAMEPLAY, TIMING } from '../core/Constants';
@@ -525,6 +527,7 @@ export function createFindTheDogHarness(game: Phaser.Game): FindTheDogHarness {
     // the index is set. Seed both.
     gameState.setTotalLevelsCompletedForTest(seed.sparrows > 0 ? 40 : 0);
     gameState.setBirdCountForTest('sparrow', seed.sparrows);
+    gameState.setClaimedRungForTest(earnedRung(seed.sparrows, collectionThresholds()));
     gameState.setCoinsForTest(seed.coins ?? 0);
     gameState.setSanctuaryForTest({
       houseTier: seed.tier ?? 0,

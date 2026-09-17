@@ -16,8 +16,8 @@
 import { prefersReducedMotion } from '@fabrikav2/ui';
 import { gameState, type SanctuaryHouseTier } from '../core/GameState';
 import { analytics } from '../analytics/AnalyticsService';
-import { accrualConfig, collectionThresholds, housePrice, MAX_HOUSE_TIER } from '../collection/config';
-import { cardState } from '../collection/thresholds';
+import { accrualConfig, housePrice, MAX_HOUSE_TIER } from '../collection/config';
+import { CARD_STATE_ORDER, clampRung } from '../collection/thresholds';
 import { collectableCoins, settle } from '../sanctuary/accrual';
 import { layoutSanctuary, type Rect, type SanctuaryManifest } from '../sanctuary/layout';
 import { animateCoinsToBalance } from './EconomyTransfer';
@@ -208,7 +208,7 @@ function hop(element: HTMLElement): void {
 }
 
 function currentCostume(): string {
-  const state = cardState(gameState.birdCount('sparrow'), collectionThresholds());
+  const state = CARD_STATE_ORDER[clampRung(gameState.collectionMeta.claimedRung)];
   return state === 'silhouette' ? 'plain' : state;
 }
 
@@ -434,7 +434,7 @@ export function wireSanctuaryPage(page: ParentNode): void {
   };
 
   const offerPlacement = (pedestalIndex: number): void => {
-    const unlocked = cardState(gameState.birdCount('sparrow'), collectionThresholds()) !== 'silhouette';
+    const unlocked = clampRung(gameState.collectionMeta.claimedRung) >= 1;
     showSheet(sheetRoot, {
       title: 'Who moves in?',
       facts: unlocked ? ['Sparrow — ready to move in'] : ['No bird unlocked yet'],

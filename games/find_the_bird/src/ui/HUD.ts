@@ -21,7 +21,7 @@ import { renderCollectionPageBody, wireCollectionPage } from './CollectionPage';
 import { renderSanctuaryPageBody, wireSanctuaryPage, teardownSanctuaryPage } from './SanctuaryPage';
 import { currentMetaGates, renderMetaNavBar } from './metaNavBar';
 import { collectionThresholds } from '../collection/config';
-import { nextThreshold } from '../collection/thresholds';
+import { clampRung, ladder } from '../collection/thresholds';
 import { shakeLockedNavButton } from './homeNavigation';
 import { rewardedAdIconMarkup } from './RewardedAdIcon';
 import { hideHomeMenuLayer } from './OverlayVisibility';
@@ -135,10 +135,10 @@ export function initHUD(): void {
     <div class="hud-top-bar">
       <div class="hud-left">
         <div id="dog-counter" class="hud-pill">🪶 <span class="count">0/0</span></div>
-        <div id="sparrow-counter" class="hud-pill hud-sparrow-pill" hidden aria-label="Sparrows collected towards the next unlock">
+        <button id="sparrow-counter" class="hud-pill hud-sparrow-pill" type="button" hidden aria-label="Sparrows still needed for the next unlock">
           <img class="hud-pill-icon" src="/ui/collection/portrait-sparrow-plain.webp" alt="" aria-hidden="true">
-          <span class="count">0/0</span>
-        </div>
+          <span class="count">0 left</span>
+        </button>
         <div id="hearts" class="hud-pill" aria-label="Lives"></div>
       </div>
       <div class="hud-right">
@@ -223,6 +223,13 @@ export function initHUD(): void {
     openPage('shop', { scrollTo: 'coins' });
   });
 
+  // A ready rung turns the sparrow pill into the way to the card: tapping it
+  // opens the Collection, where the Unlock button lives.
+  document.getElementById('sparrow-counter')?.addEventListener('click', () => {
+    playUITap();
+    openPage('collection');
+  });
+
   const hintPlus = document.getElementById('hud-hint-plus');
   hintPlus?.addEventListener('click', () => {
     playUITap();
@@ -260,9 +267,10 @@ export function updateSparrowCounter(): void {
   const pill = document.querySelector<HTMLElement>('#sparrow-counter');
   if (pill === null) return;
   pill.hidden = !currentMetaGates().collectionUnlocked;
-  const next = nextThreshold(gameState.birdCount('sparrow'), collectionThresholds());
+  const rung = ladder(gameState.birdCount('sparrow'), clampRung(gameState.collectionMeta.claimedRung), collectionThresholds());
+  pill.classList.toggle('hud-sparrow-pill--ready', rung.ready);
   const count = pill.querySelector('.count');
-  if (count) count.textContent = next.target === null ? 'Done' : `${String(next.target - next.current)} left`;
+  if (count) count.textContent = rung.ready ? 'Unlock!' : rung.target === null ? 'Done' : `${String(rung.remaining)} left`;
 }
 
 export function pulseSparrowCounter(): void {

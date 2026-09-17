@@ -8,11 +8,13 @@
  * an empty room, so it stays locked until the first card unlocks.
  */
 
-import { isUnlocked, type CollectionThresholds } from '../collection/thresholds';
+import type { CollectionThresholds } from '../collection/thresholds';
 
 export interface MetaGateInput {
   totalLevelsCompleted: number;
   sparrowCount: number;
+  /** Rung of the sparrow card the player has opened; 1+ means a bird exists. */
+  sparrowRungClaimed: number;
   collectionUnlockLevel: number;
   /** The Sanctuary's own level gate; its locked tile advertises this level. */
   sanctuaryUnlockLevel: number;
@@ -45,7 +47,7 @@ export function metaGates(input: MetaGateInput): MetaGates {
   // where tenants come from, so it can never open first.
   // It also carries a level gate of its own: the locked tile promises a level
   // number, and a promise the sparrow count could break is not one to make.
-  const sanctuaryUnlocked = collectionUnlocked && levels >= sanctuaryLevel && isUnlocked(input.sparrowCount, input.thresholds);
+  const sanctuaryUnlocked = collectionUnlocked && levels >= sanctuaryLevel && input.sparrowRungClaimed >= 1;
 
   return {
     collectionUnlocked,

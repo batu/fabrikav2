@@ -137,6 +137,8 @@ export type BirdCounts = Record<string, number>;
 export interface CollectionMeta {
   tileUnlockPopShown: boolean;
   plainFlipShown: boolean;
+  /** Highest sparrow rung the player has opened: 0 none, 1 plain, 2 hat, 3 cardigan. */
+  claimedRung: number;
 }
 
 export type SanctuaryHouseTier = 0 | 1 | 2 | 3;
@@ -156,6 +158,7 @@ export interface SanctuaryState {
 export const EMPTY_COLLECTION_META: CollectionMeta = {
   tileUnlockPopShown: false,
   plainFlipShown: false,
+  claimedRung: 0,
 };
 
 export const EMPTY_SANCTUARY_STATE: SanctuaryState = {
@@ -420,6 +423,7 @@ function parseCollectionMeta(value: string | null): CollectionMeta {
   return {
     tileUnlockPopShown: parsed.tileUnlockPopShown === true,
     plainFlipShown: parsed.plainFlipShown === true,
+    claimedRung: Math.min(3, nonNegativeIntegerOrZero(parsed.claimedRung)),
   };
 }
 
@@ -830,6 +834,20 @@ export class GameState {
   markCollectionTileUnlockShown(): void {
     if (this._collectionMeta.tileUnlockPopShown) return;
     this._collectionMeta = { ...this._collectionMeta, tileUnlockPopShown: true };
+    this.save();
+  }
+
+  /** The player opens the next rung of the sparrow ladder. Only the rung
+   *  directly above the claimed one, so a stale button cannot skip a step. */
+  claimCollectionRung(rung: number): boolean {
+    if (!Number.isSafeInteger(rung) || rung !== this._collectionMeta.claimedRung + 1 || rung > 3) return false;
+    this._collectionMeta = { ...this._collectionMeta, claimedRung: rung };
+    this.save();
+    return true;
+  }
+
+  setClaimedRungForTest(rung: number): void {
+    this._collectionMeta = { ...this._collectionMeta, claimedRung: Math.max(0, Math.min(3, Math.floor(rung))) };
     this.save();
   }
 

@@ -31,6 +31,7 @@ export function currentMetaGates(): MetaGates {
   return metaGates({
     totalLevelsCompleted: gameState.totalLevelsCompleted,
     sparrowCount: gameState.birdCount('sparrow'),
+    sparrowRungClaimed: gameState.collectionMeta.claimedRung,
     collectionUnlockLevel: collectionUnlockLevel(),
     sanctuaryUnlockLevel: sanctuaryUnlockLevel(),
     thresholds: collectionThresholds(),

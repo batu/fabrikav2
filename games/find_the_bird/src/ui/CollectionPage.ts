@@ -14,10 +14,14 @@
 
 import manifestJson from '../../public/ui/sanctuary/manifest.json';
 import { fitBackground, type Rect, type SanctuaryManifest } from '../sanctuary/layout';
+import { refreshMetaNav, updateSparrowCounter } from './HUD';
+import { playFind, playUITap } from '../audio/AudioManager';
+import { hapticFound } from '../haptics/HapticsManager';
+import { analytics } from '../analytics/AnalyticsService';
 import { gameState } from '../core/GameState';
 import { collectionThresholds } from '../collection/config';
 import { collectionDeck, type CardViewModel } from '../collection/cardModel';
-import { cardState } from '../collection/thresholds';
+import { CARD_STATE_ORDER, clampRung, type CardState } from '../collection/thresholds';
 
 /** Card art geometry, mirroring public/ui/sanctuary/manifest.json. */
 const CARD = {
@@ -62,7 +66,9 @@ function renderCard(card: CardViewModel, index: number): string {
   const lines = card.lines
     .map((line) => `<span class="collection-line">${line}</span>`)
     .join('');
-  const progress = card.progress === null
+  const progress = card.claimable && card.progress !== null
+    ? `<button class="collection-unlock-btn" type="button" data-claim-rung="${CARD_STATE_ORDER.indexOf(card.state as CardState) + 1}">Unlock ${card.progress.label === 'Unlock' ? 'Sparrow' : card.progress.label}</button>`
+    : card.progress === null
     ? (card.kind === 'sparrow'
       ? '<p class="collection-progress collection-progress--done">Complete</p>'
       : '')
@@ -119,7 +125,7 @@ function placeBackdrop(page: ParentNode): void {
 }
 
 export function renderCollectionPageBody(): string {
-  const cards = collectionDeck(gameState.birdCount('sparrow'), collectionThresholds());
+  const cards = collectionDeck(gameState.birdCount('sparrow'), collectionThresholds(), clampRung(gameState.collectionMeta.claimedRung));
   const dots = cards
     .map((_, index) => `<span class="collection-dot${index === 0 ? ' collection-dot--active' : ''}" data-dot-index="${index}"></span>`)
     .join('');
@@ -160,12 +166,26 @@ export function wireCollectionPage(page: ParentNode): void {
     frame = requestAnimationFrame(sync);
   }, { passive: true });
 
-  // First reveal of the unlocked bird: flip the card once, then persist so the
-  // next visit opens calm.
-  const sparrow = page.querySelector<HTMLElement>('.collection-card[data-card-kind="sparrow"]');
-  const unlocked = cardState(gameState.birdCount('sparrow'), collectionThresholds()) !== 'silhouette';
-  if (sparrow !== null && unlocked && !gameState.collectionMeta.plainFlipShown) {
-    sparrow.classList.add('collection-card--reveal');
-    gameState.markPlainFlipShown();
-  }
+  // Claiming a rung: persist, redraw the deck in place, then flip and flare
+  // the card so the new art arrives as a reward rather than a refresh.
+  page.querySelector<HTMLButtonElement>('.collection-unlock-btn')?.addEventListener('click', (event) => {
+    const button = event.currentTarget as HTMLButtonElement;
+    const rung = Number(button.dataset.claimRung);
+    playUITap();
+    if (!gameState.claimCollectionRung(rung)) return;
+    void analytics.birdCollected({ bird_type: 'sparrow', level_id: `claim:${String(rung)}`, total: gameState.birdCount('sparrow') });
+    const body = page.querySelector<HTMLElement>('.home-page-body');
+    if (body === null) return;
+    const scrollLeft = deck.scrollLeft;
+    body.innerHTML = renderCollectionPageBody();
+    wireCollectionPage(page);
+    const freshDeck = page.querySelector<HTMLElement>('#collection-deck');
+    if (freshDeck !== null) freshDeck.scrollLeft = scrollLeft;
+    const sparrow = page.querySelector<HTMLElement>('.collection-card[data-card-kind="sparrow"]');
+    sparrow?.classList.add('collection-card--reveal', 'collection-card--claimed');
+    playFind();
+    hapticFound();
+    refreshMetaNav();
+    updateSparrowCounter();
+  });
 }

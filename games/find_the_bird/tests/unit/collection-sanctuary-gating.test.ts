@@ -10,6 +10,7 @@ function gates(levels: number, sparrows: number, shown = { collection: false, sa
   return metaGates({
     totalLevelsCompleted: levels,
     sparrowCount: sparrows,
+    sparrowRungClaimed: sparrows >= THRESHOLDS.unlock ? 1 : 0,
     collectionUnlockLevel: 5,
     sanctuaryUnlockLevel: 5,
     thresholds: THRESHOLDS,

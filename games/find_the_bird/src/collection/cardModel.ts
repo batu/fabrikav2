@@ -3,7 +3,7 @@
  * pickup count. Pure — the page turns this into DOM and nothing else.
  */
 
-import { cardState, nextThreshold, type CardState, type CollectionThresholds } from './thresholds';
+import { ladder, type CardState, type CollectionThresholds, type Rung } from './thresholds';
 
 export type CardKind = 'sparrow' | 'unknown';
 
@@ -39,6 +39,8 @@ export interface CardViewModel {
   progress: CardProgress | null;
   /** True when the card is a locked placeholder (padlock shown). */
   locked: boolean;
+  /** True when the next rung is earned and waits for the player's tap. */
+  claimable: boolean;
   /** Screen-reader label for the whole card. */
   ariaLabel: string;
 }
@@ -52,9 +54,9 @@ const PORTRAITS: Record<CardState, string> = {
 
 const UNKNOWN_PORTRAIT = '/ui/collection/portrait-unknown.webp';
 
-export function sparrowCard(count: number, thresholds: CollectionThresholds): CardViewModel {
-  const state = cardState(count, thresholds);
-  const next = nextThreshold(count, thresholds);
+export function sparrowCard(count: number, thresholds: CollectionThresholds, claimed: Rung = 0): CardViewModel {
+  const next = ladder(count, claimed, thresholds);
+  const state = next.state;
   const revealed = state !== 'silhouette';
   return {
     kind: 'sparrow',
@@ -65,11 +67,14 @@ export function sparrowCard(count: number, thresholds: CollectionThresholds): Ca
     lines: revealed ? SPARROW_LINES : [HIDDEN_LINE, HIDDEN_LINE, HIDDEN_LINE],
     progress: next.target === null
       ? null
-      : { label: next.label, current: next.current, target: next.target, fraction: next.fraction },
+      : { label: next.label, current: Math.min(count, next.target), target: next.target, fraction: next.fraction },
     locked: !revealed,
-    ariaLabel: revealed
-      ? `Sparrow, ${next.target === null ? 'complete' : `${next.current} of ${next.target} towards ${next.label}`}`
-      : `Locked bird, ${next.current} of ${next.target ?? 0} sparrows found`,
+    claimable: next.ready,
+    ariaLabel: next.ready
+      ? `Sparrow, ${next.label.toLowerCase()} ready to unlock`
+      : revealed
+        ? `Sparrow, ${next.target === null ? 'complete' : `${next.remaining} more sparrows towards ${next.label}`}`
+        : `Locked bird, ${next.remaining} more sparrows to unlock`,
   };
 }
 
@@ -84,11 +89,12 @@ export function unknownCard(): CardViewModel {
     lines: [HIDDEN_LINE, HIDDEN_LINE, HIDDEN_LINE],
     progress: null,
     locked: true,
+    claimable: false,
     ariaLabel: 'Locked bird, coming soon',
   };
 }
 
 /** The whole release-1 deck, in swipe order. */
-export function collectionDeck(count: number, thresholds: CollectionThresholds): CardViewModel[] {
-  return [sparrowCard(count, thresholds), unknownCard()];
+export function collectionDeck(count: number, thresholds: CollectionThresholds, claimed: Rung = 0): CardViewModel[] {
+  return [sparrowCard(count, thresholds, claimed), unknownCard()];
 }

@@ -45,7 +45,8 @@ import { FindPraisePolicy } from '../ui/FindPraisePolicy';
 import { isHardBird } from '../data/birdDifficulty';
 import { birdTypeSnapshot, isSparrow, loadBirdTypes } from '../data/birdTypes';
 import { collectionThresholds } from '../collection/config';
-import { nextThreshold } from '../collection/thresholds';
+import { currentMetaGates } from '../ui/metaNavBar';
+import { clampRung, ladder } from '../collection/thresholds';
 import { showTutorialOverlay, phaserPointToCssPoint, type TutorialHandle } from '../ui/TutorialOverlay';
 import { preloadLevelCompleteAssets, showLevelCompleteOverlay, dismissLevelCompleteOverlay } from '../ui/LevelCompleteOverlay';
 import { presentAchievementUnlocks } from '../ui/AchievementToast';
@@ -1580,12 +1581,17 @@ export class GameScene extends Phaser.Scene {
     const total = gameState.incrementBirdCount('sparrow');
     void analytics.birdCollected({ bird_type: 'sparrow', level_id: level.id, total });
 
-    // Chip reads the ladder so the player sees the counter move towards
-    // something, not just a bare "+1".
-    const next = nextThreshold(total, collectionThresholds());
-    const suffix = next.target === null ? '' : ` · ${String(next.target - total)} left`;
+    // The chip is a countdown, not a tally: it speaks at every ten, at every
+    // one inside the last ten, and once more when the rung is earned. Before
+    // the Collection opens there is nothing to count down to, so it stays quiet.
+    if (!currentMetaGates().collectionUnlocked) return true;
+    const rung = ladder(total, clampRung(gameState.collectionMeta.claimedRung), collectionThresholds());
+    if (rung.target === null) return true;
+    const justEarned = rung.ready && total === rung.target;
+    const speaks = justEarned || rung.remaining <= 10 || rung.remaining % 10 === 0;
+    if (!speaks || (rung.ready && !justEarned)) return true;
     const css = phaserPointToCssPoint(this.scale.canvas, GAME.WIDTH, GAME.HEIGHT, canvasX, canvasY);
-    this.findPraise.showChip(css.x, css.y, `+1 sparrow${suffix}`);
+    this.findPraise.showChip(css.x, css.y, justEarned ? 'New sparrow level unlocked!' : `${String(rung.remaining)} left`);
     return true;
   }
 
