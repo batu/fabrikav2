@@ -155,7 +155,7 @@ function renderCard(card: CardViewModel, index: number): string {
       <article class="collection-card${card.locked ? ' collection-card--locked' : ''}" data-card-kind="${card.kind}" data-card-state="${card.state}" aria-label="${card.ariaLabel}">
         <img class="collection-card-frame" src="${f.src}" alt="" aria-hidden="true">
         <span class="collection-card-arch" style="${archStyle(f)}" aria-hidden="true">
-          <img class="collection-card-portrait" src="${card.portraitSrc}" alt="" style="${card.portraitStyle ?? f.portraitStyle}">
+          ${card.portraitSrc === '' ? '' : `<img class="collection-card-portrait" src="${card.portraitSrc}" alt="" style="${card.portraitStyle ?? f.portraitStyle}">`}
         </span>
         ${f.overlay ? `<img class="collection-card-frame collection-card-frame--over" src="${f.src}" alt="" aria-hidden="true" style="clip-path:inset(${pct(f.overlay.y[0], f.height)} ${pct(f.width - f.overlay.x[1], f.width)} ${pct(f.height - f.overlay.y[1], f.height)} ${pct(f.overlay.x[0], f.width)})">` : ''}
         ${card.tabs.length === 0 ? '' : `<div class="collection-tabs" role="tablist" aria-label="Sparrow looks">

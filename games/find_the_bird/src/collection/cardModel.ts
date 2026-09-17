@@ -138,7 +138,6 @@ const LOCKED_SILHOUETTES: Record<'robin' | 'bluebird', string> = {
   robin: '/ui/collection/portrait-robin-silhouette.webp',
   bluebird: '/ui/collection/portrait-bluebird-silhouette.webp',
 };
-const LOCKED_SPECIES: Record<'robin' | 'bluebird', string> = { robin: 'Robin', bluebird: 'Bluebird' };
 
 export function lockedBirdCard(kind: 'robin' | 'bluebird'): CardViewModel {
   return {
@@ -148,7 +147,7 @@ export function lockedBirdCard(kind: 'robin' | 'bluebird'): CardViewModel {
     portraitSrc: LOCKED_SILHOUETTES[kind],
     portraitStyle: 'height:70%;width:auto;bottom:-1%',
     plaque: '? ? ?',
-    ribbon: LOCKED_SPECIES[kind],
+    ribbon: '?',
     lines: [HIDDEN_LINE, HIDDEN_LINE, HIDDEN_LINE],
     progress: null,
     locked: true,
@@ -164,9 +163,10 @@ export function unknownCard(): CardViewModel {
     kind: 'unknown',
     frame: 'locked',
     state: 'unknown',
-    portraitSrc: UNKNOWN_PORTRAIT,
+    // Bare: an empty arch, no species, just the lock.
+    portraitSrc: '',
     plaque: '? ? ?',
-    ribbon: 'Coming soon',
+    ribbon: '',
     lines: [HIDDEN_LINE, HIDDEN_LINE, HIDDEN_LINE],
     progress: null,
     locked: true,
