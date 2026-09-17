@@ -86,6 +86,9 @@ export function createCapacitorNotificationProvider(
       return toPermission((await LocalNotifications.checkPermissions()).display);
     },
     async requestPermission(): Promise<NotificationPermission> {
+      // A pinned in-situ tour is a capture, not a player: the OS prompt would
+      // sit over every screenshot, so no path may raise it there.
+      if (String(import.meta.env.VITE_INSITU_TOUR_STATE ?? '') !== '') return 'denied';
       const { LocalNotifications } = await loader();
       return toPermission((await LocalNotifications.requestPermissions()).display);
     },
