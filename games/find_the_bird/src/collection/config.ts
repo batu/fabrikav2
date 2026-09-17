@@ -20,6 +20,10 @@ export function collectionUnlockLevel(): number {
   return remoteConfigService.value('collectionUnlockLevel');
 }
 
+export function collectionTeaseCount(): number {
+  return remoteConfigService.value('sparrowTeaseCount');
+}
+
 export function sanctuaryUnlockLevel(): number {
   return remoteConfigService.value('sanctuaryUnlockLevel');
 }

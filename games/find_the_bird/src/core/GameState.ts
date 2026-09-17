@@ -139,6 +139,8 @@ export interface CollectionMeta {
   plainFlipShown: boolean;
   /** Highest sparrow rung the player has opened: 0 none, 1 plain, 2 hat, 3 cardigan. */
   claimedRung: number;
+  /** Rung the player chose to display (1..3); 0 follows the highest claimed. */
+  selectedRung: number;
 }
 
 export type SanctuaryHouseTier = 0 | 1 | 2 | 3;
@@ -159,6 +161,7 @@ export const EMPTY_COLLECTION_META: CollectionMeta = {
   tileUnlockPopShown: false,
   plainFlipShown: false,
   claimedRung: 0,
+  selectedRung: 0,
 };
 
 export const EMPTY_SANCTUARY_STATE: SanctuaryState = {
@@ -424,6 +427,7 @@ function parseCollectionMeta(value: string | null): CollectionMeta {
     tileUnlockPopShown: parsed.tileUnlockPopShown === true,
     plainFlipShown: parsed.plainFlipShown === true,
     claimedRung: Math.min(3, nonNegativeIntegerOrZero(parsed.claimedRung)),
+    selectedRung: Math.min(3, nonNegativeIntegerOrZero(parsed.selectedRung)),
   };
 }
 
@@ -842,6 +846,14 @@ export class GameState {
   claimCollectionRung(rung: number): boolean {
     if (!Number.isSafeInteger(rung) || rung !== this._collectionMeta.claimedRung + 1 || rung > 3) return false;
     this._collectionMeta = { ...this._collectionMeta, claimedRung: rung };
+    this.save();
+    return true;
+  }
+
+  /** Pick which claimed rung the card and the Sanctuary show. */
+  selectCollectionRung(rung: number): boolean {
+    if (!Number.isSafeInteger(rung) || rung < 1 || rung > this._collectionMeta.claimedRung) return false;
+    this._collectionMeta = { ...this._collectionMeta, selectedRung: rung };
     this.save();
     return true;
   }

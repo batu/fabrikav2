@@ -18,6 +18,7 @@ import { gameState, type SanctuaryHouseTier } from '../core/GameState';
 import { analytics } from '../analytics/AnalyticsService';
 import { accrualConfig, housePrice, MAX_HOUSE_TIER } from '../collection/config';
 import { CARD_STATE_ORDER, clampRung } from '../collection/thresholds';
+import { displayedRung } from '../collection/cardModel';
 import { collectableCoins, settle } from '../sanctuary/accrual';
 import { layoutSanctuary, type Rect, type SanctuaryManifest } from '../sanctuary/layout';
 import { animateCoinsToBalance } from './EconomyTransfer';
@@ -208,7 +209,8 @@ function hop(element: HTMLElement): void {
 }
 
 function currentCostume(): string {
-  const state = CARD_STATE_ORDER[clampRung(gameState.collectionMeta.claimedRung)];
+  const meta = gameState.collectionMeta;
+  const state = CARD_STATE_ORDER[displayedRung(clampRung(meta.claimedRung), meta.selectedRung)];
   return state === 'silhouette' ? 'plain' : state;
 }
 

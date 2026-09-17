@@ -45,7 +45,8 @@ const DEFERRED_ICON_URLS: readonly string[] = [
   '/ui/settings/settings_icon_vibration.png',
   // Collection deck and Sanctuary scene. Both open from the home nav, never on
   // the boot path, and together weigh ~1.1 MB as WebP.
-  '/ui/collection/card-frame.webp',
+  '/ui/collection/frame-sparrow.webp',
+  '/ui/collection/frame-locked.webp',
   '/ui/collection/portrait-sparrow-silhouette.webp',
   '/ui/collection/portrait-sparrow-plain.webp',
   '/ui/collection/portrait-sparrow-hat.webp',

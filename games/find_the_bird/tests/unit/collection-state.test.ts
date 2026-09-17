@@ -131,7 +131,7 @@ describe('next threshold', () => {
 
 describe('card view model', () => {
   it('hides name and copy while the sparrow is locked', () => {
-    const card = sparrowCard(3, THRESHOLDS);
+    const card = sparrowCard({ count: 3, thresholds: THRESHOLDS, claimed: 0, selected: 0, teaseCount: 1 });
     expect(card.locked).toBe(true);
     expect(card.plaque).toBe('? ? ?');
     expect(card.lines).toEqual([HIDDEN_LINE, HIDDEN_LINE, HIDDEN_LINE]);
@@ -140,7 +140,7 @@ describe('card view model', () => {
   });
 
   it('reveals name, copy and the plain portrait at the unlock threshold', () => {
-    const card = sparrowCard(10, THRESHOLDS);
+    const card = sparrowCard({ count: 10, thresholds: THRESHOLDS, claimed: 0, selected: 0, teaseCount: 1 });
     expect(card.locked).toBe(false);
     expect(card.plaque).toBe('Sparrow');
     expect(card.ribbon).toBe('Garden bird');
@@ -149,9 +149,9 @@ describe('card view model', () => {
   });
 
   it('swaps the portrait for each costume and drops progress when complete', () => {
-    expect(sparrowCard(20, THRESHOLDS).portraitSrc).toContain('portrait-sparrow-hat');
-    expect(sparrowCard(35, THRESHOLDS).portraitSrc).toContain('portrait-sparrow-cardigan');
-    expect(sparrowCard(35, THRESHOLDS).progress).toBeNull();
+    expect(sparrowCard({ count: 20, thresholds: THRESHOLDS, claimed: 0, selected: 0, teaseCount: 1 }).portraitSrc).toContain('portrait-sparrow-hat');
+    expect(sparrowCard({ count: 35, thresholds: THRESHOLDS, claimed: 0, selected: 0, teaseCount: 1 }).portraitSrc).toContain('portrait-sparrow-cardigan');
+    expect(sparrowCard({ count: 35, thresholds: THRESHOLDS, claimed: 0, selected: 0, teaseCount: 1 }).progress).toBeNull();
   });
 
   it('describes the unknown card as a locked placeholder', () => {
@@ -163,7 +163,7 @@ describe('card view model', () => {
   });
 
   it('builds a two-card deck in swipe order', () => {
-    const deck = collectionDeck(0, THRESHOLDS);
+    const deck = collectionDeck({ count: 0, thresholds: THRESHOLDS, claimed: 0, selected: 0, teaseCount: 1 });
     expect(deck.map((card) => card.kind)).toEqual(['sparrow', 'unknown']);
   });
 });

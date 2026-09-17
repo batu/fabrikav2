@@ -21,6 +21,7 @@ export interface RemoteConfigValues {
   achievementsEnabled: boolean;
   collectionUnlockLevel: number;
   sanctuaryUnlockLevel: number;
+  sparrowTeaseCount: number;
   sparrowUnlockCount: number;
   sparrowHatCount: number;
   sparrowCardiganCount: number;
@@ -115,6 +116,9 @@ export const REMOTE_CONFIG_DEFAULTS: RemoteConfigValues = {
   // follow at roughly levels 21 and 29.
   collectionUnlockLevel: 10,
   sanctuaryUnlockLevel: 15,
+  // Below the tease count the card is fully hidden; from it the silhouette
+  // and species show, so the player knows what they are collecting towards.
+  sparrowTeaseCount: 10,
   sparrowUnlockCount: 30,
   sparrowHatCount: 45,
   sparrowCardiganCount: 65,
@@ -203,6 +207,7 @@ export const REMOTE_CONFIG_DEFINITIONS_BY_KEY: {
   achievementsEnabled: { key: 'achievementsEnabled', remoteKey: 'achievements_enabled', type: 'boolean', description: 'Show the Achievements home tile, claim dot and unlock toasts. Off hides the entry point; progress tracking continues.' },
   collectionUnlockLevel: { key: 'collectionUnlockLevel', remoteKey: 'collection_unlock_level', type: 'number', description: 'Completed levels required before the Collection home tile unlocks.' },
   sanctuaryUnlockLevel: { key: 'sanctuaryUnlockLevel', remoteKey: 'sanctuary_unlock_level', type: 'number', description: 'Completed levels required before the Sanctuary home tile unlocks (with the sparrow count).' },
+  sparrowTeaseCount: { key: 'sparrowTeaseCount', remoteKey: 'sparrow_tease_count', type: 'number', description: 'Sparrow pickups that reveal the silhouette and species on the locked card.' },
   sparrowUnlockCount: { key: 'sparrowUnlockCount', remoteKey: 'sparrow_unlock_count', type: 'number', description: 'Sparrow pickups that unlock the sparrow card and open the Sanctuary tile.' },
   sparrowHatCount: { key: 'sparrowHatCount', remoteKey: 'sparrow_hat_count', type: 'number', description: 'Sparrow pickups that unlock the sparrow hat costume.' },
   sparrowCardiganCount: { key: 'sparrowCardiganCount', remoteKey: 'sparrow_cardigan_count', type: 'number', description: 'Sparrow pickups that unlock the sparrow cardigan costume (final state).' },
@@ -325,6 +330,7 @@ export function mapRemoteConfigValues(
     achievementsEnabled: read('achievementsEnabled'),
     collectionUnlockLevel: read('collectionUnlockLevel'),
     sanctuaryUnlockLevel: read('sanctuaryUnlockLevel'),
+    sparrowTeaseCount: read('sparrowTeaseCount'),
     sparrowUnlockCount: read('sparrowUnlockCount'),
     sparrowHatCount: read('sparrowHatCount'),
     sparrowCardiganCount: read('sparrowCardiganCount'),
@@ -404,6 +410,7 @@ export function mapRemoteConfigSources<TSource>(
     achievementsEnabled: read('achievementsEnabled'),
     collectionUnlockLevel: read('collectionUnlockLevel'),
     sanctuaryUnlockLevel: read('sanctuaryUnlockLevel'),
+    sparrowTeaseCount: read('sparrowTeaseCount'),
     sparrowUnlockCount: read('sparrowUnlockCount'),
     sparrowHatCount: read('sparrowHatCount'),
     sparrowCardiganCount: read('sparrowCardiganCount'),

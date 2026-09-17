@@ -120,6 +120,7 @@ const TEMPLATE_GROUPS: readonly RemoteConfigTemplateGroup[] = [
     keys: [
       'collectionUnlockLevel',
       'sanctuaryUnlockLevel',
+      'sparrowTeaseCount',
       'sparrowUnlockCount',
       'sparrowHatCount',
       'sparrowCardiganCount',

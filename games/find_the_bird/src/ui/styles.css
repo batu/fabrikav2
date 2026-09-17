@@ -5865,14 +5865,16 @@ body:has(#home-page-overlay) #tutorial-overlay { display: none; }
 .collection-deck-wrap { display: flex; flex-direction: column; flex: 1; min-height: 0; gap: 8px; padding: 6px 0 10px; }
 /* Slides are narrower than the deck so the neighbours peek in at both edges,
    which is how the player learns there is another card to swipe to. */
-.collection-deck { list-style: none; margin: 0; padding: 0 10%; scroll-padding: 0 10%; display: flex; flex: 1; min-height: 0; overflow-x: auto; overflow-y: hidden; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+/* Asymmetric: the tabs hang off the card's left edge, so the left peek is a
+   sliver and the right peek stays. */
+.collection-deck { list-style: none; margin: 0; padding: 0 6% 0 14%; scroll-padding: 0 6% 0 14%; display: flex; flex: 1; min-height: 0; overflow-x: auto; overflow-y: hidden; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
 .collection-deck::-webkit-scrollbar { display: none; }
-.collection-slide { flex: 0 0 100%; scroll-snap-align: center; display: flex; align-items: center; justify-content: center; padding: 0; box-sizing: border-box; }
+.collection-slide { flex: 0 0 100%; scroll-snap-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 0; box-sizing: border-box; min-height: 0; }
 /* Text is sized from the card itself (container units), so the type stays
    registered on the woodwork whatever the card's share of the screen. */
-.collection-card { position: relative; width: 100%; max-height: 100%; aspect-ratio: 1024 / 1536; container-type: inline-size; }
+.collection-card { position: relative; width: 100%; max-height: calc(100% - 58px); aspect-ratio: 900 / 1500; container-type: inline-size; flex: 0 1 auto; min-height: 0; }
 .collection-card-frame { position: absolute; inset: 0; width: 100%; height: 100%; }
-.collection-card-porthole { position: absolute; border-radius: 50%; overflow: hidden; }
+.collection-card-arch { position: absolute; overflow: hidden; }
 .collection-card-portrait { position: absolute; left: 50%; transform: translateX(-50%); }
 .collection-card-lock { position: absolute; left: 62%; top: 34%; width: 16%; filter: drop-shadow(0 2px 3px rgba(103, 67, 38, .45)); }
 .collection-card-text { position: absolute; inset: 0; pointer-events: none; }
@@ -5880,9 +5882,9 @@ body:has(#home-page-overlay) #tutorial-overlay { display: none; }
 /* Bands measured from card-frame.webp (1024x1536): plaque 700-855, ribbon
    860-958, bubble 988-1207. Estimated values shifted every row one slot down
    on device, putting the name on the ribbon and the copy off the card. */
-.collection-plaque { position: absolute; left: 14%; right: 14%; top: 45.6%; height: 10.1%; margin: 0; display: flex; align-items: center; justify-content: center; font-size: clamp(17px, 5.4vw, 30px); font-size: clamp(15px, 6.4cqw, 30px); font-weight: 900; color: var(--fab-color-ink, #67533c); }
-.collection-ribbon { position: absolute; left: 20%; right: 20%; top: 56.0%; height: 6.4%; margin: 0; display: flex; align-items: center; justify-content: center; font-size: clamp(12px, 3.6vw, 19px); font-size: clamp(11px, 4.3cqw, 19px); font-weight: 800; color: #6f8048; }
-.collection-bubble { position: absolute; left: 14%; right: 14%; top: 64.3%; height: 14.3%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; text-align: center; overflow: hidden; }
+.collection-plaque { position: absolute; margin: 0; display: flex; align-items: center; justify-content: center; font-size: clamp(17px, 5.4vw, 30px); font-size: clamp(15px, 6.4cqw, 30px); font-weight: 900; color: var(--fab-color-ink, #67533c); }
+.collection-ribbon { position: absolute; margin: 0; display: flex; align-items: center; justify-content: center; font-size: clamp(12px, 3.6vw, 19px); font-size: clamp(11px, 4.3cqw, 19px); font-weight: 800; color: #6f8048; }
+.collection-bubble { position: absolute; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; text-align: center; overflow: hidden; }
 .collection-line { font-size: clamp(11px, 3.3vw, 17px); font-size: clamp(10px, 3.9cqw, 17px); font-weight: 700; color: var(--fab-color-ink, #67533c); line-height: 1.25; }
 .collection-card--locked .collection-line { letter-spacing: .12em; color: #a89a84; }
 .collection-progress { position: absolute; left: 14%; right: 14%; top: 81%; display: flex; align-items: center; gap: 7px; }
@@ -6181,3 +6183,23 @@ body:has(#home-page-overlay) #tutorial-overlay { display: none; }
   transition-duration: var(--meta-slide-ms, 420ms);
   transition-timing-function: cubic-bezier(0.55, 0, 0.3, 1);
 }
+
+/* The meter under the card: a wooden trough with a golden fill. */
+.collection-meter { position: relative; width: 92%; height: 44px; flex: 0 0 auto; border-radius: 999px; background: linear-gradient(180deg, #6b4423, #4f2f14); border: 3px solid #3a2110; box-shadow: inset 0 3px 6px rgba(0, 0, 0, .35), 0 3px 0 rgba(58, 33, 16, .6); overflow: hidden; }
+.collection-meter-fill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 999px; background: linear-gradient(180deg, #ffe38f 0%, #f2bf4e 55%, #d8a33e 100%); box-shadow: inset 0 -3px 0 rgba(140, 90, 10, .35), inset 0 2px 0 rgba(255, 255, 255, .5); transition: width 420ms cubic-bezier(.34, 1.2, .64, 1); }
+.collection-meter-text { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: 8px; font-family: 'FredokaOne', 'Nunito', sans-serif; font-size: 17px; color: #fff8e8; letter-spacing: .3px; -webkit-text-stroke: .6px rgba(58, 33, 16, .9); text-shadow: 0 2px 0 rgba(0, 0, 0, .35); font-variant-numeric: tabular-nums; }
+.collection-meter-text b { font-weight: 400; color: #ffe9a8; }
+.collection-meter--done { background: linear-gradient(180deg, #8fae5a, #5f7a3a); border-color: #3f5324; }
+.collection-meter--empty { visibility: hidden; }
+.collection-slide .collection-unlock-btn { position: static; width: 92%; min-height: 44px; flex: 0 0 auto; }
+
+/* Rung tabs down the card's left side, bookmark style, over the border. */
+.collection-tabs { position: absolute; left: -12.5%; top: 8%; width: 17%; display: flex; flex-direction: column; gap: 5.5%; z-index: 2; }
+.collection-tab { position: relative; width: 100%; aspect-ratio: 712 / 482; border: 0; padding: 0; background: url('/ui/collection/tab-open.webp') center / 100% 100% no-repeat; cursor: pointer; filter: drop-shadow(0 3px 4px rgba(60, 35, 10, .35)); transition: transform 180ms cubic-bezier(.34, 1.4, .64, 1), filter 180ms; transform-origin: 80% 50%; }
+.collection-tab--locked { background-image: url('/ui/collection/tab-locked.webp'); cursor: default; }
+.collection-tab--selected { transform: translateX(-10%) scale(1.12); filter: drop-shadow(0 0 8px rgba(255, 214, 120, .9)) drop-shadow(0 3px 4px rgba(60, 35, 10, .35)); z-index: 1; }
+.collection-tab-icon { position: absolute; left: 12%; top: 13%; width: 62%; height: 74%; object-fit: contain; }
+.collection-tab--pop { animation: home-nav-unlock-pop 680ms cubic-bezier(.34, 1.56, .64, 1) both; }
+.collection-arch--swap .collection-card-portrait { animation: collection-arch-swap 360ms cubic-bezier(.34, 1.4, .64, 1) both; }
+@keyframes collection-arch-swap { 0% { transform: translateX(-50%) translateY(10%) scale(.92); opacity: 0; } 100% { transform: translateX(-50%) translateY(0) scale(1); opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .collection-tab--pop, .collection-arch--swap .collection-card-portrait { animation: none; } .collection-tab { transition: none; } }

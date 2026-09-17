@@ -3,7 +3,7 @@
  * pickup count. Pure — the page turns this into DOM and nothing else.
  */
 
-import { ladder, type CardState, type CollectionThresholds, type Rung } from './thresholds';
+import { CARD_STATE_ORDER, ladder, type CardState, type CollectionThresholds, type Rung } from './thresholds';
 
 export type CardKind = 'sparrow' | 'unknown';
 
@@ -24,6 +24,24 @@ export interface CardProgress {
   fraction: number;
 }
 
+export interface CardTab {
+  rung: 1 | 2 | 3;
+  icon: string;
+  unlocked: boolean;
+  selected: boolean;
+  label: string;
+}
+
+export interface CardInputs {
+  count: number;
+  thresholds: CollectionThresholds;
+  claimed: Rung;
+  /** 0 follows the highest claimed rung. */
+  selected: number;
+  /** Pickups at which the silhouette and species appear on the locked card. */
+  teaseCount: number;
+}
+
 export interface CardViewModel {
   kind: CardKind;
   /** Card art state; 'silhouette' for a locked sparrow, 'unknown' for the ? card. */
@@ -41,6 +59,8 @@ export interface CardViewModel {
   locked: boolean;
   /** True when the next rung is earned and waits for the player's tap. */
   claimable: boolean;
+  /** Rung tabs down the card's left side. */
+  tabs: readonly CardTab[];
   /** Screen-reader label for the whole card. */
   ariaLabel: string;
 }
@@ -54,22 +74,50 @@ const PORTRAITS: Record<CardState, string> = {
 
 const UNKNOWN_PORTRAIT = '/ui/collection/portrait-unknown.webp';
 
-export function sparrowCard(count: number, thresholds: CollectionThresholds, claimed: Rung = 0): CardViewModel {
+const TAB_ICONS: Record<1 | 2 | 3, string> = {
+  1: '/ui/collection/icon-bird.webp',
+  2: '/ui/collection/icon-beanie.webp',
+  3: '/ui/collection/icon-cardigan.webp',
+};
+const TAB_LABELS: Record<1 | 2 | 3, string> = { 1: 'Sparrow', 2: 'Beanie', 3: 'Cardigan' };
+
+/** The rung the card displays: the chosen one, capped by what is claimed. */
+export function displayedRung(claimed: Rung, selected: number): Rung {
+  if (claimed === 0) return 0;
+  if (selected >= 1 && selected <= claimed) return selected as Rung;
+  return claimed;
+}
+
+export function sparrowCard(input: CardInputs): CardViewModel {
+  const { count, thresholds, claimed } = input;
   const next = ladder(count, claimed, thresholds);
-  const state = next.state;
-  const revealed = state !== 'silhouette';
+  const shown = displayedRung(claimed, input.selected);
+  const state: CardState = CARD_STATE_ORDER[shown];
+  const revealed = claimed >= 1;
+  // Stages: hidden (below the tease count) -> silhouette with species ->
+  // bird and name -> accessory and the personality lines -> costume.
+  const teased = count >= Math.max(1, Math.floor(input.teaseCount));
+  const linesShown = claimed >= 2;
+  const tabs: CardTab[] = ([1, 2, 3] as const).map((rung) => ({
+    rung,
+    icon: TAB_ICONS[rung],
+    unlocked: claimed >= rung,
+    selected: revealed && shown === rung,
+    label: TAB_LABELS[rung],
+  }));
   return {
     kind: 'sparrow',
     state,
-    portraitSrc: PORTRAITS[state],
+    portraitSrc: revealed ? PORTRAITS[state] : teased ? PORTRAITS.silhouette : UNKNOWN_PORTRAIT,
     plaque: revealed ? 'Sparrow' : '? ? ?',
-    ribbon: 'Garden bird',
-    lines: revealed ? SPARROW_LINES : [HIDDEN_LINE, HIDDEN_LINE, HIDDEN_LINE],
+    ribbon: teased ? 'Garden bird' : '?',
+    lines: linesShown ? SPARROW_LINES : [HIDDEN_LINE, HIDDEN_LINE, HIDDEN_LINE],
     progress: next.target === null
       ? null
       : { label: next.label, current: Math.min(count, next.target), target: next.target, fraction: next.fraction },
     locked: !revealed,
     claimable: next.ready,
+    tabs,
     ariaLabel: next.ready
       ? `Sparrow, ${next.label.toLowerCase()} ready to unlock`
       : revealed
@@ -90,11 +138,13 @@ export function unknownCard(): CardViewModel {
     progress: null,
     locked: true,
     claimable: false,
+    // No tabs: they would poke into the sparrow's right peek from the next slide.
+    tabs: [],
     ariaLabel: 'Locked bird, coming soon',
   };
 }
 
 /** The whole release-1 deck, in swipe order. */
-export function collectionDeck(count: number, thresholds: CollectionThresholds, claimed: Rung = 0): CardViewModel[] {
-  return [sparrowCard(count, thresholds, claimed), unknownCard()];
+export function collectionDeck(input: CardInputs): CardViewModel[] {
+  return [sparrowCard(input), unknownCard()];
 }
