@@ -12,7 +12,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 PUB = os.path.abspath(os.path.join(HERE, "..", "..", "games", "find_the_bird", "public"))
 order = [l["id"] for l in json.load(open(os.path.join(PUB, "levels", "levels-index.json")))]
 rows = {}
-for line in open(os.path.join(HERE, "classified-ranked.jsonl")):
+for line in open(os.path.join(HERE, "shaped.jsonl" if os.path.exists(os.path.join(HERE, "shaped.jsonl")) else "classified-ranked.jsonl")):
     r = json.loads(line); c = r.get("classification")
     if c: rows[(r["level"], r["dog_id"])] = c
 

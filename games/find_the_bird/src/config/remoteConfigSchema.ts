@@ -124,21 +124,29 @@ export const REMOTE_CONFIG_DEFAULTS: RemoteConfigValues = {
   sanctuaryUnlockLevel: 15,
   // Below the tease count the card is fully hidden; from it the silhouette
   // and species show, so the player knows what they are collecting towards.
-  // 2026-09-17: tuned against the ranked tags over the 92-level list
-  // (tools/birdtypes/ladder_report.py). Sparrow rung 1 is banked before the
-  // Collection opens at level 10; the chain then lands one event every 3-8
-  // levels: sparrow 2 + robin open L12, robin 2 + bluebird open L19,
-  // sparrow 3 L24, bluebird 2 L31, robin 3 L40, bluebird 3 L59.
+  // 2026-09-18: the classifier returns five ranked candidates per sprite, and
+  // tools/birdtypes/shape_ladder.py picks each sprite's species to serve pacing
+  // rather than accuracy: the sparrow flows from level 1, the robin is held to
+  // one per level until 16, the bluebird until 22. Thresholds are then fitted to
+  // that supply with the Collection's level-10 gate as the origin
+  // (tools/birdtypes/ladder_report.py prints where each rung lands).
+  //
+  // Sparrow rung 1 is banked by the gate, so opening the Collection always pays
+  // out at once. Each later bird opens on the previous bird's second rung with a
+  // small bank, which claims its first rung as a welcome, then climbs with play.
+  // Player-facing cadence: L10 sparrow 1, L14 sparrow 2 + robin opens and claims,
+  // L20 robin 2 + bluebird opens and claims, L26 bluebird 2, L28 sparrow 3,
+  // L33 robin 3, L40 bluebird 3.
   sparrowTeaseCount: 5,
-  sparrowUnlockCount: 10,
-  sparrowHatCount: 60,
-  sparrowCardiganCount: 100,
-  robinUnlockCount: 10,
-  robinHatCount: 35,
-  robinCardiganCount: 70,
-  bluebirdUnlockCount: 10,
-  bluebirdHatCount: 40,
-  bluebirdCardiganCount: 60,
+  sparrowUnlockCount: 40,
+  sparrowHatCount: 56,
+  sparrowCardiganCount: 110,
+  robinUnlockCount: 12,
+  robinHatCount: 25,
+  robinCardiganCount: 51,
+  bluebirdUnlockCount: 15,
+  bluebirdHatCount: 31,
+  bluebirdCardiganCount: 65,
   // 2026-09-18 economy pass. A level pays levelCompleteCoinReward (45), so a
   // player who never buys hints reaches the level-15 gate with roughly 675
   // coins. The old 150/300/900 let them buy tier 1 AND tier 2 in the same

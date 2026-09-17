@@ -24,8 +24,14 @@ if os.path.exists(vp):
         v = r.get("verdict") or {}
         verdicts[(r["level"], r["dog_id"])] = bool(v.get("sparrow"))
 
+# shaped.jsonl (tools/birdtypes/shape_ladder.py) wins when present: it picks each
+# sprite's species from the five ranked candidates to serve the ladder's pacing.
+# Without it the top candidate is used, which is truer to the bird and worse to play.
+SHAPED = os.path.join(HERE, "shaped.jsonl")
+sources = [SHAPED] if os.path.exists(SHAPED) else [os.path.join(HERE, "known.jsonl"), os.path.join(HERE, "classified-ranked.jsonl")]
+
 rows = {}
-for src in [os.path.join(HERE, "known.jsonl"), os.path.join(HERE, "classified-ranked.jsonl")]:
+for src in sources:
     if not os.path.exists(src): continue
     for line in open(src):
         try: r = json.loads(line)
@@ -57,8 +63,9 @@ for lid in level_ids:
 doc = {
     "version": 1,
     "generatedAt": datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="seconds"),
-    "source": "gemini-3.8-flash via OpenRouter (tools/birdtypes/classify_openrouter.py); "
-              "sparrow tags re-verified by tools/birdtypes/verify_sparrows.py",
+    "source": "gemini-3.8-flash via OpenRouter (tools/birdtypes/classify_openrouter.py), "
+              "five ranked candidates per sprite; species chosen for ladder pacing by "
+              "tools/birdtypes/shape_ladder.py",
     "coverage": {"levels": len(levels), "birds": total, "tagged": tagged,
                  "untagged": total - tagged},
     "levels": levels,
