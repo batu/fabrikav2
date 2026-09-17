@@ -1013,27 +1013,8 @@ function renderGridCard(
   return wrapper;
 }
 
-function renderShopRewardedHint(page: HTMLElement): void {
-  const section = page.querySelector('#shop-page-hints');
-  if (!section) return;
-  const existing = section.querySelector<HTMLButtonElement>('#shop-watch-ad-hint');
-  if (existing?.dataset.pending === '1') return;
-  existing?.remove();
-  const offer = currentHintBoosterOffers().options.find((option) => option.kind === 'rewardedAd');
-  if (!offer) return;
-  const button = document.createElement('button');
-  button.id = 'shop-watch-ad-hint';
-  button.className = 'hint-booster-secondary rewarded-ad-button';
-  button.type = 'button';
-  button.disabled = offer.status !== 'available';
-  button.innerHTML = `${rewardedAdIconMarkup('hint-booster-ad-icon')}<span class="hint-booster-action-copy"><span>Watch Ad</span><small>+${offer.hintAmount} ${offer.hintAmount === 1 ? 'hint' : 'hints'}</small></span>`;
-  button.addEventListener('click', () => { void handleRewardedHintTap(button, offer.hintAmount, false); });
-  section.appendChild(button);
-}
-
 function renderPageShopProducts(page: HTMLElement): void {
   updateShopHeaderBalances(page);
-  renderShopRewardedHint(page);
   const iapSnapshot = iapService.snapshot();
   // Mirror the old modal renderer: while a native store operation is in flight,
   // keep polling so purchase buttons re-enable once it clears (the idle/init
