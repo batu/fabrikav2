@@ -4,7 +4,7 @@
   "width": 2688,
   "height": 2688,
   "colorImage": "levels/mexico_dia_de_muertos_plaza_bird_66a9/color.png",
-  "artifactRevision": "sha256:49e20ce508d63694c6d5a9d9f19bb419a71f2502d16107510fbbba67e1c082a7",
+  "artifactRevision": "sha256:f219e4338d59706d7209d90609e58292a4ca885ef3cf2c23acfaa07786cce5e5",
   "compatibilityAliases": {
     "dog_15": "2afa0ead-b054-43bd-be51-548246f28cf7",
     "dog_16": "3e6069f1-ba07-4116-af1c-6dd4c7aad01e",
@@ -45,21 +45,7 @@
         "anchorX": 0.6643,
         "anchorY": 0.3406,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.05,
-          "ratio": 0.95,
-          "pop": 23.1,
-          "dx": -1,
-          "dy": -6
-        },
-        "regen": {
-          "pass": "crop2",
-          "score": 0.7742,
-          "pop": 36.5,
-          "why": "T4"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -70,34 +56,20 @@
       "r": 57,
       "sprite": {
         "image": "levels/mexico_dia_de_muertos_plaza_bird_66a9/dogs/dog_16/sprite_000.png",
-        "height": 182,
-        "width": 177,
-        "x": 824,
-        "y": 591,
+        "height": 233,
+        "width": 185,
+        "x": 822,
+        "y": 553,
         "cleanup": {
-          "x": 810,
-          "y": 577,
-          "width": 203,
-          "height": 209
+          "x": 808,
+          "y": 535,
+          "width": 212,
+          "height": 267
         },
-        "anchorX": 0.4972,
-        "anchorY": 0.511,
+        "anchorX": 0.4865,
+        "anchorY": 0.5622,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 20.8,
-          "dx": 0,
-          "dy": 0
-        },
-        "regen": {
-          "pass": "crop2",
-          "score": 0.8363,
-          "pop": 20.9,
-          "why": "T4"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -121,21 +93,7 @@
         "anchorX": 0.5168,
         "anchorY": 0.3986,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 20.5,
-          "dx": 0,
-          "dy": 0
-        },
-        "regen": {
-          "pass": "crop",
-          "score": 0.9401,
-          "pop": 20.5,
-          "why": "T4"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -159,21 +117,7 @@
         "anchorX": 0.6301,
         "anchorY": 0.5593,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 18.7,
-          "dx": 0,
-          "dy": 0
-        },
-        "regen": {
-          "pass": "crop2",
-          "score": 0.9383,
-          "pop": 18.8,
-          "why": "T4"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -197,21 +141,7 @@
         "anchorX": 0.3256,
         "anchorY": 0.5714,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 15.1,
-          "dx": 0,
-          "dy": 0
-        },
-        "regen": {
-          "pass": "crop2",
-          "score": 0.9617,
-          "pop": 15.1,
-          "why": "T4"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -235,21 +165,7 @@
         "anchorX": 0.4845,
         "anchorY": 0.573,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.1,
-          "ratio": 1.0,
-          "pop": 18.3,
-          "dx": -7,
-          "dy": -11
-        },
-        "regen": {
-          "pass": "crop2",
-          "score": 0.7651,
-          "pop": 36.3,
-          "why": "T4"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -273,21 +189,7 @@
         "anchorX": 0.4924,
         "anchorY": 0.5705,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.2,
-          "ratio": 1.0,
-          "pop": 22.2,
-          "dx": -21,
-          "dy": -19
-        },
-        "regen": {
-          "pass": "crop",
-          "score": 0.6724,
-          "pop": 54.7,
-          "why": "T4"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -311,21 +213,7 @@
         "anchorX": 0.5355,
         "anchorY": 0.6,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 2.05,
-          "ratio": 1.0,
-          "pop": 29.6,
-          "dx": -57,
-          "dy": -45
-        },
-        "regen": {
-          "pass": "crop2",
-          "score": 0.7307,
-          "pop": 38.3,
-          "why": "T4"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -336,34 +224,20 @@
       "r": 57,
       "sprite": {
         "image": "levels/mexico_dia_de_muertos_plaza_bird_66a9/dogs/dog_23/sprite_000.png",
-        "height": 182,
-        "width": 180,
-        "x": 2083,
-        "y": 1136,
+        "height": 245,
+        "width": 270,
+        "x": 2035,
+        "y": 1110,
         "cleanup": {
-          "x": 2069,
-          "y": 1122,
-          "width": 207,
-          "height": 209
+          "x": 2014,
+          "y": 1091,
+          "width": 310,
+          "height": 281
         },
-        "anchorX": 0.5167,
-        "anchorY": 0.511,
+        "anchorX": 0.5222,
+        "anchorY": 0.4857,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 14.2,
-          "dx": 0,
-          "dy": 0
-        },
-        "regen": {
-          "pass": "crop2",
-          "score": 0.9146,
-          "pop": 13.6,
-          "why": "T4"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -387,21 +261,7 @@
         "anchorX": 0.3049,
         "anchorY": 0.213,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 17.8,
-          "dx": 0,
-          "dy": 0
-        },
-        "regen": {
-          "pass": "crop2",
-          "score": 0.9546,
-          "pop": 17.6,
-          "why": "T4"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -425,21 +285,7 @@
         "anchorX": 0.443,
         "anchorY": 0.574,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 0.95,
-          "pop": 29.9,
-          "dx": 4,
-          "dy": -4
-        },
-        "regen": {
-          "pass": "crop2",
-          "score": 0.7579,
-          "pop": 40.5,
-          "why": "T4"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -463,21 +309,7 @@
         "anchorX": 0.4802,
         "anchorY": 0.488,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.15,
-          "ratio": 1.0,
-          "pop": 29.3,
-          "dx": -4,
-          "dy": -8
-        },
-        "regen": {
-          "pass": "crop2",
-          "score": 0.7193,
-          "pop": 38.2,
-          "why": "T4"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -501,21 +333,7 @@
         "anchorX": 0.5074,
         "anchorY": 0.5613,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.95,
-          "ratio": 0.95,
-          "pop": 20.4,
-          "dx": -72,
-          "dy": -59
-        },
-        "regen": {
-          "pass": "crop",
-          "score": 0.6881,
-          "pop": 39.6,
-          "why": "T4"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -526,34 +344,20 @@
       "r": 57,
       "sprite": {
         "image": "levels/mexico_dia_de_muertos_plaza_bird_66a9/dogs/dog_28/sprite_000.png",
-        "height": 180,
-        "width": 182,
-        "x": 1713,
-        "y": 2181,
+        "height": 200,
+        "width": 239,
+        "x": 1671,
+        "y": 2185,
         "cleanup": {
-          "x": 1699,
-          "y": 2168,
-          "width": 209,
-          "height": 207
+          "x": 1653,
+          "y": 2170,
+          "width": 274,
+          "height": 230
         },
-        "anchorX": 0.5055,
-        "anchorY": 0.4944,
+        "anchorX": 0.5607,
+        "anchorY": 0.43,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 19.9,
-          "dx": 0,
-          "dy": 1
-        },
-        "regen": {
-          "pass": "crop",
-          "score": 0.7322,
-          "pop": 25.4,
-          "why": "T4"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -577,21 +381,7 @@
         "anchorX": 0.5714,
         "anchorY": 0.5,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.05,
-          "ratio": 1.0,
-          "pop": 31.1,
-          "dx": -6,
-          "dy": -3
-        },
-        "regen": {
-          "pass": "crop",
-          "score": 0.7437,
-          "pop": 36.8,
-          "why": "T4"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -615,21 +405,7 @@
         "anchorX": 0.5813,
         "anchorY": 0.5385,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 18.1,
-          "dx": -1,
-          "dy": 0
-        },
-        "regen": {
-          "pass": "crop",
-          "score": 0.9192,
-          "pop": 20.1,
-          "why": "T4"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     }
   ]

@@ -4,7 +4,7 @@
   "width": 2688,
   "height": 2688,
   "colorImage": "levels/ancient_egyptian_compounds_bakers_enclosure_bird_3e39/color.png",
-  "artifactRevision": "sha256:fa158a0f6a012ffae079a89cebcf2ce3b7cff9961f54e5e158206083bf275e4f",
+  "artifactRevision": "sha256:cee09d49f206289fb83740aa099647084bed39be6a8e071e6f62eb2c3ac05c58",
   "compatibilityAliases": {
     "dog_06": "04c4e3ae-be30-4ef6-aa97-ee4efc5c8600",
     "dog_07": "0b39ff82-5b5e-4502-be52-3df69bf499a6",
@@ -41,14 +41,7 @@
         "anchorX": 0.5747,
         "anchorY": 0.7255,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 19.8,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipY": false
       }
     },
     {
@@ -72,14 +65,7 @@
         "anchorX": 0.3662,
         "anchorY": 0.625,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.05,
-          "pop": 42.1,
-          "dx": 0,
-          "dy": 3
-        }
+        "flipY": false
       }
     },
     {
@@ -103,14 +89,7 @@
         "anchorX": 0.6868,
         "anchorY": 0.4916,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 0.95,
-          "pop": 28.4,
-          "dx": 5,
-          "dy": -5
-        }
+        "flipY": false
       }
     },
     {
@@ -134,14 +113,7 @@
         "anchorX": 0.6017,
         "anchorY": 0.5227,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 24.9,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipY": false
       }
     },
     {
@@ -165,14 +137,7 @@
         "anchorX": 0.5417,
         "anchorY": 0.5333,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 14.2,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipY": false
       }
     },
     {
@@ -196,14 +161,7 @@
         "anchorX": 0.4947,
         "anchorY": 0.445,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 16.8,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipY": false
       }
     },
     {
@@ -227,21 +185,7 @@
         "anchorX": 0.5072,
         "anchorY": 0.4971,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 18.9,
-          "dx": 0,
-          "dy": 0
-        },
-        "regen": {
-          "pass": "crop",
-          "score": 0.8837,
-          "pop": 18.9,
-          "why": "T3+refit refused"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -265,21 +209,7 @@
         "anchorX": 0.1429,
         "anchorY": 0.5887,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 22.3,
-          "dx": 0,
-          "dy": 0
-        },
-        "regen": {
-          "pass": "crop2",
-          "score": 0.8935,
-          "pop": 21.5,
-          "why": "T3+refit refused"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -303,21 +233,7 @@
         "anchorX": 0.6378,
         "anchorY": 0.7778,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 20.1,
-          "dx": 0,
-          "dy": 0
-        },
-        "regen": {
-          "pass": "crop",
-          "score": 0.891,
-          "pop": 20.1,
-          "why": "T3+refit refused"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -341,14 +257,7 @@
         "anchorX": 0.4035,
         "anchorY": 0.4964,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 21.9,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipY": false
       }
     },
     {
@@ -372,21 +281,7 @@
         "anchorX": 0.5614,
         "anchorY": 0.4311,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 18.4,
-          "dx": 0,
-          "dy": 0
-        },
-        "regen": {
-          "pass": "crop2",
-          "score": 0.9343,
-          "pop": 18.3,
-          "why": "T3"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -410,21 +305,7 @@
         "anchorX": 0.2949,
         "anchorY": 0.4438,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 12.5,
-          "dx": 0,
-          "dy": 0
-        },
-        "regen": {
-          "pass": "crop2",
-          "score": 0.9512,
-          "pop": 12.2,
-          "why": "T3+refit refused"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     }
   ]

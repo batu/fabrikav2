@@ -4,7 +4,7 @@
   "width": 2688,
   "height": 2688,
   "colorImage": "levels/ancient_egyptian_compounds_scribes_workyard_bird_5094/color.png",
-  "artifactRevision": "sha256:e1c5911a6fc1f7f250f308d63b7fac4aa1711ea205f1c1bc73f6498856b315b8",
+  "artifactRevision": "sha256:1a44cebfa7f980404699e2dbbbf483dc430a4df1e56c5a44ecdf21f476553a96",
   "compatibilityAliases": {
     "dog_04": "32b78ac8-7027-4bea-9af7-5b5be919655e",
     "dog_08": "a73cbc52-0ed6-4a13-9c7b-4335a5266aaa",
@@ -25,7 +25,8 @@
     "dog_38": "82141928-1673-4a7f-9e42-6534c22138b0",
     "dog_39": "4f51dcd6-6564-46ba-aa54-b6b9ab55a9dc",
     "dog_40": "cfa78c05-3eaf-4dae-a065-836c7464a9ce",
-    "dog_41": "583e992e-76ba-472c-a5fd-26a7a79031a8"
+    "dog_41": "583e992e-76ba-472c-a5fd-26a7a79031a8",
+    "dog_42": "c98f46ce-903b-4d02-b4bd-e03c02e693cc"
   },
   "dogs": [
     {
@@ -49,14 +50,7 @@
         "anchorX": 0.4726,
         "anchorY": 0.6629,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 31.1,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipY": false
       }
     },
     {
@@ -80,14 +74,7 @@
         "anchorX": 0.3077,
         "anchorY": 0.5161,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 20.6,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipY": false
       }
     },
     {
@@ -111,21 +98,7 @@
         "anchorX": 0.3636,
         "anchorY": 0.6282,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 19.0,
-          "dx": 0,
-          "dy": 0
-        },
-        "regen": {
-          "pass": "crop2",
-          "score": 0.9178,
-          "pop": 19.0,
-          "why": "T3"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -136,34 +109,20 @@
       "r": 57,
       "sprite": {
         "image": "levels/ancient_egyptian_compounds_scribes_workyard_bird_5094/dogs/dog_14/sprite_000.png",
-        "height": 181,
-        "width": 176,
-        "x": 982,
-        "y": 918,
+        "height": 218,
+        "width": 200,
+        "x": 997,
+        "y": 880,
         "cleanup": {
-          "x": 968,
-          "y": 904,
-          "width": 202,
-          "height": 208
+          "x": 982,
+          "y": 863,
+          "width": 230,
+          "height": 250
         },
-        "anchorX": 0.4943,
-        "anchorY": 0.5138,
+        "anchorX": 0.36,
+        "anchorY": 0.6009,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 15.4,
-          "dx": 0,
-          "dy": 0
-        },
-        "regen": {
-          "pass": "crop2",
-          "score": 0.8357,
-          "pop": 15.5,
-          "why": "T4"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -187,21 +146,7 @@
         "anchorX": 0.5673,
         "anchorY": 0.5286,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 18.1,
-          "dx": 0,
-          "dy": 0
-        },
-        "regen": {
-          "pass": "crop2",
-          "score": 0.9214,
-          "pop": 18.0,
-          "why": "T3+refit refused"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -225,14 +170,7 @@
         "anchorX": 0.4545,
         "anchorY": 0.5706,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 9.9,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipY": false
       }
     },
     {
@@ -256,21 +194,7 @@
         "anchorX": 0.4157,
         "anchorY": 0.5394,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.05,
-          "ratio": 1.0,
-          "pop": 19.1,
-          "dx": 0,
-          "dy": -2
-        },
-        "regen": {
-          "pass": "crop",
-          "score": 0.8158,
-          "pop": 29.2,
-          "why": "T3"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -294,21 +218,7 @@
         "anchorX": 0.7059,
         "anchorY": 0.5874,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 17.6,
-          "dx": 0,
-          "dy": 0
-        },
-        "regen": {
-          "pass": "crop2",
-          "score": 0.9371,
-          "pop": 16.7,
-          "why": "T3+refit refused"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -332,21 +242,7 @@
         "anchorX": 0.4256,
         "anchorY": 0.493,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 2.05,
-          "ratio": 1.0,
-          "pop": 26.6,
-          "dx": -18,
-          "dy": -43
-        },
-        "regen": {
-          "pass": "crop",
-          "score": 0.578,
-          "pop": 67.5,
-          "why": "T4"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -370,21 +266,7 @@
         "anchorX": 0.465,
         "anchorY": 0.4937,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 14.7,
-          "dx": 0,
-          "dy": 0
-        },
-        "regen": {
-          "pass": "crop2",
-          "score": 0.9553,
-          "pop": 14.7,
-          "why": "T4"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -408,21 +290,7 @@
         "anchorX": 0.4236,
         "anchorY": 0.445,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 20.2,
-          "dx": 0,
-          "dy": 0
-        },
-        "regen": {
-          "pass": "crop2",
-          "score": 0.947,
-          "pop": 19.7,
-          "why": "T3+refit refused"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -446,14 +314,7 @@
         "anchorX": 0.5515,
         "anchorY": 0.5742,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 0.95,
-          "ratio": 1.0,
-          "pop": 30.1,
-          "dx": 5,
-          "dy": 4
-        }
+        "flipY": false
       }
     },
     {
@@ -477,14 +338,7 @@
         "anchorX": 0.4667,
         "anchorY": 0.5202,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 0.95,
-          "ratio": 1.0,
-          "pop": 39.1,
-          "dx": 7,
-          "dy": 6
-        }
+        "flipY": false
       }
     },
     {
@@ -508,21 +362,7 @@
         "anchorX": 0.5644,
         "anchorY": 0.4959,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 16.7,
-          "dx": 0,
-          "dy": 0
-        },
-        "regen": {
-          "pass": "crop2",
-          "score": 0.967,
-          "pop": 16.7,
-          "why": "T3+refit refused"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -546,21 +386,7 @@
         "anchorX": 0.3538,
         "anchorY": 0.592,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 21.9,
-          "dx": 0,
-          "dy": 0
-        },
-        "regen": {
-          "pass": "crop2",
-          "score": 0.8938,
-          "pop": 21.9,
-          "why": "T3"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -584,21 +410,7 @@
         "anchorX": 0.5455,
         "anchorY": 0.5176,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.1,
-          "ratio": 1.0,
-          "pop": 21.8,
-          "dx": -14,
-          "dy": -10
-        },
-        "regen": {
-          "pass": "crop2",
-          "score": 0.6585,
-          "pop": 45.9,
-          "why": "T4"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -622,14 +434,7 @@
         "anchorX": 0.3829,
         "anchorY": 0.6471,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 27.1,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipY": false
       }
     },
     {
@@ -653,14 +458,7 @@
         "anchorX": 0.4795,
         "anchorY": 0.508,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 0.95,
-          "ratio": 1.0,
-          "pop": 35.6,
-          "dx": 5,
-          "dy": 3
-        }
+        "flipY": false
       }
     },
     {
@@ -684,14 +482,7 @@
         "anchorX": 0.6217,
         "anchorY": 0.5097,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 29.6,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipY": false
       }
     },
     {
@@ -715,21 +506,31 @@
         "anchorX": 0.4277,
         "anchorY": 0.6289,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 22.9,
-          "dx": 0,
-          "dy": 0
+        "flipY": false
+      }
+    },
+    {
+      "id": "c98f46ce-903b-4d02-b4bd-e03c02e693cc",
+      "compatibilitySlot": "dog_42",
+      "x": 2210,
+      "y": 620,
+      "r": 57,
+      "sprite": {
+        "image": "levels/ancient_egyptian_compounds_scribes_workyard_bird_5094/dogs/dog_42/sprite_000.png",
+        "height": 137,
+        "width": 79,
+        "x": 2162,
+        "y": 571,
+        "cleanup": {
+          "x": 2144,
+          "y": 560,
+          "width": 122,
+          "height": 157
         },
-        "regen": {
-          "pass": "crop2",
-          "score": 0.8637,
-          "pop": 21.6,
-          "why": "T3"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "anchorX": 0.6076,
+        "anchorY": 0.3577,
+        "flipX": false,
+        "flipY": false
       }
     }
   ]

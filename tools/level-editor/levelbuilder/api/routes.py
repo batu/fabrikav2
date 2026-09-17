@@ -3877,6 +3877,26 @@ def bundle_level_as_starter(session_id: str):
     return {"levelId": session_id, "bundled": True, "manifestRevision": manifest.get("manifestRevision")}
 
 
+class AdoptExportRequest(BaseModel):
+    humanActor: str = Field(..., min_length=7, max_length=200)
+
+
+@router.post("/sessions/{session_id}/adopt-export")
+def adopt_export_route(session_id: str, req: AdoptExportRequest):
+    """Two-way street (operator 2026-09-17): make the canonical session equal to its public export."""
+    _validate_session_id(session_id)
+    if not req.humanActor.startswith("human:"):
+        raise HTTPException(422, detail={"error": "humanActor must be attributable (human:*)", "code": "human_attribution_required"})
+    from .export_adoption import adopt_export
+    from datetime import datetime, timezone
+    try:
+        return adopt_export(session_id, actor=req.humanActor, stamp=datetime.now(timezone.utc).strftime("%Y-%m-%d"))
+    except FileNotFoundError as error:
+        raise HTTPException(404, detail={"error": str(error), "code": "export_missing"}) from error
+    except ValueError as error:
+        raise HTTPException(409, detail={"error": str(error), "code": "adopt_export_refused"}) from error
+
+
 @router.get("/catalog/levels")
 def get_catalog_levels(include_tombstoned: bool = Query(False)):
     return {"levels": S.list_catalog_candidates(include_tombstoned=include_tombstoned)}

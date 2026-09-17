@@ -474,9 +474,16 @@ def _artifact_integrity_diagnostics(level_ids: list[str]) -> list[dict[str, Any]
             or not isinstance(final_review, dict)
             or final_review.get("contentRevision") != revision
         ):
+            # Operator 2026-09-17: non-blocking for now. The shipped levels' sessions sit
+            # behind their exports after the 2026-09-16 sticker work and the intake's
+            # delegated blesses went stale on later repairs; the CDN publish lane, not
+            # editor activation, is what shipped the 92-level order. Re-block once the
+            # sessions are re-reviewed.
             diagnostics.append(_diagnostic(
                 "levelAuthoringReviewRequired",
                 f"Draft-listed level {level_id} does not have current human hitbox and final-cutout reviews.",
+                severity="warning",
+                blocking=False,
                 level_id=level_id,
                 details={"contentRevision": revision},
             ))

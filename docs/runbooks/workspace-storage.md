@@ -33,9 +33,17 @@ prints its location, and records source SHA, lane, owner and result in
 Signed Release output is durable, protecting existing release/rollback refs;
 release candidate staging and `local_app_ref` remain unchanged.
 
-Debug output is scratch. Keep at least seven days and the latest two successful
-attempts per repository/lane; failed builds are pinned for investigation.
-These settings in `agents/config.json` generate review candidates only.
+Debug output is scratch and compiles into a reused DerivedData cache under
+`~/Library/Caches/fabrikav2-native-shell/<checkout>/<lane>/`, not into the
+attempt, so incremental builds survive and a retained attempt holds only its
+metadata. The resolver keeps the three most recently built caches per lane and
+removes the rest once idle for a day; `FABRIKAV2_NATIVE_SHELL_CACHE_ROOT`
+relocates the root. Agency still allocates and retains the attempt: keep at
+least seven days and the latest two successful attempts per repository/lane,
+with failed builds pinned for investigation. Those settings in
+`agents/config.json` generate review candidates only. A failed scratch build's
+`xcactivitylog` now lives in the shared cache rather than the pinned attempt,
+so diagnose it from the cache path the build printed.
 Generated Capacitor projects, web dist, node_modules, and Gradle plugin
 intermediates remain owned by their source checkout. Use separate worktrees
 for concurrent web/native preparation; the shared runner rejects overlapping

@@ -1,22 +1,44 @@
 {
   "id": "greece_hilltop_windmills_bird_b89d",
-  "name": "Level greece_hilltop_windmills_bird_b89d (clean_old_cartoon)",
+  "name": "Level greece_hilltop_windmills_bird_b89d",
   "width": 2688,
   "height": 2688,
-  "bwImage": "levels/greece_hilltop_windmills_bird_b89d/bw.png",
   "colorImage": "levels/greece_hilltop_windmills_bird_b89d/color.png",
+  "artifactRevision": "sha256:dca01659a9ba96ce311ba462c439613ca9e422fa3f354770d1d93dca2542f9b0",
+  "compatibilityAliases": {
+    "dog_00": "6451c2c1-10b9-5ca7-b636-9a956792f9c2",
+    "dog_01": "4eecf893-7c64-541c-8a9d-e773586bda20",
+    "dog_02": "cbe385e0-0b6e-5595-8c70-2b9d5bb5f393",
+    "dog_03": "cd5833eb-3833-5d33-b6c8-121fd908b61f",
+    "dog_04": "2d964324-2d5f-50f2-af32-397484e2520d",
+    "dog_05": "bbf5975f-779a-5a76-8d3c-97608d496527",
+    "dog_06": "bc5ba0a3-309f-5842-8911-17769db33319",
+    "dog_07": "aa15ed48-9781-5671-97f3-3486094b1208",
+    "dog_08": "63e48cd5-b3aa-5214-b65f-d4c4fbaf1ddf",
+    "dog_09": "467d4eca-586b-5f33-bce0-04398e0d7914",
+    "dog_10": "49beb7ba-2d33-50a8-b6a0-cda76e22e1c0",
+    "dog_11": "8c5e5896-fbc8-5bb5-b079-d8353c6bc4cc",
+    "dog_12": "9d6ff10b-308b-5af8-8e6a-03e0cd2c43dd",
+    "dog_13": "714797fc-d127-5585-a453-89a2bd7a25e0",
+    "dog_14": "f0de7b96-4192-5b3d-9c44-05786a270bde",
+    "dog_15": "a8836300-f181-53cf-aede-1022705a69df",
+    "dog_16": "9cd04ff3-0af0-5af4-91e7-c1bcd8db925e",
+    "dog_17": "18cd5f59-0340-5bc2-905f-a29aa969caba",
+    "dog_18": "2b56ac61-3ee0-5398-a003-7a513e2c20ba"
+  },
   "dogs": [
     {
-      "id": "dog_00",
+      "id": "6451c2c1-10b9-5ca7-b636-9a956792f9c2",
+      "compatibilitySlot": "dog_00",
       "x": 530,
       "y": 738,
       "r": 57,
       "sprite": {
         "image": "levels/greece_hilltop_windmills_bird_b89d/dogs/dog_00/sprite_000.png",
+        "height": 175,
+        "width": 221,
         "x": 456,
         "y": 669,
-        "width": 221,
-        "height": 175,
         "cleanup": {
           "x": 357,
           "y": 594,
@@ -25,26 +47,22 @@
         },
         "anchorX": 0.5158,
         "anchorY": 0.5657,
-        "refit": {
-          "scale": 1.4,
-          "ratio": 1.0,
-          "pop": 16.0,
-          "dx": -39,
-          "dy": -30
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_01",
+      "id": "4eecf893-7c64-541c-8a9d-e773586bda20",
+      "compatibilitySlot": "dog_01",
       "x": 683,
       "y": 990,
       "r": 57,
       "sprite": {
         "image": "levels/greece_hilltop_windmills_bird_b89d/dogs/dog_01/sprite_000.png",
+        "height": 323,
+        "width": 148,
         "x": 597,
         "y": 846,
-        "width": 148,
-        "height": 323,
         "cleanup": {
           "x": 538,
           "y": 865,
@@ -53,26 +71,22 @@
         },
         "anchorX": 0.6486,
         "anchorY": 0.6873,
-        "refit": {
-          "scale": 1.4,
-          "ratio": 1.0,
-          "pop": 14.4,
-          "dx": -10,
-          "dy": -77
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_02",
+      "id": "cbe385e0-0b6e-5595-8c70-2b9d5bb5f393",
+      "compatibilitySlot": "dog_02",
       "x": 1030,
       "y": 881,
       "r": 57,
       "sprite": {
         "image": "levels/greece_hilltop_windmills_bird_b89d/dogs/dog_02/sprite_000.png",
+        "height": 221,
+        "width": 235,
         "x": 942,
         "y": 780,
-        "width": 235,
-        "height": 221,
         "cleanup": {
           "x": 866,
           "y": 711,
@@ -81,26 +95,22 @@
         },
         "anchorX": 0.5106,
         "anchorY": 0.5611,
-        "refit": {
-          "scale": 1.35,
-          "ratio": 1.0,
-          "pop": 26.1,
-          "dx": -32,
-          "dy": -22
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_03",
+      "id": "cd5833eb-3833-5d33-b6c8-121fd908b61f",
+      "compatibilitySlot": "dog_03",
       "x": 955,
       "y": 1124,
       "r": 57,
       "sprite": {
         "image": "levels/greece_hilltop_windmills_bird_b89d/dogs/dog_03/sprite_000.png",
+        "height": 189,
+        "width": 190,
         "x": 873,
         "y": 1043,
-        "width": 190,
-        "height": 189,
         "cleanup": {
           "x": 812,
           "y": 1025,
@@ -109,26 +119,22 @@
         },
         "anchorX": 0.6105,
         "anchorY": 0.4974,
-        "refit": {
-          "scale": 1.4,
-          "ratio": 1.0,
-          "pop": 19.4,
-          "dx": -34,
-          "dy": -13
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_04",
+      "id": "2d964324-2d5f-50f2-af32-397484e2520d",
+      "compatibilitySlot": "dog_04",
       "x": 2223,
       "y": 653,
       "r": 57,
       "sprite": {
         "image": "levels/greece_hilltop_windmills_bird_b89d/dogs/dog_04/sprite_000.png",
+        "height": 195,
+        "width": 179,
         "x": 2164,
         "y": 600,
-        "width": 179,
-        "height": 195,
         "cleanup": {
           "x": 2050,
           "y": 480,
@@ -137,26 +143,22 @@
         },
         "anchorX": 0.4469,
         "anchorY": 0.4513,
-        "refit": {
-          "scale": 1.3,
-          "ratio": 1.0,
-          "pop": 22.9,
-          "dx": -21,
-          "dy": -35
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_05",
+      "id": "bbf5975f-779a-5a76-8d3c-97608d496527",
+      "compatibilitySlot": "dog_05",
       "x": 656,
       "y": 1244,
       "r": 57,
       "sprite": {
         "image": "levels/greece_hilltop_windmills_bird_b89d/dogs/dog_05/sprite_000.png",
+        "height": 164,
+        "width": 239,
         "x": 573,
         "y": 1186,
-        "width": 239,
-        "height": 164,
         "cleanup": {
           "x": 554,
           "y": 1107,
@@ -165,26 +167,22 @@
         },
         "anchorX": 0.4812,
         "anchorY": 0.5244,
-        "refit": {
-          "scale": 1.4,
-          "ratio": 1.0,
-          "pop": 17.3,
-          "dx": -31,
-          "dy": -28
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_06",
+      "id": "bc5ba0a3-309f-5842-8911-17769db33319",
+      "compatibilitySlot": "dog_06",
       "x": 616,
       "y": 1769,
       "r": 57,
       "sprite": {
         "image": "levels/greece_hilltop_windmills_bird_b89d/dogs/dog_06/sprite_000.png",
+        "height": 297,
+        "width": 192,
         "x": 562,
         "y": 1661,
-        "width": 192,
-        "height": 297,
         "cleanup": {
           "x": 443,
           "y": 1596,
@@ -193,26 +191,22 @@
         },
         "anchorX": 0.4896,
         "anchorY": 0.5556,
-        "refit": {
-          "scale": 1.4,
-          "ratio": 1.0,
-          "pop": 14.8,
-          "dx": -39,
-          "dy": -57
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_07",
+      "id": "aa15ed48-9781-5671-97f3-3486094b1208",
+      "compatibilitySlot": "dog_07",
       "x": 564,
       "y": 2208,
       "r": 57,
       "sprite": {
         "image": "levels/greece_hilltop_windmills_bird_b89d/dogs/dog_07/sprite_000.png",
+        "height": 210,
+        "width": 277,
         "x": 444,
         "y": 2110,
-        "width": 277,
-        "height": 210,
         "cleanup": {
           "x": 391,
           "y": 2035,
@@ -221,26 +215,22 @@
         },
         "anchorX": 0.4946,
         "anchorY": 0.6571,
-        "refit": {
-          "scale": 1.4,
-          "ratio": 1.0,
-          "pop": 16.5,
-          "dx": -16,
-          "dy": -40
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_08",
+      "id": "63e48cd5-b3aa-5214-b65f-d4c4fbaf1ddf",
+      "compatibilitySlot": "dog_08",
       "x": 914,
       "y": 2061,
       "r": 57,
       "sprite": {
         "image": "levels/greece_hilltop_windmills_bird_b89d/dogs/dog_08/sprite_000.png",
+        "height": 228,
+        "width": 228,
         "x": 836,
         "y": 1959,
-        "width": 228,
-        "height": 228,
         "cleanup": {
           "x": 766,
           "y": 1888,
@@ -249,26 +239,22 @@
         },
         "anchorX": 0.4605,
         "anchorY": 0.5789,
-        "refit": {
-          "scale": 1.3,
-          "ratio": 1.0,
-          "pop": 31.3,
-          "dx": -27,
-          "dy": -29
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_09",
+      "id": "467d4eca-586b-5f33-bce0-04398e0d7914",
+      "compatibilitySlot": "dog_09",
       "x": 1133,
       "y": 1641,
       "r": 57,
       "sprite": {
         "image": "levels/greece_hilltop_windmills_bird_b89d/dogs/dog_09/sprite_000.png",
+        "height": 206,
+        "width": 286,
         "x": 965,
         "y": 1537,
-        "width": 286,
-        "height": 206,
         "cleanup": {
           "x": 960,
           "y": 1546,
@@ -277,26 +263,22 @@
         },
         "anchorX": 0.5909,
         "anchorY": 0.5049,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 20.2,
-          "dx": -1,
-          "dy": 0
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_10",
+      "id": "49beb7ba-2d33-50a8-b6a0-cda76e22e1c0",
+      "compatibilitySlot": "dog_10",
       "x": 1299,
       "y": 1403,
       "r": 57,
       "sprite": {
         "image": "levels/greece_hilltop_windmills_bird_b89d/dogs/dog_10/sprite_000.png",
+        "height": 156,
+        "width": 148,
         "x": 1232,
         "y": 1318,
-        "width": 148,
-        "height": 156,
         "cleanup": {
           "x": 1171,
           "y": 1276,
@@ -305,26 +287,22 @@
         },
         "anchorX": 0.4527,
         "anchorY": 0.5385,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 27.5,
-          "dx": 0,
-          "dy": 1
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_11",
+      "id": "8c5e5896-fbc8-5bb5-b079-d8353c6bc4cc",
+      "compatibilitySlot": "dog_11",
       "x": 1502,
       "y": 1377,
       "r": 57,
       "sprite": {
         "image": "levels/greece_hilltop_windmills_bird_b89d/dogs/dog_11/sprite_000.png",
+        "height": 187,
+        "width": 183,
         "x": 1407,
         "y": 1277,
-        "width": 183,
-        "height": 187,
         "cleanup": {
           "x": 1405,
           "y": 1226,
@@ -333,26 +311,22 @@
         },
         "anchorX": 0.5191,
         "anchorY": 0.5348,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 27.3,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_12",
+      "id": "9d6ff10b-308b-5af8-8e6a-03e0cd2c43dd",
+      "compatibilitySlot": "dog_12",
       "x": 1688,
       "y": 1311,
       "r": 57,
       "sprite": {
         "image": "levels/greece_hilltop_windmills_bird_b89d/dogs/dog_12/sprite_000.png",
+        "height": 208,
+        "width": 211,
         "x": 1628,
         "y": 1230,
-        "width": 211,
-        "height": 208,
         "cleanup": {
           "x": 1596,
           "y": 1138,
@@ -361,26 +335,22 @@
         },
         "anchorX": 0.436,
         "anchorY": 0.5048,
-        "refit": {
-          "scale": 1.35,
-          "ratio": 1.0,
-          "pop": 20.4,
-          "dx": -32,
-          "dy": -23
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_13",
+      "id": "714797fc-d127-5585-a453-89a2bd7a25e0",
+      "compatibilitySlot": "dog_13",
       "x": 1793,
       "y": 1730,
       "r": 57,
       "sprite": {
         "image": "levels/greece_hilltop_windmills_bird_b89d/dogs/dog_13/sprite_000.png",
+        "height": 220,
+        "width": 135,
         "x": 1718,
         "y": 1619,
-        "width": 135,
-        "height": 220,
         "cleanup": {
           "x": 1610,
           "y": 1536,
@@ -389,26 +359,22 @@
         },
         "anchorX": 0.6741,
         "anchorY": 0.6136,
-        "refit": {
-          "scale": 1.3,
-          "ratio": 1.0,
-          "pop": 26.4,
-          "dx": -15,
-          "dy": -24
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_14",
+      "id": "f0de7b96-4192-5b3d-9c44-05786a270bde",
+      "compatibilitySlot": "dog_14",
       "x": 1253,
       "y": 1868,
       "r": 57,
       "sprite": {
         "image": "levels/greece_hilltop_windmills_bird_b89d/dogs/dog_14/sprite_000.png",
+        "height": 237,
+        "width": 209,
         "x": 1156,
         "y": 1789,
-        "width": 209,
-        "height": 237,
         "cleanup": {
           "x": 1095,
           "y": 1755,
@@ -417,26 +383,22 @@
         },
         "anchorX": 0.5263,
         "anchorY": 0.5063,
-        "refit": {
-          "scale": 1.3,
-          "ratio": 1.0,
-          "pop": 19.4,
-          "dx": -12,
-          "dy": -40
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_15",
+      "id": "a8836300-f181-53cf-aede-1022705a69df",
+      "compatibilitySlot": "dog_15",
       "x": 1607,
       "y": 2012,
       "r": 57,
       "sprite": {
         "image": "levels/greece_hilltop_windmills_bird_b89d/dogs/dog_15/sprite_000.png",
+        "height": 210,
+        "width": 217,
         "x": 1503,
         "y": 1923,
-        "width": 217,
-        "height": 210,
         "cleanup": {
           "x": 1430,
           "y": 1849,
@@ -445,26 +407,22 @@
         },
         "anchorX": 0.5576,
         "anchorY": 0.5476,
-        "refit": {
-          "scale": 1.4,
-          "ratio": 1.0,
-          "pop": 19.3,
-          "dx": -16,
-          "dy": -26
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_16",
+      "id": "9cd04ff3-0af0-5af4-91e7-c1bcd8db925e",
+      "compatibilitySlot": "dog_16",
       "x": 2027,
       "y": 2008,
       "r": 57,
       "sprite": {
         "image": "levels/greece_hilltop_windmills_bird_b89d/dogs/dog_16/sprite_000.png",
+        "height": 286,
+        "width": 291,
         "x": 1909,
         "y": 1903,
-        "width": 291,
-        "height": 286,
         "cleanup": {
           "x": 1815,
           "y": 1871,
@@ -473,26 +431,22 @@
         },
         "anchorX": 0.6186,
         "anchorY": 0.458,
-        "refit": {
-          "scale": 1.4,
-          "ratio": 1.0,
-          "pop": 24.3,
-          "dx": -62,
-          "dy": -26
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_17",
+      "id": "18cd5f59-0340-5bc2-905f-a29aa969caba",
+      "compatibilitySlot": "dog_17",
       "x": 1403,
       "y": 2377,
       "r": 57,
       "sprite": {
         "image": "levels/greece_hilltop_windmills_bird_b89d/dogs/dog_17/sprite_000.png",
+        "height": 213,
+        "width": 218,
         "x": 1319,
         "y": 2283,
-        "width": 218,
-        "height": 213,
         "cleanup": {
           "x": 1230,
           "y": 2219,
@@ -501,26 +455,22 @@
         },
         "anchorX": 0.4266,
         "anchorY": 0.5258,
-        "refit": {
-          "scale": 1.3,
-          "ratio": 1.0,
-          "pop": 19.7,
-          "dx": -9,
-          "dy": -17
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_18",
+      "id": "2b56ac61-3ee0-5398-a003-7a513e2c20ba",
+      "compatibilitySlot": "dog_18",
       "x": 2223,
       "y": 1841,
       "r": 57,
       "sprite": {
         "image": "levels/greece_hilltop_windmills_bird_b89d/dogs/dog_18/sprite_000.png",
+        "height": 239,
+        "width": 221,
         "x": 2140,
         "y": 1780,
-        "width": 221,
-        "height": 239,
         "cleanup": {
           "x": 2114,
           "y": 1704,
@@ -529,13 +479,8 @@
         },
         "anchorX": 0.5068,
         "anchorY": 0.3473,
-        "refit": {
-          "scale": 1.4,
-          "ratio": 1.0,
-          "pop": 36.4,
-          "dx": -29,
-          "dy": -22
-        }
+        "flipX": false,
+        "flipY": false
       }
     }
   ]

@@ -1681,6 +1681,12 @@ def cmd_bless_cutouts(client: Client, args: argparse.Namespace) -> None:
     ))
 
 
+def cmd_adopt_export(client: Client, args: argparse.Namespace) -> None:
+    """Two-way street: make the canonical session equal to its public export (operator-attributed)."""
+    actor = args.actor if args.actor.startswith("human:") else f"human:{args.actor}"
+    _emit(args, client.post(f"/api/sessions/{args.session_id}/adopt-export", json={"humanActor": actor}))
+
+
 def cmd_job(client: Client, args: argparse.Namespace) -> None:
     job = client.get(f"/api/jobs/{args.job_id}")
     if args.events:
@@ -1930,6 +1936,9 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--pad-factor", type=float, default=2.2)
     p.add_argument("--force", action="store_true", help="recut even dogs already flat-keyed (e.g. after a radius change)")
 
+    p = verb("adopt-export", cmd_adopt_export)
+    p.add_argument("session_id")
+    p.add_argument("--actor", required=True, help="attributable operator, e.g. human:batu-delegated:review-2026-09-17")
     p = verb("place-hitboxes-vlm", cmd_place_hitboxes_vlm)
     p.add_argument("session_id")
     p.add_argument("--radius", type=int, default=None,

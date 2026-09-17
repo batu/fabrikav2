@@ -4,9 +4,8 @@
   "width": 2688,
   "height": 2688,
   "colorImage": "levels/walled_gardens_cloister_herbarium_bird_1c66/color.png",
-  "artifactRevision": "sha256:5a35e4a8faa989e953dbb9f769d15d4c4dbf865238742d6212b094fbaa933ebf",
+  "artifactRevision": "sha256:5bcaf66cc4ba99b4401c8791a610791ce0d2c08501a85c956d329ce9aa42665d",
   "compatibilityAliases": {
-    "dog_04": "a4c01a85-a6b9-4ff6-ab5b-325cb460d4d3",
     "dog_26": "29344f51-839a-49d9-8560-0c1f63cc93d3",
     "dog_27": "6583e23a-01ab-4f46-869b-7f2208ee61b5",
     "dog_28": "48a17143-0f72-44b4-ade8-ffada693cf39",
@@ -29,8 +28,7 @@
     "dog_45": "903b3917-6338-4987-9bda-34e38e04bcf9",
     "dog_46": "60883d64-afaa-436f-93db-69ca446b6126",
     "dog_47": "f32a5637-2c83-402f-b462-d4343b54ac2b",
-    "dog_48": "82124a60-ebce-4f57-9a8d-6f2d8449cdfd",
-    "dog_49": "803f2649-07be-4e3e-85e0-cd07625782a1"
+    "dog_48": "82124a60-ebce-4f57-9a8d-6f2d8449cdfd"
   },
   "dogs": [
     {
@@ -54,14 +52,7 @@
         "anchorX": 0.6298,
         "anchorY": 0.5395,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 21.4,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipY": false
       }
     },
     {
@@ -85,14 +76,7 @@
         "anchorX": 0.6732,
         "anchorY": 0.5266,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 0.95,
-          "pop": 23.8,
-          "dx": 3,
-          "dy": -3
-        }
+        "flipY": false
       }
     },
     {
@@ -116,14 +100,7 @@
         "anchorX": 0.4641,
         "anchorY": 0.5493,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 25.8,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipY": false
       }
     },
     {
@@ -147,21 +124,7 @@
         "anchorX": 0.538,
         "anchorY": 0.5524,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 16.7,
-          "dx": 0,
-          "dy": 0
-        },
-        "regen": {
-          "pass": "crop",
-          "score": 0.9372,
-          "pop": 16.6,
-          "why": "T3+refit refused"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -185,14 +148,7 @@
         "anchorX": 0.5043,
         "anchorY": 0.6957,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 10.9,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipY": false
       }
     },
     {
@@ -216,14 +172,7 @@
         "anchorX": 0.536,
         "anchorY": 0.4769,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 24.9,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipY": false
       }
     },
     {
@@ -247,14 +196,7 @@
         "anchorX": 0.515,
         "anchorY": 0.4826,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 0.95,
-          "pop": 24.6,
-          "dx": 1,
-          "dy": -2
-        }
+        "flipY": false
       }
     },
     {
@@ -278,14 +220,7 @@
         "anchorX": 0.5602,
         "anchorY": 0.483,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 17.7,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipY": false
       }
     },
     {
@@ -309,14 +244,7 @@
         "anchorX": 0.4416,
         "anchorY": 0.4886,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 21.5,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipY": false
       }
     },
     {
@@ -340,14 +268,7 @@
         "anchorX": 0.5071,
         "anchorY": 0.4407,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 30.3,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipY": false
       }
     },
     {
@@ -371,21 +292,7 @@
         "anchorX": 0.5331,
         "anchorY": 0.5254,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 10.5,
-          "dx": 0,
-          "dy": 0
-        },
-        "regen": {
-          "pass": "crop2",
-          "score": 0.7407,
-          "pop": 10.2,
-          "why": "T3"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -409,14 +316,7 @@
         "anchorX": 0.489,
         "anchorY": 0.5472,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 25.0,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipY": false
       }
     },
     {
@@ -440,14 +340,7 @@
         "anchorX": 0.4091,
         "anchorY": 0.4695,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 27.8,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipY": false
       }
     },
     {
@@ -471,14 +364,7 @@
         "anchorX": 0.5432,
         "anchorY": 0.5042,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 23.6,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipY": false
       }
     },
     {
@@ -502,14 +388,7 @@
         "anchorX": 0.4912,
         "anchorY": 0.4514,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 30.7,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipY": false
       }
     },
     {
@@ -533,14 +412,7 @@
         "anchorX": 0.4017,
         "anchorY": 0.4487,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 21.0,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipY": false
       }
     },
     {
@@ -564,14 +436,7 @@
         "anchorX": 0.6667,
         "anchorY": 0.6707,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 28.8,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipY": false
       }
     },
     {
@@ -595,14 +460,7 @@
         "anchorX": 0.4767,
         "anchorY": 0.5089,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 20.7,
-          "dx": 0,
-          "dy": 1
-        }
+        "flipY": false
       }
     },
     {
@@ -626,14 +484,7 @@
         "anchorX": 0.4864,
         "anchorY": 0.5105,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 22.1,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipY": false
       }
     },
     {
@@ -657,21 +508,7 @@
         "anchorX": 0.472,
         "anchorY": 0.4348,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 19.7,
-          "dx": 0,
-          "dy": 0
-        },
-        "regen": {
-          "pass": "crop2",
-          "score": 0.9121,
-          "pop": 19.7,
-          "why": "T3"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -695,14 +532,7 @@
         "anchorX": 0.5,
         "anchorY": 0.6407,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 34.2,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipY": false
       }
     },
     {
@@ -726,14 +556,7 @@
         "anchorX": 0.4098,
         "anchorY": 0.5536,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 34.0,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipY": false
       }
     },
     {
@@ -757,14 +580,7 @@
         "anchorX": 0.5936,
         "anchorY": 0.5294,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 0.95,
-          "pop": 22.3,
-          "dx": 3,
-          "dy": -2
-        }
+        "flipY": false
       }
     }
   ]

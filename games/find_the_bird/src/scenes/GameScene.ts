@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { Capacitor } from '@capacitor/core';
 import { prefersReducedMotion } from '@fabrikav2/ui';
 import { COLORS, GAME, GAMEPLAY, TEST_HARNESS_ENABLED, TIMING, DEBUG_OVERRIDES } from '../core/Constants';
+import { cleanupPolygonsForSite, type CleanupSite } from './cleanupGeometry';
 import { gameState } from '../core/GameState';
 import {
   getPickupStylePreference,
@@ -69,6 +70,7 @@ import {
   resolveInterstitialGate,
 } from '../analytics/BetweenLevelFlow';
 import { computeVoronoiCell, maxDistToPolygon, pointInPolygon } from '../utils/voronoi';
+import { updateDebugBirdStrip, destroyDebugBirdStrip, setDebugStripSelectHandler } from '../ui/DebugBirdStrip';
 import type { Point } from '../utils/voronoi';
 import { SectionController } from './SectionController';
 import { PinchZoom } from './PinchZoom';
@@ -103,6 +105,8 @@ interface RevealContext {
 type HitboxVisibilityWarning = 'clipped' | 'near border' | 'HUD' | 'AD' | 'SAFE_L' | 'SAFE_R';
 
 const CLASSIC_REVEAL_EDGE_FEATHER_PX = 10;
+const DEBUG_AUTOPLAY_COLUMNS = 10;
+const DEBUG_AUTOPLAY_RING_DEPTH = 95;
 const RESTORATION_CLEANUP_FOOTPRINT_SCALE = 2;
 const FAST_E2E_UI = String(import.meta.env.VITE_FTD_FAST_E2E_UI) === 'true';
 const TUTORIAL_PROMPT_DELAY_MS = FAST_E2E_UI ? 40 : 500;
@@ -341,6 +345,8 @@ export class GameScene extends Phaser.Scene {
 
   init(data: GameSceneData): void {
     this.level = data.levelData ?? null;
+    // scene.restart keeps the instance: a pending auto play step dies with the old timers, so clear its guard
+    this.debugAutoPlayRunning = false;
     this.maskCanvas = null;
     this.maskCtx = null;
     this.permanentCanvas = null;
@@ -1055,6 +1061,11 @@ export class GameScene extends Phaser.Scene {
 
     const pointerDownHandler = (pointer: Phaser.Input.Pointer): void => {
       this.pointerDownAt = { x: pointer.x, y: pointer.y };
+      // a touch on the scene pauses the debug auto play (Batu 2026-09-17); the HUD button resumes it
+      if (TEST_HARNESS_ENABLED && DEBUG_OVERRIDES.autoPlay.active) {
+        DEBUG_OVERRIDES.autoPlay.active = false;
+        window.dispatchEvent(new CustomEvent('ftb-debug-autoplay', { detail: { active: false } }));
+      }
     };
     const tapHandler = (pointer: Phaser.Input.Pointer): void => {
       if (this.levelComplete) return;
@@ -1138,6 +1149,16 @@ export class GameScene extends Phaser.Scene {
       const debugJump = (): void => { this.scene.start('HomeScene'); };
       window.addEventListener('ftb-debug-jump-level', debugJump);
       this.events.once('shutdown', () => window.removeEventListener('ftb-debug-jump-level', debugJump));
+      const debugAutoPlay = (): void => { if (DEBUG_OVERRIDES.autoPlay.active) this.startDebugAutoPlay(); };
+      window.addEventListener('ftb-debug-autoplay', debugAutoPlay);
+      this.events.once('shutdown', () => window.removeEventListener('ftb-debug-autoplay', debugAutoPlay));
+      if (DEBUG_OVERRIDES.autoPlay.active) this.time.delayedCall(250, () => this.startDebugAutoPlay());
+      this.debugStartPos = 0;
+      setDebugStripSelectHandler((pos) => { this.debugStartPos = pos; this.refreshDebugBirdStrip(); this.debugShowWheelTarget(); });
+      this.refreshDebugBirdStrip();
+      const debugNextLevel = (): void => this.debugGoToNextLevel();
+      window.addEventListener('ftb-debug-next-level', debugNextLevel);
+      this.events.once('shutdown', () => { window.removeEventListener('ftb-debug-next-level', debugNextLevel); setDebugStripSelectHandler(null); destroyDebugBirdStrip(); this.debugWheelRing = null; });
     }
     setGameModeChangeCallback(() => {
       if (this.level) {
@@ -1536,6 +1557,8 @@ export class GameScene extends Phaser.Scene {
     if (this.isRestoration) this.assertRestorationDogReady(dog);
 
     gameState.foundDogIds.add(dog.id);
+    this.refreshDebugBirdStrip();
+    if (this.debugWheelRing) { this.tweens.killTweensOf(this.debugWheelRing); this.debugWheelRing.destroy(); this.debugWheelRing = null; }
     if (this.tutorialHandle?.stage === 'hinted-find' && dog.id === this.tutorialTargetDogId) {
       this.dismissHintCircle();
     }
@@ -1863,6 +1886,15 @@ export class GameScene extends Phaser.Scene {
       }
     }
     updateHUD(this.level!.dogs.length, this.isRestoration);
+    if (TEST_HARNESS_ENABLED && DEBUG_OVERRIDES.autoPlay.active) {
+      // Debug auto play: no overlay, no ads, straight to the next level.
+      gameState.markActiveCompletionAdvanced(gameState.currentLevelIndex + 1);
+      this.time.delayedCall(50, () => {
+        if (this.isShuttingDown || !this.sys.isActive()) return;
+        this.scene.restart({} as GameSceneData);
+      });
+      return;
+    }
 
     this.time.delayedCall(TIMING.LEVEL_COMPLETE_DELAY_MS, () => {
       hapticLevelComplete();
@@ -2401,7 +2433,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   /** Carve a completed dissolve cell out of the persistent canvas (Restoration: opaque → transparent). */
-  private carvePermanentDissolveCell(screenPoints: Phaser.Geom.Point[]): void {
+  private carvePermanentDissolveCell(screenPoints: Phaser.Geom.Point[], dogId: string): void {
     const ctx = this.permanentCtx;
     if (!ctx) return;
     ctx.save();
@@ -2409,6 +2441,75 @@ export class GameScene extends Phaser.Scene {
     ctx.fillStyle = 'rgba(0,0,0,1)';
     this.tracePolygonPath(ctx, screenPoints);
     ctx.fill();
+    // the picked bird's own sprite pixels come off wherever they lie, even past a neighbour's bisector (tails)
+    const own = this.level?.dogs.find((d) => d.id === dogId);
+    if (own) this.drawPlacedSprite(ctx, own, 1);
+    ctx.restore();
+    const region = this.getPolygonDirtyRect(screenPoints, 4);
+    this.paintUnfoundNeighbourSilhouettes(ctx, own ? this.unionDirtyRect(region, this.placedSpriteDirtyRect(own)) : region);
+  }
+
+  /** Draw a dog's sprite into `ctx` exactly as it is placed (anchor, flip, scale) under the current composite op. */
+  private drawPlacedSprite(ctx: CanvasRenderingContext2D, dog: LevelDog, alpha: number): boolean {
+    const sprite = dog.sprite;
+    if (sprite === undefined) return false;
+    const key = this.spriteTextureKeyForDog(dog);
+    if (!this.textures.exists(key)) return false;
+    const source = this.textures.get(key).getSourceImage() as CanvasImageSource;
+    const width = sprite.width * this.imgScale;
+    const height = sprite.height * this.imgScale;
+    const left = this.imgOffsetX + (dog.x - (sprite.anchorX ?? 0.5) * sprite.width) * this.imgScale;
+    const top = this.imgOffsetY + (dog.y - (sprite.anchorY ?? 0.5) * sprite.height) * this.imgScale;
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.translate(sprite.flipX ? left + width : left, sprite.flipY ? top + height : top);
+    ctx.scale(sprite.flipX ? -1 : 1, sprite.flipY ? -1 : 1);
+    ctx.drawImage(source, 0, 0, width, height);
+    ctx.restore();
+    return true;
+  }
+
+  private placedSpriteDirtyRect(dog: LevelDog): DirtyRect | null {
+    const sprite = dog.sprite;
+    if (sprite === undefined) return null;
+    const width = sprite.width * this.imgScale;
+    const height = sprite.height * this.imgScale;
+    const left = this.imgOffsetX + (dog.x - (sprite.anchorX ?? 0.5) * sprite.width) * this.imgScale;
+    const top = this.imgOffsetY + (dog.y - (sprite.anchorY ?? 0.5) * sprite.height) * this.imgScale;
+    return { x: Math.floor(left) - 2, y: Math.floor(top) - 2, w: Math.ceil(width) + 4, h: Math.ceil(height) + 4 };
+  }
+
+  private unionDirtyRect(a: DirtyRect | null, b: DirtyRect | null): DirtyRect | null {
+    if (!a) return b;
+    if (!b) return a;
+    const x = Math.min(a.x, b.x); const y = Math.min(a.y, b.y);
+    return { x, y, w: Math.max(a.x + a.w, b.x + b.w) - x, h: Math.max(a.y + a.h, b.y + b.h) - y };
+  }
+
+  /**
+   * Neighbour protection (operator rule 2026-09-17): after a carve, paint the
+   * opaque pixels of every still-unfound bird's sprite back into the mask at
+   * its placed position, so no pickup ever removes pixels that belong to
+   * another bird. A bird's own later pickup carves its footprint again and
+   * clears them. Sprites are drawn as they are placed (anchor, flip, scale).
+   */
+  private paintUnfoundNeighbourSilhouettes(ctx: CanvasRenderingContext2D, region: DirtyRect | null): void {
+    if (!this.level || !this.isRestoration) return;
+    ctx.save();
+    if (region) {
+      ctx.beginPath();
+      ctx.rect(region.x, region.y, region.w, region.h);
+      ctx.clip();
+    }
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.globalAlpha = 1;
+    for (const other of this.level.dogs) {
+      if (gameState.foundDogIds.has(other.id)) continue;
+      const box = this.placedSpriteDirtyRect(other);
+      if (box === null) continue;
+      if (region && (box.x > region.x + region.w || box.x + box.w < region.x || box.y > region.y + region.h || box.y + box.h < region.y)) continue;
+      this.drawPlacedSprite(ctx, other, 1);
+    }
     ctx.restore();
   }
 
@@ -3210,70 +3311,136 @@ export class GameScene extends Phaser.Scene {
    * their exact sprite-cleanup size so a pickup cannot erase another dog.
    */
   private restorationDissolvePolygons(dog: LevelDog): Point[][] {
-    const baseBounds = this.restorationSpriteCleanupBounds(dog, true);
-    if (baseBounds === null) return [];
+    // Neighbour protection (operator rule 2026-09-17): the reveal is this bird's
+    // scaled cleanup footprint minus the placed sprite box of every unfound
+    // neighbour, so one pickup never touches another bird's pixels. Shared
+    // with the level editor's export gate (cleanupGeometry.ts twin).
+    const sites: CleanupSite[] = this.level!.dogs.map((candidate) => {
+      const sprite = candidate.sprite;
+      const placed = sprite === undefined ? null : this.clipLevelRect({
+        left: candidate.x - (sprite.anchorX ?? 0.5) * sprite.width,
+        top: candidate.y - (sprite.anchorY ?? 0.5) * sprite.height,
+        right: candidate.x - (sprite.anchorX ?? 0.5) * sprite.width + sprite.width,
+        bottom: candidate.y - (sprite.anchorY ?? 0.5) * sprite.height + sprite.height,
+      });
+      return {
+        id: candidate.id,
+        x: candidate.x,
+        y: candidate.y,
+        cleanup: sprite === undefined ? null : this.restorationSpriteCleanupBounds(candidate, false),
+        sprite: placed,
+      };
+    });
+    const site = sites.find((candidate) => candidate.id === dog.id);
+    if (site === undefined) return [];
+    return cleanupPolygonsForSite(
+      site,
+      sites,
+      this.level!.width,
+      this.level!.height,
+      (other) => !gameState.foundDogIds.has(other.id),
+    ).map((polygon) => polygon.map((p) => ({ x: p.x, y: p.y })));
+  }
 
-    // Overlapping padded areas are SPLIT down the middle rather than handed
-    // wholesale to the neighbor (2026-08-07). Subtracting a neighbor's whole
-    // cleanup rect left the picked bird's own pixels uncleaned inside the
-    // overlap; clipping to the perpendicular bisector of the two hitbox
-    // centers gives each bird the half of the contested region nearer to it
-    // — a two-site Voronoi split, applied per contesting neighbor.
-    //
-    // The clip is gated on actual rect overlap: without that gate a distant
-    // neighbor's bisector would slice away padding that was never contested.
-    // The picked bird's own center is always on its own side of every
-    // bisector (distance 0), so the cleanup can never lose the bird itself.
-    let polygons: Point[][] = [this.polygonForLevelRect(baseBounds)];
-    for (const candidate of this.level!.dogs) {
-      if (candidate.id === dog.id) continue;
-      if (gameState.foundDogIds.has(candidate.id)) continue;
-      const protectedBounds = this.restorationSpriteCleanupBounds(candidate, false);
-      if (protectedBounds === null) continue;
-      if (!this.levelRectsOverlap(baseBounds, protectedBounds)) continue;
-      polygons = polygons
-        .map((polygon) => this.clipPolygonNearerToSite(polygon, dog, candidate))
-        .filter((polygon) => polygon.length >= 3);
-      if (polygons.length === 0) break;
+  /** Debug builds only: pick every unfound bird left to right with a smooth camera pan between them. */
+  private debugAutoPlayRunning = false;
+  /** Debug pickup order: DEBUG_AUTOPLAY_COLUMNS full-height strips left to right, each read top-down in rows one strip wide. */
+  private debugPickupOrder(): LevelDog[] {
+    if (!this.level) return [];
+    const strip = this.level.width / DEBUG_AUTOPLAY_COLUMNS;
+    const rows = Math.ceil(this.level.height / strip) + 1;
+    const key = (d: LevelDog): number => Math.floor(d.x / strip) * rows + Math.floor(d.y / strip);
+    return [...this.level.dogs].sort((a, b) => key(a) - key(b) || a.x - b.x);
+  }
+
+  /** Where the debug pickup order starts (the wheel sets it); the next target is the first unfound bird at or after it, wrapping. */
+  private debugStartPos = 0;
+
+  private debugNextTarget(): { dog: LevelDog; pos: number } | null {
+    const order = this.debugPickupOrder();
+    for (let i = 0; i < order.length; i++) {
+      const pos = (this.debugStartPos + i) % order.length;
+      if (!gameState.foundDogIds.has(order[pos].id)) return { dog: order[pos], pos };
     }
-    return polygons;
+    return null;
   }
 
-  private levelRectsOverlap(a: LevelRect, b: LevelRect): boolean {
-    return a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom;
+  /** Debug bird strip (harness builds): the pickup order around the next bird; found birds dimmed. */
+  private refreshDebugBirdStrip(): void {
+    // unit tests stub the scene without a texture manager; the strip is debug chrome, skip it there
+    if (!TEST_HARNESS_ENABLED || !this.level || !this.textures) return;
+    const order = this.debugPickupOrder();
+    const birds = order.map((d) => {
+      const key = this.spriteTextureKeyForDog(d);
+      const image = this.textures.exists(key) ? (this.textures.get(key).getSourceImage() as CanvasImageSource) : null;
+      return { id: d.id, index: this.level!.dogs.indexOf(d), image, found: gameState.foundDogIds.has(d.id) };
+    });
+    const next = this.debugNextTarget();
+    updateDebugBirdStrip(this.level.id, birds, next ? next.pos : birds.length);
   }
 
-  /**
-   * Sutherland-Hodgman clip of `polygon` to the half-plane of points strictly
-   * nearer to `site` than to `other` — i.e. the site's cell in the two-site
-   * Voronoi diagram. Returns an empty array when nothing survives.
-   */
-  private clipPolygonNearerToSite(polygon: Point[], site: LevelDog, other: LevelDog): Point[] {
-    // Perpendicular bisector as a signed half-plane: points with f(p) > 0 are
-    // nearer to `site`. f(p) = (other - site) . (midpoint - p), derived from
-    // |p - site|^2 < |p - other|^2.
-    const dx = other.x - site.x;
-    const dy = other.y - site.y;
-    if (dx === 0 && dy === 0) return polygon;
-    const mx = (site.x + other.x) / 2;
-    const my = (site.y + other.y) / 2;
-    const signed = (p: Point): number => dx * (mx - p.x) + dy * (my - p.y);
-
-    const out: Point[] = [];
-    for (let i = 0; i < polygon.length; i++) {
-      const current = polygon[i];
-      const next = polygon[(i + 1) % polygon.length];
-      const dCurrent = signed(current);
-      const dNext = signed(next);
-      if (dCurrent >= 0) out.push(current);
-      if ((dCurrent >= 0) !== (dNext >= 0)) {
-        const t = dCurrent / (dCurrent - dNext);
-        out.push({ x: current.x + (next.x - current.x) * t, y: current.y + (next.y - current.y) * t });
-      }
-    }
-    return out;
+  /** Debug: leave this level for the next one right now (no overlay, no ads). */
+  private debugGoToNextLevel(): void {
+    if (!TEST_HARNESS_ENABLED || this.isShuttingDown || !this.sys.isActive()) return;
+    DEBUG_OVERRIDES.autoPlay.active = false;
+    window.dispatchEvent(new CustomEvent('ftb-debug-autoplay', { detail: { active: false } }));
+    gameState.markActiveCompletionAdvanced(gameState.currentLevelIndex + 1);
+    this.scene.restart({} as GameSceneData);
   }
 
+  /** The pulsing red ring auto play draws on its target; the caller destroys it. */
+  private showDebugTargetRing(dog: LevelDog, pulseMs: number): Phaser.GameObjects.Graphics {
+    const worldX = this.imgOffsetX + dog.x * this.imgScale;
+    const worldY = this.imgOffsetY + dog.y * this.imgScale;
+    const ring = this.add.graphics({ x: worldX, y: worldY }).setDepth(DEBUG_AUTOPLAY_RING_DEPTH);
+    const radius = Math.max(24, dog.r * this.imgScale * 1.25);
+    ring.lineStyle(6, 0xff2d55, 1).strokeCircle(0, 0, radius);
+    ring.lineStyle(2, 0xffffff, 1).strokeCircle(0, 0, radius + 4);
+    this.tweens.add({ targets: ring, scaleX: 1.15, scaleY: 1.15, alpha: 0.6, duration: pulseMs, yoyo: true, repeat: -1 });
+    return ring;
+  }
+
+  private debugWheelRing: Phaser.GameObjects.Graphics | null = null;
+
+  /** Wheel scrolled to a bird: pan there and ring it (same ring as auto play) until the next selection or pickup. */
+  private debugShowWheelTarget(): void {
+    if (this.debugWheelRing) { this.tweens.killTweensOf(this.debugWheelRing); this.debugWheelRing.destroy(); this.debugWheelRing = null; }
+    const target = this.debugNextTarget();
+    if (!target || this.isShuttingDown || !this.sys.isActive()) return;
+    const worldX = this.imgOffsetX + target.dog.x * this.imgScale;
+    const worldY = this.imgOffsetY + target.dog.y * this.imgScale;
+    this.cameras.main.pan(worldX, worldY, 350, 'Sine.easeInOut');
+    this.debugWheelRing = this.showDebugTargetRing(target.dog, 400);
+  }
+
+  private startDebugAutoPlay(): void {
+    if (!TEST_HARNESS_ENABLED || this.debugAutoPlayRunning) return;
+    this.debugAutoPlayRunning = true;
+    const stop = (): void => { this.debugAutoPlayRunning = false; };
+    const step = (): void => {
+      if (!DEBUG_OVERRIDES.autoPlay.active || this.isShuttingDown || !this.sys.isActive() || this.levelComplete) { stop(); return; }
+      if (!this.level || !this.maskCtx) { this.time.delayedCall(250, step); return; }   // next level still loading
+      // the level is cut into DEBUG_AUTOPLAY_COLUMNS full-height strips, walked left to right; each strip is
+      // read like a page: rows (strip width tall) top to bottom, left to right within a row
+      const next = this.debugNextTarget()?.dog;
+      if (next === undefined) { stop(); return; }
+      const ms = Math.max(60, DEBUG_OVERRIDES.autoPlay.secondsPerBird * 1000);
+      const panMs = Math.round(ms * 0.7);
+      const camera = this.cameras.main;
+      const worldX = this.imgOffsetX + next.x * this.imgScale;
+      const worldY = this.imgOffsetY + next.y * this.imgScale;
+      // highlight the bird about to be picked up so the eye is on it at pick-up time
+      const ring = this.showDebugTargetRing(next, Math.max(120, panMs / 2));
+      camera.pan(worldX, worldY, panMs, 'Sine.easeInOut');
+      this.time.delayedCall(panMs, () => {
+        this.tweens.killTweensOf(ring); ring.destroy();
+        if (!DEBUG_OVERRIDES.autoPlay.active || this.isShuttingDown || !this.sys.isActive() || !this.level) { stop(); return; }
+        if (!gameState.foundDogIds.has(next.id)) this.onDogFound(next, worldX - camera.scrollX, worldY - camera.scrollY);
+        this.time.delayedCall(Math.max(1, ms - panMs), step);
+      });
+    };
+    step();
+  }
 
   private restorationSpriteCleanupBounds(dog: LevelDog, expand: boolean): LevelRect | null {
     const sprite = dog.sprite;
@@ -3342,15 +3509,6 @@ export class GameScene extends Phaser.Scene {
     };
   }
 
-  private polygonForLevelRect(rect: LevelRect): Point[] {
-    return [
-      { x: rect.left, y: rect.top },
-      { x: rect.right, y: rect.top },
-      { x: rect.right, y: rect.bottom },
-      { x: rect.left, y: rect.bottom },
-    ];
-  }
-
   private levelPolygonToScreenPoints(polygon: Point[]): Phaser.Geom.Point[] {
     return polygon.map(
       (p) => new Phaser.Geom.Point(
@@ -3380,11 +3538,16 @@ export class GameScene extends Phaser.Scene {
         const index = this.dissolveActiveCells.indexOf(cell);
         if (index >= 0) this.dissolveActiveCells.splice(index, 1);
         this.dissolveCompletedCells.push({ polygon: cell.polygon });
-        this.carvePermanentDissolveCell(cell.screenPoints);
+        this.carvePermanentDissolveCell(cell.screenPoints, cell.dogId);
       }
       // Only the carved rectangle changed; upload just that (2532² full uploads
       // measured 120–160 ms per find on iPhone 12, 2026-09-10).
-      this.syncRestorationMaskTexture(this.getPolygonDirtyRect(carvedPoints, 4));
+      let dirty = this.getPolygonDirtyRect(carvedPoints, 4);
+      for (const cell of cells) {
+        const own = this.level?.dogs.find((d) => d.id === cell.dogId);
+        if (own) dirty = this.unionDirtyRect(dirty, this.placedSpriteDirtyRect(own));
+      }
+      this.syncRestorationMaskTexture(dirty);
       this.onRevealedCellComplete();
     };
 
@@ -3467,6 +3630,13 @@ export class GameScene extends Phaser.Scene {
           if (p.x > maxX) maxX = p.x;
           if (p.y > maxY) maxY = p.y;
         }
+        // the bird's own sprite pixels fade with the cell wherever they lie (tails past the bisector)
+        const own = this.level?.dogs.find((d) => d.id === cell.dogId);
+        const box = own ? this.placedSpriteDirtyRect(own) : null;
+        if (box) {
+          minX = Math.min(minX, box.x); minY = Math.min(minY, box.y);
+          maxX = Math.max(maxX, box.x + box.w); maxY = Math.max(maxY, box.y + box.h);
+        }
       }
       const rx = Math.max(0, Math.floor(minX - PAD));
       const ry = Math.max(0, Math.floor(minY - PAD));
@@ -3493,8 +3663,11 @@ export class GameScene extends Phaser.Scene {
         ctx.fillStyle = 'rgba(0,0,0,1)';
         this.tracePolygonPath(ctx, pts);
         ctx.fill();
+        const own = this.level?.dogs.find((d) => d.id === cell.dogId);
+        if (own) this.drawPlacedSprite(ctx, own, 1 - cell.alpha);
       }
       ctx.restore();
+      this.paintUnfoundNeighbourSilhouettes(ctx, { x: rx, y: ry, w: rw, h: rh });
       const redrawMs = performance.now() - frameStartedAt;
       const timings = this.refreshRevealMask({ x: rx, y: ry, w: rw, h: rh });
       this.recordRevealFrame(frameStartedAt, redrawMs, timings.maskRefreshMs, timings.cpuCompositeMs, rw * rh);

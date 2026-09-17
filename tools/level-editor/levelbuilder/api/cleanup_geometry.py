@@ -28,6 +28,7 @@ class CleanupSite:
     x: float
     y: float
     cleanup: Rect | None
+    sprite: Rect | None = None  # placed sprite box; when set it is the protected area of a neighbour
 
 
 def _scale_rect(rect: Rect, scale: float) -> Rect:
@@ -74,6 +75,29 @@ def _clip_nearer(polygon: list[Point], site: Point, other: Point) -> list[Point]
     return output
 
 
+def _subtract_rect(rect: Rect, hole: Rect) -> list[Rect]:
+    """The up-to-four rectangles of ``rect`` outside ``hole`` (top, bottom, left, right bands)."""
+    if not _overlap(rect, hole):
+        return [rect]
+    out: list[Rect] = []
+    if hole.top > rect.top:
+        out.append(Rect(rect.left, rect.top, rect.right, hole.top))
+    if hole.bottom < rect.bottom:
+        out.append(Rect(rect.left, hole.bottom, rect.right, rect.bottom))
+    mid_top = max(rect.top, hole.top)
+    mid_bottom = min(rect.bottom, hole.bottom)
+    if mid_bottom > mid_top:
+        if hole.left > rect.left:
+            out.append(Rect(rect.left, mid_top, hole.left, mid_bottom))
+        if hole.right < rect.right:
+            out.append(Rect(hole.right, mid_top, rect.right, mid_bottom))
+    return out
+
+
+def _rect_polygon(rect: Rect) -> list[Point]:
+    return [Point(rect.left, rect.top), Point(rect.right, rect.top), Point(rect.right, rect.bottom), Point(rect.left, rect.bottom)]
+
+
 def cleanup_polygons_for_site(
     site: CleanupSite,
     all_sites: list[CleanupSite],
@@ -81,7 +105,9 @@ def cleanup_polygons_for_site(
     level_height: float,
     is_protected: Callable[[CleanupSite], bool],
 ) -> list[list[Point]]:
-    """Match ``cleanupPolygonsForSite`` in the Find the Bird runtime."""
+    """Match ``cleanupPolygonsForSite`` in the Find the Bird runtime (bisector clip).
+    The runtime adds pixel-level rules on top (own sprite carved, unfound neighbours'
+    sprite pixels painted back); those are not part of this polygon contract."""
     if site.cleanup is None:
         return []
     expanded = _clip_rect(_scale_rect(site.cleanup, CLEANUP_FOOTPRINT_SCALE), level_width, level_height)

@@ -137,6 +137,8 @@ export function initHUD(): void {
           <span class="coin-count">${gameState.coinBalance}</span>
           <button id="hud-coin-plus" class="home-pill-plus" type="button" aria-label="Buy more coins">+</button>
         </div>
+        ${TEST_HARNESS_ENABLED ? `<button id="debug-next-level" class="hud-pill" type="button" aria-label="Debug next level" style="font:inherit;font-weight:700;padding:6px 10px">⏭</button>` : ''}
+        ${TEST_HARNESS_ENABLED ? `<button id="debug-autoplay-hud" class="hud-pill" type="button" aria-label="Debug auto play" style="font:inherit;font-weight:700;padding:6px 10px">${DEBUG_OVERRIDES.autoPlay.active ? '■ Stop' : '▶ Auto'}</button>` : ''}
         <button id="settings-btn" type="button" aria-label="Settings">
           <img class="hud-icon-img" src="/ui/menu-icons/icon_settings_gear.png" alt="" aria-hidden="true">
         </button>
@@ -174,9 +176,31 @@ export function initHUD(): void {
 
   schedulePreloadIfRewardedPathAvailable();
 
+  document.getElementById('debug-next-level')?.addEventListener('click', () => {
+    playUITap();
+    window.dispatchEvent(new CustomEvent('ftb-debug-next-level'));
+  });
+  const autoplayHud = document.getElementById('debug-autoplay-hud');
+  autoplayHud?.addEventListener('click', () => {
+    playUITap();
+    DEBUG_OVERRIDES.autoPlay.active = !DEBUG_OVERRIDES.autoPlay.active;
+    autoplayHud.textContent = DEBUG_OVERRIDES.autoPlay.active ? '■ Stop' : '▶ Auto';
+    window.dispatchEvent(new CustomEvent('ftb-debug-autoplay', { detail: { active: DEBUG_OVERRIDES.autoPlay.active } }));
+  });
+  // the scene can stop auto play too (a tap on the level); keep the labels honest
+  window.addEventListener('ftb-debug-autoplay', () => {
+    if (autoplayHud) autoplayHud.textContent = DEBUG_OVERRIDES.autoPlay.active ? '■ Stop' : '▶ Auto';
+    const toggle = document.getElementById('debug-autoplay-toggle');
+    if (toggle) toggle.textContent = DEBUG_OVERRIDES.autoPlay.active ? 'Stop' : 'Start';
+  });
   const settingsBtn = document.getElementById('settings-btn');
   settingsBtn?.addEventListener('click', () => {
     playUITap();
+    if (DEBUG_OVERRIDES.autoPlay.active) {   // opening settings stops the debug auto play (Batu 2026-09-17)
+      DEBUG_OVERRIDES.autoPlay.active = false;
+      if (autoplayHud) autoplayHud.textContent = '▶ Auto';
+      window.dispatchEvent(new CustomEvent('ftb-debug-autoplay', { detail: { active: false } }));
+    }
     openPage('settings');
   });
 
@@ -592,7 +616,7 @@ export function openPage(
 }
 
 
-export function closePage(): void {
+export function closePage(options: { skipHomeCallback?: boolean } = {}): void {
   const page = document.getElementById('home-page-overlay');
   if (!page) return;
   const overlay = document.getElementById('hud-overlay');
@@ -621,7 +645,9 @@ export function closePage(): void {
   // so returning from Achievements after collecting used to leave the dot
   // insisting there was still something to pick up (2026-08-07). Fires after
   // the page is closed, matching the ordering the Settings path had.
-  homeCallback?.();
+  // Debug auto play closes the page without leaving the level (2026-09-17): the home
+  // callback re-renders home on the menu and STARTS HomeScene in-game.
+  if (!options.skipHomeCallback) homeCallback?.();
 }
 
 function renderShopHeaderBalances(): string {
@@ -1005,6 +1031,15 @@ function renderDebugLevelJumpRows(): string {
           </select>
         </div>
       </div>
+      <div class="modal-row settings-row settings-row-tall">
+        <div class="settings-row-left" style="flex:1;min-width:0">
+          <span class="settings-row-label">Auto play</span>
+          <select id="debug-autoplay-speed" aria-label="Debug auto play seconds per bird" style="flex:1;min-width:0;margin-left:10px;font:inherit;font-size:14px;padding:6px;border-radius:8px">
+            ${[0.1, 0.2, 0.5, 0.85, 1, 1.5].map((sec) => `<option value="${sec}" ${DEBUG_OVERRIDES.autoPlay.secondsPerBird === sec ? 'selected' : ''}>${sec} s / bird</option>`).join('')}
+          </select>
+        </div>
+        <button id="debug-autoplay-toggle" class="settings-footer-action" type="button" style="margin-left:10px;padding:8px 14px;border-radius:10px;font:inherit;font-weight:700">${DEBUG_OVERRIDES.autoPlay.active ? 'Stop' : 'Start'}</button>
+      </div>
   `;
 }
 
@@ -1022,6 +1057,18 @@ function wireDebugLevelJump(page: HTMLElement): void {
   fade?.addEventListener('change', () => { DEBUG_OVERRIDES.restorationDissolveMs = Number(fade.value); });
   const fx = page.querySelector<HTMLSelectElement>('#debug-pickup-fx');
   fx?.addEventListener('change', () => { DEBUG_OVERRIDES.pickupFx = fx.value as typeof DEBUG_OVERRIDES.pickupFx; });
+  const speed = page.querySelector<HTMLSelectElement>('#debug-autoplay-speed');
+  speed?.addEventListener('change', () => { DEBUG_OVERRIDES.autoPlay.secondsPerBird = Number(speed.value); });
+  const autoplay = page.querySelector<HTMLButtonElement>('#debug-autoplay-toggle');
+  autoplay?.addEventListener('click', () => {
+    playUITap();
+    DEBUG_OVERRIDES.autoPlay.active = !DEBUG_OVERRIDES.autoPlay.active;
+    autoplay.textContent = DEBUG_OVERRIDES.autoPlay.active ? 'Stop' : 'Start';
+    const hudBtn = document.getElementById('debug-autoplay-hud');
+    if (hudBtn) hudBtn.textContent = DEBUG_OVERRIDES.autoPlay.active ? '■ Stop' : '▶ Auto';
+    closePage({ skipHomeCallback: true });
+    window.dispatchEvent(new CustomEvent('ftb-debug-autoplay', { detail: { active: DEBUG_OVERRIDES.autoPlay.active } }));
+  });
   const select = page.querySelector<HTMLSelectElement>('#debug-level-select');
   const button = page.querySelector<HTMLButtonElement>('#debug-level-jump');
   if (!select || !button) return;

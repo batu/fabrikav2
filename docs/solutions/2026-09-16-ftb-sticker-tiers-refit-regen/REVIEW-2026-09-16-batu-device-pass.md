@@ -50,3 +50,10 @@ MAPPING: 78 = luggage depot 1480 (basket bird 2 removed)
 MAPPING: 79 = floating market 8d44 (white bird 11 / friend 12 tightened); 80 = hydroponics bay (crate/stool cuts resolved by the sprite-footprint restoration)
 RESOLVED BY CONSTRUCTION (sprite-footprint restoration, all 60): 52 compass, 56 cogs, 65 wheelbarrow residue, 72 carpet, 74 toolbox, 80 crate/stool, 96 cushion, 1 treehouse residue
 BATCH: 197 oversized stickers on 41 levels regenerating with capped crops (regen_chunks.sh), covers 76 bottom-left, 95 big pickups, 84/87 debris
+
+43. L36 japan night harbor: bird picks up the whole boat -> sprite-footprint restoration applied to all 44 shipped levels
+44. L37-40 (the four 4096 levels, old 40-43): plates never matched the paint -> stretch, stay-behind birds, wrong reveals -> REMOVED (Batu)
+45. Green sweep damage on the phone build: plumage punched on green birds -> restored pre-sweep bytes, strict key-green rule
+46. L41 (phone order) fairy level: two pairs pick up two birds; bird above the cut log leaves a tail (sticker lacks the tail)
+47. L42 bazaar: torsos partially picked = green-sweep holes (fixed on disk, not on the phone yet)
+48. L43: blue bird plumage residue on the ground; musical instrument on the left not picked up

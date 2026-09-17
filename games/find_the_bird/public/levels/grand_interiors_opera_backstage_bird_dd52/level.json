@@ -4,28 +4,28 @@
   "width": 2688,
   "height": 2688,
   "colorImage": "levels/grand_interiors_opera_backstage_bird_dd52/color.png",
-  "artifactRevision": "sha256:d013aeea839aa332a1ddb78a5c896dfe00e597abb4dca1a95d58ac34c16ea30d",
+  "artifactRevision": "sha256:a5d5ffbf0c248971a0fcb75711a1b621e5dd69d54a720bd486e3b11b1ff8d017",
   "compatibilityAliases": {
-    "dog_09": "6b8e0803-3cba-5088-96d0-630a79817e1a",
-    "dog_01": "faf1bc0d-0ab0-5dbc-beb6-385d68f30aa2",
-    "dog_19": "1511975a-60ad-4064-be42-294ef31d0dfd",
-    "dog_18": "ed60771a-4e20-5c1b-b847-4172925e7744",
-    "dog_11": "5806477c-923a-5820-a8bf-2042bb0de508",
-    "dog_05": "a4bdd9cd-f4db-541a-91d7-53daa76a12e6",
-    "dog_20": "667c67b5-4080-46dd-b1d0-cd7a16b4968e",
-    "dog_12": "42e3b8cb-9f7c-5c0c-b886-3287c360b5db",
-    "dog_17": "946da141-104b-5ba8-8939-b0408d5a2d48",
-    "dog_15": "cf177c2c-6aa4-5ba7-96b2-1c0ac8f9ad32",
-    "dog_10": "760bd1fc-caf3-5bad-ba39-2a2857dd0cf2",
-    "dog_08": "8fb4a335-084a-5ba4-aea7-33e59fd2ba90",
-    "dog_21": "f7c279e2-0e85-450d-9675-12b950cc85e2",
-    "dog_13": "6109c3f5-49fd-5e44-8273-d937e9490519",
     "dog_00": "bc8df9c3-70f0-5893-a4a5-2ce8a6b3af2d",
-    "dog_22": "2d84fde7-5f41-45af-82b0-e2c8fde57ef2",
-    "dog_07": "241a20ea-f11c-5df8-9787-1a4103815c7b",
+    "dog_01": "faf1bc0d-0ab0-5dbc-beb6-385d68f30aa2",
     "dog_02": "c52d71b6-829d-54a3-b91c-2e9ca0e8d7e7",
-    "dog_23": "1ba6d26e-cde7-414d-8f09-e4e0713cfa40",
+    "dog_05": "a4bdd9cd-f4db-541a-91d7-53daa76a12e6",
     "dog_06": "e1f79d6e-17f7-514b-8e26-4abf3d4d0c68",
+    "dog_07": "241a20ea-f11c-5df8-9787-1a4103815c7b",
+    "dog_08": "8fb4a335-084a-5ba4-aea7-33e59fd2ba90",
+    "dog_09": "6b8e0803-3cba-5088-96d0-630a79817e1a",
+    "dog_10": "760bd1fc-caf3-5bad-ba39-2a2857dd0cf2",
+    "dog_11": "5806477c-923a-5820-a8bf-2042bb0de508",
+    "dog_12": "42e3b8cb-9f7c-5c0c-b886-3287c360b5db",
+    "dog_13": "6109c3f5-49fd-5e44-8273-d937e9490519",
+    "dog_15": "cf177c2c-6aa4-5ba7-96b2-1c0ac8f9ad32",
+    "dog_17": "946da141-104b-5ba8-8939-b0408d5a2d48",
+    "dog_18": "ed60771a-4e20-5c1b-b847-4172925e7744",
+    "dog_19": "1511975a-60ad-4064-be42-294ef31d0dfd",
+    "dog_20": "667c67b5-4080-46dd-b1d0-cd7a16b4968e",
+    "dog_21": "f7c279e2-0e85-450d-9675-12b950cc85e2",
+    "dog_22": "2d84fde7-5f41-45af-82b0-e2c8fde57ef2",
+    "dog_23": "1ba6d26e-cde7-414d-8f09-e4e0713cfa40",
     "dog_24": "d2fc108f-e6a9-5bd7-b430-81b1d01f8dd1"
   },
   "dogs": [
@@ -50,21 +50,7 @@
         "anchorX": 0.8615,
         "anchorY": 0.6,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 14.1,
-          "dx": 0,
-          "dy": 0
-        },
-        "regen": {
-          "pass": "crop",
-          "score": 0.9721,
-          "pop": 14.1,
-          "why": "T4"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -88,14 +74,7 @@
         "anchorX": 0.514,
         "anchorY": 0.4741,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 29.3,
-          "dx": 1,
-          "dy": 0
-        }
+        "flipY": false
       }
     },
     {
@@ -119,21 +98,7 @@
         "anchorX": 0.5031,
         "anchorY": 0.4809,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 11.6,
-          "dx": 0,
-          "dy": 0
-        },
-        "regen": {
-          "pass": "crop2",
-          "score": 0.9755,
-          "pop": 11.6,
-          "why": "T3+refit refused"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -157,14 +122,7 @@
         "anchorX": 0.5118,
         "anchorY": 0.4963,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 0.95,
-          "ratio": 1.0,
-          "pop": 32.0,
-          "dx": 3,
-          "dy": 4
-        }
+        "flipY": false
       }
     },
     {
@@ -188,21 +146,7 @@
         "anchorX": 0.4675,
         "anchorY": 0.4803,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 15.0,
-          "dx": 0,
-          "dy": 0
-        },
-        "regen": {
-          "pass": "crop",
-          "score": 0.9708,
-          "pop": 15.0,
-          "why": "T3+refit refused"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -226,14 +170,7 @@
         "anchorX": 0.48,
         "anchorY": 0.4841,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 35.2,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipY": false
       }
     },
     {
@@ -257,21 +194,7 @@
         "anchorX": 0.4824,
         "anchorY": 0.4437,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 16.6,
-          "dx": 0,
-          "dy": 0
-        },
-        "regen": {
-          "pass": "crop",
-          "score": 0.9435,
-          "pop": 16.6,
-          "why": "T3+refit refused"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -295,21 +218,7 @@
         "anchorX": 0.4976,
         "anchorY": 0.4524,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 18.5,
-          "dx": 0,
-          "dy": 0
-        },
-        "regen": {
-          "pass": "crop2",
-          "score": 0.9521,
-          "pop": 18.5,
-          "why": "T3+refit refused"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -333,14 +242,7 @@
         "anchorX": 0.4217,
         "anchorY": 0.5024,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 23.2,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipY": false
       }
     },
     {
@@ -364,21 +266,7 @@
         "anchorX": 0.4302,
         "anchorY": 0.3778,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 21.9,
-          "dx": 0,
-          "dy": 0
-        },
-        "regen": {
-          "pass": "crop2",
-          "score": 0.8469,
-          "pop": 21.6,
-          "why": "T3"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -402,21 +290,7 @@
         "anchorX": 0.5128,
         "anchorY": 0.4649,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 22.3,
-          "dx": 0,
-          "dy": 0
-        },
-        "regen": {
-          "pass": "crop2",
-          "score": 0.937,
-          "pop": 21.6,
-          "why": "T3+refit refused"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -440,14 +314,7 @@
         "anchorX": 0.5514,
         "anchorY": 0.5276,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 0.95,
-          "pop": 28.6,
-          "dx": 1,
-          "dy": 0
-        }
+        "flipY": false
       }
     },
     {
@@ -471,21 +338,7 @@
         "anchorX": 0.4216,
         "anchorY": 0.4414,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 16.3,
-          "dx": 0,
-          "dy": 0
-        },
-        "regen": {
-          "pass": "crop",
-          "score": 0.9568,
-          "pop": 16.2,
-          "why": "T3+refit refused"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -509,21 +362,7 @@
         "anchorX": 0.4459,
         "anchorY": 0.443,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 21.0,
-          "dx": 0,
-          "dy": 0
-        },
-        "regen": {
-          "pass": "crop",
-          "score": 0.9214,
-          "pop": 21.0,
-          "why": "T3+refit refused"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -547,14 +386,7 @@
         "anchorX": 0.4756,
         "anchorY": 0.5878,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 28.6,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipY": false
       }
     },
     {
@@ -578,21 +410,7 @@
         "anchorX": 0.3786,
         "anchorY": 0.4128,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 17.5,
-          "dx": 0,
-          "dy": 0
-        },
-        "regen": {
-          "pass": "crop",
-          "score": 0.9337,
-          "pop": 17.4,
-          "why": "T3+refit refused"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -616,21 +434,7 @@
         "anchorX": 0.5,
         "anchorY": 0.4574,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 14.6,
-          "dx": 0,
-          "dy": 0
-        },
-        "regen": {
-          "pass": "crop",
-          "score": 0.9284,
-          "pop": 14.6,
-          "why": "T3+refit refused"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -654,21 +458,7 @@
         "anchorX": 0.4667,
         "anchorY": 0.4274,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 29.9,
-          "dx": 0,
-          "dy": 0
-        },
-        "regen": {
-          "pass": "crop",
-          "score": 0.9114,
-          "pop": 29.8,
-          "why": "T3+refit refused"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -692,21 +482,7 @@
         "anchorX": 0.4191,
         "anchorY": 0.3717,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.05,
-          "pop": 26.3,
-          "dx": -3,
-          "dy": 1
-        },
-        "regen": {
-          "pass": "crop2",
-          "score": 0.8749,
-          "pop": 24.7,
-          "why": "T3+refit refused"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -730,21 +506,7 @@
         "anchorX": 0.5029,
         "anchorY": 0.3867,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 21.1,
-          "dx": 0,
-          "dy": 0
-        },
-        "regen": {
-          "pass": "crop2",
-          "score": 0.9403,
-          "pop": 21.0,
-          "why": "T3+refit refused"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -768,21 +530,7 @@
         "anchorX": 0.5946,
         "anchorY": 0.4593,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 18.3,
-          "dx": 0,
-          "dy": 0
-        },
-        "regen": {
-          "pass": "crop",
-          "score": 0.954,
-          "pop": 18.3,
-          "why": "T3+refit refused"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     }
   ]

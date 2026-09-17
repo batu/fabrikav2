@@ -3,9 +3,15 @@ usage: intake_apply.py IDS...
 For each dog: copy refit/regen sprite fields (x, y, width, height, anchorX, anchorY, refit, regen,
 technique) from <session>/intake_2026-09-16/level.json into public/levels/<id>/level.json and, for a
 regenerated bird, overwrite public/levels/<id>/dogs/dog_NN/sprite_000.png with the regenerated sprite.
-Refuses when the export's dog ids or hitboxes differ from the work copy (stale work)."""
+Refuses when the export's dog ids or hitboxes differ from the work copy (stale work).
+APPLY_ONLY=<session idx,...> limits the merge to those birds. REQUIRED since 2026-09-17: the session work copies of the
+shipped levels are older than their packages (Batu's device-review edits went through adopt-export, not the work copy),
+so an unrestricted apply pushes stale boxes onto every other bird (it did, twice: waterfall + mesa campground)."""
 from common import *
 STAMP='2026-09-16'
+ONLY=os.environ.get('APPLY_ONLY')
+if ONLY is None: raise SystemExit('intake_apply.py: set APPLY_ONLY=<session idx,...> (unrestricted apply is disabled, see the docstring)')
+ONLY={x.strip() for x in ONLY.split(',') if x.strip()}
 FIELDS=('x','y','width','height','anchorX','anchorY','refit','regen','technique')
 for k in sys.argv[1:]:
     # the loop wrote refit/regen into the session level.json (pub() has no work branch)
@@ -21,6 +27,7 @@ for k in sys.argv[1:]:
     n_regen=n_refit=0
     for d in level['dogs']:
         if match[d['id']] is None: continue   # hand-added bird (intake_add_bird.py), export only
+        if str(match[d['id']]) not in ONLY: continue
         w=work['dogs'][match[d['id']]]
         if not w.get('sprite') or not d.get('sprite'): continue
         sp=d['sprite']; ws=w['sprite']

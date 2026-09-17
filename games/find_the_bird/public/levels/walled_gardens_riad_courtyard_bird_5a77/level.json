@@ -4,7 +4,7 @@
   "width": 2688,
   "height": 2688,
   "colorImage": "levels/walled_gardens_riad_courtyard_bird_5a77/color.png",
-  "artifactRevision": "sha256:96e39e2f54416286ef099998718db42ac1e1bee23f6020aa402baa9fb147a74f",
+  "artifactRevision": "sha256:b926d520d9e8bbd8c4b8c405af1758f94d4b2d0ca9d98268b732e5e746edc635",
   "compatibilityAliases": {
     "dog_01": "37bdc1c6-c54e-4ffd-958e-b19d644c9cc8",
     "dog_04": "00f226ce-6a4c-463b-a18f-8979d1fb7133",
@@ -45,14 +45,7 @@
         "anchorX": 0.4458,
         "anchorY": 0.5166,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 28.4,
-          "dx": 0,
-          "dy": -1
-        }
+        "flipY": false
       }
     },
     {
@@ -76,21 +69,7 @@
         "anchorX": 0.5366,
         "anchorY": 0.5066,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 23.8,
-          "dx": 0,
-          "dy": 0
-        },
-        "regen": {
-          "pass": "crop",
-          "score": 0.8653,
-          "pop": 23.2,
-          "why": "T4"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -114,21 +93,7 @@
         "anchorX": 0.5093,
         "anchorY": 0.4927,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 11.0,
-          "dx": 0,
-          "dy": 0
-        },
-        "regen": {
-          "pass": "crop",
-          "score": 0.9222,
-          "pop": 10.4,
-          "why": "T4"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -152,14 +117,7 @@
         "anchorX": 0.5943,
         "anchorY": 0.5365,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 23.2,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipY": false
       }
     },
     {
@@ -183,21 +141,7 @@
         "anchorX": 0.4372,
         "anchorY": 0.4746,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 17.1,
-          "dx": 0,
-          "dy": 0
-        },
-        "regen": {
-          "pass": "crop2",
-          "score": 0.9167,
-          "pop": 17.0,
-          "why": "T3+refit refused"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -221,14 +165,7 @@
         "anchorX": 0.4805,
         "anchorY": 0.3978,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.05,
-          "pop": 16.2,
-          "dx": -5,
-          "dy": 2
-        }
+        "flipY": false
       }
     },
     {
@@ -252,14 +189,7 @@
         "anchorX": 0.4637,
         "anchorY": 0.4688,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 18.6,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipY": false
       }
     },
     {
@@ -283,21 +213,7 @@
         "anchorX": 0.405,
         "anchorY": 0.4052,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 0.95,
-          "ratio": 1.05,
-          "pop": 31.6,
-          "dx": 2,
-          "dy": 5
-        },
-        "regen": {
-          "pass": "crop",
-          "score": 0.8233,
-          "pop": 30.9,
-          "why": "T3"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -321,14 +237,7 @@
         "anchorX": 0.5099,
         "anchorY": 0.5269,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 22.1,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipY": false
       }
     },
     {
@@ -352,14 +261,7 @@
         "anchorX": 0.4475,
         "anchorY": 0.4874,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 26.3,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipY": false
       }
     },
     {
@@ -383,21 +285,7 @@
         "anchorX": 0.4684,
         "anchorY": 0.3547,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 16.6,
-          "dx": 0,
-          "dy": 0
-        },
-        "regen": {
-          "pass": "crop",
-          "score": 0.8701,
-          "pop": 16.9,
-          "why": "T4"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -421,14 +309,7 @@
         "anchorX": 0.6207,
         "anchorY": 0.3419,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 29.8,
-          "dx": 1,
-          "dy": 0
-        }
+        "flipY": false
       }
     },
     {
@@ -452,14 +333,7 @@
         "anchorX": 0.4455,
         "anchorY": 0.4294,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 25.7,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipY": false
       }
     },
     {
@@ -483,14 +357,7 @@
         "anchorX": 0.4051,
         "anchorY": 0.564,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 28.3,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipY": false
       }
     },
     {
@@ -514,14 +381,7 @@
         "anchorX": 0.4819,
         "anchorY": 0.5298,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 19.1,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipY": false
       }
     },
     {
@@ -545,14 +405,7 @@
         "anchorX": 0.4892,
         "anchorY": 0.4497,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 0.95,
-          "ratio": 1.0,
-          "pop": 37.8,
-          "dx": 2,
-          "dy": 3
-        }
+        "flipY": false
       }
     }
   ]

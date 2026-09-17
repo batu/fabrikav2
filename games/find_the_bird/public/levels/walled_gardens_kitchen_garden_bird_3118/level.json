@@ -4,7 +4,7 @@
   "width": 2688,
   "height": 2688,
   "colorImage": "levels/walled_gardens_kitchen_garden_bird_3118/color.png",
-  "artifactRevision": "sha256:d6ec1d8beef7e96e5de0ee2c7c2855bcc689216cea2d07500f5364cf69f53c2c",
+  "artifactRevision": "sha256:90709c01a07410ace17394eb3c2e795d8a7beec3752ceffdf345785c34da82e7",
   "compatibilityAliases": {
     "dog_20": "77635efb-f180-4998-a19e-fb8a70c92f42",
     "dog_21": "8418cf56-3d4e-4e52-8a17-b7d848fb80f8",
@@ -47,21 +47,7 @@
         "anchorX": 0.5028,
         "anchorY": 0.5035,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 26.7,
-          "dx": 0,
-          "dy": 0
-        },
-        "regen": {
-          "pass": "crop",
-          "score": 0.8857,
-          "pop": 26.7,
-          "why": "refit refused"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -85,14 +71,7 @@
         "anchorX": 0.4692,
         "anchorY": 0.5735,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 22.4,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipY": false
       }
     },
     {
@@ -116,14 +95,7 @@
         "anchorX": 0.4615,
         "anchorY": 0.5643,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 20.4,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipY": false
       }
     },
     {
@@ -134,34 +106,20 @@
       "r": 69,
       "sprite": {
         "image": "levels/walled_gardens_kitchen_garden_bird_3118/dogs/dog_23/sprite_000.png",
-        "height": 220,
-        "width": 216,
-        "x": 839,
+        "height": 236,
+        "width": 306,
+        "x": 816,
         "y": 1619,
         "cleanup": {
-          "x": 822,
-          "y": 1602,
-          "width": 248,
-          "height": 253
+          "x": 793,
+          "y": 1601,
+          "width": 351,
+          "height": 271
         },
-        "anchorX": 0.5185,
-        "anchorY": 0.5091,
+        "anchorX": 0.4412,
+        "anchorY": 0.4746,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 11.4,
-          "dx": 0,
-          "dy": 0
-        },
-        "regen": {
-          "pass": "crop2",
-          "score": 0.8552,
-          "pop": 11.4,
-          "why": "T4"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -185,14 +143,7 @@
         "anchorX": 0.457,
         "anchorY": 0.5882,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.05,
-          "pop": 34.4,
-          "dx": -3,
-          "dy": 3
-        }
+        "flipY": false
       }
     },
     {
@@ -216,14 +167,7 @@
         "anchorX": 0.72,
         "anchorY": 0.463,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 23.3,
-          "dx": 1,
-          "dy": 0
-        }
+        "flipY": false
       }
     },
     {
@@ -247,14 +191,7 @@
         "anchorX": 0.4608,
         "anchorY": 0.4349,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 0.0,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipY": false
       }
     },
     {
@@ -278,14 +215,7 @@
         "anchorX": 0.5153,
         "anchorY": 0.4541,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 17.9,
-          "dx": 1,
-          "dy": 0
-        }
+        "flipY": false
       }
     },
     {
@@ -309,14 +239,7 @@
         "anchorX": 0.3757,
         "anchorY": 0.5515,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 11.6,
-          "dx": 1,
-          "dy": 0
-        }
+        "flipY": false
       }
     },
     {
@@ -340,14 +263,7 @@
         "anchorX": 0.5751,
         "anchorY": 0.5067,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 20.6,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipY": false
       }
     },
     {
@@ -371,21 +287,7 @@
         "anchorX": 0.5139,
         "anchorY": 0.2683,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.1,
-          "ratio": 1.0,
-          "pop": 22.9,
-          "dx": -13,
-          "dy": -2
-        },
-        "regen": {
-          "pass": "crop2",
-          "score": 0.6422,
-          "pop": 50.9,
-          "why": "T4"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -409,21 +311,7 @@
         "anchorX": 0.3986,
         "anchorY": 0.7207,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 20.3,
-          "dx": 0,
-          "dy": 0
-        },
-        "regen": {
-          "pass": "crop",
-          "score": 0.9171,
-          "pop": 20.4,
-          "why": "T3"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -447,14 +335,7 @@
         "anchorX": 0.3883,
         "anchorY": 0.5753,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 22.5,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipY": false
       }
     },
     {
@@ -478,14 +359,7 @@
         "anchorX": 0.4436,
         "anchorY": 0.5135,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 37.3,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipY": false
       }
     },
     {
@@ -509,14 +383,7 @@
         "anchorX": 0.36,
         "anchorY": 0.437,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 22.4,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipY": false
       }
     },
     {
@@ -540,14 +407,7 @@
         "anchorX": 0.4316,
         "anchorY": 0.4908,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 13.6,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipY": false
       }
     },
     {
@@ -571,14 +431,7 @@
         "anchorX": 0.443,
         "anchorY": 0.4648,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 0.0,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipY": false
       }
     },
     {
@@ -602,14 +455,7 @@
         "anchorX": 0.4098,
         "anchorY": 0.5565,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 0.95,
-          "pop": 25.5,
-          "dx": 2,
-          "dy": -3
-        }
+        "flipY": false
       }
     }
   ]

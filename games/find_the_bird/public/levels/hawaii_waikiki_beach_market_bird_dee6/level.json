@@ -1,22 +1,37 @@
 {
   "id": "hawaii_waikiki_beach_market_bird_dee6",
-  "name": "Level hawaii_waikiki_beach_market_bird_dee6 (clean_old_cartoon)",
+  "name": "Level hawaii_waikiki_beach_market_bird_dee6",
   "width": 2688,
   "height": 2688,
-  "bwImage": "levels/hawaii_waikiki_beach_market_bird_dee6/bw.png",
   "colorImage": "levels/hawaii_waikiki_beach_market_bird_dee6/color.png",
+  "artifactRevision": "sha256:f7cdd926641c24f830a17d33f8915d510390661897cfcf98b2ade729b4240bd5",
+  "compatibilityAliases": {
+    "dog_00": "602efbac-d4b1-59dd-974b-e2e630443de1",
+    "dog_01": "a19ed008-eb0e-5234-afa3-a30969bd51ba",
+    "dog_02": "f514890b-0a2a-5615-ac9f-e32f6ca7399f",
+    "dog_03": "ab9c38ae-148f-5c56-a492-29289bac3ecc",
+    "dog_04": "bf00213d-99b8-5537-a7e4-2d0d02d638b1",
+    "dog_05": "e65b89ab-6a05-5a46-8360-db10136b78be",
+    "dog_06": "307ca64d-8451-5559-aefb-f17499021757",
+    "dog_07": "2d520e9f-83b9-5cb4-a90f-dca0a2b5e5b6",
+    "dog_08": "e889695d-f8f0-544d-9832-27dd33bc8004",
+    "dog_09": "1b7731cf-e048-502a-87d9-0e568335c774",
+    "dog_10": "59396262-dc93-5720-94f6-3f3766c978c2",
+    "dog_11": "5a369164-d22b-5d59-8e80-4fdab2eeb91d"
+  },
   "dogs": [
     {
-      "id": "dog_00",
+      "id": "602efbac-d4b1-59dd-974b-e2e630443de1",
+      "compatibilitySlot": "dog_00",
       "x": 894,
       "y": 731,
       "r": 57,
       "sprite": {
         "image": "levels/hawaii_waikiki_beach_market_bird_dee6/dogs/dog_00/sprite_000.png",
+        "height": 195,
+        "width": 231,
         "x": 817,
         "y": 670,
-        "width": 231,
-        "height": 195,
         "cleanup": {
           "x": 721,
           "y": 558,
@@ -25,26 +40,22 @@
         },
         "anchorX": 0.4286,
         "anchorY": 0.4154,
-        "refit": {
-          "scale": 1.4,
-          "ratio": 1.0,
-          "pop": 12.7,
-          "dx": -21,
-          "dy": -20
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_01",
+      "id": "a19ed008-eb0e-5234-afa3-a30969bd51ba",
+      "compatibilitySlot": "dog_01",
       "x": 1066,
       "y": 1058,
       "r": 57,
       "sprite": {
         "image": "levels/hawaii_waikiki_beach_market_bird_dee6/dogs/dog_01/sprite_000.png",
+        "height": 227,
+        "width": 146,
         "x": 1022,
         "y": 957,
-        "width": 146,
-        "height": 227,
         "cleanup": {
           "x": 899,
           "y": 895,
@@ -53,26 +64,22 @@
         },
         "anchorX": 0.4795,
         "anchorY": 0.5595,
-        "refit": {
-          "scale": 1.4,
-          "ratio": 1.0,
-          "pop": 15.1,
-          "dx": -25,
-          "dy": -25
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_02",
+      "id": "f514890b-0a2a-5615-ac9f-e32f6ca7399f",
+      "compatibilitySlot": "dog_02",
       "x": 1568,
       "y": 1177,
       "r": 57,
       "sprite": {
         "image": "levels/hawaii_waikiki_beach_market_bird_dee6/dogs/dog_02/sprite_000.png",
+        "height": 332,
+        "width": 280,
         "x": 1485,
         "y": 1069,
-        "width": 280,
-        "height": 332,
         "cleanup": {
           "x": 1395,
           "y": 1004,
@@ -81,26 +88,22 @@
         },
         "anchorX": 0.4643,
         "anchorY": 0.3976,
-        "refit": {
-          "scale": 1.4,
-          "ratio": 1.0,
-          "pop": 18.3,
-          "dx": -47,
-          "dy": -23
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_03",
+      "id": "ab9c38ae-148f-5c56-a492-29289bac3ecc",
+      "compatibilitySlot": "dog_03",
       "x": 2087,
       "y": 1426,
       "r": 57,
       "sprite": {
         "image": "levels/hawaii_waikiki_beach_market_bird_dee6/dogs/dog_03/sprite_000.png",
+        "height": 196,
+        "width": 214,
         "x": 2001,
         "y": 1368,
-        "width": 214,
-        "height": 196,
         "cleanup": {
           "x": 1922,
           "y": 1253,
@@ -109,26 +112,22 @@
         },
         "anchorX": 0.5607,
         "anchorY": 0.5102,
-        "refit": {
-          "scale": 1.4,
-          "ratio": 1.0,
-          "pop": 14.0,
-          "dx": -33,
-          "dy": -41
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_04",
+      "id": "bf00213d-99b8-5537-a7e4-2d0d02d638b1",
+      "compatibilitySlot": "dog_04",
       "x": 900,
       "y": 1764,
       "r": 57,
       "sprite": {
         "image": "levels/hawaii_waikiki_beach_market_bird_dee6/dogs/dog_04/sprite_000.png",
+        "height": 352,
+        "width": 311,
         "x": 825,
         "y": 1651,
-        "width": 311,
-        "height": 352,
         "cleanup": {
           "x": 751,
           "y": 1591,
@@ -137,26 +136,22 @@
         },
         "anchorX": 0.3215,
         "anchorY": 0.3977,
-        "refit": {
-          "scale": 1.3,
-          "ratio": 1.0,
-          "pop": 26.5,
-          "dx": -25,
-          "dy": -26
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_05",
+      "id": "e65b89ab-6a05-5a46-8360-db10136b78be",
+      "compatibilitySlot": "dog_05",
       "x": 625,
       "y": 1903,
       "r": 57,
       "sprite": {
         "image": "levels/hawaii_waikiki_beach_market_bird_dee6/dogs/dog_05/sprite_000.png",
+        "height": 229,
+        "width": 208,
         "x": 524,
         "y": 1792,
-        "width": 208,
-        "height": 229,
         "cleanup": {
           "x": 452,
           "y": 1730,
@@ -165,26 +160,22 @@
         },
         "anchorX": 0.4856,
         "anchorY": 0.4847,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 15.2,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_06",
+      "id": "307ca64d-8451-5559-aefb-f17499021757",
+      "compatibilitySlot": "dog_06",
       "x": 885,
       "y": 2076,
       "r": 57,
       "sprite": {
         "image": "levels/hawaii_waikiki_beach_market_bird_dee6/dogs/dog_06/sprite_000.png",
+        "height": 445,
+        "width": 445,
         "x": 753,
         "y": 1944,
-        "width": 445,
-        "height": 445,
         "cleanup": {
           "x": 751,
           "y": 1937,
@@ -193,26 +184,22 @@
         },
         "anchorX": 0.5011,
         "anchorY": 0.5034,
-        "refit": {
-          "scale": 1.7,
-          "ratio": 1.0,
-          "pop": 44.1,
-          "dx": -91,
-          "dy": -92
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_07",
+      "id": "2d520e9f-83b9-5cb4-a90f-dca0a2b5e5b6",
+      "compatibilitySlot": "dog_07",
       "x": 1237,
       "y": 2210,
       "r": 57,
       "sprite": {
         "image": "levels/hawaii_waikiki_beach_market_bird_dee6/dogs/dog_07/sprite_000.png",
+        "height": 170,
+        "width": 135,
         "x": 1121,
         "y": 2060,
-        "width": 135,
-        "height": 170,
         "cleanup": {
           "x": 1100,
           "y": 2078,
@@ -221,26 +208,22 @@
         },
         "anchorX": 0.5926,
         "anchorY": 0.5118,
-        "refit": {
-          "scale": 0.8,
-          "ratio": 1.0,
-          "pop": 16.8,
-          "dx": 36,
-          "dy": 62
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_08",
+      "id": "e889695d-f8f0-544d-9832-27dd33bc8004",
+      "compatibilitySlot": "dog_08",
       "x": 1335,
       "y": 2247,
       "r": 57,
       "sprite": {
         "image": "levels/hawaii_waikiki_beach_market_bird_dee6/dogs/dog_08/sprite_000.png",
+        "height": 216,
+        "width": 250,
         "x": 1153,
         "y": 2121,
-        "width": 250,
-        "height": 216,
         "cleanup": {
           "x": 1287,
           "y": 2094,
@@ -249,26 +232,22 @@
         },
         "anchorX": 0.728,
         "anchorY": 0.5833,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 15.0,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_09",
+      "id": "1b7731cf-e048-502a-87d9-0e568335c774",
+      "compatibilitySlot": "dog_09",
       "x": 1600,
       "y": 2172,
       "r": 57,
       "sprite": {
         "image": "levels/hawaii_waikiki_beach_market_bird_dee6/dogs/dog_09/sprite_000.png",
+        "height": 161,
+        "width": 192,
         "x": 1461,
         "y": 2069,
-        "width": 192,
-        "height": 161,
         "cleanup": {
           "x": 1468,
           "y": 1999,
@@ -277,26 +256,22 @@
         },
         "anchorX": 0.7448,
         "anchorY": 0.6211,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.05,
-          "pop": 21.9,
-          "dx": -4,
-          "dy": 2
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_10",
+      "id": "59396262-dc93-5720-94f6-3f3766c978c2",
+      "compatibilitySlot": "dog_10",
       "x": 1976,
       "y": 2205,
       "r": 57,
       "sprite": {
         "image": "levels/hawaii_waikiki_beach_market_bird_dee6/dogs/dog_10/sprite_000.png",
+        "height": 189,
+        "width": 264,
         "x": 1856,
         "y": 2103,
-        "width": 264,
-        "height": 189,
         "cleanup": {
           "x": 1803,
           "y": 2071,
@@ -305,26 +280,22 @@
         },
         "anchorX": 0.4545,
         "anchorY": 0.5397,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 14.2,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_11",
+      "id": "5a369164-d22b-5d59-8e80-4fdab2eeb91d",
+      "compatibilitySlot": "dog_11",
       "x": 2250,
       "y": 1940,
       "r": 57,
       "sprite": {
         "image": "levels/hawaii_waikiki_beach_market_bird_dee6/dogs/dog_11/sprite_000.png",
+        "height": 196,
+        "width": 177,
         "x": 2190,
         "y": 1848,
-        "width": 177,
-        "height": 196,
         "cleanup": {
           "x": 2114,
           "y": 1767,
@@ -333,13 +304,8 @@
         },
         "anchorX": 0.339,
         "anchorY": 0.4694,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 18.3,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipX": false,
+        "flipY": false
       }
     }
   ]

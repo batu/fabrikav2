@@ -4,7 +4,7 @@
   "width": 2688,
   "height": 2688,
   "colorImage": "levels/below_decks_galley_bird_6b76/color.png",
-  "artifactRevision": "sha256:030a7770520e9d7b6278ec6cdfc377b76109a122fc0a3fa1cf84f7289181ac5e",
+  "artifactRevision": "sha256:1bee0fe510c7fc3a1e6da32ccbf2736c0cc7c715f69079ebcaedd3dac73899e4",
   "compatibilityAliases": {
     "dog_00": "02419913-43f5-4fc7-9ff4-365720a6efe0",
     "dog_01": "845925d2-9730-47a8-83ce-c9c2ade43524",
@@ -46,14 +46,7 @@
         "anchorX": 0.4704,
         "anchorY": 0.5314,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 36.2,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipY": false
       }
     },
     {
@@ -77,14 +70,7 @@
         "anchorX": 0.5178,
         "anchorY": 0.5247,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 24.0,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipY": false
       }
     },
     {
@@ -108,21 +94,7 @@
         "anchorX": 0.4798,
         "anchorY": 0.511,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 21.5,
-          "dx": 0,
-          "dy": 0
-        },
-        "regen": {
-          "pass": "crop2",
-          "score": 0.8646,
-          "pop": 25.1,
-          "why": "T4"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -146,21 +118,7 @@
         "anchorX": 0.6771,
         "anchorY": 0.6211,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 0.95,
-          "pop": 36.0,
-          "dx": 3,
-          "dy": -2
-        },
-        "regen": {
-          "pass": "crop",
-          "score": 0.6966,
-          "pop": 60.6,
-          "why": "T4"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -184,14 +142,7 @@
         "anchorX": 0.4758,
         "anchorY": 0.4509,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 29.7,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipY": false
       }
     },
     {
@@ -215,21 +166,7 @@
         "anchorX": 0.6609,
         "anchorY": 0.6782,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 0.95,
-          "pop": 23.4,
-          "dx": 2,
-          "dy": -1
-        },
-        "regen": {
-          "pass": "crop2",
-          "score": 0.8725,
-          "pop": 27.0,
-          "why": "T3+refit refused"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -253,21 +190,7 @@
         "anchorX": 0.4633,
         "anchorY": 0.4949,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.8,
-          "ratio": 1.05,
-          "pop": 32.3,
-          "dx": -31,
-          "dy": -7
-        },
-        "regen": {
-          "pass": "crop",
-          "score": 0.7264,
-          "pop": 48.6,
-          "why": "T4"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -291,21 +214,7 @@
         "anchorX": 0.5075,
         "anchorY": 0.5191,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.1,
-          "ratio": 1.0,
-          "pop": 19.3,
-          "dx": -9,
-          "dy": -8
-        },
-        "regen": {
-          "pass": "crop",
-          "score": 0.7531,
-          "pop": 41.1,
-          "why": "T4"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -329,21 +238,7 @@
         "anchorX": 0.3434,
         "anchorY": 0.5324,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 2.05,
-          "ratio": 1.05,
-          "pop": 37.4,
-          "dx": -52,
-          "dy": -47
-        },
-        "regen": {
-          "pass": "crop2",
-          "score": 0.6809,
-          "pop": 57.0,
-          "why": "T4"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -354,34 +249,20 @@
       "r": 57,
       "sprite": {
         "image": "levels/below_decks_galley_bird_6b76/dogs/dog_26/sprite_000.png",
-        "height": 182,
+        "height": 181,
         "width": 182,
-        "x": 2033,
-        "y": 741,
+        "x": 2034,
+        "y": 743,
         "cleanup": {
           "x": 2019,
-          "y": 727,
+          "y": 729,
           "width": 209,
-          "height": 209
+          "height": 208
         },
         "anchorX": 0.511,
-        "anchorY": 0.511,
+        "anchorY": 0.5028,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 13.2,
-          "dx": 0,
-          "dy": 0
-        },
-        "regen": {
-          "pass": "crop2",
-          "score": 0.9602,
-          "pop": 13.2,
-          "why": "T4"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -405,21 +286,7 @@
         "anchorX": 0.6022,
         "anchorY": 0.5635,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.2,
-          "ratio": 1.0,
-          "pop": 16.3,
-          "dx": -24,
-          "dy": -18
-        },
-        "regen": {
-          "pass": "crop2",
-          "score": 0.7913,
-          "pop": 32.6,
-          "why": "T4"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -443,21 +310,7 @@
         "anchorX": 0.4558,
         "anchorY": 0.5,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.2,
-          "ratio": 1.1,
-          "pop": 14.2,
-          "dx": -16,
-          "dy": -16
-        },
-        "regen": {
-          "pass": "crop",
-          "score": 0.7238,
-          "pop": 20.2,
-          "why": "T3+refit refused"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -481,21 +334,7 @@
         "anchorX": 0.5645,
         "anchorY": 0.5665,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 25.7,
-          "dx": 0,
-          "dy": 0
-        },
-        "regen": {
-          "pass": "crop2",
-          "score": 0.8991,
-          "pop": 24.8,
-          "why": "T3+refit refused"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -519,21 +358,7 @@
         "anchorX": 0.5388,
         "anchorY": 0.5258,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.4000000000000001,
-          "ratio": 0.9,
-          "pop": 19.2,
-          "dx": -19,
-          "dy": -49
-        },
-        "regen": {
-          "pass": "crop",
-          "score": 0.682,
-          "pop": 37.1,
-          "why": "T4"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -557,21 +382,7 @@
         "anchorX": 0.6271,
         "anchorY": 0.5628,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 2.0,
-          "ratio": 0.95,
-          "pop": 44.7,
-          "dx": -77,
-          "dy": -47
-        },
-        "regen": {
-          "pass": "crop",
-          "score": 0.5922,
-          "pop": 57.6,
-          "why": "T4"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -582,34 +393,20 @@
       "r": 57,
       "sprite": {
         "image": "levels/below_decks_galley_bird_6b76/dogs/dog_32/sprite_000.png",
-        "height": 162,
-        "width": 182,
-        "x": 1769,
-        "y": 1919,
+        "height": 243,
+        "width": 260,
+        "x": 1740,
+        "y": 1908,
         "cleanup": {
-          "x": 1755,
-          "y": 1905,
-          "width": 209,
-          "height": 186
+          "x": 1720,
+          "y": 1889,
+          "width": 299,
+          "height": 279
         },
-        "anchorX": 0.511,
-        "anchorY": 0.5802,
+        "anchorX": 0.4692,
+        "anchorY": 0.428,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 23.3,
-          "dx": 0,
-          "dy": 0
-        },
-        "regen": {
-          "pass": "crop2",
-          "score": 0.875,
-          "pop": 24.1,
-          "why": "T4"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -633,21 +430,7 @@
         "anchorX": 0.4977,
         "anchorY": 0.5665,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.55,
-          "ratio": 1.05,
-          "pop": 26.8,
-          "dx": -42,
-          "dy": -41
-        },
-        "regen": {
-          "pass": "crop",
-          "score": 0.577,
-          "pop": 53.6,
-          "why": "T4"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     }
   ]
