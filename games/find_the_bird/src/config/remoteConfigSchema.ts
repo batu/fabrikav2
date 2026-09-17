@@ -139,13 +139,23 @@ export const REMOTE_CONFIG_DEFAULTS: RemoteConfigValues = {
   bluebirdUnlockCount: 10,
   bluebirdHatCount: 40,
   bluebirdCardiganCount: 60,
+  // 2026-09-18 economy pass. A level pays levelCompleteCoinReward (45), so a
+  // player who never buys hints reaches the level-15 gate with roughly 675
+  // coins. The old 150/300/900 let them buy tier 1 AND tier 2 in the same
+  // minute and then stall; tier 2 now costs a stretch of play (about level 22)
+  // and tier 3 lands near level 34. The old 3-10 coins an hour under a 4-hour
+  // cap was invisible next to a level reward, so a return trip was never worth
+  // making: a full cap now pays 120 coins at tier 1 and 480 at tier 3, which
+  // is between 3 and 10 levels of play and makes the Sanctuary the reason to
+  // come back. Prices are also a hint-coin comparison (250 single, 600 bundle),
+  // so tier 2 and 3 deliberately cost more than a hint bundle.
   housePriceTier1: 150,
-  housePriceTier2: 300,
-  housePriceTier3: 900,
-  sanctuaryCoinsPerHourTier1: 3,
-  sanctuaryCoinsPerHourTier2: 6,
-  sanctuaryCoinsPerHourTier3: 10,
-  sanctuaryOfflineCapHours: 4,
+  housePriceTier2: 800,
+  housePriceTier3: 1200,
+  sanctuaryCoinsPerHourTier1: 15,
+  sanctuaryCoinsPerHourTier2: 30,
+  sanctuaryCoinsPerHourTier3: 60,
+  sanctuaryOfflineCapHours: 8,
   healthBarEnabled: false,
   microAnimationsEnabled: false,
   hintRwEnabled: true,

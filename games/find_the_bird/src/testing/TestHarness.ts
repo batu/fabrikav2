@@ -665,7 +665,8 @@ export function createFindTheDogHarness(game: Phaser.Game): FindTheDogHarness {
         // Collection, then build, place and upgrade in the Sanctuary.
         const wait = (ms: number): Promise<void> => new Promise((resolve) => { window.setTimeout(resolve, ms); });
         const tap = (selector: string): boolean => { const el = document.querySelector<HTMLElement>(selector); if (el === null) return false; el.click(); return true; };
-        const opened = await collection({ sparrows: 100, coins: 1500, claimed: 0 });
+        // Enough to build and both upgrades at the 2026-09-18 prices (150+800+1200).
+        const opened = await collection({ sparrows: 100, coins: 2400, claimed: 0 });
         if (!opened) return false;
         // A first launch can re-render home under the page (remote config,
         // unlock pops) and take the page with it; reopen if that happened.
