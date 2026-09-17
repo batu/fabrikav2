@@ -1,22 +1,44 @@
 {
   "id": "france_provence_lavender_village_bird_54c3",
-  "name": "Level france_provence_lavender_village_bird_54c3 (clean_old_cartoon)",
+  "name": "Level france_provence_lavender_village_bird_54c3",
   "width": 2688,
   "height": 2688,
-  "bwImage": "levels/france_provence_lavender_village_bird_54c3/bw.png",
   "colorImage": "levels/france_provence_lavender_village_bird_54c3/color.png",
+  "artifactRevision": "sha256:c269573b9627548c7297136b34248f1eb957f7be1d37fe7e54ba6a5331ec4a1e",
+  "compatibilityAliases": {
+    "dog_00": "aa722d39-2a4d-5f91-8f7b-fefc096e73ed",
+    "dog_01": "8e71d2d0-3b5f-50c3-82f2-f33e4db82a2b",
+    "dog_02": "e4f69f6d-c14f-5af1-bbdb-8066f5128cb9",
+    "dog_03": "7b4b9b53-6537-541c-8425-3806e9cad12f",
+    "dog_04": "22fcf002-6733-5e13-a5db-b720d5cfbc3c",
+    "dog_05": "3698e028-3ca7-566c-a403-3a05dffa3592",
+    "dog_06": "d6858f81-053d-5144-89d1-a1098224f2c2",
+    "dog_07": "4759726d-1a05-5091-86ab-a02ee419119c",
+    "dog_08": "2b81f9a9-cbbd-5e7c-b07d-6a35a02e32b1",
+    "dog_09": "4a5a35a2-b282-5936-bafa-c3c014d06318",
+    "dog_10": "131b8b14-1017-5ac5-9108-6784fc7b2122",
+    "dog_11": "1032ddde-3c51-5a68-ab89-d1b447b5b8cd",
+    "dog_12": "90832b73-7e36-5e06-812c-6b10734ccd94",
+    "dog_13": "a406f053-6b93-5c56-936a-16086d4f4409",
+    "dog_14": "df3639fc-6020-5db3-a908-ec06b57dc571",
+    "dog_15": "446cecfc-258f-586e-9b15-a45e03d6ae7f",
+    "dog_16": "a9e189b2-c7a7-5e19-b58c-0ba02202d344",
+    "dog_17": "52a12da4-9060-5ef0-9b0b-426ff81e46b9",
+    "dog_18": "56e4cceb-8ae3-5df0-a229-61f2764bd474"
+  },
   "dogs": [
     {
-      "id": "dog_00",
+      "id": "aa722d39-2a4d-5f91-8f7b-fefc096e73ed",
+      "compatibilitySlot": "dog_00",
       "x": 701,
       "y": 650,
       "r": 57,
       "sprite": {
         "image": "levels/france_provence_lavender_village_bird_54c3/dogs/dog_00/sprite_000.png",
+        "height": 196,
+        "width": 217,
         "x": 580,
         "y": 549,
-        "width": 217,
-        "height": 196,
         "cleanup": {
           "x": 546,
           "y": 505,
@@ -25,26 +47,22 @@
         },
         "anchorX": 0.5576,
         "anchorY": 0.5204,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 25.3,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_01",
+      "id": "8e71d2d0-3b5f-50c3-82f2-f33e4db82a2b",
+      "compatibilitySlot": "dog_01",
       "x": 1249,
       "y": 512,
       "r": 57,
       "sprite": {
         "image": "levels/france_provence_lavender_village_bird_54c3/dogs/dog_01/sprite_000.png",
+        "height": 97,
+        "width": 63,
         "x": 1228,
         "y": 466,
-        "width": 63,
-        "height": 97,
         "cleanup": {
           "x": 1150,
           "y": 407,
@@ -53,32 +71,22 @@
         },
         "anchorX": 0.3333,
         "anchorY": 0.5052,
-        "technique": "gpt-image-2.5-sunburst-low-visible-only",
-        "regen": {
-          "pass": "crop",
-          "score": 0.911,
-          "pop": 23.6
-        },
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 26.2,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_02",
+      "id": "e4f69f6d-c14f-5af1-bbdb-8066f5128cb9",
+      "compatibilitySlot": "dog_02",
       "x": 1387,
       "y": 682,
       "r": 57,
       "sprite": {
         "image": "levels/france_provence_lavender_village_bird_54c3/dogs/dog_02/sprite_000.png",
+        "height": 149,
+        "width": 125,
         "x": 1323,
         "y": 636,
-        "width": 125,
-        "height": 149,
         "cleanup": {
           "x": 1214,
           "y": 598,
@@ -87,32 +95,22 @@
         },
         "anchorX": 0.512,
         "anchorY": 0.3087,
-        "technique": "gpt-image-2.5-sunburst-low-visible-only",
-        "regen": {
-          "pass": "crop2",
-          "score": 0.9192,
-          "pop": 20.8
-        },
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 21.8,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_03",
+      "id": "7b4b9b53-6537-541c-8425-3806e9cad12f",
+      "compatibilitySlot": "dog_03",
       "x": 1859,
       "y": 686,
       "r": 57,
       "sprite": {
         "image": "levels/france_provence_lavender_village_bird_54c3/dogs/dog_03/sprite_000.png",
+        "height": 116,
+        "width": 111,
         "x": 1787,
         "y": 623,
-        "width": 111,
-        "height": 116,
         "cleanup": {
           "x": 1686,
           "y": 513,
@@ -121,32 +119,22 @@
         },
         "anchorX": 0.6577,
         "anchorY": 0.5431,
-        "technique": "gpt-image-2.5-sunburst-low-visible-only",
-        "regen": {
-          "pass": "crop",
-          "score": 0.8474,
-          "pop": 32.0
-        },
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 34.3,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_04",
+      "id": "22fcf002-6733-5e13-a5db-b720d5cfbc3c",
+      "compatibilitySlot": "dog_04",
       "x": 1734,
       "y": 846,
       "r": 57,
       "sprite": {
         "image": "levels/france_provence_lavender_village_bird_54c3/dogs/dog_04/sprite_000.png",
+        "height": 131,
+        "width": 130,
         "x": 1686,
         "y": 778,
-        "width": 130,
-        "height": 131,
         "cleanup": {
           "x": 1547,
           "y": 776,
@@ -155,32 +143,22 @@
         },
         "anchorX": 0.3769,
         "anchorY": 0.5267,
-        "technique": "gpt-image-2.5-sunburst-low-visible-only",
-        "regen": {
-          "pass": "crop",
-          "score": 0.9303,
-          "pop": 14.6
-        },
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 15.5,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_05",
+      "id": "3698e028-3ca7-566c-a403-3a05dffa3592",
+      "compatibilitySlot": "dog_05",
       "x": 2048,
       "y": 771,
       "r": 57,
       "sprite": {
         "image": "levels/france_provence_lavender_village_bird_54c3/dogs/dog_05/sprite_000.png",
+        "height": 116,
+        "width": 124,
         "x": 1986,
         "y": 734,
-        "width": 124,
-        "height": 116,
         "cleanup": {
           "x": 1967,
           "y": 570,
@@ -189,32 +167,22 @@
         },
         "anchorX": 0.4435,
         "anchorY": 0.319,
-        "technique": "gpt-image-2.5-sunburst-low-visible-only",
-        "regen": {
-          "pass": "crop",
-          "score": 0.8335,
-          "pop": 29.3
-        },
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 23.6,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_06",
+      "id": "d6858f81-053d-5144-89d1-a1098224f2c2",
+      "compatibilitySlot": "dog_06",
       "x": 1012,
       "y": 960,
       "r": 57,
       "sprite": {
         "image": "levels/france_provence_lavender_village_bird_54c3/dogs/dog_06/sprite_000.png",
+        "height": 140,
+        "width": 151,
         "x": 957,
         "y": 887,
-        "width": 151,
-        "height": 140,
         "cleanup": {
           "x": 845,
           "y": 823,
@@ -223,32 +191,22 @@
         },
         "anchorX": 0.3642,
         "anchorY": 0.5214,
-        "technique": "gpt-image-2.5-sunburst-low-visible-only",
-        "regen": {
-          "pass": "crop2",
-          "score": 0.897,
-          "pop": 21.2
-        },
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 23.3,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_07",
+      "id": "4759726d-1a05-5091-86ab-a02ee419119c",
+      "compatibilitySlot": "dog_07",
       "x": 1186,
       "y": 983,
       "r": 57,
       "sprite": {
         "image": "levels/france_provence_lavender_village_bird_54c3/dogs/dog_07/sprite_000.png",
+        "height": 99,
+        "width": 106,
         "x": 1142,
         "y": 911,
-        "width": 106,
-        "height": 99,
         "cleanup": {
           "x": 1114,
           "y": 833,
@@ -257,32 +215,22 @@
         },
         "anchorX": 0.4245,
         "anchorY": 0.7374,
-        "technique": "gpt-image-2.5-sunburst-low-visible-only",
-        "regen": {
-          "pass": "crop",
-          "score": 0.9072,
-          "pop": 20.4
-        },
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 20.7,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_08",
+      "id": "2b81f9a9-cbbd-5e7c-b07d-6a35a02e32b1",
+      "compatibilitySlot": "dog_08",
       "x": 588,
       "y": 1185,
       "r": 57,
       "sprite": {
         "image": "levels/france_provence_lavender_village_bird_54c3/dogs/dog_08/sprite_000.png",
+        "height": 208,
+        "width": 189,
         "x": 492,
         "y": 1061,
-        "width": 189,
-        "height": 208,
         "cleanup": {
           "x": 443,
           "y": 973,
@@ -291,26 +239,22 @@
         },
         "anchorX": 0.5079,
         "anchorY": 0.5962,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 21.7,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_09",
+      "id": "4a5a35a2-b282-5936-bafa-c3c014d06318",
+      "compatibilitySlot": "dog_09",
       "x": 558,
       "y": 1497,
       "r": 57,
       "sprite": {
         "image": "levels/france_provence_lavender_village_bird_54c3/dogs/dog_09/sprite_000.png",
+        "height": 198,
+        "width": 217,
         "x": 443,
         "y": 1373,
-        "width": 217,
-        "height": 198,
         "cleanup": {
           "x": 385,
           "y": 1324,
@@ -319,26 +263,22 @@
         },
         "anchorX": 0.53,
         "anchorY": 0.6263,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 18.3,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_10",
+      "id": "131b8b14-1017-5ac5-9108-6784fc7b2122",
+      "compatibilitySlot": "dog_10",
       "x": 1015,
       "y": 1548,
       "r": 57,
       "sprite": {
         "image": "levels/france_provence_lavender_village_bird_54c3/dogs/dog_10/sprite_000.png",
+        "height": 160,
+        "width": 172,
         "x": 967,
         "y": 1477,
-        "width": 172,
-        "height": 160,
         "cleanup": {
           "x": 782,
           "y": 1379,
@@ -347,26 +287,22 @@
         },
         "anchorX": 0.3837,
         "anchorY": 0.475,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 17.0,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_11",
+      "id": "1032ddde-3c51-5a68-ab89-d1b447b5b8cd",
+      "compatibilitySlot": "dog_11",
       "x": 845,
       "y": 1769,
       "r": 57,
       "sprite": {
         "image": "levels/france_provence_lavender_village_bird_54c3/dogs/dog_11/sprite_000.png",
+        "height": 207,
+        "width": 353,
         "x": 702,
         "y": 1687,
-        "width": 353,
-        "height": 207,
         "cleanup": {
           "x": 633,
           "y": 1661,
@@ -375,26 +311,22 @@
         },
         "anchorX": 0.6147,
         "anchorY": 0.5507,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 12.7,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_12",
+      "id": "90832b73-7e36-5e06-812c-6b10734ccd94",
+      "compatibilitySlot": "dog_12",
       "x": 559,
       "y": 2178,
       "r": 57,
       "sprite": {
         "image": "levels/france_provence_lavender_village_bird_54c3/dogs/dog_12/sprite_000.png",
+        "height": 240,
+        "width": 315,
         "x": 443,
         "y": 2045,
-        "width": 315,
-        "height": 240,
         "cleanup": {
           "x": 386,
           "y": 2005,
@@ -403,26 +335,22 @@
         },
         "anchorX": 0.3683,
         "anchorY": 0.5542,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 13.8,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_13",
+      "id": "a406f053-6b93-5c56-936a-16086d4f4409",
+      "compatibilitySlot": "dog_13",
       "x": 1153,
       "y": 2240,
       "r": 57,
       "sprite": {
         "image": "levels/france_provence_lavender_village_bird_54c3/dogs/dog_13/sprite_000.png",
+        "height": 270,
+        "width": 326,
         "x": 1047,
         "y": 2185,
-        "width": 326,
-        "height": 270,
         "cleanup": {
           "x": 961,
           "y": 2095,
@@ -431,26 +359,22 @@
         },
         "anchorX": 0.3712,
         "anchorY": 0.3741,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 19.0,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_14",
+      "id": "df3639fc-6020-5db3-a908-ec06b57dc571",
+      "compatibilitySlot": "dog_14",
       "x": 1554,
       "y": 1849,
       "r": 57,
       "sprite": {
         "image": "levels/france_provence_lavender_village_bird_54c3/dogs/dog_14/sprite_000.png",
+        "height": 241,
+        "width": 264,
         "x": 1450,
         "y": 1715,
-        "width": 264,
-        "height": 241,
         "cleanup": {
           "x": 1409,
           "y": 1668,
@@ -459,26 +383,22 @@
         },
         "anchorX": 0.3939,
         "anchorY": 0.556,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 21.8,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_15",
+      "id": "446cecfc-258f-586e-9b15-a45e03d6ae7f",
+      "compatibilitySlot": "dog_15",
       "x": 2044,
       "y": 1731,
       "r": 57,
       "sprite": {
         "image": "levels/france_provence_lavender_village_bird_54c3/dogs/dog_15/sprite_000.png",
+        "height": 265,
+        "width": 267,
         "x": 1884,
         "y": 1700,
-        "width": 267,
-        "height": 265,
         "cleanup": {
           "x": 1832,
           "y": 1608,
@@ -487,26 +407,22 @@
         },
         "anchorX": 0.6367,
         "anchorY": 0.3811,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 15.5,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_16",
+      "id": "a9e189b2-c7a7-5e19-b58c-0ba02202d344",
+      "compatibilitySlot": "dog_16",
       "x": 2015,
       "y": 2081,
       "r": 57,
       "sprite": {
         "image": "levels/france_provence_lavender_village_bird_54c3/dogs/dog_16/sprite_000.png",
+        "height": 237,
+        "width": 253,
         "x": 1919,
         "y": 2004,
-        "width": 253,
-        "height": 237,
         "cleanup": {
           "x": 1886,
           "y": 1932,
@@ -515,26 +431,22 @@
         },
         "anchorX": 0.4585,
         "anchorY": 0.5316,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 16.1,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_17",
+      "id": "52a12da4-9060-5ef0-9b0b-426ff81e46b9",
+      "compatibilitySlot": "dog_17",
       "x": 1792,
       "y": 2321,
       "r": 57,
       "sprite": {
         "image": "levels/france_provence_lavender_village_bird_54c3/dogs/dog_17/sprite_000.png",
+        "height": 261,
+        "width": 283,
         "x": 1664,
         "y": 2224,
-        "width": 283,
-        "height": 261,
         "cleanup": {
           "x": 1583,
           "y": 2148,
@@ -543,26 +455,22 @@
         },
         "anchorX": 0.6184,
         "anchorY": 0.4943,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 27.7,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_18",
+      "id": "56e4cceb-8ae3-5df0-a229-61f2764bd474",
+      "compatibilitySlot": "dog_18",
       "x": 2297,
       "y": 1322,
       "r": 57,
       "sprite": {
         "image": "levels/france_provence_lavender_village_bird_54c3/dogs/dog_18/sprite_000.png",
+        "height": 128,
+        "width": 116,
         "x": 2222,
         "y": 1267,
-        "width": 116,
-        "height": 128,
         "cleanup": {
           "x": 2090,
           "y": 1209,
@@ -571,13 +479,8 @@
         },
         "anchorX": 0.5172,
         "anchorY": 0.3906,
-        "refit": {
-          "scale": 1.05,
-          "ratio": 1.05,
-          "pop": 43.6,
-          "dx": -6,
-          "dy": -3
-        }
+        "flipX": false,
+        "flipY": false
       }
     }
   ]

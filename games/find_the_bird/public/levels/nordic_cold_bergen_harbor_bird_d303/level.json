@@ -1,22 +1,47 @@
 {
   "id": "nordic_cold_bergen_harbor_bird_d303",
-  "name": "Level nordic_cold_bergen_harbor_bird_d303 (clean_old_cartoon)",
+  "name": "Level nordic_cold_bergen_harbor_bird_d303",
   "width": 2688,
   "height": 2688,
-  "bwImage": "levels/nordic_cold_bergen_harbor_bird_d303/bw.png",
   "colorImage": "levels/nordic_cold_bergen_harbor_bird_d303/color.png",
+  "artifactRevision": "sha256:85382cf120318f2a294829d4c83f6c686f4335abcc3655f14debf1d1209054aa",
+  "compatibilityAliases": {
+    "dog_00": "715eb641-31ef-5b1a-aa6a-732d3bd2528c",
+    "dog_01": "ad760a72-0f62-5413-94f3-38d0a2a2a21f",
+    "dog_02": "008f0ed7-922f-5858-80dd-f1f10f1f5100",
+    "dog_03": "db072fba-41ed-5cee-a2a5-f1037ba7d38b",
+    "dog_04": "97b1cb92-5880-5c42-8142-e4b46f6019ed",
+    "dog_05": "a8ac23ff-7906-56f7-b110-25ec131e1f11",
+    "dog_06": "45968e91-dff4-574e-9ae4-226fb82ed191",
+    "dog_07": "eed4d658-a603-5968-8de9-7a062c974273",
+    "dog_08": "8568b188-25ab-5b86-a7a2-13e495df260b",
+    "dog_09": "7d931a33-fb52-5121-ab1f-97e9dcbfbc84",
+    "dog_10": "6624ffd8-89bd-5c7f-a39c-31392559a9b9",
+    "dog_22": "fbeea799-f760-4e63-8dbe-27c67b5b79db",
+    "dog_12": "4df67cb2-af57-56f0-bb70-63aab5a9b79c",
+    "dog_13": "b1d13024-f85a-5237-bf40-0b8748ee69b2",
+    "dog_14": "cd5cd36f-c51f-56f0-9bb9-d3dee2e838ae",
+    "dog_15": "1ea3ba49-b8d6-596b-90ff-e1718f4fef53",
+    "dog_16": "9d7f10dc-a803-556d-9b35-61a80277340c",
+    "dog_17": "54d13923-8227-5aa3-b255-5b13a7695b51",
+    "dog_18": "6a3e43f2-a031-5375-a66c-dcdaae2de162",
+    "dog_19": "be4e657d-2116-5f1d-9d13-e80afc65c9e5",
+    "dog_20": "478895bf-7dab-5524-80bf-00313871e221",
+    "dog_21": "547ab17e-fbb6-5d0f-b567-1d44efa12f4b"
+  },
   "dogs": [
     {
-      "id": "dog_00",
+      "id": "715eb641-31ef-5b1a-aa6a-732d3bd2528c",
+      "compatibilitySlot": "dog_00",
       "x": 537,
       "y": 596,
       "r": 57,
       "sprite": {
         "image": "levels/nordic_cold_bergen_harbor_bird_d303/dogs/dog_00/sprite_000.png",
+        "height": 183,
+        "width": 132,
         "x": 441,
         "y": 486,
-        "width": 132,
-        "height": 183,
         "cleanup": {
           "x": 364,
           "y": 423,
@@ -25,26 +50,22 @@
         },
         "anchorX": 0.3939,
         "anchorY": 0.3934,
-        "refit": {
-          "scale": 0.7,
-          "ratio": 1.0,
-          "pop": 23.2,
-          "dx": 43,
-          "dy": 37
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_01",
+      "id": "ad760a72-0f62-5413-94f3-38d0a2a2a21f",
+      "compatibilitySlot": "dog_01",
       "x": 1238,
       "y": 563,
       "r": 57,
       "sprite": {
         "image": "levels/nordic_cold_bergen_harbor_bird_d303/dogs/dog_01/sprite_000.png",
+        "height": 127,
+        "width": 124,
         "x": 1201,
         "y": 497,
-        "width": 124,
-        "height": 127,
         "cleanup": {
           "x": 1047,
           "y": 411,
@@ -53,32 +74,22 @@
         },
         "anchorX": 0.3065,
         "anchorY": 0.5276,
-        "technique": "gpt-image-2.5-sunburst-low-visible-only",
-        "regen": {
-          "pass": "crop",
-          "score": 0.8499,
-          "pop": 29.9
-        },
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 24.5,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_02",
+      "id": "008f0ed7-922f-5858-80dd-f1f10f1f5100",
+      "compatibilitySlot": "dog_02",
       "x": 1070,
       "y": 827,
       "r": 57,
       "sprite": {
         "image": "levels/nordic_cold_bergen_harbor_bird_d303/dogs/dog_02/sprite_000.png",
+        "height": 153,
+        "width": 206,
         "x": 968,
         "y": 745,
-        "width": 206,
-        "height": 153,
         "cleanup": {
           "x": 903,
           "y": 716,
@@ -87,26 +98,22 @@
         },
         "anchorX": 0.4903,
         "anchorY": 0.5425,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 28.8,
-          "dx": 0,
-          "dy": -1
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_03",
+      "id": "db072fba-41ed-5cee-a2a5-f1037ba7d38b",
+      "compatibilitySlot": "dog_03",
       "x": 439,
       "y": 1132,
       "r": 57,
       "sprite": {
         "image": "levels/nordic_cold_bergen_harbor_bird_d303/dogs/dog_03/sprite_000.png",
+        "height": 174,
+        "width": 217,
         "x": 287,
         "y": 1019,
-        "width": 217,
-        "height": 174,
         "cleanup": {
           "x": 275,
           "y": 959,
@@ -115,26 +122,22 @@
         },
         "anchorX": 0.5806,
         "anchorY": 0.523,
-        "refit": {
-          "scale": 0.85,
-          "ratio": 1.05,
-          "pop": 29.2,
-          "dx": 25,
-          "dy": 22
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_04",
+      "id": "97b1cb92-5880-5c42-8142-e4b46f6019ed",
+      "compatibilitySlot": "dog_04",
       "x": 633,
       "y": 1781,
       "r": 57,
       "sprite": {
         "image": "levels/nordic_cold_bergen_harbor_bird_d303/dogs/dog_04/sprite_000.png",
+        "height": 183,
+        "width": 164,
         "x": 525,
         "y": 1682,
-        "width": 164,
-        "height": 183,
         "cleanup": {
           "x": 460,
           "y": 1608,
@@ -143,26 +146,22 @@
         },
         "anchorX": 0.5244,
         "anchorY": 0.3333,
-        "refit": {
-          "scale": 0.7,
-          "ratio": 1.0,
-          "pop": 22.4,
-          "dx": 22,
-          "dy": 38
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_05",
+      "id": "a8ac23ff-7906-56f7-b110-25ec131e1f11",
+      "compatibilitySlot": "dog_05",
       "x": 877,
       "y": 1705,
       "r": 57,
       "sprite": {
         "image": "levels/nordic_cold_bergen_harbor_bird_d303/dogs/dog_05/sprite_000.png",
+        "height": 175,
+        "width": 155,
         "x": 805,
         "y": 1613,
-        "width": 155,
-        "height": 175,
         "cleanup": {
           "x": 743,
           "y": 1581,
@@ -171,32 +170,22 @@
         },
         "anchorX": 0.471,
         "anchorY": 0.5714,
-        "technique": "gpt-image-2.5-sunburst-low-visible-only",
-        "regen": {
-          "pass": "crop2",
-          "score": 0.7955,
-          "pop": 35.7
-        },
-        "refit": {
-          "scale": 1.05,
-          "ratio": 0.95,
-          "pop": 29.8,
-          "dx": -1,
-          "dy": -8
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_06",
+      "id": "45968e91-dff4-574e-9ae4-226fb82ed191",
+      "compatibilitySlot": "dog_06",
       "x": 1133,
       "y": 1667,
       "r": 57,
       "sprite": {
         "image": "levels/nordic_cold_bergen_harbor_bird_d303/dogs/dog_06/sprite_000.png",
+        "height": 134,
+        "width": 169,
         "x": 1033,
         "y": 1583,
-        "width": 169,
-        "height": 134,
         "cleanup": {
           "x": 993,
           "y": 1571,
@@ -205,32 +194,22 @@
         },
         "anchorX": 0.5976,
         "anchorY": 0.6269,
-        "technique": "gpt-image-2.5-sunburst-low-visible-only",
-        "regen": {
-          "pass": "crop2",
-          "score": 0.8944,
-          "pop": 22.8
-        },
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 23.8,
-          "dx": -1,
-          "dy": 0
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_07",
+      "id": "eed4d658-a603-5968-8de9-7a062c974273",
+      "compatibilitySlot": "dog_07",
       "x": 1060,
       "y": 1474,
       "r": 57,
       "sprite": {
         "image": "levels/nordic_cold_bergen_harbor_bird_d303/dogs/dog_07/sprite_000.png",
+        "height": 202,
+        "width": 213,
         "x": 923,
         "y": 1338,
-        "width": 213,
-        "height": 202,
         "cleanup": {
           "x": 887,
           "y": 1343,
@@ -239,26 +218,22 @@
         },
         "anchorX": 0.5399,
         "anchorY": 0.5545,
-        "refit": {
-          "scale": 0.85,
-          "ratio": 1.0,
-          "pop": 39.9,
-          "dx": 21,
-          "dy": 23
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_08",
+      "id": "8568b188-25ab-5b86-a7a2-13e495df260b",
+      "compatibilitySlot": "dog_08",
       "x": 1213,
       "y": 1212,
       "r": 57,
       "sprite": {
         "image": "levels/nordic_cold_bergen_harbor_bird_d303/dogs/dog_08/sprite_000.png",
+        "height": 109,
+        "width": 60,
         "x": 1191,
         "y": 1175,
-        "width": 60,
-        "height": 109,
         "cleanup": {
           "x": 1125,
           "y": 1081,
@@ -267,32 +242,22 @@
         },
         "anchorX": 0.3833,
         "anchorY": 0.3486,
-        "technique": "gpt-image-2.5-sunburst-low-visible-only",
-        "regen": {
-          "pass": "crop",
-          "score": 0.965,
-          "pop": 13.7
-        },
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 13.6,
-          "dx": 0,
-          "dy": -1
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_09",
+      "id": "7d931a33-fb52-5121-ab1f-97e9dcbfbc84",
+      "compatibilitySlot": "dog_09",
       "x": 1375,
       "y": 1172,
       "r": 57,
       "sprite": {
         "image": "levels/nordic_cold_bergen_harbor_bird_d303/dogs/dog_09/sprite_000.png",
+        "height": 138,
+        "width": 130,
         "x": 1306,
         "y": 1101,
-        "width": 130,
-        "height": 138,
         "cleanup": {
           "x": 1302,
           "y": 984,
@@ -301,32 +266,22 @@
         },
         "anchorX": 0.5385,
         "anchorY": 0.5217,
-        "technique": "gpt-image-2.5-sunburst-low-visible-only",
-        "regen": {
-          "pass": "crop",
-          "score": 0.9198,
-          "pop": 21.6
-        },
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 21.6,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_10",
+      "id": "6624ffd8-89bd-5c7f-a39c-31392559a9b9",
+      "compatibilitySlot": "dog_10",
       "x": 1372,
       "y": 1352,
       "r": 57,
       "sprite": {
         "image": "levels/nordic_cold_bergen_harbor_bird_d303/dogs/dog_10/sprite_000.png",
+        "height": 139,
+        "width": 165,
         "x": 1291,
         "y": 1265,
-        "width": 165,
-        "height": 139,
         "cleanup": {
           "x": 1286,
           "y": 1247,
@@ -335,26 +290,22 @@
         },
         "anchorX": 0.4242,
         "anchorY": 0.4245,
-        "refit": {
-          "scale": 0.7,
-          "ratio": 1.0,
-          "pop": 28.9,
-          "dx": 10,
-          "dy": 28
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_11",
+      "id": "fbeea799-f760-4e63-8dbe-27c67b5b79db",
+      "compatibilitySlot": "dog_22",
       "x": 1564,
       "y": 1083,
       "r": 57,
       "sprite": {
-        "image": "levels/nordic_cold_bergen_harbor_bird_d303/dogs/dog_11/sprite_000.png",
+        "image": "levels/nordic_cold_bergen_harbor_bird_d303/dogs/dog_22/sprite_000.png",
+        "height": 153,
+        "width": 160,
         "x": 1500,
         "y": 1031,
-        "width": 160,
-        "height": 153,
         "cleanup": {
           "x": 1458,
           "y": 992,
@@ -363,32 +314,22 @@
         },
         "anchorX": 0.4062,
         "anchorY": 0.3399,
-        "technique": "gpt-image-2.5-sunburst-low-visible-only",
-        "regen": {
-          "pass": "crop2",
-          "score": 0.7723,
-          "pop": 14.6
-        },
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 14.5,
-          "dx": -1,
-          "dy": 0
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_12",
+      "id": "4df67cb2-af57-56f0-bb70-63aab5a9b79c",
+      "compatibilitySlot": "dog_12",
       "x": 1635,
       "y": 1364,
       "r": 57,
       "sprite": {
         "image": "levels/nordic_cold_bergen_harbor_bird_d303/dogs/dog_12/sprite_000.png",
+        "height": 140,
+        "width": 170,
         "x": 1582,
         "y": 1324,
-        "width": 170,
-        "height": 140,
         "cleanup": {
           "x": 1597,
           "y": 1269,
@@ -397,26 +338,22 @@
         },
         "anchorX": 0.6941,
         "anchorY": 0.4857,
-        "refit": {
-          "scale": 0.75,
-          "ratio": 1.0,
-          "pop": 23.4,
-          "dx": -64,
-          "dy": -28
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_13",
+      "id": "b1d13024-f85a-5237-bf40-0b8748ee69b2",
+      "compatibilitySlot": "dog_13",
       "x": 1826,
       "y": 895,
       "r": 57,
       "sprite": {
         "image": "levels/nordic_cold_bergen_harbor_bird_d303/dogs/dog_13/sprite_000.png",
+        "height": 156,
+        "width": 136,
         "x": 1784,
         "y": 839,
-        "width": 136,
-        "height": 156,
         "cleanup": {
           "x": 1686,
           "y": 749,
@@ -425,32 +362,22 @@
         },
         "anchorX": 0.2941,
         "anchorY": 0.391,
-        "technique": "gpt-image-2.5-sunburst-low-visible-only",
-        "regen": {
-          "pass": "crop2",
-          "score": 0.6492,
-          "pop": 48.1
-        },
-        "refit": {
-          "scale": 1.0,
-          "ratio": 0.9,
-          "pop": 29.7,
-          "dx": 1,
-          "dy": -4
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_14",
+      "id": "cd5cd36f-c51f-56f0-9bb9-d3dee2e838ae",
+      "compatibilitySlot": "dog_14",
       "x": 2007,
       "y": 969,
       "r": 57,
       "sprite": {
         "image": "levels/nordic_cold_bergen_harbor_bird_d303/dogs/dog_14/sprite_000.png",
+        "height": 147,
+        "width": 171,
         "x": 1945,
         "y": 900,
-        "width": 171,
-        "height": 147,
         "cleanup": {
           "x": 1759,
           "y": 956,
@@ -459,32 +386,22 @@
         },
         "anchorX": 0.345,
         "anchorY": 0.449,
-        "technique": "gpt-image-2.5-sunburst-low-visible-only",
-        "regen": {
-          "pass": "crop2",
-          "score": 0.8065,
-          "pop": 30.3
-        },
-        "refit": {
-          "scale": 0.95,
-          "ratio": 1.0,
-          "pop": 28.9,
-          "dx": 2,
-          "dy": 3
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_15",
+      "id": "1ea3ba49-b8d6-596b-90ff-e1718f4fef53",
+      "compatibilitySlot": "dog_15",
       "x": 2082,
       "y": 587,
       "r": 57,
       "sprite": {
         "image": "levels/nordic_cold_bergen_harbor_bird_d303/dogs/dog_15/sprite_000.png",
+        "height": 131,
+        "width": 154,
         "x": 2004,
         "y": 517,
-        "width": 154,
-        "height": 131,
         "cleanup": {
           "x": 1935,
           "y": 448,
@@ -493,32 +410,22 @@
         },
         "anchorX": 0.5195,
         "anchorY": 0.542,
-        "technique": "gpt-image-2.5-sunburst-low-visible-only",
-        "regen": {
-          "pass": "crop",
-          "score": 0.8734,
-          "pop": 25.9
-        },
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 20.1,
-          "dx": -1,
-          "dy": 0
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_16",
+      "id": "9d7f10dc-a803-556d-9b35-61a80277340c",
+      "compatibilitySlot": "dog_16",
       "x": 1490,
       "y": 1602,
       "r": 57,
       "sprite": {
         "image": "levels/nordic_cold_bergen_harbor_bird_d303/dogs/dog_16/sprite_000.png",
+        "height": 211,
+        "width": 103,
         "x": 1440,
         "y": 1505,
-        "width": 103,
-        "height": 211,
         "cleanup": {
           "x": 1300,
           "y": 1501,
@@ -527,26 +434,22 @@
         },
         "anchorX": 0.466,
         "anchorY": 0.4218,
-        "refit": {
-          "scale": 0.95,
-          "ratio": 1.0,
-          "pop": 27.1,
-          "dx": 2,
-          "dy": 7
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_17",
+      "id": "54d13923-8227-5aa3-b255-5b13a7695b51",
+      "compatibilitySlot": "dog_17",
       "x": 1800,
       "y": 1743,
       "r": 57,
       "sprite": {
         "image": "levels/nordic_cold_bergen_harbor_bird_d303/dogs/dog_17/sprite_000.png",
+        "height": 145,
+        "width": 199,
         "x": 1704,
         "y": 1670,
-        "width": 199,
-        "height": 145,
         "cleanup": {
           "x": 1641,
           "y": 1577,
@@ -555,26 +458,22 @@
         },
         "anchorX": 0.4271,
         "anchorY": 0.4483,
-        "refit": {
-          "scale": 0.9,
-          "ratio": 1.0,
-          "pop": 19.9,
-          "dx": 11,
-          "dy": 7
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_18",
+      "id": "6a3e43f2-a031-5375-a66c-dcdaae2de162",
+      "compatibilitySlot": "dog_18",
       "x": 2070,
       "y": 1613,
       "r": 57,
       "sprite": {
         "image": "levels/nordic_cold_bergen_harbor_bird_d303/dogs/dog_18/sprite_000.png",
+        "height": 147,
+        "width": 162,
         "x": 1972,
         "y": 1547,
-        "width": 162,
-        "height": 147,
         "cleanup": {
           "x": 1952,
           "y": 1408,
@@ -583,26 +482,22 @@
         },
         "anchorX": 0.5864,
         "anchorY": 0.4558,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 0.95,
-          "pop": 26.3,
-          "dx": 3,
-          "dy": -1
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_19",
+      "id": "be4e657d-2116-5f1d-9d13-e80afc65c9e5",
+      "compatibilitySlot": "dog_19",
       "x": 2076,
       "y": 2033,
       "r": 57,
       "sprite": {
         "image": "levels/nordic_cold_bergen_harbor_bird_d303/dogs/dog_19/sprite_000.png",
+        "height": 170,
+        "width": 150,
         "x": 2007,
         "y": 1965,
-        "width": 150,
-        "height": 170,
         "cleanup": {
           "x": 1930,
           "y": 1914,
@@ -611,26 +506,22 @@
         },
         "anchorX": 0.3467,
         "anchorY": 0.3941,
-        "refit": {
-          "scale": 0.8,
-          "ratio": 0.9,
-          "pop": 39.5,
-          "dx": 17,
-          "dy": 0
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_20",
+      "id": "478895bf-7dab-5524-80bf-00313871e221",
+      "compatibilitySlot": "dog_20",
       "x": 1793,
       "y": 1949,
       "r": 57,
       "sprite": {
         "image": "levels/nordic_cold_bergen_harbor_bird_d303/dogs/dog_20/sprite_000.png",
+        "height": 85,
+        "width": 91,
         "x": 1744,
         "y": 1920,
-        "width": 91,
-        "height": 85,
         "cleanup": {
           "x": 1641,
           "y": 1873,
@@ -639,32 +530,22 @@
         },
         "anchorX": 0.5495,
         "anchorY": 0.3529,
-        "technique": "gpt-image-2.5-sunburst-low-visible-only",
-        "regen": {
-          "pass": "crop",
-          "score": 0.9123,
-          "pop": 20.8
-        },
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 20.7,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_21",
+      "id": "547ab17e-fbb6-5d0f-b567-1d44efa12f4b",
+      "compatibilitySlot": "dog_21",
       "x": 1137,
       "y": 2041,
       "r": 57,
       "sprite": {
         "image": "levels/nordic_cold_bergen_harbor_bird_d303/dogs/dog_21/sprite_000.png",
+        "height": 88,
+        "width": 105,
         "x": 1073,
         "y": 1995,
-        "width": 105,
-        "height": 88,
         "cleanup": {
           "x": 934,
           "y": 1911,
@@ -673,19 +554,8 @@
         },
         "anchorX": 0.619,
         "anchorY": 0.5341,
-        "technique": "gpt-image-2.5-sunburst-low-visible-only",
-        "regen": {
-          "pass": "crop",
-          "score": 0.9587,
-          "pop": 17.3
-        },
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 18.2,
-          "dx": -1,
-          "dy": -1
-        }
+        "flipX": false,
+        "flipY": false
       }
     }
   ]

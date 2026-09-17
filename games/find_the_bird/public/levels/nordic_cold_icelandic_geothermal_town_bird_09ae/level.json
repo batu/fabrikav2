@@ -4,7 +4,7 @@
   "width": 2688,
   "height": 2688,
   "colorImage": "levels/nordic_cold_icelandic_geothermal_town_bird_09ae/color.png",
-  "artifactRevision": "sha256:a4ebbd20448cbf72550b927c8c4eb0a269233ce9b301116e60938074fd0e3a76",
+  "artifactRevision": "sha256:a67fbaaab674ed7b7bfdbd090e8f7d3fb3f5ccd28e04256e4d7611592f0161e9",
   "compatibilityAliases": {
     "dog_00": "b863c553-081f-4faf-890d-60e5e81fd497",
     "dog_07": "8fdac34b-36b5-418d-81e3-fbfb744798f0",
@@ -22,7 +22,8 @@
     "dog_30": "012db1d7-f3e6-4c6c-9314-25f8ca9cc9f5",
     "dog_31": "41e09e70-1dbe-43aa-b769-a7ce5503ca06",
     "dog_32": "cfae55d8-ebc0-4d33-8702-87ae1f416179",
-    "dog_33": "30d2d125-7f73-4082-8269-5c7d39bd0160"
+    "dog_33": "30d2d125-7f73-4082-8269-5c7d39bd0160",
+    "dog_34": "a97b0803-3ad6-430b-a38d-162652956d8b"
   },
   "dogs": [
     {
@@ -46,14 +47,7 @@
         "anchorX": 0.4096,
         "anchorY": 0.4628,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 15.4,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipY": false
       }
     },
     {
@@ -77,21 +71,7 @@
         "anchorX": 0.5704,
         "anchorY": 0.4052,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 18.4,
-          "dx": 0,
-          "dy": 0
-        },
-        "regen": {
-          "pass": "crop2",
-          "score": 0.932,
-          "pop": 18.3,
-          "why": "T3"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -115,14 +95,7 @@
         "anchorX": 0.5182,
         "anchorY": 0.7222,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 23.8,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipY": false
       }
     },
     {
@@ -146,21 +119,7 @@
         "anchorX": 0.6161,
         "anchorY": 0.5207,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 13.8,
-          "dx": 0,
-          "dy": 0
-        },
-        "regen": {
-          "pass": "crop",
-          "score": 0.9384,
-          "pop": 13.2,
-          "why": "T3"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -184,14 +143,7 @@
         "anchorX": 0.4253,
         "anchorY": 0.5597,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.05,
-          "pop": 34.9,
-          "dx": -2,
-          "dy": 1
-        }
+        "flipY": false
       }
     },
     {
@@ -215,14 +167,7 @@
         "anchorX": 0.5446,
         "anchorY": 0.3193,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 18.7,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipY": false
       }
     },
     {
@@ -246,14 +191,7 @@
         "anchorX": 0.41,
         "anchorY": 0.6803,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 13.4,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipY": false
       }
     },
     {
@@ -277,21 +215,7 @@
         "anchorX": 0.5698,
         "anchorY": 0.497,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 17.3,
-          "dx": 0,
-          "dy": 0
-        },
-        "regen": {
-          "pass": "crop2",
-          "score": 0.9639,
-          "pop": 17.2,
-          "why": "T3+refit refused"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -315,21 +239,7 @@
         "anchorX": 0.2836,
         "anchorY": 0.6127,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 0.95,
-          "pop": 24.7,
-          "dx": 1,
-          "dy": -1
-        },
-        "regen": {
-          "pass": "crop2",
-          "score": 0.9063,
-          "pop": 23.7,
-          "why": "T3"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -353,14 +263,7 @@
         "anchorX": 0.4608,
         "anchorY": 0.5595,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 0.0,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipY": false
       }
     },
     {
@@ -384,21 +287,7 @@
         "anchorX": 0.5059,
         "anchorY": 0.575,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.25,
-          "ratio": 1.0,
-          "pop": 24.3,
-          "dx": -12,
-          "dy": -28
-        },
-        "regen": {
-          "pass": "crop2",
-          "score": 0.505,
-          "pop": 60.3,
-          "why": "T4"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -422,14 +311,7 @@
         "anchorX": 0.6419,
         "anchorY": 0.7532,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 15.5,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipY": false
       }
     },
     {
@@ -453,14 +335,7 @@
         "anchorX": 0.7632,
         "anchorY": 0.3933,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 23.5,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipY": false
       }
     },
     {
@@ -484,21 +359,7 @@
         "anchorX": 0.4628,
         "anchorY": 0.6446,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 30.9,
-          "dx": 0,
-          "dy": 0
-        },
-        "regen": {
-          "pass": "crop2",
-          "score": 0.8597,
-          "pop": 29.5,
-          "why": "T3+refit refused"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -522,21 +383,7 @@
         "anchorX": 0.3224,
         "anchorY": 0.5714,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 19.4,
-          "dx": 0,
-          "dy": 0
-        },
-        "regen": {
-          "pass": "crop2",
-          "score": 0.8538,
-          "pop": 18.3,
-          "why": "T3+refit refused"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -560,14 +407,7 @@
         "anchorX": 0.4828,
         "anchorY": 0.6759,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 0.95,
-          "pop": 22.0,
-          "dx": 3,
-          "dy": -1
-        }
+        "flipY": false
       }
     },
     {
@@ -591,28 +431,21 @@
         "anchorX": 0.5187,
         "anchorY": 0.505,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 17.2,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipY": false
       }
     },
     {
       "id": "a97b0803-3ad6-430b-a38d-162652956d8b",
-      "compatibilitySlot": "dog_added_01",
+      "compatibilitySlot": "dog_34",
       "x": 1037,
       "y": 1046,
       "r": 57,
       "sprite": {
-        "image": "levels/nordic_cold_icelandic_geothermal_town_bird_09ae/dogs/dog_added_01/sprite_000.png",
+        "image": "levels/nordic_cold_icelandic_geothermal_town_bird_09ae/dogs/dog_34/sprite_000.png",
+        "height": 74,
+        "width": 60,
         "x": 1017,
         "y": 1028,
-        "width": 60,
-        "height": 74,
         "cleanup": {
           "x": 980,
           "y": 989,
@@ -622,14 +455,7 @@
         "anchorX": 0.3333,
         "anchorY": 0.2432,
         "flipX": false,
-        "flipY": false,
-        "technique": "gpt-image-2.5-sunburst-low-visible-only",
-        "regen": {
-          "pass": "manual-add",
-          "score": 0.8983,
-          "pop": 15.7,
-          "why": "added by Batu"
-        }
+        "flipY": false
       }
     }
   ]

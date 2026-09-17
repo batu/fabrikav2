@@ -1,22 +1,44 @@
 {
   "id": "cozy_interiors_cozy_potting_shed_garden_bird_bd9a",
-  "name": "Level cozy_interiors_cozy_potting_shed_garden_bird_bd9a (clean_old_cartoon)",
+  "name": "Level cozy_interiors_cozy_potting_shed_garden_bird_bd9a",
   "width": 2688,
   "height": 2688,
-  "bwImage": "levels/cozy_interiors_cozy_potting_shed_garden_bird_bd9a/bw.png",
   "colorImage": "levels/cozy_interiors_cozy_potting_shed_garden_bird_bd9a/color.png",
+  "artifactRevision": "sha256:d96f4c53db5ddd1d1f97f6bb3b64495caba4b5ff1e6c19a184e4520c65ea9d26",
+  "compatibilityAliases": {
+    "dog_00": "79125822-1c6c-5379-87a3-9e613ae4506b",
+    "dog_01": "4f84fa13-d07a-5b36-bfaf-3b3b26f0751c",
+    "dog_02": "842160e4-e6f1-5223-8a06-bcb2fbd1e793",
+    "dog_03": "14ae00c9-07f1-52ca-9478-b417eb93bd0c",
+    "dog_04": "b1e5c3ae-27f4-5213-9af3-99d91c2e0f09",
+    "dog_05": "3e45e07d-0a4f-563e-88ae-1afe8d3d8461",
+    "dog_06": "7e8a4140-590e-5468-85e0-c531769c9534",
+    "dog_07": "4327c079-13f8-5cd0-8518-c8142e3070ea",
+    "dog_08": "c491cfa2-eaa4-5b58-ab03-b6bd5277aa6b",
+    "dog_09": "804e9612-2038-5051-9cda-c3a4a9b0e11d",
+    "dog_10": "50466fc4-1ec6-5f4b-bc41-66c6e73e177c",
+    "dog_11": "0092a939-f29e-5678-a2d5-be5b74d737bd",
+    "dog_12": "272e0a96-26a7-5904-b004-b4e6d64c8d89",
+    "dog_13": "3ba7caee-91f1-5202-95ea-0fd8413566ad",
+    "dog_14": "5812e969-8b6c-5a31-bef7-31aaef759b29",
+    "dog_15": "3dfcf697-365c-50f0-aac8-8525a2dce4ad",
+    "dog_16": "7fc84a46-ca5e-52d9-97fc-fba58298dcad",
+    "dog_17": "8ffa37bb-6288-5976-a3a5-f39c873f6b07",
+    "dog_18": "c2116136-a1c3-53bb-bd97-7f64da4a34ed"
+  },
   "dogs": [
     {
-      "id": "dog_00",
+      "id": "79125822-1c6c-5379-87a3-9e613ae4506b",
+      "compatibilitySlot": "dog_00",
       "x": 705,
       "y": 618,
       "r": 57,
       "sprite": {
         "image": "levels/cozy_interiors_cozy_potting_shed_garden_bird_bd9a/dogs/dog_00/sprite_000.png",
+        "height": 215,
+        "width": 221,
         "x": 578,
         "y": 524,
-        "width": 221,
-        "height": 215,
         "cleanup": {
           "x": 532,
           "y": 445,
@@ -25,26 +47,22 @@
         },
         "anchorX": 0.5747,
         "anchorY": 0.4372,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 20.6,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_01",
+      "id": "4f84fa13-d07a-5b36-bfaf-3b3b26f0751c",
+      "compatibilitySlot": "dog_01",
       "x": 1047,
       "y": 810,
       "r": 57,
       "sprite": {
         "image": "levels/cozy_interiors_cozy_potting_shed_garden_bird_bd9a/dogs/dog_01/sprite_000.png",
+        "height": 144,
+        "width": 178,
         "x": 935,
         "y": 749,
-        "width": 178,
-        "height": 144,
         "cleanup": {
           "x": 933,
           "y": 751,
@@ -53,26 +71,22 @@
         },
         "anchorX": 0.7135,
         "anchorY": 0.3958,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 12.2,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_02",
+      "id": "842160e4-e6f1-5223-8a06-bcb2fbd1e793",
+      "compatibilitySlot": "dog_02",
       "x": 1157,
       "y": 877,
       "r": 57,
       "sprite": {
         "image": "levels/cozy_interiors_cozy_potting_shed_garden_bird_bd9a/dogs/dog_02/sprite_000.png",
+        "height": 106,
+        "width": 111,
         "x": 1075,
         "y": 791,
-        "width": 111,
-        "height": 106,
         "cleanup": {
           "x": 1085,
           "y": 778,
@@ -81,26 +95,22 @@
         },
         "anchorX": 0.6216,
         "anchorY": 0.6509,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 30.4,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_03",
+      "id": "14ae00c9-07f1-52ca-9478-b417eb93bd0c",
+      "compatibilitySlot": "dog_03",
       "x": 672,
       "y": 992,
       "r": 57,
       "sprite": {
         "image": "levels/cozy_interiors_cozy_potting_shed_garden_bird_bd9a/dogs/dog_03/sprite_000.png",
+        "height": 184,
+        "width": 202,
         "x": 616,
         "y": 884,
-        "width": 202,
-        "height": 184,
         "cleanup": {
           "x": 503,
           "y": 827,
@@ -109,26 +119,22 @@
         },
         "anchorX": 0.2772,
         "anchorY": 0.587,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 13.0,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_04",
+      "id": "b1e5c3ae-27f4-5213-9af3-99d91c2e0f09",
+      "compatibilitySlot": "dog_04",
       "x": 1516,
       "y": 928,
       "r": 57,
       "sprite": {
         "image": "levels/cozy_interiors_cozy_potting_shed_garden_bird_bd9a/dogs/dog_04/sprite_000.png",
+        "height": 213,
+        "width": 217,
         "x": 1440,
         "y": 817,
-        "width": 217,
-        "height": 213,
         "cleanup": {
           "x": 1343,
           "y": 755,
@@ -137,26 +143,22 @@
         },
         "anchorX": 0.3548,
         "anchorY": 0.5681,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 21.4,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_05",
+      "id": "3e45e07d-0a4f-563e-88ae-1afe8d3d8461",
+      "compatibilitySlot": "dog_05",
       "x": 1021,
       "y": 1255,
       "r": 57,
       "sprite": {
         "image": "levels/cozy_interiors_cozy_potting_shed_garden_bird_bd9a/dogs/dog_05/sprite_000.png",
+        "height": 167,
+        "width": 195,
         "x": 943,
         "y": 1175,
-        "width": 195,
-        "height": 167,
         "cleanup": {
           "x": 911,
           "y": 1082,
@@ -165,26 +167,22 @@
         },
         "anchorX": 0.4462,
         "anchorY": 0.5329,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 12.6,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_06",
+      "id": "7e8a4140-590e-5468-85e0-c531769c9534",
+      "compatibilitySlot": "dog_06",
       "x": 774,
       "y": 1381,
       "r": 57,
       "sprite": {
         "image": "levels/cozy_interiors_cozy_potting_shed_garden_bird_bd9a/dogs/dog_06/sprite_000.png",
+        "height": 193,
+        "width": 227,
         "x": 641,
         "y": 1266,
-        "width": 227,
-        "height": 193,
         "cleanup": {
           "x": 601,
           "y": 1208,
@@ -193,26 +191,22 @@
         },
         "anchorX": 0.5551,
         "anchorY": 0.5492,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 24.0,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_07",
+      "id": "4327c079-13f8-5cd0-8518-c8142e3070ea",
+      "compatibilitySlot": "dog_07",
       "x": 962,
       "y": 1461,
       "r": 57,
       "sprite": {
         "image": "levels/cozy_interiors_cozy_potting_shed_garden_bird_bd9a/dogs/dog_07/sprite_000.png",
+        "height": 114,
+        "width": 98,
         "x": 914,
         "y": 1413,
-        "width": 98,
-        "height": 114,
         "cleanup": {
           "x": 898,
           "y": 1402,
@@ -221,32 +215,22 @@
         },
         "anchorX": 0.5102,
         "anchorY": 0.4298,
-        "technique": "gpt-image-2.5-sunburst-low-visible-only",
-        "regen": {
-          "pass": "crop",
-          "score": 0.9605,
-          "pop": 13.5
-        },
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 13.9,
-          "dx": -1,
-          "dy": 0
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_08",
+      "id": "c491cfa2-eaa4-5b58-ab03-b6bd5277aa6b",
+      "compatibilitySlot": "dog_08",
       "x": 1250,
       "y": 1585,
       "r": 57,
       "sprite": {
         "image": "levels/cozy_interiors_cozy_potting_shed_garden_bird_bd9a/dogs/dog_08/sprite_000.png",
+        "height": 136,
+        "width": 210,
         "x": 1171,
         "y": 1523,
-        "width": 210,
-        "height": 136,
         "cleanup": {
           "x": 1170,
           "y": 1506,
@@ -255,26 +239,22 @@
         },
         "anchorX": 0.3429,
         "anchorY": 0.4632,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 21.6,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_09",
+      "id": "804e9612-2038-5051-9cda-c3a4a9b0e11d",
+      "compatibilitySlot": "dog_09",
       "x": 603,
       "y": 1578,
       "r": 57,
       "sprite": {
         "image": "levels/cozy_interiors_cozy_potting_shed_garden_bird_bd9a/dogs/dog_09/sprite_000.png",
+        "height": 155,
+        "width": 209,
         "x": 456,
         "y": 1470,
-        "width": 209,
-        "height": 155,
         "cleanup": {
           "x": 430,
           "y": 1480,
@@ -283,26 +263,22 @@
         },
         "anchorX": 0.6603,
         "anchorY": 0.671,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 17.2,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_10",
+      "id": "50466fc4-1ec6-5f4b-bc41-66c6e73e177c",
+      "compatibilitySlot": "dog_10",
       "x": 752,
       "y": 1815,
       "r": 57,
       "sprite": {
         "image": "levels/cozy_interiors_cozy_potting_shed_garden_bird_bd9a/dogs/dog_10/sprite_000.png",
+        "height": 150,
+        "width": 169,
         "x": 668,
         "y": 1742,
-        "width": 169,
-        "height": 150,
         "cleanup": {
           "x": 579,
           "y": 1697,
@@ -311,26 +287,22 @@
         },
         "anchorX": 0.4734,
         "anchorY": 0.5067,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 15.8,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_11",
+      "id": "0092a939-f29e-5678-a2d5-be5b74d737bd",
+      "compatibilitySlot": "dog_11",
       "x": 1164,
       "y": 1790,
       "r": 57,
       "sprite": {
         "image": "levels/cozy_interiors_cozy_potting_shed_garden_bird_bd9a/dogs/dog_11/sprite_000.png",
+        "height": 179,
+        "width": 202,
         "x": 1097,
         "y": 1689,
-        "width": 202,
-        "height": 179,
         "cleanup": {
           "x": 991,
           "y": 1703,
@@ -339,26 +311,22 @@
         },
         "anchorX": 0.3317,
         "anchorY": 0.5642,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 16.1,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_12",
+      "id": "272e0a96-26a7-5904-b004-b4e6d64c8d89",
+      "compatibilitySlot": "dog_12",
       "x": 1375,
       "y": 1725,
       "r": 57,
       "sprite": {
         "image": "levels/cozy_interiors_cozy_potting_shed_garden_bird_bd9a/dogs/dog_12/sprite_000.png",
+        "height": 137,
+        "width": 204,
         "x": 1280,
         "y": 1664,
-        "width": 204,
-        "height": 137,
         "cleanup": {
           "x": 1274,
           "y": 1654,
@@ -367,26 +335,22 @@
         },
         "anchorX": 0.4657,
         "anchorY": 0.4453,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 17.3,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_13",
+      "id": "3ba7caee-91f1-5202-95ea-0fd8413566ad",
+      "compatibilitySlot": "dog_13",
       "x": 542,
       "y": 2341,
       "r": 57,
       "sprite": {
         "image": "levels/cozy_interiors_cozy_potting_shed_garden_bird_bd9a/dogs/dog_13/sprite_000.png",
+        "height": 162,
+        "width": 252,
         "x": 415,
         "y": 2263,
-        "width": 252,
-        "height": 162,
         "cleanup": {
           "x": 369,
           "y": 2214,
@@ -395,26 +359,22 @@
         },
         "anchorX": 0.5079,
         "anchorY": 0.4877,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 20.8,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_14",
+      "id": "5812e969-8b6c-5a31-bef7-31aaef759b29",
+      "compatibilitySlot": "dog_14",
       "x": 1313,
       "y": 2264,
       "r": 57,
       "sprite": {
         "image": "levels/cozy_interiors_cozy_potting_shed_garden_bird_bd9a/dogs/dog_14/sprite_000.png",
+        "height": 244,
+        "width": 167,
         "x": 1243,
         "y": 2142,
-        "width": 167,
-        "height": 244,
         "cleanup": {
           "x": 1169,
           "y": 2129,
@@ -423,26 +383,22 @@
         },
         "anchorX": 0.4192,
         "anchorY": 0.5,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 10.6,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_15",
+      "id": "3dfcf697-365c-50f0-aac8-8525a2dce4ad",
+      "compatibilitySlot": "dog_15",
       "x": 1495,
       "y": 1295,
       "r": 57,
       "sprite": {
         "image": "levels/cozy_interiors_cozy_potting_shed_garden_bird_bd9a/dogs/dog_15/sprite_000.png",
+        "height": 47,
+        "width": 86,
         "x": 1425,
         "y": 1243,
-        "width": 86,
-        "height": 47,
         "cleanup": {
           "x": 1338,
           "y": 1138,
@@ -451,26 +407,22 @@
         },
         "anchorX": 0.6279,
         "anchorY": 0.2553,
-        "refit": {
-          "scale": 0.9,
-          "ratio": 1.15,
-          "pop": 34.7,
-          "dx": 1,
-          "dy": 7
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_16",
+      "id": "7fc84a46-ca5e-52d9-97fc-fba58298dcad",
+      "compatibilitySlot": "dog_16",
       "x": 1663,
       "y": 1403,
       "r": 57,
       "sprite": {
         "image": "levels/cozy_interiors_cozy_potting_shed_garden_bird_bd9a/dogs/dog_16/sprite_000.png",
+        "height": 129,
+        "width": 136,
         "x": 1581,
         "y": 1327,
-        "width": 136,
-        "height": 129,
         "cleanup": {
           "x": 1568,
           "y": 1269,
@@ -479,32 +431,22 @@
         },
         "anchorX": 0.6176,
         "anchorY": 0.5969,
-        "technique": "gpt-image-2.5-sunburst-low-visible-only",
-        "regen": {
-          "pass": "crop",
-          "score": 0.9525,
-          "pop": 18.1
-        },
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 24.3,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_17",
+      "id": "8ffa37bb-6288-5976-a3a5-f39c873f6b07",
+      "compatibilitySlot": "dog_17",
       "x": 2032,
       "y": 1025,
       "r": 57,
       "sprite": {
         "image": "levels/cozy_interiors_cozy_potting_shed_garden_bird_bd9a/dogs/dog_17/sprite_000.png",
+        "height": 145,
+        "width": 134,
         "x": 1955,
         "y": 957,
-        "width": 134,
-        "height": 145,
         "cleanup": {
           "x": 1917,
           "y": 947,
@@ -513,26 +455,22 @@
         },
         "anchorX": 0.5448,
         "anchorY": 0.4483,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 22.2,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_18",
+      "id": "c2116136-a1c3-53bb-bd97-7f64da4a34ed",
+      "compatibilitySlot": "dog_18",
       "x": 2124,
       "y": 1275,
       "r": 57,
       "sprite": {
         "image": "levels/cozy_interiors_cozy_potting_shed_garden_bird_bd9a/dogs/dog_18/sprite_000.png",
+        "height": 117,
+        "width": 70,
         "x": 2089,
         "y": 1213,
-        "width": 70,
-        "height": 117,
         "cleanup": {
           "x": 2013,
           "y": 1168,
@@ -541,19 +479,8 @@
         },
         "anchorX": 0.5,
         "anchorY": 0.547,
-        "technique": "gpt-image-2.5-sunburst-low-visible-only",
-        "regen": {
-          "pass": "crop",
-          "score": 0.9024,
-          "pop": 14.6
-        },
-        "refit": {
-          "scale": 1.0,
-          "ratio": 0.95,
-          "pop": 14.1,
-          "dx": 0,
-          "dy": -1
-        }
+        "flipX": false,
+        "flipY": false
       }
     }
   ]

@@ -1,22 +1,47 @@
 {
   "id": "hawaii_north_shore_surf_shack_bird_4fc5",
-  "name": "Level hawaii_north_shore_surf_shack_bird_4fc5 (clean_old_cartoon)",
+  "name": "Level hawaii_north_shore_surf_shack_bird_4fc5",
   "width": 2688,
   "height": 2688,
-  "bwImage": "levels/hawaii_north_shore_surf_shack_bird_4fc5/bw.png",
   "colorImage": "levels/hawaii_north_shore_surf_shack_bird_4fc5/color.png",
+  "artifactRevision": "sha256:f611d787c4200a9fbf1bfa599afbd78a41a4165d645c02563c2f4a838fb1b07c",
+  "compatibilityAliases": {
+    "dog_00": "4de68a70-f0a9-54db-92eb-2faa2841d56d",
+    "dog_01": "0300bb60-d30b-5993-a5da-71f3796304cd",
+    "dog_02": "0227ccc1-e2f4-5289-a5c2-e2cfe69717b0",
+    "dog_03": "bc28709b-ca4a-5476-b6c6-798928b069ab",
+    "dog_04": "e0219e25-0022-5c28-9cae-a3d690802614",
+    "dog_05": "2c39463d-568b-534e-ac85-8c2716f011d7",
+    "dog_06": "22c14d19-b504-516e-b6f6-211e185c32b0",
+    "dog_07": "b82c1ae4-1bb4-539f-ba9c-596f8fbed427",
+    "dog_08": "8795cc60-8c48-5a55-9792-90f20d578eda",
+    "dog_09": "775ddb8a-5f79-5058-9905-84840458d3ba",
+    "dog_10": "4db39422-f797-51d8-a796-9958293ba569",
+    "dog_11": "03d3d945-ac9d-55a6-9496-fc844b2ddc16",
+    "dog_12": "d4c7612e-7228-5e09-ada8-f77e77fdb716",
+    "dog_22": "27036933-2c56-4238-8d2c-de6dc41f6212",
+    "dog_14": "9f56b837-d800-5feb-8afd-2d3ddd2ce697",
+    "dog_15": "6194c75c-762a-5ebf-8dde-047f4ab562c9",
+    "dog_16": "d40e52ed-9f62-5542-8799-5d98b2e44787",
+    "dog_17": "b9e9f2e8-f3d6-5619-bb6b-3fbb573ea1ef",
+    "dog_18": "5b426f30-5320-5050-b5e5-ca1bb7f52ed8",
+    "dog_19": "daf2ccfe-6be1-5f11-836c-d75ca1417e64",
+    "dog_20": "21164639-0a11-5d0e-a811-50c725171c4c",
+    "dog_21": "e3c69b2c-8818-513d-966c-2fbc0e07fe48"
+  },
   "dogs": [
     {
-      "id": "dog_00",
+      "id": "4de68a70-f0a9-54db-92eb-2faa2841d56d",
+      "compatibilitySlot": "dog_00",
       "x": 1686,
       "y": 521,
       "r": 57,
       "sprite": {
         "image": "levels/hawaii_north_shore_surf_shack_bird_4fc5/dogs/dog_00/sprite_000.png",
+        "height": 93,
+        "width": 109,
         "x": 1609,
         "y": 471,
-        "width": 109,
-        "height": 93,
         "cleanup": {
           "x": 1550,
           "y": 415,
@@ -25,32 +50,22 @@
         },
         "anchorX": 0.7248,
         "anchorY": 0.5484,
-        "technique": "gpt-image-2.5-sunburst-low-visible-only",
-        "regen": {
-          "pass": "crop",
-          "score": 0.8711,
-          "pop": 24.9
-        },
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 22.7,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_01",
+      "id": "0300bb60-d30b-5993-a5da-71f3796304cd",
+      "compatibilitySlot": "dog_01",
       "x": 2255,
       "y": 613,
       "r": 57,
       "sprite": {
         "image": "levels/hawaii_north_shore_surf_shack_bird_4fc5/dogs/dog_01/sprite_000.png",
+        "height": 141,
+        "width": 161,
         "x": 2195,
         "y": 545,
-        "width": 161,
-        "height": 141,
         "cleanup": {
           "x": 2082,
           "y": 477,
@@ -59,26 +74,22 @@
         },
         "anchorX": 0.3913,
         "anchorY": 0.5248,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 24.1,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_02",
+      "id": "0227ccc1-e2f4-5289-a5c2-e2cfe69717b0",
+      "compatibilitySlot": "dog_02",
       "x": 475,
       "y": 575,
       "r": 57,
       "sprite": {
         "image": "levels/hawaii_north_shore_surf_shack_bird_4fc5/dogs/dog_02/sprite_000.png",
+        "height": 104,
+        "width": 132,
         "x": 394,
         "y": 519,
-        "width": 132,
-        "height": 104,
         "cleanup": {
           "x": 316,
           "y": 434,
@@ -87,26 +98,22 @@
         },
         "anchorX": 0.5,
         "anchorY": 0.4231,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 0.95,
-          "pop": 34.3,
-          "dx": 1,
-          "dy": -1
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_03",
+      "id": "bc28709b-ca4a-5476-b6c6-798928b069ab",
+      "compatibilitySlot": "dog_03",
       "x": 461,
       "y": 852,
       "r": 57,
       "sprite": {
         "image": "levels/hawaii_north_shore_surf_shack_bird_4fc5/dogs/dog_03/sprite_000.png",
+        "height": 188,
+        "width": 169,
         "x": 363,
         "y": 757,
-        "width": 169,
-        "height": 188,
         "cleanup": {
           "x": 312,
           "y": 730,
@@ -115,26 +122,22 @@
         },
         "anchorX": 0.5799,
         "anchorY": 0.5053,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 29.6,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_04",
+      "id": "e0219e25-0022-5c28-9cae-a3d690802614",
+      "compatibilitySlot": "dog_04",
       "x": 808,
       "y": 1000,
       "r": 57,
       "sprite": {
         "image": "levels/hawaii_north_shore_surf_shack_bird_4fc5/dogs/dog_04/sprite_000.png",
+        "height": 192,
+        "width": 186,
         "x": 703,
         "y": 886,
-        "width": 186,
-        "height": 192,
         "cleanup": {
           "x": 630,
           "y": 802,
@@ -143,26 +146,22 @@
         },
         "anchorX": 0.5645,
         "anchorY": 0.5938,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 24.2,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_05",
+      "id": "2c39463d-568b-534e-ac85-8c2716f011d7",
+      "compatibilitySlot": "dog_05",
       "x": 1105,
       "y": 879,
       "r": 57,
       "sprite": {
         "image": "levels/hawaii_north_shore_surf_shack_bird_4fc5/dogs/dog_05/sprite_000.png",
+        "height": 270,
+        "width": 193,
         "x": 1032,
         "y": 820,
-        "width": 193,
-        "height": 270,
         "cleanup": {
           "x": 957,
           "y": 774,
@@ -171,26 +170,22 @@
         },
         "anchorX": 0.6218,
         "anchorY": 0.2815,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 34.1,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_06",
+      "id": "22c14d19-b504-516e-b6f6-211e185c32b0",
+      "compatibilitySlot": "dog_06",
       "x": 1562,
       "y": 837,
       "r": 57,
       "sprite": {
         "image": "levels/hawaii_north_shore_surf_shack_bird_4fc5/dogs/dog_06/sprite_000.png",
+        "height": 154,
+        "width": 154,
         "x": 1492,
         "y": 772,
-        "width": 154,
-        "height": 154,
         "cleanup": {
           "x": 1389,
           "y": 664,
@@ -199,26 +194,22 @@
         },
         "anchorX": 0.4481,
         "anchorY": 0.4351,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 32.2,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_07",
+      "id": "b82c1ae4-1bb4-539f-ba9c-596f8fbed427",
+      "compatibilitySlot": "dog_07",
       "x": 1088,
       "y": 1124,
       "r": 57,
       "sprite": {
         "image": "levels/hawaii_north_shore_surf_shack_bird_4fc5/dogs/dog_07/sprite_000.png",
+        "height": 209,
+        "width": 281,
         "x": 1010,
         "y": 1048,
-        "width": 281,
-        "height": 209,
         "cleanup": {
           "x": 956,
           "y": 1036,
@@ -227,26 +218,22 @@
         },
         "anchorX": 0.4413,
         "anchorY": 0.5024,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 19.1,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_08",
+      "id": "8795cc60-8c48-5a55-9792-90f20d578eda",
+      "compatibilitySlot": "dog_08",
       "x": 1322,
       "y": 1291,
       "r": 57,
       "sprite": {
         "image": "levels/hawaii_north_shore_surf_shack_bird_4fc5/dogs/dog_08/sprite_000.png",
+        "height": 128,
+        "width": 181,
         "x": 1231,
         "y": 1236,
-        "width": 181,
-        "height": 128,
         "cleanup": {
           "x": 1250,
           "y": 1114,
@@ -255,32 +242,22 @@
         },
         "anchorX": 0.5083,
         "anchorY": 0.4375,
-        "technique": "gpt-image-2.5-sunburst-low-visible-only",
-        "regen": {
-          "pass": "crop",
-          "score": 0.9146,
-          "pop": 20.2
-        },
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 20.6,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_09",
+      "id": "775ddb8a-5f79-5058-9905-84840458d3ba",
+      "compatibilitySlot": "dog_09",
       "x": 1248,
       "y": 1538,
       "r": 57,
       "sprite": {
         "image": "levels/hawaii_north_shore_surf_shack_bird_4fc5/dogs/dog_09/sprite_000.png",
+        "height": 180,
+        "width": 151,
         "x": 1159,
         "y": 1427,
-        "width": 151,
-        "height": 180,
         "cleanup": {
           "x": 1095,
           "y": 1421,
@@ -289,32 +266,22 @@
         },
         "anchorX": 0.5894,
         "anchorY": 0.6111,
-        "technique": "gpt-image-2.5-sunburst-low-visible-only",
-        "regen": {
-          "pass": "crop2",
-          "score": 0.8769,
-          "pop": 31.1
-        },
-        "refit": {
-          "scale": 1.05,
-          "ratio": 1.05,
-          "pop": 27.5,
-          "dx": -7,
-          "dy": -2
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_10",
+      "id": "4db39422-f797-51d8-a796-9958293ba569",
+      "compatibilitySlot": "dog_10",
       "x": 2071,
       "y": 1238,
       "r": 57,
       "sprite": {
         "image": "levels/hawaii_north_shore_surf_shack_bird_4fc5/dogs/dog_10/sprite_000.png",
+        "height": 113,
+        "width": 89,
         "x": 2009,
         "y": 1187,
-        "width": 89,
-        "height": 113,
         "cleanup": {
           "x": 1900,
           "y": 1193,
@@ -323,32 +290,22 @@
         },
         "anchorX": 0.7079,
         "anchorY": 0.4602,
-        "technique": "gpt-image-2.5-sunburst-low-visible-only",
-        "regen": {
-          "pass": "crop",
-          "score": 0.917,
-          "pop": 23.7
-        },
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 19.9,
-          "dx": -1,
-          "dy": -1
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_11",
+      "id": "03d3d945-ac9d-55a6-9496-fc844b2ddc16",
+      "compatibilitySlot": "dog_11",
       "x": 2178,
       "y": 1450,
       "r": 57,
       "sprite": {
         "image": "levels/hawaii_north_shore_surf_shack_bird_4fc5/dogs/dog_11/sprite_000.png",
+        "height": 200,
+        "width": 190,
         "x": 2066,
         "y": 1343,
-        "width": 190,
-        "height": 200,
         "cleanup": {
           "x": 2129,
           "y": 1277,
@@ -357,32 +314,22 @@
         },
         "anchorX": 0.5895,
         "anchorY": 0.535,
-        "technique": "gpt-image-2.5-sunburst-low-visible-only",
-        "regen": {
-          "pass": "crop2",
-          "score": 0.8397,
-          "pop": 32.6
-        },
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 33.6,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_12",
+      "id": "d4c7612e-7228-5e09-ada8-f77e77fdb716",
+      "compatibilitySlot": "dog_12",
       "x": 458,
       "y": 1221,
       "r": 57,
       "sprite": {
         "image": "levels/hawaii_north_shore_surf_shack_bird_4fc5/dogs/dog_12/sprite_000.png",
+        "height": 213,
+        "width": 221,
         "x": 340,
         "y": 1115,
-        "width": 221,
-        "height": 213,
         "cleanup": {
           "x": 290,
           "y": 1055,
@@ -391,26 +338,22 @@
         },
         "anchorX": 0.5339,
         "anchorY": 0.4977,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 14.4,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_13",
+      "id": "27036933-2c56-4238-8d2c-de6dc41f6212",
+      "compatibilitySlot": "dog_22",
       "x": 685,
       "y": 1178,
       "r": 57,
       "sprite": {
-        "image": "levels/hawaii_north_shore_surf_shack_bird_4fc5/dogs/dog_13/sprite_000.png",
+        "image": "levels/hawaii_north_shore_surf_shack_bird_4fc5/dogs/dog_22/sprite_000.png",
+        "height": 176,
+        "width": 229,
         "x": 547,
         "y": 1130,
-        "width": 229,
-        "height": 176,
         "cleanup": {
           "x": 524,
           "y": 1106,
@@ -419,26 +362,22 @@
         },
         "anchorX": 0.6026,
         "anchorY": 0.2727,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 28.2,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_14",
+      "id": "9f56b837-d800-5feb-8afd-2d3ddd2ce697",
+      "compatibilitySlot": "dog_14",
       "x": 472,
       "y": 1812,
       "r": 57,
       "sprite": {
         "image": "levels/hawaii_north_shore_surf_shack_bird_4fc5/dogs/dog_14/sprite_000.png",
+        "height": 167,
+        "width": 199,
         "x": 366,
         "y": 1726,
-        "width": 199,
-        "height": 167,
         "cleanup": {
           "x": 299,
           "y": 1639,
@@ -447,26 +386,22 @@
         },
         "anchorX": 0.5327,
         "anchorY": 0.515,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 16.4,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_15",
+      "id": "6194c75c-762a-5ebf-8dde-047f4ab562c9",
+      "compatibilitySlot": "dog_15",
       "x": 730,
       "y": 1711,
       "r": 57,
       "sprite": {
         "image": "levels/hawaii_north_shore_surf_shack_bird_4fc5/dogs/dog_15/sprite_000.png",
+        "height": 129,
+        "width": 167,
         "x": 643,
         "y": 1657,
-        "width": 167,
-        "height": 129,
         "cleanup": {
           "x": 577,
           "y": 1567,
@@ -475,32 +410,22 @@
         },
         "anchorX": 0.5269,
         "anchorY": 0.4264,
-        "technique": "gpt-image-2.5-sunburst-low-visible-only",
-        "regen": {
-          "pass": "crop",
-          "score": 0.9385,
-          "pop": 18.6
-        },
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 18.6,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_16",
+      "id": "d40e52ed-9f62-5542-8799-5d98b2e44787",
+      "compatibilitySlot": "dog_16",
       "x": 472,
       "y": 2103,
       "r": 57,
       "sprite": {
         "image": "levels/hawaii_north_shore_surf_shack_bird_4fc5/dogs/dog_16/sprite_000.png",
+        "height": 175,
+        "width": 186,
         "x": 383,
         "y": 2001,
-        "width": 186,
-        "height": 175,
         "cleanup": {
           "x": 299,
           "y": 1958,
@@ -509,26 +434,22 @@
         },
         "anchorX": 0.4462,
         "anchorY": 0.56,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 25.8,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_17",
+      "id": "b9e9f2e8-f3d6-5619-bb6b-3fbb573ea1ef",
+      "compatibilitySlot": "dog_17",
       "x": 1428,
       "y": 1933,
       "r": 57,
       "sprite": {
         "image": "levels/hawaii_north_shore_surf_shack_bird_4fc5/dogs/dog_17/sprite_000.png",
+        "height": 221,
+        "width": 194,
         "x": 1310,
         "y": 1812,
-        "width": 194,
-        "height": 221,
         "cleanup": {
           "x": 1262,
           "y": 1765,
@@ -537,26 +458,22 @@
         },
         "anchorX": 0.6082,
         "anchorY": 0.5475,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 18.4,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_18",
+      "id": "5b426f30-5320-5050-b5e5-ca1bb7f52ed8",
+      "compatibilitySlot": "dog_18",
       "x": 1322,
       "y": 2200,
       "r": 57,
       "sprite": {
         "image": "levels/hawaii_north_shore_surf_shack_bird_4fc5/dogs/dog_18/sprite_000.png",
+        "height": 181,
+        "width": 237,
         "x": 1247,
         "y": 2132,
-        "width": 237,
-        "height": 181,
         "cleanup": {
           "x": 1149,
           "y": 2067,
@@ -565,26 +482,22 @@
         },
         "anchorX": 0.384,
         "anchorY": 0.5414,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 16.5,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_19",
+      "id": "daf2ccfe-6be1-5f11-836c-d75ca1417e64",
+      "compatibilitySlot": "dog_19",
       "x": 1714,
       "y": 1425,
       "r": 57,
       "sprite": {
         "image": "levels/hawaii_north_shore_surf_shack_bird_4fc5/dogs/dog_19/sprite_000.png",
+        "height": 291,
+        "width": 301,
         "x": 1601,
         "y": 1333,
-        "width": 301,
-        "height": 291,
         "cleanup": {
           "x": 1551,
           "y": 1286,
@@ -593,26 +506,22 @@
         },
         "anchorX": 0.515,
         "anchorY": 0.4914,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 16.7,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_20",
+      "id": "21164639-0a11-5d0e-a811-50c725171c4c",
+      "compatibilitySlot": "dog_20",
       "x": 1750,
       "y": 1957,
       "r": 57,
       "sprite": {
         "image": "levels/hawaii_north_shore_surf_shack_bird_4fc5/dogs/dog_20/sprite_000.png",
+        "height": 170,
+        "width": 250,
         "x": 1631,
         "y": 1900,
-        "width": 250,
-        "height": 170,
         "cleanup": {
           "x": 1613,
           "y": 1750,
@@ -621,26 +530,22 @@
         },
         "anchorX": 0.54,
         "anchorY": 0.4412,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 18.1,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_21",
+      "id": "e3c69b2c-8818-513d-966c-2fbc0e07fe48",
+      "compatibilitySlot": "dog_21",
       "x": 2184,
       "y": 1931,
       "r": 57,
       "sprite": {
         "image": "levels/hawaii_north_shore_surf_shack_bird_4fc5/dogs/dog_21/sprite_000.png",
+        "height": 162,
+        "width": 182,
         "x": 2124,
         "y": 1847,
-        "width": 182,
-        "height": 162,
         "cleanup": {
           "x": 1997,
           "y": 1765,
@@ -649,13 +554,8 @@
         },
         "anchorX": 0.3297,
         "anchorY": 0.5185,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 18.6,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipX": false,
+        "flipY": false
       }
     }
   ]

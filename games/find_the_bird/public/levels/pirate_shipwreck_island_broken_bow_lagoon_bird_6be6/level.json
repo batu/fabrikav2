@@ -1,22 +1,47 @@
 {
   "id": "pirate_shipwreck_island_broken_bow_lagoon_bird_6be6",
-  "name": "Level pirate_shipwreck_island_broken_bow_lagoon_bird_6be6 (clean_old_cartoon)",
+  "name": "Level pirate_shipwreck_island_broken_bow_lagoon_bird_6be6",
   "width": 2688,
   "height": 2688,
-  "bwImage": "levels/pirate_shipwreck_island_broken_bow_lagoon_bird_6be6/bw.png",
   "colorImage": "levels/pirate_shipwreck_island_broken_bow_lagoon_bird_6be6/color.png",
+  "artifactRevision": "sha256:3ad82063d6305cc8274d1d640e49cd1fddf07437f6d42dff67b1a63860ea0f28",
+  "compatibilityAliases": {
+    "dog_00": "ed71a0af-cda1-5569-91d1-19885b108880",
+    "dog_01": "4dcce9b9-446d-50ba-8353-52fa5702f697",
+    "dog_02": "fb5bff92-d5a8-5a0c-bfc7-ff6540cbe877",
+    "dog_03": "60c77410-bd52-5983-bc65-23af74102406",
+    "dog_04": "c0de873b-390d-5d13-9cb5-9f9fdd49a6bb",
+    "dog_05": "e8eda066-2946-52d4-adf3-495fed16c0ec",
+    "dog_06": "fcba46d0-f10e-5c89-bc2f-5629b180c970",
+    "dog_07": "0a45cef1-3e37-5278-aa92-3a26232d21cb",
+    "dog_08": "a9154ecd-1498-5cd2-9e5f-0b455fc84d1e",
+    "dog_09": "4948793d-21f2-5daa-9685-fc485dc9d279",
+    "dog_10": "d3001c40-84d0-5716-a7bf-6158e0b91a07",
+    "dog_11": "caad81b9-b161-5e44-830d-585b19d9cc3c",
+    "dog_12": "ad13d7cc-b5a0-5115-8d7d-9134ecabb9f8",
+    "dog_13": "e9da4063-adcc-58b5-8af9-e286164f80b2",
+    "dog_14": "da3a9361-dbfb-5fe6-b69e-d7f44fe06a50",
+    "dog_15": "47fadfed-d6ca-5874-9694-2d2abf0c862c",
+    "dog_16": "c225abcb-b25b-50bc-906b-54dcbb54656a",
+    "dog_17": "83a8f746-21b5-5d72-b2fb-ee72166d074e",
+    "dog_18": "312a7202-2cc5-5fa7-b3ec-ca871faf551e",
+    "dog_19": "65178390-d76a-52a9-a8ae-6e93d82df080",
+    "dog_20": "b899da26-272e-5351-a036-632f192d938f",
+    "dog_21": "25662134-20a7-52a2-9ffe-8da0d907f032"
+  },
   "dogs": [
     {
-      "id": "dog_00",
+      "id": "ed71a0af-cda1-5569-91d1-19885b108880",
+      "compatibilitySlot": "dog_00",
       "x": 525,
       "y": 662,
       "r": 57,
       "sprite": {
         "image": "levels/pirate_shipwreck_island_broken_bow_lagoon_bird_6be6/dogs/dog_00/sprite_000.png",
+        "height": 182,
+        "width": 220,
         "x": 440,
         "y": 589,
-        "width": 220,
-        "height": 182,
         "cleanup": {
           "x": 370,
           "y": 508,
@@ -25,26 +50,22 @@
         },
         "anchorX": 0.4545,
         "anchorY": 0.5549,
-        "refit": {
-          "scale": 1.3,
-          "ratio": 1.0,
-          "pop": 23.1,
-          "dx": -14,
-          "dy": -28
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_01",
+      "id": "4dcce9b9-446d-50ba-8353-52fa5702f697",
+      "compatibilitySlot": "dog_01",
       "x": 796,
       "y": 656,
       "r": 57,
       "sprite": {
         "image": "levels/pirate_shipwreck_island_broken_bow_lagoon_bird_6be6/dogs/dog_01/sprite_000.png",
+        "height": 191,
+        "width": 221,
         "x": 728,
         "y": 581,
-        "width": 221,
-        "height": 191,
         "cleanup": {
           "x": 661,
           "y": 508,
@@ -53,26 +74,22 @@
         },
         "anchorX": 0.4706,
         "anchorY": 0.5183,
-        "refit": {
-          "scale": 1.3,
-          "ratio": 1.0,
-          "pop": 29.0,
-          "dx": -36,
-          "dy": -24
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_02",
+      "id": "fb5bff92-d5a8-5a0c-bfc7-ff6540cbe877",
+      "compatibilitySlot": "dog_02",
       "x": 1077,
       "y": 591,
       "r": 57,
       "sprite": {
         "image": "levels/pirate_shipwreck_island_broken_bow_lagoon_bird_6be6/dogs/dog_02/sprite_000.png",
+        "height": 176,
+        "width": 248,
         "x": 1012,
         "y": 515,
-        "width": 248,
-        "height": 176,
         "cleanup": {
           "x": 937,
           "y": 437,
@@ -81,26 +98,22 @@
         },
         "anchorX": 0.3911,
         "anchorY": 0.625,
-        "refit": {
-          "scale": 1.4,
-          "ratio": 1.0,
-          "pop": 20.6,
-          "dx": -32,
-          "dy": -33
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_03",
+      "id": "60c77410-bd52-5983-bc65-23af74102406",
+      "compatibilitySlot": "dog_03",
       "x": 1160,
       "y": 809,
       "r": 57,
       "sprite": {
         "image": "levels/pirate_shipwreck_island_broken_bow_lagoon_bird_6be6/dogs/dog_03/sprite_000.png",
+        "height": 301,
+        "width": 291,
         "x": 1117,
         "y": 662,
-        "width": 291,
-        "height": 301,
         "cleanup": {
           "x": 1049,
           "y": 701,
@@ -109,26 +122,22 @@
         },
         "anchorX": 0.299,
         "anchorY": 0.5282,
-        "refit": {
-          "scale": 1.4,
-          "ratio": 1.0,
-          "pop": 31.5,
-          "dx": -44,
-          "dy": -12
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_04",
+      "id": "c0de873b-390d-5d13-9cb5-9f9fdd49a6bb",
+      "compatibilitySlot": "dog_04",
       "x": 600,
       "y": 1053,
       "r": 57,
       "sprite": {
         "image": "levels/pirate_shipwreck_island_broken_bow_lagoon_bird_6be6/dogs/dog_04/sprite_000.png",
+        "height": 150,
+        "width": 190,
         "x": 500,
         "y": 956,
-        "width": 190,
-        "height": 150,
         "cleanup": {
           "x": 448,
           "y": 904,
@@ -137,32 +146,22 @@
         },
         "anchorX": 0.5263,
         "anchorY": 0.6467,
-        "technique": "gpt-image-2.5-sunburst-low-visible-only",
-        "regen": {
-          "pass": "crop2",
-          "score": 0.9082,
-          "pop": 14.0
-        },
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 16.3,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_05",
+      "id": "e8eda066-2946-52d4-adf3-495fed16c0ec",
+      "compatibilitySlot": "dog_05",
       "x": 887,
       "y": 1008,
       "r": 57,
       "sprite": {
         "image": "levels/pirate_shipwreck_island_broken_bow_lagoon_bird_6be6/dogs/dog_05/sprite_000.png",
+        "height": 283,
+        "width": 274,
         "x": 763,
         "y": 926,
-        "width": 274,
-        "height": 283,
         "cleanup": {
           "x": 741,
           "y": 871,
@@ -171,26 +170,22 @@
         },
         "anchorX": 0.5803,
         "anchorY": 0.3322,
-        "refit": {
-          "scale": 1.4,
-          "ratio": 1.0,
-          "pop": 20.7,
-          "dx": -34,
-          "dy": -12
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_06",
+      "id": "fcba46d0-f10e-5c89-bc2f-5629b180c970",
+      "compatibilitySlot": "dog_06",
       "x": 938,
       "y": 1205,
       "r": 57,
       "sprite": {
         "image": "levels/pirate_shipwreck_island_broken_bow_lagoon_bird_6be6/dogs/dog_06/sprite_000.png",
+        "height": 104,
+        "width": 140,
         "x": 836,
         "y": 1148,
-        "width": 140,
-        "height": 104,
         "cleanup": {
           "x": 835,
           "y": 1125,
@@ -199,32 +194,22 @@
         },
         "anchorX": 0.7,
         "anchorY": 0.5192,
-        "technique": "gpt-image-2.5-sunburst-low-visible-only",
-        "regen": {
-          "pass": "crop2",
-          "score": 0.8407,
-          "pop": 24.6
-        },
-        "refit": {
-          "scale": 0.95,
-          "ratio": 1.0,
-          "pop": 28.4,
-          "dx": 4,
-          "dy": 2
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_07",
+      "id": "0a45cef1-3e37-5278-aa92-3a26232d21cb",
+      "compatibilitySlot": "dog_07",
       "x": 731,
       "y": 1410,
       "r": 57,
       "sprite": {
         "image": "levels/pirate_shipwreck_island_broken_bow_lagoon_bird_6be6/dogs/dog_07/sprite_000.png",
+        "height": 266,
+        "width": 346,
         "x": 614,
         "y": 1349,
-        "width": 346,
-        "height": 266,
         "cleanup": {
           "x": 558,
           "y": 1237,
@@ -233,26 +218,22 @@
         },
         "anchorX": 0.4191,
         "anchorY": 0.3947,
-        "refit": {
-          "scale": 1.4,
-          "ratio": 1.0,
-          "pop": 18.4,
-          "dx": -27,
-          "dy": -43
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_08",
+      "id": "a9154ecd-1498-5cd2-9e5f-0b455fc84d1e",
+      "compatibilitySlot": "dog_08",
       "x": 1214,
       "y": 1335,
       "r": 57,
       "sprite": {
         "image": "levels/pirate_shipwreck_island_broken_bow_lagoon_bird_6be6/dogs/dog_08/sprite_000.png",
+        "height": 328,
+        "width": 234,
         "x": 1103,
         "y": 1251,
-        "width": 234,
-        "height": 328,
         "cleanup": {
           "x": 1077,
           "y": 1162,
@@ -261,26 +242,22 @@
         },
         "anchorX": 0.594,
         "anchorY": 0.3415,
-        "refit": {
-          "scale": 1.3,
-          "ratio": 1.0,
-          "pop": 19.6,
-          "dx": -27,
-          "dy": -28
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_09",
+      "id": "4948793d-21f2-5daa-9685-fc485dc9d279",
+      "compatibilitySlot": "dog_09",
       "x": 1556,
       "y": 1060,
       "r": 57,
       "sprite": {
         "image": "levels/pirate_shipwreck_island_broken_bow_lagoon_bird_6be6/dogs/dog_09/sprite_000.png",
+        "height": 155,
+        "width": 225,
         "x": 1446,
         "y": 996,
-        "width": 225,
-        "height": 155,
         "cleanup": {
           "x": 1387,
           "y": 887,
@@ -289,26 +266,22 @@
         },
         "anchorX": 0.4889,
         "anchorY": 0.4129,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 17.6,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_10",
+      "id": "d3001c40-84d0-5716-a7bf-6158e0b91a07",
+      "compatibilitySlot": "dog_10",
       "x": 1881,
       "y": 959,
       "r": 57,
       "sprite": {
         "image": "levels/pirate_shipwreck_island_broken_bow_lagoon_bird_6be6/dogs/dog_10/sprite_000.png",
+        "height": 185,
+        "width": 221,
         "x": 1788,
         "y": 870,
-        "width": 221,
-        "height": 185,
         "cleanup": {
           "x": 1719,
           "y": 805,
@@ -317,26 +290,22 @@
         },
         "anchorX": 0.4208,
         "anchorY": 0.4811,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 16.4,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_11",
+      "id": "caad81b9-b161-5e44-830d-585b19d9cc3c",
+      "compatibilitySlot": "dog_11",
       "x": 2089,
       "y": 649,
       "r": 57,
       "sprite": {
         "image": "levels/pirate_shipwreck_island_broken_bow_lagoon_bird_6be6/dogs/dog_11/sprite_000.png",
+        "height": 177,
+        "width": 220,
         "x": 1993,
         "y": 533,
-        "width": 220,
-        "height": 177,
         "cleanup": {
           "x": 1916,
           "y": 485,
@@ -345,26 +314,22 @@
         },
         "anchorX": 0.4364,
         "anchorY": 0.6554,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 15.8,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_12",
+      "id": "ad13d7cc-b5a0-5115-8d7d-9134ecabb9f8",
+      "compatibilitySlot": "dog_12",
       "x": 2212,
       "y": 1312,
       "r": 57,
       "sprite": {
         "image": "levels/pirate_shipwreck_island_broken_bow_lagoon_bird_6be6/dogs/dog_12/sprite_000.png",
+        "height": 198,
+        "width": 189,
         "x": 2144,
         "y": 1203,
-        "width": 189,
-        "height": 198,
         "cleanup": {
           "x": 2039,
           "y": 1139,
@@ -373,26 +338,22 @@
         },
         "anchorX": 0.4074,
         "anchorY": 0.6212,
-        "refit": {
-          "scale": 1.1,
-          "ratio": 1.0,
-          "pop": 23.9,
-          "dx": -9,
-          "dy": -13
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_13",
+      "id": "e9da4063-adcc-58b5-8af9-e286164f80b2",
+      "compatibilitySlot": "dog_13",
       "x": 1631,
       "y": 1662,
       "r": 57,
       "sprite": {
         "image": "levels/pirate_shipwreck_island_broken_bow_lagoon_bird_6be6/dogs/dog_13/sprite_000.png",
+        "height": 191,
+        "width": 190,
         "x": 1554,
         "y": 1568,
-        "width": 190,
-        "height": 191,
         "cleanup": {
           "x": 1451,
           "y": 1489,
@@ -401,26 +362,22 @@
         },
         "anchorX": 0.4053,
         "anchorY": 0.4921,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 18.4,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_14",
+      "id": "da3a9361-dbfb-5fe6-b69e-d7f44fe06a50",
+      "compatibilitySlot": "dog_14",
       "x": 1897,
       "y": 1723,
       "r": 57,
       "sprite": {
         "image": "levels/pirate_shipwreck_island_broken_bow_lagoon_bird_6be6/dogs/dog_14/sprite_000.png",
+        "height": 182,
+        "width": 276,
         "x": 1779,
         "y": 1650,
-        "width": 276,
-        "height": 182,
         "cleanup": {
           "x": 1738,
           "y": 1577,
@@ -429,26 +386,22 @@
         },
         "anchorX": 0.5616,
         "anchorY": 0.5549,
-        "refit": {
-          "scale": 1.4,
-          "ratio": 1.0,
-          "pop": 19.4,
-          "dx": -36,
-          "dy": -28
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_15",
+      "id": "47fadfed-d6ca-5874-9694-2d2abf0c862c",
+      "compatibilitySlot": "dog_15",
       "x": 1749,
       "y": 1886,
       "r": 57,
       "sprite": {
         "image": "levels/pirate_shipwreck_island_broken_bow_lagoon_bird_6be6/dogs/dog_15/sprite_000.png",
+        "height": 242,
+        "width": 298,
         "x": 1602,
         "y": 1823,
-        "width": 298,
-        "height": 242,
         "cleanup": {
           "x": 1548,
           "y": 1820,
@@ -457,26 +410,22 @@
         },
         "anchorX": 0.6107,
         "anchorY": 0.3678,
-        "refit": {
-          "scale": 1.3,
-          "ratio": 1.0,
-          "pop": 29.9,
-          "dx": -35,
-          "dy": -26
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_16",
+      "id": "c225abcb-b25b-50bc-906b-54dcbb54656a",
+      "compatibilitySlot": "dog_16",
       "x": 2209,
       "y": 1848,
       "r": 57,
       "sprite": {
         "image": "levels/pirate_shipwreck_island_broken_bow_lagoon_bird_6be6/dogs/dog_16/sprite_000.png",
+        "height": 207,
+        "width": 260,
         "x": 2134,
         "y": 1778,
-        "width": 260,
-        "height": 207,
         "cleanup": {
           "x": 2051,
           "y": 1691,
@@ -485,26 +434,22 @@
         },
         "anchorX": 0.3808,
         "anchorY": 0.5266,
-        "refit": {
-          "scale": 1.3,
-          "ratio": 1.0,
-          "pop": 24.5,
-          "dx": -24,
-          "dy": -38
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_17",
+      "id": "83a8f746-21b5-5d72-b2fb-ee72166d074e",
+      "compatibilitySlot": "dog_17",
       "x": 1993,
       "y": 2217,
       "r": 57,
       "sprite": {
         "image": "levels/pirate_shipwreck_island_broken_bow_lagoon_bird_6be6/dogs/dog_17/sprite_000.png",
+        "height": 218,
+        "width": 215,
         "x": 1890,
         "y": 2099,
-        "width": 215,
-        "height": 218,
         "cleanup": {
           "x": 1820,
           "y": 2065,
@@ -513,32 +458,22 @@
         },
         "anchorX": 0.4791,
         "anchorY": 0.5413,
-        "technique": "gpt-image-2.5-sunburst-low-visible-only",
-        "regen": {
-          "pass": "crop2",
-          "score": 0.6451,
-          "pop": 28.6
-        },
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 29.4,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_18",
+      "id": "312a7202-2cc5-5fa7-b3ec-ca871faf551e",
+      "compatibilitySlot": "dog_18",
       "x": 801,
       "y": 2297,
       "r": 57,
       "sprite": {
         "image": "levels/pirate_shipwreck_island_broken_bow_lagoon_bird_6be6/dogs/dog_18/sprite_000.png",
+        "height": 192,
+        "width": 238,
         "x": 715,
         "y": 2207,
-        "width": 238,
-        "height": 192,
         "cleanup": {
           "x": 649,
           "y": 2156,
@@ -547,26 +482,22 @@
         },
         "anchorX": 0.5042,
         "anchorY": 0.6979,
-        "refit": {
-          "scale": 1.4,
-          "ratio": 1.0,
-          "pop": 17.9,
-          "dx": -33,
-          "dy": -44
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_19",
+      "id": "65178390-d76a-52a9-a8ae-6e93d82df080",
+      "compatibilitySlot": "dog_19",
       "x": 1001,
       "y": 1906,
       "r": 57,
       "sprite": {
         "image": "levels/pirate_shipwreck_island_broken_bow_lagoon_bird_6be6/dogs/dog_19/sprite_000.png",
+        "height": 222,
+        "width": 246,
         "x": 916,
         "y": 1824,
-        "width": 246,
-        "height": 222,
         "cleanup": {
           "x": 850,
           "y": 1733,
@@ -575,26 +506,22 @@
         },
         "anchorX": 0.4715,
         "anchorY": 0.5225,
-        "refit": {
-          "scale": 1.3,
-          "ratio": 1.0,
-          "pop": 22.0,
-          "dx": -31,
-          "dy": -34
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_20",
+      "id": "b899da26-272e-5351-a036-632f192d938f",
+      "compatibilitySlot": "dog_20",
       "x": 523,
       "y": 2014,
       "r": 57,
       "sprite": {
         "image": "levels/pirate_shipwreck_island_broken_bow_lagoon_bird_6be6/dogs/dog_20/sprite_000.png",
+        "height": 237,
+        "width": 298,
         "x": 452,
         "y": 1944,
-        "width": 298,
-        "height": 237,
         "cleanup": {
           "x": 350,
           "y": 1879,
@@ -603,26 +530,22 @@
         },
         "anchorX": 0.349,
         "anchorY": 0.4262,
-        "refit": {
-          "scale": 1.3,
-          "ratio": 1.0,
-          "pop": 25.9,
-          "dx": -33,
-          "dy": -31
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_21",
+      "id": "25662134-20a7-52a2-9ffe-8da0d907f032",
+      "compatibilitySlot": "dog_21",
       "x": 698,
       "y": 1743,
       "r": 57,
       "sprite": {
         "image": "levels/pirate_shipwreck_island_broken_bow_lagoon_bird_6be6/dogs/dog_21/sprite_000.png",
+        "height": 239,
+        "width": 220,
         "x": 630,
         "y": 1666,
-        "width": 220,
-        "height": 239,
         "cleanup": {
           "x": 525,
           "y": 1570,
@@ -631,13 +554,8 @@
         },
         "anchorX": 0.4136,
         "anchorY": 0.5481,
-        "refit": {
-          "scale": 1.4,
-          "ratio": 1.0,
-          "pop": 17.3,
-          "dx": -23,
-          "dy": -53
-        }
+        "flipX": false,
+        "flipY": false
       }
     }
   ]

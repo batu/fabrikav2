@@ -4,7 +4,7 @@
   "width": 2688,
   "height": 2688,
   "colorImage": "levels/grand_interiors_reading_room_bird_0feb/color.png",
-  "artifactRevision": "sha256:ad4fb5f9b15f12f3e98f5f7340fa982200ed47ca6fed4dbbae817fc5f57805a2",
+  "artifactRevision": "sha256:6dd0422d0ce92c362fd11b16063d1992e91b01b5c49bd184dff637a97d6e3a44",
   "compatibilityAliases": {
     "dog_18": "e31f8387-b53e-4aa4-a134-cc8ad7092485",
     "dog_19": "5a304f09-0cf1-41cc-9445-7274cdfda0bd",
@@ -29,7 +29,8 @@
     "dog_07": "9062a80f-2e11-5000-b695-7771b6d75354",
     "dog_23": "c3335f68-9a72-5db2-8c14-abe30f09ea36",
     "dog_24": "8a1de2cb-b7d0-5c71-8f51-d5874367346c",
-    "dog_25": "8fea9af9-0c34-5ad3-99bb-a75e42585d3b"
+    "dog_25": "8fea9af9-0c34-5ad3-99bb-a75e42585d3b",
+    "dog_12": "12ef20b9-706a-45d0-bf38-cc7bfc478828"
   },
   "dogs": [
     {
@@ -53,21 +54,7 @@
         "anchorX": 0.5503,
         "anchorY": 0.4833,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 12.2,
-          "dx": 0,
-          "dy": 0
-        },
-        "regen": {
-          "pass": "crop2",
-          "score": 0.9668,
-          "pop": 12.1,
-          "why": "T3+refit refused"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -91,21 +78,7 @@
         "anchorX": 0.4783,
         "anchorY": 0.619,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 21.1,
-          "dx": 0,
-          "dy": 0
-        },
-        "regen": {
-          "pass": "crop",
-          "score": 0.9452,
-          "pop": 21.0,
-          "why": "T3+refit refused"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -129,21 +102,7 @@
         "anchorX": 0.5526,
         "anchorY": 0.5,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 22.9,
-          "dx": 0,
-          "dy": 0
-        },
-        "regen": {
-          "pass": "crop",
-          "score": 0.8987,
-          "pop": 22.7,
-          "why": "T3+refit refused"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -167,21 +126,7 @@
         "anchorX": 0.4804,
         "anchorY": 0.4539,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 17.1,
-          "dx": 0,
-          "dy": 0
-        },
-        "regen": {
-          "pass": "crop",
-          "score": 0.9696,
-          "pop": 17.1,
-          "why": "T3+refit refused"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -205,21 +150,7 @@
         "anchorX": 0.4857,
         "anchorY": 0.495,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 18.3,
-          "dx": 0,
-          "dy": 0
-        },
-        "regen": {
-          "pass": "crop2",
-          "score": 0.9268,
-          "pop": 18.2,
-          "why": "T3+refit refused"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -243,21 +174,7 @@
         "anchorX": 0.4312,
         "anchorY": 0.6,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 17.8,
-          "dx": 0,
-          "dy": 0
-        },
-        "regen": {
-          "pass": "crop",
-          "score": 0.9539,
-          "pop": 17.7,
-          "why": "T3+refit refused"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -281,21 +198,7 @@
         "anchorX": 0.4874,
         "anchorY": 0.4923,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 14.7,
-          "dx": 0,
-          "dy": 0
-        },
-        "regen": {
-          "pass": "crop2",
-          "score": 0.9284,
-          "pop": 14.4,
-          "why": "T3+refit refused"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -319,21 +222,7 @@
         "anchorX": 0.5561,
         "anchorY": 0.4123,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 25.3,
-          "dx": 0,
-          "dy": 0
-        },
-        "regen": {
-          "pass": "crop2",
-          "score": 0.8907,
-          "pop": 25.2,
-          "why": "T3+refit refused"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -357,22 +246,7 @@
         "anchorX": 0.5769,
         "anchorY": 0.4552,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 13.3,
-          "dx": 0,
-          "dy": 0
-        },
-        "regen": {
-          "pass": "crop",
-          "score": 0.9315,
-          "pop": 13.3,
-          "why": "T4+refit refused"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only",
-        "cleanupNote": "whole book (Batu 2026-09-16)"
+        "flipY": false
       }
     },
     {
@@ -396,21 +270,7 @@
         "anchorX": 0.5352,
         "anchorY": 0.4828,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 24.6,
-          "dx": 0,
-          "dy": 0
-        },
-        "regen": {
-          "pass": "crop",
-          "score": 0.9177,
-          "pop": 24.6,
-          "why": "T3+refit refused"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -434,21 +294,7 @@
         "anchorX": 0.4916,
         "anchorY": 0.4817,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 19.2,
-          "dx": 0,
-          "dy": 0
-        },
-        "regen": {
-          "pass": "crop2",
-          "score": 0.8727,
-          "pop": 19.1,
-          "why": "T3+refit refused"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -472,21 +318,7 @@
         "anchorX": 0.4444,
         "anchorY": 0.4726,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 12.7,
-          "dx": 0,
-          "dy": 0
-        },
-        "regen": {
-          "pass": "crop",
-          "score": 0.9661,
-          "pop": 12.6,
-          "why": "T3+refit refused"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -510,14 +342,7 @@
         "anchorX": 0.4854,
         "anchorY": 0.4773,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.05,
-          "pop": 30.4,
-          "dx": -2,
-          "dy": 3
-        }
+        "flipY": false
       }
     },
     {
@@ -541,22 +366,7 @@
         "anchorX": 0.5168,
         "anchorY": 0.4897,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 12.4,
-          "dx": 0,
-          "dy": 0
-        },
-        "regen": {
-          "pass": "crop",
-          "score": 0.9563,
-          "pop": 12.4,
-          "why": "T3+refit refused"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only",
-        "cleanupNote": "tight, no map (Batu 2026-09-16)"
+        "flipY": false
       }
     },
     {
@@ -580,22 +390,7 @@
         "anchorX": 0.5948,
         "anchorY": 0.3967,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 10.8,
-          "dx": 0,
-          "dy": 0
-        },
-        "regen": {
-          "pass": "crop",
-          "score": 0.9682,
-          "pop": 10.8,
-          "why": "refit refused"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only",
-        "cleanupNote": "whole map (Batu 2026-09-16)"
+        "flipY": false
       }
     },
     {
@@ -619,14 +414,7 @@
         "anchorX": 0.5174,
         "anchorY": 0.5726,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 14.0,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipY": false
       }
     },
     {
@@ -650,21 +438,7 @@
         "anchorX": 0.5,
         "anchorY": 0.5526,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 14.0,
-          "dx": 0,
-          "dy": 0
-        },
-        "regen": {
-          "pass": "crop",
-          "score": 0.952,
-          "pop": 13.9,
-          "why": "T3+refit refused"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -688,21 +462,7 @@
         "anchorX": 0.4784,
         "anchorY": 0.5062,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 12.3,
-          "dx": 0,
-          "dy": 0
-        },
-        "regen": {
-          "pass": "crop2",
-          "score": 0.9248,
-          "pop": 12.1,
-          "why": "T3+refit refused"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -726,21 +486,7 @@
         "anchorX": 0.6,
         "anchorY": 0.5207,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 13.3,
-          "dx": 0,
-          "dy": 0
-        },
-        "regen": {
-          "pass": "crop",
-          "score": 0.9507,
-          "pop": 13.6,
-          "why": "T3+refit refused"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -764,21 +510,7 @@
         "anchorX": 0.4839,
         "anchorY": 0.5111,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 12.5,
-          "dx": 0,
-          "dy": 0
-        },
-        "regen": {
-          "pass": "crop2",
-          "score": 0.952,
-          "pop": 11.8,
-          "why": "T3+refit refused"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -802,14 +534,7 @@
         "anchorX": 0.4396,
         "anchorY": 0.4286,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 21.8,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipY": false
       }
     },
     {
@@ -833,21 +558,7 @@
         "anchorX": 0.5072,
         "anchorY": 0.4965,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 11.1,
-          "dx": 0,
-          "dy": 0
-        },
-        "regen": {
-          "pass": "crop",
-          "score": 0.9736,
-          "pop": 11.0,
-          "why": "T3+refit refused"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -871,21 +582,7 @@
         "anchorX": 0.4874,
         "anchorY": 0.4037,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 18.0,
-          "dx": 0,
-          "dy": 0
-        },
-        "regen": {
-          "pass": "crop2",
-          "score": 0.9289,
-          "pop": 17.9,
-          "why": "T3+refit refused"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -909,35 +606,21 @@
         "anchorX": 0.4685,
         "anchorY": 0.4685,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 16.6,
-          "dx": 0,
-          "dy": 0
-        },
-        "regen": {
-          "pass": "crop",
-          "score": 0.9624,
-          "pop": 16.4,
-          "why": "T3+refit refused"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
       "id": "12ef20b9-706a-45d0-bf38-cc7bfc478828",
-      "compatibilitySlot": "dog_added_01",
+      "compatibilitySlot": "dog_12",
       "x": 2189,
       "y": 1728,
       "r": 57,
       "sprite": {
-        "image": "levels/grand_interiors_reading_room_bird_0feb/dogs/dog_added_01/sprite_000.png",
+        "image": "levels/grand_interiors_reading_room_bird_0feb/dogs/dog_12/sprite_000.png",
+        "height": 117,
+        "width": 76,
         "x": 2145,
         "y": 1682,
-        "width": 76,
-        "height": 117,
         "cleanup": {
           "x": 2126,
           "y": 1671,
@@ -947,14 +630,7 @@
         "anchorX": 0.5789,
         "anchorY": 0.3932,
         "flipX": false,
-        "flipY": false,
-        "technique": "gpt-image-2.5-sunburst-low-visible-only",
-        "regen": {
-          "pass": "manual-add",
-          "score": 0.9021,
-          "pop": 20.8,
-          "why": "added by Batu"
-        }
+        "flipY": false
       }
     }
   ]

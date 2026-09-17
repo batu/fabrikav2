@@ -1,22 +1,42 @@
 {
   "id": "southeast_asia_sea_rice_terrace_village_bird_19f9",
-  "name": "Level southeast_asia_sea_rice_terrace_village_bird_19f9 (clean_old_cartoon)",
+  "name": "Level southeast_asia_sea_rice_terrace_village_bird_19f9",
   "width": 2688,
   "height": 2688,
-  "bwImage": "levels/southeast_asia_sea_rice_terrace_village_bird_19f9/bw.png",
   "colorImage": "levels/southeast_asia_sea_rice_terrace_village_bird_19f9/color.png",
+  "artifactRevision": "sha256:b640d4110d555295f3ce7c69cf35b2d7820a2f1dea5d747e3e5911919c12372c",
+  "compatibilityAliases": {
+    "dog_00": "3fe83708-a563-5d94-bfcb-ace8a1224127",
+    "dog_01": "223619a9-fa87-5625-86a7-4369830674ad",
+    "dog_02": "cc3d0159-74ae-50dc-a1a9-bbe2bad5486d",
+    "dog_03": "335941f2-d1dd-5bb1-b5f6-64a3ab4643a6",
+    "dog_04": "4267e98a-5320-5adb-9427-c83c54b27d0c",
+    "dog_05": "10794186-1a45-5267-bd76-468f529c72ae",
+    "dog_06": "50156627-f8e7-5a48-b676-31cd28212fd6",
+    "dog_07": "ac34939d-de97-5b1e-aab5-03779ed7cb6b",
+    "dog_08": "f73c8569-6ab8-550a-9968-f9a36c57addd",
+    "dog_09": "34dad0eb-bf09-5408-9f73-8ad786bc7a72",
+    "dog_10": "2fe03d4d-01a6-59a0-803b-cc8c4e1925c8",
+    "dog_11": "243c88d9-5430-58b6-94c8-a349e5a462d3",
+    "dog_12": "320aa2aa-caef-513b-9347-cdac9748d981",
+    "dog_13": "d2691119-809d-5176-adb7-a26682f21b1f",
+    "dog_14": "5338b694-d64c-5d24-a0eb-389e5426b9ad",
+    "dog_15": "61304b83-b750-5baa-9bdd-0e7b47c02ac6",
+    "dog_16": "3df6072f-dae1-514f-9a90-4eccd50a16d4"
+  },
   "dogs": [
     {
-      "id": "dog_00",
+      "id": "3fe83708-a563-5d94-bfcb-ace8a1224127",
+      "compatibilitySlot": "dog_00",
       "x": 705,
       "y": 841,
       "r": 57,
       "sprite": {
         "image": "levels/southeast_asia_sea_rice_terrace_village_bird_19f9/dogs/dog_00/sprite_000.png",
+        "height": 150,
+        "width": 180,
         "x": 560,
         "y": 699,
-        "width": 180,
-        "height": 150,
         "cleanup": {
           "x": 532,
           "y": 685,
@@ -25,26 +45,22 @@
         },
         "anchorX": 0.5056,
         "anchorY": 0.6467,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.05,
-          "pop": 25.7,
-          "dx": 0,
-          "dy": 1
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_01",
+      "id": "223619a9-fa87-5625-86a7-4369830674ad",
+      "compatibilitySlot": "dog_01",
       "x": 1198,
       "y": 684,
       "r": 57,
       "sprite": {
         "image": "levels/southeast_asia_sea_rice_terrace_village_bird_19f9/dogs/dog_01/sprite_000.png",
+        "height": 158,
+        "width": 153,
         "x": 1047,
         "y": 575,
-        "width": 153,
-        "height": 158,
         "cleanup": {
           "x": 1042,
           "y": 534,
@@ -53,26 +69,22 @@
         },
         "anchorX": 0.6797,
         "anchorY": 0.5823,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 21.3,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_02",
+      "id": "cc3d0159-74ae-50dc-a1a9-bbe2bad5486d",
+      "compatibilitySlot": "dog_02",
       "x": 1355,
       "y": 791,
       "r": 57,
       "sprite": {
         "image": "levels/southeast_asia_sea_rice_terrace_village_bird_19f9/dogs/dog_02/sprite_000.png",
+        "height": 130,
+        "width": 81,
         "x": 1306,
         "y": 701,
-        "width": 81,
-        "height": 130,
         "cleanup": {
           "x": 1277,
           "y": 673,
@@ -81,26 +93,22 @@
         },
         "anchorX": 0.6049,
         "anchorY": 0.6923,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 0.0,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_03",
+      "id": "335941f2-d1dd-5bb1-b5f6-64a3ab4643a6",
+      "compatibilitySlot": "dog_03",
       "x": 1866,
       "y": 576,
       "r": 57,
       "sprite": {
         "image": "levels/southeast_asia_sea_rice_terrace_village_bird_19f9/dogs/dog_03/sprite_000.png",
+        "height": 126,
+        "width": 117,
         "x": 1799,
         "y": 496,
-        "width": 117,
-        "height": 126,
         "cleanup": {
           "x": 1693,
           "y": 403,
@@ -109,32 +117,22 @@
         },
         "anchorX": 0.5812,
         "anchorY": 0.6349,
-        "technique": "gpt-image-2.5-sunburst-low-visible-only",
-        "regen": {
-          "pass": "crop",
-          "score": 0.8386,
-          "pop": 29.9
-        },
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 26.7,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_04",
+      "id": "4267e98a-5320-5adb-9427-c83c54b27d0c",
+      "compatibilitySlot": "dog_04",
       "x": 2103,
       "y": 558,
       "r": 57,
       "sprite": {
         "image": "levels/southeast_asia_sea_rice_terrace_village_bird_19f9/dogs/dog_04/sprite_000.png",
+        "height": 128,
+        "width": 144,
         "x": 1959,
         "y": 438,
-        "width": 144,
-        "height": 128,
         "cleanup": {
           "x": 1985,
           "y": 408,
@@ -143,26 +141,22 @@
         },
         "anchorX": 0.6458,
         "anchorY": 0.5469,
-        "refit": {
-          "scale": 0.95,
-          "ratio": 0.95,
-          "pop": 27.2,
-          "dx": 7,
-          "dy": 1
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_05",
+      "id": "10794186-1a45-5267-bd76-468f529c72ae",
+      "compatibilitySlot": "dog_05",
       "x": 1606,
       "y": 950,
       "r": 57,
       "sprite": {
         "image": "levels/southeast_asia_sea_rice_terrace_village_bird_19f9/dogs/dog_05/sprite_000.png",
+        "height": 133,
+        "width": 167,
         "x": 1554,
         "y": 870,
-        "width": 167,
-        "height": 133,
         "cleanup": {
           "x": 1481,
           "y": 809,
@@ -171,32 +165,22 @@
         },
         "anchorX": 0.2934,
         "anchorY": 0.5714,
-        "technique": "gpt-image-2.5-sunburst-low-visible-only",
-        "regen": {
-          "pass": "crop2",
-          "score": 0.8207,
-          "pop": 34.2
-        },
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 28.5,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_06",
+      "id": "50156627-f8e7-5a48-b676-31cd28212fd6",
+      "compatibilitySlot": "dog_06",
       "x": 2043,
       "y": 989,
       "r": 57,
       "sprite": {
         "image": "levels/southeast_asia_sea_rice_terrace_village_bird_19f9/dogs/dog_06/sprite_000.png",
+        "height": 105,
+        "width": 83,
         "x": 2004,
         "y": 951,
-        "width": 83,
-        "height": 105,
         "cleanup": {
           "x": 1866,
           "y": 805,
@@ -205,32 +189,22 @@
         },
         "anchorX": 0.494,
         "anchorY": 0.3619,
-        "technique": "gpt-image-2.5-sunburst-low-visible-only",
-        "regen": {
-          "pass": "crop",
-          "score": 0.9347,
-          "pop": 8.7
-        },
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 8.9,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_07",
+      "id": "ac34939d-de97-5b1e-aab5-03779ed7cb6b",
+      "compatibilitySlot": "dog_07",
       "x": 819,
       "y": 1224,
       "r": 57,
       "sprite": {
         "image": "levels/southeast_asia_sea_rice_terrace_village_bird_19f9/dogs/dog_07/sprite_000.png",
+        "height": 186,
+        "width": 300,
         "x": 681,
         "y": 1130,
-        "width": 300,
-        "height": 186,
         "cleanup": {
           "x": 646,
           "y": 1051,
@@ -239,26 +213,22 @@
         },
         "anchorX": 0.46,
         "anchorY": 0.5054,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 26.2,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_08",
+      "id": "f73c8569-6ab8-550a-9968-f9a36c57addd",
+      "compatibilitySlot": "dog_08",
       "x": 1265,
       "y": 1397,
       "r": 57,
       "sprite": {
         "image": "levels/southeast_asia_sea_rice_terrace_village_bird_19f9/dogs/dog_08/sprite_000.png",
+        "height": 320,
+        "width": 262,
         "x": 1135,
         "y": 1237,
-        "width": 262,
-        "height": 320,
         "cleanup": {
           "x": 1092,
           "y": 1224,
@@ -267,26 +237,22 @@
         },
         "anchorX": 0.4962,
         "anchorY": 0.5,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 20.9,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_09",
+      "id": "34dad0eb-bf09-5408-9f73-8ad786bc7a72",
+      "compatibilitySlot": "dog_09",
       "x": 1544,
       "y": 1394,
       "r": 57,
       "sprite": {
         "image": "levels/southeast_asia_sea_rice_terrace_village_bird_19f9/dogs/dog_09/sprite_000.png",
+        "height": 172,
+        "width": 213,
         "x": 1447,
         "y": 1344,
-        "width": 213,
-        "height": 172,
         "cleanup": {
           "x": 1435,
           "y": 1217,
@@ -295,26 +261,22 @@
         },
         "anchorX": 0.6197,
         "anchorY": 0.4535,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 12.5,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_10",
+      "id": "2fe03d4d-01a6-59a0-803b-cc8c4e1925c8",
+      "compatibilitySlot": "dog_10",
       "x": 2067,
       "y": 1492,
       "r": 57,
       "sprite": {
         "image": "levels/southeast_asia_sea_rice_terrace_village_bird_19f9/dogs/dog_10/sprite_000.png",
+        "height": 241,
+        "width": 258,
         "x": 1968,
         "y": 1431,
-        "width": 258,
-        "height": 241,
         "cleanup": {
           "x": 1894,
           "y": 1319,
@@ -323,26 +285,22 @@
         },
         "anchorX": 0.5194,
         "anchorY": 0.361,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 16.5,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_11",
+      "id": "243c88d9-5430-58b6-94c8-a349e5a462d3",
+      "compatibilitySlot": "dog_11",
       "x": 867,
       "y": 1725,
       "r": 57,
       "sprite": {
         "image": "levels/southeast_asia_sea_rice_terrace_village_bird_19f9/dogs/dog_11/sprite_000.png",
+        "height": 186,
+        "width": 293,
         "x": 708,
         "y": 1623,
-        "width": 293,
-        "height": 186,
         "cleanup": {
           "x": 708,
           "y": 1578,
@@ -351,26 +309,22 @@
         },
         "anchorX": 0.5563,
         "anchorY": 0.5376,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 35.6,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_12",
+      "id": "320aa2aa-caef-513b-9347-cdac9748d981",
+      "compatibilitySlot": "dog_12",
       "x": 1302,
       "y": 1753,
       "r": 57,
       "sprite": {
         "image": "levels/southeast_asia_sea_rice_terrace_village_bird_19f9/dogs/dog_12/sprite_000.png",
+        "height": 176,
+        "width": 151,
         "x": 1219,
         "y": 1668,
-        "width": 151,
-        "height": 176,
         "cleanup": {
           "x": 1161,
           "y": 1676,
@@ -379,32 +333,22 @@
         },
         "anchorX": 0.4768,
         "anchorY": 0.4943,
-        "technique": "gpt-image-2.5-sunburst-low-visible-only",
-        "regen": {
-          "pass": "crop",
-          "score": 0.6132,
-          "pop": 61.7
-        },
-        "refit": {
-          "scale": 0.9500000000000001,
-          "ratio": 0.9,
-          "pop": 26.4,
-          "dx": 10,
-          "dy": -1
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_13",
+      "id": "d2691119-809d-5176-adb7-a26682f21b1f",
+      "compatibilitySlot": "dog_13",
       "x": 2063,
       "y": 1823,
       "r": 57,
       "sprite": {
         "image": "levels/southeast_asia_sea_rice_terrace_village_bird_19f9/dogs/dog_13/sprite_000.png",
+        "height": 235,
+        "width": 244,
         "x": 1994,
         "y": 1722,
-        "width": 244,
-        "height": 235,
         "cleanup": {
           "x": 1915,
           "y": 1662,
@@ -413,26 +357,22 @@
         },
         "anchorX": 0.4303,
         "anchorY": 0.4213,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 17.1,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_14",
+      "id": "5338b694-d64c-5d24-a0eb-389e5426b9ad",
+      "compatibilitySlot": "dog_14",
       "x": 469,
       "y": 2213,
       "r": 57,
       "sprite": {
         "image": "levels/southeast_asia_sea_rice_terrace_village_bird_19f9/dogs/dog_14/sprite_000.png",
+        "height": 192,
+        "width": 225,
         "x": 408,
         "y": 2128,
-        "width": 225,
-        "height": 192,
         "cleanup": {
           "x": 301,
           "y": 2040,
@@ -441,26 +381,22 @@
         },
         "anchorX": 0.4978,
         "anchorY": 0.6198,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 16.4,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_15",
+      "id": "61304b83-b750-5baa-9bdd-0e7b47c02ac6",
+      "compatibilitySlot": "dog_15",
       "x": 1081,
       "y": 2369,
       "r": 57,
       "sprite": {
         "image": "levels/southeast_asia_sea_rice_terrace_village_bird_19f9/dogs/dog_15/sprite_000.png",
+        "height": 152,
+        "width": 239,
         "x": 1002,
         "y": 2289,
-        "width": 239,
-        "height": 152,
         "cleanup": {
           "x": 908,
           "y": 2196,
@@ -469,26 +405,22 @@
         },
         "anchorX": 0.4854,
         "anchorY": 0.625,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 19.7,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipX": false,
+        "flipY": false
       }
     },
     {
-      "id": "dog_16",
+      "id": "3df6072f-dae1-514f-9a90-4eccd50a16d4",
+      "compatibilitySlot": "dog_16",
       "x": 1606,
       "y": 2278,
       "r": 57,
       "sprite": {
         "image": "levels/southeast_asia_sea_rice_terrace_village_bird_19f9/dogs/dog_16/sprite_000.png",
+        "height": 165,
+        "width": 202,
         "x": 1558,
         "y": 2224,
-        "width": 202,
-        "height": 165,
         "cleanup": {
           "x": 1433,
           "y": 2151,
@@ -497,13 +429,8 @@
         },
         "anchorX": 0.3713,
         "anchorY": 0.497,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 15.7,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipX": false,
+        "flipY": false
       }
     }
   ]

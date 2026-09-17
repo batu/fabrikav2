@@ -4,31 +4,30 @@
   "width": 2688,
   "height": 2688,
   "colorImage": "levels/below_decks_captains_cabin_bird_3b68/color.png",
-  "artifactRevision": "sha256:bb0fbe92097947ce8081892f5ebf44ee35a8a2d0e83ecf66ae70cbce131ff1e3",
+  "artifactRevision": "sha256:b459e2de8b340ea9693a62eb0d568b7fc22bbd32924ff3d807ab540cafe2df1c",
   "compatibilityAliases": {
-    "dog_11": "ada9e2a7-386b-5607-9683-1126c08871c0",
-    "dog_14": "7328f4d9-63c3-5240-bd87-6e40b9842166",
+    "dog_00": "839db87d-946b-5f5d-8dca-97d4ba715e08",
+    "dog_01": "01beb609-a18c-541c-b8ac-994323a87b2f",
     "dog_02": "31ce6ef7-7c0b-55ed-9715-58dc29fda898",
     "dog_03": "4fcbfda6-c9e6-569c-b14b-e2d1283e5c85",
     "dog_04": "7988a776-276e-5cf0-aa1d-d1cd89c00ff2",
     "dog_05": "db2c5a05-e392-52bf-9e8b-cbf5a97baa1f",
-    "dog_09": "9ea6e922-f0f0-5ea4-a9aa-112bee335a98",
-    "dog_00": "839db87d-946b-5f5d-8dca-97d4ba715e08",
-    "dog_15": "167d419e-98bd-5687-a4ce-4a25138034ac",
     "dog_06": "36788cbe-1173-567d-bf47-9034f58d9c32",
+    "dog_07": "8e564a23-afa5-46e7-bb95-716bae8fc17e",
+    "dog_08": "b53d7d23-af60-5c52-a243-54513bdfd492",
+    "dog_09": "9ea6e922-f0f0-5ea4-a9aa-112bee335a98",
     "dog_10": "83490bec-1dd5-50ef-8b47-8840f528dd7f",
-    "dog_16": "0b262439-c857-5fd2-ba58-984929206db0",
     "dog_12": "9485b743-7974-5213-86b6-79c8de57ba28",
+    "dog_13": "9462ee2f-5cf3-5978-bbf8-f23aec06f5a6",
+    "dog_14": "7328f4d9-63c3-5240-bd87-6e40b9842166",
+    "dog_15": "167d419e-98bd-5687-a4ce-4a25138034ac",
+    "dog_16": "0b262439-c857-5fd2-ba58-984929206db0",
+    "dog_17": "7dc6a919-3488-5780-887f-fcd6653bd048",
     "dog_19": "8c301ca8-6a42-5993-bd21-1fcec4a8be31",
-    "dog_01": "01beb609-a18c-541c-b8ac-994323a87b2f",
     "dog_20": "539708a2-20f4-466a-996a-cfc1b993c3d9",
     "dog_21": "d8faac31-3107-422b-a30f-55508cb673db",
     "dog_22": "062994f3-24f6-403c-b6eb-a1092659f736",
-    "dog_08": "b53d7d23-af60-5c52-a243-54513bdfd492",
-    "dog_13": "9462ee2f-5cf3-5978-bbf8-f23aec06f5a6",
-    "dog_17": "7dc6a919-3488-5780-887f-fcd6653bd048",
-    "dog_23": "dc7c0038-c584-5b5b-876a-24585c413f91",
-    "dog_07": "8e564a23-afa5-46e7-bb95-716bae8fc17e"
+    "dog_23": "dc7c0038-c584-5b5b-876a-24585c413f91"
   },
   "dogs": [
     {
@@ -52,21 +51,7 @@
         "anchorX": 0.4673,
         "anchorY": 0.5593,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 10.9,
-          "dx": 0,
-          "dy": 0
-        },
-        "regen": {
-          "pass": "crop2",
-          "score": 0.9808,
-          "pop": 10.8,
-          "why": "T4+refit refused"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -90,21 +75,7 @@
         "anchorX": 0.5231,
         "anchorY": 0.4537,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 13.1,
-          "dx": 0,
-          "dy": 0
-        },
-        "regen": {
-          "pass": "crop2",
-          "score": 0.9692,
-          "pop": 13.1,
-          "why": "T4"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -128,21 +99,7 @@
         "anchorX": 0.5833,
         "anchorY": 0.4444,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 18.7,
-          "dx": 0,
-          "dy": 0
-        },
-        "regen": {
-          "pass": "crop",
-          "score": 0.9416,
-          "pop": 18.7,
-          "why": "T4"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -166,14 +123,7 @@
         "anchorX": 0.483,
         "anchorY": 0.4949,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 25.3,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipY": false
       }
     },
     {
@@ -197,21 +147,7 @@
         "anchorX": 0.5042,
         "anchorY": 0.4853,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 14.0,
-          "dx": 0,
-          "dy": 0
-        },
-        "regen": {
-          "pass": "crop2",
-          "score": 0.9614,
-          "pop": 13.8,
-          "why": "T4"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -235,14 +171,7 @@
         "anchorX": 0.4791,
         "anchorY": 0.4309,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.05,
-          "ratio": 1.0,
-          "pop": 23.4,
-          "dx": -1,
-          "dy": -2
-        }
+        "flipY": false
       }
     },
     {
@@ -266,21 +195,7 @@
         "anchorX": 0.5119,
         "anchorY": 0.4588,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 20.1,
-          "dx": 0,
-          "dy": 0
-        },
-        "regen": {
-          "pass": "crop2",
-          "score": 0.9243,
-          "pop": 19.4,
-          "why": "T4+refit refused"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -304,21 +219,7 @@
         "anchorX": 0.5635,
         "anchorY": 0.4523,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 12.5,
-          "dx": 0,
-          "dy": 0
-        },
-        "regen": {
-          "pass": "crop2",
-          "score": 0.9713,
-          "pop": 12.5,
-          "why": "T4+refit refused"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -342,21 +243,7 @@
         "anchorX": 0.4021,
         "anchorY": 0.4929,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 9.8,
-          "dx": 0,
-          "dy": 0
-        },
-        "regen": {
-          "pass": "crop2",
-          "score": 0.9424,
-          "pop": 11.0,
-          "why": "T4"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -380,21 +267,7 @@
         "anchorX": 0.4502,
         "anchorY": 0.4915,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 13.4,
-          "dx": 0,
-          "dy": 0
-        },
-        "regen": {
-          "pass": "crop2",
-          "score": 0.9515,
-          "pop": 13.4,
-          "why": "T4+refit refused"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -418,14 +291,7 @@
         "anchorX": 0.447,
         "anchorY": 0.5101,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 23.0,
-          "dx": 0,
-          "dy": 0
-        }
+        "flipY": false
       }
     },
     {
@@ -449,21 +315,7 @@
         "anchorX": 0.47,
         "anchorY": 0.4883,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.4,
-          "ratio": 1.0,
-          "pop": 19.7,
-          "dx": -18,
-          "dy": -40
-        },
-        "regen": {
-          "pass": "crop2",
-          "score": 0.465,
-          "pop": 64.9,
-          "why": "T4"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -487,21 +339,7 @@
         "anchorX": 0.5952,
         "anchorY": 0.5208,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 13.3,
-          "dx": 0,
-          "dy": 0
-        },
-        "regen": {
-          "pass": "crop2",
-          "score": 0.9703,
-          "pop": 13.2,
-          "why": "T4"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -525,21 +363,7 @@
         "anchorX": 0.4578,
         "anchorY": 0.4451,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 21.9,
-          "dx": 0,
-          "dy": 0
-        },
-        "regen": {
-          "pass": "crop",
-          "score": 0.8904,
-          "pop": 24.2,
-          "why": "T4+refit refused"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -563,21 +387,7 @@
         "anchorX": 0.4842,
         "anchorY": 0.5111,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 8.8,
-          "dx": 0,
-          "dy": 0
-        },
-        "regen": {
-          "pass": "crop2",
-          "score": 0.9783,
-          "pop": 8.8,
-          "why": "T4+refit refused"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -601,21 +411,7 @@
         "anchorX": 0.456,
         "anchorY": 0.4914,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.4,
-          "ratio": 1.0,
-          "pop": 27.5,
-          "dx": -21,
-          "dy": -31
-        },
-        "regen": {
-          "pass": "crop2",
-          "score": 0.6723,
-          "pop": 53.5,
-          "why": "T4"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -639,21 +435,7 @@
         "anchorX": 0.5198,
         "anchorY": 0.5085,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 19.2,
-          "dx": 0,
-          "dy": 0
-        },
-        "regen": {
-          "pass": "crop",
-          "score": 0.9326,
-          "pop": 19.2,
-          "why": "T4+refit refused"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -677,21 +459,7 @@
         "anchorX": 0.4286,
         "anchorY": 0.4874,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 16.7,
-          "dx": 0,
-          "dy": 1
-        },
-        "regen": {
-          "pass": "crop2",
-          "score": 0.8929,
-          "pop": 22.6,
-          "why": "T4"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -715,21 +483,7 @@
         "anchorX": 0.483,
         "anchorY": 0.4677,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 9.9,
-          "dx": 0,
-          "dy": 0
-        },
-        "regen": {
-          "pass": "crop2",
-          "score": 0.9714,
-          "pop": 9.9,
-          "why": "T4"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -753,21 +507,7 @@
         "anchorX": 0.4497,
         "anchorY": 0.5081,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 11.0,
-          "dx": 0,
-          "dy": 0
-        },
-        "regen": {
-          "pass": "crop2",
-          "score": 0.9446,
-          "pop": 10.9,
-          "why": "T4"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -791,21 +531,7 @@
         "anchorX": 0.5085,
         "anchorY": 0.4802,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 0.95,
-          "pop": 16.9,
-          "dx": 3,
-          "dy": -1
-        },
-        "regen": {
-          "pass": "crop2",
-          "score": 0.8045,
-          "pop": 28.0,
-          "why": "T4"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     },
     {
@@ -829,21 +555,7 @@
         "anchorX": 0.3756,
         "anchorY": 0.4615,
         "flipX": false,
-        "flipY": false,
-        "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 12.2,
-          "dx": 0,
-          "dy": 0
-        },
-        "regen": {
-          "pass": "crop2",
-          "score": 0.8778,
-          "pop": 12.0,
-          "why": "T4"
-        },
-        "technique": "gpt-image-2.5-sunburst-low-visible-only"
+        "flipY": false
       }
     }
   ]
