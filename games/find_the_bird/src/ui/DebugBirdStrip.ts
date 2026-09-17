@@ -2,7 +2,7 @@
  * Debug bird strip (harness builds only, Batu 2026-09-17): a vertical strip on
  * the left of the play screen showing the pickup order around the current
  * bird — 3 past, the current one in a ring, 3 next. It slides down one slot
- * per pickup. The red button beside the ring flags the current bird as buggy; flags persist
+ * per pickup. Tapping the red ring flags the current bird as buggy; flags persist
  * in localStorage under FLAGS_KEY so they can be read back from the device.
  */
 import { TEST_HARNESS_ENABLED } from '../core/Constants';
@@ -26,24 +26,21 @@ export const FLAGS_KEY = 'ftb-debug-bird-flags';
 const SLOT = 100;
 const SLOTS = 7;
 const THUMB = 86;
-const BUTTON = 76;
+const ARROW = 28;
 
 let root: HTMLDivElement | null = null;
 let track: HTMLDivElement | null = null;
 let renderedLevel = '';
 let renderedIds = '';
-let buggy: HTMLButtonElement | null = null;
+let ring: HTMLDivElement | null = null;
 let current: { levelId: string; bird: DebugStripBird } | null = null;
 const paintSlot = new Map<string, () => void>();
 
 function paintCurrent(): void {
-  if (!buggy) return;
+  if (!ring) return;
   const flagged = current !== null && isFlagged(current.levelId, current.bird.id);
-  buggy.style.background = flagged ? '#fff' : '#ff2d55';
-  buggy.style.color = flagged ? '#ff2d55' : '#fff';
-  buggy.style.borderColor = flagged ? '#ff2d55' : '#fff';
-  buggy.textContent = flagged ? '✓' : '!';
-  buggy.style.opacity = current ? '1' : '0.35';
+  ring.style.background = flagged ? 'rgba(255,45,85,0.35)' : 'transparent';
+  ring.style.opacity = current ? '1' : '0.35';
   if (current) paintSlot.get(current.bird.id)?.();
 }
 
@@ -77,40 +74,39 @@ function ensureRoot(): HTMLDivElement {
   root = document.createElement('div');
   root.id = 'debug-bird-strip';
   root.style.cssText = [
-    'position:fixed', 'left:6px', 'top:50%', `height:${SLOT * SLOTS}px`, `width:${SLOT + BUTTON + 12}px`,
+    'position:fixed', 'left:6px', 'top:50%', `height:${SLOT * SLOTS}px`, `width:${SLOT + ARROW + 6}px`,
     'transform:translateY(-50%)', 'z-index:60', 'overflow:hidden', 'pointer-events:none', 'touch-action:none',
   ].join(';');
   const column = document.createElement('div');
   column.style.cssText = `position:absolute;left:0;top:0;width:${SLOT}px;height:100%;overflow:hidden;border-radius:${SLOT / 2}px;background:rgba(0,0,0,0.28);pointer-events:auto`;
-  const ring = document.createElement('div');
+  // the red ring marks the current bird AND is the "this one is buggy" tap target
+  ring = document.createElement('div');
+  ring.id = 'debug-bird-buggy';
   ring.style.cssText = [
     'position:absolute', 'left:2px', `top:${SLOT * 3 + 2}px`, `width:${SLOT - 4}px`, `height:${SLOT - 4}px`,
-    'border:3px solid #ff2d55', 'box-shadow:0 0 0 2px #fff inset', 'border-radius:50%', 'pointer-events:none', 'box-sizing:border-box',
+    'border:4px solid #ff2d55', 'box-shadow:0 0 0 2px #fff inset', 'border-radius:50%', 'pointer-events:auto', 'box-sizing:border-box', 'touch-action:none',
   ].join(';');
-  track = document.createElement('div');
-  track.style.cssText = 'position:absolute;left:0;top:0;width:100%;transition:transform 350ms cubic-bezier(.2,.8,.2,1);will-change:transform';
-  column.appendChild(track);
-  column.appendChild(ring);
-  root.appendChild(column);
-  // "this one is buggy": a separate button beside the ring that flags the CURRENT bird
-  buggy = document.createElement('button');
-  buggy.id = 'debug-bird-buggy';
-  buggy.type = 'button';
-  buggy.textContent = '!';
-  buggy.style.cssText = [
-    'position:absolute', `left:${SLOT + 12}px`, `top:${SLOT * 3 + (SLOT - BUTTON) / 2}px`, `width:${BUTTON}px`, `height:${BUTTON}px`,
-    'border-radius:50%', 'border:4px solid #fff', 'background:#ff2d55', 'color:#fff', 'font:900 44px/1 system-ui,sans-serif',
-    'pointer-events:auto', 'touch-action:none', 'box-shadow:0 4px 12px rgba(0,0,0,0.4)',
-  ].join(';');
-  buggy.addEventListener('pointerdown', (e) => { e.stopPropagation(); e.preventDefault(); });
-  buggy.addEventListener('pointerup', (e) => {
+  ring.addEventListener('pointerdown', (e) => { e.stopPropagation(); e.preventDefault(); });
+  ring.addEventListener('pointerup', (e) => {
     e.stopPropagation(); e.preventDefault();
     if (!current) return;
     toggleFlag(current.levelId, current.bird.id, current.bird.index);
     paintCurrent();
     window.dispatchEvent(new CustomEvent('ftb-debug-bird-flag', { detail: { levelId: current.levelId, dogId: current.bird.id, index: current.bird.index, flagged: isFlagged(current.levelId, current.bird.id) } }));
   });
-  root.appendChild(buggy);
+  track = document.createElement('div');
+  track.style.cssText = 'position:absolute;left:0;top:0;width:100%;transition:transform 350ms cubic-bezier(.2,.8,.2,1);will-change:transform';
+  column.appendChild(track);
+  column.appendChild(ring);
+  root.appendChild(column);
+  // a little arrow pointing at the current slot
+  const arrow = document.createElement('div');
+  arrow.textContent = '◀';
+  arrow.style.cssText = [
+    'position:absolute', `left:${SLOT + 4}px`, `top:${SLOT * 3}px`, `width:${ARROW}px`, `height:${SLOT}px`, 'display:flex', 'align-items:center',
+    'color:#ff2d55', 'font:900 26px/1 system-ui,sans-serif', 'text-shadow:0 0 3px #fff,0 0 6px #fff', 'pointer-events:none',
+  ].join(';');
+  root.appendChild(arrow);
   document.body.appendChild(root);
   return root;
 }
@@ -135,7 +131,7 @@ function thumbFor(bird: DebugStripBird, levelId: string): HTMLDivElement {
   }
   const paint = (): void => {
     canvas.style.border = isFlagged(levelId, bird.id) ? '3px solid #ff2d55' : '3px solid transparent';
-    canvas.style.opacity = bird.found ? '0.45' : '1';
+    canvas.style.opacity = bird.found ? '0.85' : '1';
   };
   paint();
   paintSlot.set(bird.id, paint);
@@ -168,5 +164,5 @@ export function updateDebugBirdStrip(levelId: string, birds: readonly DebugStrip
 }
 
 export function destroyDebugBirdStrip(): void {
-  root?.remove(); root = null; track = null; buggy = null; current = null; paintSlot.clear(); renderedLevel = ''; renderedIds = '';
+  root?.remove(); root = null; track = null; ring = null; current = null; paintSlot.clear(); renderedLevel = ''; renderedIds = '';
 }
