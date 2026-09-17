@@ -1698,6 +1698,7 @@ def cmd_sticker_lane(client: Client, args: argparse.Namespace) -> None:
         "maxCropR": args.max_crop_r,
         "judge": args.judge,
         "whitegap": not args.no_whitegap,
+        "restore": not args.no_restore,
         "dryRun": args.dry_run,
     }
     if args.bird:
@@ -1974,6 +1975,7 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--max-crop-r", type=float, default=5.0, help="cap of the painted-extent crop in hitbox radii (3.2 tight, 5 default, 7 wide)")
     p.add_argument("--judge", default="agy,openrouter", help="judge backends in order (agy, openrouter)")
     p.add_argument("--no-whitegap", action="store_true")
+    p.add_argument("--no-restore", action="store_true", help="skip the birdless restoration commit at the end")
     p.add_argument("--bless-actor", default=None, help="delegated final-cutout bless when nothing is left refused, e.g. human:batu-delegated:lane-2026-09-17")
     p.add_argument("--nonce", default=None, help="force a fresh job over an identical completed one")
     p.add_argument("--wait", action="store_true")

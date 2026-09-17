@@ -90,6 +90,7 @@ reviews are invalidated per changed bird. Formalized from the 2026-09-16/17 inta
 | 4 Second pass | refit + judge the regenerations; still-refused birds are listed for the operator, never a blind second round | operator decision 2026-09-16. |
 | 5 White gaps | `whitegap.find_gaps` proposes (small flat white blob, enclosed, next to the outside through thin strokes only, ringed by line art), the judge confirms, `punch_gaps` makes it transparent | cheeks/bellies/wing bars are not separable from gaps deterministically: 94 judge-confirmed, Batu-reviewed on 2026-09-17; fixtures in `tests/fixtures/whitegap`. |
 | 6 Missing bird | a judge "why" that says the painted bird is not there → `missing`, reported, no spend | VLM-minted hitboxes with nothing under them (galley, scribes). |
+| 7 Restoration | the canonical restore asset becomes the birdless restoration (`birdless_restore_image`: scene minus each bird's own connected painted pixels inside its cleanup rect, phase-aligned, sharpness-matched) and the reviews it depends on are invalidated | a fresh canonical level shipped the raw clean plate as bg_00 on the first end-to-end run (2026-09-17): every pickup reverted the whole rect, props included. The legacy exporter always did this; the canonical export shipped the asset verbatim. |
 | Cleanup rect | follows the final sprite box ×1.15, at least 2 r, always containing the hitbox disc | intake "fix2" rule. |
 | Ship | sticker resized to its box, long edge ≤ 288 px, transparent RGB zeroed | the shipped-44 convention. |
 

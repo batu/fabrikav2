@@ -997,6 +997,7 @@ export interface StickerLaneRequest {
   maxCropR?: number;
   judge?: string;
   whitegap?: boolean;
+  restore?: boolean;
   dryRun?: boolean;
   blessActor?: string;
   attemptNonce?: string;

@@ -3908,6 +3908,7 @@ class StickerLaneRequest(BaseModel):
     judge: str = Field("agy,openrouter", max_length=80)
     judgeModel: str | None = Field(None, max_length=200)
     whitegap: bool = True
+    restore: bool = True
     dryRun: bool = False
     blessActor: str | None = Field(None, max_length=200)
     attemptNonce: str | None = Field(None, max_length=64)
@@ -3951,6 +3952,7 @@ def start_sticker_lane_job(session_id: str, req: StickerLaneRequest):
         "judge": req.judge,
         "judgeModel": req.judgeModel or DEFAULT_JUDGE_MODEL,
         "whitegap": req.whitegap,
+        "restore": req.restore,
         "dryRun": req.dryRun,
         "blessActor": req.blessActor,
         "contentRevision": canonical.pointer.content_revision,

@@ -229,7 +229,7 @@ def _lane_session(isolated_session, session_id: str):
 def test_lane_keeps_a_matching_sticker_and_annotates_the_sidecar(isolated_session, tmp_path):
     store, pointer, sdir, box = _lane_session(isolated_session, "lane_keep")
     vision = FakeVision(tier=1)
-    summary = L.run_sticker_lane("lane_keep", L.LaneOptions(edit=_fake_edit, vision=vision, whitegap=False, artifact_dir=tmp_path / "art"))
+    summary = L.run_sticker_lane("lane_keep", L.LaneOptions(edit=_fake_edit, vision=vision, whitegap=False, restore=False, artifact_dir=tmp_path / "art"))
     assert summary["classes"] == {"bird_one": "keep"}
     assert summary["refit"]["bird_one"] == "applied"
     assert summary["regenerated"] == {} and summary["stillRefused"] == [] and summary["errors"] == []
@@ -246,7 +246,7 @@ def test_lane_keeps_a_matching_sticker_and_annotates_the_sidecar(isolated_sessio
 def test_lane_regenerates_a_tier4_sticker_through_canonical_promotion(isolated_session, tmp_path):
     store, pointer, sdir, (x, y, w, h) = _lane_session(isolated_session, "lane_regen")
     vision = FakeVision(tier=4, why="different pose")
-    summary = L.run_sticker_lane("lane_regen", L.LaneOptions(edit=_fake_edit, vision=vision, whitegap=False, artifact_dir=tmp_path / "art"))
+    summary = L.run_sticker_lane("lane_regen", L.LaneOptions(edit=_fake_edit, vision=vision, whitegap=False, restore=False, artifact_dir=tmp_path / "art"))
     assert summary["classes"] == {"bird_one": "regenerate"}
     assert "bird_one" in summary["regenerated"]
     # the regenerated sticker is judged again (T4 from the fake judge again -> still refused, not committed)
@@ -265,7 +265,7 @@ def test_lane_regenerates_a_tier4_sticker_through_canonical_promotion(isolated_s
         return {"tier": 4 if calls["n"] == 1 else 1, "why": "x", "backend": "fake", "seconds": 0.0}
 
     vision.ask = judge_second_pass_only  # type: ignore[method-assign]
-    summary = L.run_sticker_lane("lane_regen", L.LaneOptions(edit=_fake_edit, vision=vision, whitegap=False, artifact_dir=tmp_path / "art2"))
+    summary = L.run_sticker_lane("lane_regen", L.LaneOptions(edit=_fake_edit, vision=vision, whitegap=False, restore=False, artifact_dir=tmp_path / "art2"))
     assert summary["regenerated"]["bird_one"]["class"] == "keep"
     committed = summary["committed"]["bird_one"]
     assert committed["disposition"] == "committed"
@@ -388,3 +388,34 @@ def test_lane_regenerates_a_scenery_sticker_even_when_the_judge_likes_it(isolate
     assert summary["classes"]["bird_one"] == "regenerate"
     assert "bird_one" in summary["regenerated"] and summary["regenerated"]["bird_one"]["class"] == "keep"
     assert summary["committed"]["bird_one"]["disposition"] == "committed"
+
+
+# ── restoration (first end-to-end run, 2026-09-17) ───────────────────────────────────────
+def test_birdless_restore_erases_only_the_bird():
+    from levelbuilder.api.session import birdless_restore_image
+
+    clean, painted, sprite, (x, y, w, h) = _bird_scene()
+    level = {"dogs": [{"sprite": {"cleanup": {"x": x - 4, "y": y - 4, "width": w + 8, "height": h + 8}}}]}
+    out = np.asarray(birdless_restore_image(painted, clean, level), np.int16)
+    c = np.asarray(clean, np.int16)
+    p = np.asarray(painted, np.int16)
+    assert np.abs(out[45, 60] - c[45, 60]).sum() < 30  # the bird body is gone
+    far = np.abs(out - p).sum(2)
+    far[y - 20:y + h + 20, x - 20:x + w + 20] = 0
+    assert far.max() == 0  # nothing outside the bird's neighbourhood changed
+
+
+def test_lane_commits_the_birdless_restoration(isolated_session, tmp_path):
+    store, pointer, sdir, (x, y, w, h) = _lane_session(isolated_session, "lane_restore")
+    before = store.read().snapshot["restore"]["asset"]["sha256"]
+    summary = L.run_sticker_lane("lane_restore", L.LaneOptions(edit=_fake_edit, vision=FakeVision(tier=1), whitegap=False, artifact_dir=tmp_path))
+    assert summary["restore"]["changed"] is True
+    current = store.read()
+    restore = current.snapshot["restore"]
+    assert restore["asset"]["sha256"] != before and restore["asset"]["path"].startswith("bg_restore_")
+    assert restore["sourceSceneSha256"] == current.snapshot["assets"]["scene"]["sha256"]
+    img = np.asarray(Image.open(sdir / restore["asset"]["path"]).convert("RGB"), np.int16)
+    assert np.abs(img[45, 60] - np.array(CLEAN, np.int16)).sum() < 30
+    # idempotent: a second run changes nothing
+    again = L.commit_birdless_restore("lane_restore", stamp="x")
+    assert again["changed"] is False and store.read().pointer.content_revision == current.pointer.content_revision

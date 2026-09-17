@@ -24,6 +24,8 @@ Order per level (Batu, do not reorder):
      punches. White cheeks/bellies are never touched without the judge.
   6. a bird whose judge says the painted bird is missing is reported, not regenerated (operator
      decides delete vs add).
+  7. restoration: the canonical restore asset becomes the birdless restoration (scene minus each
+     bird's own pixels, the legacy writer's rule) instead of the raw clean plate.
 """
 from __future__ import annotations
 
@@ -491,6 +493,7 @@ class LaneOptions:
     judge: str = DEFAULT_JUDGE
     judge_model: str = DEFAULT_JUDGE_MODEL
     whitegap: bool = True
+    restore: bool = True            # commit the birdless restoration as the canonical restore asset at the end
     dry_run: bool = False           # judge + refit only; no spend on regeneration, no commits
     bless_actor: str | None = None  # e.g. human:batu-delegated:lane-2026-09-17 (operator option 2)
     workers: int = 6
@@ -598,6 +601,53 @@ def _commit_bird(session_id: str, bird: dict[str, Any], *, sprite: Image.Image |
         S.sync_sprite_metadata_to_levels(session_id, dog_index, index, metadata)
     return {"disposition": disposition, "contentRevision": pointer.content_revision if pointer else None,
             "file": metadata["image"], "spriteBox": sprite_box, "cleanupBox": cleanup_box}
+
+
+def commit_birdless_restore(session_id: str, *, stamp: str, generation_id: str | None = None) -> dict[str, Any]:
+    """Step 7: the canonical restore asset becomes the birdless restoration (painted scene minus each
+    bird's own pixels) instead of the raw clean plate. A fresh canonical level otherwise ships the clean
+    plate as bg_00 (found on the first end-to-end run, 2026-09-17): every pickup then reverted the
+    whole cleanup rect, props included. Idempotent: an unchanged restoration commits nothing.
+    A restore change invalidates the hitbox and final-cutout reviews (contract), so bless after this."""
+    import hashlib
+
+    from .canonical_bird_contract import CanonicalReadState, invalidate_reviews
+    from .canonical_export import _level_json
+    from .inpaint import _atomic_save_image
+
+    current = S.read_canonical_session(session_id)
+    if current.state is not CanonicalReadState.VALID_CURRENT or current.snapshot is None or current.pointer is None:
+        raise ValueError(f"{session_id}: canonical session is {current.state.value}")
+    store = S.canonical_session_store(session_id)
+    snapshot = current.snapshot
+    color = _open_asset(store, snapshot["assets"]["scene"], "RGB")
+    clean = _open_asset(store, snapshot["assets"]["cleanBackground"], "RGB")
+    level = _level_json(snapshot, *color.size)
+    restored = S.birdless_restore_image(color, clean, level)
+    sdir = S.session_dir(session_id)
+    rel = f"bg_restore_{stamp}.png"
+    tmp = sdir / f".{rel}.candidate-{uuid.uuid4().hex[:8]}.png"
+    _atomic_save_image(restored, tmp)
+    data = tmp.read_bytes()
+    digest = hashlib.sha256(data).hexdigest()
+    old = snapshot["restore"]["asset"]
+    if old.get("sha256") == digest and snapshot["restore"].get("sourceSceneSha256") == snapshot["assets"]["scene"]["sha256"]:
+        tmp.unlink(missing_ok=True)
+        return {"changed": False, "sha256": digest, "path": old.get("path")}
+    path = sdir / rel
+    os.replace(tmp, path)
+    updated = invalidate_reviews(snapshot, changed_artifacts={"restore"})
+    updated["restore"] = {
+        "asset": {"path": rel, "sha256": digest, "bytes": len(data)},
+        "sourceSceneSha256": updated["assets"]["scene"]["sha256"],
+    }
+    pointer = store.commit(
+        updated,
+        expected_content_revision=current.pointer.content_revision,
+        expected_operational_revision=current.pointer.operational_revision,
+    )
+    return {"changed": True, "sha256": digest, "path": rel, "contentRevision": pointer.content_revision,
+            "generationId": generation_id}
 
 
 def run_sticker_lane(session_id: str, opts: LaneOptions | None = None, *,
@@ -864,7 +914,12 @@ def run_sticker_lane(session_id: str, opts: LaneOptions | None = None, *,
                     prompt=prompt, generation_id=generation_id)
             except Exception as exc:  # noqa: BLE001
                 summary["errors"].append({"birdId": bid, "error": f"commit: {type(exc).__name__}: {str(exc)[:160]}"})
-        if opts.bless_actor and summary["committed"] and not summary["stillRefused"] and not summary["missing"]:
+        if opts.restore:
+            try:
+                summary["restore"] = commit_birdless_restore(session_id, stamp=opts.stamp, generation_id=generation_id)
+            except Exception as exc:  # noqa: BLE001
+                summary["errors"].append({"birdId": None, "error": f"restore: {type(exc).__name__}: {str(exc)[:160]}"})
+        if opts.bless_actor and not summary["stillRefused"] and not summary["missing"] and not summary["errors"]:
             cur = S.read_canonical_session(session_id)
             if cur.pointer is not None:
                 S.set_canonical_final_review_if_present(session_id, True, expected_content_revision=cur.pointer.content_revision,
@@ -904,6 +959,7 @@ def options_from_metadata(metadata: dict[str, Any]) -> LaneOptions:
         judge=str(metadata.get("judge") or DEFAULT_JUDGE),
         judge_model=str(metadata.get("judgeModel") or DEFAULT_JUDGE_MODEL),
         whitegap=bool(metadata.get("whitegap", True)),
+        restore=bool(metadata.get("restore", True)),
         dry_run=bool(metadata.get("dryRun", False)),
         bless_actor=metadata.get("blessActor") or None,
     )
