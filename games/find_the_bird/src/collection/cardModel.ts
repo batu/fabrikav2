@@ -61,6 +61,8 @@ export interface CardViewModel {
   claimable: boolean;
   /** Rung tabs down the card's left side. */
   tabs: readonly CardTab[];
+  /** Overrides the frame's default portrait sizing (a wide silhouette sits lower). */
+  portraitStyle?: string;
   /** Screen-reader label for the whole card. */
   ariaLabel: string;
 }
@@ -109,8 +111,8 @@ export function sparrowCard(input: CardInputs): CardViewModel {
     kind: 'sparrow',
     state,
     portraitSrc: revealed ? PORTRAITS[state] : teased ? PORTRAITS.silhouette : UNKNOWN_PORTRAIT,
-    plaque: revealed ? 'Sparrow' : '? ? ?',
-    ribbon: teased ? 'House sparrow' : '?',
+    plaque: revealed ? 'Chirpy' : '? ? ?',
+    ribbon: teased ? 'House Sparrow' : '?',
     lines: linesShown ? SPARROW_LINES : [HIDDEN_LINE, HIDDEN_LINE, HIDDEN_LINE],
     progress: next.target === null
       ? null
@@ -127,11 +129,17 @@ export function sparrowCard(input: CardInputs): CardViewModel {
 }
 
 /** A bird that is on the roadmap but not collectable yet: the locked frame, nothing known. */
+const LOCKED_SILHOUETTES: Record<'robin' | 'bluebird', string> = {
+  robin: '/ui/collection/portrait-robin-silhouette.webp',
+  bluebird: UNKNOWN_PORTRAIT,
+};
+
 export function lockedBirdCard(kind: 'robin' | 'bluebird'): CardViewModel {
   return {
     kind: 'sparrow',
     state: 'silhouette',
-    portraitSrc: UNKNOWN_PORTRAIT,
+    portraitSrc: LOCKED_SILHOUETTES[kind],
+    portraitStyle: kind === 'robin' ? 'height:66%;width:auto;bottom:-1%' : undefined,
     plaque: '? ? ?',
     ribbon: '?',
     lines: [HIDDEN_LINE, HIDDEN_LINE, HIDDEN_LINE],

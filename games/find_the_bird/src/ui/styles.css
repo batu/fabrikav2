@@ -5873,11 +5873,12 @@ body:has(#home-page-overlay) #tutorial-overlay { display: none; }
 /* Text is sized from the card itself (container units), so the type stays
    registered on the woodwork whatever the card's share of the screen. */
 .collection-card { position: relative; width: 100%; max-height: calc(100% - 58px); aspect-ratio: 900 / 1500; container-type: inline-size; flex: 0 1 auto; min-height: 0; }
-.collection-card-frame { position: absolute; inset: 0; width: 100%; height: 100%; }
-.collection-card-arch { position: absolute; overflow: hidden; }
+.collection-card-frame { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; }
+.collection-card-frame--over { z-index: 3; pointer-events: none; }
+.collection-card-arch { position: absolute; overflow: hidden; z-index: 2; }
 .collection-card-portrait { position: absolute; left: 50%; transform: translateX(-50%); }
 .collection-card-lock { position: absolute; left: 62%; top: 34%; width: 16%; filter: drop-shadow(0 2px 3px rgba(103, 67, 38, .45)); }
-.collection-card-text { position: absolute; inset: 0; pointer-events: none; }
+.collection-card-text { position: absolute; inset: 0; pointer-events: none; z-index: 2; }
 /* Plaque 860-960, ribbon 1040-1120, bubble 1160-1400 of 1536. */
 /* Bands measured from card-frame.webp (1024x1536): plaque 700-855, ribbon
    860-958, bubble 988-1207. Estimated values shifted every row one slot down
@@ -6194,14 +6195,15 @@ body:has(#home-page-overlay) #tutorial-overlay { display: none; }
 .collection-slide .collection-unlock-btn { position: static; width: 92%; min-height: 44px; flex: 0 0 auto; }
 
 /* Rung tabs down the card's left side, bookmark style, over the border. */
-.collection-tabs { position: absolute; left: -14%; top: 5%; width: 22%; display: flex; flex-direction: column; gap: 3%; z-index: 2; }
+.collection-tabs { position: absolute; left: -15%; top: 5%; width: 24%; display: flex; flex-direction: column; gap: 3%; z-index: 0; }
 .collection-tab { position: relative; width: 100%; aspect-ratio: 712 / 482; border: 0; padding: 0; background: url('/ui/collection/tab-open.webp') center / 100% 100% no-repeat; cursor: pointer; filter: drop-shadow(0 3px 4px rgba(60, 35, 10, .35)); transition: transform 180ms cubic-bezier(.34, 1.4, .64, 1), filter 180ms; transform-origin: 50% 50%; }
 .collection-tab--locked { background-image: url('/ui/collection/tab-locked.webp'); cursor: default; }
-.collection-tab--selected { transform: translateX(14%) scale(1.14); filter: drop-shadow(0 0 8px rgba(255, 214, 120, .9)) drop-shadow(0 3px 4px rgba(60, 35, 10, .35)); z-index: 1; }
-.collection-tab-icon { position: absolute; left: 12%; top: 13%; width: 62%; height: 74%; object-fit: contain; }
+.collection-tab--selected { transform: translateX(26%) scale(1.08); filter: drop-shadow(0 0 8px rgba(255, 214, 120, .9)) drop-shadow(0 3px 4px rgba(60, 35, 10, .35)); z-index: 1; }
+/* The plate's recess is left of centre: icon centred on the recess. */
+.collection-tab-icon { position: absolute; left: 17%; top: 12%; width: 42%; height: 76%; object-fit: contain; }
 .collection-tab--pop { animation: home-nav-unlock-pop 680ms cubic-bezier(.34, 1.56, .64, 1) both; }
 .collection-arch--swap .collection-card-portrait { animation: collection-arch-swap 360ms cubic-bezier(.34, 1.4, .64, 1) both; }
 @keyframes collection-arch-swap { 0% { transform: translateX(-50%) translateY(10%) scale(.92); opacity: 0; } 100% { transform: translateX(-50%) translateY(0) scale(1); opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .collection-tab--pop, .collection-arch--swap .collection-card-portrait { animation: none; } .collection-tab { transition: none; } }
 
-.collection-line-lock { height: 46%; width: auto; opacity: .85; filter: drop-shadow(0 2px 2px rgba(60, 35, 10, .35)); }
+.collection-line-lock { height: 82%; width: auto; opacity: .85; filter: drop-shadow(0 2px 2px rgba(60, 35, 10, .35)); }

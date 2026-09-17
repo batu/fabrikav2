@@ -41,6 +41,11 @@ interface FrameGeometry {
   subtitleY: readonly [number, number];
   /** Text-safe box inside the sentence panel (keeps clear of corner ornament). */
   panel: { x: readonly [number, number]; y: readonly [number, number] };
+  /** Portrait sizing inside the arch. */
+  portraitStyle: string;
+  /** A part of the frame that must draw OVER the portrait (the locked frame's
+   *  padlock bump), as a clip box in canvas pixels. */
+  overlay?: { x: readonly [number, number]; y: readonly [number, number] };
 }
 
 const FRAMES: Record<'sparrow' | 'locked', FrameGeometry> = {
@@ -53,6 +58,7 @@ const FRAMES: Record<'sparrow' | 'locked', FrameGeometry> = {
     subtitleY: [1008, 1105],
     // The snail sits in the panel's bottom-right; copy stays above it.
     panel: { x: [125, 775], y: [1150, 1315] },
+    portraitStyle: 'height:97%;width:auto;bottom:-4%',
   },
   locked: {
     src: '/ui/collection/frame-locked.webp',
@@ -62,6 +68,9 @@ const FRAMES: Record<'sparrow' | 'locked', FrameGeometry> = {
     plaqueY: [845, 955],
     subtitleY: [985, 1075],
     panel: { x: [120, 780], y: [1125, 1385] },
+    // The bird sits on the arch's floor and the padlock bump covers its feet.
+    portraitStyle: 'height:90%;width:auto;bottom:-1%',
+    overlay: { x: [360, 540], y: [680, 810] },
   },
 };
 
@@ -98,7 +107,6 @@ function bandStyle(f: FrameGeometry, band: readonly [number, number], x: readonl
  * its width, so the taller costumes keep the beanie's pom-pom. A small
  * negative bottom keeps the chest running down into the sill.
  */
-const PORTRAIT_STYLE = 'height:97%;width:auto;bottom:-4%';
 
 function renderCard(card: CardViewModel, index: number): string {
   const f = frameFor(card);
@@ -127,8 +135,9 @@ function renderCard(card: CardViewModel, index: number): string {
       <article class="collection-card${card.locked ? ' collection-card--locked' : ''}" data-card-kind="${card.kind}" data-card-state="${card.state}" aria-label="${card.ariaLabel}">
         <img class="collection-card-frame" src="${f.src}" alt="" aria-hidden="true">
         <span class="collection-card-arch" style="${archStyle(f)}" aria-hidden="true">
-          <img class="collection-card-portrait" src="${card.portraitSrc}" alt="" style="${PORTRAIT_STYLE}">
+          <img class="collection-card-portrait" src="${card.portraitSrc}" alt="" style="${card.portraitStyle ?? f.portraitStyle}">
         </span>
+        ${f.overlay ? `<img class="collection-card-frame collection-card-frame--over" src="${f.src}" alt="" aria-hidden="true" style="clip-path:inset(${pct(f.overlay.y[0], f.height)} ${pct(f.width - f.overlay.x[1], f.width)} ${pct(f.height - f.overlay.y[1], f.height)} ${pct(f.overlay.x[0], f.width)})">` : ''}
         ${card.tabs.length === 0 ? '' : `<div class="collection-tabs" role="tablist" aria-label="Sparrow looks">
           ${card.tabs.map((tab) => `<button class="collection-tab${tab.unlocked ? ' collection-tab--open' : ' collection-tab--locked'}${tab.selected ? ' collection-tab--selected' : ''}" type="button" role="tab" data-rung="${tab.rung}" aria-selected="${tab.selected ? 'true' : 'false'}" aria-label="${tab.label}${tab.unlocked ? '' : ', locked'}"${tab.unlocked ? '' : ' aria-disabled="true"'}>${tab.unlocked ? `<img class="collection-tab-icon" src="${tab.icon}" alt="" aria-hidden="true">` : ''}</button>`).join('')}
         </div>`}
