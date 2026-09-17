@@ -25,7 +25,7 @@ import { animateCoinsToBalance } from './EconomyTransfer';
 import { refreshHomeWalletBalances } from './WalletBalances';
 import { openPage, refreshMetaNav } from './HUD';
 import { playBirdPlace, playFind, playHouseBuild, playUITap, preloadMetaSounds } from '../audio/AudioManager';
-import { burst, cancelJuice, centerOf, nudge } from './juice';
+import { cancelJuice, centerOf, nudge } from './juice';
 import { hapticFound } from '../haptics/HapticsManager';
 import manifestJson from '../../public/ui/sanctuary/manifest.json';
 
@@ -436,11 +436,7 @@ export function wireSanctuaryPage(page: ParentNode): void {
       playHouseBuild();
       hapticFound();
       const centre = centerOf(house, 0.55);
-      const base = centerOf(house, 0.92);
       if (centre !== null) nudge(scene, centre, 0.03);
-      if (base !== null) burst(base, 'puff', { delay: 200, radius: 70, count: 10 });
-      if (centre !== null) burst(centre, 'sparkle', { delay: 260, radius: 120, count: 12 });
-      if (centre !== null) burst(centre, 'confetti', { delay: 240, radius: 130, count: 16 });
     };
     if (house === null || prefersReducedMotion()) { reveal(); return; }
     // Hold the old look (or nothing) while the coins travel.
@@ -509,15 +505,7 @@ export function wireSanctuaryPage(page: ParentNode): void {
             if (shadow instanceof HTMLElement && shadow.classList.contains('sanctuary-shadow')) shadowLand(shadow);
             playBirdPlace();
             hapticFound();
-            // Feathers and dust at the FEET (the inline offset puts them at
-            // footFraction across the slot), timed to the landing at 50%.
-            const rect = placed.getBoundingClientRect();
-            const foot = MANIFEST.birdFootCenterX?.[currentCostume()] ?? 0.5;
-            const feet = { x: rect.left + rect.width * foot, y: rect.bottom - 2 };
             nudge(scene, centerOf(placed), 0.025);
-            burst(feet, 'puff', { delay: 230, radius: 46, count: 7 });
-            burst({ x: feet.x, y: rect.top + rect.height * 0.45 }, 'feather', { delay: 200, radius: 60, count: 7 });
-            burst({ x: feet.x, y: rect.top + rect.height * 0.4 }, 'sparkle', { delay: 300, radius: 70, count: 8 });
           },
         },
       ],
