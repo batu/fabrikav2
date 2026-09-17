@@ -16,6 +16,7 @@ declare global {
     readonly VITE_FTD_STORE_LINK?: string;
     readonly VITE_INSITU_TOUR?: string;
     readonly VITE_INSITU_TOUR_STATE?: string;
+    readonly VITE_FTB_DEV_TOOLS?: string;
     readonly VITE_CDN_ENABLED?: string;
     readonly VITE_CDN_ORIGIN_ANDROID?: string;
     readonly VITE_CDN_ORIGIN_PROD?: string;

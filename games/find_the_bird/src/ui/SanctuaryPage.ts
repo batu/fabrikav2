@@ -247,7 +247,9 @@ function startIdle(element: HTMLElement, seat = 0): void {
   const phase = (seat * 0.37) % 1;
   track(element,
     [{ transform: 'scale(1)' }, { transform: 'scale(1.03)' }, { transform: 'scale(1)' }],
-    { duration: 2400, iterations: Infinity, easing: 'ease-in-out', delay: -phase * 2400 },
+    // Additive, like the other idle tracks: a replacing transform drops the
+    // inline translateX that stands the bird on its feet and slides it right.
+    { duration: 2400, iterations: Infinity, easing: 'ease-in-out', delay: -phase * 2400, composite: 'add' },
   );
   // Blink and hop are separate infinite timelines with long quiet stretches, so
   // the bird never looks metronomic.
@@ -293,6 +295,30 @@ function currentCostume(): string {
 function birdSprite(costume: string): string {
   const sparrow = MANIFEST.birds.sparrow;
   return sparrow[costume] ?? sparrow.plain;
+}
+
+const DEV_TOOLS = String(import.meta.env.VITE_FTB_DEV_TOOLS) === 'true';
+
+/** Dev builds only: five quick taps on the page title cycle the house tier
+ *  0 -> 1 -> 2 -> 3 -> 0, so every tier can be eyeballed on the phone. */
+function wireDevTierCycle(page: ParentNode, rerender: () => void): void {
+  if (!DEV_TOOLS) return;
+  const title = page.querySelector<HTMLElement>('#home-page-title');
+  if (title === null) return;
+  let taps = 0;
+  let last = 0;
+  title.addEventListener('click', () => {
+    const t = Date.now();
+    taps = t - last < 600 ? taps + 1 : 1;
+    last = t;
+    if (taps < 5) return;
+    taps = 0;
+    const current = gameState.sanctuary;
+    const next = ((current.houseTier + 1) % (MAX_HOUSE_TIER + 1)) as SanctuaryHouseTier;
+    gameState.commitSanctuaryState({ ...current, houseTier: next, placed: next === 0 ? {} : current.placed });
+    playUITap();
+    rerender();
+  });
 }
 
 export function wireSanctuaryPage(page: ParentNode): void {
@@ -585,6 +611,8 @@ export function wireSanctuaryPage(page: ParentNode): void {
       actions: unlocked ? [] : [{ label: 'Go to Collection', kind: 'primary', onTap: () => { openPage('collection'); } }],
     });
   };
+
+  wireDevTierCycle(page, render);
 
   const onResize = (): void => { render(); };
   const onVisible = (): void => { if (document.visibilityState === 'visible') render(); };

@@ -191,6 +191,7 @@ function syntheticFixture(policy) {
   // policy, so the all-keys synthetic fixture must leave it unset.
   values.set('VITE_INSITU_TOUR', '');
   values.set('VITE_INSITU_TOUR_STATE', '');
+  values.set('VITE_FTB_DEV_TOOLS', '');
   return values;
 }
 
