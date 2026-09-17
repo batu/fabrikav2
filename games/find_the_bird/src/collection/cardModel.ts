@@ -71,7 +71,6 @@ export interface CardViewModel {
   ariaLabel: string;
 }
 
-const UNKNOWN_PORTRAIT = '/ui/collection/portrait-unknown.webp';
 
 const TAB_ICONS: Record<1 | 2 | 3, string> = {
   1: '/ui/collection/glyph-bird.webp',
@@ -112,14 +111,14 @@ export function birdCard(input: CardInputs): CardViewModel {
   return {
     kind: 'sparrow',
     bird,
-    // The sparrow keeps the plain locked frame until it is earned; later birds
-    // wear their own frame from the start, as a promise of what is coming.
-    frame: revealed || bird !== 'sparrow' ? def.frame : 'locked',
+    // Every bird wears its own frame and silhouette from the start, as a
+    // promise of what is coming; only the ? card uses the locked frame.
+    frame: def.frame,
     state,
-    portraitSrc: revealed ? def.portraits[state] : teased || bird !== 'sparrow' ? def.portraits.silhouette : UNKNOWN_PORTRAIT,
+    portraitSrc: revealed ? def.portraits[state] : def.portraits.silhouette,
     portraitStyle: revealed
       ? `height:${(PORTRAIT_HEIGHT[bird][state === 'silhouette' ? 'plain' : state] * 100).toFixed(1)}%;width:auto;bottom:-4%`
-      : bird === 'sparrow' ? undefined : 'height:70%;width:auto;bottom:-1%',
+      : 'height:70%;width:auto;bottom:-1%',
     plaque: revealed ? def.name : '? ? ?',
     ribbon: teased || revealed ? def.species : '?',
     lines: linesShown ? def.lines : [HIDDEN_LINE, HIDDEN_LINE, HIDDEN_LINE],
