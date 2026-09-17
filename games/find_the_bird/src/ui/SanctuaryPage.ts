@@ -422,13 +422,14 @@ export function wireSanctuaryPage(page: ParentNode): void {
 
   const offerPlacement = (pedestalIndex: number): void => {
     const unlocked = clampRung(gameState.collectionMeta.claimedRung) >= 1;
+    const elsewhere = Object.values(gameState.sanctuary.placed).includes('sparrow');
     showSheet(sheetRoot, {
-      title: unlocked ? 'Who moves in?' : 'No bird yet',
+      title: unlocked ? (elsewhere ? 'Move Chirpy here?' : 'Who moves in?') : 'No bird yet',
       portrait: unlocked ? '/ui/collection/portrait-sparrow-plain.webp' : '/ui/collection/portrait-sparrow-silhouette.webp',
       facts: unlocked ? ['Chirpy', 'House Sparrow'] : ['Unlock Chirpy in the Collection'],
       actions: [
         {
-          label: unlocked ? 'Place Chirpy' : 'Go to Collection',
+          label: unlocked ? (elsewhere ? 'Move Chirpy' : 'Place Chirpy') : 'Go to Collection',
           kind: 'primary',
           onTap: () => {
             if (!unlocked) { openPage('collection'); return; }

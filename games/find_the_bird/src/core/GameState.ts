@@ -897,12 +897,17 @@ export class GameState {
     return true;
   }
 
-  /** Move a bird onto a pedestal. Starts the accrual clock on the first tenant. */
+  /** Move a bird onto a pedestal. Starts the accrual clock on the first tenant.
+   *  One of each bird: placing it again moves it off wherever it already sat. */
   placeBird(pedestalIndex: number, bird: string, now: Date = new Date()): boolean {
     if (!Number.isSafeInteger(pedestalIndex) || pedestalIndex < 0) return false;
     if (typeof bird !== 'string' || bird.length === 0) return false;
     if (this._sanctuary.houseTier === 0) return false;
-    const placed = { ...this._sanctuary.placed, [pedestalIndex]: bird };
+    const placed: Record<number, string> = {};
+    for (const [slot, tenant] of Object.entries(this._sanctuary.placed)) {
+      if (tenant !== bird) placed[Number(slot)] = tenant;
+    }
+    placed[pedestalIndex] = bird;
     const accrualStartedAt = this._sanctuary.accrualStartedAt ?? now.toISOString();
     this._sanctuary = { ...this._sanctuary, placed, accrualStartedAt };
     this.save();
