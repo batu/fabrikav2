@@ -215,6 +215,71 @@ export function preloadBirdFoundSounds(): Promise<AudioBuffer[]> {
   return birdFoundBuffersPromise;
 }
 
+// ---- Meta-page one-shots (Collection claim, nest-box build, bird placed) ----
+// Same rules as the bird-found samples: fetched and decoded once per launch,
+// started only after the iOS unlock, status 0 accepted from capacitor://.
+const META_SFX = {
+  claim: '/audio/meta/collection-claim.wav',
+  build: '/audio/meta/house-build.wav',
+  place: '/audio/meta/bird-place.wav',
+} as const;
+type MetaSfx = keyof typeof META_SFX;
+const META_SFX_GAIN: Record<MetaSfx, number> = { claim: 0.45, build: 0.5, place: 0.4 };
+const metaSfxBuffers = new Map<MetaSfx, Promise<AudioBuffer>>();
+
+function loadMetaSfx(name: MetaSfx): Promise<AudioBuffer> {
+  const ctx = getAudioContext();
+  let pending = metaSfxBuffers.get(name);
+  if (pending === undefined) {
+    pending = fetch(META_SFX[name])
+      .then((response: Response): Promise<ArrayBuffer> => {
+        if (!response.ok && response.status !== 0) {
+          throw new Error(`Failed to load ${name} sound: ${response.status}`);
+        }
+        return response.arrayBuffer();
+      })
+      .then((data: ArrayBuffer): Promise<AudioBuffer> => ctx.decodeAudioData(data));
+    // A failed fetch may retry on the next play rather than staying broken.
+    pending.catch((): void => { metaSfxBuffers.delete(name); });
+    metaSfxBuffers.set(name, pending);
+  }
+  return pending;
+}
+
+/** Warm the meta one-shots so the first claim or build is not late. */
+export function preloadMetaSounds(): void {
+  for (const name of Object.keys(META_SFX) as MetaSfx[]) {
+    loadMetaSfx(name).catch((error: unknown): void => {
+      console.warn('[audio] meta sample unavailable', name, error);
+    });
+  }
+}
+
+function playMetaSfx(name: MetaSfx, rate = 1): void {
+  void Promise.all([ensureAudioUnlocked(), loadMetaSfx(name)])
+    .then(([, buffer]: [void, AudioBuffer]): void => {
+      const ctx = getAudioContext();
+      const source = ctx.createBufferSource();
+      source.buffer = buffer;
+      source.playbackRate.value = rate;
+      const gain = ctx.createGain();
+      gain.gain.value = META_SFX_GAIN[name];
+      source.connect(gain);
+      gain.connect(getSoundEffectsOutput());
+      source.start(ctx.currentTime);
+    })
+    .catch((error: unknown): void => {
+      console.error(`[audio] ${name} playback failed`, error);
+    });
+}
+
+/** Sparkle chime when a Collection rung is claimed. */
+export function playCollectionClaim(): void { playMetaSfx('claim'); }
+/** Wooden set-down and ding when the nest box is built or upgraded. */
+export function playHouseBuild(): void { playMetaSfx('build'); }
+/** Flutter and peep when a bird lands on its perch. */
+export function playBirdPlace(): void { playMetaSfx('place', 0.95 + Math.random() * 0.1); }
+
 function playNotes(
   freqs: number[],
   type: OscillatorType,
