@@ -48,6 +48,7 @@ PRIMARY_OPERATIONS = (
     OperationSpec("list-jobs", "jobs", "GET", "/api/jobs", "listJobs"),
     OperationSpec("get-job", "job", "GET", "/api/jobs/{job_id}", "getJob"),
     OperationSpec("approve-catalog", "approve", "POST", "/api/sessions/{session_id}/approve-catalog", "publishLevelToCatalog"),
+    OperationSpec("sticker-lane", "sticker-lane", "POST", "/api/sessions/{session_id}/sticker-lane/jobs", "startStickerLaneJob"),
 )
 
 OPERATIONS = PRIMARY_OPERATIONS + tuple(

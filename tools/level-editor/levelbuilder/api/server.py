@@ -97,6 +97,7 @@ from .inpaint import (
 from . import session as _session_mod
 from .session import LEVELS_DIR
 from .job_worker import get_default_job_worker
+from .sticker_lane import register_job_handlers as register_sticker_lane_job_handlers
 
 logger = logging.getLogger("levelbuilder.server")
 
@@ -275,6 +276,7 @@ async def lifespan(app: FastAPI):
     job_worker = get_default_job_worker()
     register_rest_job_handlers(job_worker)
     register_inpaint_job_handlers(job_worker)
+    register_sticker_lane_job_handlers(job_worker)
     job_worker.start(retry_interval=5.0)
     yield
     job_worker.stop()

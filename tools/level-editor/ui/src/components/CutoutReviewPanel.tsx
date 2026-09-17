@@ -3,6 +3,9 @@ import type { DogState, Hitbox, ModelOption, SpriteCandidate } from '../types';
 import {
   extractAllCutouts,
   ApiError,
+  getJob,
+  startStickerLaneJob,
+  getStickerLaneSummary,
   dogVariantUrl,
   getCutoutExtractionPrompt,
   getRetryFailedDogsJob,
@@ -357,6 +360,7 @@ export default function CutoutReviewPanel({
   const [error, setError] = useState<string | null>(null);
   const [candidateJobs, setCandidateJobs] = useState<Record<string, CandidateJobState>>({});
   const [extractAllBusy, setExtractAllBusy] = useState(false);
+  const [stickerLaneBusy, setStickerLaneBusy] = useState(false);
   // Hitboxes visible by default in cutout review (operator 2026-08-13).
   const [showHitbox, setShowHitbox] = useState(true);
   const [extractionPrompt, setExtractionPrompt] = useState<string>('');
@@ -788,6 +792,48 @@ export default function CutoutReviewPanel({
           >
             {extractAllBusy ? 'Extracting…' : '✂ Extract all'}
           </button>
+          <button
+            type="button"
+            className="btn"
+            disabled={stickerLaneBusy || extractAllBusy || loading || hitboxes.length === 0}
+            title="Sticker lane: judge every sticker (4 tiers), refit it to the paint, regenerate T3/T4 and refit-refused stickers (sunburst low, visible part), punch judge-confirmed white gaps. Commits through canonical promotion; reviews are invalidated per changed bird."
+            onClick={async () => {
+              const n = hitboxes.length;
+              if (!window.confirm(`Run the sticker lane on all ${n} birds? Paid: judge panels (~$${(n * 0.003).toFixed(2)} on the OpenRouter fallback) plus ~$0.017 per regenerated bird.`)) return;
+              setStickerLaneBusy(true);
+              setError(null);
+              try {
+                const booked = await startStickerLaneJob(sessionId, { attemptNonce: `${Date.now()}` });
+                for (;;) {
+                  await new Promise((resolve) => setTimeout(resolve, 4000));
+                  const job = await getJob(booked.jobId);
+                  if (job.status === 'succeeded') break;
+                  if (job.status.startsWith('failed') || job.status === 'orphaned_unknown' || job.status === 'cancelled') {
+                    throw new Error(job.errorMessage || 'Sticker lane failed server-side');
+                  }
+                }
+                const summary = await getStickerLaneSummary(sessionId);
+                const tiers = Object.values(summary.tiers).reduce<Record<string, number>>((acc, t) => {
+                  const key = t.tier == null ? '?' : `T${t.tier}`;
+                  acc[key] = (acc[key] ?? 0) + 1;
+                  return acc;
+                }, {});
+                setLastResult(
+                  `Sticker lane: ${Object.entries(tiers).map(([k, v]) => `${k} ${v}`).join(', ')} · `
+                  + `${Object.keys(summary.regenerated).length} regenerated · ${Object.keys(summary.committed).length} committed · `
+                  + `${summary.stillRefused.length} still refused · ${summary.missing.length} missing · ${summary.errors.length} errors`,
+                );
+                await refresh();
+                onRevisionChanged?.(summary.contentRevision ?? undefined);
+              } catch (err) {
+                setError(err instanceof Error ? err.message : 'Sticker lane failed');
+              } finally {
+                setStickerLaneBusy(false);
+              }
+            }}
+          >
+            {stickerLaneBusy ? 'Sticker lane…' : '★ Sticker lane'}
+          </button>
           <button type="button" className="btn" onClick={() => void refresh()} disabled={loading}>
             Refresh
           </button>
@@ -879,6 +925,18 @@ export default function CutoutReviewPanel({
             <article key={candidate.id} className="cutout-review-card">
               <div className="cutout-review-card-top">
                 <strong>{candidateLabel(candidate)}</strong>
+                {candidate.stickerLane && typeof candidate.stickerLane.tier === 'number' && (
+                  <span
+                    title={`Sticker lane ${candidate.stickerLane.stamp ?? ''}: tier ${candidate.stickerLane.tier} — ${candidate.stickerLane.why ?? ''}; refit ${candidate.stickerLane.refit ?? ''}`}
+                    style={{
+                      fontSize: 11, fontWeight: 700, padding: '1px 7px', borderRadius: 9,
+                      background: candidate.stickerLane.tier >= 3 ? '#4a1d1d' : candidate.stickerLane.tier === 2 ? '#4a3a1d' : '#1d3a24',
+                      color: candidate.stickerLane.tier >= 3 ? '#ff9c9c' : candidate.stickerLane.tier === 2 ? '#ffd28f' : '#9bf0bf',
+                    }}
+                  >
+                    T{candidate.stickerLane.tier}
+                  </span>
+                )}
                 {typeof candidate.regenerationProbability === 'number' && (
                   <span
                     title="Regeneration probability from sprite eval — higher = worse cutout"

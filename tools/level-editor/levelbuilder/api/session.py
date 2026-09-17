@@ -751,6 +751,7 @@ def sprite_animation_candidates(session_id: str) -> list[dict[str, Any]]:
                     "humanConfirmed": bool((data.get("humanReview") or {}).get("confirmed")) if isinstance(data.get("humanReview"), dict) else False,
                     "regenerationCandidate": bool((data.get("regenerationReview") or {}).get("candidate")) if isinstance(data.get("regenerationReview"), dict) else False,
                     "regenerationProbability": (data.get("regenerationReview") or {}).get("probability") if isinstance(data.get("regenerationReview"), dict) else None,
+                    "stickerLane": data.get("stickerLane") if isinstance(data.get("stickerLane"), dict) else None,
                 })
                 if candidate["width"] is None and isinstance(data.get("width"), int):
                     candidate["width"] = data["width"]

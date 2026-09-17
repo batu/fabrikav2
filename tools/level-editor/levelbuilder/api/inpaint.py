@@ -3821,7 +3821,8 @@ _FIT_SCALES = tuple(round(0.6 + i * 0.05, 2) for i in range(17))  # 0.60 .. 1.40
 
 
 def fit_sprite_to_painted(sprite: Image.Image, painted: Image.Image,
-                          clean_crop: Image.Image | None = None) -> dict | None:
+                          clean_crop: Image.Image | None = None,
+                          *, scales: tuple[float, ...] = _FIT_SCALES) -> dict | None:
     """Locate a recreated RGBA sticker inside its painted crop.
 
     Masked template match (TM_SQDIFF_NORMED under the sticker's alpha) over
@@ -3848,7 +3849,7 @@ def fit_sprite_to_painted(sprite: Image.Image, painted: Image.Image,
         if clean.shape == scene.shape:
             changed = np.abs(scene.astype(np.int16) - clean).sum(axis=2) > 40
     best: tuple | None = None
-    for scale in _FIT_SCALES:
+    for scale in scales:
         w = max(1, int(round(sprite.width * scale)))
         h = max(1, int(round(sprite.height * scale)))
         if w > sw or h > sh:
