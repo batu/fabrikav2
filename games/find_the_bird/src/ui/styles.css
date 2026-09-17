@@ -3582,12 +3582,12 @@
   margin-inline: auto;
   object-fit: contain;
   object-position: center;
+  position: relative;
+  z-index: 1;
   transform: translateY(-8px) scale(var(--nav-icon-scale, 1));
+  transform-origin: 50% 100%;
+  transition: transform 220ms cubic-bezier(.34, 1.4, .64, 1);
   filter:
-    drop-shadow(1.5px 0 0 #fff) drop-shadow(-1.5px 0 0 #fff)
-    drop-shadow(0 1.5px 0 #fff) drop-shadow(0 -1.5px 0 #fff)
-    drop-shadow(1.06px 1.06px 0 #fff) drop-shadow(-1.06px 1.06px 0 #fff)
-    drop-shadow(1.06px -1.06px 0 #fff) drop-shadow(-1.06px -1.06px 0 #fff)
     drop-shadow(0 4px 5px rgba(70, 36, 10, 0.5));
 }
 :is(#home-shell, .home-page-nav) #home-nav-achievements img {
@@ -3629,10 +3629,6 @@
 :is(#home-shell, .home-page-nav) .home-nav-btn--locked img {
   filter:
     grayscale(1) brightness(0.95)
-    drop-shadow(1.5px 0 0 #fff) drop-shadow(-1.5px 0 0 #fff)
-    drop-shadow(0 1.5px 0 #fff) drop-shadow(0 -1.5px 0 #fff)
-    drop-shadow(1.06px 1.06px 0 #fff) drop-shadow(-1.06px 1.06px 0 #fff)
-    drop-shadow(1.06px -1.06px 0 #fff) drop-shadow(-1.06px -1.06px 0 #fff)
     drop-shadow(0 4px 5px rgba(70, 36, 10, 0.5));
 }
 :is(#home-shell, .home-page-nav) .home-nav-btn--locked::after {
@@ -5734,10 +5730,6 @@
   z-index: 2;
   animation: home-nav-claim-bounce 1.6s ease-in-out infinite;
 }
-#home-shell .home-claim-attention .home-nav-btn-icon,
-:is(#home-shell, .home-page-nav) .home-nav-btn.home-claim-attention img {
-  animation: home-nav-claim-bounce 1.6s ease-in-out infinite;
-}
 @keyframes home-nav-claim-bounce {
   0%, 100% { transform: translateY(0); }
   12% { transform: translateY(-7px); }
@@ -5963,12 +5955,10 @@ body:has(#home-page-overlay) #tutorial-overlay { display: none; }
 .home-page-sanctuary .home-page-nav { flex: 0 0 auto; }
 /* Current place: the tile grows and rises, and only that tile is tinted, so
    the bar says where you are at a glance. */
-:is(#home-shell, .home-page-nav) .home-nav-btn--active {
-  transform: translateY(-10px) scale(1.16);
-  transform-origin: 50% 100%;
-  transition: transform 180ms cubic-bezier(.34, 1.4, .64, 1);
+:is(#home-shell, .home-page-nav) .home-nav-btn--active img {
+  transform: translateY(-18px) scale(1.16);
 }
-:is(#home-shell, .home-page-nav) .home-nav-btn--active span {
+:is(#home-shell, .home-page-nav) .home-nav-btn--active > span {
   color: #2f7598;
   font-size: 14px;
 }
@@ -5982,7 +5972,7 @@ body:has(#home-page-overlay) #tutorial-overlay { display: none; }
     drop-shadow(0 5px 6px rgba(70, 36, 10, 0.5));
 }
 @media (prefers-reduced-motion: reduce) {
-  :is(#home-shell, .home-page-nav) .home-nav-btn--active { transition: none; }
+  :is(#home-shell, .home-page-nav) .home-nav-btn img { transition: none; }
 }
 
 /* The Collection and Sanctuary share the Shop's header, but their titles are
@@ -5998,6 +5988,8 @@ body:has(#home-page-overlay) #tutorial-overlay { display: none; }
 /* Locked nav tiles carry a small "Level N" pill where the label would be, the
    way the sibling games advertise what a locked tile is waiting for. */
 :is(#home-shell, .home-page-nav) .home-nav-btn > .home-nav-unlock-pill {
+  z-index: 0;
+  bottom: calc(env(safe-area-inset-bottom, 0px) * 0.55 + 12px);
   right: auto;
   left: 50%;
   translate: -50% 0;

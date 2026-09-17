@@ -525,13 +525,32 @@ function swapMetaPage(page: HTMLElement, id: 'collection' | 'sanctuary'): void {
   if (title) title.textContent = pageTitleFor(id);
   const body = page.querySelector<HTMLElement>('.home-page-body');
   if (body) body.innerHTML = pageBodyFor(id);
-  const nav = page.querySelector<HTMLElement>('.home-page-nav');
-  if (nav) nav.innerHTML = renderMetaNavBar({ active: id });
+  // The bar is kept, not re-rendered: toggling the selected class lets the
+  // icon's lift animate across, where a fresh innerHTML would snap.
+  setMetaNavActive(page, id);
   if (body) {
     if (id === 'collection') wireCollectionPage(page);
     else wireSanctuaryPage(page);
   }
-  wireMetaNavBar(page, id);
+}
+
+function setMetaNavActive(page: HTMLElement, id: 'collection' | 'sanctuary'): void {
+  const nav = page.querySelector<HTMLElement>('.home-page-nav');
+  if (nav === null) return;
+  for (const target of ['collection', 'sanctuary'] as const) {
+    const button = nav.querySelector<HTMLButtonElement>(`#home-nav-${target}`);
+    if (button === null) continue;
+    const active = target === id;
+    button.classList.toggle('home-nav-btn--active', active);
+    if (active) button.setAttribute('aria-current', 'page');
+    else button.removeAttribute('aria-current');
+  }
+}
+
+function currentMetaPage(page: HTMLElement): 'collection' | 'sanctuary' | null {
+  if (page.classList.contains('home-page-sanctuary')) return 'sanctuary';
+  if (page.classList.contains('home-page-collection')) return 'collection';
+  return null;
 }
 
 /**
@@ -569,8 +588,9 @@ function wireMetaNavBar(page: HTMLElement, current: 'collection' | 'sanctuary'):
     button.addEventListener('click', () => {
       playUITap();
       // Tapping the tile you are already on goes back to the menu, so the bar
-      // toggles rather than dead-ending on the current screen.
-      if (target === current) {
+      // toggles rather than dead-ending on the current screen. Read the page
+      // at tap time: the handlers outlive a page swap.
+      if (target === (currentMetaPage(page) ?? current)) {
         closePage();
         return;
       }
