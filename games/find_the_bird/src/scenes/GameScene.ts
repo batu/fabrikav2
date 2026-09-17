@@ -3367,7 +3367,8 @@ export class GameScene extends Phaser.Scene {
 
   /** Debug bird strip (harness builds): the pickup order around the next bird; found birds dimmed. */
   private refreshDebugBirdStrip(): void {
-    if (!TEST_HARNESS_ENABLED || !this.level) return;
+    // unit tests stub the scene without a texture manager; the strip is debug chrome, skip it there
+    if (!TEST_HARNESS_ENABLED || !this.level || !this.textures) return;
     const order = this.debugPickupOrder();
     const birds = order.map((d) => {
       const key = this.spriteTextureKeyForDog(d);
