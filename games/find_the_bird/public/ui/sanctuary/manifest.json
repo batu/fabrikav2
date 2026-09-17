@@ -184,7 +184,25 @@
         "hat": 0.6084,
         "cardigan": 0.5993
       }
-    }
+    },
+    "birdHeightScale": {
+      "sparrow": {
+        "plain": 1.0,
+        "hat": 1.2033,
+        "cardigan": 1.2107
+      },
+      "robin": {
+        "plain": 1.0,
+        "hat": 0.8906,
+        "cardigan": 0.9273
+      },
+      "bluebird": {
+        "plain": 1.0,
+        "hat": 1.054,
+        "cardigan": 1.0521
+      }
+    },
+    "birdHeightScaleNote": "rendered height multiplier per costume so the BODY width matches the plain sprite; a hat adds height, not body"
   },
   "collection": {
     "cardFrame": {

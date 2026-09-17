@@ -4,7 +4,7 @@
  */
 
 import { CARD_STATE_ORDER, ladder, type CardState, type CollectionThresholds, type Rung } from './thresholds';
-import { BIRD_DEFS, type BirdId } from './birds';
+import { BIRD_DEFS, PORTRAIT_HEIGHT, type BirdId } from './birds';
 
 export type CardKind = 'sparrow' | 'unknown';
 
@@ -117,7 +117,9 @@ export function birdCard(input: CardInputs): CardViewModel {
     frame: revealed || bird !== 'sparrow' ? def.frame : 'locked',
     state,
     portraitSrc: revealed ? def.portraits[state] : teased || bird !== 'sparrow' ? def.portraits.silhouette : UNKNOWN_PORTRAIT,
-    portraitStyle: revealed ? undefined : bird === 'sparrow' ? undefined : 'height:70%;width:auto;bottom:-1%',
+    portraitStyle: revealed
+      ? `height:${(PORTRAIT_HEIGHT[bird][state === 'silhouette' ? 'plain' : state] * 100).toFixed(1)}%;width:auto;bottom:-4%`
+      : bird === 'sparrow' ? undefined : 'height:70%;width:auto;bottom:-1%',
     plaque: revealed ? def.name : '? ? ?',
     ribbon: teased || revealed ? def.species : '?',
     lines: linesShown ? def.lines : [HIDDEN_LINE, HIDDEN_LINE, HIDDEN_LINE],

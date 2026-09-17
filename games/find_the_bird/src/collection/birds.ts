@@ -55,6 +55,14 @@ export const BIRD_DEFS: Record<BirdId, BirdDef> = {
   },
 };
 
+/** Portrait height inside the arch per costume, so the head stays the same
+ *  size whether or not a hat sits on it (a hat adds height, not head). */
+export const PORTRAIT_HEIGHT: Record<BirdId, Record<'plain' | 'hat' | 'cardigan', number>> = {
+  sparrow: { plain: 0.97, hat: 1.115, cardigan: 1.115 },
+  robin: { plain: 0.97, hat: 1.115, cardigan: 1.115 },
+  bluebird: { plain: 0.97, hat: 1.036, cardigan: 1.017 },
+};
+
 export function isBirdId(value: string): value is BirdId {
   return (BIRDS as readonly string[]).includes(value);
 }

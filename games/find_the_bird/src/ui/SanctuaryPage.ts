@@ -435,9 +435,13 @@ export function wireSanctuaryPage(page: ParentNode): void {
       const footFraction = tenant === undefined
         ? (MANIFEST.markerFootCenterX ?? 0.5)
         : footCentreOf(isBirdId(tenant) ? tenant : 'sparrow');
+      // A hat adds height, not body: scale the rendered height per costume
+      // so every look of a bird has the same body width on the perch.
+      const heightScale = tenant === undefined ? 1 : (MANIFEST.birdHeightScale?.[isBirdId(tenant) ? tenant : 'sparrow']?.[currentCostume(isBirdId(tenant) ? tenant : 'sparrow')] ?? 1);
+      const renderedHeight = pedestal.birdHeight * heightScale;
       slot.style.left = `${pedestal.anchor.x}px`;
-      slot.style.top = `${pedestal.anchor.y - pedestal.birdHeight}px`;
-      slot.style.height = `${pedestal.birdHeight}px`;
+      slot.style.top = `${pedestal.anchor.y - renderedHeight}px`;
+      slot.style.height = `${renderedHeight}px`;
       slot.style.transform = `translateX(${(-footFraction * 100).toFixed(2)}%)`;
       layer.appendChild(slot);
 
