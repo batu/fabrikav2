@@ -132,29 +132,35 @@ export const REMOTE_CONFIG_DEFAULTS: RemoteConfigValues = {
   // walks a player through all 92 levels and prints the schedule; re-run it
   // before changing any number here or in the prices below.
   //
-  // Measured order for a player who banks their coins (45 a level, no idle
-  // collection), with the gap in levels between events:
-  //   L10 sparrow card   L14 build the nest box (4)   L20 sparrow hat (6)
-  //   L24 tier 2, which opens the robin (4)           L30 robin card (6)
-  //   L34 sparrow costume (4)   L37 tier 3 (3)
-  //   L42 robin hat, which opens the bluebird (5)     L48 bluebird card (6)
-  //   L54 robin costume (6)     L59 bluebird hat (5)  L66 bluebird costume (7)
+  // Measured order for a player who banks their coins, by the level they are
+  // ENTERING when the game offers it (both tiles are arrival-based), with the
+  // gap in levels:
+  //   L10 sparrow card, on the level the Collection itself opens
+  //   L15 build the nest box (5)      L21 sparrow hat (6)
+  //   L25 tier 2, which opens the robin (4)      L32 robin card (7)
+  //   L35 sparrow costume (3)         L38 tier 3 (3)
+  //   L45 robin hat, which opens the bluebird (7)
+  //   L52 robin costume (7)           L58 bluebird card (6)
+  //   L66 bluebird hat (8)            L76 bluebird costume (10)
   //
-  // The robin's first rung is deliberately cheap: it is the introduction the
-  // tier-2 upgrade just paid for, and its supply is thin in the levels right
-  // after. The bluebird's rungs are the lowest of the three because its supply
-  // tops out at 125 across the levels that follow it — it is the scarcest
-  // species that has card art, and lowering its rungs beat regenerating the art.
+  // The sparrow's first rung is 45 rather than 50 so the claim lands on the same
+  // level the Collection unlocks. The robin's first rung is cheap because it is
+  // the introduction the tier-2 upgrade just paid for and its supply is thin in
+  // the levels right after. The bluebird's rungs are the lowest of the three and
+  // its last two gaps are the only ones over seven levels: it is the scarcest
+  // species that has card art, so its ladder is supply-bound rather than
+  // threshold-bound. Fixing that properly means giving the third card a
+  // better-supplied species and regenerating its artwork.
   sparrowTeaseCount: 5,
-  sparrowUnlockCount: 50,
+  sparrowUnlockCount: 45,
   sparrowHatCount: 100,
   sparrowCardiganCount: 170,
   robinUnlockCount: 10,
   robinHatCount: 80,
-  robinCardiganCount: 130,
+  robinCardiganCount: 120,
   bluebirdUnlockCount: 20,
-  bluebirdHatCount: 50,
-  bluebirdCardiganCount: 70,
+  bluebirdHatCount: 40,
+  bluebirdCardiganCount: 60,
   // 2026-09-18 economy pass. A level pays levelCompleteCoinReward (45), so a
   // player who never buys hints reaches the level-15 gate with roughly 675
   // coins. The old 150/300/900 let them buy tier 1 AND tier 2 in the same

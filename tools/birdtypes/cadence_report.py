@@ -8,11 +8,16 @@ level each event lands on.
 The player model is the one the game now nudges: claim a rung the moment it is
 available, because the level-complete screen hands you to the Collection, and buy
 the next nest box tier the moment it is affordable, because it hands you to the
-Sanctuary. A species counts only while its card is open.
+Sanctuary. A species counts only while its card is open; the first bird's card is
+always open, which is what feeds its early tease.
 
-Run with no arguments for the honest single-sitting case (no idle coins). Pass
---accrual-per-10-levels N to add N coins every ten levels, or --hint-bundles N to
-spend 600 coins N times before the Sanctuary opens.
+Levels are stamped the way Batu reads them. The game's gates test COMPLETED
+levels, and an event is offered on the level-complete screen, so an event stamped
+L15 is one the player meets as they enter level 15, having finished 14.
+
+Off-path players matter more than the ideal line, so the scenarios are switches:
+  --idle-every N        collect a full idle window every N levels
+  --hint-bundle-every N buy a 600-coin hint bundle every N levels when affordable
 """
 import argparse, json, os
 
@@ -22,20 +27,26 @@ PUB = os.path.abspath(os.path.join(HERE, '..', '..', 'games', 'find_the_bird', '
 # Mirrored from remoteConfigSchema.ts. Keep in step by hand; the report is
 # evidence for those numbers, not their source.
 THRESHOLDS = {
-    'sparrow': (50, 100, 170),
-    'robin': (10, 80, 130),
-    'bluebird': (20, 50, 70),
+    'sparrow': (45, 100, 170),
+    'robin': (10, 80, 120),
+    'bluebird': (20, 40, 60),
 }
 PRICES = (500, 550, 600)
 LEVEL_REWARD = 45
-COLLECTION_LEVEL = 10          # completed levels before the Collection opens
-SANCTUARY_LEVEL = 14           # completed levels before the Sanctuary opens (entering 15)
+IDLE_PER_HOUR = (15, 30, 60)       # by house tier
+IDLE_CAP_HOURS = 8
+HINT_BUNDLE = 600
+# Both gates are arrival-based (ae3958e2c): the tile opens as the player arrives
+# at the level, having completed the one before it.
+COLLECTION_COMPLETED = 9           # completed levels the Collection needs (arrive at 10)
+SANCTUARY_COMPLETED = 14           # completed levels the Sanctuary needs (arrive at 15)
 BIRDS = ('sparrow', 'robin', 'bluebird')
-OPENS_ON = {                   # mirrors BIRD_DEFS[...].opensOn in birds.ts
+OPENS_ON = {                       # mirrors BIRD_DEFS[...].opensOn in birds.ts
     'sparrow': ('always', 0),
     'robin': ('houseTier', 2),
     'bluebird': ('chain', 2),
 }
+RUNG_NAME = {1: 'card', 2: 'hat', 3: 'costume'}
 
 
 def per_level_counts():
@@ -50,39 +61,44 @@ def per_level_counts():
 
 
 def is_open(bird, claimed, house_tier):
-    """Whether a species is counting. The first bird counts from level one, long
-    before the Collection page exists, which is what feeds its early tease; the
-    others wait for their rule. Claiming is separate and needs the page."""
+    """Whether a species is counting pickups.
+
+    Trap for whoever reorders BIRDS: a 'chain' rule reads the bird BEFORE this
+    one in that tuple, so the order is the chain. The first entry is guarded
+    here, but a bare index - 1 elsewhere would wrap to the last bird.
+    """
+    index = BIRDS.index(bird)
     kind, value = OPENS_ON[bird]
-    if kind == 'always':
+    if kind == 'always' or index == 0:
         return True
     if kind == 'houseTier':
         return house_tier >= value
-    previous = BIRDS[BIRDS.index(bird) - 1]
-    return claimed[previous] >= value
+    # 'chain': the bird before this one in the order must have claimed `value`.
+    return claimed[BIRDS[index - 1]] >= value
 
 
-def simulate(accrual_per_10=0, hint_bundles=0, verbose=False):
+def simulate(idle_every=0, hint_every=0, verbose=False):
     supply = per_level_counts()
     counts = {b: 0 for b in BIRDS}
     claimed = {b: 0 for b in BIRDS}
     coins, house_tier, events = 0, 0, []
 
-    for index, yields in enumerate(supply, start=1):
-        collection_open = index >= COLLECTION_LEVEL
-        sanctuary_open = index >= SANCTUARY_LEVEL
-        # Pickups during the level, counted only for species already collecting.
+    for playing in range(1, len(supply) + 1):
         for bird in BIRDS:
             if is_open(bird, claimed, house_tier):
-                counts[bird] += yields[bird]
+                counts[bird] += supply[playing - 1][bird]
         coins += LEVEL_REWARD
-        if accrual_per_10 and index % 10 == 0:
-            coins += accrual_per_10
-        if hint_bundles and index == 3:
-            coins -= 600 * hint_bundles
-            events.append((index, f'spent {600 * hint_bundles} on hints'))
-        # Level complete: claim what is ready, buy what is affordable. Repeat,
-        # because an upgrade can open a bird whose first rung is already earned.
+        if idle_every and playing % idle_every == 0 and house_tier >= 1:
+            coins += IDLE_CAP_HOURS * IDLE_PER_HOUR[house_tier - 1]
+        if hint_every and playing % hint_every == 0 and coins >= HINT_BUNDLE:
+            coins -= HINT_BUNDLE
+            events.append((playing + 1, f'spent {HINT_BUNDLE} on a hint bundle'))
+
+        completed = playing
+        collection_open = completed >= COLLECTION_COMPLETED
+        sanctuary_open = completed >= SANCTUARY_COMPLETED
+        # An upgrade can open a bird whose first rung is already earned, so keep
+        # settling until nothing more is claimable or affordable.
         changed = True
         while changed:
             changed = False
@@ -92,33 +108,38 @@ def simulate(accrual_per_10=0, hint_bundles=0, verbose=False):
                 rung = claimed[bird] + 1
                 if rung <= 3 and counts[bird] >= THRESHOLDS[bird][rung - 1]:
                     claimed[bird] = rung
-                    label = {1: 'card', 2: 'hat', 3: 'costume'}[rung]
-                    events.append((index, f'{bird} {label} claimed ({counts[bird]} found)'))
+                    events.append((playing + 1,
+                                   f'{bird} {RUNG_NAME[rung]} claimed ({counts[bird]} found)'))
                     changed = True
             if sanctuary_open and house_tier < 3 and coins >= PRICES[house_tier]:
                 coins -= PRICES[house_tier]
                 house_tier += 1
-                events.append((index, f'nest box tier {house_tier} bought ({PRICES[house_tier - 1]} coins)'))
+                events.append((playing + 1,
+                               f'nest box tier {house_tier} bought ({PRICES[house_tier - 1]} coins)'))
                 changed = True
-        if verbose and index <= 50:
-            print(f"L{index:<3} coins {coins:5} tier {house_tier} "
+        if verbose:
+            print(f"L{playing:<3} coins {coins:5} tier {house_tier} "
                   + ' '.join(f"{b}:{counts[b]}/{claimed[b]}" for b in BIRDS))
-    return events
+    unfinished = [f"{b} stuck at rung {claimed[b]} ({counts[b]} of {THRESHOLDS[b][claimed[b]]} found)"
+                  for b in BIRDS if claimed[b] < 3]
+    return events, unfinished
 
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument('--accrual-per-10-levels', type=int, default=0)
-    ap.add_argument('--hint-bundles', type=int, default=0)
+    ap.add_argument('--idle-every', type=int, default=0)
+    ap.add_argument('--hint-bundle-every', type=int, default=0)
     ap.add_argument('--verbose', action='store_true')
     args = ap.parse_args()
-    events = simulate(args.accrual_per_10_levels, args.hint_bundles, args.verbose)
-    print('\nevent                                        level   gap')
+    events, unfinished = simulate(args.idle_every, args.hint_bundle_every, args.verbose)
+    print('\nevent                                        entering   gap')
     previous = None
     for level, label in events:
         gap = '' if previous is None else str(level - previous)
-        print(f'  {label:<44} L{level:<4} {gap}')
+        print(f'  {label:<44} L{level:<7} {gap}')
         previous = level
+    for line in unfinished:
+        print(f'  UNFINISHED at level 92: {line}')
 
 
 if __name__ == '__main__':

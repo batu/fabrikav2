@@ -7,11 +7,10 @@ already earned. This pass picks, per sprite, whichever candidate the level's
 pacing needs, taking the highest-confidence sprites first, and leaves everything
 else on a species the Collection does not count.
 
-Each collectable bird has a window and a rate: the level its supply starts and
-how many of it a level should yield once started. Supply before a bird's card
-opens is deliberately zero-ish, because a species only counts from the moment its
-card opens, and a window that starts a few levels early only protects a player
-who gets there late.
+Each collectable bird has a start level and a rate. Supply begins at the earliest
+level the bird could be collecting and continues to the end of the order, so no
+schedule drift can strand a ladder: a species counts only from the moment its
+card opens, and a supply that stopped would leave a late player short forever.
 
 Availability is uneven — a level may hold eight candidate robins or one — so the
 allocator carries unmet demand forward instead of dropping it. That keeps the
@@ -31,17 +30,38 @@ import json, os
 HERE = os.path.dirname(os.path.abspath(__file__))
 PUB = os.path.abspath(os.path.join(HERE, '..', '..', 'games', 'find_the_bird', 'public'))
 
-# bird -> (first level that yields it, last level that yields it, wanted per level)
-# A window opens on the level the bird's card is designed to open, because supply
-# before that is uncounted, and closes once its top rung is earned, which hands
-# the sprites to the birds still climbing.
+# bird -> (steps of (from this level, wanted per level), total to lay down)
+# A bird's supply opens on the EARLIEST level it could be collecting and never
+# closes by level. A level cutoff would strand anyone off the predicted line: a
+# species counts only once its card opens, so a player who opens a card late
+# would find its supply already behind them and could never finish that ladder.
+#
+# What does stop is the TOTAL. Once a bird has had enough sprites laid down to
+# finish its ladder even after arriving very late, it stops asking and the birds
+# still climbing get those sprites. The ceiling is the ladder's top rung plus the
+# most a late opener could waste before its card opened.
+#
+# The rate is stepped for the same reason the ceilings exist: the three birds
+# compete for the same sprites. A bluebird laid down before the bluebird's card
+# can open is waste that also costs the robin a sprite, and starving the robin
+# delays the bluebird in turn, since the robin's hat is what opens it. So the
+# bluebird gets a protective trickle from the first level a fast player could
+# reach it, and its full rate from the level an ordinary player does.
+#
+# Earliest possible: the sparrow from level one; the robin from level 15, the
+# first level a Sanctuary can exist, since idle coins could in principle buy both
+# tiers at once; the bluebird from level 30, the soonest 80 robins can be found
+# once the robin can open at 15.
 SUPPLY = {
-    'bluebird': (41, 92, 6),
-    'robin': (24, 66, 5),
-    'sparrow': (1, 40, 5),
+    'sparrow': (((1, 5),), 210),
+    'robin': (((15, 5),), 200),
+    'bluebird': (((30, 2), (45, 6)), 150),
 }
-# Scarcest first: it gets first pick of the sprites that can be it.
-LADDER = tuple(SUPPLY)
+# Chain order, not scarcest first: the bird that opens earlier gets first pick.
+# Starving an earlier bird delays every later one, because each card is what
+# opens the next, so a scarce late bird taking sprites from an early one costs
+# more than it gains.
+LADDER = ('sparrow', 'robin', 'bluebird')
 
 
 def norm(t):
@@ -74,9 +94,14 @@ def shape():
         sprites = per_level.get(level_id, [])
         taken = {}
         for bird in LADDER:
-            start, end, rate = SUPPLY[bird]
-            inside = start <= index <= end
-            want = (rate + debt[bird]) if inside else 0
+            steps, ceiling = SUPPLY[bird]
+            rate = 0
+            for step_from, step_rate in steps:
+                if index >= step_from:
+                    rate = step_rate
+            if running[bird] >= ceiling:
+                rate = 0
+            want = rate + debt[bird] if rate else 0
             ranked = sorted(
                 ((dog, next((p for t, p in cands if t == bird), 0.0))
                  for dog, cands in sprites if dog not in taken),
@@ -88,7 +113,7 @@ def shape():
                     break
                 taken[dog] = bird
                 got += 1
-            if inside:
+            if rate:
                 # Carry the shortfall so the cumulative curve catches up later.
                 debt[bird] = max(0, want - got)
             running[bird] += got
