@@ -5223,7 +5223,9 @@ def _run_single_cutout_extraction(
 
     from levelbuilder.api.flatkey import flatkey_recreate_sprite
 
-    model = inpaint_model or os.environ.get("FTD_FLATKEY_MODEL", "google/gemini-3.1-flash-image-preview")
+    from levelbuilder.api.flatkey import flatkey_model
+
+    model = flatkey_model(inpaint_model)
     entity = str(raw.get("entity") or "bird")
     try:
         # Operator ruling 2026-08-14 ("human action doesn't need gates"):

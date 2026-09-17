@@ -4721,9 +4721,8 @@ def materialize_detection_sprites(
         prebatched: dict[int, Image.Image] = {}
         if not os.environ.get("FTD_DISABLE_FLATKEY_SPRITES"):
             from levelbuilder.api.flatkey import flatkey_recreate_sprites_batch
-            flatkey_model = os.environ.get(
-                "FTD_FLATKEY_MODEL", "google/gemini-3.1-flash-image-preview"
-            )
+            from levelbuilder.api.flatkey import flatkey_model as _flatkey_model
+            flatkey_model = _flatkey_model()
             grid_n = max(1, int(os.environ.get("FTD_FLATKEY_GRID", str(DEFAULT_FLATKEY_GRID))))
             entity = str(raw.get("entity") or "bird")
             batch_crops: dict[int, Image.Image] = {}
@@ -4841,7 +4840,7 @@ def materialize_detection_sprites(
         session_id,
         hitboxes=hitboxes,
         materialized=materialized,
-        model=os.environ.get("FTD_FLATKEY_MODEL", "google/gemini-3.1-flash-image-preview"),
+        model=__import__("levelbuilder.api.flatkey", fromlist=["flatkey_model"]).flatkey_model(),
         entity=str(raw.get("entity") or "bird"),
         folder_index=folder_index,
     )
