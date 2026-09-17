@@ -766,10 +766,12 @@ export function openPage(
   if (id === 'sanctuary') wireSanctuaryPage(page);
   if (id === 'collection' || id === 'sanctuary') {
     wireMetaNavBar(page, id);
-    // The header's coin pill is a shop shortcut, plus sign and all.
+    // The header's coin pill is the same shortcut as home's plus: it goes to
+    // the shop's coins. A page is open, so this one slides away first.
     page.querySelector<HTMLElement>('.shop-header-coin-pill')?.addEventListener('click', () => {
       playUITap();
-      openPage('shop', { scrollTo: 'coins' });
+      closePage();
+      window.setTimeout(() => { openPage('shop', { scrollTo: 'coins' }); }, 460);
     });
   }
   shell?.setAttribute('inert', '');

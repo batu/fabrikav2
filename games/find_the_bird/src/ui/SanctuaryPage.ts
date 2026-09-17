@@ -503,7 +503,7 @@ export function wireSanctuaryPage(page: ParentNode): void {
     const affordable = gameState.coinBalance >= price;
     const verb = tier === 0 ? 'Build nest box' : 'Upgrade nest box';
     bar.innerHTML = `
-      <button class="sanctuary-pill sanctuary-pill--primary sanctuary-action${affordable ? '' : ' sanctuary-action--short'}" type="button">
+      <button class="sanctuary-pill sanctuary-pill--primary sanctuary-action${affordable ? ' sanctuary-action--ready' : ' sanctuary-action--short'}" type="button" aria-label="${verb} for ${price} coins${affordable ? '' : ', not enough coins'}">
         <span class="sanctuary-action-verb">${verb}</span>
         <span class="sanctuary-action-price"><img src="/ui/menu-icons/icon_coin.png" alt="" aria-hidden="true">${price}</span>
       </button>`;

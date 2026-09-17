@@ -6225,7 +6225,10 @@ body:has(#home-page-overlay) #tutorial-overlay { display: none; }
 .sanctuary-action { pointer-events: auto; flex: 0 0 auto; min-width: 62%; display: inline-flex; align-items: center; justify-content: center; gap: 10px; padding: 0 20px; font-family: 'FredokaOne', 'Nunito', sans-serif; font-weight: 400; font-size: 19px; letter-spacing: .2px; }
 .sanctuary-action-price { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px 3px 6px; border-radius: 999px; background: rgba(0, 0, 0, .18); font-variant-numeric: tabular-nums; }
 .sanctuary-action-price img { width: 22px; height: 22px; }
-.sanctuary-action--short { background: #a8b67d; box-shadow: 0 3px 0 #6f8048; }
+.sanctuary-action--short .sanctuary-action-price { color: #ff6b6b; background: rgba(0, 0, 0, .28); }
+.sanctuary-action--ready .sanctuary-action-price { color: #fff8e8; animation: sanctuary-price-hop 2.4s ease-in-out infinite; }
+@keyframes sanctuary-price-hop { 0%, 82%, 100% { transform: translateY(0); } 88% { transform: translateY(-5px); } 94% { transform: translateY(0); } 97% { transform: translateY(-2px); } }
+@media (prefers-reduced-motion: reduce) { .sanctuary-action--ready .sanctuary-action-price { animation: none; } }
 /* Placement sheet: the bird's face above its name. */
 .sanctuary-sheet-portrait { display: block; width: 96px; height: 96px; margin: 0 auto 8px; border-radius: 50%; overflow: hidden; border: 3px solid var(--fab-color-wood, #d8bf8e); background: #5a3f2a; }
 .sanctuary-sheet-portrait img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 20%; }
