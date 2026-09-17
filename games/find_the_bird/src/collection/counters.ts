@@ -30,6 +30,9 @@ export interface BirdCounter {
   done: boolean;
   ariaLabel: string;
   rung: Ladder;
+  /** Lifetime pickups of this species. Moves on every pickup even when the
+   *  label does not, so the view can tell which pill to animate. */
+  count: number;
 }
 
 /** Stable per-bird pill id. The sparrow keeps `sparrow-counter`, which the
@@ -65,6 +68,7 @@ function counterFor(bird: BirdId): BirdCounter {
     done: rung.target === null,
     ariaLabel: `${def.species}s collected towards the next unlock`,
     rung,
+    count,
   };
 }
 

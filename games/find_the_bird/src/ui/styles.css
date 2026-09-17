@@ -6098,18 +6098,18 @@ body:has(#home-page-overlay) #tutorial-overlay { display: none; }
 .collection-dot--active { background: #fffaf2; box-shadow: 0 1px 3px rgba(60, 40, 20, .35); }
 
 /* Next-unlock counter in the level HUD. */
-.hud-sparrow-pill .hud-pill-icon { border-radius: 50%; object-fit: cover; }
-#sparrow-counter.pickup-pulse { animation: pickup-counter-pop 280ms ease-out; }
+.hud-bird-pill .hud-pill-icon { border-radius: 50%; object-fit: cover; }
+.hud-bird-pill.pickup-pulse { animation: pickup-counter-pop 280ms ease-out; }
 
-/* Sparrow pill once a rung is earned: it is the door to the card. */
-.hud-sparrow-pill { border: 0; font: inherit; color: inherit; }
-.hud-sparrow-pill--ready {
+/* A bird's pill once a rung is earned: it is the door to the card. */
+.hud-bird-pill { border: 0; font: inherit; color: inherit; }
+.hud-bird-pill--ready {
   background: linear-gradient(180deg, #ffe9a8, #f5c451);
   color: #5a3a08;
   box-shadow: 0 0 0 2px rgba(255, 255, 255, .7), 0 4px 10px rgba(180, 120, 20, .35);
-  animation: hud-sparrow-ready 1.4s ease-in-out infinite;
+  animation: hud-bird-ready 1.4s ease-in-out infinite;
 }
-@keyframes hud-sparrow-ready {
+@keyframes hud-bird-ready {
   0%, 100% { transform: scale(1); }
   50% { transform: scale(1.07); }
 }
@@ -6137,7 +6137,7 @@ body:has(#home-page-overlay) #tutorial-overlay { display: none; }
   100% { transform: scale(1.4); opacity: 0; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .hud-sparrow-pill--ready, .collection-unlock-btn, .collection-card--claimed::before { animation: none; }
+  .hud-bird-pill--ready, .collection-unlock-btn, .collection-card--claimed::before { animation: none; }
 }
 
 /* Sanctuary <-> Collection: content drops away, then the next pops in. */
@@ -6220,10 +6220,12 @@ body:has(#home-page-overlay) #tutorial-overlay { display: none; }
 
 .collection-line-lock { height: 82%; width: auto; opacity: .85; filter: drop-shadow(0 2px 2px rgba(60, 35, 10, .35)); }
 
-/* Level HUD: the sparrow counter sits under the gear, right-aligned. */
+/* Level HUD: the bird counters stack down the right side under the gear, one
+   pill per collecting bird, so three ladders are all visible at once. */
 .hud-right { flex-wrap: wrap; justify-content: flex-end; row-gap: 8px; }
 .hud-row-break { flex: 0 0 100%; height: 0; }
-#sparrow-counter { flex: 0 0 auto; margin-left: auto; }
+.hud-bird-counters { flex: 0 0 100%; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+.hud-bird-counters:empty { display: none; }
 /* Countdown chip: louder than praise. */
 .find-chip--loud .find-chip-label { font-size: 22px; padding: 7px 18px; border-width: 3px; background: linear-gradient(180deg, #fff3c4, #ffe08a); color: #5a3a08; animation: find-chip-punch 520ms cubic-bezier(.34, 1.6, .64, 1) both; }
 @keyframes find-chip-punch { 0% { transform: scale(.4) rotate(-6deg); } 60% { transform: scale(1.18) rotate(3deg); } 100% { transform: scale(1) rotate(0); } }

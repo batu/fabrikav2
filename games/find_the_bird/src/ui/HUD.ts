@@ -20,8 +20,8 @@ import { renderAchievementHeaderBalances, renderAchievementsPageBody, wireAchiev
 import { focusCollectionDeck, renderCollectionPageBody, wireCollectionPage } from './CollectionPage';
 import { renderSanctuaryPageBody, wireSanctuaryPage, teardownSanctuaryPage } from './SanctuaryPage';
 import { currentMetaGates, renderMetaNavBar } from './metaNavBar';
-import { focusBird } from '../collection/ladders';
-import { BIRD_DEFS } from '../collection/birds';
+import { birdCounterElementId, visibleBirdCounters, type BirdCounter } from '../collection/counters';
+import type { BirdId } from '../collection/birds';
 import { shakeLockedNavButton } from './homeNavigation';
 import { rewardedAdIconMarkup } from './RewardedAdIcon';
 import { hideHomeMenuLayer } from './OverlayVisibility';
@@ -149,10 +149,7 @@ export function initHUD(): void {
           <img class="hud-icon-img" src="/ui/menu-icons/icon_settings_gear.png" alt="" aria-hidden="true">
         </button>
         <span class="hud-row-break" aria-hidden="true"></span>
-        <button id="sparrow-counter" class="hud-pill hud-sparrow-pill" type="button" hidden aria-label="Sparrows collected towards the next unlock">
-          <img class="hud-pill-icon" src="/ui/collection/portrait-sparrow-plain.webp" alt="" aria-hidden="true">
-          <span class="count">0 / 0</span>
-        </button>
+        <div id="bird-counters" class="hud-bird-counters"></div>
       </div>
     </div>
     <div id="offline-indicator" class="offline-indicator hidden" aria-label="Offline — playing cached levels" role="status">
@@ -260,32 +257,114 @@ export function setGameModeChangeCallback(_cb: (() => void) | null): void {
 }
 
 /**
- * The next-unlock counter: sparrows banked against the next rung of the
- * ladder, always on screen in a level once the Collection is open, so the
- * pickup chip has somewhere to point.
+ * The next-unlock counters: one pill per collecting bird, stacked down the
+ * right side under the gear, so a player working three ladders watches all
+ * three climb instead of only the one the HUD picked. A finished ladder drops
+ * out of the column — it has nothing left to ask for — and the whole column is
+ * absent until the Collection itself is open.
+ *
+ * Pills are reused across updates rather than re-rendered: this runs on every
+ * pickup, and replacing the node would cut the pulse animation off mid-flight.
  */
-export function updateSparrowCounter(): void {
-  const pill = document.querySelector<HTMLElement>('#sparrow-counter');
-  if (pill === null) return;
-  const focus = currentMetaGates().collectionUnlocked ? focusBird() : null;
-  pill.hidden = focus === null;
-  if (focus === null) return;
-  const { bird, rung } = focus;
-  pill.dataset.bird = bird;
-  const icon = pill.querySelector<HTMLImageElement>('img');
-  if (icon !== null && !icon.src.endsWith(BIRD_DEFS[bird].portraits.plain)) icon.src = BIRD_DEFS[bird].portraits.plain;
-  pill.classList.toggle('hud-sparrow-pill--ready', rung.ready);
-  const count = pill.querySelector('.count');
-  if (count) count.textContent = rung.ready ? 'Unlock!' : rung.target === null ? 'Done' : `${String(Math.max(0, Math.min(gameState.birdCount(bird), rung.target) - rung.from))} / ${String(rung.target - rung.from)}`;
+// Pickup counts as of the last pulse, so the pulse can tell which species a
+// pickup just counted towards. Only the pulse consumes the difference: the
+// plain update runs first on every pickup and would otherwise eat it.
+const counterCountsPulsed = new Map<BirdId, number>();
+
+function pillMarkup(counter: BirdCounter): HTMLButtonElement {
+  const pill = document.createElement('button');
+  pill.id = counter.elementId;
+  pill.type = 'button';
+  pill.className = 'hud-pill hud-bird-pill';
+  pill.dataset.bird = counter.bird;
+  const icon = document.createElement('img');
+  icon.className = 'hud-pill-icon';
+  icon.alt = '';
+  icon.setAttribute('aria-hidden', 'true');
+  const count = document.createElement('span');
+  count.className = 'count';
+  pill.append(icon, count);
+  // A ready rung turns the pill into the way to the card: tapping it opens the
+  // Collection, where the Unlock button lives.
+  pill.addEventListener('click', () => {
+    playUITap();
+    openPage('collection');
+  });
+  return pill;
 }
 
-export function pulseSparrowCounter(): void {
-  updateSparrowCounter();
-  const pill = document.querySelector<HTMLElement>('#sparrow-counter');
+/** Render the column from the model. The wording of every pill lives in
+ *  src/collection/counters.ts; this only places what the model decided. */
+function updateBirdCounters(): void {
+  const column = document.querySelector<HTMLElement>('#bird-counters');
+  if (column === null) return;
+  const counters = visibleBirdCounters(currentMetaGates().collectionUnlocked)
+    .filter((counter) => !counter.done);
+  const wanted = new Set<string>();
+  counters.forEach((counter, index) => {
+    wanted.add(counter.elementId);
+    let pill = column.querySelector<HTMLButtonElement>(`#${counter.elementId}`);
+    if (pill === null) {
+      pill = pillMarkup(counter);
+      column.appendChild(pill);
+    }
+    // Keep DOM order equal to chain order however the birds arrived.
+    if (column.children[index] !== pill) column.insertBefore(pill, column.children[index] ?? null);
+    pill.setAttribute('aria-label', counter.ariaLabel);
+    const icon = pill.querySelector<HTMLImageElement>('img');
+    if (icon !== null && !icon.src.endsWith(counter.iconSrc)) icon.src = counter.iconSrc;
+    pill.classList.toggle('hud-bird-pill--ready', counter.ready);
+    const count = pill.querySelector('.count');
+    if (count !== null && count.textContent !== counter.label) count.textContent = counter.label;
+    // Baseline only: a pill that has just appeared has nothing to pop about.
+    if (!counterCountsPulsed.has(counter.bird)) counterCountsPulsed.set(counter.bird, counter.count);
+  });
+  for (const pill of [...column.children]) {
+    if (!wanted.has(pill.id)) pill.remove();
+  }
+}
+
+/** Old name, kept because the Collection page calls it after a claim. The
+ *  model owns what the pills say; this is only the trigger to redraw. */
+export function updateSparrowCounter(): void {
+  updateBirdCounters();
+}
+
+function pulsePill(elementId: string): void {
+  const pill = document.getElementById(elementId);
   if (pill === null) return;
   pill.classList.remove('pickup-pulse');
   void pill.offsetWidth;
   pill.classList.add('pickup-pulse');
+}
+
+/** Pulse one bird's pill, for the species a pickup just counted towards. */
+export function pulseBirdCounter(bird: BirdId): void {
+  updateBirdCounters();
+  counterCountsPulsed.set(bird, gameState.birdCount(bird));
+  pulsePill(birdCounterElementId(bird));
+}
+
+/**
+ * Old name, still the only pulse the scene knows. The scene cannot yet say
+ * which species it counted, so the pill whose number moved in this update is
+ * the one that gets the pop; that is the picked-up species in every case but a
+ * no-op, where the first pill keeps the old behaviour.
+ */
+export function pulseSparrowCounter(): void {
+  updateBirdCounters();
+  const moved: BirdId[] = [];
+  for (const [bird, since] of counterCountsPulsed) {
+    const now = gameState.birdCount(bird);
+    if (now !== since) moved.push(bird);
+    counterCountsPulsed.set(bird, now);
+  }
+  if (moved.length > 0) {
+    for (const bird of moved) pulsePill(birdCounterElementId(bird));
+    return;
+  }
+  const first = document.querySelector<HTMLElement>('#bird-counters .hud-bird-pill');
+  if (first !== null) pulsePill(first.id);
 }
 
 export function updateHUD(totalDogs: number, restorationActive: boolean = false): void {
