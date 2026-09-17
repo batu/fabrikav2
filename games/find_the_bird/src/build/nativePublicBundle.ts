@@ -269,6 +269,9 @@ export function copyNativePublicBundle(publicRoot: string, outputRoot: string): 
   const requiredPaths = new Set<string>([
     'levels/bundled-manifest.json',
     'levels/catalog-manifest.json',
+    // Collection counter tags. Not manifest-referenced, and without it every
+    // pickup on device reads as untagged and nothing ever counts.
+    'levels/bird-types.json',
   ]);
   collectManifestPaths(bundledManifest, requiredPaths);
   for (const relativePath of requiredPaths) copyFileWithinRoot(publicRoot, outputRoot, relativePath);
