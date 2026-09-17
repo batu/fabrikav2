@@ -354,31 +354,31 @@
       "r": 57,
       "sprite": {
         "image": "levels/below_decks_galley_bird_6b76/dogs/dog_26/sprite_000.png",
-        "height": 182,
+        "height": 181,
         "width": 182,
-        "x": 2033,
-        "y": 741,
+        "x": 2034,
+        "y": 743,
         "cleanup": {
           "x": 2019,
-          "y": 727,
+          "y": 729,
           "width": 209,
-          "height": 209
+          "height": 208
         },
         "anchorX": 0.511,
-        "anchorY": 0.511,
+        "anchorY": 0.5028,
         "flipX": false,
         "flipY": false,
         "refit": {
           "scale": 1.0,
           "ratio": 1.0,
-          "pop": 13.2,
+          "pop": 17.1,
           "dx": 0,
           "dy": 0
         },
         "regen": {
-          "pass": "crop2",
-          "score": 0.9602,
-          "pop": 13.2,
+          "pass": "crop",
+          "score": 0.9449,
+          "pop": 17.6,
           "why": "T4"
         },
         "technique": "gpt-image-2.5-sunburst-low-visible-only"
@@ -582,31 +582,31 @@
       "r": 57,
       "sprite": {
         "image": "levels/below_decks_galley_bird_6b76/dogs/dog_32/sprite_000.png",
-        "height": 162,
-        "width": 182,
-        "x": 1769,
-        "y": 1919,
+        "height": 243,
+        "width": 260,
+        "x": 1740,
+        "y": 1908,
         "cleanup": {
-          "x": 1755,
-          "y": 1905,
-          "width": 209,
-          "height": 186
+          "x": 1720,
+          "y": 1889,
+          "width": 299,
+          "height": 279
         },
-        "anchorX": 0.511,
-        "anchorY": 0.5802,
+        "anchorX": 0.4692,
+        "anchorY": 0.428,
         "flipX": false,
         "flipY": false,
         "refit": {
           "scale": 1.0,
           "ratio": 1.0,
-          "pop": 23.3,
+          "pop": 16.9,
           "dx": 0,
           "dy": 0
         },
         "regen": {
           "pass": "crop2",
-          "score": 0.875,
-          "pop": 24.1,
+          "score": 0.9269,
+          "pop": 17.4,
           "why": "T4"
         },
         "technique": "gpt-image-2.5-sunburst-low-visible-only"

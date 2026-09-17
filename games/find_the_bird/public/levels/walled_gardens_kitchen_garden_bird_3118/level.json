@@ -134,31 +134,31 @@
       "r": 69,
       "sprite": {
         "image": "levels/walled_gardens_kitchen_garden_bird_3118/dogs/dog_23/sprite_000.png",
-        "height": 220,
-        "width": 216,
-        "x": 839,
+        "height": 236,
+        "width": 306,
+        "x": 816,
         "y": 1619,
         "cleanup": {
-          "x": 822,
-          "y": 1602,
-          "width": 248,
-          "height": 253
+          "x": 793,
+          "y": 1601,
+          "width": 351,
+          "height": 271
         },
-        "anchorX": 0.5185,
-        "anchorY": 0.5091,
+        "anchorX": 0.4412,
+        "anchorY": 0.4746,
         "flipX": false,
         "flipY": false,
         "refit": {
           "scale": 1.0,
           "ratio": 1.0,
-          "pop": 11.4,
+          "pop": 18.0,
           "dx": 0,
           "dy": 0
         },
         "regen": {
           "pass": "crop2",
-          "score": 0.8552,
-          "pop": 11.4,
+          "score": 0.9327,
+          "pop": 18.3,
           "why": "T4"
         },
         "technique": "gpt-image-2.5-sunburst-low-visible-only"

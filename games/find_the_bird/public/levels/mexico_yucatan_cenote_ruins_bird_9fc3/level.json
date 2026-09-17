@@ -127,30 +127,30 @@
       "sprite": {
         "image": "levels/mexico_yucatan_cenote_ruins_bird_9fc3/dogs/dog_20/sprite_000.png",
         "height": 182,
-        "width": 180,
-        "x": 437,
-        "y": 1127,
+        "width": 177,
+        "x": 438,
+        "y": 1128,
         "cleanup": {
-          "x": 423,
-          "y": 1113,
-          "width": 207,
+          "x": 424,
+          "y": 1114,
+          "width": 203,
           "height": 209
         },
-        "anchorX": 0.5167,
-        "anchorY": 0.511,
+        "anchorX": 0.5198,
+        "anchorY": 0.5055,
         "flipX": false,
         "flipY": false,
         "refit": {
           "scale": 1.0,
           "ratio": 1.0,
-          "pop": 22.9,
+          "pop": 15.9,
           "dx": 0,
           "dy": 0
         },
         "regen": {
-          "pass": "crop2",
-          "score": 0.891,
-          "pop": 22.8,
+          "pass": "crop",
+          "score": 0.9116,
+          "pop": 16.0,
           "why": "T4"
         },
         "technique": "gpt-image-2.5-sunburst-low-visible-only"
@@ -333,31 +333,31 @@
       "r": 57,
       "sprite": {
         "image": "levels/mexico_yucatan_cenote_ruins_bird_9fc3/dogs/dog_26/sprite_000.png",
-        "height": 182,
-        "width": 182,
-        "x": 1391,
-        "y": 1472,
+        "height": 213,
+        "width": 271,
+        "x": 1339,
+        "y": 1469,
         "cleanup": {
-          "x": 1377,
-          "y": 1458,
-          "width": 209,
-          "height": 209
+          "x": 1318,
+          "y": 1453,
+          "width": 311,
+          "height": 244
         },
-        "anchorX": 0.5055,
-        "anchorY": 0.5055,
+        "anchorX": 0.5314,
+        "anchorY": 0.446,
         "flipX": false,
         "flipY": false,
         "refit": {
           "scale": 1.0,
-          "ratio": 1.1,
-          "pop": 41.0,
-          "dx": -8,
-          "dy": 4
+          "ratio": 1.0,
+          "pop": 17.9,
+          "dx": 0,
+          "dy": 0
         },
         "regen": {
-          "pass": "crop",
-          "score": 0.0,
-          "pop": 25.1,
+          "pass": "crop2",
+          "score": 0.9454,
+          "pop": 18.0,
           "why": "T4"
         },
         "technique": "gpt-image-2.5-sunburst-low-visible-only"
@@ -373,29 +373,29 @@
         "image": "levels/mexico_yucatan_cenote_ruins_bird_9fc3/dogs/dog_27/sprite_000.png",
         "height": 182,
         "width": 182,
-        "x": 919,
-        "y": 1984,
+        "x": 920,
+        "y": 1985,
         "cleanup": {
-          "x": 904,
-          "y": 1969,
+          "x": 906,
+          "y": 1971,
           "width": 209,
           "height": 209
         },
-        "anchorX": 0.5165,
-        "anchorY": 0.5165,
+        "anchorX": 0.5055,
+        "anchorY": 0.5055,
         "flipX": false,
         "flipY": false,
         "refit": {
           "scale": 1.0,
           "ratio": 1.0,
-          "pop": 15.9,
+          "pop": 14.4,
           "dx": 0,
           "dy": 0
         },
         "regen": {
-          "pass": "crop2",
-          "score": 0.8313,
-          "pop": 18.1,
+          "pass": "crop",
+          "score": 0.8634,
+          "pop": 14.4,
           "why": "T4"
         },
         "technique": "gpt-image-2.5-sunburst-low-visible-only"

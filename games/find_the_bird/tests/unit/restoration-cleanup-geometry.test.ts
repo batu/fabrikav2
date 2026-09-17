@@ -18,7 +18,10 @@ interface LevelDogJson {
   id: string;
   x: number;
   y: number;
-  sprite?: { cleanup?: { x: number; y: number; width: number; height: number } };
+  sprite?: {
+    width?: number; height?: number; anchorX?: number; anchorY?: number;
+    cleanup?: { x: number; y: number; width: number; height: number };
+  };
 }
 interface LevelJson { width: number; height: number; dogs: LevelDogJson[] }
 
@@ -34,12 +37,22 @@ interface CleanupFixture {
 
 function siteFor(dog: LevelDogJson): CleanupSite {
   const c = dog.sprite?.cleanup;
+  const s = dog.sprite;
+  const placed = s?.width !== undefined && s.height !== undefined
+    ? {
+        left: dog.x - (s.anchorX ?? 0.5) * s.width,
+        top: dog.y - (s.anchorY ?? 0.5) * s.height,
+        right: dog.x - (s.anchorX ?? 0.5) * s.width + s.width,
+        bottom: dog.y - (s.anchorY ?? 0.5) * s.height + s.height,
+      }
+    : null;
   return {
     id: dog.id,
     x: dog.x,
     y: dog.y,
     cleanup: c === undefined ? null
       : { left: c.x, top: c.y, right: c.x + c.width, bottom: c.y + c.height },
+    sprite: placed,
   };
 }
 

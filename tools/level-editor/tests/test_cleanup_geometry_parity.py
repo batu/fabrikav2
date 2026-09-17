@@ -26,16 +26,13 @@ def test_shared_runtime_cleanup_fixtures():
         ] == case["polygons"], case["name"]
 
 
-def test_close_pair_keeps_each_pickup_site_in_its_own_half_plane():
+def test_close_pair_each_bird_keeps_its_whole_footprint():
     sites = [
         CleanupSite("a", 50, 50, Rect(42, 42, 58, 58)),
         CleanupSite("b", 60, 50, Rect(52, 42, 68, 58)),
     ]
-
     first = cleanup_polygons_for_site(sites[0], sites, 100, 100, lambda _site: True)
-
-    assert first == [[Point(34, 34), Point(55, 34), Point(55, 66), Point(34, 66)]]
-
+    assert first == [[Point(34, 34), Point(66, 34), Point(66, 66), Point(34, 66)]]
 
 def test_edge_cleanup_expands_then_clips_to_scene():
     edge = CleanupSite("edge", 3, 4, Rect(0, 0, 10, 12))

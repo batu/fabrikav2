@@ -31,31 +31,31 @@
       "r": 57,
       "sprite": {
         "image": "levels/underground_metro_concourse_bird_94a1/dogs/dog_04/sprite_000.png",
-        "height": 168,
-        "width": 179,
-        "x": 601,
-        "y": 631,
+        "height": 174,
+        "width": 126,
+        "x": 589,
+        "y": 642,
         "cleanup": {
-          "x": 587,
-          "y": 618,
-          "width": 205,
-          "height": 193
+          "x": 579,
+          "y": 628,
+          "width": 170,
+          "height": 200
         },
-        "anchorX": 0.514,
-        "anchorY": 0.4821,
+        "anchorX": 0.8254,
+        "anchorY": 0.4023,
         "flipX": false,
         "flipY": false,
         "refit": {
           "scale": 1.0,
           "ratio": 1.0,
-          "pop": 15.8,
+          "pop": 14.0,
           "dx": 0,
           "dy": 0
         },
         "regen": {
-          "pass": "crop",
-          "score": 0.8871,
-          "pop": 15.8,
+          "pass": "crop2",
+          "score": 0.9642,
+          "pop": 14.0,
           "why": "T4"
         },
         "technique": "gpt-image-2.5-sunburst-low-visible-only"

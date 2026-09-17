@@ -31,31 +31,31 @@
       "r": 57,
       "sprite": {
         "image": "levels/coral_reef_shipwreck_reef_camp_bird_d61b/dogs/dog_16/sprite_000.png",
-        "height": 182,
-        "width": 182,
-        "x": 623,
-        "y": 581,
+        "height": 246,
+        "width": 245,
+        "x": 611,
+        "y": 568,
         "cleanup": {
-          "x": 609,
-          "y": 567,
-          "width": 209,
-          "height": 209
+          "x": 592,
+          "y": 550,
+          "width": 281,
+          "height": 282
         },
-        "anchorX": 0.5055,
-        "anchorY": 0.5055,
+        "anchorX": 0.4245,
+        "anchorY": 0.4228,
         "flipX": false,
         "flipY": false,
         "refit": {
           "scale": 1.0,
           "ratio": 1.0,
-          "pop": 8.9,
+          "pop": 15.6,
           "dx": 0,
           "dy": 0
         },
         "regen": {
-          "pass": "crop",
-          "score": 0.8011,
-          "pop": 9.0,
+          "pass": "crop2",
+          "score": 0.8292,
+          "pop": 21.8,
           "why": "T4"
         },
         "technique": "gpt-image-2.5-sunburst-low-visible-only"
@@ -176,31 +176,31 @@
       "r": 57,
       "sprite": {
         "image": "levels/coral_reef_shipwreck_reef_camp_bird_d61b/dogs/dog_20/sprite_000.png",
-        "height": 182,
-        "width": 182,
-        "x": 1056,
-        "y": 971,
+        "height": 195,
+        "width": 303,
+        "x": 1019,
+        "y": 999,
         "cleanup": {
-          "x": 1042,
-          "y": 957,
-          "width": 209,
-          "height": 209
+          "x": 971,
+          "y": 970,
+          "width": 348,
+          "height": 224
         },
-        "anchorX": 0.5055,
-        "anchorY": 0.5055,
+        "anchorX": 0.5083,
+        "anchorY": 0.4,
         "flipX": false,
         "flipY": false,
         "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 26.1,
-          "dx": 0,
-          "dy": 0
+          "scale": 1.15,
+          "ratio": 0.95,
+          "pop": 23.4,
+          "dx": -24,
+          "dy": -13
         },
         "regen": {
-          "pass": "crop",
-          "score": 0.3171,
-          "pop": 25.4,
+          "pass": "crop2",
+          "score": 0.7133,
+          "pop": 56.5,
           "why": "T4"
         },
         "technique": "gpt-image-2.5-sunburst-low-visible-only"
@@ -252,31 +252,31 @@
       "r": 57,
       "sprite": {
         "image": "levels/coral_reef_shipwreck_reef_camp_bird_d61b/dogs/dog_22/sprite_000.png",
-        "height": 109,
-        "width": 109,
-        "x": 427,
-        "y": 1468,
+        "height": 306,
+        "width": 291,
+        "x": 388,
+        "y": 1383,
         "cleanup": {
-          "x": 418,
-          "y": 1459,
-          "width": 156,
-          "height": 125
+          "x": 351,
+          "y": 1347,
+          "width": 334,
+          "height": 351
         },
-        "anchorX": 0.8349,
-        "anchorY": 0.4679,
+        "anchorX": 0.4983,
+        "anchorY": 0.4869,
         "flipX": false,
         "flipY": false,
         "refit": {
-          "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 25.0,
-          "dx": 0,
-          "dy": 0
+          "scale": 1.1,
+          "ratio": 0.95,
+          "pop": 23.0,
+          "dx": -15,
+          "dy": -13
         },
         "regen": {
-          "pass": "crop",
-          "score": 0.4244,
-          "pop": 61.3,
+          "pass": "crop2",
+          "score": 0.7216,
+          "pop": 47.0,
           "why": "T4"
         },
         "technique": "gpt-image-2.5-sunburst-low-visible-only"
@@ -291,30 +291,30 @@
       "sprite": {
         "image": "levels/coral_reef_shipwreck_reef_camp_bird_d61b/dogs/dog_23/sprite_000.png",
         "height": 182,
-        "width": 176,
-        "x": 2073,
-        "y": 1194,
+        "width": 182,
+        "x": 2068,
+        "y": 1195,
         "cleanup": {
-          "x": 2059,
-          "y": 1180,
-          "width": 202,
+          "x": 2054,
+          "y": 1181,
+          "width": 209,
           "height": 209
         },
-        "anchorX": 0.4943,
-        "anchorY": 0.511,
+        "anchorX": 0.5055,
+        "anchorY": 0.5055,
         "flipX": false,
         "flipY": false,
         "refit": {
           "scale": 1.0,
           "ratio": 1.0,
-          "pop": 13.7,
+          "pop": 12.0,
           "dx": 0,
           "dy": 0
         },
         "regen": {
-          "pass": "crop2",
-          "score": 0.8478,
-          "pop": 13.8,
+          "pass": "crop",
+          "score": 0.8615,
+          "pop": 11.5,
           "why": "T4"
         },
         "technique": "gpt-image-2.5-sunburst-low-visible-only"
@@ -345,14 +345,14 @@
         "refit": {
           "scale": 1.0,
           "ratio": 1.0,
-          "pop": 23.0,
+          "pop": 21.8,
           "dx": 0,
           "dy": 0
         },
         "regen": {
           "pass": "crop",
-          "score": 0.8595,
-          "pop": 23.2,
+          "score": 0.8878,
+          "pop": 22.1,
           "why": "T4"
         },
         "technique": "gpt-image-2.5-sunburst-low-visible-only"
@@ -421,14 +421,14 @@
         "refit": {
           "scale": 1.0,
           "ratio": 1.0,
-          "pop": 8.7,
+          "pop": 8.4,
           "dx": 0,
           "dy": 0
         },
         "regen": {
           "pass": "crop",
-          "score": 0.9266,
-          "pop": 8.8,
+          "score": 0.9059,
+          "pop": 8.4,
           "why": "T4"
         },
         "technique": "gpt-image-2.5-sunburst-low-visible-only"
@@ -443,30 +443,30 @@
       "sprite": {
         "image": "levels/coral_reef_shipwreck_reef_camp_bird_d61b/dogs/dog_27/sprite_000.png",
         "height": 176,
-        "width": 182,
-        "x": 2003,
-        "y": 1911,
+        "width": 276,
+        "x": 1960,
+        "y": 1917,
         "cleanup": {
-          "x": 1989,
-          "y": 1897,
-          "width": 209,
+          "x": 1939,
+          "y": 1903,
+          "width": 317,
           "height": 202
         },
-        "anchorX": 0.5055,
-        "anchorY": 0.4886,
+        "anchorX": 0.4891,
+        "anchorY": 0.4545,
         "flipX": false,
         "flipY": false,
         "refit": {
           "scale": 1.0,
           "ratio": 1.0,
-          "pop": 12.8,
+          "pop": 14.3,
           "dx": 0,
           "dy": 0
         },
         "regen": {
-          "pass": "crop",
-          "score": 0.7647,
-          "pop": 13.2,
+          "pass": "crop2",
+          "score": 0.9558,
+          "pop": 14.0,
           "why": "T4"
         },
         "technique": "gpt-image-2.5-sunburst-low-visible-only"
@@ -480,31 +480,31 @@
       "r": 57,
       "sprite": {
         "image": "levels/coral_reef_shipwreck_reef_camp_bird_d61b/dogs/dog_28/sprite_000.png",
-        "height": 212,
-        "width": 202,
-        "x": 2148,
-        "y": 2266,
+        "height": 251,
+        "width": 240,
+        "x": 2060,
+        "y": 2171,
         "cleanup": {
-          "x": 2061,
-          "y": 2172,
-          "width": 232,
-          "height": 243
+          "x": 2042,
+          "y": 2152,
+          "width": 276,
+          "height": 288
         },
-        "anchorX": 0.5099,
-        "anchorY": 0.5425,
+        "anchorX": 0.5,
+        "anchorY": 0.5259,
         "flipX": false,
         "flipY": false,
         "refit": {
-          "scale": 1.9,
-          "ratio": 0.95,
-          "pop": 34.1,
-          "dx": -70,
-          "dy": -78
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 18.8,
+          "dx": 0,
+          "dy": 0
         },
         "regen": {
-          "pass": "crop",
-          "score": 0.5052,
-          "pop": 57.6,
+          "pass": "crop2",
+          "score": 0.937,
+          "pop": 18.8,
           "why": "T4"
         },
         "technique": "gpt-image-2.5-sunburst-low-visible-only"

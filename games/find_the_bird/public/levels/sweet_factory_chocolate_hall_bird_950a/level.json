@@ -720,31 +720,31 @@
       "r": 57,
       "sprite": {
         "image": "levels/sweet_factory_chocolate_hall_bird_950a/dogs/dog_38/sprite_000.png",
-        "height": 56,
-        "width": 64,
-        "x": 1832,
-        "y": 2081,
+        "height": 104,
+        "width": 105,
+        "x": 1808,
+        "y": 2036,
         "cleanup": {
-          "x": 1833,
-          "y": 2094,
-          "width": 114,
-          "height": 117
+          "x": 1809,
+          "y": 2066,
+          "width": 137,
+          "height": 141
         },
-        "anchorX": 0.5,
-        "anchorY": 0.4464,
+        "anchorX": 0.6952,
+        "anchorY": 0.7404,
         "flipX": false,
         "flipY": false,
         "refit": {
-          "scale": 0.5499999999999999,
-          "ratio": 1.15,
-          "pop": 15.5,
-          "dx": 25,
-          "dy": 44
+          "scale": 0.7,
+          "ratio": 1.0,
+          "pop": 20.2,
+          "dx": 9,
+          "dy": 37
         },
         "regen": {
           "pass": "crop2",
-          "score": 0.5751,
-          "pop": 19.0,
+          "score": 0.6577,
+          "pop": 20.9,
           "why": "T4"
         },
         "technique": "gpt-image-2.5-sunburst-low-visible-only"

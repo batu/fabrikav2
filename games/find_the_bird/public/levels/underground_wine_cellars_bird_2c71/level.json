@@ -141,16 +141,16 @@
         "image": "levels/underground_wine_cellars_bird_2c71/dogs/dog_19/sprite_000.png",
         "height": 109,
         "width": 109,
-        "x": 2132,
-        "y": 625,
+        "x": 2114,
+        "y": 622,
         "cleanup": {
-          "x": 2112,
-          "y": 616,
-          "width": 137,
-          "height": 146
+          "x": 2105,
+          "y": 613,
+          "width": 125,
+          "height": 149
         },
-        "anchorX": 0.3394,
-        "anchorY": 0.7431,
+        "anchorX": 0.5046,
+        "anchorY": 0.7706,
         "flipX": false,
         "flipY": false,
         "refit": {
@@ -161,9 +161,9 @@
           "dy": 5
         },
         "regen": {
-          "pass": "crop2",
-          "score": 0.5416,
-          "pop": 19.5,
+          "pass": "crop",
+          "score": 0.533,
+          "pop": 23.0,
           "why": "T4"
         },
         "technique": "gpt-image-2.5-sunburst-low-visible-only"

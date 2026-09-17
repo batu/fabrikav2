@@ -136,31 +136,31 @@
       "r": 57,
       "sprite": {
         "image": "levels/ancient_egyptian_compounds_scribes_workyard_bird_5094/dogs/dog_14/sprite_000.png",
-        "height": 181,
-        "width": 176,
-        "x": 982,
-        "y": 918,
+        "height": 218,
+        "width": 200,
+        "x": 997,
+        "y": 880,
         "cleanup": {
-          "x": 968,
-          "y": 904,
-          "width": 202,
-          "height": 208
+          "x": 982,
+          "y": 863,
+          "width": 230,
+          "height": 250
         },
-        "anchorX": 0.4943,
-        "anchorY": 0.5138,
+        "anchorX": 0.36,
+        "anchorY": 0.6009,
         "flipX": false,
         "flipY": false,
         "refit": {
           "scale": 1.0,
           "ratio": 1.0,
-          "pop": 15.4,
+          "pop": 20.0,
           "dx": 0,
           "dy": 0
         },
         "regen": {
           "pass": "crop2",
-          "score": 0.8357,
-          "pop": 15.5,
+          "score": 0.8588,
+          "pop": 19.5,
           "why": "T4"
         },
         "technique": "gpt-image-2.5-sunburst-low-visible-only"

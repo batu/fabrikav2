@@ -54,6 +54,3 @@ BATCH: 197 oversized stickers on 41 levels regenerating with capped crops (regen
 43. L36 japan night harbor: bird picks up the whole boat -> sprite-footprint restoration applied to all 44 shipped levels
 44. L37-40 (the four 4096 levels, old 40-43): plates never matched the paint -> stretch, stay-behind birds, wrong reveals -> REMOVED (Batu)
 45. Green sweep damage on the phone build: plumage punched on green birds -> restored pre-sweep bytes, strict key-green rule
-46. L41 (phone order) fairy level: two pairs pick up two birds; bird above the cut log leaves a tail (sticker lacks the tail)
-47. L42 bazaar: torsos partially picked = green-sweep holes (fixed on disk, not on the phone yet)
-48. L43: blue bird plumage residue on the ground; musical instrument on the left not picked up

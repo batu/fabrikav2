@@ -488,32 +488,32 @@
       "r": 69,
       "sprite": {
         "image": "levels/hawaii_volcano_national_park_bird_3900/dogs/dog_10/sprite_000.png",
-        "height": 220,
-        "width": 212,
-        "x": 1608,
-        "y": 1298,
+        "height": 294,
+        "width": 235,
+        "x": 1602,
+        "y": 1267,
         "cleanup": {
-          "x": 1592,
-          "y": 1281,
-          "width": 243,
-          "height": 253
+          "x": 1584,
+          "y": 1244,
+          "width": 270,
+          "height": 338
         },
-        "anchorX": 0.4858,
-        "anchorY": 0.5045,
+        "anchorX": 0.4638,
+        "anchorY": 0.483,
         "flipX": false,
         "flipY": false,
         "refit": {
           "scale": 1.0,
           "ratio": 1.0,
-          "pop": 15.0,
+          "pop": 20.2,
           "dx": 0,
           "dy": 0
         },
         "regen": {
-          "pass": "crop",
-          "score": 0.92,
-          "pop": 14.9,
-          "why": "T3+refit refused"
+          "pass": "crop2",
+          "score": 0.8861,
+          "pop": 20.7,
+          "why": "T4"
         },
         "technique": "gpt-image-2.5-sunburst-low-visible-only"
       }
@@ -526,31 +526,31 @@
       "r": 69,
       "sprite": {
         "image": "levels/hawaii_volcano_national_park_bird_3900/dogs/dog_14/sprite_000.png",
-        "height": 212,
-        "width": 220,
-        "x": 2037,
-        "y": 1436,
+        "height": 243,
+        "width": 300,
+        "x": 2020,
+        "y": 1431,
         "cleanup": {
-          "x": 2019,
-          "y": 1422,
-          "width": 253,
-          "height": 243
+          "x": 1997,
+          "y": 1412,
+          "width": 345,
+          "height": 279
         },
-        "anchorX": 0.5136,
-        "anchorY": 0.4811,
+        "anchorX": 0.43,
+        "anchorY": 0.4486,
         "flipX": false,
         "flipY": false,
         "refit": {
           "scale": 1.0,
           "ratio": 1.0,
-          "pop": 28.9,
+          "pop": 11.4,
           "dx": 0,
-          "dy": 2
+          "dy": 0
         },
         "regen": {
           "pass": "crop2",
-          "score": 0.7572,
-          "pop": 35.0,
+          "score": 0.9658,
+          "pop": 11.8,
           "why": "T4"
         },
         "technique": "gpt-image-2.5-sunburst-low-visible-only"

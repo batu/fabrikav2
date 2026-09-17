@@ -322,31 +322,31 @@
       "r": 57,
       "sprite": {
         "image": "levels/indian_craft_bazaars_block_printing_quarter_bird_7a65/dogs/dog_31/sprite_000.png",
-        "height": 186,
-        "width": 195,
-        "x": 1965,
-        "y": 1292,
+        "height": 257,
+        "width": 276,
+        "x": 1913,
+        "y": 1244,
         "cleanup": {
-          "x": 1941,
-          "y": 1273,
-          "width": 224,
-          "height": 213
+          "x": 1892,
+          "y": 1224,
+          "width": 317,
+          "height": 295
         },
-        "anchorX": 0.4718,
-        "anchorY": 0.5,
+        "anchorX": 0.4891,
+        "anchorY": 0.5292,
         "flipX": false,
         "flipY": false,
         "refit": {
-          "scale": 1.0999999999999999,
-          "ratio": 1.05,
-          "pop": 30.2,
-          "dx": -8,
-          "dy": -4
+          "scale": 1.0,
+          "ratio": 1.0,
+          "pop": 12.6,
+          "dx": 0,
+          "dy": 0
         },
         "regen": {
-          "pass": "crop",
-          "score": 0.6411,
-          "pop": 35.5,
+          "pass": "crop2",
+          "score": 0.9348,
+          "pop": 12.6,
           "why": "T4"
         },
         "technique": "gpt-image-2.5-sunburst-low-visible-only"
@@ -736,31 +736,31 @@
       "r": 57,
       "sprite": {
         "image": "levels/indian_craft_bazaars_block_printing_quarter_bird_7a65/dogs/dog_43/sprite_000.png",
-        "height": 175,
-        "width": 182,
-        "x": 1462,
-        "y": 2164,
+        "height": 226,
+        "width": 252,
+        "x": 1425,
+        "y": 2136,
         "cleanup": {
-          "x": 1448,
-          "y": 2151,
-          "width": 209,
-          "height": 201
+          "x": 1406,
+          "y": 2119,
+          "width": 289,
+          "height": 259
         },
-        "anchorX": 0.511,
-        "anchorY": 0.4857,
+        "anchorX": 0.5159,
+        "anchorY": 0.5044,
         "flipX": false,
         "flipY": false,
         "refit": {
           "scale": 1.0,
           "ratio": 1.0,
-          "pop": 13.8,
+          "pop": 15.1,
           "dx": 0,
           "dy": 0
         },
         "regen": {
           "pass": "crop2",
-          "score": 0.8421,
-          "pop": 13.8,
+          "score": 0.9359,
+          "pop": 15.1,
           "why": "T4"
         },
         "technique": "gpt-image-2.5-sunburst-low-visible-only"

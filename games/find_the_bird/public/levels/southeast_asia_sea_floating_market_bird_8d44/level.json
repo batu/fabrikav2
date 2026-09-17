@@ -389,32 +389,32 @@
       "r": 57,
       "sprite": {
         "image": "levels/southeast_asia_sea_floating_market_bird_8d44/dogs/dog_29/sprite_000.png",
-        "height": 174,
-        "width": 176,
-        "x": 1114,
-        "y": 1882,
+        "height": 182,
+        "width": 181,
+        "x": 1112,
+        "y": 1875,
         "cleanup": {
           "x": 1106,
           "y": 1867,
           "width": 319,
           "height": 330
         },
-        "anchorX": 0.4943,
-        "anchorY": 0.5287,
+        "anchorX": 0.4917,
+        "anchorY": 0.544,
         "flipX": false,
         "flipY": false,
         "refit": {
           "scale": 1.0,
           "ratio": 1.0,
-          "pop": 21.0,
+          "pop": 27.7,
           "dx": 0,
           "dy": 0
         },
         "cleanupNote": "tight, boat pair (Batu 2026-09-16)",
         "regen": {
-          "pass": "crop",
-          "score": 0.8802,
-          "pop": 20.9,
+          "pass": "crop2",
+          "score": 0.9061,
+          "pop": 27.6,
           "why": "T4"
         },
         "technique": "gpt-image-2.5-sunburst-low-visible-only"

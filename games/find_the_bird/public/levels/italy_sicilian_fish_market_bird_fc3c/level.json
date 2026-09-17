@@ -99,30 +99,30 @@
       "sprite": {
         "image": "levels/italy_sicilian_fish_market_bird_fc3c/dogs/dog_78/sprite_000.png",
         "height": 182,
-        "width": 176,
-        "x": 1983,
+        "width": 181,
+        "x": 1978,
         "y": 2219,
         "cleanup": {
-          "x": 1969,
+          "x": 1964,
           "y": 2205,
-          "width": 202,
+          "width": 208,
           "height": 209
         },
-        "anchorX": 0.4886,
+        "anchorX": 0.5028,
         "anchorY": 0.5055,
         "flipX": false,
         "flipY": false,
         "refit": {
           "scale": 1.0,
           "ratio": 1.0,
-          "pop": 10.3,
+          "pop": 13.4,
           "dx": 0,
           "dy": 0
         },
         "regen": {
           "pass": "crop",
-          "score": 0.9343,
-          "pop": 10.5,
+          "score": 0.9149,
+          "pop": 13.6,
           "why": "T4"
         },
         "technique": "gpt-image-2.5-sunburst-low-visible-only"
@@ -457,31 +457,31 @@
       "r": 57,
       "sprite": {
         "image": "levels/italy_sicilian_fish_market_bird_fc3c/dogs/dog_89/sprite_000.png",
-        "height": 182,
-        "width": 182,
-        "x": 596,
-        "y": 1484,
+        "height": 254,
+        "width": 273,
+        "x": 545,
+        "y": 1461,
         "cleanup": {
-          "x": 582,
-          "y": 1470,
-          "width": 209,
-          "height": 209
+          "x": 528,
+          "y": 1439,
+          "width": 313,
+          "height": 292
         },
-        "anchorX": 0.511,
-        "anchorY": 0.511,
+        "anchorX": 0.5128,
+        "anchorY": 0.4646,
         "flipX": false,
         "flipY": false,
         "refit": {
           "scale": 1.0,
-          "ratio": 1.0,
-          "pop": 14.9,
-          "dx": 0,
-          "dy": 0
+          "ratio": 0.95,
+          "pop": 30.9,
+          "dx": 4,
+          "dy": -2
         },
         "regen": {
           "pass": "crop2",
-          "score": 0.6713,
-          "pop": 14.4,
+          "score": 0.8467,
+          "pop": 34.2,
           "why": "T4"
         },
         "technique": "gpt-image-2.5-sunburst-low-visible-only"

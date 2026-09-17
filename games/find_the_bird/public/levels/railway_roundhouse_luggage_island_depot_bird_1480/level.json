@@ -484,31 +484,31 @@
       "r": 57,
       "sprite": {
         "image": "levels/railway_roundhouse_luggage_island_depot_bird_1480/dogs/dog_30/sprite_000.png",
-        "height": 182,
-        "width": 182,
-        "x": 1841,
-        "y": 1732,
+        "height": 256,
+        "width": 210,
+        "x": 1832,
+        "y": 1699,
         "cleanup": {
-          "x": 1827,
-          "y": 1718,
-          "width": 209,
-          "height": 209
+          "x": 1816,
+          "y": 1679,
+          "width": 241,
+          "height": 294
         },
-        "anchorX": 0.5055,
-        "anchorY": 0.5055,
+        "anchorX": 0.481,
+        "anchorY": 0.4883,
         "flipX": false,
         "flipY": false,
         "refit": {
           "scale": 1.0,
           "ratio": 1.0,
-          "pop": 12.7,
+          "pop": 15.4,
           "dx": 0,
           "dy": 0
         },
         "regen": {
           "pass": "crop2",
-          "score": 0.9378,
-          "pop": 11.7,
+          "score": 0.9567,
+          "pop": 15.5,
           "why": "T4"
         },
         "technique": "gpt-image-2.5-sunburst-low-visible-only"

@@ -28,6 +28,7 @@ class CleanupSite:
     x: float
     y: float
     cleanup: Rect | None
+    sprite: Rect | None = None  # placed sprite box; when set it is the protected area of a neighbour
 
 
 def _scale_rect(rect: Rect, scale: float) -> Rect:
@@ -74,6 +75,29 @@ def _clip_nearer(polygon: list[Point], site: Point, other: Point) -> list[Point]
     return output
 
 
+def _subtract_rect(rect: Rect, hole: Rect) -> list[Rect]:
+    """The up-to-four rectangles of ``rect`` outside ``hole`` (top, bottom, left, right bands)."""
+    if not _overlap(rect, hole):
+        return [rect]
+    out: list[Rect] = []
+    if hole.top > rect.top:
+        out.append(Rect(rect.left, rect.top, rect.right, hole.top))
+    if hole.bottom < rect.bottom:
+        out.append(Rect(rect.left, hole.bottom, rect.right, rect.bottom))
+    mid_top = max(rect.top, hole.top)
+    mid_bottom = min(rect.bottom, hole.bottom)
+    if mid_bottom > mid_top:
+        if hole.left > rect.left:
+            out.append(Rect(rect.left, mid_top, hole.left, mid_bottom))
+        if hole.right < rect.right:
+            out.append(Rect(hole.right, mid_top, rect.right, mid_bottom))
+    return out
+
+
+def _rect_polygon(rect: Rect) -> list[Point]:
+    return [Point(rect.left, rect.top), Point(rect.right, rect.top), Point(rect.right, rect.bottom), Point(rect.left, rect.bottom)]
+
+
 def cleanup_polygons_for_site(
     site: CleanupSite,
     all_sites: list[CleanupSite],
@@ -81,27 +105,13 @@ def cleanup_polygons_for_site(
     level_height: float,
     is_protected: Callable[[CleanupSite], bool],
 ) -> list[list[Point]]:
-    """Match ``cleanupPolygonsForSite`` in the Find the Bird runtime."""
+    """Match ``cleanupPolygonsForSite`` in the Find the Bird runtime: the whole
+    scaled footprint. Neighbours never carve it (operator rule 2026-09-17);
+    neighbour protection is pixel-level in the runtime mask."""
+    del all_sites, is_protected
     if site.cleanup is None:
         return []
     expanded = _clip_rect(_scale_rect(site.cleanup, CLEANUP_FOOTPRINT_SCALE), level_width, level_height)
     if expanded is None:
         return []
-    polygons = [[
-        Point(expanded.left, expanded.top),
-        Point(expanded.right, expanded.top),
-        Point(expanded.right, expanded.bottom),
-        Point(expanded.left, expanded.bottom),
-    ]]
-    for other in all_sites:
-        if other.bird_id == site.bird_id or other.cleanup is None or not is_protected(other):
-            continue
-        protected = _clip_rect(other.cleanup, level_width, level_height)
-        if protected is None or not _overlap(expanded, protected):
-            continue
-        polygons = [clipped for polygon in polygons if len(clipped := _clip_nearer(
-            polygon, Point(site.x, site.y), Point(other.x, other.y),
-        )) >= 3]
-        if not polygons:
-            break
-    return polygons
+    return [_rect_polygon(expanded)]

@@ -461,31 +461,31 @@
       "r": 57,
       "sprite": {
         "image": "levels/aquarium_halls_kelp_gallery_bird_c7fa/dogs/dog_34/sprite_000.png",
-        "height": 182,
-        "width": 182,
-        "x": 456,
-        "y": 1986,
+        "height": 275,
+        "width": 236,
+        "x": 427,
+        "y": 1945,
         "cleanup": {
-          "x": 442,
-          "y": 1972,
-          "width": 209,
-          "height": 209
+          "x": 409,
+          "y": 1925,
+          "width": 271,
+          "height": 316
         },
-        "anchorX": 0.511,
-        "anchorY": 0.511,
+        "anchorX": 0.5169,
+        "anchorY": 0.4836,
         "flipX": false,
         "flipY": false,
         "refit": {
           "scale": 1.0,
           "ratio": 1.0,
-          "pop": 14.5,
+          "pop": 15.9,
           "dx": 0,
-          "dy": 0
+          "dy": 1
         },
         "regen": {
           "pass": "crop2",
-          "score": 0.8032,
-          "pop": 14.8,
+          "score": 0.917,
+          "pop": 15.3,
           "why": "T4"
         },
         "technique": "gpt-image-2.5-sunburst-low-visible-only"

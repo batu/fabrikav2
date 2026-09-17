@@ -213,31 +213,31 @@
       "r": 57,
       "sprite": {
         "image": "levels/pirate_shipwreck_island_jungle_cave_shore_bird_1c98/dogs/dog_07/sprite_000.png",
-        "height": 190,
-        "width": 190,
-        "x": 1235,
-        "y": 2255,
+        "height": 184,
+        "width": 280,
+        "x": 1190,
+        "y": 2248,
         "cleanup": {
-          "x": 1207,
-          "y": 2231,
-          "width": 218,
-          "height": 218
+          "x": 1168,
+          "y": 2236,
+          "width": 322,
+          "height": 211
         },
-        "anchorX": 0.5263,
-        "anchorY": 0.5368,
+        "anchorX": 0.475,
+        "anchorY": 0.5326,
         "flipX": false,
         "flipY": false,
         "refit": {
-          "scale": 1.1,
-          "ratio": 1.0,
-          "pop": 25.6,
-          "dx": -12,
-          "dy": -8
+          "scale": 1.0,
+          "ratio": 1.05,
+          "pop": 30.1,
+          "dx": -1,
+          "dy": 1
         },
         "regen": {
           "pass": "crop2",
-          "score": 0.593,
-          "pop": 47.3,
+          "score": 0.6689,
+          "pop": 42.1,
           "why": "T4"
         },
         "technique": "gpt-image-2.5-sunburst-low-visible-only"
@@ -365,31 +365,31 @@
       "r": 57,
       "sprite": {
         "image": "levels/pirate_shipwreck_island_jungle_cave_shore_bird_1c98/dogs/dog_12/sprite_000.png",
-        "height": 181,
-        "width": 182,
-        "x": 550,
-        "y": 2177,
+        "height": 203,
+        "width": 247,
+        "x": 525,
+        "y": 2185,
         "cleanup": {
-          "x": 536,
-          "y": 2163,
-          "width": 209,
-          "height": 208
+          "x": 506,
+          "y": 2169,
+          "width": 284,
+          "height": 233
         },
-        "anchorX": 0.511,
-        "anchorY": 0.5083,
+        "anchorX": 0.4777,
+        "anchorY": 0.4138,
         "flipX": false,
         "flipY": false,
         "refit": {
           "scale": 1.0,
           "ratio": 1.0,
-          "pop": 20.9,
+          "pop": 15.5,
           "dx": 0,
           "dy": 0
         },
         "regen": {
           "pass": "crop2",
-          "score": 0.8765,
-          "pop": 20.5,
+          "score": 0.9438,
+          "pop": 15.4,
           "why": "T4"
         },
         "technique": "gpt-image-2.5-sunburst-low-visible-only"

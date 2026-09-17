@@ -17,6 +17,14 @@ for k in sys.argv[1:]:
         x0,y0=max(0,x),max(0,y); x1,y1=min(W,x+w),min(H,y+h)
         if x1<=x0 or y1<=y0: continue
         mask[y0:y1,x0:x1]=np.maximum(mask[y0:y1,x0:x1],a[y0-y:y1-y,x0-x:x1-x])
+    # Hybrid (Batu 2026-09-17 00:xx, levels 44-46): silhouette-only left painted shadows, tails and held
+    # items behind. Also erase pixels that differ from the plate within RING px of a silhouette.
+    RING=int(os.environ.get('RESTORE_RING','40')); THR=int(os.environ.get('RESTORE_DIFF','40'))
+    if RING>0:
+        ring=ndi.binary_dilation(mask>0.5,iterations=RING)
+        diff=(np.abs(col.astype(np.int16)-plate.astype(np.int16)).sum(2)>THR)&ring
+        diff=ndi.binary_opening(diff,iterations=1); diff=ndi.binary_closing(diff,iterations=2)
+        mask=np.maximum(mask,diff.astype(np.float32))
     mask=ndi.gaussian_filter(mask,2)[...,None]
     out=(col*(1-mask)+plate*mask).round().astype(np.uint8); im=Image.fromarray(out,'RGB'); im.save(pubdir/'bg_00.png')
     (im if im.width==2560 else im.resize((2560,int(im.height*2560/im.width)),Image.LANCZOS)).save(pubdir/'bg_00.webp',format='WEBP',quality=90,method=6)

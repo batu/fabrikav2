@@ -1005,6 +1005,15 @@ function renderDebugLevelJumpRows(): string {
           </select>
         </div>
       </div>
+      <div class="modal-row settings-row settings-row-tall">
+        <div class="settings-row-left" style="flex:1;min-width:0">
+          <span class="settings-row-label">Auto play</span>
+          <select id="debug-autoplay-speed" aria-label="Debug auto play seconds per bird" style="flex:1;min-width:0;margin-left:10px;font:inherit;font-size:14px;padding:6px;border-radius:8px">
+            ${[0.1, 0.2, 0.5, 1].map((sec) => `<option value="${sec}" ${DEBUG_OVERRIDES.autoPlay.secondsPerBird === sec ? 'selected' : ''}>${sec} s / bird</option>`).join('')}
+          </select>
+        </div>
+        <button id="debug-autoplay-toggle" class="settings-footer-action" type="button" style="margin-left:10px;padding:8px 14px;border-radius:10px;font:inherit;font-weight:700">${DEBUG_OVERRIDES.autoPlay.active ? 'Stop' : 'Start'}</button>
+      </div>
   `;
 }
 
@@ -1022,6 +1031,16 @@ function wireDebugLevelJump(page: HTMLElement): void {
   fade?.addEventListener('change', () => { DEBUG_OVERRIDES.restorationDissolveMs = Number(fade.value); });
   const fx = page.querySelector<HTMLSelectElement>('#debug-pickup-fx');
   fx?.addEventListener('change', () => { DEBUG_OVERRIDES.pickupFx = fx.value as typeof DEBUG_OVERRIDES.pickupFx; });
+  const speed = page.querySelector<HTMLSelectElement>('#debug-autoplay-speed');
+  speed?.addEventListener('change', () => { DEBUG_OVERRIDES.autoPlay.secondsPerBird = Number(speed.value); });
+  const autoplay = page.querySelector<HTMLButtonElement>('#debug-autoplay-toggle');
+  autoplay?.addEventListener('click', () => {
+    playUITap();
+    DEBUG_OVERRIDES.autoPlay.active = !DEBUG_OVERRIDES.autoPlay.active;
+    autoplay.textContent = DEBUG_OVERRIDES.autoPlay.active ? 'Stop' : 'Start';
+    closePage();
+    window.dispatchEvent(new CustomEvent('ftb-debug-autoplay', { detail: { active: DEBUG_OVERRIDES.autoPlay.active } }));
+  });
   const select = page.querySelector<HTMLSelectElement>('#debug-level-select');
   const button = page.querySelector<HTMLButtonElement>('#debug-level-jump');
   if (!select || !button) return;

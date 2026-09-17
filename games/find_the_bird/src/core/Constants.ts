@@ -91,4 +91,9 @@ export const COLORS = {
 } as const;
 
 /** Harness-build debug overrides, set from Settings > Debug; null = shipped value. */
-export const DEBUG_OVERRIDES: { restorationDissolveMs: number | null; pickupFx: 'random' | 'leaf' | 'stars' | 'feathers' | 'confetti' | 'none' } = { restorationDissolveMs: null, pickupFx: 'none' };
+export const DEBUG_OVERRIDES: {
+  restorationDissolveMs: number | null;
+  pickupFx: 'random' | 'leaf' | 'stars' | 'feathers' | 'confetti' | 'none';
+  /** Debug builds only: collect birds left to right with a smooth camera pan, then jump to the next level. */
+  autoPlay: { active: boolean; secondsPerBird: number };
+} = { restorationDissolveMs: null, pickupFx: 'none', autoPlay: { active: false, secondsPerBird: 0.2 } };

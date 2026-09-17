@@ -76,32 +76,32 @@
       "r": 57,
       "sprite": {
         "image": "levels/castle_keep_great_hall_bird_a6ff/dogs/dog_17/sprite_000.png",
-        "height": 182,
+        "height": 264,
         "width": 175,
-        "x": 744,
-        "y": 576,
+        "x": 745,
+        "y": 526,
         "cleanup": {
-          "x": 730,
-          "y": 562,
+          "x": 731,
+          "y": 506,
           "width": 201,
-          "height": 209
+          "height": 303
         },
-        "anchorX": 0.5257,
-        "anchorY": 0.5055,
+        "anchorX": 0.52,
+        "anchorY": 0.5379,
         "flipX": false,
         "flipY": false,
         "refit": {
           "scale": 1.0,
           "ratio": 1.0,
-          "pop": 11.7,
+          "pop": 14.8,
           "dx": 0,
           "dy": 0
         },
         "regen": {
-          "pass": "crop",
-          "score": 0.8476,
-          "pop": 11.5,
-          "why": "T3"
+          "pass": "crop2",
+          "score": 0.9058,
+          "pop": 14.7,
+          "why": "T4"
         },
         "technique": "gpt-image-2.5-sunburst-low-visible-only"
       }

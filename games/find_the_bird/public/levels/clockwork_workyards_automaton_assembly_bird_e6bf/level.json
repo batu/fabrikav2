@@ -130,31 +130,31 @@
       "r": 57,
       "sprite": {
         "image": "levels/clockwork_workyards_automaton_assembly_bird_e6bf/dogs/dog_16/sprite_000.png",
-        "height": 199,
-        "width": 195,
-        "x": 682,
-        "y": 588,
+        "height": 182,
+        "width": 181,
+        "x": 678,
+        "y": 589,
         "cleanup": {
-          "x": 661,
-          "y": 565,
-          "width": 224,
-          "height": 228
+          "x": 664,
+          "y": 575,
+          "width": 208,
+          "height": 209
         },
-        "anchorX": 0.4769,
-        "anchorY": 0.5075,
+        "anchorX": 0.5028,
+        "anchorY": 0.5055,
         "flipX": false,
         "flipY": false,
         "refit": {
-          "scale": 1.15,
+          "scale": 1.0,
           "ratio": 1.0,
-          "pop": 21.7,
-          "dx": -5,
-          "dy": -7
+          "pop": 13.2,
+          "dx": 0,
+          "dy": 0
         },
         "regen": {
-          "pass": "crop2",
-          "score": 0.7587,
-          "pop": 32.0,
+          "pass": "crop",
+          "score": 0.895,
+          "pop": 13.2,
           "why": "T4"
         },
         "technique": "gpt-image-2.5-sunburst-low-visible-only"
