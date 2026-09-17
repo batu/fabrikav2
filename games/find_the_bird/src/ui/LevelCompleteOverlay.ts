@@ -30,6 +30,14 @@ export interface LevelCompleteOverlayOptions {
    */
   onRatePromptHandle?: (handle: RatePromptHandle | null) => void;
   /**
+   * Presence replaces the Next Level button's copy and tells the caller, via
+   * `handedOff` on the result, to take the player somewhere other than the next
+   * level. Used for the completion that opens the Sanctuary: the level index
+   * still advances (the tap is consent to advance), but the player lands in the
+   * Sanctuary instead of in the level they just unlocked it with.
+   */
+  unlockHandOff?: { label: string };
+  /**
    * Between-level analytics context (handoff 2026-09-14). When present the
    * wrapper emits `level_complete_shown` on mount and one
    * `level_complete_action` for the path that leaves the overlay.
@@ -49,6 +57,8 @@ export interface LevelCompleteOverlayTelemetry {
 
 export interface LevelCompleteOverlayResult {
   nextLevelData: LevelData | null;
+  /** True when `unlockHandOff` was offered and taken: do not start a level. */
+  handedOff: boolean;
 }
 
 const COMPLETION_TITLE_SRC = '/ui/level-complete/level-complete-title.png';
@@ -162,13 +172,13 @@ export function showLevelCompleteOverlay(
   options: LevelCompleteOverlayOptions,
 ): Promise<LevelCompleteOverlayResult> {
   const overlay = document.getElementById('hud-overlay');
-  if (!overlay) return Promise.resolve({ nextLevelData: null });
+  if (!overlay) return Promise.resolve({ nextLevelData: null, handedOff: false });
   // Re-entrancy: FTD semantics. If an overlay already exists, early-return a
   // resolved no-op (NOT core's live-handle re-entrancy — handing the caller an
   // in-flight overlay's handle would skew restart timing / drop the second
   // completion's data).
   if (document.getElementById(OVERLAY_ID)) {
-    return Promise.resolve({ nextLevelData: null });
+    return Promise.resolve({ nextLevelData: null, handedOff: false });
   }
 
   playLevelComplete();
@@ -235,7 +245,7 @@ export function showLevelCompleteOverlay(
       rewardAmount: options.baseCoins,
       balanceBefore,
       claimLabel: 'CLAIM',
-      nextLabel: 'Next Level',
+      nextLabel: options.unlockHandOff?.label ?? 'Next Level',
       nextLoadingLabel: 'Loading…',
       ...(options.claimX2Available
         ? {
@@ -306,7 +316,7 @@ export function showLevelCompleteOverlay(
 
         // Short-circuit the transition-cover tail if the overlay was dismissed
         // mid-await (e.g. scene shutdown unblocked the rate prompt).
-        if (!signal.aborted) showSceneTransitionCover();
+        if (!signal.aborted && options.unlockHandOff === undefined) showSceneTransitionCover();
       },
       onInteract: (): void => {
         playUITap();
@@ -347,7 +357,7 @@ export function showLevelCompleteOverlay(
     rewardRevealObserver = null;
     releaseSuspendHook();
     if (!nextClicked) reportAction(actionTracker.leave('dismissed_by_shutdown'));
-    if (nextClicked) resolvePublic({ nextLevelData: null });
+    if (nextClicked) resolvePublic({ nextLevelData: null, handedOff: options.unlockHandOff !== undefined });
   });
 
   return publicResult;

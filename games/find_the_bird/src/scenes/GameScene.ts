@@ -39,6 +39,7 @@ import {
   setHomeCallback,
   setGameModeChangeCallback,
   pulseSparrowCounter,
+  openPage,
 } from '../ui/HUD';
 import { FindPraise } from '../ui/FindPraise';
 import { FindPraisePolicy } from '../ui/FindPraisePolicy';
@@ -192,6 +193,22 @@ export interface ClassicRenderDiagnosticsSnapshot {
     maxFrameMs: number;
     lastDirtyArea: number;
   };
+}
+
+
+/**
+ * Open a meta page once HomeScene has built the home shell. `scene.start` is
+ * synchronous but the shell's DOM is not, and `openPage` is a no-op without it,
+ * so this waits for the element rather than guessing a frame count. Bounded:
+ * it gives up after two seconds rather than polling forever.
+ */
+function openPageWhenHomeReady(page: 'sanctuary' | 'collection', attemptsLeft = 40): void {
+  if (document.getElementById('home-shell') !== null) {
+    openPage(page);
+    return;
+  }
+  if (attemptsLeft <= 0) return;
+  window.setTimeout(() => { openPageWhenHomeReady(page, attemptsLeft - 1); }, 50);
 }
 
 export class GameScene extends Phaser.Scene {
@@ -1579,11 +1596,16 @@ export class GameScene extends Phaser.Scene {
     const tag = birdType(index, level.id, dog.id);
     if (tag === null || !isBirdId(tag)) return false;
 
-    // Every collectable species counts from the first pickup, so a bird that
-    // opens later starts with what was already found. Only OPEN birds speak.
+    // A species only counts once its own card is open (2026-09-18): each bird
+    // carries its own open rule (BIRD_DEFS.opensOn), so what banks a pickup is
+    // whether the card is collecting, not which rule opened it. Counting from
+    // the first pickup was generous, but it handed every later card a rung or
+    // two the moment it arrived, and a claim the player did not play for is
+    // not a reward.
+    if (!isBirdOpen(tag)) return false;
     const total = gameState.incrementBirdCount(tag);
     void analytics.birdCollected({ bird_type: tag, level_id: level.id, total });
-    if (!currentMetaGates().collectionUnlocked || !isBirdOpen(tag)) return false;
+    if (!currentMetaGates().collectionUnlocked) return false;
 
     // The chip is a countdown, not a tally: it speaks at every ten, at every
     // one inside the last ten, and once more when the rung is earned.
@@ -1961,9 +1983,14 @@ export class GameScene extends Phaser.Scene {
         !completion.transaction.bonusCoinsGranted &&
         !completion.transaction.advanced;
 
+      // The completion that opens the Sanctuary offers it instead of the next
+      // level. Read before the overlay mounts: the completion has already been
+      // committed, so the gate sees this level counted.
+      const sanctuaryHandOff = currentMetaGates().sanctuaryPopPending;
       const completedLevelIndex = gameState.currentLevelIndex;
       const completedLevelAttribution = this.resolveCurrentLevelAnalyticsAttribution(this.level!) ?? {};
       const overlayPromise = showLevelCompleteOverlay(this.level!.id, {
+        ...(sanctuaryHandOff ? { unlockHandOff: { label: 'Go to Sanctuary' } } : {}),
         telemetry: {
           level_index: completedLevelIndex,
           levels_completed_session: gameState.levelsCompletedThisSession + 1,
@@ -2056,6 +2083,15 @@ export class GameScene extends Phaser.Scene {
         });
         const restartToNextLevel = (): void => {
           if (this.isShuttingDown || !this.sys.isActive()) return;
+          if (overlayResult.handedOff) {
+            // The hand-off IS the tile's reveal, so consume its one-shot pop
+            // here; leaving it pending would offer this button again on the
+            // next completion.
+            gameState.markSanctuaryTileUnlockShown();
+            this.scene.start('HomeScene');
+            openPageWhenHomeReady('sanctuary');
+            return;
+          }
           this.scene.restart(
             overlayResult.nextLevelData !== null
               ? ({ levelData: overlayResult.nextLevelData } as GameSceneData)
