@@ -166,3 +166,24 @@ them through the same workflow. Batu reviews everything himself at the end from 
   cap); the 40-43 repaint; commit of the new levels' color/bg PNGs (untracked, 2.3 GB) and
   `.package-revisions/` (1.5 GB); on-device visual pass over the 60 (Batu reviews).
 - Judge: OpenRouter gemini-3.8-flash primary (agy was 1-4 min per panel), `TIER_PRIMARY` env.
+
+## State at 21:30 UTC (merged)
+
+- PR #99 merged to main (c663a3ba4): sticker workflow on the 44 + intake of 52 new levels after Batu's
+  device review (8 removed: bommie garden, tidal pool, alsace, covered arcade, oxford quad, crystal
+  grotto, thermal bathhouse, tuscan village). Review log with per-level fixes:
+  docs/solutions/2026-09-16-ftb-sticker-tiers-refit-regen/REVIEW-2026-09-16-batu-device-pass.md.
+- Restorations are now sprite-footprint (only pixels under a bird's own silhouette swap to the plate;
+  `intake_restore_sprites.py`), Batu's design call; the diff-based writer cut props.
+- Chunk-sticker gate: opaque area > 4*(2r)^2 or box > 4.5r => regenerate with MAX_CROP_R=3.2
+  (197 birds on 41 levels regenerated).
+- CDN: `tools/level-editor/scripts/publish_ftb_cdn.py --starters 44 --order-file order.txt
+  --r2-bucket ftb-levels-prod` published manifest revision 33, 96 levels, 44 bundled; wrangler installed
+  globally, OAuth in ~/Library/Preferences/.wrangler. Live origin
+  https://ftb-level-origin.batuaytemiz.workers.dev/manifest.json.
+- Store lane: ~/store-review/find-games/ios-submission-20260916-levels (1.2.7 build 42) from worktree
+  .worktrees/ftb-release-20260916-levels; pipeline needs the prod env exported before ios:sync since
+  PR #98 (Firebase plugin registration gate). 1.2.6 (41) is IN_REVIEW; withdrawing it needs Batu's word.
+- Failing editor tests, pre-existing today: golden cutout hashes (regenerated shipped sprites) and the
+  merceka costs.py sha contract.
+- Spend: ~$45 on the intake ledger (cap $50).
