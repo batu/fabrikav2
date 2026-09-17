@@ -24,7 +24,8 @@ import { layoutSanctuary, type Rect, type SanctuaryManifest } from '../sanctuary
 import { animateCoinsToBalance } from './EconomyTransfer';
 import { refreshHomeWalletBalances } from './WalletBalances';
 import { openPage, refreshMetaNav } from './HUD';
-import { playFind, playUITap } from '../audio/AudioManager';
+import { playBirdPlace, playFind, playHouseBuild, playUITap, preloadMetaSounds } from '../audio/AudioManager';
+import { burst, cancelJuice, centerOf, nudge } from './juice';
 import { hapticFound } from '../haptics/HapticsManager';
 import manifestJson from '../../public/ui/sanctuary/manifest.json';
 
@@ -60,6 +61,7 @@ function track(
 
 /** Cancel and detach every animation this page started. */
 export function teardownSanctuaryPage(): void {
+  cancelJuice();
   for (const animation of animations.splice(0)) {
     try {
       animation.cancel();
@@ -163,17 +165,35 @@ function closeSheet(root: HTMLElement): void {
   root.innerHTML = '';
 }
 
-/** Drop-and-squash used by build, upgrade and place. */
+/** Drop-and-squash used by build, upgrade and place: falls in from above,
+ *  lands hard, and settles through two shrinking bounces. Additive, so a
+ *  pedestal's inline foot offset stays under it. */
 function dropIn(element: HTMLElement): void {
   if (prefersReducedMotion()) return;
   track(element,
     [
-      { transform: 'translateY(-26%) scaleY(1.08)', opacity: 0 },
-      { transform: 'translateY(0) scaleY(0.8)', opacity: 1, offset: 0.55 },
-      { transform: 'translateY(0) scaleY(1.05)', offset: 0.78 },
-      { transform: 'translateY(0) scaleY(1)' },
+      { transform: 'translateY(-55%) scale(.92, 1.14)', opacity: 0 },
+      { transform: 'translateY(-30%) scale(.94, 1.1)', opacity: 1, offset: 0.25 },
+      { transform: 'translateY(0) scale(1.14, .78)', offset: 0.5 },
+      { transform: 'translateY(-4%) scale(.96, 1.07)', offset: 0.7 },
+      { transform: 'translateY(0) scale(1.03, .97)', offset: 0.86 },
+      { transform: 'translateY(0) scale(1, 1)' },
     ],
-    { duration: 320, easing: 'ease-out' },
+    { duration: 460, easing: 'ease-out', composite: 'add' },
+  );
+}
+
+/** The contact shadow under a landing bird: squashes wide as the feet hit. */
+function shadowLand(shadow: HTMLElement): void {
+  if (prefersReducedMotion()) return;
+  track(shadow,
+    [
+      { transform: 'scale(.5, .6)', opacity: 0 },
+      { transform: 'scale(.7, .7)', opacity: .6, offset: 0.4 },
+      { transform: 'scale(1.3, 1.2)', opacity: 1, offset: 0.55 },
+      { transform: 'scale(1, 1)', opacity: 1 },
+    ],
+    { duration: 460, easing: 'ease-out' },
   );
 }
 
@@ -239,6 +259,7 @@ export function wireSanctuaryPage(page: ParentNode): void {
   const background = page.querySelector<HTMLImageElement>('#sanctuary-bg');
   const sheetRoot = page.querySelector<HTMLElement>('#sanctuary-sheet-root');
   if (scene === null || layer === null || background === null || sheetRoot === null) return;
+  preloadMetaSounds();
 
   // Accrual is settled on open (and again on resume) rather than ticked: the
   // page may have been closed for hours, and a tick cannot recover that.
@@ -385,16 +406,55 @@ export function wireSanctuaryPage(page: ParentNode): void {
     refreshMetaNav();
   };
 
+  /**
+   * Build or upgrade: the coins leave the wallet pill and fly INTO the house,
+   * and only when they arrive does the new box drop onto the branch (dust at
+   * its base, a few sparkles, the scene leaning in). During the flight the
+   * previous tier stays on the branch; a first build shows nothing until the
+   * coins land.
+   */
   const buy = (tier: SanctuaryHouseTier): void => {
     const price = housePrice(tier);
+    const before = gameState.coinBalance;
+    const previousTier = gameState.sanctuary.houseTier;
     if (!gameState.purchaseHouseTier(tier, price)) return;
     void analytics.sanctuaryHouse({ tier, price });
     closeSheet(sheetRoot);
     render();
     const house = layer.querySelector<HTMLElement>('.sanctuary-house');
-    if (house !== null) dropIn(house);
+    const houseArt = house?.querySelector<HTMLImageElement>('img') ?? null;
     const overlay = document.getElementById('hud-overlay');
-    if (overlay !== null) refreshHomeWalletBalances(overlay);
+    const reveal = (): void => {
+      if (overlay !== null) refreshHomeWalletBalances(overlay);
+      if (house === null || !house.isConnected) return;
+      if (houseArt !== null) houseArt.src = MANIFEST.houseTiers[tier - 1].src;
+      house.style.opacity = '';
+      dropIn(house);
+      playHouseBuild();
+      hapticFound();
+      const centre = centerOf(house, 0.55);
+      const base = centerOf(house, 0.92);
+      if (centre !== null) nudge(scene, centre, 0.03);
+      if (base !== null) burst(base, 'puff', { delay: 200, radius: 70, count: 10 });
+      if (centre !== null) burst(centre, 'sparkle', { delay: 260, radius: 120, count: 12 });
+      if (centre !== null) burst(centre, 'confetti', { delay: 240, radius: 130, count: 16 });
+    };
+    if (house === null || prefersReducedMotion()) { reveal(); return; }
+    // Hold the old look (or nothing) while the coins travel.
+    if (previousTier > 0 && houseArt !== null) houseArt.src = MANIFEST.houseTiers[previousTier - 1].src;
+    else house.style.opacity = '0';
+    // The page's own header pill is the visible wallet here (the home shell's
+    // pill sits behind the page), so the coins leave from it and it counts down.
+    const pill = page.querySelector<HTMLElement>('.shop-header-coin-pill');
+    animateCoinsToBalance({
+      amount: price,
+      source: pill,
+      target: house,
+      owner: scene,
+      countElement: pill?.querySelector<HTMLElement>('.shop-header-coin-count') ?? null,
+      fromValue: before,
+      toValue: before - price,
+    }).then(reveal, reveal);
   };
 
   /**
@@ -440,7 +500,21 @@ export function wireSanctuaryPage(page: ParentNode): void {
             closeSheet(sheetRoot);
             render();
             const placed = layer.querySelector<HTMLElement>(`.sanctuary-pedestal[data-pedestal="${pedestalIndex}"]`);
-            if (placed !== null) dropIn(placed);
+            if (placed === null) return;
+            dropIn(placed);
+            const shadow = placed.previousElementSibling;
+            if (shadow instanceof HTMLElement && shadow.classList.contains('sanctuary-shadow')) shadowLand(shadow);
+            playBirdPlace();
+            hapticFound();
+            // Feathers and dust at the FEET (the inline offset puts them at
+            // footFraction across the slot), timed to the landing at 50%.
+            const rect = placed.getBoundingClientRect();
+            const foot = MANIFEST.birdFootCenterX?.[currentCostume()] ?? 0.5;
+            const feet = { x: rect.left + rect.width * foot, y: rect.bottom - 2 };
+            nudge(scene, centerOf(placed), 0.025);
+            burst(feet, 'puff', { delay: 230, radius: 46, count: 7 });
+            burst({ x: feet.x, y: rect.top + rect.height * 0.45 }, 'feather', { delay: 200, radius: 60, count: 7 });
+            burst({ x: feet.x, y: rect.top + rect.height * 0.4 }, 'sparkle', { delay: 300, radius: 70, count: 8 });
           },
         },
       ],
