@@ -81,9 +81,9 @@ const PORTRAITS: Record<CardState, string> = {
 const UNKNOWN_PORTRAIT = '/ui/collection/portrait-unknown.webp';
 
 const TAB_ICONS: Record<1 | 2 | 3, string> = {
-  1: '/ui/collection/icon-bird.webp',
-  2: '/ui/collection/icon-beanie.webp',
-  3: '/ui/collection/icon-cardigan.webp',
+  1: '/ui/collection/glyph-bird.webp',
+  2: '/ui/collection/glyph-hat.webp',
+  3: '/ui/collection/glyph-costume.webp',
 };
 const TAB_LABELS: Record<1 | 2 | 3, string> = { 1: 'Sparrow', 2: 'Beanie', 3: 'Cardigan' };
 
@@ -121,7 +121,8 @@ export function sparrowCard(input: CardInputs): CardViewModel {
     lines: linesShown ? SPARROW_LINES : [HIDDEN_LINE, HIDDEN_LINE, HIDDEN_LINE],
     progress: next.target === null
       ? null
-      : { label: next.label, current: Math.min(count, next.target), target: next.target, fraction: next.fraction },
+      // Per-rung counter: a fresh rung starts at 0, so 45/65 reads as 0/20.
+      : { label: next.label, current: Math.max(0, Math.min(count, next.target) - next.from), target: next.target - next.from, fraction: next.fraction },
     locked: !revealed,
     claimable: next.ready,
     tabs,

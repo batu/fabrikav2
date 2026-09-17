@@ -135,10 +135,6 @@ export function initHUD(): void {
     <div class="hud-top-bar">
       <div class="hud-left">
         <div id="dog-counter" class="hud-pill">🪶 <span class="count">0/0</span></div>
-        <button id="sparrow-counter" class="hud-pill hud-sparrow-pill" type="button" hidden aria-label="Sparrows still needed for the next unlock">
-          <img class="hud-pill-icon" src="/ui/collection/portrait-sparrow-plain.webp" alt="" aria-hidden="true">
-          <span class="count">0 left</span>
-        </button>
         <div id="hearts" class="hud-pill" aria-label="Lives"></div>
       </div>
       <div class="hud-right">
@@ -151,6 +147,11 @@ export function initHUD(): void {
         ${TEST_HARNESS_ENABLED ? `<button id="debug-autoplay-hud" class="hud-pill" type="button" aria-label="Debug auto play" style="font:inherit;font-weight:700;padding:6px 10px">${DEBUG_OVERRIDES.autoPlay.active ? '■ Stop' : '▶ Auto'}</button>` : ''}
         <button id="settings-btn" type="button" aria-label="Settings">
           <img class="hud-icon-img" src="/ui/menu-icons/icon_settings_gear.png" alt="" aria-hidden="true">
+        </button>
+        <span class="hud-row-break" aria-hidden="true"></span>
+        <button id="sparrow-counter" class="hud-pill hud-sparrow-pill" type="button" hidden aria-label="Sparrows collected towards the next unlock">
+          <img class="hud-pill-icon" src="/ui/collection/portrait-sparrow-plain.webp" alt="" aria-hidden="true">
+          <span class="count">0 / 0</span>
         </button>
       </div>
     </div>
@@ -270,7 +271,7 @@ export function updateSparrowCounter(): void {
   const rung = ladder(gameState.birdCount('sparrow'), clampRung(gameState.collectionMeta.claimedRung), collectionThresholds());
   pill.classList.toggle('hud-sparrow-pill--ready', rung.ready);
   const count = pill.querySelector('.count');
-  if (count) count.textContent = rung.ready ? 'Unlock!' : rung.target === null ? 'Done' : `${String(rung.remaining)} left`;
+  if (count) count.textContent = rung.ready ? 'Unlock!' : rung.target === null ? 'Done' : `${String(Math.max(0, Math.min(gameState.birdCount('sparrow'), rung.target) - rung.from))} / ${String(rung.target - rung.from)}`;
 }
 
 export function pulseSparrowCounter(): void {

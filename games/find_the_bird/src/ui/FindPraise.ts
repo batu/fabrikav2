@@ -44,10 +44,10 @@ export class FindPraise {
    * lifecycle (and its cap) so praise and chips can never pile up on screen
    * together, and is offset upward so a simultaneous praise word stays legible.
    */
-  showChip(x: number, y: number, label: string): void {
+  showChip(x: number, y: number, label: string, options: { loud?: boolean } = {}): void {
     while (this.active.size >= FIND_PRAISE.maxActive) this.remove(this.active.keys().next().value!);
     const el = document.createElement('div');
-    el.className = 'find-chip';
+    el.className = options.loud === true ? 'find-chip find-chip--loud' : 'find-chip';
     el.dataset.reducedMotion = String(prefersReducedMotion());
     const text = document.createElement('span');
     text.className = 'find-chip-label';

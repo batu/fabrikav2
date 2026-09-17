@@ -97,6 +97,8 @@ export interface Ladder {
   nextRung: Rung | null;
   label: NextThreshold['label'];
   target: number | null;
+  /** Where the current rung starts; counters shown to the player run from here. */
+  from: number;
   /** Pickups still needed for `nextRung`; 0 when it is ready to claim. */
   remaining: number;
   /** True when the next rung is earned but not yet claimed. */
@@ -113,7 +115,7 @@ export function ladder(count: number, claimed: Rung, thresholds: CollectionThres
   const current = Number.isFinite(count) ? Math.max(0, Math.floor(count)) : 0;
   const state = CARD_STATE_ORDER[claimed];
   if (claimed >= 3) {
-    return { state, claimed, nextRung: null, label: 'Complete', target: null, remaining: 0, ready: false, fraction: 1 };
+    return { state, claimed, nextRung: null, label: 'Complete', target: null, from: rungTarget(3, thresholds), remaining: 0, ready: false, fraction: 1 };
   }
   const nextRung = (claimed + 1) as 1 | 2 | 3;
   const target = rungTarget(nextRung, thresholds);
@@ -121,5 +123,5 @@ export function ladder(count: number, claimed: Rung, thresholds: CollectionThres
   const remaining = Math.max(0, target - current);
   const label: NextThreshold['label'] = nextRung === 1 ? 'Unlock' : nextRung === 2 ? 'Hat' : 'Cardigan';
   const fraction = target <= from ? 1 : Math.min(1, Math.max(0, (current - from) / (target - from)));
-  return { state, claimed, nextRung, label, target, remaining, ready: remaining === 0, fraction };
+  return { state, claimed, nextRung, label, target, from, remaining, ready: remaining === 0, fraction };
 }

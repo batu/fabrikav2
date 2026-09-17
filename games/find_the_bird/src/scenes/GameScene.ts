@@ -1591,7 +1591,7 @@ export class GameScene extends Phaser.Scene {
     const speaks = justEarned || rung.remaining <= 10 || rung.remaining % 10 === 0;
     if (!speaks || (rung.ready && !justEarned)) return true;
     const css = phaserPointToCssPoint(this.scale.canvas, GAME.WIDTH, GAME.HEIGHT, canvasX, canvasY);
-    this.findPraise.showChip(css.x, css.y, justEarned ? 'New sparrow level unlocked!' : `${String(rung.remaining)} left`);
+    this.findPraise.showChip(css.x, css.y, justEarned ? 'New sparrow level unlocked!' : `${String(rung.remaining)} left!`, { loud: true });
     return true;
   }
 

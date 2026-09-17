@@ -54,8 +54,8 @@ const FRAMES: Record<CardFrame, FrameGeometry> = {
     width: 900,
     height: 1500,
     arch: { x: 108, y: 105, w: 688, h: 643 },
-    plaqueY: [828, 955],
-    subtitleY: [1008, 1105],
+    plaqueY: [846, 962],
+    subtitleY: [1022, 1108],
     // The snail sits in the panel's bottom-right; copy stays above it.
     panel: { x: [125, 775], y: [1150, 1315] },
     portraitStyle: 'height:97%;width:auto;bottom:-4%',
@@ -148,7 +148,7 @@ function renderCard(card: CardViewModel, index: number): string {
       : `
       <div class="collection-meter" role="group" aria-label="${card.progress.label} progress">
         <span class="collection-meter-fill" style="width:${(card.progress.fraction * 100).toFixed(2)}%"></span>
-        <span class="collection-meter-text"><b>${card.progress.label}</b> ${card.progress.current} / ${card.progress.target}</span>
+        <span class="collection-meter-text">${card.progress.current} / ${card.progress.target}</span>
       </div>`;
   return `
     <li class="collection-slide" data-card-index="${index}">
