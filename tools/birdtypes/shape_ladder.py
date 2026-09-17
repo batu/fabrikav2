@@ -54,7 +54,7 @@ PUB = os.path.abspath(os.path.join(HERE, '..', '..', 'games', 'find_the_bird', '
 # once the robin can open at 15.
 SUPPLY = {
     'sparrow': (((1, 5),), 210),
-    'robin': (((15, 5),), 200),
+    'robin': (((15, 5),), 240),
     'bluebird': (((30, 2), (45, 6)), 150),
 }
 # Chain order, not scarcest first: the bird that opens earlier gets first pick.

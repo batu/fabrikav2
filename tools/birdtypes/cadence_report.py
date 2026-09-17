@@ -28,8 +28,8 @@ PUB = os.path.abspath(os.path.join(HERE, '..', '..', 'games', 'find_the_bird', '
 # evidence for those numbers, not their source.
 THRESHOLDS = {
     'sparrow': (45, 100, 170),
-    'robin': (10, 80, 120),
-    'bluebird': (20, 40, 60),
+    'robin': (10, 70, 100),
+    'bluebird': (20, 40, 50),
 }
 PRICES = (500, 550, 600)
 LEVEL_REWARD = 45
@@ -47,6 +47,10 @@ OPENS_ON = {                       # mirrors BIRD_DEFS[...].opensOn in birds.ts
     'bluebird': ('chain', 2),
 }
 RUNG_NAME = {1: 'card', 2: 'hat', 3: 'costume'}
+# Opening levels worth checking per bird: earliest the card can open, and the
+# latest a real player might drag it to. The sparrow's card is open from level
+# one, so it has a single row.
+COVERAGE = {'sparrow': (1, 1), 'robin': (15, 50), 'bluebird': (30, 65)}
 
 
 def per_level_counts():
@@ -125,12 +129,37 @@ def simulate(idle_every=0, hint_every=0, verbose=False):
     return events, unfinished
 
 
+def coverage_table():
+    """How late a card can open and still finish its ladder.
+
+    A species counts only from the level its card opens, so the supply laid down
+    before that is lost to that player. For each bird and each opening level this
+    prints what remains afterwards against the top rung, which is the check that
+    catches a ceiling set too low — the failure mode a level-based window had.
+    """
+    supply = per_level_counts()
+    total = len(supply)
+    print('\nlate-opener coverage: birds left after a card opens, against its top rung')
+    for bird in BIRDS:
+        need = THRESHOLDS[bird][2]
+        first, last = COVERAGE[bird]
+        cells = []
+        for opens in range(first, last + 1, 5) if last > first else [first]:
+            left = sum(supply[i][bird] for i in range(opens - 1, total))
+            cells.append(f"L{opens}:{left}{'' if left >= need else ' FAIL'}")
+        print(f"  {bird:9} needs {need:4}  " + '  '.join(cells))
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--idle-every', type=int, default=0)
     ap.add_argument('--hint-bundle-every', type=int, default=0)
     ap.add_argument('--verbose', action='store_true')
+    ap.add_argument('--coverage', action='store_true')
     args = ap.parse_args()
+    if args.coverage:
+        coverage_table()
+        return
     events, unfinished = simulate(args.idle_every, args.hint_bundle_every, args.verbose)
     print('\nevent                                        entering   gap')
     previous = None
