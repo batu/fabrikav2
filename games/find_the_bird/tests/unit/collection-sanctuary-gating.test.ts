@@ -11,8 +11,11 @@ function gates(levels: number, sparrows: number, shown = { collection: false, sa
     totalLevelsCompleted: levels,
     sparrowCount: sparrows,
     sparrowRungClaimed: sparrows >= THRESHOLDS.unlock ? 1 : 0,
-    collectionUnlockLevel: 5,
-    sanctuaryUnlockLevel: 5,
+    // Deliberately DIFFERENT, mirroring the shipped 2 and 7: with both set to
+    // the same number the Sanctuary's own gate was never exercised, and the
+    // chain rule that keeps it behind the Collection could not fail this file.
+    collectionUnlockLevel: 2,
+    sanctuaryUnlockLevel: 7,
     thresholds: THRESHOLDS,
     collectionPopShown: shown.collection,
     sanctuaryPopShown: shown.sanctuary,
@@ -26,20 +29,27 @@ describe('meta tile gates', () => {
   // completion-based rule and the since-removed "sanctuary needs a bird card"
   // rule, so they are restated against what metaGates documents.
   it('keeps both tiles locked before the collection level', () => {
-    const result = gates(3, 0);
+    const result = gates(0, 0);
     expect(result.collectionUnlocked).toBe(false);
     expect(result.sanctuaryUnlocked).toBe(false);
   });
 
   it('opens the collection on arrival at the configured level', () => {
-    expect(gates(3, 0).collectionUnlocked).toBe(false);
-    expect(gates(4, 0).collectionUnlocked).toBe(true);
+    expect(gates(0, 0).collectionUnlocked).toBe(false);
+    expect(gates(1, 0).collectionUnlocked).toBe(true);
   });
 
-  it('opens the sanctuary on its own level, with or without a bird claimed', () => {
-    // Its gate is 5 here too, so it arrives with the Collection's.
-    expect(gates(3, 50).sanctuaryUnlocked).toBe(false);
-    expect(gates(4, 0).sanctuaryUnlocked).toBe(true);
+  it('opens the sanctuary on its own later level, with or without a bird claimed', () => {
+    // Gate 7 = six completions, five after the Collection's. The bird count is
+    // irrelevant to it either way.
+    expect(gates(5, 50).sanctuaryUnlocked).toBe(false);
+    expect(gates(6, 0).sanctuaryUnlocked).toBe(true);
+  });
+
+  it('leaves the collection open while the sanctuary is still shut', () => {
+    const between = gates(3, 0);
+    expect(between.collectionUnlocked).toBe(true);
+    expect(between.sanctuaryUnlocked).toBe(false);
   });
 
   it('never opens the sanctuary before the collection, however many birds', () => {
@@ -48,9 +58,9 @@ describe('meta tile gates', () => {
   });
 
   it('reports a pending pop only while it has not been shown', () => {
-    expect(gates(5, 10).collectionPopPending).toBe(true);
-    expect(gates(5, 10).sanctuaryPopPending).toBe(true);
-    const seen = gates(5, 10, { collection: true, sanctuary: true });
+    expect(gates(6, 10).collectionPopPending).toBe(true);
+    expect(gates(6, 10).sanctuaryPopPending).toBe(true);
+    const seen = gates(6, 10, { collection: true, sanctuary: true });
     expect(seen.collectionPopPending).toBe(false);
     expect(seen.sanctuaryPopPending).toBe(false);
   });

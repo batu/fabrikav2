@@ -15,9 +15,11 @@ import { REMOTE_CONFIG_DEFAULTS } from '../../src/config/remoteConfigSchema';
 import { RATE_PROMPT_THRESHOLD } from '../../src/core/GameState';
 
 describe('meta gate + ladder defaults', () => {
-  it('opens the Collection at level 5 and the Sanctuary at level 10', () => {
-    expect(REMOTE_CONFIG_DEFAULTS.collectionUnlockLevel).toBe(5);
-    expect(REMOTE_CONFIG_DEFAULTS.sanctuaryUnlockLevel).toBe(10);
+  it('opens the Collection at level 2 and the Sanctuary at level 7', () => {
+    // Arrival-based, so these are one and six completions. Set against the
+    // funnel: 80.1% of players reach one completion, 30.3% reach six.
+    expect(REMOTE_CONFIG_DEFAULTS.collectionUnlockLevel).toBe(2);
+    expect(REMOTE_CONFIG_DEFAULTS.sanctuaryUnlockLevel).toBe(7);
   });
 
   it('keeps the Sanctuary behind the Collection', () => {
@@ -46,8 +48,8 @@ describe('meta gate + ladder defaults', () => {
 
   it('lands the nest box on the level the Sanctuary opens', () => {
     // 45 coins a level, banked from level 1: the price is the stock a player
-    // holds on arrival at the gate. 400 -> L10, which is why it moved off 500.
-    expect(REMOTE_CONFIG_DEFAULTS.housePriceTier1).toBe(400);
+    // holds on arrival at the gate. Six completions x 45 = 270 -> L7.
+    expect(REMOTE_CONFIG_DEFAULTS.housePriceTier1).toBe(270);
     const banked = 45 * (REMOTE_CONFIG_DEFAULTS.sanctuaryUnlockLevel - 1);
     expect(REMOTE_CONFIG_DEFAULTS.housePriceTier1).toBeLessThanOrEqual(banked);
   });

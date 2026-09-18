@@ -31,7 +31,7 @@ THRESHOLDS = {
     'robin': (10, 80, 100),
     'bluebird': (20, 40, 50),
 }
-PRICES = (400, 550, 750)
+PRICES = (270, 650, 850)
 LEVEL_REWARD = 45
 IDLE_PER_HOUR = (10, 20, 40)       # by house tier
 IDLE_CAP_HOURS = 2
@@ -56,8 +56,8 @@ class Settings:
         self.hint_every = hint_every
 # Both gates are arrival-based (ae3958e2c): the tile opens as the player arrives
 # at the level, having completed the one before it.
-COLLECTION_COMPLETED = 4           # completed levels the Collection needs (arrive at 5)
-SANCTUARY_COMPLETED = 9            # completed levels the Sanctuary needs (arrive at 10)
+COLLECTION_COMPLETED = 1           # completed levels the Collection needs (arrive at 2)
+SANCTUARY_COMPLETED = 6            # completed levels the Sanctuary needs (arrive at 7)
 BIRDS = ('sparrow', 'robin', 'bluebird')
 OPENS_ON = {                       # mirrors BIRD_DEFS[...].opensOn in birds.ts
     'sparrow': ('always', 0),
@@ -68,7 +68,7 @@ RUNG_NAME = {1: 'card', 2: 'hat', 3: 'costume'}
 # Opening levels worth checking per bird: earliest the card can open, and the
 # latest a real player might drag it to. The sparrow's card is open from level
 # one, so it has a single row.
-COVERAGE = {'sparrow': (5, 5), 'robin': (10, 50), 'bluebird': (25, 65)}
+COVERAGE = {'sparrow': (2, 2), 'robin': (10, 50), 'bluebird': (25, 65)}
 
 
 def per_level_counts():
