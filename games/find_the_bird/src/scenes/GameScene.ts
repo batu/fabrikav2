@@ -2184,13 +2184,19 @@ export class GameScene extends Phaser.Scene {
 
     if (startScrollX <= 1) return;
 
+    // One sweep out and back, then the camera rests. It used to repeat
+    // forever, and the completion overlay that fades in on top of it carries a
+    // full-screen backdrop-filter blur: while the scene underneath kept
+    // scrolling, WebKit had to recompute that blur every frame instead of
+    // caching it once, for as long as the player left the panel open. The
+    // panorama is the same content either way — the player sees the finished
+    // scene pan and return — it just stops costing anything afterwards.
     this.tweens.add({
       targets: camera,
       scrollX: 0,
       duration: 16000,
       ease: 'Sine.easeInOut',
       yoyo: true,
-      repeat: -1,
     });
   }
 
