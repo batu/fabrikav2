@@ -3821,7 +3821,8 @@ _FIT_SCALES = tuple(round(0.6 + i * 0.05, 2) for i in range(17))  # 0.60 .. 1.40
 
 
 def fit_sprite_to_painted(sprite: Image.Image, painted: Image.Image,
-                          clean_crop: Image.Image | None = None) -> dict | None:
+                          clean_crop: Image.Image | None = None,
+                          *, scales: tuple[float, ...] = _FIT_SCALES) -> dict | None:
     """Locate a recreated RGBA sticker inside its painted crop.
 
     Masked template match (TM_SQDIFF_NORMED under the sticker's alpha) over
@@ -3848,7 +3849,7 @@ def fit_sprite_to_painted(sprite: Image.Image, painted: Image.Image,
         if clean.shape == scene.shape:
             changed = np.abs(scene.astype(np.int16) - clean).sum(axis=2) > 40
     best: tuple | None = None
-    for scale in _FIT_SCALES:
+    for scale in scales:
         w = max(1, int(round(sprite.width * scale)))
         h = max(1, int(round(sprite.height * scale)))
         if w > sw or h > sh:
@@ -4100,11 +4101,17 @@ def _run_magenta_inpaint_job(job: JobRecord, store: JobStore) -> dict[str, Any]:
     return _discharge_paint_obligations(session_id, summary)
 
 
-def _grow_box_by_extent(box: dict, extent: dict) -> dict:
+EXTENT_CAP_R = 5.0  # a grown crop never exceeds this x the tap radius: a plate diff that spans the scene (gpt-image repaints softly everywhere) blew crops up to the whole scene and Extract All cut window frames and walls as stickers (cotswolds, 2026-09-17)
+
+
+def _grow_box_by_extent(box: dict, extent: dict, *, radius: float | None = None) -> dict:
     """Enlarge a radius square (centred on its hitbox) to EXTENT_GROWTH x the
-    painted extent's long edge when that is bigger; never shrink, never move."""
+    painted extent's long edge when that is bigger; never shrink, never move;
+    never beyond EXTENT_CAP_R x the hitbox radius when `radius` is given."""
     long_edge = max(extent["width"], extent["height"])
     grown = int(long_edge * EXTENT_GROWTH)
+    if radius is not None:
+        grown = min(grown, int(EXTENT_CAP_R * float(radius)))
     if grown <= box["width"]:
         return box
     cx = box["x"] + box["width"] / 2.0
@@ -4151,7 +4158,8 @@ def _run_bulk_extract_job(job: JobRecord, store: JobStore) -> dict[str, Any]:
         paint_boxes = painted_extent_detections(session_id, unsized)
         by_id = {hb.get("id", idx): box for idx, (hb, box) in enumerate(zip(unsized, paint_boxes))}
         detections = [
-            _grow_box_by_extent(d, by_id[hb.get("id", idx)]) if d.get("source") == "radius" and hb.get("id", idx) in by_id else d
+            _grow_box_by_extent(d, by_id[hb.get("id", idx)], radius=float(hb.get("r") or hb.get("radius") or 57))
+            if d.get("source") == "radius" and hb.get("id", idx) in by_id else d
             for idx, (hb, d) in enumerate(zip(hitbox_list, detections))
         ]
     if store is not None:
@@ -5215,7 +5223,9 @@ def _run_single_cutout_extraction(
 
     from levelbuilder.api.flatkey import flatkey_recreate_sprite
 
-    model = inpaint_model or os.environ.get("FTD_FLATKEY_MODEL", "google/gemini-3.1-flash-image-preview")
+    from levelbuilder.api.flatkey import flatkey_model
+
+    model = flatkey_model(inpaint_model)
     entity = str(raw.get("entity") or "bird")
     try:
         # Operator ruling 2026-08-14 ("human action doesn't need gates"):

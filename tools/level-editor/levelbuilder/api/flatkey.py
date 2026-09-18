@@ -51,14 +51,34 @@ _OCCLUSION_VISIBLE = (
 assert _OCCLUSION_COMPLETE in FLAT_PROMPT_TEMPLATE
 
 
+# Operator 2026-09-18: the flat-key sticker model defaults to gpt-image-2.5 sunburst at quality
+# low ($0.009/render measured on the cotswolds level vs $0.089 per Gemini Flash sticker), with the
+# visible-part prompt (stickers are the visible part only, 2026-09-16). FTD_FLATKEY_MODEL /
+# FTD_FLATKEY_QUALITY / FTD_FLATKEY_OCCLUSION still override per run.
+DEFAULT_FLATKEY_MODEL = "openai/gpt-image-2.5-sunburst"
+DEFAULT_FLATKEY_QUALITY = "low"
+DEFAULT_FLATKEY_OCCLUSION = "visible"
+
+
+def flatkey_model(override: str | None = None) -> str:
+    return override or os.environ.get("FTD_FLATKEY_MODEL") or DEFAULT_FLATKEY_MODEL
+
+
 def flat_prompt_template() -> str:
-    if os.environ.get("FTD_FLATKEY_OCCLUSION", "complete") == "visible":
-        return FLAT_PROMPT_TEMPLATE.replace(_OCCLUSION_COMPLETE, _OCCLUSION_VISIBLE)
+    if os.environ.get("FTD_FLATKEY_OCCLUSION", DEFAULT_FLATKEY_OCCLUSION) == "visible":
+        return visible_part_prompt_template()
     return FLAT_PROMPT_TEMPLATE
 
 
+def visible_part_prompt_template() -> str:
+    """The sticker-lane prompt (operator 2026-09-16): visible part only, same
+    size and position as painted. The env switch above selects it for Extract
+    All; the sticker lane always uses it."""
+    return FLAT_PROMPT_TEMPLATE.replace(_OCCLUSION_COMPLETE, _OCCLUSION_VISIBLE)
+
+
 def _edit_kwargs() -> dict:
-    quality = os.environ.get("FTD_FLATKEY_QUALITY")
+    quality = os.environ.get("FTD_FLATKEY_QUALITY", DEFAULT_FLATKEY_QUALITY)
     return {"quality": quality} if quality else {}
 
 

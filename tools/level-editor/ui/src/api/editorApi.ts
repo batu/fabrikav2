@@ -989,6 +989,51 @@ export function clearExtension(sessionId: string): Promise<ExtensionState> {
   return request(`/api/sessions/${sessionId}/extension/clear`, { method: 'POST' });
 }
 
+export interface StickerLaneRequest {
+  birdIds?: string[];
+  regenerate?: boolean;
+  model?: string;
+  quality?: string | null;
+  maxCropR?: number;
+  judge?: string;
+  whitegap?: boolean;
+  restore?: boolean;
+  dryRun?: boolean;
+  blessActor?: string;
+  attemptNonce?: string;
+}
+
+export interface StickerLaneSummary {
+  sessionId: string;
+  generationId: string;
+  dryRun: boolean;
+  birds: number;
+  noSprite: string[];
+  tiers: Record<string, { tier: number | null; why: string; backend: string | null }>;
+  refit: Record<string, string>;
+  classes: Record<string, 'keep' | 'regenerate' | 'missing'>;
+  regenerated: Record<string, { pick: string; score: number; pop: number; tier: number | null; why: string; refit: string; class: string }>;
+  stillRefused: string[];
+  missing: string[];
+  errors: { birdId: string; error: string }[];
+  whitegap: Record<string, Record<string, unknown>[]>;
+  committed: Record<string, { disposition: string; contentRevision: string | null; file: string }>;
+  contentRevision: string | null;
+  blessedBy?: string;
+}
+
+/** Sticker lane (2026-09-17): judge -> refit -> regenerate -> white-gap as a durable job. */
+export function startStickerLaneJob(sessionId: string, body: StickerLaneRequest = {}): Promise<{ jobId: string; status: string }> {
+  return request<{ jobId: string; status: string }>(
+    `/api/sessions/${encodeURIComponent(sessionId)}/sticker-lane/jobs`,
+    { method: 'POST', body: JSON.stringify(body) },
+  );
+}
+
+export function getStickerLaneSummary(sessionId: string): Promise<StickerLaneSummary> {
+  return request<StickerLaneSummary>(`/api/sessions/${encodeURIComponent(sessionId)}/sticker-lane`, { suppressToast: true });
+}
+
 export function startRetryFailedDogsJob(
   sessionId: string,
   dogIndices: number[],

@@ -1,5 +1,10 @@
 # Find the Bird: sticker tiers, geometry refit, and sunburst regeneration (2026-09-16)
 
+> **Formalized 2026-09-17** as the editor's sticker lane: `tools/level-editor/levelbuilder/api/sticker_lane.py`
+> (+ `whitegap.py`), route `POST /api/sessions/<sid>/sticker-lane/jobs`, CLI `level-editor sticker-lane`,
+> editor button "★ Sticker lane"; rules and evidence in `tools/level-editor/PIPELINE.md` § Sticker lane.
+> The scripts below are the historical scratch lane and stay for the numbers they produced.
+
 Branch `test/ftb-sticker-tiers`, phone build `7c661f506`. Levels 1-8 only.
 
 - `agy_tiers.py` + `tierpanels.py`: judge panels (painted | sticker on grey | 50% overlay) and the

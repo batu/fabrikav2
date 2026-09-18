@@ -751,6 +751,7 @@ def sprite_animation_candidates(session_id: str) -> list[dict[str, Any]]:
                     "humanConfirmed": bool((data.get("humanReview") or {}).get("confirmed")) if isinstance(data.get("humanReview"), dict) else False,
                     "regenerationCandidate": bool((data.get("regenerationReview") or {}).get("candidate")) if isinstance(data.get("regenerationReview"), dict) else False,
                     "regenerationProbability": (data.get("regenerationReview") or {}).get("probability") if isinstance(data.get("regenerationReview"), dict) else None,
+                    "stickerLane": data.get("stickerLane") if isinstance(data.get("stickerLane"), dict) else None,
                 })
                 if candidate["width"] is None and isinstance(data.get("width"), int):
                     candidate["width"] = data["width"]
@@ -4720,9 +4721,8 @@ def materialize_detection_sprites(
         prebatched: dict[int, Image.Image] = {}
         if not os.environ.get("FTD_DISABLE_FLATKEY_SPRITES"):
             from levelbuilder.api.flatkey import flatkey_recreate_sprites_batch
-            flatkey_model = os.environ.get(
-                "FTD_FLATKEY_MODEL", "google/gemini-3.1-flash-image-preview"
-            )
+            from levelbuilder.api.flatkey import flatkey_model as _flatkey_model
+            flatkey_model = _flatkey_model()
             grid_n = max(1, int(os.environ.get("FTD_FLATKEY_GRID", str(DEFAULT_FLATKEY_GRID))))
             entity = str(raw.get("entity") or "bird")
             batch_crops: dict[int, Image.Image] = {}
@@ -4840,7 +4840,7 @@ def materialize_detection_sprites(
         session_id,
         hitboxes=hitboxes,
         materialized=materialized,
-        model=os.environ.get("FTD_FLATKEY_MODEL", "google/gemini-3.1-flash-image-preview"),
+        model=__import__("levelbuilder.api.flatkey", fromlist=["flatkey_model"]).flatkey_model(),
         entity=str(raw.get("entity") or "bird"),
         folder_index=folder_index,
     )
@@ -5552,8 +5552,6 @@ def _write_birdless_restore_bg(sdir: Path, dst: Path, raw: dict, level_data: dic
     swapped drifted pixels for clean-bg pixels — a visible few-pixel jump on
     every pickup. Patching ONLY each bird's cleanup region out of the painted
     color keeps every other pixel byte-identical to the scene."""
-    from PIL import ImageFilter as _IF
-
     with Image.open(sdir / "color.png") as _c:
         color = _c.convert("RGB")
     selected = raw.get("selected_bg") or 0
@@ -5563,6 +5561,18 @@ def _write_birdless_restore_bg(sdir: Path, dst: Path, raw: dict, level_data: dic
         return
     with Image.open(bg_path) as _b:
         clean = _b.convert("RGB")
+    out = birdless_restore_image(color, clean, level_data)
+    out.save(dst / "bg_00.png")
+    (dst / "bg_00.webp").unlink(missing_ok=True)
+    color.close(); clean.close(); out.close()
+
+
+def birdless_restore_image(color: Image.Image, clean: Image.Image, level_data: dict) -> Image.Image:
+    """The restoration background: the painted scene with ONLY each bird's own connected painted
+    pixels (inside its cleanup rect, dilated + feathered, phase-aligned, sharpness-matched) replaced
+    by the clean plate. Pure: the legacy exporter and the canonical restoration commit both use it."""
+    from PIL import ImageFilter as _IF
+
     if clean.size != color.size:
         clean = clean.resize(color.size, Image.LANCZOS)
     out = color.copy()
@@ -5644,9 +5654,7 @@ def _write_birdless_restore_bg(sdir: Path, dst: Path, raw: dict, level_data: dic
             percent = int(min(180.0, (painted_g / clean_g - 1.0) * 200.0))
             patch = patch.filter(_IF.UnsharpMask(radius=2, percent=percent, threshold=2))
         out.paste(patch, (x0, y0), mask)
-    out.save(dst / "bg_00.png")
-    (dst / "bg_00.webp").unlink(missing_ok=True)
-    color.close(); clean.close(); out.close()
+    return out
 
 
 def export_to_game(

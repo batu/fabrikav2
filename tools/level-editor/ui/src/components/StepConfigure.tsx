@@ -7,7 +7,7 @@ const LS_CONFIGURE_KEY = 'ftd-builder-configure-v3';
 const LS_MULTI_SCENE_JOBS_KEY = 'ftd-builder-many-scene-jobs-v1';
 const DEFAULT_STYLE = 'clean_old_cartoon';
 const DEFAULT_MODEL = 'openai/gpt-image-2';
-const DEFAULT_INPAINT_MODEL = 'openai/gpt-image-2';
+const DEFAULT_INPAINT_MODEL = 'openai/gpt-image-2.5-sunburst'; // operator default 2026-09-17
 const DEFAULT_UPSCALE_MODEL = 'fal-ai/esrgan';
 
 // Recipe templates are served by the backend (/api/config.templates).

@@ -26,6 +26,7 @@ import httpx
 from levelbuilder.api.operation_registry import OPERATIONS
 
 DEFAULT_URL = os.environ.get("LEVEL_EDITOR_URL", "http://127.0.0.1:5192")
+DEFAULT_INPAINT_MODEL = "openai/gpt-image-2.5-sunburst"
 
 WIZARD_OPERATIONS: dict[str, str] = {item.operation_id: item.cli_verb for item in OPERATIONS}
 
@@ -457,7 +458,9 @@ def cmd_create(client: Client, args: argparse.Namespace) -> None:
         "scenePrompt": prompts["scenePrompt"],
         "dogPrompt": prompts["dogPrompt"],
         "bgModel": model or args.model or "google/gemini-3.1-flash-image-preview",
-        "inpaintModel": model or args.model or "google/gemini-3.1-flash-image-preview",
+        # Operator 2026-09-17: the paint (inpaint) model defaults to gpt-image-2.5 sunburst;
+        # the background stays on Gemini Flash (the 2688 canvas recipe).
+        "inpaintModel": model or args.model or DEFAULT_INPAINT_MODEL,
         "nDogs": n_dogs,
         "aspectRatio": args.aspect_ratio,
         "imageSize": "1K",
@@ -1687,6 +1690,32 @@ def cmd_adopt_export(client: Client, args: argparse.Namespace) -> None:
     _emit(args, client.post(f"/api/sessions/{args.session_id}/adopt-export", json={"humanActor": actor}))
 
 
+def cmd_sticker_lane(client: Client, args: argparse.Namespace) -> None:
+    """Sticker lane: judge -> refit -> regenerate -> white-gap on a canonical session (durable job)."""
+    body: dict[str, Any] = {
+        "regenerate": not args.no_regenerate,
+        "quality": args.quality,
+        "maxCropR": args.max_crop_r,
+        "judge": args.judge,
+        "whitegap": not args.no_whitegap,
+        "restore": not args.no_restore,
+        "dryRun": args.dry_run,
+    }
+    if args.bird:
+        body["birdIds"] = list(dict.fromkeys(args.bird))
+    if args.model:
+        body["model"] = args.model
+    if args.bless_actor:
+        body["blessActor"] = args.bless_actor if args.bless_actor.startswith("human:") else f"human:{args.bless_actor}"
+    if args.nonce:
+        body["attemptNonce"] = args.nonce
+    job = client.post(f"/api/sessions/{args.session_id}/sticker-lane/jobs", json=body)
+    if args.wait:
+        _require_success(_wait_for_job(client, job.get("jobId"), timeout_s=args.timeout, quiet=args.json))
+        job = client.get(f"/api/sessions/{args.session_id}/sticker-lane")
+    _emit(args, job)
+
+
 def cmd_job(client: Client, args: argparse.Namespace) -> None:
     job = client.get(f"/api/jobs/{args.job_id}")
     if args.events:
@@ -1935,6 +1964,22 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("session_id")
     p.add_argument("--pad-factor", type=float, default=2.2)
     p.add_argument("--force", action="store_true", help="recut even dogs already flat-keyed (e.g. after a radius change)")
+
+    p = verb("sticker-lane", cmd_sticker_lane)
+    p.add_argument("session_id")
+    p.add_argument("--bird", action="append", default=[], help="birdId to include (repeatable); default every bird with a sprite")
+    p.add_argument("--no-regenerate", action="store_true", help="judge + refit only, list the regenerate class without spending")
+    p.add_argument("--dry-run", action="store_true", help="judge + refit, no commits, no regeneration")
+    p.add_argument("--model", default=None, help="sticker model (default openai/gpt-image-2.5-sunburst)")
+    p.add_argument("--quality", default="low", help="gpt-image quality knob (default low)")
+    p.add_argument("--max-crop-r", type=float, default=5.0, help="cap of the painted-extent crop in hitbox radii (3.2 tight, 5 default, 7 wide)")
+    p.add_argument("--judge", default="agy,openrouter", help="judge backends in order (agy, openrouter)")
+    p.add_argument("--no-whitegap", action="store_true")
+    p.add_argument("--no-restore", action="store_true", help="skip the birdless restoration commit at the end")
+    p.add_argument("--bless-actor", default=None, help="delegated final-cutout bless when nothing is left refused, e.g. human:batu-delegated:lane-2026-09-17")
+    p.add_argument("--nonce", default=None, help="force a fresh job over an identical completed one")
+    p.add_argument("--wait", action="store_true")
+    p.add_argument("--timeout", type=float, default=3600.0)
 
     p = verb("adopt-export", cmd_adopt_export)
     p.add_argument("session_id")

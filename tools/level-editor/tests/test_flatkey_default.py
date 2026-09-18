@@ -57,3 +57,16 @@ def test_operator_cutout_redo_skips_semantic_judge(monkeypatch):
     out = F.flatkey_recreate_sprite(flat, model="m", entity="bird", run_judge=False)
     assert out is not None, "sprite must pass without the judge"
     assert calls["judge"] == 0, "judge must not run when run_judge=False"
+
+
+def test_flatkey_defaults_are_sunburst_low_visible(monkeypatch):
+    from levelbuilder.api import flatkey
+
+    for key in ("FTD_FLATKEY_MODEL", "FTD_FLATKEY_QUALITY", "FTD_FLATKEY_OCCLUSION"):
+        monkeypatch.delenv(key, raising=False)
+    assert flatkey.flatkey_model() == "openai/gpt-image-2.5-sunburst"
+    assert flatkey.flatkey_model("google/gemini-3.1-flash-image-preview") == "google/gemini-3.1-flash-image-preview"
+    assert flatkey._edit_kwargs() == {"quality": "low"}
+    assert "output ONLY the visible part" in flatkey.flat_prompt_template()
+    monkeypatch.setenv("FTD_FLATKEY_OCCLUSION", "complete")
+    assert "infer and complete" in flatkey.flat_prompt_template()
