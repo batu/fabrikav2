@@ -20,8 +20,14 @@ describe('achievement Home discovery', () => {
     // HomeScene's source text, so the check survives the markup moving again.
     const { installMemStorage, removeMemStorage } = await import('./support/memStorage');
     const { renderMetaNavBar } = await import('../../src/ui/metaNavBar');
+    const { gameState } = await import('../../src/core/GameState');
     installMemStorage();
     try {
+      // Both meta tiles are gated: a locked tile swaps its name for a "Level N"
+      // unlock pill, so open the gates before reading the labels back.
+      gameState.load();
+      gameState.setTotalLevelsCompletedForTest(50);
+      gameState.setClaimedRungForTest(1, 'sparrow');
       // 2026-09-17: Play took the middle slot as the magnifier tile, flanked by
       // the two meta screens; the Shop left the bar and is reached from the
       // coin and hint pills instead.

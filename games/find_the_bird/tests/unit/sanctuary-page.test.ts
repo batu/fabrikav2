@@ -1,12 +1,16 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 // happy-dom has no AudioContext; the page taps SFX on every sheet button.
-vi.mock('../../src/audio/AudioManager', () => ({ playUITap: vi.fn(), playFind: vi.fn() }));
+vi.mock('../../src/audio/AudioManager', () => ({
+  playBirdPlace: vi.fn(), playFind: vi.fn(), playHouseBuild: vi.fn(), playUITap: vi.fn(), preloadMetaSounds: vi.fn(),
+}));
 vi.mock('../../src/haptics/HapticsManager', () => ({ hapticFound: vi.fn() }));
 
 import { installMemStorage, removeMemStorage } from './support/memStorage';
 import { gameState } from '../../src/core/GameState';
 import { renderSanctuaryPageBody, wireSanctuaryPage, teardownSanctuaryPage } from '../../src/ui/SanctuaryPage';
+import { housePrice } from '../../src/collection/config';
+import { BIRDS } from '../../src/collection/birds';
 
 const VIEWPORT = { width: 390, height: 700 };
 /** Pin the page's clock so accrual cannot drift the assertions. */
@@ -34,6 +38,7 @@ describe('sanctuary page', () => {
     installMemStorage();
     gameState.load();
     gameState.setBirdCountForTest('sparrow', 0);
+    for (const bird of BIRDS) gameState.setClaimedRungForTest(0, bird);
     gameState.setSanctuaryForTest({ houseTier: 0, placed: {}, pendingCoins: 0, accrualStartedAt: null });
     window.__ftbNow = NOW;
     document.body.innerHTML = '';
@@ -46,28 +51,37 @@ describe('sanctuary page', () => {
     removeMemStorage();
   });
 
-  it('offers the build sheet and shows the plot marker with no house', () => {
+  it('offers the build action, with no house and no perch yet', () => {
+    // Build/upgrade moved out of a sheet onto a persistent action bar, so the
+    // offer is on screen from the moment the page opens.
     const host = mount();
-    expect(host.querySelector('.sanctuary-plot')).not.toBeNull();
     expect(host.querySelector('.sanctuary-house')).toBeNull();
-    expect(host.querySelector('.sanctuary-sheet-title')?.textContent).toBe('Build a nest box');
+    expect(host.querySelector('.sanctuary-pedestal')).toBeNull();
+    const action = host.querySelector<HTMLButtonElement>('#sanctuary-actions .sanctuary-pill--primary');
+    expect(action?.querySelector('.sanctuary-action-verb')?.textContent).toBe('Build nest box');
+    expect(action?.querySelector('.sanctuary-action-price')?.textContent).toBe(String(housePrice(1)));
   });
 
-  it('tells the player exactly how short they are, and offers the shop instead', () => {
-    gameState.setCoinsForTest(149);
+  it('marks the action short of coins rather than hiding it', () => {
+    gameState.setCoinsForTest(housePrice(1) - 1);
     const host = mount();
-    const primary = host.querySelector<HTMLButtonElement>('.sanctuary-pill--primary');
-    expect(primary?.textContent).toBe('Need 1 more');
+    const action = host.querySelector<HTMLButtonElement>('.sanctuary-pill--primary');
+    expect(action?.classList.contains('sanctuary-action--short')).toBe(true);
+    expect(action?.getAttribute('aria-label')).toContain('not enough coins');
+    action?.click(); // a shop trip, never a build
+    expect(gameState.sanctuary.houseTier).toBe(0);
+    expect(gameState.coinBalance).toBe(housePrice(1) - 1);
   });
 
   it('builds at the price, debits the wallet and drops the house in', () => {
-    gameState.setCoinsForTest(150);
+    gameState.setCoinsForTest(housePrice(1));
     const host = mount();
-    host.querySelector<HTMLButtonElement>('.sanctuary-pill--primary')?.click();
+    const action = host.querySelector<HTMLButtonElement>('.sanctuary-pill--primary');
+    expect(action?.classList.contains('sanctuary-action--ready')).toBe(true);
+    action?.click();
     expect(gameState.sanctuary.houseTier).toBe(1);
     expect(gameState.coinBalance).toBe(0);
     expect(host.querySelector('.sanctuary-house')).not.toBeNull();
-    expect(host.querySelector('.sanctuary-plot')).toBeNull();
   });
 
   it('shows one empty perch per tier, and no bird before one is placed', () => {
@@ -83,33 +97,39 @@ describe('sanctuary page', () => {
     const host = mount();
     host.querySelector<HTMLButtonElement>('.sanctuary-pedestal')?.click();
     expect(host.querySelector('.sanctuary-sheet-title')?.textContent).toBe('Who moves in?');
-    expect(host.querySelector('.sanctuary-sheet-note')?.textContent).toContain('Find sparrows');
-    expect(host.querySelector<HTMLButtonElement>('.sanctuary-pill--primary')?.textContent).toBe('Collection');
+    // The sheet lists every bird; all locked means nothing is pickable.
+    expect(host.querySelectorAll('.sanctuary-bird')).toHaveLength(BIRDS.length);
+    expect(host.querySelectorAll('.sanctuary-bird--locked')).toHaveLength(BIRDS.length);
+    expect(host.querySelector('.sanctuary-sheet-note')?.textContent).toBe('Unlock a bird in the Collection first.');
+    expect(host.querySelector<HTMLButtonElement>('.sanctuary-sheet .sanctuary-pill--primary')?.textContent).toBe('Go to Collection');
   });
 
-  it('places the unlocked sparrow on the tapped perch', () => {
-    gameState.setBirdCountForTest('sparrow', 10);
+  it('places the claimed sparrow on the tapped perch', () => {
+    // A bird moves in once its rung is CLAIMED, not merely earned.
+    gameState.setClaimedRungForTest(1, 'sparrow');
     gameState.setSanctuaryForTest({ houseTier: 1 });
     const host = mount();
     host.querySelector<HTMLButtonElement>('.sanctuary-pedestal')?.click();
-    host.querySelector<HTMLButtonElement>('.sanctuary-pill--primary')?.click();
+    const sparrow = host.querySelector<HTMLButtonElement>('.sanctuary-bird:not(.sanctuary-bird--locked)');
+    expect(sparrow?.querySelector('.sanctuary-bird-name')?.textContent).toBe('Chirpy');
+    sparrow?.click();
     expect(gameState.sanctuary.placed).toEqual({ 0: 'sparrow' });
     expect(host.querySelectorAll('.sanctuary-pedestal--empty')).toHaveLength(0);
     expect(host.querySelector('.sanctuary-shadow')).not.toBeNull();
   });
 
-  it('dresses the housed bird in the costume the card has earned', () => {
+  it('dresses the housed bird in the costume the card has claimed', () => {
     gameState.setSanctuaryForTest({ houseTier: 1, placed: { 0: 'sparrow' } });
 
-    gameState.setBirdCountForTest('sparrow', 10);
+    gameState.setClaimedRungForTest(1, 'sparrow');
     expect(mount().querySelector<HTMLImageElement>('.sanctuary-pedestal img')?.src).toContain('sparrow-plain');
     document.body.innerHTML = '';
 
-    gameState.setBirdCountForTest('sparrow', 20);
+    gameState.setClaimedRungForTest(2, 'sparrow');
     expect(mount().querySelector<HTMLImageElement>('.sanctuary-pedestal img')?.src).toContain('sparrow-hat');
     document.body.innerHTML = '';
 
-    gameState.setBirdCountForTest('sparrow', 35);
+    gameState.setClaimedRungForTest(3, 'sparrow');
     expect(mount().querySelector<HTMLImageElement>('.sanctuary-pedestal img')?.src).toContain('sparrow-cardigan');
   });
 
@@ -132,32 +152,29 @@ describe('sanctuary page', () => {
     expect(gameState.sanctuary.pendingCoins).toBeCloseTo(0.5, 6);
   });
 
-  it('previews the next tier as a ghost when the house is tapped', () => {
+  it('offers the next tier at its own price once a house stands', () => {
     gameState.setSanctuaryForTest({ houseTier: 1 });
     const host = mount();
-    host.querySelector<HTMLButtonElement>('.sanctuary-house')?.click();
-    expect(host.querySelector('.sanctuary-sheet-title')?.textContent).toBe('Nest box · Tier 1');
-    expect(host.querySelector<HTMLImageElement>('.sanctuary-ghost')?.src).toContain('house-tier2');
+    const action = host.querySelector<HTMLButtonElement>('.sanctuary-pill--primary');
+    expect(action?.querySelector('.sanctuary-action-verb')?.textContent).toBe('Upgrade nest box');
+    expect(action?.querySelector('.sanctuary-action-price')?.textContent).toBe(String(housePrice(2)));
   });
 
-  it('says max tier at the top of the ladder and offers no purchase', () => {
+  it('offers nothing at the top of the ladder', () => {
     gameState.setSanctuaryForTest({ houseTier: 3 });
     const host = mount();
-    host.querySelector<HTMLButtonElement>('.sanctuary-house')?.click();
-    expect(host.querySelector('.sanctuary-sheet-note')?.textContent).toBe('Max tier');
+    expect(host.querySelector('#sanctuary-actions')?.innerHTML).toBe('');
     expect(host.querySelector('.sanctuary-pill--primary')).toBeNull();
-    expect(host.querySelector('.sanctuary-ghost')).toBeNull();
   });
 
   it('upgrades tier by tier and adds a perch each time', () => {
     gameState.setCoinsForTest(5_000);
     gameState.setSanctuaryForTest({ houseTier: 1 });
     const host = mount();
-    host.querySelector<HTMLButtonElement>('.sanctuary-house')?.click();
     host.querySelector<HTMLButtonElement>('.sanctuary-pill--primary')?.click();
     expect(gameState.sanctuary.houseTier).toBe(2);
     expect(host.querySelectorAll('.sanctuary-pedestal')).toHaveLength(2);
-    expect(gameState.coinBalance).toBe(5_000 - 300);
+    expect(gameState.coinBalance).toBe(5_000 - housePrice(2));
   });
 
   it('positions the house and its perches from the manifest, on screen', () => {

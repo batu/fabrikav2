@@ -123,7 +123,12 @@ describe('actual pickup audio path', () => {
     await pickup(audio);
     expect(effects.gain.value).toBe(0);
     expect(master.gain.value).toBe(0);
-    expect(sources.at(-1)!.connect).toHaveBeenCalledWith(effects);
+    // e2255983b puts a per-chirp trim gain between the source and the effects
+    // bus (Batu, 2026-09-16: chirps too loud next to the pickup), so the route
+    // is source -> chirp gain -> effects, not source -> effects.
+    const chirpGain = sources.at(-1)!.connect.mock.calls[0][0] as { gain: { value: number }; connect: ReturnType<typeof vi.fn> };
+    expect(chirpGain.gain.value).toBeCloseTo(0.125, 6);
+    expect(chirpGain.connect).toHaveBeenCalledWith(effects);
     audio.setMusicPausedForAd(false);
     expect(master.gain.value).toBe(0);
     audio.setMusicPausedForAd(false);

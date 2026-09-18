@@ -1,13 +1,33 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { vi } from 'vitest';
+
+// happy-dom has no AudioContext; wiring the page preloads the meta SFX.
+vi.mock('../../src/audio/AudioManager', () => ({
+  playCollectionClaim: vi.fn(), playFind: vi.fn(), playUITap: vi.fn(), preloadMetaSounds: vi.fn(),
+}));
+vi.mock('../../src/haptics/HapticsManager', () => ({ hapticFound: vi.fn() }));
+
 import { installMemStorage, removeMemStorage } from './support/memStorage';
 import { gameState } from '../../src/core/GameState';
 import { renderCollectionPageBody, wireCollectionPage } from '../../src/ui/CollectionPage';
+import { collectionThresholds } from '../../src/collection/config';
+import { BIRDS } from '../../src/collection/birds';
+
+const T = collectionThresholds('sparrow');
 
 function mount(): HTMLElement {
   const host = document.createElement('div');
-  host.innerHTML = renderCollectionPageBody();
+  // wireCollectionPage redraws into a `.home-page-body` DESCENDANT after a
+  // claim, so the mount mirrors the real page's wrapper rather than a bare div.
+  host.innerHTML = `<div class="home-page-body">${renderCollectionPageBody()}</div>`;
   document.body.appendChild(host);
   return host;
+}
+
+function sparrowSlide(host: HTMLElement): HTMLElement {
+  const slide = host.querySelector<HTMLElement>('.collection-slide:has(.collection-card[data-bird="sparrow"])');
+  expect(slide).not.toBeNull();
+  return slide as HTMLElement;
 }
 
 describe('collection page', () => {
@@ -15,6 +35,7 @@ describe('collection page', () => {
     installMemStorage();
     gameState.load();
     gameState.setBirdCountForTest('sparrow', 0);
+    gameState.setClaimedRungForTest(0, 'sparrow');
     document.body.innerHTML = '';
   });
 
@@ -23,92 +44,126 @@ describe('collection page', () => {
     removeMemStorage();
   });
 
-  it('renders a two-card deck with one dot per card', () => {
+  it('renders one slide per bird plus the ? card, with one dot each', () => {
+    // The deck grew from the sparrow + ? pair to all three birds + ?.
     const host = mount();
-    expect(host.querySelectorAll('.collection-slide')).toHaveLength(2);
-    expect(host.querySelectorAll('.collection-dot')).toHaveLength(2);
+    const expected = BIRDS.length + 1;
+    expect(host.querySelectorAll('.collection-slide')).toHaveLength(expected);
+    expect(host.querySelectorAll('.collection-dot')).toHaveLength(expected);
     expect(host.querySelector('.collection-dot')?.classList.contains('collection-dot--active')).toBe(true);
   });
 
   it('shows the sparrow locked, with hidden copy and a padlock, at zero', () => {
     const host = mount();
-    const card = host.querySelector<HTMLElement>('.collection-card[data-card-kind="sparrow"]');
+    const card = host.querySelector<HTMLElement>('.collection-card[data-bird="sparrow"]');
     expect(card?.dataset.cardState).toBe('silhouette');
     expect(card?.classList.contains('collection-card--locked')).toBe(true);
     expect(card?.querySelector('.collection-plaque')?.textContent).toBe('? ? ?');
-    expect(card?.querySelector('.collection-card-lock')).not.toBeNull();
-    expect(card?.querySelector('.collection-line')?.textContent).not.toContain('Loud');
+    // Hidden copy is a padlock in the panel now, not dashes on the card.
+    expect(card?.querySelector('.collection-line-lock')).not.toBeNull();
+    expect(card?.querySelector('.collection-line')).toBeNull();
   });
 
   it('shows progress towards the unlock threshold', () => {
-    gameState.setBirdCountForTest('sparrow', 6);
+    // The meter lives under the card as deck chrome; it counts inside the
+    // current rung, which for rung 1 runs from zero.
+    gameState.setBirdCountForTest('sparrow', T.unlock - 2);
     const host = mount();
-    expect(host.querySelector('.collection-progress-count')?.textContent).toBe('6 / 10');
-    expect(host.querySelector('.collection-progress-label')?.textContent).toBe('Unlock');
+    const meter = sparrowSlide(host).querySelector<HTMLElement>('.collection-meter');
+    expect(meter?.querySelector('.collection-meter-text')?.textContent).toBe(`${T.unlock - 2} / ${T.unlock}`);
+    expect(meter?.getAttribute('aria-label')).toBe('Unlock progress');
   });
 
-  it('reveals the bird, its name and its copy once unlocked', () => {
-    gameState.setBirdCountForTest('sparrow', 10);
+  it('offers the Unlock button instead of a meter once the rung is earned', () => {
+    gameState.setBirdCountForTest('sparrow', T.unlock);
     const host = mount();
-    const card = host.querySelector<HTMLElement>('.collection-card[data-card-kind="sparrow"]');
+    const slide = sparrowSlide(host);
+    expect(slide.querySelector('.collection-meter')).toBeNull();
+    expect(slide.querySelector('.collection-unlock-btn')?.getAttribute('data-claim-rung')).toBe('1');
+    // Still locked: a rung is a reward the player opens.
+    expect(slide.querySelector('.collection-card')?.classList.contains('collection-card--locked')).toBe(true);
+  });
+
+  it('reveals the bird and its name once rung 1 is claimed', () => {
+    gameState.setBirdCountForTest('sparrow', T.unlock);
+    gameState.setClaimedRungForTest(1, 'sparrow');
+    const host = mount();
+    const card = host.querySelector<HTMLElement>('.collection-card[data-bird="sparrow"]');
     expect(card?.dataset.cardState).toBe('plain');
     expect(card?.classList.contains('collection-card--locked')).toBe(false);
-    expect(card?.querySelector('.collection-plaque')?.textContent).toBe('Sparrow');
-    expect(card?.querySelector('.collection-line')?.textContent).toContain('Loud');
-    expect(card?.querySelector('.collection-card-lock')).toBeNull();
-    expect(host.querySelector('.collection-progress-label')?.textContent).toBe('Hat');
+    expect(card?.querySelector('.collection-plaque')?.textContent).toBe('Chirpy');
+    expect(card?.querySelector('.collection-line-lock')).not.toBeNull(); // copy waits for rung 2
+    expect(sparrowSlide(host).querySelector('.collection-meter')?.getAttribute('aria-label')).toBe('Hat progress');
   });
 
-  it('swaps the portrait for each costume', () => {
-    gameState.setBirdCountForTest('sparrow', 20);
-    expect(mount().querySelector<HTMLImageElement>('.collection-card-portrait')?.src).toContain('portrait-sparrow-hat');
+  it('swaps the portrait for each claimed costume', () => {
+    gameState.setBirdCountForTest('sparrow', T.hat);
+    gameState.setClaimedRungForTest(2, 'sparrow');
+    expect(mount().querySelector<HTMLImageElement>('.collection-card[data-bird="sparrow"] .collection-card-portrait')?.src)
+      .toContain('portrait-sparrow-hat');
     document.body.innerHTML = '';
-    gameState.setBirdCountForTest('sparrow', 35);
-    expect(mount().querySelector<HTMLImageElement>('.collection-card-portrait')?.src).toContain('portrait-sparrow-cardigan');
+    gameState.setBirdCountForTest('sparrow', T.cardigan);
+    gameState.setClaimedRungForTest(3, 'sparrow');
+    expect(mount().querySelector<HTMLImageElement>('.collection-card[data-bird="sparrow"] .collection-card-portrait')?.src)
+      .toContain('portrait-sparrow-cardigan');
   });
 
   it('reports the finished card as complete', () => {
-    gameState.setBirdCountForTest('sparrow', 35);
+    gameState.setBirdCountForTest('sparrow', T.cardigan);
+    gameState.setClaimedRungForTest(3, 'sparrow');
     const host = mount();
-    expect(host.querySelector('.collection-progress--done')?.textContent).toBe('Complete');
+    expect(sparrowSlide(host).querySelector('.collection-meter--done')?.textContent).toBe('Complete');
   });
 
-  it('always keeps the ? card locked with no progress bar', () => {
-    gameState.setBirdCountForTest('sparrow', 99);
+  it('always keeps the ? card locked, bare and with nothing to claim', () => {
+    gameState.setBirdCountForTest('sparrow', 999);
     const host = mount();
-    const unknown = host.querySelector<HTMLElement>('.collection-card[data-card-kind="unknown"]');
-    expect(unknown?.classList.contains('collection-card--locked')).toBe(true);
-    expect(unknown?.querySelector('.collection-progress')).toBeNull();
-    expect(unknown?.querySelector('.collection-ribbon')?.textContent).toBe('Coming soon');
+    const slide = host.querySelector<HTMLElement>('.collection-slide:has(.collection-card[data-card-kind="unknown"])');
+    expect(slide?.querySelector('.collection-card')?.classList.contains('collection-card--locked')).toBe(true);
+    expect(slide?.querySelector('.collection-unlock-btn')).toBeNull();
+    // Deliberately bare: empty arch, no species ribbon, no portrait.
+    expect(slide?.querySelector('.collection-ribbon')?.textContent).toBe('');
+    expect(slide?.querySelector('.collection-card-portrait')).toBeNull();
+    expect(slide?.querySelector('.collection-meter--empty')).not.toBeNull();
   });
 
-  it('plays the reveal flip once, then never again', () => {
-    gameState.setBirdCountForTest('sparrow', 10);
-    const first = mount();
-    wireCollectionPage(first);
-    expect(first.querySelector('.collection-card--reveal')).not.toBeNull();
-    expect(gameState.collectionMeta.plainFlipShown).toBe(true);
-
-    document.body.innerHTML = '';
-    const second = mount();
-    wireCollectionPage(second);
-    expect(second.querySelector('.collection-card--reveal')).toBeNull();
-  });
-
-  it('does not flip while the bird is still locked', () => {
-    gameState.setBirdCountForTest('sparrow', 4);
+  it('plays the reveal flip on the claim, and the rung cannot be claimed twice', () => {
+    // The flip is no longer a saved one-shot on page open: it is tied to the
+    // claim, which can only happen once per rung.
+    gameState.setBirdCountForTest('sparrow', T.unlock);
     const host = mount();
     wireCollectionPage(host);
     expect(host.querySelector('.collection-card--reveal')).toBeNull();
-    expect(gameState.collectionMeta.plainFlipShown).toBe(false);
+
+    host.querySelector<HTMLButtonElement>('.collection-unlock-btn')?.click();
+    expect(gameState.ladderOf('sparrow').claimedRung).toBe(1);
+    const card = host.querySelector<HTMLElement>('.collection-card[data-bird="sparrow"]');
+    expect(card?.classList.contains('collection-card--reveal')).toBe(true);
+
+    // Redrawn deck: rung 1 is claimed, so no Unlock button offers it again.
+    expect(host.querySelector('.collection-unlock-btn[data-claim-rung="1"]')).toBeNull();
   });
 
-  it('keeps the portrait inside a round porthole so a costume cannot spill', () => {
+  it('does not offer a flip while the bird is still short of the rung', () => {
+    gameState.setBirdCountForTest('sparrow', T.unlock - 1);
     const host = mount();
-    const porthole = host.querySelector<HTMLElement>('.collection-card-porthole');
-    expect(porthole).not.toBeNull();
-    // Geometry comes from the manifest: a 552px circle on a 1024x1536 card.
-    expect(porthole?.style.width).toBe('53.9063%');
-    expect(porthole?.style.left).toBe('20.7031%');
+    wireCollectionPage(host);
+    expect(host.querySelector('.collection-unlock-btn')).toBeNull();
+    expect(host.querySelector('.collection-card--reveal')).toBeNull();
+    expect(gameState.ladderOf('sparrow').claimedRung).toBe(0);
+  });
+
+  it('clips the portrait to the frame arch so a costume cannot spill', () => {
+    const host = mount();
+    const arch = host.querySelector<HTMLElement>('.collection-card[data-bird="sparrow"] .collection-card-arch');
+    expect(arch).not.toBeNull();
+    // Geometry comes from the sparrow frame art: a 688x643 window at 108,105
+    // on a 900x1500 canvas, with the top corners rounded to a true semicircle.
+    expect(arch?.style.left).toBe('12.0000%');
+    expect(arch?.style.top).toBe('7.0000%');
+    expect(arch?.style.width).toBe('76.4444%');
+    expect(arch?.style.height).toBe('42.8667%');
+    // happy-dom cannot round-trip the slash form, so read the inline style.
+    expect(arch?.getAttribute('style')).toContain('border-radius:50% 50% 0 0 / 53.499% 53.499% 0 0');
   });
 });

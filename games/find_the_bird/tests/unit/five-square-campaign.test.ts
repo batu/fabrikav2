@@ -3,12 +3,19 @@ import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
-// The first STARTER_COUNT levels of the checked-in runtime index are bundled in-app
+// The build's own gate, not a number invented here: the same constant the
+// native bundle step enforces.
+import { NATIVE_WEB_BUNDLE_MAX_BYTES } from '../../src/build/nativePublicBundle';
+
+// A prefix of the checked-in runtime index is bundled in-app
 // (bundled-manifest.json is the native build's copy list); the rest stream
 // from the ftb-level-origin worker. The authoring draft lineup is intentionally
 // separate and may contain quarantined levels that cannot be activated.
-const STARTER_COUNT = 5;
-const NATIVE_BUNDLE_MAX_BYTES = 100 * 1024 * 1024;
+//
+// The bundled count is read off the manifest rather than pinned: it has grown
+// from the five-starter era to whatever fits the device cap, and what actually
+// has to hold is that the bundled set IS the index's prefix, in order.
+const MIN_STARTERS = 5;
 // poststretch2 predates the 2688 canvas and is grandfathered at 4096.
 const ALLOWED_DIMS = new Set([2688, 4096]);
 
@@ -93,15 +100,16 @@ function collectAssets(value: unknown, out: Map<string, ManifestAsset>): void {
   for (const item of Object.values(record)) collectAssets(item, out);
 }
 
-describe('wave-1 campaign (5 bundled starters + streamed rest)', () => {
+describe('wave-1 campaign (bundled starters + streamed rest)', () => {
   const index = readJson<LevelIndexEntry[]>(join(levelsRoot, 'levels-index.json'));
   const bundled = readJson<{ levels: BundledLevel[] }>(join(levelsRoot, 'bundled-manifest.json'));
   const catalog = readJson<{ levels: CatalogLevel[] }>(join(levelsRoot, 'catalog-manifest.json'));
 
   it('index contains unique levels and the starter prefix IS the bundled manifest', () => {
-    expect(index.length).toBeGreaterThanOrEqual(STARTER_COUNT);
+    expect(bundled.levels.length).toBeGreaterThanOrEqual(MIN_STARTERS);
+    expect(index.length).toBeGreaterThanOrEqual(bundled.levels.length);
     expect(new Set(index.map((l) => l.id)).size).toBe(index.length);
-    const starters = index.slice(0, STARTER_COUNT).map((l) => l.id);
+    const starters = index.slice(0, bundled.levels.length).map((l) => l.id);
     expect(bundled.levels.map((level) => level.id)).toEqual(starters);
     for (const level of bundled.levels) expect(level.bundled).toBe(true);
   });
@@ -118,7 +126,7 @@ describe('wave-1 campaign (5 bundled starters + streamed rest)', () => {
       expect(createHash('sha256').update(bytes).digest('hex'), asset.path).toBe(asset.hash);
       total += bytes.byteLength;
     }
-    expect(total).toBeLessThan(NATIVE_BUNDLE_MAX_BYTES);
+    expect(total).toBeLessThan(NATIVE_WEB_BUNDLE_MAX_BYTES);
   });
 
   it('every indexed level is a complete square package in the catalog', () => {
@@ -140,6 +148,12 @@ describe('wave-1 campaign (5 bundled starters + streamed rest)', () => {
       expect(roles.has('levelJson'), id).toBe(true);
       expect(roles.has('colorImage'), id).toBe(true);
       expect([...roles].some((role) => role.startsWith('bgImage:')), id).toBe(true);
+      // KNOWN FAILURE, content not code: cozy_greenhouse_conservatory ships 8
+      // birds against the campaign's 10 floor. Every other indexed level has
+      // at least 12. Fixing it means editing public/levels (re-cut the level,
+      // or drop it from levels-index.json), which is a content decision, so the
+      // floor stays where the campaign put it rather than being lowered to fit
+      // one level. Recorded in docs/handoffs/2026-09-18-ftb-collection-sanctuary-continuation.md.
       expect([...roles].filter((role) => role.startsWith('dogSprite:')).length, id).toBeGreaterThanOrEqual(10);
 
       let requiredBytes = 0;

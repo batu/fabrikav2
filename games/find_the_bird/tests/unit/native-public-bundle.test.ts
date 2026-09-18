@@ -36,6 +36,9 @@ describe('copyNativePublicBundle', () => {
       write(publicRoot, 'levels/fallback/bg_00.webp', 'background');
       write(publicRoot, 'levels/fallback/unused-source.png', 'large-unused-source');
       write(publicRoot, 'levels/remote/color.webp', 'remote-only');
+      // Not manifest-referenced, but the bundle copies it unconditionally:
+      // without the species tags every pickup on device reads as untagged.
+      write(publicRoot, 'levels/bird-types.json', '{"sprites":{}}');
       const stalePackage = {
         complete: true,
         requiredBytes: 9999,
@@ -91,6 +94,7 @@ describe('copyNativePublicBundle', () => {
       expect(bytes).toBeGreaterThan(0);
       expect(readFileSync(join(outputRoot, 'ui/icon.png'), 'utf8')).toBe('ui');
       expect(readFileSync(join(outputRoot, 'levels/fallback/color.webp'), 'utf8')).toBe('fallback');
+      expect(readFileSync(join(outputRoot, 'levels/bird-types.json'), 'utf8')).toBe('{"sprites":{}}');
       expect(JSON.parse(readFileSync(join(outputRoot, 'levels/catalog-manifest.json'), 'utf8'))).toMatchObject({
         levels: [
           {

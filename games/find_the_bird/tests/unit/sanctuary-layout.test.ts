@@ -142,7 +142,9 @@ describe('layoutSanctuary', () => {
         const actual = layout.pedestals[index];
         expect(actual.anchor.x).toBeCloseTo(layout.house!.left + pedestal.anchor[0] * houseScale, 6);
         expect(actual.anchor.y).toBeCloseTo(layout.house!.top + pedestal.anchor[1] * houseScale, 6);
-        expect(actual.birdHeight).toBeCloseTo(pedestal.width * houseScale, 6);
+        // c31e33a35 draws birds 1.5x the perch geometry, deliberately: the
+        // perch width alone left them too small on the branch.
+        expect(actual.birdHeight).toBeCloseTo(pedestal.width * houseScale * 1.5, 6);
       });
     }
   });

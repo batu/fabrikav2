@@ -1,5 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-vi.mock('../../src/audio/AudioManager', () => ({ playUITap: vi.fn(), playFind: vi.fn(), playHint: vi.fn(), setMusicEnabled: vi.fn(), setSoundEffectsEnabled: vi.fn(), setMusicPausedForAd: vi.fn() }));
+// happy-dom has no AudioContext; both meta pages preload their SFX on wire.
+vi.mock('../../src/audio/AudioManager', () => ({
+  playUITap: vi.fn(), playFind: vi.fn(), playHint: vi.fn(), setMusicEnabled: vi.fn(),
+  setSoundEffectsEnabled: vi.fn(), setMusicPausedForAd: vi.fn(),
+  preloadMetaSounds: vi.fn(), playCollectionClaim: vi.fn(), playHouseBuild: vi.fn(), playBirdPlace: vi.fn(),
+}));
 vi.mock('../../src/haptics/HapticsManager', () => ({ hapticFound: vi.fn(), hapticWrong: vi.fn() }));
 import { installMemStorage, removeMemStorage } from './support/memStorage';
 import { gameState } from '../../src/core/GameState';
@@ -15,8 +20,14 @@ describe('meta pages keep the nav bar', () => {
   });
   afterEach(() => { closePage(); document.body.innerHTML = ''; removeMemStorage(); });
 
-  it('renders the bar inside the collection page', () => {
+  /** The bar hands its selection over on the next frame, so the lift travels
+   *  instead of appearing; a swap then rebuilds the body after its leave. */
+  const nextFrame = (): Promise<void> => new Promise((resolve) => { requestAnimationFrame(() => { resolve(); }); });
+  const afterSwap = (): Promise<void> => new Promise((resolve) => { setTimeout(resolve, 260); });
+
+  it('renders the bar inside the collection page', async () => {
     openPage('collection');
+    await nextFrame();
     const page = document.getElementById('home-page-overlay');
     expect(page).not.toBeNull();
     const nav = page?.querySelector('.home-page-nav');
@@ -75,10 +86,14 @@ describe('meta pages keep the nav bar', () => {
     expect(page.querySelector('.home-page-nav .home-claim-dot')).toBeNull();
   });
 
-  it('swaps to the sanctuary in place, keeping the bar', () => {
+  it('swaps to the sanctuary in place, keeping the bar', async () => {
     openPage('collection');
+    // Let the open's own hand-over land first; a tap in the same frame would
+    // race it and the bar would settle back on Collection.
+    await nextFrame();
     const page = document.getElementById('home-page-overlay')!;
     page.querySelector<HTMLButtonElement>('.home-page-nav #home-nav-sanctuary')?.click();
+    await afterSwap();
     expect(page.classList.contains('home-page-sanctuary')).toBe(true);
     expect(document.getElementById('home-page-title')?.textContent).toBe('Sanctuary');
     expect(page.querySelector('.home-page-nav #home-nav-sanctuary')?.classList.contains('home-nav-btn--active')).toBe(true);

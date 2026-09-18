@@ -50,36 +50,43 @@ describe('rewarded hint UI through the real wallet and ad service', () => {
     expect(analytics.resourceChanged).toHaveBeenCalledWith(expect.objectContaining({ amount: 2, item_id: 'rewarded_hint' }));
   });
 
-  it('adds +1 from the shop with existing hints without spending it or forcing an ad on normal hint use', async () => {
+  // 9df6619a3 removed the shop page's "Watch Ad +1 hint" button and its
+  // renderer; the in-level hint booster is now the only rewarded-hint surface,
+  // and it is only reachable at a zero balance. The +1-at-a-non-zero-balance
+  // offer still exists in the pure builder and is covered by the parametrised
+  // `buildHintBoosterOffers` test above; there is no UI for it to drive.
+  it('spends an existing hint on tap, with no booster and no ad', () => {
     gameState.setHintsForTest(2);
     const show = vi.spyOn(adService, 'showRewardedAd').mockResolvedValue({ granted: true });
     initHUD();
     button('hint-btn').click();
     expect(gameState.hintsRemaining).toBe(1);
     expect(show).not.toHaveBeenCalled();
+    expect(document.getElementById('hint-booster-watch-ad')).toBeNull();
     openPage('shop');
-    expect(button('shop-watch-ad-hint').textContent).toContain('+1 hint');
-    button('shop-watch-ad-hint').click();
-    await vi.waitFor(() => expect(gameState.hintsRemaining).toBe(2));
-    expect(analytics.resourceChanged).toHaveBeenCalledWith(expect.objectContaining({ amount: 1, item_id: 'rewarded_hint' }));
+    expect(document.getElementById('shop-watch-ad-hint')).toBeNull();
   });
-  it.each([[0, 2], [1, 1], [3, 1], [10, 1], [27, 1]])('shop top-up at balance %i keeps the full reward and reports its units', async (balance, amount) => {
-    gameState.setHintsForTest(balance);
+
+  it('booster top-up keeps the full reward and reports its units', async () => {
+    gameState.setHintsForTest(0);
     const useHint = vi.fn(() => { gameState.spendHint('gameplayHint'); });
     setHintCallback(useHint);
     const show = vi.spyOn(adService, 'showRewardedAd').mockResolvedValue({ granted: true });
-    openPage('shop');
-    const watch = button('shop-watch-ad-hint');
+    initHUD();
+    button('hint-btn').click();
+    const watch = button('hint-booster-watch-ad');
     expect(watch.disabled).toBe(false);
-    expect(watch.textContent).toContain(`+${amount} ${amount === 1 ? 'hint' : 'hints'}`);
+    expect(watch.textContent).toContain('+2 hints');
     watch.click();
-    await vi.waitFor(() => expect(gameState.hintsRemaining).toBe(balance + amount));
-    expect(useHint).not.toHaveBeenCalled();
+    // The booster grants the full two and spends one straight away: the player
+    // asked for a hint, so two granted leaves one banked.
+    await vi.waitFor(() => expect(gameState.hintsRemaining).toBe(1));
+    expect(useHint).toHaveBeenCalledTimes(1);
     expect(show).toHaveBeenCalledTimes(1);
     expect(gameState.rewardedHintsToday).toBe(1);
-    expect(gameState.walletSnapshot().counters.rewardedHintGrants).toBe(amount);
+    expect(gameState.walletSnapshot().counters.rewardedHintGrants).toBe(2);
     expect(analytics.resourceChanged).toHaveBeenCalledTimes(1);
-    expect(analytics.resourceChanged).toHaveBeenCalledWith(expect.objectContaining({ amount, item_id: 'rewarded_hint' }));
+    expect(analytics.resourceChanged).toHaveBeenCalledWith(expect.objectContaining({ amount: 2, item_id: 'rewarded_hint' }));
   });
 
   it.each(['cancel', 'failure'])('does not grant or consume a daily slot on %s; retry can succeed', async (outcome) => {
@@ -87,34 +94,36 @@ describe('rewarded hint UI through the real wallet and ad service', () => {
     const show = vi.spyOn(adService, 'showRewardedAd');
     if (outcome === 'cancel') show.mockResolvedValue({ granted: false });
     else show.mockRejectedValue(new Error('native show failed'));
-    openPage('shop');
-    button('shop-watch-ad-hint').click();
-    await vi.waitFor(() => expect(button('shop-watch-ad-hint').dataset.pending).toBeUndefined());
+    initHUD();
+    button('hint-btn').click();
+    button('hint-booster-watch-ad').click();
+    // The booster closes once the tap settles, however the ad ended.
+    await vi.waitFor(() => expect(document.getElementById('hint-booster-modal')).toBeNull());
     expect(gameState.hintsRemaining).toBe(0);
     expect(gameState.rewardedHintsToday).toBe(0);
     expect(analytics.resourceChanged).not.toHaveBeenCalled();
     show.mockResolvedValue({ granted: true });
-    button('shop-watch-ad-hint').click();
-    await vi.waitFor(() => expect(gameState.hintsRemaining).toBe(2));
+    // A refused ad leaves nothing granted, so the retry starts from the pill.
+    button('hint-btn').click();
+    button('hint-booster-watch-ad').click();
+    await vi.waitFor(() => expect(gameState.hintsRemaining).toBe(1));
   });
 
-  it('keeps the displayed offer across balance changes and ignores duplicate taps/reopened controls', async () => {
+  it('keeps the displayed offer across balance changes and ignores duplicate taps', async () => {
     gameState.setHintsForTest(0);
     let resolve!: (result: { granted: boolean }) => void;
     const show = vi.spyOn(adService, 'showRewardedAd').mockReturnValue(new Promise(r => { resolve = r; }));
-    openPage('shop');
-    const watch = button('shop-watch-ad-hint');
+    initHUD();
+    button('hint-btn').click();
+    const watch = button('hint-booster-watch-ad');
     expect(watch.textContent).toContain('+2 hints');
-    gameState.setHintsForTest(1); // changed after the offer, before watch
     watch.click();
     watch.dispatchEvent(new MouseEvent('click'));
-    document.getElementById('home-page-overlay')!.remove();
-    openPage('shop');
-    button('shop-watch-ad-hint').dispatchEvent(new MouseEvent('click'));
     expect(show).toHaveBeenCalledTimes(1);
-    gameState.setHintsForTest(10); // changed again while watching
+    gameState.setHintsForTest(10); // changed while watching
     resolve({ granted: true });
-    await vi.waitFor(() => expect(gameState.hintsRemaining).toBe(12));
+    // 10 + the two the offer promised, less the one the booster spends.
+    await vi.waitFor(() => expect(gameState.hintsRemaining).toBe(11));
     expect(gameState.rewardedHintsToday).toBe(1);
     expect(analytics.resourceChanged).toHaveBeenCalledTimes(1);
     expect(analytics.resourceChanged).toHaveBeenCalledWith(expect.objectContaining({ amount: 2 }));
@@ -135,11 +144,12 @@ describe('rewarded hint UI through the real wallet and ad service', () => {
   });
 
   it('rechecks ad enablement before watching a displayed offer', () => {
-    gameState.setHintsForTest(1);
+    gameState.setHintsForTest(0);
     const show = vi.spyOn(adService, 'showRewardedAd');
-    openPage('shop');
+    initHUD();
+    button('hint-btn').click();
     remoteConfigService.setValuesForTest({ hintRwEnabled: false });
-    button('shop-watch-ad-hint').click();
+    button('hint-booster-watch-ad').click();
     expect(show).not.toHaveBeenCalled();
     expect(gameState.rewardedHintsToday).toBe(0);
   });

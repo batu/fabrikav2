@@ -22,8 +22,12 @@ describe('sanctuary persistence', () => {
   afterEach(() => { removeMemStorage(); });
 
   it('starts with no house, no tenant and no pending coins', () => {
+    // Three separate one-shots live on the save: the home tile's pop
+    // (tileUnlockPopShown) and the two level-complete hand-offs, unlock and
+    // upgrade, which fb29d318a gave their own flags so each is offered once.
     expect(new GameState().sanctuary).toEqual({
-      houseTier: 0, placed: {}, accrualStartedAt: null, pendingCoins: 0, tileUnlockPopShown: false,
+      houseTier: 0, placed: {}, accrualStartedAt: null, pendingCoins: 0,
+      tileUnlockPopShown: false, unlockHandOffShown: false, upgradeHandOffShown: false,
     });
   });
 

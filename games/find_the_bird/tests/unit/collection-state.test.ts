@@ -67,16 +67,24 @@ describe('collection one-shot presentation flags', () => {
 
   it('records the tile pop and the card flip once each', () => {
     const state = new GameState();
-    expect(state.collectionMeta).toEqual({ tileUnlockPopShown: false, plainFlipShown: false });
+    // The meta record also carries the claimed/selected rung and the per-bird
+    // ladders; they start empty and are untouched by the two one-shots.
+    expect(state.collectionMeta).toEqual({
+      tileUnlockPopShown: false, plainFlipShown: false, claimedRung: 0, selectedRung: 0, ladders: {},
+    });
     state.markCollectionTileUnlockShown();
     state.markPlainFlipShown();
     const reloaded = new GameState();
-    expect(reloaded.collectionMeta).toEqual({ tileUnlockPopShown: true, plainFlipShown: true });
+    expect(reloaded.collectionMeta).toEqual({
+      tileUnlockPopShown: true, plainFlipShown: true, claimedRung: 0, selectedRung: 0, ladders: {},
+    });
   });
 
   it('treats a corrupt meta record as "nothing shown yet"', () => {
     localStorage.setItem('ftb_collection_meta', '["nope"]');
-    expect(new GameState().collectionMeta).toEqual({ tileUnlockPopShown: false, plainFlipShown: false });
+    expect(new GameState().collectionMeta).toEqual({
+      tileUnlockPopShown: false, plainFlipShown: false, claimedRung: 0, selectedRung: 0, ladders: {},
+    });
   });
 });
 
@@ -139,27 +147,44 @@ describe('card view model', () => {
     expect(card.progress).toMatchObject({ label: 'Unlock', target: 10, current: 3 });
   });
 
-  it('reveals name, copy and the plain portrait at the unlock threshold', () => {
-    const card = birdCard({ bird: 'sparrow', open: true, count: 10, thresholds: THRESHOLDS, claimed: 0, selected: 0, teaseCount: 1 });
-    expect(card.locked).toBe(false);
-    expect(card.plaque).toBe('Sparrow');
-    expect(card.ribbon).toBe('Garden bird');
-    expect(card.lines[0]).toContain('Loud');
-    expect(card.portraitSrc).toContain('portrait-sparrow-plain');
+  it('holds the card locked at the unlock threshold until the rung is claimed', () => {
+    // A rung is a reward the player opens: reaching the count makes it ready,
+    // claiming it is what reveals the bird.
+    const ready = birdCard({ bird: 'sparrow', open: true, count: 10, thresholds: THRESHOLDS, claimed: 0, selected: 0, teaseCount: 1 });
+    expect(ready.claimable).toBe(true);
+    expect(ready.locked).toBe(true);
+    expect(ready.plaque).toBe('? ? ?');
+    expect(ready.portraitSrc).toContain('silhouette');
   });
 
-  it('swaps the portrait for each costume and drops progress when complete', () => {
-    expect(birdCard({ bird: 'sparrow', open: true, count: 20, thresholds: THRESHOLDS, claimed: 0, selected: 0, teaseCount: 1 }).portraitSrc).toContain('portrait-sparrow-hat');
-    expect(birdCard({ bird: 'sparrow', open: true, count: 35, thresholds: THRESHOLDS, claimed: 0, selected: 0, teaseCount: 1 }).portraitSrc).toContain('portrait-sparrow-cardigan');
-    expect(birdCard({ bird: 'sparrow', open: true, count: 35, thresholds: THRESHOLDS, claimed: 0, selected: 0, teaseCount: 1 }).progress).toBeNull();
+  it('reveals name and the plain portrait once rung 1 is claimed, copy at rung 2', () => {
+    const card = birdCard({ bird: 'sparrow', open: true, count: 10, thresholds: THRESHOLDS, claimed: 1, selected: 0, teaseCount: 1 });
+    expect(card.locked).toBe(false);
+    expect(card.plaque).toBe('Chirpy');
+    expect(card.ribbon).toBe('House Sparrow');
+    // The personality lines are held back one more rung.
+    expect(card.lines).toEqual([HIDDEN_LINE, HIDDEN_LINE, HIDDEN_LINE]);
+    expect(card.portraitSrc).toContain('portrait-sparrow-plain');
+    const withCopy = birdCard({ bird: 'sparrow', open: true, count: 20, thresholds: THRESHOLDS, claimed: 2, selected: 0, teaseCount: 1 });
+    expect(withCopy.lines[0]).toContain('Loud');
+  });
+
+  it('swaps the portrait for each claimed costume and drops progress when complete', () => {
+    // The art follows the claimed rung, which is what `displayedRung` caps to.
+    expect(birdCard({ bird: 'sparrow', open: true, count: 20, thresholds: THRESHOLDS, claimed: 2, selected: 0, teaseCount: 1 }).portraitSrc).toContain('portrait-sparrow-hat');
+    expect(birdCard({ bird: 'sparrow', open: true, count: 35, thresholds: THRESHOLDS, claimed: 3, selected: 0, teaseCount: 1 }).portraitSrc).toContain('portrait-sparrow-cardigan');
+    expect(birdCard({ bird: 'sparrow', open: true, count: 35, thresholds: THRESHOLDS, claimed: 3, selected: 0, teaseCount: 1 }).progress).toBeNull();
   });
 
   it('describes the unknown card as a locked placeholder', () => {
+    // Deliberately bare: an empty arch, no species and no portrait, just the
+    // lock. The "coming soon" wording lives in the aria label only.
     const card = unknownCard();
     expect(card.locked).toBe(true);
-    expect(card.ribbon).toBe('Coming soon');
+    expect(card.ribbon).toBe('');
     expect(card.progress).toBeNull();
-    expect(card.portraitSrc).toContain('portrait-unknown');
+    expect(card.portraitSrc).toBe('');
+    expect(card.ariaLabel).toContain('coming soon');
   });
 
   it('builds a two-card deck in swipe order', () => {
