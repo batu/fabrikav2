@@ -900,7 +900,6 @@ export class GameState {
     return this._collectionMeta;
   }
 
-  /** One-shot: the Collection tile has played its unlock pop. */
   /** One-shot: the first launch has been spent, so every later launch opens
    *  on the home menu. Written on its own rather than through save() so the
    *  boot path does not flush an otherwise untouched save. */
@@ -914,6 +913,7 @@ export class GameState {
     }
   }
 
+  /** One-shot: the Collection tile has played its unlock pop. */
   markCollectionTileUnlockShown(): void {
     if (this._collectionMeta.tileUnlockPopShown) return;
     this._collectionMeta = { ...this._collectionMeta, tileUnlockPopShown: true };

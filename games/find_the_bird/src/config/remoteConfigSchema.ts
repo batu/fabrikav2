@@ -182,26 +182,6 @@ export const REMOTE_CONFIG_DEFAULTS: RemoteConfigValues = {
   // became buyable on L13, three levels after the Sanctuary opened, because the
   // gate moved and the price did not. 400 is the stock a player holds arriving
   // at L10, so the build lands on the level the tile opens, as it did before.
-  //   L12 sparrow card (the Collection opens at L10, empty)
-  //   L15 build the nest box (3)      L20 sparrow hat (5)
-  //   L25 tier 2, which opens the robin (5)      L32 robin card (7)
-  //   L36 sparrow costume (4)         L41 tier 3 (5)
-  //   L45 robin hat, which opens the bluebird (4)
-  //   L50 robin costume (5)           L58 bluebird card (8)
-  //   L73 bluebird hat (15)           L78 bluebird costume (5)
-  //
-  // The rungs are also capped by what a LATE opener can still find, since a
-  // species counts only from the level its card opens. At these numbers the
-  // sparrow has 210 laid down from the gate against 130 needed, the robin
-  // finishes even if its card opens as late as L45 (117 left against 100) and
-  // the bluebird as late as L60 (54 against 50). The order holds for a player
-  // who collects idle coins at any frequency and for one who buys a hint bundle
-  // every fifteen levels; the note on the prices below says what that cost.
-  //
-  // The bluebird's hat is the one gap over seven levels. It is the scarcest
-  // species that has card art, so its pace is supply-bound: fixing it properly
-  // means giving the third card a better-supplied species and regenerating its
-  // artwork, which was considered and declined.
   sparrowTeaseCount: 2,
   sparrowUnlockCount: 5,
   sparrowHatCount: 50,
