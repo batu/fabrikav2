@@ -57,6 +57,7 @@ const STORAGE_KEYS = {
   BIRD_COUNTS: 'ftb_bird_counts',
   COLLECTION_META: 'ftb_collection_meta',
   SANCTUARY: 'ftb_sanctuary',
+  FIRST_LAUNCH_DONE: 'ftb_first_launch_done',
 } as const;
 
 const CURRENT_LEVEL_ORDER_REVISION = 'bundled-v2';
@@ -758,6 +759,10 @@ export class GameState {
   };
   penaltyCooldownUntil: number = 0;
   tutorialShown: boolean = false;
+  /** False only on the very first launch of a fresh install. The boot path
+   *  reads it to drop a brand-new player straight into the first level
+   *  instead of the home menu. */
+  firstLaunchDone: boolean = false;
   tutorialHintUsed = false;
 
   /** Tutorial-only allowance: no currency grant, persisted before revealing. */
@@ -890,6 +895,19 @@ export class GameState {
   }
 
   /** One-shot: the Collection tile has played its unlock pop. */
+  /** One-shot: the first launch has been spent, so every later launch opens
+   *  on the home menu. Written on its own rather than through save() so the
+   *  boot path does not flush an otherwise untouched save. */
+  markFirstLaunchDone(): void {
+    if (this.firstLaunchDone) return;
+    this.firstLaunchDone = true;
+    try {
+      localStorage.setItem(STORAGE_KEYS.FIRST_LAUNCH_DONE, '1');
+    } catch {
+      // localStorage unavailable — silently ignore
+    }
+  }
+
   markCollectionTileUnlockShown(): void {
     if (this._collectionMeta.tileUnlockPopShown) return;
     this._collectionMeta = { ...this._collectionMeta, tileUnlockPopShown: true };
@@ -2057,6 +2075,12 @@ export class GameState {
       const persistedLevelIndex = localStorage.getItem(STORAGE_KEYS.LEVEL);
       this.levelIndexWasPersisted = persistedLevelIndex !== null;
       this.currentLevelIndex = safeParseInt(persistedLevelIndex, 0);
+
+      // An install that predates this flag but has a persisted level index is
+      // not a fresh install, so an existing player is never sent past the home
+      // menu by the upgrade.
+      this.firstLaunchDone =
+        localStorage.getItem(STORAGE_KEYS.FIRST_LAUNCH_DONE) === '1' || this.levelIndexWasPersisted;
 
       this.tutorialShown = localStorage.getItem(STORAGE_KEYS.TUTORIAL_SHOWN) === '1';
       this.tutorialHintUsed = localStorage.getItem(STORAGE_KEYS.TUTORIAL_HINT_USED) === '1';

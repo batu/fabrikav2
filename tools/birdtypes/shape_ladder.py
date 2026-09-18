@@ -48,15 +48,21 @@ PUB = os.path.abspath(os.path.join(HERE, '..', '..', 'games', 'find_the_bird', '
 # bluebird gets a protective trickle from the first level a fast player could
 # reach it, and its full rate from the level an ordinary player does.
 #
-# Earliest possible: the sparrow from level 10, the level the Collection unlocks,
-# because nothing counts before that gate for any bird; the robin from level 15, the
+# Earliest possible: the sparrow from level 5, the level the Collection unlocks,
+# because nothing counts before that gate for any bird; the robin from level 10, the
 # first level a Sanctuary can exist, since idle coins could in principle buy both
-# tiers at once; the bluebird from level 30, the soonest 80 robins can be found
-# once the robin can open at 15.
+# tiers at once; the bluebird from level 25, the soonest 80 robins can be found
+# once the robin can open at 10.
+#
+# 2026-09-19: both gates moved down five levels (Collection 10 -> 5, Sanctuary
+# 15 -> 10) so the two meta features are visible in a first session. Every
+# supply start moves with its gate, which is what "increase the sparrows"
+# amounts to here: the sparrow now has five more levels of supply before its
+# card can open, not a higher rate.
 SUPPLY = {
-    'sparrow': (((10, 5),), 210),
-    'robin': (((15, 5),), 240),
-    'bluebird': (((30, 2), (45, 6)), 150),
+    'sparrow': (((5, 5),), 210),
+    'robin': (((10, 5),), 240),
+    'bluebird': (((25, 2), (40, 6)), 150),
 }
 # Chain order, not scarcest first: the bird that opens earlier gets first pick.
 # Starving an earlier bird delays every later one, because each card is what

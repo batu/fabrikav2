@@ -20,20 +20,26 @@ function gates(levels: number, sparrows: number, shown = { collection: false, sa
 }
 
 describe('meta tile gates', () => {
+  // Both gates are ARRIVAL-based (metaGates, 2026-09-18): a tile promising
+  // "Level 5" is open when the player arrives at level 5, which is four
+  // completions, not five. These three cases were left asserting the older
+  // completion-based rule and the since-removed "sanctuary needs a bird card"
+  // rule, so they are restated against what metaGates documents.
   it('keeps both tiles locked before the collection level', () => {
-    const result = gates(4, 0);
+    const result = gates(3, 0);
     expect(result.collectionUnlocked).toBe(false);
     expect(result.sanctuaryUnlocked).toBe(false);
   });
 
-  it('opens the collection exactly at the configured level', () => {
-    expect(gates(4, 0).collectionUnlocked).toBe(false);
-    expect(gates(5, 0).collectionUnlocked).toBe(true);
+  it('opens the collection on arrival at the configured level', () => {
+    expect(gates(3, 0).collectionUnlocked).toBe(false);
+    expect(gates(4, 0).collectionUnlocked).toBe(true);
   });
 
-  it('keeps the sanctuary shut until the first bird is unlocked', () => {
-    expect(gates(5, 9).sanctuaryUnlocked).toBe(false);
-    expect(gates(5, 10).sanctuaryUnlocked).toBe(true);
+  it('opens the sanctuary on its own level, with or without a bird claimed', () => {
+    // Its gate is 5 here too, so it arrives with the Collection's.
+    expect(gates(3, 50).sanctuaryUnlocked).toBe(false);
+    expect(gates(4, 0).sanctuaryUnlocked).toBe(true);
   });
 
   it('never opens the sanctuary before the collection, however many birds', () => {

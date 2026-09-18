@@ -1,3 +1,33 @@
+  //   L6  sparrow card (the Collection opens at L5, empty)
+  //   L10 build the nest box (4), on the level the Sanctuary opens
+  //   L15 sparrow hat (5)             L23 tier 2, which opens the robin (8)
+  //   L27 robin card (4)              L35 sparrow costume (8)
+  //   L39 tier 3 (4)                  L43 robin hat, which opens the bluebird (4)
+  //   L48 robin costume (5)           L57 bluebird card (9)
+  //   L70 bluebird hat (13)           L76 bluebird costume (6)
+  //
+  // The rungs are also capped by what a LATE opener can still find, since a
+  // species counts only from the level its card opens. At these numbers the
+  // sparrow has 210 laid down from the gate against 150 needed, the robin
+  // finishes even if its card opens as late as L45 (101 left against 100) and
+  // the bluebird as late as L65 (52 against 50) — both a shade better than the
+  // 2026-09-18 numbers, because the earlier gates lay more down. The order
+  // holds for a player who collects idle coins at any frequency and for one who
+  // buys a hint bundle every fifteen levels.
+  //
+  // The sparrow's costume went 130 -> 150 to keep it behind the robin card: at
+  // 130 the extra early supply pulled it forward onto the same level, which
+  // --coverage and the order check both caught.
+  //
+  // The bluebird's hat is the one gap over seven levels. It is the scarcest
+  // species that has card art, so its pace is supply-bound: fixing it properly
+  // means giving the third card a better-supplied species and regenerating its
+  // artwork, which was considered and declined.
+  //
+  // housePriceTier1 went 500 -> 400 with these gates: at 500 the nest box
+  // became buyable on L13, three levels after the Sanctuary opened, because the
+  // gate moved and the price did not. 400 is the stock a player holds arriving
+  // at L10, so the build lands on the level the tile opens, as it did before.
 import {
   booleanField,
   numberField,
@@ -117,11 +147,13 @@ export const REMOTE_CONFIG_DEFAULTS: RemoteConfigValues = {
   // and the page itself keep working so the flag can be flipped back remotely.
   achievementsEnabled: false,
   // Collection + Sanctuary (release 1). Locked tiles advertise these two
-  // levels, so the sparrow count is tuned to be met by then: the bundled
-  // order yields 31 sparrows by level 14 (2026-09-17 count), hat and cardigan
-  // follow at roughly levels 21 and 29.
-  collectionUnlockLevel: 10,
-  sanctuaryUnlockLevel: 15,
+  // levels. 2026-09-19: both gates moved down five levels so a first session
+  // sees the meta features rather than two locked tiles, now that a fresh
+  // install boots straight into level 1 instead of the home menu. Every supply
+  // start in tools/birdtypes/shape_ladder.py moved with its gate, so the
+  // sparrow has five more levels of supply before its card can open.
+  collectionUnlockLevel: 5,
+  sanctuaryUnlockLevel: 10,
   // Below the tease count the card is fully hidden; from it the silhouette
   // and species show, so the player knows what they are collecting towards.
   // 2026-09-18 cadence pass. The two progressions take turns instead of racing:
@@ -134,10 +166,10 @@ export const REMOTE_CONFIG_DEFAULTS: RemoteConfigValues = {
   // the prices below.
   //
   // Nothing counts before the Collection unlocks, the sparrow included, so a
-  // player reaches level 10 with an empty card. That is why the sparrow's first
-  // rung is only 10: it has to be claimable within a few levels of the gate and
+  // player reaches level 5 with an empty card. That is why the sparrow's first
+  // rung is only 5: it has to be claimable within a few levels of the gate and
   // still before the nest box is built. No ladder species is laid down in levels
-  // 1 to 9 at all, since those pickups could only be thrown away.
+  // 1 to 4 at all, since those pickups could only be thrown away.
   //
   // Measured order for a player who banks their coins, by the level they are
   // ENTERING when the game offers it (both tiles are arrival-based), with the
@@ -162,10 +194,10 @@ export const REMOTE_CONFIG_DEFAULTS: RemoteConfigValues = {
   // species that has card art, so its pace is supply-bound: fixing it properly
   // means giving the third card a better-supplied species and regenerating its
   // artwork, which was considered and declined.
-  sparrowTeaseCount: 5,
-  sparrowUnlockCount: 10,
+  sparrowTeaseCount: 2,
+  sparrowUnlockCount: 5,
   sparrowHatCount: 50,
-  sparrowCardiganCount: 130,
+  sparrowCardiganCount: 150,
   robinUnlockCount: 10,
   robinHatCount: 80,
   robinCardiganCount: 100,
@@ -177,7 +209,7 @@ export const REMOTE_CONFIG_DEFAULTS: RemoteConfigValues = {
   // side by side). Prices are set by when a purchase should land rather than by
   // feel: coins arrive at 45 a level and a price is affordable once the stock
   // reaches it, so each price is the stock the player is holding on its intended
-  // level. 500 lands the build on the level the Sanctuary opens, 550 the second
+  // level. 400 lands the build on the level the Sanctuary opens, 550 the second
   // tier at L25 and 750 the third at L41, each after the previous drained it.
   //
   // Idle income is deliberately small, and that is a trade rather than an
@@ -197,7 +229,7 @@ export const REMOTE_CONFIG_DEFAULTS: RemoteConfigValues = {
   // four-hour cap with tier 3 at 750, which holds for the non-collector and for
   // anyone collecting every seventh level or less often. Switching is these
   // four lines.
-  housePriceTier1: 500,
+  housePriceTier1: 400,
   housePriceTier2: 550,
   housePriceTier3: 750,
   sanctuaryCoinsPerHourTier1: 10,
