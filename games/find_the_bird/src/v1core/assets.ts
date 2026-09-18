@@ -1,5 +1,9 @@
 import { localStorageOrNull } from '../platform/localStorage';
 
+/** Budget for the CDN manifest fetch, matching CATALOG_FETCH_TIMEOUT_MS in
+ *  data/levels.ts. This fetch gates every level load while in fallback mode. */
+const MANIFEST_FETCH_TIMEOUT_MS = 5_000;
+
 export type CohortBucketSpec = 'all' | readonly [number, number];
 
 export interface LevelAsset {
@@ -186,7 +190,22 @@ export function createManifestClient(): ManifestClient {
         return;
       }
       try {
-        const response = await fetch(cdnManifestUrl, { cache: 'no-cache' });
+        // Bounded, because this sits in front of every level load whenever the
+        // client is in fallback mode: a refused or failed manifest leaves
+        // usedFallback true, so initialize() stops early-returning and each
+        // loadLevel() pays this round trip again. A HARD failure was already
+        // handled — it throws and we fall back — but a merely SLOW origin, which
+        // is ordinary cellular, had nothing to stop it stalling the load. Same
+        // budget as the catalog fetch in data/levels.ts, and an abort lands in
+        // the catch below, which is exactly the path a network error takes.
+        const controller = new AbortController();
+        const timeoutId = globalThis.setTimeout((): void => controller.abort(), MANIFEST_FETCH_TIMEOUT_MS);
+        let response: Response;
+        try {
+          response = await fetch(cdnManifestUrl, { cache: 'no-cache', signal: controller.signal });
+        } finally {
+          globalThis.clearTimeout(timeoutId);
+        }
         const parsed = response.ok ? (await response.json()) as unknown : null;
         // O1 freshness guard: a structurally valid CDN manifest may still be
         // STALE — an origin serving an older revision than the app bundle
