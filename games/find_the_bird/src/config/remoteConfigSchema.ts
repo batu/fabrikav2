@@ -165,6 +165,14 @@ export const REMOTE_CONFIG_DEFAULTS: RemoteConfigValues = {
   // 130 the extra early supply pulled it forward onto the same level, which
   // --coverage and the order check both caught.
   //
+  // This whole analysis is about a player starting fresh. An EXISTING player
+  // upgrading into these numbers loses supply that moved behind them: at level
+  // 40 the sparrows still ahead go 55 -> 35 while the cardigan target rises to
+  // 150, and past level 50 there are none left in the rest of the game. Perfect
+  // play still finishes the card; someone who missed pickups can be stranded.
+  // Accepted rather than gating the numbers on install date (operator,
+  // 2026-09-19), because the cohort is small and the cards are cosmetic.
+  //
   // The bluebird's hat is the one gap over seven levels. It is the scarcest
   // species that has card art, so its pace is supply-bound: fixing it properly
   // means giving the third card a better-supplied species and regenerating its

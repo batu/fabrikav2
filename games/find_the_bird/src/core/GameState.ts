@@ -107,8 +107,14 @@ const LEGACY_LEVEL_REPLACEMENTS: Partial<
   mexico_yucatan_cenote_ruins_dog_0779: 'mexico_yucatan_cenote_ruins_dog_65e4',
 } as const;
 
-/** Total completions at which the rate-me prompt triggers (exactly once). */
-export const RATE_PROMPT_THRESHOLD = 5;
+/** Total completions at which the rate-me prompt triggers (exactly once).
+ *
+ *  15, so the ask lands after the player has met everything the game has:
+ *  the Collection opens on arrival at level 5 and the Sanctuary at 10, both
+ *  arrival-based (nine completions for the later one), so a prompt at fifteen
+ *  completions is clear of both. It was 5, which asked before either meta
+ *  feature existed for the player (operator, 2026-09-19). */
+export const RATE_PROMPT_THRESHOLD = 15;
 
 /** Max rewarded hints a player can earn per day. Families-policy friendly. */
 export const MAX_REWARDED_HINTS_PER_DAY = 5;

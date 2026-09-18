@@ -12,6 +12,7 @@
  */
 import { describe, expect, it } from 'vitest';
 import { REMOTE_CONFIG_DEFAULTS } from '../../src/config/remoteConfigSchema';
+import { RATE_PROMPT_THRESHOLD } from '../../src/core/GameState';
 
 describe('meta gate + ladder defaults', () => {
   it('opens the Collection at level 5 and the Sanctuary at level 10', () => {
@@ -49,5 +50,16 @@ describe('meta gate + ladder defaults', () => {
     expect(REMOTE_CONFIG_DEFAULTS.housePriceTier1).toBe(400);
     const banked = 45 * (REMOTE_CONFIG_DEFAULTS.sanctuaryUnlockLevel - 1);
     expect(REMOTE_CONFIG_DEFAULTS.housePriceTier1).toBeLessThanOrEqual(banked);
+  });
+
+  it('asks for a review only after both meta features have opened', () => {
+    // Both gates are arrival-based, so the Sanctuary's level-10 gate is nine
+    // completions. The ask must land after that, not before either feature
+    // exists for the player.
+    expect(RATE_PROMPT_THRESHOLD).toBe(15);
+    expect(RATE_PROMPT_THRESHOLD)
+      .toBeGreaterThan(REMOTE_CONFIG_DEFAULTS.sanctuaryUnlockLevel - 1);
+    expect(RATE_PROMPT_THRESHOLD)
+      .toBeGreaterThan(REMOTE_CONFIG_DEFAULTS.collectionUnlockLevel - 1);
   });
 });

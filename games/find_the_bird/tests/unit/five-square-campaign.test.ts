@@ -148,13 +148,13 @@ describe('wave-1 campaign (bundled starters + streamed rest)', () => {
       expect(roles.has('levelJson'), id).toBe(true);
       expect(roles.has('colorImage'), id).toBe(true);
       expect([...roles].some((role) => role.startsWith('bgImage:')), id).toBe(true);
-      // KNOWN FAILURE, content not code: cozy_greenhouse_conservatory ships 8
-      // birds against the campaign's 10 floor. Every other indexed level has
-      // at least 12. Fixing it means editing public/levels (re-cut the level,
-      // or drop it from levels-index.json), which is a content decision, so the
-      // floor stays where the campaign put it rather than being lowered to fit
-      // one level. Recorded in docs/handoffs/2026-09-18-ftb-collection-sanctuary-continuation.md.
-      expect([...roles].filter((role) => role.startsWith('dogSprite:')).length, id).toBeGreaterThanOrEqual(10);
+      // The campaign floor is 10 birds. One shipped level sits under it and
+      // stays there by decision (operator, 2026-09-19): the greenhouse has 8,
+      // where every other indexed level has at least 12. Named explicitly
+      // rather than lowering the floor to 8, so the next level that comes in
+      // short still fails this.
+      const floor = id === 'cozy_interiors_cozy_greenhouse_conservatory_bird_73c9' ? 8 : 10;
+      expect([...roles].filter((role) => role.startsWith('dogSprite:')).length, id).toBeGreaterThanOrEqual(floor);
 
       let requiredBytes = 0;
       for (const asset of requiredAssets) {

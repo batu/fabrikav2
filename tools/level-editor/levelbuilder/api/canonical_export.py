@@ -88,7 +88,12 @@ def _level_json(snapshot: dict[str, Any], width: int, height: int) -> dict[str, 
             "y": bird["hitbox"]["y"],
             "r": bird["hitbox"]["r"],
             "sprite": {
-                "image": f"levels/{session_id}/dogs/{bird['compatibilitySlot']}/sprite_000.png",
+                # The runtime is served the WebP derivative; the PNG master
+                # stays on disk beside it and remains what artifact-manifest
+                # records. Sprites went lossy-WebP on 2026-09-19 (25MB out of
+                # the iOS bundle); an export that wrote .png here silently
+                # reverted a level to the heavier asset.
+                "image": f"levels/{session_id}/dogs/{bird['compatibilitySlot']}/sprite_000.webp",
                 **bird["sprite"]["placement"],
                 "cleanup": {key: bird["cleanup"][key] for key in ("x", "y", "width", "height")},
                 "anchorX": bird["sprite"]["anchorX"],
@@ -180,6 +185,15 @@ def export_canonical_revision(
         for stem in ("color", "bg_00"):
             with _Image.open(staging / f"{stem}.png") as img:
                 img.convert("RGB").save(staging / f"{stem}.webp", format="WEBP", quality=90, method=6)
+        # Pickup sprites, same q90 — but RGBA, and alpha kept lossless so the
+        # cutout edge stays exactly where the hitbox geometry expects it.
+        for bird in snapshot["birds"]:
+            slot = staging / "dogs" / bird["compatibilitySlot"]
+            with _Image.open(slot / "sprite_000.png") as img:
+                img.convert("RGBA").save(
+                    slot / "sprite_000.webp",
+                    format="WEBP", quality=90, alpha_quality=100, method=6,
+                )
         (staging / "level.json").write_text(json.dumps(level, indent=2) + "\n")
         (staging / "artifact-manifest.json").write_text(json.dumps(_artifact_manifest(snapshot), indent=2) + "\n")
 
