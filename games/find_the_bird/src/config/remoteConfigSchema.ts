@@ -145,16 +145,18 @@ export const REMOTE_CONFIG_DEFAULTS: RemoteConfigValues = {
   //   L12 sparrow card (the Collection opens at L10, empty)
   //   L15 build the nest box (3)      L20 sparrow hat (5)
   //   L25 tier 2, which opens the robin (5)      L32 robin card (7)
-  //   L36 sparrow costume (4)         L39 tier 3 (3)
-  //   L43 robin hat, which opens the bluebird (4)
-  //   L50 robin costume (7)           L57 bluebird card (7)
-  //   L73 bluebird hat (16)           L78 bluebird costume (5)
+  //   L36 sparrow costume (4)         L41 tier 3 (5)
+  //   L45 robin hat, which opens the bluebird (4)
+  //   L50 robin costume (5)           L58 bluebird card (8)
+  //   L73 bluebird hat (15)           L78 bluebird costume (5)
   //
   // The rungs are also capped by what a LATE opener can still find, since a
   // species counts only from the level its card opens. At these numbers the
   // sparrow has 210 laid down from the gate against 130 needed, the robin
   // finishes even if its card opens as late as L45 (117 left against 100) and
-  // the bluebird as late as L60 (54 against 50).
+  // the bluebird as late as L60 (54 against 50). The order holds for a player
+  // who collects idle coins at any frequency and for one who buys a hint bundle
+  // every fifteen levels; the note on the prices below says what that cost.
   //
   // The bluebird's hat is the one gap over seven levels. It is the scarcest
   // species that has card art, so its pace is supply-bound: fixing it properly
@@ -165,31 +167,43 @@ export const REMOTE_CONFIG_DEFAULTS: RemoteConfigValues = {
   sparrowHatCount: 50,
   sparrowCardiganCount: 130,
   robinUnlockCount: 10,
-  robinHatCount: 70,
+  robinHatCount: 80,
   robinCardiganCount: 100,
   bluebirdUnlockCount: 20,
   bluebirdHatCount: 40,
   bluebirdCardiganCount: 50,
-  // 2026-09-18 economy pass. Idle coins used to be 3 to 10 an hour under a
-  // four-hour cap, invisible beside a level's 45, so returning was never worth
-  // it; a full cap now pays 120 at tier 1 and 480 at tier 3, which is three to
-  // ten levels of play.
-  // Prices are set by when the purchase should land, not by feel: coins arrive at
-  // 45 a level and a price is affordable once the stock reaches it, so each price
-  // is the stock the player will be holding on its intended level. 500 lands the
-  // build on the level the Sanctuary opens, 550 the second tier at L25, 650 the
-  // third at L39, each after the previous purchase drained the stock. Idle coins
-  // are a bonus on top: a player who collects a full window every ten levels
-  // reaches tier 2 around L22, which crowds the sparrow's hat. If that matters
-  // more than the idle reward, shorten the cap rather than raising this price,
-  // which would strand the player who never returns.
+  // 2026-09-18 economy pass, settled against BOTH kinds of player with
+  // tools/birdtypes/cadence_report.py (--sweep, and --compare to see the two
+  // side by side). Prices are set by when a purchase should land rather than by
+  // feel: coins arrive at 45 a level and a price is affordable once the stock
+  // reaches it, so each price is the stock the player is holding on its intended
+  // level. 500 lands the build on the level the Sanctuary opens, 550 the second
+  // tier at L25 and 750 the third at L41, each after the previous drained it.
+  //
+  // Idle income is deliberately small, and that is a trade rather than an
+  // oversight. Idle coins pull the next purchase earlier while the bird events
+  // stay where they are, and the order above puts the sparrow's costume before
+  // the third upgrade, so a generous idle reward inverts that pair. The sweep is
+  // unambiguous: at 15/30/60 an hour under a four-hour cap, 60 coins a
+  // collection at tier 1, the order breaks for anyone collecting every three to
+  // five levels, and no tier-3 price repairs it — 850 holds but squeezes the
+  // non-collector's gaps to a single level. At 10/20/40 under a two-hour cap it
+  // holds at every collection frequency tested, from every third level to never.
+  //
+  // So a full window pays 20 coins at tier 1, 40 at tier 2 and 80 at tier 3:
+  // under half a level's income at the bottom and nearly two levels at the top,
+  // which makes the top tier the one worth returning for. If the idle reward
+  // matters more than that one ordering, the alternative is 15/30/60 under a
+  // four-hour cap with tier 3 at 750, which holds for the non-collector and for
+  // anyone collecting every seventh level or less often. Switching is these
+  // four lines.
   housePriceTier1: 500,
   housePriceTier2: 550,
-  housePriceTier3: 650,
-  sanctuaryCoinsPerHourTier1: 15,
-  sanctuaryCoinsPerHourTier2: 30,
-  sanctuaryCoinsPerHourTier3: 60,
-  sanctuaryOfflineCapHours: 8,
+  housePriceTier3: 750,
+  sanctuaryCoinsPerHourTier1: 10,
+  sanctuaryCoinsPerHourTier2: 20,
+  sanctuaryCoinsPerHourTier3: 40,
+  sanctuaryOfflineCapHours: 2,
   healthBarEnabled: false,
   microAnimationsEnabled: false,
   hintRwEnabled: true,
