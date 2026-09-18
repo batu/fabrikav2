@@ -148,6 +148,13 @@ export interface CollectionMeta {
 export interface LadderMeta {
   claimedRung: number;
   selectedRung: number;
+  /**
+   * The rung the completion screen has already offered to take the player to.
+   * A ready rung is offered once, when it becomes claimable, and then the HUD
+   * pill carries the news instead — an offer repeated every level is nagging,
+   * not teaching.
+   */
+  handOffRung: number;
 }
 
 export type SanctuaryHouseTier = 0 | 1 | 2 | 3;
@@ -171,6 +178,13 @@ export interface SanctuaryState {
    * animation, which is what it used to do.
    */
   unlockHandOffShown: boolean;
+  /**
+   * The completion screen has offered the Sanctuary once because an upgrade
+   * became affordable. Separate one-shot from `unlockHandOffShown`: the two
+   * teach different things, and neither should repeat. Batu, 2026-09-18: two
+   * forced visits in the whole game, the opening and the first upgrade.
+   */
+  upgradeHandOffShown: boolean;
 }
 
 export const EMPTY_COLLECTION_META: CollectionMeta = {
@@ -188,6 +202,7 @@ export const EMPTY_SANCTUARY_STATE: SanctuaryState = {
   pendingCoins: 0,
   tileUnlockPopShown: false,
   unlockHandOffShown: false,
+  upgradeHandOffShown: false,
 };
 
 export type WalletMutationSource =
@@ -459,6 +474,7 @@ function parseLadders(value: unknown): Record<string, LadderMeta> {
     ladders[bird] = {
       claimedRung: Math.min(3, nonNegativeIntegerOrZero(record.claimedRung)),
       selectedRung: Math.min(3, nonNegativeIntegerOrZero(record.selectedRung)),
+      handOffRung: Math.min(3, nonNegativeIntegerOrZero(record.handOffRung)),
     };
   }
   return ladders;
@@ -500,6 +516,7 @@ function parseSanctuaryState(value: string | null): SanctuaryState {
     pendingCoins: nonNegativeFloatOrZero(parsed.pendingCoins),
     tileUnlockPopShown: parsed.tileUnlockPopShown === true,
     unlockHandOffShown: parsed.unlockHandOffShown === true,
+    upgradeHandOffShown: parsed.upgradeHandOffShown === true,
   };
 }
 
@@ -883,8 +900,18 @@ export class GameState {
    *  directly above the claimed one, so a stale button cannot skip a step. */
   /** A bird's ladder; the sparrow's is also mirrored in the legacy fields. */
   ladderOf(bird: string): LadderMeta {
-    if (bird === 'sparrow') return { claimedRung: this._collectionMeta.claimedRung, selectedRung: this._collectionMeta.selectedRung };
-    return this._collectionMeta.ladders[bird] ?? { claimedRung: 0, selectedRung: 0 };
+    // The sparrow's claimed and selected rungs live in the legacy fields for
+    // saves written before the other birds existed; everything else, including
+    // its hand-off marker, lives in the per-bird record like any other bird.
+    const stored = this._collectionMeta.ladders[bird];
+    if (bird === 'sparrow') {
+      return {
+        claimedRung: this._collectionMeta.claimedRung,
+        selectedRung: this._collectionMeta.selectedRung,
+        handOffRung: stored?.handOffRung ?? 0,
+      };
+    }
+    return stored ?? { claimedRung: 0, selectedRung: 0, handOffRung: 0 };
   }
 
   private writeLadder(bird: string, ladder: LadderMeta): void {
@@ -900,8 +927,16 @@ export class GameState {
     if (!Number.isSafeInteger(rung) || rung !== ladder.claimedRung + 1 || rung > 3) return false;
     // The new look is what the player just paid for: show it, whatever tab
     // they had picked before.
-    this.writeLadder(bird, { claimedRung: rung, selectedRung: rung });
+    this.writeLadder(bird, { ...ladder, claimedRung: rung, selectedRung: rung });
     return true;
+  }
+
+  /** The completion screen has offered to take the player to this bird's ready
+   *  rung; do not offer the same rung again. */
+  markClaimHandOffShown(bird: string, rung: number): void {
+    const ladder = this.ladderOf(bird);
+    if (ladder.handOffRung === rung) return;
+    this.writeLadder(bird, { ...ladder, handOffRung: rung });
   }
 
   /** Pick which claimed rung the card and the Sanctuary show. */
@@ -940,6 +975,13 @@ export class GameState {
   markSanctuaryUnlockHandOffShown(): void {
     if (this._sanctuary.unlockHandOffShown) return;
     this._sanctuary = { ...this._sanctuary, unlockHandOffShown: true };
+    this.save();
+  }
+
+  /** The completion screen has offered the first affordable upgrade; once only. */
+  markSanctuaryUpgradeHandOffShown(): void {
+    if (this._sanctuary.upgradeHandOffShown) return;
+    this._sanctuary = { ...this._sanctuary, upgradeHandOffShown: true };
     this.save();
   }
 

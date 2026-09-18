@@ -2098,7 +2098,15 @@ export class GameScene extends Phaser.Scene {
             // The hand-off spends its OWN one-shot, never the tile's pop: the
             // tile still plays its reveal when the player reaches home, which
             // this used to swallow.
+            // Each kind spends its own one-shot, so every hand-off is offered
+            // once and never returns. The hand-off replaces the next-level
+            // button rather than sitting beside it, so taking it and being
+            // offered it are the same event.
             if (handOff.kind === 'sanctuary-unlock') gameState.markSanctuaryUnlockHandOffShown();
+            if (handOff.kind === 'sanctuary-upgrade') gameState.markSanctuaryUpgradeHandOffShown();
+            if (handOff.kind === 'bird-claim' && handOff.bird !== undefined) {
+              gameState.markClaimHandOffShown(handOff.bird, handOff.rung ?? 0);
+            }
             this.scene.start('HomeScene');
             openPageWhenHomeReady(handOff.page);
             return;
