@@ -1080,7 +1080,9 @@ async function loadLevelFromEntry(id: string, entry: ManifestLevelEntry, useCach
         const blob = await fetchAssetBlob(
           spriteAsset.hash,
           spriteAsset.path,
-          'image/png',
+          // Sprites ship as WebP since 2026-09-19; the extension decides the
+          // type, so a hardcoded png here mislabels every cached sprite.
+          mimeForAssetPath(spriteAsset.path),
           entry.bundled,
           OPTIONAL_SPRITE_FETCH_TIMEOUT_MS,
         );

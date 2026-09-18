@@ -198,6 +198,10 @@ try {
     }
   });
 
+  // The profile measures the home shell, which a fresh install no longer
+  // opens on; present as a returning player so homeReadyMs stays comparable.
+  await page.addInitScript(() => window.localStorage.setItem('ftb_first_launch_done', '1'));
+
   const navigationStartedAt = performance.now();
   await page.goto(origin, { waitUntil: 'domcontentloaded', timeout: 30_000 });
   await page.waitForSelector('#home-shell', { state: 'visible', timeout: 30_000 });

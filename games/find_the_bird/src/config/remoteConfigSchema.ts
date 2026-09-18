@@ -1,33 +1,3 @@
-  //   L6  sparrow card (the Collection opens at L5, empty)
-  //   L10 build the nest box (4), on the level the Sanctuary opens
-  //   L15 sparrow hat (5)             L23 tier 2, which opens the robin (8)
-  //   L27 robin card (4)              L35 sparrow costume (8)
-  //   L39 tier 3 (4)                  L43 robin hat, which opens the bluebird (4)
-  //   L48 robin costume (5)           L57 bluebird card (9)
-  //   L70 bluebird hat (13)           L76 bluebird costume (6)
-  //
-  // The rungs are also capped by what a LATE opener can still find, since a
-  // species counts only from the level its card opens. At these numbers the
-  // sparrow has 210 laid down from the gate against 150 needed, the robin
-  // finishes even if its card opens as late as L45 (101 left against 100) and
-  // the bluebird as late as L65 (52 against 50) — both a shade better than the
-  // 2026-09-18 numbers, because the earlier gates lay more down. The order
-  // holds for a player who collects idle coins at any frequency and for one who
-  // buys a hint bundle every fifteen levels.
-  //
-  // The sparrow's costume went 130 -> 150 to keep it behind the robin card: at
-  // 130 the extra early supply pulled it forward onto the same level, which
-  // --coverage and the order check both caught.
-  //
-  // The bluebird's hat is the one gap over seven levels. It is the scarcest
-  // species that has card art, so its pace is supply-bound: fixing it properly
-  // means giving the third card a better-supplied species and regenerating its
-  // artwork, which was considered and declined.
-  //
-  // housePriceTier1 went 500 -> 400 with these gates: at 500 the nest box
-  // became buyable on L13, three levels after the Sanctuary opened, because the
-  // gate moved and the price did not. 400 is the stock a player holds arriving
-  // at L10, so the build lands on the level the tile opens, as it did before.
 import {
   booleanField,
   numberField,
@@ -174,6 +144,36 @@ export const REMOTE_CONFIG_DEFAULTS: RemoteConfigValues = {
   // Measured order for a player who banks their coins, by the level they are
   // ENTERING when the game offers it (both tiles are arrival-based), with the
   // gap in levels:
+  //   L6  sparrow card (the Collection opens at L5, empty)
+  //   L10 build the nest box (4), on the level the Sanctuary opens
+  //   L15 sparrow hat (5)             L23 tier 2, which opens the robin (8)
+  //   L27 robin card (4)              L35 sparrow costume (8)
+  //   L39 tier 3 (4)                  L43 robin hat, which opens the bluebird (4)
+  //   L48 robin costume (5)           L57 bluebird card (9)
+  //   L70 bluebird hat (13)           L76 bluebird costume (6)
+  //
+  // The rungs are also capped by what a LATE opener can still find, since a
+  // species counts only from the level its card opens. At these numbers the
+  // sparrow has 210 laid down from the gate against 150 needed, the robin
+  // finishes even if its card opens as late as L45 (101 left against 100) and
+  // the bluebird as late as L65 (52 against 50) — both a shade better than the
+  // 2026-09-18 numbers, because the earlier gates lay more down. The order
+  // holds for a player who collects idle coins at any frequency and for one who
+  // buys a hint bundle every fifteen levels.
+  //
+  // The sparrow's costume went 130 -> 150 to keep it behind the robin card: at
+  // 130 the extra early supply pulled it forward onto the same level, which
+  // --coverage and the order check both caught.
+  //
+  // The bluebird's hat is the one gap over seven levels. It is the scarcest
+  // species that has card art, so its pace is supply-bound: fixing it properly
+  // means giving the third card a better-supplied species and regenerating its
+  // artwork, which was considered and declined.
+  //
+  // housePriceTier1 went 500 -> 400 with these gates: at 500 the nest box
+  // became buyable on L13, three levels after the Sanctuary opened, because the
+  // gate moved and the price did not. 400 is the stock a player holds arriving
+  // at L10, so the build lands on the level the tile opens, as it did before.
   //   L12 sparrow card (the Collection opens at L10, empty)
   //   L15 build the nest box (3)      L20 sparrow hat (5)
   //   L25 tier 2, which opens the robin (5)      L32 robin card (7)

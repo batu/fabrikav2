@@ -1,4 +1,7 @@
 // Manual diagnostic: run with VITE_ENABLE_TEST_HARNESS=true against a dev server on a free port (5199 is often taken by another session).
+// A fresh install now boots into GameScene, so every spec that wants the home
+// menu has to present as a returning player. This seeds the one-shot flag
+// BootScene reads (GameState STORAGE_KEYS.FIRST_LAUNCH_DONE).
 import { test, expect } from "@playwright/test";
 
 type W = Window & { __FIND_DOG_GAME__?: { scene: { isActive: (k: string) => boolean } } };
@@ -8,7 +11,10 @@ test("debug auto play collects birds and advances", async ({ page }) => {
   const errors: string[] = [];
   page.on("pageerror", (e) => errors.push(String(e).slice(0, 200)));
   page.on("console", (m) => { if (m.type() === "error") errors.push(m.text().slice(0, 200)); });
-  await page.addInitScript(() => window.localStorage.clear());
+  await page.addInitScript(() => {
+    window.localStorage.clear();
+    window.localStorage.setItem("ftb_first_launch_done", "1");
+  });
   await page.goto("/");
   await expect(page.locator("#home-play-now")).toBeVisible({ timeout: 30000 });
   await page.locator("#home-play-now").click({ force: true });

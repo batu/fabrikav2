@@ -1,6 +1,9 @@
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
+// A fresh install now boots into GameScene, so every spec that wants the home
+// menu has to present as a returning player. This seeds the one-shot flag
+// BootScene reads (GameState STORAGE_KEYS.FIRST_LAUNCH_DONE).
 import { test, expect } from "@playwright/test";
 
 const NO_ADS_SHA256 = "017388ff0092d7a5453ae5163c0994d1c2341ccb63a1a9aadc180e75035c227c";
@@ -13,6 +16,7 @@ function sha256File(path: string): string {
 }
 
 test("boots the real Find the Dog shell", async ({ page }) => {
+  await page.addInitScript(() => window.localStorage.setItem("ftb_first_launch_done", "1"));
   await page.goto("/");
   await expect(page.locator("#game-container")).toBeVisible();
   await expect(page.locator("#hud-overlay")).toBeAttached();
@@ -25,7 +29,10 @@ test("boots the real Find the Dog shell", async ({ page }) => {
 });
 
 test("Play Now starts the current level from a real menu tap", async ({ page }) => {
-  await page.addInitScript(() => window.localStorage.clear());
+  await page.addInitScript(() => {
+    window.localStorage.clear();
+    window.localStorage.setItem("ftb_first_launch_done", "1");
+  });
   await page.goto("/");
   await expect(page.locator("#home-play-now")).toBeVisible({ timeout: 30000 });
 
@@ -67,7 +74,10 @@ test.describe("home menu polish regressions", () => {
     expect(manifest.assets["design/assets/play-level-button-runtime.png"].sha256).toBe(PLAY_BUTTON_SHA256);
     expect(manifest.assets["design/assets/play-level-button-runtime.png"].v1Sha256).toBe(PLAY_BUTTON_SHA256);
 
-    await page.addInitScript(() => window.localStorage.clear());
+    await page.addInitScript(() => {
+    window.localStorage.clear();
+    window.localStorage.setItem("ftb_first_launch_done", "1");
+  });
     await page.goto("/");
     await expect(page.locator("#home-shell")).toBeVisible({ timeout: 30000 });
     await page.waitForFunction(() => {
