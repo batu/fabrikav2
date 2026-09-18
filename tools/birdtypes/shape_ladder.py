@@ -48,20 +48,32 @@ PUB = os.path.abspath(os.path.join(HERE, '..', '..', 'games', 'find_the_bird', '
 # bluebird gets a protective trickle from the first level a fast player could
 # reach it, and its full rate from the level an ordinary player does.
 #
-# Earliest possible: the sparrow from level 5, the level the Collection unlocks,
-# because nothing counts before that gate for any bird; the robin from level 10, the
-# first level a Sanctuary can exist, since idle coins could in principle buy both
-# tiers at once; the bluebird from level 25, the soonest 80 robins can be found
-# once the robin can open at 10.
+# Earliest possible: the sparrow from level 2, the level the Collection unlocks,
+# because nothing counts before that gate for any bird; the robin from level 10,
+# an anti-waste bound rather than a consequence of the Sanctuary's gate; the
+# bluebird from level 25, the soonest 80 robins can be found once the robin can
+# open at 10.
 #
-# 2026-09-19: both gates moved down five levels (Collection 10 -> 5, Sanctuary
-# 15 -> 10) so the two meta features are visible in a first session. Every
-# supply start moves with its gate, which is what "increase the sparrows"
-# amounts to here: the sparrow now has five more levels of supply before its
-# card can open, not a higher rate.
+# 2026-09-19, second pass: the gates moved again (Collection 5 -> 2, Sanctuary
+# 10 -> 7) against the funnel — 80.1% of players reach one completion against
+# 43.2% who reach four. Only the SPARROW's start moved with its gate this time.
+#
+# The sparrow's start is the point of the change, not a side effect. At a start
+# of L5 and exactly 5/level the card completed on L5 whatever the gate said, so
+# shipping the gate alone would have shown a pill reading 0/5 for three levels —
+# worse than the locked tile it replaced. From L2 the player gets one level of
+# countdown and the card lands entering L3 (69.3% reach) instead of L6 (33.2%).
+#
+# The robin's start does NOT move with the Sanctuary's gate. L10 is an
+# anti-waste bound — a robin laid down before its card can open is a sprite the
+# sparrow could have used — and its card lands on L26 regardless, so nothing is
+# stranded by leaving it. Its CEILING rises 240 -> 250 because the earlier
+# sparrows take sprites the robin would have had: at 240 late-opener coverage
+# fell to L45:99 against 100 needed, a regression against main's L45:101. At 250
+# it is L45:110, better than main at every column.
 SUPPLY = {
-    'sparrow': (((5, 5),), 210),
-    'robin': (((10, 5),), 240),
+    'sparrow': (((2, 5),), 210),
+    'robin': (((10, 5),), 250),
     'bluebird': (((25, 2), (40, 6)), 150),
 }
 # Chain order, not scarcest first: the bird that opens earlier gets first pick.

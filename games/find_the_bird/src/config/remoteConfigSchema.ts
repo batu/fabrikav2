@@ -117,13 +117,31 @@ export const REMOTE_CONFIG_DEFAULTS: RemoteConfigValues = {
   // and the page itself keep working so the flag can be flipped back remotely.
   achievementsEnabled: false,
   // Collection + Sanctuary (release 1). Locked tiles advertise these two
-  // levels. 2026-09-19: both gates moved down five levels so a first session
-  // sees the meta features rather than two locked tiles, now that a fresh
-  // install boots straight into level 1 instead of the home menu. Every supply
-  // start in tools/birdtypes/shape_ladder.py moved with its gate, so the
-  // sparrow has five more levels of supply before its card can open.
-  collectionUnlockLevel: 5,
-  sanctuaryUnlockLevel: 10,
+  // levels. Both gates are ARRIVAL-based (metaGates.ts is `levels >= required
+  // - 1`), so gate N opens after N-1 completions: the Collection after one, the
+  // Sanctuary after six.
+  //
+  // 2026-09-19, set against the funnel rather than by feel. GameAnalytics game
+  // 351396, 2026-08-19 to 09-19, 241 users who started level 1: 80.1% complete
+  // at least one level, 69.3% two, 43.6% three, 33.2% five, 30.3% six, 24.5%
+  // nine. The largest cliff is two to three completions, -25.7 points.
+  //
+  // The Collection sits at the floor. BootScene sends a fresh install straight
+  // into level 1, so the home screen is not seen until one level is done, which
+  // makes gate values 0, 1 and 2 behaviourally identical; 2 is the honest
+  // spelling of that floor. It reaches 80.1% of players against 43.2% at the
+  // old gate of 5.
+  //
+  // The Sanctuary is deliberately later. Its payoff is offline coin accrual, so
+  // it only pays a player who leaves and comes back: the hook has to be
+  // installed before the departure it is meant to reverse, and there is no
+  // value in being earlier than that. Six completions reaches 30.3% (73 users)
+  // against ~48 who ever return, so it clears the audience with margin, where
+  // the old nine completions (59 users) was marginal. Not five: there the
+  // tier-1 purchase lands on L6 beside the sparrow card claim, gap 0, putting
+  // two celebrations on one screen.
+  collectionUnlockLevel: 2,
+  sanctuaryUnlockLevel: 7,
   // Below the tease count the card is fully hidden; from it the silhouette
   // and species show, so the player knows what they are collecting towards.
   // 2026-09-18 cadence pass. The two progressions take turns instead of racing:
@@ -144,22 +162,35 @@ export const REMOTE_CONFIG_DEFAULTS: RemoteConfigValues = {
   // Measured order for a player who banks their coins, by the level they are
   // ENTERING when the game offers it (both tiles are arrival-based), with the
   // gap in levels:
-  //   L6  sparrow card (the Collection opens at L5, empty)
-  //   L10 build the nest box (4), on the level the Sanctuary opens
-  //   L15 sparrow hat (5)             L23 tier 2, which opens the robin (8)
-  //   L27 robin card (4)              L35 sparrow costume (8)
-  //   L39 tier 3 (4)                  L43 robin hat, which opens the bluebird (4)
-  //   L48 robin costume (5)           L57 bluebird card (9)
-  //   L70 bluebird hat (13)           L76 bluebird costume (6)
+  //   L3  sparrow card (the Collection opens at L2, one level of countdown)
+  //   L7  build the nest box (4), on the level the Sanctuary opens
+  //   L12 sparrow hat (5)             L22 tier 2, which opens the robin (10)
+  //   L26 robin card (4)              L32 sparrow costume (6)
+  //   L41 tier 3 (9)                  L43 robin hat, which opens the bluebird (2)
+  //   L47 robin costume (4)           L57 bluebird card (10)
+  //   L70 bluebird hat (13)           L77 bluebird costume (7)
+  //
+  // Only the front of the ladder moved; everything from the robin hat onward is
+  // within a level of where it was.
+  //
+  // The sparrow's SUPPLY start moved with its gate, and that is the point of
+  // the change rather than a side effect. Supply used to begin at L5 at exactly
+  // 5 a level, so the card completed on L5 whatever the gate said — shipping
+  // the gate alone would have shown a pill reading 0/5 for three levels, which
+  // is worse than the locked tile it replaced. From L2 the player gets one
+  // level of countdown and the card lands entering L3 (69.3% reach) rather than
+  // L6 (33.2%).
   //
   // The rungs are also capped by what a LATE opener can still find, since a
   // species counts only from the level its card opens. At these numbers the
   // sparrow has 210 laid down from the gate against 150 needed, the robin
-  // finishes even if its card opens as late as L45 (101 left against 100) and
-  // the bluebird as late as L65 (52 against 50) — both a shade better than the
-  // 2026-09-18 numbers, because the earlier gates lay more down. The order
-  // holds for a player who collects idle coins at any frequency and for one who
-  // buys a hint bundle every fifteen levels.
+  // finishes even if its card opens as late as L45 (110 left against 100) and
+  // the bluebird as late as L65 (51 against 50). The robin's ceiling had to
+  // rise 240 -> 250 to get there: the earlier sparrows take sprites it would
+  // have had, which dropped it to L45:99 against 100 needed. Its START stays at
+  // L10, an anti-waste bound rather than a consequence of the Sanctuary's gate.
+  // The order holds for a player who collects idle coins every third level and
+  // for one who buys a hint bundle every fifteen.
   //
   // The sparrow's costume went 130 -> 150 to keep it behind the robin card: at
   // 130 the extra early supply pulled it forward onto the same level, which
@@ -178,10 +209,11 @@ export const REMOTE_CONFIG_DEFAULTS: RemoteConfigValues = {
   // means giving the third card a better-supplied species and regenerating its
   // artwork, which was considered and declined.
   //
-  // housePriceTier1 went 500 -> 400 with these gates: at 500 the nest box
-  // became buyable on L13, three levels after the Sanctuary opened, because the
-  // gate moved and the price did not. 400 is the stock a player holds arriving
-  // at L10, so the build lands on the level the tile opens, as it did before.
+  // The prices follow the gates by the ladder's standing rule: the first build
+  // lands on the level the tile opens. Stock on arrival at L7 is 6 x 45 = 270,
+  // so tier 1 is 270 (was 400 for an L10 gate). Tiers 2 and 3 rise to 650 and
+  // 850 to hold the documented event order once tier 1 got cheaper; 950 for
+  // tier 3 was tried and breaks the ideal line.
   sparrowTeaseCount: 2,
   sparrowUnlockCount: 5,
   sparrowHatCount: 50,
@@ -217,9 +249,9 @@ export const REMOTE_CONFIG_DEFAULTS: RemoteConfigValues = {
   // four-hour cap with tier 3 at 750, which holds for the non-collector and for
   // anyone collecting every seventh level or less often. Switching is these
   // four lines.
-  housePriceTier1: 400,
-  housePriceTier2: 550,
-  housePriceTier3: 750,
+  housePriceTier1: 270,
+  housePriceTier2: 650,
+  housePriceTier3: 850,
   sanctuaryCoinsPerHourTier1: 10,
   sanctuaryCoinsPerHourTier2: 20,
   sanctuaryCoinsPerHourTier3: 40,
